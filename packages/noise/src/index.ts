@@ -58,13 +58,9 @@ const generate4DNoise = (seed: string | number) => {
 	return noise;
 };
 
-/**
- * @description Creates 2D noise.
- * @see [Documentation](https://www.remotion.dev/docs/noise/noise-2d)
- * @param {string | number} seed Seed value for deterministic results
- * @param {number} x First dimensional value
- * @param {number} y Second dimensional value
- * @returns {number} Between -1 and 1
+/*
+ * @description Generates and fetches a cached 2D noise function based on the given seed, to produce procedural noise using a simplex algorithm.
+ * @see [Documentation](https://remotion.dev/docs/noise/noise-2d)
  */
 export const noise2D = (
 	seed: string | number,

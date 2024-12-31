@@ -46,6 +46,14 @@ const findSlug = (split) => {
 	return slug;
 };
 
+const findNoAi = (split) => {
+	const slugSearch = split.find((s) => s.startsWith('no_ai: true'));
+	if (slugSearch) {
+		return true;
+	}
+	return false;
+};
+
 const findCrumb = (split) => {
 	const crumb = split
 		.find((s) => s.startsWith('crumb: '))
@@ -84,6 +92,7 @@ for (const page of pages) {
 	const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
 	const title = findTitle(split);
 	const slug = findSlug(split);
+	const noAi = findNoAi(split);
 	const crumb = findCrumb(split);
 
 	const relativePath = page
@@ -95,6 +104,7 @@ for (const page of pages) {
 		relativePath
 			.replaceAll(path.posix.sep, '-')
 			.replace(/.md$/, '')
+			.replace(/^\//, '')
 			.replace(/.mdx$/, '');
 	data.push({
 		id,
@@ -102,12 +112,14 @@ for (const page of pages) {
 		relativePath,
 		compId,
 		crumb,
-		slug:
+		noAi,
+		slug: (
 			slug ??
 			relativePath
 				.replace(/^docs\//, '')
 				.replace(/.md$/, '')
-				.replace(/.mdx$/, ''),
+				.replace(/.mdx$/, '')
+		).replace(/^\//, ''),
 	});
 }
 

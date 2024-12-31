@@ -29,23 +29,20 @@ for (const api of apis) {
 	const sourceContents = await Bun.file(file).text();
 	console.log(`Article ${api.title} contains source code`);
 
-	const reply =
-		task === 'generate-jsdoc'
-			? await generateJSDocTask({
-					contents,
-					link: api.link,
-					openai,
-					sourceContents,
-					filePath: file,
-					title: api.title,
-				})
-			: await findMistakes({
-					sourceContents,
-					openai,
-					contents,
-				});
+	task === 'generate-jsdoc'
+		? await generateJSDocTask({
+				contents,
+				link: api.link,
+				openai,
+				sourceContents,
+				filePath: file,
+				title: api.title,
+			})
+		: await findMistakes({
+				sourceContents,
+				openai,
+				contents,
+			});
 
 	await Bun.write(flag, 'txt');
-	if (reply !== 'OK') {
-	}
 }

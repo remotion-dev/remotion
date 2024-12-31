@@ -18,6 +18,9 @@ const getSourceCodeLink = async (filePath: string) => {
 	if (contents.includes('Source code for this documentation')) {
 		return null;
 	}
+	if (contents.includes('Source code for this SDK')) {
+		return null;
+	}
 	const url = match[1];
 	const p = url.replace(
 		'https://github.com/remotion-dev/remotion/blob/main/',
@@ -39,6 +42,9 @@ const arr: Api[] = [];
 
 export const getApis = async () => {
 	for (const article of articles) {
+		if (article.noAi) {
+			continue;
+		}
 		const filePath = path.join(
 			path.join(process.cwd(), '..', 'docs', article.relativePath),
 		);

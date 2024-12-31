@@ -247,9 +247,9 @@ export const internalOpenBrowser = async ({
 	return browserInstance;
 };
 
-/**
+/*
  * @description Opens a Chrome or Chromium browser instance.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
+ * @see [Documentation](https://remotion.dev/docs/renderer/open-browser)
  */
 export const openBrowser = (
 	browser: Browser,

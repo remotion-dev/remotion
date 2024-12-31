@@ -245,12 +245,9 @@ export const internalGetCompositions = wrapWithErrorHandling(
 	internalGetCompositionsRaw,
 );
 
-/**
+/*
  * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://remotion.dev/docs/get-compositions)
- * @param serveUrlOrWebpackUrl URL pointing to the Remotion Bundle.
- * @param {GetCompositionsOptions} [config] Optional configurations for getting composition details.
- * @returns {Promise<VideoConfig[]>} Returns a promise that resolves to an array of available compositions.
+ * @see [Documentation](https://remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,

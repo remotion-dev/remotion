@@ -280,10 +280,10 @@ export const internalRenderMediaOnCloudrun = wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 
-/** @description Triggers a render on a Cloud Run service using a specified Remotion project. It requires configuration such as the region, service URL, the composition to render, and optional parameters like input properties and codecs.
- * @see [Documentation](https://remotion.dev/docs/rendermediaoncloudrun)
- * @param {RenderMediaOnCloudrunInput} params - The input parameters for rendering, including Cloud Run URL or service name, region, serve URL, composition, codec, and optional properties like inputProps, privacy settings, and output formatting.
- * @returns {Promise<RenderMediaOnCloudrunOutput | CloudRunCrashResponse>} A promise that resolves to the output of the rendering process or a crash report.*/
+/*
+ * @description Initiates a media rendering process on the Remotion Cloud Run service, facilitating configurations like service region, project composition, and output settings.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/rendermediaoncloudrun)
+ */
 export const renderMediaOnCloudrun = ({
 	cloudRunUrl,
 	serviceName,

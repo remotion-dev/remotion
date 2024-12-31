@@ -16,6 +16,20 @@ export const generateJSDocTask = async ({
 	title: string;
 	filePath: string;
 }) => {
+	if (title.startsWith('npx remotion')) {
+		return;
+	}
+	const hasJsDocComment = addJsDocComment({
+		checkIfHasJsDocComment: true,
+		comment: '/***shouldnotapply***/',
+		documentTitle: title,
+		sourceCode: sourceContents,
+	});
+	if (hasJsDocComment === 'true') {
+		console.log('already has JSDoc comment');
+		return 'OK';
+	}
+
 	const stream = await openai.chat.completions.create({
 		model: 'gpt-4-turbo',
 		messages: [
@@ -66,6 +80,7 @@ export const generateJSDocTask = async ({
 		documentTitle: title,
 		sourceCode: sourceContents,
 		comment: reply,
+		checkIfHasJsDocComment: false,
 	});
 	await Bun.write(filePath, newDocument);
 

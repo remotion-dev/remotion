@@ -5,6 +5,7 @@ export const articles = [
 		relativePath: 'docs/2-0-migration.mdx',
 		compId: 'articles-docs-2-0-migration',
 		crumb: 'Version Upgrade',
+		noAi: false,
 		slug: '2-0-migration',
 	},
 	{
@@ -13,6 +14,7 @@ export const articles = [
 		relativePath: 'docs/3-0-migration.mdx',
 		compId: 'articles-docs-3-0-migration',
 		crumb: 'Version Upgrade',
+		noAi: false,
 		slug: '3-0-migration',
 	},
 	{
@@ -21,6 +23,7 @@ export const articles = [
 		relativePath: 'docs/4-0-alpha.mdx',
 		compId: 'articles-docs-4-0-alpha',
 		crumb: 'Version Upgrade',
+		noAi: false,
 		slug: '4-0-alpha',
 	},
 	{
@@ -29,6 +32,7 @@ export const articles = [
 		relativePath: 'docs/4-0-migration.mdx',
 		compId: 'articles-docs-4-0-migration',
 		crumb: 'Version Upgrade',
+		noAi: false,
 		slug: '4-0-migration',
 	},
 	{
@@ -37,6 +41,7 @@ export const articles = [
 		relativePath: 'docs/5-0-migration.mdx',
 		compId: 'articles-docs-5-0-migration',
 		crumb: 'Version Upgrade',
+		noAi: false,
 		slug: '5-0-migration',
 	},
 	{
@@ -45,6 +50,7 @@ export const articles = [
 		relativePath: 'docs/absolute-fill.mdx',
 		compId: 'articles-docs-absolute-fill',
 		crumb: 'API',
+		noAi: false,
 		slug: 'absolute-fill',
 	},
 	{
@@ -53,6 +59,7 @@ export const articles = [
 		relativePath: 'docs/acknowledgements.mdx',
 		compId: 'articles-docs-acknowledgements',
 		crumb: 'Credits',
+		noAi: false,
 		slug: 'acknowledgements',
 	},
 	{
@@ -61,6 +68,7 @@ export const articles = [
 		relativePath: 'docs/after-effects.mdx',
 		compId: 'articles-docs-after-effects',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'after-effects',
 	},
 	{
@@ -69,6 +77,7 @@ export const articles = [
 		relativePath: 'docs/angular.mdx',
 		compId: 'articles-docs-angular',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'angular',
 	},
 	{
@@ -77,7 +86,8 @@ export const articles = [
 		relativePath: 'docs/animated-emoji/animated-emoji.mdx',
 		compId: 'articles-docs-animated-emoji-animated-emoji',
 		crumb: '@remotion/animated-emoji',
-		slug: '/animated-emoji/animated-emoji',
+		noAi: false,
+		slug: 'animated-emoji/animated-emoji',
 	},
 	{
 		id: 'get-available-emoji',
@@ -85,7 +95,8 @@ export const articles = [
 		relativePath: 'docs/animated-emoji/get-available-emoji.mdx',
 		compId: 'articles-docs-animated-emoji-get-available-emoji',
 		crumb: '@remotion/animated-emoji',
-		slug: '/animated-emoji/get-available-emoji',
+		noAi: false,
+		slug: 'animated-emoji/get-available-emoji',
 	},
 	{
 		id: 'animated-emoji/index',
@@ -93,6 +104,7 @@ export const articles = [
 		relativePath: 'docs/animated-emoji/index.mdx',
 		compId: 'articles-docs-animated-emoji-index',
 		crumb: null,
+		noAi: false,
 		slug: 'animated-emoji/index',
 	},
 	{
@@ -101,6 +113,7 @@ export const articles = [
 		relativePath: 'docs/animating-properties.mdx',
 		compId: 'articles-docs-animating-properties',
 		crumb: 'The basics',
+		noAi: false,
 		slug: 'animating-properties',
 	},
 	{
@@ -109,6 +122,7 @@ export const articles = [
 		relativePath: 'docs/animation-math.mdx',
 		compId: 'articles-docs-animation-math',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'animation-math',
 	},
 	{
@@ -117,6 +131,7 @@ export const articles = [
 		relativePath: 'docs/animation-utils/index.mdx',
 		compId: 'articles-docs-animation-utils-index',
 		crumb: null,
+		noAi: false,
 		slug: 'animation-utils/index',
 	},
 	{
@@ -125,6 +140,7 @@ export const articles = [
 		relativePath: 'docs/animation-utils/interpolate-styles.mdx',
 		compId: 'articles-docs-animation-utils-interpolate-styles',
 		crumb: '@remotion/animation-utils',
+		noAi: false,
 		slug: 'animation-utils/interpolate-styles',
 	},
 	{
@@ -133,6 +149,7 @@ export const articles = [
 		relativePath: 'docs/animation-utils/make-transform.mdx',
 		compId: 'articles-docs-animation-utils-make-transform',
 		crumb: '@remotion/animation-utils',
+		noAi: false,
 		slug: 'animation-utils/make-transform',
 	},
 	{
@@ -141,6 +158,7 @@ export const articles = [
 		relativePath: 'docs/api.mdx',
 		compId: 'articles-docs-api',
 		crumb: null,
+		noAi: false,
 		slug: 'api',
 	},
 	{
@@ -149,6 +167,7 @@ export const articles = [
 		relativePath: 'docs/artifact.mdx',
 		compId: 'articles-docs-artifact',
 		crumb: 'API',
+		noAi: false,
 		slug: 'artifact',
 	},
 	{
@@ -157,6 +176,7 @@ export const articles = [
 		relativePath: 'docs/artifacts.mdx',
 		compId: 'articles-docs-artifacts',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'artifacts',
 	},
 	{
@@ -165,6 +185,7 @@ export const articles = [
 		relativePath: 'docs/ask-for-help.mdx',
 		compId: 'articles-docs-ask-for-help',
 		crumb: null,
+		noAi: false,
 		slug: 'ask-for-help',
 	},
 	{
@@ -173,6 +194,7 @@ export const articles = [
 		relativePath: 'docs/audio-visualization.mdx',
 		compId: 'articles-docs-audio-visualization',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'audio-visualization',
 	},
 	{
@@ -181,6 +203,7 @@ export const articles = [
 		relativePath: 'docs/audio.mdx',
 		compId: 'articles-docs-audio',
 		crumb: 'How to',
+		noAi: false,
 		slug: 'audio',
 	},
 	{
@@ -189,6 +212,7 @@ export const articles = [
 		relativePath: 'docs/audiobuffertodataurl.mdx',
 		compId: 'articles-docs-audiobuffertodataurl',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'audiobuffertodataurl',
 	},
 	{
@@ -197,6 +221,7 @@ export const articles = [
 		relativePath: 'docs/brownfield-installation.mdx',
 		compId: 'articles-docs-brownfield-installation',
 		crumb: 'Brownfield integration',
+		noAi: false,
 		slug: 'brownfield-installation',
 	},
 	{
@@ -205,6 +230,7 @@ export const articles = [
 		relativePath: 'docs/buffer-state.mdx',
 		compId: 'articles-docs-buffer-state',
 		crumb: 'Building video apps',
+		noAi: false,
 		slug: 'buffer-state',
 	},
 	{
@@ -213,6 +239,7 @@ export const articles = [
 		relativePath: 'docs/building-a-timeline.mdx',
 		compId: 'articles-docs-building-a-timeline',
 		crumb: 'Building video apps',
+		noAi: false,
 		slug: 'building-a-timeline',
 	},
 	{
@@ -221,6 +248,7 @@ export const articles = [
 		relativePath: 'docs/bun.mdx',
 		compId: 'articles-docs-bun',
 		crumb: 'bun bun bun bun bun',
+		noAi: false,
 		slug: 'bun',
 	},
 	{
@@ -229,6 +257,7 @@ export const articles = [
 		relativePath: 'docs/bundle.mdx',
 		compId: 'articles-docs-bundle',
 		crumb: '@remotion/bundler',
+		noAi: false,
 		slug: 'bundle',
 	},
 	{
@@ -237,6 +266,7 @@ export const articles = [
 		relativePath: 'docs/bundler.mdx',
 		compId: 'articles-docs-bundler',
 		crumb: null,
+		noAi: false,
 		slug: 'bundler',
 	},
 	{
@@ -245,6 +275,7 @@ export const articles = [
 		relativePath: 'docs/calculate-metadata.mdx',
 		compId: 'articles-docs-calculate-metadata',
 		crumb: 'API',
+		noAi: false,
 		slug: 'calculate-metadata',
 	},
 	{
@@ -253,6 +284,7 @@ export const articles = [
 		relativePath: 'docs/cancel-render.mdx',
 		compId: 'articles-docs-cancel-render',
 		crumb: 'How to',
+		noAi: false,
 		slug: 'cancel-render',
 	},
 	{
@@ -261,6 +293,7 @@ export const articles = [
 		relativePath: 'docs/captions/caption.mdx',
 		compId: 'articles-docs-captions-caption',
 		crumb: '@remotion/captions',
+		noAi: true,
 		slug: 'captions/caption',
 	},
 	{
@@ -269,6 +302,7 @@ export const articles = [
 		relativePath: 'docs/captions/create-tiktok-style-captions.mdx',
 		compId: 'articles-docs-captions-create-tiktok-style-captions',
 		crumb: '@remotion/captions',
+		noAi: false,
 		slug: 'captions/create-tiktok-style-captions',
 	},
 	{
@@ -277,6 +311,7 @@ export const articles = [
 		relativePath: 'docs/captions/ensure-max-characters-per-line.mdx',
 		compId: 'articles-docs-captions-ensure-max-characters-per-line',
 		crumb: '@remotion/captions',
+		noAi: false,
 		slug: 'captions/ensure-max-characters-per-line',
 	},
 	{
@@ -285,6 +320,7 @@ export const articles = [
 		relativePath: 'docs/captions/index.mdx',
 		compId: 'articles-docs-captions-index',
 		crumb: 'Subtitle videos',
+		noAi: false,
 		slug: 'captions/index',
 	},
 	{
@@ -293,6 +329,7 @@ export const articles = [
 		relativePath: 'docs/captions/parse-srt.mdx',
 		compId: 'articles-docs-captions-parse-srt',
 		crumb: '@remotion/captions',
+		noAi: false,
 		slug: 'captions/parse-srt',
 	},
 	{
@@ -301,6 +338,7 @@ export const articles = [
 		relativePath: 'docs/captions/serialize-srt.mdx',
 		compId: 'articles-docs-captions-serialize-srt',
 		crumb: '@remotion/captions',
+		noAi: false,
 		slug: 'captions/serialize-srt',
 	},
 	{
@@ -309,6 +347,7 @@ export const articles = [
 		relativePath: 'docs/chromium-flags.mdx',
 		compId: 'articles-docs-chromium-flags',
 		crumb: 'Tweaks',
+		noAi: false,
 		slug: 'chromium-flags',
 	},
 	{
@@ -317,6 +356,7 @@ export const articles = [
 		relativePath: 'docs/cli/benchmark.mdx',
 		compId: 'articles-docs-cli-benchmark',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/benchmark',
 	},
 	{
@@ -325,6 +365,7 @@ export const articles = [
 		relativePath: 'docs/cli/browser/ensure.mdx',
 		compId: 'articles-docs-cli-browser-ensure',
 		crumb: '@remotion/cli',
+		noAi: false,
 		slug: 'cli/browser/ensure',
 	},
 	{
@@ -333,6 +374,7 @@ export const articles = [
 		relativePath: 'docs/cli/browser/index.mdx',
 		compId: 'articles-docs-cli-browser-index',
 		crumb: '@remotion/cli',
+		noAi: false,
 		slug: 'cli/browser/index',
 	},
 	{
@@ -341,6 +383,7 @@ export const articles = [
 		relativePath: 'docs/cli/bundle.mdx',
 		compId: 'articles-docs-cli-bundle',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/bundle',
 	},
 	{
@@ -349,6 +392,7 @@ export const articles = [
 		relativePath: 'docs/cli/cli.mdx',
 		compId: 'articles-docs-cli-cli',
 		crumb: null,
+		noAi: false,
 		slug: 'cli/cli',
 	},
 	{
@@ -357,6 +401,7 @@ export const articles = [
 		relativePath: 'docs/cli/compositions.mdx',
 		compId: 'articles-docs-cli-compositions',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/compositions',
 	},
 	{
@@ -365,6 +410,7 @@ export const articles = [
 		relativePath: 'docs/cli/ffmpeg.mdx',
 		compId: 'articles-docs-cli-ffmpeg',
 		crumb: '@remotion/cli',
+		noAi: false,
 		slug: 'cli/ffmpeg',
 	},
 	{
@@ -373,6 +419,7 @@ export const articles = [
 		relativePath: 'docs/cli/ffprobe.mdx',
 		compId: 'articles-docs-cli-ffprobe',
 		crumb: '@remotion/cli',
+		noAi: false,
 		slug: 'cli/ffprobe',
 	},
 	{
@@ -381,6 +428,7 @@ export const articles = [
 		relativePath: 'docs/cli/gpu.mdx',
 		compId: 'articles-docs-cli-gpu',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/gpu',
 	},
 	{
@@ -389,6 +437,7 @@ export const articles = [
 		relativePath: 'docs/cli/help.mdx',
 		compId: 'articles-docs-cli-help',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/help',
 	},
 	{
@@ -397,6 +446,7 @@ export const articles = [
 		relativePath: 'docs/cli/install.mdx',
 		compId: 'articles-docs-cli-install',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/install',
 	},
 	{
@@ -405,6 +455,7 @@ export const articles = [
 		relativePath: 'docs/cli/render.mdx',
 		compId: 'articles-docs-cli-render',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/render',
 	},
 	{
@@ -413,6 +464,7 @@ export const articles = [
 		relativePath: 'docs/cli/still.mdx',
 		compId: 'articles-docs-cli-still',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/still',
 	},
 	{
@@ -421,6 +473,7 @@ export const articles = [
 		relativePath: 'docs/cli/studio.mdx',
 		compId: 'articles-docs-cli-studio',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/studio',
 	},
 	{
@@ -429,6 +482,7 @@ export const articles = [
 		relativePath: 'docs/cli/upgrade.mdx',
 		compId: 'articles-docs-cli-upgrade',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/upgrade',
 	},
 	{
@@ -437,6 +491,7 @@ export const articles = [
 		relativePath: 'docs/cli/versions.mdx',
 		compId: 'articles-docs-cli-versions',
 		crumb: 'CLI Reference',
+		noAi: false,
 		slug: 'cli/versions',
 	},
 	{
@@ -445,6 +500,7 @@ export const articles = [
 		relativePath: 'docs/clipper.mdx',
 		compId: 'articles-docs-clipper',
 		crumb: 'Experimental API',
+		noAi: false,
 		slug: 'clipper',
 	},
 	{
@@ -453,6 +509,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/api.mdx',
 		compId: 'articles-docs-cloudrun-api',
 		crumb: 'Render videos without servers on GCP',
+		noAi: false,
 		slug: 'cloudrun/api',
 	},
 	{
@@ -461,7 +518,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/checklist.mdx',
 		compId: 'articles-docs-cloudrun-checklist',
 		crumb: 'Cloud Run',
-		slug: '/cloudrun/checklist',
+		noAi: false,
+		slug: 'cloudrun/checklist',
 	},
 	{
 		id: 'permissions',
@@ -469,7 +527,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli/permissions.mdx',
 		compId: 'articles-docs-cloudrun-cli-permissions',
 		crumb: 'Cloud Run CLI Reference',
-		slug: '/cloudrun/cli/permissions',
+		noAi: false,
+		slug: 'cloudrun/cli/permissions',
 	},
 	{
 		id: 'regions',
@@ -477,6 +536,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli/regions.mdx',
 		compId: 'articles-docs-cloudrun-cli-regions',
 		crumb: 'Cloud Run CLI Reference',
+		noAi: false,
 		slug: 'cloudrun/cli/regions',
 	},
 	{
@@ -485,7 +545,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli/render.mdx',
 		compId: 'articles-docs-cloudrun-cli-render',
 		crumb: 'Cloud Run CLI Reference',
-		slug: '/cloudrun/cli/render',
+		noAi: false,
+		slug: 'cloudrun/cli/render',
 	},
 	{
 		id: 'services',
@@ -493,7 +554,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli/services.mdx',
 		compId: 'articles-docs-cloudrun-cli-services',
 		crumb: 'Cloud Run CLI Reference',
-		slug: '/cloudrun/cli/services',
+		noAi: false,
+		slug: 'cloudrun/cli/services',
 	},
 	{
 		id: 'sites',
@@ -501,7 +563,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli/sites.mdx',
 		compId: 'articles-docs-cloudrun-cli-sites',
 		crumb: 'Cloud Run CLI Reference',
-		slug: '/cloudrun/cli/sites',
+		noAi: false,
+		slug: 'cloudrun/cli/sites',
 	},
 	{
 		id: 'still',
@@ -509,7 +572,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli/still.mdx',
 		compId: 'articles-docs-cloudrun-cli-still',
 		crumb: 'Cloud Run CLI Reference',
-		slug: '/cloudrun/cli/still',
+		noAi: false,
+		slug: 'cloudrun/cli/still',
 	},
 	{
 		id: 'cli',
@@ -517,7 +581,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/cli.mdx',
 		compId: 'articles-docs-cloudrun-cli',
 		crumb: null,
-		slug: '/cloudrun/cli',
+		noAi: false,
+		slug: 'cloudrun/cli',
 	},
 	{
 		id: 'deleteservice',
@@ -525,7 +590,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/deleteservice.mdx',
 		compId: 'articles-docs-cloudrun-deleteservice',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/deleteservice',
+		noAi: false,
+		slug: 'cloudrun/deleteservice',
 	},
 	{
 		id: 'deletesite',
@@ -533,7 +599,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/deletesite.mdx',
 		compId: 'articles-docs-cloudrun-deletesite',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/deletesite',
+		noAi: false,
+		slug: 'cloudrun/deletesite',
 	},
 	{
 		id: 'deployservice',
@@ -541,7 +608,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/deployservice.mdx',
 		compId: 'articles-docs-cloudrun-deployservice',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/deployservice',
+		noAi: false,
+		slug: 'cloudrun/deployservice',
 	},
 	{
 		id: 'deploysite',
@@ -549,7 +617,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/deploysite.mdx',
 		compId: 'articles-docs-cloudrun-deploysite',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/deploysite',
+		noAi: false,
+		slug: 'cloudrun/deploysite',
 	},
 	{
 		id: 'generate-env',
@@ -557,6 +626,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/generate-env.mdx',
 		compId: 'articles-docs-cloudrun-generate-env',
 		crumb: 'Cloud Run',
+		noAi: false,
 		slug: 'cloudrun/generate-env',
 	},
 	{
@@ -565,7 +635,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/getServiceinfo.mdx',
 		compId: 'articles-docs-cloudrun-getServiceinfo',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/getserviceinfo',
+		noAi: false,
+		slug: 'cloudrun/getserviceinfo',
 	},
 	{
 		id: 'getorcreatebucket',
@@ -573,7 +644,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/getorcreatebucket.mdx',
 		compId: 'articles-docs-cloudrun-getorcreatebucket',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/getorcreatebucket',
+		noAi: false,
+		slug: 'cloudrun/getorcreatebucket',
 	},
 	{
 		id: 'getregions',
@@ -581,6 +653,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/getregions.mdx',
 		compId: 'articles-docs-cloudrun-getregions',
 		crumb: 'Cloud Run API',
+		noAi: false,
 		slug: 'cloudrun/getregions',
 	},
 	{
@@ -589,7 +662,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/getservices.mdx',
 		compId: 'articles-docs-cloudrun-getservices',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/getservices',
+		noAi: false,
+		slug: 'cloudrun/getservices',
 	},
 	{
 		id: 'getsites',
@@ -597,7 +671,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/getsites.mdx',
 		compId: 'articles-docs-cloudrun-getsites',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/getsites',
+		noAi: false,
+		slug: 'cloudrun/getsites',
 	},
 	{
 		id: 'instancecount',
@@ -605,7 +680,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/instancecount.mdx',
 		compId: 'articles-docs-cloudrun-instancecount',
 		crumb: 'Cloud Run',
-		slug: '/cloudrun/instancecount',
+		noAi: false,
+		slug: 'cloudrun/instancecount',
 	},
 	{
 		id: 'cloudrun/light-client',
@@ -613,6 +689,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/light-client.mdx',
 		compId: 'articles-docs-cloudrun-light-client',
 		crumb: 'Cloud Run',
+		noAi: false,
 		slug: 'cloudrun/light-client',
 	},
 	{
@@ -621,7 +698,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/limits.mdx',
 		compId: 'articles-docs-cloudrun-limits',
 		crumb: 'Cloud Run',
-		slug: '/cloudrun/limits',
+		noAi: false,
+		slug: 'cloudrun/limits',
 	},
 	{
 		id: 'cloudrun/multiple-buckets',
@@ -629,7 +707,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/multiple-buckets.mdx',
 		compId: 'articles-docs-cloudrun-multiple-buckets',
 		crumb: '@remotion/cloudrun',
-		slug: '/cloudrun/multiple-buckets',
+		noAi: false,
+		slug: 'cloudrun/multiple-buckets',
 	},
 	{
 		id: 'cloudrun/permissions',
@@ -637,6 +716,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/permissions.mdx',
 		compId: 'articles-docs-cloudrun-permissions',
 		crumb: 'Cloud Run',
+		noAi: false,
 		slug: 'cloudrun/permissions',
 	},
 	{
@@ -645,7 +725,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/region-selection.mdx',
 		compId: 'articles-docs-cloudrun-region-selection',
 		crumb: 'Cloud Run',
-		slug: '/cloudrun/region-selection',
+		noAi: false,
+		slug: 'cloudrun/region-selection',
 	},
 	{
 		id: 'rendermediaoncloudrun',
@@ -653,6 +734,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/rendermediaoncloudrun.mdx',
 		compId: 'articles-docs-cloudrun-rendermediaoncloudrun',
 		crumb: 'Cloud Run API',
+		noAi: false,
 		slug: 'cloudrun/rendermediaoncloudrun',
 	},
 	{
@@ -661,6 +743,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun/renderstilloncloudrun.mdx',
 		compId: 'articles-docs-cloudrun-renderstilloncloudrun',
 		crumb: 'Cloud Run API',
+		noAi: false,
 		slug: 'cloudrun/renderstilloncloudrun',
 	},
 	{
@@ -669,7 +752,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/setup.mdx',
 		compId: 'articles-docs-cloudrun-setup',
 		crumb: 'Cloud Run',
-		slug: '/cloudrun/setup',
+		noAi: false,
+		slug: 'cloudrun/setup',
 	},
 	{
 		id: 'speculateservicename',
@@ -677,7 +761,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/speculateservicename.mdx',
 		compId: 'articles-docs-cloudrun-speculateservicename',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/speculateservicename',
+		noAi: false,
+		slug: 'cloudrun/speculateservicename',
 	},
 	{
 		id: 'testpermissions',
@@ -685,7 +770,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/testpermissions.mdx',
 		compId: 'articles-docs-cloudrun-testpermissions',
 		crumb: 'Cloud Run API',
-		slug: '/cloudrun/testpermissions',
+		noAi: false,
+		slug: 'cloudrun/testpermissions',
 	},
 	{
 		id: 'uninstall',
@@ -693,7 +779,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/uninstall.mdx',
 		compId: 'articles-docs-cloudrun-uninstall',
 		crumb: null,
-		slug: '/cloudrun/uninstall',
+		noAi: false,
+		slug: 'cloudrun/uninstall',
 	},
 	{
 		id: 'upgrading',
@@ -701,7 +788,8 @@ export const articles = [
 		relativePath: 'docs/cloudrun/upgrading.mdx',
 		compId: 'articles-docs-cloudrun-upgrading',
 		crumb: null,
-		slug: '/cloudrun/upgrading',
+		noAi: false,
+		slug: 'cloudrun/upgrading',
 	},
 	{
 		id: 'cloudrun-alpha',
@@ -709,6 +797,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun-alpha.mdx',
 		compId: 'articles-docs-cloudrun-alpha',
 		crumb: 'Version Upgrade',
+		noAi: false,
 		slug: 'cloudrun-alpha',
 	},
 	{
@@ -717,6 +806,7 @@ export const articles = [
 		relativePath: 'docs/cloudrun.mdx',
 		compId: 'articles-docs-cloudrun',
 		crumb: null,
+		noAi: false,
 		slug: 'cloudrun',
 	},
 	{
@@ -725,6 +815,7 @@ export const articles = [
 		relativePath: 'docs/compare/motion-canvas.mdx',
 		compId: 'articles-docs-compare-motion-canvas',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'compare/motion-canvas',
 	},
 	{
@@ -733,6 +824,7 @@ export const articles = [
 		relativePath: 'docs/compare.mdx',
 		compId: 'articles-docs-compare',
 		crumb: 'Compare',
+		noAi: false,
 		slug: 'compare',
 	},
 	{
@@ -741,6 +833,7 @@ export const articles = [
 		relativePath: 'docs/composition.mdx',
 		compId: 'articles-docs-composition',
 		crumb: 'API',
+		noAi: false,
 		slug: 'composition',
 	},
 	{
@@ -749,6 +842,7 @@ export const articles = [
 		relativePath: 'docs/config.mdx',
 		compId: 'articles-docs-config',
 		crumb: 'remotion.config.ts',
+		noAi: false,
 		slug: 'config',
 	},
 	{
@@ -757,6 +851,7 @@ export const articles = [
 		relativePath: 'docs/continue-render.mdx',
 		compId: 'articles-docs-continue-render',
 		crumb: 'API',
+		noAi: false,
 		slug: 'continue-render',
 	},
 	{
@@ -765,6 +860,7 @@ export const articles = [
 		relativePath: 'docs/contributing/bounty.mdx',
 		compId: 'articles-docs-contributing-bounty',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/bounty',
 	},
 	{
@@ -773,6 +869,7 @@ export const articles = [
 		relativePath: 'docs/contributing/docs.mdx',
 		compId: 'articles-docs-contributing-docs',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/docs',
 	},
 	{
@@ -781,6 +878,7 @@ export const articles = [
 		relativePath: 'docs/contributing/feature.mdx',
 		compId: 'articles-docs-contributing-feature',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/feature',
 	},
 	{
@@ -789,6 +887,7 @@ export const articles = [
 		relativePath: 'docs/contributing/formatting.mdx',
 		compId: 'articles-docs-contributing-formatting',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/formatting',
 	},
 	{
@@ -797,6 +896,7 @@ export const articles = [
 		relativePath: 'docs/contributing/index.mdx',
 		compId: 'articles-docs-contributing-index',
 		crumb: 'How to be awesome',
+		noAi: false,
 		slug: 'contributing/index',
 	},
 	{
@@ -805,6 +905,7 @@ export const articles = [
 		relativePath: 'docs/contributing/ineligible.mdx',
 		compId: 'articles-docs-contributing-ineligible',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/ineligible',
 	},
 	{
@@ -813,6 +914,7 @@ export const articles = [
 		relativePath: 'docs/contributing/option.mdx',
 		compId: 'articles-docs-contributing-option',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/option',
 	},
 	{
@@ -821,6 +923,7 @@ export const articles = [
 		relativePath: 'docs/contributing/presentation.mdx',
 		compId: 'articles-docs-contributing-presentation',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/presentation',
 	},
 	{
@@ -829,6 +932,7 @@ export const articles = [
 		relativePath: 'docs/contributing/rust.mdx',
 		compId: 'articles-docs-contributing-rust',
 		crumb: 'Contributing',
+		noAi: false,
 		slug: 'contributing/rust',
 	},
 	{
@@ -837,6 +941,7 @@ export const articles = [
 		relativePath: 'docs/creating-a-library.mdx',
 		compId: 'articles-docs-creating-a-library',
 		crumb: 'How to',
+		noAi: false,
 		slug: 'creating-a-library',
 	},
 	{
@@ -845,6 +950,7 @@ export const articles = [
 		relativePath: 'docs/data-fetching.mdx',
 		compId: 'articles-docs-data-fetching',
 		crumb: 'How to',
+		noAi: false,
 		slug: 'data-fetching',
 	},
 	{
@@ -853,6 +959,7 @@ export const articles = [
 		relativePath: 'docs/dataset-render.mdx',
 		compId: 'articles-docs-dataset-render',
 		crumb: 'Tutorials',
+		noAi: false,
 		slug: 'dataset-render',
 	},
 	{
@@ -861,6 +968,7 @@ export const articles = [
 		relativePath: 'docs/delay-render.mdx',
 		compId: 'articles-docs-delay-render',
 		crumb: 'How to',
+		noAi: false,
 		slug: 'delay-render',
 	},
 	{
@@ -869,6 +977,7 @@ export const articles = [
 		relativePath: 'docs/deno.mdx',
 		compId: 'articles-docs-deno',
 		crumb: 'Runtime support',
+		noAi: false,
 		slug: 'deno',
 	},
 	{
@@ -877,6 +986,7 @@ export const articles = [
 		relativePath: 'docs/docker.mdx',
 		compId: 'articles-docs-docker',
 		crumb: 'Building video apps',
+		noAi: false,
 		slug: 'docker',
 	},
 	{
@@ -885,6 +995,7 @@ export const articles = [
 		relativePath: 'docs/dynamic-import.mdx',
 		compId: 'articles-docs-dynamic-import',
 		crumb: 'Knowledge Base',
+		noAi: false,
 		slug: 'dynamic-import',
 	},
 	{
@@ -893,6 +1004,7 @@ export const articles = [
 		relativePath: 'docs/dynamic-metadata.mdx',
 		compId: 'articles-docs-dynamic-metadata',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'dynamic-metadata',
 	},
 	{
@@ -901,6 +1013,7 @@ export const articles = [
 		relativePath: 'docs/easing.mdx',
 		compId: 'articles-docs-easing',
 		crumb: 'API',
+		noAi: false,
 		slug: 'easing',
 	},
 	{
@@ -909,7 +1022,8 @@ export const articles = [
 		relativePath: 'docs/enable-scss/enable-scss.mdx',
 		compId: 'articles-docs-enable-scss-enable-scss',
 		crumb: '@remotion/enable-scss',
-		slug: '/enable-scss/enable-scss',
+		noAi: false,
+		slug: 'enable-scss/enable-scss',
 	},
 	{
 		id: 'enable-scss/overview',
@@ -917,6 +1031,7 @@ export const articles = [
 		relativePath: 'docs/enable-scss/overview.mdx',
 		compId: 'articles-docs-enable-scss-overview',
 		crumb: null,
+		noAi: false,
 		slug: 'enable-scss/overview',
 	},
 	{
@@ -925,6 +1040,7 @@ export const articles = [
 		relativePath: 'docs/enametoolong.mdx',
 		compId: 'articles-docs-enametoolong',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'enametoolong',
 	},
 	{
@@ -933,6 +1049,7 @@ export const articles = [
 		relativePath: 'docs/encoding.mdx',
 		compId: 'articles-docs-encoding',
 		crumb: 'Codecs and more',
+		noAi: false,
 		slug: 'encoding',
 	},
 	{
@@ -941,6 +1058,7 @@ export const articles = [
 		relativePath: 'docs/env-variables.mdx',
 		compId: 'articles-docs-env-variables',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'env-variables',
 	},
 	{
@@ -949,6 +1067,7 @@ export const articles = [
 		relativePath: 'docs/ffmpeg.mdx',
 		compId: 'articles-docs-ffmpeg',
 		crumb: "(you don't have to)",
+		noAi: false,
 		slug: 'ffmpeg',
 	},
 	{
@@ -957,6 +1076,7 @@ export const articles = [
 		relativePath: 'docs/figma.mdx',
 		compId: 'articles-docs-figma',
 		crumb: 'The best of both',
+		noAi: false,
 		slug: 'figma',
 	},
 	{
@@ -965,6 +1085,7 @@ export const articles = [
 		relativePath: 'docs/flickering.mdx',
 		compId: 'articles-docs-flickering',
 		crumb: 'How to avoid',
+		noAi: false,
 		slug: 'flickering',
 	},
 	{
@@ -973,6 +1094,7 @@ export const articles = [
 		relativePath: 'docs/folder.mdx',
 		compId: 'articles-docs-folder',
 		crumb: 'API',
+		noAi: false,
 		slug: 'folder',
 	},
 	{
@@ -981,6 +1103,7 @@ export const articles = [
 		relativePath: 'docs/font-picker.mdx',
 		compId: 'articles-docs-font-picker',
 		crumb: 'Building video apps',
+		noAi: false,
 		slug: 'font-picker',
 	},
 	{
@@ -989,6 +1112,7 @@ export const articles = [
 		relativePath: 'docs/fonts-api/index.mdx',
 		compId: 'articles-docs-fonts-api-index',
 		crumb: null,
+		noAi: false,
 		slug: 'fonts-api/index',
 	},
 	{
@@ -997,6 +1121,7 @@ export const articles = [
 		relativePath: 'docs/fonts-api/load-font.mdx',
 		compId: 'articles-docs-fonts-api-load-font',
 		crumb: '@remotion/fonts',
+		noAi: false,
 		slug: 'fonts-api/load-font',
 	},
 	{
@@ -1005,6 +1130,7 @@ export const articles = [
 		relativePath: 'docs/fonts.mdx',
 		compId: 'articles-docs-fonts',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'fonts',
 	},
 	{
@@ -1013,6 +1139,7 @@ export const articles = [
 		relativePath: 'docs/freeze.mdx',
 		compId: 'articles-docs-freeze',
 		crumb: 'API',
+		noAi: false,
 		slug: 'freeze',
 	},
 	{
@@ -1021,6 +1148,7 @@ export const articles = [
 		relativePath: 'docs/get-audio-data.mdx',
 		compId: 'articles-docs-get-audio-data',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'get-audio-data',
 	},
 	{
@@ -1029,6 +1157,7 @@ export const articles = [
 		relativePath: 'docs/get-audio-duration-in-seconds.mdx',
 		compId: 'articles-docs-get-audio-duration-in-seconds',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'get-audio-duration-in-seconds',
 	},
 	{
@@ -1037,6 +1166,7 @@ export const articles = [
 		relativePath: 'docs/get-image-dimensions.mdx',
 		compId: 'articles-docs-get-image-dimensions',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'get-image-dimensions',
 	},
 	{
@@ -1045,6 +1175,7 @@ export const articles = [
 		relativePath: 'docs/get-input-props.mdx',
 		compId: 'articles-docs-get-input-props',
 		crumb: 'API',
+		noAi: false,
 		slug: 'get-input-props',
 	},
 	{
@@ -1053,6 +1184,7 @@ export const articles = [
 		relativePath: 'docs/get-remotion-environment.mdx',
 		compId: 'articles-docs-get-remotion-environment',
 		crumb: 'API',
+		noAi: false,
 		slug: 'get-remotion-environment',
 	},
 	{
@@ -1061,6 +1193,7 @@ export const articles = [
 		relativePath: 'docs/get-static-files.mdx',
 		compId: 'articles-docs-get-static-files',
 		crumb: 'API',
+		noAi: false,
 		slug: 'get-static-files',
 	},
 	{
@@ -1069,6 +1202,7 @@ export const articles = [
 		relativePath: 'docs/get-video-metadata.mdx',
 		compId: 'articles-docs-get-video-metadata',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'get-video-metadata',
 	},
 	{
@@ -1077,6 +1211,7 @@ export const articles = [
 		relativePath: 'docs/get-waveform-portion.mdx',
 		compId: 'articles-docs-get-waveform-portion',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'get-waveform-portion',
 	},
 	{
@@ -1085,7 +1220,8 @@ export const articles = [
 		relativePath: 'docs/getting-started.mdx',
 		compId: 'articles-docs-getting-started',
 		crumb: "Let's begin!",
-		slug: '/',
+		noAi: false,
+		slug: '',
 	},
 	{
 		id: 'get-gif-duration-in-seconds',
@@ -1093,6 +1229,7 @@ export const articles = [
 		relativePath: 'docs/gif/get-gif-duration-in-seconds.mdx',
 		compId: 'articles-docs-gif-get-gif-duration-in-seconds',
 		crumb: '@remotion/gif',
+		noAi: false,
 		slug: 'gif/get-gif-duration-in-seconds',
 	},
 	{
@@ -1101,6 +1238,7 @@ export const articles = [
 		relativePath: 'docs/gif/gif.mdx',
 		compId: 'articles-docs-gif-gif',
 		crumb: '@remotion/gif',
+		noAi: false,
 		slug: 'gif',
 	},
 	{
@@ -1109,6 +1247,7 @@ export const articles = [
 		relativePath: 'docs/gif/index.mdx',
 		compId: 'articles-docs-gif-index',
 		crumb: null,
+		noAi: false,
 		slug: 'gif/index',
 	},
 	{
@@ -1117,6 +1256,7 @@ export const articles = [
 		relativePath: 'docs/gif/preload-gif.mdx',
 		compId: 'articles-docs-gif-preload-gif',
 		crumb: '@remotion/gif',
+		noAi: false,
 		slug: 'gif/preload-gif',
 	},
 	{
@@ -1125,6 +1265,7 @@ export const articles = [
 		relativePath: 'docs/google-fonts/get-available-fonts.mdx',
 		compId: 'articles-docs-google-fonts-get-available-fonts',
 		crumb: '@remotion/google-fonts',
+		noAi: false,
 		slug: 'google-fonts/get-available-fonts',
 	},
 	{
@@ -1133,6 +1274,7 @@ export const articles = [
 		relativePath: 'docs/google-fonts/get-info.mdx',
 		compId: 'articles-docs-google-fonts-get-info',
 		crumb: '@remotion/google-fonts',
+		noAi: false,
 		slug: 'google-fonts/get-info',
 	},
 	{
@@ -1141,6 +1283,7 @@ export const articles = [
 		relativePath: 'docs/google-fonts/index.mdx',
 		compId: 'articles-docs-google-fonts-index',
 		crumb: null,
+		noAi: false,
 		slug: 'google-fonts/index',
 	},
 	{
@@ -1149,6 +1292,7 @@ export const articles = [
 		relativePath: 'docs/google-fonts/load-font.mdx',
 		compId: 'articles-docs-google-fonts-load-font',
 		crumb: '@remotion/google-fonts',
+		noAi: false,
 		slug: 'google-fonts/load-font',
 	},
 	{
@@ -1157,6 +1301,7 @@ export const articles = [
 		relativePath: 'docs/gpu.mdx',
 		compId: 'articles-docs-gpu',
 		crumb: 'Need for Speed',
+		noAi: false,
 		slug: 'gpu',
 	},
 	{
@@ -1165,6 +1310,7 @@ export const articles = [
 		relativePath: 'docs/hardware-acceleration.mdx',
 		compId: 'articles-docs-hardware-acceleration',
 		crumb: 'Rendering',
+		noAi: false,
 		slug: 'hardware-acceleration',
 	},
 	{
@@ -1173,6 +1319,7 @@ export const articles = [
 		relativePath: 'docs/how-props-flow.mdx',
 		compId: 'articles-docs-how-props-flow',
 		crumb: 'Parameterized videos',
+		noAi: false,
 		slug: 'how-props-flow',
 	},
 	{
@@ -1181,6 +1328,7 @@ export const articles = [
 		relativePath: 'docs/iframe.mdx',
 		compId: 'articles-docs-iframe',
 		crumb: 'API',
+		noAi: false,
 		slug: 'iframe',
 	},
 	{
@@ -1189,6 +1337,7 @@ export const articles = [
 		relativePath: 'docs/img.mdx',
 		compId: 'articles-docs-img',
 		crumb: 'API',
+		noAi: false,
 		slug: 'img',
 	},
 	{
@@ -1197,6 +1346,7 @@ export const articles = [
 		relativePath: 'docs/importing-assets.mdx',
 		compId: 'articles-docs-importing-assets',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'importing-assets',
 	},
 	{
@@ -1205,6 +1355,7 @@ export const articles = [
 		relativePath: 'docs/install-whisper-cpp/convert-to-captions.mdx',
 		compId: 'articles-docs-install-whisper-cpp-convert-to-captions',
 		crumb: '@remotion/install-whisper-cpp',
+		noAi: false,
 		slug: 'install-whisper-cpp/convert-to-captions',
 	},
 	{
@@ -1213,6 +1364,7 @@ export const articles = [
 		relativePath: 'docs/install-whisper-cpp/download-whisper-model.mdx',
 		compId: 'articles-docs-install-whisper-cpp-download-whisper-model',
 		crumb: '@remotion/install-whisper-cpp',
+		noAi: false,
 		slug: 'install-whisper-cpp/download-whisper-model',
 	},
 	{
@@ -1221,6 +1373,7 @@ export const articles = [
 		relativePath: 'docs/install-whisper-cpp/index.mdx',
 		compId: 'articles-docs-install-whisper-cpp-index',
 		crumb: 'Transcribe audio locally',
+		noAi: false,
 		slug: 'install-whisper-cpp/index',
 	},
 	{
@@ -1229,6 +1382,7 @@ export const articles = [
 		relativePath: 'docs/install-whisper-cpp/install-whisper-cpp.mdx',
 		compId: 'articles-docs-install-whisper-cpp-install-whisper-cpp',
 		crumb: '@remotion/install-whisper-cpp',
+		noAi: false,
 		slug: 'install-whisper-cpp',
 	},
 	{
@@ -1237,6 +1391,7 @@ export const articles = [
 		relativePath: 'docs/install-whisper-cpp/to-captions.mdx',
 		compId: 'articles-docs-install-whisper-cpp-to-captions',
 		crumb: '@remotion/install-whisper-cpp',
+		noAi: false,
 		slug: 'install-whisper-cpp/to-captions',
 	},
 	{
@@ -1245,6 +1400,7 @@ export const articles = [
 		relativePath: 'docs/install-whisper-cpp/transcribe.mdx',
 		compId: 'articles-docs-install-whisper-cpp-transcribe',
 		crumb: '@remotion/install-whisper-cpp',
+		noAi: false,
 		slug: 'install-whisper-cpp/transcribe',
 	},
 	{
@@ -1253,6 +1409,7 @@ export const articles = [
 		relativePath: 'docs/interpolate-colors.mdx',
 		compId: 'articles-docs-interpolate-colors',
 		crumb: 'API',
+		noAi: false,
 		slug: 'interpolate-colors',
 	},
 	{
@@ -1261,6 +1418,7 @@ export const articles = [
 		relativePath: 'docs/interpolate.mdx',
 		compId: 'articles-docs-interpolate',
 		crumb: 'API',
+		noAi: false,
 		slug: 'interpolate',
 	},
 	{
@@ -1269,6 +1427,7 @@ export const articles = [
 		relativePath: 'docs/jsx-support.mdx',
 		compId: 'articles-docs-jsx-support',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'jsx-support',
 	},
 	{
@@ -1277,6 +1436,7 @@ export const articles = [
 		relativePath: 'docs/lambda/api.mdx',
 		compId: 'articles-docs-lambda-api',
 		crumb: 'Render videos without servers on AWS',
+		noAi: false,
 		slug: 'lambda/api',
 	},
 	{
@@ -1285,6 +1445,7 @@ export const articles = [
 		relativePath: 'docs/lambda/authentication.mdx',
 		compId: 'articles-docs-lambda-authentication',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/authentication',
 	},
 	{
@@ -1293,7 +1454,8 @@ export const articles = [
 		relativePath: 'docs/lambda/autodelete.mdx',
 		compId: 'articles-docs-lambda-autodelete',
 		crumb: 'Lambda API',
-		slug: '/lambda/autodelete',
+		noAi: false,
+		slug: 'lambda/autodelete',
 	},
 	{
 		id: 'lambda/bucket-naming',
@@ -1301,7 +1463,8 @@ export const articles = [
 		relativePath: 'docs/lambda/bucket-naming.mdx',
 		compId: 'articles-docs-lambda-bucket-naming',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/bucket-naming',
+		noAi: false,
+		slug: 'lambda/bucket-naming',
 	},
 	{
 		id: 'changelog',
@@ -1309,7 +1472,8 @@ export const articles = [
 		relativePath: 'docs/lambda/changelog.mdx',
 		compId: 'articles-docs-lambda-changelog',
 		crumb: null,
-		slug: '/lambda/changelog',
+		noAi: false,
+		slug: 'lambda/changelog',
 	},
 	{
 		id: 'checklist',
@@ -1317,7 +1481,8 @@ export const articles = [
 		relativePath: 'docs/lambda/checklist.mdx',
 		compId: 'articles-docs-lambda-checklist',
 		crumb: 'Lambda',
-		slug: '/lambda/checklist',
+		noAi: false,
+		slug: 'lambda/checklist',
 	},
 	{
 		id: 'lambda/cli/compositions',
@@ -1325,6 +1490,7 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/compositions.mdx',
 		compId: 'articles-docs-lambda-cli-compositions',
 		crumb: 'Lambda CLI Reference',
+		noAi: false,
 		slug: 'lambda/cli/compositions',
 	},
 	{
@@ -1333,7 +1499,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/functions.mdx',
 		compId: 'articles-docs-lambda-cli-functions',
 		crumb: 'Lambda CLI Reference',
-		slug: '/lambda/cli/functions',
+		noAi: false,
+		slug: 'lambda/cli/functions',
 	},
 	{
 		id: 'policies',
@@ -1341,7 +1508,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/policies.mdx',
 		compId: 'articles-docs-lambda-cli-policies',
 		crumb: 'Lambda CLI Reference',
-		slug: '/lambda/cli/policies',
+		noAi: false,
+		slug: 'lambda/cli/policies',
 	},
 	{
 		id: 'quotas',
@@ -1349,7 +1517,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/quotas.mdx',
 		compId: 'articles-docs-lambda-cli-quotas',
 		crumb: 'Lambda CLI Reference',
-		slug: '/lambda/cli/quotas',
+		noAi: false,
+		slug: 'lambda/cli/quotas',
 	},
 	{
 		id: 'regions',
@@ -1357,6 +1526,7 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/regions.mdx',
 		compId: 'articles-docs-lambda-cli-regions',
 		crumb: 'Lambda CLI Reference',
+		noAi: false,
 		slug: 'lambda/cli/regions',
 	},
 	{
@@ -1365,7 +1535,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/render.mdx',
 		compId: 'articles-docs-lambda-cli-render',
 		crumb: 'Lambda CLI Reference',
-		slug: '/lambda/cli/render',
+		noAi: false,
+		slug: 'lambda/cli/render',
 	},
 	{
 		id: 'sites',
@@ -1373,7 +1544,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/sites.mdx',
 		compId: 'articles-docs-lambda-cli-sites',
 		crumb: 'Lambda CLI Reference',
-		slug: '/lambda/cli/sites',
+		noAi: false,
+		slug: 'lambda/cli/sites',
 	},
 	{
 		id: 'still',
@@ -1381,7 +1553,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli/still.mdx',
 		compId: 'articles-docs-lambda-cli-still',
 		crumb: 'Lambda CLI Reference',
-		slug: '/lambda/cli/still',
+		noAi: false,
+		slug: 'lambda/cli/still',
 	},
 	{
 		id: 'cli',
@@ -1389,7 +1562,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cli.mdx',
 		compId: 'articles-docs-lambda-cli',
 		crumb: null,
-		slug: '/lambda/cli',
+		noAi: false,
+		slug: 'lambda/cli',
 	},
 	{
 		id: 'concurrency',
@@ -1397,6 +1571,7 @@ export const articles = [
 		relativePath: 'docs/lambda/concurrency.mdx',
 		compId: 'articles-docs-lambda-concurrency',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/concurrency',
 	},
 	{
@@ -1405,6 +1580,7 @@ export const articles = [
 		relativePath: 'docs/lambda/cost-example.mdx',
 		compId: 'articles-docs-lambda-cost-example',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/cost-example',
 	},
 	{
@@ -1413,7 +1589,8 @@ export const articles = [
 		relativePath: 'docs/lambda/cost.mdx',
 		compId: 'articles-docs-lambda-cost',
 		crumb: 'Lambda',
-		slug: '/lambda/optimizing-cost',
+		noAi: false,
+		slug: 'lambda/optimizing-cost',
 	},
 	{
 		id: 'custom-destination',
@@ -1421,6 +1598,7 @@ export const articles = [
 		relativePath: 'docs/lambda/custom-destination.mdx',
 		compId: 'articles-docs-lambda-custom-destination',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/custom-destination',
 	},
 	{
@@ -1429,6 +1607,7 @@ export const articles = [
 		relativePath: 'docs/lambda/custom-layers.mdx',
 		compId: 'articles-docs-lambda-custom-layers',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'custom-layers',
 	},
 	{
@@ -1437,7 +1616,8 @@ export const articles = [
 		relativePath: 'docs/lambda/deletefunction.mdx',
 		compId: 'articles-docs-lambda-deletefunction',
 		crumb: 'Lambda API',
-		slug: '/lambda/deletefunction',
+		noAi: false,
+		slug: 'lambda/deletefunction',
 	},
 	{
 		id: 'deleterender',
@@ -1445,7 +1625,8 @@ export const articles = [
 		relativePath: 'docs/lambda/deleterender.mdx',
 		compId: 'articles-docs-lambda-deleterender',
 		crumb: 'Lambda API',
-		slug: '/lambda/deleterender',
+		noAi: false,
+		slug: 'lambda/deleterender',
 	},
 	{
 		id: 'deletesite',
@@ -1453,7 +1634,8 @@ export const articles = [
 		relativePath: 'docs/lambda/deletesite.mdx',
 		compId: 'articles-docs-lambda-deletesite',
 		crumb: 'Lambda API',
-		slug: '/lambda/deletesite',
+		noAi: false,
+		slug: 'lambda/deletesite',
 	},
 	{
 		id: 'deployfunction',
@@ -1461,7 +1643,8 @@ export const articles = [
 		relativePath: 'docs/lambda/deployfunction.mdx',
 		compId: 'articles-docs-lambda-deployfunction',
 		crumb: 'Lambda API',
-		slug: '/lambda/deployfunction',
+		noAi: false,
+		slug: 'lambda/deployfunction',
 	},
 	{
 		id: 'deploysite',
@@ -1469,7 +1652,8 @@ export const articles = [
 		relativePath: 'docs/lambda/deploysite.mdx',
 		compId: 'articles-docs-lambda-deploysite',
 		crumb: 'Lambda API',
-		slug: '/lambda/deploysite',
+		noAi: false,
+		slug: 'lambda/deploysite',
 	},
 	{
 		id: 'disk-size',
@@ -1477,6 +1661,7 @@ export const articles = [
 		relativePath: 'docs/lambda/disk-size.mdx',
 		compId: 'articles-docs-lambda-disk-size',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/disk-size',
 	},
 	{
@@ -1485,7 +1670,8 @@ export const articles = [
 		relativePath: 'docs/lambda/downloadmedia.mdx',
 		compId: 'articles-docs-lambda-downloadmedia',
 		crumb: 'Lambda API',
-		slug: '/lambda/downloadmedia',
+		noAi: false,
+		slug: 'lambda/downloadmedia',
 	},
 	{
 		id: 'downloadvideo',
@@ -1493,6 +1679,7 @@ export const articles = [
 		relativePath: 'docs/lambda/downloadvideo.mdx',
 		compId: 'articles-docs-lambda-downloadvideo',
 		crumb: 'Lambda API',
+		noAi: false,
 		slug: 'lambda/downloadvideo',
 	},
 	{
@@ -1501,7 +1688,8 @@ export const articles = [
 		relativePath: 'docs/lambda/estimateprice.mdx',
 		compId: 'articles-docs-lambda-estimateprice',
 		crumb: 'Lambda API',
-		slug: '/lambda/estimateprice',
+		noAi: false,
+		slug: 'lambda/estimateprice',
 	},
 	{
 		id: 'lambda/faq',
@@ -1509,7 +1697,8 @@ export const articles = [
 		relativePath: 'docs/lambda/faq.mdx',
 		compId: 'articles-docs-lambda-faq',
 		crumb: 'Lambda',
-		slug: '/lambda/faq',
+		noAi: false,
+		slug: 'lambda/faq',
 	},
 	{
 		id: 'feb-2022-outage',
@@ -1517,6 +1706,7 @@ export const articles = [
 		relativePath: 'docs/lambda/feb-2022-outage.mdx',
 		compId: 'articles-docs-lambda-feb-2022-outage',
 		crumb: null,
+		noAi: false,
 		slug: 'lambda/feb-2022-outage',
 	},
 	{
@@ -1525,6 +1715,7 @@ export const articles = [
 		relativePath: 'docs/lambda/feb-2023-incident.mdx',
 		compId: 'articles-docs-lambda-feb-2023-incident',
 		crumb: 'DevOps advisory',
+		noAi: false,
 		slug: 'lambda/feb-2023-incident',
 	},
 	{
@@ -1533,6 +1724,7 @@ export const articles = [
 		relativePath: 'docs/lambda/getawsclient.mdx',
 		compId: 'articles-docs-lambda-getawsclient',
 		crumb: 'Lambda API',
+		noAi: false,
 		slug: 'lambda/getawsclient',
 	},
 	{
@@ -1541,7 +1733,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getcompositionsonlambda.mdx',
 		compId: 'articles-docs-lambda-getcompositionsonlambda',
 		crumb: 'Lambda API',
-		slug: '/lambda/getcompositionsonlambda',
+		noAi: false,
+		slug: 'lambda/getcompositionsonlambda',
 	},
 	{
 		id: 'getfunctioninfo',
@@ -1549,7 +1742,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getfunctioninfo.mdx',
 		compId: 'articles-docs-lambda-getfunctioninfo',
 		crumb: 'Lambda API',
-		slug: '/lambda/getfunctioninfo',
+		noAi: false,
+		slug: 'lambda/getfunctioninfo',
 	},
 	{
 		id: 'getfunctions',
@@ -1557,7 +1751,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getfunctions.mdx',
 		compId: 'articles-docs-lambda-getfunctions',
 		crumb: 'Lambda API',
-		slug: '/lambda/getfunctions',
+		noAi: false,
+		slug: 'lambda/getfunctions',
 	},
 	{
 		id: 'getorcreatebucket',
@@ -1565,7 +1760,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getorcreatebucket.mdx',
 		compId: 'articles-docs-lambda-getorcreatebucket',
 		crumb: 'Lambda API',
-		slug: '/lambda/getorcreatebucket',
+		noAi: false,
+		slug: 'lambda/getorcreatebucket',
 	},
 	{
 		id: 'getregions',
@@ -1573,6 +1769,7 @@ export const articles = [
 		relativePath: 'docs/lambda/getregions.mdx',
 		compId: 'articles-docs-lambda-getregions',
 		crumb: 'Lambda API',
+		noAi: false,
 		slug: 'lambda/getregions',
 	},
 	{
@@ -1581,7 +1778,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getrenderprogress.mdx',
 		compId: 'articles-docs-lambda-getrenderprogress',
 		crumb: 'Lambda API',
-		slug: '/lambda/getrenderprogress',
+		noAi: false,
+		slug: 'lambda/getrenderprogress',
 	},
 	{
 		id: 'getrolepolicy',
@@ -1589,7 +1787,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getrolepolicy.mdx',
 		compId: 'articles-docs-lambda-getrolepolicy',
 		crumb: 'Lambda API',
-		slug: '/lambda/getrolepolicy',
+		noAi: false,
+		slug: 'lambda/getrolepolicy',
 	},
 	{
 		id: 'getsites',
@@ -1597,7 +1796,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getsites.mdx',
 		compId: 'articles-docs-lambda-getsites',
 		crumb: 'Lambda API',
-		slug: '/lambda/getsites',
+		noAi: false,
+		slug: 'lambda/getsites',
 	},
 	{
 		id: 'getuserpolicy',
@@ -1605,7 +1805,8 @@ export const articles = [
 		relativePath: 'docs/lambda/getuserpolicy.mdx',
 		compId: 'articles-docs-lambda-getuserpolicy',
 		crumb: 'Lambda API',
-		slug: '/lambda/getuserpolicy',
+		noAi: false,
+		slug: 'lambda/getuserpolicy',
 	},
 	{
 		id: 'lambda/go',
@@ -1613,7 +1814,8 @@ export const articles = [
 		relativePath: 'docs/lambda/go.mdx',
 		compId: 'articles-docs-lambda-go',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/go',
+		noAi: false,
+		slug: 'lambda/go',
 	},
 	{
 		id: 'how-lambda-works',
@@ -1621,6 +1823,7 @@ export const articles = [
 		relativePath: 'docs/lambda/how-lambda-works.mdx',
 		compId: 'articles-docs-lambda-how-lambda-works',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/how-lambda-works',
 	},
 	{
@@ -1629,6 +1832,7 @@ export const articles = [
 		relativePath: 'docs/lambda/insights.mdx',
 		compId: 'articles-docs-lambda-insights',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/insights',
 	},
 	{
@@ -1637,6 +1841,7 @@ export const articles = [
 		relativePath: 'docs/lambda/light-client.mdx',
 		compId: 'articles-docs-lambda-light-client',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/light-client',
 	},
 	{
@@ -1645,7 +1850,8 @@ export const articles = [
 		relativePath: 'docs/lambda/limits.mdx',
 		compId: 'articles-docs-lambda-limits',
 		crumb: 'Lambda',
-		slug: '/lambda/limits',
+		noAi: false,
+		slug: 'lambda/limits',
 	},
 	{
 		id: 'lambda/multiple-buckets',
@@ -1653,7 +1859,8 @@ export const articles = [
 		relativePath: 'docs/lambda/multiple-buckets.mdx',
 		compId: 'articles-docs-lambda-multiple-buckets',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/multiple-buckets',
+		noAi: false,
+		slug: 'lambda/multiple-buckets',
 	},
 	{
 		id: 'naming-convention',
@@ -1661,7 +1868,8 @@ export const articles = [
 		relativePath: 'docs/lambda/naming-convention.mdx',
 		compId: 'articles-docs-lambda-naming-convention',
 		crumb: 'Lambda',
-		slug: '/lambda/naming-convention',
+		noAi: false,
+		slug: 'lambda/naming-convention',
 	},
 	{
 		id: 'lambda/permissions',
@@ -1669,6 +1877,7 @@ export const articles = [
 		relativePath: 'docs/lambda/permissions.mdx',
 		compId: 'articles-docs-lambda-permissions',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/permissions',
 	},
 	{
@@ -1677,7 +1886,8 @@ export const articles = [
 		relativePath: 'docs/lambda/php.mdx',
 		compId: 'articles-docs-lambda-php',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/php',
+		noAi: false,
+		slug: 'lambda/php',
 	},
 	{
 		id: 'presignurl',
@@ -1685,6 +1895,7 @@ export const articles = [
 		relativePath: 'docs/lambda/presignurl.mdx',
 		compId: 'articles-docs-lambda-presignurl',
 		crumb: 'Lambda API',
+		noAi: false,
 		slug: 'lambda/presignurl',
 	},
 	{
@@ -1693,7 +1904,8 @@ export const articles = [
 		relativePath: 'docs/lambda/python.mdx',
 		compId: 'articles-docs-lambda-python',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/python',
+		noAi: false,
+		slug: 'lambda/python',
 	},
 	{
 		id: 'region-selection',
@@ -1701,7 +1913,8 @@ export const articles = [
 		relativePath: 'docs/lambda/region-selection.mdx',
 		compId: 'articles-docs-lambda-region-selection',
 		crumb: 'Lambda',
-		slug: '/lambda/region-selection',
+		noAi: false,
+		slug: 'lambda/region-selection',
 	},
 	{
 		id: 'rendermediaonlambda',
@@ -1709,6 +1922,7 @@ export const articles = [
 		relativePath: 'docs/lambda/rendermediaonlambda.mdx',
 		compId: 'articles-docs-lambda-rendermediaonlambda',
 		crumb: 'Lambda API',
+		noAi: false,
 		slug: 'lambda/rendermediaonlambda',
 	},
 	{
@@ -1717,7 +1931,8 @@ export const articles = [
 		relativePath: 'docs/lambda/renderstillonlambda.mdx',
 		compId: 'articles-docs-lambda-renderstillonlambda',
 		crumb: 'Lambda API',
-		slug: '/lambda/renderstillonlambda',
+		noAi: false,
+		slug: 'lambda/renderstillonlambda',
 	},
 	{
 		id: 'rendervideoonlambda',
@@ -1725,6 +1940,7 @@ export const articles = [
 		relativePath: 'docs/lambda/rendervideoonlambda.mdx',
 		compId: 'articles-docs-lambda-rendervideoonlambda',
 		crumb: 'Lambda API',
+		noAi: false,
 		slug: 'lambda/rendervideoonlambda',
 	},
 	{
@@ -1733,7 +1949,8 @@ export const articles = [
 		relativePath: 'docs/lambda/ruby.mdx',
 		compId: 'articles-docs-lambda-ruby',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/ruby',
+		noAi: false,
+		slug: 'lambda/ruby',
 	},
 	{
 		id: 'runtime',
@@ -1741,7 +1958,8 @@ export const articles = [
 		relativePath: 'docs/lambda/runtime.mdx',
 		compId: 'articles-docs-lambda-runtime',
 		crumb: 'Lambda',
-		slug: '/lambda/runtime',
+		noAi: false,
+		slug: 'lambda/runtime',
 	},
 	{
 		id: 'lambda/s3-public-access',
@@ -1749,6 +1967,7 @@ export const articles = [
 		relativePath: 'docs/lambda/s3-public-access.mdx',
 		compId: 'articles-docs-lambda-s3-public-access',
 		crumb: 'DevOps advisory',
+		noAi: false,
 		slug: 'lambda/s3-public-access',
 	},
 	{
@@ -1757,7 +1976,8 @@ export const articles = [
 		relativePath: 'docs/lambda/serverless-framework-integration.mdx',
 		compId: 'articles-docs-lambda-serverless-framework-integration',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/serverless-framework-integration',
+		noAi: false,
+		slug: 'lambda/serverless-framework-integration',
 	},
 	{
 		id: 'setup',
@@ -1765,7 +1985,8 @@ export const articles = [
 		relativePath: 'docs/lambda/setup.mdx',
 		compId: 'articles-docs-lambda-setup',
 		crumb: 'Lambda',
-		slug: '/lambda/setup',
+		noAi: false,
+		slug: 'lambda/setup',
 	},
 	{
 		id: 'simulatepermissions',
@@ -1773,7 +1994,8 @@ export const articles = [
 		relativePath: 'docs/lambda/simulatepermissions.mdx',
 		compId: 'articles-docs-lambda-simulatepermissions',
 		crumb: 'Lambda API',
-		slug: '/lambda/simulatepermissions',
+		noAi: false,
+		slug: 'lambda/simulatepermissions',
 	},
 	{
 		id: 'speculatefunctionname',
@@ -1781,7 +2003,8 @@ export const articles = [
 		relativePath: 'docs/lambda/speculateFunctionName.mdx',
 		compId: 'articles-docs-lambda-speculateFunctionName',
 		crumb: 'Lambda API',
-		slug: '/lambda/speculatefunctionname',
+		noAi: false,
+		slug: 'lambda/speculatefunctionname',
 	},
 	{
 		id: 'optimizing-speed',
@@ -1789,7 +2012,8 @@ export const articles = [
 		relativePath: 'docs/lambda/speed.mdx',
 		compId: 'articles-docs-lambda-speed',
 		crumb: 'Lambda',
-		slug: '/lambda/optimizing-speed',
+		noAi: false,
+		slug: 'lambda/optimizing-speed',
 	},
 	{
 		id: 'lambda/sqs',
@@ -1797,7 +2021,8 @@ export const articles = [
 		relativePath: 'docs/lambda/sqs.mdx',
 		compId: 'articles-docs-lambda-sqs',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/sqs',
+		noAi: false,
+		slug: 'lambda/sqs',
 	},
 	{
 		id: 'bucket-disallows-acl',
@@ -1805,6 +2030,7 @@ export const articles = [
 		relativePath: 'docs/lambda/troubleshooting/bucket-disallows-acl.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-bucket-disallows-acl',
 		crumb: 'Lambda Troubleshooting',
+		noAi: false,
 		slug: 'lambda/troubleshooting/bucket-disallows-acl',
 	},
 	{
@@ -1813,6 +2039,7 @@ export const articles = [
 		relativePath: 'docs/lambda/troubleshooting/debug.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-debug',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/troubleshooting/debug',
 	},
 	{
@@ -1821,6 +2048,7 @@ export const articles = [
 		relativePath: 'docs/lambda/troubleshooting/permissions.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-permissions',
 		crumb: 'Lambda Troubleshooting',
+		noAi: false,
 		slug: 'lambda/troubleshooting/permissions',
 	},
 	{
@@ -1829,6 +2057,7 @@ export const articles = [
 		relativePath: 'docs/lambda/troubleshooting/rate-limit.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-rate-limit',
 		crumb: 'Lambda Troubleshooting',
+		noAi: false,
 		slug: 'lambda/troubleshooting/rate-limit',
 	},
 	{
@@ -1837,6 +2066,7 @@ export const articles = [
 		relativePath: 'docs/lambda/troubleshooting/security-token.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-security-token',
 		crumb: 'Lambda',
+		noAi: false,
 		slug: 'lambda/troubleshooting/security-token',
 	},
 	{
@@ -1845,6 +2075,7 @@ export const articles = [
 		relativePath: 'docs/lambda/troubleshooting/unrecognizedclientexception.mdx',
 		compId: 'articles-docs-lambda-troubleshooting-unrecognizedclientexception',
 		crumb: 'Lambda Troubleshooting',
+		noAi: false,
 		slug: 'lambda/troubleshooting/unrecognizedclientexception',
 	},
 	{
@@ -1853,7 +2084,8 @@ export const articles = [
 		relativePath: 'docs/lambda/uninstall.mdx',
 		compId: 'articles-docs-lambda-uninstall',
 		crumb: null,
-		slug: '/lambda/uninstall',
+		noAi: false,
+		slug: 'lambda/uninstall',
 	},
 	{
 		id: 'upgrading',
@@ -1861,7 +2093,8 @@ export const articles = [
 		relativePath: 'docs/lambda/upgrading.mdx',
 		compId: 'articles-docs-lambda-upgrading',
 		crumb: null,
-		slug: '/lambda/upgrading',
+		noAi: false,
+		slug: 'lambda/upgrading',
 	},
 	{
 		id: 'validatewebhooksignature',
@@ -1869,7 +2102,8 @@ export const articles = [
 		relativePath: 'docs/lambda/validatewebhooksignature.mdx',
 		compId: 'articles-docs-lambda-validatewebhooksignature',
 		crumb: 'Lambda API',
-		slug: '/lambda/validatewebhooksignature',
+		noAi: false,
+		slug: 'lambda/validatewebhooksignature',
 	},
 	{
 		id: 'lambda/webhooks',
@@ -1877,7 +2111,8 @@ export const articles = [
 		relativePath: 'docs/lambda/webhooks.mdx',
 		compId: 'articles-docs-lambda-webhooks',
 		crumb: 'Lambda',
-		slug: '/lambda/webhooks',
+		noAi: false,
+		slug: 'lambda/webhooks',
 	},
 	{
 		id: 'lambda/without-iam/ec2',
@@ -1885,7 +2120,8 @@ export const articles = [
 		relativePath: 'docs/lambda/without-iam/ec2.mdx',
 		compId: 'articles-docs-lambda-without-iam-ec2',
 		crumb: '@remotion/lambda',
-		slug: '/lambda/ec2',
+		noAi: false,
+		slug: 'lambda/ec2',
 	},
 	{
 		id: 'lambda/without-iam/example',
@@ -1893,6 +2129,7 @@ export const articles = [
 		relativePath: 'docs/lambda/without-iam/example.mdx',
 		compId: 'articles-docs-lambda-without-iam-example',
 		crumb: 'IAM Roles Example',
+		noAi: false,
 		slug: 'lambda/without-iam/example',
 	},
 	{
@@ -1901,6 +2138,7 @@ export const articles = [
 		relativePath: 'docs/lambda/without-iam/index.mdx',
 		compId: 'articles-docs-lambda-without-iam-index',
 		crumb: 'Lambda without IAM',
+		noAi: false,
 		slug: 'lambda/without-iam/index',
 	},
 	{
@@ -1909,6 +2147,7 @@ export const articles = [
 		relativePath: 'docs/lambda.mdx',
 		compId: 'articles-docs-lambda',
 		crumb: null,
+		noAi: false,
 		slug: 'lambda',
 	},
 	{
@@ -1917,6 +2156,7 @@ export const articles = [
 		relativePath: 'docs/layers.mdx',
 		compId: 'articles-docs-layers',
 		crumb: 'Designing videos',
+		noAi: false,
 		slug: 'layers',
 	},
 	{
@@ -1925,6 +2165,7 @@ export const articles = [
 		relativePath: 'docs/layout-utils/best-practices.mdx',
 		compId: 'articles-docs-layout-utils-best-practices',
 		crumb: '@remotion/layout-utils',
+		noAi: false,
 		slug: 'layout-utils/best-practices',
 	},
 	{
@@ -1933,6 +2174,7 @@ export const articles = [
 		relativePath: 'docs/layout-utils/debug.mdx',
 		compId: 'articles-docs-layout-utils-debug',
 		crumb: '@remotion/layout-utils',
+		noAi: true,
 		slug: 'layout-utils/debug',
 	},
 	{
@@ -1941,6 +2183,7 @@ export const articles = [
 		relativePath: 'docs/layout-utils/fill-text-box.mdx',
 		compId: 'articles-docs-layout-utils-fill-text-box',
 		crumb: '@remotion/layout-utils',
+		noAi: false,
 		slug: 'layout-utils/fill-text-box',
 	},
 	{
@@ -1949,6 +2192,7 @@ export const articles = [
 		relativePath: 'docs/layout-utils/fit-text.mdx',
 		compId: 'articles-docs-layout-utils-fit-text',
 		crumb: '@remotion/layout-utils',
+		noAi: false,
 		slug: 'layout-utils/fit-text',
 	},
 	{
@@ -1957,6 +2201,7 @@ export const articles = [
 		relativePath: 'docs/layout-utils/index.mdx',
 		compId: 'articles-docs-layout-utils-index',
 		crumb: null,
+		noAi: false,
 		slug: 'layout-utils/index',
 	},
 	{
@@ -1965,6 +2210,7 @@ export const articles = [
 		relativePath: 'docs/layout-utils/measure-text.mdx',
 		compId: 'articles-docs-layout-utils-measure-text',
 		crumb: '@remotion/layout-utils',
+		noAi: false,
 		slug: 'layout-utils/measure-text',
 	},
 	{
@@ -1973,6 +2219,7 @@ export const articles = [
 		relativePath: 'docs/legacy-babel-loader.mdx',
 		compId: 'articles-docs-legacy-babel-loader',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'legacy-babel-loader',
 	},
 	{
@@ -1981,6 +2228,7 @@ export const articles = [
 		relativePath: 'docs/license.mdx',
 		compId: 'articles-docs-license',
 		crumb: null,
+		noAi: false,
 		slug: 'license',
 	},
 	{
@@ -1989,7 +2237,8 @@ export const articles = [
 		relativePath: 'docs/licensing/get-usage.mdx',
 		compId: 'articles-docs-licensing-get-usage',
 		crumb: '@remotion/licensing',
-		slug: '/licensing/get-usage',
+		noAi: false,
+		slug: 'licensing/get-usage',
 	},
 	{
 		id: 'licensing/index',
@@ -1997,6 +2246,7 @@ export const articles = [
 		relativePath: 'docs/licensing/index.mdx',
 		compId: 'articles-docs-licensing-index',
 		crumb: 'API',
+		noAi: false,
 		slug: 'licensing/index',
 	},
 	{
@@ -2005,7 +2255,8 @@ export const articles = [
 		relativePath: 'docs/licensing/register-usage-point.mdx',
 		compId: 'articles-docs-licensing-register-usage-point',
 		crumb: '@remotion/licensing',
-		slug: '/licensing/register-usage-point',
+		noAi: false,
+		slug: 'licensing/register-usage-point',
 	},
 	{
 		id: 'loop',
@@ -2013,6 +2264,7 @@ export const articles = [
 		relativePath: 'docs/loop.mdx',
 		compId: 'articles-docs-loop',
 		crumb: 'API',
+		noAi: false,
 		slug: 'loop',
 	},
 	{
@@ -2021,6 +2273,7 @@ export const articles = [
 		relativePath: 'docs/lottie/getlottiemetadata.mdx',
 		compId: 'articles-docs-lottie-getlottiemetadata',
 		crumb: '@remotion/lottie',
+		noAi: false,
 		slug: 'lottie/getlottiemetadata',
 	},
 	{
@@ -2029,6 +2282,7 @@ export const articles = [
 		relativePath: 'docs/lottie/index.mdx',
 		compId: 'articles-docs-lottie-index',
 		crumb: null,
+		noAi: false,
 		slug: 'lottie/index',
 	},
 	{
@@ -2037,6 +2291,7 @@ export const articles = [
 		relativePath: 'docs/lottie/lottie-comp.mdx',
 		compId: 'articles-docs-lottie-lottie-comp',
 		crumb: '@remotion/lottie',
+		noAi: false,
 		slug: 'lottie',
 	},
 	{
@@ -2045,6 +2300,7 @@ export const articles = [
 		relativePath: 'docs/lottie/lottie-lottiefiles.mdx',
 		compId: 'articles-docs-lottie-lottie-lottiefiles',
 		crumb: 'Resources',
+		noAi: false,
 		slug: 'lottiefiles',
 	},
 	{
@@ -2053,6 +2309,7 @@ export const articles = [
 		relativePath: 'docs/lottie/lottie-remote.mdx',
 		compId: 'articles-docs-lottie-lottie-remote',
 		crumb: '@remotion/lottie',
+		noAi: false,
 		slug: 'remote',
 	},
 	{
@@ -2061,6 +2318,7 @@ export const articles = [
 		relativePath: 'docs/lottie/lottie-staticfile.mdx',
 		compId: 'articles-docs-lottie-lottie-staticfile',
 		crumb: '@remotion/lottie',
+		noAi: false,
 		slug: 'staticfile',
 	},
 	{
@@ -2069,6 +2327,7 @@ export const articles = [
 		relativePath: 'docs/measure-spring.mdx',
 		compId: 'articles-docs-measure-spring',
 		crumb: 'API',
+		noAi: false,
 		slug: 'measure-spring',
 	},
 	{
@@ -2077,6 +2336,7 @@ export const articles = [
 		relativePath: 'docs/measuring.mdx',
 		compId: 'articles-docs-measuring',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'measuring',
 	},
 	{
@@ -2085,6 +2345,7 @@ export const articles = [
 		relativePath: 'docs/media-fragments.mdx',
 		compId: 'articles-docs-media-fragments',
 		crumb: 'Video behavior',
+		noAi: false,
 		slug: 'media-fragments',
 	},
 	{
@@ -2093,7 +2354,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/fast-and-slow.mdx',
 		compId: 'articles-docs-media-parser-fast-and-slow',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/fast-and-slow',
+		noAi: false,
+		slug: 'media-parser/fast-and-slow',
 	},
 	{
 		id: 'fetch-reader',
@@ -2101,7 +2363,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/fetch-reader.mdx',
 		compId: 'articles-docs-media-parser-fetch-reader',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/fetch-reader',
+		noAi: false,
+		slug: 'media-parser/fetch-reader',
 	},
 	{
 		id: 'foreign-file-types',
@@ -2109,7 +2372,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/foreign-file-types.mdx',
 		compId: 'articles-docs-media-parser-foreign-file-types',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/foreign-file-types',
+		noAi: false,
+		slug: 'media-parser/foreign-file-types',
 	},
 	{
 		id: 'media-parser/index',
@@ -2117,6 +2381,7 @@ export const articles = [
 		relativePath: 'docs/media-parser/index.mdx',
 		compId: 'articles-docs-media-parser-index',
 		crumb: null,
+		noAi: false,
 		slug: 'media-parser/index',
 	},
 	{
@@ -2125,7 +2390,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/metadata.mdx',
 		compId: 'articles-docs-media-parser-metadata',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/metadata',
+		noAi: false,
+		slug: 'media-parser/metadata',
 	},
 	{
 		id: 'node-reader',
@@ -2133,7 +2399,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/node-reader.mdx',
 		compId: 'articles-docs-media-parser-node-reader',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/node-reader',
+		noAi: false,
+		slug: 'media-parser/node-reader',
 	},
 	{
 		id: 'parse-media',
@@ -2141,7 +2408,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/parse-media.mdx',
 		compId: 'articles-docs-media-parser-parse-media',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/parse-media',
+		noAi: false,
+		slug: 'media-parser/parse-media',
 	},
 	{
 		id: 'support',
@@ -2149,7 +2417,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/support.mdx',
 		compId: 'articles-docs-media-parser-support',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/support',
+		noAi: false,
+		slug: 'media-parser/support',
 	},
 	{
 		id: 'tags',
@@ -2157,7 +2426,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/tags.mdx',
 		compId: 'articles-docs-media-parser-tags',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/tags',
+		noAi: false,
+		slug: 'media-parser/tags',
 	},
 	{
 		id: 'web-file-reader',
@@ -2165,7 +2435,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/web-file-reader.mdx',
 		compId: 'articles-docs-media-parser-web-file-reader',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/web-file-reader',
+		noAi: false,
+		slug: 'media-parser/web-file-reader',
 	},
 	{
 		id: 'webcodecs',
@@ -2173,7 +2444,8 @@ export const articles = [
 		relativePath: 'docs/media-parser/webcodecs.mdx',
 		compId: 'articles-docs-media-parser-webcodecs',
 		crumb: '@remotion/media-parser',
-		slug: '/media-parser/webcodecs',
+		noAi: false,
+		slug: 'media-parser/webcodecs',
 	},
 	{
 		id: 'media-playback-error',
@@ -2181,6 +2453,7 @@ export const articles = [
 		relativePath: 'docs/media-playback-error.mdx',
 		compId: 'articles-docs-media-playback-error',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'media-playback-error',
 	},
 	{
@@ -2189,6 +2462,7 @@ export const articles = [
 		relativePath: 'docs/media-utils/index.mdx',
 		compId: 'articles-docs-media-utils-index',
 		crumb: null,
+		noAi: false,
 		slug: 'media-utils/index',
 	},
 	{
@@ -2197,6 +2471,7 @@ export const articles = [
 		relativePath: 'docs/metadata.mdx',
 		compId: 'articles-docs-metadata',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'metadata',
 	},
 	{
@@ -2205,6 +2480,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/absolute-paths.mdx',
 		compId: 'articles-docs-miscellaneous-absolute-paths',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/absolute-paths',
 	},
 	{
@@ -2213,6 +2489,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/automatic-duration.mdx',
 		compId: 'articles-docs-miscellaneous-automatic-duration',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/automatic-duration',
 	},
 	{
@@ -2221,6 +2498,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/changing-temp-dir.mdx',
 		compId: 'articles-docs-miscellaneous-changing-temp-dir',
 		crumb: 'Advanced configuration',
+		noAi: false,
 		slug: 'miscellaneous/changing-temp-dir',
 	},
 	{
@@ -2229,6 +2507,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/chrome-headless-shell.mdx',
 		compId: 'articles-docs-miscellaneous-chrome-headless-shell',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/chrome-headless-shell',
 	},
 	{
@@ -2237,6 +2516,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/cloud-gpu-docker.mdx',
 		compId: 'articles-docs-miscellaneous-cloud-gpu-docker',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/cloud-gpu-docker',
 	},
 	{
@@ -2245,6 +2525,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/cloud-gpu.mdx',
 		compId: 'articles-docs-miscellaneous-cloud-gpu',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/cloud-gpu',
 	},
 	{
@@ -2253,6 +2534,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/embed-remotion-studio.mdx',
 		compId: 'articles-docs-miscellaneous-embed-remotion-studio',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/embed-remotion-studio',
 	},
 	{
@@ -2261,6 +2543,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/emojis.mdx',
 		compId: 'articles-docs-miscellaneous-emojis',
 		crumb: 'Font rendering',
+		noAi: false,
 		slug: 'miscellaneous/emojis',
 	},
 	{
@@ -2269,6 +2552,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/linux-dependencies.mdx',
 		compId: 'articles-docs-miscellaneous-linux-dependencies',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/linux-dependencies',
 	},
 	{
@@ -2277,6 +2561,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/linux-single-process.mdx',
 		compId: 'articles-docs-miscellaneous-linux-single-process',
 		crumb: 'Server-side rendering',
+		noAi: false,
 		slug: 'miscellaneous/linux-single-process',
 	},
 	{
@@ -2285,6 +2570,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/live-streaming.mdx',
 		compId: 'articles-docs-miscellaneous-live-streaming',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/live-streaming',
 	},
 	{
@@ -2293,6 +2579,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/parse-media-vs-get-video-metadata.mdx',
 		compId: 'articles-docs-miscellaneous-parse-media-vs-get-video-metadata',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/parse-media-vs-get-video-metadata',
 	},
 	{
@@ -2301,6 +2588,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/render-in-browser.mdx',
 		compId: 'articles-docs-miscellaneous-render-in-browser',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/render-in-browser',
 	},
 	{
@@ -2309,6 +2597,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/render-on-edge.mdx',
 		compId: 'articles-docs-miscellaneous-render-on-edge',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/render-on-edge',
 	},
 	{
@@ -2317,6 +2606,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/accelerated-video.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-accelerated-video',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/accelerated-video',
 	},
 	{
@@ -2325,6 +2615,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/align-duration.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-align-duration',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/snippets/align-duration',
 	},
 	{
@@ -2333,6 +2624,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/combine-compositions.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-combine-compositions',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/snippets/combine-compositions',
 	},
 	{
@@ -2343,6 +2635,7 @@ export const articles = [
 		compId:
 			'articles-docs-miscellaneous-snippets-different-segments-at-different-speeds',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/different-segments-at-different-speeds',
 	},
 	{
@@ -2351,6 +2644,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/freeze-portions.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-freeze-portions',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/freeze-portions',
 	},
 	{
@@ -2359,6 +2653,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/hls.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-hls',
 		crumb: 'Video',
+		noAi: false,
 		slug: 'miscellaneous/snippets/hls',
 	},
 	{
@@ -2367,6 +2662,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/jumpcuts.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-jumpcuts',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/jumpcuts',
 	},
 	{
@@ -2377,6 +2673,7 @@ export const articles = [
 		compId:
 			'articles-docs-miscellaneous-snippets-offthread-video-while-rendering',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/offthread-video-while-rendering',
 	},
 	{
@@ -2385,6 +2682,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/player-in-iframe.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-player-in-iframe',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/player-in-iframe',
 	},
 	{
@@ -2393,6 +2691,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/snippets/use-delay-render.mdx',
 		compId: 'articles-docs-miscellaneous-snippets-use-delay-render',
 		crumb: 'Snippets',
+		noAi: false,
 		slug: 'miscellaneous/snippets/use-delay-render',
 	},
 	{
@@ -2401,7 +2700,8 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/ts-aliases.mdx',
 		compId: 'articles-docs-miscellaneous-ts-aliases',
 		crumb: 'How to',
-		slug: '/typescript-aliases',
+		noAi: false,
+		slug: 'typescript-aliases',
 	},
 	{
 		id: 'miscellaneous/vercel-functions',
@@ -2409,6 +2709,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/vercel-functions.mdx',
 		compId: 'articles-docs-miscellaneous-vercel-functions',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/vercel-functions',
 	},
 	{
@@ -2417,6 +2718,7 @@ export const articles = [
 		relativePath: 'docs/miscellaneous/video-formats.mdx',
 		compId: 'articles-docs-miscellaneous-video-formats',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'miscellaneous/video-formats',
 	},
 	{
@@ -2425,6 +2727,7 @@ export const articles = [
 		relativePath: 'docs/motion-blur/camera-motion-blur.mdx',
 		compId: 'articles-docs-motion-blur-camera-motion-blur',
 		crumb: 'Realistic camera effect',
+		noAi: false,
 		slug: 'camera-motion-blur',
 	},
 	{
@@ -2433,6 +2736,7 @@ export const articles = [
 		relativePath: 'docs/motion-blur/common-mistake.mdx',
 		compId: 'articles-docs-motion-blur-common-mistake',
 		crumb: null,
+		noAi: false,
 		slug: 'motion-blur/common-mistake',
 	},
 	{
@@ -2441,6 +2745,7 @@ export const articles = [
 		relativePath: 'docs/motion-blur/index.mdx',
 		compId: 'articles-docs-motion-blur-index',
 		crumb: null,
+		noAi: false,
 		slug: 'motion-blur/index',
 	},
 	{
@@ -2449,6 +2754,7 @@ export const articles = [
 		relativePath: 'docs/motion-blur/motion-blur.mdx',
 		compId: 'articles-docs-motion-blur-motion-blur',
 		crumb: null,
+		noAi: false,
 		slug: 'motion-blur',
 	},
 	{
@@ -2457,6 +2763,7 @@ export const articles = [
 		relativePath: 'docs/motion-blur/trail.mdx',
 		compId: 'articles-docs-motion-blur-trail',
 		crumb: 'Motion blur',
+		noAi: false,
 		slug: 'trail',
 	},
 	{
@@ -2465,6 +2772,7 @@ export const articles = [
 		relativePath: 'docs/multiple-fps.mdx',
 		compId: 'articles-docs-multiple-fps',
 		crumb: 'Building apps',
+		noAi: false,
 		slug: 'multiple-fps',
 	},
 	{
@@ -2473,6 +2781,7 @@ export const articles = [
 		relativePath: 'docs/noise/index.mdx',
 		compId: 'articles-docs-noise-index',
 		crumb: null,
+		noAi: false,
 		slug: 'noise/index',
 	},
 	{
@@ -2481,6 +2790,7 @@ export const articles = [
 		relativePath: 'docs/noise/noise-2d.mdx',
 		compId: 'articles-docs-noise-noise-2d',
 		crumb: 'Make some',
+		noAi: false,
 		slug: 'noise/noise-2d',
 	},
 	{
@@ -2489,6 +2799,7 @@ export const articles = [
 		relativePath: 'docs/noise/noise-3d.mdx',
 		compId: 'articles-docs-noise-noise-3d',
 		crumb: 'Make some',
+		noAi: false,
 		slug: 'noise/noise-3d',
 	},
 	{
@@ -2497,6 +2808,7 @@ export const articles = [
 		relativePath: 'docs/noise/noise-4d.mdx',
 		compId: 'articles-docs-noise-noise-4d',
 		crumb: 'Make some',
+		noAi: false,
 		slug: 'noise/noise-4d',
 	},
 	{
@@ -2505,6 +2817,7 @@ export const articles = [
 		relativePath: 'docs/noise-visualization.mdx',
 		compId: 'articles-docs-noise-visualization',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'noise-visualization',
 	},
 	{
@@ -2513,6 +2826,7 @@ export const articles = [
 		relativePath: 'docs/non-seekable-media.mdx',
 		compId: 'articles-docs-non-seekable-media',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'non-seekable-media',
 	},
 	{
@@ -2521,6 +2835,7 @@ export const articles = [
 		relativePath: 'docs/null.mdx',
 		compId: 'articles-docs-null',
 		crumb: 'Experimental API',
+		noAi: false,
 		slug: 'null',
 	},
 	{
@@ -2529,6 +2844,7 @@ export const articles = [
 		relativePath: 'docs/offthreadvideo.mdx',
 		compId: 'articles-docs-offthreadvideo',
 		crumb: 'API',
+		noAi: false,
 		slug: 'offthreadvideo',
 	},
 	{
@@ -2537,6 +2853,7 @@ export const articles = [
 		relativePath: 'docs/open-gl.mdx',
 		compId: 'articles-docs-open-gl',
 		crumb: 'Flags',
+		noAi: false,
 		slug: 'open-gl',
 	},
 	{
@@ -2545,6 +2862,7 @@ export const articles = [
 		relativePath: 'docs/openai-whisper/index.mdx',
 		compId: 'articles-docs-openai-whisper-index',
 		crumb: 'Subtitle videos',
+		noAi: false,
 		slug: 'openai-whisper/index',
 	},
 	{
@@ -2553,6 +2871,7 @@ export const articles = [
 		relativePath: 'docs/openai-whisper/openai-whisper-api-to-captions.mdx',
 		compId: 'articles-docs-openai-whisper-openai-whisper-api-to-captions',
 		crumb: '@remotion/openai-whisper',
+		noAi: false,
 		slug: 'openai-whisper/openai-whisper-api-to-captions',
 	},
 	{
@@ -2561,6 +2880,7 @@ export const articles = [
 		relativePath: 'docs/overlay.mdx',
 		compId: 'articles-docs-overlay',
 		crumb: null,
+		noAi: false,
 		slug: 'overlay',
 	},
 	{
@@ -2569,6 +2889,7 @@ export const articles = [
 		relativePath: 'docs/overwriting-webpack-config.mdx',
 		compId: 'articles-docs-overwriting-webpack-config',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'overwriting-webpack-config',
 	},
 	{
@@ -2577,6 +2898,7 @@ export const articles = [
 		relativePath: 'docs/parameterized-rendering.mdx',
 		compId: 'articles-docs-parameterized-rendering',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'parameterized-rendering',
 	},
 	{
@@ -2585,6 +2907,7 @@ export const articles = [
 		relativePath: 'docs/passing-props.mdx',
 		compId: 'articles-docs-passing-props',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'passing-props',
 	},
 	{
@@ -2593,6 +2916,7 @@ export const articles = [
 		relativePath: 'docs/paths/evolve-path.mdx',
 		compId: 'articles-docs-paths-evolve-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/evolve-path',
 	},
 	{
@@ -2601,6 +2925,7 @@ export const articles = [
 		relativePath: 'docs/paths/extend-viewbox.mdx',
 		compId: 'articles-docs-paths-extend-viewbox',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/extend-viewbox',
 	},
 	{
@@ -2609,6 +2934,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-bounding-box.mdx',
 		compId: 'articles-docs-paths-get-bounding-box',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-bounding-box',
 	},
 	{
@@ -2617,6 +2943,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-instruction-index-at-length.mdx',
 		compId: 'articles-docs-paths-get-instruction-index-at-length',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-instruction-index-at-length',
 	},
 	{
@@ -2625,6 +2952,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-length.mdx',
 		compId: 'articles-docs-paths-get-length',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-length',
 	},
 	{
@@ -2633,6 +2961,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-parts.mdx',
 		compId: 'articles-docs-paths-get-parts',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-parts',
 	},
 	{
@@ -2641,6 +2970,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-point-at-length.mdx',
 		compId: 'articles-docs-paths-get-point-at-length',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-point-at-length',
 	},
 	{
@@ -2649,6 +2979,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-subpaths.mdx',
 		compId: 'articles-docs-paths-get-subpaths',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-subpaths',
 	},
 	{
@@ -2657,6 +2988,7 @@ export const articles = [
 		relativePath: 'docs/paths/get-tangent-at-length.mdx',
 		compId: 'articles-docs-paths-get-tangent-at-length',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/get-tangent-at-length',
 	},
 	{
@@ -2665,6 +2997,7 @@ export const articles = [
 		relativePath: 'docs/paths/index.mdx',
 		compId: 'articles-docs-paths-index',
 		crumb: 'SVG',
+		noAi: false,
 		slug: 'paths/index',
 	},
 	{
@@ -2673,6 +3006,7 @@ export const articles = [
 		relativePath: 'docs/paths/interpolate-path.mdx',
 		compId: 'articles-docs-paths-interpolate-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/interpolate-path',
 	},
 	{
@@ -2681,6 +3015,7 @@ export const articles = [
 		relativePath: 'docs/paths/normalize-path.mdx',
 		compId: 'articles-docs-paths-normalize-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/normalize-path',
 	},
 	{
@@ -2689,6 +3024,7 @@ export const articles = [
 		relativePath: 'docs/paths/parse-path.mdx',
 		compId: 'articles-docs-paths-parse-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/parse-path',
 	},
 	{
@@ -2697,6 +3033,7 @@ export const articles = [
 		relativePath: 'docs/paths/reduce-instructions.mdx',
 		compId: 'articles-docs-paths-reduce-instructions',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/reduce-instructions',
 	},
 	{
@@ -2705,6 +3042,7 @@ export const articles = [
 		relativePath: 'docs/paths/reset-path.mdx',
 		compId: 'articles-docs-paths-reset-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/reset-path',
 	},
 	{
@@ -2713,6 +3051,7 @@ export const articles = [
 		relativePath: 'docs/paths/reverse-path.mdx',
 		compId: 'articles-docs-paths-reverse-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/reverse-path',
 	},
 	{
@@ -2721,6 +3060,7 @@ export const articles = [
 		relativePath: 'docs/paths/scale-path.mdx',
 		compId: 'articles-docs-paths-scale-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/scale-path',
 	},
 	{
@@ -2729,6 +3069,7 @@ export const articles = [
 		relativePath: 'docs/paths/serialize-instructions.mdx',
 		compId: 'articles-docs-paths-serialize-instructions',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/serialize-instructions',
 	},
 	{
@@ -2737,6 +3078,7 @@ export const articles = [
 		relativePath: 'docs/paths/translate-path.mdx',
 		compId: 'articles-docs-paths-translate-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/translate-path',
 	},
 	{
@@ -2745,6 +3087,7 @@ export const articles = [
 		relativePath: 'docs/paths/warp-path.mdx',
 		compId: 'articles-docs-paths-warp-path',
 		crumb: '@remotion/paths',
+		noAi: false,
 		slug: 'paths/warp-path',
 	},
 	{
@@ -2753,6 +3096,7 @@ export const articles = [
 		relativePath: 'docs/performance.mdx',
 		compId: 'articles-docs-performance',
 		crumb: 'Need for Speed',
+		noAi: false,
 		slug: 'performance',
 	},
 	{
@@ -2761,7 +3105,8 @@ export const articles = [
 		relativePath: 'docs/player/api.mdx',
 		compId: 'articles-docs-player-api',
 		crumb: '@remotion/player',
-		slug: '/player/player',
+		noAi: false,
+		slug: 'player/player',
 	},
 	{
 		id: 'autoplay',
@@ -2769,7 +3114,8 @@ export const articles = [
 		relativePath: 'docs/player/autoplay.mdx',
 		compId: 'articles-docs-player-autoplay',
 		crumb: '@remotion/player',
-		slug: '/player/autoplay',
+		noAi: false,
+		slug: 'player/autoplay',
 	},
 	{
 		id: 'best-practices',
@@ -2777,7 +3123,8 @@ export const articles = [
 		relativePath: 'docs/player/best-practices.mdx',
 		compId: 'articles-docs-player-best-practices',
 		crumb: '@remotion/player',
-		slug: '/player/best-practices',
+		noAi: false,
+		slug: 'player/best-practices',
 	},
 	{
 		id: 'buffer-state',
@@ -2785,6 +3132,7 @@ export const articles = [
 		relativePath: 'docs/player/buffer-state.mdx',
 		compId: 'articles-docs-player-buffer-state',
 		crumb: 'Best practices',
+		noAi: false,
 		slug: 'player/buffer-state',
 	},
 	{
@@ -2793,7 +3141,8 @@ export const articles = [
 		relativePath: 'docs/player/current-time.mdx',
 		compId: 'articles-docs-player-current-time',
 		crumb: '@remotion/player',
-		slug: '/player/current-time',
+		noAi: false,
+		slug: 'player/current-time',
 	},
 	{
 		id: 'custom-controls',
@@ -2801,6 +3150,7 @@ export const articles = [
 		relativePath: 'docs/player/custom-controls.mdx',
 		compId: 'articles-docs-player-custom-controls',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/custom-controls',
 	},
 	{
@@ -2809,6 +3159,7 @@ export const articles = [
 		relativePath: 'docs/player/drag-and-drop/index.mdx',
 		compId: 'articles-docs-player-drag-and-drop-index',
 		crumb: '@remotion/player',
+		noAi: true,
 		slug: 'player/drag-and-drop/index',
 	},
 	{
@@ -2817,6 +3168,7 @@ export const articles = [
 		relativePath: 'docs/player/index.mdx',
 		compId: 'articles-docs-player-index',
 		crumb: null,
+		noAi: false,
 		slug: 'player/index',
 	},
 	{
@@ -2825,7 +3177,8 @@ export const articles = [
 		relativePath: 'docs/player/installation.mdx',
 		compId: 'articles-docs-player-installation',
 		crumb: '@remotion/player',
-		slug: '/player/installation',
+		noAi: false,
+		slug: 'player/installation',
 	},
 	{
 		id: 'media-keys',
@@ -2833,6 +3186,7 @@ export const articles = [
 		relativePath: 'docs/player/media-keys.mdx',
 		compId: 'articles-docs-player-media-keys',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/media-keys',
 	},
 	{
@@ -2841,6 +3195,7 @@ export const articles = [
 		relativePath: 'docs/player/player-examples.mdx',
 		compId: 'articles-docs-player-player-examples',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/player-examples',
 	},
 	{
@@ -2849,6 +3204,7 @@ export const articles = [
 		relativePath: 'docs/player/player-integration.mdx',
 		compId: 'articles-docs-player-player-integration',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/player-integration',
 	},
 	{
@@ -2857,6 +3213,7 @@ export const articles = [
 		relativePath: 'docs/player/preloading.mdx',
 		compId: 'articles-docs-player-preloading',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/preloading',
 	},
 	{
@@ -2865,7 +3222,8 @@ export const articles = [
 		relativePath: 'docs/player/premounting.mdx',
 		compId: 'articles-docs-player-premounting',
 		crumb: '@remotion/player',
-		slug: '/player/premounting',
+		noAi: false,
+		slug: 'player/premounting',
 	},
 	{
 		id: 'scaling',
@@ -2873,6 +3231,7 @@ export const articles = [
 		relativePath: 'docs/player/scaling.mdx',
 		compId: 'articles-docs-player-scaling',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/scaling',
 	},
 	{
@@ -2881,6 +3240,7 @@ export const articles = [
 		relativePath: 'docs/player/thumbnail.mdx',
 		compId: 'articles-docs-player-thumbnail',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'player/thumbnail',
 	},
 	{
@@ -2889,6 +3249,7 @@ export const articles = [
 		relativePath: 'docs/player-into-remotion-project.mdx',
 		compId: 'articles-docs-player-into-remotion-project',
 		crumb: 'Converting Remotion Projects',
+		noAi: false,
 		slug: 'player-into-remotion-project',
 	},
 	{
@@ -2897,6 +3258,7 @@ export const articles = [
 		relativePath: 'docs/prefetch.mdx',
 		compId: 'articles-docs-prefetch',
 		crumb: 'API',
+		noAi: false,
 		slug: 'prefetch',
 	},
 	{
@@ -2905,6 +3267,7 @@ export const articles = [
 		relativePath: 'docs/preload/preload-audio.mdx',
 		compId: 'articles-docs-preload-preload-audio',
 		crumb: '@remotion/preload',
+		noAi: false,
 		slug: 'preload-audio',
 	},
 	{
@@ -2913,6 +3276,7 @@ export const articles = [
 		relativePath: 'docs/preload/preload-font.mdx',
 		compId: 'articles-docs-preload-preload-font',
 		crumb: '@remotion/preload',
+		noAi: false,
 		slug: 'preload-font',
 	},
 	{
@@ -2921,6 +3285,7 @@ export const articles = [
 		relativePath: 'docs/preload/preload-image.mdx',
 		compId: 'articles-docs-preload-preload-image',
 		crumb: '@remotion/preload',
+		noAi: false,
 		slug: 'preload-image',
 	},
 	{
@@ -2929,6 +3294,7 @@ export const articles = [
 		relativePath: 'docs/preload/preload-video.mdx',
 		compId: 'articles-docs-preload-preload-video',
 		crumb: '@remotion/player',
+		noAi: false,
 		slug: 'preload-video',
 	},
 	{
@@ -2937,6 +3303,7 @@ export const articles = [
 		relativePath: 'docs/preload/preload.mdx',
 		compId: 'articles-docs-preload-preload',
 		crumb: null,
+		noAi: false,
 		slug: 'preload/preload',
 	},
 	{
@@ -2945,7 +3312,8 @@ export const articles = [
 		relativePath: 'docs/prereleases.mdx',
 		compId: 'articles-docs-prereleases',
 		crumb: 'Only the brave',
-		slug: '/prereleases',
+		noAi: false,
+		slug: 'prereleases',
 	},
 	{
 		id: 'presigned-urls',
@@ -2953,6 +3321,7 @@ export const articles = [
 		relativePath: 'docs/presigned-urls.mdx',
 		compId: 'articles-docs-presigned-urls',
 		crumb: 'Building video apps',
+		noAi: false,
 		slug: 'presigned-urls',
 	},
 	{
@@ -2961,6 +3330,7 @@ export const articles = [
 		relativePath: 'docs/preview.mdx',
 		compId: 'articles-docs-preview',
 		crumb: 'Timeline basics',
+		noAi: false,
 		slug: 'preview',
 	},
 	{
@@ -2969,6 +3339,7 @@ export const articles = [
 		relativePath: 'docs/quality.mdx',
 		compId: 'articles-docs-quality',
 		crumb: 'Make it look good',
+		noAi: false,
 		slug: 'quality',
 	},
 	{
@@ -2977,6 +3348,7 @@ export const articles = [
 		relativePath: 'docs/random.mdx',
 		compId: 'articles-docs-random',
 		crumb: 'API',
+		noAi: false,
 		slug: 'random',
 	},
 	{
@@ -2985,6 +3357,7 @@ export const articles = [
 		relativePath: 'docs/react-18.mdx',
 		compId: 'articles-docs-react-18',
 		crumb: 'The new and shiny',
+		noAi: false,
 		slug: 'react-18',
 	},
 	{
@@ -2993,6 +3366,7 @@ export const articles = [
 		relativePath: 'docs/react-19.mdx',
 		compId: 'articles-docs-react-19',
 		crumb: 'Migration Guide',
+		noAi: false,
 		slug: 'react-19',
 	},
 	{
@@ -3001,6 +3375,7 @@ export const articles = [
 		relativePath: 'docs/react-native.mdx',
 		compId: 'articles-docs-react-native',
 		crumb: null,
+		noAi: false,
 		slug: 'react-native',
 	},
 	{
@@ -3009,6 +3384,7 @@ export const articles = [
 		relativePath: 'docs/recorder/before-you-buy.mdx',
 		compId: 'articles-docs-recorder-before-you-buy',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/before-you-buy',
 	},
 	{
@@ -3017,6 +3393,7 @@ export const articles = [
 		relativePath: 'docs/recorder/buy.mdx',
 		compId: 'articles-docs-recorder-buy',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/buy',
 	},
 	{
@@ -3025,6 +3402,7 @@ export const articles = [
 		relativePath: 'docs/recorder/captions.mdx',
 		compId: 'articles-docs-recorder-captions',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/captions',
 	},
 	{
@@ -3033,6 +3411,7 @@ export const articles = [
 		relativePath: 'docs/recorder/create.mdx',
 		compId: 'articles-docs-recorder-create',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/create',
 	},
 	{
@@ -3041,6 +3420,7 @@ export const articles = [
 		relativePath: 'docs/recorder/demo.mdx',
 		compId: 'articles-docs-recorder-demo',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/demo',
 	},
 	{
@@ -3049,6 +3429,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/b-roll.mdx',
 		compId: 'articles-docs-recorder-editing-b-roll',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/b-roll',
 	},
 	{
@@ -3057,6 +3438,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/captions.mdx',
 		compId: 'articles-docs-recorder-editing-captions',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/captions',
 	},
 	{
@@ -3065,6 +3447,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/chapters.mdx',
 		compId: 'articles-docs-recorder-editing-chapters',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/chapters',
 	},
 	{
@@ -3073,6 +3456,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/cutting-clips.mdx',
 		compId: 'articles-docs-recorder-editing-cutting-clips',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/cutting-clips',
 	},
 	{
@@ -3081,6 +3465,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/editing.mdx',
 		compId: 'articles-docs-recorder-editing-editing',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/editing',
 	},
 	{
@@ -3089,6 +3474,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/endcard.mdx',
 		compId: 'articles-docs-recorder-editing-endcard',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/endcard',
 	},
 	{
@@ -3097,6 +3483,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/layout.mdx',
 		compId: 'articles-docs-recorder-editing-layout',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/layout',
 	},
 	{
@@ -3105,6 +3492,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/music.mdx',
 		compId: 'articles-docs-recorder-editing-music',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/music',
 	},
 	{
@@ -3113,6 +3501,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/normalizing-audio.mdx',
 		compId: 'articles-docs-recorder-editing-normalizing-audio',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/normalizing-audio',
 	},
 	{
@@ -3121,6 +3510,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/scenes.mdx',
 		compId: 'articles-docs-recorder-editing-scenes',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/scenes',
 	},
 	{
@@ -3129,6 +3519,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/silence-removal.mdx',
 		compId: 'articles-docs-recorder-editing-silence-removal',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/silence-removal',
 	},
 	{
@@ -3137,6 +3528,7 @@ export const articles = [
 		relativePath: 'docs/recorder/editing/transitions.mdx',
 		compId: 'articles-docs-recorder-editing-transitions',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/editing/transitions',
 	},
 	{
@@ -3145,6 +3537,7 @@ export const articles = [
 		relativePath: 'docs/recorder/exporting-subtitles.mdx',
 		compId: 'articles-docs-recorder-exporting-subtitles',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/exporting-subtitles',
 	},
 	{
@@ -3153,6 +3546,7 @@ export const articles = [
 		relativePath: 'docs/recorder/exporting.mdx',
 		compId: 'articles-docs-recorder-exporting',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/exporting',
 	},
 	{
@@ -3161,6 +3555,7 @@ export const articles = [
 		relativePath: 'docs/recorder/external-recordings.mdx',
 		compId: 'articles-docs-recorder-external-recordings',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/external-recordings',
 	},
 	{
@@ -3169,6 +3564,7 @@ export const articles = [
 		relativePath: 'docs/recorder/gear.mdx',
 		compId: 'articles-docs-recorder-gear',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/gear',
 	},
 	{
@@ -3177,6 +3573,7 @@ export const articles = [
 		relativePath: 'docs/recorder/index.mdx',
 		compId: 'articles-docs-recorder-index',
 		crumb: 'Templates',
+		noAi: false,
 		slug: 'recorder/index',
 	},
 	{
@@ -3185,6 +3582,7 @@ export const articles = [
 		relativePath: 'docs/recorder/lambda-rendering.mdx',
 		compId: 'articles-docs-recorder-lambda-rendering',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/lambda-rendering',
 	},
 	{
@@ -3193,6 +3591,7 @@ export const articles = [
 		relativePath: 'docs/recorder/our-recorder.mdx',
 		compId: 'articles-docs-recorder-our-recorder',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/our-recorder',
 	},
 	{
@@ -3201,6 +3600,7 @@ export const articles = [
 		relativePath: 'docs/recorder/record/cropping.mdx',
 		compId: 'articles-docs-recorder-record-cropping',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/record/cropping',
 	},
 	{
@@ -3209,6 +3609,7 @@ export const articles = [
 		relativePath: 'docs/recorder/record/delete.mdx',
 		compId: 'articles-docs-recorder-record-delete',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/record/delete',
 	},
 	{
@@ -3217,6 +3618,7 @@ export const articles = [
 		relativePath: 'docs/recorder/record/index.mdx',
 		compId: 'articles-docs-recorder-record-index',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/record/index',
 	},
 	{
@@ -3225,6 +3627,7 @@ export const articles = [
 		relativePath: 'docs/recorder/record/manually.mdx',
 		compId: 'articles-docs-recorder-record-manually',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/record/manually',
 	},
 	{
@@ -3233,6 +3636,7 @@ export const articles = [
 		relativePath: 'docs/recorder/roadmap.mdx',
 		compId: 'articles-docs-recorder-roadmap',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/roadmap',
 	},
 	{
@@ -3241,6 +3645,7 @@ export const articles = [
 		relativePath: 'docs/recorder/setup.mdx',
 		compId: 'articles-docs-recorder-setup',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/setup',
 	},
 	{
@@ -3249,6 +3654,7 @@ export const articles = [
 		relativePath: 'docs/recorder/source-control.mdx',
 		compId: 'articles-docs-recorder-source-control',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/source-control',
 	},
 	{
@@ -3257,6 +3663,7 @@ export const articles = [
 		relativePath: 'docs/recorder/support.mdx',
 		compId: 'articles-docs-recorder-support',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/support',
 	},
 	{
@@ -3267,6 +3674,7 @@ export const articles = [
 		compId:
 			'articles-docs-recorder-troubleshooting-cannot-read-properties-of-undefined',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/troubleshooting/cannot-read-properties-of-undefined',
 	},
 	{
@@ -3277,6 +3685,7 @@ export const articles = [
 		compId:
 			'articles-docs-recorder-troubleshooting-failed-to-execute-get-video-metadata',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/troubleshooting/failed-to-execute-get-video-metadata',
 	},
 	{
@@ -3285,6 +3694,7 @@ export const articles = [
 		relativePath: 'docs/recorder/upgrading.mdx',
 		compId: 'articles-docs-recorder-upgrading',
 		crumb: 'Recorder',
+		noAi: false,
 		slug: 'recorder/upgrading',
 	},
 	{
@@ -3293,6 +3703,7 @@ export const articles = [
 		relativePath: 'docs/register-root.mdx',
 		compId: 'articles-docs-register-root',
 		crumb: 'API',
+		noAi: false,
 		slug: 'register-root',
 	},
 	{
@@ -3301,6 +3712,7 @@ export const articles = [
 		relativePath: 'docs/remotion.mdx',
 		compId: 'articles-docs-remotion',
 		crumb: 'Core API Reference',
+		noAi: false,
 		slug: 'remotion',
 	},
 	{
@@ -3309,6 +3721,7 @@ export const articles = [
 		relativePath: 'docs/render-all.mdx',
 		compId: 'articles-docs-render-all',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'render-all',
 	},
 	{
@@ -3317,6 +3730,7 @@ export const articles = [
 		relativePath: 'docs/render-as-gif.mdx',
 		compId: 'articles-docs-render-as-gif',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'render-as-gif',
 	},
 	{
@@ -3325,6 +3739,7 @@ export const articles = [
 		relativePath: 'docs/render.mdx',
 		compId: 'articles-docs-render',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'render',
 	},
 	{
@@ -3333,6 +3748,7 @@ export const articles = [
 		relativePath: 'docs/renderer/ensure-browser.mdx',
 		compId: 'articles-docs-renderer-ensure-browser',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/ensure-browser',
 	},
 	{
@@ -3341,6 +3757,7 @@ export const articles = [
 		relativePath: 'docs/renderer/ensure-ffmpeg.mdx',
 		compId: 'articles-docs-renderer-ensure-ffmpeg',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/ensure-ffmpeg',
 	},
 	{
@@ -3349,6 +3766,7 @@ export const articles = [
 		relativePath: 'docs/renderer/ensure-ffprobe.mdx',
 		compId: 'articles-docs-renderer-ensure-ffprobe',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/ensure-ffprobe',
 	},
 	{
@@ -3357,6 +3775,7 @@ export const articles = [
 		relativePath: 'docs/renderer/extract-audio.mdx',
 		compId: 'articles-docs-renderer-extract-audio',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/extract-audio',
 	},
 	{
@@ -3365,6 +3784,7 @@ export const articles = [
 		relativePath: 'docs/renderer/get-can-extract-frames-fast.mdx',
 		compId: 'articles-docs-renderer-get-can-extract-frames-fast',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/get-can-extract-frames-fast',
 	},
 	{
@@ -3373,6 +3793,7 @@ export const articles = [
 		relativePath: 'docs/renderer/get-compositions.mdx',
 		compId: 'articles-docs-renderer-get-compositions',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/get-compositions',
 	},
 	{
@@ -3381,6 +3802,7 @@ export const articles = [
 		relativePath: 'docs/renderer/get-silent-parts.mdx',
 		compId: 'articles-docs-renderer-get-silent-parts',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/get-silent-parts',
 	},
 	{
@@ -3389,6 +3811,7 @@ export const articles = [
 		relativePath: 'docs/renderer/get-video-metadata.mdx',
 		compId: 'articles-docs-renderer-get-video-metadata',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/get-video-metadata',
 	},
 	{
@@ -3397,6 +3820,7 @@ export const articles = [
 		relativePath: 'docs/renderer/make-cancel-signal.mdx',
 		compId: 'articles-docs-renderer-make-cancel-signal',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/make-cancel-signal',
 	},
 	{
@@ -3405,6 +3829,7 @@ export const articles = [
 		relativePath: 'docs/renderer/open-browser.mdx',
 		compId: 'articles-docs-renderer-open-browser',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/open-browser',
 	},
 	{
@@ -3413,6 +3838,7 @@ export const articles = [
 		relativePath: 'docs/renderer/render-frames.mdx',
 		compId: 'articles-docs-renderer-render-frames',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/render-frames',
 	},
 	{
@@ -3421,6 +3847,7 @@ export const articles = [
 		relativePath: 'docs/renderer/render-media.mdx',
 		compId: 'articles-docs-renderer-render-media',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/render-media',
 	},
 	{
@@ -3429,6 +3856,7 @@ export const articles = [
 		relativePath: 'docs/renderer/render-still.mdx',
 		compId: 'articles-docs-renderer-render-still',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/render-still',
 	},
 	{
@@ -3437,6 +3865,7 @@ export const articles = [
 		relativePath: 'docs/renderer/select-composition.mdx',
 		compId: 'articles-docs-renderer-select-composition',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/select-composition',
 	},
 	{
@@ -3445,6 +3874,7 @@ export const articles = [
 		relativePath: 'docs/renderer/stitch-frames-to-video.mdx',
 		compId: 'articles-docs-renderer-stitch-frames-to-video',
 		crumb: '@remotion/renderer',
+		noAi: false,
 		slug: 'renderer/stitch-frames-to-video',
 	},
 	{
@@ -3453,6 +3883,7 @@ export const articles = [
 		relativePath: 'docs/renderer.mdx',
 		compId: 'articles-docs-renderer',
 		crumb: null,
+		noAi: false,
 		slug: 'renderer',
 	},
 	{
@@ -3461,6 +3892,7 @@ export const articles = [
 		relativePath: 'docs/resources.mdx',
 		compId: 'articles-docs-resources',
 		crumb: 'Ecosystem',
+		noAi: false,
 		slug: 'resources',
 	},
 	{
@@ -3469,6 +3901,7 @@ export const articles = [
 		relativePath: 'docs/rive/index.mdx',
 		compId: 'articles-docs-rive-index',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'rive/index',
 	},
 	{
@@ -3477,6 +3910,7 @@ export const articles = [
 		relativePath: 'docs/rive/remotionrivecanvas.mdx',
 		compId: 'articles-docs-rive-remotionrivecanvas',
 		crumb: '@remotion/rive',
+		noAi: false,
 		slug: 'rive/remotionrivecanvas',
 	},
 	{
@@ -3485,6 +3919,7 @@ export const articles = [
 		relativePath: 'docs/scaling.mdx',
 		compId: 'articles-docs-scaling',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'scaling',
 	},
 	{
@@ -3493,6 +3928,7 @@ export const articles = [
 		relativePath: 'docs/schemas.mdx',
 		compId: 'articles-docs-schemas',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'schemas',
 	},
 	{
@@ -3501,6 +3937,7 @@ export const articles = [
 		relativePath: 'docs/security.mdx',
 		compId: 'articles-docs-security',
 		crumb: 'FAQ',
+		noAi: false,
 		slug: 'security',
 	},
 	{
@@ -3509,6 +3946,7 @@ export const articles = [
 		relativePath: 'docs/sequence.mdx',
 		compId: 'articles-docs-sequence',
 		crumb: 'API',
+		noAi: false,
 		slug: 'sequence',
 	},
 	{
@@ -3517,6 +3955,7 @@ export const articles = [
 		relativePath: 'docs/sequences.mdx',
 		compId: 'articles-docs-sequences',
 		crumb: 'The power of React',
+		noAi: false,
 		slug: 'sequences',
 	},
 	{
@@ -3525,6 +3964,7 @@ export const articles = [
 		relativePath: 'docs/series.mdx',
 		compId: 'articles-docs-series',
 		crumb: 'API',
+		noAi: false,
 		slug: 'series',
 	},
 	{
@@ -3533,6 +3973,7 @@ export const articles = [
 		relativePath: 'docs/shapes/circle.mdx',
 		compId: 'articles-docs-shapes-circle',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/circle',
 	},
 	{
@@ -3541,6 +3982,7 @@ export const articles = [
 		relativePath: 'docs/shapes/ellipse.mdx',
 		compId: 'articles-docs-shapes-ellipse',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/ellipse',
 	},
 	{
@@ -3549,6 +3991,7 @@ export const articles = [
 		relativePath: 'docs/shapes/index.mdx',
 		compId: 'articles-docs-shapes-index',
 		crumb: 'SVG component library',
+		noAi: false,
 		slug: 'shapes/index',
 	},
 	{
@@ -3557,6 +4000,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-circle.mdx',
 		compId: 'articles-docs-shapes-make-circle',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-circle',
 	},
 	{
@@ -3565,6 +4009,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-ellipse.mdx',
 		compId: 'articles-docs-shapes-make-ellipse',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-ellipse',
 	},
 	{
@@ -3573,6 +4018,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-pie.mdx',
 		compId: 'articles-docs-shapes-make-pie',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-pie',
 	},
 	{
@@ -3581,6 +4027,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-polygon.mdx',
 		compId: 'articles-docs-shapes-make-polygon',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-polygon',
 	},
 	{
@@ -3589,6 +4036,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-rect.mdx',
 		compId: 'articles-docs-shapes-make-rect',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-rect',
 	},
 	{
@@ -3597,6 +4045,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-star.mdx',
 		compId: 'articles-docs-shapes-make-star',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-star',
 	},
 	{
@@ -3605,6 +4054,7 @@ export const articles = [
 		relativePath: 'docs/shapes/make-triangle.mdx',
 		compId: 'articles-docs-shapes-make-triangle',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/make-triangle',
 	},
 	{
@@ -3613,6 +4063,7 @@ export const articles = [
 		relativePath: 'docs/shapes/pie.mdx',
 		compId: 'articles-docs-shapes-pie',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/pie',
 	},
 	{
@@ -3621,6 +4072,7 @@ export const articles = [
 		relativePath: 'docs/shapes/polygon.mdx',
 		compId: 'articles-docs-shapes-polygon',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/polygon',
 	},
 	{
@@ -3629,6 +4081,7 @@ export const articles = [
 		relativePath: 'docs/shapes/rect.mdx',
 		compId: 'articles-docs-shapes-rect',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/rect',
 	},
 	{
@@ -3637,6 +4090,7 @@ export const articles = [
 		relativePath: 'docs/shapes/star.mdx',
 		compId: 'articles-docs-shapes-star',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/star',
 	},
 	{
@@ -3645,6 +4099,7 @@ export const articles = [
 		relativePath: 'docs/shapes/triangle.mdx',
 		compId: 'articles-docs-shapes-triangle',
 		crumb: '@remotion/shapes',
+		noAi: false,
 		slug: 'shapes/triangle',
 	},
 	{
@@ -3653,6 +4108,7 @@ export const articles = [
 		relativePath: 'docs/skia/enable-skia.mdx',
 		compId: 'articles-docs-skia-enable-skia',
 		crumb: '@remotion/skia',
+		noAi: false,
 		slug: 'skia/enable-skia',
 	},
 	{
@@ -3661,6 +4117,7 @@ export const articles = [
 		relativePath: 'docs/skia/skia-canvas.mdx',
 		compId: 'articles-docs-skia-skia-canvas',
 		crumb: '@remotion/skia',
+		noAi: false,
 		slug: 'skia/skia-canvas',
 	},
 	{
@@ -3669,6 +4126,7 @@ export const articles = [
 		relativePath: 'docs/skia/skia.mdx',
 		compId: 'articles-docs-skia-skia',
 		crumb: null,
+		noAi: false,
 		slug: 'skia/skia',
 	},
 	{
@@ -3677,6 +4135,7 @@ export const articles = [
 		relativePath: 'docs/slow-method-to-extract-frame.mdx',
 		compId: 'articles-docs-slow-method-to-extract-frame',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'slow-method-to-extract-frame',
 	},
 	{
@@ -3685,6 +4144,7 @@ export const articles = [
 		relativePath: 'docs/spline.mdx',
 		compId: 'articles-docs-spline',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'spline',
 	},
 	{
@@ -3693,6 +4153,7 @@ export const articles = [
 		relativePath: 'docs/spring.mdx',
 		compId: 'articles-docs-spring',
 		crumb: 'API',
+		noAi: false,
 		slug: 'spring',
 	},
 	{
@@ -3701,6 +4162,7 @@ export const articles = [
 		relativePath: 'docs/ssr-legacy.mdx',
 		compId: 'articles-docs-ssr-legacy',
 		crumb: 'Legacy docs',
+		noAi: false,
 		slug: 'ssr-legacy',
 	},
 	{
@@ -3709,6 +4171,7 @@ export const articles = [
 		relativePath: 'docs/ssr-node.mdx',
 		compId: 'articles-docs-ssr-node',
 		crumb: 'Server-side rendering',
+		noAi: false,
 		slug: 'ssr-node',
 	},
 	{
@@ -3717,6 +4180,7 @@ export const articles = [
 		relativePath: 'docs/ssr.mdx',
 		compId: 'articles-docs-ssr',
 		crumb: 'The power of',
+		noAi: false,
 		slug: 'ssr',
 	},
 	{
@@ -3725,6 +4189,7 @@ export const articles = [
 		relativePath: 'docs/standalone.mdx',
 		compId: 'articles-docs-standalone',
 		crumb: null,
+		noAi: false,
 		slug: 'standalone',
 	},
 	{
@@ -3733,6 +4198,7 @@ export const articles = [
 		relativePath: 'docs/static-file-relative-paths.mdx',
 		compId: 'articles-docs-static-file-relative-paths',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'static-file-relative-paths',
 	},
 	{
@@ -3741,6 +4207,7 @@ export const articles = [
 		relativePath: 'docs/static-file-remote-urls.mdx',
 		compId: 'articles-docs-static-file-remote-urls',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'static-file-remote-urls',
 	},
 	{
@@ -3749,6 +4216,7 @@ export const articles = [
 		relativePath: 'docs/staticfile.mdx',
 		compId: 'articles-docs-staticfile',
 		crumb: 'API',
+		noAi: false,
 		slug: 'staticfile',
 	},
 	{
@@ -3757,6 +4225,7 @@ export const articles = [
 		relativePath: 'docs/still.mdx',
 		compId: 'articles-docs-still',
 		crumb: 'API',
+		noAi: false,
 		slug: 'still',
 	},
 	{
@@ -3765,6 +4234,7 @@ export const articles = [
 		relativePath: 'docs/stills.mdx',
 		compId: 'articles-docs-stills',
 		crumb: 'How to generate',
+		noAi: false,
 		slug: 'stills',
 	},
 	{
@@ -3773,6 +4243,7 @@ export const articles = [
 		relativePath: 'docs/studio/api.mdx',
 		compId: 'articles-docs-studio-api',
 		crumb: null,
+		noAi: false,
 		slug: 'studio/api',
 	},
 	{
@@ -3781,6 +4252,7 @@ export const articles = [
 		relativePath: 'docs/studio/delete-static-file.mdx',
 		compId: 'articles-docs-studio-delete-static-file',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/delete-static-file',
 	},
 	{
@@ -3789,6 +4261,7 @@ export const articles = [
 		relativePath: 'docs/studio/deploy-server.mdx',
 		compId: 'articles-docs-studio-deploy-server',
 		crumb: 'Remotion Studio',
+		noAi: false,
 		slug: 'studio/deploy-server',
 	},
 	{
@@ -3797,6 +4270,7 @@ export const articles = [
 		relativePath: 'docs/studio/deploy-static.mdx',
 		compId: 'articles-docs-studio-deploy-static',
 		crumb: 'Remotion Studio',
+		noAi: false,
 		slug: 'studio/deploy-static',
 	},
 	{
@@ -3805,6 +4279,7 @@ export const articles = [
 		relativePath: 'docs/studio/focus-default-props-path.mdx',
 		compId: 'articles-docs-studio-focus-default-props-path',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/focus-default-props-path',
 	},
 	{
@@ -3813,6 +4288,7 @@ export const articles = [
 		relativePath: 'docs/studio/get-static-files.mdx',
 		compId: 'articles-docs-studio-get-static-files',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/get-static-files',
 	},
 	{
@@ -3821,6 +4297,7 @@ export const articles = [
 		relativePath: 'docs/studio/quick-switcher.mdx',
 		compId: 'articles-docs-studio-quick-switcher',
 		crumb: 'Remotion Studio',
+		noAi: false,
 		slug: 'studio/quick-switcher',
 	},
 	{
@@ -3829,6 +4306,7 @@ export const articles = [
 		relativePath: 'docs/studio/reevaluate-composition.mdx',
 		compId: 'articles-docs-studio-reevaluate-composition',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/reevaluate-composition',
 	},
 	{
@@ -3837,6 +4315,7 @@ export const articles = [
 		relativePath: 'docs/studio/restart-studio.mdx',
 		compId: 'articles-docs-studio-restart-studio',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/restart-studio',
 	},
 	{
@@ -3845,6 +4324,7 @@ export const articles = [
 		relativePath: 'docs/studio/save-default-props.mdx',
 		compId: 'articles-docs-studio-save-default-props',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/save-default-props',
 	},
 	{
@@ -3853,6 +4333,7 @@ export const articles = [
 		relativePath: 'docs/studio/shortcuts.mdx',
 		compId: 'articles-docs-studio-shortcuts',
 		crumb: 'Remotion Studio',
+		noAi: false,
 		slug: 'studio/shortcuts',
 	},
 	{
@@ -3861,6 +4342,7 @@ export const articles = [
 		relativePath: 'docs/studio/studio.mdx',
 		compId: 'articles-docs-studio-studio',
 		crumb: 'Timeline basics',
+		noAi: false,
 		slug: 'studio/studio',
 	},
 	{
@@ -3869,6 +4351,7 @@ export const articles = [
 		relativePath: 'docs/studio/update-default-props.mdx',
 		compId: 'articles-docs-studio-update-default-props',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/update-default-props',
 	},
 	{
@@ -3877,6 +4360,7 @@ export const articles = [
 		relativePath: 'docs/studio/watch-public-folder.mdx',
 		compId: 'articles-docs-studio-watch-public-folder',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/watch-public-folder',
 	},
 	{
@@ -3885,6 +4369,7 @@ export const articles = [
 		relativePath: 'docs/studio/watch-static-file.mdx',
 		compId: 'articles-docs-studio-watch-static-file',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/watch-static-file',
 	},
 	{
@@ -3893,6 +4378,7 @@ export const articles = [
 		relativePath: 'docs/studio/write-static-file.mdx',
 		compId: 'articles-docs-studio-write-static-file',
 		crumb: '@remotion/studio',
+		noAi: false,
 		slug: 'studio/write-static-file',
 	},
 	{
@@ -3901,6 +4387,7 @@ export const articles = [
 		relativePath: 'docs/studio-app.mdx',
 		compId: 'articles-docs-studio-app',
 		crumb: 'Converting Remotion Projects',
+		noAi: false,
 		slug: 'studio-app',
 	},
 	{
@@ -3909,6 +4396,7 @@ export const articles = [
 		relativePath: 'docs/support.mdx',
 		compId: 'articles-docs-support',
 		crumb: 'Let us help you',
+		noAi: false,
 		slug: 'support',
 	},
 	{
@@ -3917,6 +4405,7 @@ export const articles = [
 		relativePath: 'docs/svelte.mdx',
 		compId: 'articles-docs-svelte',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'svelte',
 	},
 	{
@@ -3925,6 +4414,7 @@ export const articles = [
 		relativePath: 'docs/system-prompt.mdx',
 		compId: 'articles-docs-system-prompt',
 		crumb: 'AI',
+		noAi: false,
 		slug: 'system-prompt',
 	},
 	{
@@ -3933,6 +4423,7 @@ export const articles = [
 		relativePath: 'docs/tailwind/enable-tailwind.mdx',
 		compId: 'articles-docs-tailwind-enable-tailwind',
 		crumb: '@remotion/tailwind',
+		noAi: false,
 		slug: 'tailwind/enable-tailwind',
 	},
 	{
@@ -3941,6 +4432,7 @@ export const articles = [
 		relativePath: 'docs/tailwind/overview.mdx',
 		compId: 'articles-docs-tailwind-overview',
 		crumb: null,
+		noAi: false,
 		slug: 'tailwind/overview',
 	},
 	{
@@ -3949,6 +4441,7 @@ export const articles = [
 		relativePath: 'docs/tailwind-2.mdx',
 		compId: 'articles-docs-tailwind-2',
 		crumb: 'Legacy docs',
+		noAi: false,
 		slug: 'tailwind-2',
 	},
 	{
@@ -3957,6 +4450,7 @@ export const articles = [
 		relativePath: 'docs/tailwind.mdx',
 		compId: 'articles-docs-tailwind',
 		crumb: 'text-lg font-bold',
+		noAi: false,
 		slug: 'tailwind',
 	},
 	{
@@ -3965,6 +4459,7 @@ export const articles = [
 		relativePath: 'docs/target-closed.mdx',
 		compId: 'articles-docs-target-closed',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'target-closed',
 	},
 	{
@@ -3973,6 +4468,7 @@ export const articles = [
 		relativePath: 'docs/terminology/bundle.mdx',
 		compId: 'articles-docs-terminology-bundle',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/bundle',
 	},
 	{
@@ -3981,6 +4477,7 @@ export const articles = [
 		relativePath: 'docs/terminology/cloud-run-url.mdx',
 		compId: 'articles-docs-terminology-cloud-run-url',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/cloud-run-url',
 	},
 	{
@@ -3989,6 +4486,7 @@ export const articles = [
 		relativePath: 'docs/terminology/composition.mdx',
 		compId: 'articles-docs-terminology-composition',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/composition',
 	},
 	{
@@ -3997,6 +4495,7 @@ export const articles = [
 		relativePath: 'docs/terminology/concurrency.mdx',
 		compId: 'articles-docs-terminology-concurrency',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/concurrency',
 	},
 	{
@@ -4005,6 +4504,7 @@ export const articles = [
 		relativePath: 'docs/terminology/entry-point.mdx',
 		compId: 'articles-docs-terminology-entry-point',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/entry-point',
 	},
 	{
@@ -4013,6 +4513,7 @@ export const articles = [
 		relativePath: 'docs/terminology/input-props.mdx',
 		compId: 'articles-docs-terminology-input-props',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/input-props',
 	},
 	{
@@ -4021,6 +4522,7 @@ export const articles = [
 		relativePath: 'docs/terminology/player.mdx',
 		compId: 'articles-docs-terminology-player',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/player',
 	},
 	{
@@ -4029,6 +4531,7 @@ export const articles = [
 		relativePath: 'docs/terminology/public-dir.mdx',
 		compId: 'articles-docs-terminology-public-dir',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/public-dir',
 	},
 	{
@@ -4037,6 +4540,7 @@ export const articles = [
 		relativePath: 'docs/terminology/remotion-root.mdx',
 		compId: 'articles-docs-terminology-remotion-root',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/remotion-root',
 	},
 	{
@@ -4045,6 +4549,7 @@ export const articles = [
 		relativePath: 'docs/terminology/root-file.mdx',
 		compId: 'articles-docs-terminology-root-file',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/root-file',
 	},
 	{
@@ -4053,6 +4558,7 @@ export const articles = [
 		relativePath: 'docs/terminology/sequence.mdx',
 		compId: 'articles-docs-terminology-sequence',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/sequence',
 	},
 	{
@@ -4061,6 +4567,7 @@ export const articles = [
 		relativePath: 'docs/terminology/serve-url.mdx',
 		compId: 'articles-docs-terminology-serve-url',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/serve-url',
 	},
 	{
@@ -4069,6 +4576,7 @@ export const articles = [
 		relativePath: 'docs/terminology/service-name.mdx',
 		compId: 'articles-docs-terminology-service-name',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/service-name',
 	},
 	{
@@ -4077,6 +4585,7 @@ export const articles = [
 		relativePath: 'docs/terminology/studio.mdx',
 		compId: 'articles-docs-terminology-studio',
 		crumb: 'Terminology',
+		noAi: false,
 		slug: 'terminology/studio',
 	},
 	{
@@ -4085,6 +4594,7 @@ export const articles = [
 		relativePath: 'docs/terminology.mdx',
 		compId: 'articles-docs-terminology',
 		crumb: 'The Remotion dictionary',
+		noAi: false,
 		slug: 'terminology',
 	},
 	{
@@ -4093,6 +4603,7 @@ export const articles = [
 		relativePath: 'docs/the-fundamentals.mdx',
 		compId: 'articles-docs-the-fundamentals',
 		crumb: 'Getting started',
+		noAi: false,
 		slug: 'the-fundamentals',
 	},
 	{
@@ -4101,6 +4612,7 @@ export const articles = [
 		relativePath: 'docs/third-party.mdx',
 		compId: 'articles-docs-third-party',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'third-party',
 	},
 	{
@@ -4109,6 +4621,7 @@ export const articles = [
 		relativePath: 'docs/three-canvas.mdx',
 		compId: 'articles-docs-three-canvas',
 		crumb: '@remotion/three',
+		noAi: false,
 		slug: 'three-canvas',
 	},
 	{
@@ -4117,6 +4630,7 @@ export const articles = [
 		relativePath: 'docs/three.mdx',
 		compId: 'articles-docs-three',
 		crumb: null,
+		noAi: false,
 		slug: 'three',
 	},
 	{
@@ -4125,6 +4639,7 @@ export const articles = [
 		relativePath: 'docs/timeout.mdx',
 		compId: 'articles-docs-timeout',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'timeout',
 	},
 	{
@@ -4133,6 +4648,7 @@ export const articles = [
 		relativePath: 'docs/transforms.mdx',
 		compId: 'articles-docs-transforms',
 		crumb: 'The fundamentals',
+		noAi: false,
 		slug: 'transforms',
 	},
 	{
@@ -4141,6 +4657,7 @@ export const articles = [
 		relativePath: 'docs/transitions/audio-transitions.mdx',
 		compId: 'articles-docs-transitions-audio-transitions',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/audio-transitions',
 	},
 	{
@@ -4149,6 +4666,7 @@ export const articles = [
 		relativePath: 'docs/transitions/index.mdx',
 		compId: 'articles-docs-transitions-index',
 		crumb: null,
+		noAi: false,
 		slug: 'transitions/index',
 	},
 	{
@@ -4157,6 +4675,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/clock-wipe.mdx',
 		compId: 'articles-docs-transitions-presentations-clock-wipe',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/clock-wipe',
 	},
 	{
@@ -4165,6 +4684,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/cube.mdx',
 		compId: 'articles-docs-transitions-presentations-cube',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/cube',
 	},
 	{
@@ -4173,6 +4693,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/custom.mdx',
 		compId: 'articles-docs-transitions-presentations-custom',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/presentations/custom',
 	},
 	{
@@ -4181,6 +4702,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/fade.mdx',
 		compId: 'articles-docs-transitions-presentations-fade',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/fade',
 	},
 	{
@@ -4189,6 +4711,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/flip.mdx',
 		compId: 'articles-docs-transitions-presentations-flip',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/flip',
 	},
 	{
@@ -4197,6 +4720,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/index.mdx',
 		compId: 'articles-docs-transitions-presentations-index',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/presentations/index',
 	},
 	{
@@ -4205,6 +4729,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/none.mdx',
 		compId: 'articles-docs-transitions-presentations-none',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/none',
 	},
 	{
@@ -4213,6 +4738,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/slide.mdx',
 		compId: 'articles-docs-transitions-presentations-slide',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/slide',
 	},
 	{
@@ -4221,6 +4747,7 @@ export const articles = [
 		relativePath: 'docs/transitions/presentations/wipe.mdx',
 		compId: 'articles-docs-transitions-presentations-wipe',
 		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
 		slug: 'transitions/presentations/wipe',
 	},
 	{
@@ -4229,6 +4756,7 @@ export const articles = [
 		relativePath: 'docs/transitions/timings/custom.mdx',
 		compId: 'articles-docs-transitions-timings-custom',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/timings/custom',
 	},
 	{
@@ -4237,6 +4765,7 @@ export const articles = [
 		relativePath: 'docs/transitions/timings/index.mdx',
 		compId: 'articles-docs-transitions-timings-index',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/timings/index',
 	},
 	{
@@ -4245,6 +4774,7 @@ export const articles = [
 		relativePath: 'docs/transitions/timings/lineartiming.mdx',
 		compId: 'articles-docs-transitions-timings-lineartiming',
 		crumb: '@remotion/transitions - Timings',
+		noAi: false,
 		slug: 'transitions/timings/lineartiming',
 	},
 	{
@@ -4253,6 +4783,7 @@ export const articles = [
 		relativePath: 'docs/transitions/timings/springtiming.mdx',
 		compId: 'articles-docs-transitions-timings-springtiming',
 		crumb: '@remotion/transitions - Timings',
+		noAi: false,
 		slug: 'transitions/timings/springtiming',
 	},
 	{
@@ -4261,6 +4792,7 @@ export const articles = [
 		relativePath: 'docs/transitions/transitionseries.mdx',
 		compId: 'articles-docs-transitions-transitionseries',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/transitionseries',
 	},
 	{
@@ -4269,6 +4801,7 @@ export const articles = [
 		relativePath: 'docs/transitions/use-transition-progress.mdx',
 		compId: 'articles-docs-transitions-use-transition-progress',
 		crumb: '@remotion/transitions',
+		noAi: false,
 		slug: 'transitions/use-transition-progress',
 	},
 	{
@@ -4277,6 +4810,7 @@ export const articles = [
 		relativePath: 'docs/transitions.mdx',
 		compId: 'articles-docs-transitions',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'transitions',
 	},
 	{
@@ -4285,6 +4819,7 @@ export const articles = [
 		relativePath: 'docs/transparent-videos.mdx',
 		compId: 'articles-docs-transparent-videos',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'transparent-videos',
 	},
 	{
@@ -4293,6 +4828,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/background-image.mdx',
 		compId: 'articles-docs-troubleshooting-background-image',
 		crumb: 'Common mistakes',
+		noAi: false,
 		slug: 'troubleshooting/background-image',
 	},
 	{
@@ -4301,6 +4837,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/broken-fast-refresh.mdx',
 		compId: 'articles-docs-troubleshooting-broken-fast-refresh',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/broken-fast-refresh',
 	},
 	{
@@ -4309,6 +4846,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/browser-launch.mdx',
 		compId: 'articles-docs-troubleshooting-browser-launch',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/browser-launch',
 	},
 	{
@@ -4317,6 +4855,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/bundling-bundle.mdx',
 		compId: 'articles-docs-troubleshooting-bundling-bundle',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/bundling-bundle',
 	},
 	{
@@ -4326,6 +4865,7 @@ export const articles = [
 			'docs/troubleshooting/could-not-be-parsed-as-a-value-list.mdx',
 		compId: 'articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list',
 		crumb: 'Browser quirks',
+		noAi: false,
 		slug: 'troubleshooting/could-not-be-parsed-as-a-value-list',
 	},
 	{
@@ -4334,6 +4874,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/could-not-find-executable-to-run.mdx',
 		compId: 'articles-docs-troubleshooting-could-not-find-executable-to-run',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/could-not-find-executable-to-run',
 	},
 	{
@@ -4342,6 +4883,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/debug-failed-render.mdx',
 		compId: 'articles-docs-troubleshooting-debug-failed-render',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/debug-failed-render',
 	},
 	{
@@ -4350,6 +4892,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/defaultprops-too-big.mdx',
 		compId: 'articles-docs-troubleshooting-defaultprops-too-big',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/defaultprops-too-big',
 	},
 	{
@@ -4358,6 +4901,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/delay-render-proxy.mdx',
 		compId: 'articles-docs-troubleshooting-delay-render-proxy',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/delay-render-proxy',
 	},
 	{
@@ -4366,6 +4910,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/loading-root-component.mdx',
 		compId: 'articles-docs-troubleshooting-loading-root-component',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/loading-root-component',
 	},
 	{
@@ -4374,6 +4919,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/nextjs-image.mdx',
 		compId: 'articles-docs-troubleshooting-nextjs-image',
 		crumb: 'Common mistakes',
+		noAi: false,
 		slug: 'troubleshooting/nextjs-image',
 	},
 	{
@@ -4382,6 +4928,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/render-stuck.mdx',
 		compId: 'articles-docs-troubleshooting-render-stuck',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/render-stuck',
 	},
 	{
@@ -4390,6 +4937,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/rosetta.mdx',
 		compId: 'articles-docs-troubleshooting-rosetta',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/rosetta',
 	},
 	{
@@ -4398,6 +4946,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/sigkill.mdx',
 		compId: 'articles-docs-troubleshooting-sigkill',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/sigkill',
 	},
 	{
@@ -4406,6 +4955,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/timed-out-page-function.mdx',
 		compId: 'articles-docs-troubleshooting-timed-out-page-function',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'troubleshooting/timed-out-page-function',
 	},
 	{
@@ -4414,6 +4964,7 @@ export const articles = [
 		relativePath: 'docs/troubleshooting/video-flicker.mdx',
 		compId: 'articles-docs-troubleshooting-video-flicker',
 		crumb: 'Frame-perfection',
+		noAi: false,
 		slug: 'troubleshooting/video-flicker',
 	},
 	{
@@ -4422,6 +4973,7 @@ export const articles = [
 		relativePath: 'docs/upgrading.mdx',
 		compId: 'articles-docs-upgrading',
 		crumb: 'upgrade remotion',
+		noAi: false,
 		slug: 'upgrading',
 	},
 	{
@@ -4430,6 +4982,7 @@ export const articles = [
 		relativePath: 'docs/use-audio-data.mdx',
 		compId: 'articles-docs-use-audio-data',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'use-audio-data',
 	},
 	{
@@ -4438,6 +4991,7 @@ export const articles = [
 		relativePath: 'docs/use-buffer-state.mdx',
 		compId: 'articles-docs-use-buffer-state',
 		crumb: 'API',
+		noAi: false,
 		slug: 'use-buffer-state',
 	},
 	{
@@ -4446,6 +5000,7 @@ export const articles = [
 		relativePath: 'docs/use-current-frame.mdx',
 		compId: 'articles-docs-use-current-frame',
 		crumb: 'API',
+		noAi: false,
 		slug: 'use-current-frame',
 	},
 	{
@@ -4454,6 +5009,7 @@ export const articles = [
 		relativePath: 'docs/use-current-scale.mdx',
 		compId: 'articles-docs-use-current-scale',
 		crumb: 'API',
+		noAi: false,
 		slug: 'use-current-scale',
 	},
 	{
@@ -4462,6 +5018,7 @@ export const articles = [
 		relativePath: 'docs/use-img-and-iframe.mdx',
 		compId: 'articles-docs-use-img-and-iframe',
 		crumb: 'Best practices',
+		noAi: false,
 		slug: 'use-img-and-iframe',
 	},
 	{
@@ -4470,6 +5027,7 @@ export const articles = [
 		relativePath: 'docs/use-offthread-video-texture.mdx',
 		compId: 'articles-docs-use-offthread-video-texture',
 		crumb: '@remotion/three',
+		noAi: false,
 		slug: 'use-offthread-video-texture',
 	},
 	{
@@ -4478,6 +5036,7 @@ export const articles = [
 		relativePath: 'docs/use-video-config.mdx',
 		compId: 'articles-docs-use-video-config',
 		crumb: 'API',
+		noAi: false,
 		slug: 'use-video-config',
 	},
 	{
@@ -4486,6 +5045,7 @@ export const articles = [
 		relativePath: 'docs/use-video-texture.mdx',
 		compId: 'articles-docs-use-video-texture',
 		crumb: '@remotion/three',
+		noAi: false,
 		slug: 'use-video-texture',
 	},
 	{
@@ -4494,6 +5054,7 @@ export const articles = [
 		relativePath: 'docs/use-windowed-audio-data.mdx',
 		compId: 'articles-docs-use-windowed-audio-data',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'use-windowed-audio-data',
 	},
 	{
@@ -4502,6 +5063,7 @@ export const articles = [
 		relativePath: 'docs/using-audio.mdx',
 		compId: 'articles-docs-using-audio',
 		crumb: 'Techniques',
+		noAi: false,
 		slug: 'using-audio',
 	},
 	{
@@ -4510,6 +5072,7 @@ export const articles = [
 		relativePath: 'docs/using-randomness.mdx',
 		compId: 'articles-docs-using-randomness',
 		crumb: 'Roll the dice',
+		noAi: false,
 		slug: 'using-randomness',
 	},
 	{
@@ -4518,6 +5081,7 @@ export const articles = [
 		relativePath: 'docs/version-mismatch.mdx',
 		compId: 'articles-docs-version-mismatch',
 		crumb: 'How to fix a',
+		noAi: false,
 		slug: 'version-mismatch',
 	},
 	{
@@ -4526,6 +5090,7 @@ export const articles = [
 		relativePath: 'docs/version.mdx',
 		compId: 'articles-docs-version',
 		crumb: 'API',
+		noAi: false,
 		slug: 'version',
 	},
 	{
@@ -4534,6 +5099,7 @@ export const articles = [
 		relativePath: 'docs/video-manipulation.mdx',
 		compId: 'articles-docs-video-manipulation',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'video-manipulation',
 	},
 	{
@@ -4542,6 +5108,7 @@ export const articles = [
 		relativePath: 'docs/video-uploads.mdx',
 		compId: 'articles-docs-video-uploads',
 		crumb: 'Building video apps',
+		noAi: false,
 		slug: 'video-uploads',
 	},
 	{
@@ -4550,6 +5117,7 @@ export const articles = [
 		relativePath: 'docs/video-vs-offthreadvideo.mdx',
 		compId: 'articles-docs-video-vs-offthreadvideo',
 		crumb: 'Comparison',
+		noAi: false,
 		slug: 'video-vs-offthreadvideo',
 	},
 	{
@@ -4558,6 +5126,7 @@ export const articles = [
 		relativePath: 'docs/video.mdx',
 		compId: 'articles-docs-video',
 		crumb: 'API',
+		noAi: false,
 		slug: 'video',
 	},
 	{
@@ -4566,6 +5135,7 @@ export const articles = [
 		relativePath: 'docs/videos/index.mdx',
 		compId: 'articles-docs-videos-index',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'videos/index',
 	},
 	{
@@ -4574,6 +5144,7 @@ export const articles = [
 		relativePath: 'docs/videos/sequence.mdx',
 		compId: 'articles-docs-videos-sequence',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'videos/sequence',
 	},
 	{
@@ -4582,6 +5153,7 @@ export const articles = [
 		relativePath: 'docs/videos/transparency.mdx',
 		compId: 'articles-docs-videos-transparency',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'videos/transparency',
 	},
 	{
@@ -4590,6 +5162,7 @@ export const articles = [
 		relativePath: 'docs/visual-editing.mdx',
 		compId: 'articles-docs-visual-editing',
 		crumb: 'How To',
+		noAi: false,
 		slug: 'visual-editing',
 	},
 	{
@@ -4598,6 +5171,7 @@ export const articles = [
 		relativePath: 'docs/visualize-audio.mdx',
 		compId: 'articles-docs-visualize-audio',
 		crumb: '@remotion/media-utils',
+		noAi: false,
 		slug: 'visualize-audio',
 	},
 	{
@@ -4606,6 +5180,7 @@ export const articles = [
 		relativePath: 'docs/vue.mdx',
 		compId: 'articles-docs-vue',
 		crumb: 'Integrations',
+		noAi: false,
 		slug: 'vue',
 	},
 	{
@@ -4614,6 +5189,7 @@ export const articles = [
 		relativePath: 'docs/watch-static-file.mdx',
 		compId: 'articles-docs-watch-static-file',
 		crumb: 'API',
+		noAi: false,
 		slug: 'watch-static-file',
 	},
 	{
@@ -4622,7 +5198,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/can-copy-audio-track.mdx',
 		compId: 'articles-docs-webcodecs-can-copy-audio-track',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/can-copy-audio-track',
+		noAi: false,
+		slug: 'webcodecs/can-copy-audio-track',
 	},
 	{
 		id: 'can-copy-video-track',
@@ -4630,7 +5207,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/can-copy-video-track.mdx',
 		compId: 'articles-docs-webcodecs-can-copy-video-track',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/can-copy-video-track',
+		noAi: false,
+		slug: 'webcodecs/can-copy-video-track',
 	},
 	{
 		id: 'can-reencode-audio-track',
@@ -4638,7 +5216,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/can-reencode-audio-track.mdx',
 		compId: 'articles-docs-webcodecs-can-reencode-audio-track',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/can-reencode-audio-track',
+		noAi: false,
+		slug: 'webcodecs/can-reencode-audio-track',
 	},
 	{
 		id: 'can-reencode-video-track',
@@ -4646,7 +5225,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/can-reencode-video-track.mdx',
 		compId: 'articles-docs-webcodecs-can-reencode-video-track',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/can-reencode-video-track',
+		noAi: false,
+		slug: 'webcodecs/can-reencode-video-track',
 	},
 	{
 		id: 'convert-a-video',
@@ -4654,7 +5234,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/convert-a-video.mdx',
 		compId: 'articles-docs-webcodecs-convert-a-video',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/convert-a-video',
+		noAi: false,
+		slug: 'webcodecs/convert-a-video',
 	},
 	{
 		id: 'convert-media',
@@ -4662,7 +5243,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/convert-media.mdx',
 		compId: 'articles-docs-webcodecs-convert-media',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/convert-media',
+		noAi: false,
+		slug: 'webcodecs/convert-media',
 	},
 	{
 		id: 'default-on-audio-track-handler',
@@ -4670,7 +5252,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/default-on-audio-track-handler.mdx',
 		compId: 'articles-docs-webcodecs-default-on-audio-track-handler',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/default-on-audio-track-handler',
+		noAi: false,
+		slug: 'webcodecs/default-on-audio-track-handler',
 	},
 	{
 		id: 'default-on-video-track-handler',
@@ -4678,7 +5261,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/default-on-video-track-handler.mdx',
 		compId: 'articles-docs-webcodecs-default-on-video-track-handler',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/default-on-video-track-handler',
+		noAi: false,
+		slug: 'webcodecs/default-on-video-track-handler',
 	},
 	{
 		id: 'fix-mediarecorder-video',
@@ -4686,7 +5270,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/fix-a-mediarecorder-video.mdx',
 		compId: 'articles-docs-webcodecs-fix-a-mediarecorder-video',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/fix-mediarecorder-video',
+		noAi: false,
+		slug: 'webcodecs/fix-mediarecorder-video',
 	},
 	{
 		id: 'get-available-audio-codecs',
@@ -4694,7 +5279,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/get-available-audio-codecs.mdx',
 		compId: 'articles-docs-webcodecs-get-available-audio-codecs',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/get-available-audio-codecs',
+		noAi: false,
+		slug: 'webcodecs/get-available-audio-codecs',
 	},
 	{
 		id: 'get-available-containers',
@@ -4702,7 +5288,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/get-available-containers.mdx',
 		compId: 'articles-docs-webcodecs-get-available-containers',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/get-available-containers',
+		noAi: false,
+		slug: 'webcodecs/get-available-containers',
 	},
 	{
 		id: 'get-available-video-codecs',
@@ -4710,7 +5297,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/get-available-video-codecs.mdx',
 		compId: 'articles-docs-webcodecs-get-available-video-codecs',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/get-available-video-codecs',
+		noAi: false,
+		slug: 'webcodecs/get-available-video-codecs',
 	},
 	{
 		id: 'get-default-audio-codec',
@@ -4718,7 +5306,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/get-default-audio-codec.mdx',
 		compId: 'articles-docs-webcodecs-get-default-audio-codec',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/get-default-audio-codec',
+		noAi: false,
+		slug: 'webcodecs/get-default-audio-codec',
 	},
 	{
 		id: 'get-default-video-codec',
@@ -4726,7 +5315,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/get-default-video-codec.mdx',
 		compId: 'articles-docs-webcodecs-get-default-video-codec',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/get-default-video-codec',
+		noAi: false,
+		slug: 'webcodecs/get-default-video-codec',
 	},
 	{
 		id: 'webcodecs/index',
@@ -4734,6 +5324,7 @@ export const articles = [
 		relativePath: 'docs/webcodecs/index.mdx',
 		compId: 'articles-docs-webcodecs-index',
 		crumb: null,
+		noAi: false,
 		slug: 'webcodecs/index',
 	},
 	{
@@ -4742,7 +5333,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/resizing.mdx',
 		compId: 'articles-docs-webcodecs-resizing',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/resize-a-video',
+		noAi: false,
+		slug: 'webcodecs/resize-a-video',
 	},
 	{
 		id: 'rotate-a-video',
@@ -4750,7 +5342,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/rotation.mdx',
 		compId: 'articles-docs-webcodecs-rotation',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/rotate-a-video',
+		noAi: false,
+		slug: 'webcodecs/rotate-a-video',
 	},
 	{
 		id: 'telemetry',
@@ -4758,7 +5351,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/telemetry.mdx',
 		compId: 'articles-docs-webcodecs-telemetry',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/telemetry',
+		noAi: false,
+		slug: 'webcodecs/telemetry',
 	},
 	{
 		id: 'track-transformation',
@@ -4766,7 +5360,8 @@ export const articles = [
 		relativePath: 'docs/webcodecs/track-transformation.mdx',
 		compId: 'articles-docs-webcodecs-track-transformation',
 		crumb: '@remotion/webcodecs',
-		slug: '/webcodecs/track-transformation',
+		noAi: false,
+		slug: 'webcodecs/track-transformation',
 	},
 	{
 		id: 'wrong-composition-mount',
@@ -4774,6 +5369,7 @@ export const articles = [
 		relativePath: 'docs/wrong-composition-mount.mdx',
 		compId: 'articles-docs-wrong-composition-mount',
 		crumb: 'Troubleshooting',
+		noAi: false,
 		slug: 'wrong-composition-mount',
 	},
 	{
@@ -4782,6 +5378,7 @@ export const articles = [
 		relativePath: 'docs/zod-types/index.mdx',
 		compId: 'articles-docs-zod-types-index',
 		crumb: 'Schema',
+		noAi: false,
 		slug: 'zod-types/index',
 	},
 	{
@@ -4790,6 +5387,7 @@ export const articles = [
 		relativePath: 'docs/zod-types/z-color.mdx',
 		compId: 'articles-docs-zod-types-z-color',
 		crumb: null,
+		noAi: false,
 		slug: 'zod-types/z-color',
 	},
 	{
@@ -4798,6 +5396,7 @@ export const articles = [
 		relativePath: 'docs/zod-types/z-textarea.mdx',
 		compId: 'articles-docs-zod-types-z-textarea',
 		crumb: null,
+		noAi: false,
 		slug: 'zod-types/z-textarea',
 	},
 ];
