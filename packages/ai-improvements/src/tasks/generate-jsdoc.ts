@@ -65,6 +65,7 @@ export const generateJSDocTask = async ({
 	const newDocument = addJsDocComment({
 		documentTitle: title,
 		sourceCode: sourceContents,
+		comment: reply,
 	});
 	await Bun.write(filePath, newDocument);
 

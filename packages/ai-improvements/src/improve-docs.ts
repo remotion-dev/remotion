@@ -1,6 +1,6 @@
 import {OpenAI} from 'openai';
 import path from 'path';
-import {getApis} from './map-over-api';
+import {getApis} from '../map-over-api';
 import {findMistakes} from './tasks/find-mistakes';
 import {generateJSDocTask} from './tasks/generate-jsdoc';
 
@@ -26,7 +26,6 @@ for (const api of apis) {
 	}
 
 	const file = path.join(process.cwd(), '..', '..', api.sourceCodePath);
-	console.log(file);
 	const sourceContents = await Bun.file(file).text();
 	console.log(`Article ${api.title} contains source code`);
 
@@ -48,6 +47,5 @@ for (const api of apis) {
 
 	await Bun.write(flag, 'txt');
 	if (reply !== 'OK') {
-		process.exit(0);
 	}
 }

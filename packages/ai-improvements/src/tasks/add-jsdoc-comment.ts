@@ -5,10 +5,17 @@ import * as tsParser from 'recast/parsers/babel-ts';
 export const addJsDocComment = ({
 	documentTitle,
 	sourceCode,
+	comment,
 }: {
 	documentTitle: string;
 	sourceCode: string;
+	comment: string;
 }) => {
+	if (!comment.startsWith('/*') || !comment.endsWith('*/')) {
+		throw new Error('Comment must be a block comment');
+	}
+	const removedComment = comment.slice(2, -2).trim();
+
 	const ast = recast.parse(sourceCode, {
 		parser: tsParser,
 	}) as File;
@@ -47,7 +54,7 @@ export const addJsDocComment = ({
 				return node;
 			}
 
-			const newComment = recast.types.builders.commentBlock('hi there');
+			const newComment = recast.types.builders.commentBlock(removedComment);
 			return {
 				...node,
 				leadingComments: [newComment],
