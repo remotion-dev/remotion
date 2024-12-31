@@ -32,6 +32,20 @@ const findTitle = (split) => {
 	return title;
 };
 
+const findSlug = (split) => {
+	const slugSearch = split.find((s) => s.startsWith('slug: '));
+	if (!slugSearch) {
+		return null;
+	}
+
+	const slug = slugSearch.replace(/^slug:\s/, '');
+	if (slug.startsWith('"') || slug.startsWith("'")) {
+		return slug.substr(1, slug.length - 2);
+	}
+
+	return slug;
+};
+
 const findCrumb = (split) => {
 	const crumb = split
 		.find((s) => s.startsWith('crumb: '))
@@ -69,6 +83,7 @@ for (const page of pages) {
 	const split = frontmatter[1].split(os.EOL);
 	const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
 	const title = findTitle(split);
+	const slug = findSlug(split);
 	const crumb = findCrumb(split);
 
 	const relativePath = page
@@ -81,7 +96,19 @@ for (const page of pages) {
 			.replaceAll(path.posix.sep, '-')
 			.replace(/.md$/, '')
 			.replace(/.mdx$/, '');
-	data.push({id, title, relativePath, compId, crumb});
+	data.push({
+		id,
+		title,
+		relativePath,
+		compId,
+		crumb,
+		slug:
+			slug ??
+			relativePath
+				.replace(/^docs\//, '')
+				.replace(/.md$/, '')
+				.replace(/.mdx$/, ''),
+	});
 }
 
 fs.writeFileSync(

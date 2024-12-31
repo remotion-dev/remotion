@@ -15,6 +15,9 @@ const getSourceCodeLink = async (filePath: string) => {
 	if (!match) {
 		return null;
 	}
+	if (contents.includes('Source code for this documentation')) {
+		return null;
+	}
 	const url = match[1];
 	const p = url.replace(
 		'https://github.com/remotion-dev/remotion/blob/main/',
@@ -45,7 +48,7 @@ export const getApis = async () => {
 			sourceCodePath: sourceCodeLink,
 			id: article.id,
 			title: article.title,
-			link: `https://remotion.dev/docs/${article.id}`,
+			link: `https://remotion.dev/docs/${article.slug}`,
 		});
 	}
 

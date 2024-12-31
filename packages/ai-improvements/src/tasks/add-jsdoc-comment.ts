@@ -11,10 +11,11 @@ export const addJsDocComment = ({
 	sourceCode: string;
 	comment: string;
 }) => {
-	if (!comment.startsWith('/*') || !comment.endsWith('*/')) {
+	const trimmed = comment.trim();
+	if (!trimmed.startsWith('/**') || !trimmed.endsWith('*/')) {
 		throw new Error('Comment must be a block comment');
 	}
-	const removedComment = comment.slice(2, -2).trim();
+	const removedComment = '\n' + trimmed.slice(3, -2).trim() + '\n';
 
 	const ast = recast.parse(sourceCode, {
 		parser: tsParser,
@@ -25,6 +26,8 @@ export const addJsDocComment = ({
 		.replace(/\</, '')
 		.replace(/\>/, '')
 		.replace(/\\/, '');
+
+	let found = false;
 
 	recast.visit(ast, {
 		visitExportNamedDeclaration: (p) => {
@@ -54,6 +57,7 @@ export const addJsDocComment = ({
 				return node;
 			}
 
+			found = true;
 			const newComment = recast.types.builders.commentBlock(removedComment);
 			return {
 				...node,
@@ -61,6 +65,12 @@ export const addJsDocComment = ({
 			};
 		},
 	});
+
+	if (!found) {
+		throw new Error(
+			'Could not find the function to add the comment to ' + withoutParentheses,
+		);
+	}
 
 	const output = recast.print(ast, {
 		parser: tsParser,

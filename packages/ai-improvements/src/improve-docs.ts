@@ -1,6 +1,6 @@
 import {OpenAI} from 'openai';
 import path from 'path';
-import {getApis} from '../map-over-api';
+import {getApis} from './map-over-api';
 import {findMistakes} from './tasks/find-mistakes';
 import {generateJSDocTask} from './tasks/generate-jsdoc';
 

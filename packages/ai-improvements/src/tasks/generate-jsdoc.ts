@@ -32,9 +32,9 @@ export const generateJSDocTask = async ({
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
  * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
- * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
           `,
+					'Dont document params or return values, only the description and the @see tag.',
 				].join('\n'),
 			},
 			{
