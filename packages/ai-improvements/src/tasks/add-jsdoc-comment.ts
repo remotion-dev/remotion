@@ -15,7 +15,7 @@ export const addJsDocComment = ({
 	if (!trimmed.startsWith('/**') || !trimmed.endsWith('*/')) {
 		throw new Error('Comment must be a block comment, but');
 	}
-	const removedComment = '\n ' + trimmed.slice(3, -2).trim() + '\n ';
+	const commentWithoutStars = '\n ' + trimmed.slice(3, -2).trim() + '\n ';
 
 	const ast = recast.parse(sourceCode, {
 		parser: tsParser,
@@ -68,7 +68,7 @@ export const addJsDocComment = ({
 
 			found = true;
 			const newComment = recast.types.builders.commentBlock(
-				removedComment,
+				commentWithoutStars,
 				true,
 			);
 			return {
@@ -87,7 +87,7 @@ export const addJsDocComment = ({
 		);
 	}
 
-	console.log('Added comment', {removedComment});
+	console.log('Added comment', commentWithoutStars);
 	const output = recast.print(ast, {
 		parser: tsParser,
 	}).code;

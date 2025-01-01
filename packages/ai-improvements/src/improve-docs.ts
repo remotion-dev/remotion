@@ -18,13 +18,6 @@ for (const api of apis) {
 		continue;
 	}
 
-	const flag = path.join('.done', api.id);
-
-	if (await Bun.file(flag).exists()) {
-		console.log(`Article ${api.title} already processed`);
-		continue;
-	}
-
 	const file = path.join(process.cwd(), '..', '..', api.sourceCodePath);
 	const sourceContents = await Bun.file(file).text();
 	console.log(`Article ${api.title} contains source code`);
@@ -44,6 +37,4 @@ for (const api of apis) {
 				openai,
 				contents,
 			});
-
-	await Bun.write(flag, 'txt');
 }

@@ -21,12 +21,10 @@ export type CreateTikTokStyleCaptionsOutput = {
 	pages: TikTokPage[];
 };
 
-export function createTikTokStyleCaptions(
-    {
-        captions,
-        combineTokensWithinMilliseconds,
-    }: CreateTikTokStyleCaptionsInput
-): CreateTikTokStyleCaptionsOutput {
+export function createTikTokStyleCaptions({
+	captions,
+	combineTokensWithinMilliseconds,
+}: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput {
 	const tikTokStyleCaptions: TikTokPage[] = [];
 	let currentText = '';
 	let currentTokens: TikTokToken[] = [];
