@@ -28,6 +28,7 @@ export const addJsDocComment = ({
 		.replace(/\\/, '');
 
 	let found = false;
+	let same = false;
 
 	recast.visit(ast, {
 		visitExportNamedDeclaration: (p) => {
@@ -71,12 +72,19 @@ export const addJsDocComment = ({
 				commentWithoutStars,
 				true,
 			);
+
+			const same = node.comments?.[0]?.value === newComment.value;
+
 			return {
 				...node,
 				leadingComments: [newComment],
 			};
 		},
 	});
+
+	if (same) {
+		return sourceCode;
+	}
 
 	if (!found) {
 		console.log('source:');
