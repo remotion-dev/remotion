@@ -8,9 +8,9 @@ export type TransitionState = {
 };
 
 /*
-* @description A hook that can be used inside a child of a <TransitionSeries.Sequence> to get the progress of the transition to directly manipulate the objects inside the scene.
- * @see [Documentation](https://remotion.dev/docs/transitions/use-transition-progress)
-*/
+ * @description A hook that can be used inside a child of a <TransitionSeries.Sequence> to get the progress of the transition to directly manipulate the objects inside the scene.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/use-transition-progress)
+ */
 export const useTransitionProgress = (): TransitionState => {
 	const entering = React.useContext(EnteringContext);
 	const exiting = React.useContext(ExitingContext);

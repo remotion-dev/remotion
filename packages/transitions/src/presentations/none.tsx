@@ -25,8 +25,8 @@ const NonePresentation: React.FC<
 };
 
 /*
- * @description A presentation that has no visual effect on its own, allowing control of visual effects through the use of a transition progress hook.
- * @see [Documentation](https://remotion.dev/docs/transitions/presentations/none)
+ * @description A presentation that has no visual effect on its own. Instead, you control the visual effect by using the useTransitionProgress() hook.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/none)
  */
 export const none = (props?: NoneProps): TransitionPresentation<NoneProps> => {
 	return {

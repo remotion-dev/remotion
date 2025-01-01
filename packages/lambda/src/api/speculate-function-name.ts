@@ -7,13 +7,9 @@ export type SpeculateFunctionNameInput = {
 	timeoutInSeconds: string | number;
 };
 
-/**
- * @description Speculate the name of a lambda function that will be created when you call `deployFunction`, based on the function configuration.
- * @see [Documentation](https://www.remotion.dev/docs/lambda/speculatefunctionname)
- * @param params.memorySizeInMb How much memory is allocated to the Lambda function.
- * @param params.diskSizeInMb The amount of storage the function is allocated.
- * @param params.timeoutInSeconds Time in seconds until the function times out.
- * @returns {string} The speculated lambda function name
+/*
+ * @description Speculate the name of the Lambda function that will be created by `deployFunction()` or its CLI equivalent, based on the function configuration.
+ * @see [Documentation](https://remotion.dev/docs/lambda/speculatefunctionname)
  */
 export const speculateFunctionName = ({
 	memorySizeInMb,

@@ -359,8 +359,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 };
 
 /*
- * @description A function component that manages a series of transitions and sequences for advanced animation controls in Remotion projects, specifically handling cases with varying timings and effects.
- * @see [Documentation](https://remotion.dev/docs/transitions/transitionseries)
+ * @description Manages a series of transitions and sequences for advanced animation controls in Remotion projects, handling cases with varying timings and presentations.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/transitionseries)
  */
 export const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;

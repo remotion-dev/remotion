@@ -160,7 +160,7 @@ const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
 
 /*
  * @description Renders a still image inside a lambda function and writes it to the specified output location.
- * @see [Documentation](https://remotion.dev/docs//lambda/renderstillonlambda)
+ * @see [Documentation](https://remotion.dev/docs/lambda/renderstillonlambda)
  */
 export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 	return errorHandled({

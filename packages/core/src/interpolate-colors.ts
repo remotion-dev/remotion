@@ -319,24 +319,28 @@ function normalizeColor(color: string): number {
 	if (matchers.rgb) {
 		if ((match = matchers.rgb.exec(color))) {
 			return (
-                // b
-                (// a
-                ((parse255(match[1]) << 24) | // r
+				// b
+				// a
+				((parse255(match[1]) << 24) | // r
 					(parse255(match[2]) << 16) | // g
-					(parse255(match[3]) << 8) | 0x000000ff) >>> 0)
-            );
+					(parse255(match[3]) << 8) |
+					0x000000ff) >>>
+				0
+			);
 		}
 	}
 
 	if (matchers.rgba) {
 		if ((match = matchers.rgba.exec(color))) {
 			return (
-                // b
-                (// a
-                ((parse255(match[1]) << 24) | // r
+				// b
+				// a
+				((parse255(match[1]) << 24) | // r
 					(parse255(match[2]) << 16) | // g
-					(parse255(match[3]) << 8) | parse1(match[4])) >>> 0)
-            );
+					(parse255(match[3]) << 8) |
+					parse1(match[4])) >>>
+				0
+			);
 		}
 	}
 

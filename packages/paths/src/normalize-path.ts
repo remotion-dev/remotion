@@ -173,8 +173,8 @@ export const normalizeInstructions = (
 };
 
 /*
- * @description Removes all relative coordinates from an SVG path and converts them into absolute coordinates.
- * @see [Documentation](https://remotion.dev/docs/paths/normalize-path)
+ * @description Removes all relative coordinates from a path and converts them into absolute coordinates.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/normalize-path)
  */
 export const normalizePath = (path: string): string => {
 	const instructions = parsePath(path);

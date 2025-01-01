@@ -246,8 +246,8 @@ export const internalGetCompositions = wrapWithErrorHandling(
 );
 
 /*
- * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://remotion.dev/docs/renderer/get-compositions)
+ * @description Gets a list of compositions defined in a Remotion project based on a Remotion Bundle by evaluating the Remotion Root.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,

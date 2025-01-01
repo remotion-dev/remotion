@@ -83,10 +83,9 @@ function reverseNormalizedPath(instructions: Instruction[]) {
 	return revstring;
 }
 
-/**
+/*
  * @description Reverses a path so the end and start are switched.
- * @param {string} path A valid SVG path
- * @see [Documentation](https://remotion.dev/docs/paths/reverse-path)
+ * @see [Documentation](https://www.remotion.dev/docs/paths/reverse-path)
  */
 export const reversePath = (path: string) => {
 	const parsed = parsePath(path);

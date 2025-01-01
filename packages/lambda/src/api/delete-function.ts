@@ -7,12 +7,9 @@ export type DeleteFunctionInput = {
 	functionName: string;
 };
 
-/**
- * @description Deletes a function from AWS Lambda.
+/*
+ * @description Deletes a deployed Lambda function based on its name.
  * @see [Documentation](https://remotion.dev/docs/lambda/deletefunction)
- * @param params.region The region the function was deployed to.
- * @param params.functionName The name of the function.
- * @returns {Promise<void>} Nothing. Throws if the function failed to delete.
  */
 export const deleteFunction = async ({
 	region,

@@ -1,0 +1,4 @@
+/**
+ * @description Takes an audio src, loads it and returns data and metadata for the specified source.
+ * @see [Documentation](https://remotion.dev/docs/get-audio-data)
+ */

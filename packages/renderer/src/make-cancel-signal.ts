@@ -2,7 +2,7 @@ type Callback = () => void;
 
 export type CancelSignal = (callback: Callback) => void;
 
-/**
+/*
  * @description Returns a signal and a cancel function that allows to you cancel a render triggered using renderMedia(), renderStill(), renderFrames() or stitchFramesToVideo().
  * @see [Documentation](https://www.remotion.dev/docs/renderer/make-cancel-signal)
  */

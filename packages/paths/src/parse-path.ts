@@ -87,10 +87,8 @@ const parseValues = (
 	return numbers.map(Number);
 };
 
-/**
+/*
  * @description Parses an SVG string path into an array of Instruction's.
- * @param {string} path
- * @returns an array of objects containing the Instructions
  * @see [Documentation](https://www.remotion.dev/docs/paths/parse-path)
  */
 export const parsePath = (path: string): Instruction[] => {

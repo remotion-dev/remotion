@@ -85,9 +85,9 @@ const Flip: React.FC<TransitionPresentationComponentProps<FlipProps>> = ({
 	);
 };
 /*
-* @description A presentation where the exiting slide flips by 180 degrees, revealing the next slide on the back side.
- * @see [Documentation](https://remotion.dev/docs/transitions/presentations/flip)
-*/
+ * @description A presentation where the exiting slide flips by 180 degrees, revealing the next slide on the back side.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/flip)
+ */
 
 export const flip = (props?: FlipProps): TransitionPresentation<FlipProps> => {
 	return {component: Flip, props: props ?? {}};

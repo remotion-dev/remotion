@@ -6,12 +6,10 @@ export const addJsDocComment = ({
 	documentTitle,
 	sourceCode,
 	comment,
-	checkIfHasJsDocComment,
 }: {
 	documentTitle: string;
 	sourceCode: string;
 	comment: string;
-	checkIfHasJsDocComment: boolean;
 }) => {
 	const trimmed = comment.trim();
 	if (!trimmed.startsWith('/**') || !trimmed.endsWith('*/')) {
@@ -68,15 +66,11 @@ export const addJsDocComment = ({
 				return node;
 			}
 
-			if (checkIfHasJsDocComment) {
-				return node.comments?.length ? 'true' : 'false';
-			}
 			found = true;
 			const newComment = recast.types.builders.commentBlock(
 				removedComment,
 				true,
 			);
-			console.log('transforming');
 			return {
 				...node,
 				leadingComments: [newComment],
@@ -84,14 +78,11 @@ export const addJsDocComment = ({
 		},
 	});
 
-	if (checkIfHasJsDocComment) {
-		return found ? 'true' : 'false';
-	}
-
 	if (!found) {
 		console.log('source:');
 		console.log(sourceCode);
-		throw new Error(
+		// TODO: Make this an error
+		console.warn(
 			'Could not find the function to add the comment to ' + withoutParentheses,
 		);
 	}

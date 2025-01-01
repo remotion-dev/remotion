@@ -4,10 +4,9 @@ import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
 import {calcNewProps} from './helpers/calc-new-props';
 
-/**
- * Saves the defaultProps for a composition back to the root file.
- * @param {string} compositionId The ID of the composition to save the defaultProps for.
- * @param {SafeDefaultPropsFunction} defaultProps A function that returns the new defaultProps for the composition.
+/*
+ * @description Saves the defaultProps for a composition back to the root file.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/save-default-props)
  */
 export const saveDefaultProps = async ({
 	compositionId,

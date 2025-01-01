@@ -416,7 +416,7 @@ export const internalRenderStill = wrapWithErrorHandling(
 
 /*
  * @description Renders a single frame to an image and writes it to the specified output location.
- * @see [Documentation](https://remotion.dev/docs/renderer/render-still)
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
  */
 export const renderStill = (
 	options: RenderStillOptions,

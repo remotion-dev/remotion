@@ -34,7 +34,7 @@ export type GetAwsClientOutput<T extends keyof ServiceMapping> = {
 };
 
 /*
- * @description Gets the full AWS SDK and an instantiated client for an AWS service
+ * @description Exposes full access to the AWS SDK used by Remotion, allowing interaction with AWS infrastructure beyond provided functionalities.
  * @see [Documentation](https://remotion.dev/docs/lambda/getawsclient)
  */
 export const getAwsClient = <T extends keyof ServiceMapping>({

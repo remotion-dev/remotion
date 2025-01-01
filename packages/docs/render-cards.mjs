@@ -113,12 +113,17 @@ for (const page of pages) {
 		compId,
 		crumb,
 		noAi,
-		slug: (
-			slug ??
-			relativePath
-				.replace(/^docs\//, '')
-				.replace(/.md$/, '')
-				.replace(/.mdx$/, '')
+		slug: (slug && slug.startsWith('/')
+			? slug
+			: path.join(
+					path.dirname(
+						relativePath
+							.replace(/^docs\//, '')
+							.replace(/.md$/, '')
+							.replace(/.mdx$/, ''),
+					),
+					path.basename(slug ?? id),
+				)
 		).replace(/^\//, ''),
 	});
 }

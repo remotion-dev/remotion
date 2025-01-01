@@ -14,9 +14,9 @@ const getEnvString = (): 'env' => {
 	return ['e', 'nv'].join('') as 'env';
 };
 
-/**
+/*
  * @description Provides information about the Remotion Environment
- * @see [Documentation](https://www.remotion.dev/docs/get-remotion-environment)
+ * @see [Documentation](https://remotion.dev/docs/get-remotion-environment)
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	const isPlayer = typeof window !== 'undefined' && window.remotion_isPlayer;

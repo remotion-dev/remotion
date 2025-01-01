@@ -836,8 +836,8 @@ export const internalRenderMedia = wrapWithErrorHandling(
 );
 
 /*
- * @description Render a video from a composition. You can specify various options such as the codec, output location, input properties, and more.
- * @see [Documentation](https://remotion.dev/docs/renderer/render-media)
+ * @description Render a video or an audio programmatically.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
  */
 export const renderMedia = ({
 	proResProfile,

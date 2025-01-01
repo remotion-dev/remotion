@@ -186,7 +186,7 @@ export const articles = [
 		compId: 'articles-docs-ask-for-help',
 		crumb: null,
 		noAi: false,
-		slug: 'ask-for-help',
+		slug: 'get-help',
 	},
 	{
 		id: 'audio-visualization',
@@ -213,7 +213,7 @@ export const articles = [
 		compId: 'articles-docs-audiobuffertodataurl',
 		crumb: '@remotion/media-utils',
 		noAi: false,
-		slug: 'audiobuffertodataurl',
+		slug: 'audio-buffer-to-data-url',
 	},
 	{
 		id: 'brownfield',
@@ -222,7 +222,7 @@ export const articles = [
 		compId: 'articles-docs-brownfield-installation',
 		crumb: 'Brownfield integration',
 		noAi: false,
-		slug: 'brownfield-installation',
+		slug: 'brownfield',
 	},
 	{
 		id: 'buffer-state',
@@ -825,7 +825,7 @@ export const articles = [
 		compId: 'articles-docs-compare',
 		crumb: 'Compare',
 		noAi: false,
-		slug: 'compare',
+		slug: 'compare-ssr',
 	},
 	{
 		id: 'composition',
@@ -942,7 +942,7 @@ export const articles = [
 		compId: 'articles-docs-creating-a-library',
 		crumb: 'How to',
 		noAi: false,
-		slug: 'creating-a-library',
+		slug: 'authoring-packages',
 	},
 	{
 		id: 'data-fetching',
@@ -996,7 +996,7 @@ export const articles = [
 		compId: 'articles-docs-dynamic-import',
 		crumb: 'Knowledge Base',
 		noAi: false,
-		slug: 'dynamic-import',
+		slug: 'webpack-dynamic-imports',
 	},
 	{
 		id: 'dynamic-metadata',
@@ -1113,7 +1113,7 @@ export const articles = [
 		compId: 'articles-docs-fonts-api-index',
 		crumb: null,
 		noAi: false,
-		slug: 'fonts-api/index',
+		slug: 'fonts-api/fonts-api',
 	},
 	{
 		id: 'fonts-api/load-font',
@@ -1194,7 +1194,7 @@ export const articles = [
 		compId: 'articles-docs-get-static-files',
 		crumb: 'API',
 		noAi: false,
-		slug: 'get-static-files',
+		slug: 'getstaticfiles',
 	},
 	{
 		id: 'get-video-metadata',
@@ -1239,7 +1239,7 @@ export const articles = [
 		compId: 'articles-docs-gif-gif',
 		crumb: '@remotion/gif',
 		noAi: false,
-		slug: 'gif',
+		slug: 'gif/gif',
 	},
 	{
 		id: 'gif/index',
@@ -1284,7 +1284,7 @@ export const articles = [
 		compId: 'articles-docs-google-fonts-index',
 		crumb: null,
 		noAi: false,
-		slug: 'google-fonts/index',
+		slug: 'google-fonts/google-fonts',
 	},
 	{
 		id: 'google-fonts/load-font',
@@ -1320,7 +1320,7 @@ export const articles = [
 		compId: 'articles-docs-how-props-flow',
 		crumb: 'Parameterized videos',
 		noAi: false,
-		slug: 'how-props-flow',
+		slug: 'props-resolution',
 	},
 	{
 		id: 'iframe',
@@ -1347,7 +1347,7 @@ export const articles = [
 		compId: 'articles-docs-importing-assets',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'importing-assets',
+		slug: 'assets',
 	},
 	{
 		id: 'install-whisper-cpp/convert-to-captions',
@@ -1383,7 +1383,7 @@ export const articles = [
 		compId: 'articles-docs-install-whisper-cpp-install-whisper-cpp',
 		crumb: '@remotion/install-whisper-cpp',
 		noAi: false,
-		slug: 'install-whisper-cpp',
+		slug: 'install-whisper-cpp/install-whisper-cpp',
 	},
 	{
 		id: 'install-whisper-cpp/to-captions',
@@ -1428,7 +1428,7 @@ export const articles = [
 		compId: 'articles-docs-jsx-support',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'jsx-support',
+		slug: 'javascript',
 	},
 	{
 		id: 'lambda/api',
@@ -1608,7 +1608,7 @@ export const articles = [
 		compId: 'articles-docs-lambda-custom-layers',
 		crumb: 'Lambda',
 		noAi: false,
-		slug: 'custom-layers',
+		slug: 'lambda/custom-layers',
 	},
 	{
 		id: 'deletefunction',
@@ -2220,7 +2220,7 @@ export const articles = [
 		compId: 'articles-docs-legacy-babel-loader',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'legacy-babel-loader',
+		slug: 'legacy-babel',
 	},
 	{
 		id: 'license',
@@ -2283,7 +2283,7 @@ export const articles = [
 		compId: 'articles-docs-lottie-index',
 		crumb: null,
 		noAi: false,
-		slug: 'lottie/index',
+		slug: 'lottie/lottie-index',
 	},
 	{
 		id: 'lottie-comp',
@@ -2292,7 +2292,7 @@ export const articles = [
 		compId: 'articles-docs-lottie-lottie-comp',
 		crumb: '@remotion/lottie',
 		noAi: false,
-		slug: 'lottie',
+		slug: 'lottie/lottie',
 	},
 	{
 		id: 'lottie-lottiefiles',
@@ -2301,7 +2301,7 @@ export const articles = [
 		compId: 'articles-docs-lottie-lottie-lottiefiles',
 		crumb: 'Resources',
 		noAi: false,
-		slug: 'lottiefiles',
+		slug: 'lottie/lottiefiles',
 	},
 	{
 		id: 'lottie-remote',
@@ -2310,7 +2310,7 @@ export const articles = [
 		compId: 'articles-docs-lottie-lottie-remote',
 		crumb: '@remotion/lottie',
 		noAi: false,
-		slug: 'remote',
+		slug: 'lottie/remote',
 	},
 	{
 		id: 'lottie-staticfile',
@@ -2319,7 +2319,7 @@ export const articles = [
 		compId: 'articles-docs-lottie-lottie-staticfile',
 		crumb: '@remotion/lottie',
 		noAi: false,
-		slug: 'staticfile',
+		slug: 'lottie/staticfile',
 	},
 	{
 		id: 'measure-spring',
@@ -2535,7 +2535,7 @@ export const articles = [
 		compId: 'articles-docs-miscellaneous-embed-remotion-studio',
 		crumb: 'FAQ',
 		noAi: false,
-		slug: 'miscellaneous/embed-remotion-studio',
+		slug: 'miscellaneous/embed-studio',
 	},
 	{
 		id: 'miscellaneous/emojis',
@@ -2728,7 +2728,7 @@ export const articles = [
 		compId: 'articles-docs-motion-blur-camera-motion-blur',
 		crumb: 'Realistic camera effect',
 		noAi: false,
-		slug: 'camera-motion-blur',
+		slug: 'motion-blur/camera-motion-blur',
 	},
 	{
 		id: 'motion-blur/common-mistake',
@@ -2755,7 +2755,7 @@ export const articles = [
 		compId: 'articles-docs-motion-blur-motion-blur',
 		crumb: null,
 		noAi: false,
-		slug: 'motion-blur',
+		slug: 'motion-blur/motion-blur',
 	},
 	{
 		id: 'motion-blur/trail',
@@ -2764,7 +2764,7 @@ export const articles = [
 		compId: 'articles-docs-motion-blur-trail',
 		crumb: 'Motion blur',
 		noAi: false,
-		slug: 'trail',
+		slug: 'motion-blur/trail',
 	},
 	{
 		id: 'multiple-fps',
@@ -2836,7 +2836,7 @@ export const articles = [
 		compId: 'articles-docs-null',
 		crumb: 'Experimental API',
 		noAi: false,
-		slug: 'null',
+		slug: "'null'",
 	},
 	{
 		id: 'offthreadvideo',
@@ -2854,7 +2854,7 @@ export const articles = [
 		compId: 'articles-docs-open-gl',
 		crumb: 'Flags',
 		noAi: false,
-		slug: 'open-gl',
+		slug: 'gl-options',
 	},
 	{
 		id: 'openai-whisper/index',
@@ -2890,7 +2890,7 @@ export const articles = [
 		compId: 'articles-docs-overwriting-webpack-config',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'overwriting-webpack-config',
+		slug: 'webpack',
 	},
 	{
 		id: 'parameterized-rendering',
@@ -3196,7 +3196,7 @@ export const articles = [
 		compId: 'articles-docs-player-player-examples',
 		crumb: '@remotion/player',
 		noAi: false,
-		slug: 'player/player-examples',
+		slug: 'player/examples',
 	},
 	{
 		id: 'integration',
@@ -3205,7 +3205,7 @@ export const articles = [
 		compId: 'articles-docs-player-player-integration',
 		crumb: '@remotion/player',
 		noAi: false,
-		slug: 'player/player-integration',
+		slug: 'player/integration',
 	},
 	{
 		id: 'player/preloading',
@@ -3268,7 +3268,7 @@ export const articles = [
 		compId: 'articles-docs-preload-preload-audio',
 		crumb: '@remotion/preload',
 		noAi: false,
-		slug: 'preload-audio',
+		slug: 'preload/preload-audio',
 	},
 	{
 		id: 'preload-font',
@@ -3277,7 +3277,7 @@ export const articles = [
 		compId: 'articles-docs-preload-preload-font',
 		crumb: '@remotion/preload',
 		noAi: false,
-		slug: 'preload-font',
+		slug: 'preload/preload-font',
 	},
 	{
 		id: 'preload-image',
@@ -3286,7 +3286,7 @@ export const articles = [
 		compId: 'articles-docs-preload-preload-image',
 		crumb: '@remotion/preload',
 		noAi: false,
-		slug: 'preload-image',
+		slug: 'preload/preload-image',
 	},
 	{
 		id: 'preload-video',
@@ -3295,7 +3295,7 @@ export const articles = [
 		compId: 'articles-docs-preload-preload-video',
 		crumb: '@remotion/player',
 		noAi: false,
-		slug: 'preload-video',
+		slug: 'preload/preload-video',
 	},
 	{
 		id: 'preload',
@@ -3956,7 +3956,7 @@ export const articles = [
 		compId: 'articles-docs-sequences',
 		crumb: 'The power of React',
 		noAi: false,
-		slug: 'sequences',
+		slug: 'reusability',
 	},
 	{
 		id: 'series',
@@ -4199,7 +4199,7 @@ export const articles = [
 		compId: 'articles-docs-static-file-relative-paths',
 		crumb: 'Troubleshooting',
 		noAi: false,
-		slug: 'static-file-relative-paths',
+		slug: 'staticfile-relative-paths',
 	},
 	{
 		id: 'staticfile-remote-urls',
@@ -4208,7 +4208,7 @@ export const articles = [
 		compId: 'articles-docs-static-file-remote-urls',
 		crumb: 'Troubleshooting',
 		noAi: false,
-		slug: 'static-file-remote-urls',
+		slug: 'staticfile-remote-urls',
 	},
 	{
 		id: 'staticfile',
@@ -4388,7 +4388,7 @@ export const articles = [
 		compId: 'articles-docs-studio-app',
 		crumb: 'Converting Remotion Projects',
 		noAi: false,
-		slug: 'studio-app',
+		slug: 'studio-into-app',
 	},
 	{
 		id: 'support',
@@ -4433,7 +4433,7 @@ export const articles = [
 		compId: 'articles-docs-tailwind-overview',
 		crumb: null,
 		noAi: false,
-		slug: 'tailwind/overview',
+		slug: 'tailwind/tailwind',
 	},
 	{
 		id: 'tailwind-legacy',
@@ -4442,7 +4442,7 @@ export const articles = [
 		compId: 'articles-docs-tailwind-2',
 		crumb: 'Legacy docs',
 		noAi: false,
-		slug: 'tailwind-2',
+		slug: 'tailwind-legacy',
 	},
 	{
 		id: 'tailwind',
@@ -4811,7 +4811,7 @@ export const articles = [
 		compId: 'articles-docs-transitions',
 		crumb: 'Techniques',
 		noAi: false,
-		slug: 'transitions',
+		slug: 'transitioning',
 	},
 	{
 		id: 'transparent-videos',
@@ -4929,7 +4929,7 @@ export const articles = [
 		compId: 'articles-docs-troubleshooting-render-stuck',
 		crumb: 'Troubleshooting',
 		noAi: false,
-		slug: 'troubleshooting/render-stuck',
+		slug: 'troubleshooting/stuck-render',
 	},
 	{
 		id: 'rosetta',
@@ -4965,7 +4965,7 @@ export const articles = [
 		compId: 'articles-docs-troubleshooting-video-flicker',
 		crumb: 'Frame-perfection',
 		noAi: false,
-		slug: 'troubleshooting/video-flicker',
+		slug: 'troubleshooting/player-flicker',
 	},
 	{
 		id: 'upgrading',
@@ -5190,7 +5190,7 @@ export const articles = [
 		compId: 'articles-docs-watch-static-file',
 		crumb: 'API',
 		noAi: false,
-		slug: 'watch-static-file',
+		slug: 'watchstaticfile',
 	},
 	{
 		id: 'can-copy-audio-track',

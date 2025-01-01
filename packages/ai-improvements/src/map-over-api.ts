@@ -30,7 +30,7 @@ const getSourceCodeLink = async (filePath: string) => {
 	return p;
 };
 
-type Api = {
+export type Api = {
 	filePath: string;
 	sourceCodePath: string | null;
 	id: string;
@@ -54,7 +54,7 @@ export const getApis = async () => {
 			sourceCodePath: sourceCodeLink,
 			id: article.id,
 			title: article.title,
-			link: `https://remotion.dev/docs/${article.slug}`,
+			link: `https://www.remotion.dev/docs/${article.slug}`,
 		});
 	}
 

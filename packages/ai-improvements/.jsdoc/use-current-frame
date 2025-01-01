@@ -1,0 +1,4 @@
+/**
+ * @description Retrieves the current frame of the video within a component. Frames are 0-indexed, and if the component is wrapped in a `<Sequence>`, it returns the frame relative to when the Sequence starts.
+ * @see [Documentation](https://www.remotion.dev/docs/use-current-frame)
+ */

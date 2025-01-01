@@ -37,6 +37,7 @@ for (const api of apis) {
 				sourceContents,
 				filePath: file,
 				title: api.title,
+				api,
 			})
 		: await findMistakes({
 				sourceContents,

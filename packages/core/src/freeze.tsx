@@ -11,9 +11,9 @@ type FreezeProps = {
 	readonly active?: boolean | ((f: number) => boolean);
 };
 
-/**
- * @description This method freezes all of its children to the frame that you specify as a prop
- * @see [Documentation](https://www.remotion.dev/docs/freeze)
+/*
+ * @description Freezes its children at the specified frame when rendering videos.
+ * @see [Documentation](https://remotion.dev/docs/freeze)
  */
 export const Freeze: React.FC<FreezeProps> = ({
 	frame: frameToFreeze,

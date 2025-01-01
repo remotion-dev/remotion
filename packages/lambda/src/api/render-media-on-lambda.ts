@@ -195,9 +195,9 @@ export const renderMediaOnLambdaOptionalToRequired = (
 const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 
 /*
-* @description Kicks off a render process on Remotion Lambda. The progress can be tracked using getRenderProgress().
+ * @description Kicks off a render process on Remotion Lambda. The progress can be tracked using getRenderProgress().
  * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
-*/
+ */
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {

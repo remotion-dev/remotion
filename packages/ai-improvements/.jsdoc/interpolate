@@ -1,0 +1,4 @@
+/**
+ * @description Allows you to map a range of values to another using a concise syntax.
+ * @see [Documentation](https://remotion.dev/docs/interpolate)
+ */

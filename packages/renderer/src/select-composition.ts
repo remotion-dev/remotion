@@ -291,8 +291,8 @@ export const internalSelectComposition = wrapWithErrorHandling(
 );
 
 /*
- * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://remotion.dev/docs/renderer/select-composition)
+ * @description Evaluates the list of compositions from a Remotion Bundle by evaluating the Remotion Root and evaluating `calculateMetadata()` on the specified composition.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
 export const selectComposition = async (
 	options: SelectCompositionOptions,

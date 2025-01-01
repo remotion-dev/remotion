@@ -29,7 +29,7 @@ const getNumberOfSamples = ({
 
 /*
  * @description Produces natural looking motion blur similar to what would be produced by a film camera.
- * @see [Documentation](https://remotion.dev/docs/camera-motion-blur)
+ * @see [Documentation](https://www.remotion.dev/docs/motion-blur/camera-motion-blur)
  */
 export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 	children,

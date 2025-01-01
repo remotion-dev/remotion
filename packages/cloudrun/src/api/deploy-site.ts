@@ -139,7 +139,7 @@ export const internalDeploySiteRaw = async ({
 const errorHandled = wrapWithErrorHandling(internalDeploySiteRaw);
 /*
  * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
- * @see [Documentation](https://remotion.dev/docs//cloudrun/deploysite)
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deploysite)
  */
 export const deploySite = (input: DeploySiteInput): DeploySiteOutput => {
 	return errorHandled({
