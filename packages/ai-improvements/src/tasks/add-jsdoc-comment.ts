@@ -73,7 +73,7 @@ export const addJsDocComment = ({
 				true,
 			);
 
-			const same = node.comments?.[0]?.value === newComment.value;
+			same = node.comments?.[0]?.value === newComment.value;
 
 			return {
 				...node,
