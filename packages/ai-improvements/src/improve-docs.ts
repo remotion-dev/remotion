@@ -20,7 +20,6 @@ for (const api of apis) {
 
 	const file = path.join(process.cwd(), '..', '..', api.sourceCodePath);
 	const sourceContents = await Bun.file(file).text();
-	console.log(`Article ${api.title} contains source code`);
 
 	task === 'generate-jsdoc'
 		? await generateJSDocTask({

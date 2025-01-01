@@ -31,7 +31,6 @@ export const generateJSDocTask = async ({
 		link,
 		api,
 	});
-	console.log(reply);
 
 	const newDocument = addJsDocComment({
 		documentTitle: title,

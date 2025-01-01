@@ -95,7 +95,7 @@ export const addJsDocComment = ({
 		);
 	}
 
-	console.log('Added comment', commentWithoutStars);
+	console.log(documentTitle);
 	const output = recast.print(ast, {
 		parser: tsParser,
 	}).code;
