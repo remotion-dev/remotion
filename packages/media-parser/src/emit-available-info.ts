@@ -76,18 +76,6 @@ export const emitAvailableInfo = ({
 
 					emittedFields.durationInSeconds = true;
 				}
-
-				if (!emittedFields.slowDurationInSeconds) {
-					const durationInSeconds = getDuration(segments, state);
-					if (durationInSeconds !== null) {
-						callbacks.onSlowDurationInSeconds?.(durationInSeconds);
-						if (fieldsInReturnValue.slowDurationInSeconds) {
-							returnValue.slowDurationInSeconds = durationInSeconds;
-						}
-
-						emittedFields.slowDurationInSeconds = true;
-					}
-				}
 			}
 
 			continue;
@@ -101,6 +89,7 @@ export const emitAvailableInfo = ({
 				segments
 			) {
 				const slowDurationInSeconds =
+					getDuration(segments, state) ??
 					state.slowDurationAndFps.getSlowDurationInSeconds();
 				callbacks.onSlowDurationInSeconds?.(slowDurationInSeconds);
 				if (fieldsInReturnValue.slowDurationInSeconds) {
