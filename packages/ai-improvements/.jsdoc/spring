@@ -1,0 +1,4 @@
+/**
+ * @description Calculates a position based on physical parameters, start and end value, and time.
+ * @see [Documentation](https://www.remotion.dev/docs/spring)
+ */

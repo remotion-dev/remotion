@@ -1,0 +1,4 @@
+/**
+ * @description Deletes a file from the `public` directory in Remotion Studio, useful for building interactive experiences.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/delete-static-file)
+ */

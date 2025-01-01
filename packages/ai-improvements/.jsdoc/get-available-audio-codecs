@@ -1,0 +1,4 @@
+/**
+ * @description Given a container, get a list of audio codecs that the container can hold.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/get-available-audio-codecs)
+ */

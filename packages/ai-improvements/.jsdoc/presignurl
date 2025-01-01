@@ -1,0 +1,4 @@
+/**
+ * @description Takes a private S3 object and turns it into a public URL by signing it with your AWS credentials.
+ * @see [Documentation](https://remotion.dev/docs/lambda/presignurl)
+ */

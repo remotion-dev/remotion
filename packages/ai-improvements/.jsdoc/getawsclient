@@ -1,0 +1,4 @@
+/**
+ * @description Exposes full access to the AWS SDK used by Remotion, allowing interaction with AWS infrastructure beyond provided functionalities.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getawsclient)
+ */

@@ -1,0 +1,4 @@
+/**
+ * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deploysite)
+ */

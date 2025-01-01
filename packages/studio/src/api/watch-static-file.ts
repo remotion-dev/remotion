@@ -8,12 +8,9 @@ export type WatchRemotionStaticFilesPayload = {
 	files: StaticFile[];
 };
 
-/**
- * @description Watch for changes in a specific static file.
- * @param {string} fileName - The name of the static file to watch for changes.
- * @param {WatcherCallback} callback - A callback function to be called when the file changes.
- * @returns {{cancel: () => void}} A function that can be used to cancel the event listener.
- * @see [Documentation](https://remotion.dev/docs/studio/watch-static-file)
+/*
+ * @description Watches for changes in a specific static file and invokes a callback function when the file changes, enabling dynamic updates in your Remotion projects.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/watch-static-file)
  */
 export const watchStaticFile = (
 	fileName: string,

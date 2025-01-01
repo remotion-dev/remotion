@@ -1,0 +1,4 @@
+/**
+ * @description Extracts the audio from a video source and saves it to the specified output path. It does not convert the audio to a different format.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/extract-audio)
+ */

@@ -1,0 +1,4 @@
+/**
+ * @description Gets the duration in seconds of an audio source by creating an invisible `<audio>` tag, loading the audio, and returning the duration.
+ * @see [Documentation](https://remotion.dev/docs/get-audio-duration-in-seconds)
+ */

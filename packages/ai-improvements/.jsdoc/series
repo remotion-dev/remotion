@@ -1,0 +1,4 @@
+/**
+ * @description Using this component, you can easily stitch together scenes that should play sequentially after another.
+ * @see [Documentation](https://www.remotion.dev/docs/series)
+ */

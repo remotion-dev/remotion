@@ -36,12 +36,9 @@ import {reduceInstructions} from '../reduce-instructions';
 import {serializeInstructions} from '../serialize-instructions';
 import {interpolateInstructions} from './interpolate-instructions';
 
-/**
- * @description Interpolates between two SVG paths.
- * @param {number} value A number - 0 means first path, 1 means second path, any other values will be interpolated
- * @param {string} firstPath The first valid SVG path
- * @param {string} secondPath The second valid SVG path
- * @see [Documentation](https://remotion.dev/docs/paths/interpolate-path)
+/*
+ * @description Interpolates between two SVG paths based on the provided value, transitioning from the first path to the second.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/interpolate-path)
  */
 export const interpolatePath = (
 	value: number,

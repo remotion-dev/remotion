@@ -143,8 +143,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-/**
- * @description A component which can be rendered in a regular React App (for example: Next.js, Vite) to display a single frame of a video.
+/*
+ * @description A component which can be rendered in a regular React App (for example: for example: Next.JS, Vite.js, Create React App) to display a single frame of a video.
  * @see [Documentation](https://www.remotion.dev/docs/player/thumbnail)
  */
 

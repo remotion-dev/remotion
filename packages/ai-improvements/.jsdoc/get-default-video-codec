@@ -1,0 +1,4 @@
+/**
+ * @description Gets the default video codec for a container that `@remotion/webcodecs` uses if no other audio codec was specified.
+ * @see [Documentation](https://remotion.dev/docs/webcodecs/get-default-video-codec)
+ */

@@ -1,0 +1,4 @@
+/**
+ * @description Gets the silent parts of a video or audio in Node.js. Useful for cutting out silence from a video.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-silent-parts)
+ */

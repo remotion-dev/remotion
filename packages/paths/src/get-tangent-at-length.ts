@@ -1,11 +1,9 @@
 import {getInstructionIndexAtLengthFromConstructed} from './get-instruction-index-at-length';
 import {construct} from './helpers/construct';
 
-/**
- * @description Gets tangent values x and y of a point which is on an SVG path
- * @param {string} path A valid SVG path
- * @param {number} length The length at which the tangent should be sampled
- * @see [Documentation](https://remotion.dev/docs/paths/get-tangent-at-length)
+/*
+ * @description Gets tangent values x and y of a point which is on an SVG path.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/get-tangent-at-length)
  */
 
 export const getTangentAtLength = (path: string, length: number) => {

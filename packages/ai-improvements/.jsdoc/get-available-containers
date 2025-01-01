@@ -1,0 +1,4 @@
+/**
+ * @description Returns an array of available containers that can be used with the `convertMedia` function.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/get-available-containers)
+ */

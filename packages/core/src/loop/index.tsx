@@ -26,9 +26,9 @@ const useLoop = () => {
 	return React.useContext(LoopContext);
 };
 
-/**
+/*
  * @description This component allows you to quickly lay out an animation so it repeats itself.
- * @see [Documentation](https://www.remotion.dev/docs/loop)
+ * @see [Documentation](https://remotion.dev/docs/loop)
  */
 export const Loop: React.FC<LoopProps> & {
 	useLoop: typeof useLoop;

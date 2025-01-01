@@ -1,0 +1,4 @@
+/**
+ * @description Given a VideoTrack, determine if it can be copied to the output without re-encoding.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/can-copy-video-track)
+ */

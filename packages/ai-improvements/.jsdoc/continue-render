@@ -1,0 +1,4 @@
+/**
+ * @description Unblock a render that has been blocked by delayRender().
+ * @see [Documentation](https://remotion.dev/docs/continue-render)
+ */

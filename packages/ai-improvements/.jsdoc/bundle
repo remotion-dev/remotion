@@ -1,0 +1,4 @@
+/**
+ * @description Bundles a Remotion project using Webpack and prepares it for rendering.
+ * @see [Documentation](https://remotion.dev/docs/bundle)
+ */

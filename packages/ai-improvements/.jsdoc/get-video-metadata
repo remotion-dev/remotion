@@ -1,0 +1,4 @@
+/**
+ * @description Takes a src to a video, loads it and returns metadata for the specified source.
+ * @see [Documentation](https://remotion.dev/docs/get-video-metadata)
+ */

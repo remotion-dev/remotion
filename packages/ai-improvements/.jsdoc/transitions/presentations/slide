@@ -1,0 +1,4 @@
+/**
+ * @description Implements a sliding transition for presentation components where the entering slide pushes the outgoing slide in a specified direction.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/slide)
+ */

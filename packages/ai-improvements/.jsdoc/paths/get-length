@@ -1,0 +1,4 @@
+/**
+ * @description Gets the length of an SVG path.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/get-length)
+ */

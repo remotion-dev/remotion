@@ -1,0 +1,4 @@
+/**
+ * @description Displays a GIF that synchronizes with Remotions useCurrentFrame().
+ * @see [Documentation](https://remotion.dev/docs/gif)
+ */

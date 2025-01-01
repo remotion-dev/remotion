@@ -1,0 +1,4 @@
+/**
+ * @description A deterministic pseudo-random number generator. Pass in the same seed and get the same pseudorandom number.
+ * @see [Documentation](https://www.remotion.dev/docs/random)
+ */

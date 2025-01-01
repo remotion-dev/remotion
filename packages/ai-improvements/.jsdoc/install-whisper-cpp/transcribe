@@ -1,0 +1,4 @@
+/**
+ * @description Transcribes a media file by utilizing Whisper.cpp.
+ * @see [Documentation](https://remotion.dev/docs/install-whisper-cpp/transcribe)
+ */

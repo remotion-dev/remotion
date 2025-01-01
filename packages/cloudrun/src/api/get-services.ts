@@ -11,12 +11,9 @@ export type GetServicesInput = {
 	compatibleOnly: boolean;
 };
 
-/**
+/*
  * @description Lists Remotion Cloud Run render services deployed to GCP Cloud Run.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getservices)
- * @param params.region The region of which the services should be listed.
- * @param params.compatibleOnly Whether only services compatible with the installed version of Remotion Cloud Run should be returned.
- * @returns {Promise<ServiceInfo[]>} An array with the objects containing information about the deployed services.
  */
 
 export const getServices = async (

@@ -197,9 +197,8 @@ export const getBoundingBoxFromInstructions = (
 	};
 };
 
-/**
+/*
  * @description Returns the bounding box of the given path, suitable for calculating the viewBox value that you need to pass to an SVG.
- * @param {string} d
  * @see [Documentation](https://www.remotion.dev/docs/paths/get-bounding-box)
  */
 export const getBoundingBox = (d: string): BoundingBox => {

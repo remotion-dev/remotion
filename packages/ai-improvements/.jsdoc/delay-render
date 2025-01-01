@@ -1,0 +1,4 @@
+/**
+ * @description Call this function to signal that a frame should not be rendered until an asynchronous task (such as data fetching) is complete. Use continueRender(handle) to proceed with rendering once the task is complete.
+ * @see [Documentation](https://remotion.dev/docs/delay-render)
+ */

@@ -1,0 +1,4 @@
+/**
+ * @description Gets the duration in seconds of a GIF.
+ * @see [Documentation](https://remotion.dev/docs/gif/get-gif-duration-in-seconds)
+ */

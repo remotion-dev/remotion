@@ -1,0 +1,4 @@
+/**
+ * @description Updates the default props in the Props Editor (in the right sidebar in the Studio). Your component will be re-rendered with the new props. The props will not be saved to the Root file - use saveDefaultProps() for that.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/update-default-props)
+ */

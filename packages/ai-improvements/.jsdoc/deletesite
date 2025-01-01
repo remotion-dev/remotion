@@ -1,0 +1,4 @@
+/**
+ * @description Removes a Remotion project from your Cloud Storage bucket.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deletesite)
+ */

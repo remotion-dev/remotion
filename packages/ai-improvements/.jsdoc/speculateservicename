@@ -1,0 +1,4 @@
+/**
+ * @description Speculate the name of the Cloud Run service that will be created by `deployService` or its CLI equivalent, based on the provided configuration parameters.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/speculateservicename)
+ */

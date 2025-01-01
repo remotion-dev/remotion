@@ -1,0 +1,4 @@
+/**
+ * @description Reverses a path so the end and start are switched.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/reverse-path)
+ */

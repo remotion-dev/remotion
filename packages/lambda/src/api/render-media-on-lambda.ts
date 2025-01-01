@@ -194,24 +194,9 @@ export const renderMediaOnLambdaOptionalToRequired = (
 
 const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 
-/**
- * @description Triggers a render on a lambda given a composition and a lambda function.
+/*
+ * @description Kicks off a render process on Remotion Lambda. The progress can be tracked using getRenderProgress().
  * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.codec The media codec which should be used for encoding.
- * @param params.imageFormat In which image format the frames should be rendered. Default "jpeg"
- * @param params.crf The constant rate factor to be used during encoding.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the media should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
- * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
- * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,

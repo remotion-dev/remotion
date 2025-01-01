@@ -9,9 +9,9 @@ const calcDuration = (parsed: GifState) => {
 	);
 };
 
-/**
- * @description Gets the duration in seconds of a GIF
- * @see [Documentation](https://www.remotion.dev/docs/gif/get-gif-duration-in-seconds)
+/*
+ * @description Gets the duration in seconds of a GIF.
+ * @see [Documentation](https://remotion.dev/docs/gif/get-gif-duration-in-seconds)
  */
 export const getGifDurationInSeconds = async (src: string) => {
 	const resolvedSrc = new URL(src, window.origin).href;

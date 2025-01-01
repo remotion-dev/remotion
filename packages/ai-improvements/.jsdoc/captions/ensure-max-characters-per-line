@@ -1,0 +1,4 @@
+/**
+ * @description Splits and rearranges captions into segments ensuring none exceed the maximum characters per line.
+ * @see [Documentation](https://remotion.dev/docs/captions/ensure-max-characters-per-line)
+ */

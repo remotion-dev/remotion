@@ -1,0 +1,4 @@
+/**
+ * @description Converts the output from `transcribe()` into an array of `Caption` objects, enabling the use of functions from `@remotion/captions`.
+ * @see [Documentation](https://remotion.dev/docs/install-whisper-cpp/to-captions)
+ */

@@ -123,16 +123,9 @@ const deployServiceRaw = async ({
 
 export const internalDeployService = wrapWithErrorHandling(deployServiceRaw);
 
-/**
+/*
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
- * @link https://remotion.dev/docs/cloudrun/deployservice
- * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
- * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
- * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
- * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
- * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
- * @param params.region GCP region to deploy the Cloud Run service to.
- * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deployservice)
  */
 
 export const deployService = ({

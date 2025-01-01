@@ -1,0 +1,4 @@
+/**
+ * @description An alternative to useAudioData() that only loads a portion of the audio around the current frame, specifically for .wav files. This function makes HTTP Range requests to only load the audio data around the current frame, ideal for visualizing audio with a long duration.
+ * @see [Documentation](https://www.remotion.dev/docs/use-windowed-audio-data)
+ */

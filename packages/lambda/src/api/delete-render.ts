@@ -93,13 +93,9 @@ export const internalDeleteRender = async (
 	};
 };
 
-/**
- * @description Deletes a render artifact and it's metadata given it's renderId.
+/*
+ * @description Deletes a rendered video, audio or still and its associated metadata.
  * @see [Documentation](https://remotion.dev/docs/lambda/deleterender)
- * @param params.region The AWS region in which the media resides.
- * @param params.bucketName The `bucketName` that was specified during the render
- * @param params.renderId The `renderId` that was obtained after triggering the render.
- * @param params.customCredentials If the file was saved to a foreign cloud, pass credentials for reading from it.
  */
 export const deleteRender = (input: DeleteRenderInput) => {
 	return internalDeleteRender({

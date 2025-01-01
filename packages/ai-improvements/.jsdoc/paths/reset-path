@@ -1,0 +1,4 @@
+/**
+ * @description Translates an SVG path so that the top-left corner of the bounding box is at 0, 0.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/reset-path)
+ */

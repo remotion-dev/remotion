@@ -1,0 +1,4 @@
+/**
+ * @description Re-runs calculateMetadata() on the currently selected composition, useful if the function depends on changes in the 'public/' folder, randomness, network resources, or time.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/reevaluate-composition)
+ */

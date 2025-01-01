@@ -1,0 +1,4 @@
+/**
+ * @description Takes in AudioData (preferably fetched by the useAudioData() hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+ * @see [Documentation](https://www.remotion.dev/docs/visualize-audio)
+ */

@@ -1,0 +1,4 @@
+/**
+ * @description Wraps the getAudioData() function into a hook and does three things: keeps the audio data in a state, wraps the function in a delayRender() / continueRender() pattern, and handles the case where the component gets unmounted while fetching is in progress to prevent React errors.
+ * @see [Documentation](https://www.remotion.dev/docs/use-audio-data)
+ */

@@ -1,0 +1,4 @@
+/**
+ * @description Scrolls to a specific field in the default props editor.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/focus-default-props-path)
+ */

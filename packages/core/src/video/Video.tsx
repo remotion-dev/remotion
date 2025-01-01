@@ -157,8 +157,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-/**
- * @description allows you to include a video file in your Remotion project. It wraps the native HTMLVideoElement.
+/*
+ * @description Wraps the native `<video>` element to include video in your component that is synchronized with Remotion's time.
  * @see [Documentation](https://www.remotion.dev/docs/video)
  */
 export const Video = forwardRef(VideoForwardingFunction);

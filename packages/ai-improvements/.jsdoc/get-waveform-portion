@@ -1,0 +1,4 @@
+/**
+ * @description Takes bulky waveform data (for example fetched by getAudioData()) and returns a trimmed and simplified version of it, for simpler visualization
+ * @see [Documentation](https://remotion.dev/docs/get-waveform-portion)
+ */

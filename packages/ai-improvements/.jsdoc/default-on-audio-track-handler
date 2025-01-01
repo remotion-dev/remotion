@@ -1,0 +1,4 @@
+/**
+ * @description This is the default function if no onAudioTrack handler is provided to convertMedia(). You may use this function if you want to customize part of the track transformation logic, but fall back to the default behavior for the rest.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/default-on-audio-track-handler)
+ */

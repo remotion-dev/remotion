@@ -1,0 +1,4 @@
+/**
+ * @description Provides a simple fade transition component for sliding elements in and out.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/fade)
+ */
