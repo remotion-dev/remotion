@@ -107,7 +107,7 @@ export const createVideoDecoder = ({
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
 			unprocessed: 2,
-			minimumProgress: sample.timestamp - 5_000_000,
+			minimumProgress: sample.timestamp - 10_000_000,
 			signal,
 		});
 		if (sample.type === 'key') {

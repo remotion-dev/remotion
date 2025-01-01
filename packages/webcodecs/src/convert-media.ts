@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Remotion AG
+ * Copyright (c) 2025 Remotion AG
  * For licensing, see: https://remotion.dev/docs/webcodecs#license
  */
 

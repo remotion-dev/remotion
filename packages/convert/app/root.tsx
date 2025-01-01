@@ -1,3 +1,4 @@
+import {DEFAULT_FAVICON} from './lib/default-favicon';
 import './tailwind.css';
 
 import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
@@ -10,7 +11,7 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<title>Remotion Convert</title>
 				<meta name="description" content="Remotion Convert" />
-				<link rel="icon" href={`${import.meta.env.BASE_URL}pwa-icon-192.png`} />
+				<link rel="icon" href={DEFAULT_FAVICON} />
 				<link
 					rel="manifest"
 					href={`${import.meta.env.BASE_URL}manifest.json`}

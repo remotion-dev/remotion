@@ -184,7 +184,7 @@ export const parseRiff = ({
 	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
-	const riff = iterator.getByteString(4);
+	const riff = iterator.getByteString(4, false);
 	if (riff !== 'RIFF') {
 		throw new Error('Not a RIFF file');
 	}
@@ -195,7 +195,7 @@ export const parseRiff = ({
 	}
 
 	const size = iterator.getUint32Le();
-	const fileType = iterator.getByteString(4);
+	const fileType = iterator.getByteString(4, false);
 	if (fileType !== 'WAVE' && fileType !== 'AVI') {
 		throw new Error(`File type ${fileType} not supported`);
 	}

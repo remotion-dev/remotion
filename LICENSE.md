@@ -11,7 +11,7 @@ Depending on the type of your legal entity, you are granted permission to use Re
 
 ## Free license
 
-Copyright © 2024 [Remotion](https://www.remotion.dev)
+Copyright © 2025 [Remotion](https://www.remotion.dev)
 
 ### Eligibility
 

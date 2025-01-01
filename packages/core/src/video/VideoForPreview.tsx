@@ -16,7 +16,6 @@ import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
 	useMediaPlayback,
 } from '../use-media-playback.js';
-import {useMediaTagVolume} from '../use-media-tag-volume.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {
@@ -87,8 +86,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const actualVolume = useMediaTagVolume(videoRef);
-
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
@@ -110,7 +107,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	useSyncVolumeWithMediaTag({
 		volumePropFrame,
-		actualVolume,
 		volume,
 		mediaVolume,
 		mediaRef: videoRef,

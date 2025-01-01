@@ -1,6 +1,7 @@
 import {Dimensions} from '@remotion/media-parser';
 import {ResizeOperation} from '@remotion/webcodecs';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {useThumbnailCopy} from '~/lib/use-thumbnail-copy';
 import {ResizeCorner} from './ResizeCorner';
 import {VideoThumbnailRef} from './VideoThumbnail';
 
@@ -52,48 +53,12 @@ export const ResizeThumbnail: React.FC<{
 		return getThumbnailDimensions(unrotatedDimensions);
 	}, [unrotatedDimensions]);
 
-	const [drawn, setDrawn] = useState(false);
-
 	const inner = useMemo(() => {
 		return {
 			height: thumbnailDimensions.height * scale,
 			width: thumbnailDimensions.width * scale,
 		};
 	}, [scale, thumbnailDimensions]);
-
-	const draw = useCallback(() => {
-		thumbnailRef.current?.copy().then((map) => {
-			const ctx = ref.current?.getContext('2d');
-			if (!ctx) {
-				return;
-			}
-
-			ctx.drawImage(
-				map,
-				0,
-				0,
-				unrotatedThumbnailDimensions.width,
-				unrotatedThumbnailDimensions.height,
-			);
-
-			setDrawn(true);
-		});
-	}, [
-		thumbnailRef,
-		unrotatedThumbnailDimensions.height,
-		unrotatedThumbnailDimensions.width,
-	]);
-
-	useEffect(() => {
-		const {current} = thumbnailRef;
-		if (!current) {
-			return;
-		}
-		current.addOnChangeListener(draw);
-		return () => {
-			current.removeOnChangeListener(draw);
-		};
-	}, [draw, thumbnailRef]);
 
 	const [dragging, setDragging] = useState(false);
 
@@ -106,6 +71,12 @@ export const ResizeThumbnail: React.FC<{
 	}, []);
 
 	const animate = !dragging && !inputFocused;
+
+	const drawn = useThumbnailCopy({
+		sourceRef: thumbnailRef,
+		targetRef: ref,
+		dimensions: unrotatedThumbnailDimensions,
+	});
 
 	return (
 		<div className="rounded transition-transform">
@@ -122,7 +93,6 @@ export const ResizeThumbnail: React.FC<{
 			>
 				<canvas
 					ref={ref}
-					className="rounded"
 					style={{
 						position: 'absolute',
 						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),

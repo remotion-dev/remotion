@@ -36,7 +36,7 @@ export const expectRiffBox = async ({
 		};
 	}
 
-	const ckId = iterator.getByteString(4);
+	const ckId = iterator.getByteString(4, false);
 	const ckSize = iterator.getUint32Le();
 
 	if (isMoviAtom(iterator, ckId)) {

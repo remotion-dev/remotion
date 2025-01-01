@@ -27,7 +27,7 @@ import {
 } from '~/lib/default-ui';
 import {
 	getActualAudioConfigIndex,
-	getActualVideoConfigIndex,
+	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
@@ -96,11 +96,11 @@ export default function ConvertUI({
 	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src, action),
 	);
-	const [videoConfigIndexSelection, _setVideoConfigIndex] = useState<
-		Record<number, number>
+	const [videoOperationSelection, setVideoOperationKey] = useState<
+		Record<number, string>
 	>({});
-	const [audioConfigIndexSelection, _setAudioConfigIndex] = useState<
-		Record<number, number>
+	const [audioOperationSelection, setAudioOperationKey] = useState<
+		Record<number, string>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
@@ -132,28 +132,26 @@ export default function ConvertUI({
 	});
 
 	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
-		const index = getActualVideoConfigIndex({
+		const operation = getActualVideoOperation({
 			enableConvert,
 			trackNumber: o.trackId,
-			videoConfigIndexSelection,
+			videoConfigIndexSelection: videoOperationSelection,
+			operations: o.operations,
 		});
-		return (
-			o.operations[index].type === 'reencode' &&
-			o.operations[index].videoCodec === 'h264'
-		);
+		return operation.type === 'reencode' && operation.videoCodec === 'h264';
 	});
 
-	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
-		_setVideoConfigIndex((prev) => ({
+	const setVideoConfigIndex = useCallback((trackId: number, key: string) => {
+		setVideoOperationKey((prev) => ({
 			...prev,
-			[trackId]: i,
+			[trackId]: key,
 		}));
 	}, []);
 
-	const setAudioConfigIndex = useCallback((trackId: number, i: number) => {
-		_setAudioConfigIndex((prev) => ({
+	const setAudioConfigIndex = useCallback((trackId: number, key: string) => {
+		setAudioOperationKey((prev) => ({
 			...prev,
-			[trackId]: i,
+			[trackId]: key,
 		}));
 	}, []);
 
@@ -209,16 +207,12 @@ export default function ConvertUI({
 					throw new Error('Found no options for audio track');
 				}
 
-				const configIndex = getActualAudioConfigIndex({
+				const operation = getActualAudioConfigIndex({
 					enableConvert,
-					audioConfigIndexSelection,
+					audioConfigIndexSelection: audioOperationSelection,
 					trackNumber: track.trackId,
+					operations: options.operations,
 				});
-
-				const operation = options.operations[configIndex ?? 0];
-				if (!operation) {
-					throw new Error('Found no operation');
-				}
 
 				MediaParserInternals.Log.info(
 					'info',
@@ -236,16 +230,13 @@ export default function ConvertUI({
 					throw new Error('Found no options for video track');
 				}
 
-				const configIndex = getActualVideoConfigIndex({
+				const operation = getActualVideoOperation({
 					enableConvert,
-					videoConfigIndexSelection,
+					videoConfigIndexSelection: videoOperationSelection,
 					trackNumber: track.trackId,
+					operations: options.operations,
 				});
 
-				const operation = options.operations[configIndex ?? 0];
-				if (!operation) {
-					throw new Error('Found no operation');
-				}
 				MediaParserInternals.Log.info(
 					'info',
 					`Selected operation for video track ${track.trackId}`,
@@ -286,8 +277,8 @@ export default function ConvertUI({
 		flipVertical,
 		supportedConfigs,
 		enableConvert,
-		audioConfigIndexSelection,
-		videoConfigIndexSelection,
+		audioOperationSelection,
+		videoOperationSelection,
 	]);
 
 	const cancel = useCallback(() => {
@@ -383,7 +374,7 @@ export default function ConvertUI({
 						supportedConfigs !== null &&
 						isReencoding({
 							supportedConfigs,
-							videoConfigIndexSelection,
+							videoConfigIndexSelection: videoOperationSelection,
 							enableConvert,
 						})
 					}
@@ -409,7 +400,7 @@ export default function ConvertUI({
 						supportedConfigs !== null &&
 						isReencoding({
 							supportedConfigs,
-							videoConfigIndexSelection,
+							videoConfigIndexSelection: videoOperationSelection,
 							enableConvert,
 						})
 					}
@@ -423,16 +414,16 @@ export default function ConvertUI({
 	}
 
 	const disableSubmit = isSubmitDisabled({
-		audioConfigIndexSelection,
+		audioConfigIndexSelection: audioOperationSelection,
 		supportedConfigs,
-		videoConfigIndexSelection,
+		videoConfigIndexSelection: videoOperationSelection,
 		enableConvert,
 		enableRotateOrMirror,
 	});
 
 	const canPixelManipulate = canRotateOrMirror({
 		supportedConfigs,
-		videoConfigIndexSelection,
+		videoConfigIndexSelection: videoOperationSelection,
 		enableConvert,
 	});
 
@@ -461,8 +452,8 @@ export default function ConvertUI({
 												setFlipHorizontal,
 												setFlipVertical,
 												supportedConfigs,
-												audioConfigIndexSelection,
-												videoConfigIndexSelection,
+												audioConfigIndexSelection: audioOperationSelection,
+												videoConfigIndexSelection: videoOperationSelection,
 												setAudioConfigIndex,
 												setVideoConfigIndex,
 												currentAudioCodec,
@@ -550,7 +541,7 @@ export default function ConvertUI({
 			</div>
 			<div className="h-8" />
 			<Button
-				className="block w-full font-brand"
+				className="block w-full"
 				type="button"
 				variant="brand"
 				disabled={disableSubmit}

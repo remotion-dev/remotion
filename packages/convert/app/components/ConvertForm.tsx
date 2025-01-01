@@ -7,6 +7,7 @@ import {
 	getAvailableContainers,
 } from '@remotion/webcodecs';
 import React from 'react';
+import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import {SupportedConfigs} from './get-supported-configs';
@@ -29,10 +30,10 @@ export const ConvertForm: React.FC<{
 		React.SetStateAction<ConvertMediaContainer>
 	>;
 	readonly supportedConfigs: SupportedConfigs | null;
-	readonly videoConfigIndexSelection: Record<number, number>;
-	readonly audioConfigIndexSelection: Record<number, number>;
-	readonly setAudioConfigIndex: (trackId: number, i: number) => void;
-	readonly setVideoConfigIndex: (trackId: number, i: number) => void;
+	readonly videoConfigIndexSelection: Record<number, string>;
+	readonly audioConfigIndexSelection: Record<number, string>;
+	readonly setAudioConfigIndex: (trackId: number, key: string) => void;
+	readonly setVideoConfigIndex: (trackId: number, key: string) => void;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 }> = ({
@@ -79,7 +80,13 @@ export const ConvertForm: React.FC<{
 								totalVideoTracks={supportedConfigs.videoTrackOptions.length}
 							/>
 							<VideoCodecSelection
-								index={videoConfigIndexSelection[track.trackId] ?? 0}
+								index={getVideoOperationId(
+									track.operations.find(
+										(o) =>
+											getVideoOperationId(o) ===
+											videoConfigIndexSelection[track.trackId],
+									) ?? track.operations[0],
+								)}
 								setIndex={(i) => {
 									setVideoConfigIndex(track.trackId, i);
 								}}
@@ -101,7 +108,13 @@ export const ConvertForm: React.FC<{
 								totalAudioTracks={supportedConfigs.audioTrackOptions.length}
 							/>
 							<AudioCodecSelection
-								index={audioConfigIndexSelection[track.trackId] ?? 0}
+								index={getAudioOperationId(
+									track.operations.find(
+										(o) =>
+											getAudioOperationId(o) ===
+											audioConfigIndexSelection[track.trackId],
+									) ?? track.operations[0],
+								)}
 								setIndex={(i) => {
 									setAudioConfigIndex(track.trackId, i);
 								}}

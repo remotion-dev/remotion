@@ -347,7 +347,7 @@ test('Should get duration of AV1 video', async () => {
 										{
 											minVintWidth: 1,
 											type: 'TagString',
-											value: '00:00:01.000000000\u0000\u0000',
+											value: '00:00:01.000000000',
 										},
 									],
 								},
