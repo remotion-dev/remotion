@@ -358,13 +358,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	return <>{childrenValue}</>;
 };
 
-/**
- * @description A React component designed to manage a series of transitions and sequences where each transition may have specific timing and presentation components. It extends the capabilities of `<Sequence>` and is specifically structured to handle transitions that involve entering and exiting sequences.
+/*
+ * @description A function component that manages a series of transitions and sequences for advanced animation controls in Remotion projects, specifically handling cases with varying timings and effects.
  * @see [Documentation](https://remotion.dev/docs/transitions/transitionseries)
- * @param {SequencePropsWithoutDuration} props The properties for setting the initial rendering behavior like from, name, etc. It additionally accepts children that are specifically `<TransitionSeries.Sequence>` or `<TransitionSeries.Transition>`.
- * @returns React component that renders the transitions and sequences.
  */
-const TransitionSeries: FC<SequencePropsWithoutDuration> & {
+export const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
 } = ({children, name, layout: passedLayout, ...otherProps}) => {
@@ -388,8 +386,6 @@ const TransitionSeries: FC<SequencePropsWithoutDuration> & {
 
 TransitionSeries.Sequence = SeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
-
-export {TransitionSeries};
 
 Internals.addSequenceStackTraces(TransitionSeries);
 Internals.addSequenceStackTraces(SeriesSequence);
