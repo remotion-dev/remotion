@@ -777,9 +777,6 @@ export const parseIsoBaseMediaBoxes = async ({
 			initialBoxes = initialBoxes.filter((b) => b.type !== 'mdat-box');
 			initialBoxes.push(result.box);
 			iterator.allowDiscard();
-			if (result.box.status !== 'samples-processed') {
-				throw new Error('unexpected');
-			}
 
 			break;
 		} else {
