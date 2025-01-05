@@ -412,6 +412,16 @@ export const _name = {
 	type: 'string',
 } as const satisfies Ebml;
 
+export const minCache = {
+	name: 'MinCache',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const maxCache = {
+	name: 'MaxCache',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const seekPosition = {
 	name: 'SeekPosition',
 	type: 'uint',
@@ -849,6 +859,8 @@ export const ebmlMap = {
 	[matroskaElements.Seek]: seek,
 	[matroskaElements.SeekID]: seekId,
 	[matroskaElements.Name]: _name,
+	[matroskaElements.MinCache]: minCache,
+	[matroskaElements.MaxCache]: maxCache,
 	[matroskaElements.SeekPosition]: seekPosition,
 	[matroskaElements.Crc32]: {
 		name: 'Crc32',
