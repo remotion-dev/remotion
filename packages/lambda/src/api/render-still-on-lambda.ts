@@ -6,7 +6,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {DownloadBehavior} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import {callLambdaWithStreaming} from '../shared/call-lambda';
+import {callLambdaWithStreaming} from '../shared/call-lambda-streaming';
 
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {

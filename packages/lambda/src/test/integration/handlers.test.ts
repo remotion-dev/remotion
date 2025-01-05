@@ -1,11 +1,11 @@
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
-import {callLambda} from '../../shared/call-lambda';
+import {callLambdaSync} from '../../shared/call-lambda-sync';
 
 test('Call function locally', async () => {
 	expect(
-		await callLambda({
+		await callLambdaSync({
 			payload: {
 				logLevel: 'info',
 			},

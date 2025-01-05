@@ -1,4 +1,3 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
@@ -8,7 +7,7 @@ import {
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
-import {getLambdaClient} from '../shared/aws-clients';
+import {callLambdaAsync} from '../shared/call-lambda-async';
 import {validateDeleteAfter} from './helpers/lifecycle';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
@@ -123,29 +122,13 @@ export const startHandler = async <Provider extends CloudProvider>(
 		metadata: params.metadata,
 	};
 
-	const stringifiedPayload = JSON.stringify(payload);
-
-	if (stringifiedPayload.length > 256 * 1024) {
-		throw new Error(
-			`Payload is too big: ${stringifiedPayload.length} bytes. Maximum size is 256 KB. This should not happen, please report this to the Remotion team. Payload: ${stringifiedPayload}`,
-		);
-	}
-
-	// Don't replace with callLambda(), we want to return before the render is snone
-	const result = await getLambdaClient(
-		providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
-	).send(
-		new InvokeCommand({
-			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-			Payload: stringifiedPayload,
-			InvocationType: 'Event',
-		}),
-	);
-	if (result.FunctionError) {
-		throw new Error(
-			`Lambda function returned error: ${result.FunctionError} ${result.LogResult}`,
-		);
-	}
+	await callLambdaAsync({
+		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		type: ServerlessRoutines.launch,
+		payload,
+		region: region as AwsRegion,
+		timeoutInTest: options.timeoutInMilliseconds,
+	});
 
 	await initialFile;
 

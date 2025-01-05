@@ -9,7 +9,7 @@ import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
-import {callLambdaWithStreaming} from '../../shared/call-lambda';
+import {callLambdaWithStreaming} from '../../shared/call-lambda-streaming';
 import type {OverallProgressHelper} from './overall-render-progress';
 
 type StreamRendererResponse =

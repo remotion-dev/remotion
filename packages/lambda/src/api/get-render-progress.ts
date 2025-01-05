@@ -8,7 +8,7 @@ import {
 import {getProgress} from '../functions/helpers/get-progress';
 import {parseFunctionName} from '../functions/helpers/parse-function-name';
 import type {AwsRegion} from '../regions';
-import {callLambda} from '../shared/call-lambda';
+import {callLambdaSync} from '../shared/call-lambda-sync';
 import type {RenderProgress} from '../shared/constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 
@@ -56,7 +56,7 @@ export const getRenderProgress = async (
 		});
 	}
 
-	const result = await callLambda<AwsProvider, ServerlessRoutines.status>({
+	const result = await callLambdaSync<AwsProvider, ServerlessRoutines.status>({
 		functionName: input.functionName,
 		type: ServerlessRoutines.status,
 		payload: getRenderProgressPayload(input),

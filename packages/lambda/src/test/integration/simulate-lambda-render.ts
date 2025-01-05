@@ -6,14 +6,14 @@ import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
 import type {AwsProvider} from '../../functions/aws-implementation';
-import {callLambda} from '../../shared/call-lambda';
+import {callLambdaSync} from '../../shared/call-lambda-sync';
 import {mockImplementation} from '../mock-implementation';
 
 const functionName = 'remotion-dev-render';
 
 const waitUntilDone = async (bucketName: string, renderId: string) => {
 	while (true) {
-		const progress = await callLambda({
+		const progress = await callLambdaSync({
 			type: ServerlessRoutines.status,
 			payload: {
 				bucketName,
@@ -68,7 +68,7 @@ export const simulateLambdaRender = async (
 		}),
 	);
 
-	const res = await callLambda<AwsProvider, ServerlessRoutines.start>({
+	const res = await callLambdaSync<AwsProvider, ServerlessRoutines.start>({
 		type: ServerlessRoutines.start,
 		payload,
 		functionName: 'remotion-dev-lambda',

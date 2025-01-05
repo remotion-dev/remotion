@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {afterAll, expect, test} from 'vitest';
-import {callLambda} from '../../../shared/call-lambda';
+import {callLambdaSync} from '../../../shared/call-lambda-sync';
 
 afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
@@ -11,7 +11,7 @@ test('Should fail when using an incompatible version', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	try {
-		const aha = await callLambda({
+		const aha = await callLambdaSync({
 			type: ServerlessRoutines.launch,
 			payload: {
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
