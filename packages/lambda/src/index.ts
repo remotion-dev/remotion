@@ -4,6 +4,7 @@ import type {
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
 } from '@remotion/serverless/client';
+import {NoReactInternals} from 'remotion/no-react';
 import type {DeleteFunctionInput} from './api/delete-function';
 import {deleteFunction} from './api/delete-function';
 import type {DeleteRenderInput} from './api/delete-render';
@@ -77,27 +78,57 @@ import type {WebhookPayload} from './shared/invoke-webhook';
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
-const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+const renderMediaOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'renderMediaOnLambda() has moved to `@remotion/lambda/client`. Please import it from there.',
+			);
+		}
+	: deprecatedRenderMediaOnLambda;
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
-const getRenderProgress = deprecatedGetRenderProgress;
+const getRenderProgress = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'getRenderProgress() has moved to `@remotion/lambda/client`. Please import it from there.',
+			);
+		}
+	: deprecatedGetRenderProgress;
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
-const renderStillOnLambda = deprecatedRenderStillOnLambda;
+const renderStillOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'renderStillOnLambda() has moved to `@remotion/lambda/client`. Please import it from there.',
+			);
+		}
+	: deprecatedRenderStillOnLambda;
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
-const presignUrl = deprecatedPresignUrl;
+const presignUrl = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'presignUrl() has moved to `@remotion/lambda/client`. Please import it from there.',
+			);
+		}
+	: deprecatedPresignUrl;
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
  */
-const getSites = deprecatedGetSites;
+const getSites = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'getSites() has moved to `@remotion/lambda/client`. Please import it from there.',
+			);
+		}
+	: deprecatedGetSites;
 
 export {
 	LambdaInternals,
