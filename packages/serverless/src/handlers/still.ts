@@ -1,47 +1,39 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	CloudProvider,
-	OnStream,
-	ReceivedArtifact,
-	RenderStillLambdaResponsePayload,
-} from '@remotion/serverless';
-import {
-	forgetBrowserEventLoop,
-	formatCostsInfo,
-	getBrowserInstance,
-	getCredentialsFromOutName,
-	getTmpDirStateIfENoSp,
-	makeInitialOverallRenderProgress,
-	validateComposition,
-	validateOutname,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
-import type {
-	RenderMetadata,
-	ServerlessPayload,
-} from '@remotion/serverless/client';
-import {
-	ServerlessRoutines,
-	artifactName,
-	decompressInputProps,
-	getExpectedOutName,
-	internalGetOrCreateBucket,
-	overallProgressKey,
-} from '@remotion/serverless/client';
+
 import fs from 'node:fs';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {estimatePrice} from '../api/estimate-price';
-import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
-import type {AwsRegion} from '../regions';
-import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import {isFlakyError} from '../shared/is-flaky-error';
-import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validatePrivacy} from '../shared/validate-privacy';
-import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
-import {onDownloadsHelper} from './helpers/on-downloads-logger';
+import {cleanupSerializedInputProps} from '../cleanup-serialized-input-props';
+import {decompressInputProps} from '../compress-props';
+import type {ServerlessPayload} from '../constants';
+import {
+	ServerlessRoutines,
+	artifactName,
+	overallProgressKey,
+} from '../constants';
+import {
+	getCredentialsFromOutName,
+	getExpectedOutName,
+} from '../expected-out-name';
+import {formatCostsInfo} from '../format-costs-info';
+import {internalGetOrCreateBucket} from '../get-or-create-bucket';
+import {onDownloadsHelper} from '../on-downloads-helpers';
+import {makeInitialOverallRenderProgress} from '../overall-render-progress';
+import type {ProviderSpecifics} from '../provider-implementation';
+import type {RenderMetadata} from '../render-metadata';
+import type {OnStream} from '../streaming/streaming';
+import type {
+	CloudProvider,
+	ReceivedArtifact,
+	RenderStillLambdaResponsePayload,
+} from '../types';
+import {validateComposition} from '../validate-composition';
+import {validateDownloadBehavior} from '../validate-download-behavior';
+import {validateOutname} from '../validate-outname';
+import {validatePrivacy} from '../validate-privacy';
+import {getTmpDirStateIfENoSp} from '../write-lambda-error';
 
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;
@@ -90,7 +82,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const start = Date.now();
 
-	const browserInstancePromise = getBrowserInstance({
+	const browserInstancePromise = providerSpecifics.getBrowserInstance({
 		logLevel: lambdaParams.logLevel,
 		indent: false,
 		chromiumOptions: lambdaParams.chromiumOptions,
@@ -342,22 +334,20 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		server.closeServer(true),
 	]);
 
-	const estimatedPrice = estimatePrice({
+	const estimatedPrice = providerSpecifics.estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
-		region: providerSpecifics.getCurrentRegionInFunction() as AwsRegion,
+		region: providerSpecifics.getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
-		// We cannot determine the ephemeral storage size, so we
-		// overestimate the price, but will only have a miniscule effect (~0.2%)
-		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 	});
 
-	const {key: outKey, url} = getOutputUrlFromMetadata(
+	const {key: outKey, url} = providerSpecifics.getOutputUrl({
 		renderMetadata,
 		bucketName,
 		customCredentials,
-		providerSpecifics.getCurrentRegionInFunction(),
-	);
+		currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+	});
 
 	const payload: RenderStillLambdaResponsePayload<Provider> = {
 		type: 'success' as const,
@@ -407,7 +397,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError = isFlakyError(err as Error);
+		const isBrowserError = options.providerSpecifics.isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
 		RenderInternals.Log.error(
@@ -452,7 +442,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 	} finally {
-		forgetBrowserEventLoop(
+		options.providerSpecifics.forgetBrowserEventLoop(
 			options.params.type === ServerlessRoutines.still
 				? options.params.logLevel
 				: 'error',

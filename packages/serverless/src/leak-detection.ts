@@ -1,5 +1,6 @@
-import type {NodeIntrospection} from '../../shared/why-is-node-running';
-import {whyIsNodeRunning} from '../../shared/why-is-node-running';
+/* eslint-disable no-console */
+import type {NodeIntrospection} from './why-is-node-running';
+import {whyIsNodeRunning} from './why-is-node-running';
 
 type LeakTimeout = {
 	timeout: Timer;

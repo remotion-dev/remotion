@@ -1,6 +1,6 @@
 import {MINIMUM_FRAMES_PER_LAMBDA} from './constants';
 
-export const validateFramesPerLambda = ({
+export const validateFramesPerFunction = ({
 	framesPerLambda,
 	durationInFrames,
 }: {

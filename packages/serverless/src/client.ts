@@ -37,6 +37,8 @@ export {
 	GetOrCreateBucketOutput,
 	internalGetOrCreateBucket,
 } from './get-or-create-bucket';
+export {validateDownloadBehavior} from './validate-download-behavior';
+export {validateFramesPerFunction} from './validate-frames-per-function';
 
 export {
 	errorIsOutOfSpaceError,
@@ -45,6 +47,7 @@ export {
 } from './error-category';
 
 export {calculateChunkTimes} from './calculate-chunk-times';
+export {MAX_FUNCTIONS_PER_RENDER} from './constants';
 export {getExpectedOutName} from './expected-out-name';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
@@ -60,4 +63,5 @@ export {
 } from './streaming/streaming';
 export {truthy} from './truthy';
 export {validateBucketName} from './validate-bucket-name';
+export {validatePrivacy} from './validate-privacy';
 export {validateWebhook} from './validate-webhook';

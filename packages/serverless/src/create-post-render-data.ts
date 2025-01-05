@@ -1,19 +1,15 @@
-import type {
-	CloudProvider,
-	EnhancedErrorInfo,
-	OverallRenderProgress,
-	PostRenderData,
-} from '@remotion/serverless';
-import {
-	OVERHEAD_TIME_PER_LAMBDA,
-	getMostExpensiveChunks,
-} from '@remotion/serverless';
-import type {RenderMetadata} from '@remotion/serverless/client';
-import {calculateChunkTimes} from '@remotion/serverless/client';
-import {estimatePrice} from '../../api/estimate-price';
-import type {AwsRegion} from '../../regions';
-import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
+import {calculateChunkTimes} from './calculate-chunk-times';
+import type {PostRenderData} from './constants';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
+import {
+	getMostExpensiveChunks,
+	OVERHEAD_TIME_PER_LAMBDA,
+} from './most-expensive-chunks';
+import type {OverallRenderProgress} from './overall-render-progress';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './types';
+import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const createPostRenderData = <Provider extends CloudProvider>({
 	region,
@@ -26,6 +22,7 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	overallProgress,
 	timeToFinish,
 	outputSize,
+	providerSpecifics,
 }: {
 	region: Provider['region'];
 	memorySizeInMb: number;
@@ -37,6 +34,7 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	overallProgress: OverallRenderProgress<Provider>;
 	timeToFinish: number;
 	outputSize: number;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }): PostRenderData<Provider> => {
 	const parsedTimings = overallProgress.timings;
 
@@ -44,14 +42,12 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 		.map((p) => p.rendered - p.start + OVERHEAD_TIME_PER_LAMBDA)
 		.reduce((a, b) => a + b);
 
-	const cost = estimatePrice({
+	const cost = providerSpecifics.estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 		memorySizeInMb,
-		region: region as AwsRegion,
+		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
-		// We cannot determine the ephemeral storage size, so we
-		// overestimate the price, but will only have a miniscule effect (~0.2%)
-		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 	});
 
 	if (!outputFile) {
@@ -98,12 +94,12 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 		mostExpensiveFrameRanges:
 			renderMetadata.type === 'still'
 				? []
-				: getMostExpensiveChunks(
+				: getMostExpensiveChunks({
 						parsedTimings,
-						renderMetadata.framesPerLambda,
-						renderMetadata.frameRange[0],
-						renderMetadata.frameRange[1],
-					),
+						framesPerLambda: renderMetadata.framesPerLambda,
+						firstFrame: renderMetadata.frameRange[0],
+						lastFrame: renderMetadata.frameRange[1],
+					}),
 		deleteAfter: renderMetadata.deleteAfter,
 		estimatedBillingDurationInMilliseconds,
 		timeToCombine: timeToCombine ?? null,

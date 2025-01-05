@@ -12,15 +12,12 @@ export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;
 export const MAX_TIMEOUT = 900;
 
-export const MINIMUM_FRAMES_PER_LAMBDA = 4;
 export const DEFAULT_FRAMES_PER_LAMBDA = 20;
 
 export const BINARY_NAME = 'remotion lambda';
 export const COMMAND_NOT_FOUND = 'Command not found';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';
 export const DEFAULT_MAX_RETRIES = 1;
-
-export const MAX_FUNCTIONS_PER_RENDER = 200;
 
 export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
 export const DEFAULT_EPHEMERAL_STORAGE_IN_MB =
@@ -38,11 +35,6 @@ export const LOG_GROUP_PREFIX = '/aws/lambda/';
 export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
-
-export const RENDERER_PATH_TOKEN = 'remotion-bucket';
-export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
-export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
-export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export type RenderProgress = GenericRenderProgress<AwsProvider>;
 

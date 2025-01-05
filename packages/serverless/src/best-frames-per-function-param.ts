@@ -2,7 +2,7 @@ import {interpolate} from 'remotion/no-react';
 
 // Always update the code in docs/lambda/concurrency.md too
 
-export const bestFramesPerLambdaParam = (frameCount: number) => {
+export const bestFramesPerFunctionParam = (frameCount: number) => {
 	// Between 0 and 10 minutes (at 30fps), interpolate the concurrency from 75 to 150
 	const concurrency = interpolate(frameCount, [0, 18000], [75, 150], {
 		extrapolateRight: 'clamp',

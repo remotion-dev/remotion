@@ -48,16 +48,18 @@ export type WebhookPayload = {
 // since the browser will display the right page.
 const redirectStatusCodes = [301, 302, 303, 307, 308];
 
+export type WebhookClient = (
+	url: string | URL,
+	options: https.RequestOptions,
+	callback?: (res: http.IncomingMessage) => void,
+) => http.ClientRequest;
+
 type InvokeWebhookOptions = {
 	payload: WebhookPayload;
 	url: string;
 	secret: string | null;
 	redirectsSoFar: number;
-	client: (
-		url: string | URL,
-		options: https.RequestOptions,
-		callback?: (res: http.IncomingMessage) => void,
-	) => http.ClientRequest;
+	client: WebhookClient;
 };
 
 function invokeWebhookRaw({

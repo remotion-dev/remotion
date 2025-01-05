@@ -60,3 +60,12 @@ export type CallFunctionOptions<
 	region: Provider['region'];
 	timeoutInTest: number;
 };
+
+export type ObjectChunkTimingData = {
+	chunk: number;
+	frameRange: [number, number];
+	startDate: number;
+	timings: {
+		[key: number]: number;
+	};
+};

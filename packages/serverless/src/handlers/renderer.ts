@@ -6,42 +6,36 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {
-	CloudProvider,
-	OnStream,
-	ProviderSpecifics,
-} from '@remotion/serverless';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-	getTmpDirStateIfENoSp,
-	serializeArtifact,
-} from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
-import {
-	ServerlessRoutines,
-	decompressInputProps,
-	truthy,
-} from '@remotion/serverless/client';
+
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {RENDERER_PATH_TOKEN} from '../shared/constants';
-import {isFlakyError} from '../shared/is-flaky-error';
-import {enableNodeIntrospection} from '../shared/why-is-node-running';
-import type {ObjectChunkTimingData} from './chunk-optimization/types';
 import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
-} from './helpers/can-concat-seamlessly';
-import {startLeakDetection} from './helpers/leak-detection';
-import {onDownloadsHelper} from './helpers/on-downloads-logger';
-import type {RequestContext} from './helpers/request-context';
-import {timer} from './helpers/timer';
+} from '../can-concat-seamlessly';
+import {decompressInputProps} from '../compress-props';
+import type {ServerlessPayload} from '../constants';
+import {RENDERER_PATH_TOKEN, ServerlessRoutines} from '../constants';
+import {startLeakDetection} from '../leak-detection';
+import {onDownloadsHelper} from '../on-downloads-helpers';
+import type {ProviderSpecifics} from '../provider-implementation';
+import {serializeArtifact} from '../serialize-artifact';
+import type {OnStream} from '../streaming/streaming';
+import {truthy} from '../truthy';
+import type {CloudProvider, ObjectChunkTimingData} from '../types';
+import {enableNodeIntrospection} from '../why-is-node-running';
+import {getTmpDirStateIfENoSp} from '../write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
 	isWarm: boolean;
+};
+
+export type RequestContext = {
+	invokedFunctionArn: string;
+	getRemainingTimeInMillis: () => number;
+	awsRequestId: string;
 };
 
 const renderHandler = async <Provider extends CloudProvider>({
@@ -87,7 +81,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 	});
 
-	const browserInstance = await getBrowserInstance({
+	const browserInstance = await providerSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
@@ -343,13 +337,16 @@ const renderHandler = async <Provider extends CloudProvider>({
 			.catch((err) => reject(err));
 	});
 
-	const streamTimer = timer(
+	const streamTimer = providerSpecifics.timer(
 		'Streaming chunk to the main function',
 		params.logLevel,
 	);
 
 	if (audioOutputLocation) {
-		const audioChunkTimer = timer('Sending audio chunk', params.logLevel);
+		const audioChunkTimer = providerSpecifics.timer(
+			'Sending audio chunk',
+			params.logLevel,
+		);
 		await onStream({
 			type: 'audio-chunk-rendered',
 			payload: fs.readFileSync(audioOutputLocation),
@@ -358,7 +355,10 @@ const renderHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (videoOutputLocation) {
-		const videoChunkTimer = timer('Sending main chunk', params.logLevel);
+		const videoChunkTimer = providerSpecifics.timer(
+			'Sending main chunk',
+			params.logLevel,
+		);
 		await onStream({
 			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
@@ -441,13 +441,14 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
+			// eslint-disable-next-line no-console
 			console.log({err});
 			throw err;
 		}
 
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isRetryableError = isFlakyError(err as Error);
+		const isRetryableError = providerSpecifics.isFlakyError(err as Error);
 		if (isRetryableError) {
 			shouldKeepBrowserOpen = false;
 		}
@@ -493,7 +494,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		throw err;
 	} finally {
 		if (shouldKeepBrowserOpen) {
-			forgetBrowserEventLoop(params.logLevel);
+			providerSpecifics.forgetBrowserEventLoop(params.logLevel);
 		} else {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},

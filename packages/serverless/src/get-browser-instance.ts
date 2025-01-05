@@ -2,10 +2,13 @@ import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {Await} from './await';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {
+	GetBrowserInstance,
+	ProviderSpecifics,
+} from './provider-implementation';
 import type {CloudProvider} from './types';
 
-type LaunchedBrowser = {
+export type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
 	configurationString: string;
 };
@@ -45,7 +48,7 @@ const waitForLaunched = () => {
 	});
 };
 
-export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
+export const forgetBrowserEventLoopImplementation = (logLevel: LogLevel) => {
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Keeping browser open for next invocation',
@@ -54,7 +57,9 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 	_browserInstance?.instance.runner.deleteBrowserCaches();
 };
 
-export const getBrowserInstance = async <Provider extends CloudProvider>({
+export const getBrowserInstanceImplementation: GetBrowserInstance = async <
+	Provider extends CloudProvider,
+>({
 	logLevel,
 	indent,
 	chromiumOptions,
@@ -117,7 +122,7 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
-			forgetBrowserEventLoop(logLevel);
+			providerSpecifics.forgetBrowserEventLoop(logLevel);
 			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
@@ -144,7 +149,7 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 		_browserInstance.instance.runner.rememberEventLoop();
 		await _browserInstance.instance.close(true, logLevel, indent);
 		_browserInstance = null;
-		return getBrowserInstance({
+		return providerSpecifics.getBrowserInstance({
 			logLevel,
 			indent,
 			chromiumOptions,

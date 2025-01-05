@@ -3,6 +3,7 @@ import type {
 	CloudProvider,
 	OrError,
 	ProviderSpecifics,
+	RequestContext,
 	ResponseStream,
 	ResponseStreamWriter,
 	StreamingPayload,
@@ -10,8 +11,13 @@ import type {
 import {
 	compositionsHandler,
 	infoHandler,
+	launchHandler,
 	progressHandler,
+	rendererHandler,
+	setCurrentRequestId,
 	startHandler,
+	stillHandler,
+	stopLeakDetection,
 	streamWriter,
 } from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
@@ -24,14 +30,10 @@ import type {AwsProvider} from './aws-implementation';
 import {awsImplementation} from './aws-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
-import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
 import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
 import {printLoggingGrepHelper} from './helpers/print-logging-helper';
-import type {RequestContext} from './helpers/request-context';
 import {streamifyResponse} from './helpers/streamify-response';
-import {launchHandler} from './launch';
-import {rendererHandler} from './renderer';
-import {stillHandler} from './still';
+import {getWebhookClient} from './http-client';
 
 const innerHandler = async <Provider extends CloudProvider>({
 	params,
@@ -189,14 +191,15 @@ const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const response = await launchHandler(
+		const response = await launchHandler({
 			params,
-			{
+			options: {
 				expectedBucketOwner: currentUserId,
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 			},
 			providerSpecifics,
-		);
+			client: getWebhookClient(params.webhook?.url ?? 'http://localhost:3000'),
+		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();

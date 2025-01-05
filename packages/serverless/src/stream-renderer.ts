@@ -1,18 +1,15 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	CloudProvider,
-	OnMessage,
-	OverallProgressHelper,
-} from '@remotion/serverless';
-import {
-	deserializeArtifact,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+
 import {writeFileSync} from 'fs';
 import {join} from 'path';
+import type {ServerlessPayload} from './constants';
+import {ServerlessRoutines} from './constants';
+import type {OverallProgressHelper} from './overall-render-progress';
+import type {ProviderSpecifics} from './provider-implementation';
+import {deserializeArtifact} from './serialize-artifact';
+import type {OnMessage} from './streaming/streaming';
+import type {CloudProvider} from './types';
 
 type StreamRendererResponse =
 	| {

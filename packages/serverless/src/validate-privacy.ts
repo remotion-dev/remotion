@@ -1,4 +1,4 @@
-import type {Privacy} from '@remotion/serverless/client';
+import type {Privacy} from './constants';
 
 export function validatePrivacy(
 	privacy: unknown,

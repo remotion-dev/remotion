@@ -8,12 +8,17 @@ export type ExpensiveChunk = {
 	timeInMilliseconds: number;
 };
 
-export const getMostExpensiveChunks = (
-	parsedTimings: ParsedTiming[],
-	framesPerLambda: number,
-	firstFrame: number,
-	lastFrame: number,
-): ExpensiveChunk[] => {
+export const getMostExpensiveChunks = ({
+	parsedTimings,
+	framesPerLambda,
+	firstFrame,
+	lastFrame,
+}: {
+	parsedTimings: ParsedTiming[];
+	framesPerLambda: number;
+	firstFrame: number;
+	lastFrame: number;
+}): ExpensiveChunk[] => {
 	const mostExpensiveChunks = parsedTimings
 		.slice(0)
 		.sort((a, b) => {

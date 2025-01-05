@@ -1,4 +1,5 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import {openBrowser} from '@remotion/renderer';
+import type {GetBrowserInstance, ProviderSpecifics} from '@remotion/serverless';
 import {Readable} from 'stream';
 import {estimatePrice} from '../api/estimate-price';
 import {speculateFunctionName} from '../client';
@@ -9,6 +10,7 @@ import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
+import {isFlakyError} from '../shared/is-flaky-error';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
@@ -23,6 +25,14 @@ import {
 	readMockS3File,
 	writeMockS3File,
 } from './mocks/mock-store';
+
+type Await<T> = T extends PromiseLike<infer U> ? U : T;
+let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
+
+export const getBrowserInstance: GetBrowserInstance = async () => {
+	_browserInstance = await openBrowser('chrome');
+	return {instance: _browserInstance, configurationString: 'chrome'};
+};
 
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	applyLifeCycle: () => Promise.resolve(),
@@ -145,4 +155,16 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			timeoutInSeconds: 120,
 		}),
 	estimatePrice,
+	getOutputUrl: () => {
+		return {
+			key: 'mock/mock.mp4',
+			url: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
+		};
+	},
+	isFlakyError,
+	timer: () => ({
+		end: () => {},
+	}),
+	forgetBrowserEventLoop: () => {},
+	getBrowserInstance,
 };

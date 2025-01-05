@@ -1,10 +1,8 @@
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
-import {
-	getExpectedOutName,
-	type CustomCredentials,
-	type RenderMetadata,
-} from '@remotion/serverless/client';
-import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
+import type {CustomCredentials} from './constants';
+import {getExpectedOutName} from './expected-out-name';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './types';
 
 export type OutputFileMetadata = {
 	url: string;
@@ -46,12 +44,12 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 			forcePathStyle,
 		});
 		return {
-			url: getOutputUrlFromMetadata(
+			url: providerSpecifics.getOutputUrl({
 				renderMetadata,
 				bucketName,
 				customCredentials,
 				currentRegion,
-			).url,
+			}).url,
 		};
 	} catch (err) {
 		if ((err as Error).name === 'NotFound') {

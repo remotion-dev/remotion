@@ -1,4 +1,8 @@
-import {type ProviderSpecifics} from '@remotion/serverless';
+import {
+	forgetBrowserEventLoopImplementation,
+	getBrowserInstanceImplementation,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
 import {expiryDays} from '@remotion/serverless/client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
@@ -20,11 +24,14 @@ import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
+import {isFlakyError} from '../shared/is-flaky-error';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-folder-files';
+import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {makeAwsArtifact} from './helpers/make-aws-artifact';
+import {timer} from './helpers/timer';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -118,4 +125,9 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	estimatePrice,
 	getLoggingUrlForMethod: getCloudwatchMethodUrl,
 	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
+	isFlakyError,
+	getOutputUrl: getOutputUrlFromMetadata,
+	timer,
+	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
+	getBrowserInstance: getBrowserInstanceImplementation,
 };

@@ -2,8 +2,8 @@ import {expect, test} from 'bun:test';
 import {getMostExpensiveChunks} from '../most-expensive-chunks';
 
 test('Should calculate most expensive chunks', () => {
-	const most = getMostExpensiveChunks(
-		[
+	const most = getMostExpensiveChunks({
+		parsedTimings: [
 			{
 				chunk: 0,
 				rendered: 1000,
@@ -40,10 +40,10 @@ test('Should calculate most expensive chunks', () => {
 				start: 2000,
 			},
 		],
-		10,
-		0,
-		99,
-	);
+		framesPerLambda: 10,
+		firstFrame: 0,
+		lastFrame: 99,
+	});
 
 	expect(most).toEqual([
 		{timeInMilliseconds: 98000, chunk: 4, frameRange: [40, 49]},
@@ -58,8 +58,8 @@ test('Render starting from frame 10 should have correct offset', () => {
 	const framesPerLambda = 10;
 	const firstFrame = 10;
 	const lastFrame = 99;
-	const most = getMostExpensiveChunks(
-		[
+	const most = getMostExpensiveChunks({
+		parsedTimings: [
 			{
 				chunk: 0,
 				rendered: 1000,
@@ -99,7 +99,7 @@ test('Render starting from frame 10 should have correct offset', () => {
 		framesPerLambda,
 		firstFrame,
 		lastFrame,
-	);
+	});
 
 	expect(most).toEqual([
 		{timeInMilliseconds: 98000, chunk: 4, frameRange: [50, 59]},
@@ -114,8 +114,8 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 	const framesPerLambda = 10;
 	const firstFrame = 10;
 	const lastFrame = 79;
-	const most = getMostExpensiveChunks(
-		[
+	const most = getMostExpensiveChunks({
+		parsedTimings: [
 			{
 				chunk: 0,
 				rendered: 1000,
@@ -155,7 +155,7 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 		framesPerLambda,
 		firstFrame,
 		lastFrame,
-	);
+	});
 
 	expect(most).toEqual([
 		{timeInMilliseconds: 123000, chunk: 6, frameRange: [70, 79]},

@@ -3,10 +3,7 @@ import {VERSION} from 'remotion/version';
 import {decompressInputProps} from '../compress-props';
 import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines} from '../constants';
-import {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-} from '../get-browser-instance';
+import {} from '../get-browser-instance';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import type {ProviderSpecifics} from '../provider-implementation';
 import type {CloudProvider} from '../types';
@@ -39,7 +36,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 	try {
 		const region = providerSpecifics.getCurrentRegionInFunction();
 
-		const browserInstancePromise = getBrowserInstance({
+		const browserInstancePromise = providerSpecifics.getBrowserInstance({
 			logLevel: lambdaParams.logLevel,
 			indent: false,
 			chromiumOptions: lambdaParams.chromiumOptions,
@@ -99,6 +96,6 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 			type: 'success' as const,
 		});
 	} finally {
-		forgetBrowserEventLoop(lambdaParams.logLevel);
+		providerSpecifics.forgetBrowserEventLoop(lambdaParams.logLevel);
 	}
 };

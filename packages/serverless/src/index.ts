@@ -1,19 +1,22 @@
-export {compositionsHandler} from './handlers/compositions';
-export {progressHandler} from './handlers/progress';
-export {startHandler} from './handlers/start';
-
 export {PostRenderData, ServerlessRoutines} from './constants';
 export {DOCS_URL} from './docs-url';
 export {estimatePriceFromBucket} from './estimate-price-from-bucket';
 export {getCredentialsFromOutName} from './expected-out-name';
 export {formatCostsInfo} from './format-costs-info';
 export {
-	forgetBrowserEventLoop,
-	getBrowserInstance,
+	forgetBrowserEventLoopImplementation,
+	getBrowserInstanceImplementation,
 } from './get-browser-instance';
+export {compositionsHandler} from './handlers/compositions';
+export {launchHandler} from './handlers/launch';
+export {progressHandler} from './handlers/progress';
+export {RequestContext, rendererHandler} from './handlers/renderer';
+export {startHandler} from './handlers/start';
+export {stillHandler} from './handlers/still';
 export {infoHandler} from './info';
 export {inspectErrors} from './inspect-error';
-export {WebhookPayload, invokeWebhook} from './invoke-webhook';
+export {WebhookClient, WebhookPayload, invokeWebhook} from './invoke-webhook';
+export {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 export {
 	OVERHEAD_TIME_PER_LAMBDA,
 	getMostExpensiveChunks,

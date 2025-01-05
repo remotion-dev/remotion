@@ -1,58 +1,50 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	CloudProvider,
-	OverallProgressHelper,
-	PostRenderData,
-	ProviderSpecifics,
-} from '@remotion/serverless';
-import {
-	DOCS_URL,
-	forgetBrowserEventLoop,
-	getBrowserInstance,
-	getTmpDirStateIfENoSp,
-	invokeWebhook,
-	makeOverallRenderProgress,
-	validateComposition,
-	validateOutname,
-} from '@remotion/serverless';
-import type {
-	RenderMetadata,
-	ServerlessPayload,
-} from '@remotion/serverless/client';
-import {
-	ServerlessRoutines,
-	artifactName,
-	compressInputProps,
-	decompressInputProps,
-	getExpectedOutName,
-	getNeedsToUpload,
-	serializeOrThrow,
-} from '@remotion/serverless/client';
+
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
 import {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../compress-props';
+import type {PostRenderData, ServerlessPayload} from '../constants';
+import {
 	CONCAT_FOLDER_TOKEN,
 	MAX_FUNCTIONS_PER_RENDER,
-} from '../shared/constants';
+	ServerlessRoutines,
+	artifactName,
+} from '../constants';
+import {DOCS_URL} from '../docs-url';
+import {getExpectedOutName} from '../expected-out-name';
+import type {WebhookClient} from '../invoke-webhook';
+import {invokeWebhook} from '../invoke-webhook';
+import type {OverallProgressHelper} from '../overall-render-progress';
+import {makeOverallRenderProgress} from '../overall-render-progress';
+import type {ProviderSpecifics} from '../provider-implementation';
+import type {RenderMetadata} from '../render-metadata';
+
+import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
+import {cleanupProps} from '../cleanup-props';
+import {findOutputFileInBucket} from '../find-output-file-in-bucket';
+import {mergeChunksAndFinishRender} from '../merge-chunks';
+import {planFrameRanges} from '../plan-frame-ranges';
+import {streamRendererFunctionWithRetry} from '../stream-renderer';
+import type {CloudProvider} from '../types';
 import {
 	validateDimension,
 	validateDurationInFrames,
 	validateFps,
-} from '../shared/validate';
-import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
-import {validatePrivacy} from '../shared/validate-privacy';
-import {planFrameRanges} from './chunk-optimization/plan-frame-ranges';
-import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
-import {cleanupProps} from './helpers/cleanup-props';
-import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
-import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
-import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
-import {timer} from './helpers/timer';
-import {getWebhookClient} from './http-client';
+} from '../validate';
+import {validateComposition} from '../validate-composition';
+import {validateFramesPerFunction} from '../validate-frames-per-function';
+import {validateOutname} from '../validate-outname';
+import {validatePrivacy} from '../validate-privacy';
+import {getTmpDirStateIfENoSp} from '../write-lambda-error';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -80,7 +72,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const browserInstance = getBrowserInstance({
+	const browserInstance = providerSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
@@ -173,9 +165,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	const framesPerLambda =
-		params.framesPerLambda ?? bestFramesPerLambdaParam(frameCount.length);
+		params.framesPerLambda ?? bestFramesPerFunctionParam(frameCount.length);
 
-	validateFramesPerLambda({
+	validateFramesPerFunction({
 		framesPerLambda,
 		durationInFrames: frameCount.length,
 	});
@@ -348,7 +340,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	if (!params.overwrite) {
-		const findOutputFile = timer(
+		const findOutputFile = providerSpecifics.timer(
 			'Checking if output file already exists',
 			params.logLevel,
 		);
@@ -503,11 +495,17 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 type CleanupTask = () => Promise<unknown>;
 
-export const launchHandler = async <Provider extends CloudProvider>(
-	params: ServerlessPayload<Provider>,
-	options: Options,
-	providerSpecifics: ProviderSpecifics<Provider>,
-): Promise<{
+export const launchHandler = async <Provider extends CloudProvider>({
+	params,
+	options,
+	providerSpecifics,
+	client,
+}: {
+	params: ServerlessPayload<Provider>;
+	options: Options;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	client: WebhookClient;
+}): Promise<{
 	type: 'success';
 }> => {
 	if (params.type !== ServerlessRoutines.launch) {
@@ -600,7 +598,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 						customData: params.webhook.customData ?? null,
 					},
 					redirectsSoFar: 0,
-					client: getWebhookClient(params.webhook.url),
+					client,
 				},
 				params.logLevel,
 			);
@@ -704,7 +702,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 						costs: postRenderData.cost,
 					},
 					redirectsSoFar: 0,
-					client: getWebhookClient(params.webhook.url),
+					client,
 				},
 				params.logLevel,
 			);
@@ -799,7 +797,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 							})),
 						},
 						redirectsSoFar: 0,
-						client: getWebhookClient(params.webhook.url),
+						client,
 					},
 					params.logLevel,
 				);
@@ -837,6 +835,6 @@ export const launchHandler = async <Provider extends CloudProvider>(
 
 		throw err;
 	} finally {
-		forgetBrowserEventLoop(params.logLevel);
+		providerSpecifics.forgetBrowserEventLoop(params.logLevel);
 	}
 };

@@ -1,25 +1,22 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import type {
-	CloudProvider,
-	OverallProgressHelper,
-	PostRenderData,
-	ProviderSpecifics,
-} from '@remotion/serverless';
-import {inspectErrors} from '@remotion/serverless';
-import type {
-	CustomCredentials,
-	DownloadBehavior,
-	Privacy,
-	RenderMetadata,
-	SerializedInputProps,
-	ServerlessCodec,
-} from '@remotion/serverless/client';
+
 import fs from 'fs';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
+import type {
+	CustomCredentials,
+	DownloadBehavior,
+	PostRenderData,
+	Privacy,
+	SerializedInputProps,
+	ServerlessCodec,
+} from './constants';
 import {createPostRenderData} from './create-post-render-data';
-import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
-import {timer} from './timer';
+import {inspectErrors} from './inspect-error';
+import type {OverallProgressHelper} from './overall-render-progress';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './types';
 
 export const mergeChunksAndFinishRender = async <
 	Provider extends CloudProvider,
@@ -84,13 +81,14 @@ export const mergeChunksAndFinishRender = async <
 		preferLossless: options.preferLossless,
 		muted: options.renderMetadata.muted,
 		metadata: options.renderMetadata.metadata,
+		providerSpecifics: options.providerSpecifics,
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
 	const outputSize = fs.statSync(outfile).size;
 
-	const writeToBucket = timer(
+	const writeToBucket = options.providerSpecifics.timer(
 		`Writing to bucket (${outputSize} bytes)`,
 		options.logLevel,
 	);
@@ -120,12 +118,12 @@ export const mergeChunksAndFinishRender = async <
 		forcePathStyle: options.forcePathStyle,
 	});
 
-	const {url: outputUrl} = getOutputUrlFromMetadata(
-		options.renderMetadata,
-		options.bucketName,
-		options.customCredentials,
-		options.providerSpecifics.getCurrentRegionInFunction(),
-	);
+	const {url: outputUrl} = options.providerSpecifics.getOutputUrl({
+		bucketName: options.renderBucketName,
+		currentRegion: options.providerSpecifics.getCurrentRegionInFunction(),
+		customCredentials: options.customCredentials,
+		renderMetadata: options.renderMetadata,
+	});
 
 	const postRenderData = createPostRenderData({
 		region: options.providerSpecifics.getCurrentRegionInFunction(),
@@ -140,6 +138,7 @@ export const mergeChunksAndFinishRender = async <
 		timeToCombine: encodingStop - encodingStart,
 		overallProgress: options.overallProgress.get(),
 		timeToFinish: Date.now() - options.startTime,
+		providerSpecifics: options.providerSpecifics,
 	});
 
 	options.overallProgress.setPostRenderData(postRenderData);

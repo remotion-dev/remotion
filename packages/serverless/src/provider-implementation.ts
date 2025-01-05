@@ -1,4 +1,8 @@
-import type {EmittedArtifact} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	EmittedArtifact,
+	LogLevel,
+} from '@remotion/renderer';
 import type {Readable} from 'stream';
 import type {
 	CustomCredentials,
@@ -6,7 +10,9 @@ import type {
 	Privacy,
 	ServerlessRoutines,
 } from './constants';
+import type {LaunchedBrowser} from './get-browser-instance';
 import type {GetFolderFiles} from './get-files-in-folder';
+import type {RenderMetadata} from './render-metadata';
 import type {ServerlessReturnValues} from './return-values';
 import type {OnMessage} from './streaming/streaming';
 import type {
@@ -129,6 +135,13 @@ export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
 	artifact: EmittedArtifact;
 }) => ReceivedArtifact<Provider>;
 
+export type DebuggingTimer = (
+	label: string,
+	logLevel: LogLevel,
+) => {
+	end: () => void;
+};
+
 export type CallFunctionAsync<Provider extends CloudProvider> = <
 	T extends ServerlessRoutines,
 >({
@@ -191,6 +204,27 @@ export type GetLoggingUrlForMethod<Provider extends CloudProvider> = (options: {
 	renderId: string;
 }) => string;
 
+export type GetOutputUrl<Provider extends CloudProvider> = (options: {
+	renderMetadata: RenderMetadata<Provider>;
+	bucketName: string;
+	customCredentials: CustomCredentials<Provider> | null;
+	currentRegion: Provider['region'];
+}) => {url: string; key: string};
+
+export type GetBrowserInstance = <Provider extends CloudProvider>({
+	logLevel,
+	indent,
+	chromiumOptions,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	indent: boolean;
+	chromiumOptions: ChromiumOptions;
+	providerSpecifics: ProviderSpecifics<Provider>;
+}) => Promise<LaunchedBrowser>;
+
+export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
+
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Provider['region'];
@@ -217,4 +251,9 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
 	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
 	getEphemeralStorageForPriceCalculation: () => number;
+	timer: DebuggingTimer;
+	getOutputUrl: GetOutputUrl<Provider>;
+	isFlakyError: (err: Error) => boolean;
+	getBrowserInstance: GetBrowserInstance;
+	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 };
