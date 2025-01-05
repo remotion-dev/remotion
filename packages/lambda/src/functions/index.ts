@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudProvider,
+	OrError,
 	ProviderSpecifics,
 	ResponseStream,
 	ResponseStreamWriter,
@@ -328,14 +329,6 @@ const innerHandler = async <Provider extends CloudProvider>({
 
 	throw new Error(COMMAND_NOT_FOUND);
 };
-
-export type OrError<T> =
-	| T
-	| {
-			type: 'error';
-			message: string;
-			stack: string;
-	  };
 
 export const innerRoutine = async <Provider extends CloudProvider>(
 	params: ServerlessPayload<Provider>,

@@ -1,8 +1,19 @@
 import type {EmittedArtifact} from '@remotion/renderer';
 import type {Readable} from 'stream';
-import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
+import type {
+	CustomCredentials,
+	DownloadBehavior,
+	Privacy,
+	ServerlessRoutines,
+} from './constants';
 import type {GetFolderFiles} from './get-files-in-folder';
-import type {CloudProvider, ReceivedArtifact} from './types';
+import type {ServerlessReturnValues} from './return-values';
+import type {OnMessage} from './streaming/streaming';
+import type {
+	CallFunctionOptions,
+	CloudProvider,
+	ReceivedArtifact,
+} from './types';
 
 export type BucketWithLocation<Provider extends CloudProvider> = {
 	name: string;
@@ -118,6 +129,35 @@ export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
 	artifact: EmittedArtifact;
 }) => ReceivedArtifact<Provider>;
 
+export type CallFunctionAsync<Provider extends CloudProvider> = <
+	T extends ServerlessRoutines,
+>({
+	functionName,
+	payload,
+	region,
+	timeoutInTest,
+}: CallFunctionOptions<T, Provider>) => Promise<void>;
+
+export type CallFunctionStreaming<Provider extends CloudProvider> = <
+	T extends ServerlessRoutines,
+>(
+	options: CallFunctionOptions<T, Provider> & {
+		receivedStreamingPayload: OnMessage<Provider>;
+		retriesRemaining: number;
+	},
+) => Promise<void>;
+
+export type CallFunctionSync<Provider extends CloudProvider> = <
+	T extends ServerlessRoutines,
+>({
+	functionName,
+	payload,
+	region,
+	timeoutInTest,
+}: CallFunctionOptions<T, Provider>) => Promise<
+	ServerlessReturnValues<Provider>[T]
+>;
+
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Provider['region'];
@@ -136,4 +176,7 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getFolderFiles: GetFolderFiles;
 	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
 	validateDeleteAfter: (lifeCycleValue: unknown) => void;
+	callFunctionAsync: CallFunctionAsync<Provider>;
+	callFunctionStreaming: CallFunctionStreaming<Provider>;
+	callFunctionSync: CallFunctionSync<Provider>;
 };

@@ -4,6 +4,7 @@ import {
 	type InvokeWithResponseStreamResponseEvent,
 } from '@aws-sdk/client-lambda';
 import type {
+	CallFunctionOptions,
 	CloudProvider,
 	OnMessage,
 	StreamingMessage,
@@ -19,7 +20,6 @@ import {
 import {makeStreamer} from '@remotion/streaming';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
-import type {CallLambdaOptions} from './call-lambda';
 
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
@@ -85,7 +85,7 @@ const callLambdaWithStreamingWithoutRetry = async <
 	region,
 	timeoutInTest,
 	receivedStreamingPayload,
-}: CallLambdaOptions<T, Provider> & {
+}: CallFunctionOptions<T, Provider> & {
 	receivedStreamingPayload: OnMessage<Provider>;
 }): Promise<void> => {
 	const res = await invokeStreamOrTimeout({
@@ -173,11 +173,11 @@ const callLambdaWithStreamingWithoutRetry = async <
 	clear();
 };
 
-export const callLambdaWithStreaming = async <
+export const callFunctionWithStreamingImplementation = async <
 	Provider extends CloudProvider,
 	T extends ServerlessRoutines,
 >(
-	options: CallLambdaOptions<T, Provider> & {
+	options: CallFunctionOptions<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
 	},
@@ -210,7 +210,7 @@ export const callLambdaWithStreaming = async <
 		}
 
 		console.error(err);
-		return callLambdaWithStreaming({
+		return callFunctionWithStreamingImplementation({
 			...options,
 			retriesRemaining: options.retriesRemaining - 1,
 		});

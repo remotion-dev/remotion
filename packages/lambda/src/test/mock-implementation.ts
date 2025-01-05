@@ -3,6 +3,11 @@ import {Readable} from 'stream';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {
+	getMockCallFunctionAsync,
+	getMockCallFunctionStreaming,
+	getMockCallFunctionSync,
+} from './mocks/aws-clients';
+import {
 	addMockBucket,
 	getMockBuckets,
 	getS3FilesInBucket,
@@ -120,4 +125,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		s3Key: 'key',
 	}),
 	validateDeleteAfter: () => {},
+	callFunctionAsync: getMockCallFunctionAsync,
+	callFunctionStreaming: getMockCallFunctionStreaming,
+	callFunctionSync: getMockCallFunctionSync,
 };

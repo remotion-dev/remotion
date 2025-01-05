@@ -1,3 +1,5 @@
+import type {ServerlessPayloads, ServerlessRoutines} from './constants';
+
 export interface CloudProvider<
 	Region extends string = string,
 	ReceivedArtifactType extends Record<string, unknown> = Record<
@@ -46,4 +48,15 @@ export type ParsedTiming = {
 	chunk: number;
 	start: number;
 	rendered: number;
+};
+
+export type CallFunctionOptions<
+	T extends ServerlessRoutines,
+	Provider extends CloudProvider,
+> = {
+	functionName: string;
+	type: T;
+	payload: ServerlessPayloads<Provider>[T];
+	region: Provider['region'];
+	timeoutInTest: number;
 };

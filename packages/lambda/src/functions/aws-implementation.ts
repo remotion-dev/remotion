@@ -10,6 +10,9 @@ import {lambdaLsImplementation} from '../io/list-objects';
 import {lambdaReadFileImplementation} from '../io/read-file';
 import {lambdaWriteFileImplementation} from '../io/write-file';
 import type {AwsRegion} from '../regions';
+import {callFunctionAsyncImplementation} from '../shared/call-lambda-async';
+import {callFunctionWithStreamingImplementation} from '../shared/call-lambda-streaming';
+import {callFunctionSyncImplementation} from '../shared/call-lambda-sync';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
@@ -90,4 +93,7 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getFolderFiles,
 	makeArtifactWithDetails: makeAwsArtifact,
 	validateDeleteAfter,
+	callFunctionAsync: callFunctionAsyncImplementation,
+	callFunctionStreaming: callFunctionWithStreamingImplementation,
+	callFunctionSync: callFunctionSyncImplementation,
 };

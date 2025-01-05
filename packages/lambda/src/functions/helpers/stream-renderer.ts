@@ -13,7 +13,6 @@ import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
-import {callLambdaWithStreaming} from '../../shared/call-lambda-streaming';
 
 type StreamRendererResponse =
 	| {
@@ -161,15 +160,16 @@ const streamRenderer = <Provider extends CloudProvider>({
 			throw new Error(`Unknown message type ${message.type}`);
 		};
 
-		callLambdaWithStreaming({
-			functionName,
-			payload,
-			retriesRemaining: 1,
-			region: providerSpecifics.getCurrentRegionInFunction(),
-			timeoutInTest: 12000,
-			type: ServerlessRoutines.renderer,
-			receivedStreamingPayload,
-		})
+		providerSpecifics
+			.callFunctionStreaming({
+				functionName,
+				payload,
+				retriesRemaining: 1,
+				region: providerSpecifics.getCurrentRegionInFunction(),
+				timeoutInTest: 12000,
+				type: ServerlessRoutines.renderer,
+				receivedStreamingPayload,
+			})
 			.then(() => {
 				resolve({
 					type: 'success',

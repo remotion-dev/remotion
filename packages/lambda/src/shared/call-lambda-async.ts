@@ -1,11 +1,10 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {CloudProvider} from '@remotion/serverless';
+import type {CallFunctionOptions, CloudProvider} from '@remotion/serverless';
 import type {ServerlessRoutines} from '@remotion/serverless/client';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
-import type {CallLambdaOptions} from './call-lambda';
 
-export const callLambdaAsync = async <
+export const callFunctionAsyncImplementation = async <
 	T extends ServerlessRoutines,
 	Provider extends CloudProvider,
 >({
@@ -13,7 +12,7 @@ export const callLambdaAsync = async <
 	payload,
 	region,
 	timeoutInTest,
-}: CallLambdaOptions<T, Provider>): Promise<void> => {
+}: CallFunctionOptions<T, Provider>): Promise<void> => {
 	const stringifiedPayload = JSON.stringify(payload);
 	if (stringifiedPayload.length > 256 * 1024) {
 		throw new Error(

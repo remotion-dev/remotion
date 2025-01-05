@@ -4,7 +4,7 @@ import path from 'path';
 import {VERSION} from 'remotion/version';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {mockableHttpClients} from '../../functions/http-client';
-import {callLambdaSync} from '../../shared/call-lambda-sync';
+import {mockImplementation} from '../mock-implementation';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -57,7 +57,7 @@ describe('Webhooks', () => {
 			forceIPv4: false,
 		});
 
-		const res = await callLambdaSync({
+		const res = await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.start,
 			payload: {
 				type: ServerlessRoutines.start,
@@ -122,7 +122,7 @@ describe('Webhooks', () => {
 		});
 		const parsed = res;
 
-		await callLambdaSync({
+		await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.status,
 			payload: {
 				type: ServerlessRoutines.status,
@@ -175,7 +175,7 @@ describe('Webhooks', () => {
 			forceIPv4: false,
 		});
 
-		await callLambdaSync({
+		await mockImplementation.callFunctionSync({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,

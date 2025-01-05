@@ -1,11 +1,13 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {CloudProvider} from '@remotion/serverless';
+import type {
+	CallFunctionOptions,
+	CloudProvider,
+	OrError,
+	ServerlessReturnValues,
+} from '@remotion/serverless';
 import type {ServerlessRoutines} from '@remotion/serverless/client';
-import type {OrError} from '../functions';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from './aws-clients';
-import type {CallLambdaOptions} from './call-lambda';
-import type {LambdaReturnValues} from './return-values';
 
 const callLambdaSyncWithoutRetry = async <
 	T extends ServerlessRoutines,
@@ -15,8 +17,8 @@ const callLambdaSyncWithoutRetry = async <
 	payload,
 	region,
 	timeoutInTest,
-}: CallLambdaOptions<T, Provider>): Promise<
-	OrError<LambdaReturnValues<Provider>[T]>
+}: CallFunctionOptions<T, Provider>): Promise<
+	OrError<ServerlessReturnValues<Provider>[T]>
 > => {
 	const Payload = JSON.stringify(payload);
 	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
@@ -30,18 +32,18 @@ const callLambdaSyncWithoutRetry = async <
 	const decoded = new TextDecoder('utf-8').decode(res.Payload);
 
 	try {
-		return JSON.parse(decoded) as OrError<LambdaReturnValues<Provider>[T]>;
+		return JSON.parse(decoded) as OrError<ServerlessReturnValues<Provider>[T]>;
 	} catch {
 		throw new Error(`Invalid JSON: ${JSON.stringify(decoded)}`);
 	}
 };
 
-export const callLambdaSync = async <
+export const callFunctionSyncImplementation = async <
 	Provider extends CloudProvider,
 	T extends ServerlessRoutines,
 >(
-	options: CallLambdaOptions<T, Provider>,
-): Promise<LambdaReturnValues<Provider>[T]> => {
+	options: CallFunctionOptions<T, Provider>,
+): Promise<ServerlessReturnValues<Provider>[T]> => {
 	const res = await callLambdaSyncWithoutRetry<T, Provider>(options);
 	if (res.type === 'error') {
 		const err = new Error(res.message);

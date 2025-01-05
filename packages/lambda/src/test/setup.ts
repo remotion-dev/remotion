@@ -18,9 +18,6 @@ vi.mock('../shared/bundle-site', () =>
 vi.mock('../shared/get-account-id', () =>
 	vi.importActual('../shared/__mocks__/get-account-id'),
 );
-vi.mock('../shared/aws-clients', () =>
-	vi.importActual('../shared/__mocks__/aws-clients'),
-);
 vi.mock('../shared/read-dir', () =>
 	vi.importActual('../shared/__mocks__/read-dir'),
 );

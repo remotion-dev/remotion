@@ -10,7 +10,6 @@ import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {awsImplementation} from '../functions/aws-implementation';
-import {callLambdaSync} from '../shared/call-lambda-sync';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -66,7 +65,7 @@ export const getCompositionsOnLambda = async ({
 	});
 
 	try {
-		const res = await callLambdaSync({
+		const res = await awsImplementation.callFunctionSync({
 			functionName,
 			type: ServerlessRoutines.compositions,
 			payload: {

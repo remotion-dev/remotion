@@ -11,7 +11,6 @@ import {
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
-import {callLambdaAsync} from '../shared/call-lambda-async';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -124,7 +123,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		metadata: params.metadata,
 	};
 
-	await callLambdaAsync({
+	await providerSpecifics.callFunctionAsync({
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 		type: ServerlessRoutines.launch,
 		payload,

@@ -1,6 +1,6 @@
 export {compositionsHandler} from './compositions';
 
-export {PostRenderData} from './constants';
+export {PostRenderData, ServerlessRoutines} from './constants';
 export {getCredentialsFromOutName} from './expected-out-name';
 export {
 	forgetBrowserEventLoop,
@@ -19,11 +19,16 @@ export {
 	makeOverallRenderProgress,
 } from './overall-render-progress';
 export {
+	BucketWithLocation,
+	CallFunctionAsync,
+	CallFunctionStreaming,
+	CallFunctionSync,
 	MakeArtifactWithDetails,
 	ProviderSpecifics,
 	WriteFileInput,
 } from './provider-implementation';
 export type {CleanupInfo, GenericRenderProgress} from './render-progress';
+export {OrError, ServerlessReturnValues} from './return-values';
 export {deserializeArtifact, serializeArtifact} from './serialize-artifact';
 export {ResponseStream} from './streaming/response-stream';
 export {ResponseStreamWriter, streamWriter} from './streaming/stream-writer';

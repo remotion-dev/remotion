@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {afterAll, expect, test} from 'vitest';
-import {callLambdaSync} from '../../../shared/call-lambda-sync';
+import {mockImplementation} from '../../mock-implementation';
 
 afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
@@ -11,7 +11,7 @@ test('Should fail when using an incompatible version', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	try {
-		const aha = await callLambdaSync({
+		const aha = await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.launch,
 			payload: {
 				type: ServerlessRoutines.launch,

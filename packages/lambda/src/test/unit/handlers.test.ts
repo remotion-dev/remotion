@@ -1,9 +1,9 @@
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
-import {callLambdaSync} from '../../shared/call-lambda-sync';
+import {mockImplementation} from '../mock-implementation';
 
 test('Info handler should return version', async () => {
-	const response = await callLambdaSync({
+	const response = await mockImplementation.callFunctionSync({
 		type: ServerlessRoutines.info,
 		payload: {
 			logLevel: 'info',
