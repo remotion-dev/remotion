@@ -21,7 +21,6 @@ const run = async () => {
     region,
     diskSizeInMb: DISK,
     timeoutInSeconds: TIMEOUT,
-    enableV5Runtime: true,
   });
   console.log(
     `${alreadyExisted ? "Ensured" : "Deployed"} function "${functionName}"`,

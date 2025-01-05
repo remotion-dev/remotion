@@ -34,7 +34,6 @@ const layerInfo: HostedLayers = {
 	'us-west-1': [],
 	'ap-southeast-4': [],
 	'ap-southeast-5': [],
-	'eu-central-2': [],
 };
 
 const getBucketName = (region: AwsRegion) => {
