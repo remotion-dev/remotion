@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  caniuse-lite: 1.0.30001636
+  caniuse-lite: 1.0.30001690
 
 importers:
 
@@ -3253,7 +3253,7 @@ packages:
     dependencies:
       '@angular/core': 18.2.6(rxjs@7.8.1)(zone.js@0.14.10)
       rxjs: 7.8.1
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@angular/core@18.2.6(rxjs@7.8.1)(zone.js@0.14.10):
@@ -3264,7 +3264,7 @@ packages:
       zone.js: ~0.14.10
     dependencies:
       rxjs: 7.8.1
-      tslib: 2.6.2
+      tslib: 2.8.1
       zone.js: 0.14.10
     dev: false
 
@@ -3361,7 +3361,7 @@ packages:
     dependencies:
       '@aws-crypto/util': 5.2.0
       '@aws-sdk/types': 3.609.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-crypto/crc32c@5.2.0:
@@ -3369,7 +3369,7 @@ packages:
     dependencies:
       '@aws-crypto/util': 5.2.0
       '@aws-sdk/types': 3.609.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-crypto/sha1-browser@5.2.0:
@@ -3407,7 +3407,7 @@ packages:
   /@aws-crypto/supports-web-crypto@5.2.0:
     resolution: {integrity: sha512-iAvUotm021kM33eCdNfwIN//F77/IADDSs58i+MDaOqFrVjZo9bAal0NK7HurRuWLLpF1iLX7gbWrjHjeo+YFg==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-crypto/util@5.2.0:
@@ -3415,7 +3415,7 @@ packages:
     dependencies:
       '@aws-sdk/types': 3.609.0
       '@smithy/util-utf8': 2.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-sdk/client-cloudwatch-logs@3.645.0:
@@ -3830,7 +3830,7 @@ packages:
       '@smithy/util-middleware': 3.0.3
       '@smithy/util-retry': 3.0.3
       '@smithy/util-utf8': 3.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
     dev: false
@@ -4003,7 +4003,7 @@ packages:
       '@smithy/property-provider': 3.1.3
       '@smithy/shared-ini-file-loader': 3.1.4
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@aws-sdk/client-sso-oidc'
       - aws-crt
@@ -4019,7 +4019,7 @@ packages:
       '@aws-sdk/types': 3.609.0
       '@smithy/property-provider': 3.1.3
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-sdk/credential-providers@3.645.0(@aws-sdk/client-sso-oidc@3.645.0):
@@ -4227,7 +4227,7 @@ packages:
       '@smithy/property-provider': 3.1.3
       '@smithy/shared-ini-file-loader': 3.1.4
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-sdk/types@3.609.0:
@@ -4242,7 +4242,7 @@ packages:
     resolution: {integrity: sha512-XUKJWWo+KOB7fbnPP0+g/o5Ulku/X53t7i/h+sPHr5xxYTJJ9CYnbToo95mzxe7xWvkLrsNtJ8L+MnNn9INs2w==}
     engines: {node: '>=16.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-sdk/util-endpoints@3.645.0:
@@ -4269,7 +4269,7 @@ packages:
     resolution: {integrity: sha512-ryw+t+quF1raaK0nXSplMiCVnahNLNgNDijZCFFkddGTMaCy+L4VRLYyNms3bgwt3G0BmVn9f3uyDWRSkn5sSg==}
     engines: {node: '>= 12.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@aws-sdk/util-user-agent-browser@3.609.0:
@@ -7769,7 +7769,7 @@ packages:
       cssnano-preset-advanced: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-sort-media-queries: 5.2.0(postcss@8.4.47)
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@docusaurus/faster@3.6.0(@docusaurus/types@3.6.0):
@@ -8380,7 +8380,7 @@ packages:
     engines: {node: '>=18.0'}
     dependencies:
       fs-extra: 11.2.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@docusaurus/types@3.6.0(@swc/core@1.3.80)(react-dom@19.0.0)(react@19.0.0):
@@ -8550,7 +8550,7 @@ packages:
     resolution: {integrity: sha512-bV21/9LQmcQeCPEg3BDFtvwL6cwiTMksYNWQQ4KOxCZikEGalWtenoZ0wCiukJINlGCIi2KXx01g4FoH/LxpzQ==}
     requiresBuild: true
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
     optional: true
 
@@ -9426,7 +9426,7 @@ packages:
       '@firebase/app-compat': 0.2.7
       '@firebase/component': 0.6.4
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
     dev: false
@@ -9445,7 +9445,7 @@ packages:
       '@firebase/installations': 0.6.4(@firebase/app@0.9.7)
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/app-check-compat@0.3.4(@firebase/app-compat@0.2.7)(@firebase/app@0.9.7):
@@ -9459,7 +9459,7 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
     dev: false
@@ -9481,7 +9481,7 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/app-compat@0.2.7:
@@ -9491,7 +9491,7 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/app-types@0.9.0:
@@ -9505,7 +9505,7 @@ packages:
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
       idb: 7.0.1
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/auth-compat@0.3.7(@firebase/app-compat@0.2.7)(@firebase/app-types@0.9.0)(@firebase/app@0.9.7):
@@ -9519,7 +9519,7 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/util': 1.9.3
       node-fetch: 2.6.7
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
       - '@firebase/app-types'
@@ -9550,7 +9550,7 @@ packages:
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
       node-fetch: 2.6.7
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -9559,7 +9559,7 @@ packages:
     resolution: {integrity: sha512-rLMyrXuO9jcAUCaQXCMjCMUsWrba5fzHlNK24xz5j2W6A/SRmK8mZJ/hn7V0fViLbxC0lPMtrK1eYzk6Fg03jA==}
     dependencies:
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/database-compat@0.3.4:
@@ -9570,7 +9570,7 @@ packages:
       '@firebase/database-types': 0.10.4
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/database-types@0.10.4:
@@ -9588,7 +9588,7 @@ packages:
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
       faye-websocket: 0.11.4
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/firestore-compat@0.3.6(@firebase/app-compat@0.2.7)(@firebase/app-types@0.9.0)(@firebase/app@0.9.7):
@@ -9601,7 +9601,7 @@ packages:
       '@firebase/firestore': 3.10.0(@firebase/app@0.9.7)
       '@firebase/firestore-types': 2.5.1(@firebase/app-types@0.9.0)(@firebase/util@1.9.3)
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
       - '@firebase/app-types'
@@ -9632,7 +9632,7 @@ packages:
       '@grpc/grpc-js': 1.7.3
       '@grpc/proto-loader': 0.6.13
       node-fetch: 2.6.7
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -9647,7 +9647,7 @@ packages:
       '@firebase/functions': 0.9.4(@firebase/app@0.9.7)
       '@firebase/functions-types': 0.6.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
       - encoding
@@ -9669,7 +9669,7 @@ packages:
       '@firebase/messaging-interop-types': 0.2.0
       '@firebase/util': 1.9.3
       node-fetch: 2.6.7
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -9684,7 +9684,7 @@ packages:
       '@firebase/installations': 0.6.4(@firebase/app@0.9.7)
       '@firebase/installations-types': 0.5.0(@firebase/app-types@0.9.0)
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
       - '@firebase/app-types'
@@ -9707,13 +9707,13 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/util': 1.9.3
       idb: 7.0.1
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/logger@0.4.0:
     resolution: {integrity: sha512-eRKSeykumZ5+cJPdxxJRgAC3G5NknY2GwEbKfymdnXtnT0Ucm4pspfR6GT4MUQEDuJwRVbVcSx85kgJulMoFFA==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/messaging-compat@0.2.4(@firebase/app-compat@0.2.7)(@firebase/app@0.9.7):
@@ -9725,7 +9725,7 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/messaging': 0.12.4(@firebase/app@0.9.7)
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
     dev: false
@@ -9745,7 +9745,7 @@ packages:
       '@firebase/messaging-interop-types': 0.2.0
       '@firebase/util': 1.9.3
       idb: 7.0.1
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/performance-compat@0.2.4(@firebase/app-compat@0.2.7)(@firebase/app@0.9.7):
@@ -9759,7 +9759,7 @@ packages:
       '@firebase/performance': 0.6.4(@firebase/app@0.9.7)
       '@firebase/performance-types': 0.2.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
     dev: false
@@ -9778,7 +9778,7 @@ packages:
       '@firebase/installations': 0.6.4(@firebase/app@0.9.7)
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/remote-config-compat@0.2.4(@firebase/app-compat@0.2.7)(@firebase/app@0.9.7):
@@ -9792,7 +9792,7 @@ packages:
       '@firebase/remote-config': 0.4.4(@firebase/app@0.9.7)
       '@firebase/remote-config-types': 0.3.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
     dev: false
@@ -9811,7 +9811,7 @@ packages:
       '@firebase/installations': 0.6.4(@firebase/app@0.9.7)
       '@firebase/logger': 0.4.0
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/storage-compat@0.3.2(@firebase/app-compat@0.2.7)(@firebase/app-types@0.9.0)(@firebase/app@0.9.7):
@@ -9824,7 +9824,7 @@ packages:
       '@firebase/storage': 0.11.2(@firebase/app@0.9.7)
       '@firebase/storage-types': 0.8.0(@firebase/app-types@0.9.0)(@firebase/util@1.9.3)
       '@firebase/util': 1.9.3
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@firebase/app'
       - '@firebase/app-types'
@@ -9850,7 +9850,7 @@ packages:
       '@firebase/component': 0.6.4
       '@firebase/util': 1.9.3
       node-fetch: 2.6.7
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -9858,7 +9858,7 @@ packages:
   /@firebase/util@1.9.3:
     resolution: {integrity: sha512-DY02CRhOZwpzO36fHpuVysz6JZrscPiBXD0fXp6qSrL9oNOx5KWICKdR95C0lSITzxp0TZosVyHqzatE8JbcjA==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@firebase/webchannel-wrapper@0.9.0:
@@ -12700,7 +12700,7 @@ packages:
       '@module-federation/runtime-tools': 0.5.1
       '@rspack/binding': 1.0.14
       '@rspack/lite-tapable': 1.0.1
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
     dev: false
 
   /@rspack/lite-tapable@1.0.1:
@@ -12836,13 +12836,13 @@ packages:
     resolution: {integrity: sha512-VDkpCYW+peSuM4zJip5WDfqvg2Mo/e8yxOv3VF1m11y7B8KKMKVFtmZWDe36Fvk8rGuWrPZHHXZ7rR7uM5yWyg==}
     dependencies:
       '@smithy/util-base64': 3.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/chunked-blob-reader@3.0.0:
     resolution: {integrity: sha512-sbnURCwjF0gSToGlsBiAmd1lRCmSn72nu9axfJu5lIx6RUEgHu6GwTMbqCdhQSi0Pumcm5vFxsi9XWXb2mTaoA==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/config-resolver@3.0.5:
@@ -12889,7 +12889,7 @@ packages:
       '@aws-crypto/crc32': 5.2.0
       '@smithy/types': 3.3.0
       '@smithy/util-hex-encoding': 3.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/eventstream-serde-browser@3.0.6:
@@ -12924,7 +12924,7 @@ packages:
     dependencies:
       '@smithy/eventstream-codec': 3.1.2
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/fetch-http-handler@3.2.4:
@@ -12976,14 +12976,14 @@ packages:
     resolution: {integrity: sha512-GGP3O9QFD24uGeAXYUjwSTXARoqpZykHadOmA8G5vfJPK0/DC67qa//0qvqrJzL1xc8WQWX7/yc7fwudjPHPhA==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/is-array-buffer@3.0.0:
     resolution: {integrity: sha512-+Fsu6Q6C4RSJiy81Y8eApjEB5gVtM+oFKTffg+jSuwtvomJJrhUJBu2zS8wjXSgH/g1MKEWrzyChTBe6clb5FQ==}
     engines: {node: '>=16.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/md5-js@3.0.3:
@@ -13090,7 +13090,7 @@ packages:
     dependencies:
       '@smithy/types': 3.3.0
       '@smithy/util-uri-escape': 3.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/querystring-parser@3.0.3:
@@ -13098,7 +13098,7 @@ packages:
     engines: {node: '>=16.0.0'}
     dependencies:
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/service-error-classification@3.0.3:
@@ -13113,7 +13113,7 @@ packages:
     engines: {node: '>=16.0.0'}
     dependencies:
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/signature-v4@4.1.0:
@@ -13127,7 +13127,7 @@ packages:
       '@smithy/util-middleware': 3.0.3
       '@smithy/util-uri-escape': 3.0.0
       '@smithy/util-utf8': 3.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/smithy-client@3.2.0:
@@ -13184,7 +13184,7 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@smithy/is-array-buffer': 2.2.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/util-buffer-from@3.0.0:
@@ -13192,14 +13192,14 @@ packages:
     engines: {node: '>=16.0.0'}
     dependencies:
       '@smithy/is-array-buffer': 3.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/util-config-provider@3.0.0:
     resolution: {integrity: sha512-pbjk4s0fwq3Di/ANL+rCvJMKM5bzAQdE5S/6RL5NXgMExFAi6UgQMPOm5yPaIWPpr+EOXKXRonJ3FoxKf4mCJQ==}
     engines: {node: '>=16.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/util-defaults-mode-browser@3.0.15:
@@ -13239,7 +13239,7 @@ packages:
     resolution: {integrity: sha512-eFndh1WEK5YMUYvy3lPlVmYY/fZcQE1D8oSf41Id2vCeIkKJXPcYDCZD+4+xViI6b1XSd7tE+s5AmXzz5ilabQ==}
     engines: {node: '>=16.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/util-middleware@3.0.3:
@@ -13277,7 +13277,7 @@ packages:
     resolution: {integrity: sha512-LqR7qYLgZTD7nWLBecUi4aqolw8Mhza9ArpNEQ881MJJIU2sE5iHCK6TdyqqzcDLy0OPe10IY4T8ctVdtynubg==}
     engines: {node: '>=16.0.0'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/util-utf8@2.3.0:
@@ -13285,7 +13285,7 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       '@smithy/util-buffer-from': 2.2.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/util-utf8@3.0.0:
@@ -16009,7 +16009,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.24.0
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.1
@@ -16386,7 +16386,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       electron-to-chromium: 1.4.828
       node-releases: 2.0.14
       update-browserslist-db: 1.1.0(browserslist@4.21.5)
@@ -16397,7 +16397,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       electron-to-chromium: 1.4.828
       node-releases: 2.0.14
       update-browserslist-db: 1.1.0(browserslist@4.23.2)
@@ -16407,7 +16407,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       electron-to-chromium: 1.5.29
       node-releases: 2.0.18
       update-browserslist-db: 1.1.0(browserslist@4.24.0)
@@ -16417,7 +16417,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       electron-to-chromium: 1.5.50
       node-releases: 2.0.18
       update-browserslist-db: 1.1.1(browserslist@4.24.2)
@@ -16547,7 +16547,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /camelcase-css@2.0.1:
@@ -16585,13 +16585,13 @@ packages:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
       browserslist: 4.24.2
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
     dev: false
 
-  /caniuse-lite@1.0.30001636:
-    resolution: {integrity: sha512-bMg2vmr8XBsbL6Lr0UHXy/21m84FTxDLWn2FSqMd5PrlbMxwJlQnC2YWYxVgp66PZE+BBNF2jYQUBKCo1FDeZg==}
+  /caniuse-lite@1.0.30001690:
+    resolution: {integrity: sha512-5ExiE3qQN6oF8Clf8ifIDcMRCRE/dMGcETG/XGMD8/XiXm6HXQgQTh1yZYLXXpSOsEUlJm1Xr7kGULZTuGtP/w==}
 
   /canvaskit-wasm@0.39.1:
     resolution: {integrity: sha512-Gy3lCmhUdKq+8bvDrs9t8+qf7RvcjuQn+we7vTVVyqgOVO1UVfHpsnBxkTZw+R4ApEJ3D5fKySl9TU11hmjl/A==}
@@ -17929,7 +17929,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /dot-prop@6.0.1:
@@ -18872,7 +18872,7 @@ packages:
       '@mdn/browser-compat-data': 5.5.19
       ast-metadata-inferer: 0.8.0
       browserslist: 4.23.2
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       eslint: 8.56.0
       find-up: 5.0.0
       lodash.memoize: 4.1.2
@@ -22225,7 +22225,7 @@ packages:
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /lowercase-keys@3.0.0:
@@ -23682,7 +23682,7 @@ packages:
       '@next/env': 14.2.15
       '@swc/helpers': 0.5.5
       busboy: 1.6.0
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       graceful-fs: 4.2.11
       postcss: 8.4.31
       react: 19.0.0
@@ -23728,7 +23728,7 @@ packages:
       '@swc/counter': 0.1.3
       '@swc/helpers': 0.5.15
       busboy: 1.6.0
-      caniuse-lite: 1.0.30001636
+      caniuse-lite: 1.0.30001690
       postcss: 8.4.31
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -23758,7 +23758,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /node-abi@3.67.0:
@@ -24222,7 +24222,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /parent-module@1.0.1:
@@ -24292,7 +24292,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /path-browserify@1.0.1:
@@ -26013,7 +26013,7 @@ packages:
       '@types/react': 19.0.0
       react: 19.0.0
       react-style-singleton: 2.2.1(@types/react@19.0.0)(react@19.0.0)
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /react-remove-scroll-bar@2.3.8(@types/react@19.0.0)(react@19.0.0):
@@ -26029,7 +26029,7 @@ packages:
       '@types/react': 19.0.0
       react: 19.0.0
       react-style-singleton: 2.2.3(@types/react@19.0.0)(react@19.0.0)
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /react-remove-scroll@2.5.7(@types/react@19.0.0)(react@19.0.0):
@@ -26169,7 +26169,7 @@ packages:
       get-nonce: 1.0.1
       invariant: 2.2.4
       react: 19.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /react-style-singleton@2.2.3(@types/react@19.0.0)(react@19.0.0):
@@ -26185,7 +26185,7 @@ packages:
       '@types/react': 19.0.0
       get-nonce: 1.0.1
       react: 19.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /react@18.0.0:
@@ -26870,7 +26870,7 @@ packages:
   /rxjs@7.8.1:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /sade@1.8.1:
@@ -27450,7 +27450,7 @@ packages:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /sockjs@0.3.24:
@@ -29127,7 +29127,7 @@ packages:
     dependencies:
       '@types/react': 19.0.0
       react: 19.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /use-callback-ref@1.3.3(@types/react@19.0.0)(react@19.0.0):
@@ -29142,7 +29142,7 @@ packages:
     dependencies:
       '@types/react': 19.0.0
       react: 19.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /use-sidecar@1.1.2(@types/react@19.0.0)(react@19.0.0):
@@ -29158,7 +29158,7 @@ packages:
       '@types/react': 19.0.0
       detect-node-es: 1.1.0
       react: 19.0.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /use-sync-external-store@1.2.2(react@19.0.0):

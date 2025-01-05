@@ -44,7 +44,6 @@ const { functionName, alreadyExisted: functionAlreadyExisted } =
     region: REGION,
     timeoutInSeconds: TIMEOUT,
     diskSizeInMb: DISK,
-    enableV5Runtime: true,
   });
 console.log(
   functionName,
