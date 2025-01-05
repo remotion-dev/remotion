@@ -22,10 +22,7 @@ import {awsImplementation} from './aws-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
-import {
-	generateRandomHashWithLifeCycleRule,
-	validateDeleteAfter,
-} from './helpers/lifecycle';
+import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
 import {printLoggingGrepHelper} from './helpers/print-logging-helper';
 import type {RequestContext} from './helpers/request-context';
 import {streamifyResponse} from './helpers/streamify-response';
@@ -68,7 +65,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === ServerlessRoutines.still) {
-		validateDeleteAfter(params.deleteAfter);
+		providerSpecifics.validateDeleteAfter(params.deleteAfter);
 		const renderId = generateRandomHashWithLifeCycleRule(
 			params.deleteAfter,
 			providerSpecifics,

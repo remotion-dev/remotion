@@ -8,7 +8,6 @@ import {
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
 import {callLambdaAsync} from '../shared/call-lambda-async';
-import {validateDeleteAfter} from './helpers/lifecycle';
 import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options = {
@@ -57,7 +56,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		bucketName,
 	});
 
-	validateDeleteAfter(params.deleteAfter);
+	providerSpecifics.validateDeleteAfter(params.deleteAfter);
 
 	const initialFile = providerSpecifics.writeFile({
 		bucketName,

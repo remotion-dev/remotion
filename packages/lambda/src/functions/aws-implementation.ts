@@ -1,4 +1,5 @@
 import {type ProviderSpecifics} from '@remotion/serverless';
+import {expiryDays} from '@remotion/serverless/client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
@@ -43,6 +44,32 @@ export type AwsProvider = {
 	};
 };
 
+const validateDeleteAfter = (lifeCycleValue: unknown) => {
+	if (lifeCycleValue === null) {
+		return;
+	}
+
+	if (lifeCycleValue === undefined) {
+		return;
+	}
+
+	if (typeof lifeCycleValue !== 'string') {
+		throw new TypeError(
+			`Expected life cycle value to be a string, got ${JSON.stringify(
+				lifeCycleValue,
+			)}`,
+		);
+	}
+
+	if (!(lifeCycleValue in expiryDays)) {
+		throw new TypeError(
+			`Expected deleteAfter value to be one of ${Object.keys(expiryDays).join(
+				', ',
+			)}, got ${lifeCycleValue}`,
+		);
+	}
+};
+
 export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
@@ -62,4 +89,5 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	printLoggingHelper: true,
 	getFolderFiles,
 	makeArtifactWithDetails: makeAwsArtifact,
+	validateDeleteAfter,
 };

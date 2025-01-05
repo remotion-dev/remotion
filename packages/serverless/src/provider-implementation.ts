@@ -135,4 +135,5 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	printLoggingHelper: boolean;
 	getFolderFiles: GetFolderFiles;
 	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
+	validateDeleteAfter: (lifeCycleValue: unknown) => void;
 };

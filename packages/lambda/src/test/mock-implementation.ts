@@ -119,4 +119,5 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		s3Url: 'https://s3.af-south-1.amazonaws.com/bucket/key',
 		s3Key: 'key',
 	}),
+	validateDeleteAfter: () => {},
 };
