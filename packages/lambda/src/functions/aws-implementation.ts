@@ -96,4 +96,12 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	callFunctionAsync: callFunctionAsyncImplementation,
 	callFunctionStreaming: callFunctionWithStreamingImplementation,
 	callFunctionSync: callFunctionSyncImplementation,
+	getCurrentFunctionName() {
+		const name = process.env.AWS_LAMBDA_FUNCTION_NAME;
+		if (!name) {
+			throw new Error('Expected AWS_LAMBDA_FUNCTION_NAME to be set');
+		}
+
+		return name;
+	},
 };

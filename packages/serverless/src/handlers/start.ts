@@ -1,16 +1,10 @@
-import {
-	makeInitialOverallRenderProgress,
-	type CloudProvider,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
-import {
-	ServerlessRoutines,
-	internalGetOrCreateBucket,
-	overallProgressKey,
-} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../regions';
+import type {ServerlessPayload} from '../constants';
+import {ServerlessRoutines, overallProgressKey} from '../constants';
+import {internalGetOrCreateBucket} from '../get-or-create-bucket';
+import {makeInitialOverallRenderProgress} from '../overall-render-progress';
+import type {ProviderSpecifics} from '../provider-implementation';
+import type {CloudProvider} from '../types';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -124,10 +118,10 @@ export const startHandler = async <Provider extends CloudProvider>(
 	};
 
 	await providerSpecifics.callFunctionAsync({
-		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		functionName: providerSpecifics.getCurrentFunctionName(),
 		type: ServerlessRoutines.launch,
 		payload,
-		region: region as AwsRegion,
+		region,
 		timeoutInTest: options.timeoutInMilliseconds,
 	});
 

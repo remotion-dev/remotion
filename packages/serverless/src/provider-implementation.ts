@@ -179,4 +179,5 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	callFunctionAsync: CallFunctionAsync<Provider>;
 	callFunctionStreaming: CallFunctionStreaming<Provider>;
 	callFunctionSync: CallFunctionSync<Provider>;
+	getCurrentFunctionName: () => string;
 };

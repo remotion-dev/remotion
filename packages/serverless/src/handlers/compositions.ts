@@ -1,15 +1,15 @@
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
-import {decompressInputProps} from './compress-props';
-import type {ServerlessPayload} from './constants';
-import {ServerlessRoutines} from './constants';
+import {decompressInputProps} from '../compress-props';
+import type {ServerlessPayload} from '../constants';
+import {ServerlessRoutines} from '../constants';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
-} from './get-browser-instance';
-import {internalGetOrCreateBucket} from './get-or-create-bucket';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
+} from '../get-browser-instance';
+import {internalGetOrCreateBucket} from '../get-or-create-bucket';
+import type {ProviderSpecifics} from '../provider-implementation';
+import type {CloudProvider} from '../types';
 
 type Options = {
 	expectedBucketOwner: string;

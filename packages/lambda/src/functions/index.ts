@@ -10,6 +10,7 @@ import type {
 import {
 	compositionsHandler,
 	infoHandler,
+	startHandler,
 	streamWriter,
 } from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
@@ -30,7 +31,6 @@ import {streamifyResponse} from './helpers/streamify-response';
 import {launchHandler} from './launch';
 import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
-import {startHandler} from './start';
 import {stillHandler} from './still';
 
 const innerHandler = async <Provider extends CloudProvider>({

@@ -1,4 +1,5 @@
-export {compositionsHandler} from './compositions';
+export {compositionsHandler} from './handlers/compositions';
+export {startHandler} from './handlers/start';
 
 export {PostRenderData, ServerlessRoutines} from './constants';
 export {getCredentialsFromOutName} from './expected-out-name';

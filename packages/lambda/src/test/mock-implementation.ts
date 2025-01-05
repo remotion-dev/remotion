@@ -1,5 +1,6 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {Readable} from 'stream';
+import {speculateFunctionName} from '../client';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {
@@ -128,4 +129,10 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
+	getCurrentFunctionName: () =>
+		speculateFunctionName({
+			diskSizeInMb: 10240,
+			memorySizeInMb: 3009,
+			timeoutInSeconds: 120,
+		}),
 };
