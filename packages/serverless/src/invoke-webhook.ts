@@ -1,18 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {EnhancedErrorInfo} from '@remotion/serverless';
-import https from 'https';
+import type https from 'https';
 import * as Crypto from 'node:crypto';
-import http from 'node:http';
+import type http from 'node:http';
 import type {AfterRenderCost} from './constants';
+import type {EnhancedErrorInfo} from './write-lambda-error';
 
-/**
- * @description Calculates cryptographically secure signature for webhooks using Hmac.
- * @link https://remotion.dev/docs/lambda/webhooks#validate-webhooks
- * @param payload Stringified request body to encode in the signature.
- * @param secret User-provided webhook secret used to sign the request.
- * @returns {string} Calculated signature
- */
 export function calculateSignature(payload: string, secret: string | null) {
 	if (!secret) {
 		return 'NO_SECRET_PROVIDED';
@@ -51,32 +44,20 @@ export type WebhookPayload = {
 	customData: Record<string, unknown> | null;
 } & DynamicWebhookPayload;
 
-export const mockableHttpClients = {
-	http: http.request,
-	https: https.request,
-};
-
 // Don't handle 304 status code (Not Modified) as a redirect,
 // since the browser will display the right page.
 const redirectStatusCodes = [301, 302, 303, 307, 308];
-
-const getWebhookClient = (url: string) => {
-	if (url.startsWith('https://')) {
-		return mockableHttpClients.https;
-	}
-
-	if (url.startsWith('http://')) {
-		return mockableHttpClients.http;
-	}
-
-	throw new Error('Can only request URLs starting with http:// or https://');
-};
 
 type InvokeWebhookOptions = {
 	payload: WebhookPayload;
 	url: string;
 	secret: string | null;
 	redirectsSoFar: number;
+	client: (
+		url: string | URL,
+		options: https.RequestOptions,
+		callback?: (res: http.IncomingMessage) => void,
+	) => http.ClientRequest;
 };
 
 function invokeWebhookRaw({
@@ -84,11 +65,12 @@ function invokeWebhookRaw({
 	secret,
 	url,
 	redirectsSoFar,
+	client,
 }: InvokeWebhookOptions): Promise<void> {
 	const jsonPayload = JSON.stringify(payload);
 
 	return new Promise<void>((resolve, reject) => {
-		const req = getWebhookClient(url)(
+		const req = client(
 			url,
 			{
 				method: 'POST',
@@ -123,6 +105,7 @@ function invokeWebhookRaw({
 							secret,
 							url: res.headers.location,
 							redirectsSoFar: redirectsSoFar + 1,
+							client,
 						})
 							.then(resolve)
 							.catch(reject);

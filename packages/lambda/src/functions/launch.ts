@@ -1,11 +1,18 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	OverallProgressHelper,
+	PostRenderData,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
 	getTmpDirStateIfENoSp,
+	invokeWebhook,
+	makeOverallRenderProgress,
 	validateComposition,
 	validateOutname,
 } from '@remotion/serverless';
@@ -26,13 +33,11 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 import {VERSION} from 'remotion/version';
-import type {PostRenderData} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	MAX_FUNCTIONS_PER_RENDER,
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
-import {invokeWebhook} from '../shared/invoke-webhook';
 import {
 	validateDimension,
 	validateDurationInFrames,
@@ -45,10 +50,9 @@ import {bestFramesPerLambdaParam} from './helpers/best-frames-per-lambda-param';
 import {cleanupProps} from './helpers/cleanup-props';
 import {findOutputFileInBucket} from './helpers/find-output-file-in-bucket';
 import {mergeChunksAndFinishRender} from './helpers/merge-chunks';
-import type {OverallProgressHelper} from './helpers/overall-render-progress';
-import {makeOverallRenderProgress} from './helpers/overall-render-progress';
 import {streamRendererFunctionWithRetry} from './helpers/stream-renderer';
 import {timer} from './helpers/timer';
+import {getWebhookClient} from './http-client';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -596,6 +600,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 						customData: params.webhook.customData ?? null,
 					},
 					redirectsSoFar: 0,
+					client: getWebhookClient(params.webhook.url),
 				},
 				params.logLevel,
 			);
@@ -699,6 +704,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 						costs: postRenderData.cost,
 					},
 					redirectsSoFar: 0,
+					client: getWebhookClient(params.webhook.url),
 				},
 				params.logLevel,
 			);
@@ -793,6 +799,7 @@ export const launchHandler = async <Provider extends CloudProvider>(
 							})),
 						},
 						redirectsSoFar: 0,
+						client: getWebhookClient(params.webhook.url),
 					},
 					params.logLevel,
 				);

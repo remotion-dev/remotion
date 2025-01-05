@@ -3,8 +3,8 @@ import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
+import {mockableHttpClients} from '../../functions/http-client';
 import {callLambdaSync} from '../../shared/call-lambda-sync';
-import {mockableHttpClients} from '../../shared/invoke-webhook';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {

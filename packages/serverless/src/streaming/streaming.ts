@@ -1,6 +1,6 @@
 import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {SerializedArtifact} from '../serialize-artifact';
-import type {CloudProvider, RenderStillLambdaResponsePayload} from '../still';
+import type {CloudProvider, RenderStillLambdaResponsePayload} from '../types';
 import type {LambdaErrorInfo} from '../write-lambda-error';
 
 const framesRendered = 'frames-rendered' as const;

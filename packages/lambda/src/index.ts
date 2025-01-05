@@ -73,7 +73,7 @@ import {
 } from './internals';
 import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
-import type {WebhookPayload} from './shared/invoke-webhook';
+export type {WebhookPayload} from '@remotion/serverless';
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
@@ -191,7 +191,6 @@ export type {
 	RenderStillOnLambdaOutput,
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
-	WebhookPayload,
 };
 
 export {_InternalAwsProvider, _InternalOverallRenderProgress};

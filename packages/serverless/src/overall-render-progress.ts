@@ -1,18 +1,16 @@
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {PostRenderData} from './constants';
+import {overallProgressKey} from './constants';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {RenderMetadata} from './render-metadata';
 import type {
+	ChunkRetry,
 	CloudProvider,
-	LambdaErrorInfo,
-	ProviderSpecifics,
+	ParsedTiming,
 	ReceivedArtifact,
-} from '@remotion/serverless';
-import {
-	overallProgressKey,
-	type RenderMetadata,
-} from '@remotion/serverless/client';
-import type {PostRenderData} from '../../shared/constants';
-import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
-import type {ChunkRetry} from './get-retry-stats';
+} from './types';
+import type {LambdaErrorInfo} from './write-lambda-error';
 
 export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];

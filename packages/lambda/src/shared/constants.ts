@@ -1,18 +1,8 @@
-import type {
-	CloudProvider,
-	EnhancedErrorInfo,
-	ReceivedArtifact,
-} from '@remotion/serverless';
-import {
-	type DeleteAfter,
-	type Privacy,
-	type RenderMetadata,
-} from '@remotion/serverless/client';
+import type {GenericRenderProgress} from '@remotion/serverless';
+import {type Privacy} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsProvider} from '../functions/aws-implementation';
-import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {AwsRegion} from '../regions';
-import type {ExpensiveChunk} from './get-most-expensive-chunks';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -54,89 +44,11 @@ export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
 export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
-export type AfterRenderCost = {
-	estimatedCost: number;
-	estimatedDisplayCost: string;
-	currency: string;
-	disclaimer: string;
-};
-
-export type PostRenderData<Provider extends CloudProvider> = {
-	cost: AfterRenderCost;
-	outputFile: string;
-	outputSize: number;
-	renderSize: number;
-	timeToFinish: number;
-	timeToRenderFrames: number;
-	errors: EnhancedErrorInfo[];
-	startTime: number;
-	endTime: number;
-	filesCleanedUp: number;
-	timeToEncode: number;
-	timeToCleanUp: number;
-	timeToRenderChunks: number;
-	retriesInfo: ChunkRetry[];
-	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
-	estimatedBillingDurationInMilliseconds: number;
-	deleteAfter: DeleteAfter | null;
-	timeToCombine: number | null;
-	artifactProgress: ReceivedArtifact<Provider>[];
-};
-
 export type CostsInfo = {
 	accruedSoFar: number;
 	displayCost: string;
 	currency: string;
 	disclaimer: string;
-};
-
-export type CleanupInfo = {
-	doneIn: number | null;
-	minFilesToDelete: number;
-	filesDeleted: number;
-};
-
-type EncodingProgress = {
-	framesEncoded: number;
-	combinedFrames: number;
-	timeToCombine: number | null;
-};
-
-export type GenericRenderProgress<Provider extends CloudProvider> = {
-	chunks: number;
-	done: boolean;
-	encodingStatus: EncodingProgress | null;
-	costs: CostsInfo;
-	renderId: string;
-	renderMetadata: RenderMetadata<Provider> | null;
-	bucket: string;
-	outputFile: string | null;
-	outKey: string | null;
-	outBucket: string | null;
-	timeToFinish: number | null;
-	errors: EnhancedErrorInfo[];
-	fatalErrorEncountered: boolean;
-	currentTime: number;
-	renderSize: number;
-	lambdasInvoked: number;
-	cleanup: CleanupInfo | null;
-	timeToFinishChunks: number | null;
-	timeToRenderFrames: number | null;
-	timeToEncode: number | null;
-	overallProgress: number;
-	retriesInfo: ChunkRetry[];
-	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
-	framesRendered: number;
-	outputSizeInBytes: number | null;
-	type: 'success';
-	estimatedBillingDurationInMilliseconds: number | null;
-	combinedFrames: number;
-	timeToCombine: number | null;
-	timeoutTimestamp: number;
-	functionLaunched: number;
-	serveUrlOpened: number | null;
-	compositionValidated: number | null;
-	artifacts: ReceivedArtifact<Provider>[];
 };
 
 export type RenderProgress = GenericRenderProgress<AwsProvider>;

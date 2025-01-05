@@ -35,3 +35,15 @@ export type RenderStillLambdaResponsePayload<Provider extends CloudProvider> = {
 	renderId: string;
 	receivedArtifacts: ReceivedArtifact<Provider>[];
 };
+
+export type ChunkRetry = {
+	chunk: number;
+	attempt: number;
+	time: number;
+};
+
+export type ParsedTiming = {
+	chunk: number;
+	start: number;
+	rendered: number;
+};

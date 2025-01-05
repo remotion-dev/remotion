@@ -1,4 +1,4 @@
-import type {ParsedTiming} from './parse-lambda-timings-key';
+import type {ParsedTiming} from './types';
 
 export const OVERHEAD_TIME_PER_LAMBDA = 100;
 

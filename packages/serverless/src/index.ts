@@ -1,23 +1,31 @@
 export {compositionsHandler} from './compositions';
 
+export {calculateChunkTimes} from './calculate-chunk-times';
+export {PostRenderData} from './constants';
 export {getCredentialsFromOutName} from './expected-out-name';
 export {
 	forgetBrowserEventLoop,
 	getBrowserInstance,
 } from './get-browser-instance';
 export {infoHandler} from './info';
+export {WebhookPayload, invokeWebhook} from './invoke-webhook';
+export {
+	OVERHEAD_TIME_PER_LAMBDA,
+	getMostExpensiveChunks,
+} from './most-expensive-chunks';
+export {
+	OverallProgressHelper,
+	OverallRenderProgress,
+	makeInitialOverallRenderProgress,
+	makeOverallRenderProgress,
+} from './overall-render-progress';
 export {
 	MakeArtifactWithDetails,
 	ProviderSpecifics,
 	WriteFileInput,
 } from './provider-implementation';
+export type {CleanupInfo, GenericRenderProgress} from './render-progress';
 export {deserializeArtifact, serializeArtifact} from './serialize-artifact';
-export {
-	CloudProvider,
-	CostsInfo,
-	ReceivedArtifact,
-	RenderStillLambdaResponsePayload,
-} from './still';
 export {ResponseStream} from './streaming/response-stream';
 export {ResponseStreamWriter, streamWriter} from './streaming/stream-writer';
 export {
@@ -26,6 +34,7 @@ export {
 	type StreamingMessage,
 	type StreamingPayload,
 } from './streaming/streaming';
+export * from './types';
 export {validateComposition} from './validate-composition';
 export {validateOutname} from './validate-outname';
 export {

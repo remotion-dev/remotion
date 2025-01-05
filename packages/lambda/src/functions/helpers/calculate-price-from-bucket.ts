@@ -1,9 +1,11 @@
-import type {CloudProvider} from '@remotion/serverless';
+import {
+	calculateChunkTimes,
+	type CloudProvider,
+	type ParsedTiming,
+} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
-import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
-import {calculateChunkTimes} from './calculate-chunk-times';
 
 export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 	renderMetadata,

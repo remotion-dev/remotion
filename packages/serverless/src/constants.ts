@@ -12,7 +12,9 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {CloudProvider} from './still';
+import type {ExpensiveChunk} from './most-expensive-chunks';
+import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
+import type {EnhancedErrorInfo} from './write-lambda-error';
 
 // Needs to be in sync with renderer/src/options/delete-after.ts#L7
 export const expiryDays = {
@@ -357,3 +359,32 @@ export const overallProgressKey = (renderId: string) =>
 
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;
+
+export type PostRenderData<Provider extends CloudProvider> = {
+	cost: AfterRenderCost;
+	outputFile: string;
+	outputSize: number;
+	renderSize: number;
+	timeToFinish: number;
+	timeToRenderFrames: number;
+	errors: EnhancedErrorInfo[];
+	startTime: number;
+	endTime: number;
+	filesCleanedUp: number;
+	timeToEncode: number;
+	timeToCleanUp: number;
+	timeToRenderChunks: number;
+	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	estimatedBillingDurationInMilliseconds: number;
+	deleteAfter: DeleteAfter | null;
+	timeToCombine: number | null;
+	artifactProgress: ReceivedArtifact<Provider>[];
+};
+
+export type AfterRenderCost = {
+	estimatedCost: number;
+	estimatedDisplayCost: string;
+	currency: string;
+	disclaimer: string;
+};

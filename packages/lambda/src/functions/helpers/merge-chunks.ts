@@ -1,5 +1,10 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	OverallProgressHelper,
+	PostRenderData,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import type {
 	CustomCredentials,
 	DownloadBehavior,
@@ -9,13 +14,11 @@ import type {
 	ServerlessCodec,
 } from '@remotion/serverless/client';
 import fs from 'fs';
-import type {PostRenderData} from '../../shared/constants';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
 import {createPostRenderData} from './create-post-render-data';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 import {inspectErrors} from './inspect-errors';
-import type {OverallProgressHelper} from './overall-render-progress';
 import {timer} from './timer';
 
 export const mergeChunksAndFinishRender = async <

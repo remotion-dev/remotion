@@ -3,7 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {Await} from './await';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;

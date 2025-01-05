@@ -1,6 +1,10 @@
 import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {CloudProvider, OnMessage} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	OnMessage,
+	OverallProgressHelper,
+} from '@remotion/serverless';
 import {
 	deserializeArtifact,
 	type ProviderSpecifics,
@@ -10,7 +14,6 @@ import {ServerlessRoutines} from '@remotion/serverless/client';
 import {writeFileSync} from 'fs';
 import {join} from 'path';
 import {callLambdaWithStreaming} from '../../shared/call-lambda-streaming';
-import type {OverallProgressHelper} from './overall-render-progress';
 
 type StreamRendererResponse =
 	| {

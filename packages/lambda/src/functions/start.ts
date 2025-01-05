@@ -1,4 +1,8 @@
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import {
+	makeInitialOverallRenderProgress,
+	type CloudProvider,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {
 	ServerlessRoutines,
@@ -8,7 +12,6 @@ import {
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../regions';
 import {callLambdaAsync} from '../shared/call-lambda-async';
-import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options = {
 	expectedBucketOwner: string;

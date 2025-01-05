@@ -2,7 +2,7 @@ import type {EmittedArtifact} from '@remotion/renderer';
 import type {Readable} from 'stream';
 import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
 import type {GetFolderFiles} from './get-files-in-folder';
-import type {CloudProvider, ReceivedArtifact} from './still';
+import type {CloudProvider, ReceivedArtifact} from './types';
 
 export type BucketWithLocation<Provider extends CloudProvider> = {
 	name: string;

@@ -4,7 +4,6 @@ import {
 	type CustomCredentials,
 	type RenderMetadata,
 } from '@remotion/serverless/client';
-import {ROLE_NAME} from '../../api/iam-validation/suggested-policy';
 import {getOutputUrlFromMetadata} from './get-output-url-from-metadata';
 
 export type OutputFileMetadata = {
@@ -69,7 +68,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 					customCredentials?.endpoint
 						? `(S3 Endpoint = ${customCredentials?.endpoint})`
 						: ''
-				}. The "${ROLE_NAME}" role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
+				}. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
 			);
 		}
 

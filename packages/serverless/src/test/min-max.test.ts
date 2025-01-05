@@ -1,6 +1,5 @@
-import {describe, expect, test} from 'vitest';
-import {max, min} from '../../functions/helpers/min-max';
-
+import {describe, expect, test} from 'bun:test';
+import {max, min} from '../min-max';
 describe('min() and max()', () => {
 	test('Implemented min() functions correctly', () => {
 		expect(min([0, -30, 90, -120, 0])).toBe(-120);

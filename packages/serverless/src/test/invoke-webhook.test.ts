@@ -1,5 +1,5 @@
-import {expect, test} from 'vitest';
-import {calculateSignature} from '../../shared/invoke-webhook';
+import {expect, test} from 'bun:test';
+import {calculateSignature} from '../invoke-webhook';
 
 test('calculateSignature should return correct sha512 signature', () => {
 	const signature = calculateSignature(

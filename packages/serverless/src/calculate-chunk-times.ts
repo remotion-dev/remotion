@@ -1,5 +1,5 @@
-import type {ParsedTiming} from '../../shared/parse-lambda-timings-key';
 import {max, min} from './min-max';
+import type {ParsedTiming} from './types';
 
 const getAbsoluteTime = (parsedTimings: ParsedTiming[]) => {
 	if (parsedTimings.length === 0) {

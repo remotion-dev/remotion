@@ -10,7 +10,7 @@ import {
 } from './constants';
 import {getCustomOutName} from './get-custom-out-name';
 import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 import {validateOutname} from './validate-outname';
 
 export const getCredentialsFromOutName = <Provider extends CloudProvider>(

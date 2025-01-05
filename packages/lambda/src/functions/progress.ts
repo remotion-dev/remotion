@@ -1,8 +1,11 @@
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	GenericRenderProgress,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {GenericRenderProgress} from '../shared/constants';
 import {getProgress} from './helpers/get-progress';
 
 type Options<Provider extends CloudProvider> = {

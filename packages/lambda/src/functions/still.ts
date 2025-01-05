@@ -11,6 +11,7 @@ import {
 	getBrowserInstance,
 	getCredentialsFromOutName,
 	getTmpDirStateIfENoSp,
+	makeInitialOverallRenderProgress,
 	validateComposition,
 	validateOutname,
 	type ProviderSpecifics,
@@ -41,7 +42,6 @@ import {validatePrivacy} from '../shared/validate-privacy';
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
-import {makeInitialOverallRenderProgress} from './helpers/overall-render-progress';
 
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;

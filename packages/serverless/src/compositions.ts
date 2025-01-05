@@ -9,7 +9,7 @@ import {
 } from './get-browser-instance';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 type Options = {
 	expectedBucketOwner: string;
