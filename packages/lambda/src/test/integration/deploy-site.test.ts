@@ -40,7 +40,7 @@ test('Should throw if invalid region was passed', () => {
 			privacy: 'public',
 			throwIfSiteExists: true,
 		}),
-	).rejects.toThrow(/ap-northeast-9 is not a valid AWS region/);
+	).rejects.toThrow(/ap-northeast-9 is not a supported AWS region/);
 });
 
 test("Should throw if bucket doesn't exist", () => {
