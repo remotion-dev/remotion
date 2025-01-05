@@ -34,6 +34,7 @@ const layerInfo: HostedLayers = {
 	'us-west-1': [],
 	'ap-southeast-4': [],
 	'ap-southeast-5': [],
+	'eu-central-2': [],
 };
 
 const getBucketName = (region: AwsRegion) => {
@@ -57,10 +58,7 @@ const makeLayerPublic = async () => {
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: getBucketName(region),
-						S3Key:
-							layer === 'emoji-apple'
-								? 'remotion-layer-emoji-v1-arm64.zip'
-								: `remotion-layer-${layer}-v12-arm64.zip`,
+						S3Key: `remotion-layer-${layer}-v12-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:

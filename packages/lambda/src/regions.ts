@@ -20,6 +20,7 @@ export const DEFAULT_AWS_REGIONS = [
 
 export const AWS_REGIONS = [
 	'eu-central-1',
+	'eu-central-2',
 	'eu-west-1',
 	'eu-west-2',
 	'eu-west-3',
