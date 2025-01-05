@@ -1,0 +1,4 @@
+/**
+ * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deployservice)
+ */

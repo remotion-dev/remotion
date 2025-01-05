@@ -190,14 +190,9 @@ const mandatoryDeploySite = async ({
 
 export const internalDeploySite = wrapWithErrorHandling(mandatoryDeploySite);
 
-/**
- * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
- * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
- * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
- * @param {string} params.bucketName The name of the bucket to deploy your project into.
- * @param {string} params.siteName The name of the folder in which the project gets deployed to.
- * @param {object} params.options Further options, see documentation page for this function.
+/*
+ * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deploysite)
  */
 export const deploySite = (args: DeploySiteInput) => {
 	return internalDeploySite({

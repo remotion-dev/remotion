@@ -1,10 +1,8 @@
 import {getLength} from './get-length';
 
-/**
- * @description Animates an SVG from being invisible to it's full length.
- * @param {string} path A valid SVG path
- * @param {number} progress The first valid SVG path
- * @see [Documentation](https://remotion.dev/docs/paths/evolve-path)
+/*
+ * @description Animates an SVG path from being invisible to its full length.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/evolve-path)
  */
 export const evolvePath = (progress: number, path: string) => {
 	const length = getLength(path);

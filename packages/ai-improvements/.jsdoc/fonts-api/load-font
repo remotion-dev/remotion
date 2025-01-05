@@ -1,0 +1,4 @@
+/**
+ * @description Load a local font for use in Remotion, automatically blocking the render until the font is ready.
+ * @see [Documentation](https://remotion.dev/docs/fonts-api/load-font)
+ */

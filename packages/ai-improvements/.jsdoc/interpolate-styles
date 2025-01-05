@@ -1,0 +1,4 @@
+/**
+ * @description A function that interpolates between two styles based on an input range.
+ * @see [Documentation](https://remotion.dev/docs/animation-utils/interpolate-styles)
+ */

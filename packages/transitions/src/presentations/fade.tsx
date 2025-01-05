@@ -37,11 +37,9 @@ const FadePresentation: React.FC<
 
 	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
-/**
- * Provides a simple fade transition component for sliding elements in and out.
- * @see [Documentation](https://remotion.dev/docs/transitions/presentations/fade)
- * @param {FadeProps} [props] Optional properties to define 'enterStyle' and 'exitStyle'.
- * @returns {TransitionPresentation<FadeProps>} The transition presentation component setup.
+/*
+ * @description Provides a simple fade transition component for sliding elements in and out.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/fade)
  */
 
 export const fade = (props?: FadeProps): TransitionPresentation<FadeProps> => {

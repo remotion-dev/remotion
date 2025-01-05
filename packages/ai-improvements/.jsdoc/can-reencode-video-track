@@ -1,0 +1,4 @@
+/**
+ * @description Determines if a given video track can be re-encoded to another codec.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/can-reencode-video-track)
+ */

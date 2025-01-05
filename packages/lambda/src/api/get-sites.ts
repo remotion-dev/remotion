@@ -111,11 +111,9 @@ export const internalGetSites = async ({
 	return {sites: sitesArray, buckets: remotionBuckets};
 };
 
-/**
- * @description Gets all the deployed sites for a certain AWS region.
- * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
- * @param {AwsRegion} params.region The AWS region that you want to query for.
- * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
+/*
+ * @description Gets an array of Remotion projects in Cloud Storage, in your GCP project.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/getsites)
  */
 export const getSites = ({
 	region,

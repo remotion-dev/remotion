@@ -1,0 +1,4 @@
+/**
+ * @description Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()` using the `<OffthreadVideo>`.
+ * @see [Documentation](https://www.remotion.dev/docs/use-offthread-video-texture)
+ */

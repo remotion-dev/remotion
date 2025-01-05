@@ -1,0 +1,4 @@
+/**
+ * @description Renders a still image inside a lambda function and writes it to the specified output location.
+ * @see [Documentation](https://remotion.dev/docs/lambda/renderstillonlambda)
+ */

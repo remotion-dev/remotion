@@ -20,11 +20,9 @@ export type GetSitesOutput = {
 	buckets: BucketWithLocation[];
 };
 
-/**
- * @description Gets all the deployed sites for a certain GCP project, within the specified region.
+/*
+ * @description Gets an array of Remotion projects in Cloud Storage, in your GCP project.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getsites)
- * @param {GcpRegion} params.region The GCP region that you want to query for.
- * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
  */
 export const getSites = async (
 	region: GcpRegion | 'all regions',
