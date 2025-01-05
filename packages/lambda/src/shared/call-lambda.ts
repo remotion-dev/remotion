@@ -10,7 +10,7 @@ export type CallLambdaOptions<
 > = {
 	functionName: string;
 	type: T;
-	payload: Omit<ServerlessPayloads<Provider>[T], 'type'>;
+	payload: ServerlessPayloads<Provider>[T];
 	region: Provider['region'];
 	timeoutInTest: number;
 };

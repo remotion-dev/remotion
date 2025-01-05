@@ -18,6 +18,7 @@ export const getFunctionVersion = async ({
 			functionName,
 			payload: {
 				logLevel,
+				type: ServerlessRoutines.info,
 			},
 			region,
 			type: ServerlessRoutines.info,

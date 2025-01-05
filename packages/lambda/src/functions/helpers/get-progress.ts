@@ -6,8 +6,8 @@ import type {
 	GenericRenderProgress,
 	ProviderSpecifics,
 } from '@remotion/serverless';
-import {calculateChunkTimes} from '@remotion/serverless';
 import {
+	calculateChunkTimes,
 	getExpectedOutName,
 	truthy,
 	type CustomCredentials,

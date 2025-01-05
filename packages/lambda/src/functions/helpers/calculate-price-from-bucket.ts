@@ -1,9 +1,6 @@
-import {
-	calculateChunkTimes,
-	type CloudProvider,
-	type ParsedTiming,
-} from '@remotion/serverless';
+import {type CloudProvider, type ParsedTiming} from '@remotion/serverless';
 import type {RenderMetadata} from '@remotion/serverless/client';
+import {calculateChunkTimes} from '@remotion/serverless/client';
 import {estimatePrice} from '../../api/estimate-price';
 import type {AwsRegion} from '../../regions';
 

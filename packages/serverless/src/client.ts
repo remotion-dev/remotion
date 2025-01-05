@@ -44,6 +44,7 @@ export {
 	isErrInsufficientResourcesErr,
 } from './error-category';
 
+export {calculateChunkTimes} from './calculate-chunk-times';
 export {getExpectedOutName} from './expected-out-name';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';

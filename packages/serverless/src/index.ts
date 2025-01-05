@@ -1,6 +1,5 @@
 export {compositionsHandler} from './compositions';
 
-export {calculateChunkTimes} from './calculate-chunk-times';
 export {PostRenderData} from './constants';
 export {getCredentialsFromOutName} from './expected-out-name';
 export {

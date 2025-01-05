@@ -14,6 +14,7 @@ test('Should fail when using an incompatible version', async () => {
 		const aha = await callLambdaSync({
 			type: ServerlessRoutines.launch,
 			payload: {
+				type: ServerlessRoutines.launch,
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',

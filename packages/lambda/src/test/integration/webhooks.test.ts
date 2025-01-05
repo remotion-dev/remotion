@@ -60,6 +60,7 @@ describe('Webhooks', () => {
 		const res = await callLambdaSync({
 			type: ServerlessRoutines.start,
 			payload: {
+				type: ServerlessRoutines.start,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
@@ -124,6 +125,7 @@ describe('Webhooks', () => {
 		await callLambdaSync({
 			type: ServerlessRoutines.status,
 			payload: {
+				type: ServerlessRoutines.status,
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
@@ -178,6 +180,7 @@ describe('Webhooks', () => {
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,
 			payload: {
+				type: ServerlessRoutines.launch,
 				offthreadVideoCacheSizeInBytes: null,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},

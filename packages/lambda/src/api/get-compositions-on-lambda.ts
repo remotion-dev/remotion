@@ -70,6 +70,7 @@ export const getCompositionsOnLambda = async ({
 			functionName,
 			type: ServerlessRoutines.compositions,
 			payload: {
+				type: ServerlessRoutines.compositions,
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
 				envVariables,

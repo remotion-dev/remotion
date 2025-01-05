@@ -12,7 +12,6 @@ const callLambdaSyncWithoutRetry = async <
 	Provider extends CloudProvider,
 >({
 	functionName,
-	type,
 	payload,
 	region,
 	timeoutInTest,
@@ -33,7 +32,7 @@ const callLambdaSyncWithoutRetry = async <
 	try {
 		return JSON.parse(decoded) as OrError<LambdaReturnValues<Provider>[T]>;
 	} catch {
-		throw new Error(`Invalid JSON (${type}): ${JSON.stringify(decoded)}`);
+		throw new Error(`Invalid JSON: ${JSON.stringify(decoded)}`);
 	}
 };
 

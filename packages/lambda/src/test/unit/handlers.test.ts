@@ -7,6 +7,7 @@ test('Info handler should return version', async () => {
 		type: ServerlessRoutines.info,
 		payload: {
 			logLevel: 'info',
+			type: ServerlessRoutines.info,
 		},
 		functionName: 'remotion-dev-lambda',
 		region: 'us-east-1',

@@ -16,6 +16,7 @@ const waitUntilDone = async (bucketName: string, renderId: string) => {
 		const progress = await callLambdaSync({
 			type: ServerlessRoutines.status,
 			payload: {
+				type: ServerlessRoutines.status,
 				bucketName,
 				renderId,
 				version: VERSION,

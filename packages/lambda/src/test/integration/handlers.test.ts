@@ -7,6 +7,7 @@ test('Call function locally', async () => {
 	expect(
 		await callLambdaSync({
 			payload: {
+				type: ServerlessRoutines.info,
 				logLevel: 'info',
 			},
 			type: ServerlessRoutines.info,
