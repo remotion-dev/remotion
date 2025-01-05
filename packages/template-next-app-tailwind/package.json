@@ -42,7 +42,7 @@
     "@types/web": "0.0.166",
     "autoprefixer": "10.4.20",
     "dotenv": "16.0.3",
-    "eslint": "8.56.0",
+    "eslint": "8.57.1",
     "eslint-config-next": "15.0.4",
     "postcss": "8.4.47",
     "prettier": "3.3.3",
