@@ -6,6 +6,7 @@ import {
 import {VERSION} from 'remotion/version';
 import {getRegions} from '../api/get-regions';
 import {quit} from '../cli/helpers/quit';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {HostedLayers} from '../shared/hosted-layers';
 
@@ -36,6 +37,10 @@ const layerInfo: HostedLayers = {
 	'eu-central-2': [],
 };
 
+const getBucketName = (region: AwsRegion) => {
+	return `remotionlambda-binaries-${region}`;
+};
+
 const makeLayerPublic = async () => {
 	const runtimes: Runtime[] = ['nodejs20.x'];
 
@@ -52,7 +57,7 @@ const makeLayerPublic = async () => {
 			const {Version, LayerArn} = await getLambdaClient(region).send(
 				new PublishLayerVersionCommand({
 					Content: {
-						S3Bucket: 'remotionlambda-binaries-' + region,
+						S3Bucket: getBucketName(region),
 						S3Key:
 							layer === 'emoji-apple'
 								? 'remotion-layer-emoji-v1-arm64.zip'
