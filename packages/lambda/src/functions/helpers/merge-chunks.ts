@@ -63,6 +63,10 @@ export const mergeChunksAndFinishRender = async <
 		throw new Error('Cannot merge stills');
 	}
 
+	if (options.files.length === 0) {
+		throw new Error('No files to merge');
+	}
+
 	const {outfile, cleanupChunksProm} = await concatVideos({
 		onProgress,
 		numberOfFrames: options.numberOfFrames,

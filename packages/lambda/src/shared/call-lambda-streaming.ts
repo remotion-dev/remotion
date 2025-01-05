@@ -24,7 +24,7 @@ import {getLambdaClient} from './aws-clients';
 const STREAM_STALL_TIMEOUT = 30000;
 const LAMBDA_STREAM_STALL = `AWS did not invoke Lambda in ${STREAM_STALL_TIMEOUT}ms`;
 
-const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
+export const parseJsonOrThrowSource = (data: Uint8Array, type: string) => {
 	const asString = new TextDecoder('utf-8').decode(data);
 	try {
 		return JSON.parse(asString);

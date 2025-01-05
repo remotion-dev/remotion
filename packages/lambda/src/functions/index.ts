@@ -332,12 +332,10 @@ const innerHandler = async <Provider extends CloudProvider>({
 
 export const innerRoutine = async <Provider extends CloudProvider>(
 	params: ServerlessPayload<Provider>,
-	responseStream: ResponseStream,
+	responseWriter: ResponseStreamWriter,
 	context: RequestContext,
 	providerSpecifics: ProviderSpecifics<Provider>,
 ): Promise<void> => {
-	const responseWriter = streamWriter(responseStream);
-
 	try {
 		await innerHandler({
 			params,
@@ -362,7 +360,9 @@ export const routine = (
 	responseStream: ResponseStream,
 	context: RequestContext,
 ): Promise<void> => {
-	return innerRoutine(params, responseStream, context, awsImplementation);
+	const responseWriter = streamWriter(responseStream);
+
+	return innerRoutine(params, responseWriter, context, awsImplementation);
 };
 
 export const handler = streamifyResponse(routine);
