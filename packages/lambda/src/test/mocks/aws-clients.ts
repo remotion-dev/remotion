@@ -4,6 +4,7 @@ import type {
 	CallFunctionStreaming,
 	CallFunctionSync,
 	OnMessage,
+	OrError,
 	ServerlessReturnValues,
 	ServerlessRoutines,
 	StreamingMessage,
@@ -120,7 +121,12 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 	responseStream._finish();
 	responseStream.end();
 
-	return JSON.parse(
+	const parsed = JSON.parse(
 		new TextDecoder().decode(responseStream.getBufferedData()),
-	) as ServerlessReturnValues<AwsProvider>[T];
+	) as OrError<Awaited<ServerlessReturnValues<AwsProvider>[T]>>;
+	if (parsed.type === 'error') {
+		throw new Error(parsed.message);
+	}
+
+	return parsed;
 };
