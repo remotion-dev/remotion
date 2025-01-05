@@ -209,6 +209,74 @@ export const pricing: {
 			price: '0.0000133334',
 		},
 	},
+	'ap-southeast-4': {
+		'Lambda Storage-Duration': {
+			rateCode: 'VVJE4FEKRZE6DRJK.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000000370',
+		},
+		'Lambda Requests-ARM': {
+			rateCode: 'UH8TQNRPPRZ9TJ4V.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000002000',
+		},
+		'Lambda Provisioned-Concurrency': {
+			rateCode: '2EC2UBFH6KGNHV2T.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000052360',
+		},
+		'Lambda Duration-ARM': {
+			rateCode: 'QVV5SPACJCKHAF8A.JRTCKXETXF.6NBUNBXSC3',
+			price: '0.0000133334',
+		},
+		'Lambda Requests': {
+			rateCode: 'VXJTSR9CJSBFXG5K.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000002000',
+		},
+		'Lambda Storage-Duration-ARM': {
+			rateCode: '29EUHTVHTD7D8THR.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000000370',
+		},
+		'Lambda Duration': {
+			rateCode: 'H6FQK2WA7RDQ5V8X.JRTCKXETXF.CUKFZ388N3',
+			price: '0.0000166667',
+		},
+		'Lambda Duration-Provisioned': {
+			rateCode: 'YYP8U36M9AE5T6D2.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000122173',
+		},
+	},
+	'ap-southeast-5': {
+		'Lambda Storage-Duration-ARM': {
+			rateCode: 'Q54DCNPEP5HDZ72X.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000000333',
+		},
+		'Lambda Storage-Duration': {
+			rateCode: 'Q54DCNPEP5HDZ72X.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000000333',
+		},
+		'Lambda Requests-ARM': {
+			rateCode: 'F9T53VWVKRT6G32X.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000001800',
+		},
+		'Lambda Provisioned-Concurrency': {
+			rateCode: '72ETGRTGNSDZG7ZS.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000046791',
+		},
+		'Lambda Duration-ARM': {
+			rateCode: 'JZF5EBXY9YXH6KJZ.JRTCKXETXF.6NBUNBXSC3',
+			price: '0.0000120000',
+		},
+		'Lambda Requests': {
+			rateCode: 'GVB4MJBFXA3BX4M6.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000001800',
+		},
+		'Lambda Duration': {
+			rateCode: 'D9T9NECWKTB5WH67.JRTCKXETXF.CUKFZ388N3',
+			price: '0.0000150000',
+		},
+		'Lambda Duration-Provisioned': {
+			rateCode: 'BWUE5MJNG4QYHA76.JRTCKXETXF.6YS6EN2CT7',
+			price: '0.0000109181',
+		},
+	},
 	'ap-southeast-1': {
 		'Lambda Duration-Provisioned': {
 			rateCode: 'Z43QGMUZW4S2XN34.JRTCKXETXF.6YS6EN2CT7',
