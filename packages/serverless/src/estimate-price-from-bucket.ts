@@ -1,8 +1,7 @@
-import {type CloudProvider, type ParsedTiming} from '@remotion/serverless';
-import type {RenderMetadata} from '@remotion/serverless/client';
-import {calculateChunkTimes} from '@remotion/serverless/client';
-import {estimatePrice} from '../../api/estimate-price';
-import type {AwsRegion} from '../../regions';
+import {calculateChunkTimes} from './calculate-chunk-times';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider, ParsedTiming} from './types';
 
 export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 	renderMetadata,
@@ -11,13 +10,15 @@ export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 	lambdasInvoked,
 	timings,
 	region,
+	providerSpecifics,
 }: {
 	renderMetadata: RenderMetadata<Provider> | null;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
 	timings: ParsedTiming[];
-	region: AwsRegion;
+	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	if (!renderMetadata) {
 		return null;
@@ -43,13 +44,15 @@ export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 		}) + timeElapsedOfUnfinished;
 
 	const accruedSoFar = Number(
-		estimatePrice({
-			region,
-			durationInMilliseconds: estimatedBillingDurationInMilliseconds,
-			memorySizeInMb,
-			diskSizeInMb,
-			lambdasInvoked,
-		}).toPrecision(5),
+		providerSpecifics
+			.estimatePrice({
+				region,
+				durationInMilliseconds: estimatedBillingDurationInMilliseconds,
+				memorySizeInMb,
+				diskSizeInMb,
+				lambdasInvoked,
+			})
+			.toPrecision(5),
 	);
 
 	return {accruedSoFar, estimatedBillingDurationInMilliseconds};

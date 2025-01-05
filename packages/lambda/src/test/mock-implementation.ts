@@ -1,8 +1,14 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {Readable} from 'stream';
+import {estimatePrice} from '../api/estimate-price';
 import {speculateFunctionName} from '../client';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
+import {
+	getCloudwatchMethodUrl,
+	getCloudwatchRendererUrl,
+} from '../shared/get-aws-urls';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
@@ -23,6 +29,9 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	getChromiumPath() {
 		return null;
 	},
+	getEphemeralStorageForPriceCalculation: () => MAX_EPHEMERAL_STORAGE_IN_MB,
+	getLoggingUrlForMethod: getCloudwatchMethodUrl,
+	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 	getCurrentRegionInFunction: () => 'eu-central-1',
 	createBucket: (input) => {
 		addMockBucket({
@@ -135,4 +144,5 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			memorySizeInMb: 3009,
 			timeoutInSeconds: 120,
 		}),
+	estimatePrice,
 };

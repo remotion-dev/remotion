@@ -1,11 +1,10 @@
-import type {EnhancedErrorInfo, LambdaErrorInfo} from '@remotion/serverless';
+import {DOCS_URL} from './docs-url';
 import {
 	errorIsOutOfSpaceError,
 	isBrowserCrashedError,
 	isErrInsufficientResourcesErr,
-} from '@remotion/serverless/client';
-
-import {DOCS_URL} from '../../shared/docs-url';
+} from './error-category';
+import type {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
 
 const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
 

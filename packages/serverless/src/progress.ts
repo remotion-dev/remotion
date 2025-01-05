@@ -1,27 +1,21 @@
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {
-	CleanupInfo,
-	CloudProvider,
-	EnhancedErrorInfo,
-	GenericRenderProgress,
-	ProviderSpecifics,
-} from '@remotion/serverless';
-import {
-	calculateChunkTimes,
-	getExpectedOutName,
-	truthy,
-	type CustomCredentials,
-} from '@remotion/serverless/client';
+
 import {NoReactInternals} from 'remotion/no-react';
-import type {AwsRegion} from '../../regions';
-import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
-import {estimatePriceFromBucket} from './calculate-price-from-bucket';
+import {calculateChunkTimes} from './calculate-chunk-times';
+import type {CustomCredentials} from './constants';
+import {estimatePriceFromBucket} from './estimate-price-from-bucket';
+import {getExpectedOutName} from './expected-out-name';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
-import {getOverallProgressS3} from './get-overall-progress-s3';
-import {inspectErrors} from './inspect-errors';
+import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
+import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
+import type {ProviderSpecifics} from './provider-implementation';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
+import type {CleanupInfo, GenericRenderProgress} from './render-progress';
+import {truthy} from './truthy';
+import type {CloudProvider} from './types';
+import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async <Provider extends CloudProvider>({
 	bucketName,
@@ -46,7 +40,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	forcePathStyle: boolean;
 	functionName: string;
 }): Promise<GenericRenderProgress<Provider>> => {
-	const overallProgress = await getOverallProgressS3({
+	const overallProgress = await getOverallProgressFromStorage({
 		renderId,
 		bucketName,
 		expectedBucketOwner,
@@ -207,11 +201,10 @@ export const getProgress = async <Provider extends CloudProvider>({
 		renderMetadata,
 		memorySizeInMb,
 		lambdasInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
-		// We cannot determine the ephemeral storage size, so we
-		// overestimate the price, but will only have a miniscule effect (~0.2%)
-		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
+		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 		timings: overallProgress.timings ?? [],
-		region: region as AwsRegion,
+		region,
+		providerSpecifics,
 	});
 
 	const chunkMultiplier = [hasAudio, hasVideo].filter(truthy).length;
@@ -261,6 +254,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 					missingChunks: missingChunks ?? [],
 					region,
 					functionName,
+					providerSpecifics,
 				})
 			: null,
 		...errorExplanations,

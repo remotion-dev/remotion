@@ -44,13 +44,6 @@ export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
 export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
-export type CostsInfo = {
-	accruedSoFar: number;
-	displayCost: string;
-	currency: string;
-	disclaimer: string;
-};
-
 export type RenderProgress = GenericRenderProgress<AwsProvider>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';

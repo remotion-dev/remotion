@@ -10,6 +10,7 @@ import type {
 import {
 	compositionsHandler,
 	infoHandler,
+	progressHandler,
 	startHandler,
 	streamWriter,
 } from '@remotion/serverless';
@@ -29,7 +30,6 @@ import {printLoggingGrepHelper} from './helpers/print-logging-helper';
 import type {RequestContext} from './helpers/request-context';
 import {streamifyResponse} from './helpers/streamify-response';
 import {launchHandler} from './launch';
-import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {stillHandler} from './still';
 

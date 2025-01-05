@@ -9,6 +9,7 @@ import {ServerlessRoutines} from '@remotion/serverless/client';
 
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
+	CostsInfo,
 	ReceivedArtifact,
 	RenderStillLambdaResponsePayload,
 } from '@remotion/serverless';
@@ -18,7 +19,6 @@ import {
 	type AwsProvider,
 } from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
-import type {CostsInfo} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES} from '../shared/constants';
 import {
 	getCloudwatchMethodUrl,

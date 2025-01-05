@@ -1,4 +1,4 @@
-import type {CostsInfo} from '../../shared/constants';
+import type {CostsInfo} from './types';
 
 const display = (accrued: number) => {
 	if (accrued < 0.001) {

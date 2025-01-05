@@ -1,6 +1,6 @@
 import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {CloudProvider} from '@remotion/serverless';
-import type {RenderMetadata} from '@remotion/serverless/client';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './types';
 
 export const lambdaRenderHasAudioVideo = <Provider extends CloudProvider>(
 	renderMetadata: RenderMetadata<Provider>,

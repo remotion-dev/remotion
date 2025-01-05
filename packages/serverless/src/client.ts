@@ -47,6 +47,7 @@ export {
 export {calculateChunkTimes} from './calculate-chunk-times';
 export {getExpectedOutName} from './expected-out-name';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
+export {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {makeBucketName} from './make-bucket-name';
 export {RenderMetadata} from './render-metadata';

@@ -8,6 +8,7 @@ import type {
 } from '@remotion/serverless';
 import {
 	forgetBrowserEventLoop,
+	formatCostsInfo,
 	getBrowserInstance,
 	getCredentialsFromOutName,
 	getTmpDirStateIfENoSp,
@@ -39,7 +40,6 @@ import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-pr
 import {isFlakyError} from '../shared/is-flaky-error';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {formatCostsInfo} from './helpers/format-costs-info';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {onDownloadsHelper} from './helpers/on-downloads-logger';
 

@@ -3,7 +3,9 @@ import {expiryDays} from '@remotion/serverless/client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
+import {estimatePrice} from '../api/estimate-price';
 import {getRemotionBuckets} from '../api/get-buckets';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import {lambdaDeleteFileImplementation} from '../io/delete-file';
 import {lambdaHeadFileImplementation} from '../io/head-file';
 import {lambdaLsImplementation} from '../io/list-objects';
@@ -14,6 +16,10 @@ import {callFunctionAsyncImplementation} from '../shared/call-lambda-async';
 import {callFunctionWithStreamingImplementation} from '../shared/call-lambda-streaming';
 import {callFunctionSyncImplementation} from '../shared/call-lambda-sync';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
+import {
+	getCloudwatchMethodUrl,
+	getCloudwatchRendererUrl,
+} from '../shared/get-aws-urls';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
@@ -104,4 +110,12 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 
 		return name;
 	},
+	getEphemeralStorageForPriceCalculation() {
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		return MAX_EPHEMERAL_STORAGE_IN_MB;
+	},
+	estimatePrice,
+	getLoggingUrlForMethod: getCloudwatchMethodUrl,
+	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 };

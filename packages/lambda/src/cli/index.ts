@@ -1,13 +1,12 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import {DOCS_URL, type ProviderSpecifics} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import {checkCredentials} from '../shared/check-credentials';
-import {DOCS_URL} from '../shared/docs-url';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,

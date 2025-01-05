@@ -1,12 +1,12 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	getExpectedOutName,
+	getOverallProgressFromStorage,
 	rendersPrefix,
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {AwsRegion} from '../regions';
 import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
@@ -28,7 +28,7 @@ export const internalDeleteRender = async (
 	const expectedBucketOwner = await getAccountId({
 		region: input.region,
 	});
-	const progress = await getOverallProgressS3({
+	const progress = await getOverallProgressFromStorage({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,

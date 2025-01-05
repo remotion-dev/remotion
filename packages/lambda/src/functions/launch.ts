@@ -8,6 +8,7 @@ import type {
 	ProviderSpecifics,
 } from '@remotion/serverless';
 import {
+	DOCS_URL,
 	forgetBrowserEventLoop,
 	getBrowserInstance,
 	getTmpDirStateIfENoSp,
@@ -37,7 +38,6 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	MAX_FUNCTIONS_PER_RENDER,
 } from '../shared/constants';
-import {DOCS_URL} from '../shared/docs-url';
 import {
 	validateDimension,
 	validateDurationInFrames,

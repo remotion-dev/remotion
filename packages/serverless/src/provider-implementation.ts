@@ -158,6 +158,39 @@ export type CallFunctionSync<Provider extends CloudProvider> = <
 	ServerlessReturnValues<Provider>[T]
 >;
 
+export type EstimatePriceInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	memorySizeInMb: number;
+	diskSizeInMb: number;
+	lambdasInvoked: number;
+	durationInMilliseconds: number;
+};
+
+export type EstimatePrice<Provider extends CloudProvider> = ({
+	region,
+	memorySizeInMb,
+	diskSizeInMb,
+	lambdasInvoked,
+	...other
+}: EstimatePriceInput<Provider>) => number;
+
+export type GetLoggingUrlForRendererFunction<Provider extends CloudProvider> =
+	(options: {
+		region: Provider['region'];
+		functionName: string;
+		rendererFunctionName: string | null;
+		renderId: string;
+		chunk: null | number;
+	}) => string;
+
+export type GetLoggingUrlForMethod<Provider extends CloudProvider> = (options: {
+	region: Provider['region'];
+	functionName: string;
+	method: ServerlessRoutines;
+	rendererFunctionName: string | null;
+	renderId: string;
+}) => string;
+
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Provider['region'];
@@ -180,4 +213,8 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	callFunctionStreaming: CallFunctionStreaming<Provider>;
 	callFunctionSync: CallFunctionSync<Provider>;
 	getCurrentFunctionName: () => string;
+	estimatePrice: EstimatePrice<Provider>;
+	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
+	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
+	getEphemeralStorageForPriceCalculation: () => number;
 };

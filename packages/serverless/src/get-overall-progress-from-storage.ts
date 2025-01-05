@@ -1,11 +1,12 @@
-import type {
-	CloudProvider,
-	OverallRenderProgress,
-	ProviderSpecifics,
-} from '@remotion/serverless';
-import {overallProgressKey, streamToString} from '@remotion/serverless/client';
+import {overallProgressKey} from './constants';
+import type {OverallRenderProgress} from './overall-render-progress';
+import type {ProviderSpecifics} from './provider-implementation';
+import {streamToString} from './stream-to-string';
+import type {CloudProvider} from './types';
 
-export const getOverallProgressS3 = async <Provider extends CloudProvider>({
+export const getOverallProgressFromStorage = async <
+	Provider extends CloudProvider,
+>({
 	renderId,
 	bucketName,
 	expectedBucketOwner,

@@ -1,5 +1,6 @@
+import {estimatePriceFromBucket} from '@remotion/serverless';
 import {expect, test} from 'vitest';
-import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
+import {awsImplementation} from '../../functions/aws-implementation';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
@@ -54,6 +55,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 		],
 		region: 'eu-central-1',
+		providerSpecifics: awsImplementation,
 	});
 	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
 });

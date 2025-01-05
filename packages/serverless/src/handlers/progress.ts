@@ -1,12 +1,10 @@
-import type {
-	CloudProvider,
-	GenericRenderProgress,
-	ProviderSpecifics,
-} from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import {getProgress} from './helpers/get-progress';
+import type {ServerlessPayload} from '../constants';
+import {ServerlessRoutines} from '../constants';
+import {getProgress} from '../progress';
+import type {ProviderSpecifics} from '../provider-implementation';
+import type {GenericRenderProgress} from '../render-progress';
+import type {CloudProvider} from '../types';
 
 type Options<Provider extends CloudProvider> = {
 	expectedBucketOwner: string;

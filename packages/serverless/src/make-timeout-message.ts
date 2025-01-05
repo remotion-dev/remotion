@@ -1,12 +1,8 @@
-import type {CloudProvider} from '@remotion/serverless';
-import type {RenderMetadata} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {AwsRegion} from '../../regions';
-import {DOCS_URL} from '../../shared/docs-url';
-import {
-	getCloudwatchMethodUrl,
-	getCloudwatchRendererUrl,
-} from '../../shared/get-aws-urls';
+import {ServerlessRoutines} from './constants';
+import {DOCS_URL} from './docs-url';
+import type {ProviderSpecifics} from './provider-implementation';
+import type {RenderMetadata} from './render-metadata';
+import type {CloudProvider} from './types';
 
 const MAX_MISSING_CHUNKS = 5;
 
@@ -14,10 +10,12 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	missingChunks,
 	renderMetadata,
 	region,
+	providerSpecifics,
 }: {
 	missingChunks: number[];
 	renderMetadata: RenderMetadata<Provider>;
 	region: Provider['region'];
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -43,13 +41,15 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 
 				return [
 					msg,
-					`▸ Logs for chunk ${ch}: ${getCloudwatchRendererUrl({
-						functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-						region: region as AwsRegion,
-						rendererFunctionName: null,
-						renderId: renderMetadata.renderId,
-						chunk: ch,
-					})}`,
+					`▸ Logs for chunk ${ch}: ${providerSpecifics.getLoggingUrlForRendererFunction(
+						{
+							functionName: providerSpecifics.getCurrentFunctionName(),
+							region,
+							rendererFunctionName: null,
+							renderId: renderMetadata.renderId,
+							chunk: ch,
+						},
+					)}`,
 				].join('\n');
 			})
 			.slice(0, 5),
@@ -63,6 +63,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	renderId,
 	functionName,
 	region,
+	providerSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
@@ -70,20 +71,22 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	renderId: string;
 	region: Provider['region'];
 	functionName: string;
+	providerSpecifics: ProviderSpecifics<Provider>;
 }) => {
-	const cloudWatchRendererUrl = getCloudwatchRendererUrl({
-		renderId,
-		functionName,
-		region: region as AwsRegion,
-		rendererFunctionName: functionName,
-		chunk: null,
-	});
+	const cloudWatchRendererUrl =
+		providerSpecifics.getLoggingUrlForRendererFunction({
+			renderId,
+			functionName,
+			region,
+			rendererFunctionName: functionName,
+			chunk: null,
+		});
 
-	const cloudWatchLaunchUrl = getCloudwatchMethodUrl({
+	const cloudWatchLaunchUrl = providerSpecifics.getLoggingUrlForMethod({
 		renderId,
 		functionName,
 		method: ServerlessRoutines.launch,
-		region: region as AwsRegion,
+		region,
 		rendererFunctionName: functionName,
 	});
 	const message = [
@@ -92,6 +95,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 			missingChunks,
 			renderMetadata,
 			region,
+			providerSpecifics,
 		}),
 		'',
 		`Consider increasing the timeout of your function.`,
