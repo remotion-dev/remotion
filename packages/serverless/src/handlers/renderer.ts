@@ -343,13 +343,13 @@ const renderHandler = async <Provider extends CloudProvider>({
 			.catch((err) => reject(err));
 	});
 
-	const streamTimer = providerSpecifics.timer(
+	const streamTimer = serverProviderSpecifics.timer(
 		'Streaming chunk to the main function',
 		params.logLevel,
 	);
 
 	if (audioOutputLocation) {
-		const audioChunkTimer = providerSpecifics.timer(
+		const audioChunkTimer = serverProviderSpecifics.timer(
 			'Sending audio chunk',
 			params.logLevel,
 		);
@@ -361,7 +361,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (videoOutputLocation) {
-		const videoChunkTimer = providerSpecifics.timer(
+		const videoChunkTimer = serverProviderSpecifics.timer(
 			'Sending main chunk',
 			params.logLevel,
 		);

@@ -346,7 +346,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	if (!params.overwrite) {
-		const findOutputFile = providerSpecifics.timer(
+		const findOutputFile = serverProviderSpecifics.timer(
 			'Checking if output file already exists',
 			params.logLevel,
 		);
@@ -494,6 +494,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		startTime,
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		serverProviderSpecifics,
 	});
 
 	return postRenderData;

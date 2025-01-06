@@ -14,7 +14,10 @@ import type {
 import {createPostRenderData} from './create-post-render-data';
 import {inspectErrors} from './inspect-error';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
 
@@ -49,6 +52,7 @@ export const mergeChunksAndFinishRender = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 	forcePathStyle: boolean;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
@@ -81,14 +85,14 @@ export const mergeChunksAndFinishRender = async <
 		preferLossless: options.preferLossless,
 		muted: options.renderMetadata.muted,
 		metadata: options.renderMetadata.metadata,
-		providerSpecifics: options.providerSpecifics,
+		serverProviderSpecifics: options.serverProviderSpecifics,
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
 	const outputSize = fs.statSync(outfile).size;
 
-	const writeToBucket = options.providerSpecifics.timer(
+	const writeToBucket = options.serverProviderSpecifics.timer(
 		`Writing to bucket (${outputSize} bytes)`,
 		options.logLevel,
 	);
