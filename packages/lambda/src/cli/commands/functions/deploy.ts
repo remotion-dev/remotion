@@ -16,6 +16,7 @@ import {validateVpcSecurityGroupIds} from '../../../shared/validate-vpc-security
 import {validateVpcSubnetIds} from '../../../shared/validate-vpc-subnet-ids';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
+import {Log} from '../../log';
 
 export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
@@ -31,6 +32,12 @@ export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	const cloudWatchLogRetentionPeriodInDays =
 		parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
 	const enableV5Runtime = parsedLambdaCli['enable-v5-runtime'] ?? undefined;
+	if (enableV5Runtime) {
+		Log.warn(
+			{logLevel, indent: false},
+			`The --enable-v5-runtime flag is now enabled by default and has no function anymore.`,
+		);
+	}
 	const vpcSubnetIds = parsedLambdaCli['vpc-subnet-ids'] ?? undefined;
 	const vpcSecurityGroupIds =
 		parsedLambdaCli['vpc-security-group-ids'] ?? undefined;
@@ -87,7 +94,6 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		diskSizeInMb,
 		customRoleArn,
 		enableLambdaInsights,
-		enableV5Runtime,
 		indent: false,
 		logLevel,
 		vpcSubnetIds,

@@ -1,6 +1,5 @@
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
 import type {AwsRegion} from '../regions';
@@ -38,7 +37,6 @@ type OptionalParameters = {
 	enableLambdaInsights: boolean;
 	indent: boolean;
 	logLevel: LogLevel;
-	enableV5Runtime: boolean;
 	vpcSubnetIds: string | undefined;
 	vpcSecurityGroupIds: string | undefined;
 	runtimePreference: RuntimePreference;
@@ -99,7 +97,6 @@ export const internalDeployFunction = async (
 		ephemerealStorageInMb: params.diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
 		enableLambdaInsights: params.enableLambdaInsights ?? false,
-		enableV5Runtime: params.enableV5Runtime,
 		logLevel: params.logLevel,
 		vpcSubnetIds: params.vpcSubnetIds as string,
 		vpcSecurityGroupIds: params.vpcSecurityGroupIds as string,
@@ -137,7 +134,16 @@ export const deployFunction = ({
 	vpcSecurityGroupIds,
 	runtimePreference,
 	diskSizeInMb,
-}: DeployFunctionInput) => {
+}: DeployFunctionInput & {
+	// @deprecated This option is now on by default
+	enableV5Runtime?: boolean;
+}) => {
+	if (enableV5Runtime) {
+		console.warn(
+			'The `enableV5Runtime` option is now on by default. No need to specify it anymore.',
+		);
+	}
+
 	return errorHandled({
 		indent: indent ?? false,
 		logLevel: logLevel ?? 'info',
@@ -149,8 +155,6 @@ export const deployFunction = ({
 		region,
 		timeoutInSeconds,
 		cloudWatchLogRetentionPeriodInDays,
-		enableV5Runtime:
-			enableV5Runtime ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference: runtimePreference ?? 'default',
