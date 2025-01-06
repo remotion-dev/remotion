@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {DragOverOverlay} from './DragOverOverlay';
 import {Button} from './ui/button';
 import {

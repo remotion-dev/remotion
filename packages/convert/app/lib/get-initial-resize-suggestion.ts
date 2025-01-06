@@ -1,5 +1,5 @@
-import {Dimensions} from '@remotion/media-parser';
-import {ResizeOperation} from '@remotion/webcodecs';
+import type {Dimensions} from '@remotion/media-parser';
+import type {ResizeOperation} from '@remotion/webcodecs';
 
 export const getInitialResizeSuggestion = (
 	rotatedDimensions: Dimensions | null,
@@ -10,6 +10,7 @@ export const getInitialResizeSuggestion = (
 			scale: 0.5,
 		};
 	}
+
 	const smallerSide = Math.min(
 		rotatedDimensions.width,
 		rotatedDimensions.height,

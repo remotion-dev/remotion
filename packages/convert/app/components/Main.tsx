@@ -1,8 +1,9 @@
 import {useLocation} from '@remix-run/react';
 import React, {useState} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {TitleProvider} from '~/lib/title-context';
-import {getHeaderTitle, RouteAction} from '~/seo';
+import type { RouteAction} from '~/seo';
+import {getHeaderTitle} from '~/seo';
 import {FileAvailable} from './FileAvailable';
 import {PickFile} from './PickFile';
 

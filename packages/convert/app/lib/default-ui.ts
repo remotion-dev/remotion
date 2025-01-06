@@ -1,4 +1,4 @@
-import {RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 
 export type RotateOrMirrorState = 'rotate' | 'mirror' | null;
 
@@ -8,6 +8,7 @@ export const defaultRotateOrMirorState = (
 	if (action.type === 'convert') {
 		return null;
 	}
+
 	if (action.type === 'generic-probe') {
 		return null;
 	}
@@ -31,9 +32,11 @@ export const defaultRotateOrMirorState = (
 	if (action.type === 'generic-mirror') {
 		return 'mirror';
 	}
+
 	if (action.type === 'generic-resize') {
 		return null;
 	}
+
 	if (action.type === 'resize-format') {
 		return null;
 	}
@@ -47,6 +50,7 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	if (action.type === 'convert') {
 		return true;
 	}
+
 	if (action.type === 'generic-probe') {
 		return true;
 	}
@@ -97,6 +101,7 @@ export const getOrderOfSections = (
 			convert: 3,
 		};
 	}
+
 	if (action.type === 'convert' || action.type === 'generic-convert') {
 		return {
 			convert: 0,
@@ -105,6 +110,7 @@ export const getOrderOfSections = (
 			mirror: 3,
 		};
 	}
+
 	if (action.type === 'generic-probe') {
 		return {
 			convert: 0,
@@ -113,6 +119,7 @@ export const getOrderOfSections = (
 			mirror: 3,
 		};
 	}
+
 	if (action.type === 'generic-mirror' || action.type === 'mirror-format') {
 		return {
 			mirror: 0,
@@ -121,6 +128,7 @@ export const getOrderOfSections = (
 			convert: 3,
 		};
 	}
+
 	if (action.type === 'generic-resize' || action.type === 'resize-format') {
 		return {
 			resize: 0,

@@ -1,11 +1,12 @@
 import {convertMedia} from '@remotion/webcodecs';
 import {flipVideoFrame} from '~/components/flip-video';
+import type {
+	TestStructure} from './test-structure';
 import {
 	addTestWatcher,
 	allowSafariAudioDrop,
 	isSafari,
-	makeProgressReporter,
-	TestStructure,
+	makeProgressReporter
 } from './test-structure';
 
 const basicMp4ToWebM = (): TestStructure => {
@@ -118,6 +119,7 @@ const aviToMp4ReEncode = (): TestStructure => {
 							type: 'drop',
 						};
 					}
+
 					return {type: 'reencode', audioCodec: 'aac', bitrate: 128000};
 				},
 			});

@@ -1,9 +1,10 @@
-import {
+import type {
 	AudioOperation,
-	canReencodeAudioTrack,
 	ConvertMediaOnAudioTrackHandler,
 	ConvertMediaOnProgress,
-	ConvertMediaProgress,
+	ConvertMediaProgress} from '@remotion/webcodecs';
+import {
+	canReencodeAudioTrack
 } from '@remotion/webcodecs';
 import React from 'react';
 
@@ -136,5 +137,6 @@ export const allowSafariAudioDrop: ConvertMediaOnAudioTrackHandler = async ({
 	if (isSafari()) {
 		return Promise.resolve({type: 'drop'});
 	}
+
 	return Promise.resolve({type: 'fail'});
 };

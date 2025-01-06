@@ -1,8 +1,9 @@
-import {ParseMediaContainer, TracksField} from '@remotion/media-parser';
-import {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
+import type {ParseMediaContainer, TracksField} from '@remotion/media-parser';
+import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
 import {useEffect, useState} from 'react';
-import {RouteAction} from '~/seo';
-import {getSupportedConfigs, SupportedConfigs} from './get-supported-configs';
+import type {RouteAction} from '~/seo';
+import type { SupportedConfigs} from './get-supported-configs';
+import {getSupportedConfigs} from './get-supported-configs';
 
 export const useSupportedConfigs = ({
 	outputContainer,

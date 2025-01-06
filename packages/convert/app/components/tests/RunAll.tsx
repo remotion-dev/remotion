@@ -1,5 +1,5 @@
 import {useCallback} from 'react';
-import {TestStructure} from '~/tests/test-structure';
+import type {TestStructure} from '~/tests/test-structure';
 import {Button} from '../ui/button';
 
 export const RunAll: React.FC<{

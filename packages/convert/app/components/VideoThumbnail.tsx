@@ -52,6 +52,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 		if (!canvas) {
 			return;
 		}
+
 		canvas.width = w;
 		const twoDContext = canvas.getContext('2d');
 		if (!twoDContext) {
@@ -82,6 +83,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 				if (!canvas) {
 					throw new Error('Canvas not ready');
 				}
+
 				return createImageBitmap(canvas);
 			},
 			addOnChangeListener(listener) {

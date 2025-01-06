@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useState} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
 import {
 	useAddFilenameToTitle,
@@ -11,7 +11,8 @@ import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
-import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
+import type { VideoThumbnailRef} from './VideoThumbnail';
+import {VideoThumbnail} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
 import styles from './probe.module.css';
 import {Button} from './ui/button';
@@ -19,7 +20,7 @@ import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
 import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
-import {ProbeResult} from './use-probe';
+import type {ProbeResult} from './use-probe';
 
 export const Probe: React.FC<{
 	readonly src: Source;

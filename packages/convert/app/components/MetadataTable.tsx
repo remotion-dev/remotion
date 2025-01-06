@@ -1,4 +1,4 @@
-import {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
+import type {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
 import React, {useMemo} from 'react';
 import {
 	renderMetadataLabel,

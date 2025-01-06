@@ -1,9 +1,9 @@
-import {Dimensions} from '@remotion/media-parser';
-import {ResizeOperation} from '@remotion/webcodecs';
+import type {Dimensions} from '@remotion/media-parser';
+import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo} from 'react';
 import {ResizeShortcuts} from './ResizeShortcuts';
 import {getThumbnailDimensions, ResizeThumbnail} from './ResizeThumbnail';
-import {VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const NumberInput: React.FC<{
 	readonly value: number;

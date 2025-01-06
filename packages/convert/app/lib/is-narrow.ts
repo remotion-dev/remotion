@@ -13,6 +13,7 @@ export function useIsNarrow() {
 		const handler = (event: MediaQueryListEvent) => {
 			return setMatches(event.matches);
 		};
+
 		mediaQuery.addEventListener('change', handler);
 		return () => mediaQuery.removeEventListener('change', handler);
 	}, []);

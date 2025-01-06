@@ -1,8 +1,9 @@
-import {LogLevel, parseMedia} from '@remotion/media-parser';
+import type {LogLevel} from '@remotion/media-parser';
+import {parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {Source} from './convert-state';
+import type {Source} from './convert-state';
 
 export const useThumbnail = ({
 	src,
@@ -48,6 +49,7 @@ export const useThumbnail = ({
 							onDone();
 							return;
 						}
+
 						frames++;
 
 						onVideoThumbnail(frame).then(() => {
@@ -76,20 +78,23 @@ export const useThumbnail = ({
 					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
-		}).catch((err) => {
-			if ((err as Error).stack?.includes('Cancelled')) {
-				return;
-			}
-			if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
-			// firefox
-			if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
+		}).catch((err2) => {
+			if ((err2 as Error).stack?.includes('Cancelled')) {
 				return;
 			}
 
-			console.log(err);
-			setError(err as Error);
+			if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
+				return;
+			}
+
+			// firefox
+			if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
+				return;
+			}
+
+			// eslint-disable-next-line no-console
+			console.log(err2);
+			setError(err2 as Error);
 		});
 
 		return abortController;

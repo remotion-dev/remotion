@@ -7,6 +7,7 @@ export const getBrightnessOfFrame = async (frame: VideoFrame) => {
 	if (context === null) {
 		throw new Error('Could not get 2d context');
 	}
+
 	context.drawImage(bitmap, 0, 0);
 	const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 	let sum = 0;
@@ -16,5 +17,6 @@ export const getBrightnessOfFrame = async (frame: VideoFrame) => {
 			imageData.data[i + 1] * 0.587 +
 			imageData.data[i + 2] * 0.114;
 	}
+
 	return sum / (imageData.data.length / 4) / 255;
 };

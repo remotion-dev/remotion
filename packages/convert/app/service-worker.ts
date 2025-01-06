@@ -77,6 +77,7 @@ self.addEventListener('fetch', (event) => {
 						return cachedResponse;
 					}
 
+					// eslint-disable-next-line no-console
 					console.log(error);
 					return new Response('You are offline', {
 						status: 408,

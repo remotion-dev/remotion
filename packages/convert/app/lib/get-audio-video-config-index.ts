@@ -1,4 +1,4 @@
-import {AudioOperation, VideoOperation} from '@remotion/webcodecs';
+import type {AudioOperation, VideoOperation} from '@remotion/webcodecs';
 import {getAudioOperationId, getVideoOperationId} from './operation-key';
 
 export const getActualAudioConfigIndex = ({

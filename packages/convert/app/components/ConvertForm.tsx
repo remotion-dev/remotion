@@ -1,16 +1,14 @@
-import {
+import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import {
-	ConvertMediaContainer,
-	getAvailableContainers,
-} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import {getAvailableContainers} from '@remotion/webcodecs';
 import React from 'react';
 import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
-import {SupportedConfigs} from './get-supported-configs';
+import type {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
 import {AudioTrackLabel, VideoTrackLabel} from './TrackSelectionLabels';
 import {Label} from './ui/label';
@@ -59,11 +57,11 @@ export const ConvertForm: React.FC<{
 						<SelectValue placeholder="Select a container" />
 					</SelectTrigger>
 					<SelectContent>
-						{getAvailableContainers().map((container) => {
+						{getAvailableContainers().map((availableContainer) => {
 							return (
-								<SelectGroup key={container}>
-									<SelectItem value={container}>
-										{renderHumanReadableContainer(container)}
+								<SelectGroup key={availableContainer}>
+									<SelectItem value={availableContainer}>
+										{renderHumanReadableContainer(availableContainer)}
 									</SelectItem>
 								</SelectGroup>
 							);

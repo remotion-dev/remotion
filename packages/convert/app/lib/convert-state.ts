@@ -1,4 +1,4 @@
-import {ConvertMediaProgress} from '@remotion/webcodecs';
+import type {ConvertMediaProgress} from '@remotion/webcodecs';
 
 export type Source =
 	| {

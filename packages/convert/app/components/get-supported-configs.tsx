@@ -1,17 +1,18 @@
-import {ParseMediaContainer, TracksField} from '@remotion/media-parser';
-import {
+import type {ParseMediaContainer, TracksField} from '@remotion/media-parser';
+import type {
 	AudioOperation,
+	ConvertMediaContainer,
+	ResizeOperation,
+	VideoOperation} from '@remotion/webcodecs';
+import {
 	canCopyAudioTrack,
 	canCopyVideoTrack,
 	canReencodeAudioTrack,
 	canReencodeVideoTrack,
-	ConvertMediaContainer,
 	getAvailableAudioCodecs,
-	getAvailableVideoCodecs,
-	ResizeOperation,
-	VideoOperation,
+	getAvailableVideoCodecs
 } from '@remotion/webcodecs';
-import {RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 
 export type VideoTrackOption = {
 	trackId: number;
@@ -32,27 +33,35 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 	if (routeAction.type === 'mirror-format') {
 		return false;
 	}
+
 	if (routeAction.type === 'rotate-format') {
 		return false;
 	}
+
 	if (routeAction.type === 'generic-mirror') {
 		return false;
 	}
+
 	if (routeAction.type === 'generic-rotate') {
 		return false;
 	}
+
 	if (routeAction.type === 'convert') {
 		return true;
 	}
+
 	if (routeAction.type === 'generic-convert') {
 		return true;
 	}
+
 	if (routeAction.type === 'generic-probe') {
 		return true;
 	}
+
 	if (routeAction.type === 'generic-resize') {
 		return false;
 	}
+
 	if (routeAction.type === 'resize-format') {
 		return false;
 	}
@@ -98,6 +107,7 @@ export const getSupportedConfigs = async ({
 				type: 'copy',
 			});
 		}
+
 		for (const outputCodec of availableVideoCodecs) {
 			const canReencode = await canReencodeVideoTrack({
 				videoCodec: outputCodec,
@@ -111,11 +121,13 @@ export const getSupportedConfigs = async ({
 				});
 			}
 		}
+
 		if (canCopy && !prioritizeCopyOverReencode) {
 			options.push({
 				type: 'copy',
 			});
 		}
+
 		options.push({
 			type: 'drop',
 		});
@@ -156,6 +168,7 @@ export const getSupportedConfigs = async ({
 				});
 			}
 		}
+
 		audioTrackOperations.push({
 			type: 'drop',
 		});
