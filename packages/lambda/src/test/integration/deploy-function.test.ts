@@ -1,24 +1,35 @@
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
-import {deleteFunction} from '../../api/delete-function';
-import {deployFunction} from '../../api/deploy-function';
+import {internalDeployFunction} from '../../api/deploy-function';
 import {getFunctions} from '../../api/get-functions';
 import {
 	cleanFnStore,
+	deleteMockFunction,
 	markFunctionAsIncompatible,
 } from '../../api/mock-functions';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {LAMBDA_VERSION_STRING} from '../../shared/lambda-version-string';
+import {mockImplementation} from '../mock-implementation';
 
 const expectedFunctionName = (memory: number, timeout: number, disk: number) =>
 	`remotion-render-${LAMBDA_VERSION_STRING}-mem${memory}mb-disk${disk}mb-${timeout}sec`;
 
 test('Should be able to deploy function', async () => {
-	const {functionName} = await deployFunction({
+	const {functionName} = await internalDeployFunction({
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		customRoleArn: undefined,
+		diskSizeInMb: 10240,
+		enableLambdaInsights: true,
+		indent: false,
+		logLevel: 'info',
+		providerSpecifics: mockImplementation,
+		runtimePreference: 'default',
+		vpcSecurityGroupIds: undefined,
+		vpcSubnetIds: undefined,
+		cloudWatchLogRetentionPeriodInDays: undefined,
 	});
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
@@ -28,11 +39,21 @@ test('Should be able to deploy function', async () => {
 test('Should be able to get the function afterwards', async () => {
 	cleanFnStore();
 
-	const {functionName} = await deployFunction({
+	const {functionName} = await internalDeployFunction({
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		customRoleArn: undefined,
+		diskSizeInMb: 10240,
+		enableLambdaInsights: true,
+		indent: false,
+		logLevel: 'info',
+		providerSpecifics: mockImplementation,
+		runtimePreference: 'default',
+		vpcSecurityGroupIds: undefined,
+		vpcSubnetIds: undefined,
+		cloudWatchLogRetentionPeriodInDays: undefined,
 	});
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
@@ -65,23 +86,29 @@ test('Should be able to get the function afterwards', async () => {
 test('Should be able to delete the function', async () => {
 	cleanFnStore();
 
-	const {functionName} = await deployFunction({
+	const {functionName} = await internalDeployFunction({
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		customRoleArn: undefined,
+		diskSizeInMb: 10240,
+		enableLambdaInsights: true,
+		indent: false,
+		logLevel: 'info',
+		providerSpecifics: mockImplementation,
+		runtimePreference: 'default',
+		vpcSecurityGroupIds: undefined,
+		vpcSubnetIds: undefined,
+		cloudWatchLogRetentionPeriodInDays: undefined,
 	});
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
-	await deleteFunction({
-		region: 'us-east-1',
-		functionName: expectedFunctionName(
-			2048,
-			120,
-			DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-		),
-	});
+	deleteMockFunction(
+		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
+		'us-east-1',
+	);
 	const fns = await getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
@@ -92,11 +119,21 @@ test('Should be able to delete the function', async () => {
 test('Should be able to get the function afterwards', async () => {
 	cleanFnStore();
 
-	const {functionName} = await deployFunction({
+	const {functionName} = await internalDeployFunction({
 		memorySizeInMb: 2048,
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		customRoleArn: undefined,
+		diskSizeInMb: 10240,
+		enableLambdaInsights: true,
+		indent: false,
+		logLevel: 'info',
+		providerSpecifics: mockImplementation,
+		runtimePreference: 'default',
+		vpcSecurityGroupIds: undefined,
+		vpcSubnetIds: undefined,
+		cloudWatchLogRetentionPeriodInDays: undefined,
 	});
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),

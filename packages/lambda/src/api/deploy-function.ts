@@ -1,7 +1,9 @@
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../api/get-functions';
+import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
@@ -9,7 +11,6 @@ import {
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
-import {getAccountId} from '../shared/get-account-id';
 import {
 	validateRuntimePreference,
 	type RuntimePreference,
@@ -50,8 +51,11 @@ export type DeployFunctionOutput = {
 	alreadyExisted: boolean;
 };
 
-export const internalDeployFunction = async (
-	params: MandatoryParameters & OptionalParameters,
+export const internalDeployFunction = async <Provider extends CloudProvider>(
+	params: MandatoryParameters &
+		OptionalParameters & {
+			providerSpecifics: ProviderSpecifics<Provider>;
+		},
 ): Promise<DeployFunctionOutput> => {
 	validateMemorySize(params.memorySizeInMb);
 	validateTimeout(params.timeoutInSeconds);
@@ -67,7 +71,9 @@ export const internalDeployFunction = async (
 		`disk${params.diskSizeInMb}mb`,
 		`${params.timeoutInSeconds}sec`,
 	].join('-');
-	const accountId = await getAccountId({region: params.region});
+	const accountId = await params.providerSpecifics.getAccountId({
+		region: params.region,
+	});
 
 	const fns = await getFunctions({
 		compatibleOnly: true,
@@ -158,5 +164,6 @@ export const deployFunction = ({
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference: runtimePreference ?? 'default',
+		providerSpecifics: awsImplementation,
 	});
 };

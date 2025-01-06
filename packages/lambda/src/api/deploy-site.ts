@@ -10,7 +10,6 @@ import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
-import {getAccountId} from '../shared/get-account-id';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {validateAwsRegion} from '../shared/validate-aws-region';
@@ -78,7 +77,7 @@ const mandatoryDeploySite = async ({
 	validateSiteName(siteName);
 	validatePrivacy(privacy, false);
 
-	const accountId = await getAccountId({region});
+	const accountId = await providerSpecifics.getAccountId({region});
 
 	const bucketExists = await providerSpecifics.bucketExists({
 		bucketName,

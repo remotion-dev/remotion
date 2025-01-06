@@ -233,6 +233,10 @@ export type GenerateRenderId = (options: {
 	randomHashFn: () => string;
 }) => string;
 
+export type GetAccountId<Provider extends CloudProvider> = (options: {
+	region: Provider['region'];
+}) => Promise<string>;
+
 export type ServerProviderSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -273,4 +277,5 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	serverStorageProductName: () => string;
 	getMaxStillInlinePayloadSize: () => number;
 	getMaxNonInlinePayloadSizePerFunction: () => number;
+	getAccountId: GetAccountId<Provider>;
 };

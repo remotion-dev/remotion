@@ -16,6 +16,7 @@ import {callFunctionAsyncImplementation} from '../shared/call-lambda-async';
 import {callFunctionWithStreamingImplementation} from '../shared/call-lambda-streaming';
 import {callFunctionSyncImplementation} from '../shared/call-lambda-sync';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
+import {getAccountIdImplementation} from '../shared/get-account-id';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -117,4 +118,5 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	serverStorageProductName: () => 'S3',
 	getMaxStillInlinePayloadSize: () => 5_000_000,
 	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
+	getAccountId: getAccountIdImplementation,
 };

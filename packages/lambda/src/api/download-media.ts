@@ -12,7 +12,6 @@ import {awsImplementation} from '../functions/aws-implementation';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../regions';
-import {getAccountId} from '../shared/get-account-id';
 
 export type DownloadMediaInput = {
 	region: AwsRegion;
@@ -36,7 +35,7 @@ export const internalDownloadMedia = async (
 		forcePathStyle: boolean;
 	},
 ): Promise<DownloadMediaOutput> => {
-	const expectedBucketOwner = await getAccountId({
+	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
 		region: input.region,
 	});
 	const overallProgress = await getOverallProgressFromStorage({

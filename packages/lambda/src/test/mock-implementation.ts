@@ -40,6 +40,8 @@ export const getBrowserInstance: GetBrowserInstance = async () => {
 };
 
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
+	getAccountId: () =>
+		Promise.resolve('aws:iam::123456789'.match(/aws:iam::([0-9]+)/)?.[1]!),
 	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
 	getMaxStillInlinePayloadSize() {
 		return 5_000_000;

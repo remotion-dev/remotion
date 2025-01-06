@@ -3,10 +3,11 @@ import {expect, test} from 'vitest';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
 import {getDirFiles} from '../../api/upload-dir';
+import {awsImplementation} from '../../functions/aws-implementation';
 import {mockImplementation} from '../mock-implementation';
 
 test('Should throw on wrong prefix', async () => {
-	await expect(() =>
+	await expect(
 		internalDeploySite({
 			bucketName: 'wrongprefix',
 			entryPoint: 'first',
@@ -25,7 +26,7 @@ test('Should throw on wrong prefix', async () => {
 });
 
 test('Should throw if invalid region was passed', () => {
-	expect(() =>
+	expect(
 		internalDeploySite({
 			bucketName: 'remotionlambda-testing',
 			entryPoint: 'first',
@@ -33,7 +34,7 @@ test('Should throw if invalid region was passed', () => {
 			region: 'ap-northeast-9',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: mockImplementation,
+			providerSpecifics: awsImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
@@ -44,7 +45,7 @@ test('Should throw if invalid region was passed', () => {
 });
 
 test("Should throw if bucket doesn't exist", () => {
-	expect(() =>
+	expect(
 		internalDeploySite({
 			bucketName: 'remotionlambda-non-existed',
 			entryPoint: 'first',
