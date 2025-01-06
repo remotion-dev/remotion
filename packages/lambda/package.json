@@ -35,6 +35,7 @@
 		"@remotion/streaming": "workspace:*",
 		"@remotion/serverless": "workspace:*",
 		"mime-types": "2.1.34",
+		"next": "^15.1.3",
 		"remotion": "workspace:*",
 		"zod": "3.22.3"
 	},

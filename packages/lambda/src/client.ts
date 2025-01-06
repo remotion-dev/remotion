@@ -7,7 +7,7 @@ import {getRenderProgress} from './api/get-render-progress';
 import {getSites} from './api/get-sites';
 import type {PresignUrlInput} from './api/presign-url';
 import {presignUrl} from './api/presign-url';
-import { appRouterWebhooks } from './simplifiers';
+import { appRouterWebhooks, pageRouterWebhooks } from './simplifiers';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
@@ -46,7 +46,8 @@ export {
 	renderVideoOnLambda,
 	speculateFunctionName,
 	validateWebhookSignature,
-	appRouterWebhooks
+	appRouterWebhooks,
+	pageRouterWebhooks,
 };
 export type {
 	DeleteRenderInput,
