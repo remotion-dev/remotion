@@ -397,3 +397,4 @@ export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
 export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
+export const COMMAND_NOT_FOUND = 'Command not found';

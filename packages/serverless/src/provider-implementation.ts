@@ -6,6 +6,7 @@ import type {
 import type {Readable} from 'stream';
 import type {
 	CustomCredentials,
+	DeleteAfter,
 	DownloadBehavior,
 	Privacy,
 	ServerlessRoutines,
@@ -227,10 +228,17 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 
 export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
 
+export type GenerateRenderId = (options: {
+	deleteAfter: DeleteAfter | null;
+	randomHashFn: () => string;
+}) => string;
+
 export type ServerProviderSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 	timer: DebuggingTimer;
+	generateRandomId: GenerateRenderId;
+	deleteTmpDir: () => Promise<void>;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {

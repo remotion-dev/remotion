@@ -49,6 +49,8 @@ export type WebhookPayload = {
 const redirectStatusCodes = [301, 302, 303, 307, 308];
 
 export type WebhookClient = (
+	url: string,
+) => (
 	url: string | URL,
 	options: https.RequestOptions,
 	callback?: (res: http.IncomingMessage) => void,
@@ -72,7 +74,7 @@ function invokeWebhookRaw({
 	const jsonPayload = JSON.stringify(payload);
 
 	return new Promise<void>((resolve, reject) => {
-		const req = client(
+		const req = client(url)(
 			url,
 			{
 				method: 'POST',

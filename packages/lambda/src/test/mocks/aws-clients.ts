@@ -9,7 +9,7 @@ import type {
 	ServerlessRoutines,
 	StreamingMessage,
 } from '@remotion/serverless';
-import {ResponseStream, streamWriter} from '@remotion/serverless';
+import {innerHandler, ResponseStream, streamWriter} from '@remotion/serverless';
 import type {MessageTypeId} from '@remotion/serverless/client';
 import {
 	formatMap,
@@ -17,6 +17,7 @@ import {
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
 import type {AwsProvider} from '../../functions/aws-implementation';
+import {getWebhookClient} from '../../functions/http-client';
 import {parseJsonOrThrowSource} from '../../shared/call-lambda-streaming';
 import {
 	mockImplementation,
@@ -31,8 +32,6 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		retriesRemaining: number;
 	},
 ) => {
-	const {innerRoutine} = await import('../../functions/index');
-
 	const responseStream = new ResponseStream();
 
 	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
@@ -55,7 +54,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		params.receivedStreamingPayload(message);
 	});
 
-	await innerRoutine<AwsProvider>({
+	await innerHandler<AwsProvider>({
 		params: params.payload,
 		responseWriter: {
 			write(message) {
@@ -72,9 +71,9 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},
-
 		providerSpecifics: mockImplementation,
 		serverProviderSpecifics: mockServerImplementation,
+		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
@@ -86,10 +85,8 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 >(
 	params: CallFunctionOptions<T, AwsProvider>,
 ) => {
-	const {innerRoutine} = await import('../../functions/index');
-
 	const responseStream = new ResponseStream();
-	await innerRoutine<AwsProvider>({
+	await innerHandler<AwsProvider>({
 		context: {
 			invokedFunctionArn: 'arn:fake',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
@@ -99,6 +96,7 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 		serverProviderSpecifics: mockServerImplementation,
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
+		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
@@ -110,10 +108,8 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 >(
 	params: CallFunctionOptions<T, AwsProvider>,
 ): Promise<ServerlessReturnValues<AwsProvider>[T]> => {
-	const {innerRoutine} = await import('../../functions/index');
-
 	const responseStream = new ResponseStream();
-	await innerRoutine<AwsProvider>({
+	await innerHandler<AwsProvider>({
 		context: {
 			invokedFunctionArn: 'arn:fake',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
@@ -123,6 +119,7 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 		responseWriter: streamWriter(responseStream),
 		providerSpecifics: mockImplementation,
 		serverProviderSpecifics: mockServerImplementation,
+		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();

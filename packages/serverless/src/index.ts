@@ -13,6 +13,7 @@ export {RequestContext, rendererHandler} from './handlers/renderer';
 export {startHandler} from './handlers/start';
 export {stillHandler} from './handlers/still';
 export {infoHandler} from './info';
+export {innerHandler} from './inner-routine';
 export {inspectErrors} from './inspect-error';
 export {WebhookClient, WebhookPayload, invokeWebhook} from './invoke-webhook';
 export {setCurrentRequestId, stopLeakDetection} from './leak-detection';

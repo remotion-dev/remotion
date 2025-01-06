@@ -15,6 +15,7 @@ import {
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {randomHashImplementation} from '../shared/random-hash';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
@@ -174,4 +175,6 @@ export const mockServerImplementation: ServerProviderSpecifics = {
 	timer: () => ({
 		end: () => {},
 	}),
+	deleteTmpDir: () => Promise.resolve(),
+	generateRandomId: randomHashImplementation,
 };

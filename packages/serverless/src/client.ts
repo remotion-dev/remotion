@@ -1,3 +1,5 @@
+export {COMMAND_NOT_FOUND} from './constants';
+
 export {Await} from './await';
 export {
 	compressInputProps,
