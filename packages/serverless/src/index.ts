@@ -48,6 +48,6 @@ export {
 } from './validate-webhook';
 export {
 	EnhancedErrorInfo,
-	LambdaErrorInfo,
+	FunctionErrorInfo as LambdaErrorInfo,
 	getTmpDirStateIfENoSp,
-} from './write-lambda-error';
+} from './write-error-to-storage';

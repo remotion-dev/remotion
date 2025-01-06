@@ -26,17 +26,18 @@ export type CostsInfo = {
 	disclaimer: string;
 };
 
-export type RenderStillLambdaResponsePayload<Provider extends CloudProvider> = {
-	type: 'success';
-	output: string;
-	outKey: string;
-	size: number;
-	bucketName: string;
-	sizeInBytes: number;
-	estimatedPrice: CostsInfo;
-	renderId: string;
-	receivedArtifacts: ReceivedArtifact<Provider>[];
-};
+export type RenderStillFunctionResponsePayload<Provider extends CloudProvider> =
+	{
+		type: 'success';
+		output: string;
+		outKey: string;
+		size: number;
+		bucketName: string;
+		sizeInBytes: number;
+		estimatedPrice: CostsInfo;
+		renderId: string;
+		receivedArtifacts: ReceivedArtifact<Provider>[];
+	};
 
 export type ChunkRetry = {
 	chunk: number;

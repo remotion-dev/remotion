@@ -104,14 +104,6 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	callFunctionAsync: callFunctionAsyncImplementation,
 	callFunctionStreaming: callFunctionWithStreamingImplementation,
 	callFunctionSync: callFunctionSyncImplementation,
-	getCurrentFunctionName() {
-		const name = process.env.AWS_LAMBDA_FUNCTION_NAME;
-		if (!name) {
-			throw new Error('Expected AWS_LAMBDA_FUNCTION_NAME to be set');
-		}
-
-		return name;
-	},
 	getEphemeralStorageForPriceCalculation() {
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)

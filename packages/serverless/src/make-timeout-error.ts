@@ -1,8 +1,11 @@
 import {makeTimeoutMessage} from './make-timeout-message';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export const makeTimeoutError = <Provider extends CloudProvider>({
 	timeoutInMilliseconds,
@@ -12,6 +15,7 @@ export const makeTimeoutError = <Provider extends CloudProvider>({
 	functionName,
 	region,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	renderMetadata: RenderMetadata<Provider>;
@@ -20,6 +24,7 @@ export const makeTimeoutError = <Provider extends CloudProvider>({
 	functionName: string;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): EnhancedErrorInfo => {
 	const message = makeTimeoutMessage({
 		missingChunks,
@@ -29,6 +34,7 @@ export const makeTimeoutError = <Provider extends CloudProvider>({
 		functionName,
 		region,
 		providerSpecifics,
+		serverProviderSpecifics,
 	});
 
 	const error = new Error(message);

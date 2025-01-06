@@ -239,6 +239,7 @@ export type ServerProviderSpecifics = {
 	timer: DebuggingTimer;
 	generateRandomId: GenerateRenderId;
 	deleteTmpDir: () => Promise<void>;
+	getCurrentFunctionName: () => string;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {
@@ -262,7 +263,6 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	callFunctionAsync: CallFunctionAsync<Provider>;
 	callFunctionStreaming: CallFunctionStreaming<Provider>;
 	callFunctionSync: CallFunctionSync<Provider>;
-	getCurrentFunctionName: () => string;
 	estimatePrice: EstimatePrice<Provider>;
 	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
 	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;

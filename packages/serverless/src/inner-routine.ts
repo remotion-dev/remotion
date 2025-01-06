@@ -157,15 +157,16 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const response = await startHandler(
+		const response = await startHandler({
 			params,
-			{
+			options: {
 				expectedBucketOwner: currentUserId,
 				timeoutInMilliseconds,
 				renderId,
 			},
 			providerSpecifics,
-		);
+			serverProviderSpecifics,
+		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
@@ -218,6 +219,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));

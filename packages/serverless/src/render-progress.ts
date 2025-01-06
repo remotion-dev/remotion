@@ -6,7 +6,7 @@ import type {
 	CostsInfo,
 	ReceivedArtifact,
 } from './types';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export type CleanupInfo = {
 	doneIn: number | null;

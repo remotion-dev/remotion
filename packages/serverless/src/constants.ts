@@ -14,7 +14,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 // Needs to be in sync with renderer/src/options/delete-after.ts#L7
 export const expiryDays = {

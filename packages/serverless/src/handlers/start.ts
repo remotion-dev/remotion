@@ -3,7 +3,10 @@ import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines, overallProgressKey} from '../constants';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '../provider-implementation';
 import type {CloudProvider} from '../types';
 
 type Options = {
@@ -12,11 +15,17 @@ type Options = {
 	renderId: string;
 };
 
-export const startHandler = async <Provider extends CloudProvider>(
-	params: ServerlessPayload<Provider>,
-	options: Options,
-	providerSpecifics: ProviderSpecifics<Provider>,
-) => {
+export const startHandler = async <Provider extends CloudProvider>({
+	params,
+	options,
+	providerSpecifics,
+	serverProviderSpecifics,
+}: {
+	params: ServerlessPayload<Provider>;
+	options: Options;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
+}) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
@@ -118,7 +127,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 	};
 
 	await providerSpecifics.callFunctionAsync({
-		functionName: providerSpecifics.getCurrentFunctionName(),
+		functionName: serverProviderSpecifics.getCurrentFunctionName(),
 		type: ServerlessRoutines.launch,
 		payload,
 		region,

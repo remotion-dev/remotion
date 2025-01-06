@@ -47,7 +47,7 @@ import {validateComposition} from '../validate-composition';
 import {validateFramesPerFunction} from '../validate-frames-per-function';
 import {validateOutname} from '../validate-outname';
 import {validatePrivacy} from '../validate-privacy';
-import {getTmpDirStateIfENoSp} from '../write-lambda-error';
+import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -188,7 +188,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks} = planFrameRanges({
-		framesPerLambda,
+		framesPerFunction: framesPerLambda,
 		frameRange: realFrameRange,
 		everyNthFrame: params.everyNthFrame,
 	});

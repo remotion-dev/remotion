@@ -28,7 +28,7 @@ import type {OnStream} from '../streaming/streaming';
 import {truthy} from '../truthy';
 import type {CloudProvider, ObjectChunkTimingData} from '../types';
 import {enableNodeIntrospection} from '../why-is-node-running';
-import {getTmpDirStateIfENoSp} from '../write-lambda-error';
+import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 
 type Options = {
 	expectedBucketOwner: string;

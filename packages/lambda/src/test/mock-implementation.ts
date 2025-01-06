@@ -158,12 +158,6 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
-	getCurrentFunctionName: () =>
-		speculateFunctionName({
-			diskSizeInMb: 10240,
-			memorySizeInMb: 3009,
-			timeoutInSeconds: 120,
-		}),
 	estimatePrice,
 	getOutputUrl: () => {
 		return {
@@ -182,4 +176,10 @@ export const mockServerImplementation: ServerProviderSpecifics = {
 	}),
 	deleteTmpDir: () => Promise.resolve(),
 	generateRandomId: randomHashImplementation,
+	getCurrentFunctionName: () =>
+		speculateFunctionName({
+			diskSizeInMb: 10240,
+			memorySizeInMb: 3009,
+			timeoutInSeconds: 120,
+		}),
 };

@@ -4,7 +4,7 @@ import type https from 'https';
 import * as Crypto from 'node:crypto';
 import type http from 'node:http';
 import type {AfterRenderCost} from './constants';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export function calculateSignature(payload: string, secret: string | null) {
 	if (!secret) {

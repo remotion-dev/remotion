@@ -2,7 +2,10 @@ import {VERSION} from 'remotion/version';
 import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines} from '../constants';
 import {getProgress} from '../progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '../provider-implementation';
 import type {GenericRenderProgress} from '../render-progress';
 import type {CloudProvider} from '../types';
 
@@ -11,6 +14,7 @@ type Options<Provider extends CloudProvider> = {
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 };
 
 export const progressHandler = async <Provider extends CloudProvider>(
@@ -45,6 +49,7 @@ export const progressHandler = async <Provider extends CloudProvider>(
 			providerSpecifics: options.providerSpecifics,
 			forcePathStyle: lambdaParams.forcePathStyle,
 			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+			serverProviderSpecifics: options.serverProviderSpecifics,
 		});
 		return progress;
 	} catch (err) {
@@ -61,6 +66,7 @@ export const progressHandler = async <Provider extends CloudProvider>(
 				timeoutInMilliseconds: options.timeoutInMilliseconds,
 				retriesRemaining: options.retriesRemaining - 1,
 				providerSpecifics: options.providerSpecifics,
+				serverProviderSpecifics: options.serverProviderSpecifics,
 			});
 		}
 

@@ -9,7 +9,7 @@ import type {OverallRenderProgress} from './overall-render-progress';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export const createPostRenderData = <Provider extends CloudProvider>({
 	region,
@@ -96,7 +96,7 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 				? []
 				: getMostExpensiveChunks({
 						parsedTimings,
-						framesPerLambda: renderMetadata.framesPerLambda,
+						framesPerFunction: renderMetadata.framesPerLambda,
 						firstFrame: renderMetadata.frameRange[0],
 						lastFrame: renderMetadata.frameRange[1],
 					}),
