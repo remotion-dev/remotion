@@ -53,5 +53,12 @@ export const remotionFlatConfig = ({
 		...(react ? compat.plugins('react-hooks')[0].plugins : {}),
 	},
 	rules: rules({react, enable10x: false}),
-	files: ['src/**/*.ts', 'src/**/*.tsx', 'src/**/*.js'],
+	files: [
+		'src/**/*.ts',
+		'src/**/*.tsx',
+		'src/**/*.js',
+		'app/**/*.js',
+		'app/**/*.ts',
+		'app/**/*.tsx',
+	],
 });
