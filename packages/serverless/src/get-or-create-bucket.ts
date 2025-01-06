@@ -2,7 +2,7 @@ import type {CustomCredentials} from './constants';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import {makeBucketName} from './make-bucket-name';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	region: Provider['region'];

@@ -1,19 +1,31 @@
-import {type ProviderSpecifics} from '@remotion/serverless';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {expiryDays} from '@remotion/serverless/client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
+import {estimatePrice} from '../api/estimate-price';
 import {getRemotionBuckets} from '../api/get-buckets';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import {lambdaDeleteFileImplementation} from '../io/delete-file';
 import {lambdaHeadFileImplementation} from '../io/head-file';
 import {lambdaLsImplementation} from '../io/list-objects';
 import {lambdaReadFileImplementation} from '../io/read-file';
 import {lambdaWriteFileImplementation} from '../io/write-file';
 import type {AwsRegion} from '../regions';
+import {callFunctionAsyncImplementation} from '../shared/call-lambda-async';
+import {callFunctionWithStreamingImplementation} from '../shared/call-lambda-streaming';
+import {callFunctionSyncImplementation} from '../shared/call-lambda-sync';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
+import {
+	getCloudwatchMethodUrl,
+	getCloudwatchRendererUrl,
+} from '../shared/get-aws-urls';
+import {isFlakyError} from '../shared/is-flaky-error';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
 import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
 import {getFolderFiles} from './helpers/get-folder-files';
+import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {makeAwsArtifact} from './helpers/make-aws-artifact';
 
 if (
@@ -43,6 +55,32 @@ export type AwsProvider = {
 	};
 };
 
+const validateDeleteAfter = (lifeCycleValue: unknown) => {
+	if (lifeCycleValue === null) {
+		return;
+	}
+
+	if (lifeCycleValue === undefined) {
+		return;
+	}
+
+	if (typeof lifeCycleValue !== 'string') {
+		throw new TypeError(
+			`Expected life cycle value to be a string, got ${JSON.stringify(
+				lifeCycleValue,
+			)}`,
+		);
+	}
+
+	if (!(lifeCycleValue in expiryDays)) {
+		throw new TypeError(
+			`Expected deleteAfter value to be one of ${Object.keys(expiryDays).join(
+				', ',
+			)}, got ${lifeCycleValue}`,
+		);
+	}
+};
+
 export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getChromiumPath() {
 		return '/opt/bin/chromium';
@@ -62,4 +100,26 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	printLoggingHelper: true,
 	getFolderFiles,
 	makeArtifactWithDetails: makeAwsArtifact,
+	validateDeleteAfter,
+	callFunctionAsync: callFunctionAsyncImplementation,
+	callFunctionStreaming: callFunctionWithStreamingImplementation,
+	callFunctionSync: callFunctionSyncImplementation,
+	getCurrentFunctionName() {
+		const name = process.env.AWS_LAMBDA_FUNCTION_NAME;
+		if (!name) {
+			throw new Error('Expected AWS_LAMBDA_FUNCTION_NAME to be set');
+		}
+
+		return name;
+	},
+	getEphemeralStorageForPriceCalculation() {
+		// We cannot determine the ephemeral storage size, so we
+		// overestimate the price, but will only have a miniscule effect (~0.2%)
+		return MAX_EPHEMERAL_STORAGE_IN_MB;
+	},
+	estimatePrice,
+	getLoggingUrlForMethod: getCloudwatchMethodUrl,
+	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
+	isFlakyError,
+	getOutputUrl: getOutputUrlFromMetadata,
 };

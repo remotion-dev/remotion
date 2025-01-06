@@ -1,8 +1,25 @@
-import type {EmittedArtifact} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	EmittedArtifact,
+	LogLevel,
+} from '@remotion/renderer';
 import type {Readable} from 'stream';
-import type {CustomCredentials, DownloadBehavior, Privacy} from './constants';
+import type {
+	CustomCredentials,
+	DownloadBehavior,
+	Privacy,
+	ServerlessRoutines,
+} from './constants';
+import type {LaunchedBrowser} from './get-browser-instance';
 import type {GetFolderFiles} from './get-files-in-folder';
-import type {CloudProvider, ReceivedArtifact} from './still';
+import type {RenderMetadata} from './render-metadata';
+import type {ServerlessReturnValues} from './return-values';
+import type {OnMessage} from './streaming/streaming';
+import type {
+	CallFunctionOptions,
+	CloudProvider,
+	ReceivedArtifact,
+} from './types';
 
 export type BucketWithLocation<Provider extends CloudProvider> = {
 	name: string;
@@ -118,6 +135,104 @@ export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
 	artifact: EmittedArtifact;
 }) => ReceivedArtifact<Provider>;
 
+export type DebuggingTimer = (
+	label: string,
+	logLevel: LogLevel,
+) => {
+	end: () => void;
+};
+
+export type CallFunctionAsync<Provider extends CloudProvider> = <
+	T extends ServerlessRoutines,
+>({
+	functionName,
+	payload,
+	region,
+	timeoutInTest,
+}: CallFunctionOptions<T, Provider>) => Promise<void>;
+
+export type CallFunctionStreaming<Provider extends CloudProvider> = <
+	T extends ServerlessRoutines,
+>(
+	options: CallFunctionOptions<T, Provider> & {
+		receivedStreamingPayload: OnMessage<Provider>;
+		retriesRemaining: number;
+	},
+) => Promise<void>;
+
+export type CallFunctionSync<Provider extends CloudProvider> = <
+	T extends ServerlessRoutines,
+>({
+	functionName,
+	payload,
+	region,
+	timeoutInTest,
+}: CallFunctionOptions<T, Provider>) => Promise<
+	ServerlessReturnValues<Provider>[T]
+>;
+
+export type EstimatePriceInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	memorySizeInMb: number;
+	diskSizeInMb: number;
+	lambdasInvoked: number;
+	durationInMilliseconds: number;
+};
+
+export type EstimatePrice<Provider extends CloudProvider> = ({
+	region,
+	memorySizeInMb,
+	diskSizeInMb,
+	lambdasInvoked,
+	...other
+}: EstimatePriceInput<Provider>) => number;
+
+export type GetLoggingUrlForRendererFunction<Provider extends CloudProvider> =
+	(options: {
+		region: Provider['region'];
+		functionName: string;
+		rendererFunctionName: string | null;
+		renderId: string;
+		chunk: null | number;
+	}) => string;
+
+export type GetLoggingUrlForMethod<Provider extends CloudProvider> = (options: {
+	region: Provider['region'];
+	functionName: string;
+	method: ServerlessRoutines;
+	rendererFunctionName: string | null;
+	renderId: string;
+}) => string;
+
+export type GetOutputUrl<Provider extends CloudProvider> = (options: {
+	renderMetadata: RenderMetadata<Provider>;
+	bucketName: string;
+	customCredentials: CustomCredentials<Provider> | null;
+	currentRegion: Provider['region'];
+}) => {url: string; key: string};
+
+export type GetBrowserInstance = <Provider extends CloudProvider>({
+	logLevel,
+	indent,
+	chromiumOptions,
+	providerSpecifics,
+	serverProviderSpecifics,
+}: {
+	logLevel: LogLevel;
+	indent: boolean;
+	chromiumOptions: ChromiumOptions;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
+}) => Promise<LaunchedBrowser>;
+
+export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
+
+export type ServerProviderSpecifics = {
+	getBrowserInstance: GetBrowserInstance;
+	forgetBrowserEventLoop: ForgetBrowserEventLoop;
+	timer: DebuggingTimer;
+};
+
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
 	getCurrentRegionInFunction: () => Provider['region'];
@@ -135,4 +250,15 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	printLoggingHelper: boolean;
 	getFolderFiles: GetFolderFiles;
 	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
+	validateDeleteAfter: (lifeCycleValue: unknown) => void;
+	callFunctionAsync: CallFunctionAsync<Provider>;
+	callFunctionStreaming: CallFunctionStreaming<Provider>;
+	callFunctionSync: CallFunctionSync<Provider>;
+	getCurrentFunctionName: () => string;
+	estimatePrice: EstimatePrice<Provider>;
+	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
+	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
+	getEphemeralStorageForPriceCalculation: () => number;
+	getOutputUrl: GetOutputUrl<Provider>;
+	isFlakyError: (err: Error) => boolean;
 };

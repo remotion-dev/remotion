@@ -4,6 +4,7 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ProviderSpecifics} from '@remotion/serverless';
+import {validatePrivacy} from '@remotion/serverless/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
@@ -15,7 +16,6 @@ import {
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../shared/constants';
 import {getS3RenderUrl} from '../../shared/get-aws-urls';
-import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {validateServeUrl} from '../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../args';

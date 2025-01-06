@@ -10,7 +10,11 @@ import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import type {ServerlessCodec} from '@remotion/serverless/client';
+import {
+	validateFramesPerFunction,
+	validatePrivacy,
+	type ServerlessCodec,
+} from '@remotion/serverless/client';
 import type {AwsProvider} from '../../../functions/aws-implementation';
 import {parseFunctionName} from '../../../functions/helpers/parse-function-name';
 import {
@@ -19,8 +23,6 @@ import {
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
-import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
-import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
@@ -270,7 +272,7 @@ export const renderCommand = async (
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
+	validateFramesPerFunction({framesPerLambda, durationInFrames: 1});
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 

@@ -7,8 +7,8 @@ import {
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {exit} from 'node:process';
 import {QUOTAS_COMMAND} from '.';
-import type {AwsRegion} from '../../../client';
 import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';
+import {AwsRegion} from '../../../regions';
 import {getServiceQuotasClient} from '../../../shared/aws-clients';
 import {forceFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';

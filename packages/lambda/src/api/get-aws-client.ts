@@ -5,8 +5,8 @@ import * as S3SDK from '@aws-sdk/client-s3';
 import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
 import * as StsSdk from '@aws-sdk/client-sts';
 import type {CustomCredentials} from '@remotion/serverless/client';
-import type {AwsRegion} from '../client';
 import type {AwsProvider} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {
 	getServiceClient,
 	type ServiceMapping,
