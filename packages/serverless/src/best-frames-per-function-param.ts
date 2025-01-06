@@ -8,11 +8,11 @@ export const bestFramesPerFunctionParam = (frameCount: number) => {
 		extrapolateRight: 'clamp',
 	});
 
-	// At least have 20 as a `framesPerLambda` value
-	const framesPerLambda = Math.max(frameCount / concurrency, 20);
+	// At least have 20 as a `framesPerFunction` value
+	const framesPerFunction = Math.max(frameCount / concurrency, 20);
 
-	// Evenly distribute: For 21 frames over 2 lambda functions, distribute as 11 + 10 ==> framesPerLambda = 11
-	const lambdasNeeded = Math.ceil(frameCount / framesPerLambda);
+	// Evenly distribute: For 21 frames over 2 functions, distribute as 11 + 10 ==> framesPerLambda = 11
+	const functionsNeeded = Math.ceil(frameCount / framesPerFunction);
 
-	return Math.ceil(frameCount / lambdasNeeded);
+	return Math.ceil(frameCount / functionsNeeded);
 };

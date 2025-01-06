@@ -269,4 +269,7 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getEphemeralStorageForPriceCalculation: () => number;
 	getOutputUrl: GetOutputUrl<Provider>;
 	isFlakyError: (err: Error) => boolean;
+	serverStorageProductName: () => string;
+	getMaxStillInlinePayloadSize: () => number;
+	getMaxNonInlinePayloadSizePerFunction: () => number;
 };

@@ -122,4 +122,7 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 	isFlakyError,
 	getOutputUrl: getOutputUrlFromMetadata,
+	serverStorageProductName: () => 'S3',
+	getMaxStillInlinePayloadSize: () => 5_000_000,
+	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
 };

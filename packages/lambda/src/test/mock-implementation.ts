@@ -40,6 +40,11 @@ export const getBrowserInstance: GetBrowserInstance = async () => {
 };
 
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
+	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
+	getMaxStillInlinePayloadSize() {
+		return 5_000_000;
+	},
+	serverStorageProductName: () => 'file system',
 	applyLifeCycle: () => Promise.resolve(),
 	getChromiumPath() {
 		return null;

@@ -205,13 +205,17 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
-	const needsToUpload = getNeedsToUpload('video-or-audio', [
-		serializedResolved.length,
-		params.inputProps.type === 'bucket-url'
-			? params.inputProps.hash.length
-			: params.inputProps.payload.length,
-		JSON.stringify(params.envVariables).length,
-	]);
+	const needsToUpload = getNeedsToUpload({
+		type: 'video-or-audio',
+		sizes: [
+			serializedResolved.length,
+			params.inputProps.type === 'bucket-url'
+				? params.inputProps.hash.length
+				: params.inputProps.payload.length,
+			JSON.stringify(params.envVariables).length,
+		],
+		providerSpecifics,
+	});
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
