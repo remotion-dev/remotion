@@ -5,6 +5,7 @@ import type {Await} from './await';
 import type {
 	GetBrowserInstance,
 	ProviderSpecifics,
+	ServerProviderSpecifics,
 } from './provider-implementation';
 import type {CloudProvider} from './types';
 
@@ -64,11 +65,13 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	indent,
 	chromiumOptions,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
@@ -122,7 +125,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
-			providerSpecifics.forgetBrowserEventLoop(logLevel);
+			serverProviderSpecifics.forgetBrowserEventLoop(logLevel);
 			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
@@ -149,11 +152,12 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 		_browserInstance.instance.runner.rememberEventLoop();
 		await _browserInstance.instance.close(true, logLevel, indent);
 		_browserInstance = null;
-		return providerSpecifics.getBrowserInstance({
+		return serverProviderSpecifics.getBrowserInstance({
 			logLevel,
 			indent,
 			chromiumOptions,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 	}
 

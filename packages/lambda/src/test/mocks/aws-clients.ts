@@ -18,7 +18,10 @@ import {
 import {makeStreamer} from '@remotion/streaming';
 import type {AwsProvider} from '../../functions/aws-implementation';
 import {parseJsonOrThrowSource} from '../../shared/call-lambda-streaming';
-import {mockImplementation} from '../mock-implementation';
+import {
+	mockImplementation,
+	mockServerImplementation,
+} from '../mock-implementation';
 
 export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	AwsProvider
@@ -52,9 +55,9 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		params.receivedStreamingPayload(message);
 	});
 
-	await innerRoutine<AwsProvider>(
-		params.payload,
-		{
+	await innerRoutine<AwsProvider>({
+		params: params.payload,
+		responseWriter: {
 			write(message) {
 				onData(message);
 				return Promise.resolve();
@@ -64,13 +67,15 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 				return Promise.resolve();
 			},
 		},
-		{
+		context: {
 			invokedFunctionArn: 'arn:fake',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},
-		mockImplementation,
-	);
+
+		providerSpecifics: mockImplementation,
+		serverProviderSpecifics: mockServerImplementation,
+	});
 
 	responseStream._finish();
 	responseStream.end();
@@ -84,16 +89,17 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 	const {innerRoutine} = await import('../../functions/index');
 
 	const responseStream = new ResponseStream();
-	await innerRoutine<AwsProvider>(
-		params.payload,
-		streamWriter(responseStream),
-		{
+	await innerRoutine<AwsProvider>({
+		context: {
 			invokedFunctionArn: 'arn:fake',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},
-		mockImplementation,
-	);
+		providerSpecifics: mockImplementation,
+		serverProviderSpecifics: mockServerImplementation,
+		params: params.payload,
+		responseWriter: streamWriter(responseStream),
+	});
 
 	responseStream._finish();
 	responseStream.end();
@@ -107,16 +113,17 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 	const {innerRoutine} = await import('../../functions/index');
 
 	const responseStream = new ResponseStream();
-	await innerRoutine<AwsProvider>(
-		params.payload,
-		streamWriter(responseStream),
-		{
+	await innerRoutine<AwsProvider>({
+		context: {
 			invokedFunctionArn: 'arn:fake',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},
-		mockImplementation,
-	);
+		params: params.payload,
+		responseWriter: streamWriter(responseStream),
+		providerSpecifics: mockImplementation,
+		serverProviderSpecifics: mockServerImplementation,
+	});
 
 	responseStream._finish();
 	responseStream.end();

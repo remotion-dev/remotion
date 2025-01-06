@@ -54,6 +54,7 @@ export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 export {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 export {makeBucketName} from './make-bucket-name';
+export {getProgress} from './progress';
 export {RenderMetadata} from './render-metadata';
 export {streamToString} from './stream-to-string';
 export {

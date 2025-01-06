@@ -1,8 +1,4 @@
-import {
-	forgetBrowserEventLoopImplementation,
-	getBrowserInstanceImplementation,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {expiryDays} from '@remotion/serverless/client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
@@ -31,7 +27,6 @@ import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-re
 import {getFolderFiles} from './helpers/get-folder-files';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {makeAwsArtifact} from './helpers/make-aws-artifact';
-import {timer} from './helpers/timer';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -127,7 +122,4 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 	isFlakyError,
 	getOutputUrl: getOutputUrlFromMetadata,
-	timer,
-	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
-	getBrowserInstance: getBrowserInstanceImplementation,
 };

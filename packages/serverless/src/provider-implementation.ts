@@ -216,14 +216,22 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	indent,
 	chromiumOptions,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }) => Promise<LaunchedBrowser>;
 
 export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
+
+export type ServerProviderSpecifics = {
+	getBrowserInstance: GetBrowserInstance;
+	forgetBrowserEventLoop: ForgetBrowserEventLoop;
+	timer: DebuggingTimer;
+};
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
@@ -251,9 +259,6 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
 	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
 	getEphemeralStorageForPriceCalculation: () => number;
-	timer: DebuggingTimer;
 	getOutputUrl: GetOutputUrl<Provider>;
 	isFlakyError: (err: Error) => boolean;
-	getBrowserInstance: GetBrowserInstance;
-	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 };

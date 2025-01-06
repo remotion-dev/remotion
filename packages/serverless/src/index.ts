@@ -26,7 +26,6 @@ export {
 	makeInitialOverallRenderProgress,
 	makeOverallRenderProgress,
 } from './overall-render-progress';
-export {getProgress} from './progress';
 export * from './provider-implementation';
 export type {CleanupInfo, GenericRenderProgress} from './render-progress';
 export {OrError, ServerlessReturnValues} from './return-values';

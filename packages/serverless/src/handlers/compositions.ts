@@ -5,7 +5,10 @@ import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines} from '../constants';
 import {} from '../get-browser-instance';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '../provider-implementation';
 import type {CloudProvider} from '../types';
 
 type Options = {
@@ -16,6 +19,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 	lambdaParams: ServerlessPayload<Provider>,
 	options: Options,
 	providerSpecifics: ProviderSpecifics<Provider>,
+	serverProviderSpecifics: ServerProviderSpecifics,
 ) => {
 	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
@@ -36,11 +40,12 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 	try {
 		const region = providerSpecifics.getCurrentRegionInFunction();
 
-		const browserInstancePromise = providerSpecifics.getBrowserInstance({
+		const browserInstancePromise = serverProviderSpecifics.getBrowserInstance({
 			logLevel: lambdaParams.logLevel,
 			indent: false,
 			chromiumOptions: lambdaParams.chromiumOptions,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 		const bucketNamePromise = lambdaParams.bucketName
 			? Promise.resolve(lambdaParams.bucketName)
@@ -96,6 +101,6 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 			type: 'success' as const,
 		});
 	} finally {
-		providerSpecifics.forgetBrowserEventLoop(lambdaParams.logLevel);
+		serverProviderSpecifics.forgetBrowserEventLoop(lambdaParams.logLevel);
 	}
 };

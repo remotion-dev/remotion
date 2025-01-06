@@ -1,7 +1,6 @@
 import type {LogLevel} from '@remotion/renderer';
-import {getProgress} from '@remotion/serverless';
 import type {CustomCredentials} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {getProgress, ServerlessRoutines} from '@remotion/serverless/client';
 import {
 	awsImplementation,
 	type AwsProvider,

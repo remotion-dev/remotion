@@ -25,7 +25,10 @@ import type {WebhookClient} from '../invoke-webhook';
 import {invokeWebhook} from '../invoke-webhook';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 
 import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
@@ -58,6 +61,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress,
 	registerCleanupTask,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	functionName: string;
 	params: ServerlessPayload<Provider>;
@@ -65,6 +69,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -72,11 +77,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const browserInstance = providerSpecifics.getBrowserInstance({
+	const browserInstance = serverProviderSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
+		serverProviderSpecifics,
 	});
 
 	const inputPropsPromise = decompressInputProps({
@@ -500,10 +506,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	options,
 	providerSpecifics,
 	client,
+	serverProviderSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 	client: WebhookClient;
 }): Promise<{
 	type: 'success';
@@ -675,6 +683,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			overallProgress,
 			registerCleanupTask,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -835,6 +844,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		providerSpecifics.forgetBrowserEventLoop(params.logLevel);
+		serverProviderSpecifics.forgetBrowserEventLoop(params.logLevel);
 	}
 };

@@ -1,5 +1,9 @@
 import {openBrowser} from '@remotion/renderer';
-import type {GetBrowserInstance, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	GetBrowserInstance,
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '@remotion/serverless';
 import {Readable} from 'stream';
 import {estimatePrice} from '../api/estimate-price';
 import {speculateFunctionName} from '../api/speculate-function-name';
@@ -162,9 +166,12 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		};
 	},
 	isFlakyError,
+};
+
+export const mockServerImplementation: ServerProviderSpecifics = {
+	forgetBrowserEventLoop: () => {},
+	getBrowserInstance,
 	timer: () => ({
 		end: () => {},
 	}),
-	forgetBrowserEventLoop: () => {},
-	getBrowserInstance,
 };

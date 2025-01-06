@@ -19,7 +19,10 @@ import type {ServerlessPayload} from '../constants';
 import {RENDERER_PATH_TOKEN, ServerlessRoutines} from '../constants';
 import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '../provider-implementation';
 import {serializeArtifact} from '../serialize-artifact';
 import type {OnStream} from '../streaming/streaming';
 import {truthy} from '../truthy';
@@ -44,12 +47,14 @@ const renderHandler = async <Provider extends CloudProvider>({
 	logs,
 	onStream,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream<Provider>;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -81,11 +86,12 @@ const renderHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 	});
 
-	const browserInstance = await providerSpecifics.getBrowserInstance({
+	const browserInstance = await serverProviderSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
+		serverProviderSpecifics,
 	});
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -410,12 +416,14 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	params,
 	providerSpecifics,
 	requestContext,
+	serverProviderSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): Promise<{
 	type: 'success';
 }> => {
@@ -435,6 +443,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			logs,
 			onStream,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 		return {
 			type: 'success',
@@ -494,7 +503,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		throw err;
 	} finally {
 		if (shouldKeepBrowserOpen) {
-			providerSpecifics.forgetBrowserEventLoop(params.logLevel);
+			serverProviderSpecifics.forgetBrowserEventLoop(params.logLevel);
 		} else {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},

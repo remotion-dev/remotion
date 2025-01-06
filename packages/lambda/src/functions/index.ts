@@ -6,6 +6,7 @@ import type {
 	RequestContext,
 	ResponseStream,
 	ResponseStreamWriter,
+	ServerProviderSpecifics,
 	StreamingPayload,
 } from '@remotion/serverless';
 import {
@@ -28,6 +29,7 @@ import {
 import {COMMAND_NOT_FOUND} from '../shared/constants';
 import type {AwsProvider} from './aws-implementation';
 import {awsImplementation} from './aws-implementation';
+import {serverAwsImplementation} from './aws-server-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
 import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
@@ -40,11 +42,13 @@ const innerHandler = async <Provider extends CloudProvider>({
 	responseWriter,
 	context,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -129,6 +133,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 					onStream,
 					timeoutInMilliseconds,
 					providerSpecifics,
+					serverProviderSpecifics,
 				})
 					.then((r) => {
 						resolve(r);
@@ -199,6 +204,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 			},
 			providerSpecifics,
 			client: getWebhookClient(params.webhook?.url ?? 'http://localhost:3000'),
+			serverProviderSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -274,6 +280,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 				},
 				requestContext: context,
 				providerSpecifics,
+				serverProviderSpecifics,
 			})
 				.then((res) => {
 					resolve(res);
@@ -322,6 +329,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 				expectedBucketOwner: currentUserId,
 			},
 			providerSpecifics,
+			serverProviderSpecifics,
 		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -333,18 +341,26 @@ const innerHandler = async <Provider extends CloudProvider>({
 	throw new Error(COMMAND_NOT_FOUND);
 };
 
-export const innerRoutine = async <Provider extends CloudProvider>(
-	params: ServerlessPayload<Provider>,
-	responseWriter: ResponseStreamWriter,
-	context: RequestContext,
-	providerSpecifics: ProviderSpecifics<Provider>,
-): Promise<void> => {
+export const innerRoutine = async <Provider extends CloudProvider>({
+	params,
+	responseWriter,
+	context,
+	providerSpecifics,
+	serverProviderSpecifics,
+}: {
+	params: ServerlessPayload<Provider>;
+	responseWriter: ResponseStreamWriter;
+	context: RequestContext;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
+}): Promise<void> => {
 	try {
 		await innerHandler({
 			params,
 			responseWriter,
 			context,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 	} catch (err) {
 		const res: OrError<0> = {
@@ -365,7 +381,13 @@ export const routine = (
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
 
-	return innerRoutine(params, responseWriter, context, awsImplementation);
+	return innerRoutine({
+		params,
+		responseWriter,
+		context,
+		providerSpecifics: awsImplementation,
+		serverProviderSpecifics: serverAwsImplementation,
+	});
 };
 
 export const handler = streamifyResponse(routine);

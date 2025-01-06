@@ -21,7 +21,10 @@ import {formatCostsInfo} from '../format-costs-info';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 import type {OnStream} from '../streaming/streaming';
 import type {
@@ -42,6 +45,7 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(
@@ -52,6 +56,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onStream,
 		timeoutInMilliseconds,
 		providerSpecifics,
+		serverProviderSpecifics,
 	}: Options<Provider>,
 	cleanup: CleanupFn[],
 ) => {
@@ -82,11 +87,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const start = Date.now();
 
-	const browserInstancePromise = providerSpecifics.getBrowserInstance({
+	const browserInstancePromise = serverProviderSpecifics.getBrowserInstance({
 		logLevel: lambdaParams.logLevel,
 		indent: false,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		providerSpecifics,
+		serverProviderSpecifics,
 	});
 	const bucketNamePromise =
 		lambdaParams.bucketName ??
@@ -442,7 +448,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 	} finally {
-		options.providerSpecifics.forgetBrowserEventLoop(
+		options.serverProviderSpecifics.forgetBrowserEventLoop(
 			options.params.type === ServerlessRoutines.still
 				? options.params.logLevel
 				: 'error',
