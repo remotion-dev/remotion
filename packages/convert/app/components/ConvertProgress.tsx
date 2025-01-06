@@ -1,4 +1,4 @@
-import {ConvertMediaContainer, ConvertMediaProgress} from '@remotion/webcodecs';
+import type {ConvertMediaContainer, ConvertMediaProgress} from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
@@ -9,7 +9,8 @@ import {
 } from '~/lib/title-context';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
-import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
+import type { VideoThumbnailRef} from './VideoThumbnail';
+import {VideoThumbnail} from './VideoThumbnail';
 
 export const convertProgressRef = createRef<VideoThumbnailRef>();
 

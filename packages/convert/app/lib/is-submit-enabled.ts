@@ -1,6 +1,6 @@
-import {SupportedConfigs} from '~/components/get-supported-configs';
+import type {SupportedConfigs} from '~/components/get-supported-configs';
 import {canRotateOrMirror} from './can-rotate-or-mirror';
-import {RotateOrMirrorState} from './default-ui';
+import type {RotateOrMirrorState} from './default-ui';
 import {isDroppingEverything} from './is-reencoding';
 
 export const isSubmitDisabled = ({

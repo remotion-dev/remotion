@@ -1,4 +1,4 @@
-import {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
+import type {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
 
 /* eslint-disable complexity */
 export const renderMetadataLabel = (key: string) => {
@@ -239,11 +239,14 @@ export const renderMetadataValue = ({
 		if (location) {
 			return displayLocationData(location);
 		}
+
 		return String(value);
 	}
+
 	if (key === 'com.apple.quicktime.creationdate') {
 		return formatDateString(String(value));
 	}
+
 	if (key === 'com.apple.quicktime.camera.focal_length.35mm_equivalent') {
 		return String(value) + 'mm';
 	}

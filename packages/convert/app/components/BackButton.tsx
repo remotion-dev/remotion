@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {Button} from './ui/button';
 
 export const BackButton: React.FC<{

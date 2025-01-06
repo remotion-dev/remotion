@@ -1,5 +1,5 @@
-import {MediaParserAudioCodec} from '@remotion/media-parser';
-import {AudioOperation} from '@remotion/webcodecs';
+import type {MediaParserAudioCodec} from '@remotion/media-parser';
+import type {AudioOperation} from '@remotion/webcodecs';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 
 export const AudioOperationOption: React.FC<{

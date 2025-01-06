@@ -1,5 +1,5 @@
 import React from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 
 export const SourceLabel: React.FC<{
 	readonly src: Source;

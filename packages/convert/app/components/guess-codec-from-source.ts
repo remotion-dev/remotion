@@ -1,7 +1,7 @@
-import {ParseMediaContainer} from '@remotion/media-parser';
-import {ConvertMediaContainer} from '@remotion/webcodecs';
-import {Source} from '~/lib/convert-state';
-import {RouteAction} from '~/seo';
+import type {ParseMediaContainer} from '@remotion/media-parser';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {Source} from '~/lib/convert-state';
+import type {RouteAction} from '~/seo';
 
 const guessFromExtension = (src: string): ParseMediaContainer => {
 	if (src.endsWith('.webm')) {
@@ -41,27 +41,35 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 	if (action.type === 'generic-convert') {
 		return false;
 	}
+
 	if (action.type === 'generic-mirror') {
 		return true;
 	}
+
 	if (action.type === 'generic-rotate') {
 		return true;
 	}
+
 	if (action.type === 'mirror-format') {
 		return true;
 	}
+
 	if (action.type === 'rotate-format') {
 		return true;
 	}
+
 	if (action.type === 'convert') {
 		return false;
 	}
+
 	if (action.type === 'generic-probe') {
 		return false;
 	}
+
 	if (action.type === 'resize-format') {
 		return true;
 	}
+
 	if (action.type === 'generic-resize') {
 		return true;
 	}

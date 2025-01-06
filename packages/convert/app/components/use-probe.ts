@@ -1,4 +1,4 @@
-import {
+import type {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
@@ -6,15 +6,15 @@ import {
 	MediaParserLocation,
 	MediaParserVideoCodec,
 	MetadataEntry,
-	parseMedia,
 	ParseMediaContainer,
 	ParseMediaOnProgress,
 	TracksField,
 } from '@remotion/media-parser';
+import {parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 
 export type ProbeResult = ReturnType<typeof useProbe>;
 
@@ -63,8 +63,8 @@ export const useProbe = ({
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			signal: controller.signal,
-			onMetadata: (metadata) => {
-				setMetadata(metadata);
+			onMetadata: (newMetadata) => {
+				setMetadata(newMetadata);
 			},
 			onContainer(c) {
 				setContainer(c);
@@ -81,8 +81,8 @@ export const useProbe = ({
 			onDurationInSeconds: (d) => {
 				setDurationInSeconds(d);
 			},
-			onRotation(rotation) {
-				setRotation(rotation);
+			onRotation(newRotation) {
+				setRotation(newRotation);
 			},
 			onName: (n) => {
 				setName(n);
@@ -114,9 +114,11 @@ export const useProbe = ({
 				if ((err as Error).stack?.includes('Cancelled')) {
 					return;
 				}
+
 				if ((err as Error).stack?.toLowerCase()?.includes('aborted')) {
 					return;
 				}
+
 				// firefox
 				if ((err as Error).message?.toLowerCase()?.includes('aborted')) {
 					return;

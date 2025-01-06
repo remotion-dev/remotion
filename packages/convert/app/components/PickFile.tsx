@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {SAMPLE_FILE} from '~/lib/config';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {DropFileBox} from './DropFileBox';
 import {TextMarkLogo} from './TextMarkLogo';
 import {WhyRemotionConvert} from './WhyRemotionConvert';

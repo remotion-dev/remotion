@@ -1,30 +1,22 @@
 import {Button} from '@/components/ui/button';
-import {
+import type {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
-	MediaParserInternals,
 	MediaParserVideoCodec,
 	ParseMediaContainer,
 	TracksField,
 } from '@remotion/media-parser';
+import {MediaParserInternals} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {
-	convertMedia,
-	ConvertMediaContainer,
-	ResizeOperation,
-	WebCodecsInternals,
-} from '@remotion/webcodecs';
+import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
+import {convertMedia, WebCodecsInternals} from '@remotion/webcodecs';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
-import {ConvertState, Source} from '~/lib/convert-state';
-import {
-	ConvertSections,
-	getOrderOfSections,
-	isConvertEnabledByDefault,
-	RotateOrMirrorState,
-} from '~/lib/default-ui';
+import type {ConvertState, Source} from '~/lib/convert-state';
+import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
+import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
 import {
 	getActualAudioConfigIndex,
 	getActualVideoOperation,
@@ -32,7 +24,7 @@ import {
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
-import {RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -44,7 +36,7 @@ import {MirrorComponents} from './MirrorComponents';
 import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
-import {VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 
 export default function ConvertUI({
 	src,
@@ -260,6 +252,7 @@ export default function ConvertUI({
 					return;
 				}
 
+				// eslint-disable-next-line no-console
 				console.error(e);
 				setState({type: 'error', error: e as Error});
 			});
@@ -307,6 +300,7 @@ export default function ConvertUI({
 			if (m !== 'mirror') {
 				return 'mirror';
 			}
+
 			return null;
 		});
 	}, [setEnableRotateOrMirror]);
@@ -316,6 +310,7 @@ export default function ConvertUI({
 			if (m !== 'rotate') {
 				return 'rotate';
 			}
+
 			return null;
 		});
 	}, [setEnableRotateOrMirror]);

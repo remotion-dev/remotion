@@ -1,5 +1,5 @@
 import React, {useCallback, useRef} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {Button} from './ui/button';
 
 export const DropFileBox: React.FC<{
@@ -12,6 +12,7 @@ export const DropFileBox: React.FC<{
 			const file = event.target.files?.[0];
 			if (file) {
 				setSrc({type: 'file', file});
+				// eslint-disable-next-line no-console
 				console.log('File selected:', file.name);
 				// Add your file handling logic here
 			}

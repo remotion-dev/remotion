@@ -1,17 +1,18 @@
-import {ParseMediaOnProgress} from '@remotion/media-parser';
+import type {ParseMediaOnProgress} from '@remotion/media-parser';
 import {WebCodecsInternals} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Source} from '~/lib/convert-state';
-import {defaultRotateOrMirorState, RotateOrMirrorState} from '~/lib/default-ui';
+import type {Source} from '~/lib/convert-state';
+import type { RotateOrMirrorState} from '~/lib/default-ui';
+import {defaultRotateOrMirorState} from '~/lib/default-ui';
 import {formatBytes} from '~/lib/format-bytes';
 import {useThumbnail} from '~/lib/use-thumbnail';
-import {RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
 import {Probe} from './Probe';
 import {ReplaceVideo} from './ReplaceVideo';
-import {VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 import {getBrightnessOfFrame} from './get-brightness-of-frame';
 import {useProbe} from './use-probe';
 

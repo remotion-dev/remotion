@@ -1,6 +1,6 @@
-import {Dimensions} from '@remotion/media-parser';
+import type {Dimensions} from '@remotion/media-parser';
 import {useCallback, useEffect, useState} from 'react';
-import {VideoThumbnailRef} from '~/components/VideoThumbnail';
+import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
 
 export const useThumbnailCopy = ({
 	sourceRef,

@@ -1,4 +1,4 @@
-import {MediaParserKeyframe} from '@remotion/media-parser';
+import type {MediaParserKeyframe} from '@remotion/media-parser';
 import React from 'react';
 import {TableCell, TableRow} from './ui/table';
 

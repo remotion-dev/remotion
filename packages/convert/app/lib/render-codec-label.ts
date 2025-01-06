@@ -1,9 +1,9 @@
-import {
+import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 	ParseMediaContainer,
 } from '@remotion/media-parser';
-import {
+import type {
 	ConvertMediaAudioCodec,
 	ConvertMediaContainer,
 } from '@remotion/webcodecs';

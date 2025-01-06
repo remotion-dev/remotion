@@ -1,5 +1,5 @@
 import {formatSeconds} from '~/lib/format-seconds';
-import {TestState} from '~/tests/test-structure';
+import type {TestState} from '~/tests/test-structure';
 import {ErrorState} from '../ErrorState';
 
 export const TestStateDisplay: React.FC<{
@@ -12,6 +12,7 @@ export const TestStateDisplay: React.FC<{
 			</div>
 		);
 	}
+
 	if (testState.type === 'failed') {
 		return (
 			<div className="text-red-500 text-sm w-full font-bold overflow-x-hidden">
@@ -28,7 +29,9 @@ export const TestStateDisplay: React.FC<{
 				</div>
 			);
 		}
+
 		return <div className="text-sm">Running...</div>;
 	}
+
 	return null;
 };

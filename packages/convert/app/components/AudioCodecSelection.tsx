@@ -1,5 +1,5 @@
-import {MediaParserAudioCodec} from '@remotion/media-parser';
-import {AudioOperation} from '@remotion/webcodecs';
+import type {MediaParserAudioCodec} from '@remotion/media-parser';
+import type {AudioOperation} from '@remotion/webcodecs';
 import React from 'react';
 import {getAudioOperationId} from '~/lib/operation-key';
 import {AudioCodecDropWarning} from './AudioCodecDropWarning';

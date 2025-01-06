@@ -1,9 +1,9 @@
-import {Dimensions} from '@remotion/media-parser';
-import {ResizeOperation} from '@remotion/webcodecs';
+import type {Dimensions} from '@remotion/media-parser';
+import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {useThumbnailCopy} from '~/lib/use-thumbnail-copy';
 import {ResizeCorner} from './ResizeCorner';
-import {VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const MAX_THUMBNAIL_SIZE = 150;
 
