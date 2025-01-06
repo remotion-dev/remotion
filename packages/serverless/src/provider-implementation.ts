@@ -240,6 +240,7 @@ export type ServerProviderSpecifics = {
 	generateRandomId: GenerateRenderId;
 	deleteTmpDir: () => Promise<void>;
 	getCurrentFunctionName: () => string;
+	getCurrentMemorySizeInMb: () => number;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {

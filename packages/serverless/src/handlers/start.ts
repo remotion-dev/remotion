@@ -81,7 +81,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 
 	const payload: ServerlessPayload<Provider> = {
 		type: ServerlessRoutines.launch,
-		framesPerLambda: params.framesPerLambda,
+		framesPerFunction: params.framesPerLambda,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
@@ -105,7 +105,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		scale: params.scale,
 		numberOfGifLoops: params.numberOfGifLoops,
 		everyNthFrame: params.everyNthFrame,
-		concurrencyPerLambda: params.concurrencyPerLambda,
+		concurrencyPerFunction: params.concurrencyPerLambda,
 		downloadBehavior: params.downloadBehavior,
 		muted: params.muted,
 		overwrite: params.overwrite,

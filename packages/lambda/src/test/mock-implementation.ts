@@ -182,4 +182,5 @@ export const mockServerImplementation: ServerProviderSpecifics = {
 			memorySizeInMb: 3009,
 			timeoutInSeconds: 120,
 		}),
+	getCurrentMemorySizeInMb: () => 3009,
 };

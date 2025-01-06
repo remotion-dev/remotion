@@ -154,7 +154,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
 	RenderInternals.validateConcurrency({
-		value: params.concurrencyPerLambda,
+		value: params.concurrencyPerFunction,
 		setting: 'concurrencyPerLambda',
 		checkIfValidForCurrentMachine:
 			(params.rendererFunctionName ?? null) === null,
@@ -171,7 +171,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	const framesPerLambda =
-		params.framesPerLambda ?? bestFramesPerFunctionParam(frameCount.length);
+		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
 
 	validateFramesPerFunction({
 		framesPerLambda,
@@ -273,7 +273,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
 			everyNthFrame: params.everyNthFrame,
-			concurrencyPerLambda: params.concurrencyPerLambda,
+			concurrencyPerLambda: params.concurrencyPerFunction,
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,

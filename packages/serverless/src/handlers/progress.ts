@@ -43,12 +43,13 @@ export const progressHandler = async <Provider extends CloudProvider>(
 			renderId: lambdaParams.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 			region: options.providerSpecifics.getCurrentRegionInFunction(),
-			memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+			memorySizeInMb:
+				options.serverProviderSpecifics.getCurrentMemorySizeInMb(),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: lambdaParams.s3OutputProvider ?? null,
 			providerSpecifics: options.providerSpecifics,
 			forcePathStyle: lambdaParams.forcePathStyle,
-			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+			functionName: options.serverProviderSpecifics.getCurrentFunctionName(),
 			serverProviderSpecifics: options.serverProviderSpecifics,
 		});
 		return progress;

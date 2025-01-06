@@ -22,4 +22,7 @@ export const serverAwsImplementation: ServerProviderSpecifics = {
 
 		return process.env.AWS_LAMBDA_FUNCTION_NAME;
 	},
+	getCurrentMemorySizeInMb: () => {
+		return Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE);
+	},
 };

@@ -189,7 +189,7 @@ describe('Webhooks', () => {
 				crf: 9,
 				envVariables: {},
 				frameRange: [0, 10],
-				framesPerLambda: 8,
+				framesPerFunction: 8,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -207,7 +207,7 @@ describe('Webhooks', () => {
 				timeoutInMilliseconds: 3000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
-				concurrencyPerLambda: 1,
+				concurrencyPerFunction: 1,
 				downloadBehavior: {
 					type: 'play-in-browser',
 				},

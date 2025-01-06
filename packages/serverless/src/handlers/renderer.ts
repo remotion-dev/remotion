@@ -507,11 +507,11 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		} else {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
-				'Lambda did not succeed with flaky error, not keeping browser open.',
+				'Function did not succeed with flaky error, not keeping browser open.',
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
-				'Quitting Lambda forcefully now to force not keeping the Lambda warm.',
+				'Quitting Function forcefully now to force not keeping the Function warm.',
 			);
 			process.exit(0);
 		}

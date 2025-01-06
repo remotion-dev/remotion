@@ -174,7 +174,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		type: ServerlessRoutines.launch;
 		serveUrl: string;
 		composition: string;
-		framesPerLambda: number | null;
+		framesPerFunction: number | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
@@ -197,7 +197,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		scale: number;
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
-		concurrencyPerLambda: number;
+		concurrencyPerFunction: number;
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
