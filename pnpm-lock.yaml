@@ -446,9 +446,9 @@ importers:
       '@remix-run/dev':
         specifier: ^2.15.2
         version: 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.6)
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-internal':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-internal
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)

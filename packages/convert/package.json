@@ -39,7 +39,7 @@
 	},
 	"devDependencies": {
 		"@remix-run/dev": "^2.15.2",
-		"@remotion/eslint-config": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
 		"autoprefixer": "10.4.20",
 		"eslint": "8.57.1",
 		"postcss": "8.4.47",
