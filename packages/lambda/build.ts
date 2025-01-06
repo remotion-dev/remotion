@@ -1,3 +1,4 @@
+import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import fs, {cpSync, readdirSync} from 'node:fs';
 import path from 'node:path';
@@ -17,19 +18,15 @@ const template = require.resolve(
 	path.join(__dirname, 'src', 'functions', 'index'),
 );
 
-const {outputs, success, logs} = await Bun.build({
-	target: 'node',
-	minify: true,
-	entrypoints: [template],
+await BundlerInternals.esbuild.build({
+	platform: 'node',
+	target: 'node16',
+	bundle: true,
+	outfile,
+	entryPoints: [template],
+	treeShaking: true,
 	external: [],
 });
-if (!success) {
-	console.error(logs);
-	process.exit(1);
-}
-
-const text = await outputs[0].text();
-await Bun.write(outfile, text);
 
 const filesInCwd = readdirSync(dir);
 const filesToCopy = filesInCwd.filter(
