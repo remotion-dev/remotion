@@ -30,12 +30,13 @@ import {
 	validateFramesPerFunction,
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion, DeleteAfter} from '../client';
+import type {DeleteAfter} from '../client';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 
 import {validateWebhook} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
+import type {AwsRegion} from '../regions';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import type {GetRenderProgressInput} from './get-render-progress';

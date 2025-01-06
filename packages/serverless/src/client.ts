@@ -48,6 +48,7 @@ export {
 
 export {calculateChunkTimes} from './calculate-chunk-times';
 export {MAX_FUNCTIONS_PER_RENDER} from './constants';
+export {DOCS_URL} from './docs-url';
 export {getExpectedOutName} from './expected-out-name';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {getOverallProgressFromStorage} from './get-overall-progress-from-storage';

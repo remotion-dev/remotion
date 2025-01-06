@@ -8,8 +8,8 @@ import {
 } from '@remotion/serverless/client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../client';
 import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;

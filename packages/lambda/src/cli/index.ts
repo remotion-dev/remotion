@@ -1,7 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {DOCS_URL, type ProviderSpecifics} from '@remotion/serverless';
+import {type ProviderSpecifics} from '@remotion/serverless';
+import {DOCS_URL} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';

@@ -1,5 +1,4 @@
-import {DOCS_URL} from '@remotion/serverless';
-import {truthy} from '@remotion/serverless/client';
+import {DOCS_URL, truthy} from '@remotion/serverless/client';
 import {getIsCli} from '../cli/is-cli';
 import {isLikelyToHaveAwsProfile} from './is-likely-to-have-aws-profile';
 
