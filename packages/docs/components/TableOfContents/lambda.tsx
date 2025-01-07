@@ -94,6 +94,14 @@ export const TableOfContents: React.FC = () => {
           <strong>validateWebhookSignature()</strong>
           <div>Validate an incoming webhook request is authentic</div>
         </TOCItem>
+        <TOCItem link="/docs/lambda/approuterwebhooks">
+          <strong>appRouterWebhooks()</strong>
+          <div>Handle incoming webhooks specifically for the Next.js app router</div>
+        </TOCItem>
+        <TOCItem link="/docs/lambda/pagerouterwebhooks">
+          <strong>pageRouterWebhooks()</strong>
+          <div>Handle incoming webhooks specifically for the Next.js pages router</div>
+        </TOCItem>
       </Grid>
     </div>
   );
