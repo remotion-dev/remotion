@@ -1,7 +1,8 @@
 import {useParams} from '@remix-run/react';
 import {useMemo} from 'react';
 import {Main} from '~/components/Main';
-import {parseConvertRouteAction, RouteAction} from '~/seo';
+import type { RouteAction} from '~/seo';
+import {parseConvertRouteAction} from '~/seo';
 
 const Index = () => {
 	const action = useParams().action as string;

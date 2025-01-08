@@ -1,5 +1,5 @@
-import {MediaParserVideoCodec} from '@remotion/media-parser';
-import {VideoOperation} from '@remotion/webcodecs';
+import type {MediaParserVideoCodec} from '@remotion/media-parser';
+import type {VideoOperation} from '@remotion/webcodecs';
 import React from 'react';
 import {getVideoOperationId} from '~/lib/operation-key';
 import {

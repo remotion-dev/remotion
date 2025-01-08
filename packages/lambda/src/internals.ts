@@ -14,5 +14,5 @@ export const LambdaInternals = {
 	internalDeploySite,
 };
 
+export {OverallRenderProgress as _InternalOverallRenderProgress} from '@remotion/serverless';
 export {AwsProvider as _InternalAwsProvider} from './functions/aws-implementation';
-export {OverallRenderProgress as _InternalOverallRenderProgress} from './functions/helpers/overall-render-progress';

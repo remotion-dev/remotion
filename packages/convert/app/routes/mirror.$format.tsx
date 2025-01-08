@@ -1,8 +1,8 @@
 import {useParams} from '@remix-run/react';
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import {useMemo} from 'react';
 import {Main} from '~/components/Main';
-import {RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 
 const Index = () => {
 	const format = useParams().format as ConvertMediaContainer;

@@ -3,23 +3,11 @@ import {vi} from 'vitest';
 vi.mock('../cli/helpers/quit', () =>
 	vi.importActual('../cli/helpers/__mocks__/quit'),
 );
-vi.mock('../functions/helpers/timer', () =>
-	vi.importActual('../functions/helpers/__mocks__/timer'),
-);
-vi.mock('../functions/helpers/get-browser-instance', () =>
-	vi.importActual('../functions/helpers/__mocks__/get-browser-instance'),
-);
-vi.mock('../functions/helpers/leak-detection', () =>
-	vi.importActual('../functions/helpers/__mocks__/leak-detection'),
-);
 vi.mock('../shared/bundle-site', () =>
 	vi.importActual('../shared/__mocks__/bundle-site'),
 );
 vi.mock('../shared/get-account-id', () =>
 	vi.importActual('../shared/__mocks__/get-account-id'),
-);
-vi.mock('../shared/aws-clients', () =>
-	vi.importActual('../shared/__mocks__/aws-clients'),
 );
 vi.mock('../shared/read-dir', () =>
 	vi.importActual('../shared/__mocks__/read-dir'),

@@ -1,5 +1,5 @@
-import {MediaParserVideoCodec} from '@remotion/media-parser';
-import {VideoOperation} from '@remotion/webcodecs';
+import type {MediaParserVideoCodec} from '@remotion/media-parser';
+import type {VideoOperation} from '@remotion/webcodecs';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
 
 export const VideoOperationOption: React.FC<{
@@ -14,6 +14,7 @@ export const VideoOperationOption: React.FC<{
 		if (!currentVideoCodec) {
 			throw new Error('No current video codec');
 		}
+
 		return `Copy ${renderHumanReadableVideoCodec(currentVideoCodec)} without re-encoding`;
 	}
 

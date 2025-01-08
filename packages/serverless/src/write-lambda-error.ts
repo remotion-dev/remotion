@@ -1,7 +1,7 @@
 import {errorIsOutOfSpaceError} from './error-category';
 import type {FileNameAndSize} from './get-files-in-folder';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 export type LambdaErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher' | 'webhook' | 'artifact';

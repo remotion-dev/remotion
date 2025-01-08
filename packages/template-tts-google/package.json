@@ -15,7 +15,7 @@
     "@types/md5": "2.3.0",
     "@types/node": "20.12.14",
     "@types/react": "19.0.0",
-    "eslint": "8.56.0",
+    "eslint": "8.57.1",
     "prettier": "3.3.3",
     "ts-node": "10.9.1",
     "typescript": "5.5.4"

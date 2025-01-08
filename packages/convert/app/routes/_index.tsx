@@ -1,5 +1,5 @@
 import {Main} from '~/components/Main';
-import {RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 
 const action: RouteAction = {
 	type: 'generic-convert',

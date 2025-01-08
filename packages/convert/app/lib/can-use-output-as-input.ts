@@ -1,12 +1,14 @@
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
 
 export const canUseOutputAsInput = (container: ConvertMediaContainer) => {
 	if (container === 'wav') {
 		return false;
 	}
+
 	if (container === 'mp4') {
 		return true;
 	}
+
 	if (container === 'webm') {
 		return true;
 	}

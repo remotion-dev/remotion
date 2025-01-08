@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useState} from 'react';
-import {VideoThumbnailRef} from '~/components/VideoThumbnail';
+import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
 
 const blobToDataURL = (blob: Blob) => {
 	return new Promise<string>((resolve, reject) => {
@@ -28,6 +28,7 @@ export const useThumbnailAsFavicon = ({
 		if (!sourceRef.current) {
 			return;
 		}
+
 		if (!sourceRef.current.hasBitmap) {
 			return;
 		}

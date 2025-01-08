@@ -1,7 +1,7 @@
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
 import {canUseOutputAsInput} from '~/lib/can-use-output-as-input';
-import {ConvertState, Source} from '~/lib/convert-state';
+import type {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
 import {CloneIcon} from './icons/clone';
 import {UndoIcon} from './icons/undo';
@@ -31,6 +31,7 @@ export const ConversionDone: React.FC<{
 			a.click();
 			URL.revokeObjectURL(a.href);
 		} catch (e) {
+			// eslint-disable-next-line no-console
 			console.error(e);
 			setState({type: 'error', error: e as Error});
 		}

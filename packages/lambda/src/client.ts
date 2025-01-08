@@ -25,7 +25,7 @@ import type {SpeculateFunctionNameInput} from './api/speculate-function-name';
 import {speculateFunctionName} from './api/speculate-function-name';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {RenderProgress} from './shared/constants';
-import type {WebhookPayload} from './shared/invoke-webhook';
+export type {WebhookPayload} from '@remotion/serverless';
 
 export {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
 export {
@@ -59,5 +59,4 @@ export type {
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 	SpeculateFunctionNameInput,
-	WebhookPayload,
 };

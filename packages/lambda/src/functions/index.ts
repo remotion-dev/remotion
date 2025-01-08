@@ -1,14 +1,24 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudProvider,
+	OrError,
 	ProviderSpecifics,
+	RequestContext,
 	ResponseStream,
 	ResponseStreamWriter,
+	ServerProviderSpecifics,
 	StreamingPayload,
 } from '@remotion/serverless';
 import {
 	compositionsHandler,
 	infoHandler,
+	launchHandler,
+	progressHandler,
+	rendererHandler,
+	setCurrentRequestId,
+	startHandler,
+	stillHandler,
+	stopLeakDetection,
 	streamWriter,
 } from '@remotion/serverless';
 import type {ServerlessPayload} from '@remotion/serverless/client';
@@ -19,32 +29,26 @@ import {
 import {COMMAND_NOT_FOUND} from '../shared/constants';
 import type {AwsProvider} from './aws-implementation';
 import {awsImplementation} from './aws-implementation';
+import {serverAwsImplementation} from './aws-server-implementation';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {getWarm, setWarm} from './helpers/is-warm';
-import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
-import {
-	generateRandomHashWithLifeCycleRule,
-	validateDeleteAfter,
-} from './helpers/lifecycle';
+import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
 import {printLoggingGrepHelper} from './helpers/print-logging-helper';
-import type {RequestContext} from './helpers/request-context';
 import {streamifyResponse} from './helpers/streamify-response';
-import {launchHandler} from './launch';
-import {progressHandler} from './progress';
-import {rendererHandler} from './renderer';
-import {startHandler} from './start';
-import {stillHandler} from './still';
+import {getWebhookClient} from './http-client';
 
 const innerHandler = async <Provider extends CloudProvider>({
 	params,
 	responseWriter,
 	context,
 	providerSpecifics,
+	serverProviderSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
@@ -68,7 +72,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === ServerlessRoutines.still) {
-		validateDeleteAfter(params.deleteAfter);
+		providerSpecifics.validateDeleteAfter(params.deleteAfter);
 		const renderId = generateRandomHashWithLifeCycleRule(
 			params.deleteAfter,
 			providerSpecifics,
@@ -129,6 +133,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 					onStream,
 					timeoutInMilliseconds,
 					providerSpecifics,
+					serverProviderSpecifics,
 				})
 					.then((r) => {
 						resolve(r);
@@ -191,14 +196,16 @@ const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const response = await launchHandler(
+		const response = await launchHandler({
 			params,
-			{
+			options: {
 				expectedBucketOwner: currentUserId,
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 			},
 			providerSpecifics,
-		);
+			client: getWebhookClient(params.webhook?.url ?? 'http://localhost:3000'),
+			serverProviderSpecifics,
+		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
@@ -273,6 +280,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 				},
 				requestContext: context,
 				providerSpecifics,
+				serverProviderSpecifics,
 			})
 				.then((res) => {
 					resolve(res);
@@ -321,6 +329,7 @@ const innerHandler = async <Provider extends CloudProvider>({
 				expectedBucketOwner: currentUserId,
 			},
 			providerSpecifics,
+			serverProviderSpecifics,
 		);
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -332,28 +341,26 @@ const innerHandler = async <Provider extends CloudProvider>({
 	throw new Error(COMMAND_NOT_FOUND);
 };
 
-export type OrError<T> =
-	| T
-	| {
-			type: 'error';
-			message: string;
-			stack: string;
-	  };
-
-export const innerRoutine = async <Provider extends CloudProvider>(
-	params: ServerlessPayload<Provider>,
-	responseStream: ResponseStream,
-	context: RequestContext,
-	providerSpecifics: ProviderSpecifics<Provider>,
-): Promise<void> => {
-	const responseWriter = streamWriter(responseStream);
-
+export const innerRoutine = async <Provider extends CloudProvider>({
+	params,
+	responseWriter,
+	context,
+	providerSpecifics,
+	serverProviderSpecifics,
+}: {
+	params: ServerlessPayload<Provider>;
+	responseWriter: ResponseStreamWriter;
+	context: RequestContext;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	serverProviderSpecifics: ServerProviderSpecifics;
+}): Promise<void> => {
 	try {
 		await innerHandler({
 			params,
 			responseWriter,
 			context,
 			providerSpecifics,
+			serverProviderSpecifics,
 		});
 	} catch (err) {
 		const res: OrError<0> = {
@@ -372,7 +379,15 @@ export const routine = (
 	responseStream: ResponseStream,
 	context: RequestContext,
 ): Promise<void> => {
-	return innerRoutine(params, responseStream, context, awsImplementation);
+	const responseWriter = streamWriter(responseStream);
+
+	return innerRoutine({
+		params,
+		responseWriter,
+		context,
+		providerSpecifics: awsImplementation,
+		serverProviderSpecifics: serverAwsImplementation,
+	});
 };
 
 export const handler = streamifyResponse(routine);

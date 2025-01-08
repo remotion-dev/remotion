@@ -1,6 +1,7 @@
 import React, {useEffect, useLayoutEffect, useMemo} from 'react';
-import {VideoThumbnailRef} from '~/components/VideoThumbnail';
-import {getPageTitle, RouteAction} from '~/seo';
+import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
+import type {RouteAction} from '~/seo';
+import {getPageTitle} from '~/seo';
 import {DEFAULT_FAVICON} from './default-favicon';
 import {useThumbnailAsFavicon} from './use-thumbnail-as-favicon';
 
@@ -133,18 +134,19 @@ export const useCopyThumbnailToFavicon = (
 	});
 
 	useEffect(() => {
-		const favicon = document.querySelector('link[rel="icon"]');
-		if (!favicon) {
+		const newFavicon = document.querySelector('link[rel="icon"]');
+		if (!newFavicon) {
 			throw new Error('No favicon found');
 		}
 
 		if (thumbnail) {
-			favicon.setAttribute('href', thumbnail);
+			newFavicon.setAttribute('href', thumbnail);
 		} else {
-			favicon.setAttribute('href', DEFAULT_FAVICON);
+			newFavicon.setAttribute('href', DEFAULT_FAVICON);
 		}
+
 		return () => {
-			favicon.setAttribute('href', DEFAULT_FAVICON);
+			newFavicon.setAttribute('href', DEFAULT_FAVICON);
 		};
 	}, [thumbnail]);
 };

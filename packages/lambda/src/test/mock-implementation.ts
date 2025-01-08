@@ -1,7 +1,25 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import {openBrowser} from '@remotion/renderer';
+import type {
+	GetBrowserInstance,
+	ProviderSpecifics,
+	ServerProviderSpecifics,
+} from '@remotion/serverless';
 import {Readable} from 'stream';
+import {estimatePrice} from '../api/estimate-price';
+import {speculateFunctionName} from '../api/speculate-function-name';
+import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
+import {
+	getCloudwatchMethodUrl,
+	getCloudwatchRendererUrl,
+} from '../shared/get-aws-urls';
+import {isFlakyError} from '../shared/is-flaky-error';
+import {
+	getMockCallFunctionAsync,
+	getMockCallFunctionStreaming,
+	getMockCallFunctionSync,
+} from './mocks/aws-clients';
 import {
 	addMockBucket,
 	getMockBuckets,
@@ -12,11 +30,22 @@ import {
 	writeMockS3File,
 } from './mocks/mock-store';
 
+type Await<T> = T extends PromiseLike<infer U> ? U : T;
+let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
+
+export const getBrowserInstance: GetBrowserInstance = async () => {
+	_browserInstance = await openBrowser('chrome');
+	return {instance: _browserInstance, configurationString: 'chrome'};
+};
+
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	applyLifeCycle: () => Promise.resolve(),
 	getChromiumPath() {
 		return null;
 	},
+	getEphemeralStorageForPriceCalculation: () => MAX_EPHEMERAL_STORAGE_IN_MB,
+	getLoggingUrlForMethod: getCloudwatchMethodUrl,
+	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 	getCurrentRegionInFunction: () => 'eu-central-1',
 	createBucket: (input) => {
 		addMockBucket({
@@ -118,5 +147,31 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		sizeInBytes: 0,
 		s3Url: 'https://s3.af-south-1.amazonaws.com/bucket/key',
 		s3Key: 'key',
+	}),
+	validateDeleteAfter: () => {},
+	callFunctionAsync: getMockCallFunctionAsync,
+	callFunctionStreaming: getMockCallFunctionStreaming,
+	callFunctionSync: getMockCallFunctionSync,
+	getCurrentFunctionName: () =>
+		speculateFunctionName({
+			diskSizeInMb: 10240,
+			memorySizeInMb: 3009,
+			timeoutInSeconds: 120,
+		}),
+	estimatePrice,
+	getOutputUrl: () => {
+		return {
+			key: 'mock/mock.mp4',
+			url: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
+		};
+	},
+	isFlakyError,
+};
+
+export const mockServerImplementation: ServerProviderSpecifics = {
+	forgetBrowserEventLoop: () => {},
+	getBrowserInstance,
+	timer: () => ({
+		end: () => {},
 	}),
 };

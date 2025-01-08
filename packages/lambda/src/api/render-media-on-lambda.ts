@@ -17,9 +17,11 @@ import type {
 	WebhookOption,
 } from '@remotion/serverless/client';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import type {AwsProvider} from '../functions/aws-implementation';
+import {
+	awsImplementation,
+	type AwsProvider,
+} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
-import {callLambda} from '../shared/call-lambda';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -88,7 +90,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 	const {functionName, region, rendererFunctionName} = input;
 
 	try {
-		const res = await callLambda({
+		const res = await awsImplementation.callFunctionSync({
 			functionName,
 			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),

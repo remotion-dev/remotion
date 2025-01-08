@@ -1,12 +1,13 @@
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
-import {callLambda} from '../../shared/call-lambda';
+import {mockImplementation} from '../mock-implementation';
 
 test('Call function locally', async () => {
 	expect(
-		await callLambda({
+		await mockImplementation.callFunctionSync({
 			payload: {
+				type: ServerlessRoutines.info,
 				logLevel: 'info',
 			},
 			type: ServerlessRoutines.info,

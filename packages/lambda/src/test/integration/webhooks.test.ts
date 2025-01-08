@@ -3,8 +3,8 @@ import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
-import {callLambda} from '../../shared/call-lambda';
-import {mockableHttpClients} from '../../shared/invoke-webhook';
+import {mockableHttpClients} from '../../functions/http-client';
+import {mockImplementation} from '../mock-implementation';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -57,9 +57,10 @@ describe('Webhooks', () => {
 			forceIPv4: false,
 		});
 
-		const res = await callLambda({
+		const res = await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.start,
 			payload: {
+				type: ServerlessRoutines.start,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
@@ -121,9 +122,10 @@ describe('Webhooks', () => {
 		});
 		const parsed = res;
 
-		await callLambda({
+		await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.status,
 			payload: {
+				type: ServerlessRoutines.status,
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
@@ -173,11 +175,12 @@ describe('Webhooks', () => {
 			forceIPv4: false,
 		});
 
-		await callLambda({
+		await mockImplementation.callFunctionSync({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,
 			payload: {
+				type: ServerlessRoutines.launch,
 				offthreadVideoCacheSizeInBytes: null,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},

@@ -1,6 +1,7 @@
-import {ParseMediaContainer} from '@remotion/media-parser';
+import type {ParseMediaContainer} from '@remotion/media-parser';
+import type {
+	ConvertMediaContainer} from '@remotion/webcodecs';
 import {
-	ConvertMediaContainer,
 	getAvailableContainers,
 } from '@remotion/webcodecs';
 import {renderHumanReadableContainer} from './lib/render-codec-label';

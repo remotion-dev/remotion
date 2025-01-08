@@ -1,7 +1,7 @@
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getFunctions} from '../../api/get-functions';
-import {speculateFunctionName} from '../../client';
+import {speculateFunctionName} from '../../api/speculate-function-name';
 import {BINARY_NAME} from '../../shared/constants';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';

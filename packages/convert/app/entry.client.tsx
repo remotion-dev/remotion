@@ -8,12 +8,14 @@ const registerServiceWorker = () => {
 			navigator.serviceWorker
 				.register('/convert-service-worker.js', {})
 				.then((registration) => {
+					// eslint-disable-next-line no-console
 					console.log(
 						'Service worker registered, site is now available offline',
 					);
 					registration.update();
 				})
 				.catch((error) => {
+					// eslint-disable-next-line no-console
 					console.log('SW registration failed:', error);
 				});
 		});

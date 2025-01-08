@@ -3,8 +3,8 @@ import type {SerializedInputProps} from './constants';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
 import {streamToString} from './stream-to-string';
+import type {CloudProvider} from './types';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';

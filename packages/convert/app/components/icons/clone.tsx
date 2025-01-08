@@ -1,4 +1,4 @@
-import {SVGProps} from 'react';
+import type {SVGProps} from 'react';
 
 export const CloneIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg {...props} viewBox="0 0 512 512">

@@ -4,12 +4,12 @@ import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
+import {MAX_FUNCTIONS_PER_RENDER} from '@remotion/serverless/client';
 import {random} from 'remotion/no-react';
 import type {CustomCredentials} from '../client';
 import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {checkCredentials} from './check-credentials';
-import {MAX_FUNCTIONS_PER_RENDER} from './constants';
 import {getCredentials} from './get-credentials';
 
 export type ServiceMapping = {

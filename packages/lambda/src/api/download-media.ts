@@ -3,12 +3,12 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	getExpectedOutName,
+	getOverallProgressFromStorage,
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 import path from 'node:path';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 import type {AwsRegion} from '../regions';
@@ -39,7 +39,7 @@ export const internalDownloadMedia = async (
 	const expectedBucketOwner = await getAccountId({
 		region: input.region,
 	});
-	const overallProgress = await getOverallProgressS3({
+	const overallProgress = await getOverallProgressFromStorage({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,

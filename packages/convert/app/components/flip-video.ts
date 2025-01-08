@@ -16,6 +16,7 @@ export const flipVideoFrame = ({
 	if (!ctx) {
 		throw new Error('Could not get 2d context');
 	}
+
 	canvas.width = frame.displayWidth;
 	canvas.height = frame.displayHeight;
 	ctx.translate(

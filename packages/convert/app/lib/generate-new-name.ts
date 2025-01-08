@@ -1,4 +1,4 @@
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
 
 export const getNewName = (
 	name: string,

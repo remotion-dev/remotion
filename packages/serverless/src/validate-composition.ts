@@ -9,7 +9,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion/no-react';
 import type {Await} from './await';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	serveUrl: string;

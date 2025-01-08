@@ -1,5 +1,5 @@
-import {Dimensions} from '@remotion/media-parser';
-import {ResizeOperation} from '@remotion/webcodecs';
+import type {Dimensions} from '@remotion/media-parser';
+import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
 
 export const ResizeCorner: React.FC<{
@@ -25,14 +25,15 @@ export const ResizeCorner: React.FC<{
 				// right-click
 				return;
 			}
+
 			onStart();
 			e.preventDefault();
 			const originalX = e.clientX;
 
 			const currentScale = innerDimensions.width / outerDimensions.width;
 
-			const getScale = (e: PointerEvent) => {
-				const dx = e.clientX - originalX;
+			const getScale = (event: PointerEvent) => {
+				const dx = event.clientX - originalX;
 
 				const newScaleX = Math.max(
 					0.2,
@@ -58,12 +59,12 @@ export const ResizeCorner: React.FC<{
 				setResizeMode(newResizeMode);
 			};
 
-			const onPointerMove = (e: PointerEvent) => {
-				getScale(e);
+			const onPointerMove = (event: PointerEvent) => {
+				getScale(event);
 			};
 
-			const onPointerRelease = (e: PointerEvent) => {
-				getScale(e);
+			const onPointerRelease = (event: PointerEvent) => {
+				getScale(event);
 				onEnd();
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerRelease);
