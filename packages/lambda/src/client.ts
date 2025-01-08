@@ -7,7 +7,6 @@ import {getRenderProgress} from './api/get-render-progress';
 import {getSites} from './api/get-sites';
 import type {PresignUrlInput} from './api/presign-url';
 import {presignUrl} from './api/presign-url';
-import { appRouterWebhooks, pageRouterWebhooks } from './simplifiers';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
@@ -25,6 +24,7 @@ import type {SpeculateFunctionNameInput} from './api/speculate-function-name';
 import {speculateFunctionName} from './api/speculate-function-name';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {RenderProgress} from './shared/constants';
+import {appRouterWebhooks, pageRouterWebhooks} from './simplifiers';
 export type {WebhookPayload} from '@remotion/serverless';
 
 export {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
@@ -35,19 +35,19 @@ export {
 } from './api/get-aws-client';
 export type {AwsRegion} from './regions';
 export {
+	appRouterWebhooks,
 	deleteRender,
 	getCompositionsOnLambda,
 	getFunctions,
 	getRenderProgress,
 	getSites,
+	pageRouterWebhooks,
 	presignUrl,
 	renderMediaOnLambda,
 	renderStillOnLambda,
 	renderVideoOnLambda,
 	speculateFunctionName,
 	validateWebhookSignature,
-	appRouterWebhooks,
-	pageRouterWebhooks,
 };
 export type {
 	DeleteRenderInput,
