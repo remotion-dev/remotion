@@ -44,7 +44,7 @@ importers:
         version: 7.24.0
       openai:
         specifier: 4.67.1
-        version: 4.67.1(zod@3.22.3)
+        version: 4.67.1(zod@3.23.8)
       recast:
         specifier: 0.23.9
         version: 0.23.9
@@ -285,8 +285,8 @@ importers:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/cli-autocomplete:
     devDependencies:
@@ -339,8 +339,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
@@ -507,8 +507,8 @@ importers:
         specifier: 5.96.1
         version: 5.96.1
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/create-video:
     dependencies:
@@ -765,8 +765,8 @@ importers:
         specifier: 0.31.1
         version: 0.31.1(happy-dom@15.10.2)(jsdom@21.1.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@tsconfig/docusaurus':
         specifier: ^1.0.5
@@ -788,7 +788,7 @@ importers:
         version: 4.7.0
       openai:
         specifier: 4.67.1
-        version: 4.67.1(zod@3.22.3)
+        version: 4.67.1(zod@3.23.8)
       url-loader:
         specifier: ^4.1.1
         version: 4.1.1(file-loader@6.2.0)(webpack@5.96.1)
@@ -1109,8 +1109,8 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4(react@19.0.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@types/dom-webcodecs':
         specifier: 0.1.11
@@ -1366,8 +1366,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/compositor-linux-arm64-gnu':
         specifier: workspace:*
@@ -1550,7 +1550,7 @@ importers:
         version: 9.14.0
       openai:
         specifier: 4.67.1
-        version: 4.67.1(zod@3.22.3)
+        version: 4.67.1(zod@3.23.8)
 
   packages/paths:
     devDependencies:
@@ -1574,8 +1574,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-internal
       '@testing-library/react':
-        specifier: 13.1.1
-        version: 13.1.1(react-dom@19.0.0)(react@19.0.0)
+        specifier: 16.1.0
+        version: 16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)
       csstype:
         specifier: ^3.1.1
         version: 3.1.1
@@ -1592,8 +1592,8 @@ importers:
         specifier: 5.96.1
         version: 5.96.1
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/player-example:
     dependencies:
@@ -1616,8 +1616,8 @@ importers:
         specifier: workspace:*
         version: link:../preload
       next:
-        specifier: 14.2.15
-        version: 14.2.15(react-dom@19.0.0)(react@19.0.0)
+        specifier: 15.1.2
+        version: 15.1.2(@babel/core@7.23.2)(react-dom@19.0.0)(react@19.0.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -1879,8 +1879,8 @@ importers:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/studio-server:
     dependencies:
@@ -2008,8 +2008,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2100,8 +2100,8 @@ importers:
         specifier: 0.2.9
         version: 0.2.9(typescript@5.5.4)
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2140,8 +2140,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2177,8 +2177,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2226,8 +2226,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2308,8 +2308,8 @@ importers:
         specifier: 2.5.2
         version: 2.5.2
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2390,8 +2390,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2564,8 +2564,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2610,8 +2610,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2683,8 +2683,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2731,9 +2731,6 @@ importers:
       three:
         specifier: 0.171.0
         version: 0.171.0
-      zod:
-        specifier: 3.22.3
-        version: 3.22.3
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -2784,8 +2781,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/captions':
         specifier: workspace:*
@@ -2867,8 +2864,8 @@ importers:
         specifier: 5.5.4
         version: 5.5.4
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/template-tts-google:
     dependencies:
@@ -2921,8 +2918,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
     devDependencies:
       '@remotion/eslint-config':
         specifier: workspace:*
@@ -3067,8 +3064,8 @@ importers:
         specifier: 9.14.0
         version: 9.14.0
       zod:
-        specifier: 3.22.3
-        version: 3.22.3
+        specifier: 3.23.8
+        version: 3.23.8
 
 packages:
 
@@ -7099,13 +7096,6 @@ packages:
       regenerator-runtime: 0.13.9
     dev: false
 
-  /@babel/runtime@7.17.9:
-    resolution: {integrity: sha512-lSiBBvodq29uShpWGNbgFdKYNiFDo5/HIYsaCEY9ff4sb10x9jizo2+pRrSyF4jKZCXqgzuqBOQKbUm90gQwJg==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      regenerator-runtime: 0.13.9
-    dev: true
-
   /@babel/runtime@7.24.8:
     resolution: {integrity: sha512-5F7SDGs1T72ZczbRwbGO9lQi0NLjQxzl6i4lJxLxfW9U5UluCSyEJeniWvnhl3/euNiqQVbo8zruhsDfid0esA==}
     engines: {node: '>=6.9.0'}
@@ -10852,9 +10842,6 @@ packages:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  /@jridgewell/sourcemap-codec@1.4.15:
-    resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
-
   /@jridgewell/sourcemap-codec@1.5.0:
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
@@ -11022,10 +11009,6 @@ packages:
       three: 0.171.0
     dev: false
 
-  /@next/env@14.2.15:
-    resolution: {integrity: sha512-S1qaj25Wru2dUpcIZMjxeMVSwkt8BK4dmWHHiBuRstcIyOsMapqT4A4jSB6onvqeygkSSmOkyny9VVx8JIGamQ==}
-    dev: false
-
   /@next/env@15.1.2:
     resolution: {integrity: sha512-Hm3jIGsoUl6RLB1vzY+dZeqb+/kWPZ+h34yiWxW0dV87l8Im/eMOwpOA+a0L78U0HM04syEjXuRlCozqpwuojQ==}
 
@@ -11035,30 +11018,12 @@ packages:
       fast-glob: 3.3.1
     dev: true
 
-  /@next/swc-darwin-arm64@14.2.15:
-    resolution: {integrity: sha512-Rvh7KU9hOUBnZ9TJ28n2Oa7dD9cvDBKua9IKx7cfQQ0GoYUwg9ig31O2oMwH3wm+pE3IkAQ67ZobPfEgurPZIA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   /@next/swc-darwin-arm64@15.1.2:
     resolution: {integrity: sha512-b9TN7q+j5/7+rGLhFAVZiKJGIASuo8tWvInGfAd8wsULjB1uNGRCj1z1WZwwPWzVQbIKWFYqc+9L7W09qwt52w==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    optional: true
-
-  /@next/swc-darwin-x64@14.2.15:
-    resolution: {integrity: sha512-5TGyjFcf8ampZP3e+FyCax5zFVHi+Oe7sZyaKOngsqyaNEpOgkKB3sqmymkZfowy3ufGA/tUgDPPxpQx931lHg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-darwin-x64@15.1.2:
@@ -11069,30 +11034,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@next/swc-linux-arm64-gnu@14.2.15:
-    resolution: {integrity: sha512-3Bwv4oc08ONiQ3FiOLKT72Q+ndEMyLNsc/D3qnLMbtUYTQAmkx9E/JRu0DBpHxNddBmNT5hxz1mYBphJ3mfrrw==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   /@next/swc-linux-arm64-gnu@15.1.2:
     resolution: {integrity: sha512-fHHXBusURjBmN6VBUtu6/5s7cCeEkuGAb/ZZiGHBLVBXMBy4D5QpM8P33Or8JD1nlOjm/ZT9sEE5HouQ0F+hUA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    optional: true
-
-  /@next/swc-linux-arm64-musl@14.2.15:
-    resolution: {integrity: sha512-k5xf/tg1FBv/M4CMd8S+JL3uV9BnnRmoe7F+GWC3DxkTCD9aewFRH1s5rJ1zkzDa+Do4zyN8qD0N8c84Hu96FQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-linux-arm64-musl@15.1.2:
@@ -11103,30 +11050,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@next/swc-linux-x64-gnu@14.2.15:
-    resolution: {integrity: sha512-kE6q38hbrRbKEkkVn62reLXhThLRh6/TvgSP56GkFNhU22TbIrQDEMrO7j0IcQHcew2wfykq8lZyHFabz0oBrA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   /@next/swc-linux-x64-gnu@15.1.2:
     resolution: {integrity: sha512-tINV7WmcTUf4oM/eN3Yuu/f8jQ5C6AkueZPKeALs/qfdfX57eNv4Ij7rt0SA6iZ8+fMobVfcFVv664Op0caCCg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    optional: true
-
-  /@next/swc-linux-x64-musl@14.2.15:
-    resolution: {integrity: sha512-PZ5YE9ouy/IdO7QVJeIcyLn/Rc4ml9M2G4y3kCM9MNf1YKvFY4heg3pVa/jQbMro+tP6yc4G2o9LjAz1zxD7tQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-linux-x64-musl@15.1.2:
@@ -11137,39 +11066,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@next/swc-win32-arm64-msvc@14.2.15:
-    resolution: {integrity: sha512-2raR16703kBvYEQD9HNLyb0/394yfqzmIeyp2nDzcPV4yPjqNUG3ohX6jX00WryXz6s1FXpVhsCo3i+g4RUX+g==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   /@next/swc-win32-arm64-msvc@15.1.2:
     resolution: {integrity: sha512-wvg7MlfnaociP7k8lxLX4s2iBJm4BrNiNFhVUY+Yur5yhAJHfkS8qPPeDEUH8rQiY0PX3u/P7Q/wcg6Mv6GSAA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    optional: true
-
-  /@next/swc-win32-ia32-msvc@14.2.15:
-    resolution: {integrity: sha512-fyTE8cklgkyR1p03kJa5zXEaZ9El+kDNM5A+66+8evQS5e/6v0Gk28LqA0Jet8gKSOyP+OTm/tJHzMlGdQerdQ==}
-    engines: {node: '>= 10'}
-    cpu: [ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@next/swc-win32-x64-msvc@14.2.15:
-    resolution: {integrity: sha512-SzqGbsLsP9OwKNUG9nekShTwhj6JSB9ZLMWQ8g1gG6hdE5gQLncbnbymrwy2yVmH9nikSLYRYxYMFu78Ggp7/g==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-win32-x64-msvc@15.1.2:
@@ -14167,13 +14069,6 @@ packages:
     dependencies:
       tslib: 2.8.1
 
-  /@swc/helpers@0.5.5:
-    resolution: {integrity: sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==}
-    dependencies:
-      '@swc/counter': 0.1.3
-      tslib: 2.8.1
-    dev: false
-
   /@swc/html-darwin-arm64@1.8.0:
     resolution: {integrity: sha512-J2idsDLZjsuzExyyCiS1xutpgkHI/8TTPlUfr54jipF0VNGWTa85zBw/pLkNPnU5pInZweV87rj4dY/rekNXAA==}
     engines: {node: '>=10'}
@@ -14324,20 +14219,6 @@ packages:
       dom-accessibility-api: 0.5.14
       lz-string: 1.5.0
       pretty-format: 27.5.1
-    dev: true
-
-  /@testing-library/react@13.1.1(react-dom@19.0.0)(react@19.0.0):
-    resolution: {integrity: sha512-8mirlAa0OKaUvnqnZF6MdAh2tReYA2KtWVw1PKvaF5EcCZqgK5pl8iF+3uW90JdG5Ua2c2c2E2wtLdaug3dsVg==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@testing-library/dom': 8.16.0
-      '@types/react-dom': 18.3.0
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
     dev: true
 
   /@testing-library/react@16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0):
@@ -14771,11 +14652,6 @@ packages:
     dependencies:
       undici-types: 5.26.5
 
-  /@types/node@20.14.11:
-    resolution: {integrity: sha512-kprQpL8MMeszbz6ojB5/tU8PLN4kesnN8Gjzw349rDlNgsSzg90lAVj3llK99Dh7JON+t9AuscPPFW6mPbTnSA==}
-    dependencies:
-      undici-types: 5.26.5
-
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: false
@@ -14833,12 +14709,6 @@ packages:
   /@types/range-parser@1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
     dev: false
-
-  /@types/react-dom@18.3.0:
-    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
-    dependencies:
-      '@types/react': 19.0.0
-    dev: true
 
   /@types/react-dom@18.3.1:
     resolution: {integrity: sha512-qW1Mfv8taImTthu4KoXgDfLuk4bydU6Q/TkADnDWWHwi4NX4BR+LWfTp2sVmTqRrsHvyDDTelgelxJ+SsejKKQ==}
@@ -15849,7 +15719,7 @@ packages:
   /@vitest/snapshot@0.31.1:
     resolution: {integrity: sha512-L3w5uU9bMe6asrNzJ8WZzN+jUTX4KSgCinEJPXyny0o90fG4FPQMV0OWsq7vrCWfQlAilMjDnOF9nP8lidsJ+g==}
     dependencies:
-      magic-string: 0.30.5
+      magic-string: 0.30.14
       pathe: 1.1.2
       pretty-format: 27.5.1
 
@@ -22798,13 +22668,6 @@ packages:
     resolution: {integrity: sha512-5c99P1WKTed11ZC0HMJOj6CDIue6F8ySu+bJL+85q1zBEIY8IklrJ1eiKC2NDRh3Ct3FcvmJPyQHb9erXMTJNw==}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
-    dev: false
-
-  /magic-string@0.30.5:
-    resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
 
   /magicast@0.3.5:
     resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
@@ -24177,48 +24040,6 @@ packages:
     resolution: {integrity: sha512-mc/caHeUcdjnC/boPWJefDr4KUIWQNv+tlnFnJd38QMou86QtxQzBJfxgGRzvx8jazYRqrVlaHarfO72uNxPOg==}
     dev: false
 
-  /next@14.2.15(react-dom@19.0.0)(react@19.0.0):
-    resolution: {integrity: sha512-h9ctmOokpoDphRvMGnwOJAedT6zKhwqyZML9mDtspgf4Rh3Pn7UTYKqePNoDvhsWBAO5GoPNYshnAUGIazVGmw==}
-    engines: {node: '>=18.17.0'}
-    hasBin: true
-    peerDependencies:
-      '@opentelemetry/api': ^1.1.0
-      '@playwright/test': ^1.41.2
-      react: ^18.2.0
-      react-dom: ^18.2.0
-      sass: ^1.3.0
-    peerDependenciesMeta:
-      '@opentelemetry/api':
-        optional: true
-      '@playwright/test':
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      '@next/env': 14.2.15
-      '@swc/helpers': 0.5.5
-      busboy: 1.6.0
-      caniuse-lite: 1.0.30001690
-      graceful-fs: 4.2.11
-      postcss: 8.4.31
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
-      styled-jsx: 5.1.1(react@19.0.0)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 14.2.15
-      '@next/swc-darwin-x64': 14.2.15
-      '@next/swc-linux-arm64-gnu': 14.2.15
-      '@next/swc-linux-arm64-musl': 14.2.15
-      '@next/swc-linux-x64-gnu': 14.2.15
-      '@next/swc-linux-x64-musl': 14.2.15
-      '@next/swc-win32-arm64-msvc': 14.2.15
-      '@next/swc-win32-ia32-msvc': 14.2.15
-      '@next/swc-win32-x64-msvc': 14.2.15
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-    dev: false
-
   /next@15.1.2(@babel/core@7.23.2)(react-dom@19.0.0)(react@19.0.0):
     resolution: {integrity: sha512-nLJDV7peNy+0oHlmY2JZjzMfJ8Aj0/dd3jCwSZS8ZiO5nkQfcZRqDrRN3U5rJtqVTQneIOGZzb6LCNrk7trMCQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -24548,7 +24369,7 @@ packages:
       is-wsl: 2.2.0
     dev: false
 
-  /openai@4.67.1(zod@3.22.3):
+  /openai@4.67.1(zod@3.23.8):
     resolution: {integrity: sha512-2YbRFy6qaYRJabK2zLMn4txrB2xBy0KP5g/eoqeSPTT31mIJMnkT75toagvfE555IKa2RdrzJrZwdDsUipsAMw==}
     hasBin: true
     peerDependencies:
@@ -24564,7 +24385,7 @@ packages:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.6.9
-      zod: 3.22.3
+      zod: 3.23.8
     transitivePeerDependencies:
       - encoding
 
@@ -27123,6 +26944,7 @@ packages:
 
   /regenerator-runtime@0.13.9:
     resolution: {integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==}
+    dev: false
 
   /regenerator-runtime@0.14.1:
     resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
@@ -28537,7 +28359,7 @@ packages:
   /strip-literal@1.3.0:
     resolution: {integrity: sha512-PugKzOsyXpArk0yWmUwqOZecSO0GH0bPoctLcqNDH9J04pVW3lflYE0ujElBGTloevcxF5MofAOZ7C5l2b+wLg==}
     dependencies:
-      acorn: 8.11.3
+      acorn: 8.14.0
 
   /strnum@1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
@@ -28587,23 +28409,6 @@ packages:
       shallowequal: 1.1.0
       stylis: 4.3.2
       tslib: 2.6.2
-    dev: false
-
-  /styled-jsx@5.1.1(react@19.0.0):
-    resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
-    engines: {node: '>= 12.0.0'}
-    peerDependencies:
-      '@babel/core': '*'
-      babel-plugin-macros: '*'
-      react: '>= 16.8.0 || 17.x.x || ^18.0.0-0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      babel-plugin-macros:
-        optional: true
-    dependencies:
-      client-only: 0.0.1
-      react: 19.0.0
     dev: false
 
   /styled-jsx@5.1.6(@babel/core@7.23.2)(react@19.0.0):
@@ -30067,7 +29872,7 @@ packages:
       vfile-message: 4.0.2
     dev: false
 
-  /vite-node@0.31.1(@types/node@20.14.11):
+  /vite-node@0.31.1(@types/node@20.12.14):
     resolution: {integrity: sha512-BajE/IsNQ6JyizPzu9zRgHrBwczkAs0erQf/JRpgTIESpKvNj9/Gd0vxX905klLkb0I0SJVCKbdrl5c6FnqYKA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -30076,8 +29881,8 @@ packages:
       debug: 4.3.7
       mlly: 1.5.0
       pathe: 1.1.2
-      picocolors: 1.1.0
-      vite: 4.5.3(@types/node@20.14.11)
+      picocolors: 1.1.1
+      vite: 4.5.3(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -30148,7 +29953,7 @@ packages:
       - typescript
     dev: true
 
-  /vite@4.5.3(@types/node@20.14.11):
+  /vite@4.5.3(@types/node@20.12.14):
     resolution: {integrity: sha512-kQL23kMeX92v3ph7IauVkXkikdDRsYMGTVl5KY2E9OY4ONLvkHf04MDTbnfo6NKxZiDLWzVpP5oTa8hQD8U3dg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -30176,7 +29981,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.14.11
+      '@types/node': 20.12.14
       esbuild: 0.18.20
       postcss: 8.4.47
       rollup: 3.29.4
@@ -30387,30 +30192,30 @@ packages:
     dependencies:
       '@types/chai': 4.3.11
       '@types/chai-subset': 1.3.5
-      '@types/node': 20.14.11
+      '@types/node': 20.12.14
       '@vitest/expect': 0.31.1
       '@vitest/runner': 0.31.1
       '@vitest/snapshot': 0.31.1
       '@vitest/spy': 0.31.1
       '@vitest/utils': 0.31.1
-      acorn: 8.11.3
+      acorn: 8.14.0
       acorn-walk: 8.3.2
       cac: 6.7.14
       chai: 4.4.1
       concordance: 5.0.4
-      debug: 4.3.6
+      debug: 4.3.7
       happy-dom: 15.10.2
       jsdom: 21.1.0
       local-pkg: 0.4.3
-      magic-string: 0.30.5
+      magic-string: 0.30.14
       pathe: 1.1.2
-      picocolors: 1.0.1
+      picocolors: 1.1.1
       std-env: 3.7.0
       strip-literal: 1.3.0
       tinybench: 2.6.0
       tinypool: 0.5.0
-      vite: 4.5.3(@types/node@20.14.11)
-      vite-node: 0.31.1(@types/node@20.14.11)
+      vite: 4.5.3(@types/node@20.12.14)
+      vite-node: 0.31.1(@types/node@20.12.14)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
@@ -31162,12 +30967,8 @@ packages:
       zod: 3.23.8
     dev: false
 
-  /zod@3.22.3:
-    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
-
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-    dev: false
 
   /zone.js@0.14.10:
     resolution: {integrity: sha512-YGAhaO7J5ywOXW6InXNlLmfU194F8lVgu7bRntUF3TiG8Y3nBK0x1UJJuHUP/e8IyihkjCYqhCScpSwnlaSRkQ==}
