@@ -3,7 +3,6 @@ import {getSitesKey} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
-import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
 type MandatoryParameters = {
@@ -37,7 +36,7 @@ export const internalDeleteSite = async ({
 }: DeleteSiteInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<DeleteSiteOutput> => {
-	const accountId = await getAccountId({region});
+	const accountId = await providerSpecifics.getAccountId({region});
 
 	let files = await providerSpecifics.listObjects({
 		bucketName,

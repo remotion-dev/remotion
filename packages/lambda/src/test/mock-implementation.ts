@@ -1,8 +1,9 @@
 import {openBrowser} from '@remotion/renderer';
 import type {
+	FullClientSpecifics,
 	GetBrowserInstance,
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '@remotion/serverless';
 import {Readable} from 'stream';
 import {estimatePrice} from '../api/estimate-price';
@@ -15,11 +16,16 @@ import {
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {randomHashImplementation} from '../shared/random-hash';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
 	getMockCallFunctionSync,
 } from './mocks/aws-clients';
+import {mockBundleSite} from './mocks/mock-bundle-site';
+import {mockCreateFunction} from './mocks/mock-create-function';
+import {deleteMockFunction, getAllMockFunctions} from './mocks/mock-functions';
+import {mockReadDirectory} from './mocks/mock-read-dir';
 import {
 	addMockBucket,
 	getMockBuckets,
@@ -29,6 +35,7 @@ import {
 	readMockS3File,
 	writeMockS3File,
 } from './mocks/mock-store';
+import {mockUploadDir} from './mocks/upload-dir';
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
@@ -39,6 +46,13 @@ export const getBrowserInstance: GetBrowserInstance = async () => {
 };
 
 export const mockImplementation: ProviderSpecifics<AwsProvider> = {
+	getAccountId: () =>
+		Promise.resolve('aws:iam::123456789'.match(/aws:iam::([0-9]+)/)?.[1]!),
+	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
+	getMaxStillInlinePayloadSize() {
+		return 5_000_000;
+	},
+	serverStorageProductName: () => 'file system',
 	applyLifeCycle: () => Promise.resolve(),
 	getChromiumPath() {
 		return null;
@@ -55,7 +69,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		});
 		return Promise.resolve();
 	},
-	getBuckets: () => Promise.resolve(getMockBuckets()),
+	getBuckets: ({region}) =>
+		Promise.resolve(getMockBuckets().filter((b) => b.region === region)),
 	listObjects: (input) => {
 		if (!input) {
 			throw new Error('need to pass input');
@@ -152,12 +167,6 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
-	getCurrentFunctionName: () =>
-		speculateFunctionName({
-			diskSizeInMb: 10240,
-			memorySizeInMb: 3009,
-			timeoutInSeconds: 120,
-		}),
 	estimatePrice,
 	getOutputUrl: () => {
 		return {
@@ -166,12 +175,32 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		};
 	},
 	isFlakyError,
+	deleteFunction: deleteMockFunction,
+	getFunctions: getAllMockFunctions,
 };
 
-export const mockServerImplementation: ServerProviderSpecifics = {
+export const mockServerImplementation: InsideFunctionSpecifics = {
 	forgetBrowserEventLoop: () => {},
 	getBrowserInstance,
 	timer: () => ({
 		end: () => {},
 	}),
+	deleteTmpDir: () => Promise.resolve(),
+	generateRandomId: randomHashImplementation,
+	getCurrentFunctionName: () =>
+		speculateFunctionName({
+			diskSizeInMb: 10240,
+			memorySizeInMb: 3009,
+			timeoutInSeconds: 120,
+		}),
+	getCurrentMemorySizeInMb: () => 3009,
+};
+
+export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {
+	bundleSite: mockBundleSite,
+	id: '__remotion_full_client_specifics',
+	readDirectory: mockReadDirectory,
+	uploadDir: mockUploadDir,
+	createFunction: mockCreateFunction,
+	checkCredentials: () => undefined,
 };

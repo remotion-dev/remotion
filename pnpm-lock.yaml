@@ -1391,9 +1391,6 @@ importers:
       pureimage:
         specifier: 0.4.13
         version: 0.4.13
-      vitest:
-        specifier: 0.31.1
-        version: 0.31.1(happy-dom@15.10.2)(jsdom@21.1.0)
       zip-lib:
         specifier: ^0.7.2
         version: 0.7.2
@@ -1737,6 +1734,9 @@ importers:
 
   packages/serverless:
     dependencies:
+      '@remotion/bundler':
+        specifier: workspace:*
+        version: link:../bundler
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer

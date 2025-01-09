@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'bun:test';
 import {mockImplementation} from '../../mock-implementation';
 
 afterAll(async () => {
@@ -8,8 +8,6 @@ afterAll(async () => {
 });
 
 test('Should fail when using an incompatible version', async () => {
-	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
 	try {
 		const aha = await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.launch,
@@ -22,7 +20,7 @@ test('Should fail when using an incompatible version', async () => {
 				crf: 9,
 				envVariables: {},
 				frameRange: [0, 12],
-				framesPerLambda: 8,
+				framesPerFunction: 8,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -40,7 +38,7 @@ test('Should fail when using an incompatible version', async () => {
 				timeoutInMilliseconds: 12000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
-				concurrencyPerLambda: 1,
+				concurrencyPerFunction: 1,
 				downloadBehavior: {
 					type: 'play-in-browser',
 				},

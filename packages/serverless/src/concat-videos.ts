@@ -12,7 +12,7 @@ import {
 	REMOTION_FILELIST_TOKEN,
 	type ServerlessCodec,
 } from './constants';
-import type {ServerProviderSpecifics} from './provider-implementation';
+import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const concatVideos = async ({
 	onProgress,
@@ -31,7 +31,7 @@ export const concatVideos = async ({
 	preferLossless,
 	muted,
 	metadata,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
@@ -49,13 +49,13 @@ export const concatVideos = async ({
 	preferLossless: boolean;
 	muted: boolean;
 	metadata: Record<string, string> | null;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
 		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
 	);
-	const combine = serverProviderSpecifics.timer('Combine chunks', logLevel);
+	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const chunkDurationInSeconds = framesPerLambda / fps;

@@ -22,21 +22,22 @@ import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 import type {OnStream} from '../streaming/streaming';
 import type {
 	CloudProvider,
 	ReceivedArtifact,
-	RenderStillLambdaResponsePayload,
+	RenderStillFunctionResponsePayload,
 } from '../types';
 import {validateComposition} from '../validate-composition';
 import {validateDownloadBehavior} from '../validate-download-behavior';
 import {validateOutname} from '../validate-outname';
 import {validatePrivacy} from '../validate-privacy';
-import {getTmpDirStateIfENoSp} from '../write-lambda-error';
+import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
+import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;
@@ -45,41 +46,35 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(
 	{
-		params: lambdaParams,
+		params,
 		expectedBucketOwner,
 		renderId,
 		onStream,
 		timeoutInMilliseconds,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	}: Options<Provider>,
 	cleanup: CleanupFn[],
 ) => {
-	if (lambdaParams.type !== ServerlessRoutines.still) {
+	if (params.type !== ServerlessRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
 
-	if (lambdaParams.version !== VERSION) {
-		if (!lambdaParams.version) {
-			throw new Error(
-				`Version mismatch: When calling renderStillOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-			);
-		}
+	checkVersionMismatch({
+		apiName: 'renderStillOnLambda()',
+		insideFunctionSpecifics,
+		params,
+	});
 
-		throw new Error(
-			`Version mismatch: When calling renderStillOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-		);
-	}
-
-	validateDownloadBehavior(lambdaParams.downloadBehavior);
-	validatePrivacy(lambdaParams.privacy, true);
+	validateDownloadBehavior(params.downloadBehavior);
+	validatePrivacy(params.privacy, true);
 	validateOutname({
-		outName: lambdaParams.outName,
+		outName: params.outName,
 		codec: null,
 		audioCodecSetting: null,
 		separateAudioTo: null,
@@ -87,21 +82,21 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const start = Date.now();
 
-	const browserInstancePromise = serverProviderSpecifics.getBrowserInstance({
-		logLevel: lambdaParams.logLevel,
+	const browserInstancePromise = insideFunctionSpecifics.getBrowserInstance({
+		logLevel: params.logLevel,
 		indent: false,
-		chromiumOptions: lambdaParams.chromiumOptions,
+		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 	const bucketNamePromise =
-		lambdaParams.bucketName ??
+		params.bucketName ??
 		internalGetOrCreateBucket({
 			region: providerSpecifics.getCurrentRegionInFunction(),
 			enableFolderExpiry: null,
 			customCredentials: null,
 			providerSpecifics,
-			forcePathStyle: lambdaParams.forcePathStyle,
+			forcePathStyle: params.forcePathStyle,
 			skipPutAcl: false,
 		}).then((b) => b.bucketName);
 
@@ -115,14 +110,14 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		bucketName,
 		expectedBucketOwner,
 		region,
-		serialized: lambdaParams.inputProps,
+		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
-		forcePathStyle: lambdaParams.forcePathStyle,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const serveUrl = providerSpecifics.convertToServeUrl({
-		urlOrId: lambdaParams.serveUrl,
+		urlOrId: params.serveUrl,
 		region,
 		bucketName,
 	});
@@ -134,10 +129,9 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			indent: false,
 			port: null,
 			remotionRoot: process.cwd(),
-			logLevel: lambdaParams.logLevel,
+			logLevel: params.logLevel,
 			webpackConfigOrServeUrl: serveUrl,
-			offthreadVideoCacheSizeInBytes:
-				lambdaParams.offthreadVideoCacheSizeInBytes,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 			binariesDirectory: null,
 			forceIPv4: false,
 		},
@@ -152,17 +146,17 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const composition = await validateComposition({
 		serveUrl,
 		browserInstance: browserInstance.instance,
-		composition: lambdaParams.composition,
+		composition: params.composition,
 		serializedInputPropsWithCustomSchema,
-		envVariables: lambdaParams.envVariables ?? {},
-		chromiumOptions: lambdaParams.chromiumOptions,
-		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		envVariables: params.envVariables ?? {},
+		chromiumOptions: params.chromiumOptions,
+		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		port: null,
-		forceHeight: lambdaParams.forceHeight,
-		forceWidth: lambdaParams.forceWidth,
-		logLevel: lambdaParams.logLevel,
+		forceHeight: params.forceHeight,
+		forceWidth: params.forceWidth,
+		logLevel: params.logLevel,
 		server,
-		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		onBrowserDownload: () => {
 			throw new Error('Should not download a browser in Lambda');
 		},
@@ -173,31 +167,31 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate: Date.now(),
 		codec: null,
-		compositionId: lambdaParams.composition,
+		compositionId: params.composition,
 		estimatedTotalLambdaInvokations: 1,
 		estimatedRenderLambdaInvokations: 1,
 		siteId: serveUrl,
 		totalChunks: 1,
 		type: 'still',
-		imageFormat: lambdaParams.imageFormat,
-		inputProps: lambdaParams.inputProps,
+		imageFormat: params.imageFormat,
+		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId,
-		outName: lambdaParams.outName ?? undefined,
-		privacy: lambdaParams.privacy,
+		outName: params.outName ?? undefined,
+		privacy: params.privacy,
 		audioCodec: null,
-		deleteAfter: lambdaParams.deleteAfter,
+		deleteAfter: params.deleteAfter,
 		numberOfGifLoops: null,
-		downloadBehavior: lambdaParams.downloadBehavior,
+		downloadBehavior: params.downloadBehavior,
 		audioBitrate: null,
 		metadata: null,
-		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
-			height: composition.height * (lambdaParams.scale ?? 1),
-			width: composition.width * (lambdaParams.scale ?? 1),
+			height: composition.height * (params.scale ?? 1),
+			width: composition.width * (params.scale ?? 1),
 		},
 	};
 
@@ -213,7 +207,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
-		forcePathStyle: lambdaParams.forcePathStyle,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	const onBrowserDownload = () => {
@@ -225,7 +219,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		getCredentialsFromOutName(lambdaParams.outName),
+		getCredentialsFromOutName(params.outName),
 	);
 
 	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
@@ -246,7 +240,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 		const startTime = Date.now();
 		RenderInternals.Log.info(
-			{indent: false, logLevel: lambdaParams.logLevel},
+			{indent: false, logLevel: params.logLevel},
 			'Writing artifact ' + artifact.filename + ' to S3',
 		);
 		providerSpecifics
@@ -255,21 +249,21 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 				key: storageKey,
 				body: artifact.content,
 				region,
-				privacy: lambdaParams.privacy,
+				privacy: params.privacy,
 				expectedBucketOwner,
-				downloadBehavior: lambdaParams.downloadBehavior,
+				downloadBehavior: params.downloadBehavior,
 				customCredentials,
-				forcePathStyle: lambdaParams.forcePathStyle,
+				forcePathStyle: params.forcePathStyle,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
-					{indent: false, logLevel: lambdaParams.logLevel},
+					{indent: false, logLevel: params.logLevel},
 					`Wrote artifact to S3 in ${Date.now() - startTime}ms`,
 				);
 			})
 			.catch((err) => {
 				RenderInternals.Log.error(
-					{indent: false, logLevel: lambdaParams.logLevel},
+					{indent: false, logLevel: params.logLevel},
 					'Failed to write artifact to S3',
 					err,
 				);
@@ -281,35 +275,34 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		composition,
 		output: outputPath,
 		serveUrl,
-		envVariables: lambdaParams.envVariables ?? {},
+		envVariables: params.envVariables ?? {},
 		frame: RenderInternals.convertToPositiveFrameIndex({
-			frame: lambdaParams.frame,
+			frame: params.frame,
 			durationInFrames: composition.durationInFrames,
 		}),
-		imageFormat: lambdaParams.imageFormat as StillImageFormat,
+		imageFormat: params.imageFormat as StillImageFormat,
 		serializedInputPropsWithCustomSchema,
 		overwrite: false,
 		puppeteerInstance: browserInstance.instance,
-		jpegQuality:
-			lambdaParams.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
-		chromiumOptions: lambdaParams.chromiumOptions,
-		scale: lambdaParams.scale,
-		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
+		jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+		chromiumOptions: params.chromiumOptions,
+		scale: params.scale,
+		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		browserExecutable: providerSpecifics.getChromiumPath(),
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: onDownloadsHelper(lambdaParams.logLevel),
+		onDownload: onDownloadsHelper(params.logLevel),
 		port: null,
 		server,
-		logLevel: lambdaParams.logLevel,
+		logLevel: params.logLevel,
 		serializedResolvedPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithDate({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props,
 			}).serializedString,
-		offthreadVideoCacheSizeInBytes: lambdaParams.offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,
@@ -320,29 +313,29 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	await providerSpecifics.writeFile({
 		bucketName: renderBucketName,
 		key,
-		privacy: lambdaParams.privacy,
+		privacy: params.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
 		region: providerSpecifics.getCurrentRegionInFunction(),
-		downloadBehavior: lambdaParams.downloadBehavior,
+		downloadBehavior: params.downloadBehavior,
 		customCredentials,
-		forcePathStyle: lambdaParams.forcePathStyle,
+		forcePathStyle: params.forcePathStyle,
 	});
 
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
 			region: providerSpecifics.getCurrentRegionInFunction(),
-			serialized: lambdaParams.inputProps,
+			serialized: params.inputProps,
 			providerSpecifics,
-			forcePathStyle: lambdaParams.forcePathStyle,
+			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
 	]);
 
 	const estimatedPrice = providerSpecifics.estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
@@ -355,7 +348,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		currentRegion: providerSpecifics.getCurrentRegionInFunction(),
 	});
 
-	const payload: RenderStillLambdaResponsePayload<Provider> = {
+	const payload: RenderStillFunctionResponsePayload<Provider> = {
 		type: 'success' as const,
 		output: url,
 		size,
@@ -448,7 +441,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 	} finally {
-		options.serverProviderSpecifics.forgetBrowserEventLoop(
+		options.insideFunctionSpecifics.forgetBrowserEventLoop(
 			options.params.type === ServerlessRoutines.still
 				? options.params.logLevel
 				: 'error',

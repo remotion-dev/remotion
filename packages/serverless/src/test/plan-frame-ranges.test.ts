@@ -3,7 +3,7 @@ import {planFrameRanges} from '../plan-frame-ranges';
 
 test('Plan frame ranges should respect everyNthFrame', () => {
 	const planned = planFrameRanges({
-		framesPerLambda: 8,
+		framesPerFunction: 8,
 		everyNthFrame: 2,
 		frameRange: [0, 99],
 	});
@@ -20,7 +20,7 @@ test('Plan frame ranges should respect everyNthFrame', () => {
 
 test('Should remove ranges that are not going to render', () => {
 	const planned = planFrameRanges({
-		framesPerLambda: 11,
+		framesPerFunction: 11,
 		everyNthFrame: 1,
 		frameRange: [0, 22],
 	});
@@ -33,7 +33,7 @@ test('Should remove ranges that are not going to render', () => {
 
 test('Should not have a bug that was reported', () => {
 	const planned = planFrameRanges({
-		framesPerLambda: 138,
+		framesPerFunction: 138,
 		everyNthFrame: 1,
 		frameRange: [15000, 35559],
 	});

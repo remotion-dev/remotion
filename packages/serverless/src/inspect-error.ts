@@ -4,7 +4,10 @@ import {
 	isBrowserCrashedError,
 	isErrInsufficientResourcesErr,
 } from './error-category';
-import type {EnhancedErrorInfo, LambdaErrorInfo} from './write-lambda-error';
+import type {
+	EnhancedErrorInfo,
+	FunctionErrorInfo,
+} from './write-error-to-storage';
 
 const FAILED_TO_LAUNCH_TOKEN = 'Failed to launch browser.';
 
@@ -45,7 +48,7 @@ const getExplanation = (stack: string) => {
 export const inspectErrors = ({
 	errors,
 }: {
-	errors: LambdaErrorInfo[];
+	errors: FunctionErrorInfo[];
 }): EnhancedErrorInfo[] => {
 	return errors.map((e): EnhancedErrorInfo => {
 		return {

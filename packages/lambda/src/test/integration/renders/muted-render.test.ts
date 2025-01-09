@@ -1,9 +1,9 @@
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
+import {afterAll, expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
-import {afterAll, expect, test} from 'vitest';
 import {internalDeleteRender} from '../../../api/delete-render';
 import {mockImplementation} from '../../mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';

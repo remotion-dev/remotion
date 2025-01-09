@@ -10,7 +10,7 @@ import type {
 	ParsedTiming,
 	ReceivedArtifact,
 } from './types';
-import type {LambdaErrorInfo} from './write-lambda-error';
+import type {FunctionErrorInfo} from './write-error-to-storage';
 
 export type OverallRenderProgress<Provider extends CloudProvider> = {
 	chunks: number[];
@@ -25,7 +25,7 @@ export type OverallRenderProgress<Provider extends CloudProvider> = {
 	postRenderData: PostRenderData<Provider> | null;
 	timings: ParsedTiming[];
 	renderMetadata: RenderMetadata<Provider> | null;
-	errors: LambdaErrorInfo[];
+	errors: FunctionErrorInfo[];
 	timeoutTimestamp: number;
 	functionLaunched: number;
 	serveUrlOpened: number | null;
@@ -55,7 +55,7 @@ export type OverallProgressHelper<Provider extends CloudProvider> = {
 	addRetry: (retry: ChunkRetry) => void;
 	setPostRenderData: (postRenderData: PostRenderData<Provider>) => void;
 	setRenderMetadata: (renderMetadata: RenderMetadata<Provider>) => void;
-	addErrorWithoutUpload: (errorInfo: LambdaErrorInfo) => void;
+	addErrorWithoutUpload: (errorInfo: FunctionErrorInfo) => void;
 	setExpectedChunks: (expectedChunks: number) => void;
 	get: () => OverallRenderProgress<Provider>;
 	setServeUrlOpened: (timestamp: number) => void;

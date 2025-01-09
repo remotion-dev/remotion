@@ -55,10 +55,14 @@ export const getCompositionsOnLambda = async ({
 		region,
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		needsToUpload: getNeedsToUpload('video-or-audio', [
-			stringifiedInputProps.length,
-			JSON.stringify(envVariables).length,
-		]),
+		needsToUpload: getNeedsToUpload({
+			type: 'video-or-audio',
+			sizes: [
+				stringifiedInputProps.length,
+				JSON.stringify(envVariables).length,
+			],
+			providerSpecifics: awsImplementation,
+		}),
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,

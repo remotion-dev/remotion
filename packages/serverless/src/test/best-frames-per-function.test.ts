@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
 
-test('Get reasonable framesPerLambda defaults', () => {
+test('Get reasonable framesPerFunction defaults', () => {
 	expect(bestFramesPerFunctionParam(20)).toEqual(20);
 	expect(bestFramesPerFunctionParam(21)).toEqual(11);
 	expect(bestFramesPerFunctionParam(100)).toEqual(20);

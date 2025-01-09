@@ -1,10 +1,13 @@
-import {VERSION} from 'remotion/version';
 import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines, overallProgressKey} from '../constants';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	InsideFunctionSpecifics,
+	ProviderSpecifics,
+} from '../provider-implementation';
 import type {CloudProvider} from '../types';
+import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -12,26 +15,26 @@ type Options = {
 	renderId: string;
 };
 
-export const startHandler = async <Provider extends CloudProvider>(
-	params: ServerlessPayload<Provider>,
-	options: Options,
-	providerSpecifics: ProviderSpecifics<Provider>,
-) => {
+export const startHandler = async <Provider extends CloudProvider>({
+	params,
+	options,
+	providerSpecifics,
+	insideFunctionSpecifics,
+}: {
+	params: ServerlessPayload<Provider>;
+	options: Options;
+	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
+}) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
 	}
 
-	if (params.version !== VERSION) {
-		if (!params.version) {
-			throw new Error(
-				`Version mismatch: When calling renderMediaOnLambda(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-			);
-		}
-
-		throw new Error(
-			`Version mismatch: When calling renderMediaOnLambda(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-		);
-	}
+	checkVersionMismatch({
+		apiName: 'renderMediaOnLambda()',
+		insideFunctionSpecifics,
+		params,
+	});
 
 	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName =
@@ -72,7 +75,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 
 	const payload: ServerlessPayload<Provider> = {
 		type: ServerlessRoutines.launch,
-		framesPerLambda: params.framesPerLambda,
+		framesPerFunction: params.framesPerLambda,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
@@ -96,7 +99,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 		scale: params.scale,
 		numberOfGifLoops: params.numberOfGifLoops,
 		everyNthFrame: params.everyNthFrame,
-		concurrencyPerLambda: params.concurrencyPerLambda,
+		concurrencyPerFunction: params.concurrencyPerLambda,
 		downloadBehavior: params.downloadBehavior,
 		muted: params.muted,
 		overwrite: params.overwrite,
@@ -118,7 +121,7 @@ export const startHandler = async <Provider extends CloudProvider>(
 	};
 
 	await providerSpecifics.callFunctionAsync({
-		functionName: providerSpecifics.getCurrentFunctionName(),
+		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		type: ServerlessRoutines.launch,
 		payload,
 		region,

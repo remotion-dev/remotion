@@ -1,5 +1,5 @@
 export {PostRenderData, ServerlessRoutines} from './constants';
-export {estimatePriceFromBucket} from './estimate-price-from-bucket';
+export {estimatePriceFromMetadata as estimatePriceFromBucket} from './estimate-price-from-bucket';
 export {getCredentialsFromOutName} from './expected-out-name';
 export {formatCostsInfo} from './format-costs-info';
 export {
@@ -13,6 +13,7 @@ export {RequestContext, rendererHandler} from './handlers/renderer';
 export {startHandler} from './handlers/start';
 export {stillHandler} from './handlers/still';
 export {infoHandler} from './info';
+export {innerHandler} from './inner-routine';
 export {inspectErrors} from './inspect-error';
 export {WebhookClient, WebhookPayload, invokeWebhook} from './invoke-webhook';
 export {setCurrentRequestId, stopLeakDetection} from './leak-detection';
@@ -47,6 +48,6 @@ export {
 } from './validate-webhook';
 export {
 	EnhancedErrorInfo,
-	LambdaErrorInfo,
+	FunctionErrorInfo as LambdaErrorInfo,
 	getTmpDirStateIfENoSp,
-} from './write-lambda-error';
+} from './write-error-to-storage';

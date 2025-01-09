@@ -1,8 +1,11 @@
 import {internalGetOrCreateBucket} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {internalDeploySite} from '../../api/deploy-site';
 import {internalGetSites} from '../../api/get-sites';
-import {mockImplementation} from '../mock-implementation';
+import {
+	mockFullClientSpecifics,
+	mockImplementation,
+} from '../mock-implementation';
 
 test('Should have no buckets at first', async () => {
 	expect(
@@ -38,6 +41,7 @@ test('Should have a site after deploying', async () => {
 			throwIfSiteExists: true,
 			options: {},
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).toEqual({
 		serveUrl:

@@ -1,8 +1,11 @@
 import {internalGetOrCreateBucket} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {mockImplementation} from '../mock-implementation';
+import {
+	mockFullClientSpecifics,
+	mockImplementation,
+} from '../mock-implementation';
 
 test('Return 0 total size if site did not exist', async () => {
 	const {bucketName} = await internalGetOrCreateBucket({
@@ -46,6 +49,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 		throwIfSiteExists: false,
 		siteName: mockImplementation.randomHash(),
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 	expect(
 		(

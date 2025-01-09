@@ -3,7 +3,7 @@ import type {FileNameAndSize} from './get-files-in-folder';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {CloudProvider} from './types';
 
-export type LambdaErrorInfo = {
+export type FunctionErrorInfo = {
 	type: 'renderer' | 'browser' | 'stitcher' | 'webhook' | 'artifact';
 	message: string;
 	name: string;
@@ -20,7 +20,7 @@ export type LambdaErrorInfo = {
 export const getTmpDirStateIfENoSp = <Provider extends CloudProvider>(
 	err: string,
 	providerSpecifics: ProviderSpecifics<Provider>,
-): LambdaErrorInfo['tmpDir'] => {
+): FunctionErrorInfo['tmpDir'] => {
 	if (!errorIsOutOfSpaceError(err)) {
 		return null;
 	}
@@ -36,7 +36,7 @@ export const getTmpDirStateIfENoSp = <Provider extends CloudProvider>(
 	};
 };
 
-export type EnhancedErrorInfo = LambdaErrorInfo & {
+export type EnhancedErrorInfo = FunctionErrorInfo & {
 	/**
 	 * @deprecated Will always be an empty string.
 	 */

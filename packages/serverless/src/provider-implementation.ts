@@ -1,3 +1,4 @@
+import type {bundle} from '@remotion/bundler';
 import type {
 	ChromiumOptions,
 	EmittedArtifact,
@@ -6,6 +7,7 @@ import type {
 import type {Readable} from 'stream';
 import type {
 	CustomCredentials,
+	DeleteAfter,
 	DownloadBehavior,
 	Privacy,
 	ServerlessRoutines,
@@ -216,21 +218,118 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	indent,
 	chromiumOptions,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => Promise<LaunchedBrowser>;
 
 export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
 
-export type ServerProviderSpecifics = {
+export type GenerateRenderId = (options: {
+	deleteAfter: DeleteAfter | null;
+	randomHashFn: () => string;
+}) => string;
+
+export type GetAccountId<Provider extends CloudProvider> = (options: {
+	region: Provider['region'];
+}) => Promise<string>;
+
+export type DeleteFunctionInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	functionName: string;
+};
+
+export type DeleteFunction<Provider extends CloudProvider> = (
+	options: DeleteFunctionInput<Provider>,
+) => Promise<void>;
+
+export type GetFunctionsInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	compatibleOnly: boolean;
+	logLevel?: LogLevel;
+};
+
+export type FunctionInfo = {
+	functionName: string;
+	timeoutInSeconds: number;
+	memorySizeInMb: number;
+	version: string | null;
+	diskSizeInMb: number;
+};
+
+export type GetFunctions<Provider extends CloudProvider> = (
+	params: GetFunctionsInput<Provider>,
+) => Promise<FunctionInfo[]>;
+
+export type ReadDir = ({
+	dir,
+	etags,
+	originalDir,
+	onProgress,
+}: {
+	dir: string;
+	etags: {
+		[key: string]: () => Promise<string>;
+	};
+	originalDir: string;
+	onProgress: (bytes: number) => void;
+}) => {
+	[key: string]: () => Promise<string>;
+};
+
+export type UploadDirProgress = {
+	totalFiles: number;
+	filesUploaded: number;
+	totalSize: number;
+	sizeUploaded: number;
+};
+
+export type UploadDir<Provider extends CloudProvider> = (options: {
+	bucket: string;
+	region: Provider['region'];
+	localDir: string;
+	keyPrefix: string;
+	onProgress: (progress: UploadDirProgress) => void;
+	privacy: Privacy;
+	toUpload: string[];
+	forcePathStyle: boolean;
+}) => Promise<void>;
+
+type CreateFunctionOptions<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	logLevel: LogLevel;
+	ephemerealStorageInMb: number;
+	timeoutInSeconds: number;
+	memorySizeInMb: number;
+	functionName: string;
+	zipFile: string;
+} & Provider['creationFunctionOptions'];
+
+export type CreateFunction<Provider extends CloudProvider> = (
+	options: CreateFunctionOptions<Provider>,
+) => Promise<{FunctionName: string}>;
+
+export type InsideFunctionSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 	timer: DebuggingTimer;
+	generateRandomId: GenerateRenderId;
+	deleteTmpDir: () => Promise<void>;
+	getCurrentFunctionName: () => string;
+	getCurrentMemorySizeInMb: () => number;
+};
+
+export type FullClientSpecifics<Provider extends CloudProvider> = {
+	id: '__remotion_full_client_specifics';
+	bundleSite: typeof bundle;
+	readDirectory: ReadDir;
+	uploadDir: UploadDir<Provider>;
+	createFunction: CreateFunction<Provider>;
+	checkCredentials: () => void;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {
@@ -254,11 +353,16 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	callFunctionAsync: CallFunctionAsync<Provider>;
 	callFunctionStreaming: CallFunctionStreaming<Provider>;
 	callFunctionSync: CallFunctionSync<Provider>;
-	getCurrentFunctionName: () => string;
 	estimatePrice: EstimatePrice<Provider>;
 	getLoggingUrlForRendererFunction: GetLoggingUrlForRendererFunction<Provider>;
 	getLoggingUrlForMethod: GetLoggingUrlForMethod<Provider>;
 	getEphemeralStorageForPriceCalculation: () => number;
 	getOutputUrl: GetOutputUrl<Provider>;
 	isFlakyError: (err: Error) => boolean;
+	serverStorageProductName: () => string;
+	getMaxStillInlinePayloadSize: () => number;
+	getMaxNonInlinePayloadSizePerFunction: () => number;
+	getAccountId: GetAccountId<Provider>;
+	deleteFunction: DeleteFunction<Provider>;
+	getFunctions: GetFunctions<Provider>;
 };

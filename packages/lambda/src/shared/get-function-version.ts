@@ -1,8 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	COMMAND_NOT_FOUND,
+	ServerlessRoutines,
+} from '@remotion/serverless/client';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
-import {COMMAND_NOT_FOUND} from './constants';
 
 export const getFunctionVersion = async ({
 	functionName,

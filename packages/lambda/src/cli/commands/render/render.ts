@@ -59,12 +59,17 @@ const {
 	metadataOption,
 } = BrowserSafeApis.options;
 
-export const renderCommand = async (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
-) => {
+export const renderCommand = async ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
@@ -264,7 +269,7 @@ export const renderCommand = async (
 		uiImageFormat: null,
 	});
 
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -272,7 +277,10 @@ export const renderCommand = async (
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerFunction({framesPerLambda, durationInFrames: 1});
+	validateFramesPerFunction({
+		framesPerFunction: framesPerLambda,
+		durationInFrames: 1,
+	});
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
@@ -478,7 +486,7 @@ export const renderCommand = async (
 							false,
 						);
 					},
-					providerSpecifics: implementation,
+					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
 				});
 				downloadOrNothing = download;
