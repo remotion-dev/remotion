@@ -3101,6 +3101,15 @@ export const articles = [
 		slug: 'lambda/getuserpolicy',
 	},
 	{
+		id: 'pagesrouterwebhook',
+		title: 'pagesRouterWebhook()',
+		relativePath: 'docs/lambda/pagesrouterwebhooks.mdx',
+		compId: 'articles-docs-lambda-pagesrouterwebhooks',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/pagesrouterwebhook',
+	},
+	{
 		id: 'concurrency',
 		title: 'Concurrency',
 		relativePath: 'docs/lambda/concurrency.mdx',
@@ -3243,15 +3252,6 @@ export const articles = [
 		crumb: 'Lambda',
 		noAi: false,
 		slug: 'lambda/custom-destination',
-	},
-	{
-		id: 'approuterwebhooks',
-		title: 'appRouterWebhooks()',
-		relativePath: 'docs/lambda/approuterwebhooks.mdx',
-		compId: 'articles-docs-lambda-approuterwebhooks',
-		crumb: 'Lambda API',
-		noAi: false,
-		slug: 'lambda/approuterwebhooks',
 	},
 	{
 		id: 'deletefunction',
@@ -3533,6 +3533,15 @@ export const articles = [
 		slug: 'lambda/without-iam/example',
 	},
 	{
+		id: 'approuterwebhook',
+		title: 'appRouterWebhook()',
+		relativePath: 'docs/lambda/approuterwebhook.mdx',
+		compId: 'articles-docs-lambda-approuterwebhook',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/approuterwebhook',
+	},
+	{
 		id: 'downloadvideo',
 		title: 'downloadVideo()',
 		relativePath: 'docs/lambda/downloadvideo.mdx',
@@ -3729,15 +3738,6 @@ export const articles = [
 		crumb: 'Lambda API',
 		noAi: false,
 		slug: 'lambda/deploysite',
-	},
-	{
-		id: 'pagerouterwebhooks',
-		title: 'pageRouterWebhooks()',
-		relativePath: 'docs/lambda/pagerouterwebhooks.mdx',
-		compId: 'articles-docs-lambda-pagerouterwebhooks',
-		crumb: 'Lambda API',
-		noAi: false,
-		slug: 'lambda/pagerouterwebhooks',
 	},
 	{
 		id: 'uninstall',

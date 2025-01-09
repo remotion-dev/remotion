@@ -38,44 +38,39 @@ You can use these headers to verify the authenticity of the request, to check th
 The request body has the following structure:
 
 ```ts
-type WebhookPayload =
-  | {
-      type: 'error';
-      errors: {
-        message: string;
-        name: string;
-        stack: string;
-      }[];
-      renderId: string;
-      expectedBucketOwner: string;
-      bucketName: string;
-      customData: Record<string, unkown>;
-    }
-  | {
-      type: 'success';
-      lambdaErrors: EnhancedErrorInfo[];
-      outputUrl: string | undefined;
-      outputFile: string | undefined;
-      timeToFinish: number | undefined;
-      renderId: string;
-      expectedBucketOwner: string;
-      bucketName: string;
-      customData: Record<string, unkown>;
-      // Available from v3.3.11
-      costs: {
-        estimatedCost: number;
-        estimatedDisplayCost: string;
-        currency: string;
-        disclaimer: string;
-      };
-    }
-  | {
-      type: 'timeout';
-      renderId: string;
-      expectedBucketOwner: string;
-      bucketName: string;
-      customData: Record<string, unkown>;
-    };
+type StaticWebhookPayload = {
+  renderId: string;
+  expectedBucketOwner: string;
+  bucketName: string;
+  customData: Record<string, unknown> | null;
+};
+
+export type WebhookErrorPayload = StaticWebhookPayload & {
+  type: 'error';
+  errors: {
+    message: string;
+    name: string;
+    stack: string;
+  }[];
+};
+
+export type WebhookSuccessPayload = StaticWebhookPayload & {
+  type: 'success';
+  lambdaErrors: EnhancedErrorInfo[];
+  outputUrl: string | undefined;
+  outputFile: string | undefined;
+  timeToFinish: number | undefined;
+  costs: AfterRenderCost;
+};
+
+export type WebhookTimeoutPayload = StaticWebhookPayload & {
+  type: 'timeout';
+};
+
+export type WebhookPayload =
+  | WebhookErrorPayload
+  | WebhookSuccessPayload
+  | WebhookTimeoutPayload;
 ```
 
 The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
@@ -205,41 +200,46 @@ router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
 
 ## Example webhook endpoint (Next.JS App Router)
 
-Similary, here is an example endpoint in Next.JS for the App Router using [appRouterWebhooks()](/docs/lambda/approuterwebhooks)
+Similarly, here is an example endpoint in Next.JS for the App Router using [`appRouterWebhook()`](/docs/lambda/approuterwebhook). Available from v4.0.246.
 
 ```tsx twoslash title="app/api/webhook.ts"
-import {
-  appRouterWebhooks
-} from '@remotion/lambda/client';
- 
-export const POST = appRouterWebhooks(
-  { 
-    secret: 'mysecret', 
-    testing: true, 
-    onTimeout: ()=>(console.log("timeout"))
-  }
-)
- 
+const ENABLE_TESTING = false;
+
+// ---cut---
+import {appRouterWebhook} from '@remotion/lambda/client';
+
+export const POST = appRouterWebhook({
+  secret: 'mysecret',
+  // Enable testing through the tool below
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
+
 export const OPTIONS = POST;
 ```
 
 ## Example webhook endpoint (Next.JS Pages Router)
 
-The same endpoint as above, but using the Pages Router with the help of [pageRouterWebhooks()](/docs/lambda/pagerouterwebhooks)
+The same endpoint as above, but using the Pages Router with the help of [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook). Available from v4.0.246.
 
 ```tsx twoslash title="pages/api/webhook.ts"
-import {
-  pageRouterWebhooks
-} from '@remotion/lambda/client';
+const ENABLE_TESTING = false;
 
-const handler = pageRouterWebhooks(
-  {
-    secret: 'mysecret', 
-    testing: true,
-    onError: () => (console.log('Something went wrong'))
-  }
-)
-export default handler
+// ---cut---
+
+import {pagesRouterWebhook} from '@remotion/lambda/client';
+
+const handler = pagesRouterWebhook({
+  secret: 'mysecret',
+  // Enable testing through the tool below
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
+export default handler;
 ```
 
 ## Test your webhook endpoint

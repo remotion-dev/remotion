@@ -15,7 +15,14 @@ export {stillHandler} from './handlers/still';
 export {infoHandler} from './info';
 export {innerHandler} from './inner-routine';
 export {inspectErrors} from './inspect-error';
-export {WebhookClient, WebhookPayload, invokeWebhook} from './invoke-webhook';
+export {
+	WebhookClient,
+	WebhookErrorPayload,
+	WebhookPayload,
+	WebhookSuccessPayload,
+	WebhookTimeoutPayload,
+	invokeWebhook,
+} from './invoke-webhook';
 export {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 export {
 	OVERHEAD_TIME_PER_LAMBDA,

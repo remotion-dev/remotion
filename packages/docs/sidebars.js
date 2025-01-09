@@ -250,8 +250,8 @@ module.exports = {
 				'lambda/simulatepermissions',
 				'lambda/speculatefunctionname',
 				'lambda/validatewebhooksignature',
-				'lambda/approuterwebhooks',
-				'lambda/pagerouterwebhooks'
+				'lambda/approuterwebhook',
+				'lambda/pagesrouterwebhook',
 			],
 		},
 		{

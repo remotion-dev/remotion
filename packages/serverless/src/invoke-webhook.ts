@@ -16,33 +16,39 @@ export function calculateSignature(payload: string, secret: string | null) {
 	return signature;
 }
 
-type DynamicWebhookPayload =
-	| {
-			type: 'error';
-			errors: {
-				message: string;
-				name: string;
-				stack: string;
-			}[];
-	  }
-	| {
-			type: 'success';
-			lambdaErrors: EnhancedErrorInfo[];
-			outputUrl: string | undefined;
-			outputFile: string | undefined;
-			timeToFinish: number | undefined;
-			costs: AfterRenderCost;
-	  }
-	| {
-			type: 'timeout';
-	  };
-
-export type WebhookPayload = {
+type StaticWebhookPayload = {
 	renderId: string;
 	expectedBucketOwner: string;
 	bucketName: string;
 	customData: Record<string, unknown> | null;
-} & DynamicWebhookPayload;
+};
+
+export type WebhookErrorPayload = StaticWebhookPayload & {
+	type: 'error';
+	errors: {
+		message: string;
+		name: string;
+		stack: string;
+	}[];
+};
+
+export type WebhookSuccessPayload = StaticWebhookPayload & {
+	type: 'success';
+	lambdaErrors: EnhancedErrorInfo[];
+	outputUrl: string | undefined;
+	outputFile: string | undefined;
+	timeToFinish: number | undefined;
+	costs: AfterRenderCost;
+};
+
+export type WebhookTimeoutPayload = StaticWebhookPayload & {
+	type: 'timeout';
+};
+
+export type WebhookPayload =
+	| WebhookErrorPayload
+	| WebhookSuccessPayload
+	| WebhookTimeoutPayload;
 
 // Don't handle 304 status code (Not Modified) as a redirect,
 // since the browser will display the right page.

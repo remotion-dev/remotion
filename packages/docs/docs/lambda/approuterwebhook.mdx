@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-lambda-approuterwebhooks.png
-id: approuterwebhooks
-title: appRouterWebhooks()
-slug: /lambda/approuterwebhooks
+image: /generated/articles-docs-lambda-approuterwebhook.png
+id: approuterwebhook
+title: appRouterWebhook()
+slug: /lambda/approuterwebhook
 crumb: 'Lambda API'
 ---
 
-Simplifies the process of setting up Remotion Lambda Client in your Next.js app which is using App Router. Refer to [pagesRouterWebhooks()](/docs/lambda/pagerouterwebhooks) for doing the same in apps using Pages Router.
+Simplifies the process of setting up a [Lambda Webhook](/docs/lambda/webhooks) in your Next.js app which is using App Router. Refer to [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook) for doing the same in apps using Pages Router.
 
 ## API
 
@@ -26,15 +26,15 @@ Add your own custom headers to the outgoing response. Provide key-value pairs wh
 
 ### `onSuccess()`
 
-A function that is called with a `Payload` object as an argument when the incoming request indicates a successful event.
+A function that is called with a [`WebhookSuccessPayload`](/docs/lambda/webhooks#response) object as an argument when the incoming request indicates a successful event.
 
 ### `onError()`
 
-A function that is called with a `Payload` object as an argument when the incoming request indicates an error.
+A function that is called with a [`WebhookErrorPayload`](/docs/lambda/webhooks#response) object as an argument when the incoming request indicates an error.
 
 ### `onTimeout()`
 
-A function that is called with a `Payload` object as an argument when the incoming request indicates a timeout.
+A function that is called with a [`WebhookTimeoutPayload`](/docs/lambda/webhooks#response) object as an argument when the incoming request indicates a timeout.
 
 ## Example
 
@@ -62,4 +62,4 @@ See [Webhooks](/docs/lambda/webhooks) for an Express example.
 ## See also
 
 - [Webhooks](/docs/lambda/webhooks)
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/simplifiers/index.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/app-router-webhook.ts)
