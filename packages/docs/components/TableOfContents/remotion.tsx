@@ -76,6 +76,10 @@ export const TableOfContents: React.FC = () => {
 						Alternative to <code>{'<Video>'}</code>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/animatedimage">
+					<strong>{'<AnimatedImage>'}</strong>
+					<div>Disply a GIF, AVIF or animated WebP image</div>
+				</TOCItem>
 				<TOCItem link="/docs/iframe">
 					<strong>{'<IFrame>'}</strong>
 					<div>

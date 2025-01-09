@@ -1,18 +1,12 @@
 export type RemotionAnimatedImageLoopBehavior =
 	| 'loop'
 	| 'pause-after-finish'
-	| 'unmount-after-finish';
+	| 'clear-after-finish';
 
 export type RemotionAnimatedImageProps = {
 	src: string;
 	width?: number;
 	height?: number;
-	onLoad?: (info: {
-		width: number;
-		height: number;
-		delays: number[];
-		frames: ImageData[];
-	}) => void;
 	onError?: (error: Error) => void;
 	fit?: AnimatedImageFillMode;
 	playbackRate?: number;

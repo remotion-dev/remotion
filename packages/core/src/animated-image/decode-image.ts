@@ -158,6 +158,14 @@ export const decodeImage = async ({
 			}
 		}
 
+		// If close to end, also cache first frame for smooth wrap around
+		if (
+			selectedTrack.frameCount - biggestIndex < 3 &&
+			loopBehavior === 'loop'
+		) {
+			await getFrameByIndex(0);
+		}
+
 		clearCache(actualTimeInSec);
 	};
 
@@ -178,7 +186,7 @@ export const decodeImage = async ({
 		if (
 			durationFound !== null &&
 			timeInSec > durationFound &&
-			loopBehavior === 'unmount-after-finish'
+			loopBehavior === 'clear-after-finish'
 		) {
 			return null;
 		}

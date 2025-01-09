@@ -103,6 +103,7 @@ module.exports = {
 				'loop',
 				'measure-spring',
 				'offthreadvideo',
+				'animatedimage',
 				'prefetch',
 				'random',
 				'register-root',

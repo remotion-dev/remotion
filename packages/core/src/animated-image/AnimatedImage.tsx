@@ -29,7 +29,6 @@ export const AnimatedImage = forwardRef<
 			onError,
 			loopBehavior = 'loop',
 			playbackRate = 1,
-			onLoad,
 			fit = 'fill',
 			...props
 		},
@@ -102,7 +101,7 @@ export const AnimatedImage = forwardRef<
 			return () => {
 				controller.abort();
 			};
-		}, [resolvedSrc, decodeHandle, onLoad, onError, initialLoopBehavior]);
+		}, [resolvedSrc, decodeHandle, onError, initialLoopBehavior]);
 
 		useLayoutEffect(() => {
 			if (!imageDecoder) {
