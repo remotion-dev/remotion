@@ -87,19 +87,15 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
   const fps = 30;
   const videos = await Promise.all([
     ...props.videos.map(async (video): Promise<VideoToEmbed> => {
-      const {durationInSeconds} = await parseMedia({
+      const {slowDurationInSeconds} = await parseMedia({
         src: video.src,
         fields: {
-          durationInSeconds: true,
+          slowDurationInSeconds: true,
         },
       });
 
-      if (durationInSeconds === null) {
-        throw new Error(`Could not get video duration of ${durationInSeconds}`);
-      }
-
       return {
-        durationInFrames: Math.floor(durationInSeconds * fps),
+        durationInFrames: Math.floor(slowDurationInSeconds * fps),
         src: video.src,
       };
     }),
@@ -149,19 +145,15 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
   const fps = 30;
   const videos = await Promise.all([
     ...props.videos.map(async (video): Promise<VideoToEmbed> => {
-      const {durationInSeconds} = await parseMedia({
+      const {slowDurationInSeconds} = await parseMedia({
         src: video.src,
         fields: {
-          durationInSeconds: true,
+          slowDurationInSeconds: true,
         },
       });
 
-      if (durationInSeconds === null) {
-        throw new Error(`Could not get video duration of ${durationInSeconds}`);
-      }
-
       return {
-        durationInFrames: Math.floor(durationInSeconds * fps),
+        durationInFrames: Math.floor(slowDurationInSeconds * fps),
         src: video.src,
       };
     }),

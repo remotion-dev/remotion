@@ -40,16 +40,13 @@ export const Root: React.FC = () => {
         src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
       }}
       calculateMetadata={async ({props}) => {
-        const {durationInSeconds} = await parseMedia({
+        const {slowDurationInSeconds} = await parseMedia({
           src: props.src,
-          fields: {durationInSeconds: true},
+          fields: {slowDurationInSeconds: true},
         });
-        if (durationInSeconds === null) {
-          throw new Error('Could not read duration of video');
-        }
 
         return {
-          durationInFrames: Math.floor(durationInSeconds * 30),
+          durationInFrames: Math.floor(slowDurationInSeconds * 30),
         };
       }}
     />
@@ -85,15 +82,11 @@ export const Index: React.FC = () => {
     parseMedia({
       src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
       fields: {
-        durationInSeconds: true,
+        slowDurationInSeconds: true,
       },
     })
-      .then(({durationInSeconds}) => {
-        if (durationInSeconds === null) {
-          throw new Error('Could not read duration of video');
-        }
-
-        setDuration(Math.round(durationInSeconds * 30));
+      .then(({slowDurationInSeconds}) => {
+        setDuration(Math.round(slowDurationInSeconds * 30));
         continueRender(handle);
       })
       .catch((err) => {
@@ -163,15 +156,11 @@ export const Index: React.FC = () => {
     parseMedia({
       src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
       fields: {
-        durationInSeconds: true,
+        slowDurationInSeconds: true,
       },
     })
-      .then(({durationInSeconds}) => {
-        if (durationInSeconds === null) {
-          throw new Error('Could not read duration of video');
-        }
-
-        setDuration(Math.round(durationInSeconds * 30));
+      .then(({slowDurationInSeconds}) => {
+        setDuration(Math.round(slowDurationInSeconds * 30));
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
