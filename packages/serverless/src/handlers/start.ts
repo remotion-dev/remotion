@@ -4,8 +4,8 @@ import {ServerlessRoutines, overallProgressKey} from '../constants';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import type {CloudProvider} from '../types';
 
@@ -24,7 +24,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');

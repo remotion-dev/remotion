@@ -22,8 +22,8 @@ import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 import type {OnStream} from '../streaming/streaming';
@@ -45,7 +45,7 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(

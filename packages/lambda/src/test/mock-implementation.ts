@@ -1,8 +1,9 @@
 import {openBrowser} from '@remotion/renderer';
 import type {
+	FullClientSpecifics,
 	GetBrowserInstance,
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '@remotion/serverless';
 import {Readable} from 'stream';
 import {estimatePrice} from '../api/estimate-price';
@@ -16,6 +17,7 @@ import {
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
 import {isFlakyError} from '../shared/is-flaky-error';
+import {mockBundleSite} from '../shared/mock-bundle-site';
 import {randomHashImplementation} from '../shared/random-hash';
 import {
 	getMockCallFunctionAsync,
@@ -173,7 +175,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	getFunctions: getAllMockFunctions,
 };
 
-export const mockServerImplementation: ServerProviderSpecifics = {
+export const mockServerImplementation: InsideFunctionSpecifics = {
 	forgetBrowserEventLoop: () => {},
 	getBrowserInstance,
 	timer: () => ({
@@ -188,4 +190,9 @@ export const mockServerImplementation: ServerProviderSpecifics = {
 			timeoutInSeconds: 120,
 		}),
 	getCurrentMemorySizeInMb: () => 3009,
+};
+
+export const mockFullClientSpecifics: FullClientSpecifics = {
+	bundleSite: mockBundleSite,
+	id: '__remotion_full_client_specifics',
 };

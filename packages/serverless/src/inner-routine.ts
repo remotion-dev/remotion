@@ -15,8 +15,8 @@ import {getWarm, setWarm} from './is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from './provider-implementation';
 import type {OrError} from './return-values';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
@@ -35,7 +35,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 	webhookClient: WebhookClient;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
@@ -344,7 +344,7 @@ export const innerRoutine = async <Provider extends CloudProvider>({
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 	webhookClient: WebhookClient;
 }): Promise<void> => {
 	try {

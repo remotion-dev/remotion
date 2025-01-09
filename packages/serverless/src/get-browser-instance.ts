@@ -4,8 +4,8 @@ import {VERSION} from 'remotion/version';
 import type {Await} from './await';
 import type {
 	GetBrowserInstance,
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from './provider-implementation';
 import type {CloudProvider} from './types';
 
@@ -71,7 +71,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

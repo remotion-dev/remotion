@@ -6,8 +6,8 @@ import {ServerlessRoutines} from '../constants';
 import {} from '../get-browser-instance';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import type {CloudProvider} from '../types';
 
@@ -19,7 +19,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>(
 	lambdaParams: ServerlessPayload<Provider>,
 	options: Options,
 	providerSpecifics: ProviderSpecifics<Provider>,
-	serverProviderSpecifics: ServerProviderSpecifics,
+	serverProviderSpecifics: InsideFunctionSpecifics,
 ) => {
 	if (lambdaParams.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');

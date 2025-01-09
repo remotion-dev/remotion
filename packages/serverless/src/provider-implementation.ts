@@ -1,3 +1,4 @@
+import type {bundle} from '@remotion/bundler';
 import type {
 	ChromiumOptions,
 	EmittedArtifact,
@@ -223,7 +224,7 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }) => Promise<LaunchedBrowser>;
 
 export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
@@ -264,7 +265,7 @@ export type GetFunctions<Provider extends CloudProvider> = (
 	params: GetFunctionsInput<Provider>,
 ) => Promise<FunctionInfo[]>;
 
-export type ServerProviderSpecifics = {
+export type InsideFunctionSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 	timer: DebuggingTimer;
@@ -272,6 +273,11 @@ export type ServerProviderSpecifics = {
 	deleteTmpDir: () => Promise<void>;
 	getCurrentFunctionName: () => string;
 	getCurrentMemorySizeInMb: () => number;
+};
+
+export type FullClientSpecifics = {
+	id: '__remotion_full_client_specifics';
+	bundleSite: typeof bundle;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {

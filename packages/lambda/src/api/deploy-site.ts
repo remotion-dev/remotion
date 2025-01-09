@@ -2,13 +2,16 @@ import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {
+	FullClientSpecifics,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import {validateBucketName, validatePrivacy} from '@remotion/serverless/client';
 import fs from 'node:fs';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import type {AwsRegion} from '../regions';
-import {bundleSite} from '../shared/bundle-site';
 import {getSitesKey} from '../shared/constants';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
@@ -65,9 +68,11 @@ const mandatoryDeploySite = async ({
 	throwIfSiteExists,
 	providerSpecifics,
 	forcePathStyle,
+	fullClientSpecifics,
 }: MandatoryParameters &
 	OptionalParameters & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		fullClientSpecifics: FullClientSpecifics;
 	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
@@ -100,7 +105,7 @@ const mandatoryDeploySite = async ({
 			prefix: `${subFolder}/`,
 			forcePathStyle,
 		}),
-		bundleSite({
+		fullClientSpecifics.bundleSite({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
@@ -206,5 +211,6 @@ export const deploySite = (args: DeploySiteInput) => {
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
 		providerSpecifics: awsImplementation,
 		forcePathStyle: args.forcePathStyle ?? false,
+		fullClientSpecifics: awsFullClientSpecifics,
 	});
 };

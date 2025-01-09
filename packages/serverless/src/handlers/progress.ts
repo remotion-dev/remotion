@@ -3,8 +3,8 @@ import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines} from '../constants';
 import {getProgress} from '../progress';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import type {GenericRenderProgress} from '../render-progress';
 import type {CloudProvider} from '../types';
@@ -14,7 +14,7 @@ type Options<Provider extends CloudProvider> = {
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 };
 
 export const progressHandler = async <Provider extends CloudProvider>(

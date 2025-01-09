@@ -4,7 +4,10 @@ import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
 import {getDirFiles} from '../../api/upload-dir';
 import {awsImplementation} from '../../functions/aws-implementation';
-import {mockImplementation} from '../mock-implementation';
+import {
+	mockFullClientSpecifics,
+	mockImplementation,
+} from '../mock-implementation';
 
 test('Should throw on wrong prefix', async () => {
 	await expect(
@@ -21,6 +24,7 @@ test('Should throw on wrong prefix', async () => {
 			siteName: mockImplementation.randomHash(),
 			throwIfSiteExists: true,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).rejects.toThrow(/The bucketName parameter must start /);
 });
@@ -59,6 +63,7 @@ test("Should throw if bucket doesn't exist", () => {
 			privacy: 'public',
 			throwIfSiteExists: true,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).rejects.toThrow(
 		/No bucket with the name remotionlambda-non-existed exists/,
@@ -88,6 +93,7 @@ test('Should apply name if given', async () => {
 			throwIfSiteExists: true,
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -125,6 +131,7 @@ test('Should overwrite site if given siteName is already taken', async () => {
 			privacy: 'public',
 			throwIfSiteExists: false,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -161,6 +168,7 @@ test('Should delete the previous site if deploying the new one', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 	await internalDeploySite({
 		bucketName,
@@ -175,6 +183,7 @@ test('Should delete the previous site if deploying the new one', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -219,6 +228,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 	await internalDeploySite({
 		bucketName,
@@ -233,6 +243,7 @@ test('Should keep the previous site if deploying the new one with different ID',
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -297,6 +308,7 @@ test('Should not delete site with same prefix', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 	await internalDeploySite({
 		gitSource: null,
@@ -311,6 +323,7 @@ test('Should not delete site with same prefix', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 	await internalDeploySite({
 		gitSource: null,
@@ -325,6 +338,7 @@ test('Should not delete site with same prefix', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
 	});
 
 	const files = await mockImplementation.listObjects({

@@ -1,4 +1,4 @@
-import type {ServerProviderSpecifics} from '@remotion/serverless';
+import type {InsideFunctionSpecifics} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoopImplementation,
 	getBrowserInstanceImplementation,
@@ -7,7 +7,7 @@ import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
 import {timer} from './helpers/timer';
 
-export const serverAwsImplementation: ServerProviderSpecifics = {
+export const serverAwsImplementation: InsideFunctionSpecifics = {
 	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
 	getBrowserInstance: getBrowserInstanceImplementation,
 	timer,

@@ -10,6 +10,7 @@ import {
 } from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsProvider} from '../../../functions/aws-implementation';
+import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
@@ -216,6 +217,7 @@ export const sitesCreateSubcommand = async (
 		throwIfSiteExists,
 		providerSpecifics: implementation,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		fullClientSpecifics: awsFullClientSpecifics,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

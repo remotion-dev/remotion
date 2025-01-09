@@ -20,8 +20,8 @@ import {RENDERER_PATH_TOKEN, ServerlessRoutines} from '../constants';
 import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import {serializeArtifact} from '../serialize-artifact';
 import type {OnStream} from '../streaming/streaming';
@@ -54,7 +54,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	logs: BrowserLog[];
 	onStream: OnStream<Provider>;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -423,7 +423,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }): Promise<{
 	type: 'success';
 }> => {

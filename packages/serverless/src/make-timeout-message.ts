@@ -1,8 +1,8 @@
 import {ServerlessRoutines} from './constants';
 import {DOCS_URL} from './docs-url';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
@@ -20,7 +20,7 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	renderMetadata: RenderMetadata<Provider>;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -78,7 +78,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	region: Provider['region'];
 	functionName: string;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	serverProviderSpecifics: InsideFunctionSpecifics;
 }) => {
 	const cloudWatchRendererUrl =
 		providerSpecifics.getLoggingUrlForRendererFunction({
