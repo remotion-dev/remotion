@@ -16,7 +16,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
 	"dependencies": {
-		"@typescript-eslint/utils": "5.19.0",
+		"@typescript-eslint/utils": "8.19.1",
 		"@typescript-eslint/rule-tester": "8.19.1"
 	},
 	"keywords": [
