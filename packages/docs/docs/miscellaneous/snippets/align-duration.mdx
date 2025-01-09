@@ -47,22 +47,18 @@ import {parseMedia} from '@remotion/media-parser';
 export const calculateMetadata: CalculateMetadataFunction<
   MyCompProps
 > = async ({props}) => {
-  const {durationInSeconds, dimensions} = await parseMedia({
+  const {slowDurationInSeconds, dimensions} = await parseMedia({
     src: props.src,
     fields: {
-      durationInSeconds: true,
+      slowDurationInSeconds: true,
       dimensions: true,
     },
   });
 
-  if (durationInSeconds === null) {
-    throw new Error('Could not get video duration');
-  }
-
   const fps = 30;
 
   return {
-    durationInFrames: Math.floor(durationInSeconds * fps),
+    durationInFrames: Math.floor(slowDurationInSeconds * fps),
     fps,
     width: dimensions.width,
     height: dimensions.height,
