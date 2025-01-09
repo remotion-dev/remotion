@@ -532,6 +532,11 @@ export const displayHeight = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const displayUnit = {
+	name: 'DisplayUnit',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const flagLacing = {
 	name: 'FlagLacing',
 	type: 'uint',
@@ -893,6 +898,7 @@ export const ebmlMap = {
 	[matroskaElements.BitDepth]: bitDepth,
 	[matroskaElements.DisplayHeight]: displayHeight,
 	[matroskaElements.DisplayWidth]: displayWidth,
+	[matroskaElements.DisplayUnit]: displayUnit,
 	[matroskaElements.FlagLacing]: flagLacing,
 	[matroskaElements.Tags]: tags,
 	[matroskaElements.Tag]: tagSegment,
