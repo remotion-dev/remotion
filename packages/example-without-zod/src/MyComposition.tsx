@@ -1,3 +1,10 @@
+import {OffthreadVideo} from 'remotion';
+
 export const MyComposition = () => {
-	return null;
+	return (
+		<OffthreadVideo
+			src="https://www.w3schools.com/html"
+			delayRenderRetries={2}
+		/>
+	);
 };

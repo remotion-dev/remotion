@@ -20,6 +20,7 @@ import {ZodOptionalEditor} from './ZodOptionalEditor';
 import {ZodStaticFileEditor} from './ZodStaticFileEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodTextareaEditor} from './ZodTextareaEditor';
+import {ZodTupleEditor} from './ZodTupleEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 import type {JSONPath} from './zod-types';
 
@@ -415,6 +416,24 @@ export const ZodSwitch: React.FC<{
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				showSaveButton={showSaveButton}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
+		return (
+			<ZodTupleEditor
+				setValue={setValue as UpdaterFunction<unknown[]>}
+				value={value as unknown[]}
+				jsonPath={jsonPath}
+				schema={schema}
+				defaultValue={defaultValue as unknown[]}
+				onSave={onSave as UpdaterFunction<unknown[]>}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}

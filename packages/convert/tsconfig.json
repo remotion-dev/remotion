@@ -6,11 +6,12 @@
 		"**/.server/**/*.ts",
 		"**/.server/**/*.tsx",
 		"**/.client/**/*.ts",
-		"**/.client/**/*.tsx"
+		"**/.client/**/*.tsx",
+		"test"
 	],
 	"compilerOptions": {
-		"lib": ["DOM", "DOM.Iterable", "ES2022"],
-		"types": ["@remix-run/node", "vite/client"],
+		"lib": ["WebWorker", "DOM", "DOM.Iterable", "ES2022"],
+		"types": ["@remix-run/node", "vite/client", "@types/bun"],
 		"isolatedModules": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
@@ -35,6 +36,9 @@
 	"references": [
 		{
 			"path": "../media-parser"
+		},
+		{
+			"path": "../webcodecs"
 		}
 	]
 }

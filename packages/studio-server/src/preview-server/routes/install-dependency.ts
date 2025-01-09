@@ -3,32 +3,12 @@ import {
 	listOfInstallableRemotionPackages,
 	type InstallPackageRequest,
 	type InstallPackageResponse,
-	type PackageManager,
 } from '@remotion/studio-shared';
 import {spawn} from 'node:child_process';
 import {VERSION} from 'remotion/version';
+import {getInstallCommand} from '../../helpers/install-command';
 import type {ApiHandler} from '../api-types';
 import {getPackageManager, lockFilePaths} from '../get-package-manager';
-
-export const getInstallCommand = ({
-	manager,
-	packages,
-	version,
-}: {
-	manager: PackageManager;
-	packages: string[];
-	version: string;
-}): string[] => {
-	const pkgList = packages.map((p) => `${p}@${version}`);
-	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', '--exact', ...pkgList],
-		bun: ['i', ...pkgList],
-	};
-
-	return commands[manager];
-};
 
 export const handleInstallPackage: ApiHandler<
 	InstallPackageRequest,
@@ -55,6 +35,7 @@ export const handleInstallPackage: ApiHandler<
 		manager: manager.manager,
 		packages: packageNames,
 		version: VERSION,
+		additionalArgs: [],
 	});
 
 	RenderInternals.Log.info(

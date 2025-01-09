@@ -1,4 +1,4 @@
-export {Instruction} from '@remotion/paths';
+export type {Instruction} from '@remotion/paths';
 export {Circle, CircleProps} from './components/circle';
 export {Ellipse, EllipseProps} from './components/ellipse';
 export {Pie, PieProps} from './components/pie';

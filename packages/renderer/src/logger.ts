@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
@@ -31,6 +32,11 @@ export const Log = {
 	) => {
 		writeInRepro('verbose', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
 			return console.log(
 				...[
 					options.indent ? INDENT_TOKEN : null,
@@ -44,14 +50,26 @@ export const Log = {
 	info: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('info', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
 			return console.log(
-				...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
+				...[options.indent ? INDENT_TOKEN : null]
+					.filter(truthy)
+					.concat(args ?? []),
 			);
 		}
 	},
 	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('warn', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
 			return console.warn(
 				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
 					.filter(truthy)
@@ -65,6 +83,11 @@ export const Log = {
 	) => {
 		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'error')) {
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
 			return console.error(
 				...[
 					options.indent ? INDENT_TOKEN : null,

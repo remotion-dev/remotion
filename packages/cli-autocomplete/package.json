@@ -2,13 +2,14 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli-autocomplete"
 	},
-	"version": "4.0.226",
+	"version": "4.0.246",
 	"name": "@remotion/fig-autocomplete",
 	"private": true,
 	"devDependencies": {
 		"@fig/eslint-config-autocomplete": "1.2.1",
 		"@withfig/autocomplete-types": "^1.20.0",
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"eslint": "8.57.1"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",

@@ -4,30 +4,29 @@
   "description": "A React Three Fiber Project",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render Scene",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
   },
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@react-three/fiber": "8.13.5",
+    "@react-three/fiber": "9.0.0-rc.1",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "three": "0.158.0",
-    "zod": "3.23.8"
+    "three": "0.171.0"
   },
   "devDependencies": {
     "@remotion/eslint-config": "workspace:*",
-    "@types/react": "18.3.1",
-    "@types/three": "0.157.2",
+    "@types/react": "19.0.0",
+    "@types/three": "0.170.0",
     "@types/web": "0.0.166",
-    "eslint": "8.56.0",
+    "eslint": "8.57.1",
     "prettier": "3.3.3",
     "typescript": "5.5.4"
   },

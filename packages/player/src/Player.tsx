@@ -26,7 +26,7 @@ import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
@@ -87,6 +87,7 @@ export type PlayerProps<
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 	readonly overflowVisible?: boolean;
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
+	readonly overrideInternalClassName?: string;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -149,6 +150,7 @@ const PlayerFn = <
 		overflowVisible = false,
 		renderMuteButton,
 		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
+		overrideInternalClassName,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -342,11 +344,11 @@ const PlayerFn = <
 			// Inject CSS only on client, and also only after the Player has hydrated
 			Internals.CSSUtils.injectCSS(
 				Internals.CSSUtils.makeDefaultPreviewCSS(
-					`.${PLAYER_CSS_CLASSNAME}`,
+					`.${playerCssClassname(overrideInternalClassName)}`,
 					'#fff',
 				),
 			);
-		}, []);
+		}, [overrideInternalClassName]);
 	}
 
 	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
@@ -420,6 +422,7 @@ const PlayerFn = <
 							}
 							overflowVisible={overflowVisible}
 							browserMediaControlsBehavior={browserMediaControlsBehavior}
+							overrideInternalClassName={overrideInternalClassName ?? undefined}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
@@ -435,11 +438,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-/**
- * @description Creates and renders a customizable video player with various interactive controls for a React application.
- * @see [Documentation](https://remotion.dev/docs/player/player)
- * @param {PlayerProps<Schema, Props>} props The properties for configuring the player, including video specifics and UI controls.
- * @param {MutableRefObject<PlayerRef>} ref Reference to the player for controlling playback, volume, and other aspects.
- * @returns {JSX.Element} The rendered video player component.
+/*
+ * @description A component which can be rendered in a regular React App to display a Remotion video.
+ * @see [Documentation](https://www.remotion.dev/docs/player/player)
  */
 export const Player = forward(PlayerFn);

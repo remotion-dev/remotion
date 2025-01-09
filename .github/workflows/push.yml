@@ -33,7 +33,7 @@ jobs:
           bun-version: 1.1.20
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: "packages/renderer -> target"
+          workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: build
@@ -41,10 +41,7 @@ jobs:
           pnpm build
       - name: Test Lambda IT
         run: |
-          cd packages/it-tests && pnpm run testlambda
-      - name: Test Lambda E2E
-        run: |
-          cd packages/lambda && pnpm run testintegration
+          pnpm run testlambda
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -72,6 +69,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+      - uses: ruby/setup-ruby@master
+        with:
+          ruby-version: "3.1"
       - name: Setup PHP with PHPUnit
         uses: shivammathur/setup-php@v2
         with:
@@ -90,7 +90,7 @@ jobs:
       - name: Test SSR
         timeout-minutes: 8
         run: |
-          cd packages/it-tests && bun run testssr
+          pnpm run testssr
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting
@@ -107,7 +107,7 @@ jobs:
             ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
@@ -117,7 +117,7 @@ jobs:
         env:
           CI: true
       - name: Perform stylecheck
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           pnpm run stylecheck
   build:
@@ -162,7 +162,7 @@ jobs:
           bun-version: 1.1.20
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: "packages/renderer -> target"
+          workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: Build & Test

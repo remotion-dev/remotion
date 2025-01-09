@@ -3,8 +3,8 @@ import React from "react";
 import styles from "./toc.module.css";
 
 export const TOCItem: React.FC<{
-  link: string;
-  children: React.ReactNode;
+  readonly link: string;
+  readonly children: React.ReactNode;
 }> = ({ link, children }) => {
   return (
     <Link to={link} className={styles.link}>

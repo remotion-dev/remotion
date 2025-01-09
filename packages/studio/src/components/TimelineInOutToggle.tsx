@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import React, {
 	createRef,
 	useCallback,
@@ -45,11 +46,12 @@ export const inOutHandles = createRef<{
 export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 
 export const TimelineInOutPointToggle: React.FC = () => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
+	const {getCurrentFrame, isFirstFrame, isLastFrame} =
+		PlayerInternals.usePlayer();
 
 	const onInOutClear = useCallback(
 		(composition: string) => {
@@ -89,7 +91,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				const prevOut = prev[videoConfig.id]?.outFrame;
 				const biggestPossible =
 					prevOut === undefined || prevOut === null ? Infinity : prevOut - 1;
-				const selected = Math.min(timelinePosition, biggestPossible);
+				const selected = Math.min(getCurrentFrame(), biggestPossible);
 
 				if (selected === 0) {
 					return {
@@ -124,7 +126,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames, timelinePosition, videoConfig],
+		[getCurrentFrame, setInAndOutFrames, videoConfig],
 	);
 
 	const clearInMark = useCallback(
@@ -194,7 +196,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 					prevInFrame === null || prevInFrame === undefined
 						? -Infinity
 						: prevInFrame + 1;
-				const selected = Math.max(timelinePosition, smallestPossible);
+				const selected = Math.max(getCurrentFrame(), smallestPossible);
 
 				if (selected === videoConfig.durationInFrames - 1) {
 					return {
@@ -229,7 +231,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				};
 			});
 		},
-		[setInAndOutFrames, timelinePosition, videoConfig],
+		[getCurrentFrame, setInAndOutFrames, videoConfig],
 	);
 
 	const confId = videoConfig?.id;
@@ -298,9 +300,9 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			<ControlButton
 				title={getTooltipText('In', 'I')}
 				aria-label={getTooltipText('In', 'I')}
-				onClick={(e) => onInMark(e)}
+				onClick={onInMark}
 				onContextMenu={clearInMark}
-				disabled={!videoConfig || timelinePosition === 0}
+				disabled={!videoConfig || isFirstFrame}
 			>
 				<TimelineInPointer
 					color={inFrame === null ? 'white' : BLUE}
@@ -312,9 +314,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('Out', 'O')}
 				onClick={onOutMark}
 				onContextMenu={clearOutMark}
-				disabled={
-					!videoConfig || timelinePosition === videoConfig.durationInFrames - 1
-				}
+				disabled={!videoConfig || isLastFrame}
 			>
 				<TimelineOutPointer
 					color={outFrame === null ? 'white' : BLUE}

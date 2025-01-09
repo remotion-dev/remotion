@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type {TwoSlashReturn} from '@typescript/twoslash';
 import type {UserConfigSettings} from 'shiki-twoslash';
 import {runTwoSlash} from 'shiki-twoslash';

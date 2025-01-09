@@ -1,11 +1,12 @@
 ---
 image: /generated/articles-docs-upgrading.png
 title: Upgrading Remotion
-crumb: "upgrade remotion"
+crumb: 'upgrade remotion'
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {VERSION} from 'remotion/version';
 
 The easiest way to do this is to run the following command in the root of your project:
 
@@ -57,10 +58,58 @@ You need the `@remotion/cli` package installed for this.
 
 ## Manually upgrading Remotion
 
-To upgrade Remotion to the latest version, all `@remotion/*` packages and `remotion` must be updated to the same version.
+<Step>1</Step> Edit the version number of all `@remotion/*` packages and
+`remotion` in your `package.json` for all packages. The current version is {
+  VERSION
+}
+.
 
-Edit the version number in your `package.json` for all packages.
-Delete the `^` in front of the version number in your `package.json` in order to force the exact version you specified.
+<Step>2</Step> Delete the `^` in front of the version number in your
+`package.json` in order to force the exact version you specified.{' '}
+
+<Step>3</Step> Run the install command of your package manager:{' '}
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'bun', value: 'bun', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn
+```
+
+  </TabItem>
+
+  <TabItem value="bun">
+
+```bash
+bun i
+```
+
+  </TabItem>
+</Tabs>
 
 ## Breaking changes
 

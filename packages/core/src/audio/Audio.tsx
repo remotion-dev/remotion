@@ -84,6 +84,16 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(props.src)];
 
 	if (loop && durationFetched !== undefined) {
+		if (!Number.isFinite(durationFetched)) {
+			return (
+				<Audio
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
+			);
+		}
+
 		const duration = durationFetched * fps;
 
 		return (
@@ -164,9 +174,9 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-/**
+/*
  * @description With this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
- * @see [Documentation](https://www.remotion.dev/docs/audio)
+ * @see [Documentation](https://remotion.dev/docs/audio)
  */
 export const Audio = forwardRef(AudioRefForwardingFunction);
 

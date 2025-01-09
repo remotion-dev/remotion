@@ -1,6 +1,9 @@
+import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {validateQualitySettings} from './crf';
 import {getCodecName} from './get-codec-name';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
 import type {X264Preset} from './options/x264-preset';
 import type {PixelFormat} from './pixel-format';
@@ -16,6 +19,7 @@ const firstEncodingStepOnly = ({
 	videoBitrate,
 	encodingMaxRate,
 	encodingBufferSize,
+	hardwareAcceleration,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -26,6 +30,7 @@ const firstEncodingStepOnly = ({
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -45,6 +50,7 @@ const firstEncodingStepOnly = ({
 			codec,
 			encodingMaxRate,
 			encodingBufferSize,
+			hardwareAcceleration,
 		}),
 	].filter(truthy);
 };
@@ -60,6 +66,9 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate,
 	encodingBufferSize,
 	colorSpace,
+	hardwareAcceleration,
+	indent,
+	logLevel,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -71,15 +80,40 @@ export const generateFfmpegArgs = ({
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
 	colorSpace: ColorSpace | null;
+	hardwareAcceleration: HardwareAccelerationOption;
+	indent: boolean;
+	logLevel: LogLevel;
 }): string[][] => {
-	const encoderName = getCodecName(codec);
+	const encoderSettings = getCodecName({
+		codec,
+		encodingMaxRate,
+		encodingBufferSize,
+		crf,
+		hardwareAcceleration,
+		indent,
+		logLevel,
+	});
 
-	if (encoderName === null) {
-		throw new TypeError('encoderName is null: ' + JSON.stringify(codec));
+	if (encoderSettings === null) {
+		throw new TypeError(
+			`encoderSettings is null: ${JSON.stringify(codec)} (hwaccel = ${hardwareAcceleration})`,
+		);
 	}
 
+	const {encoderName, hardwareAccelerated} = encoderSettings;
+	if (!hardwareAccelerated && hardwareAcceleration === 'required') {
+		throw new Error(
+			`Codec ${codec} does not support hardware acceleration on ${process.platform}, but "hardwareAcceleration" is set to "required"`,
+		);
+	}
+
+	Log.verbose(
+		{indent, logLevel, tag: 'stitchFramesToVideo()'},
+		`Encoder: ${encoderName}, hardware accelerated: ${hardwareAccelerated}`,
+	);
+
 	const resolvedColorSpace: ColorSpace =
-		codec === 'gif' ? 'bt601' : colorSpace ?? DEFAULT_COLOR_SPACE;
+		codec === 'gif' ? 'bt601' : (colorSpace ?? DEFAULT_COLOR_SPACE);
 
 	const colorSpaceOptions: string[][] =
 		resolvedColorSpace === 'bt709'
@@ -126,6 +160,7 @@ export const generateFfmpegArgs = ({
 			encodingMaxRate,
 			encodingBufferSize,
 			x264Preset,
+			hardwareAcceleration,
 		}),
 	].filter(truthy);
 };

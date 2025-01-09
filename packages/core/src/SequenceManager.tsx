@@ -31,7 +31,7 @@ export const SequenceVisibilityToggleContext =
 	});
 
 export const SequenceManagerProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const [hidden, setHidden] = useState<Record<string, boolean>>({});

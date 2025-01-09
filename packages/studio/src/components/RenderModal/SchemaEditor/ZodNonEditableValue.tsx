@@ -21,11 +21,11 @@ const wideEmptyLabel: React.CSSProperties = {
 };
 
 export const ZonNonEditableValue: React.FC<{
-	jsonPath: JSONPath;
-	label: string;
-	showSaveButton: boolean;
-	saving: boolean;
-	mayPad: boolean;
+	readonly jsonPath: JSONPath;
+	readonly label: string;
+	readonly showSaveButton: boolean;
+	readonly saving: boolean;
+	readonly mayPad: boolean;
 }> = ({jsonPath, label, showSaveButton, saving, mayPad}) => {
 	const save = useCallback(() => undefined, []);
 	const reset = useCallback(() => undefined, []);

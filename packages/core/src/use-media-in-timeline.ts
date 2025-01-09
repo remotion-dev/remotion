@@ -8,7 +8,7 @@ import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
-import {TimelineContext, usePlayingState} from './timeline-position-state.js';
+import {TimelineContext} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
@@ -37,10 +37,11 @@ export const useMediaInTimeline = ({
 	showInTimeline,
 	premountDisplay,
 	onAutoPlayError,
+	isPremounting,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement>;
+	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
@@ -50,6 +51,7 @@ export const useMediaInTimeline = ({
 	showInTimeline: boolean;
 	premountDisplay: number | null;
 	onAutoPlayError: null | (() => void);
+	isPremounting: boolean;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -57,7 +59,7 @@ export const useMediaInTimeline = ({
 	const actualFrom = parentSequence
 		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
 		: 0;
-	const [playing] = usePlayingState();
+	const {imperativePlaying} = useContext(TimelineContext);
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
@@ -164,8 +166,12 @@ export const useMediaInTimeline = ({
 		const tag: PlayableMediaTag = {
 			id,
 			play: () => {
-				if (!playing) {
+				if (!imperativePlaying.current) {
 					// Don't play if for example in a <Freeze> state.
+					return;
+				}
+
+				if (isPremounting) {
 					return;
 				}
 
@@ -183,5 +189,13 @@ export const useMediaInTimeline = ({
 				(a) => a.id !== id,
 			);
 		};
-	}, [audioAndVideoTags, id, mediaRef, mediaType, onAutoPlayError, playing]);
+	}, [
+		audioAndVideoTags,
+		id,
+		mediaRef,
+		mediaType,
+		onAutoPlayError,
+		imperativePlaying,
+		isPremounting,
+	]);
 };

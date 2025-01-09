@@ -1,9 +1,9 @@
 import React from "react";
 
 export const Triangle: React.FC<{
-  size: number;
-  opacity: number;
-  color1?: string;
+  readonly size: number;
+  readonly opacity: number;
+  readonly color1?: string;
 }> = ({ size, opacity, color1 = "#42e9f5" }) => {
   return (
     <svg

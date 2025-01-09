@@ -1,7 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../../api/deploy-function';
+import {AwsProvider} from '../../../functions/aws-implementation';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -16,10 +18,19 @@ import {validateVpcSecurityGroupIds} from '../../../shared/validate-vpc-security
 import {validateVpcSubnetIds} from '../../../shared/validate-vpc-subnet-ids';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
+import {Log} from '../../log';
 
 export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
-export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
+export const functionsDeploySubcommand = async ({
+	logLevel,
+	providerSpecifics,
+	fullClientSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+}) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
@@ -31,6 +42,12 @@ export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
 	const cloudWatchLogRetentionPeriodInDays =
 		parsedLambdaCli['retention-period'] ?? DEFAULT_CLOUDWATCH_RETENTION_PERIOD;
 	const enableV5Runtime = parsedLambdaCli['enable-v5-runtime'] ?? undefined;
+	if (enableV5Runtime) {
+		Log.warn(
+			{logLevel, indent: false},
+			`The --enable-v5-runtime flag is now enabled by default and has no function anymore.`,
+		);
+	}
 	const vpcSubnetIds = parsedLambdaCli['vpc-subnet-ids'] ?? undefined;
 	const vpcSecurityGroupIds =
 		parsedLambdaCli['vpc-security-group-ids'] ?? undefined;
@@ -87,12 +104,13 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		diskSizeInMb,
 		customRoleArn,
 		enableLambdaInsights,
-		enableV5Runtime,
 		indent: false,
 		logLevel,
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference,
+		providerSpecifics,
+		fullClientSpecifics,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info({indent: false, logLevel}, functionName);

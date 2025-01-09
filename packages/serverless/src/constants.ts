@@ -12,7 +12,9 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {CloudProvider} from './still';
+import type {ExpensiveChunk} from './most-expensive-chunks';
+import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 // Needs to be in sync with renderer/src/options/delete-after.ts#L7
 export const expiryDays = {
@@ -124,10 +126,10 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	codec: ServerlessCodec;
 	audioCodec: AudioCodec | null;
 	imageFormat: VideoImageFormat;
-	crf: number | undefined;
+	crf: number | undefined | null;
 	envVariables: Record<string, string> | undefined;
-	pixelFormat: PixelFormat | undefined;
-	proResProfile: ProResProfile | undefined;
+	pixelFormat: PixelFormat | undefined | null;
+	proResProfile: ProResProfile | undefined | null;
 	x264Preset: X264Preset | null;
 	jpegQuality: number | undefined;
 	maxRetries: number;
@@ -172,17 +174,17 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		type: ServerlessRoutines.launch;
 		serveUrl: string;
 		composition: string;
-		framesPerLambda: number | null;
+		framesPerFunction: number | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
 		imageFormat: VideoImageFormat;
 		codec: ServerlessCodec;
 		audioCodec: AudioCodec | null;
-		crf: number | undefined;
+		crf: number | null;
 		envVariables: Record<string, string> | undefined;
-		pixelFormat: PixelFormat | undefined;
-		proResProfile: ProResProfile | undefined;
+		pixelFormat: PixelFormat | null;
+		proResProfile: ProResProfile | null;
 		x264Preset: X264Preset | null;
 		jpegQuality: number | undefined;
 		maxRetries: number;
@@ -195,7 +197,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		scale: number;
 		everyNthFrame: number;
 		numberOfGifLoops: number | null;
-		concurrencyPerLambda: number;
+		concurrencyPerFunction: number;
 		downloadBehavior: DownloadBehavior;
 		muted: boolean;
 		overwrite: boolean;
@@ -231,10 +233,10 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		renderId: string;
 		imageFormat: VideoImageFormat;
 		codec: ServerlessCodec;
-		crf: number | undefined;
-		proResProfile: ProResProfile | undefined;
+		crf: number | null;
+		proResProfile: ProResProfile | null;
 		x264Preset: X264Preset | null;
-		pixelFormat: PixelFormat | undefined;
+		pixelFormat: PixelFormat | null;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
@@ -357,3 +359,42 @@ export const overallProgressKey = (renderId: string) =>
 
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;
+
+export type PostRenderData<Provider extends CloudProvider> = {
+	cost: AfterRenderCost;
+	outputFile: string;
+	outputSize: number;
+	renderSize: number;
+	timeToFinish: number;
+	timeToRenderFrames: number;
+	errors: EnhancedErrorInfo[];
+	startTime: number;
+	endTime: number;
+	filesCleanedUp: number;
+	timeToEncode: number;
+	timeToCleanUp: number;
+	timeToRenderChunks: number;
+	retriesInfo: ChunkRetry[];
+	mostExpensiveFrameRanges: ExpensiveChunk[] | undefined;
+	estimatedBillingDurationInMilliseconds: number;
+	deleteAfter: DeleteAfter | null;
+	timeToCombine: number | null;
+	artifactProgress: ReceivedArtifact<Provider>[];
+};
+
+export type AfterRenderCost = {
+	estimatedCost: number;
+	estimatedDisplayCost: string;
+	currency: string;
+	disclaimer: string;
+};
+
+export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
+export const MAX_FUNCTIONS_PER_RENDER = 200;
+export const MINIMUM_FRAMES_PER_LAMBDA = 4;
+
+export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
+export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
+
+export const RENDERER_PATH_TOKEN = 'remotion-bucket';
+export const COMMAND_NOT_FOUND = 'Command not found';

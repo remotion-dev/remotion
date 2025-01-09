@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
@@ -43,34 +43,42 @@ export const useSelectComposition = () => {
 	const isMobileLayout = useMobileLayout();
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
-	return (c: AnyComposition, push: boolean) => {
-		if (push) {
-			pushUrl(`/${c.id}`);
-		}
-
-		explorerSidebarTabs.current?.selectCompositionPanel();
-
-		setCanvasContent({type: 'composition', compositionId: c.id});
-
-		const {folderName, parentFolderName} = c;
-
-		if (folderName !== null) {
-			setCompositionFoldersExpanded((ex) => {
-				const keysToExpand = getKeysToExpand(folderName, parentFolderName);
-				const newState: ExpandedFoldersState = {
-					...ex,
-				};
-				for (const key of keysToExpand) {
-					newState[key] = true;
-				}
-
-				return newState;
-			});
-			if (isMobileLayout) {
-				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+	return useCallback(
+		(c: AnyComposition, push: boolean) => {
+			if (push) {
+				pushUrl(`/${c.id}`);
 			}
-		}
-	};
+
+			explorerSidebarTabs.current?.selectCompositionPanel();
+
+			setCanvasContent({type: 'composition', compositionId: c.id});
+
+			const {folderName, parentFolderName} = c;
+
+			if (folderName !== null) {
+				setCompositionFoldersExpanded((ex) => {
+					const keysToExpand = getKeysToExpand(folderName, parentFolderName);
+					const newState: ExpandedFoldersState = {
+						...ex,
+					};
+					for (const key of keysToExpand) {
+						newState[key] = true;
+					}
+
+					return newState;
+				});
+				if (isMobileLayout) {
+					setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
+				}
+			}
+		},
+		[
+			isMobileLayout,
+			setCanvasContent,
+			setCompositionFoldersExpanded,
+			setSidebarCollapsedState,
+		],
+	);
 };
 
 export const InitialCompositionLoader: React.FC = () => {

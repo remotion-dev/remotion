@@ -5,8 +5,8 @@ import {PlayerEmitter} from './event-emitter.js';
 import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
 
 export const PlayerEmitterProvider: React.FC<{
-	children: React.ReactNode;
-	currentPlaybackRate: number | null;
+	readonly children: React.ReactNode;
+	readonly currentPlaybackRate: number | null;
 }> = ({children, currentPlaybackRate}) => {
 	const [emitter] = useState(() => new PlayerEmitter());
 	const bufferManager = useContext(Internals.BufferingContextReact);

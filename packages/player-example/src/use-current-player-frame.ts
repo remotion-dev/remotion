@@ -1,7 +1,9 @@
 import {CallbackListener, PlayerRef} from '@remotion/player';
 import {useCallback, useSyncExternalStore} from 'react';
 
-export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef>) => {
+export const useCurrentPlayerFrame = (
+	ref: React.RefObject<PlayerRef | null>,
+) => {
 	const subscribe = useCallback(
 		(onStoreChange: (newVal: number) => void) => {
 			const {current} = ref;

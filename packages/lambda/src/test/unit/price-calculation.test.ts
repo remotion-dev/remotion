@@ -1,9 +1,9 @@
-import {expect, test} from 'vitest';
-import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
+import {estimatePriceFromBucket} from '@remotion/serverless';
+import {expect, test} from 'bun:test';
+import {awsImplementation} from '../../functions/aws-implementation';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
-	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({
@@ -45,7 +45,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 		},
 		diskSizeInMb: 512,
-		lambdasInvoked: 1,
+		functionsInvoked: 1,
 		timings: [
 			{
 				chunk: 1,
@@ -54,6 +54,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 		],
 		region: 'eu-central-1',
+		providerSpecifics: awsImplementation,
 	});
 	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
 });

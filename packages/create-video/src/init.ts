@@ -31,7 +31,7 @@ const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
 	try {
 		execa.sync(commandToCheck, argsToCheck);
 		return true;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };
@@ -54,7 +54,7 @@ export const checkGitAvailability = async (
 			cwd,
 		});
 		return {type: 'is-git-repo', location: result.stdout};
-	} catch (e) {
+	} catch {
 		return {
 			type: 'no-git-repo',
 		};
@@ -111,7 +111,9 @@ export const init = async () => {
 
 	const selectedTemplate = await selectTemplate();
 
-	const shouldOverrideTailwind = selectedTemplate ? await askTailwind() : false;
+	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
+		? await askTailwind()
+		: false;
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);

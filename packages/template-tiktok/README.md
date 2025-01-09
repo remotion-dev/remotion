@@ -28,13 +28,13 @@ npm run dev
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Captioning
@@ -65,6 +65,11 @@ Captioning will download Whisper.cpp and the 1.5GB big `medium.en` model. To con
 ### Non-English languages
 
 To support non-English languages, you need to change the `WHISPER_MODEL` variable in `whisper-config.mjs` to a model that does not have a `.en` sufix.
+
+## Rendering on Lambda
+
+If you plan on deploying this template to Lambda, make sure to enable the [`--enable-v5-runtime`](https://www.remotion.dev/docs/lambda/cli/functions#--enable-v5-runtime) flag.  
+This will enable a Chrome version which supports the `paint-order` CSS property that is required for this template to render properly.
 
 ## Docs
 

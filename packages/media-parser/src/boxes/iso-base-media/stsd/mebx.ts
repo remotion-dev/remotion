@@ -1,8 +1,9 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {AnySegment} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {Options, ParseMediaFields} from '../../../options';
+import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
+import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
-import {parseBoxes} from '../process-box';
+import {parseIsoBaseMediaBoxes} from '../process-box';
 
 export interface MebxBox extends BaseBox {
 	type: 'mebx-box';
@@ -15,31 +16,33 @@ export const parseMebx = async ({
 	iterator,
 	offset,
 	size,
-	options,
-	littleEndian,
+	state,
 	signal,
+	fields,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
-	options: ParserContext;
-	littleEndian: boolean;
+	state: ParserState;
 	signal: AbortSignal | null;
+	fields: Options<ParseMediaFields>;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
 
 	const dataReferenceIndex = iterator.getUint16();
+	const boxes: IsoBaseMediaBox[] = [];
 
-	const children = await parseBoxes({
+	const children = await parseIsoBaseMediaBoxes({
 		iterator,
 		maxBytes: iterator.counter.getOffset() - offset,
 		allowIncompleteBoxes: false,
-		initialBoxes: [],
-		options,
+		initialBoxes: boxes,
+		state,
 		continueMdat: false,
-		littleEndian,
 		signal,
+		logLevel: 'info',
+		fields,
 	});
 
 	if (children.status === 'incomplete') {
@@ -52,6 +55,6 @@ export const parseMebx = async ({
 		offset,
 		dataReferenceIndex,
 		format: 'mebx',
-		children: children.segments,
+		children: boxes,
 	};
 };

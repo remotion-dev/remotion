@@ -76,7 +76,7 @@ The default value of `overwrite` has been changed to `true` in `renderMediaOnLam
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
 The `shouldDumpIo` option has been be removed in 5.0.  
-Use `logLevel` instead.
+Use `logLevel: "verbose"` instead.
 
 ## `diskSizeInMb` is now 10240 by default
 
@@ -87,6 +87,11 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 
 - If you want to keep the old behavior, set `diskSizeInMb: 2048`, explicitly.
 - If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use `speculateFunctionName()` to get the correct name.
+
+## Some APIs should be imported from `@remotion/lambda/client`
+
+`renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
+They are now available in `@remotion/lambda/client`.
 
 ## License changes
 

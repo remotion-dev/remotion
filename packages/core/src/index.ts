@@ -7,7 +7,6 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
-import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
 import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
@@ -60,7 +59,6 @@ declare global {
 		remotion_inputProps: string;
 		remotion_envVariables: string;
 		remotion_collectAssets: () => TRenderAsset[];
-		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
 		remotion_isReadOnlyStudio: boolean;
@@ -93,6 +91,7 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
+export * from './animated-image/index.js';
 export {Artifact} from './Artifact.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
@@ -124,7 +123,6 @@ export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {Loop} from './loop/index.js';
-export {ClipRegion} from './NativeLayers.js';
 export {
 	EasingFunction,
 	ExtrapolateType,

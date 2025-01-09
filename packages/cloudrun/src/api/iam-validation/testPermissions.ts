@@ -20,12 +20,9 @@ type TestPermissionsOutput = {
 	results: TestResult[];
 };
 
-/**
- * @description Test the permissions on the service account match the permissions required.
- * @see [Remotion-Documentation](http://remotion.dev/docs/cloudrun/testpermissions)
- * @see [Cloudrun-Documentation](https://cloud.google.com/resource-manager/reference/rest/v3/projects/testIamPermissions)
- * @param {(result: TestResult) => void} params.onTest Function to run on each test result
- * @returns {Promise<TestPermissionsOutput>} Returns array of TestResult objects
+/*
+ * @description Makes a call to the Test Iam Permissions method of the Resource Manager API in GCP, which returns the list of permissions the Service Account has on the GCP Project. This is then validated against the list of permissions required for the version of Remotion.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/testpermissions)
  */
 export const testPermissions = async (
 	params?: TestPermissionsInput,

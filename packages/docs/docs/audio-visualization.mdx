@@ -2,7 +2,7 @@
 image: /generated/articles-docs-audio-visualization.png
 title: Audio visualization
 id: audio-visualization
-crumb: "Techniques"
+crumb: 'Techniques'
 ---
 
 Remotion has APIs for visualizing audio, for example for creating audiograms or music visualizers.
@@ -14,14 +14,14 @@ Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio 
 Refer to the documentation of the above mentioned functions to learn more.
 
 ```tsx twoslash
-import { useAudioData, visualizeAudio } from "@remotion/media-utils";
-import { Audio, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import {useAudioData, visualizeAudio} from '@remotion/media-utils';
+import {Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
-const music = staticFile("music.mp3");
+const music = staticFile('music.mp3');
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
-  const { width, height, fps } = useVideoConfig();
+  const {width, height, fps} = useVideoConfig();
   const audioData = useAudioData(music);
 
   if (!audioData) {
@@ -42,9 +42,7 @@ export const MyComponent: React.FC = () => {
       <Audio src={music} />
       {visualization.map((v) => {
         return (
-          <div
-            style={{ width: 1000 * v, height: 15, backgroundColor: "blue" }}
-          />
+          <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
         );
       })}
     </div>
@@ -52,8 +50,17 @@ export const MyComponent: React.FC = () => {
 };
 ```
 
+## Working with large files
+
+[`useAudioData()`](/docs/use-audio-data) loads the entire audio file into memory.  
+This is fine for small files, but for large files, it can be slow and consume a lot of memory.
+
+Use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only load a portion of the audio around the current frame.  
+The tradeoff is that this API only works with `.wav` files.
+
 ## See also
 
 - [Using audio](/docs/using-audio)
 - [`useAudioData()`](/docs/use-audio-data)
+- [`useWindowedAudioData()`](/docs/use-windowed-audio-data)
 - [`visualizeAudio()`](/docs/visualize-audio)

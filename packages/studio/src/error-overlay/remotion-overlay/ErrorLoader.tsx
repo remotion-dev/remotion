@@ -39,11 +39,11 @@ type State =
 	  };
 
 export const ErrorLoader: React.FC<{
-	error: Error;
-	keyboardShortcuts: boolean;
-	onRetry: OnRetry;
-	canHaveDismissButton: boolean;
-	calculateMetadata: boolean;
+	readonly error: Error;
+	readonly keyboardShortcuts: boolean;
+	readonly onRetry: OnRetry;
+	readonly canHaveDismissButton: boolean;
+	readonly calculateMetadata: boolean;
 }> = ({
 	error,
 	keyboardShortcuts,

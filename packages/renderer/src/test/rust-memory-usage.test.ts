@@ -1,7 +1,28 @@
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {startLongRunningCompositor} from '../compositor/compositor';
-import {exampleVideos} from '../example-videos';
+
+function getMemoryUsageByPid(pid: string) {
+	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);
+	const str = data.toString('utf-8');
+	const lines = str.split('\n');
+	const last = lines[lines.length - 2];
+
+	if (last.endsWith('G')) {
+		return parseFloat(last.replace('G', '').trim()) * 1024 * 1024 * 1024;
+	}
+
+	if (last.endsWith('M')) {
+		return parseInt(last.replace('M', '').trim(), 10) * 1024 * 1024;
+	}
+
+	if (last.endsWith('K')) {
+		return parseInt(last.replace('K', '').trim(), 10) * 1024;
+	}
+
+	return parseInt(last, 10);
+}
 
 test('Memory usage should be determined ', async () => {
 	if (process.platform !== 'darwin') {
@@ -157,24 +178,3 @@ test('Should be able to take commands for freeing up memory', async () => {
 		getMemoryUsageByPid((compositor.pid as Number).toString()),
 	).toBeLessThan(25 * 1024 * 1024);
 });
-
-function getMemoryUsageByPid(pid: string) {
-	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);
-	const str = data.toString('utf-8');
-	const lines = str.split('\n');
-	const last = lines[lines.length - 2];
-
-	if (last.endsWith('G')) {
-		return parseFloat(last.replace('G', '').trim()) * 1024 * 1024 * 1024;
-	}
-
-	if (last.endsWith('M')) {
-		return parseInt(last.replace('M', '').trim(), 10) * 1024 * 1024;
-	}
-
-	if (last.endsWith('K')) {
-		return parseInt(last.replace('K', '').trim(), 10) * 1024;
-	}
-
-	return parseInt(last, 10);
-}

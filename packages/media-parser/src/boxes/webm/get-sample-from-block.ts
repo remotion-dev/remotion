@@ -1,6 +1,6 @@
 import {getArrayBufferIterator} from '../../buffer-iterator';
-import type {ParserContext} from '../../parser-context';
-import type {AudioSample, VideoSample} from '../../webcodec-sample-types';
+import type {ParserState} from '../../state/parser-state';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import {parseBlockFlags} from './segments/block-simple-block-flags';
@@ -8,15 +8,15 @@ import {parseBlockFlags} from './segments/block-simple-block-flags';
 type SampleResult =
 	| {
 			type: 'video-sample';
-			videoSample: VideoSample;
+			videoSample: AudioOrVideoSample;
 	  }
 	| {
 			type: 'audio-sample';
-			audioSample: AudioSample;
+			audioSample: AudioOrVideoSample;
 	  }
 	| {
 			type: 'partial-video-sample';
-			partialVideoSample: Omit<VideoSample, 'type'>;
+			partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
 	  }
 	| {
 			type: 'no-sample';
@@ -24,7 +24,7 @@ type SampleResult =
 
 export const getSampleFromBlock = (
 	ebml: BlockSegment | SimpleBlockSegment,
-	parserContext: ParserContext,
+	state: ParserState,
 	offset: number,
 ): SampleResult => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
@@ -42,13 +42,11 @@ export const getSampleFromBlock = (
 			: matroskaElements.Block,
 	);
 
-	const {codec, trackTimescale} =
-		parserContext.parserState.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} = state.webm.getTrackInfoByNumber(trackNumber);
 
-	const clusterOffset =
-		parserContext.parserState.getTimestampOffsetForByteOffset(offset);
+	const clusterOffset = state.webm.getTimestampOffsetForByteOffset(offset);
 
-	const timescale = parserContext.parserState.getTimescale();
+	const timescale = state.webm.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error('Could not find offset for byte offset ' + offset);
@@ -68,16 +66,18 @@ export const getSampleFromBlock = (
 		throw new Error(`Could not find codec for track ${trackNumber}`);
 	}
 
-	const remainingNow = ebml.value.length - (iterator.counter.getOffset() - 0);
+	const remainingNow = ebml.value.length - iterator.counter.getOffset();
 
 	if (codec.startsWith('V_')) {
-		const partialVideoSample: Omit<VideoSample, 'type'> = {
+		const partialVideoSample: Omit<AudioOrVideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
-			cts: null,
-			dts: null,
+			cts: timecodeInMicroseconds,
+			dts: timecodeInMicroseconds,
 			duration: undefined,
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
+			offset,
+			timescale,
 		};
 
 		if (keyframe === null) {
@@ -89,7 +89,7 @@ export const getSampleFromBlock = (
 			};
 		}
 
-		const sample: VideoSample = {
+		const sample: AudioOrVideoSample = {
 			...partialVideoSample,
 			type: keyframe ? 'key' : 'delta',
 		};
@@ -103,11 +103,16 @@ export const getSampleFromBlock = (
 	}
 
 	if (codec.startsWith('A_')) {
-		const audioSample: AudioSample = {
+		const audioSample: AudioOrVideoSample = {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
 			type: 'key',
+			duration: undefined,
+			cts: timecodeInMicroseconds,
+			dts: timecodeInMicroseconds,
+			offset,
+			timescale,
 		};
 
 		iterator.destroy();

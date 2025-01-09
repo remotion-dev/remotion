@@ -1,0 +1,22 @@
+---
+image: /generated/articles-docs-webcodecs-get-available-audio-codecs.png
+id: get-available-audio-codecs
+title: getAvailableAudioCodecs()
+slug: /webcodecs/get-available-audio-codecs
+crumb: '@remotion/webcodecs'
+---
+
+Given a container, get a list of audio codecs that the container can hold.  
+This does not mean that a any audio stream of this codec can be put into the container.  
+Use [`canReencodeAudioTrack()`](/docs/webcodecs/can-reencode-audio-track) and [`canCopyAudioTrack()`](/docs/webcodecs/can-copy-audio-track) to determine this.
+
+```tsx twoslash title="Get available audio codecs for a container"
+import {getAvailableAudioCodecs} from '@remotion/webcodecs';
+
+getAvailableAudioCodecs({container: 'webm'}); // ['opus']
+```
+
+## See also
+
+- [Track Transformation](/docs/webcodecs/track-transformation)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/get-available-audio-codecs.ts)

@@ -9,6 +9,7 @@ import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
 	duration: number | null;
+	startTime: number | null;
 };
 
 export type DownloadMap = {
@@ -39,7 +40,6 @@ export type DownloadMap = {
 	stitchFrames: string;
 	assetDir: string;
 	compositingDir: string;
-	compositorCache: {[key: string]: string};
 	preventCleanup: () => void;
 	allowCleanup: () => void;
 	isPreventedFromCleanup: () => boolean;
@@ -92,7 +92,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		audioPreprocessing: makeAndReturn(dir, 'remotion-audio-preprocessing'),
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
 		compositingDir: makeAndReturn(dir, 'remotion-compositing-temp-dir'),
-		compositorCache: {},
 		emitter: new OffthreadVideoServerEmitter(),
 		preventCleanup: () => {
 			prevented = true;

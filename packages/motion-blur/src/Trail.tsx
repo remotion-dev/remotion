@@ -2,14 +2,14 @@ import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 
 export type TrailProps = {
-	children: React.ReactNode;
-	layers: number;
-	lagInFrames: number;
-	trailOpacity: number;
+	readonly children: React.ReactNode;
+	readonly layers: number;
+	readonly lagInFrames: number;
+	readonly trailOpacity: number;
 };
 
-/**
- * @description The <Trail> component duplicates it's children and adds a time offset to each layer in order to create a trail effect.
+/*
+ * @description The <Trail> component duplicates its children and adds a time offset to each layer in order to create a trail effect.
  * @see [Documentation](https://www.remotion.dev/docs/motion-blur/trail)
  */
 export const Trail: React.FC<TrailProps> = ({

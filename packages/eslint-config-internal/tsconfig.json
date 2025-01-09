@@ -1,0 +1,10 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"moduleResolution": "Bundler",
+		"module": "ES2020"
+	},
+	"references": []
+}

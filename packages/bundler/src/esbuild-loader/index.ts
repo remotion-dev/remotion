@@ -9,7 +9,7 @@ const isTypescriptInstalled = () => {
 	try {
 		require.resolve('typescript');
 		return true;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };
@@ -19,11 +19,10 @@ async function ESBuildLoader(
 	source: string,
 ): Promise<void> {
 	const done = this.async();
-	this.getOptions();
 	const options: LoaderOptions = this.getOptions();
-	const {implementation, ...esbuildTransformOptions} = options;
+	const {implementation, remotionRoot, ...esbuildTransformOptions} = options;
 
-	const tsConfigPath = path.join(this.context, 'tsconfig.json');
+	const tsConfigPath = path.join(remotionRoot, 'tsconfig.json');
 
 	if (implementation && typeof implementation.transform !== 'function') {
 		done(

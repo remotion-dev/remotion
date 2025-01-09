@@ -24,7 +24,8 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 }) => {
 	const args = [
 		['-v', 'error'],
-		['-show_entries', 'stream=channels:format=duration'],
+		['-select_streams', 'a:0'],
+		['-show_entries', 'stream=channels:stream=start_time:format=duration'],
 		['-of', 'default=nw=1'],
 		[src],
 	]
@@ -42,10 +43,12 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 		});
 		const channels = task.stdout.match(/channels=([0-9]+)/);
 		const duration = task.stdout.match(/duration=([0-9.]+)/);
+		const startTime = task.stdout.match(/start_time=([0-9.]+)/);
 
 		const result: AudioChannelsAndDurationResultCache = {
 			channels: channels ? parseInt(channels[1], 10) : 0,
 			duration: duration ? parseFloat(duration[1]) : null,
+			startTime: startTime ? parseFloat(startTime[1]) : null,
 		};
 		return result;
 	} catch (err) {

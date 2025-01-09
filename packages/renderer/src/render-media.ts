@@ -248,6 +248,7 @@ const internalRenderMediaRaw = ({
 	onBrowserDownload,
 	onArtifact,
 	metadata,
+	hardwareAcceleration,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -267,6 +268,7 @@ const internalRenderMediaRaw = ({
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
+		hardwareAcceleration,
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
@@ -500,6 +502,7 @@ const internalRenderMediaRaw = ({
 				x264Preset: x264Preset ?? null,
 				colorSpace,
 				binariesDirectory,
+				hardwareAcceleration,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -513,7 +516,7 @@ const internalRenderMediaRaw = ({
 			stitcherFfmpeg?.stdin?.end();
 			try {
 				await stitcherFfmpeg;
-			} catch (err) {
+			} catch {
 				throw new Error(preStitcher?.getLogs());
 			}
 		}
@@ -736,6 +739,7 @@ const internalRenderMediaRaw = ({
 					binariesDirectory,
 					separateAudioTo,
 					metadata,
+					hardwareAcceleration,
 				});
 			})
 			.then((buffer) => {
@@ -788,7 +792,7 @@ const internalRenderMediaRaw = ({
 					// https://discord.com/channels/809501355504959528/817306238811111454/1273184655348072468
 					try {
 						stitcherFfmpeg.kill();
-					} catch (e) {
+					} catch {
 						// Ignore
 					}
 
@@ -815,7 +819,7 @@ const internalRenderMediaRaw = ({
 				cleanupServerFn?.(false).catch((err) => {
 					// Must prevent unhandled exception in cleanup function.
 					// Might crash whole runtime.
-					console.log('Could not cleanup: ', err);
+					Log.error({indent, logLevel}, 'Could not cleanup: ', err);
 				});
 			});
 	});
@@ -831,12 +835,9 @@ export const internalRenderMedia = wrapWithErrorHandling(
 	internalRenderMediaRaw,
 );
 
-/**
- * Render a video from a composition. You can specify various options such as the codec, output location, input properties, and more.
- * @see [Documentation](https://remotion.dev/docs/renderer/render-media)
- * @param {RenderMediaOptions} options Configuration options for rendering the media.
- * @returns {Promise<RenderMediaResult>} A promise that resolves to the rendering result, including a buffer and information about the slowest frames.
- *
+/*
+ * @description Render a video or an audio programmatically.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
  */
 export const renderMedia = ({
 	proResProfile,
@@ -890,16 +891,18 @@ export const renderMedia = ({
 	onBrowserDownload,
 	onArtifact,
 	metadata,
+	hardwareAcceleration,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
-	if (quality !== undefined) {
-		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
-		);
-	}
-
 	const indent = false;
 	const logLevel =
 		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
+
+	if (quality !== undefined) {
+		Log.warn(
+			{indent, logLevel},
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
+		);
+	}
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -968,5 +971,6 @@ export const renderMedia = ({
 		metadata: metadata ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
+		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 	});
 };

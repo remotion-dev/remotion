@@ -95,7 +95,7 @@ export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {ColorSpace} from './options/color-space';
-export {DeleteAfter} from './options/delete-after';
+export type {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';
 export {
@@ -136,7 +136,6 @@ import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
-import {exampleVideos} from './example-videos';
 import type {AudioCodec} from './options/audio-codec';
 import {
 	getDefaultAudioCodec,
@@ -238,7 +237,6 @@ export const RenderInternals = {
 	codecSupportsMedia,
 	toMegabytes,
 	internalEnsureBrowser,
-	exampleVideos,
 	printUsefulErrorMessage,
 };
 

@@ -16,9 +16,9 @@ const greyCircle: React.CSSProperties = {
 };
 
 export const PricingBulletPoint: React.FC<{
-	text: string;
-	checked: boolean;
-	children?: React.ReactNode;
+	readonly text: string;
+	readonly checked: boolean;
+	readonly children?: React.ReactNode;
 }> = ({text, checked, children}) => {
 	const checkmarkSVG = (
 		<svg

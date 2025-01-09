@@ -13,17 +13,18 @@ const warnAboutRequestVideoFrameCallback = () => {
 	}
 
 	warned = true;
+	// eslint-disable-next-line no-console
 	console.warn(
 		'Browser does not support requestVideoFrameCallback. Cannot display video.',
 	);
 };
 
-/**
+/*
  * @description Allows you to use a video in React Three Fiber that is synchronized with Remotion's useCurrentFrame().
  * @see [Documentation](https://www.remotion.dev/docs/use-video-texture)
  */
 export const useVideoTexture = (
-	videoRef: React.RefObject<HTMLVideoElement>,
+	videoRef: React.RefObject<HTMLVideoElement | null>,
 ): VideoTexture | null => {
 	const [loaded] = useState(() => {
 		if (typeof document === 'undefined') {

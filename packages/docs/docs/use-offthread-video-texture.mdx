@@ -2,7 +2,7 @@
 image: /generated/articles-docs-use-offthread-video-texture.png
 id: use-offthread-video-texture
 title: useOffthreadVideoTexture()
-crumb: "@remotion/three"
+crumb: '@remotion/three'
 ---
 
 _available from v4.0.83_
@@ -19,15 +19,15 @@ The return type of it is a `THREE.Texture | null` which you can assign as a `map
 ## Example
 
 ```tsx twoslash title="Simple usage (only works during rendering)"
-import { ThreeCanvas, useOffthreadVideoTexture } from "@remotion/three";
-import { staticFile, useVideoConfig } from "remotion";
+import {ThreeCanvas, useOffthreadVideoTexture} from '@remotion/three';
+import {staticFile, useVideoConfig} from 'remotion';
 
-const videoSrc = staticFile("/vid.mp4");
+const videoSrc = staticFile('/vid.mp4');
 
 const My3DVideo = () => {
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
-  const videoTexture = useOffthreadVideoTexture({ src: videoSrc });
+  const videoTexture = useOffthreadVideoTexture({src: videoSrc});
 
   return (
     <ThreeCanvas width={width} height={height}>
@@ -44,24 +44,24 @@ import {
   ThreeCanvas,
   useOffthreadVideoTexture,
   useVideoTexture,
-} from "@remotion/three";
-import { useRef } from "react";
+} from '@remotion/three';
+import {useRef} from 'react';
 import {
   getRemotionEnvironment,
   staticFile,
   useVideoConfig,
   Video,
-} from "remotion";
+} from 'remotion';
 
-const videoSrc = staticFile("/vid.mp4");
+const videoSrc = staticFile('/vid.mp4');
 
 const useVideoOrOffthreadVideoTexture = (
   videoSrc: string,
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
 ) => {
   if (getRemotionEnvironment().isRendering) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useOffthreadVideoTexture({ src: videoSrc });
+    return useOffthreadVideoTexture({src: videoSrc});
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -69,7 +69,7 @@ const useVideoOrOffthreadVideoTexture = (
 };
 
 const My3DVideo = () => {
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoTexture = useVideoOrOffthreadVideoTexture(videoSrc, videoRef);
@@ -80,7 +80,7 @@ const My3DVideo = () => {
         <Video
           ref={videoRef}
           src={videoSrc}
-          style={{ position: "absolute", opacity: 0 }}
+          style={{position: 'absolute', opacity: 0}}
         />
       )}
       <ThreeCanvas width={width} height={height}>

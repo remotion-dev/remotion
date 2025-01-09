@@ -20,10 +20,10 @@ const errorStyle: React.CSSProperties = {
 };
 
 export const EventComp: React.FC<{
-	date: string;
-	title: string;
-	description: string;
-	youtubeId?: string;
+	readonly date: string;
+	readonly title: string;
+	readonly description: string;
+	readonly youtubeId?: string;
 }> = ({date, title, description, youtubeId}) => {
 	return (
 		<div

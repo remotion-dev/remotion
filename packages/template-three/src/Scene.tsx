@@ -25,7 +25,7 @@ type MyCompSchemaType = z.infer<typeof myCompSchema>;
 
 export const Scene: React.FC<
   {
-    baseScale: number;
+    readonly baseScale: number;
   } & MyCompSchemaType
 > = ({ baseScale, phoneColor, deviceType }) => {
   const videoRef = useRef<HTMLVideoElement>(null);

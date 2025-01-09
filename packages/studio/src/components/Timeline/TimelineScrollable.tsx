@@ -13,7 +13,7 @@ const outer: React.CSSProperties = {
 };
 
 export const TimelineScrollable: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {

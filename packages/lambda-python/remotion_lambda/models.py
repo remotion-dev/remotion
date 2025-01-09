@@ -369,6 +369,8 @@ class RenderMediaParams:
 
         if self.crf is not None:
             parameters['crf'] = self.crf
+        else:
+            parameters['crf'] = None
 
         if self.env_variables is None:
             parameters['envVariables'] = {}
@@ -378,9 +380,13 @@ class RenderMediaParams:
 
         if self.pixel_format is not None:
             parameters['pixelFormat'] = self.pixel_format
+        else:
+            parameters['pixelFormat'] = None
 
         if self.pro_res_profile is not None:
             parameters['proResProfile'] = self.pro_res_profile
+        else:
+            parameters['proResProfile'] = None
 
         if self.x264_preset is not None:
             parameters['x264Preset'] = self.x264_preset

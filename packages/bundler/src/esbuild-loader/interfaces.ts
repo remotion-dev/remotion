@@ -15,4 +15,5 @@ export type LoaderOptions = Except<
 	'sourcemap' | 'sourcefile'
 > & {
 	implementation: Implementation;
+	remotionRoot: string;
 };

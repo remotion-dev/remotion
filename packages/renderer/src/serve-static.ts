@@ -64,7 +64,14 @@ export const serveStatic = async (
 	});
 
 	server.on('connection', (conn) => {
-		const key = conn.remoteAddress + ':' + conn.remotePort;
+		let key;
+		// Bun 1.0.43 fails on this
+		try {
+			key = conn.remoteAddress + ':' + conn.remotePort;
+		} catch {
+			key = ':';
+		}
+
 		connections[key] = conn;
 		conn.on('close', () => {
 			delete connections[key];

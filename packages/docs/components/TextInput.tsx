@@ -35,7 +35,7 @@ type Props = Omit<
 	>,
 	'onFocus' | 'onBlur'
 > & {
-	fullWidth?: boolean;
+	readonly fullWidth?: boolean;
 };
 
 export const CoolInput: React.FC<Props> = ({style, fullWidth, ...props}) => {

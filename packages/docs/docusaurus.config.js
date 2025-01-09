@@ -13,22 +13,8 @@ const config = (mode) => ({
 	favicon: 'img/favicon.png',
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
-	webpack: {
-		jsLoader: (isServer) => ({
-			loader: require.resolve('swc-loader'),
-			options: {
-				jsc: {
-					parser: {
-						syntax: 'typescript',
-						tsx: true,
-					},
-					target: 'es2017',
-				},
-				module: {
-					type: isServer ? 'commonjs' : 'es6',
-				},
-			},
-		}),
+	future: {
+		experimental_faster: true,
 	},
 	themeConfig: {
 		algolia: {
@@ -83,6 +69,7 @@ const config = (mode) => ({
 						{to: 'experts', label: 'Experts'},
 						{to: 'https://remotion.pro/store', label: 'Store'},
 						{to: '/docs/support', label: 'Support'},
+						{to: 'https://convert.remotion.dev', label: 'Convert a video'},
 						{to: 'about', label: 'About us'},
 						{to: 'contact', label: 'Contact us'},
 					],
@@ -134,12 +121,12 @@ const config = (mode) => ({
 							to: '/learn',
 						},
 						{
-							label: 'Store',
-							href: 'https://remotion.pro/store',
+							label: 'Convert a video',
+							to: 'https://convert.remotion.dev',
 						},
 						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
+							label: 'Store',
+							href: 'https://remotion.pro/store',
 						},
 						{
 							label: 'GitHub',
@@ -219,6 +206,10 @@ const config = (mode) => ({
 							to: '/docs/support',
 						},
 						{
+							label: 'Changelog',
+							href: 'https://remotion.dev/changelog',
+						},
+						{
 							label: 'Acknowledgements',
 							href: 'https://remotion.dev/acknowledgements',
 						},
@@ -254,6 +245,8 @@ const config = (mode) => ({
 					showLastUpdateTime: true,
 				},
 				blog: {
+					onInlineAuthors: 'ignore',
+					onUntruncatedBlogPosts: 'ignore',
 					path:
 						mode === 'complete' ? undefined : 'intentionally-not-existing-path',
 					showReadingTime: true,
@@ -297,6 +290,8 @@ const config = (mode) => ({
 							 */
 							path: './success-stories',
 							blogSidebarTitle: 'Success stories',
+							onUntruncatedBlogPosts: 'ignore',
+							onInlineAuthors: 'ignore',
 						},
 					],
 					[
@@ -316,6 +311,8 @@ const config = (mode) => ({
 							 */
 							path: './learn',
 							blogSidebarTitle: 'Learn',
+							onUntruncatedBlogPosts: 'ignore',
+							onInlineAuthors: 'ignore',
 						},
 					],
 					'./route-plugin',

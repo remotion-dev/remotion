@@ -3,8 +3,8 @@ import type {SerializedInputProps} from './constants';
 import {internalGetOrCreateBucket} from './get-or-create-bucket';
 import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
 import {streamToString} from './stream-to-string';
+import type {CloudProvider} from './types';
 import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
@@ -28,30 +28,38 @@ export const serializeOrThrow = (
 			data: inputProps,
 		});
 		return payload.serializedString;
-	} catch (err) {
+	} catch {
 		throw new Error(
 			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`,
 		);
 	}
 };
 
-export const getNeedsToUpload = (
-	type: 'still' | 'video-or-audio',
-	sizes: number[],
-) => {
+export const getNeedsToUpload = <Provider extends CloudProvider>({
+	type,
+	sizes,
+	providerSpecifics,
+}: {
+	type: 'still' | 'video-or-audio';
+	sizes: number[];
+	providerSpecifics: ProviderSpecifics<Provider>;
+}) => {
 	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
-		(type === 'still' ? 5_000_000 : 200_000) - MARGIN;
+		(type === 'still'
+			? providerSpecifics.getMaxStillInlinePayloadSize()
+			: providerSpecifics.getMaxNonInlinePayloadSizePerFunction()) - MARGIN;
 
 	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
 
 	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Warning: The props are over ${Math.round(
 				MAX_INLINE_PAYLOAD_SIZE / 1000,
 			)}KB (${Math.ceil(
 				sizesAlreadyUsed / 1024,
-			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`,
+			)}KB) in size. Uploading them to ${providerSpecifics.serverStorageProductName()} to circumvent AWS Lambda payload size, which may lead to slowdown.`,
 		);
 		return true;
 	}
@@ -67,6 +75,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	needsToUpload,
 	providerSpecifics,
 	forcePathStyle,
+	skipPutAcl,
 }: {
 	stringifiedInputProps: string;
 	region: Provider['region'];
@@ -75,6 +84,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	needsToUpload: boolean;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	skipPutAcl: boolean;
 }): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
@@ -88,6 +98,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 					customCredentials: null,
 					providerSpecifics,
 					forcePathStyle,
+					skipPutAcl,
 				})
 			).bucketName;
 

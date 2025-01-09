@@ -2,7 +2,7 @@ import type {RefObject} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment';
 
 export const playAndHandleNotAllowedError = (
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>,
 	mediaType: 'audio' | 'video',
 	onAutoPlayError: null | (() => void),
 ) => {

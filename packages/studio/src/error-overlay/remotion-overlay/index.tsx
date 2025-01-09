@@ -4,7 +4,6 @@
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 
-import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import {Overlay} from './Overlay';
 
@@ -14,7 +13,8 @@ export const mountRemotionOverlay = () => {
 			document.getElementById('remotion-error-overlay') as HTMLDivElement,
 		).render(<Overlay />);
 	} else {
-		(ReactDOM as unknown as {render: typeof render}).render(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(ReactDOM as unknown as {render: any}).render(
 			<Overlay />,
 			document.getElementById('remotion-error-overlay'),
 		);

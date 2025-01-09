@@ -292,17 +292,6 @@ export const getSegmentName = (id: string) => {
 	)?.[0];
 };
 
-export const getIdForName = (name: string): EbmlMapKey => {
-	const value = Object.entries(matroskaElements).find(
-		([key]) => key === name,
-	)?.[1];
-	if (!value) {
-		throw new Error(`Could not find id for name ${name}`);
-	}
-
-	return value as EbmlMapKey;
-};
-
 export type MatroskaKey = keyof typeof matroskaElements;
 
 export type MatroskaElement = (typeof matroskaElements)[MatroskaKey];
@@ -407,6 +396,21 @@ export const seekId = {
 	type: 'hex-string',
 } as const satisfies Ebml;
 
+export const _name = {
+	name: 'Name',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const minCache = {
+	name: 'MinCache',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const maxCache = {
+	name: 'MaxCache',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const seekPosition = {
 	name: 'SeekPosition',
 	type: 'uint',
@@ -477,6 +481,11 @@ export const titleType = {
 	type: 'string',
 } as const satisfies Ebml;
 
+export const tagTrackUidType = {
+	name: 'TagTrackUID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
 export const samplingFrequency = {
 	name: 'SamplingFrequency',
 	type: 'float',
@@ -512,6 +521,11 @@ export const displayHeight = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const displayUnit = {
+	name: 'DisplayUnit',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const flagLacing = {
 	name: 'FlagLacing',
 	type: 'uint',
@@ -519,7 +533,7 @@ export const flagLacing = {
 
 export const tagSegment = {
 	name: 'Tag',
-	type: 'uint8array',
+	type: 'children',
 } as const satisfies Ebml;
 
 export const tags = {
@@ -617,6 +631,11 @@ export const referenceBlock = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const blockDurationSegment = {
+	name: 'BlockDuration',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const blockElement = {
 	name: 'Block',
 	type: 'uint8array',
@@ -672,6 +691,26 @@ export const cluster = {
 	type: 'children',
 } as const satisfies Ebml;
 
+export const targetsType = {
+	name: 'Targets',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const simpleTagType = {
+	name: 'SimpleTag',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const tagNameType = {
+	name: 'TagName',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const tagStringType = {
+	name: 'TagString',
+	type: 'string',
+} as const satisfies Ebml;
+
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
 export type ColourSegment = EbmlParsed<typeof color>;
 export type TransferCharacteristicsSegment = EbmlParsed<
@@ -717,25 +756,19 @@ export type EbmlValue<
 						? Child[]
 						: never;
 
-export type EbmlValueOrUint8Array<T extends Ebml> =
-	| Uint8Array
-	| EbmlValue<T, PossibleEbmlOrUint8Array>;
-
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
 	minVintWidth: number | null;
 };
 
-export type EbmlParsedOrUint8Array<T extends Ebml> = {
-	type: T['name'];
-	value: EbmlValueOrUint8Array<T>;
-	minVintWidth: number | null;
-};
-
 export const ebmlMap = {
 	[matroskaElements.Header]: matroskaHeader,
 	[matroskaElements.DocType]: docType,
+	[matroskaElements.Targets]: targetsType,
+	[matroskaElements.SimpleTag]: simpleTagType,
+	[matroskaElements.TagName]: tagNameType,
+	[matroskaElements.TagString]: tagStringType,
 	[matroskaElements.DocTypeVersion]: docTypeVersion,
 	[matroskaElements.DocTypeReadVersion]: docTypeReadVersion,
 	[matroskaElements.EBMLVersion]: ebmlVersion,
@@ -805,9 +838,13 @@ export const ebmlMap = {
 		name: 'SliceDuration',
 		type: 'uint8array',
 	},
+	[matroskaElements.TagTrackUID]: tagTrackUidType,
 	[matroskaElements.SeekHead]: seekHead,
 	[matroskaElements.Seek]: seek,
 	[matroskaElements.SeekID]: seekId,
+	[matroskaElements.Name]: _name,
+	[matroskaElements.MinCache]: minCache,
+	[matroskaElements.MaxCache]: maxCache,
 	[matroskaElements.SeekPosition]: seekPosition,
 	[matroskaElements.Crc32]: {
 		name: 'Crc32',
@@ -840,6 +877,7 @@ export const ebmlMap = {
 	[matroskaElements.BitDepth]: bitDepth,
 	[matroskaElements.DisplayHeight]: displayHeight,
 	[matroskaElements.DisplayWidth]: displayWidth,
+	[matroskaElements.DisplayUnit]: displayUnit,
 	[matroskaElements.FlagLacing]: flagLacing,
 	[matroskaElements.Tags]: tags,
 	[matroskaElements.Tag]: tagSegment,
@@ -849,6 +887,7 @@ export const ebmlMap = {
 	[matroskaElements.Language]: language,
 	[matroskaElements.DefaultDuration]: defaultDuration,
 	[matroskaElements.CodecPrivate]: codecPrivate,
+	[matroskaElements.BlockDuration]: blockDurationSegment,
 	[matroskaElements.BlockAdditions]: blockAdditionsSegment,
 	[matroskaElements.MaxBlockAdditionID]: maxBlockAdditionIdSegment,
 	[matroskaElements.Audio]: audioSegment,
@@ -885,39 +924,3 @@ export type PossibleEbml = Prettify<
 		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
 	}[keyof typeof ebmlMap]
 >;
-
-export type OffsetAndChildren = {
-	offset: number;
-	children: OffsetAndChildren[];
-	field: keyof typeof matroskaElements;
-};
-
-export const incrementOffsetAndChildren = (
-	offset: OffsetAndChildren,
-	increment: number,
-): OffsetAndChildren => {
-	return {
-		offset: offset.offset + increment,
-		children: offset.children.map((c) =>
-			incrementOffsetAndChildren(c, increment),
-		),
-		field: offset.field,
-	};
-};
-
-export type BytesAndOffset = {
-	bytes: Uint8Array;
-	offsets: OffsetAndChildren;
-};
-
-export type PossibleEbmlOrUint8Array =
-	| Prettify<
-			{
-				[key in keyof typeof ebmlMap]: EbmlParsedOrUint8Array<
-					(typeof ebmlMap)[key]
-				>;
-			}[keyof typeof ebmlMap]
-	  >
-	| BytesAndOffset;
-
-export type EbmlMapKey = keyof typeof ebmlMap;

@@ -1,6 +1,6 @@
 import type {AwsRegion} from '../regions';
 import type {AwsLayer} from './hosted-layers';
-import {hostedLayers, v5HostedLayers} from './hosted-layers';
+import {hostedLayers} from './hosted-layers';
 
 const runtimePreferenceOptions = ['default', 'apple-emojis', 'cjk'] as const;
 
@@ -23,16 +23,11 @@ export const validateRuntimePreference = (option: unknown) => {
 export const getLayers = ({
 	option,
 	region,
-	enableV5Runtime,
 }: {
 	option: RuntimePreference;
 	region: AwsRegion;
-	enableV5Runtime: boolean;
 }): AwsLayer[] => {
-	const layers = enableV5Runtime
-		? v5HostedLayers[region]
-		: hostedLayers[region];
-
+	const layers = hostedLayers[region];
 	return layers.filter((layer) => {
 		if (layer.layerArn.includes('emoji-apple')) {
 			return option === 'apple-emojis';

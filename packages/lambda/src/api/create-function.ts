@@ -35,7 +35,6 @@ export const createFunction = async ({
 	ephemerealStorageInMb,
 	customRoleArn,
 	enableLambdaInsights,
-	enableV5Runtime,
 	logLevel,
 	vpcSubnetIds,
 	vpcSecurityGroupIds,
@@ -53,7 +52,6 @@ export const createFunction = async ({
 	ephemerealStorageInMb: number;
 	customRoleArn: string;
 	enableLambdaInsights: boolean;
-	enableV5Runtime: boolean;
 	logLevel: LogLevel;
 	vpcSubnetIds: string;
 	vpcSecurityGroupIds: string;
@@ -115,15 +113,7 @@ export const createFunction = async ({
 	const layers = getLayers({
 		option: runtimePreference,
 		region,
-		enableV5Runtime,
 	});
-
-	if (enableV5Runtime) {
-		RenderInternals.Log.verbose(
-			{indent: false, logLevel},
-			'New V5 runtime enabled https://remotion.dev/docs/lambda/runtime#runtime-changes-in-remotion-50',
-		);
-	}
 
 	let vpcConfig: VpcConfig | undefined;
 	if (vpcSubnetIds && vpcSecurityGroupIds) {
@@ -138,6 +128,15 @@ export const createFunction = async ({
 		'Deploying new Lambda function',
 	);
 
+	const insightsLayer = enableLambdaInsights
+		? lambdaInsightsExtensions[region]
+		: null;
+	if (enableLambdaInsights && !insightsLayer) {
+		throw new Error(
+			`Lambda Insights is not supported by AWS in region ${region}. Please disable Lambda Insights. See http://remotion.dev/docs/lambda/insights#unsupported-regions`,
+		);
+	}
+
 	const {FunctionName, FunctionArn} = await getLambdaClient(region).send(
 		new CreateFunctionCommand({
 			Code: {
@@ -146,13 +145,13 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			Role: customRoleArn ?? defaultRoleName,
-			Runtime: enableV5Runtime ? 'nodejs20.x' : 'nodejs18.x',
+			Runtime: 'nodejs20.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
 			Layers: layers
 				.map(({layerArn, version}) => `${layerArn}:${version}`)
-				.concat(enableLambdaInsights ? lambdaInsightsExtensions[region] : []),
+				.concat(insightsLayer ? [insightsLayer] : []),
 			Architectures: ['arm64'],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
@@ -234,10 +233,7 @@ export const createFunction = async ({
 		'Locking the runtime version of the function...',
 	);
 
-	const RuntimeVersionArn = enableV5Runtime
-		? `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`
-		: `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`;
-
+	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
 	try {
 		await getLambdaClient(region).send(
 			new PutRuntimeManagementConfigCommand({
@@ -246,7 +242,7 @@ export const createFunction = async ({
 				RuntimeVersionArn,
 			}),
 		);
-	} catch (err) {
+	} catch {
 		console.warn(
 			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.',
 		);

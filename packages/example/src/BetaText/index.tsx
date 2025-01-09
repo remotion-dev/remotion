@@ -22,11 +22,11 @@ const Label = styled.span<{
 `;
 
 const Row: React.FC<{
-	videoWidth: number;
-	i: number;
-	text: string;
-	zoom: number;
-	color: string;
+	readonly videoWidth: number;
+	readonly i: number;
+	readonly text: string;
+	readonly zoom: number;
+	readonly color: string;
 }> = ({videoWidth, i, text, zoom, color}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();

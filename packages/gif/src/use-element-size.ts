@@ -16,7 +16,7 @@ export const updateAllElementsSizes = () => {
 };
 
 export const useElementSize = (
-	ref: React.RefObject<HTMLElement>,
+	ref: React.RefObject<HTMLElement | null>,
 ): Size | null => {
 	const [size, setSize] = useState<Size | null>(null);
 	const observer = useMemo(() => {

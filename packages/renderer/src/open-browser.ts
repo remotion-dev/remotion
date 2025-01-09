@@ -130,7 +130,11 @@ export const internalOpenBrowser = async ({
 		onBrowserDownload,
 	});
 
-	const executablePath = getLocalBrowserExecutable(browserExecutable);
+	const executablePath = getLocalBrowserExecutable({
+		preferredBrowserExecutable: browserExecutable,
+		logLevel,
+		indent,
+	});
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 	const enableMultiProcessOnLinux =
@@ -243,8 +247,8 @@ export const internalOpenBrowser = async ({
 	return browserInstance;
 };
 
-/**
- * @description Opens a Chrome or Chromium browser instance.
+/*
+ * @description Opens a Chrome or Chromium browser instance. By reusing an instance across various rendering and compositional API calls, significant time can be saved by avoiding the repeated opening and closing of browsers.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
  */
 export const openBrowser = (

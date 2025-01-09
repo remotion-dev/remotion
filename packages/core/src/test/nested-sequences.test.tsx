@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable react/jsx-no-constructed-context-values */
 import {cleanup, render} from '@testing-library/react';
 import {afterEach, expect, test} from 'vitest';
 import {AbsoluteFill} from '../AbsoluteFill.js';

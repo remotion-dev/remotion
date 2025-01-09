@@ -305,7 +305,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://template-audiogram-1nrh.vercel.app',
 		templateInMonorepo: 'template-audiogram',
 		allowEnableTailwind: true,
 	},

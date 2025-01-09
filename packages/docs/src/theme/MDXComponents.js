@@ -12,6 +12,7 @@ import {
 } from '../components/AvailableFrom';
 import {Credits} from '../components/Credits';
 import {Options} from '../components/Options';
+import {TsType} from '../components/TsType';
 
 export default {
 	...MDXComponents,
@@ -20,6 +21,7 @@ export default {
 	Step,
 	Demo,
 	AvailableFrom,
+	TsType,
 	MinNodeVersion,
 	MinBunVersion,
 	Options,

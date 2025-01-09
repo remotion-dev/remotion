@@ -13,7 +13,13 @@ export const lambdaCommand = async (
 		});
 		const {LambdaInternals} = require(path);
 
-		await LambdaInternals.executeCommand(args, remotionRoot, logLevel, null);
+		await LambdaInternals.executeCommand(
+			args,
+			remotionRoot,
+			logLevel,
+			null,
+			null,
+		);
 		process.exit(0);
 	} catch (err) {
 		const manager = StudioServerInternals.getPackageManager(

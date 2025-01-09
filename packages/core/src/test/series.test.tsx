@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable react/jsx-no-constructed-context-values */
 import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {expect, test} from 'vitest';

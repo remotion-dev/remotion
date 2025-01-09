@@ -5,8 +5,8 @@ import * as S3SDK from '@aws-sdk/client-s3';
 import * as ServiceQuotasSDK from '@aws-sdk/client-service-quotas';
 import * as StsSdk from '@aws-sdk/client-sts';
 import type {CustomCredentials} from '@remotion/serverless/client';
-import type {AwsRegion} from '../client';
 import type {AwsProvider} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {
 	getServiceClient,
 	type ServiceMapping,
@@ -33,13 +33,9 @@ export type GetAwsClientOutput<T extends keyof ServiceMapping> = {
 	sdk: SdkMapping[T];
 };
 
-/**
- * @description Gets the full AWS SDK and an instantiated client for an AWS service
+/*
+ * @description Exposes full access to the AWS SDK used by Remotion, allowing interaction with AWS infrastructure beyond provided functionalities.
  * @see [Documentation](https://remotion.dev/docs/lambda/getawsclient)
- * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
- * @param {string} params.service One of `iam`, `s3`, `cloudwatch`, `iam` or `servicequotas`
- * @param {CustomCredentials} params.customCredentials Pass endpoint and credentials if you want to connect to a different cloud for S3
- * @returns {GetAwsClientOutput<T>} Returns `client` and `sdk` of a AWS service
  */
 export const getAwsClient = <T extends keyof ServiceMapping>({
 	region,

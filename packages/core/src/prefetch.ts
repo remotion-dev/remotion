@@ -48,7 +48,6 @@ const getBlobFromReader = async ({
 }): Promise<Blob> => {
 	let receivedLength = 0;
 	const chunks = [];
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const {done, value} = await reader.read();
 
@@ -76,8 +75,8 @@ const getBlobFromReader = async ({
 	});
 };
 
-/**
- * @description When you call the preFetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
+/*
+ * @description When you call the prefetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
  * @see [Documentation](https://www.remotion.dev/docs/prefetch)
  */
 export const prefetch = (
@@ -86,6 +85,7 @@ export const prefetch = (
 		method?: 'blob-url' | 'base64';
 		contentType?: string;
 		onProgress?: PrefetchOnProgress;
+		credentials?: RequestCredentials;
 	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
@@ -112,6 +112,7 @@ export const prefetch = (
 
 	fetch(src, {
 		signal: controller.signal,
+		credentials: options?.credentials ?? undefined,
 	})
 		.then((res) => {
 			canBeAborted = false;
@@ -203,7 +204,7 @@ export const prefetch = (
 				if (canBeAborted) {
 					try {
 						controller.abort(new Error('free() called'));
-					} catch (e) {}
+					} catch {}
 				}
 			}
 		},

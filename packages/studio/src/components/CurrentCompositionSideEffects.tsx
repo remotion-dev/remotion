@@ -42,7 +42,7 @@ export const TitleUpdater: React.FC = () => {
 };
 
 export const CurrentCompositionKeybindings: React.FC<{
-	readOnlyStudio: boolean;
+	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const keybindings = useKeybinding();
 	const video = Internals.useVideo();

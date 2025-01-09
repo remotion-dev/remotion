@@ -1,8 +1,8 @@
-/* eslint-disable max-depth */
 import type {BufferIterator} from '../../../buffer-iterator';
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getTracks, hasTracks} from '../../../get-tracks';
-import type {AnySegment} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {IsoBaseMediaBox} from '../../../parse-result';
+import type {ParserState} from '../../../state/parser-state';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
 import {getMoofBox} from '../traversal';
@@ -29,19 +29,25 @@ export const parseMdat = async ({
 	size,
 	fileOffset,
 	existingBoxes,
-	options,
+	state,
 	signal,
 	maySkipSampleProcessing,
 }: {
 	data: BufferIterator;
 	size: number;
 	fileOffset: number;
-	existingBoxes: AnySegment[];
-	options: ParserContext;
+	existingBoxes: IsoBaseMediaBox[];
+	state: ParserState;
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
-	const alreadyHas = hasTracks(existingBoxes);
+	const alreadyHas = hasTracks(
+		{
+			type: 'iso-base-media',
+			boxes: existingBoxes,
+		},
+		state,
+	);
 	if (!alreadyHas) {
 		if (maySkipSampleProcessing) {
 			data.discard(size - (data.counter.getOffset() - fileOffset));
@@ -64,7 +70,10 @@ export const parseMdat = async ({
 		});
 	}
 
-	const tracks = getTracks(existingBoxes, options.parserState);
+	const tracks = getTracks(
+		{type: 'iso-base-media', boxes: existingBoxes},
+		state,
+	);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -90,7 +99,6 @@ export const parseMdat = async ({
 		})
 		.flat(1);
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		if (signal && signal.aborted) {
 			break;
@@ -124,38 +132,60 @@ export const parseMdat = async ({
 
 		const bytes = data.getSlice(samplesWithIndex.samplePosition.size);
 
+		const {cts, dts, duration, isKeyframe, offset} =
+			samplesWithIndex.samplePosition;
+
 		if (samplesWithIndex.track.type === 'audio') {
-			const timestamp = Math.floor(
-				(samplesWithIndex.samplePosition.cts * 1_000_000) /
+			await state.callbacks.onAudioSample(
+				samplesWithIndex.track.trackId,
+				convertAudioOrVideoSampleToWebCodecsTimestamps(
+					{
+						data: bytes,
+						timestamp: cts,
+						duration,
+						cts,
+						dts,
+						trackId: samplesWithIndex.track.trackId,
+						type: isKeyframe ? 'key' : 'delta',
+						offset,
+						timescale: samplesWithIndex.track.timescale,
+					},
 					samplesWithIndex.track.timescale,
+				),
 			);
-			await options.parserState.onAudioSample(samplesWithIndex.track.trackId, {
-				data: bytes,
-				timestamp,
-				trackId: samplesWithIndex.track.trackId,
-				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-			});
 		}
 
 		if (samplesWithIndex.track.type === 'video') {
-			const timestamp = Math.floor(
-				(samplesWithIndex.samplePosition.cts * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
-			const duration = Math.floor(
-				(samplesWithIndex.samplePosition.duration * 1_000_000) /
-					samplesWithIndex.track.timescale,
-			);
+			// https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/sei_checkpoint.mp4
+			// Position in file 0x0001aba615
+			// https://github.com/remotion-dev/remotion/issues/4680
+			// In Chrome, we may not treat recovery points as keyframes
+			// otherwise "a keyframe is required after flushing"
+			const nalUnitType = bytes[4] & 0b00011111;
+			let isRecoveryPoint = false;
+			// SEI (Supplemental enhancement information)
+			if (nalUnitType === 6) {
+				const seiType = bytes[5];
+				isRecoveryPoint = seiType === 6;
+			}
 
-			await options.parserState.onVideoSample(samplesWithIndex.track.trackId, {
-				data: bytes,
-				timestamp,
-				duration,
-				cts: samplesWithIndex.samplePosition.cts,
-				dts: samplesWithIndex.samplePosition.dts,
-				trackId: samplesWithIndex.track.trackId,
-				type: samplesWithIndex.samplePosition.isKeyframe ? 'key' : 'delta',
-			});
+			await state.callbacks.onVideoSample(
+				samplesWithIndex.track.trackId,
+				convertAudioOrVideoSampleToWebCodecsTimestamps(
+					{
+						data: bytes,
+						timestamp: cts,
+						duration,
+						cts,
+						dts,
+						trackId: samplesWithIndex.track.trackId,
+						type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
+						offset,
+						timescale: samplesWithIndex.track.timescale,
+					},
+					samplesWithIndex.track.timescale,
+				),
+			);
 		}
 
 		const remaining = size - (data.counter.getOffset() - fileOffset);

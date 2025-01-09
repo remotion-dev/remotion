@@ -1,6 +1,6 @@
 import type {CustomCredentials, OutNameInput} from './constants';
 import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 export const getCustomOutName = <Provider extends CloudProvider>({
 	renderMetadata,

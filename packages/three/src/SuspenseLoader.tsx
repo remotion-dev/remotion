@@ -18,7 +18,7 @@ const Unblocker: React.FC = () => {
 };
 
 export const SuspenseLoader: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return <Suspense fallback={<Unblocker />}>{children}</Suspense>;
 };

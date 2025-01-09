@@ -143,6 +143,11 @@
 			"permanent": true
 		},
 		{
+			"source": "/webcodecs",
+			"destination": "/docs/webcodecs",
+			"permanent": true
+		},
+		{
 			"source": "/docs/player/api",
 			"destination": "/docs/player/player",
 			"permanent": true

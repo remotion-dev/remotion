@@ -16,7 +16,6 @@ import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
 	useMediaPlayback,
 } from '../use-media-playback.js';
-import {useMediaTagVolume} from '../use-media-tag-volume.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {
 	useMediaMutedState,
@@ -138,11 +137,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const audioRef = useSharedAudio(propsToPass, id).el;
 
-	const actualVolume = useMediaTagVolume(audioRef);
-
 	useSyncVolumeWithMediaTag({
 		volumePropFrame,
-		actualVolume,
 		volume,
 		mediaVolume,
 		mediaRef: audioRef,
@@ -161,6 +157,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		premountDisplay: null,
 		onAutoPlayError: null,
+		isPremounting: Boolean(sequenceContext?.premounting),
 	});
 
 	useMediaPlayback({
@@ -182,7 +179,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [audioRef]);
 
 	const currentOnDurationCallback =
-		useRef<AudioForPreviewProps['onDuration']>();
+		useRef<AudioForPreviewProps['onDuration']>(onDuration);
 	currentOnDurationCallback.current = onDuration;
 
 	useEffect(() => {

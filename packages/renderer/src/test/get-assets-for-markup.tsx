@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-imports */
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {

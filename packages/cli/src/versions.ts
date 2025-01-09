@@ -19,7 +19,7 @@ const getVersion = async (
 		const file = await fs.promises.readFile(remotionPkgJson, 'utf-8');
 		const packageJson = JSON.parse(file);
 		return {version: packageJson.version, path: remotionPkgJson};
-	} catch (err) {
+	} catch {
 		return null;
 	}
 };

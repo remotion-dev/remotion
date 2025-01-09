@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/captions"
 	},
 	"name": "@remotion/captions",
-	"version": "4.0.226",
+	"version": "4.0.246",
 	"description": "Primitives for dealing with captions",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -12,8 +12,9 @@
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"files": [
 		"dist"
@@ -22,7 +23,10 @@
 	"license": "MIT",
 	"dependencies": {},
 	"peerDependencies": {},
-	"devDependencies": {},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
+	},
 	"keywords": [
 		"remotion"
 	],

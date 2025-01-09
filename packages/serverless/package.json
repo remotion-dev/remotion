@@ -3,14 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
 	},
 	"name": "@remotion/serverless",
-	"version": "4.0.226",
+	"version": "4.0.246",
 	"description": "A runtime for distributed rendering",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"formatting": "prettier src --check",
-		"test": "bun test src"
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -24,7 +25,12 @@
 	"dependencies": {
 		"remotion": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/streaming": "workspace:*"
+		"@remotion/streaming": "workspace:*",
+		"@remotion/bundler": "workspace:*"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"exports": {
 		".": "./dist/index.js",

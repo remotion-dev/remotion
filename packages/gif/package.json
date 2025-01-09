@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/gif"
 	},
 	"name": "@remotion/gif",
-	"version": "4.0.226",
+	"version": "4.0.246",
 	"description": "Embed GIFs in a Remotion video",
 	"sideEffects": false,
 	"bugs": {
@@ -16,8 +16,8 @@
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"make": "node build.mjs && bun --env-file=../.env.bundle bundle.ts"
+		"lint": "eslint src",
+		"make": "tsc -d && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"exports": {
 		"./package.json": "./package.json",
@@ -32,10 +32,12 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"esbuild": "0.18.6",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"webpack": "5.94.0"
+		"esbuild": "0.24.0",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"webpack": "5.96.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

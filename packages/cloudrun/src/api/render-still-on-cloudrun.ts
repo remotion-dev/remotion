@@ -169,7 +169,7 @@ const internalRenderStillOnCloudRun = async ({
 			try {
 				parsedData = JSON.parse(accumulatedChunks.trim());
 				accumulatedChunks = ''; // Clear the buffer after successful parsing.
-			} catch (e) {
+			} catch {
 				// If parsing fails, it means we don't have a complete JSON string yet.
 				// We'll wait for more chunks.
 				return;

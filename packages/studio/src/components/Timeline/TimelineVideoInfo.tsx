@@ -26,7 +26,7 @@ const pathStyle: React.CSSProperties = {
 };
 
 export const TimelineVideoInfo: React.FC<{
-	src: string;
+	readonly src: string;
 }> = ({src}) => {
 	const mountState = useRef({isMounted: true});
 	const [videoMetadata, setVideoMetadata] = useState<VideoMetadata | null>(

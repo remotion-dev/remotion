@@ -95,7 +95,7 @@ if (!process.env.CI) {
 						'..',
 						'template-audiogram',
 						'public',
-						'audio.mp3',
+						'audio.wav',
 					),
 				),
 				model: 'whisper-1',

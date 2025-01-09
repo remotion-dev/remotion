@@ -7,7 +7,7 @@ export const useBufferUntilFirstFrame = ({
 	onVariableFpsVideoDetected,
 	pauseWhenBuffering,
 }: {
-	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
 	pauseWhenBuffering: boolean;

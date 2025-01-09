@@ -1,5 +1,4 @@
 /* eslint-disable eqeqeq */
-/* eslint-disable no-negated-condition */
 /* eslint-disable no-eq-null */
 import type {ReaderInterface} from './reader';
 
@@ -129,7 +128,7 @@ export const fetchReader: ReaderInterface = {
 		signal?.addEventListener(
 			'abort',
 			() => {
-				controller.abort();
+				controller.abort(new Error('Aborted by user'));
 			},
 			{once: true},
 		);
@@ -177,6 +176,7 @@ export const fetchReader: ReaderInterface = {
 				},
 			},
 			contentLength,
+			contentType: res.headers.get('content-type'),
 			name: name ?? (fallbackName as string),
 			supportsContentRange,
 		};

@@ -123,7 +123,7 @@ declare global {
 const pathMatch = function (url: string, path: string) {
 	try {
 		return parse(url).pathname === path;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 };

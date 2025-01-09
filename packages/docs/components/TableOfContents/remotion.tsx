@@ -42,7 +42,7 @@ export const TableOfContents: React.FC = () => {
 					<strong>interpolateColors()</strong>
 					<div>Map a range of values to colors</div>
 				</TOCItem>
-				<TOCItem link="/docs/interpolate-colors">
+				<TOCItem link="/docs/measure-spring">
 					<strong>measureSpring()</strong>
 					<div>Determine the duration of a spring</div>
 				</TOCItem>
@@ -75,6 +75,10 @@ export const TableOfContents: React.FC = () => {
 					<div>
 						Alternative to <code>{'<Video>'}</code>
 					</div>
+				</TOCItem>
+				<TOCItem link="/docs/animatedimage">
+					<strong>{'<AnimatedImage>'}</strong>
+					<div>Disply a GIF, AVIF or animated WebP image</div>
 				</TOCItem>
 				<TOCItem link="/docs/iframe">
 					<strong>{'<IFrame>'}</strong>

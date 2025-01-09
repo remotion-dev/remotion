@@ -1,0 +1,4 @@
+/**
+ * @description Simulates calls using the AWS Simulator to validate the correct permissions.
+ * @see [Documentation](https://remotion.dev/docs/lambda/simulatepermissions)
+ */

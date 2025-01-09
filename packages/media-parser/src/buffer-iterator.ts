@@ -1,9 +1,10 @@
-import {webmPattern} from './boxes/webm/make-header';
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {
 	knownIdsWithOneLength,
 	knownIdsWithThreeLength,
 	knownIdsWithTwoLength,
 } from './boxes/webm/segments/all-segments';
+import {detectFileType} from './file-types';
 
 export class OffsetCounter {
 	#offset: number;
@@ -50,16 +51,6 @@ export class OffsetCounter {
 	}
 }
 
-const isoBaseMediaMp4Pattern = new TextEncoder().encode('ftyp');
-const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
-const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
-
-const matchesPattern = (pattern: Uint8Array) => {
-	return (data: Uint8Array) => {
-		return pattern.every((value, index) => data[index] === value);
-	};
-};
-
 const makeOffsetCounter = (): OffsetCounter => {
 	return new OffsetCounter(0);
 };
@@ -104,6 +95,22 @@ export const getArrayBufferIterator = (
 
 	const allowDiscard = () => {
 		discardAllowed = true;
+	};
+
+	const discard = (length: number) => {
+		counter.increment(length);
+	};
+
+	const readUntilNullTerminator = () => {
+		const bytes = [];
+		let byte;
+		while ((byte = getUint8()) !== 0) {
+			bytes.push(byte);
+		}
+
+		counter.decrement(1);
+
+		return new TextDecoder().decode(new Uint8Array(bytes));
 	};
 
 	const getUint8 = () => {
@@ -159,15 +166,7 @@ export const getArrayBufferIterator = (
 		return Number(bigInt);
 	};
 
-	const getFourByteNumber = (littleEndian = false) => {
-		if (littleEndian) {
-			const one = getUint8();
-			const two = getUint8();
-			const three = getUint8();
-			const four = getUint8();
-			return (four << 24) | (three << 16) | (two << 8) | one;
-		}
-
+	const getFourByteNumber = () => {
 		return (
 			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
 		);
@@ -182,8 +181,8 @@ export const getArrayBufferIterator = (
 		return lastInt;
 	};
 
-	const getUint32 = (littleEndian = false) => {
-		const val = view.getUint32(counter.getDiscardedOffset(), littleEndian);
+	const getUint32 = () => {
+		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};
@@ -192,6 +191,26 @@ export const getArrayBufferIterator = (
 		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(8);
 		return val;
+	};
+
+	const getInt64 = (littleEndian = false) => {
+		const val = view.getBigInt64(counter.getDiscardedOffset(), littleEndian);
+		counter.increment(8);
+		return val;
+	};
+
+	const startBox = (size: number) => {
+		const startOffset = counter.getOffset();
+
+		return {
+			discardRest: () => discard(size - (counter.getOffset() - startOffset)),
+			expectNoMoreBytes: () => {
+				const remaining = size - (counter.getOffset() - startOffset);
+				if (remaining !== 0) {
+					throw new Error('expected 0 bytes, got ' + remaining);
+				}
+			},
+		};
 	};
 
 	const getUint32Le = () => {
@@ -228,22 +247,6 @@ export const getArrayBufferIterator = (
 
 	const bytesRemaining = () => {
 		return data.byteLength - counter.getDiscardedOffset();
-	};
-
-	const isIsoBaseMedia = () => {
-		return matchesPattern(isoBaseMediaMp4Pattern)(data.subarray(4, 8));
-	};
-
-	const isRiff = () => {
-		return matchesPattern(riffPattern)(data.subarray(0, 4));
-	};
-
-	const isWebm = () => {
-		return matchesPattern(webmPattern)(data.subarray(0, 4));
-	};
-
-	const isMp3 = () => {
-		return matchesPattern(mpegPattern)(data.subarray(0, 4));
 	};
 
 	const removeBytesRead = () => {
@@ -288,6 +291,28 @@ export const getArrayBufferIterator = (
 		}
 	};
 
+	const readExpGolomb = () => {
+		if (!bitReadingMode) {
+			throw new Error('Not in bit reading mode');
+		}
+
+		let zerosCount = 0;
+
+		// Step 1: Count the number of leading zeros
+		while (getBits(1) === 0) {
+			zerosCount++;
+		}
+
+		// Step 2: Read the suffix
+		let suffix = 0;
+		for (let i = 0; i < zerosCount; i++) {
+			suffix = (suffix << 1) | getBits(1);
+		}
+
+		// Step 3: Calculate the value
+		return (1 << zerosCount) - 1 + suffix;
+	};
+
 	const peekB = (length: number) => {
 		// eslint-disable-next-line no-console
 		console.log(
@@ -320,11 +345,14 @@ export const getArrayBufferIterator = (
 
 	const stopReadingBits = () => {
 		bitIndex = 0;
+		bitReadingMode = false;
 	};
 
 	let byteToShift = 0;
+	let bitReadingMode = false;
 
 	const startReadingBits = () => {
+		bitReadingMode = true;
 		byteToShift = getUint8();
 	};
 
@@ -369,13 +397,9 @@ export const getArrayBufferIterator = (
 		getBits,
 		byteLength,
 		bytesRemaining,
-		isIsoBaseMedia,
 		leb128,
 		removeBytesRead,
-		isWebm,
-		discard: (length: number) => {
-			counter.increment(length);
-		},
+		discard,
 		getEightByteNumber,
 		getFourByteNumber,
 		getSlice,
@@ -383,7 +407,9 @@ export const getArrayBufferIterator = (
 			const atom = getSlice(4);
 			return new TextDecoder().decode(atom);
 		},
-		isRiff,
+		detectFileType: () => {
+			return detectFileType(data);
+		},
 		getPaddedFourByteNumber,
 		getMatroskaSegmentId: (): string | null => {
 			if (bytesRemaining() === 0) {
@@ -516,6 +542,11 @@ export const getArrayBufferIterator = (
 			counter.increment(2);
 			return val;
 		},
+		getUint16Le: () => {
+			const val = view.getUint16(counter.getDiscardedOffset(), true);
+			counter.increment(2);
+			return val;
+		},
 		getUint24: () => {
 			const val1 = view.getUint8(counter.getDiscardedOffset());
 			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
@@ -523,7 +554,13 @@ export const getArrayBufferIterator = (
 			counter.increment(3);
 			return (val1 << 16) | (val2 << 8) | val3;
 		},
-
+		getInt24: () => {
+			const val1 = view.getInt8(counter.getDiscardedOffset());
+			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
+			const val3 = view.getUint8(counter.getDiscardedOffset() + 2);
+			counter.increment(3);
+			return (val1 << 16) | (val2 << 8) | val3;
+		},
 		getInt16: () => {
 			const val = view.getInt16(counter.getDiscardedOffset());
 			counter.increment(2);
@@ -531,6 +568,7 @@ export const getArrayBufferIterator = (
 		},
 		getUint32,
 		getUint64,
+		getInt64,
 		// https://developer.apple.com/documentation/quicktime-file-format/sound_sample_description_version_1
 		// A 32-bit unsigned fixed-point number (16.16) that indicates the rate at which the sound samples were obtained.
 		getFixedPointUnsigned1616Number: () => {
@@ -558,8 +596,15 @@ export const getArrayBufferIterator = (
 				0,
 			);
 		},
-		getByteString(length: number): string {
-			const bytes = getSlice(length);
+		getByteString(length: number, trimTrailingZeroes: boolean): string {
+			let bytes = getSlice(length);
+			// This file has trailing zeroes throughout
+			// https://github.com/remotion-dev/remotion/issues/4668#issuecomment-2561904068
+			// eslint-disable-next-line no-unmodified-loop-condition
+			while (trimTrailingZeroes && bytes[bytes.length - 1] === 0) {
+				bytes = bytes.slice(0, -1);
+			}
+
 			return new TextDecoder().decode(bytes).trim();
 		},
 		getFloat64: () => {
@@ -567,6 +612,7 @@ export const getArrayBufferIterator = (
 			counter.increment(8);
 			return val;
 		},
+		readUntilNullTerminator,
 		getFloat32: () => {
 			const val = view.getFloat32(counter.getDiscardedOffset());
 			counter.increment(4);
@@ -576,9 +622,10 @@ export const getArrayBufferIterator = (
 		getInt32Le,
 		getInt32,
 		destroy,
-		isMp3,
 		disallowDiscard,
 		allowDiscard,
+		startBox,
+		readExpGolomb,
 	};
 };
 

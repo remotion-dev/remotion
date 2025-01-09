@@ -257,8 +257,8 @@ const globalParams: Param[] = [
 ];
 
 export const ShapeOptions: React.FC<{
-	shape: string;
-	all: boolean;
+	readonly shape: string;
+	readonly all: boolean;
 }> = ({shape, all}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
@@ -326,7 +326,7 @@ export const ShapeOptions: React.FC<{
 };
 
 export const MakeShapeReturnType: React.FC<{
-	shape: string;
+	readonly shape: string;
 }> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
@@ -388,7 +388,7 @@ export const MakeShapeReturnType: React.FC<{
 };
 
 export const MakeShapeSeeAlso: React.FC<{
-	shape: string;
+	readonly shape: string;
 }> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
@@ -402,7 +402,7 @@ export const MakeShapeSeeAlso: React.FC<{
 		<ul>
 			<li>
 				<a
-					href={`/docs/shapes/make-${shapeComponent.shape.toLowerCase()}`}
+					href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
 				>{`<${shapeComponent.shape} />`}</a>
 			</li>
 			<li>
@@ -422,7 +422,7 @@ export const MakeShapeSeeAlso: React.FC<{
 };
 
 export const ShapeSeeAlso: React.FC<{
-	shape: string;
+	readonly shape: string;
 }> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),

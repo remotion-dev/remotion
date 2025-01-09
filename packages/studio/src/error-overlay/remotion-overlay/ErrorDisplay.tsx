@@ -27,11 +27,11 @@ const spacer: React.CSSProperties = {
 export type OnRetry = null | (() => void);
 
 export const ErrorDisplay: React.FC<{
-	display: ErrorRecord;
-	keyboardShortcuts: boolean;
-	onRetry: OnRetry;
-	canHaveDismissButton: boolean;
-	calculateMetadata: boolean;
+	readonly display: ErrorRecord;
+	readonly keyboardShortcuts: boolean;
+	readonly onRetry: OnRetry;
+	readonly canHaveDismissButton: boolean;
+	readonly calculateMetadata: boolean;
 }> = ({
 	display,
 	keyboardShortcuts,

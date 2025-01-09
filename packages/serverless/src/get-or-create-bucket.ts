@@ -2,7 +2,7 @@ import type {CustomCredentials} from './constants';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import {makeBucketName} from './make-bucket-name';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	region: Provider['region'];
@@ -10,6 +10,7 @@ type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	skipPutAcl: boolean;
 };
 
 export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
@@ -63,6 +64,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		bucketName,
 		region: params.region,
 		forcePathStyle: params.forcePathStyle,
+		skipPutAcl: params.skipPutAcl,
 	});
 
 	// apply to newly created bucket

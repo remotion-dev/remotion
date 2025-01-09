@@ -1,4 +1,5 @@
-import type {AnySegment} from '../../parse-result';
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import type {MatroskaSegment} from './segments';
 import type {
 	AudioSegment,
 	ClusterSegment,
@@ -20,7 +21,9 @@ import type {
 	WidthSegment,
 } from './segments/all-segments';
 
-export const getMainSegment = (segments: AnySegment[]): MainSegment | null => {
+export const getMainSegment = (
+	segments: MatroskaSegment[],
+): MainSegment | null => {
 	return segments.find((s) => s.type === 'Segment') as MainSegment | null;
 };
 
@@ -229,11 +232,34 @@ export const getDisplayWidthSegment = (
 
 export const getTracksSegment = (segment: MainSegment) => {
 	const tracksSegment = segment.value.find((b) => b.type === 'Tracks');
-	if (!tracksSegment || tracksSegment.type !== 'Tracks') {
+	if (!tracksSegment) {
 		return null;
 	}
 
 	return tracksSegment;
+};
+
+export const getTrackWithUid = (segment: MainSegment, trackUid: string) => {
+	const tracksSegment = getTracksSegment(segment);
+	if (!tracksSegment) {
+		return null;
+	}
+
+	const trackEntries = tracksSegment.value.filter(
+		(t) => t.type === 'TrackEntry',
+	);
+	const trackEntry = trackEntries.find((entry) => {
+		return entry?.value.find(
+			(t) => t.type === 'TrackUID' && t.value === trackUid,
+		);
+	});
+	if (!trackEntry) {
+		return null;
+	}
+
+	return (
+		trackEntry.value.find((t) => t.type === 'TrackNumber')?.value.value ?? null
+	);
 };
 
 export const getTimescaleSegment = (

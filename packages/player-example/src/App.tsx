@@ -34,45 +34,61 @@ type CompProps<T> =
 	  };
 
 const ControlsOnly: React.FC<{
-	playerRef: React.RefObject<PlayerRef>;
-	color: string;
-	setColor: React.Dispatch<React.SetStateAction<string>>;
-	title: string;
-	setTitle: React.Dispatch<React.SetStateAction<string>>;
-	bgColor: string;
-	setBgColor: React.Dispatch<React.SetStateAction<string>>;
-	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
-	loop: boolean;
-	setLoop: React.Dispatch<React.SetStateAction<boolean>>;
-	clickToPlay: boolean;
-	setClickToPlay: React.Dispatch<React.SetStateAction<boolean>>;
-	doubleClickToFullscreen: boolean;
-	setDoubleClickToFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
-	spaceKeyToPlayOrPause: boolean;
-	setSpaceKeyToPlayOrPause: React.Dispatch<React.SetStateAction<boolean>>;
-	moveToBeginningWhenEnded: boolean;
-	setMoveToBeginningWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
-	showPosterWhenUnplayed: boolean;
-	setshowPosterWhenUnplayed: React.Dispatch<React.SetStateAction<boolean>>;
-	showPosterWhenEnded: boolean;
-	setShowPosterWhenEnded: React.Dispatch<React.SetStateAction<boolean>>;
-	showPosterWhenPaused: boolean;
-	setShowPosterWhenPaused: React.Dispatch<React.SetStateAction<boolean>>;
-	inFrame: number | null;
-	setInFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	outFrame: number | null;
-	setOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	alwaysShowControls: boolean;
-	setAlwaysShowControls: React.Dispatch<React.SetStateAction<boolean>>;
-	showVolumeControls: boolean;
-	setShowVolumeControls: React.Dispatch<React.SetStateAction<boolean>>;
-	durationInFrames: number;
-	showPlaybackrateControl: boolean;
-	setShowPlaybackRateControl: React.Dispatch<React.SetStateAction<boolean>>;
-	showPosterWhenBuffering: boolean;
-	setShowPosterWhenBuffering: React.Dispatch<React.SetStateAction<boolean>>;
-	hideControlsWhenPointerDoesntMove: boolean;
-	setHideControlsWhenPointerDoesntMove: React.Dispatch<
+	readonly playerRef: React.RefObject<PlayerRef>;
+	readonly color: string;
+	readonly setColor: React.Dispatch<React.SetStateAction<string>>;
+	readonly title: string;
+	readonly setTitle: React.Dispatch<React.SetStateAction<string>>;
+	readonly bgColor: string;
+	readonly setBgColor: React.Dispatch<React.SetStateAction<string>>;
+	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
+	readonly loop: boolean;
+	readonly setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly clickToPlay: boolean;
+	readonly setClickToPlay: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly doubleClickToFullscreen: boolean;
+	readonly setDoubleClickToFullscreen: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly spaceKeyToPlayOrPause: boolean;
+	readonly setSpaceKeyToPlayOrPause: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly moveToBeginningWhenEnded: boolean;
+	readonly setMoveToBeginningWhenEnded: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly showPosterWhenUnplayed: boolean;
+	readonly setshowPosterWhenUnplayed: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly showPosterWhenEnded: boolean;
+	readonly setShowPosterWhenEnded: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly showPosterWhenPaused: boolean;
+	readonly setShowPosterWhenPaused: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly inFrame: number | null;
+	readonly setInFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly outFrame: number | null;
+	readonly setOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly alwaysShowControls: boolean;
+	readonly setAlwaysShowControls: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly showVolumeControls: boolean;
+	readonly setShowVolumeControls: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly durationInFrames: number;
+	readonly showPlaybackrateControl: boolean;
+	readonly setShowPlaybackRateControl: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly showPosterWhenBuffering: boolean;
+	readonly setShowPosterWhenBuffering: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
+	readonly hideControlsWhenPointerDoesntMove: boolean;
+	readonly setHideControlsWhenPointerDoesntMove: React.Dispatch<
 		React.SetStateAction<boolean>
 	>;
 }> = ({
@@ -530,25 +546,25 @@ const ControlsOnly: React.FC<{
 
 const PlayerOnly: React.FC<
 	{
-		playerRef: React.RefObject<PlayerRef>;
-		inputProps: Record<string, unknown>;
-		clickToPlay: boolean;
-		loop: boolean;
-		durationInFrames: number;
-		doubleClickToFullscreen: boolean;
-		playbackRate: number;
-		spaceKeyToPlayOrPause: boolean;
-		moveToBeginningWhenEnded: boolean;
-		showPosterWhenPaused: boolean;
-		showPosterWhenEnded: boolean;
-		showPosterWhenUnplayed: boolean;
-		showPosterWhenBuffering: boolean;
-		inFrame: number | null;
-		outFrame: number | null;
-		alwaysShowControls: boolean;
-		showVolumeControls: boolean;
-		showPlaybackRateControl: boolean | number[];
-		hideControlsWhenPointerDoesntMove: boolean;
+		readonly playerRef: React.RefObject<PlayerRef>;
+		readonly inputProps: Record<string, unknown>;
+		readonly clickToPlay: boolean;
+		readonly loop: boolean;
+		readonly durationInFrames: number;
+		readonly doubleClickToFullscreen: boolean;
+		readonly playbackRate: number;
+		readonly spaceKeyToPlayOrPause: boolean;
+		readonly moveToBeginningWhenEnded: boolean;
+		readonly showPosterWhenPaused: boolean;
+		readonly showPosterWhenEnded: boolean;
+		readonly showPosterWhenUnplayed: boolean;
+		readonly showPosterWhenBuffering: boolean;
+		readonly inFrame: number | null;
+		readonly outFrame: number | null;
+		readonly alwaysShowControls: boolean;
+		readonly showVolumeControls: boolean;
+		readonly showPlaybackRateControl: boolean | number[];
+		readonly hideControlsWhenPointerDoesntMove: boolean;
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -662,7 +678,7 @@ export default ({
 	durationInFrames,
 	...props
 }: {
-	durationInFrames: number;
+	readonly durationInFrames: number;
 } & CompProps<any>) => {
 	const [title, setTitle] = useState('Hello World');
 	const [color, setColor] = useState('#ffffff');

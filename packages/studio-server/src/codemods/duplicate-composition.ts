@@ -8,7 +8,7 @@ import {applyCodemod} from './recast-mods';
 const getPrettier = async () => {
 	try {
 		return await import('prettier');
-	} catch (err) {
+	} catch {
 		throw new Error('Prettier cannot be found in the current project.');
 	}
 };

@@ -160,7 +160,7 @@ export const drawMarkingOnRulerCanvas = ({
 	originOffset: number;
 	markingGaps: number;
 	orientation: 'horizontal' | 'vertical';
-	rulerCanvasRef: React.RefObject<HTMLCanvasElement>;
+	rulerCanvasRef: React.RefObject<HTMLCanvasElement | null>;
 	selectedGuide: Guide | null;
 	canvasWidth: number;
 	canvasHeight: number;

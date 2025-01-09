@@ -71,8 +71,8 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export const OpenInEditor: React.FC<{
-	stack: SymbolicatedStackFrame;
-	canHaveKeyboardShortcuts: boolean;
+	readonly stack: SymbolicatedStackFrame;
+	readonly canHaveKeyboardShortcuts: boolean;
 }> = ({stack, canHaveKeyboardShortcuts}) => {
 	const isMounted = useRef(true);
 	const [state, dispatch] = useReducer(reducer, initialState);

@@ -1,0 +1,4 @@
+/**
+ * @description When you invoke this function, Remotion will stop rendering all the frames without any retries.
+ * @see [Documentation](https://remotion.dev/docs/cancel-render)
+ */

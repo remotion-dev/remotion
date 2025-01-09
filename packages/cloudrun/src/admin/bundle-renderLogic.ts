@@ -52,6 +52,4 @@ export const bundleRenderLogic = async () => {
 		),
 		`${outdir}/mappings.wasm`,
 	);
-
-	console.log('distribution bundled.');
 };

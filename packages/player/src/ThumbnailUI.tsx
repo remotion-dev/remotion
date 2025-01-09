@@ -15,7 +15,7 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
 import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
@@ -35,15 +35,24 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const ThumbnailUI: React.ForwardRefRenderFunction<
 	ThumbnailMethods,
 	{
-		inputProps: Record<string, unknown>;
-		style?: React.CSSProperties;
-		errorFallback: ErrorFallback;
-		renderLoading: RenderLoading | undefined;
-		className: string | undefined;
-		overflowVisible: boolean;
+		readonly inputProps: Record<string, unknown>;
+		readonly style?: React.CSSProperties;
+		readonly errorFallback: ErrorFallback;
+		readonly renderLoading: RenderLoading | undefined;
+		readonly className: string | undefined;
+		readonly overflowVisible: boolean;
+		readonly overrideInternalClassName: string | undefined;
 	}
 > = (
-	{style, inputProps, errorFallback, renderLoading, className, overflowVisible},
+	{
+		style,
+		inputProps,
+		errorFallback,
+		renderLoading,
+		className,
+		overflowVisible,
+		overrideInternalClassName,
+	},
 	ref,
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
@@ -137,7 +146,10 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 
 	const content = (
 		<div style={outer}>
-			<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+			<div
+				style={containerStyle}
+				className={playerCssClassname(overrideInternalClassName)}
+			>
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 						<Internals.CurrentScaleContext.Provider value={currentScaleContext}>

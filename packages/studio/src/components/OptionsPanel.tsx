@@ -148,9 +148,14 @@ export const OptionsPanel: React.FC<{
 		return !deepEqual(composition.defaultProps, currentDefaultProps);
 	}, [currentDefaultProps, composition]);
 
-	const reset = useCallback(() => {
-		resetUnsaved();
-	}, [resetUnsaved]);
+	const reset = useCallback(
+		(e: Event) => {
+			if ((e as CustomEvent).detail.resetUnsaved) {
+				resetUnsaved();
+			}
+		},
+		[resetUnsaved],
+	);
 
 	useEffect(() => {
 		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);

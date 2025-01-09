@@ -51,6 +51,7 @@ const {
 	publicPathOption,
 	publicDirOption,
 	metadataOption,
+	hardwareAccelerationOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -60,7 +61,7 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 		return [RenderInternals.resolveConcurrency(cliConcurrency)];
 	}
 
-	return (concurrencies as string)
+	return String(concurrencies)
 		.split(',')
 		.map((c) => parseInt(c.trim(), 10));
 };
@@ -493,6 +494,9 @@ export const benchmarkCommand = async (
 					onBrowserDownload,
 					onArtifact: () => undefined,
 					metadata,
+					hardwareAcceleration: hardwareAccelerationOption.getValue({
+						commandLine: parsedCli,
+					}).value,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
