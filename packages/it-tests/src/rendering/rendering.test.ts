@@ -492,7 +492,7 @@ test('Dynamic duration should work and audio separation', async () => {
 			'build',
 			'dynamic-duration',
 			`--props`,
-			`{"duration": ${randomDuration}}`,
+			`{"duration": ${randomDuration}, "offthread": true}`,
 			'--separate-audio-to',
 			'audio.wav',
 			outputPath,
