@@ -17,8 +17,7 @@
     "paths": {
       "~/*": ["./app/*"]
     },
-    "noEmit": true,
-    "incremental": true
+    "noEmit": true
   },
   "exclude": ["remotion.config.ts"]
 }
