@@ -6,7 +6,7 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src --ext ts,tsx,js,jsx && tsc",
+    "lint": "eslint && tsc",
     "create-subtitles": "node sub.mjs"
   },
   "repository": {},
