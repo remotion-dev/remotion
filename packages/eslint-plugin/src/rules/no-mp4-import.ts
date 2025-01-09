@@ -17,7 +17,6 @@ const rule = createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: NoMP4Import,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],

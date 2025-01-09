@@ -27,7 +27,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: NoNativeImgTag,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],

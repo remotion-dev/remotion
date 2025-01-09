@@ -1,8 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/deterministic-randomness';
-const ruleTester = new ESLintUtils.RuleTester({
-	parser: '@typescript-eslint/parser',
-});
+import {makeRuleTester} from './rule-tester';
+
+const ruleTester = makeRuleTester();
 
 ruleTester.run('deterministic-randomness', rule, {
 	valid: ['import {random} from "remotion";\nconst hi = random(null)'],

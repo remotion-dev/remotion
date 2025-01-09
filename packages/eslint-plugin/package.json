@@ -6,7 +6,7 @@
 	"version": "4.0.246",
 	"description": "Rules for writing Remotion code",
 	"scripts": {
-		"test": "vitest --run",
+		"test": "bun test src",
 		"make": "tsc -d"
 	},
 	"main": "dist/index.js",
@@ -16,7 +16,9 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
 	"dependencies": {
-		"@typescript-eslint/utils": "5.19.0"
+		"@typescript-eslint/utils": "8.19.1",
+		"@typescript-eslint/rule-tester": "8.19.1",
+		"@typescript-eslint/parser": "8.19.1"
 	},
 	"keywords": [
 		"eslint",
@@ -25,9 +27,7 @@
 	"peerDependencies": {
 		"eslint": ">=7.0.0"
 	},
-	"devDependencies": {
-		"vitest": "0.31.1"
-	},
+	"devDependencies": {},
 	"private": false,
 	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

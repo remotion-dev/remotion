@@ -17,7 +17,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: DurationInFrames,
-			recommended: 'warn',
 		},
 		fixable: 'code',
 		schema: [],

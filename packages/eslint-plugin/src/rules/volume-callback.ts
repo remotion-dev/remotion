@@ -17,7 +17,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: VolumeCallback,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],

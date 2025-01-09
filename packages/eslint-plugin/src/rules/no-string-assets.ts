@@ -19,7 +19,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: NoStringAssets,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],

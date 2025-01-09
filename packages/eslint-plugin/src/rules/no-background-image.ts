@@ -18,7 +18,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: BackgroundImage,
-			recommended: 'error',
 		},
 		fixable: undefined,
 		schema: [],

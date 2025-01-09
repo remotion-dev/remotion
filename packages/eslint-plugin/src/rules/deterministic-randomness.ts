@@ -21,7 +21,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: DeterministicRandomness,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],
