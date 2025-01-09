@@ -7,8 +7,10 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import {z} from 'zod';
 import type {
 	CloudRunCrashResponse,
+	CloudRunPayload,
 	CloudRunPayloadType,
 	DownloadBehavior,
 	ErrorResponsePayload,
@@ -42,6 +44,8 @@ type OptionalParameters = {
 	forceHeight: number | null;
 	indent: boolean;
 	downloadBehavior: DownloadBehavior;
+	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
+	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>;
 
 export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
@@ -95,6 +99,8 @@ const internalRenderStillOnCloudRun = async ({
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
 	downloadBehavior,
+	renderIdOverride,
+	renderStatusWebhook,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -136,6 +142,8 @@ const internalRenderStillOnCloudRun = async ({
 		offthreadVideoCacheSizeInBytes,
 		clientVersion: VERSION,
 		downloadBehavior,
+		renderIdOverride,
+		renderStatusWebhook,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -241,5 +249,7 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		serveUrl: options.serveUrl,
 		serviceName: options.serviceName ?? null,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
+		renderIdOverride: options.renderIdOverride ?? undefined,
+		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
 	});
 };
