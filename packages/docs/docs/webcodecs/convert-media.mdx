@@ -179,12 +179,12 @@ An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
 
 ### `writer?`
 
-_object_ <TsType type="WriterInterface" source="@remotion/media-parser" />
+_object_ <TsType type="WriterInterface" source="@remotion/webcodecs" />
 
 A writer interface. The following interfaces are available:
 
 ```tsx twoslash title="Buffer writer"
-import {bufferWriter} from '@remotion/media-parser/buffer';
+import {bufferWriter} from '@remotion/webcodecs/buffer';
 //               ^?
 ```
 
@@ -193,7 +193,7 @@ Write to a resizable Array Buffer.
 ```tsx twoslash title="Web File System writer"
 // @module: es2022
 // @target: es2017
-import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
+import {canUseWebFsWriter, webFsWriter} from '@remotion/webcodecs/web-fs';
 //                          ^?
 
 await canUseWebFsWriter(); // boolean

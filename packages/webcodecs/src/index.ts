@@ -45,6 +45,7 @@ export {
 export type {ResizeOperation} from './resizing/mode';
 export {createVideoDecoder, WebCodecsVideoDecoder} from './video-decoder';
 export {createVideoEncoder, WebCodecsVideoEncoder} from './video-encoder';
+export {WriterInterface} from './writers/writer';
 
 export const WebCodecsInternals = {
 	rotateAndResizeVideoFrame,

@@ -50,18 +50,6 @@
 			"module": "./dist/esm/from-web-file.mjs",
 			"import": "./dist/esm/from-web-file.mjs"
 		},
-		"./web-fs": {
-			"types": "./dist/writers/web-fs.d.ts",
-			"require": "./dist/writers/web-fs.js",
-			"module": "./dist/esm/web-fs.mjs",
-			"import": "./dist/esm/web-fs.mjs"
-		},
-		"./buffer": {
-			"types": "./dist/writers/buffer.d.ts",
-			"require": "./dist/writers/buffer.js",
-			"module": "./dist/esm/buffer.mjs",
-			"import": "./dist/esm/buffer.mjs"
-		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {

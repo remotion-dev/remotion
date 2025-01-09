@@ -1,5 +1,6 @@
-import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
+import type {LogLevel} from '@remotion/media-parser';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';

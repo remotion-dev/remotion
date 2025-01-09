@@ -1,6 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {combineUint8Arrays} from '../boxes/webm/make-header';
+import {combineUint8Arrays} from '../combine-uint8-arrays';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 

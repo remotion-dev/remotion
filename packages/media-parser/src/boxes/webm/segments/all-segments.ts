@@ -292,17 +292,6 @@ export const getSegmentName = (id: string) => {
 	)?.[0];
 };
 
-export const getIdForName = (name: string): EbmlMapKey => {
-	const value = Object.entries(matroskaElements).find(
-		([key]) => key === name,
-	)?.[1];
-	if (!value) {
-		throw new Error(`Could not find id for name ${name}`);
-	}
-
-	return value as EbmlMapKey;
-};
-
 export type MatroskaKey = keyof typeof matroskaElements;
 
 export type MatroskaElement = (typeof matroskaElements)[MatroskaKey];
@@ -767,19 +756,9 @@ export type EbmlValue<
 						? Child[]
 						: never;
 
-export type EbmlValueOrUint8Array<T extends Ebml> =
-	| Uint8Array
-	| EbmlValue<T, PossibleEbmlOrUint8Array>;
-
 export type EbmlParsed<T extends Ebml> = {
 	type: T['name'];
 	value: EbmlValue<T>;
-	minVintWidth: number | null;
-};
-
-export type EbmlParsedOrUint8Array<T extends Ebml> = {
-	type: T['name'];
-	value: EbmlValueOrUint8Array<T>;
 	minVintWidth: number | null;
 };
 
@@ -945,39 +924,3 @@ export type PossibleEbml = Prettify<
 		[key in keyof typeof ebmlMap]: EbmlParsed<(typeof ebmlMap)[key]>;
 	}[keyof typeof ebmlMap]
 >;
-
-export type OffsetAndChildren = {
-	offset: number;
-	children: OffsetAndChildren[];
-	field: keyof typeof matroskaElements;
-};
-
-export const incrementOffsetAndChildren = (
-	offset: OffsetAndChildren,
-	increment: number,
-): OffsetAndChildren => {
-	return {
-		offset: offset.offset + increment,
-		children: offset.children.map((c) =>
-			incrementOffsetAndChildren(c, increment),
-		),
-		field: offset.field,
-	};
-};
-
-export type BytesAndOffset = {
-	bytes: Uint8Array;
-	offsets: OffsetAndChildren;
-};
-
-export type PossibleEbmlOrUint8Array =
-	| Prettify<
-			{
-				[key in keyof typeof ebmlMap]: EbmlParsedOrUint8Array<
-					(typeof ebmlMap)[key]
-				>;
-			}[keyof typeof ebmlMap]
-	  >
-	| BytesAndOffset;
-
-export type EbmlMapKey = keyof typeof ebmlMap;

@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {combineUint8Arrays} from '../../combine-uint8-arrays';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {combineUint8Arrays} from '../webm/make-header';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import {findNextSeparator} from './find-separator';

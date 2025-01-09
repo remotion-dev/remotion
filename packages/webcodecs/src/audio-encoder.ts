@@ -1,4 +1,5 @@
-import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
+import type {LogLevel} from '@remotion/media-parser';
+import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {getWaveAudioEncoder} from './wav-audio-encoder';

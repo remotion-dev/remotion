@@ -1,8 +1,5 @@
-import type {
-	AudioOrVideoSample,
-	LogLevel,
-	ProgressTracker,
-} from '@remotion/media-parser';
+import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
+import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 

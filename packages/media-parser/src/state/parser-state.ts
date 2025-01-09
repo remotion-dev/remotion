@@ -26,7 +26,6 @@ export const makeParserState = ({
 	signal,
 	getIterator,
 	fields,
-	nullifySamples,
 	onAudioTrack,
 	onVideoTrack,
 	supportsContentRange,
@@ -36,7 +35,6 @@ export const makeParserState = ({
 	signal: AbortSignal | undefined;
 	getIterator: () => BufferIterator | null;
 	fields: Options<ParseMediaFields>;
-	nullifySamples: boolean;
 	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
@@ -71,7 +69,6 @@ export const makeParserState = ({
 		increaseSkippedBytes,
 		keyframes,
 		structure,
-		nullifySamples,
 		onAudioTrack,
 		onVideoTrack,
 		supportsContentRange,

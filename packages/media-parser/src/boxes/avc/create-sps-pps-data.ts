@@ -1,5 +1,15 @@
+import {combineUint8Arrays} from '../../combine-uint8-arrays';
 import type {SpsAndPps} from '../../state/parser-state';
-import {combineUint8Arrays, serializeUint16} from '../webm/make-header';
+
+function serializeUint16(value: number): Uint8Array {
+	const buffer = new ArrayBuffer(2);
+
+	const view = new DataView(buffer);
+
+	view.setUint16(0, value);
+
+	return new Uint8Array(buffer);
+}
 
 export const createSpsPpsData = (avc1Profile: SpsAndPps) => {
 	return combineUint8Arrays([
