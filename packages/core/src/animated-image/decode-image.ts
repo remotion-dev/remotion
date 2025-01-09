@@ -1,3 +1,5 @@
+import type {RemotionAnimatedImageLoopBehavior} from './props';
+
 export type AnimatedImageCacheItem = {
 	timeInSeconds: number;
 	frameIndex: number;
@@ -5,20 +7,41 @@ export type AnimatedImageCacheItem = {
 };
 
 export type RemotionImageDecoder = {
-	getFrame: (i: number) => Promise<AnimatedImageCacheItem>;
+	getFrame: (
+		i: number,
+		loopBehavior: RemotionAnimatedImageLoopBehavior,
+	) => Promise<AnimatedImageCacheItem | null>;
 	frameCount: number;
 };
 
 const CACHE_SIZE = 5;
 
+const getActualTime = ({
+	loopBehavior,
+	durationFound,
+	timeInSec,
+}: {
+	loopBehavior: RemotionAnimatedImageLoopBehavior;
+	durationFound: number | null;
+	timeInSec: number;
+}) => {
+	return loopBehavior === 'loop'
+		? durationFound
+			? timeInSec % durationFound
+			: timeInSec
+		: Math.min(timeInSec, durationFound || Infinity);
+};
+
 export const decodeImage = async ({
 	resolvedSrc,
 	signal,
 	currentTime,
+	initialLoopBehavior,
 }: {
 	resolvedSrc: string;
 	signal: AbortSignal;
 	currentTime: number;
+	initialLoopBehavior: RemotionAnimatedImageLoopBehavior;
 }): Promise<RemotionImageDecoder> => {
 	if (typeof ImageDecoder === 'undefined') {
 		throw new Error(
@@ -94,10 +117,18 @@ export const decodeImage = async ({
 		}
 	};
 
-	const ensureFrameBeforeAndAfter = async (timeInSec: number) => {
-		const actualTimeInSec = durationFound
-			? timeInSec % durationFound
-			: timeInSec;
+	const ensureFrameBeforeAndAfter = async ({
+		timeInSec,
+		loopBehavior,
+	}: {
+		timeInSec: number;
+		loopBehavior: RemotionAnimatedImageLoopBehavior;
+	}) => {
+		const actualTimeInSec = getActualTime({
+			durationFound,
+			loopBehavior,
+			timeInSec,
+		});
 		const framesBefore = cache.filter(
 			(c) => c.timeInSeconds <= actualTimeInSec,
 		);
@@ -117,7 +148,7 @@ export const decodeImage = async ({
 				throw new Error('Frame has no duration');
 			}
 
-			if (i === selectedTrack.frameCount) {
+			if (i === selectedTrack.frameCount && durationFound === null) {
 				const duration = (f.frame.timestamp + f.frame.duration) / 1_000_000;
 				durationFound = duration;
 			}
@@ -131,14 +162,33 @@ export const decodeImage = async ({
 	};
 
 	// Twice because might be over total duration
-	await ensureFrameBeforeAndAfter(currentTime);
-	await ensureFrameBeforeAndAfter(currentTime);
+	await ensureFrameBeforeAndAfter({
+		timeInSec: currentTime,
+		loopBehavior: initialLoopBehavior,
+	});
+	await ensureFrameBeforeAndAfter({
+		timeInSec: currentTime,
+		loopBehavior: initialLoopBehavior,
+	});
 
-	const getFrame = async (timeInSec: number) => {
-		const actualTimeInSec = durationFound
-			? timeInSec % durationFound
-			: timeInSec;
-		await ensureFrameBeforeAndAfter(actualTimeInSec);
+	const getFrame = async (
+		timeInSec: number,
+		loopBehavior: RemotionAnimatedImageLoopBehavior,
+	) => {
+		if (
+			durationFound !== null &&
+			timeInSec > durationFound &&
+			loopBehavior === 'unmount-after-finish'
+		) {
+			return null;
+		}
+
+		const actualTimeInSec = getActualTime({
+			loopBehavior,
+			durationFound,
+			timeInSec,
+		});
+		await ensureFrameBeforeAndAfter({timeInSec: actualTimeInSec, loopBehavior});
 		const itemsInCache = cache.filter((c) => c.frame);
 
 		const closest = itemsInCache.reduce((a, b) => {

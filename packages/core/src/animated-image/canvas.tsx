@@ -86,6 +86,7 @@ type Props = {
 export type AnimatedImageCanvasRef = {
 	readonly draw: (imageData: VideoFrame) => void;
 	readonly getCanvas: () => HTMLCanvasElement | null;
+	clear: () => void;
 };
 
 const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -139,6 +140,19 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 				}
 
 				return canvasRef.current;
+			},
+			clear: () => {
+				const ctx = canvasRef.current?.getContext('2d');
+				if (!ctx) {
+					throw new Error('Could not get 2d context');
+				}
+
+				ctx.clearRect(
+					0,
+					0,
+					canvasRef.current!.width,
+					canvasRef.current!.height,
+				);
 			},
 		};
 	}, [draw]);
