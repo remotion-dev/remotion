@@ -24,7 +24,7 @@ import type {SpeculateFunctionNameInput} from './api/speculate-function-name';
 import {speculateFunctionName} from './api/speculate-function-name';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {RenderProgress} from './shared/constants';
-import {appRouterWebhooks, pageRouterWebhooks} from './simplifiers';
+import {appRouterWebhooks, pageRouterWebhooks} from './webhook-presets';
 export type {WebhookPayload} from '@remotion/serverless';
 
 export {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';

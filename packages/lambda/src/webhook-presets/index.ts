@@ -1,6 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import type {WebhookPayload} from '../client';
 import {validateWebhookSignature} from '../client';
+
 type AppRouterWebhookArgs = {
 	testing?: boolean;
 	extraHeaders?: Record<string, string>;
