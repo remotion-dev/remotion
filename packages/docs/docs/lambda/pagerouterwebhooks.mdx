@@ -3,10 +3,11 @@ image: /generated/articles-docs-lambda-pagerouterwebhooks.png
 id: pagerouterwebhooks
 title: pageRouterWebhooks()
 slug: /lambda/pagerouterwebhooks
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Simplifies the process of setting up Remotion Lambda Client in your Next.js app which is using Pages Router. Similar to [appRouterWebhooks()](/docs/lambda/approuterwebhooks).
+
 ## API
 
 The function accepts an object with six key-value pairs:
@@ -22,7 +23,6 @@ Whether or not to allow requests intending to test the endpoint, useful while us
 ### `extraHeaders`
 
 Add your own custom headers to the outgoing response. Provide key-value pairs where both the key and value are strings.
-
 
 ### `onSuccess()`
 
@@ -41,23 +41,19 @@ A function that is called with a `Payload` object as an argument when the incomi
 Setting up a webhook endpoint in a Next.js app which uses Pages Router. This will listen on the endpoint: `mydomain.com/api/webhook`
 
 ```tsx twoslash title="pages/api/webhook.ts"
-import {
-  pageRouterWebhooks
-} from '@remotion/lambda/client';
+import {pageRouterWebhooks} from '@remotion/lambda/client';
 
-const handler = pageRouterWebhooks(
-  {
-    secret: 'mysecret', 
-    testing: true,
-    extraHeaders: {
-      "region" : 'south-asia'
-    },
-    onSuccess: () => (console.log("Rendering Completed Successfully")),
-    onError: () => (console.log("Something went wrong while rendering")),
-    onTimeout: () => (console.log("Timeout occured while rendering"))
-  }
-)
-export default handler
+const handler = pageRouterWebhooks({
+  secret: 'mysecret',
+  testing: true,
+  extraHeaders: {
+    region: 'south-asia',
+  },
+  onSuccess: () => console.log('Rendering Completed Successfully'),
+  onError: () => console.log('Something went wrong while rendering'),
+  onTimeout: () => console.log('Timeout occured while rendering'),
+});
+export default handler;
 ```
 
 See [Webhooks](/docs/lambda/webhooks) for an Express example.
