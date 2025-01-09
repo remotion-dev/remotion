@@ -40,7 +40,7 @@ import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
 import {studioCommand} from './studio';
-import {upgrade} from './upgrade';
+import {upgradeCommand} from './upgrade';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
@@ -111,12 +111,13 @@ export const cli = async () => {
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(process.argv.slice(3), logLevel);
 		} else if (command === 'upgrade') {
-			await upgrade(
+			await upgradeCommand({
 				remotionRoot,
-				parsedCli['package-manager'],
-				parsedCli.version,
+				packageManager: parsedCli['package-manager'],
+				version: parsedCli.version,
 				logLevel,
-			);
+				args,
+			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
