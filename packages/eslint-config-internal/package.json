@@ -23,8 +23,8 @@
 		"@types/eslint__eslintrc": "2.1.2"
 	},
 	"dependencies": {
-		"@typescript-eslint/eslint-plugin": "8.12.2",
-		"@typescript-eslint/parser": "8.12.2",
+		"@typescript-eslint/eslint-plugin": "8.19.1",
+		"@typescript-eslint/parser": "8.19.1",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.37.3",
 		"eslint-plugin-react-hooks": "5.0.0",
