@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import {afterAll, beforeEach, describe, expect, test} from 'bun:test';
 import {getInputProps} from '../config/input-props.js';
 

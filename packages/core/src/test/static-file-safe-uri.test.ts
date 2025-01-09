@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {staticFile} from '../static-file.js';
 
 test('staticFile() should convert # into %23', () => {

@@ -1,14 +1,14 @@
-/**
- * @vitest-environment jsdom
- */
-
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
+import {afterEach, describe, expect, test} from 'bun:test';
 import React from 'react';
-import {describe, expect, test} from 'vitest';
 import {Sequence} from '../Sequence.js';
 import {Freeze} from '../freeze.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
+
+afterEach(() => {
+	cleanup();
+});
 
 const Inner: React.FC = () => {
 	const config = useVideoConfig();

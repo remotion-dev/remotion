@@ -1,5 +1,13 @@
-import {renderHook} from '@testing-library/react';
-import {afterAll, beforeAll, expect, mock, spyOn, test} from 'bun:test';
+import {cleanup, renderHook} from '@testing-library/react';
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	expect,
+	mock,
+	spyOn,
+	test,
+} from 'bun:test';
 import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
@@ -8,6 +16,10 @@ import {SequenceManager} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
+
+afterEach(() => {
+	cleanup();
+});
 
 beforeAll(() => {
 	spyOn(useVideoConfigModule, 'useVideoConfig').mockImplementation(() => ({
