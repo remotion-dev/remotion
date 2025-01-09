@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {z} from 'zod';
+import type {z} from 'zod';
 import {CloudRunPayload} from '../../functions/helpers/payloads';
 
 test('CloudRunPayload should work with and without optional webhook fields', () => {

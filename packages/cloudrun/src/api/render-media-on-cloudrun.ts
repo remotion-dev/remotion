@@ -12,7 +12,7 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
-import {z} from 'zod';
+import type {z} from 'zod';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayload,
