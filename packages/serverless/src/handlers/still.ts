@@ -37,6 +37,7 @@ import {validateDownloadBehavior} from '../validate-download-behavior';
 import {validateOutname} from '../validate-outname';
 import {validatePrivacy} from '../validate-privacy';
 import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
+import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;
@@ -64,17 +65,11 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		throw new TypeError('Expected still type');
 	}
 
-	if (params.version !== VERSION) {
-		if (!params.version) {
-			throw new Error(
-				`Version mismatch: When calling renderStillOnLambda(), you called the function ${insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-			);
-		}
-
-		throw new Error(
-			`Version mismatch: When calling renderStillOnLambda(), you passed ${insideFunctionSpecifics.getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-		);
-	}
+	checkVersionMismatch({
+		apiName: 'renderStillOnLambda()',
+		insideFunctionSpecifics,
+		params,
+	});
 
 	validateDownloadBehavior(params.downloadBehavior);
 	validatePrivacy(params.privacy, true);

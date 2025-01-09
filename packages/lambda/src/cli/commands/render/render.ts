@@ -277,7 +277,10 @@ export const renderCommand = async ({
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerFunction({framesPerLambda, durationInFrames: 1});
+	validateFramesPerFunction({
+		framesPerFunction: framesPerLambda,
+		durationInFrames: 1,
+	});
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 

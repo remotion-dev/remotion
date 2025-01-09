@@ -3,11 +3,11 @@ import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider, ParsedTiming} from './types';
 
-export const estimatePriceFromBucket = <Provider extends CloudProvider>({
+export const estimatePriceFromMetadata = <Provider extends CloudProvider>({
 	renderMetadata,
 	memorySizeInMb,
 	diskSizeInMb,
-	lambdasInvoked,
+	functionsInvoked,
 	timings,
 	region,
 	providerSpecifics,
@@ -15,7 +15,7 @@ export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 	renderMetadata: RenderMetadata<Provider> | null;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
-	lambdasInvoked: number;
+	functionsInvoked: number;
 	timings: ParsedTiming[];
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
@@ -50,7 +50,7 @@ export const estimatePriceFromBucket = <Provider extends CloudProvider>({
 				durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 				memorySizeInMb,
 				diskSizeInMb,
-				lambdasInvoked,
+				lambdasInvoked: functionsInvoked,
 			})
 			.toPrecision(5),
 	);

@@ -214,12 +214,15 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const response = await progressHandler(params, {
-			expectedBucketOwner: currentUserId,
-			timeoutInMilliseconds,
-			retriesRemaining: 2,
-			providerSpecifics,
-			insideFunctionSpecifics,
+		const response = await progressHandler({
+			params,
+			options: {
+				expectedBucketOwner: currentUserId,
+				timeoutInMilliseconds,
+				retriesRemaining: 2,
+				providerSpecifics,
+				insideFunctionSpecifics,
+			},
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -315,7 +318,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		}
 
 		const response = await compositionsHandler({
-			lambdaParams: params,
+			params: params,
 			options: {
 				expectedBucketOwner: currentUserId,
 			},

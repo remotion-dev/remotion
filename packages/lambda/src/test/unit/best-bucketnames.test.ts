@@ -1,5 +1,5 @@
 import {makeBucketName} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {parseBucketName} from '../../shared/validate-bucketname';
 import {mockImplementation} from '../mock-implementation';
 

@@ -38,11 +38,6 @@ import {mergeChunksAndFinishRender} from '../merge-chunks';
 import {planFrameRanges} from '../plan-frame-ranges';
 import {streamRendererFunctionWithRetry} from '../stream-renderer';
 import type {CloudProvider} from '../types';
-import {
-	validateDimension,
-	validateDurationInFrames,
-	validateFps,
-} from '../validate';
 import {validateComposition} from '../validate-composition';
 import {validateFramesPerFunction} from '../validate-frames-per-function';
 import {validateOutname} from '../validate-outname';
@@ -128,7 +123,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		onBrowserDownload: () => {
-			throw new Error('Should not download a browser in Lambda');
+			throw new Error('Should not download a browser in a function');
 		},
 		onServeUrlVisited: () => {
 			overallProgress.setServeUrlOpened(Date.now());
@@ -141,14 +136,6 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		'Composition validated, resolved props',
 		comp.props,
 	);
-
-	validateDurationInFrames(comp.durationInFrames, {
-		component: 'passed to a Lambda render',
-		allowFloats: false,
-	});
-	validateFps(comp.fps, 'passed to a Lambda render', false);
-	validateDimension(comp.height, 'height', 'passed to a Lambda render');
-	validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
@@ -174,7 +161,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
 
 	validateFramesPerFunction({
-		framesPerLambda,
+		framesPerFunction: framesPerLambda,
 		durationInFrames: frameCount.length,
 	});
 

@@ -1,4 +1,3 @@
-import {VERSION} from 'remotion/version';
 import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines, overallProgressKey} from '../constants';
 import {internalGetOrCreateBucket} from '../get-or-create-bucket';
@@ -8,6 +7,7 @@ import type {
 	ProviderSpecifics,
 } from '../provider-implementation';
 import type {CloudProvider} from '../types';
+import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -30,17 +30,11 @@ export const startHandler = async <Provider extends CloudProvider>({
 		throw new TypeError('Expected type start');
 	}
 
-	if (params.version !== VERSION) {
-		if (!params.version) {
-			throw new Error(
-				`Version mismatch: When calling renderMediaOnLambda(), you called the function ${insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-			);
-		}
-
-		throw new Error(
-			`Version mismatch: When calling renderMediaOnLambda(), you passed ${insideFunctionSpecifics.getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderMediaOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-		);
-	}
+	checkVersionMismatch({
+		apiName: 'renderMediaOnLambda()',
+		insideFunctionSpecifics,
+		params,
+	});
 
 	const region = providerSpecifics.getCurrentRegionInFunction();
 	const bucketName =

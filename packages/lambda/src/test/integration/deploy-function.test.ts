@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {VERSION} from 'remotion/version';
-import {expect, test} from 'vitest';
 import {internalDeployFunction} from '../../api/deploy-function';
 import {speculateFunctionName} from '../../client';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
@@ -80,7 +80,6 @@ test('Should be able to get the function afterwards', async () => {
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: VERSION,
-			region: 'us-east-1',
 			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		},
 	]);
@@ -174,7 +173,6 @@ test('Should be able to get the function afterwards', async () => {
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: VERSION,
-			region: 'us-east-1',
 			diskSizeInMb: 10240,
 		},
 	]);
@@ -204,7 +202,6 @@ test('Should be able to get the function afterwards', async () => {
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: '2021-06-23',
-			region: 'us-east-1',
 			diskSizeInMb: 10240,
 		},
 	]);

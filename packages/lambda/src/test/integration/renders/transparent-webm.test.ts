@@ -1,9 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
+import {afterAll, expect, test} from 'bun:test';
 import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {afterAll, expect, test} from 'vitest';
 import {internalDeleteRender} from '../../../api/delete-render';
 import {mockImplementation} from '../../mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';

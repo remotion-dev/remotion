@@ -1,4 +1,3 @@
-import {VERSION} from 'remotion/version';
 import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines} from '../constants';
 import {getProgress} from '../progress';
@@ -8,6 +7,7 @@ import type {
 } from '../provider-implementation';
 import type {GenericRenderProgress} from '../render-progress';
 import type {CloudProvider} from '../types';
+import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {
 	expectedBucketOwner: string;
@@ -17,38 +17,35 @@ type Options<Provider extends CloudProvider> = {
 	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
-export const progressHandler = async <Provider extends CloudProvider>(
-	lambdaParams: ServerlessPayload<Provider>,
-	options: Options<Provider>,
-): Promise<GenericRenderProgress<Provider>> => {
-	if (lambdaParams.type !== ServerlessRoutines.status) {
+export const progressHandler = async <Provider extends CloudProvider>({
+	params,
+	options,
+}: {
+	params: ServerlessPayload<Provider>;
+	options: Options<Provider>;
+}): Promise<GenericRenderProgress<Provider>> => {
+	if (params.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
 	}
 
-	if (lambdaParams.version !== VERSION) {
-		if (!lambdaParams.version) {
-			throw new Error(
-				`Version mismatch: When calling getRenderProgress(), you called the function ${options.insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call getRenderProgress(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-			);
-		}
-
-		throw new Error(
-			`Version mismatch: When calling getRenderProgress(), you passed ${options.insideFunctionSpecifics.getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call getRenderProgress(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-		);
-	}
+	checkVersionMismatch({
+		apiName: 'getRenderProgress()',
+		insideFunctionSpecifics: options.insideFunctionSpecifics,
+		params,
+	});
 
 	try {
 		const progress = await getProgress({
-			bucketName: lambdaParams.bucketName,
-			renderId: lambdaParams.renderId,
+			bucketName: params.bucketName,
+			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 			region: options.providerSpecifics.getCurrentRegionInFunction(),
 			memorySizeInMb:
 				options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
-			customCredentials: lambdaParams.s3OutputProvider ?? null,
+			customCredentials: params.s3OutputProvider ?? null,
 			providerSpecifics: options.providerSpecifics,
-			forcePathStyle: lambdaParams.forcePathStyle,
+			forcePathStyle: params.forcePathStyle,
 			functionName: options.insideFunctionSpecifics.getCurrentFunctionName(),
 			insideFunctionSpecifics: options.insideFunctionSpecifics,
 		});
@@ -62,12 +59,15 @@ export const progressHandler = async <Provider extends CloudProvider>(
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1000);
 			});
-			return progressHandler(lambdaParams, {
-				expectedBucketOwner: options.expectedBucketOwner,
-				timeoutInMilliseconds: options.timeoutInMilliseconds,
-				retriesRemaining: options.retriesRemaining - 1,
-				providerSpecifics: options.providerSpecifics,
-				insideFunctionSpecifics: options.insideFunctionSpecifics,
+			return progressHandler({
+				params,
+				options: {
+					expectedBucketOwner: options.expectedBucketOwner,
+					timeoutInMilliseconds: options.timeoutInMilliseconds,
+					retriesRemaining: options.retriesRemaining - 1,
+					providerSpecifics: options.providerSpecifics,
+					insideFunctionSpecifics: options.insideFunctionSpecifics,
+				},
 			});
 		}
 

@@ -1,15 +1,15 @@
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import {beforeAll, beforeEach, describe, expect, mock, test} from 'bun:test';
 import path from 'path';
 import {VERSION} from 'remotion/version';
-import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {mockableHttpClients} from '../../functions/http-client';
 import {mockImplementation} from '../mock-implementation';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
 	// @ts-expect-error
-	mockableHttpClients.http = vi.fn(
+	mockableHttpClients.http = mock(
 		(
 			_url: string,
 			_options: unknown,

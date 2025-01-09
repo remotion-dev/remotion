@@ -1,5 +1,5 @@
 import {estimatePriceFromBucket} from '@remotion/serverless';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {awsImplementation} from '../../functions/aws-implementation';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
@@ -45,7 +45,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 		},
 		diskSizeInMb: 512,
-		lambdasInvoked: 1,
+		functionsInvoked: 1,
 		timings: [
 			{
 				chunk: 1,

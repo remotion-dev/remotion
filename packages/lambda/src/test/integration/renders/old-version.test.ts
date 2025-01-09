@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'bun:test';
 import {mockImplementation} from '../../mock-implementation';
 
 afterAll(async () => {

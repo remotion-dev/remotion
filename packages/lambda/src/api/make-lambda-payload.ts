@@ -138,7 +138,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerFunction({
-		framesPerLambda: framesPerLambda ?? null,
+		framesPerFunction: framesPerLambda ?? null,
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);

@@ -1,5 +1,5 @@
 import {internalGetOrCreateBucket} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {internalDeploySite} from '../../api/deploy-site';
 import {internalGetSites} from '../../api/get-sites';
 import {

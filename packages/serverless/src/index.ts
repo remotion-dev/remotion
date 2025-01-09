@@ -1,5 +1,5 @@
 export {PostRenderData, ServerlessRoutines} from './constants';
-export {estimatePriceFromBucket} from './estimate-price-from-bucket';
+export {estimatePriceFromMetadata as estimatePriceFromBucket} from './estimate-price-from-bucket';
 export {getCredentialsFromOutName} from './expected-out-name';
 export {formatCostsInfo} from './format-costs-info';
 export {

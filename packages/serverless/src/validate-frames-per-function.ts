@@ -1,43 +1,43 @@
 import {MINIMUM_FRAMES_PER_LAMBDA} from './constants';
 
 export const validateFramesPerFunction = ({
-	framesPerLambda,
+	framesPerFunction,
 	durationInFrames,
 }: {
-	framesPerLambda: unknown;
+	framesPerFunction: unknown;
 	durationInFrames: number;
 }) => {
-	if (framesPerLambda === null) {
+	if (framesPerFunction === null) {
 		return;
 	}
 
-	if (framesPerLambda === undefined) {
+	if (framesPerFunction === undefined) {
 		return;
 	}
 
-	if (typeof framesPerLambda !== 'number') {
+	if (typeof framesPerFunction !== 'number') {
 		throw new TypeError(
 			`'framesPerLambda' needs to be a number, passed ${JSON.stringify(
-				framesPerLambda,
+				framesPerFunction,
 			)}`,
 		);
 	}
 
-	if (!Number.isFinite(framesPerLambda)) {
+	if (!Number.isFinite(framesPerFunction)) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be finite, passed ${framesPerLambda}`,
+			`'framesPerLambda' needs to be finite, passed ${framesPerFunction}`,
 		);
 	}
 
-	if (Number.isNaN(framesPerLambda)) {
+	if (Number.isNaN(framesPerFunction)) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be NaN, passed ${framesPerLambda}`,
+			`'framesPerLambda' needs to be NaN, passed ${framesPerFunction}`,
 		);
 	}
 
-	if (framesPerLambda % 1 !== 0) {
+	if (framesPerFunction % 1 !== 0) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be an integer, passed ${framesPerLambda}`,
+			`'framesPerLambda' needs to be an integer, passed ${framesPerFunction}`,
 		);
 	}
 
@@ -46,9 +46,9 @@ export const validateFramesPerFunction = ({
 		durationInFrames,
 	);
 
-	if (framesPerLambda < effectiveMinimum) {
+	if (framesPerFunction < effectiveMinimum) {
 		throw new TypeError(
-			`The framesPerLambda needs to be at least ${effectiveMinimum}, but is ${framesPerLambda}`,
+			`The framesPerLambda needs to be at least ${effectiveMinimum}, but is ${framesPerFunction}`,
 		);
 	}
 };

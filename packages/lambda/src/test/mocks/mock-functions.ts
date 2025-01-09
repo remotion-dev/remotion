@@ -41,10 +41,13 @@ export const getAllMockFunctions: GetFunctions<AwsProvider> = ({
 	region,
 }) => {
 	return Promise.resolve(
-		mockFunctionsStore.filter(
-			(f) =>
-				f.region === region && (compatibleOnly ? f.version === VERSION : true),
-		),
+		mockFunctionsStore
+			.filter(
+				(f) =>
+					f.region === region &&
+					(compatibleOnly ? f.version === VERSION : true),
+			)
+			.map(({region: _region, ...f}) => f),
 	);
 };
 

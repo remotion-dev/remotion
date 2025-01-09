@@ -68,7 +68,7 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 		cost: {
 			currency: 'USD',
 			disclaimer:
-				'Estimated cost for lambda invocations only. Does not include cost for S3 storage and data transfer.',
+				'Estimated cost for function invocations only. Does not include cost for storage and data transfer.',
 			estimatedCost: cost,
 			estimatedDisplayCost: `$${new Intl.NumberFormat('en-US', {
 				currency: 'USD',
