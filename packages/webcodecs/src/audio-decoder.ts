@@ -1,11 +1,27 @@
-import type {AudioSample, LogLevel} from '@remotion/media-parser';
+import type {
+	AudioOrVideoSample,
+	AudioTrack,
+	LogLevel,
+	ProgressTracker,
+} from '@remotion/media-parser';
+import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
 export type WebCodecsAudioDecoder = {
-	processSample: (audioSample: AudioSample) => Promise<void>;
+	processSample: (audioSample: AudioOrVideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
+};
+
+export type CreateAudioDecoderInit = {
+	onFrame: (frame: AudioData) => Promise<void>;
+	onError: (error: DOMException) => void;
+	signal: AbortSignal;
+	config: AudioDecoderConfig;
+	logLevel: LogLevel;
+	track: AudioTrack;
+	progressTracker: ProgressTracker;
 };
 
 export const createAudioDecoder = ({
@@ -14,26 +30,30 @@ export const createAudioDecoder = ({
 	signal,
 	config,
 	logLevel,
-}: {
-	onFrame: (frame: AudioData) => Promise<void>;
-	onError: (error: DOMException) => void;
-	signal: AbortSignal;
-	config: AudioDecoderConfig;
-	logLevel: LogLevel;
-}): WebCodecsAudioDecoder => {
+	track,
+	progressTracker,
+}: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
 	}
 
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio decoder');
+	if (config.codec === 'pcm-s16') {
+		return getWaveAudioDecoder({onFrame, track});
+	}
+
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Audio decoder',
+		progress: progressTracker,
+	});
 
 	let outputQueue = Promise.resolve();
 
 	const audioDecoder = new AudioDecoder({
-		output(inputFrame) {
-			ioSynchronizer.onOutput(inputFrame.timestamp);
+		output(frame) {
+			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
 			const abortHandler = () => {
-				inputFrame.close();
+				frame.close();
 			};
 
 			signal.addEventListener('abort', abortHandler, {once: true});
@@ -43,7 +63,7 @@ export const createAudioDecoder = ({
 						return;
 					}
 
-					return onFrame(inputFrame);
+					return onFrame(frame);
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
@@ -51,7 +71,7 @@ export const createAudioDecoder = ({
 					return Promise.resolve();
 				})
 				.catch((err) => {
-					inputFrame.close();
+					frame.close();
 					onError(err);
 				});
 		},
@@ -79,12 +99,25 @@ export const createAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = async (audioSample: AudioSample) => {
+	const processSample = async (audioSample: AudioOrVideoSample) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 100, _unprocessed: 2});
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(
+				audioSample.timestamp,
+				audioSample.dts ?? Infinity,
+				audioSample.cts ?? Infinity,
+			),
+		);
+
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			unprocessed: 20,
+			minimumProgress: audioSample.timestamp - 10_000_000,
+			signal,
+		});
 
 		// Don't flush, it messes up the audio
 
@@ -96,13 +129,18 @@ export const createAudioDecoder = ({
 	let queue = Promise.resolve();
 
 	return {
-		processSample: (sample: AudioSample) => {
+		processSample: (sample: AudioOrVideoSample) => {
 			queue = queue.then(() => processSample(sample));
 			return queue;
 		},
 		waitForFinish: async () => {
-			await audioDecoder.flush();
-			await ioSynchronizer.waitForFinish();
+			// Firefox might throw "Needs to be configured first"
+			try {
+				await audioDecoder.flush();
+			} catch {}
+
+			await queue;
+			await ioSynchronizer.waitForFinish(signal);
 			await outputQueue;
 		},
 		close,

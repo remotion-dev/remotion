@@ -1,3 +1,8 @@
+import type {
+	MatrixCoefficients,
+	Primaries,
+	TransferCharacteristics,
+} from './boxes/avc/color';
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
@@ -6,10 +11,24 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import type {AllTracks} from './boxes/riff/get-tracks-from-avi';
+import {
+	getTracksFromAvi,
+	hasAllTracksFromAvi,
+} from './boxes/riff/get-tracks-from-avi';
+import {
+	getTracksFromTransportStream,
+	hasAllTracksFromTransportStream,
+} from './boxes/transport-stream/get-tracks';
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
+import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
-import type {AnySegment} from './parse-result';
-import type {ParserState} from './parser-state';
+import type {
+	IsoBaseMediaBox,
+	IsoBaseMediaStructure,
+	Structure,
+} from './parse-result';
+import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {
 	numerator: number;
@@ -17,9 +36,9 @@ type SampleAspectRatio = {
 };
 
 export type VideoTrackColorParams = {
-	transferCharacteristics: 'bt709' | 'smpte170m' | 'iec61966-2-1' | null;
-	matrixCoefficients: 'bt709' | 'bt470bg' | 'rgb' | 'smpte170m' | null;
-	primaries: 'bt709' | 'smpte170m' | 'bt470bg' | null;
+	transferCharacteristics: TransferCharacteristics | null;
+	matrixCoefficients: MatrixCoefficients | null;
+	primaries: Primaries | null;
 	fullRange: boolean | null;
 };
 
@@ -61,6 +80,7 @@ export type VideoTrack = {
 	trakBox: TrakBox | null;
 	codecPrivate: Uint8Array | null;
 	color: VideoTrackColorParams;
+	fps: number | null;
 };
 
 export type AudioTrack = {
@@ -94,14 +114,8 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	return mvHdBox.nextTrackId - 1;
 };
 
-export const hasTracks = (segments: AnySegment[]): boolean => {
-	const mainSegment = getMainSegment(segments);
-
-	if (mainSegment) {
-		return getTracksSegment(mainSegment) !== null;
-	}
-
-	const moovBox = getMoovBox(segments);
+export const isoBaseMediaHasTracks = (structure: IsoBaseMediaStructure) => {
+	const moovBox = getMoovBox(structure.boxes);
 
 	if (!moovBox) {
 		return false;
@@ -113,41 +127,73 @@ export const hasTracks = (segments: AnySegment[]): boolean => {
 	return tracks.length === numberOfTracks;
 };
 
-export const getTracks = (
-	segments: AnySegment[],
+export const hasTracks = (
+	structure: Structure,
 	state: ParserState,
-): {
-	videoTracks: VideoTrack[];
-	audioTracks: AudioTrack[];
-	otherTracks: OtherTrack[];
-} => {
+): boolean => {
+	if (structure.type === 'matroska') {
+		const mainSegment = getMainSegment(structure.boxes);
+		if (!mainSegment) {
+			return false;
+		}
+
+		return getTracksSegment(mainSegment) !== null;
+	}
+
+	if (structure.type === 'iso-base-media') {
+		return isoBaseMediaHasTracks(structure);
+	}
+
+	if (structure.type === 'riff') {
+		return hasAllTracksFromAvi(structure, state);
+	}
+
+	if (structure.type === 'transport-stream') {
+		return hasAllTracksFromTransportStream(structure, state);
+	}
+
+	throw new Error('Unknown container ' + (structure satisfies never));
+};
+
+const getTracksFromMa = (
+	segments: MatroskaSegment[],
+	state: ParserState,
+): AllTracks => {
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
 	const otherTracks: OtherTrack[] = [];
 
 	const mainSegment = segments.find((s) => s.type === 'Segment');
-	if (mainSegment && mainSegment.type === 'Segment') {
-		const matroskaTracks = getTracksFromMatroska(
-			mainSegment,
-			state.getTimescale(),
-		);
-
-		for (const track of matroskaTracks) {
-			if (track.type === 'video') {
-				videoTracks.push(track);
-			} else if (track.type === 'audio') {
-				audioTracks.push(track);
-			} else if (track.type === 'other') {
-				otherTracks.push(track);
-			}
-		}
-
-		return {
-			videoTracks,
-			audioTracks,
-			otherTracks,
-		};
+	if (!mainSegment) {
+		throw new Error('No main segment found');
 	}
+
+	const matroskaTracks = getTracksFromMatroska(
+		mainSegment,
+		state.webm.getTimescale(),
+	);
+
+	for (const track of matroskaTracks) {
+		if (track.type === 'video') {
+			videoTracks.push(track);
+		} else if (track.type === 'audio') {
+			audioTracks.push(track);
+		} else if (track.type === 'other') {
+			otherTracks.push(track);
+		}
+	}
+
+	return {
+		videoTracks,
+		audioTracks,
+		otherTracks,
+	};
+};
+
+export const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
+	const videoTracks: VideoTrack[] = [];
+	const audioTracks: AudioTrack[] = [];
+	const otherTracks: OtherTrack[] = [];
 
 	const moovBox = getMoovBox(segments);
 	if (!moovBox) {
@@ -180,4 +226,27 @@ export const getTracks = (
 		audioTracks,
 		otherTracks,
 	};
+};
+
+export const getTracks = (
+	segments: Structure,
+	state: ParserState,
+): AllTracks => {
+	if (segments.type === 'matroska') {
+		return getTracksFromMa(segments.boxes, state);
+	}
+
+	if (segments.type === 'iso-base-media') {
+		return getTracksFromIsoBaseMedia(segments.boxes);
+	}
+
+	if (segments.type === 'riff') {
+		return getTracksFromAvi(segments, state);
+	}
+
+	if (segments.type === 'transport-stream') {
+		return getTracksFromTransportStream(segments, state);
+	}
+
+	throw new Error(`Unknown container${segments satisfies never}`);
 };

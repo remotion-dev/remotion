@@ -9,7 +9,12 @@ import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion/no-react';
 import type {Await} from './await';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from './validate';
 
 type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	serveUrl: string;
@@ -68,9 +73,21 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		onServeUrlVisited,
 	});
 
-	return {
+	const videoConfig: VideoConfig = {
 		...comp,
 		height: forceHeight ?? comp.height,
 		width: forceWidth ?? comp.width,
 	};
+
+	const reason = `of the "<Composition />" component with the id "${composition}"`;
+
+	validateDurationInFrames(comp.durationInFrames, {
+		component: reason,
+		allowFloats: false,
+	});
+	validateFps(comp.fps, reason, false);
+	validateDimension(comp.height, 'height', reason);
+	validateDimension(comp.width, 'width', reason);
+
+	return videoConfig;
 };

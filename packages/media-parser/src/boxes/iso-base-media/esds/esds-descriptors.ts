@@ -72,7 +72,7 @@ export const processDescriptor = ({
 
 		const decoderSpecificConfigs: DecoderSpecificConfig[] = [];
 
-		while (size - (iterator.counter.getOffset() - initialOffset) >= 0) {
+		while (size - (iterator.counter.getOffset() - initialOffset) > 0) {
 			const decoderSpecificConfig = parseDecoderSpecificConfig(iterator);
 			decoderSpecificConfigs.push(decoderSpecificConfig);
 		}

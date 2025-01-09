@@ -13,10 +13,10 @@ import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {CompositionContextButton} from './CompositionContextButton';
 import {ContextMenu} from './ContextMenu';
+import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
-import {Row, Spacing} from './layout';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 

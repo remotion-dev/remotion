@@ -1,6 +1,6 @@
 ---
 image: /generated/articles-docs-artifact.png
-title: "<Artifact>"
+title: '<Artifact>'
 crumb: API
 ---
 
@@ -9,7 +9,7 @@ crumb: API
 By rendering an `<Artifact>` tag in your Remotion markup, [an extra file will get emitted during rendering](/docs/artifacts).
 
 ```tsx twoslash title="MyComp.tsx"
-import { Artifact, useCurrentFrame } from "remotion";
+import {Artifact, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
@@ -34,7 +34,7 @@ However, the file names must be unique.
 The component will get evaluated on every frame, which means if you want to emit just one file, only render it on one frame.
 
 ```tsx twoslash title="❌ Will generate an asset on every frame and throw an error because the file name is not unique"
-import { Artifact, useCurrentFrame } from "remotion";
+import {Artifact, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
@@ -60,4 +60,4 @@ A `string` or `Uint8Array` that is the content of the file that will be emitted.
 ## See also
 
 - [Emitting Artifacts](/docs/artifacts)
-- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/components/Artifact.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Artifact.tsx)

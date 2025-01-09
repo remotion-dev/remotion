@@ -3,14 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.228",
+	"version": "4.0.245",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"prepublishOnly": "bun ensure-correct-version.ts"
 	},
 	"devDependencies": {
 		"@remotion/example-videos": "workspace:*",
@@ -26,39 +27,39 @@
 	},
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
-			"types": "./dist/index.d.ts",
 			"import": "./dist/esm/index.mjs"
 		},
 		"./node": {
+			"types": "./dist/readers/from-node.d.ts",
 			"require": "./dist/readers/from-node.js",
 			"module": "./dist/esm/from-node.mjs",
-			"types": "./dist/readers/from-node.d.ts",
 			"import": "./dist/esm/from-node.mjs"
 		},
 		"./fetch": {
+			"types": "./dist/readers/from-fetch.d.ts",
 			"require": "./dist/readers/from-fetch.js",
 			"module": "./dist/esm/from-fetch.mjs",
-			"types": "./dist/readers/from-fetch.d.ts",
 			"import": "./dist/esm/from-fetch.mjs"
 		},
 		"./web-file": {
+			"types": "./dist/readers/from-web-file.d.ts",
 			"require": "./dist/readers/from-web-file.js",
 			"module": "./dist/esm/from-web-file.mjs",
-			"types": "./dist/readers/from-web-file.d.ts",
 			"import": "./dist/esm/from-web-file.mjs"
 		},
 		"./web-fs": {
+			"types": "./dist/writers/web-fs.d.ts",
 			"require": "./dist/writers/web-fs.js",
 			"module": "./dist/esm/web-fs.mjs",
-			"types": "./dist/writers/web-fs.d.ts",
 			"import": "./dist/esm/web-fs.mjs"
 		},
 		"./buffer": {
+			"types": "./dist/writers/buffer.d.ts",
 			"require": "./dist/writers/buffer.js",
 			"module": "./dist/esm/buffer.mjs",
-			"types": "./dist/writers/buffer.d.ts",
 			"import": "./dist/esm/buffer.mjs"
 		},
 		"./package.json": "./package.json"

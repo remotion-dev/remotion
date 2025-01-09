@@ -30,16 +30,19 @@ test(
 				fps: true,
 				dimensions: true,
 				videoCodec: true,
+				internalStats: true,
+				mimeType: true,
 			},
 		});
 		expect(result.durationInSeconds).toBe(634.571);
-		// TODO: Not yet implemented
 		expect(result.fps).toBe(null);
+		expect(result.mimeType).toBe('video/webm');
 		expect(result.dimensions).toEqual({
 			width: 1280,
 			height: 720,
 		});
 		expect(result.videoCodec).toEqual('vp9');
+		expect(result.internalStats.skippedBytes).toBeGreaterThan(120000000);
 	},
 	{timeout: 10000},
 );
@@ -51,9 +54,11 @@ test('Should handle redirect', async () => {
 			fps: true,
 			videoCodec: true,
 			durationInSeconds: true,
+			internalStats: true,
 		},
 	});
 	expect(result.videoCodec).toEqual('h264');
 	expect(result.fps).toEqual(24);
 	expect(result.durationInSeconds).toEqual(596.4733333333334);
+	expect(result.internalStats.skippedBytes).toBeGreaterThan(100000000);
 });

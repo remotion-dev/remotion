@@ -51,6 +51,7 @@ test('Should create a basic filter correctly', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0,
@@ -99,6 +100,7 @@ test('Trim the end', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0,
@@ -148,6 +150,7 @@ test('Should handle trim correctly', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
@@ -184,6 +187,7 @@ test('Should add padding if audio is too short', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
@@ -231,6 +235,7 @@ test('Should handle delay correctly', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
@@ -278,6 +283,7 @@ test('Should offset multiple channels', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
@@ -337,6 +343,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0,

@@ -1,5 +1,8 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
+import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
 
 export type WebCodecsVideoEncoder = {
 	encodeFrame: (videoFrame: VideoFrame, timestamp: number) => Promise<void>;
@@ -14,18 +17,29 @@ export const createVideoEncoder = ({
 	signal,
 	config,
 	logLevel,
+	outputCodec,
+	progress,
 }: {
-	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
+	onChunk: (
+		chunk: EncodedVideoChunk,
+		metadata: EncodedVideoChunkMetadata | null,
+	) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoEncoderConfig;
 	logLevel: LogLevel;
+	outputCodec: ConvertMediaVideoCodec;
+	progress: ProgressTracker;
 }): WebCodecsVideoEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating video encoder, already aborted');
 	}
 
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Video encoder');
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video encoder',
+		progress,
+	});
 
 	let outputQueue = Promise.resolve();
 
@@ -33,12 +47,8 @@ export const createVideoEncoder = ({
 		error(error) {
 			onError(error);
 		},
-		output(chunk) {
-			if (chunk.duration === null) {
-				throw new Error('Duration is null');
-			}
-
-			const timestamp = chunk.timestamp + chunk.duration;
+		output(chunk, metadata) {
+			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
 
 			ioSynchronizer.onOutput(timestamp);
 
@@ -48,7 +58,7 @@ export const createVideoEncoder = ({
 						return;
 					}
 
-					return onChunk(chunk);
+					return onChunk(chunk, metadata ?? null);
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
@@ -76,6 +86,7 @@ export const createVideoEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
+	Log.verbose(logLevel, 'Configuring video encoder', config);
 	encoder.configure(config);
 
 	let framesProcessed = 0;
@@ -85,9 +96,14 @@ export const createVideoEncoder = ({
 			return;
 		}
 
+		progress.setPossibleLowestTimestamp(frame.timestamp);
+
 		await ioSynchronizer.waitFor({
-			unemitted: 2,
-			_unprocessed: 2,
+			// Firefox stalls if too few frames are passed
+			unemitted: 10,
+			unprocessed: 10,
+			minimumProgress: frame.timestamp - 10_000_000,
+			signal,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -96,9 +112,12 @@ export const createVideoEncoder = ({
 		}
 
 		const keyFrame = framesProcessed % 40 === 0;
-		encoder.encode(frame, {
-			keyFrame,
-		});
+		encoder.encode(
+			convertToCorrectVideoFrame({videoFrame: frame, outputCodec}),
+			{
+				keyFrame,
+			},
+		);
 
 		ioSynchronizer.inputItem(frame.timestamp, keyFrame);
 
@@ -115,7 +134,7 @@ export const createVideoEncoder = ({
 		waitForFinish: async () => {
 			await encoder.flush();
 			await outputQueue;
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 		},
 		close,
 		flush: async () => {

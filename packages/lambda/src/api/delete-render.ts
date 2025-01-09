@@ -1,14 +1,13 @@
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {
 	getExpectedOutName,
+	getOverallProgressFromStorage,
 	rendersPrefix,
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import {getOverallProgressS3} from '../functions/helpers/get-overall-progress-s3';
 import type {AwsRegion} from '../regions';
-import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
 export type DeleteRenderInput = {
@@ -25,10 +24,10 @@ export const internalDeleteRender = async (
 		forcePathStyle: boolean;
 	},
 ) => {
-	const expectedBucketOwner = await getAccountId({
+	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
 		region: input.region,
 	});
-	const progress = await getOverallProgressS3({
+	const progress = await getOverallProgressFromStorage({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,
@@ -93,13 +92,9 @@ export const internalDeleteRender = async (
 	};
 };
 
-/**
- * @description Deletes a render artifact and it's metadata given it's renderId.
+/*
+ * @description Deletes a rendered video, audio or still and its associated metadata.
  * @see [Documentation](https://remotion.dev/docs/lambda/deleterender)
- * @param params.region The AWS region in which the media resides.
- * @param params.bucketName The `bucketName` that was specified during the render
- * @param params.renderId The `renderId` that was obtained after triggering the render.
- * @param params.customCredentials If the file was saved to a foreign cloud, pass credentials for reading from it.
  */
 export const deleteRender = (input: DeleteRenderInput) => {
 	return internalDeleteRender({

@@ -2,10 +2,14 @@ import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {Await} from './await';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {
+	GetBrowserInstance,
+	InsideFunctionSpecifics,
+	ProviderSpecifics,
+} from './provider-implementation';
+import type {CloudProvider} from './types';
 
-type LaunchedBrowser = {
+export type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
 	configurationString: string;
 };
@@ -45,7 +49,7 @@ const waitForLaunched = () => {
 	});
 };
 
-export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
+export const forgetBrowserEventLoopImplementation = (logLevel: LogLevel) => {
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Keeping browser open for next invocation',
@@ -54,16 +58,20 @@ export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
 	_browserInstance?.instance.runner.deleteBrowserCaches();
 };
 
-export const getBrowserInstance = async <Provider extends CloudProvider>({
+export const getBrowserInstanceImplementation: GetBrowserInstance = async <
+	Provider extends CloudProvider,
+>({
 	logLevel,
 	indent,
 	chromiumOptions,
 	providerSpecifics,
+	insideFunctionSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
@@ -117,7 +125,7 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
-			forgetBrowserEventLoop(logLevel);
+			insideFunctionSpecifics.forgetBrowserEventLoop(logLevel);
 			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
@@ -144,11 +152,12 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 		_browserInstance.instance.runner.rememberEventLoop();
 		await _browserInstance.instance.close(true, logLevel, indent);
 		_browserInstance = null;
-		return getBrowserInstance({
+		return insideFunctionSpecifics.getBrowserInstance({
 			logLevel,
 			indent,
 			chromiumOptions,
 			providerSpecifics,
+			insideFunctionSpecifics,
 		});
 	}
 

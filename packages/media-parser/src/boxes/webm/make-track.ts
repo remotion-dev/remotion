@@ -333,6 +333,7 @@ export const getTrack = ({
 			codecWithoutConfig: getMatroskaVideoCodecWithoutConfigString({
 				codecSegment: codec,
 			}),
+			fps: null,
 		};
 	}
 

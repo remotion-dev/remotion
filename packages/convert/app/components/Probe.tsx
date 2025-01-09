@@ -1,49 +1,48 @@
-import {
-	MediaParserAudioCodec,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Source} from '~/lib/convert-state';
+/* eslint-disable complexity */
+import clsx from 'clsx';
+import React, {useCallback, useMemo, useState} from 'react';
+import type {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
+import {
+	useAddFilenameToTitle,
+	useCopyThumbnailToFavicon,
+} from '~/lib/title-context';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
-import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
+import type { VideoThumbnailRef} from './VideoThumbnail';
+import {VideoThumbnail} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
-import {SupportedConfigs} from './get-supported-configs';
+import styles from './probe.module.css';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
 import {ScrollArea} from './ui/scroll-area';
 import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
-import {useProbe} from './use-probe';
+import type {ProbeResult} from './use-probe';
 
 export const Probe: React.FC<{
 	readonly src: Source;
 	readonly setProbeDetails: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly setAudioCodec: React.Dispatch<
-		React.SetStateAction<MediaParserAudioCodec | null>
-	>;
-	readonly setVideoCodec: React.Dispatch<
-		React.SetStateAction<MediaParserVideoCodec | null>
-	>;
 	readonly probeDetails: boolean;
-	readonly onSupportedConfigs: (supportedConfigs: SupportedConfigs) => void;
+	readonly probeResult: ProbeResult;
+	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
+	readonly userRotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
+	readonly thumbnailError: Error | null;
 }> = ({
 	src,
 	probeDetails,
 	setProbeDetails,
-	onSupportedConfigs,
-	setAudioCodec,
-	setVideoCodec,
+	probeResult,
+	videoThumbnailRef,
+	userRotation,
+	mirrorHorizontal,
+	mirrorVertical,
+	thumbnailError,
 }) => {
-	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
-
-	const onVideoThumbnail = useCallback((frame: VideoFrame) => {
-		videoThumbnailRef.current?.draw(frame);
-	}, []);
-
 	const {
 		audioCodec,
 		fps,
@@ -54,13 +53,14 @@ export const Probe: React.FC<{
 		size,
 		videoCodec,
 		durationInSeconds,
-	} = useProbe({
-		src,
-		onVideoThumbnail,
-		onSupportedConfigs,
-		onAudioCodec: setAudioCodec,
-		onVideoCodec: setVideoCodec,
-	});
+		isHdr,
+		rotation,
+		done,
+		error,
+		metadata,
+		location,
+		keyframes,
+	} = probeResult;
 
 	const onClick = useCallback(() => {
 		setProbeDetails((p) => !p);
@@ -87,59 +87,101 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
-	const isCompact = isNarrow && !probeDetails;
+	useAddFilenameToTitle(name);
+	useCopyThumbnailToFavicon(videoThumbnailRef);
 
 	return (
-		<Card className="w-full lg:w-[350px] overflow-hidden">
-			<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-				<VideoThumbnail ref={videoThumbnailRef} smallThumbOnMobile />
-				<CardHeader className=" p-3 lg:p-4 w-full">
-					<CardTitle title={name ?? undefined}>
-						{name ? name : <Skeleton className="h-5 w-[220px] inline-block" />}
-					</CardTitle>
-					<CardDescription className="!mt-0">
-						<SourceLabel src={src} />
-					</CardDescription>
-				</CardHeader>
-			</div>
-			{sortedTracks.length && probeDetails ? (
-				<div className="pr-6 border-b-2 border-black overflow-y-auto">
-					<TrackSwitcher
-						selectedTrack={trackDetails}
-						sortedTracks={sortedTracks}
-						onTrack={(track) => {
-							setTrackDetails(track);
-						}}
-					/>
-				</div>
-			) : null}
-			{isCompact ? null : (
-				<>
-					<ScrollArea height={300} className="flex-1">
-						{selectedTrack === null ? (
-							<ContainerOverview
-								container={container ?? null}
-								dimensions={dimensions ?? null}
-								videoCodec={videoCodec ?? null}
-								size={size ?? null}
-								durationInSeconds={durationInSeconds}
-								audioCodec={audioCodec}
-								fps={fps}
-							/>
-						) : selectedTrack.type === 'video' ? (
-							<VideoTrackOverview track={selectedTrack} />
-						) : selectedTrack.type === 'audio' ? (
-							<AudioTrackOverview track={selectedTrack} />
+		<div className="w-full lg:w-[350px]">
+			<Card className="overflow-hidden lg:w-[350px]">
+				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
+					{error ? null : thumbnailError ? null : (
+						<VideoThumbnail
+							ref={videoThumbnailRef}
+							smallThumbOnMobile
+							rotation={userRotation - (rotation ?? 0)}
+							mirrorHorizontal={mirrorHorizontal}
+							mirrorVertical={mirrorVertical}
+							initialReveal={false}
+						/>
+					)}
+					<CardHeader className="p-3 lg:p-4 w-full">
+						<CardTitle title={name ?? undefined}>
+							{name ? (
+								name
+							) : (
+								<Skeleton className="h-5 w-[220px] inline-block" />
+							)}
+						</CardTitle>
+						{error ? (
+							<CardDescription className="!mt-0 text-red-500">
+								Failed to parse media:
+								<br />
+								{error.message}
+							</CardDescription>
 						) : null}
-					</ScrollArea>
-					<Separator orientation="horizontal" />
-				</>
-			)}
-			<div className="flex flex-row items-center justify-center">
-				<Button disabled={!tracks} variant="link" onClick={onClick}>
-					{probeDetails ? 'Hide details' : 'Show details'}
-				</Button>
-			</div>
-		</Card>
+						<CardDescription
+							className={clsx('!mt-0 truncate', styles['fade-in'])}
+						>
+							{done ? (
+								<SourceLabel src={src} />
+							) : (
+								<span id="not-done">0% read</span>
+							)}
+						</CardDescription>
+					</CardHeader>
+				</div>
+				{sortedTracks.length && probeDetails ? (
+					<div className="pr-6 border-b-2 border-black overflow-y-auto">
+						<TrackSwitcher
+							selectedTrack={trackDetails}
+							sortedTracks={sortedTracks}
+							onTrack={(track) => {
+								setTrackDetails(track);
+							}}
+						/>
+					</div>
+				) : null}
+				{isNarrow ? null : (
+					<>
+						<ScrollArea height={300} className="flex-1">
+							{selectedTrack === null ? (
+								<ContainerOverview
+									container={container ?? null}
+									dimensions={dimensions ?? null}
+									videoCodec={videoCodec ?? null}
+									size={size ?? null}
+									durationInSeconds={durationInSeconds}
+									audioCodec={audioCodec}
+									fps={fps}
+									metadata={metadata}
+									isHdr={isHdr}
+									location={location}
+								/>
+							) : selectedTrack.type === 'video' ? (
+								<VideoTrackOverview
+									location={location}
+									metadata={metadata}
+									track={selectedTrack}
+									keyframes={keyframes}
+									durationInSeconds={durationInSeconds ?? null}
+								/>
+							) : selectedTrack.type === 'audio' ? (
+								<AudioTrackOverview
+									location={location}
+									metadata={metadata}
+									track={selectedTrack}
+								/>
+							) : null}
+						</ScrollArea>
+						<Separator orientation="horizontal" />
+					</>
+				)}
+				<div className="flex flex-row items-center justify-center">
+					<Button disabled={!tracks} variant="link" onClick={onClick}>
+						{probeDetails ? 'Hide details' : 'Show details'}
+					</Button>
+				</div>
+			</Card>
+		</div>
 	);
 };

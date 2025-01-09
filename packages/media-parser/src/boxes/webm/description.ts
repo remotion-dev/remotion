@@ -67,7 +67,7 @@ export const getAudioDescription = (
 	// type
 	bufferIterator.getUint8();
 	// vorbis
-	const vorbis = bufferIterator.getByteString(6);
+	const vorbis = bufferIterator.getByteString(6, false);
 	if (vorbis !== 'vorbis') {
 		throw new Error('Error parsing vorbis codec private');
 	}

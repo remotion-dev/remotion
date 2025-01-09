@@ -320,10 +320,11 @@ function normalizeColor(color: string): number {
 		if ((match = matchers.rgb.exec(color))) {
 			return (
 				// b
+				// a
 				((parse255(match[1]) << 24) | // r
 					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
-					0x000000ff) >>> // a
+					0x000000ff) >>>
 				0
 			);
 		}
@@ -333,10 +334,11 @@ function normalizeColor(color: string): number {
 		if ((match = matchers.rgba.exec(color))) {
 			return (
 				// b
+				// a
 				((parse255(match[1]) << 24) | // r
 					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
-					parse1(match[4])) >>> // a
+					parse1(match[4])) >>>
 				0
 			);
 		}
@@ -465,9 +467,9 @@ const interpolateColorsRGB = (
 	return rgbaColor(r, g, b, a);
 };
 
-/**
- * @description This function allows you to map a range of values to colors using a concise syntax.
- * @see [Documentation](https://www.remotion.dev/docs/interpolate-colors)
+/*
+ * @description Allows you to map a range of values to colors using a concise syntax.
+ * @see [Documentation](https://remotion.dev/docs/interpolate-colors)
  */
 export const interpolateColors = (
 	input: number,

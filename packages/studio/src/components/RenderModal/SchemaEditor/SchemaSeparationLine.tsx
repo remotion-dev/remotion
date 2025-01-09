@@ -25,6 +25,7 @@ const arraySeparationLine: React.CSSProperties = {
 	marginTop: -VERTICAL_GUIDE_HEIGHT / 2,
 	pointerEvents: 'none',
 	width: '100%',
+	flexBasis: '100%',
 };
 
 export const SchemaArrayItemSeparationLine: React.FC<{
@@ -35,8 +36,9 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 	) => void;
 	readonly index: number;
 	readonly schema: z.ZodTypeAny;
+	readonly showAddButton: boolean;
 	readonly isLast: boolean;
-}> = ({onChange, index, schema, isLast}) => {
+}> = ({onChange, index, schema, isLast, showAddButton}) => {
 	const [outerHovered, setOuterHovered] = useState(false);
 	const [innerHovered, setInnerHovered] = useState(false);
 
@@ -68,8 +70,10 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 			justifyContent: 'center',
 			height: VERTICAL_GUIDE_HEIGHT,
 			opacity: outerHovered || isLast ? 1 : 0,
-			position: 'relative',
-			marginTop: -4,
+			position: 'absolute',
+			top: '50%',
+			left: '50%',
+			transform: 'translate(-50%, -50%)',
 		};
 	}, [isLast, outerHovered]);
 
@@ -98,25 +102,41 @@ export const SchemaArrayItemSeparationLine: React.FC<{
 	}, []);
 
 	return (
-		<div style={{display: 'flex', flexDirection: 'row'}}>
-			<div style={{flex: 1}}>
-				<div
-					style={dynamicAddButtonStyle}
-					onMouseEnter={onOuterMouseEnter}
-					onMouseLeave={onOuterMouseLeave}
-				>
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'row',
+				height: VERTICAL_GUIDE_HEIGHT,
+			}}
+		>
+			<div
+				style={{
+					flex: 1,
+					position: 'relative',
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'flex-end',
+				}}
+			>
+				{showAddButton && (
 					<div
-						onClick={onAdd}
-						style={inner}
-						onMouseEnter={onInnerMouseEnter}
-						onMouseLeave={onInnerMouseLeave}
+						style={dynamicAddButtonStyle}
+						onMouseEnter={onOuterMouseEnter}
+						onMouseLeave={onOuterMouseLeave}
 					>
-						<Plus
-							color={innerHovered ? 'white' : LIGHT_TEXT}
-							style={{height: VERTICAL_GUIDE_HEIGHT / 2}}
-						/>
+						<div
+							onClick={onAdd}
+							style={inner}
+							onMouseEnter={onInnerMouseEnter}
+							onMouseLeave={onInnerMouseLeave}
+						>
+							<Plus
+								color={innerHovered ? 'white' : LIGHT_TEXT}
+								style={{height: VERTICAL_GUIDE_HEIGHT / 2}}
+							/>
+						</div>
 					</div>
-				</div>
+				)}
 				<div style={arraySeparationLine} />
 			</div>
 			{isLast ? (

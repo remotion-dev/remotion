@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	background-color: #f8fafc;
+}
+
 @layer base {
 	@font-face {
 		font-family: 'GTPlanar';

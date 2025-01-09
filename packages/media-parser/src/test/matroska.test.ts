@@ -8,21 +8,25 @@ test('Should get duration of AV1 video', async () => {
 		src: exampleVideos.av1,
 		fields: {
 			durationInSeconds: true,
-			boxes: true,
+			structure: true,
 			dimensions: true,
 			fps: true,
+			slowFps: true,
+			slowNumberOfFrames: true,
 		},
 		reader: nodeReader,
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
+	expect(parsed.slowFps).toBe(25);
+	expect(parsed.slowNumberOfFrames).toBe(25);
 	expect(parsed.dimensions).toEqual({
 		width: 1920,
 		height: 1080,
 	});
 
-	expect(parsed.boxes).toEqual([
+	expect(parsed.structure.boxes).toEqual([
 		{
 			type: 'Header',
 			value: [
@@ -290,23 +294,64 @@ test('Should get duration of AV1 video', async () => {
 					type: 'Tags',
 					value: [
 						{
-							type: 'Tag',
-							value: new Uint8Array([
-								99, 192, 128, 103, 200, 153, 69, 163, 135, 69, 78, 67, 79, 68,
-								69, 82, 68, 135, 140, 76, 97, 118, 102, 54, 48, 46, 51, 46, 49,
-								48, 48,
-							]),
 							minVintWidth: 1,
+							type: 'Tag',
+							value: [
+								{
+									minVintWidth: 1,
+									type: 'Targets',
+									value: [],
+								},
+								{
+									minVintWidth: 1,
+									type: 'SimpleTag',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagName',
+											value: 'ENCODER',
+										},
+										{
+											minVintWidth: 1,
+											type: 'TagString',
+											value: 'Lavf60.3.100',
+										},
+									],
+								},
+							],
 						},
 						{
-							type: 'Tag',
-							value: new Uint8Array([
-								99, 192, 139, 99, 197, 136, 171, 33, 113, 1, 43, 185, 2, 10,
-								103, 200, 162, 69, 163, 136, 68, 85, 82, 65, 84, 73, 79, 78, 68,
-								135, 148, 48, 48, 58, 48, 48, 58, 48, 49, 46, 48, 48, 48, 48,
-								48, 48, 48, 48, 48, 0, 0,
-							]),
 							minVintWidth: 1,
+							type: 'Tag',
+							value: [
+								{
+									minVintWidth: 1,
+									type: 'Targets',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagTrackUID',
+											value: '0xab2171012bb9020a',
+										},
+									],
+								},
+								{
+									minVintWidth: 1,
+									type: 'SimpleTag',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagName',
+											value: 'DURATION',
+										},
+										{
+											minVintWidth: 1,
+											type: 'TagString',
+											value: '00:00:01.000000000',
+										},
+									],
+								},
+							],
 						},
 					],
 					minVintWidth: 1,

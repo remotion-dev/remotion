@@ -1,5 +1,5 @@
 import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless/client';
-import type {AwsRegion} from '../client';
+import type {AwsRegion} from '../regions';
 import {AWS_REGIONS} from '../regions';
 
 export const parseBucketName = (

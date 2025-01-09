@@ -6,6 +6,13 @@ export const checkMultipleRemotionVersions = () => {
 		return;
 	}
 
+	const set = () => {
+		(globalThis as unknown as Window).remotion_imported = VERSION;
+		if (typeof window !== 'undefined') {
+			window.remotion_imported = VERSION;
+		}
+	};
+
 	const alreadyImported =
 		(globalThis as unknown as Window).remotion_imported ||
 		(typeof window !== 'undefined' && window.remotion_imported);
@@ -14,6 +21,17 @@ export const checkMultipleRemotionVersions = () => {
 		if (alreadyImported === VERSION) {
 			// Next.JS will reload the package and cause a server-side warning.
 			// It's okay if this happens during SSR in developement
+			return;
+		}
+
+		// @remotion/webcodecs will also set this variable for the purpose of
+		// being picked up by Wappalyzer.
+		// If so, we can just override it because it is not the same as Remotion
+		if (
+			typeof alreadyImported === 'string' &&
+			alreadyImported.includes('webcodecs')
+		) {
+			set();
 			return;
 		}
 
@@ -31,8 +49,5 @@ export const checkMultipleRemotionVersions = () => {
 		);
 	}
 
-	(globalThis as unknown as Window).remotion_imported = VERSION;
-	if (typeof window !== 'undefined') {
-		window.remotion_imported = VERSION;
-	}
+	set();
 };

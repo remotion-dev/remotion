@@ -1,9 +1,16 @@
-import {
+import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
+	ParseMediaContainer,
 } from '@remotion/media-parser';
+import type {
+	ConvertMediaAudioCodec,
+	ConvertMediaContainer,
+} from '@remotion/webcodecs';
 
-export const renderHumanReadableAudioCodec = (codec: MediaParserAudioCodec) => {
+export const renderHumanReadableAudioCodec = (
+	codec: MediaParserAudioCodec | ConvertMediaAudioCodec,
+) => {
 	if (codec === 'opus') {
 		return 'Opus';
 	}
@@ -44,6 +51,10 @@ export const renderHumanReadableAudioCodec = (codec: MediaParserAudioCodec) => {
 		return 'Vorbis';
 	}
 
+	if (codec === 'wav') {
+		return 'WAV';
+	}
+
 	throw new Error(`Unknown audio codec ${codec satisfies never}`);
 };
 
@@ -73,4 +84,30 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 	}
 
 	throw new Error(`Unknown video codec ${codec satisfies never}`);
+};
+
+export const renderHumanReadableContainer = (
+	container: ParseMediaContainer | ConvertMediaContainer,
+) => {
+	if (container === 'webm') {
+		return 'WebM';
+	}
+
+	if (container === 'mp4') {
+		return 'MP4';
+	}
+
+	if (container === 'wav') {
+		return 'WAV';
+	}
+
+	if (container === 'avi') {
+		return 'AVI';
+	}
+
+	if (container === 'transport-stream') {
+		return 'Transport Stream';
+	}
+
+	throw new Error(`Unknown container ${container satisfies never}`);
 };

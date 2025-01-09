@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.228",
+	"version": "4.0.245",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -4762,22 +4762,22 @@
 	"exports": {
 		"./package.json": "./package.json",
 		"./*": {
+			"types": "./dist/cjs/*.d.ts",
 			"module": "./dist/esm/*.mjs",
 			"import": "./dist/esm/*.mjs",
-			"require": "./dist/cjs/*.js",
-			"types": "./dist/cjs/*.d.ts"
+			"require": "./dist/cjs/*.js"
 		},
 		"./index": {
+			"types": "./dist/cjs/index.d.ts",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.js",
-			"types": "./dist/cjs/index.d.ts"
+			"require": "./dist/cjs/index.js"
 		},
 		".": {
+			"types": "./dist/cjs/index.d.ts",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.js",
-			"types": "./dist/cjs/index.d.ts"
+			"require": "./dist/cjs/index.js"
 		}
 	},
 	"homepage": "https://www.remotion.dev/docs/google-fonts"

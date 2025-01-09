@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-internal"
 	},
 	"name": "@remotion/eslint-config-internal",
-	"version": "4.0.228",
+	"version": "4.0.245",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"main": "dist/index.js",
 	"scripts": {
@@ -11,9 +11,9 @@
 	},
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
-			"require": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"require": "./dist/index.js"
 		},
 		"./package.json": "./package.json"
 	},

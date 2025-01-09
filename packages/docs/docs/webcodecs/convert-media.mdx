@@ -10,9 +10,17 @@ crumb: '@remotion/webcodecs'
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
-:::warning
-**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
-:::
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
 
 Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
 
@@ -23,9 +31,7 @@ import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  to: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
+  container: 'webm',
 });
 ```
 
@@ -33,7 +39,7 @@ await convertMedia({
 
 ### `src`
 
-A `string` or `File`.  
+A `string` or `File` or `Blob`.  
 If it is a `string`, it must be a URL.  
 If it is a `File`, the `reader` field must be set to [`webFileReader`](/docs/media-parser/web-file-reader).
 
@@ -47,19 +53,43 @@ If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
-The container format to convert to. Currently, only `"webm"` is supported.
+The container format to convert to. Currently, `"mp4"`, `"webm"` and `"wav"` is supported.
 
-### `videoCodec`
+### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
 
-The video codec to convert to. Currently, only `"vp8"` and `"vp9"` are supported.
+The video codec to convert to. Currently, `"h264"`, `"vp8"` and `"vp9"` are supported.  
+The default is defined by [`getDefaultVideoCodec()`](/docs/webcodecs/get-default-video-codec).  
+If a [`onVideoTrack`](#onvideotrack) handler is provided, it will override this setting.
 
-### `audioCodec`
+### `audioCodec?`
 
 _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
 
-The audio codec to convert to. Currently, only `"opus"` is supported.
+The audio codec to convert to. Currently, only `"opus"` is supported.  
+The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
+If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
+
+### `rotate?`
+
+_number_
+
+The number of degrees to rotate the video. See [Rotate a video](/docs/webcodecs/rotate-a-video) for more information.
+
+### `resize?`
+
+_object_ <TsType type="ResizeOperation" source="@remotion/webcodecs"/>
+
+Resize the video. See [Resize a video](/docs/webcodecs/resize-a-video) for more information.
+
+### `apiKey?`
+
+If you are a customer of a [Remotion Company License](https://remotion.pro/license), you can provide an API key from your dashboard to track your conversions.
+
+:::note
+[Telemetry is enabled](/docs/webcodecs/telemetry) even if you don't provide an API key.
+:::
 
 ### `logLevel?`
 
@@ -68,19 +98,19 @@ _string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
 
-### `onMediaStateUpdate?`
+### `onProgress?`
 
-_Function_ <TsType type="ConvertMediaOnMediaStateUpdate" source="@remotion/media-parser"/>
+_Function_ <TsType type="ConvertMediaOnProgress" source="@remotion/media-parser"/>
 
 Allows receiving progress updates. The following fields are available:
 
 ```tsx twoslash
 import type {
-  ConvertMediaOnMediaStateUpdate,
-  ConvertMediaState,
+  ConvertMediaOnProgress,
+  ConvertMediaProgress,
 } from '@remotion/webcodecs';
 
-export const onMediaStateUpdate: ConvertMediaOnMediaStateUpdate = ({
+export const onProgress: ConvertMediaOnProgress = ({
   decodedVideoFrames,
   decodedAudioFrames,
   encodedVideoFrames,
@@ -89,7 +119,7 @@ export const onMediaStateUpdate: ConvertMediaOnMediaStateUpdate = ({
   millisecondsWritten,
   expectedOutputDurationInMs,
   overallProgress,
-}: ConvertMediaState) => {
+}: ConvertMediaProgress) => {
   console.log(decodedVideoFrames);
   //                   ^?
   console.log(decodedAudioFrames);
@@ -175,17 +205,25 @@ By default the writer is `webFsWriter`.
 
 ### `onAudioTrack?`
 
-_Function_ <TsType type="ResolveAudioActionFn" source="@remotion/webcodecs"/>
+_Function_ <TsType type="ConvertMediaOnAudioTrackHandler" source="@remotion/webcodecs"/>
 
 Take control of what to do for each audio track in the file: Re-encoding, copying, or dropping.  
-The API for this feature is not yet documented as it is subject to change.
+See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
 
 ### `onVideoTrack?`
 
-_Function_ <TsType type="ResolveVideoActionFn" source="@remotion/webcodecs"/>
+_Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webcodecs"/>
 
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
-The API for this feature is not yet documented as it is subject to change.
+See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
+
+### `progressIntervalInMs?`
+
+_number_
+
+The interval in milliseconds at which the `onProgress` callback is called.  
+Default `100`. Set to `0` for unthrottled updates.  
+Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
 ### `fields?` and Callbacks
 
@@ -199,7 +237,7 @@ import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  to: 'webm',
+  container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
   fields: {
@@ -214,7 +252,7 @@ await convertMedia({
 
 ## License
 
-[See notes about `@remotion/webcodecs`](/docs/webcodecs#license).
+[See notes about `@remotion/webcodecs`](/docs/webcodecs#-license-disclaimer).
 
 ## See also
 

@@ -36,7 +36,7 @@ type MyCompSchemaType = z.infer<typeof myCompSchema>;
 const useVideoOrOffthreadVideoTexture = (
 	textureType: 'video' | 'offthreadvideo',
 	videoSrc: string,
-	videoRef: React.RefObject<HTMLVideoElement>,
+	videoRef: React.RefObject<HTMLVideoElement | null>,
 ) => {
 	if (textureType === 'video') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks

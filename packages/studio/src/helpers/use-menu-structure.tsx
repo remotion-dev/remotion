@@ -161,11 +161,15 @@ export const useMenuStructure = (
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
-	const sizes = getUniqueSizes(size);
+	const sizes = useMemo(() => getUniqueSizes(size), [size]);
 
 	const isFullscreenSupported = checkFullscreenSupport();
 
 	const {remotion_packageManager} = window;
+
+	const sizePreselectIndex = sizes.findIndex(
+		(s) => String(size.size) === String(s.size),
+	);
 
 	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
@@ -291,9 +295,7 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: {
 							leaveLeftSpace: true,
-							preselectIndex: sizes.findIndex(
-								(s) => String(size.size) === String(s.size),
-							),
+							preselectIndex: sizePreselectIndex,
 							items: sizes.map((newSize) => ({
 								id: String(newSize.size),
 								keyHint: newSize.size === 1 ? '0' : null,
@@ -859,9 +861,10 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
-		remotion_packageManager,
 		readOnlyStudio,
-		mobileLayout,
+		closeMenu,
+		type,
+		sizePreselectIndex,
 		sizes,
 		editorZoomGestures,
 		editorShowRulers,
@@ -870,9 +873,8 @@ export const useMenuStructure = (
 		sidebarCollapsedStateRight,
 		checkerboard,
 		isFullscreenSupported,
-		closeMenu,
-		setSelectedModal,
-		type,
+		remotion_packageManager,
+		mobileLayout,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
@@ -880,6 +882,7 @@ export const useMenuStructure = (
 		setEditorShowGuides,
 		setSidebarCollapsedState,
 		setCheckerboard,
+		setSelectedModal,
 	]);
 
 	return structure;

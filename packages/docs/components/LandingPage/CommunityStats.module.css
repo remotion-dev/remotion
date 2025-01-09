@@ -59,8 +59,3 @@
 		transform 0.2s,
 		box-shadow 0.2s;
 }
-
-.statItem:hover {
-	transform: scale(0.95);
-	box-shadow: var(--box-shadow);
-}

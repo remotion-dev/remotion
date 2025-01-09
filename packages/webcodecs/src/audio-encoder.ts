@@ -1,12 +1,24 @@
-import type {LogLevel} from '@remotion/media-parser';
-import type {ConvertMediaAudioCodec} from './codec-id';
+import type {LogLevel, ProgressTracker} from '@remotion/media-parser';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {getWaveAudioEncoder} from './wav-audio-encoder';
 
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
+};
+
+export type AudioEncoderInit = {
+	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
+	onError: (error: DOMException) => void;
+	codec: ConvertMediaAudioCodec;
+	signal: AbortSignal;
+	config: AudioEncoderConfig;
+	logLevel: LogLevel;
+	onNewAudioSampleRate: (sampleRate: number) => void;
+	progressTracker: ProgressTracker;
 };
 
 export const createAudioEncoder = ({
@@ -16,19 +28,22 @@ export const createAudioEncoder = ({
 	signal,
 	config: audioEncoderConfig,
 	logLevel,
-}: {
-	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	onError: (error: DOMException) => void;
-	codec: ConvertMediaAudioCodec;
-	signal: AbortSignal;
-	config: AudioEncoderConfig;
-	logLevel: LogLevel;
-}): WebCodecsAudioEncoder => {
+	onNewAudioSampleRate,
+	progressTracker,
+}: AudioEncoderInit): WebCodecsAudioEncoder => {
 	if (signal.aborted) {
 		throw new Error('Not creating audio encoder, already aborted');
 	}
 
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Audio encoder');
+	if (codec === 'wav') {
+		return getWaveAudioEncoder({onChunk, signal});
+	}
+
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Audio encoder',
+		progress: progressTracker,
+	});
 
 	let prom = Promise.resolve();
 
@@ -72,22 +87,43 @@ export const createAudioEncoder = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	if (codec !== 'opus') {
-		throw new Error('Only `codec: "opus"` is supported currently');
+	if (codec !== 'opus' && codec !== 'aac') {
+		throw new Error(
+			'Only `codec: "opus"` and `codec: "aac"` is supported currently',
+		);
 	}
 
-	encoder.configure(audioEncoderConfig);
+	const wantedSampleRate = audioEncoderConfig.sampleRate;
 
 	const encodeFrame = async (audioData: AudioData) => {
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 2, _unprocessed: 2});
+		progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
+
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			unprocessed: 20,
+			minimumProgress: audioData.timestamp - 10_000_000,
+			signal,
+		});
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {
 			return;
+		}
+
+		if (encoder.state === 'unconfigured') {
+			if (audioData.sampleRate === wantedSampleRate) {
+				encoder.configure(audioEncoderConfig);
+			} else {
+				encoder.configure({
+					...audioEncoderConfig,
+					sampleRate: audioData.sampleRate,
+				});
+				onNewAudioSampleRate(audioData.sampleRate);
+			}
 		}
 
 		encoder.encode(audioData);
@@ -103,7 +139,7 @@ export const createAudioEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(signal);
 			await prom;
 		},
 		close,

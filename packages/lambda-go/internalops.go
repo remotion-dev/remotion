@@ -71,7 +71,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ImageFormat = options.ImageFormat
 	}
-	internalParams.Crf = options.Crf
+	if options.Crf == 0 {
+		internalParams.Crf = nil
+	} else {
+		internalParams.Crf = options.Crf
+	}
 	if options.Privacy == "" {
 		internalParams.Privacy = "public"
 	} else {

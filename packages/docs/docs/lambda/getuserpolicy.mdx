@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getuserpolicy.png
 id: getuserpolicy
 title: getUserPolicy()
 slug: /lambda/getuserpolicy
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Returns an inline JSON policy to be assigned to the AWS user whose credentials are being used for excuting CLI commands or calling Node.JS functions.
@@ -13,7 +13,7 @@ See [Setup tutorial](/docs/lambda/setup) for setting up Lambda from scratch or [
 ## Example
 
 ```ts twoslash
-import { getUserPolicy } from "@remotion/lambda";
+import {getUserPolicy} from '@remotion/lambda';
 
 console.log(getUserPolicy()); /* `
 {
@@ -27,6 +27,6 @@ console.log(getUserPolicy()); /* `
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/user-permissions.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/suggested-policy.ts)
 - [getRolePolicy()](/docs/lambda/getrolepolicy)
 - [Permissions](/docs/lambda/permissions)

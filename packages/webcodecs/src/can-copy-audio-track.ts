@@ -1,19 +1,32 @@
-import type {MediaParserAudioCodec} from '@remotion/media-parser';
-import type {ConvertMediaAudioCodec} from './codec-id';
-import type {ConvertMediaContainer} from './convert-media';
+import type {
+	MediaParserAudioCodec,
+	ParseMediaContainer,
+} from '@remotion/media-parser';
+import type {ConvertMediaContainer} from './get-available-containers';
 
 export const canCopyAudioTrack = ({
 	inputCodec,
-	outputCodec,
-	container,
+	outputContainer,
+	inputContainer,
 }: {
 	inputCodec: MediaParserAudioCodec;
-	outputCodec: ConvertMediaAudioCodec;
-	container: ConvertMediaContainer;
+	outputContainer: ConvertMediaContainer;
+	inputContainer: ParseMediaContainer;
 }) => {
-	if (outputCodec === 'opus') {
-		return inputCodec === 'opus' && container === 'webm';
+	if (outputContainer === 'webm') {
+		return inputCodec === 'opus';
 	}
 
-	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
+	if (outputContainer === 'mp4') {
+		return (
+			inputCodec === 'aac' &&
+			(inputContainer === 'mp4' || inputContainer === 'avi')
+		);
+	}
+
+	if (outputContainer === 'wav') {
+		return false;
+	}
+
+	throw new Error(`Unhandled container: ${outputContainer satisfies never}`);
 };

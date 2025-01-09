@@ -1,6 +1,8 @@
+import {isLpcmAudioCodec} from '../../get-audio-codec';
 import {getTimescaleAndDuration} from '../../get-fps';
 import type {SamplePosition} from '../../get-sample-positions';
 import {getSamplePositions} from '../../get-sample-positions';
+import {getSamplePositionsFromLpcm} from '../../get-sample-positions-from-lpcm';
 import type {IsoBaseMediaBox} from '../../parse-result';
 import {getSamplesFromMoof} from '../../samples-from-moof';
 import type {TrakBox} from './trak/trak';
@@ -18,6 +20,13 @@ export const getSamplePositionsFromTrack = (
 	trakBox: TrakBox,
 	moofBox: IsoBaseMediaBox | null,
 ): SamplePosition[] => {
+	const isLpcm = isLpcmAudioCodec(trakBox);
+	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
+
+	if (isLpcm) {
+		return getSamplePositionsFromLpcm(trakBox);
+	}
+
 	const stszBox = getStszBox(trakBox);
 	const stcoBox = getStcoBox(trakBox);
 	const stscBox = getStscBox(trakBox);
@@ -25,8 +34,6 @@ export const getSamplePositionsFromTrack = (
 	const sttsBox = getSttsBox(trakBox);
 	const tkhdBox = getTkhdBox(trakBox);
 	const cttsBox = getCttsBox(trakBox);
-
-	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
 	if (!tkhdBox) {
 		throw new Error('Expected tkhd box in trak box');

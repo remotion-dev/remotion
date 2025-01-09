@@ -319,9 +319,9 @@ export const internalBundle = async (
 	return outDir;
 };
 
-/**
- * @description The method bundles a Remotion project using Webpack and prepares it for rendering.
- * @see [Documentation](https://www.remotion.dev/docs/bundle)
+/*
+ * @description Bundles a Remotion project using Webpack and prepares it for rendering.
+ * @see [Documentation](https://remotion.dev/docs/bundle)
  */
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);

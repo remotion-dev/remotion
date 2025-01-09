@@ -1,8 +1,13 @@
-import type {LogLevel, VideoSample} from '@remotion/media-parser';
+import type {
+	AudioOrVideoSample,
+	LogLevel,
+	ProgressTracker,
+} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
 
 export type WebCodecsVideoDecoder = {
-	processSample: (videoSample: VideoSample) => Promise<void>;
+	processSample: (videoSample: AudioOrVideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
@@ -14,14 +19,20 @@ export const createVideoDecoder = ({
 	signal,
 	config,
 	logLevel,
+	progress,
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
 	signal: AbortSignal;
 	config: VideoDecoderConfig;
 	logLevel: LogLevel;
+	progress: ProgressTracker;
 }): WebCodecsVideoDecoder => {
-	const ioSynchronizer = makeIoSynchronizer(logLevel, 'Video decoder');
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video decoder',
+		progress,
+	});
 	let outputQueue = Promise.resolve();
 
 	const videoDecoder = new VideoDecoder({
@@ -75,7 +86,7 @@ export const createVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const processSample = async (sample: VideoSample) => {
+	const processSample = async (sample: AudioOrVideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -85,8 +96,20 @@ export const createVideoDecoder = ({
 			return;
 		}
 
-		await ioSynchronizer.waitFor({unemitted: 20, _unprocessed: 2});
+		progress.setPossibleLowestTimestamp(
+			Math.min(
+				sample.timestamp,
+				sample.dts ?? Infinity,
+				sample.cts ?? Infinity,
+			),
+		);
 
+		await ioSynchronizer.waitFor({
+			unemitted: 20,
+			unprocessed: 2,
+			minimumProgress: sample.timestamp - 10_000_000,
+			signal,
+		});
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
 		}
@@ -99,15 +122,19 @@ export const createVideoDecoder = ({
 	let inputQueue = Promise.resolve();
 
 	return {
-		processSample: (sample: VideoSample) => {
+		processSample: (sample: AudioOrVideoSample) => {
 			inputQueue = inputQueue.then(() => processSample(sample));
 			return inputQueue;
 		},
 		waitForFinish: async () => {
 			await videoDecoder.flush();
-			await ioSynchronizer.waitForFinish();
+			Log.verbose(logLevel, 'Flushed video decoder');
+			await ioSynchronizer.waitForFinish(signal);
+			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;
+			Log.verbose(logLevel, 'Output queue finished');
 			await inputQueue;
+			Log.verbose(logLevel, 'Input queue finished');
 		},
 		close,
 		flush: async () => {

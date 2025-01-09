@@ -1,15 +1,16 @@
-import {
+import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import {getAvailableContainers} from '@remotion/webcodecs';
 import React from 'react';
-import {Container} from '~/lib/generate-new-name';
+import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
+import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
-import {SupportedConfigs} from './get-supported-configs';
+import type {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
 import {AudioTrackLabel, VideoTrackLabel} from './TrackSelectionLabels';
-import {Checkbox} from './ui/checkbox';
 import {Label} from './ui/label';
 import {
 	Select,
@@ -26,49 +27,45 @@ export const ConvertForm: React.FC<{
 	readonly setContainer: React.Dispatch<
 		React.SetStateAction<ConvertMediaContainer>
 	>;
-	readonly flipHorizontal: boolean;
-	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly flipVertical: boolean;
-	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly supportedConfigs: SupportedConfigs | null;
-	readonly videoConfigIndex: Record<number, number>;
-	readonly audioConfigIndex: Record<number, number>;
-	readonly setAudioConfigIndex: (trackId: number, i: number) => void;
-	readonly setVideoConfigIndex: (trackId: number, i: number) => void;
+	readonly videoConfigIndexSelection: Record<number, string>;
+	readonly audioConfigIndexSelection: Record<number, string>;
+	readonly setAudioConfigIndex: (trackId: number, key: string) => void;
+	readonly setVideoConfigIndex: (trackId: number, key: string) => void;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 }> = ({
 	container,
 	setContainer,
-	flipHorizontal,
-	flipVertical,
-	setFlipHorizontal,
-	setFlipVertical,
 	supportedConfigs,
-	audioConfigIndex,
+	audioConfigIndexSelection,
 	setAudioConfigIndex,
-	videoConfigIndex,
+	videoConfigIndexSelection,
 	setVideoConfigIndex,
 	currentAudioCodec,
 	currentVideoCodec,
 }) => {
-	const [showAdvanced, setShowAdvanced] = React.useState(false);
-
 	return (
 		<div className="gap-4 grid">
 			<div>
 				<Label htmlFor="container">Container</Label>
 				<Select
 					value={container}
-					onValueChange={(v) => setContainer(v as Container)}
+					onValueChange={(v) => setContainer(v as ConvertMediaContainer)}
 				>
 					<SelectTrigger id="container">
 						<SelectValue placeholder="Select a container" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectGroup>
-							<SelectItem value="webm">WebM</SelectItem>
-						</SelectGroup>
+						{getAvailableContainers().map((availableContainer) => {
+							return (
+								<SelectGroup key={availableContainer}>
+									<SelectItem value={availableContainer}>
+										{renderHumanReadableContainer(availableContainer)}
+									</SelectItem>
+								</SelectGroup>
+							);
+						})}
 					</SelectContent>
 				</Select>
 			</div>
@@ -81,7 +78,13 @@ export const ConvertForm: React.FC<{
 								totalVideoTracks={supportedConfigs.videoTrackOptions.length}
 							/>
 							<VideoCodecSelection
-								index={videoConfigIndex[track.trackId] ?? 0}
+								index={getVideoOperationId(
+									track.operations.find(
+										(o) =>
+											getVideoOperationId(o) ===
+											videoConfigIndexSelection[track.trackId],
+									) ?? track.operations[0],
+								)}
 								setIndex={(i) => {
 									setVideoConfigIndex(track.trackId, i);
 								}}
@@ -103,7 +106,13 @@ export const ConvertForm: React.FC<{
 								totalAudioTracks={supportedConfigs.audioTrackOptions.length}
 							/>
 							<AudioCodecSelection
-								index={audioConfigIndex[track.trackId] ?? 0}
+								index={getAudioOperationId(
+									track.operations.find(
+										(o) =>
+											getAudioOperationId(o) ===
+											audioConfigIndexSelection[track.trackId],
+									) ?? track.operations[0],
+								)}
 								setIndex={(i) => {
 									setAudioConfigIndex(track.trackId, i);
 								}}
@@ -115,52 +124,6 @@ export const ConvertForm: React.FC<{
 				})
 			) : (
 				<SelectionSkeleton />
-			)}
-			{showAdvanced ? (
-				<>
-					<div className="flex flex-row">
-						<Checkbox
-							checked={flipHorizontal}
-							id="flipHorizontal"
-							onCheckedChange={() => setFlipHorizontal((e) => !e)}
-						/>
-						<div className="w-2" />
-						<div className="grid gap-1.5 leading-none">
-							<label
-								htmlFor="flipHorizontal"
-								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-							>
-								Flip video horizontally
-							</label>
-						</div>
-					</div>
-					<div className="flex flex-row">
-						<Checkbox
-							checked={flipVertical}
-							id="flipVertical"
-							onCheckedChange={() => setFlipVertical((e) => !e)}
-						/>
-						<div className="w-2" />
-						<div className="grid gap-1.5 leading-none">
-							<label
-								htmlFor="flipVertical"
-								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-							>
-								Flip video vertically
-							</label>
-						</div>
-					</div>
-				</>
-			) : (
-				<div className="flex flex-row justify-center text-muted-foreground">
-					<button
-						type="button"
-						className="font-brand"
-						onClick={() => setShowAdvanced(true)}
-					>
-						Advanced settings
-					</button>
-				</div>
 			)}
 		</div>
 	);

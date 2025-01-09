@@ -1,11 +1,7 @@
-import {
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-} from '@remix-run/react';
+import {DEFAULT_FAVICON} from './lib/default-favicon';
 import './tailwind.css';
+
+import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 
 export function Layout({children}: {readonly children: React.ReactNode}) {
 	return (
@@ -13,7 +9,13 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<Meta />
+				<title>Remotion Convert</title>
+				<meta name="description" content="Remotion Convert" />
+				<link rel="icon" href={DEFAULT_FAVICON} />
+				<link
+					rel="manifest"
+					href={`${import.meta.env.BASE_URL}manifest.json`}
+				/>
 				<Links />
 			</head>
 			<body>

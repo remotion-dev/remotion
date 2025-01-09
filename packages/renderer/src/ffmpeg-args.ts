@@ -84,11 +84,15 @@ export const generateFfmpegArgs = ({
 	indent: boolean;
 	logLevel: LogLevel;
 }): string[][] => {
-	const encoderSettings = getCodecName(
+	const encoderSettings = getCodecName({
 		codec,
-		hardwareAcceleration === 'required' ||
-			hardwareAcceleration === 'if-possible',
-	);
+		encodingMaxRate,
+		encodingBufferSize,
+		crf,
+		hardwareAcceleration,
+		indent,
+		logLevel,
+	});
 
 	if (encoderSettings === null) {
 		throw new TypeError(

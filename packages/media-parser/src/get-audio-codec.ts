@@ -4,12 +4,12 @@ import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {getStsdBox, getTraks} from './boxes/iso-base-media/traversal';
 import {trakBoxContainsAudio} from './get-fps';
-import {getTracks, type MediaParserAudioCodec} from './get-tracks';
-import type {AnySegment} from './parse-result';
-import type {ParserState} from './parser-state';
+import {getTracks, hasTracks, type MediaParserAudioCodec} from './get-tracks';
+import type {AnySegment, Structure} from './parse-result';
+import type {ParserState} from './state/parser-state';
 
 export const getAudioCodec = (
-	boxes: AnySegment[],
+	boxes: Structure,
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
 	const tracks = getTracks(boxes, parserState);
@@ -35,14 +35,10 @@ export const getAudioCodec = (
 };
 
 export const hasAudioCodec = (
-	boxes: AnySegment[],
+	boxes: Structure,
 	state: ParserState,
 ): boolean => {
-	try {
-		return getAudioCodec(boxes, state) !== null;
-	} catch {
-		return false;
-	}
+	return hasTracks(boxes, state);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({
@@ -74,11 +70,11 @@ const getCodecSpecificatorFromEsdsBox = ({
 	}
 
 	const audioSpecificConfig = descriptor.decoderSpecificConfigs.find((d) => {
-		return d.type === 'audio-specific-config' ? d : null;
+		return d.type === 'mp4a-specific-config' ? d : null;
 	});
 	if (
 		!audioSpecificConfig ||
-		audioSpecificConfig.type !== 'audio-specific-config'
+		audioSpecificConfig.type !== 'mp4a-specific-config'
 	) {
 		throw new Error('No audio-specific-config');
 	}
@@ -95,6 +91,39 @@ type AudioCodecInfo = {
 	primarySpecificator: number | null;
 	secondarySpecificator: number | null;
 	description: Uint8Array | undefined;
+};
+
+export const getCodecPrivateFromTrak = (trakBox: TrakBox) => {
+	const stsdBox = getStsdBox(trakBox);
+	if (!stsdBox) {
+		return null;
+	}
+
+	const audioSample = stsdBox.samples.find((s) => s.type === 'audio');
+	if (!audioSample || audioSample.type !== 'audio') {
+		return null;
+	}
+
+	const esds = audioSample.children.find((b) => b.type === 'esds-box');
+	if (!esds || esds.type !== 'esds-box') {
+		return null;
+	}
+
+	const decoderConfigDescriptor = esds.descriptors.find(
+		(d) => d.type === 'decoder-config-descriptor',
+	);
+	if (!decoderConfigDescriptor) {
+		return null;
+	}
+
+	const mp4a = decoderConfigDescriptor.decoderSpecificConfigs.find(
+		(d) => d.type === 'mp4a-specific-config',
+	);
+	if (!mp4a) {
+		return null;
+	}
+
+	return mp4a.asBytes;
 };
 
 const onSample = (
@@ -178,6 +207,10 @@ export const getAudioCodecFromTrak = (trak: TrakBox): AudioCodecInfo | null => {
 	return null;
 };
 
+export const isLpcmAudioCodec = (trak: TrakBox): boolean => {
+	return getAudioCodecFromTrak(trak)?.format === 'lpcm';
+};
+
 export const getAudioCodecFromIso = (moov: MoovBox) => {
 	const traks = getTraks(moov);
 	const trakBox = traks.find(
@@ -196,6 +229,13 @@ export const getAudioCodecStringFromTrak = (
 	const codec = getAudioCodecFromTrak(trak);
 	if (!codec) {
 		throw new Error('Expected codec');
+	}
+
+	if (codec.format === 'lpcm') {
+		return {
+			codecString: 'pcm-s16',
+			description: codec.description,
+		};
 	}
 
 	const codecStringWithoutMp3Exception = (
@@ -224,6 +264,10 @@ const getAudioCodecFromAudioCodecInfo = (
 	codec: AudioCodecInfo,
 ): MediaParserAudioCodec => {
 	if (codec.format === 'twos') {
+		return 'pcm-s16';
+	}
+
+	if (codec.format === 'lpcm') {
 		return 'pcm-s16';
 	}
 

@@ -11,7 +11,7 @@ import type {
 	SerializedInputProps,
 	ServerlessCodec,
 } from './constants';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 type Discriminated =
 	| {

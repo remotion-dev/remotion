@@ -16,6 +16,7 @@ export const flipVideoFrame = ({
 	if (!ctx) {
 		throw new Error('Could not get 2d context');
 	}
+
 	canvas.width = frame.displayWidth;
 	canvas.height = frame.displayHeight;
 	ctx.translate(
@@ -28,7 +29,7 @@ export const flipVideoFrame = ({
 	return new VideoFrame(canvas, {
 		displayHeight: frame.displayHeight,
 		displayWidth: frame.displayWidth,
-		duration: frame.duration as number,
+		duration: frame.duration ?? undefined,
 		timestamp: frame.timestamp,
 	});
 };

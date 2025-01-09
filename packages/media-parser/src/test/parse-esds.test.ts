@@ -36,11 +36,10 @@ test('Parse ESDS box', () => {
 				upStream: 0,
 				avgBitrate: 320000,
 				maxBitrate: 320000,
-				decoderSpecificConfigs: [
-					{
-						type: 'unknown-decoder-specific-config',
-					},
-				],
+				decoderSpecificConfigs: [],
+			},
+			{
+				type: 'sl-config-descriptor',
 			},
 		],
 	});
@@ -85,13 +84,13 @@ test('Parse two ESDS', () => {
 						audioObjectType: 2,
 						channelConfiguration: 2,
 						samplingFrequencyIndex: 3,
-						type: 'audio-specific-config',
+						type: 'mp4a-specific-config',
 						asBytes: new Uint8Array([17, 144]),
 					},
-					{
-						type: 'unknown-decoder-specific-config',
-					},
 				],
+			},
+			{
+				type: 'sl-config-descriptor',
 			},
 		],
 	});

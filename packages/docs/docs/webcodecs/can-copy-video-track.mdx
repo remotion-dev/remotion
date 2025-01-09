@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-webcodecs-can-copy-video-track.png
 id: can-copy-video-track
 title: canCopyVideoTrack()
 slug: /webcodecs/can-copy-video-track
@@ -7,9 +8,12 @@ crumb: '@remotion/webcodecs'
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
-:::warning
-**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
-:::
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
 
 Given a `VideoTrack`, determine if it can be copied to the output without re-encoding.
 
@@ -23,18 +27,21 @@ You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-me
 import {parseMedia} from '@remotion/media-parser';
 import {canCopyVideoTrack} from '@remotion/webcodecs';
 
-const {videoTracks} = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+const {tracks, container} = await parseMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm',
   fields: {
     tracks: true,
+    container: true,
   },
 });
 
-for (const track of videoTracks) {
+for (const track of tracks.videoTracks) {
   canCopyVideoTrack({
-    inputCodec: track.codecWithoutConfig,
-    outputCodec: 'vp8',
-    container: 'webm',
+    outputContainer: 'webm',
+    inputTrack: track,
+    inputContainer: container,
+    rotationToApply: 0,
+    resizeOperation: null,
   }); // boolean
 }
 ```
@@ -46,15 +53,17 @@ for (const track of videoTracks) {
 import {convertMedia, canCopyVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm',
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onVideoTrack: async ({track}) => {
+  onVideoTrack: async ({track, inputContainer, outputContainer}) => {
     const canCopy = canCopyVideoTrack({
-      inputCodec: track.codecWithoutConfig,
-      outputCodec: 'vp8',
-      container: 'webm',
+      outputContainer,
+      inputTrack: track,
+      inputContainer,
+      rotationToApply: 0,
+      resizeOperation: null,
     });
 
     if (canCopy) {
@@ -69,23 +78,43 @@ await convertMedia({
 
 ## API
 
-### `inputCodec`
+### `inputTrack`
 
-_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
+_string_ <TsType type="VideoTrack" source="@remotion/media-parser" />
 
-The codec of the input video track.
+The input video track.
 
-### `outputCodec`
+### `rotationToApply`
 
-_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
+_number_
 
-The codec of the output video track.
+The number of degrees to rotate the video track.
 
-### `container`
+### `inputContainer`
+
+_string_ <TsType type="ParseMediaContainer" source="@remotion/media-parser" />
+
+The container format of the input media.
+
+### `outputContainer`
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
-The container format of the output file
+The container format of the output media.
+
+### `resizeOperation`
+
+_string_ <TsType type="ResizeOperation" source="@remotion/webcodecs" />
+
+The [resize operation](/docs/webcodecs/resize-a-video) to apply to the video track.
+
+## Rotation behavior
+
+Any `rotationToApply` is in addition to an auto-rotation that is applied by default to fix the orientation of the video track.
+
+If `rotationToApply` is not the same amount of rotation as `inputRotation`, this function will always return `false`, because rotation cannot be performed without re-encoding.
+
+See: [Rotating a video](/docs/webcodecs/rotate-a-video)
 
 ## Return value
 

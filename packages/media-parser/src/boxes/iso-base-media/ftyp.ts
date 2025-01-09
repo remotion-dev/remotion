@@ -17,13 +17,13 @@ export const parseFtyp = ({
 	size: number;
 	offset: number;
 }): FtypBox => {
-	const majorBrand = iterator.getByteString(4);
+	const majorBrand = iterator.getByteString(4, false);
 	const minorVersion = iterator.getFourByteNumber();
 
 	const types = (size - iterator.counter.getOffset()) / 4;
 	const compatibleBrands: string[] = [];
 	for (let i = 0; i < types; i++) {
-		compatibleBrands.push(iterator.getByteString(4).trim());
+		compatibleBrands.push(iterator.getByteString(4, false).trim());
 	}
 
 	const offsetAtEnd = iterator.counter.getOffset();

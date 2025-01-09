@@ -42,7 +42,7 @@ export const TableOfContents: React.FC = () => {
 					<strong>interpolateColors()</strong>
 					<div>Map a range of values to colors</div>
 				</TOCItem>
-				<TOCItem link="/docs/interpolate-colors">
+				<TOCItem link="/docs/measure-spring">
 					<strong>measureSpring()</strong>
 					<div>Determine the duration of a spring</div>
 				</TOCItem>

@@ -1,12 +1,15 @@
 ---
 image: /generated/articles-docs-media-parser-index.png
 sidebar_label: Overview
-title: "@remotion/media-parser"
+title: '@remotion/media-parser'
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-import {TableOfContents} from "./TableOfContents";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {
+  TableOfContents,
+  MediaParserGuideTableOfContents,
+} from './TableOfContents';
 
 _available from v4.0.190_
 
@@ -18,14 +21,21 @@ This is an experimental package that parses video and other media files in order
 
 Design goals:
 
-- Work in the browser, and server runtimes (Node.js, Bun, Edge, etc.)
-- Stream the content, only download as much data as necessary
-- Functional TypeScript API
+- Support as many relevant containers as possible - currently: `.mp4`, `.mov`, `.webm`, `.mkv`, `.avi`, `.ts`
+- [Work in the browser, and server runtimes (Node.js, Bun, Edge, etc.)](/docs/media-parser/support)
+- [Enable powerful WebCodecs use cases](/docs/media-parser/webcodecs)
+- [Fine-grained querying, only download as much data as necessary](/docs/media-parser/fast-and-slow)
+- [Functional TypeScript API](/docs/media-parser/parse-media)
+- [Be useful when passing unsupported media](/docs/media-parser/foreign-file-types)
 - Solve problems that are relevant for Remotion users
 
 ## Installation
 
 <Installation pkg="@remotion/media-parser" />
+
+## Guide
+
+<MediaParserGuideTableOfContents />
 
 ## APIs
 

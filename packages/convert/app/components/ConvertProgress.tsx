@@ -1,29 +1,60 @@
-import {ConvertMediaState} from '@remotion/webcodecs';
+import type {ConvertMediaContainer, ConvertMediaProgress} from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
-import {Container, getNewName} from '~/lib/generate-new-name';
+import {getNewName} from '~/lib/generate-new-name';
+import {
+	useAddOutputFilenameToTitle,
+	useAddProgressToTitle,
+} from '~/lib/title-context';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
-import {VideoThumbnail, VideoThumbnailRef} from './VideoThumbnail';
+import type { VideoThumbnailRef} from './VideoThumbnail';
+import {VideoThumbnail} from './VideoThumbnail';
 
 export const convertProgressRef = createRef<VideoThumbnailRef>();
 
 export const ConvertProgress: React.FC<{
-	readonly state: ConvertMediaState;
+	readonly state: ConvertMediaProgress;
 	readonly name: string | null;
-	readonly container: Container;
-}> = ({state, name, container}) => {
+	readonly container: ConvertMediaContainer;
+	readonly done: boolean;
+	readonly duration: number | null;
+	readonly isReencoding: boolean;
+}> = ({state, name, container, done, isReencoding, duration}) => {
+	const progress = done
+		? 1
+		: duration === null
+			? null
+			: state.millisecondsWritten / 1000 / duration;
+
+	useAddProgressToTitle(progress);
+	const newName = name ? getNewName(name, container) : null;
+
+	useAddOutputFilenameToTitle(newName);
+
 	return (
 		<>
 			<Card className="overflow-hidden">
-				<VideoThumbnail ref={convertProgressRef} smallThumbOnMobile={false} />
-				<div className="border-b-2 border-black" />
+				{isReencoding ? (
+					<>
+						<VideoThumbnail
+							ref={convertProgressRef}
+							initialReveal
+							smallThumbOnMobile={false}
+							rotation={0}
+							mirrorHorizontal={false}
+							mirrorVertical={false}
+						/>
+					</>
+				) : null}
 				<div className="h-5 overflow-hidden">
-					{state.overallProgress ? (
+					{state.millisecondsWritten || done ? (
 						<div
 							className="w-[50%] h-5 bg-brand"
-							style={{width: state.overallProgress * 100 + '%'}}
+							style={{
+								width: (progress ?? 0) * 100 + '%',
+							}}
 						/>
 					) : null}
 				</div>
@@ -31,9 +62,7 @@ export const ConvertProgress: React.FC<{
 				<div className="p-2">
 					<div>
 						{name ? (
-							<strong className="font-brand ">
-								{getNewName(name, container)}
-							</strong>
+							<strong className="font-brand ">{name}</strong>
 						) : (
 							<Skeleton className="h-4 w-[200px]" />
 						)}

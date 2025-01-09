@@ -1,5 +1,5 @@
 import React from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 
 export const SourceLabel: React.FC<{
 	readonly src: Source;
@@ -15,7 +15,7 @@ export const SourceLabel: React.FC<{
 		.replace(/^http:\/\//, '');
 
 	return (
-		<span className="font-brand">
+		<span className="font-brand white ">
 			From{' '}
 			<a
 				href={src.url}

@@ -23,7 +23,7 @@ export const openAiWhisperApiToCaptions = ({
 
 	for (const word of transcription.words) {
 		const match = new RegExp(
-			`^([\\s\\.]{0,4})${word.word}([\\?,\\.\\%\\–\\!\\;\\:\\'\\"\\-\\_\\(\\)\\[\\]\\{\\}\\@\\#\\$\\^\\&\\*\\+\\=\\/\\|\\<\\>\\~\`]{0,3})?`,
+			`^([\\s\\.]{0,4})${word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([\\?,\\.\\%\\–\\!\\;\\:\\'\\"\\-\\_\\(\\)\\[\\]\\{\\}\\@\\#\\$\\^\\&\\*\\+\\=\\/\\|\\<\\>\\~\`]{0,3})?`,
 		).exec(remainingText);
 		if (!match) {
 			throw new Error(

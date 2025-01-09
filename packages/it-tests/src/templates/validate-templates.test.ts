@@ -35,8 +35,13 @@ describe('Templates should be valid', () => {
 
 			expect(body.dependencies.remotion).toBe('workspace:*');
 			expect(body.dependencies['@remotion/cli']).toMatch('workspace:*');
-			expect(body.dependencies.react).toMatch(/^\^?18/);
-			expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
+			if (body.name === 'template-skia') {
+				expect(body.dependencies.react).toMatch(/^\^?18/);
+				expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
+			} else {
+				expect(body.dependencies.react).toMatch(/^\^?19/);
+				expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
+			}
 
 			if (body.dependencies['zod']) {
 				expect(body.dependencies['zod']).toBe('3.22.3');

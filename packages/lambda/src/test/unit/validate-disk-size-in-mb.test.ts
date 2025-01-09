@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateDiskSizeInMb} from '../../shared/validate-disk-size-in-mb';
 
 test('Disk size tests', () => {

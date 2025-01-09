@@ -1,10 +1,19 @@
+import type {ProgressTracker} from '@remotion/media-parser';
+import {MediaParserInternals} from '@remotion/media-parser';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
-import {withResolvers} from '../with-resolvers';
-import {IoEventEmitter} from './event-emitter';
+import {makeTimeoutPromise} from './make-timeout-promise';
 
-export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
-	const eventEmitter = new IoEventEmitter();
+export const makeIoSynchronizer = ({
+	logLevel,
+	label,
+	progress,
+}: {
+	logLevel: LogLevel;
+	label: string;
+	progress: ProgressTracker;
+}) => {
+	const eventEmitter = new MediaParserInternals.IoEventEmitter();
 
 	let lastInput = 0;
 	let lastInputKeyframe = 0;
@@ -15,17 +24,21 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 
 	// Once WebCodecs emits items, the user has to handle them
 	// Let's keep count of how many items are unprocessed
-	let unprocessed = 0;
+	let _unprocessed = 0;
 
-	const getUnprocessed = () => unprocessed;
+	const getUnprocessed = () => _unprocessed;
 
 	const getUnemittedItems = () => {
-		inputs = inputs.filter((input) => input > lastOutput);
+		inputs = inputs.filter(
+			(input) => Math.floor(input) > Math.floor(lastOutput),
+		);
 		return inputs.length;
 	};
 
 	const getUnemittedKeyframes = () => {
-		keyframes = keyframes.filter((keyframe) => keyframe > lastOutput);
+		keyframes = keyframes.filter(
+			(keyframe) => Math.floor(keyframe) > Math.floor(lastOutput),
+		);
 		return keyframes.length;
 	};
 
@@ -59,12 +72,13 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 		eventEmitter.dispatchEvent('output', {
 			timestamp,
 		});
-		unprocessed++;
+		_unprocessed++;
+
 		printState('Got output');
 	};
 
 	const waitForOutput = () => {
-		const {promise, resolve} = withResolvers<void>();
+		const {promise, resolve} = MediaParserInternals.withResolvers<void>();
 		const on = () => {
 			eventEmitter.removeEventListener('output', on);
 			resolve();
@@ -75,7 +89,7 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	};
 
 	const waitForProcessed = () => {
-		const {promise, resolve} = withResolvers<void>();
+		const {promise, resolve} = MediaParserInternals.withResolvers<void>();
 		const on = () => {
 			eventEmitter.removeEventListener('processed', on);
 			resolve();
@@ -86,28 +100,68 @@ export const makeIoSynchronizer = (logLevel: LogLevel, label: string) => {
 	};
 
 	const waitFor = async ({
-		_unprocessed,
+		unprocessed,
 		unemitted,
+		minimumProgress,
+		signal,
 	}: {
 		unemitted: number;
-		_unprocessed: number;
+		unprocessed: number;
+		minimumProgress: number | null;
+		signal: AbortSignal;
 	}) => {
-		while (getUnemittedItems() > unemitted) {
-			await waitForOutput();
-		}
+		const {timeoutPromise, clear} = makeTimeoutPromise(
+			() =>
+				[
+					`Waited too long for ${label} to finish:`,
+					`${getUnemittedItems()} unemitted items`,
+					`${getUnprocessed()} unprocessed items: ${JSON.stringify(_unprocessed)}`,
+					`smallest progress: ${progress.getSmallestProgress()}`,
+					`inputs: ${JSON.stringify(inputs)}`,
+					`last output: ${lastOutput}`,
+					`wanted: ${unemitted} unemitted items, ${unprocessed} unprocessed items, minimum progress ${minimumProgress}`,
+				].join('\n'),
+			10_000,
+		);
+		signal.addEventListener('abort', clear);
 
-		while (getUnprocessed() > _unprocessed) {
-			await waitForProcessed();
-		}
+		await Promise.race([
+			timeoutPromise,
+			Promise.all([
+				(async () => {
+					while (getUnemittedItems() > unemitted) {
+						await waitForOutput();
+					}
+				})(),
+				(async () => {
+					while (getUnprocessed() > unprocessed) {
+						await waitForProcessed();
+					}
+				})(),
+				minimumProgress === null || progress.getSmallestProgress() === null
+					? Promise.resolve()
+					: (async () => {
+							while (progress.getSmallestProgress() < minimumProgress) {
+								await progress.waitForProgress();
+							}
+						})(),
+			]),
+		]).finally(() => clear());
+		signal.removeEventListener('abort', clear);
 	};
 
-	const waitForFinish = async () => {
-		await waitFor({_unprocessed: 0, unemitted: 0});
+	const waitForFinish = async (signal: AbortSignal) => {
+		await waitFor({
+			unprocessed: 0,
+			unemitted: 0,
+			minimumProgress: null,
+			signal,
+		});
 	};
 
 	const onProcessed = () => {
 		eventEmitter.dispatchEvent('processed', {});
-		unprocessed--;
+		_unprocessed--;
 	};
 
 	return {

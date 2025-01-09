@@ -7,7 +7,24 @@ crumb: 'FAQ'
 
 If you are on Linux, Chrome Headless Shell requires some shared libraries to be installed.
 
-## Ubuntu
+## Ubuntu 24.04
+
+```bash
+RUN apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libasound2t64 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libgbm-dev \
+  libatk-bridge2.0-0
+```
+
+## Older versions of Ubuntu
 
 ```bash
 RUN apt install -y \
@@ -40,6 +57,7 @@ RUN apt install -y \
   libxdamage1 \
   libpango-1.0-0 \
   libcairo2 \
+  libcups2 \
   libatk-bridge2.0-0
 ```
 
@@ -66,3 +84,8 @@ RUN yum install -y \
 ## Alpine Linux
 
 Not supported due to to unsupported Libc symbols.
+
+## nixOS
+
+Not supported because Remotion ships with its own binaries of Chrome and FFmpeg that are not baked into the operating system.  
+This conflicts with the "immutable distro" architecture of nixOS.

@@ -1,70 +1,82 @@
 import type {VideoTrack} from '@remotion/media-parser';
-import type {
-	ConvertMediaOnMediaStateUpdate,
-	ConvertMediaOnVideoFrame,
-	ConvertMediaState,
-} from './convert-media';
+import {isSafari} from './browser-quirks';
+import type {ConvertMediaOnVideoFrame} from './convert-media';
+import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import type {ResizeOperation} from './resizing/mode';
+import {rotateAndResizeVideoFrame} from './rotate-and-resize-video-frame';
 import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
-	frame,
+	frame: unrotatedFrame,
 	onVideoFrame,
 	videoEncoder,
-	onMediaStateUpdate,
 	track,
-	convertMediaState,
+	outputCodec,
+	rotation,
+	resizeOperation,
 }: {
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
 	videoEncoder: WebCodecsVideoEncoder;
-	onMediaStateUpdate: ConvertMediaOnMediaStateUpdate | null;
 	track: VideoTrack;
-	convertMediaState: ConvertMediaState;
+	outputCodec: ConvertMediaVideoCodec;
+	rotation: number;
+	resizeOperation: ResizeOperation | null;
 }) => {
-	const newFrame = onVideoFrame ? await onVideoFrame({frame, track}) : frame;
+	const rotated = rotateAndResizeVideoFrame({
+		rotation,
+		frame: unrotatedFrame,
+		resizeOperation,
+		videoCodec: outputCodec,
+	});
+	if (unrotatedFrame !== rotated) {
+		unrotatedFrame.close();
+	}
 
-	if (newFrame.codedHeight !== frame.codedHeight) {
+	const userProcessedFrame = onVideoFrame
+		? await onVideoFrame({frame: rotated, track})
+		: rotated;
+
+	if (userProcessedFrame.displayWidth !== rotated.displayWidth) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different codedHeight (${newFrame.codedHeight}) than the input frame (${frame.codedHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${userProcessedFrame.displayWidth}) than the input frame (${userProcessedFrame.displayHeight})`,
 		);
 	}
 
-	if (newFrame.codedWidth !== frame.codedWidth) {
+	if (userProcessedFrame.displayHeight !== rotated.displayHeight) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different codedWidth (${newFrame.codedWidth}) than the input frame (${frame.codedWidth})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${userProcessedFrame.displayHeight}) than the input frame (${userProcessedFrame.displayHeight})`,
 		);
 	}
 
-	if (newFrame.displayWidth !== frame.displayWidth) {
+	// In Safari, calling new VideoFrame() might change the timestamp
+	// In flipVideo test from 803000 to 803299
+	if (userProcessedFrame.timestamp !== rotated.timestamp && !isSafari()) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${newFrame.displayWidth}) than the input frame (${newFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different timestamp (${userProcessedFrame.timestamp}) than the input frame (${rotated.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
 		);
 	}
 
-	if (newFrame.displayHeight !== frame.displayHeight) {
+	if ((userProcessedFrame.duration ?? 0) !== (rotated.duration ?? 0)) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${newFrame.displayHeight}) than the input frame (${newFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different duration (${userProcessedFrame.duration}) than the input frame (${rotated.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
 		);
 	}
 
-	if (newFrame.timestamp !== frame.timestamp) {
-		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different timestamp (${newFrame.timestamp}) than the input frame (${newFrame.timestamp}). When calling new VideoFrame(), pass {timestamp: frame.timestamp} as second argument`,
-		);
+	const fixedFrame = convertToCorrectVideoFrame({
+		videoFrame: userProcessedFrame,
+		outputCodec,
+	});
+
+	await videoEncoder.encodeFrame(fixedFrame, fixedFrame.timestamp);
+
+	fixedFrame.close();
+	if (rotated !== userProcessedFrame) {
+		rotated.close();
 	}
 
-	if (newFrame.duration !== frame.duration) {
-		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different duration (${newFrame.duration}) than the input frame (${newFrame.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
-		);
-	}
-
-	await videoEncoder.encodeFrame(newFrame, newFrame.timestamp);
-	convertMediaState.decodedVideoFrames++;
-	onMediaStateUpdate?.({...convertMediaState});
-
-	newFrame.close();
-	if (frame !== newFrame) {
-		frame.close();
+	if (fixedFrame !== userProcessedFrame) {
+		fixedFrame.close();
 	}
 };

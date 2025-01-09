@@ -1,0 +1,4 @@
+/**
+ * @description Watches for changes in a specific static file and invokes a callback function when the file changes, enabling dynamic updates in your Remotion projects.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/watch-static-file)
+ */

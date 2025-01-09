@@ -12,7 +12,9 @@
 		"testssr": "turbo run testssr --no-update-notifier",
 		"testlambda": "turbo run testlambda --concurrency=1 --no-update-notifier",
 		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
-		"watch": "turbo watch make",
+		"watch": "turbo watch make --concurrency=2",
+		"watchwebcodecs": "turbo watch make --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
+		"watchserverless": "turbo watch make --filter='@remotion/lambda' --filter='@remotion/serverless' --filter='@remotion/streaming'",
 		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
 		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
 		"clean": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
@@ -23,19 +25,19 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"caniuse-lite": "1.0.30001636"
+			"caniuse-lite": "1.0.30001690"
 		}
 	},
 	"devDependencies": {
 		"@types/bun": "1.1.10",
 		"@types/deno": "2.0.0",
-		"@types/react": "18.3.1",
-		"@types/react-dom": "18.3.0",
+		"@types/react": "19.0.0",
+		"@types/react-dom": "19.0.0",
 		"prettier": "3.3.3",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
-		"turbo": "2.2.3",
+		"turbo": "2.3.3",
 		"typescript": "5.5.4"
 	},
 	"packageManager": "pnpm@8.10.2"

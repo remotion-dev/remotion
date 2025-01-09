@@ -1,7 +1,6 @@
 import React, {useCallback, useRef} from 'react';
-import {Source} from '~/lib/convert-state';
+import type {Source} from '~/lib/convert-state';
 import {Button} from './ui/button';
-import {Card} from './ui/card';
 
 export const DropFileBox: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -13,6 +12,7 @@ export const DropFileBox: React.FC<{
 			const file = event.target.files?.[0];
 			if (file) {
 				setSrc({type: 'file', file});
+				// eslint-disable-next-line no-console
 				console.log('File selected:', file.name);
 				// Add your file handling logic here
 			}
@@ -21,7 +21,7 @@ export const DropFileBox: React.FC<{
 	);
 
 	return (
-		<Card className="w-full max-w-[600px] lg:w-[400px] h-[300px] flex justify-center items-center">
+		<div className="w-full max-w-[600px] lg:w-[400px] m-auto flex justify-center items-center">
 			<input
 				ref={ref}
 				type="file"
@@ -29,7 +29,7 @@ export const DropFileBox: React.FC<{
 				className="hidden"
 				onChange={handleFileChange}
 			/>
-			<Button onClick={() => ref.current?.click()}>Choose files</Button>
-		</Card>
+			<Button onClick={() => ref.current?.click()}>Choose file</Button>
+		</div>
 	);
 };

@@ -1,10 +1,12 @@
 import {
 	getAudioCodecFromTrack,
 	getAudioCodecStringFromTrak,
+	getCodecPrivateFromTrak,
 	getNumberOfChannelsFromTrak,
 	getSampleRate,
 } from '../../get-audio-codec';
 import {
+	getFpsFromMp4TrakBox,
 	getTimescaleAndDuration,
 	trakBoxContainsAudio,
 	trakBoxContainsVideo,
@@ -19,10 +21,11 @@ import {
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {
 	getIsoBmColrConfig,
-	getVideoCodecFromIsoTrak,
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {getActualDecoderParameters} from './get-actual-number-of-channels';
+import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
@@ -54,18 +57,28 @@ export const makeBaseMediaTrack = (
 		}
 
 		const {codecString, description} = getAudioCodecStringFromTrak(trakBox);
+		const codecPrivate =
+			getCodecPrivateFromTrak(trakBox) ?? description ?? null;
+		const codecWithoutConfig = getAudioCodecFromTrack(trakBox);
+
+		const actual = getActualDecoderParameters({
+			audioCodec: codecWithoutConfig,
+			codecPrivate,
+			numberOfChannels,
+			sampleRate,
+		});
 
 		return {
 			type: 'audio',
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
 			codec: codecString,
-			numberOfChannels,
-			sampleRate,
-			description,
+			numberOfChannels: actual.numberOfChannels,
+			sampleRate: actual.sampleRate,
+			description: actual.codecPrivate ?? undefined,
 			trakBox,
-			codecPrivate: null,
-			codecWithoutConfig: getAudioCodecFromTrack(trakBox),
+			codecPrivate: actual.codecPrivate,
+			codecWithoutConfig,
 		};
 	}
 
@@ -129,6 +142,7 @@ export const makeBaseMediaTrack = (
 			transferCharacteristics: null,
 		},
 		codecWithoutConfig: getVideoCodecFromIsoTrak(trakBox),
+		fps: getFpsFromMp4TrakBox(trakBox),
 	};
 	return track;
 };

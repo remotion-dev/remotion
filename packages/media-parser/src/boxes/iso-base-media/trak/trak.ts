@@ -1,8 +1,10 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {AnySegment} from '../../../parse-result';
-import type {ParserContext} from '../../../parser-context';
+import type {LogLevel} from '../../../log';
+import type {Options, ParseMediaFields} from '../../../options';
+import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
+import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
-import {parseBoxes} from '../process-box';
+import {parseIsoBaseMediaBoxes} from '../process-box';
 
 export interface TrakBox extends BaseBox {
 	type: 'trak-box';
@@ -13,27 +15,33 @@ export const parseTrak = async ({
 	data,
 	size,
 	offsetAtStart,
-	options,
+	state: options,
 	signal,
+	logLevel,
+	fields,
 }: {
 	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
-	options: ParserContext;
+	state: ParserState;
 	signal: AbortSignal | null;
+	logLevel: LogLevel;
+	fields: Options<ParseMediaFields>;
 }): Promise<TrakBox> => {
-	const children = await parseBoxes({
+	const initialBoxes: IsoBaseMediaBox[] = [];
+	const result = await parseIsoBaseMediaBoxes({
 		iterator: data,
 		maxBytes: size - (data.counter.getOffset() - offsetAtStart),
 		allowIncompleteBoxes: false,
-		initialBoxes: [],
-		options,
+		initialBoxes,
+		state: options,
 		continueMdat: false,
-		littleEndian: false,
 		signal,
+		logLevel,
+		fields,
 	});
 
-	if (children.status === 'incomplete') {
+	if (result.status === 'incomplete') {
 		throw new Error('Incomplete boxes are not allowed');
 	}
 
@@ -41,6 +49,6 @@ export const parseTrak = async ({
 		offset: offsetAtStart,
 		boxSize: size,
 		type: 'trak-box',
-		children: children.segments,
+		children: initialBoxes,
 	};
 };

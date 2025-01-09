@@ -2,6 +2,7 @@ export type RemotionEnvironment = {
 	isStudio: boolean;
 	isRendering: boolean;
 	isPlayer: boolean;
+	isReadOnlyStudio: boolean;
 };
 
 // Avoid VITE obfuscation
@@ -13,9 +14,9 @@ const getEnvString = (): 'env' => {
 	return ['e', 'nv'].join('') as 'env';
 };
 
-/**
+/*
  * @description Provides information about the Remotion Environment
- * @see [Documentation](https://www.remotion.dev/docs/get-remotion-environment)
+ * @see [Documentation](https://remotion.dev/docs/get-remotion-environment)
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	const isPlayer = typeof window !== 'undefined' && window.remotion_isPlayer;
@@ -28,10 +29,13 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 				typeof window !== 'undefined' &&
 				typeof window.remotion_puppeteerTimeout !== 'undefined'));
 	const isStudio = typeof window !== 'undefined' && window.remotion_isStudio;
+	const isReadOnlyStudio =
+		typeof window !== 'undefined' && window.remotion_isReadOnlyStudio;
 
 	return {
 		isStudio,
 		isRendering,
 		isPlayer,
+		isReadOnlyStudio,
 	};
 };

@@ -27,7 +27,7 @@ import type {RemotionAudioProps} from './props.js';
 type AudioElem = {
 	id: number;
 	props: RemotionAudioProps;
-	el: React.RefObject<HTMLAudioElement>;
+	el: React.RefObject<HTMLAudioElement | null>;
 	audioId: string;
 };
 

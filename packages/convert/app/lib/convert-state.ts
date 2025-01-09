@@ -1,4 +1,4 @@
-import {ConvertMediaState} from '@remotion/webcodecs';
+import type {ConvertMediaProgress} from '@remotion/webcodecs';
 
 export type Source =
 	| {
@@ -7,18 +7,22 @@ export type Source =
 	  }
 	| {
 			type: 'file';
-			file: File;
+			file: Blob;
 	  };
 
 export type ConvertState =
 	| {
 			type: 'idle';
 	  }
-	| {type: 'in-progress'; abortConversion: () => void; state: ConvertMediaState}
+	| {
+			type: 'in-progress';
+			abortConversion: () => void;
+			state: ConvertMediaProgress;
+	  }
 	| {
 			type: 'done';
-			download: () => Promise<void>;
-			state: ConvertMediaState;
+			download: () => Promise<Blob>;
+			state: ConvertMediaProgress;
 	  }
 	| {
 			type: 'error';

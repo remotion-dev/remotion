@@ -1,6 +1,6 @@
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {CloudProvider} from './types';
 
 export const makeBucketName = <Provider extends CloudProvider>(
 	region: Provider['region'],

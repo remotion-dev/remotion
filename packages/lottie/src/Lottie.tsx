@@ -32,11 +32,12 @@ export const Lottie = ({
 	validatePlaybackRate(playbackRate);
 	validateLoop(loop);
 
-	const animationRef = useRef<AnimationItem>();
+	const animationRef = useRef<AnimationItem | null>(null);
 	const currentFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const onAnimationLoadedRef = useRef<LottieProps['onAnimationLoaded']>();
+	const onAnimationLoadedRef =
+		useRef<LottieProps['onAnimationLoaded']>(onAnimationLoaded);
 	onAnimationLoadedRef.current = onAnimationLoaded;
 
 	const [handle] = useState(() =>

@@ -5,7 +5,7 @@ const ErrorBox: React.FC<{
 	readonly cause?: boolean;
 }> = ({error, cause}) => {
 	const {message} = error;
-	const splitted = error.stack?.split('\n') ?? [];
+	const splitted = error.stack ? error.stack.split('\n') : [error.message];
 	const deduplicated = splitted[0].includes(message)
 		? splitted.slice(1)
 		: splitted;

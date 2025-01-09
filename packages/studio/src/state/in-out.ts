@@ -1,5 +1,5 @@
 import type React from 'react';
-import {createContext, useContext} from 'react';
+import {createContext, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 
 export type InOutValue = {
@@ -29,29 +29,35 @@ export const SetTimelineInOutContext =
 export const useTimelineInOutFramePosition = (): InOutValue => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const state = useContext(TimelineInOutContext);
-	if (!videoConfig) {
-		return {inFrame: null, outFrame: null};
-	}
 
-	const maxFrame = videoConfig.durationInFrames - 1;
+	const id = videoConfig?.id;
+	const durationInFrames = videoConfig?.durationInFrames;
 
-	const actualInFrame = state[videoConfig.id]?.inFrame ?? null;
-	const actualOutFrame = state[videoConfig.id]?.outFrame ?? null;
+	return useMemo(() => {
+		if (!id || !durationInFrames) {
+			return {inFrame: null, outFrame: null};
+		}
 
-	return {
-		inFrame:
-			actualInFrame === null
-				? null
-				: actualInFrame >= maxFrame
+		const maxFrame = durationInFrames - 1;
+
+		const actualInFrame = state[id]?.inFrame ?? null;
+		const actualOutFrame = state[id]?.outFrame ?? null;
+
+		return {
+			inFrame:
+				actualInFrame === null
 					? null
-					: actualInFrame,
-		outFrame:
-			actualOutFrame === null
-				? null
-				: actualOutFrame >= maxFrame
+					: actualInFrame >= maxFrame
+						? null
+						: actualInFrame,
+			outFrame:
+				actualOutFrame === null
 					? null
-					: actualOutFrame,
-	};
+					: actualOutFrame >= maxFrame
+						? null
+						: actualOutFrame,
+		};
+	}, [durationInFrames, id, state]);
 };
 
 export const useTimelineSetInOutFramePosition =

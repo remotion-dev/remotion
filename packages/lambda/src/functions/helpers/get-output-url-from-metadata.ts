@@ -1,21 +1,19 @@
-import type {CloudProvider} from '@remotion/serverless';
-import type {RenderMetadata} from '@remotion/serverless/client';
-import {
-	getExpectedOutName,
-	type CustomCredentials,
-} from '@remotion/serverless/client';
+import type {GetOutputUrl} from '@remotion/serverless';
+import {getExpectedOutName} from '@remotion/serverless/client';
+import type {AwsProvider} from '../aws-implementation';
 
-export const getOutputUrlFromMetadata = <Provider extends CloudProvider>(
-	renderMetadata: RenderMetadata<Provider>,
-	bucketName: string,
-	customCredentials: CustomCredentials<Provider> | null,
-	currentRegion: Provider['region'],
-) => {
+export const getOutputUrlFromMetadata: GetOutputUrl<AwsProvider> = ({
+	renderMetadata,
+	bucketName,
+	customCredentials,
+	currentRegion,
+}) => {
 	const {key, renderBucketName} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
 		customCredentials,
 	);
+
 	return {
 		url: `https://s3.${currentRegion}.amazonaws.com/${renderBucketName}/${key}`,
 		key,

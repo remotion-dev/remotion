@@ -407,6 +407,21 @@ export const seekId = {
 	type: 'hex-string',
 } as const satisfies Ebml;
 
+export const _name = {
+	name: 'Name',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const minCache = {
+	name: 'MinCache',
+	type: 'uint',
+} as const satisfies Ebml;
+
+export const maxCache = {
+	name: 'MaxCache',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const seekPosition = {
 	name: 'SeekPosition',
 	type: 'uint',
@@ -477,6 +492,11 @@ export const titleType = {
 	type: 'string',
 } as const satisfies Ebml;
 
+export const tagTrackUidType = {
+	name: 'TagTrackUID',
+	type: 'hex-string',
+} as const satisfies Ebml;
+
 export const samplingFrequency = {
 	name: 'SamplingFrequency',
 	type: 'float',
@@ -512,6 +532,11 @@ export const displayHeight = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const displayUnit = {
+	name: 'DisplayUnit',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const flagLacing = {
 	name: 'FlagLacing',
 	type: 'uint',
@@ -519,7 +544,7 @@ export const flagLacing = {
 
 export const tagSegment = {
 	name: 'Tag',
-	type: 'uint8array',
+	type: 'children',
 } as const satisfies Ebml;
 
 export const tags = {
@@ -617,6 +642,11 @@ export const referenceBlock = {
 	type: 'uint',
 } as const satisfies Ebml;
 
+export const blockDurationSegment = {
+	name: 'BlockDuration',
+	type: 'uint',
+} as const satisfies Ebml;
+
 export const blockElement = {
 	name: 'Block',
 	type: 'uint8array',
@@ -670,6 +700,26 @@ export const segment = {
 export const cluster = {
 	name: 'Cluster',
 	type: 'children',
+} as const satisfies Ebml;
+
+export const targetsType = {
+	name: 'Targets',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const simpleTagType = {
+	name: 'SimpleTag',
+	type: 'children',
+} as const satisfies Ebml;
+
+export const tagNameType = {
+	name: 'TagName',
+	type: 'string',
+} as const satisfies Ebml;
+
+export const tagStringType = {
+	name: 'TagString',
+	type: 'string',
 } as const satisfies Ebml;
 
 export type CodecIdSegment = EbmlParsed<typeof codecID>;
@@ -736,6 +786,10 @@ export type EbmlParsedOrUint8Array<T extends Ebml> = {
 export const ebmlMap = {
 	[matroskaElements.Header]: matroskaHeader,
 	[matroskaElements.DocType]: docType,
+	[matroskaElements.Targets]: targetsType,
+	[matroskaElements.SimpleTag]: simpleTagType,
+	[matroskaElements.TagName]: tagNameType,
+	[matroskaElements.TagString]: tagStringType,
 	[matroskaElements.DocTypeVersion]: docTypeVersion,
 	[matroskaElements.DocTypeReadVersion]: docTypeReadVersion,
 	[matroskaElements.EBMLVersion]: ebmlVersion,
@@ -805,9 +859,13 @@ export const ebmlMap = {
 		name: 'SliceDuration',
 		type: 'uint8array',
 	},
+	[matroskaElements.TagTrackUID]: tagTrackUidType,
 	[matroskaElements.SeekHead]: seekHead,
 	[matroskaElements.Seek]: seek,
 	[matroskaElements.SeekID]: seekId,
+	[matroskaElements.Name]: _name,
+	[matroskaElements.MinCache]: minCache,
+	[matroskaElements.MaxCache]: maxCache,
 	[matroskaElements.SeekPosition]: seekPosition,
 	[matroskaElements.Crc32]: {
 		name: 'Crc32',
@@ -840,6 +898,7 @@ export const ebmlMap = {
 	[matroskaElements.BitDepth]: bitDepth,
 	[matroskaElements.DisplayHeight]: displayHeight,
 	[matroskaElements.DisplayWidth]: displayWidth,
+	[matroskaElements.DisplayUnit]: displayUnit,
 	[matroskaElements.FlagLacing]: flagLacing,
 	[matroskaElements.Tags]: tags,
 	[matroskaElements.Tag]: tagSegment,
@@ -849,6 +908,7 @@ export const ebmlMap = {
 	[matroskaElements.Language]: language,
 	[matroskaElements.DefaultDuration]: defaultDuration,
 	[matroskaElements.CodecPrivate]: codecPrivate,
+	[matroskaElements.BlockDuration]: blockDurationSegment,
 	[matroskaElements.BlockAdditions]: blockAdditionsSegment,
 	[matroskaElements.MaxBlockAdditionID]: maxBlockAdditionIdSegment,
 	[matroskaElements.Audio]: audioSegment,

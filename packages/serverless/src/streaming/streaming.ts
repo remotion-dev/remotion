@@ -1,7 +1,7 @@
 import {makeStreamPayloadMessage} from '@remotion/streaming';
 import type {SerializedArtifact} from '../serialize-artifact';
-import type {CloudProvider, RenderStillLambdaResponsePayload} from '../still';
-import type {LambdaErrorInfo} from '../write-lambda-error';
+import type {CloudProvider, RenderStillFunctionResponsePayload} from '../types';
+import type {FunctionErrorInfo} from '../write-error-to-storage';
 
 const framesRendered = 'frames-rendered' as const;
 const errorOccurred = 'error-occurred' as const;
@@ -10,7 +10,7 @@ const videoChunkRendered = 'video-chunk-rendered' as const;
 const audioChunkRendered = 'audio-chunk-rendered' as const;
 const chunkComplete = 'chunk-complete' as const;
 const stillRendered = 'still-rendered' as const;
-const lambdaInvoked = 'lambda-invoked' as const;
+const functionInvoked = 'lambda-invoked' as const;
 const artifactEmitted = 'artifact-emitted' as const;
 
 const messageTypes = {
@@ -21,7 +21,7 @@ const messageTypes = {
 	'5': {type: audioChunkRendered},
 	'6': {type: stillRendered},
 	'7': {type: chunkComplete},
-	'8': {type: lambdaInvoked},
+	'8': {type: functionInvoked},
 	'9': {type: artifactEmitted},
 } as const;
 
@@ -36,7 +36,7 @@ export const formatMap: {[key in MessageType]: 'json' | 'binary'} = {
 	[audioChunkRendered]: 'binary',
 	[stillRendered]: 'json',
 	[chunkComplete]: 'json',
-	[lambdaInvoked]: 'json',
+	[functionInvoked]: 'json',
 	[artifactEmitted]: 'json',
 };
 
@@ -61,7 +61,7 @@ export type StreamingPayload<Provider extends CloudProvider> =
 			payload: {
 				error: string;
 				shouldRetry: boolean;
-				errorInfo: LambdaErrorInfo;
+				errorInfo: FunctionErrorInfo;
 			};
 	  }
 	| {
@@ -72,7 +72,7 @@ export type StreamingPayload<Provider extends CloudProvider> =
 	  }
 	| {
 			type: typeof stillRendered;
-			payload: RenderStillLambdaResponsePayload<Provider>;
+			payload: RenderStillFunctionResponsePayload<Provider>;
 	  }
 	| {
 			type: typeof chunkComplete;
@@ -82,7 +82,7 @@ export type StreamingPayload<Provider extends CloudProvider> =
 			};
 	  }
 	| {
-			type: typeof lambdaInvoked;
+			type: typeof functionInvoked;
 			payload: {
 				attempt: number;
 			};

@@ -1,0 +1,4 @@
+/**
+ * @description Initiates a media rendering process on the Remotion Cloud Run service, facilitating configurations like service region, project composition, and output settings.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/rendermediaoncloudrun)
+ */

@@ -56,7 +56,7 @@ const result = await parseMedia({
 
 ### `src`
 
-Either a local file path, or a URL, or a `File` object.  
+Either a local file path, or a URL, or a `File` or `Blob` object.  
 If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.  
 If you pass a `File` object, you must also pass [`webFileReader`](/docs/media-parser/web-file-reader) as the `reader` argument.
 
@@ -78,7 +78,15 @@ Use `unrotatedDimensions` to get the dimensions before rotation.
 
 _number | null_
 
-The duration of the video in seconds.
+The duration of the video in seconds.  
+Only returns a non-null value if the duration is stored in the metadata.
+
+#### `slowDurationInSeconds`
+
+_number_
+
+The duration of the video in seconds, but it is guaranteed to return a value.  
+If needed, the entire video file is read to determine the duration.
 
 #### `name`
 
@@ -88,7 +96,7 @@ The name of the file.
 
 #### `container`
 
-_"mp4" | "webm" | null_
+_"mp4" | "webm" | "avi" | null_
 
 The container of the file.
 
@@ -98,7 +106,14 @@ _number | null_
 
 The size of the input in bytes.
 
-#### `boxes`
+#### `mimeType`
+
+_string | null_
+
+The MIME type of the file that was returned when the file was fetched.  
+Only available if using the `fetchReader` or `webFileReader`.
+
+#### `structure`
 
 The internal structure of the video. Unstable, internal data structure, refer to the TypeScript types to see what's inside.
 
@@ -106,7 +121,15 @@ The internal structure of the video. Unstable, internal data structure, refer to
 
 _number | null_
 
-The frame rate of the video.
+The frame rate of the video.  
+Only returns a non-null value if the frame rate is stored in the metadata.
+
+#### `slowFps`
+
+_number_
+
+The frame rate of the video, but it is guaranteed to return a value.  
+If needed, the entire video file is read to determine the frame rate.
 
 #### `videoCodec`
 
@@ -120,16 +143,65 @@ The audio codec of the file.
 If multiple audio tracks are present, this will be the first audio track.  
 One of `'aac'`, `'mp3'`, `'aiff'`, `'opus'`, `'pcm'`, `'unknown'` (audio is there but not recognized) or `null` (in case of no audio detected).
 
+#### `metadata`
+
+Metadata fields such as ID3 tags or EXIF data.  
+See [metadata](/docs/media-parser/tags) for more information.
+
+#### `location`
+
+The location of the video was shot. Either `null` if not available or:
+
+- `latitude`: The latitude of the location
+- `longitude`: The longitude of the location
+- `altitude`: The altitude of the location (can be `null`)
+- `horizontalAccuracy`: The horizontal accuracy of the location (can be `null`)
+
 #### `tracks`
 
-Returns two arrays `videoTracks` and `audioTracks`.  
+Returns an object of two two arrays `videoTracks` and `audioTracks`.  
 The data structure of them is not yet stable.
+
+#### `keyframes`
+
+Return type: <TsType type="MediaParserKeyframe[] | null" source="@remotion/media-parser" />
+
+An array of keyframes. Each keyframe has the following structure:
+
+- `presentationTimeInSeconds`: The time in seconds when the keyframe should be presented
+- `decodingTimeInSeconds`: The time in seconds when the keyframe should be decoded
+- `positionInBytes`: The position in bytes where the keyframe is located in the file
+- `sizeInBytes`: The size of the keyframe in bytes
+- `trackId`: The ID of the track the frame belongs to
+
+Only being returned if the keyframe information are stored in the metadata, otherwise `null`.
+
+#### `slowKeyframes`
+
+Return type: <TsType type="MediaParserKeyframe[]" source="@remotion/media-parser" />
+
+An array of keyframes, same as [`keyframes`](#keyframes), but it is guaranteed to return a value.
+
+Will read the entire video file to determine the keyframes.
+
+#### `slowNumberOfFrames`
+
+_number_
+
+The number of video frames in the media.  
+Will read the entire video file to determine the number of frames.
 
 #### `unrotatedDimensions`
 
 _`{width: number, height: number}`_
 
 The dimensions of the video before rotation.
+
+#### `isHdr`
+
+_`boolean`_
+
+Whether the video is in HDR (High dynamic range).
 
 #### `rotation`
 
@@ -147,7 +219,7 @@ If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also
 ### `onVideoTrack?`
 
 A callback that is called when a video track is detected.  
-It receives a `VideoTrack` object (API not yet stable).  
+It receives an object with `track` and `container` (API not yet stable).  
 You must return either `null` or a callback that is called for each sample that corresponds to the video track.
 
 The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
@@ -157,7 +229,7 @@ The `sample` has the type `VideoSample` and while not all fields are stable, it 
 // @target: es2017
 import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = (track) => {
+const onVideoTrack: OnVideoTrack = ({track}) => {
   console.log(track);
 
   return (sample) => {
@@ -169,7 +241,7 @@ const onVideoTrack: OnVideoTrack = (track) => {
 ### `onAudioTrack?`
 
 A callback that is called when an audio track is detected.  
-It receives a `AudioTrack` object (API not yet stable).  
+It receives an object with `track` and `container` (API not yet stable).  
 You must return either `null` or a callback that is called for each sample that corresponds to the audio track.
 
 The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
@@ -180,7 +252,7 @@ The `sample` has the type `AudioSample` and while not all fields are stable, it 
 // @noErrors
 import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
 
-const onAudioTrack: OnAudioTrack = (track) => {
+const onAudioTrack: OnAudioTrack = ({track}) => {
   console.log(track);
 
   return (sample) => {
@@ -188,6 +260,21 @@ const onAudioTrack: OnAudioTrack = (track) => {
   };
 };
 ```
+
+### `onParseProgress?`
+
+A callback that is called from time to time when bytes have been read from the media.  
+It includes the following data:
+
+```tsx twoslash
+import {ParseMediaProgress} from '@remotion/media-parser';
+//          ^?
+```
+
+:::note
+You may make this an async function, and while it is not resolved, **the parsing process will be paused**.  
+This is useful if you want to add a small delay inbetween progress steps to keep the UI interactive.
+:::
 
 ### `logLevel?`
 
@@ -201,8 +288,10 @@ If the signal is aborted, the parser will stop reading the media and stop the de
 
 ### Callbacks
 
-Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.  
-You must pass `true` as the value for the field in order for the callback to be called.
+Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.
+
+You do not have to add the field to the [`fields`](#fields) object if you use the callback.  
+However, just like with [`fields`](#fields), adding a callback for a [slow field](/docs/media-parser/fast-and-slow) may require reading more of the file.
 
 ```tsx twoslash title="Using a callback"
 // @module: es2022
@@ -212,10 +301,6 @@ import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
   src: 'https://example.com/my-video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
   onDurationInSeconds: (durationInSeconds) => {
     console.log(durationInSeconds);
   },

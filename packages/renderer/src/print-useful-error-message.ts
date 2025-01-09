@@ -1,20 +1,23 @@
-/* eslint-disable no-console */
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {truthy} from './truthy';
 
-const alreadyPrinted: Error[] = [];
+let alreadyPrintedCache: string[] = [];
 
 export const printUsefulErrorMessage = (
 	err: Error,
 	logLevel: LogLevel,
 	indent: boolean,
 ) => {
-	if (alreadyPrinted.includes(err)) {
+	const errorStack = (err as Error).stack;
+	if (errorStack && alreadyPrintedCache.includes(errorStack)) {
 		return;
 	}
 
-	alreadyPrinted.push(err);
+	if (errorStack) {
+		alreadyPrintedCache.push(errorStack);
+		alreadyPrintedCache = alreadyPrintedCache.slice(-10);
+	}
 
 	if (err.message.includes('Could not play video with')) {
 		Log.info({indent, logLevel});
@@ -86,10 +89,18 @@ export const printUsefulErrorMessage = (
 
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info({indent, logLevel});
-		console.warn(
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
 			'💡 You might need to set the OpenGL renderer to "angle-egl", "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three',
 		);
-		console.warn(
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
 			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl",
 		);
 	}

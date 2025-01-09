@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 import {expect, test} from 'bun:test';
 import {combineUint8Arrays, makeMatroskaBytes} from '../boxes/webm/make-header';
 import {parseEbml} from '../boxes/webm/parse-ebml';
@@ -9,25 +8,20 @@ import type {
 } from '../boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseMedia} from '../parse-media';
-import type {AnySegment} from '../parse-result';
-import type {ParserContext} from '../parser-context';
-import {makeParserState} from '../parser-state';
 import {nodeReader} from '../readers/from-node';
+import {makeParserState} from '../state/parser-state';
 
 const state = makeParserState({
-	hasAudioCallbacks: false,
-	hasVideoCallbacks: false,
+	hasAudioTrackHandlers: false,
+	hasVideoTrackHandlers: false,
 	signal: undefined,
-});
-
-const options: ParserContext = {
-	canSkipVideoData: true,
+	getIterator: () => null,
+	fields: {},
 	onAudioTrack: null,
 	onVideoTrack: null,
-	parserState: state,
 	nullifySamples: false,
 	supportsContentRange: true,
-};
+});
 
 test('Should make Matroska header that is same as input', async () => {
 	const headerOutput = makeMatroskaBytes({
@@ -76,7 +70,7 @@ test('Should make Matroska header that is same as input', async () => {
 		headerOutput.bytes,
 		headerOutput.bytes.length,
 	);
-	const parsed = await parseEbml(iterator, options);
+	const parsed = await parseEbml(iterator, state);
 
 	expect(parsed).toEqual({
 		type: 'Header',
@@ -138,7 +132,7 @@ test('Should be able to create Seek', async () => {
 	const file = new Uint8Array(
 		await Bun.file('vp8-segments/53-0x4dbb').arrayBuffer(),
 	);
-	const parsed = await parseEbml(getArrayBufferIterator(file, null), options);
+	const parsed = await parseEbml(getArrayBufferIterator(file, null), state);
 	expect(parsed).toEqual({
 		type: 'Seek',
 		value: [
@@ -214,7 +208,7 @@ test('Should parse seekHead', async () => {
 	expect(custom.bytes).toEqual(file);
 
 	const iterator = getArrayBufferIterator(file, file.length);
-	const parsed = await parseEbml(iterator, options);
+	const parsed = await parseEbml(iterator, state);
 
 	expect(parsed).toEqual({
 		minVintWidth: 1,
@@ -237,20 +231,20 @@ test('Should parse seekHead', async () => {
 });
 
 const parseWebm = async (str: string) => {
-	const {boxes} = await parseMedia({
+	const {structure} = await parseMedia({
 		src: str,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
-	return boxes;
+	return structure;
 };
 
-const stringifyWebm = (boxes: AnySegment[]) => {
+const stringifyWebm = (boxes: MatroskaSegment[]) => {
 	const buffers: Uint8Array[] = [];
 	for (const box of boxes) {
-		const {bytes} = makeMatroskaBytes(box as MatroskaSegment);
+		const {bytes} = makeMatroskaBytes(box);
 		buffers.push(bytes);
 	}
 
@@ -263,7 +257,7 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 
 	const parsed = await parseWebm('input.webm');
 
-	const segment = parsed.find((s) => s.type === 'Segment') as MainSegment;
+	const segment = parsed.boxes.find((s) => s.type === 'Segment') as MainSegment;
 	const tracks = segment.value.flatMap((s) =>
 		s.type === 'Tracks' ? s.value.filter((a) => a.type === 'TrackEntry') : [],
 	);
@@ -280,7 +274,12 @@ test('Can we disassemble a Matroska file and assembled it again', async () => {
 	}
 
 	const bytes = await Bun.file('input.webm').arrayBuffer();
-	expect(stringifyWebm(parsed).byteLength).toEqual(
+	if (parsed.type !== 'matroska') {
+		throw new Error('Not a webm file');
+	}
+
+	// +1 because two files has leading 0x0 boxes which we strip during parsing
+	expect(stringifyWebm(parsed.boxes).byteLength + 2).toEqual(
 		new Uint8Array(bytes).byteLength,
 	);
 	process.env.KEEP_SAMPLES = 'false';

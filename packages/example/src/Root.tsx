@@ -32,6 +32,7 @@ import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {FreezePortion} from './FreezePortion/FreezePortion';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
@@ -69,8 +70,6 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
-import {RuntimeShaderZoomBlur} from './Skia/Blur';
-import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -370,6 +369,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={300}
 				/>
+				<Composition
+					id="freeze-portion"
+					component={FreezePortion}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={300}
+				/>
 			</Folder>
 			<Folder name="spring">
 				<Composition
@@ -634,9 +641,6 @@ export const Index: React.FC = () => {
 					component={OffthreadRemoteVideo}
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
-					defaultProps={{
-						src: staticFile('bigbuckbunny.mp4'),
-					}}
 				/>
 				<Composition
 					id="OffthreadVideoToCanvas"
@@ -1311,6 +1315,7 @@ export const Index: React.FC = () => {
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
 						discriminatedUnion: {type: 'auto'},
+						tuple: ['foo', 42, {a: 'hi'}],
 					}}
 				/>
 				{/**
@@ -1371,6 +1376,10 @@ export const Index: React.FC = () => {
 				width={1080}
 				durationInFrames={120}
 			/>
+			{/**
+			 * 
+			 * 
+			 * disabled for react   19
 			<Folder name="Skia">
 				<Composition
 					id="skia-shader"
@@ -1389,6 +1398,8 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 			</Folder>
+			 */}
+
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"

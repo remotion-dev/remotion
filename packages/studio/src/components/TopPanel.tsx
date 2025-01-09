@@ -1,10 +1,9 @@
-import type {Size} from '@remotion/player';
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
-import {CanvasOrLoading} from './CanvasOrLoading';
+import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
 import {
 	CurrentCompositionKeybindings,
 	TitleUpdater,
@@ -55,16 +54,9 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 export const TopPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly onMounted: () => void;
-	readonly size: Size | null;
-	readonly drawRef: React.RefObject<HTMLDivElement>;
+	readonly drawRef: React.RefObject<HTMLDivElement | null>;
 	readonly bufferStateDelayInMilliseconds: number;
-}> = ({
-	readOnlyStudio,
-	onMounted,
-	size,
-	drawRef,
-	bufferStateDelayInMilliseconds,
-}) => {
+}> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
 	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
@@ -79,11 +71,9 @@ export const TopPanel: React.FC<{
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
 
-	const hasSize = size !== null;
-
 	useEffect(() => {
 		onMounted();
-	}, [hasSize, onMounted]);
+	}, [onMounted]);
 
 	const canvasContainerStyle: React.CSSProperties = useMemo(
 		() => ({
@@ -94,22 +84,6 @@ export const TopPanel: React.FC<{
 		}),
 		[rulersAreVisible],
 	);
-
-	const sizeWithRulersApplied = useMemo(() => {
-		if (!rulersAreVisible) {
-			return size;
-		}
-
-		if (!size) {
-			return null;
-		}
-
-		return {
-			...size,
-			width: size.width - RULER_WIDTH,
-			height: size.height - RULER_WIDTH,
-		};
-	}, [rulersAreVisible, size]);
 
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedState({left: 'collapsed', right: null});
@@ -158,9 +132,7 @@ export const TopPanel: React.FC<{
 						>
 							<SplitterElement sticky={null} type="flexer">
 								<div ref={drawRef} style={canvasContainerStyle}>
-									{sizeWithRulersApplied ? (
-										<CanvasOrLoading size={sizeWithRulersApplied} />
-									) : null}
+									<CanvasIfSizeIsAvailable />
 								</div>
 							</SplitterElement>
 							{actualStateRight === 'expanded' ? (

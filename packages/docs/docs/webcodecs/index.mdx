@@ -6,31 +6,42 @@ title: '@remotion/webcodecs'
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import {TableOfContents} from './TableOfContents';
+import {TableOfContents, WebCodecsGuide} from './TableOfContents';
 
 _available from v4.0.229_
 
 This package provides APIs for converting videos in the browser.  
 It leverages [`@remotion/media-parser`](/docs/media-parser) to parse the video and audio data, and then uses the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) to encode the video.
 
-:::warning
-**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
-:::
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
 
-## License
+## What can you to with this package?
 
-While this package is in experimental state, it is licensed under the [Remotion License](https://remotion.dev/license).  
-Individuals and teams of less than 4 people can use it for free.  
-For larger teams, a company license must be purchased. Read the license for details.
+In browsers that implement WebCodecs, you can use this package to:
 
-Once this package matures and becomes stable, we might change the license to require a higher tier of the company license.  
-[Contact us](/contact) if you are interested in using `@remotion/webcodecs` in your company right now.
+- [Convert videos from one format to another](/docs/webcodecs/convert-a-video) (.mp4 and .webm bidirectional, .avi, .mkv, .mov as import)
+- [Rotate videos](/docs/webcodecs/rotate-a-video)
+- Extract audio from a video
+- Manipulate the pixels of a video
+- [Fix videos that were recorded with `MediaRecorder`](/docs/webcodecs/fix-mediarecorder-video)
+- Soon: Compress, trim, crop videos
 
-Individuals and teams of less than 4 people will continue to be able use `@remotion/webcodecs` for free even when it becomes stable.
+## 💼 License Disclaimer
+
+<LicenseDisclaimer />
+
+## 🚧 Unstable API Warning
+
+<UnstableDisclaimer />
 
 ## Installation
 
 <Installation pkg="@remotion/webcodecs" />
+
+## Guide
+
+<WebCodecsGuide />
 
 ## APIs
 

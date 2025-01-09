@@ -23,7 +23,5 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 };
 
 export const deleteTmpDir = () => {
-	if (!process.env.VITEST) {
-		deleteAllFilesInAFolderRecursively('/tmp');
-	}
+	deleteAllFilesInAFolderRecursively('/tmp');
 };

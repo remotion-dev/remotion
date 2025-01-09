@@ -1,0 +1,4 @@
+/**
+ * @description Applies a sequence of transformation functions to generate a combined CSS `transform` property.
+ * @see [Documentation](https://remotion.dev/docs/animation-utils/make-transform)
+ */

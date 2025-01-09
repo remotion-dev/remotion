@@ -2,7 +2,6 @@
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "stream",
 	"globalEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
-	"daemon": false,
 	"tasks": {
 		"formatting": {
 			"dependsOn": [],
@@ -26,7 +25,7 @@
 			"outputLogs": "new-only"
 		},
 		"build-docs": {
-			"dependsOn": ["^make", "make"],
+			"dependsOn": ["^make", "make", "@remotion/convert#build-spa"],
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"outputLogs": "new-only"
 		},
@@ -83,12 +82,14 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-page": {
-			"dependsOn": ["^@remotion/webcodecs#make"],
+			"dependsOn": ["^make"],
 			"outputs": ["build", ".vercel"],
 			"outputLogs": "new-only"
 		},
-		"convert": {
-			"dependsOn": ["^@remotion/convert#build-page"]
+		"@remotion/convert#build-spa": {
+			"dependsOn": ["^make"],
+			"outputs": ["spa-dist"],
+			"outputLogs": "new-only"
 		}
 	}
 }

@@ -7,11 +7,11 @@ test('Parse Big Buck bunny', async () => {
 	const data = await parseMedia({
 		src: exampleVideos.bigBuckBunny,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
-	expect(data.boxes.slice(0, 2)).toEqual([
+	expect(data.structure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -34,11 +34,11 @@ test('Parse framer', async () => {
 	const parsed = await parseMedia({
 		src: exampleVideos.framerWithoutFileExtension,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 		reader: nodeReader,
 	});
-	expect(parsed.boxes.slice(0, 2)).toEqual([
+	expect(parsed.structure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -60,12 +60,12 @@ test('Parse framer', async () => {
 test('Parse a full video', async () => {
 	const data = await parseMedia({
 		src: exampleVideos.framer24fps,
-		fields: {boxes: true},
+		fields: {structure: true},
 		reader: nodeReader,
 	});
 	if (!data) throw new Error('No data');
 
-	const [first, second, third] = data.boxes;
+	const [first, second, third] = data.structure.boxes;
 
 	expect(first).toEqual({
 		offset: 0,
@@ -94,7 +94,7 @@ test('Should warn if missing node reader', () => {
 	const data = parseMedia({
 		src: exampleVideos.framer24fps,
 		fields: {
-			boxes: true,
+			structure: true,
 		},
 	});
 	expect(data).rejects.toThrow(/node/);

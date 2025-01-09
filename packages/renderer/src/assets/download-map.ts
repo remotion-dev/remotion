@@ -9,6 +9,7 @@ import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
 	duration: number | null;
+	startTime: number | null;
 };
 
 export type DownloadMap = {

@@ -14,8 +14,8 @@
     "@remotion/eslint-config": "workspace:*",
     "@types/md5": "2.3.0",
     "@types/node": "20.12.14",
-    "@types/react": "18.3.1",
-    "eslint": "8.56.0",
+    "@types/react": "19.0.0",
+    "eslint": "8.57.1",
     "prettier": "3.3.3",
     "ts-node": "10.9.1",
     "typescript": "5.5.4"
@@ -34,8 +34,8 @@
     "express": "4.21.0",
     "firebase": "9.19.1",
     "md5": "2.3.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
     "zod": "3.22.3"
   },

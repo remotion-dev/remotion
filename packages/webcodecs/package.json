@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.228",
+	"version": "4.0.245",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -14,6 +14,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
+		"test": "bun test src",
 		"watch": "tsc -w",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
@@ -23,11 +24,13 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
 	"dependencies": {
-		"@remotion/media-parser": "workspace:*"
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/licensing": "workspace:*"
 	},
 	"peerDependencies": {},
 	"devDependencies": {
 		"@types/dom-webcodecs": "0.1.11",
+		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"
 	},
@@ -35,5 +38,6 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"description": "Media conversion in the browser"
+	"description": "Media conversion in the browser",
+	"homepage": "https://remotion.dev/webcodecs"
 }

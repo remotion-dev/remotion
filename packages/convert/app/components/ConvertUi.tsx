@@ -1,57 +1,149 @@
 import {Button} from '@/components/ui/button';
-import {CardTitle} from '@/components/ui/card';
-import {
+import type {
+	Dimensions,
+	LogLevel,
 	MediaParserAudioCodec,
-	MediaParserInternals,
 	MediaParserVideoCodec,
+	ParseMediaContainer,
+	TracksField,
 } from '@remotion/media-parser';
+import {MediaParserInternals} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {convertMedia, ConvertMediaContainer} from '@remotion/webcodecs';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {ConvertState, Source} from '~/lib/convert-state';
-import {getNewName} from '~/lib/generate-new-name';
+import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
+import {convertMedia, WebCodecsInternals} from '@remotion/webcodecs';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
+import type {ConvertState, Source} from '~/lib/convert-state';
+import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
+import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
+import {
+	getActualAudioConfigIndex,
+	getActualVideoOperation,
+} from '~/lib/get-audio-video-config-index';
+import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
+import {isReencoding} from '~/lib/is-reencoding';
+import {isSubmitDisabled} from '~/lib/is-submit-enabled';
+import type {RouteAction} from '~/seo';
+import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
+import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
-import {SupportedConfigs} from './get-supported-configs';
-import {Badge} from './ui/badge';
+import {getDefaultContainerForConversion} from './guess-codec-from-source';
+import {MirrorComponents} from './MirrorComponents';
+import {ResizeUi} from './ResizeUi';
+import {RotateComponents} from './RotateComponents';
+import {useSupportedConfigs} from './use-supported-configs';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 
 export default function ConvertUI({
 	src,
-	supportedConfigs,
 	currentAudioCodec,
 	currentVideoCodec,
+	tracks,
+	setSrc,
+	duration,
+	logLevel,
+	action,
+	enableRotateOrMirror,
+	setEnableRotateOrMirror,
+	userRotation,
+	setRotation,
+	flipHorizontal,
+	flipVertical,
+	setFlipHorizontal,
+	setFlipVertical,
+	inputContainer,
+	unrotatedDimensions,
+	videoThumbnailRef,
+	rotation,
+	dimensions,
 }: {
 	readonly src: Source;
-	readonly supportedConfigs: SupportedConfigs | null;
+	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly tracks: TracksField | null;
+	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
+	readonly unrotatedDimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null;
+	readonly duration: number | null;
+	readonly rotation: number | null;
+	readonly inputContainer: ParseMediaContainer | null;
+	readonly logLevel: LogLevel;
+	readonly action: RouteAction;
+	readonly enableRotateOrMirror: RotateOrMirrorState;
+	readonly setEnableRotateOrMirror: React.Dispatch<
+		React.SetStateAction<RotateOrMirrorState | null>
+	>;
+	readonly userRotation: number;
+	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
+	readonly flipHorizontal: boolean;
+	readonly flipVertical: boolean;
+	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-	const [container, setContainer] = useState<ConvertMediaContainer>('webm');
-	const [videoConfigIndex, _setVideoConfigIndex] = useState<
-		Record<number, number>
+	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
+		getDefaultContainerForConversion(src, action),
+	);
+	const [videoOperationSelection, setVideoOperationKey] = useState<
+		Record<number, string>
 	>({});
-	const [audioConfigIndex, _setAudioConfigIndex] = useState<
-		Record<number, number>
+	const [audioOperationSelection, setAudioOperationKey] = useState<
+		Record<number, string>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
-	const [flipHorizontal, setFlipHorizontal] = useState(false);
-	const [flipVertical, setFlipVertical] = useState(false);
+	const [enableConvert, setEnableConvert] = useState(() =>
+		isConvertEnabledByDefault(action),
+	);
+	const [resizeOperation, setResizeOperation] =
+		useState<ResizeOperation | null>(() => {
+			return action.type === 'resize-format' || action.type === 'generic-resize'
+				? getInitialResizeSuggestion(dimensions)
+				: null;
+		});
 
-	const setVideoConfigIndex = useCallback((trackId: number, i: number) => {
-		_setVideoConfigIndex((prev) => ({
+	const order = useMemo(() => {
+		return Object.entries(getOrderOfSections(action))
+			.sort(([, aOrder], [, bOrder]) => {
+				return aOrder - bOrder;
+			})
+			.map(([section]) => section as ConvertSections);
+	}, [action]);
+
+	const supportedConfigs = useSupportedConfigs({
+		outputContainer,
+		tracks,
+		action,
+		userRotation,
+		inputContainer,
+		resizeOperation,
+	});
+
+	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
+		const operation = getActualVideoOperation({
+			enableConvert,
+			trackNumber: o.trackId,
+			videoConfigIndexSelection: videoOperationSelection,
+			operations: o.operations,
+		});
+		return operation.type === 'reencode' && operation.videoCodec === 'h264';
+	});
+
+	const setVideoConfigIndex = useCallback((trackId: number, key: string) => {
+		setVideoOperationKey((prev) => ({
 			...prev,
-			[trackId]: i,
+			[trackId]: key,
 		}));
 	}, []);
 
-	const setAudioConfigIndex = useCallback((trackId: number, i: number) => {
-		_setAudioConfigIndex((prev) => ({
+	const setAudioConfigIndex = useCallback((trackId: number, key: string) => {
+		setAudioOperationKey((prev) => ({
 			...prev,
-			[trackId]: i,
+			[trackId]: key,
 		}));
 	}, []);
 
@@ -61,8 +153,6 @@ export default function ConvertUI({
 		const abortController = new AbortController();
 		abortSignal.current = abortController;
 
-		let _n: string | null = null;
-
 		let videoFrames = 0;
 
 		convertMedia({
@@ -71,18 +161,20 @@ export default function ConvertUI({
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,
-					horizontal: flipHorizontal,
-					vertical: flipVertical,
+					horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
+					vertical: flipVertical && enableRotateOrMirror === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
+					// TODO: Pass rotation that was applied
 					convertProgressRef.current?.draw(flipped);
 				}
 
 				videoFrames++;
 				return flipped;
 			},
-			logLevel: 'verbose',
-			onMediaStateUpdate: (s) => {
+			rotate: userRotation,
+			logLevel,
+			onProgress: (s) => {
 				setState({
 					type: 'in-progress',
 					state: s,
@@ -91,16 +183,12 @@ export default function ConvertUI({
 					},
 				});
 			},
-			// TODO: This should be optional
-			videoCodec: 'vp8',
-			audioCodec: 'opus',
-			container: container as 'webm',
+			container: outputContainer,
 			signal: abortController.signal,
 			fields: {
 				name: true,
 			},
 			onName: (n) => {
-				_n = n;
 				setName(n);
 			},
 			onAudioTrack: ({track}) => {
@@ -111,12 +199,12 @@ export default function ConvertUI({
 					throw new Error('Found no options for audio track');
 				}
 
-				const configIndex = audioConfigIndex[track.trackId] ?? 0;
-
-				const operation = options.operations[configIndex ?? 0];
-				if (!operation) {
-					throw new Error('Found no operation');
-				}
+				const operation = getActualAudioConfigIndex({
+					enableConvert,
+					audioConfigIndexSelection: audioOperationSelection,
+					trackNumber: track.trackId,
+					operations: options.operations,
+				});
 
 				MediaParserInternals.Log.info(
 					'info',
@@ -134,12 +222,13 @@ export default function ConvertUI({
 					throw new Error('Found no options for video track');
 				}
 
-				const configIndex = videoConfigIndex[track.trackId] ?? 0;
+				const operation = getActualVideoOperation({
+					enableConvert,
+					videoConfigIndexSelection: videoOperationSelection,
+					trackNumber: track.trackId,
+					operations: options.operations,
+				});
 
-				const operation = options.operations[configIndex ?? 0];
-				if (!operation) {
-					throw new Error('Found no operation');
-				}
 				MediaParserInternals.Log.info(
 					'info',
 					`Selected operation for video track ${track.trackId}`,
@@ -147,29 +236,14 @@ export default function ConvertUI({
 				);
 				return operation;
 			},
+			// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
+			apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
 		})
-			.then(({save}) => {
-				// TODO: When to remove?
-				setState((prevState) => {
-					if (prevState.type !== 'in-progress') {
-						throw new Error('Invalid state transition');
-					}
-					return {
-						type: 'done',
-						download: async () => {
-							if (!_n) {
-								throw new Error('No name');
-							}
-
-							const file = await save();
-							const a = document.createElement('a');
-							a.href = URL.createObjectURL(file);
-							a.download = getNewName(_n!, container);
-							a.click();
-							URL.revokeObjectURL(a.href);
-						},
-						state: prevState.state,
-					};
+			.then(({save, finalState}) => {
+				setState({
+					type: 'done',
+					download: save,
+					state: finalState,
 				});
 			})
 			.catch((e) => {
@@ -178,6 +252,7 @@ export default function ConvertUI({
 					return;
 				}
 
+				// eslint-disable-next-line no-console
 				console.error(e);
 				setState({type: 'error', error: e as Error});
 			});
@@ -187,12 +262,16 @@ export default function ConvertUI({
 		};
 	}, [
 		src,
-		container,
+		userRotation,
+		logLevel,
+		outputContainer,
 		flipHorizontal,
+		enableRotateOrMirror,
 		flipVertical,
 		supportedConfigs,
-		audioConfigIndex,
-		videoConfigIndex,
+		enableConvert,
+		audioOperationSelection,
+		videoOperationSelection,
 	]);
 
 	const cancel = useCallback(() => {
@@ -208,19 +287,6 @@ export default function ConvertUI({
 		setState({type: 'idle'});
 	}, []);
 
-	const onDownload = useCallback(async () => {
-		if (state.type !== 'done') {
-			throw new Error('Cannot download when not done');
-		}
-
-		try {
-			await state.download();
-		} catch (e) {
-			console.error(e);
-			setState({type: 'error', error: e as Error});
-		}
-	}, [state]);
-
 	useEffect(() => {
 		return () => {
 			if (abortSignal.current) {
@@ -229,84 +295,255 @@ export default function ConvertUI({
 		};
 	}, []);
 
+	const onMirrorClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'mirror') {
+				return 'mirror';
+			}
+
+			return null;
+		});
+	}, [setEnableRotateOrMirror]);
+
+	const onRotateClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'rotate') {
+				return 'rotate';
+			}
+
+			return null;
+		});
+	}, [setEnableRotateOrMirror]);
+
+	const onResizeClick = useCallback(() => {
+		setResizeOperation((r) => {
+			if (r !== null || !dimensions) {
+				return null;
+			}
+
+			return getInitialResizeSuggestion(dimensions);
+		});
+	}, [dimensions]);
+
+	const newDimensions = useMemo(() => {
+		if (unrotatedDimensions === null) {
+			return null;
+		}
+
+		return WebCodecsInternals.calculateNewDimensionsFromDimensions({
+			...unrotatedDimensions,
+			rotation: userRotation - (rotation ?? 0),
+			resizeOperation,
+			videoCodec: isH264Reencode ? 'h264' : 'vp8',
+		});
+	}, [
+		unrotatedDimensions,
+		isH264Reencode,
+		resizeOperation,
+		rotation,
+		userRotation,
+	]);
+
+	if (state.type === 'error') {
+		return (
+			<>
+				<ErrorState error={state.error} />
+				<div className="h-4" />
+				<Button className="block w-full" type="button" onClick={dimissError}>
+					Dismiss
+				</Button>
+			</>
+		);
+	}
+
+	if (state.type === 'in-progress') {
+		return (
+			<>
+				<ConvertProgress
+					state={state.state}
+					name={name}
+					container={outputContainer}
+					done={false}
+					duration={duration}
+					isReencoding={
+						supportedConfigs !== null &&
+						isReencoding({
+							supportedConfigs,
+							videoConfigIndexSelection: videoOperationSelection,
+							enableConvert,
+						})
+					}
+				/>
+				<div className="h-2" />
+				<Button className="block w-full" type="button" onClick={cancel}>
+					Cancel
+				</Button>
+			</>
+		);
+	}
+
+	if (state.type === 'done') {
+		return (
+			<>
+				<ConvertProgress
+					done
+					state={state.state}
+					name={name}
+					container={outputContainer}
+					duration={duration}
+					isReencoding={
+						supportedConfigs !== null &&
+						isReencoding({
+							supportedConfigs,
+							videoConfigIndexSelection: videoOperationSelection,
+							enableConvert,
+						})
+					}
+				/>
+				<div className="h-2" />
+				<ConversionDone
+					{...{container: outputContainer, name, setState, state, setSrc}}
+				/>
+			</>
+		);
+	}
+
+	const disableSubmit = isSubmitDisabled({
+		audioConfigIndexSelection: audioOperationSelection,
+		supportedConfigs,
+		videoConfigIndexSelection: videoOperationSelection,
+		enableConvert,
+		enableRotateOrMirror,
+	});
+
+	const canPixelManipulate = canRotateOrMirror({
+		supportedConfigs,
+		videoConfigIndexSelection: videoOperationSelection,
+		enableConvert,
+	});
+
 	return (
-		<div className="w-full lg:w-[350px]">
-			<div className="gap-4">
-				{state.type === 'error' ? (
-					<>
-						<ErrorState error={state.error} />
-						<div className="h-4" />
-						<Button
-							className="block w-full"
-							type="button"
-							onClick={dimissError}
-						>
-							Dismiss
-						</Button>
-					</>
-				) : state.type === 'in-progress' ? (
-					<>
-						<ConvertProgress
-							state={state.state}
-							name={name}
-							container={container}
-						/>
-						<div className="h-2" />
-						<Button className="block w-full" type="button" onClick={cancel}>
-							Cancel
-						</Button>
-					</>
-				) : state.type === 'done' ? (
-					<>
-						<ConvertProgress
-							state={state.state}
-							name={name}
-							container={container}
-						/>
-						<div className="h-2" />
-						<Button className="block w-full" type="button" onClick={onDownload}>
-							Download
-						</Button>
-					</>
-				) : (
-					<>
-						<div className=" w-full items-center">
-							<div className="flex flex-row">
-								<CardTitle>Convert video</CardTitle>
-								<div className="w-2" />
-								<Badge variant="default">Alpha</Badge>
+		<>
+			<div className="w-full gap-4 flex flex-col">
+				{order.map((section) => {
+					if (section === 'convert') {
+						return (
+							<div key="convert">
+								<ConvertUiSection
+									active={enableConvert}
+									setActive={setEnableConvert}
+								>
+									Convert
+								</ConvertUiSection>
+								{enableConvert ? (
+									<>
+										<div className="h-2" />
+										<ConvertForm
+											{...{
+												container: outputContainer,
+												setContainer,
+												flipHorizontal,
+												flipVertical,
+												setFlipHorizontal,
+												setFlipVertical,
+												supportedConfigs,
+												audioConfigIndexSelection: audioOperationSelection,
+												videoConfigIndexSelection: videoOperationSelection,
+												setAudioConfigIndex,
+												setVideoConfigIndex,
+												currentAudioCodec,
+												currentVideoCodec,
+											}}
+										/>
+									</>
+								) : null}
 							</div>
-							<div className="h-6" />
-							<ConvertForm
-								{...{
-									container,
-									setContainer,
-									flipHorizontal,
-									flipVertical,
-									setFlipHorizontal,
-									setFlipVertical,
-									supportedConfigs,
-									audioConfigIndex,
-									videoConfigIndex,
-									setAudioConfigIndex,
-									setVideoConfigIndex,
-									currentAudioCodec,
-									currentVideoCodec,
-								}}
-							/>
-						</div>
-						<div className="h-4" />
-						<Button
-							className="block w-full font-brand"
-							type="button"
-							variant="brand"
-							onClick={onClick}
-						>
-							Convert
-						</Button>
-					</>
-				)}
+						);
+					}
+
+					if (section === 'mirror') {
+						return (
+							<div key="mirror">
+								<ConvertUiSection
+									active={enableRotateOrMirror === 'mirror'}
+									setActive={onMirrorClick}
+								>
+									Mirror
+								</ConvertUiSection>
+								{enableRotateOrMirror === 'mirror' ? (
+									<MirrorComponents
+										canPixelManipulate={canPixelManipulate}
+										flipHorizontal={flipHorizontal}
+										flipVertical={flipVertical}
+										setFlipHorizontal={setFlipHorizontal}
+										setFlipVertical={setFlipVertical}
+									/>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'rotate') {
+						return (
+							<div key="rotate">
+								<ConvertUiSection
+									active={enableRotateOrMirror === 'rotate'}
+									setActive={onRotateClick}
+								>
+									Rotate
+								</ConvertUiSection>
+								{enableRotateOrMirror === 'rotate' ? (
+									<RotateComponents
+										canPixelManipulate={canPixelManipulate}
+										rotation={userRotation}
+										setRotation={setRotation}
+									/>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'resize') {
+						return (
+							<div key="resize">
+								<ConvertUiSection
+									active={resizeOperation !== null && newDimensions !== null}
+									setActive={onResizeClick}
+								>
+									Resize
+								</ConvertUiSection>
+								{resizeOperation !== null &&
+								newDimensions !== null &&
+								unrotatedDimensions !== null ? (
+									<>
+										<div className="h-2" />
+										<ResizeUi
+											originalDimensions={unrotatedDimensions}
+											dimensions={newDimensions}
+											thumbnailRef={videoThumbnailRef}
+											rotation={userRotation - (rotation ?? 0)}
+											setResizeMode={setResizeOperation}
+											requireTwoStep={Boolean(isH264Reencode)}
+										/>
+									</>
+								) : null}
+							</div>
+						);
+					}
+
+					throw new Error('Unknown section ' + (section satisfies never));
+				})}
 			</div>
-		</div>
+			<div className="h-8" />
+			<Button
+				className="block w-full"
+				type="button"
+				variant="brand"
+				disabled={disableSubmit}
+				onClick={onClick}
+			>
+				Convert
+			</Button>
+		</>
 	);
 }

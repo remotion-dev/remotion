@@ -1,1 +1,1 @@
-export const CREATE_TIME_SCALE = 1_000_000;
+export const CREATE_WEBM_TIME_SCALE = 1_000_000;

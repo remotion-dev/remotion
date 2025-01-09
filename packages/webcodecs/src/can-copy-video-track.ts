@@ -1,23 +1,60 @@
-import type {MediaParserVideoCodec} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from './codec-id';
-import type {ConvertMediaContainer} from './convert-media';
+import type {ParseMediaContainer, VideoTrack} from '@remotion/media-parser';
+import type {ConvertMediaContainer} from './get-available-containers';
+import type {ResizeOperation} from './resizing/mode';
+import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
+import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 
 export const canCopyVideoTrack = ({
-	inputCodec,
-	outputCodec,
-	container,
+	outputContainer,
+	rotationToApply,
+	inputContainer,
+	resizeOperation,
+	inputTrack,
 }: {
-	inputCodec: MediaParserVideoCodec;
-	outputCodec: ConvertMediaVideoCodec;
-	container: ConvertMediaContainer;
+	inputContainer: ParseMediaContainer;
+	inputTrack: VideoTrack;
+	rotationToApply: number;
+	outputContainer: ConvertMediaContainer;
+	resizeOperation: ResizeOperation | null;
 }) => {
-	if (outputCodec === 'vp8') {
-		return inputCodec === 'vp8' && container === 'webm';
+	if (
+		normalizeVideoRotation(inputTrack.rotation) !==
+		normalizeVideoRotation(rotationToApply)
+	) {
+		return false;
 	}
 
-	if (outputCodec === 'vp9') {
-		return inputCodec === 'vp9' && container === 'webm';
+	const newDimensions = calculateNewDimensionsFromRotateAndScale({
+		height: inputTrack.height,
+		resizeOperation,
+		rotation: rotationToApply,
+		videoCodec: inputTrack.codecWithoutConfig,
+		width: inputTrack.width,
+	});
+	if (
+		newDimensions.height !== inputTrack.height ||
+		newDimensions.width !== inputTrack.width
+	) {
+		return false;
 	}
 
-	throw new Error(`Unhandled codec: ${outputCodec satisfies never}`);
+	if (outputContainer === 'webm') {
+		return (
+			inputTrack.codecWithoutConfig === 'vp8' ||
+			inputTrack.codecWithoutConfig === 'vp9'
+		);
+	}
+
+	if (outputContainer === 'mp4') {
+		return (
+			inputTrack.codecWithoutConfig === 'h264' &&
+			(inputContainer === 'mp4' || inputContainer === 'avi')
+		);
+	}
+
+	if (outputContainer === 'wav') {
+		return false;
+	}
+
+	throw new Error(`Unhandled codec: ${outputContainer satisfies never}`);
 };

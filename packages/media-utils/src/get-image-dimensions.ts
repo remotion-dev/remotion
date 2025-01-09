@@ -33,9 +33,9 @@ const fn = async (src: string): Promise<ImageDimensions> => {
 	return imageDimensions;
 };
 
-/**
+/*
  * @description Takes an image src, retrieves the dimensions of an image.
- * @see [Documentation](https://www.remotion.dev/docs/get-image-dimensions)
+ * @see [Documentation](https://remotion.dev/docs/get-image-dimensions)
  */
 export function getImageDimensions(src: string): Promise<ImageDimensions> {
 	return limit(fn, src);

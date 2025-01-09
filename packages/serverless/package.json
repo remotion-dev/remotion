@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
 	},
 	"name": "@remotion/serverless",
-	"version": "4.0.228",
+	"version": "4.0.245",
 	"description": "A runtime for distributed rendering",
 	"main": "dist",
 	"sideEffects": false,
@@ -25,7 +25,8 @@
 	"dependencies": {
 		"remotion": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/streaming": "workspace:*"
+		"@remotion/streaming": "workspace:*",
+		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",

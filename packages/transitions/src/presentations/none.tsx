@@ -24,11 +24,9 @@ const NonePresentation: React.FC<
 	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
 
-/**
- * Wraps the transition in a context so that the progress can be read from the children using a hook.
- * @see [Documentation](https://remotion.dev/docs/transitions/presentations/context)
- * @param {NoneProps} [props] Optional properties to define 'enterStyle' and 'exitStyle'.
- * @returns {TransitionPresentation<NoneProps>} The transition presentation component setup.
+/*
+ * @description A presentation that has no visual effect on its own. Instead, you control the visual effect by using the useTransitionProgress() hook.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/none)
  */
 export const none = (props?: NoneProps): TransitionPresentation<NoneProps> => {
 	return {

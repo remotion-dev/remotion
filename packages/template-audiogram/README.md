@@ -10,9 +10,9 @@ This template is for creating "audiograms". In other words, video clips from pod
 
 Start changing things like this:
 
-- Adjust size and length in `src/Video.tsx`
-- Replacing audio, cover and subtitles in the `src/assets` folder
-- Tweak `src/Composition.tsx`
+- Adjust size and length in `src/Root.tsx`
+- Replacing audio, cover and subtitles in the `public` folder
+- Tweak `src/Audioframe.tsx`
 
 ## How do I render my video?
 
@@ -24,16 +24,27 @@ npx remotion render
 
 Or check out the [Remotion docs](/docs/render/). There are lots of ways to render.
 
-## Where to get a transcript (SRT file)?
+## Where to get a transcript?
 
-There are a few places:
+You can supply a .srt file or a .json file that follows the [`@remotion/captions`](https://remotion.dev/docs/captions/caption) format. Examples for both are included.
+
+**Generate them:**
+
+- Use [`@remotion/install-whisper-cpp`](https://www.remotion.dev/docs/install-whisper-cpp/) to use Whisper locally
+- Use [`@remotion/openai-whisper`](https://www.remotion.dev/docs/openai-whisper/openai-whisper-api-to-captions) to get captions from OpenAI Whisper into the right shape.
+
+**Get it from a provider:**
 
 - Your podcasting host might provide them for you.
 - Descript makes transcription really easy.
 - There are tons of other, paid solutions, like [Otter.ai](https://otter.ai), [Scriptme.io](https://scriptme.io) and [ListenRobo.com](https://listenrobo.com).
-- And open-source solutions available, like [Subs AI](https://github.com/abdeladim-s/subsai)
 
-For the purposes of this repo, make sure to export subtitles that are segmented by word (rather than sentence).
+If you supply a .srt, make sure to export subtitles that are segmented by word rather than by sentence.
+
+## Optimizing for long audio files
+
+If your audio is long, pass a `.wav` file instead of another format. The template will use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only fetch the data around the current time.  
+Otherwise, the audio visualization may become a heavy duty for the browser or during rendering.
 
 ## Commands
 

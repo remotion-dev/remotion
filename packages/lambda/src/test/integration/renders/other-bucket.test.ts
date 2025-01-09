@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {afterAll, expect, test} from 'vitest';
+import {afterAll, expect, test} from 'bun:test';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
 afterAll(async () => {

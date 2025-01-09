@@ -1,15 +1,18 @@
-import {TracksField} from '@remotion/media-parser';
-import {
+import type {ParseMediaContainer, TracksField} from '@remotion/media-parser';
+import type {
 	AudioOperation,
+	ConvertMediaContainer,
+	ResizeOperation,
+	VideoOperation} from '@remotion/webcodecs';
+import {
 	canCopyAudioTrack,
 	canCopyVideoTrack,
 	canReencodeAudioTrack,
 	canReencodeVideoTrack,
-	ConvertMediaContainer,
 	getAvailableAudioCodecs,
-	getAvailableVideoCodecs,
-	VideoOperation,
+	getAvailableVideoCodecs
 } from '@remotion/webcodecs';
+import type {RouteAction} from '~/seo';
 
 export type VideoTrackOption = {
 	trackId: number;
@@ -26,28 +29,86 @@ export type SupportedConfigs = {
 	audioTrackOptions: AudioTrackOption[];
 };
 
-export const getSupportedConfigs = async (
-	tracks: TracksField,
-	container: ConvertMediaContainer,
-	bitrate: number,
-): Promise<SupportedConfigs> => {
-	const availableVideoCodecs = getAvailableVideoCodecs();
+const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
+	if (routeAction.type === 'mirror-format') {
+		return false;
+	}
+
+	if (routeAction.type === 'rotate-format') {
+		return false;
+	}
+
+	if (routeAction.type === 'generic-mirror') {
+		return false;
+	}
+
+	if (routeAction.type === 'generic-rotate') {
+		return false;
+	}
+
+	if (routeAction.type === 'convert') {
+		return true;
+	}
+
+	if (routeAction.type === 'generic-convert') {
+		return true;
+	}
+
+	if (routeAction.type === 'generic-probe') {
+		return true;
+	}
+
+	if (routeAction.type === 'generic-resize') {
+		return false;
+	}
+
+	if (routeAction.type === 'resize-format') {
+		return false;
+	}
+
+	throw new Error('Unsupported route action' + (routeAction satisfies never));
+};
+
+export const getSupportedConfigs = async ({
+	tracks,
+	container,
+	bitrate,
+	action,
+	userRotation,
+	inputContainer,
+	resizeOperation,
+}: {
+	tracks: TracksField;
+	container: ConvertMediaContainer;
+	bitrate: number;
+	action: RouteAction;
+	userRotation: number;
+	inputContainer: ParseMediaContainer;
+	resizeOperation: ResizeOperation | null;
+}): Promise<SupportedConfigs> => {
+	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
 	const videoTrackOptions: VideoTrackOption[] = [];
 
+	const prioritizeCopyOverReencode =
+		shouldPrioritizeVideoCopyOverReencode(action);
+
 	for (const track of tracks.videoTracks) {
 		const options: VideoOperation[] = [];
-		for (const outputCodec of availableVideoCodecs) {
-			const canCopy = canCopyVideoTrack({
-				inputCodec: track.codecWithoutConfig,
-				outputCodec,
-				container,
+		const canCopy = canCopyVideoTrack({
+			inputTrack: track,
+			outputContainer: container,
+			rotationToApply: userRotation,
+			inputContainer,
+			resizeOperation,
+		});
+		if (canCopy && prioritizeCopyOverReencode) {
+			options.push({
+				type: 'copy',
 			});
-			if (canCopy) {
-				options.push({
-					type: 'copy',
-				});
-			}
+		}
+
+		for (const outputCodec of availableVideoCodecs) {
 			const canReencode = await canReencodeVideoTrack({
 				videoCodec: outputCodec,
 				track,
@@ -56,9 +117,17 @@ export const getSupportedConfigs = async (
 				options.push({
 					type: 'reencode',
 					videoCodec: outputCodec,
+					resize: resizeOperation,
 				});
 			}
 		}
+
+		if (canCopy && !prioritizeCopyOverReencode) {
+			options.push({
+				type: 'copy',
+			});
+		}
+
 		options.push({
 			type: 'drop',
 		});
@@ -68,23 +137,23 @@ export const getSupportedConfigs = async (
 		});
 	}
 
-	const availableAudioCodecs = getAvailableAudioCodecs();
+	const availableAudioCodecs = getAvailableAudioCodecs({container});
 	const audioTrackOptions: AudioTrackOption[] = [];
 
 	for (const track of tracks.audioTracks) {
 		const audioTrackOperations: AudioOperation[] = [];
 
+		const canCopy = canCopyAudioTrack({
+			inputCodec: track.codecWithoutConfig,
+			outputContainer: container,
+			inputContainer,
+		});
+
+		if (canCopy) {
+			audioTrackOperations.push({type: 'copy'});
+		}
+
 		for (const audioCodec of availableAudioCodecs) {
-			const canCopy = canCopyAudioTrack({
-				inputCodec: track.codecWithoutConfig,
-				outputCodec: audioCodec,
-				container,
-			});
-
-			if (canCopy) {
-				audioTrackOperations.push({type: 'copy'});
-			}
-
 			const canReencode = await canReencodeAudioTrack({
 				audioCodec,
 				track,
@@ -99,6 +168,7 @@ export const getSupportedConfigs = async (
 				});
 			}
 		}
+
 		audioTrackOperations.push({
 			type: 'drop',
 		});

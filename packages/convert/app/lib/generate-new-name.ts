@@ -1,6 +1,9 @@
-export type Container = 'webm';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
 
-export const getNewName = (name: string, newContainer: Container) => {
+export const getNewName = (
+	name: string,
+	newContainer: ConvertMediaContainer,
+) => {
 	const parts = name.split('.');
 
 	parts.pop();

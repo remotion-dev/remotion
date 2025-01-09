@@ -26,16 +26,17 @@ import {
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
+	validateDownloadBehavior,
+	validateFramesPerFunction,
 } from '@remotion/serverless/client';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion, DeleteAfter} from '../client';
+import type {DeleteAfter} from '../client';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 
 import {validateWebhook} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import type {AwsRegion} from '../regions';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import type {GetRenderProgressInput} from './get-render-progress';
@@ -136,8 +137,8 @@ export const makeLambdaRenderMediaPayload = async ({
 > => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
-	validateFramesPerLambda({
-		framesPerLambda: framesPerLambda ?? null,
+	validateFramesPerFunction({
+		framesPerFunction: framesPerLambda ?? null,
 		durationInFrames: 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
@@ -151,14 +152,19 @@ export const makeLambdaRenderMediaPayload = async ({
 	const serialized = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('video-or-audio', [
-			stringifiedInputProps.length,
-			JSON.stringify(envVariables).length,
-		]),
+		needsToUpload: getNeedsToUpload({
+			type: 'video-or-audio',
+			sizes: [
+				stringifiedInputProps.length,
+				JSON.stringify(envVariables).length,
+			],
+			providerSpecifics: awsImplementation,
+		}),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
+		skipPutAcl: privacy === 'no-acl',
 	});
 	return {
 		rendererFunctionName,
@@ -168,10 +174,10 @@ export const makeLambdaRenderMediaPayload = async ({
 		inputProps: serialized,
 		codec: actualCodec,
 		imageFormat,
-		crf,
+		crf: crf ?? null,
 		envVariables,
-		pixelFormat,
-		proResProfile,
+		pixelFormat: pixelFormat ?? null,
+		proResProfile: proResProfile ?? null,
 		x264Preset,
 		jpegQuality,
 		maxRetries,
@@ -264,14 +270,19 @@ export const makeLambdaRenderStillPayload = async ({
 	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('still', [
-			stringifiedInputProps.length,
-			JSON.stringify(envVariables).length,
-		]),
+		needsToUpload: getNeedsToUpload({
+			type: 'still',
+			sizes: [
+				stringifiedInputProps.length,
+				JSON.stringify(envVariables).length,
+			],
+			providerSpecifics: awsImplementation,
+		}),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 		providerSpecifics: awsImplementation,
 		forcePathStyle,
+		skipPutAcl: privacy === 'no-acl',
 	});
 
 	return {

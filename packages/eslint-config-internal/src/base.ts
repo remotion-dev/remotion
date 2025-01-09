@@ -203,7 +203,6 @@ export const rules = ({
 				exceptAfterSingleLine: true,
 			},
 		],
-		'max-depth': 'warn',
 		'max-nested-callbacks': ['warn', 4],
 		'max-params': [
 			'warn',
@@ -223,7 +222,6 @@ export const rules = ({
 		'no-bitwise': 'off',
 		'no-lonely-if': 'error',
 		'no-multi-assign': 'error',
-		'no-negated-condition': 'error',
 		'no-new-object': 'error',
 		'no-unneeded-ternary': 'error',
 		// Disabled because of https://github.com/xojs/eslint-config-xo/issues/27
@@ -494,7 +492,6 @@ export const rules = ({
 					'react/jsx-curly-brace-presence': react ? 'off' : undefined,
 					'react/react-in-jsx-scope': react ? 'off' : undefined,
 					'react/no-unused-prop-types': react ? 'off' : undefined,
-					'react/boolean-prop-naming': react ? 'off' : undefined,
 					'react/button-has-type': react ? 'error' : undefined,
 					'react/default-props-match-prop-types': react ? 'error' : undefined,
 					'react/function-component-definition': react
@@ -653,7 +650,7 @@ export const base = ({
 			...(react
 				? {
 						react: {
-							version: '18.3.1',
+							version: '19.0.0',
 						},
 					}
 				: {}),

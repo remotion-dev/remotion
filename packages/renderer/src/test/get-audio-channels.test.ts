@@ -26,7 +26,7 @@ test('Get audio channels for video', async () => {
 		binariesDirectory: null,
 		cancelSignal: undefined,
 	});
-	expect(channels).toEqual({channels: 2, duration: 10});
+	expect(channels).toEqual({channels: 2, duration: 10, startTime: 0});
 }, 90000);
 
 test('Get audio channels for video without music', async () => {
@@ -76,7 +76,7 @@ test('Get audio channels for video with music', async () => {
 	});
 	cleanDownloadMap(downloadMap);
 
-	expect(channels).toEqual({channels: 2, duration: 56.529});
+	expect(channels).toEqual({channels: 2, duration: 56.529, startTime: 0});
 }, 90000);
 
 test('Throw error if parsing a non video file', () => {

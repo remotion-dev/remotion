@@ -104,12 +104,10 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
 
-	expect(
-		removeUndefined({
-			...parsedJson,
-			type: 'start',
-		}),
-	).toEqual(removeUndefined(nativeVersion));
+	expect({
+		...parsedJson,
+		type: 'start',
+	}).toEqual(nativeVersion);
 });
 
 test('Python package should create the same progress payload as normal Lambda package', async () => {
@@ -192,11 +190,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 		...newObject,
 		forceBucketName: nativeVersion.bucketName,
 	};
-	expect(
-		removeUndefined({
-			...parsedJson,
-		}),
-	).toEqual(removeUndefined(assertValue));
+	expect(removeUndefined(parsedJson)).toEqual(removeUndefined(assertValue));
 });
 const removeUndefined = (data: unknown) => {
 	return JSON.parse(JSON.stringify(data));

@@ -12,12 +12,20 @@ import EvaluateRemotionSection from '../../components/LandingPage/EvaluateRemoti
 import {NewsletterButton} from '../../components/LandingPage/NewsletterButton';
 import {Pricing} from '../../components/LandingPage/Pricing';
 import TrustedByBanner from '../../components/LandingPage/TrustedByBanner';
+import VideoAppsShowcase from '../../components/LandingPage/VideoAppsShowcase';
 import {WriteInReact} from '../../components/LandingPage/WriteInReact';
 import {LightningFastEditor} from '../../components/LandingPage/editor';
 import {IfYouKnowReact} from '../../components/LandingPage/if-you-know-react';
 import {RealMP4Videos} from '../../components/LandingPage/real-mp4-videos';
 import {Demo} from '../components/Demo/Demo';
 import styles from './landing.module.css';
+
+if (
+	typeof window !== 'undefined' &&
+	window.location?.origin?.includes('convert.remotion.dev')
+) {
+	window.location.href = 'https://remotion.dev/convert';
+}
 
 const NewLanding: React.FC = () => {
 	return (
@@ -58,9 +66,11 @@ const NewLanding: React.FC = () => {
 					<VideoAppsTitle />
 					<VideoApps active="remotion" />
 					<br />
-
+					<br />
+					<VideoAppsShowcase />
+					<br />
+					<br />
 					<Demo />
-
 					<br />
 					<br />
 					<br />
@@ -71,13 +81,11 @@ const NewLanding: React.FC = () => {
 					<EvaluateRemotionSection />
 					<br />
 					<br />
-
+					<br />
 					<CommunityStats />
 					<br />
 					<br />
 					<br />
-					<br />
-
 					<NewsletterButton />
 					<br />
 					<br />

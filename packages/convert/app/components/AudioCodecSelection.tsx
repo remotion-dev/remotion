@@ -1,6 +1,7 @@
-import {MediaParserAudioCodec} from '@remotion/media-parser';
-import {AudioOperation} from '@remotion/webcodecs';
+import type {MediaParserAudioCodec} from '@remotion/media-parser';
+import type {AudioOperation} from '@remotion/webcodecs';
 import React from 'react';
+import {getAudioOperationId} from '~/lib/operation-key';
 import {AudioCodecDropWarning} from './AudioCodecDropWarning';
 import {AudioOperationOption} from './AudioOperationOption';
 import {
@@ -14,8 +15,8 @@ import {
 
 export const AudioCodecSelection: React.FC<{
 	readonly audioTrackOptions: AudioOperation[];
-	readonly index: number;
-	readonly setIndex: (v: number) => void;
+	readonly index: string;
+	readonly setIndex: (v: string) => void;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 }> = ({audioTrackOptions, index, setIndex, currentAudioCodec}) => {
 	if (!currentAudioCodec) {
@@ -28,8 +29,8 @@ export const AudioCodecSelection: React.FC<{
 		<>
 			<Select
 				disabled={disabled}
-				value={String(index)}
-				onValueChange={(v) => setIndex(Number(v))}
+				value={index}
+				onValueChange={(v) => setIndex(v)}
 			>
 				<SelectTrigger id="audioCodec">
 					<SelectValue placeholder="Select a audio codec" />
@@ -39,8 +40,8 @@ export const AudioCodecSelection: React.FC<{
 						return (
 							<SelectGroup key={i}>
 								<SelectItem
-									// eslint-disable-next-line react/jsx-key
-									value={String(i)}
+									key={getAudioOperationId(operation)}
+									value={getAudioOperationId(operation)}
 								>
 									<AudioOperationOption
 										currentAudioCodec={currentAudioCodec}

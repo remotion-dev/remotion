@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {processSample} from '../boxes/iso-base-media/stsd/samples';
 import {parseStsd} from '../boxes/iso-base-media/stsd/stsd';
 import {getArrayBufferIterator} from '../buffer-iterator';
-import {makeParserState} from '../parser-state';
+import {makeParserState} from '../state/parser-state';
 
 test('Should be able to parse a STSD audio box correctly', async () => {
 	const buffer = Uint8Array.from([
@@ -42,19 +42,19 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 		iterator,
 		offset: 0,
 		size: 159,
-		options: {
-			canSkipVideoData: true,
+		state: makeParserState({
 			onAudioTrack: null,
-			onVideoTrack: null,
-			parserState: makeParserState({
-				hasAudioCallbacks: false,
-				hasVideoCallbacks: false,
-				signal: undefined,
-			}),
+			onVideoTrack: () => () => undefined,
+			hasAudioTrackHandlers: true,
+			hasVideoTrackHandlers: true,
+			signal: undefined,
+			getIterator: () => null,
+			fields: {},
 			nullifySamples: false,
 			supportsContentRange: true,
-		},
+		}),
 		signal: null,
+		fields: {},
 	});
 
 	expect(parsed).toEqual({
@@ -115,14 +115,14 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 												audioObjectType: 2,
 												channelConfiguration: 2,
 												samplingFrequencyIndex: 4,
-												type: 'audio-specific-config',
+												type: 'mp4a-specific-config',
 												asBytes: new Uint8Array([18, 16]),
-											},
-											{
-												type: 'unknown-decoder-specific-config',
 											},
 										],
 										upStream: 0,
+									},
+									{
+										type: 'sl-config-descriptor',
 									},
 								],
 								esId: 0,
@@ -205,24 +205,30 @@ test('Should be able to parse a STSD video box correctly', async () => {
 		0, 0, 0, 56, 97, 118, 99, 67, 1, 100, 0, 32, 255, 225, 0, 27, 103, 100, 0,
 		32, 172, 217, 64, 68, 2, 39, 150, 92, 4, 64, 0, 0, 3, 0, 64, 0, 0, 12, 3,
 		198, 12, 101, 128, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
+		// pasp
 		0, 0, 0, 16, 112, 97, 115, 112, 0, 0, 0, 1, 0, 0, 0, 1,
 	]);
 
 	const parsed = await processSample({
 		iterator: getArrayBufferIterator(buffer, null),
-		options: {
-			canSkipVideoData: true,
+		state: makeParserState({
 			onAudioTrack: null,
-			onVideoTrack: null,
-			parserState: makeParserState({
-				hasAudioCallbacks: false,
-				hasVideoCallbacks: false,
-				signal: undefined,
-			}),
+			onVideoTrack: () => () => undefined,
+			hasAudioTrackHandlers: true,
+			hasVideoTrackHandlers: true,
+			signal: undefined,
+			getIterator: () => null,
+			fields: {
+				structure: true,
+			},
+
 			nullifySamples: false,
 			supportsContentRange: true,
-		},
+		}),
+
 		signal: null,
+		logLevel: 'info',
+		fields: {},
 	});
 	expect(parsed.sample).toEqual({
 		size: 158,

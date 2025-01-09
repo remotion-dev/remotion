@@ -1,11 +1,18 @@
-import type {Writer, WriterInterface} from './writer';
+import type {CreateContent, Writer, WriterInterface} from './writer';
 
-const createContent = async () => {
+const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
-	// TODO: Unhardcode WebM
-	const filename = `media-parser-${Math.random().toString().replace('0.', '')}.webm`;
+	const actualFilename = `__remotion_mediaparser:${filename}`;
 
-	const fileHandle = await directoryHandle.getFileHandle(filename, {
+	const remove = async () => {
+		await directoryHandle.removeEntry(actualFilename, {
+			recursive: true,
+		});
+	};
+
+	await remove();
+
+	const fileHandle = await directoryHandle.getFileHandle(actualFilename, {
 		create: true,
 	});
 	const writable = await fileHandle.createWritable();
@@ -25,12 +32,6 @@ const createContent = async () => {
 		await writable.seek(written);
 	};
 
-	const remove = async () => {
-		await directoryHandle.removeEntry(filename, {
-			recursive: true,
-		});
-	};
-
 	const writer: Writer = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
@@ -43,7 +44,7 @@ const createContent = async () => {
 				// Ignore, could already be closed
 			}
 
-			const newHandle = await directoryHandle.getFileHandle(filename, {
+			const newHandle = await directoryHandle.getFileHandle(actualFilename, {
 				create: true,
 			});
 			const newFile = await newHandle.getFile();

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
 	},
 	"name": "@remotion/cli",
-	"version": "4.0.228",
+	"version": "4.0.245",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -60,8 +60,8 @@
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
 		"zod": "3.22.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"
