@@ -1440,6 +1440,15 @@ export const articles = [
 		slug: 'lambda/api',
 	},
 	{
+		id: 'approuterwebhook',
+		title: 'appRouterWebhook()',
+		relativePath: 'docs/lambda/approuterwebhook.mdx',
+		compId: 'articles-docs-lambda-approuterwebhook',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/approuterwebhook',
+	},
+	{
 		id: 'authentication',
 		title: 'Authentication',
 		relativePath: 'docs/lambda/authentication.mdx',
@@ -1870,6 +1879,15 @@ export const articles = [
 		crumb: 'Lambda',
 		noAi: false,
 		slug: 'lambda/naming-convention',
+	},
+	{
+		id: 'pagesrouterwebhook',
+		title: 'pagesRouterWebhook()',
+		relativePath: 'docs/lambda/pagesrouterwebhooks.mdx',
+		compId: 'articles-docs-lambda-pagesrouterwebhooks',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/pagesrouterwebhook',
 	},
 	{
 		id: 'lambda/permissions',
