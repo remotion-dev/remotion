@@ -181,7 +181,7 @@ export const postprocessEbml = async ({
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
 		const sample = getSampleFromBlock(ebml, state, offset);
 
-		if (sample.type === 'video-sample' && state.nullifySamples) {
+		if (sample.type === 'video-sample') {
 			await state.callbacks.onVideoSample(
 				sample.videoSample.trackId,
 				sample.videoSample,
@@ -193,7 +193,7 @@ export const postprocessEbml = async ({
 			};
 		}
 
-		if (sample.type === 'audio-sample' && state.nullifySamples) {
+		if (sample.type === 'audio-sample') {
 			await state.callbacks.onAudioSample(
 				sample.audioSample.trackId,
 				sample.audioSample,
@@ -205,7 +205,7 @@ export const postprocessEbml = async ({
 			};
 		}
 
-		if (sample.type === 'no-sample' && state.nullifySamples) {
+		if (sample.type === 'no-sample') {
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -247,13 +247,11 @@ export const postprocessEbml = async ({
 			);
 		}
 
-		if (state.nullifySamples) {
-			return {
-				type: 'BlockGroup',
-				value: [],
-				minVintWidth: ebml.minVintWidth,
-			};
-		}
+		return {
+			type: 'BlockGroup',
+			value: [],
+			minVintWidth: ebml.minVintWidth,
+		};
 	}
 
 	return ebml;

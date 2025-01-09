@@ -47,7 +47,6 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			signal: undefined,
 			getIterator: () => null,
 			fields: {},
-			nullifySamples: false,
 			supportsContentRange: true,
 		}),
 		signal: null,
@@ -218,8 +217,6 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			fields: {
 				structure: true,
 			},
-
-			nullifySamples: false,
 			supportsContentRange: true,
 		}),
 

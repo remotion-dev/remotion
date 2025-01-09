@@ -10,7 +10,6 @@ const state = MediaParserInternals.makeParserState({
 	fields: {},
 	onAudioTrack: null,
 	onVideoTrack: null,
-	nullifySamples: false,
 	supportsContentRange: true,
 });
 
