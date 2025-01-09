@@ -1,4 +1,5 @@
 import {Upload} from '@aws-sdk/lib-storage';
+import type {UploadDirProgress} from '@remotion/serverless';
 import type {Privacy} from '@remotion/serverless/client';
 import mimeTypes from 'mime-types';
 import type {Dirent} from 'node:fs';
@@ -12,13 +13,6 @@ import {pLimit} from '../shared/p-limit';
 type FileInfo = {
 	name: string;
 	size: number;
-};
-
-export type UploadDirProgress = {
-	totalFiles: number;
-	filesUploaded: number;
-	totalSize: number;
-	sizeUploaded: number;
 };
 
 export type MockFile = {

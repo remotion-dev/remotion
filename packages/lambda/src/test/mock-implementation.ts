@@ -17,13 +17,14 @@ import {
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
 import {isFlakyError} from '../shared/is-flaky-error';
-import {mockBundleSite} from '../shared/mock-bundle-site';
 import {randomHashImplementation} from '../shared/random-hash';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
 	getMockCallFunctionSync,
 } from './mocks/aws-clients';
+import {mockBundleSite} from './mocks/mock-bundle-site';
+import {mockReadDirectory} from './mocks/mock-read-dir';
 import {
 	addMockBucket,
 	getMockBuckets,
@@ -33,6 +34,7 @@ import {
 	readMockS3File,
 	writeMockS3File,
 } from './mocks/mock-store';
+import {mockUploadDir} from './mocks/upload-dir';
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
 let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
@@ -192,7 +194,9 @@ export const mockServerImplementation: InsideFunctionSpecifics = {
 	getCurrentMemorySizeInMb: () => 3009,
 };
 
-export const mockFullClientSpecifics: FullClientSpecifics = {
+export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {
 	bundleSite: mockBundleSite,
 	id: '__remotion_full_client_specifics',
+	readDirectory: mockReadDirectory,
+	uploadDir: mockUploadDir,
 };

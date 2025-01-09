@@ -265,6 +265,40 @@ export type GetFunctions<Provider extends CloudProvider> = (
 	params: GetFunctionsInput<Provider>,
 ) => Promise<FunctionInfo[]>;
 
+export type ReadDir = ({
+	dir,
+	etags,
+	originalDir,
+	onProgress,
+}: {
+	dir: string;
+	etags: {
+		[key: string]: () => Promise<string>;
+	};
+	originalDir: string;
+	onProgress: (bytes: number) => void;
+}) => {
+	[key: string]: () => Promise<string>;
+};
+
+export type UploadDirProgress = {
+	totalFiles: number;
+	filesUploaded: number;
+	totalSize: number;
+	sizeUploaded: number;
+};
+
+export type UploadDir<Provider extends CloudProvider> = (options: {
+	bucket: string;
+	region: Provider['region'];
+	localDir: string;
+	keyPrefix: string;
+	onProgress: (progress: UploadDirProgress) => void;
+	privacy: Privacy;
+	toUpload: string[];
+	forcePathStyle: boolean;
+}) => Promise<void>;
+
 export type InsideFunctionSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -275,9 +309,11 @@ export type InsideFunctionSpecifics = {
 	getCurrentMemorySizeInMb: () => number;
 };
 
-export type FullClientSpecifics = {
+export type FullClientSpecifics<Provider extends CloudProvider> = {
 	id: '__remotion_full_client_specifics';
 	bundleSite: typeof bundle;
+	readDirectory: ReadDir;
+	uploadDir: UploadDir<Provider>;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {

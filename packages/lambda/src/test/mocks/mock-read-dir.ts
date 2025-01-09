@@ -1,7 +1,7 @@
-import {getDirFiles} from '../../api/__mocks__/upload-dir';
 import type {readDirectory as original} from '../../shared/read-dir';
+import {getDirFiles} from './upload-dir';
 
-export const readDirectory: typeof original = ({dir}) => {
+export const mockReadDirectory: typeof original = ({dir}) => {
 	const files = getDirFiles(dir);
 
 	const obj: Record<string, () => Promise<string>> = {};

@@ -5,6 +5,7 @@ import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
 	FullClientSpecifics,
 	ProviderSpecifics,
+	UploadDirProgress,
 } from '@remotion/serverless';
 import {validateBucketName, validatePrivacy} from '@remotion/serverless/client';
 import fs from 'node:fs';
@@ -17,8 +18,6 @@ import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateSiteName} from '../shared/validate-site-name';
-import type {UploadDirProgress} from './upload-dir';
-import {uploadDir} from './upload-dir';
 
 type MandatoryParameters = {
 	entryPoint: string;
@@ -72,7 +71,7 @@ const mandatoryDeploySite = async ({
 }: MandatoryParameters &
 	OptionalParameters & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
-		fullClientSpecifics: FullClientSpecifics;
+		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 	}): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
@@ -146,12 +145,13 @@ const mandatoryDeploySite = async ({
 			totalBytes = bytes;
 			options.onDiffingProgress?.(bytes, false);
 		},
+		fullClientSpecifics,
 	});
 
 	options.onDiffingProgress?.(totalBytes, true);
 
 	await Promise.all([
-		uploadDir({
+		fullClientSpecifics.uploadDir({
 			bucket: bucketName,
 			region,
 			localDir: bundled,
