@@ -10,10 +10,7 @@ import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
-import type {
-	InsideFunctionSpecifics,
-	ProviderSpecifics,
-} from './provider-implementation';
+import type {ProviderSpecifics} from './provider-implementation';
 import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import {truthy} from './truthy';
@@ -31,7 +28,6 @@ export const getProgress = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	functionName,
-	insideFunctionSpecifics,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -41,7 +37,6 @@ export const getProgress = async <Provider extends CloudProvider>({
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 	forcePathStyle: boolean;
 	functionName: string;
 }): Promise<GenericRenderProgress<Provider>> => {
@@ -260,7 +255,6 @@ export const getProgress = async <Provider extends CloudProvider>({
 					region,
 					functionName,
 					providerSpecifics,
-					insideFunctionSpecifics,
 				})
 			: null,
 		...errorExplanations,

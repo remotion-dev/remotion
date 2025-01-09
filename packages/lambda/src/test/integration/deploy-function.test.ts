@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../api/deploy-function';
-import {speculateFunctionName} from '../../client';
+import {speculateFunctionName} from '../../api/speculate-function-name';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
 import {
 	mockFullClientSpecifics,

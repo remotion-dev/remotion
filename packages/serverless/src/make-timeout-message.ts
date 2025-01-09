@@ -1,9 +1,6 @@
 import {ServerlessRoutines} from './constants';
 import {DOCS_URL} from './docs-url';
-import type {
-	InsideFunctionSpecifics,
-	ProviderSpecifics,
-} from './provider-implementation';
+import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
 
@@ -14,13 +11,13 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	renderMetadata,
 	region,
 	providerSpecifics,
-	insideFunctionSpecifics,
+	functionName,
 }: {
 	missingChunks: number[];
 	renderMetadata: RenderMetadata<Provider>;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	functionName: string;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -48,7 +45,7 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 					msg,
 					`▸ Logs for chunk ${ch}: ${providerSpecifics.getLoggingUrlForRendererFunction(
 						{
-							functionName: insideFunctionSpecifics.getCurrentFunctionName(),
+							functionName,
 							region,
 							rendererFunctionName: null,
 							renderId: renderMetadata.renderId,
@@ -69,7 +66,6 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	functionName,
 	region,
 	providerSpecifics,
-	insideFunctionSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
@@ -78,7 +74,6 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	region: Provider['region'];
 	functionName: string;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	const cloudWatchRendererUrl =
 		providerSpecifics.getLoggingUrlForRendererFunction({
@@ -103,7 +98,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 			renderMetadata,
 			region,
 			providerSpecifics,
-			insideFunctionSpecifics,
+			functionName,
 		}),
 		'',
 		`Consider increasing the timeout of your function.`,

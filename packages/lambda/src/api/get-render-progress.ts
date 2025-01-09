@@ -5,7 +5,6 @@ import {
 	awsImplementation,
 	type AwsProvider,
 } from '../functions/aws-implementation';
-import {serverAwsImplementation} from '../functions/aws-server-implementation';
 import {parseFunctionName} from '../functions/helpers/parse-function-name';
 import type {AwsRegion} from '../regions';
 import type {RenderProgress} from '../shared/constants';
@@ -52,7 +51,6 @@ export const getRenderProgress = async (
 			memorySizeInMb: parsed.memorySizeInMb,
 			timeoutInMilliseconds: parsed.timeoutInSeconds * 1000,
 			functionName: input.functionName,
-			insideFunctionSpecifics: serverAwsImplementation,
 		});
 	}
 

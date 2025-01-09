@@ -47,7 +47,6 @@ export const progressHandler = async <Provider extends CloudProvider>({
 			providerSpecifics: options.providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			functionName: options.insideFunctionSpecifics.getCurrentFunctionName(),
-			insideFunctionSpecifics: options.insideFunctionSpecifics,
 		});
 		return progress;
 	} catch (err) {
