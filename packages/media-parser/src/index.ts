@@ -1,16 +1,17 @@
 import {createAacCodecPrivate} from './aac-codecprivate';
-import {IoEventEmitter} from './create/event-emitter';
-import {createIsoBaseMedia} from './create/iso-base-media/create-iso-base-media';
-import {createMatroskaMedia} from './create/matroska/create-matroska-media';
-import type {ProgressTracker} from './create/progress-tracker';
-import {makeProgressTracker} from './create/progress-tracker';
-import {createWav} from './create/wav/create-wav';
-import {
-	withResolvers,
-	withResolversAndWaitForReturn,
-} from './create/with-resolvers';
+import {parseFtyp} from './boxes/iso-base-media/ftyp';
+import {parseMvhd} from './boxes/iso-base-media/mvhd';
+import {processSample} from './boxes/iso-base-media/stsd/samples';
+import {parseStsd} from './boxes/iso-base-media/stsd/stsd';
+import {parseTkhd} from './boxes/iso-base-media/tkhd';
+import {parseEbml} from './boxes/webm/parse-ebml';
+import {ebmlMap, matroskaElements} from './boxes/webm/segments/all-segments';
+import {getArrayBufferIterator} from './buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
+import {makeParserState} from './state/parser-state';
+export {MatroskaSegment} from './boxes/webm/segments';
+export {MatroskaElement} from './boxes/webm/segments/all-segments';
 export {
 	IsAGifError,
 	IsAnImageError,
@@ -18,9 +19,9 @@ export {
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 } from './errors';
+export type {SamplePosition} from './get-sample-positions';
 export {MetadataEntry} from './metadata/get-metadata';
 export {MediaParserKeyframe} from './options';
-export {WriterInterface} from './writers/writer';
 
 export {
 	AudioTrack,
@@ -52,23 +53,35 @@ export {
 	OnVideoTrack,
 } from './webcodec-sample-types';
 
-export type {MediaFn} from './create/media-fn';
 export {Dimensions} from './get-dimensions';
 export {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';
 
 export const MediaParserInternals = {
-	createMatroskaMedia,
-	createIsoBaseMedia,
-	createWav,
 	Log,
-	IoEventEmitter,
-	makeProgressTracker,
-	withResolvers,
-	withResolversAndWaitForReturn,
 	createAacCodecPrivate,
+	matroskaElements,
+	ebmlMap,
+	parseTkhd,
+	getArrayBufferIterator,
+	parseStsd,
+	makeParserState,
+	processSample,
+	parseFtyp,
+	parseEbml,
+	parseMvhd,
 };
 
-export type {IoEventEmitter, LogLevel, ProgressTracker};
+export type {Prettify} from './boxes/webm/parse-ebml';
+export type {
+	Ebml,
+	EbmlValue,
+	FloatWithSize,
+	MainSegment,
+	PossibleEbml,
+	TrackEntry,
+	UintWithSize,
+} from './boxes/webm/segments/all-segments';
+export type {LogLevel};
 
 export {VERSION} from './version';

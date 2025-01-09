@@ -1,13 +1,10 @@
-import type {
-	LogLevel,
-	MediaFn,
-	OnVideoTrack,
-	ProgressTracker,
-} from '@remotion/media-parser';
+import type {LogLevel, OnVideoTrack} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {canCopyVideoTrack} from './can-copy-video-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
+import type {MediaFn} from './create/media-fn';
+import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import Error from './error-cause';
 import type {ConvertMediaContainer} from './get-available-containers';

@@ -11,16 +11,13 @@ import type {
 	ParseMediaFields,
 	ParseMediaOptions,
 	VideoTrack,
-	WriterInterface,
 } from '@remotion/media-parser';
-import {
-	MediaParserInternals,
-	parseMedia,
-	type OnVideoTrack,
-} from '@remotion/media-parser';
+import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
 
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
+import {makeProgressTracker} from './create/progress-tracker';
+import {withResolversAndWaitForReturn} from './create/with-resolvers';
 import Error from './error-cause';
 import {generateOutputFilename} from './generate-output-filename';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
@@ -35,6 +32,7 @@ import type {ResizeOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
+import type {WriterInterface} from './writers/writer';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;
@@ -119,7 +117,7 @@ export const convertMedia = async function <
 	}
 
 	const {resolve, reject, getPromiseToImmediatelyReturn} =
-		MediaParserInternals.withResolversAndWaitForReturn<ConvertMediaResult>();
+		withResolversAndWaitForReturn<ConvertMediaResult>();
 	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
@@ -144,7 +142,7 @@ export const convertMedia = async function <
 		signal: controller.signal,
 	});
 
-	const progressTracker = MediaParserInternals.makeProgressTracker();
+	const progressTracker = makeProgressTracker();
 
 	const state = await creator({
 		filename: generateOutputFilename(src, container),

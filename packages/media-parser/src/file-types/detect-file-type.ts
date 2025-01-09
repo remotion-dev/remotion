@@ -1,9 +1,10 @@
-import {webmPattern} from '../boxes/webm/make-header';
 import type {BmpType} from './bmp';
 import type {JpegType} from './jpeg';
 import type {PdfType} from './pdf';
 import type {PngType} from './png';
 import type {WebpType} from './webp';
+
+const webmPattern = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3]);
 
 export const matchesPattern = (pattern: Uint8Array) => {
 	return (data: Uint8Array) => {

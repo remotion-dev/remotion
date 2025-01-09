@@ -65,9 +65,7 @@ export const parseMedia: ParseMedia = async function <
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		nullifySamples: !(
-			typeof process !== 'undefined' &&
-			typeof process.env !== 'undefined' &&
-			process.env.KEEP_SAMPLES === 'true'
+			typeof process !== 'undefined' && typeof process.env !== 'undefined'
 		),
 		supportsContentRange,
 	});

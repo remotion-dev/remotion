@@ -1,5 +1,6 @@
-import type {ProgressTracker} from '@remotion/media-parser';
-import {MediaParserInternals} from '@remotion/media-parser';
+import {IoEventEmitter} from '../create/event-emitter';
+import type {ProgressTracker} from '../create/progress-tracker';
+import {withResolvers} from '../create/with-resolvers';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {makeTimeoutPromise} from './make-timeout-promise';
@@ -13,7 +14,7 @@ export const makeIoSynchronizer = ({
 	label: string;
 	progress: ProgressTracker;
 }) => {
-	const eventEmitter = new MediaParserInternals.IoEventEmitter();
+	const eventEmitter = new IoEventEmitter();
 
 	let lastInput = 0;
 	let lastInputKeyframe = 0;
@@ -78,7 +79,7 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitForOutput = () => {
-		const {promise, resolve} = MediaParserInternals.withResolvers<void>();
+		const {promise, resolve} = withResolvers<void>();
 		const on = () => {
 			eventEmitter.removeEventListener('output', on);
 			resolve();
@@ -89,7 +90,7 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitForProcessed = () => {
-		const {promise, resolve} = MediaParserInternals.withResolvers<void>();
+		const {promise, resolve} = withResolvers<void>();
 		const on = () => {
 			eventEmitter.removeEventListener('processed', on);
 			resolve();

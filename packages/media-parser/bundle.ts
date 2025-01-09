@@ -12,8 +12,6 @@ const output = await build({
 		'src/readers/from-web-file.ts',
 		'src/readers/from-fetch.ts',
 		'src/readers/from-node.ts',
-		'src/writers/buffer.ts',
-		'src/writers/web-fs.ts',
 	],
 	external: ['stream'],
 	naming: '[name].mjs',

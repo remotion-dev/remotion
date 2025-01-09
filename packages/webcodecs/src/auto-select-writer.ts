@@ -1,12 +1,10 @@
-import {canUseWebFsWriter, webFsWriter} from '@remotion/media-parser/web-fs';
+import {canUseWebFsWriter, webFsWriter} from './writers/web-fs';
 
-import {
-	MediaParserInternals,
-	type WriterInterface,
-} from '@remotion/media-parser';
-import {bufferWriter} from '@remotion/media-parser/buffer';
+import {withResolvers} from './create/with-resolvers';
 import type {LogLevel} from './log';
 import {Log} from './log';
+import {bufferWriter} from './writers/buffer';
+import type {WriterInterface} from './writers/writer';
 
 export const autoSelectWriter = async (
 	writer: WriterInterface | undefined,
@@ -28,11 +26,7 @@ export const autoSelectWriter = async (
 	}
 
 	try {
-		const {
-			promise: timeout,
-			reject,
-			resolve,
-		} = MediaParserInternals.withResolvers<void>();
+		const {promise: timeout, reject, resolve} = withResolvers<void>();
 		const time = setTimeout(
 			() => reject(new Error('WebFS check timeout')),
 			2000,

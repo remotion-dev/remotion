@@ -2,8 +2,8 @@ import type {
 	AudioOrVideoSample,
 	AudioTrack,
 	LogLevel,
-	ProgressTracker,
 } from '@remotion/media-parser';
+import type {ProgressTracker} from './create/progress-tracker';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 
