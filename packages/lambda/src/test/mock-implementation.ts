@@ -69,7 +69,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		});
 		return Promise.resolve();
 	},
-	getBuckets: () => Promise.resolve(getMockBuckets()),
+	getBuckets: ({region}) =>
+		Promise.resolve(getMockBuckets().filter((b) => b.region === region)),
 	listObjects: (input) => {
 		if (!input) {
 			throw new Error('need to pass input');
@@ -201,4 +202,5 @@ export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {
 	readDirectory: mockReadDirectory,
 	uploadDir: mockUploadDir,
 	createFunction: mockCreateFunction,
+	checkCredentials: () => undefined,
 };

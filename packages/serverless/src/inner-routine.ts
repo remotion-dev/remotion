@@ -28,14 +28,14 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	responseWriter,
 	context,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 	webhookClient,
 }: {
 	params: ServerlessPayload<Provider>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	webhookClient: WebhookClient;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
@@ -54,14 +54,14 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		);
 	}
 
-	await serverProviderSpecifics.deleteTmpDir();
+	await insideFunctionSpecifics.deleteTmpDir();
 	const isWarm = getWarm();
 	setWarm();
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === ServerlessRoutines.still) {
 		providerSpecifics.validateDeleteAfter(params.deleteAfter);
-		const renderId = serverProviderSpecifics.generateRandomId({
+		const renderId = insideFunctionSpecifics.generateRandomId({
 			deleteAfter: params.deleteAfter,
 			randomHashFn: providerSpecifics.randomHash,
 		});
@@ -121,7 +121,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					onStream,
 					timeoutInMilliseconds,
 					providerSpecifics,
-					serverProviderSpecifics,
+					insideFunctionSpecifics,
 				})
 					.then((r) => {
 						resolve(r);
@@ -140,7 +140,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (params.type === ServerlessRoutines.start) {
-		const renderId = serverProviderSpecifics.generateRandomId({
+		const renderId = insideFunctionSpecifics.generateRandomId({
 			deleteAfter: params.deleteAfter,
 			randomHashFn: providerSpecifics.randomHash,
 		});
@@ -165,7 +165,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 				renderId,
 			},
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -194,7 +194,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			},
 			providerSpecifics,
 			client: webhookClient,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -219,7 +219,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			timeoutInMilliseconds,
 			retriesRemaining: 2,
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
@@ -271,7 +271,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 				},
 				requestContext: context,
 				providerSpecifics,
-				serverProviderSpecifics,
+				insideFunctionSpecifics,
 			})
 				.then((res) => {
 					resolve(res);
@@ -314,14 +314,14 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const response = await compositionsHandler(
-			params,
-			{
+		const response = await compositionsHandler({
+			lambdaParams: params,
+			options: {
 				expectedBucketOwner: currentUserId,
 			},
 			providerSpecifics,
-			serverProviderSpecifics,
-		);
+			insideFunctionSpecifics,
+		});
 
 		await responseWriter.write(Buffer.from(JSON.stringify(response)));
 		await responseWriter.end();
@@ -337,14 +337,14 @@ export const innerRoutine = async <Provider extends CloudProvider>({
 	responseWriter,
 	context,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 	webhookClient,
 }: {
 	params: ServerlessPayload<Provider>;
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	webhookClient: WebhookClient;
 }): Promise<void> => {
 	try {
@@ -353,7 +353,7 @@ export const innerRoutine = async <Provider extends CloudProvider>({
 			responseWriter,
 			context,
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 			webhookClient,
 		});
 	} catch (err) {

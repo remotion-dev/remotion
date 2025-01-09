@@ -20,12 +20,6 @@ export type MockFile = {
 	content: string;
 };
 
-export const getDirFiles = (entry: string): MockFile[] => {
-	throw new TypeError(
-		'should only be executed in test ' + JSON.stringify(entry),
-	);
-};
-
 async function getFiles(
 	directory: string,
 	originalDirectory: string,

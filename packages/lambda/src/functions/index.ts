@@ -19,7 +19,7 @@ export const routine = (
 		responseWriter,
 		context,
 		providerSpecifics: awsImplementation,
-		serverProviderSpecifics: serverAwsImplementation,
+		insideFunctionSpecifics: serverAwsImplementation,
 		webhookClient: getWebhookClient,
 	});
 };

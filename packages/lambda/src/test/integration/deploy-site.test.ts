@@ -2,12 +2,12 @@ import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {expect, test} from 'vitest';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {getDirFiles} from '../../api/upload-dir';
 import {awsImplementation} from '../../functions/aws-implementation';
 import {
 	mockFullClientSpecifics,
 	mockImplementation,
 } from '../mock-implementation';
+import {getDirFiles} from '../mocks/upload-dir';
 
 test('Should throw on wrong prefix', async () => {
 	await expect(

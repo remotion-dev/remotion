@@ -174,11 +174,9 @@ const mandatoryDeploySite = async ({
 		),
 	]);
 
-	if (!process.env.VITEST) {
-		fs.rmSync(bundled, {
-			recursive: true,
-		});
-	}
+	fs.rmSync(bundled, {
+		recursive: true,
+	});
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),

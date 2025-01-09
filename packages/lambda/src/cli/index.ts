@@ -1,13 +1,16 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {type ProviderSpecifics} from '@remotion/serverless';
+import {
+	FullClientSpecifics,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
 import {DOCS_URL} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
-import {checkCredentials} from '../shared/check-credentials';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -45,23 +48,35 @@ const requiresCredentials = (args: string[]) => {
 	return true;
 };
 
-const matchCommand = (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
-) => {
+const matchCommand = ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+	fullClientSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+}) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
 		quit(0);
 	}
 
 	if (requiresCredentials(args)) {
-		checkCredentials();
+		fullClientSpecifics.checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel, implementation);
+		return renderCommand({
+			args: args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === STILL_COMMAND) {
@@ -69,16 +84,25 @@ const matchCommand = (
 			args: args.slice(1),
 			remotionRoot,
 			logLevel,
-			implementation,
+			providerSpecifics: providerSpecifics,
 		});
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1), logLevel);
+		return compositionsCommand({
+			args: args.slice(1),
+			logLevel,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
-		return functionsCommand(args.slice(1), logLevel);
+		return functionsCommand({
+			args: args.slice(1),
+			logLevel,
+			fullClientSpecifics,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
@@ -94,7 +118,12 @@ const matchCommand = (
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot, logLevel, implementation);
+		return sitesCommand(
+			args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics,
+		);
 	}
 
 	if (args[0] === 'upload') {
@@ -150,16 +179,18 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider> | null,
+	providerSpecifics: ProviderSpecifics<AwsProvider> | null,
+	fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
 ) => {
 	try {
 		setIsCli(true);
-		await matchCommand(
+		await matchCommand({
 			args,
 			remotionRoot,
 			logLevel,
-			implementation ?? awsImplementation,
-		);
+			providerSpecifics: providerSpecifics ?? awsImplementation,
+			fullClientSpecifics: fullClientSpecifics ?? awsFullClientSpecifics,
+		});
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -267,5 +298,6 @@ export const cli = async (logLevel: LogLevel) => {
 		remotionRoot,
 		logLevel,
 		awsImplementation,
+		awsFullClientSpecifics,
 	);
 };

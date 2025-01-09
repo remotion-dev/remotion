@@ -8,8 +8,6 @@ afterAll(async () => {
 });
 
 test('Should fail when using an incompatible version', async () => {
-	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
 	try {
 		const aha = await mockImplementation.callFunctionSync({
 			type: ServerlessRoutines.launch,

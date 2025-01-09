@@ -169,20 +169,20 @@ test('Should be able to get the function afterwards', async () => {
 			functionName: speculateFunctionName({
 				memorySizeInMb: 2048,
 				timeoutInSeconds: 120,
-				diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+				diskSizeInMb: 10240,
 			}),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: VERSION,
 			region: 'us-east-1',
-			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+			diskSizeInMb: 10240,
 		},
 	]);
 	markFunctionAsIncompatible(
 		speculateFunctionName({
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
-			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+			diskSizeInMb: 10240,
 		}),
 	);
 	const compatibleFns = await mockImplementation.getFunctions({
@@ -199,13 +199,13 @@ test('Should be able to get the function afterwards', async () => {
 			functionName: speculateFunctionName({
 				memorySizeInMb: 2048,
 				timeoutInSeconds: 120,
-				diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+				diskSizeInMb: 10240,
 			}),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
 			version: '2021-06-23',
 			region: 'us-east-1',
-			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+			diskSizeInMb: 10240,
 		},
 	]);
 });

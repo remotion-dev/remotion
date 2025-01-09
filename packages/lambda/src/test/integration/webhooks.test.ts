@@ -158,8 +158,6 @@ describe('Webhooks', () => {
 	});
 
 	test('Should call webhook upon timeout', async () => {
-		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
 		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
 
 		// Maybe this can use simulateLambdaRender instead

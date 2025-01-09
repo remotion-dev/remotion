@@ -52,12 +52,12 @@ export const stillCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	implementation,
+	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	implementation: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }) => {
 	const serveUrl = args[0];
 
@@ -186,7 +186,7 @@ export const stillCommand = async ({
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -310,7 +310,7 @@ export const stillCommand = async ({
 			region,
 			renderId: res.renderId,
 			logLevel,
-			providerSpecifics: implementation,
+			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);

@@ -4,7 +4,6 @@ import {awsImplementation} from '../../functions/aws-implementation';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
-	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({

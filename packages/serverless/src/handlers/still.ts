@@ -45,7 +45,7 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(
@@ -56,7 +56,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onStream,
 		timeoutInMilliseconds,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	}: Options<Provider>,
 	cleanup: CleanupFn[],
 ) => {
@@ -67,12 +67,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: When calling renderStillOnLambda(), you called the function ${serverProviderSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
+				`Version mismatch: When calling renderStillOnLambda(), you called the function ${insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 			);
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderStillOnLambda(), you passed ${serverProviderSpecifics.getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
+			`Version mismatch: When calling renderStillOnLambda(), you passed ${insideFunctionSpecifics.getCurrentFunctionName()} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${params.version}. Deploy a new function and use it to call renderStillOnLambda(). See: https://www.remotion.dev/docs/lambda/upgrading`,
 		);
 	}
 
@@ -87,12 +87,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const start = Date.now();
 
-	const browserInstancePromise = serverProviderSpecifics.getBrowserInstance({
+	const browserInstancePromise = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 	const bucketNamePromise =
 		params.bucketName ??
@@ -182,7 +182,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId,
 		outName: params.outName ?? undefined,
@@ -193,7 +193,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: params.downloadBehavior,
 		audioBitrate: null,
 		metadata: null,
-		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
 			height: composition.height * (params.scale ?? 1),
 			width: composition.width * (params.scale ?? 1),
@@ -340,7 +340,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const estimatedPrice = providerSpecifics.estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
@@ -446,7 +446,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 	} finally {
-		options.serverProviderSpecifics.forgetBrowserEventLoop(
+		options.insideFunctionSpecifics.forgetBrowserEventLoop(
 			options.params.type === ServerlessRoutines.still
 				? options.params.logLevel
 				: 'error',

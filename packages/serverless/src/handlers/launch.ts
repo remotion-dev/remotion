@@ -61,7 +61,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress,
 	registerCleanupTask,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	functionName: string;
 	params: ServerlessPayload<Provider>;
@@ -69,7 +69,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -77,12 +77,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const browserInstance = serverProviderSpecifics.getBrowserInstance({
+	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 
 	const inputPropsPromise = decompressInputProps({
@@ -320,7 +320,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
@@ -334,7 +334,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		audioBitrate: params.audioBitrate,
 		muted: params.muted,
 		metadata: params.metadata,
-		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
 			width: comp.width * (params.scale ?? 1),
 			height: comp.height * (params.scale ?? 1),
@@ -350,7 +350,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	if (!params.overwrite) {
-		const findOutputFile = serverProviderSpecifics.timer(
+		const findOutputFile = insideFunctionSpecifics.timer(
 			'Checking if output file already exists',
 			params.logLevel,
 		);
@@ -498,7 +498,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		startTime,
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 
 	return postRenderData;
@@ -511,12 +511,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	options,
 	providerSpecifics,
 	client,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	client: WebhookClient;
 }): Promise<{
 	type: 'success';
@@ -527,7 +527,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 	const functionName =
 		params.rendererFunctionName ??
-		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
+		insideFunctionSpecifics.getCurrentFunctionName();
 
 	const logOptions: LogOptions = {
 		indent: false,
@@ -688,7 +688,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			overallProgress,
 			registerCleanupTask,
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -849,6 +849,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		serverProviderSpecifics.forgetBrowserEventLoop(params.logLevel);
+		insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
 	}
 };

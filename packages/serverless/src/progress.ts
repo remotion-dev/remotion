@@ -31,7 +31,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	functionName,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -41,7 +41,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials<Provider> | null;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	forcePathStyle: boolean;
 	functionName: string;
 }): Promise<GenericRenderProgress<Provider>> => {
@@ -260,7 +260,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 					region,
 					functionName,
 					providerSpecifics,
-					serverProviderSpecifics,
+					insideFunctionSpecifics,
 				})
 			: null,
 		...errorExplanations,

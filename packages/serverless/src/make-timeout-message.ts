@@ -14,13 +14,13 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 	renderMetadata,
 	region,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	missingChunks: number[];
 	renderMetadata: RenderMetadata<Provider>;
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	if (missingChunks.length === 0) {
 		return 'All chunks have been successfully rendered, but the main function has timed out.';
@@ -48,7 +48,7 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 					msg,
 					`▸ Logs for chunk ${ch}: ${providerSpecifics.getLoggingUrlForRendererFunction(
 						{
-							functionName: serverProviderSpecifics.getCurrentFunctionName(),
+							functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 							region,
 							rendererFunctionName: null,
 							renderId: renderMetadata.renderId,
@@ -69,7 +69,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	functionName,
 	region,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	timeoutInMilliseconds: number;
 	missingChunks: number[];
@@ -78,7 +78,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 	region: Provider['region'];
 	functionName: string;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	const cloudWatchRendererUrl =
 		providerSpecifics.getLoggingUrlForRendererFunction({
@@ -103,7 +103,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 			renderMetadata,
 			region,
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		}),
 		'',
 		`Consider increasing the timeout of your function.`,

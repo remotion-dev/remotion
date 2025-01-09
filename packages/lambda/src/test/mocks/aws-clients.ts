@@ -72,7 +72,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			awsRequestId: 'fake',
 		},
 		providerSpecifics: mockImplementation,
-		serverProviderSpecifics: mockServerImplementation,
+		insideFunctionSpecifics: mockServerImplementation,
 		webhookClient: getWebhookClient,
 	});
 
@@ -93,7 +93,7 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 			awsRequestId: 'fake',
 		},
 		providerSpecifics: mockImplementation,
-		serverProviderSpecifics: mockServerImplementation,
+		insideFunctionSpecifics: mockServerImplementation,
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
 		webhookClient: getWebhookClient,
@@ -118,7 +118,7 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
 		providerSpecifics: mockImplementation,
-		serverProviderSpecifics: mockServerImplementation,
+		insideFunctionSpecifics: mockServerImplementation,
 		webhookClient: getWebhookClient,
 	});
 

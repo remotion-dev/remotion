@@ -218,13 +218,13 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	indent,
 	chromiumOptions,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => Promise<LaunchedBrowser>;
 
 export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
@@ -329,6 +329,7 @@ export type FullClientSpecifics<Provider extends CloudProvider> = {
 	readDirectory: ReadDir;
 	uploadDir: UploadDir<Provider>;
 	createFunction: CreateFunction<Provider>;
+	checkCredentials: () => void;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {
