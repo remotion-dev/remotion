@@ -12,6 +12,8 @@
 	},
 	"include": ["src"],
 	"references": [
+		{"path": "../animated-emoji"},
+		{"path": "../animation-utils"},
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
@@ -32,6 +34,8 @@
 		{"path": "../three"},
 		{"path": "../transitions"},
 		{"path": "../zod-types"},
+		{"path": "../media-parser"},
+		{"path": "../webcodecs"},
 		{"path": "../layout-utils"}
 	]
 }

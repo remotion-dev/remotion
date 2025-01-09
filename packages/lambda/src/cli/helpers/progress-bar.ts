@@ -49,6 +49,11 @@ export type DeployToS3Progress = {
 	stats: UploadStats | null;
 };
 
+export type DiffingProgress = {
+	doneIn: number | null;
+	bytesProcessed: number;
+};
+
 const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
 	if (!stats) {
 		return null;
@@ -67,6 +72,31 @@ const makeUploadDiff = ({stats}: {stats: UploadStats | null}) => {
 			.filter(NoReactInternals.truthy)
 			.join(',')} ${total === 1 ? 'file' : 'files'})`,
 	);
+};
+
+export const makeDiffingProgressBar = ({
+	bytesProcessed,
+	doneIn,
+}: DiffingProgress) => {
+	const progress = doneIn === null ? 0 : 1;
+	if (bytesProcessed === 0) {
+		return null;
+	}
+
+	return [
+		`${doneIn === null ? 'Calculating changes' : 'Calculated changes'}`.padEnd(
+			CliInternals.LABEL_WIDTH,
+			' ',
+		),
+		CliInternals.makeProgressBar(progress, false),
+		doneIn === null
+			? bytesProcessed === 0
+				? null
+				: `${CliInternals.formatBytes(bytesProcessed)}`
+			: CliInternals.chalk.gray(`${doneIn}ms`),
+	]
+		.filter(NoReactInternals.truthy)
+		.join(' ');
 };
 
 export const makeDeployProgressBar = ({

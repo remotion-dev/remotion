@@ -103,6 +103,7 @@ module.exports = {
 				'loop',
 				'measure-spring',
 				'offthreadvideo',
+				'animatedimage',
 				'prefetch',
 				'random',
 				'register-root',
@@ -118,8 +119,6 @@ module.exports = {
 				'version',
 				'video',
 				'watchstaticfile',
-				'null',
-				'clipper',
 			],
 		},
 		{
@@ -197,6 +196,7 @@ module.exports = {
 				'get-video-metadata',
 				'get-waveform-portion',
 				'use-audio-data',
+				'use-windowed-audio-data',
 				'visualize-audio',
 				'get-image-dimensions',
 			],
@@ -251,6 +251,8 @@ module.exports = {
 				'lambda/simulatepermissions',
 				'lambda/speculatefunctionname',
 				'lambda/validatewebhooksignature',
+				'lambda/approuterwebhook',
+				'lambda/pagesrouterwebhook',
 			],
 		},
 		{
@@ -524,6 +526,7 @@ module.exports = {
 				'layout-utils/measure-text',
 				'layout-utils/fill-text-box',
 				'layout-utils/fit-text',
+				'layout-utils/debug',
 			],
 		},
 		{
@@ -540,6 +543,79 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/animated-emoji',
+			link: {
+				type: 'doc',
+				id: 'animated-emoji/index',
+			},
+			items: [
+				'animated-emoji/animated-emoji',
+				'animated-emoji/get-available-emoji',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/media-parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser/metadata',
+					label: 'Guide',
+				},
+				'media-parser/parse-media',
+				'media-parser/node-reader',
+				'media-parser/fetch-reader',
+				'media-parser/web-file-reader',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/webcodecs',
+			link: {
+				type: 'doc',
+				id: 'webcodecs/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/webcodecs/convert-a-video',
+					label: 'Guide',
+				},
+				'webcodecs/track-transformation',
+				'webcodecs/convert-media',
+				'webcodecs/get-available-containers',
+				'webcodecs/can-reencode-audio-track',
+				'webcodecs/can-reencode-video-track',
+				'webcodecs/can-copy-audio-track',
+				'webcodecs/can-copy-video-track',
+				'webcodecs/default-on-audio-track-handler',
+				'webcodecs/default-on-video-track-handler',
+				'webcodecs/get-default-audio-codec',
+				'webcodecs/get-default-video-codec',
+				'webcodecs/get-available-audio-codecs',
+				'webcodecs/get-available-video-codecs',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/captions',
+			link: {
+				type: 'doc',
+				id: 'captions/index',
+			},
+			items: [
+				'captions/caption',
+				'captions/parse-srt',
+				'captions/serialize-srt',
+				'captions/create-tiktok-style-captions',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',
@@ -549,8 +625,18 @@ module.exports = {
 				'install-whisper-cpp/install-whisper-cpp',
 				'install-whisper-cpp/download-whisper-model',
 				'install-whisper-cpp/transcribe',
+				'install-whisper-cpp/to-captions',
 				'install-whisper-cpp/convert-to-captions',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/openai-whisper',
+			link: {
+				type: 'doc',
+				id: 'openai-whisper/index',
+			},
+			items: ['openai-whisper/openai-whisper-api-to-captions'],
 		},
 		{
 			type: 'category',
@@ -561,6 +647,15 @@ module.exports = {
 				id: 'fonts-api/fonts-api',
 			},
 			items: ['fonts-api/load-font'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/licensing',
+			link: {
+				type: 'doc',
+				id: 'licensing/index',
+			},
+			items: ['licensing/register-usage-point', 'licensing/get-usage'],
 		},
 	],
 	mainSidebar: [
@@ -573,12 +668,11 @@ module.exports = {
 				'animating-properties',
 				'reusability',
 				'preview',
-				'render',
 			],
 		},
 		{
 			type: 'category',
-			label: 'Designing videos',
+			label: 'Designing visuals',
 			items: [
 				'transforms',
 				'assets',
@@ -590,8 +684,23 @@ module.exports = {
 				'using-randomness',
 				'audio-visualization',
 				'noise-visualization',
-				'video-manipulation',
 				'animation-math',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Embedding videos',
+			items: [
+				'videos/index',
+				'miscellaneous/snippets/align-duration',
+				'videos/sequence',
+				'videos/transparency',
+				'video-manipulation',
+				'miscellaneous/snippets/accelerated-video',
+				'miscellaneous/snippets/jumpcuts',
+				'miscellaneous/snippets/freeze-portions',
+				'miscellaneous/snippets/hls',
+				'video-vs-offthreadvideo',
 			],
 		},
 		{
@@ -610,20 +719,14 @@ module.exports = {
 				'props-resolution',
 			],
 		},
-		{
-			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/deploy-static',
-				'studio/deploy-server',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Rendering',
+			link: {
+				type: 'doc',
+				id: 'render',
+			},
 			items: [
 				'encoding',
 				'stills',
@@ -635,8 +738,20 @@ module.exports = {
 				'dataset-render',
 				'render-all',
 				'miscellaneous/video-formats',
-				'video-vs-offthreadvideo',
 				'artifacts',
+				'metadata',
+				'hardware-acceleration',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/deploy-static',
+				'studio/deploy-server',
 			],
 		},
 		{
@@ -654,6 +769,7 @@ module.exports = {
 				'gpu',
 				'miscellaneous/cloud-gpu',
 				'miscellaneous/cloud-gpu-docker',
+				'compare-ssr',
 			],
 		},
 		{
@@ -679,6 +795,9 @@ module.exports = {
 				'player/preloading',
 				'player/premounting',
 				'player/best-practices',
+				'player/drag-and-drop/index',
+				'player/custom-controls',
+				'player/media-keys',
 			],
 		},
 
@@ -708,6 +827,7 @@ module.exports = {
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
+				'lambda/cost-example',
 				'lambda/autodelete',
 				{
 					type: 'category',
@@ -737,6 +857,7 @@ module.exports = {
 				'lambda/php',
 				'lambda/go',
 				'lambda/python',
+				'lambda/ruby',
 				'lambda/serverless-framework-integration',
 				'lambda/insights',
 				'lambda/multiple-buckets',
@@ -754,7 +875,7 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: 'Cloud Run (Alpha)',
+			label: 'Cloud Run',
 			link: {
 				type: 'doc',
 				id: 'cloudrun-alpha',
@@ -776,6 +897,47 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'Media Parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser/parse-media',
+					label: 'API Reference',
+				},
+				'media-parser/metadata',
+				'media-parser/fast-and-slow',
+				'media-parser/tags',
+				'media-parser/support',
+				'media-parser/webcodecs',
+				'media-parser/foreign-file-types',
+			],
+		},
+		{
+			type: 'category',
+			label: 'WebCodecs',
+			link: {
+				type: 'doc',
+				id: 'webcodecs/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/webcodecs/convert-media',
+					label: 'API Reference',
+				},
+				'webcodecs/convert-a-video',
+				'webcodecs/rotate-a-video',
+				'webcodecs/resize-a-video',
+				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/telemetry',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Building apps',
 			items: [
 				'brownfield',
@@ -784,6 +946,11 @@ module.exports = {
 				'video-uploads',
 				'presigned-urls',
 				'font-picker',
+				'building-a-timeline',
+				'multiple-fps',
+				'angular',
+				'svelte',
+				'vue',
 			],
 		},
 		{
@@ -833,20 +1000,18 @@ module.exports = {
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',
 				'troubleshooting/could-not-find-executable-to-run',
+				'troubleshooting/stuck-render',
 			],
 		},
 		{
 			type: 'category',
 			label: 'Snippets',
 			items: [
-				'miscellaneous/snippets/accelerated-video',
+				'miscellaneous/snippets/different-segments-at-different-speeds',
 				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/fps-converter',
 				'miscellaneous/snippets/use-delay-render',
 				'miscellaneous/snippets/offthread-video-while-rendering',
-				'miscellaneous/snippets/hls',
 				'miscellaneous/snippets/combine-compositions',
-				'miscellaneous/snippets/align-duration',
 			],
 		},
 		{
@@ -889,6 +1054,7 @@ module.exports = {
 			type: 'category',
 			label: 'Migration guides',
 			items: [
+				'react-19',
 				'5-0-migration',
 				'4-0-migration',
 				'3-0-migration',
@@ -932,8 +1098,11 @@ module.exports = {
 				'miscellaneous/linux-dependencies',
 				'gl-options',
 				'bun',
+				'deno',
 				'standalone',
 				'miscellaneous/emojis',
+				'media-fragments',
+				'system-prompt',
 			],
 		},
 		{
@@ -947,6 +1116,7 @@ module.exports = {
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',
 				'miscellaneous/live-streaming',
+				'miscellaneous/parse-media-vs-get-video-metadata',
 				'compare/motion-canvas',
 			],
 		},

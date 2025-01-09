@@ -20,10 +20,10 @@ export const BundlerInternals = {
 
 export type {GitSource} from '@remotion/studio-shared';
 export {
+	bundle,
 	BundleOptions,
 	LegacyBundleOptions,
 	MandatoryLegacyBundleOptions,
-	bundle,
 } from './bundle';
 export {WebpackConfiguration, WebpackOverrideFn} from './webpack-config';
 export {webpack};

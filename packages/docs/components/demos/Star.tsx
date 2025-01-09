@@ -3,12 +3,12 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 export const StarDemo: React.FC<{
-  darkMode: boolean;
-  innerRadius: number;
-  outerRadius: number;
-  cornerRadius: number;
-  edgeRoundness: number | null;
-  points: number;
+  readonly darkMode: boolean;
+  readonly innerRadius: number;
+  readonly outerRadius: number;
+  readonly cornerRadius: number;
+  readonly edgeRoundness: number | null;
+  readonly points: number;
 }> = ({
   innerRadius,
   points,

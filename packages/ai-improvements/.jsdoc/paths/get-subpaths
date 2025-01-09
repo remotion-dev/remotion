@@ -1,0 +1,4 @@
+/**
+ * @description Takes an SVG path and returns an array of subpaths, splitting the path by `M` and `m` statements.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/get-subpaths)
+ */

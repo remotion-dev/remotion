@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type {AudioOrVideoAsset} from 'remotion/no-react';
 
 // An unsafe asset is an asset with looser types, which occurs

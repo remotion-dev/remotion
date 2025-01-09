@@ -2,57 +2,21 @@
 image: /generated/articles-docs-skia-skia.png
 id: skia
 sidebar_label: Overview
-title: "@remotion/skia"
+title: '@remotion/skia'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import {ExperimentalBadge} from '../../components/Experimental';
+import {TableOfContents} from './TableOfContents';
 
 This package provides utilities useful for integrating [React Native Skia](https://github.com/Shopify/react-native-skia) with Remotion.
-
-<ExperimentalBadge>
-This package is currently a proof of technology.
-
-It may change in minor version updates. Monitor this documentation page to see breaking changes when upgrading.
-</ExperimentalBadge>
 
 ## Installation
 
 Install, `@remotion/skia` as well as `@shopify/react-native-skia`.
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i @remotion/skia @shopify/react-native-skia
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add @remotion/skia @shopify/react-native-skia
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/skia @shopify/react-native-skia
-```
-
-  </TabItem>
-</Tabs>
+<Installation pkg="@remotion/skia @shopify/react-native-skia" />
 
 :::note
 Since Remotion `v3.3.93` and React Native Skia `0.1.191`, `react-native-web` is not a dependency anymore. You may remove it from your project.
@@ -67,8 +31,8 @@ Make sure no package version number has a `^` character in front of it as it can
 [Override the Webpack config](/docs/webpack) by using [`enableSkia()`](/docs/skia/enable-skia).
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-import { enableSkia } from "@remotion/skia/enable";
+import {Config} from '@remotion/cli/config';
+import {enableSkia} from '@remotion/skia/enable';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
   return enableSkia(currentConfiguration);
@@ -159,5 +123,4 @@ remotion render Main out/video.mp4 --gl=angle
 
 ## APIs
 
-- [`enableSkia()`](/docs/skia/enable-skia)
-- [`<SkiaCanvas />`](/docs/skia/skia-canvas)
+<TableOfContents />

@@ -94,6 +94,10 @@ Either `public` (default) or `no-acl` if you are not using ACL. Sites must have 
 
 <Options id="disable-git-source" />
 
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
 <br />
 <br />
 <hr />
@@ -122,6 +126,7 @@ Get a list of sites. The URL that is printed can be passed to the `render` comma
   </pre>
 </details>
 
+
 ### `--region`
 
 The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
@@ -141,6 +146,11 @@ npx remotion lambda sites ls -q
     <br />
   </pre>
 </details>
+
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
 
 ## rm
 
@@ -263,6 +273,10 @@ npx remotion lambda sites rm abcdef -y
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
 ## rmall
 
 Remove all sites in the selected AWS region.
@@ -382,3 +396,7 @@ npx remotion lambda sites rmall -y
 ### `--force-bucket-name`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.

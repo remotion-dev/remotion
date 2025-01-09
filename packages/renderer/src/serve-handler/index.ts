@@ -115,7 +115,7 @@ export const serveHandler = async (
 		relativePath = decodeURIComponent(
 			url.parse(request.url as string).pathname as string,
 		);
-	} catch (err) {
+	} catch {
 		return sendError('/', response, {
 			statusCode: 400,
 			code: 'bad_request',
@@ -253,7 +253,7 @@ export const serveHandler = async (
 
 	try {
 		stream = createReadStream(absolutePath, streamOpts ?? {});
-	} catch (err) {
+	} catch {
 		return internalError(absolutePath, response);
 	}
 
@@ -264,6 +264,8 @@ export const serveHandler = async (
 			`bytes ${streamOpts.start}-${streamOpts.end}/${stats.size}`;
 		headers['Content-Length'] = String(streamOpts.end - streamOpts.start + 1);
 	}
+
+	headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
 
 	response.writeHead(response.statusCode || 200, headers);
 	stream.pipe(response);

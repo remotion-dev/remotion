@@ -1,0 +1,866 @@
+---
+image: /generated/articles-docs-player-custom-controls.png
+id: custom-controls
+sidebar_label: 'Custom controls'
+title: 'Custom controls for the Player'
+crumb: '@remotion/player'
+---
+
+You may want to implement custom controls for the [`<Player>`](/docs/player/player) component.
+
+There are two approaches:
+
+- Enable the [`controls`](/docs/player/player#controls) prop and granunarly override some or all of the controls inside the Player.
+- Disable the [`controls`](/docs/player/player#controls) prop and implement your own controls anywhere on the page.
+
+## Custom inline controls
+
+Use this approach if you:
+
+- Like the default controls but want to customize some of them
+- Want the controls to overlay the Player.
+
+Ensure the [`controls`](/docs/player/player#controls) prop is set in the [`<Player/>`](/docs/player/player).  
+Use the following APIs to customize the individual controls:
+
+- [`renderPlayPauseButton()`](/docs/player/player#renderplaypausebutton)
+- [`renderFullscreenButton()`](/docs/player/player#renderfullscreenbutton)
+- [`renderMuteButton()`](/docs/player/player#rendermutebutton)
+- [`renderVolumeSlider()`](/docs/player/player#rendervolumeslider)
+
+## Controls outside the Player
+
+Use this approach if you:
+
+- Want to implement custom controls anywhere on the page
+- Want full control over the look and behavior of the controls
+
+Use the following starting points to implement your own controls. You will need the following prerequisites:
+
+- Ensure the [`controls`](/docs/player/player#controls) prop is not set in the [`<Player/>`](/docs/player/player).
+- Obtain a [`ref`](https://react.dev/learn/referencing-values-with-refs) of type `PlayerRef` of the [`<Player/>`](/docs/player/player#playerref).
+- Some of the components will require `durationInFrames` and `fps` props. Place the values in shared variables to be used in both `<Player/>` and these components.
+- The `<SeekBar/>` component can optionally accept `inFrame` and `outFrame` props. They're the same values passed to `<Player/>` (also optional).
+
+### Play / Pause button
+
+```tsx twoslash title="PlayPauseButton.tsx"
+import type {PlayerRef} from '@remotion/player';
+import {useCallback, useEffect, useState} from 'react';
+
+export const PlayPauseButton: React.FC<{
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({playerRef}) => {
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    setPlaying(current?.isPlaying() ?? false);
+    if (!current) return;
+
+    const onPlay = () => {
+      setPlaying(true);
+    };
+
+    const onPause = () => {
+      setPlaying(false);
+    };
+
+    current.addEventListener('play', onPlay);
+    current.addEventListener('pause', onPause);
+
+    return () => {
+      current.removeEventListener('play', onPlay);
+      current.removeEventListener('pause', onPause);
+    };
+  }, [playerRef]);
+
+  const onToggle = useCallback(() => {
+    playerRef.current?.toggle();
+  }, [playerRef]);
+
+  return (
+    <button onClick={onToggle} type="button">
+      {playing ? 'Pause' : 'Play'}
+    </button>
+  );
+};
+```
+
+:::note
+The [buffering indicator](/docs/player/buffer-state) is not implemented in this snippet.
+:::
+
+### Time display
+
+```tsx twoslash title="TimeDisplay.tsx"
+import type {PlayerRef} from '@remotion/player';
+import React, {useEffect} from 'react';
+
+export const formatTime = (frame: number, fps: number): string => {
+  const hours = Math.floor(frame / fps / 3600);
+
+  const remainingMinutes = frame - hours * fps * 3600;
+  const minutes = Math.floor(remainingMinutes / 60 / fps);
+
+  const remainingSec = frame - hours * fps * 3600 - minutes * fps * 60;
+  const seconds = Math.floor(remainingSec / fps);
+
+  const frameAfterSec = Math.round(frame % fps);
+
+  const hoursStr = String(hours);
+  const minutesStr = String(minutes).padStart(2, '0');
+  const secondsStr = String(seconds).padStart(2, '0');
+  const frameStr = String(frameAfterSec).padStart(2, '0');
+
+  if (hours > 0) {
+    return `${hoursStr}:${minutesStr}:${secondsStr}.${frameStr}`;
+  }
+
+  return `${minutesStr}:${secondsStr}.${frameStr}`;
+};
+
+export const TimeDisplay: React.FC<{
+  durationInFrames: number;
+  fps: number;
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({durationInFrames, fps, playerRef}) => {
+  const [time, setTime] = React.useState(0);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onTimeUpdate = () => {
+      setTime(current.getCurrentFrame());
+    };
+
+    current.addEventListener('frameupdate', onTimeUpdate);
+
+    return () => {
+      current.removeEventListener('frameupdate', onTimeUpdate);
+    };
+  }, [playerRef]);
+
+  return (
+    <div
+      style={{
+        fontFamily: 'monospace',
+      }}
+    >
+      <span>
+        {formatTime(time, fps)}/{formatTime(durationInFrames, fps)}
+      </span>
+    </div>
+  );
+};
+```
+
+:::note
+The [conventional time formatting for video editors](https://github.com/remotion-dev/remotion/issues/694#issuecomment-968318664) is `hh:mm:ss.ff` where `hh` is hours, `mm` is minutes, `ss` is seconds and `ff` is frames past the second.  
+:::
+
+### Fullscreen button
+
+Pay attention to two nuances when implementing the Fullscreen button:
+
+- Not all browsers support Fullscreen, feature detection should be performed.
+- If using server-side rendering, feature detection should be performed after the component has been mounted on the client to avoid a React hydration mismatch.
+
+```tsx twoslash title="FullscreenButton.tsx"
+import type {PlayerRef} from '@remotion/player';
+import React, {useCallback, useEffect, useState} from 'react';
+
+export const FullscreenButton: React.FC<{
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({playerRef}) => {
+  const [supportsFullscreen, setSupportsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const {current} = playerRef;
+
+    if (!current) {
+      return;
+    }
+
+    const onFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement !== null);
+    };
+
+    current.addEventListener('fullscreenchange', onFullscreenChange);
+
+    return () => {
+      current.removeEventListener('fullscreenchange', onFullscreenChange);
+    };
+  }, [playerRef]);
+
+  useEffect(() => {
+    // Must be handled client-side to avoid SSR hydration mismatch
+    setSupportsFullscreen(
+      (typeof document !== 'undefined' &&
+        (document.fullscreenEnabled ||
+          // @ts-expect-error Types not defined
+          document.webkitFullscreenEnabled)) ??
+        false,
+    );
+  }, []);
+
+  const onClick = useCallback(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    if (isFullscreen) {
+      current.exitFullscreen();
+    } else {
+      current.requestFullscreen();
+    }
+  }, [isFullscreen, playerRef]);
+
+  if (!supportsFullscreen) {
+    return null;
+  }
+
+  return (
+    <button type="button" onClick={onClick}>
+      {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+    </button>
+  );
+};
+```
+
+:::note
+The `Exit Fullscreen` label is hypothetical since if it is rendered outside of the Player, it would not be visible while in Fullscreen.
+:::
+
+### Seek bar
+
+```tsx twoslash title="SeekBar.tsx"
+import type {PlayerRef} from '@remotion/player';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {interpolate} from 'remotion';
+
+type Size = {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+};
+
+// If a pane has been moved, it will cause a layout shift without
+// the window having been resized. Those UI elements can call this API to
+// force an update
+
+export const useElementSize = (
+  ref: React.RefObject<HTMLElement | null>,
+): Size | null => {
+  const [size, setSize] = useState<Size | null>(() => {
+    if (!ref.current) {
+      return null;
+    }
+
+    const rect = ref.current.getClientRects();
+    if (!rect[0]) {
+      return null;
+    }
+
+    return {
+      width: rect[0].width as number,
+      height: rect[0].height as number,
+      left: rect[0].x as number,
+      top: rect[0].y as number,
+    };
+  });
+
+  const observer = useMemo(() => {
+    if (typeof ResizeObserver === 'undefined') {
+      return null;
+    }
+
+    return new ResizeObserver((entries) => {
+      const {target} = entries[0];
+      const newSize = target.getClientRects();
+
+      if (!newSize?.[0]) {
+        setSize(null);
+        return;
+      }
+
+      const {width} = newSize[0];
+
+      const {height} = newSize[0];
+
+      setSize({
+        width,
+        height,
+        left: newSize[0].x,
+        top: newSize[0].y,
+      });
+    });
+  }, []);
+
+  const updateSize = useCallback(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const rect = ref.current.getClientRects();
+    if (!rect[0]) {
+      setSize(null);
+      return;
+    }
+
+    setSize((prevState) => {
+      const isSame =
+        prevState &&
+        prevState.width === rect[0].width &&
+        prevState.height === rect[0].height &&
+        prevState.left === rect[0].x &&
+        prevState.top === rect[0].y;
+      if (isSame) {
+        return prevState;
+      }
+
+      return {
+        width: rect[0].width as number,
+        height: rect[0].height as number,
+        left: rect[0].x as number,
+        top: rect[0].y as number,
+        windowSize: {
+          height: window.innerHeight,
+          width: window.innerWidth,
+        },
+      };
+    });
+  }, [ref]);
+
+  useEffect(() => {
+    if (!observer) {
+      return;
+    }
+
+    const {current} = ref;
+    if (current) {
+      observer.observe(current);
+    }
+
+    return (): void => {
+      if (current) {
+        observer.unobserve(current);
+      }
+    };
+  }, [observer, ref, updateSize]);
+
+  useEffect(() => {
+    window.addEventListener('resize', updateSize);
+
+    return () => {
+      window.removeEventListener('resize', updateSize);
+    };
+  }, [updateSize]);
+
+  return useMemo(() => {
+    if (!size) {
+      return null;
+    }
+
+    return {...size, refresh: updateSize};
+  }, [size, updateSize]);
+};
+
+const getFrameFromX = (
+  clientX: number,
+  durationInFrames: number,
+  width: number,
+) => {
+  const pos = clientX;
+  const frame = Math.round(
+    interpolate(pos, [0, width], [0, Math.max(durationInFrames - 1, 0)], {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }),
+  );
+  return frame;
+};
+
+const BAR_HEIGHT = 5;
+const KNOB_SIZE = 12;
+const VERTICAL_PADDING = 4;
+
+const containerStyle: React.CSSProperties = {
+  userSelect: 'none',
+  WebkitUserSelect: 'none',
+  paddingTop: VERTICAL_PADDING,
+  paddingBottom: VERTICAL_PADDING,
+  boxSizing: 'border-box',
+  cursor: 'pointer',
+  position: 'relative',
+  touchAction: 'none',
+  flex: 1,
+};
+
+const barBackground: React.CSSProperties = {
+  height: BAR_HEIGHT,
+  backgroundColor: 'rgba(0, 0, 0, 0.25)',
+  width: '100%',
+  borderRadius: BAR_HEIGHT / 2,
+};
+
+const findBodyInWhichDivIsLocated = (div: HTMLElement) => {
+  let current = div;
+
+  while (current.parentElement) {
+    current = current.parentElement;
+  }
+
+  return current;
+};
+
+export const useHoverState = (ref: React.RefObject<HTMLDivElement | null>) => {
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    const {current} = ref;
+    if (!current) {
+      return;
+    }
+
+    const onHover = () => {
+      setHovered(true);
+    };
+
+    const onLeave = () => {
+      setHovered(false);
+    };
+
+    const onMove = () => {
+      setHovered(true);
+    };
+
+    current.addEventListener('mouseenter', onHover);
+    current.addEventListener('mouseleave', onLeave);
+    current.addEventListener('mousemove', onMove);
+
+    return () => {
+      current.removeEventListener('mouseenter', onHover);
+      current.removeEventListener('mouseleave', onLeave);
+      current.removeEventListener('mousemove', onMove);
+    };
+  }, [ref]);
+  return hovered;
+};
+
+export const SeekBar: React.FC<{
+  durationInFrames: number;
+  inFrame?: number | null;
+  outFrame?: number | null;
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({durationInFrames, inFrame, outFrame, playerRef}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const barHovered = useHoverState(containerRef);
+  const size = useElementSize(containerRef);
+  const [playing, setPlaying] = useState(false);
+  const [frame, setFrame] = useState(0);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onFrameUpdate = () => {
+      setFrame(current.getCurrentFrame());
+    };
+
+    current.addEventListener('frameupdate', onFrameUpdate);
+
+    return () => {
+      current.removeEventListener('frameupdate', onFrameUpdate);
+    };
+  }, [playerRef]);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onPlay = () => {
+      setPlaying(true);
+    };
+
+    const onPause = () => {
+      setPlaying(false);
+    };
+
+    current.addEventListener('play', onPlay);
+    current.addEventListener('pause', onPause);
+
+    return () => {
+      current.removeEventListener('play', onPlay);
+      current.removeEventListener('pause', onPause);
+    };
+  }, [playerRef]);
+
+  const [dragging, setDragging] = useState<
+    | {
+        dragging: false;
+      }
+    | {
+        dragging: true;
+        wasPlaying: boolean;
+      }
+  >({
+    dragging: false,
+  });
+
+  const width = size?.width ?? 0;
+
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button !== 0) {
+        return;
+      }
+
+      if (!playerRef.current) {
+        return;
+      }
+
+      const posLeft = containerRef.current?.getBoundingClientRect()
+        .left as number;
+
+      const _frame = getFrameFromX(
+        e.clientX - posLeft,
+        durationInFrames,
+        width,
+      );
+      playerRef.current.pause();
+      playerRef.current.seekTo(_frame);
+      setDragging({
+        dragging: true,
+        wasPlaying: playing,
+      });
+    },
+    [durationInFrames, width, playerRef, playing],
+  );
+
+  const onPointerMove = useCallback(
+    (e: PointerEvent) => {
+      if (!size) {
+        throw new Error('Player has no size');
+      }
+
+      if (!dragging.dragging) {
+        return;
+      }
+
+      if (!playerRef.current) {
+        return;
+      }
+
+      const posLeft = containerRef.current?.getBoundingClientRect()
+        .left as number;
+
+      const _frame = getFrameFromX(
+        e.clientX - posLeft,
+        durationInFrames,
+        size.width,
+      );
+      playerRef.current.seekTo(_frame);
+    },
+    [dragging.dragging, durationInFrames, playerRef, size],
+  );
+
+  const onPointerUp = useCallback(() => {
+    setDragging({
+      dragging: false,
+    });
+    if (!dragging.dragging) {
+      return;
+    }
+
+    if (!playerRef.current) {
+      return;
+    }
+
+    if (dragging.wasPlaying) {
+      playerRef.current.play();
+    } else {
+      playerRef.current.pause();
+    }
+  }, [dragging, playerRef]);
+
+  useEffect(() => {
+    if (!dragging.dragging) {
+      return;
+    }
+
+    const body = findBodyInWhichDivIsLocated(
+      containerRef.current as HTMLElement,
+    );
+
+    body.addEventListener('pointermove', onPointerMove);
+    body.addEventListener('pointerup', onPointerUp);
+    return () => {
+      body.removeEventListener('pointermove', onPointerMove);
+      body.removeEventListener('pointerup', onPointerUp);
+    };
+  }, [dragging.dragging, onPointerMove, onPointerUp]);
+
+  const knobStyle: React.CSSProperties = useMemo(() => {
+    return {
+      height: KNOB_SIZE,
+      width: KNOB_SIZE,
+      borderRadius: KNOB_SIZE / 2,
+      position: 'absolute',
+      top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
+      backgroundColor: '#000',
+      left: Math.max(
+        0,
+        (frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
+      ),
+      boxShadow: '0 0 2px black',
+      opacity: Number(barHovered),
+      transition: 'opacity 0.1s ease',
+    };
+  }, [barHovered, durationInFrames, frame, width]);
+
+  const fillStyle: React.CSSProperties = useMemo(() => {
+    return {
+      height: BAR_HEIGHT,
+      backgroundColor: '#000',
+      width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
+      marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+      borderRadius: BAR_HEIGHT / 2,
+    };
+  }, [durationInFrames, frame, inFrame]);
+
+  const active: React.CSSProperties = useMemo(() => {
+    return {
+      height: BAR_HEIGHT,
+      backgroundColor: '#000',
+      opacity: 0.6,
+      width:
+        (((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
+          (durationInFrames - 1)) *
+          100 +
+        '%',
+      marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+      borderRadius: BAR_HEIGHT / 2,
+      position: 'absolute',
+    };
+  }, [durationInFrames, inFrame, outFrame]);
+
+  return (
+    <div
+      ref={containerRef}
+      onPointerDown={onPointerDown}
+      style={containerStyle}
+    >
+      <div style={barBackground}>
+        <div style={active} />
+        <div style={fillStyle} />
+      </div>
+      <div style={knobStyle} />
+    </div>
+  );
+};
+```
+
+### Loop button
+
+[`loop`](/docs/player/player#loop) is a prop of the [`<Player/>`](/docs/player/player) component, so you can just control is using a [`useState`](https://react.dev/reference/react/useState) hook.
+
+```tsx twoslash title="LoopButton.tsx"
+import React from 'react';
+
+export const LoopButton: React.FC<{
+  loop: boolean;
+  setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({loop, setLoop}) => {
+  const onClick = React.useCallback(() => {
+    setLoop((prev) => !prev);
+  }, [setLoop]);
+
+  return (
+    <button type="button" onClick={onClick}>
+      {loop ? 'Loop enabled' : 'Loop disabled'}
+    </button>
+  );
+};
+```
+
+```tsx twoslash title="Usage"
+// @filename: LoopButton.tsx
+import React from 'react';
+
+export const LoopButton: React.FC<{
+  loop: boolean;
+  setLoop: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({loop, setLoop}) => {
+  const onClick = React.useCallback(() => {
+    setLoop((prev) => !prev);
+  }, [setLoop]);
+
+  return (
+    <button type="button" onClick={onClick}>
+      {loop ? 'Loop enabled' : 'Loop disabled'}
+    </button>
+  );
+};
+// @filename: index.tsx
+
+const MyComp: React.FC = () => {
+  return null;
+};
+// ---cut---
+import React, {useState} from 'react';
+import {LoopButton} from './LoopButton';
+import {Player} from '@remotion/player';
+
+export const MyComponent: React.FC = () => {
+  const [loop, setLoop] = useState(false);
+
+  return (
+    <>
+      <Player
+        component={MyComp}
+        loop={loop}
+        durationInFrames={100}
+        fps={30}
+        compositionWidth={1920}
+        compositionHeight={1080}
+        inputProps={{}}
+      />
+      <LoopButton loop={loop} setLoop={setLoop} />
+    </>
+  );
+};
+```
+
+### Volume slider
+
+Note that if the video is "muted", the volume state may be greater than 0.  
+The following component handles the special case of the video being "muted":
+
+- If the video is muted, set the slider value to 0.
+- If the slider is being slided, unmute the video if necessary.
+
+This allows us to keep an internal state of the volume that was set before muting the video and reset the slider to that value after unmuting.
+
+```tsx twoslash title="VolumeSlider.tsx"
+import type {PlayerRef} from '@remotion/player';
+import React, {useEffect, useState} from 'react';
+
+export const VolumeSlider: React.FC<{
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({playerRef}) => {
+  const [volume, setVolume] = useState(playerRef.current?.getVolume() ?? 1);
+  const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onVolumeChange = () => {
+      setVolume(current.getVolume());
+    };
+
+    const onMuteChange = () => {
+      setMuted(current.isMuted());
+    };
+
+    current.addEventListener('volumechange', onVolumeChange);
+    current.addEventListener('mutechange', onMuteChange);
+
+    return () => {
+      current.removeEventListener('volumechange', onVolumeChange);
+      current.removeEventListener('mutechange', onMuteChange);
+    };
+  }, [playerRef]);
+
+  const onChange: React.ChangeEventHandler<HTMLInputElement> =
+    React.useCallback(
+      (evt) => {
+        if (!playerRef.current) {
+          return;
+        }
+
+        const newVolume = Number(evt.target.value);
+        if (newVolume > 0 && playerRef.current.isMuted()) {
+          playerRef.current.unmute();
+        }
+
+        playerRef.current.setVolume(newVolume);
+      },
+      [playerRef],
+    );
+
+  return (
+    <input
+      value={muted ? 0 : volume}
+      type="range"
+      min={0}
+      max={1}
+      step={0.01}
+      onChange={onChange}
+    />
+  );
+};
+```
+
+### Mute button
+
+Remotion also considers a video "muted" if the volume is 0.  
+You don't need to handle a special case here.
+
+```tsx twoslash title="MuteButton.tsx"
+import type {PlayerRef} from '@remotion/player';
+import React, {useEffect, useState} from 'react';
+
+export const MuteButton: React.FC<{
+  playerRef: React.RefObject<PlayerRef | null>;
+}> = ({playerRef}) => {
+  const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false);
+
+  const onClick = React.useCallback(() => {
+    if (!playerRef.current) {
+      return;
+    }
+
+    if (playerRef.current.isMuted()) {
+      playerRef.current.unmute();
+    } else {
+      playerRef.current.mute();
+    }
+  }, [playerRef]);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onMuteChange = () => {
+      setMuted(current.isMuted());
+    };
+
+    current.addEventListener('mutechange', onMuteChange);
+    return () => {
+      current.removeEventListener('mutechange', onMuteChange);
+    };
+  }, [playerRef]);
+
+  return (
+    <button type="button" onClick={onClick}>
+      {muted ? 'Unmute' : 'Mute'}
+    </button>
+  );
+};
+```

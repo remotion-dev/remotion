@@ -2,12 +2,17 @@
 image: /generated/articles-docs-cloudrun-renderstilloncloudrun.png
 id: renderstilloncloudrun
 title: renderStillOnCloudrun()
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
+    may change in any version and documentation is not yet finished. See the{' '}
+    <a href="https://remotion.dev/changelog">
+      changelog to stay up to date with breaking changes
+    </a>
+    .
   </p>
 </ExperimentalBadge>
 
@@ -22,18 +27,18 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 // @module: esnext
 // @target: es2017
 // ---cut---
-import { renderStillOnCloudrun } from "@remotion/cloudrun/client";
+import {renderStillOnCloudrun} from '@remotion/cloudrun/client';
 
 const result = await renderStillOnCloudrun({
-  region: "us-east1",
-  serviceName: "remotion-render-bds9aab",
-  composition: "MyStill",
-  imageFormat: "png",
+  region: 'us-east1',
+  serviceName: 'remotion-render-bds9aab',
+  composition: 'MyStill',
+  imageFormat: 'png',
   serveUrl:
-    "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
+    'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
 });
 
-if (result.type === "success") {
+if (result.type === 'success') {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
@@ -59,6 +64,12 @@ _optional. Required if cloudRunUrl not supplied_
 
 The name of the Cloud Run service which should be used to perform the render. This is used in conjunction with the region to determine the service endpoint, as the same service name can exist across multiple regions.
 
+### `metadata`<AvailableFrom v="4.0.216" />
+
+_object - optional_
+
+<Options id="metadata" />
+
 ### `region`
 
 In which [GCP region](/docs/cloudrun/region-selection) your Cloud Run service is deployed. It's highly recommended that your Remotion site is also in the same region.
@@ -75,7 +86,7 @@ The `id` of the [composition](/docs/composition) you want to render.
 
 _optional_
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a JSON object.  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).

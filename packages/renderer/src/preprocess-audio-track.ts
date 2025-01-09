@@ -50,7 +50,7 @@ const preprocessAudioTrackUnlimited = async ({
 	trimRightOffset,
 	forSeamlessAacConcatenation,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
-	const {channels, duration} = await getAudioChannelsAndDuration({
+	const {channels, duration, startTime} = await getAudioChannelsAndDuration({
 		downloadMap,
 		src: resolveAssetSrc(asset.src),
 		indent,
@@ -71,6 +71,7 @@ const preprocessAudioTrackUnlimited = async ({
 		volume: flattenVolumeArray(asset.volume),
 		indent,
 		logLevel,
+		presentationTimeOffsetInSeconds: startTime ?? 0,
 	});
 
 	if (filter === null) {
@@ -96,7 +97,7 @@ const preprocessAudioTrackUnlimited = async ({
 		'Filter:',
 		filter.filter,
 	);
-	const startTime = Date.now();
+	const startTimestamp = Date.now();
 
 	const task = callFf({
 		bin: 'ffmpeg',
@@ -122,7 +123,7 @@ const preprocessAudioTrackUnlimited = async ({
 	Log.verbose(
 		{indent, logLevel},
 		'Preprocessed audio track',
-		`${Date.now() - startTime}ms`,
+		`${Date.now() - startTimestamp}ms`,
 	);
 
 	cleanup();

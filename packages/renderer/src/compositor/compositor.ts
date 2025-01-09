@@ -1,10 +1,10 @@
+import {makeStreamer} from '@remotion/streaming';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
-import {makeStreamer} from '../streaming';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeFileExecutableIfItIsNot} from './make-file-executable';
@@ -108,7 +108,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 				: undefined,
 	});
 
-	let stderrChunks: Buffer[] = [];
+	let stderrChunks: Uint8Array[] = [];
 
 	const waiters = new Map<string, Waiter>();
 
@@ -132,7 +132,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 					(waiters.get(nonce) as Waiter).reject(
 						new Error(`Compositor error: ${parsed.error}\n${parsed.backtrace}`),
 					);
-				} catch (err) {
+				} catch {
 					(waiters.get(nonce) as Waiter).reject(
 						new Error(new TextDecoder('utf8').decode(data)),
 					);

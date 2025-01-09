@@ -1,5 +1,7 @@
-import type {AwsRegion} from '../client';
-import type {LambdaRoutines} from './constants';
+import type {GetLoggingUrlForRendererFunction} from '@remotion/serverless';
+import type {ServerlessRoutines} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 
 const cloudWatchUrlWithQuery = ({
@@ -25,7 +27,7 @@ export const getCloudwatchMethodUrl = ({
 }: {
 	region: AwsRegion;
 	functionName: string;
-	method: LambdaRoutines;
+	method: ServerlessRoutines;
 	rendererFunctionName: string | null;
 	renderId: string;
 }) => {
@@ -45,19 +47,9 @@ export const getLambdaInsightsUrl = ({
 	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#lambda-insights:functions/${functionName}`;
 };
 
-export const getCloudwatchRendererUrl = ({
-	region,
-	functionName,
-	renderId,
-	rendererFunctionName,
-	chunk,
-}: {
-	region: AwsRegion;
-	functionName: string;
-	rendererFunctionName: string | null;
-	renderId: string;
-	chunk: null | number;
-}) => {
+export const getCloudwatchRendererUrl: GetLoggingUrlForRendererFunction<
+	AwsProvider
+> = ({region, functionName, renderId, rendererFunctionName, chunk}) => {
 	const functionNameToUse = rendererFunctionName ?? functionName;
 	const query = `"method=renderer,renderId=${renderId}${
 		chunk === null ? '' : `,chunk=${chunk},`

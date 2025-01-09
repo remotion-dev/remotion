@@ -1,10 +1,15 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {WebpackConfiguration, WebpackOverrideFn} from '@remotion/bundler';
 
 /**
  * @description A function that modifies the default Webpack configuration to make the necessary changes to support Tailwind.
  * @see [Documentation](https://www.remotion.dev/docs/tailwind/enable-tailwind)
  */
-export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
+export const enableTailwind = ((
+	currentConfiguration: WebpackConfiguration,
+	options?: {
+		configLocation?: string;
+	},
+): WebpackConfiguration => {
 	return {
 		...currentConfiguration,
 		module: {
@@ -14,7 +19,8 @@ export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
 					? currentConfiguration.module.rules
 					: []
 				).filter(
-					(rule) => rule !== '...' && !rule.test?.toString().includes('.css'),
+					(rule) =>
+						rule && rule !== '...' && !rule.test?.toString().includes('.css'),
 				),
 				{
 					test: /\.css$/i,
@@ -27,7 +33,12 @@ export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
 								postcssOptions: {
 									plugins: [
 										require.resolve('postcss-preset-env'),
-										require.resolve('tailwindcss'),
+										[
+											require.resolve('tailwindcss'),
+											options?.configLocation
+												? {config: options.configLocation}
+												: {},
+										],
 										require.resolve('autoprefixer'),
 									],
 								},
@@ -38,4 +49,4 @@ export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
 			],
 		},
 	};
-};
+}) satisfies WebpackOverrideFn;

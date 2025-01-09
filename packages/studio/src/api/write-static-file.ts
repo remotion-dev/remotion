@@ -5,6 +5,10 @@ export const writeStaticFile = async ({
 	contents: string | ArrayBuffer;
 	filePath: string;
 }): Promise<void> => {
+	if (window.remotion_isReadOnlyStudio) {
+		throw new Error('writeStaticFile() is not available in read-only Studio');
+	}
+
 	const url = new URL('/api/add-asset', window.location.origin);
 
 	if (filePath.includes('\\')) {

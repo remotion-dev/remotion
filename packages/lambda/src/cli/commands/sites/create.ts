@@ -3,12 +3,16 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {
+	internalGetOrCreateBucket,
+	type Privacy,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
-import {internalGetOrCreateBucket} from '../../../api/get-or-create-bucket';
+import type {AwsProvider} from '../../../functions/aws-implementation';
+import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
-import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
-import {randomHash} from '../../../shared/random-hash';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -16,11 +20,13 @@ import type {
 	BucketCreationProgress,
 	BundleProgress,
 	DeployToS3Progress,
+	DiffingProgress,
 } from '../../helpers/progress-bar';
 import {
 	makeBucketProgress,
 	makeBundleProgress,
 	makeDeployProgressBar,
+	makeDiffingProgressBar,
 } from '../../helpers/progress-bar';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -38,6 +44,7 @@ export const sitesCreateSubcommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint({
 		args,
@@ -85,6 +92,7 @@ export const sitesCreateSubcommand = async (
 		bundleProgress: BundleProgress;
 		bucketProgress: BucketCreationProgress;
 		deployProgress: DeployToS3Progress;
+		diffingProgress: DiffingProgress;
 	} = {
 		bundleProgress: {
 			doneIn: null,
@@ -99,6 +107,10 @@ export const sitesCreateSubcommand = async (
 			sizeUploaded: 0,
 			stats: null,
 		},
+		diffingProgress: {
+			doneIn: null,
+			bytesProcessed: 0,
+		},
 	};
 
 	const updateProgress = (newLine: boolean) => {
@@ -106,8 +118,11 @@ export const sitesCreateSubcommand = async (
 			[
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
+				makeDiffingProgressBar(multiProgress.diffingProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n'),
+			]
+				.filter(NoReactInternals.truthy)
+				.join('\n'),
 			newLine,
 		);
 	};
@@ -125,6 +140,9 @@ export const sitesCreateSubcommand = async (
 				region: getAwsRegion(),
 				enableFolderExpiry,
 				customCredentials: null,
+				providerSpecifics: implementation,
+				forcePathStyle: false,
+				skipPutAcl: parsedLambdaCli.privacy === 'no-acl',
 			})
 		).bucketName;
 
@@ -149,7 +167,7 @@ export const sitesCreateSubcommand = async (
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,
-		siteName: desiredSiteName ?? randomHash(),
+		siteName: desiredSiteName ?? implementation.randomHash(),
 		bucketName,
 		options: {
 			publicDir,
@@ -164,6 +182,18 @@ export const sitesCreateSubcommand = async (
 				}
 
 				updateProgress(false);
+			},
+			onDiffingProgress(bytes, done) {
+				const previous = multiProgress.diffingProgress.bytesProcessed;
+
+				const newBytes = bytes - previous;
+				if (newBytes > 100_000_000 || done) {
+					multiProgress.diffingProgress = {
+						bytesProcessed: bytes,
+						doneIn: done ? Date.now() - bundleStart : null,
+					};
+					updateProgress(false);
+				}
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
@@ -185,6 +215,9 @@ export const sitesCreateSubcommand = async (
 		indent: false,
 		logLevel,
 		throwIfSiteExists,
+		providerSpecifics: implementation,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		fullClientSpecifics: awsFullClientSpecifics,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

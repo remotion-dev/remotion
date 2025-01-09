@@ -7,21 +7,17 @@ crumb: 'Converting Remotion Projects'
 
 If you have a React app that uses the [`<Player>`](/docs/player/player) component, you can turn it also into a Remotion project without having to create a new repository. This will enable you to:
 
-<Step>1</Step> Use the <a href="/docs/studio/">Remotion Studio</a>
-<br />
-<Step>2</Step> Render videos locally
-<br />
+<Step>1</Step> Use the <a href="/docs/studio/">Remotion Studio</a><br />
+<Step>2</Step> Render videos locally<br />
 <Step>2</Step> Create a <a href="/docs/terminology/bundle">
   Remotion Bundle
 </a> that allows rendering in the cloud
-<br />
 
 ## Instructions
 
 <Step>1</Step> Ensure that you don't already have a Studio installed - in the following
 templates, the Studio is already installed and can be started using the command <a href="/docs/cli/studio"><code>npx remotion studio</code></a>
 :<br />
-<br />
 
 - [Next.js (App dir)](/templates/next)
 - [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
@@ -35,8 +31,6 @@ templates, the Studio is already installed and can be started using the command 
 
 <Step>3</Step> Make a new folder <code>remotion</code> and add these two files in
 it:
-<br />
-<br />
 
 ```tsx twoslash title="remotion/Root.tsx"
 // @filename: Composition.tsx
@@ -105,8 +99,6 @@ The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion
 
 <Step>4</Step> Apply common Webpack overrides that are commonly enabled in React
 apps:
-<br />
-<br />
 
 - [TailwindCSS](/docs/tailwind/tailwind)
 - [SCSS](/docs/enable-scss/overview)

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-// eslint-disable-next-line no-restricted-imports
+
 import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -15,10 +15,9 @@ import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {isTargetClosedErr} from './browser/is-target-closed-err';
+import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
-import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -35,7 +34,7 @@ import {
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {getRetriesLeftFromError} from './is-delay-render-error-with.retry';
+import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -55,7 +54,7 @@ import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import type {EmittedArtifact} from './serialize-artifact';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {
@@ -137,7 +136,6 @@ type InnerRenderFramesOptions = {
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
-	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 	serveUrl: string;
 	indent: boolean;
@@ -228,7 +226,6 @@ const innerRenderFrames = async ({
 	muted,
 	makeBrowser,
 	browserReplacer,
-	compositor,
 	sourceMapGetter,
 	logLevel,
 	indent,
@@ -467,7 +464,7 @@ const innerRenderFrames = async ({
 
 		const id = startPerfMeasure('save');
 
-		const {buffer, collectedAssets} = await takeFrameAndCompose({
+		const {buffer, collectedAssets} = await takeFrame({
 			frame,
 			freePage,
 			height,
@@ -489,9 +486,7 @@ const innerRenderFrames = async ({
 			jpegQuality,
 			width,
 			scale,
-			downloadMap,
 			wantsBuffer: Boolean(onFrameBuffer),
-			compositor,
 			timeoutInMilliseconds,
 		});
 		if (onFrameBuffer && !assetsOnly) {
@@ -636,12 +631,13 @@ const innerRenderFrames = async ({
 			const shouldRetryError = (err as Error).stack?.includes(
 				NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
 			);
+			const flakyNetworkError = isFlakyNetworkError(err as Error);
 
 			if (isUserCancelledRender(err) && !shouldRetryError) {
 				throw err;
 			}
 
-			if (!isTargetClosedError && !shouldRetryError) {
+			if (!isTargetClosedError && !shouldRetryError && !flakyNetworkError) {
 				throw err;
 			}
 
@@ -881,8 +877,7 @@ const internalRenderFramesRaw = ({
 				),
 				browserInstance,
 			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
-				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
-					openedServer;
+				const {serveUrl, offthreadPort, sourceMap, downloadMap} = openedServer;
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
@@ -908,7 +903,6 @@ const internalRenderFramesRaw = ({
 					proxyPort: offthreadPort,
 					makeBrowser,
 					browserReplacer,
-					compositor,
 					sourceMapGetter: sourceMap,
 					downloadMap,
 					cancelSignal,
@@ -992,11 +986,9 @@ export const internalRenderFrames = wrapWithErrorHandling(
 	internalRenderFramesRaw,
 );
 
-/**
+/*
  * @description Renders a series of images using Puppeteer and computes information for mixing audio.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
- * @param {RenderFramesOptions} options Configuration options for rendering frames.
- * @returns {Promise<RenderFramesOutput>} Information about the rendered frames and assets.
  */
 export const renderFrames = (
 	options: RenderFramesOptions,
@@ -1048,7 +1040,7 @@ export const renderFrames = (
 	}
 
 	const logLevel: LogLevel =
-		verbose || dumpBrowserLogs ? 'verbose' : passedLogLevel ?? 'info';
+		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
 	const indent = false;
 
 	if (quality) {

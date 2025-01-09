@@ -2,8 +2,8 @@ import {formatBytes} from '@remotion/studio-shared';
 export {
 	ApiRoutes,
 	CopyStillToClipboardRequest,
-	OpenInFileExplorerRequest,
 	getDefaultOutLocation,
+	OpenInFileExplorerRequest,
 } from '@remotion/studio-shared';
 export type {
 	AggregateRenderProgress,
@@ -15,9 +15,9 @@ export type {
 	ModuleMap,
 	PackageManager,
 	ProjectInfo,
+	RenderingProgressInput,
 	RenderJob,
 	RenderJobWithCleanup,
-	RenderingProgressInput,
 	RequiredChromiumOptions,
 	StitchingProgressInput,
 	UiOpenGlOptions,
@@ -28,6 +28,8 @@ import {openBrowser} from './better-opn';
 import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
+import {getInstalledDependencies} from './helpers/get-installed-dependencies';
+import {getInstallCommand} from './helpers/install-command';
 import {
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
@@ -54,4 +56,6 @@ export const StudioServerInternals = {
 	formatBytes,
 	parseAndApplyCodemod,
 	openBrowser,
+	getInstalledDependencies,
+	getInstallCommand,
 };

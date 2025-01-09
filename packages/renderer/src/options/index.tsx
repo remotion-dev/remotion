@@ -14,9 +14,11 @@ import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {glOption} from './gl';
+import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
+import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
@@ -73,6 +75,8 @@ export const allOptions = {
 	onBrowserDownloadOption,
 	throwIfSiteExistsOption,
 	disableGitSourceOption,
+	metadataOption,
+	hardwareAccelerationOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

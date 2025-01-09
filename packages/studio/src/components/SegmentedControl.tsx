@@ -37,8 +37,8 @@ export type SegmentedControlItem = {
 };
 
 export const SegmentedControl: React.FC<{
-	items: SegmentedControlItem[];
-	needsWrapping: boolean;
+	readonly items: SegmentedControlItem[];
+	readonly needsWrapping: boolean;
 }> = ({items, needsWrapping}) => {
 	const controlStyle: React.CSSProperties = useMemo(() => {
 		if (needsWrapping) {
@@ -71,8 +71,8 @@ export const SegmentedControl: React.FC<{
 
 const Item: React.FC<
 	PropsWithChildren<{
-		selected: boolean;
-		onClick: () => void;
+		readonly selected: boolean;
+		readonly onClick: () => void;
 	}>
 > = ({selected, onClick, children}) => {
 	const [hovered, setHovered] = useState(false);

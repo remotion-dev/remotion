@@ -1,4 +1,5 @@
 import {callFf} from './call-ffmpeg';
+import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {generateFfmpegArgs} from './ffmpeg-args';
@@ -55,6 +56,7 @@ type PreStitcherOptions = {
 	indent: boolean;
 	colorSpace: ColorSpace | null;
 	binariesDirectory: string | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -104,6 +106,9 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			encodingMaxRate: options.encodingMaxRate,
 			encodingBufferSize: options.encodingBufferSize,
 			colorSpace: options.colorSpace,
+			hardwareAcceleration: options.hardwareAcceleration,
+			indent: options.indent,
+			logLevel: options.logLevel,
 		}),
 
 		'-y',

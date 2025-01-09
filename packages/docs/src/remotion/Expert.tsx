@@ -4,7 +4,7 @@ import {experts} from '../data/experts';
 import './font.css';
 
 export const Expert: React.FC<{
-	expertId: string;
+	readonly expertId: string;
 }> = ({expertId}) => {
 	const expert = experts.find((e) => e.slug === expertId);
 
@@ -69,7 +69,7 @@ export const Expert: React.FC<{
 						flexDirection: 'row',
 					}}
 				>
-					<Img height="350" src={staticFile(expert.image)} />
+					<Img height="350" src={staticFile(expert!.image)} />
 					<div
 						style={{
 							width: 700,
@@ -87,7 +87,7 @@ export const Expert: React.FC<{
 								fontSize: 60,
 							}}
 						>
-							{expert.name}
+							{expert!.name}
 						</div>
 					</div>
 				</div>

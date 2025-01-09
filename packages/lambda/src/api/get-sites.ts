@@ -1,10 +1,10 @@
-import {lambdaLs} from '../functions/helpers/io';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import type {AwsProvider} from '../functions/aws-implementation';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {getSitesKey} from '../shared/constants';
-import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import type {BucketWithLocation} from './get-buckets';
-import {getRemotionS3Buckets} from './get-buckets';
 
 type Site = {
 	sizeInBytes: number;
@@ -14,39 +14,53 @@ type Site = {
 	serveUrl: string;
 };
 
-export type GetSitesInput = {
+type MandatoryParameters = {
 	region: AwsRegion;
-	forceBucketName?: string;
 };
+
+type OptionalParameters = {
+	forceBucketName: string | null;
+	forcePathStyle: boolean;
+};
+
+type GetSitesInternalInput = MandatoryParameters & OptionalParameters;
+export type GetSitesInput = MandatoryParameters & Partial<OptionalParameters>;
 
 export type GetSitesOutput = {
 	sites: Site[];
 	buckets: BucketWithLocation[];
 };
 
-/**
- * @description Gets all the deployed sites for a certain AWS region.
- * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
- * @param {AwsRegion} params.region The AWS region that you want to query for.
- * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
- */
-export const getSites = async ({
+export const internalGetSites = async ({
 	region,
 	forceBucketName,
-}: GetSitesInput): Promise<GetSitesOutput> => {
-	const {remotionBuckets} = forceBucketName
-		? await getRemotionS3Buckets(region, forceBucketName)
-		: await getRemotionS3Buckets(region);
-	const accountId = await getAccountId({region});
+	providerSpecifics,
+	forcePathStyle,
+}: GetSitesInternalInput & {
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}): Promise<GetSitesOutput> => {
+	const remotionBuckets = forceBucketName
+		? await providerSpecifics.getBuckets({
+				region,
+				forceBucketName,
+				forcePathStyle,
+			})
+		: await providerSpecifics.getBuckets({
+				region,
+				forceBucketName: null,
+				forcePathStyle,
+			});
+	const accountId = await providerSpecifics.getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
 
 	for (const bucket of remotionBuckets) {
-		const ls = await lambdaLs({
+		const ls = await providerSpecifics.listObjects({
 			bucketName: bucket.name,
 			prefix: getSitesKey(''),
 			region,
 			expectedBucketOwner: accountId,
+			forcePathStyle,
 		});
 
 		for (const file of ls) {
@@ -94,4 +108,21 @@ export const getSites = async ({
 		return sites[siteId];
 	});
 	return {sites: sitesArray, buckets: remotionBuckets};
+};
+
+/*
+ * @description Gets an array of Remotion projects in Cloud Storage, in your GCP project.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/getsites)
+ */
+export const getSites = ({
+	region,
+	forceBucketName,
+	forcePathStyle,
+}: GetSitesInput): Promise<GetSitesOutput> => {
+	return internalGetSites({
+		region,
+		forceBucketName: forceBucketName ?? null,
+		forcePathStyle: forcePathStyle ?? false,
+		providerSpecifics: awsImplementation,
+	});
 };

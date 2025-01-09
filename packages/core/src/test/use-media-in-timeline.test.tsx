@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+import {renderHook} from '@testing-library/react';
 import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
@@ -9,7 +10,6 @@ import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
-import {renderHook} from './render-hook.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 beforeAll(() => {
@@ -72,6 +72,8 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				stack: null,
 				showInTimeline: true,
 				premountDisplay: null,
+				onAutoPlayError: null,
+				isPremounting: false,
 			}),
 		{
 			wrapper,

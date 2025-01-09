@@ -34,7 +34,9 @@ export type EnsureBrowserOptions = Partial<
 	} & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>
 >;
 
-export const internalEnsureBrowser = async ({
+let currentEnsureBrowserOperation: Promise<unknown> = Promise.resolve();
+
+const internalEnsureBrowserUncapped = async ({
 	indent,
 	logLevel,
 	browserExecutable,
@@ -49,6 +51,15 @@ export const internalEnsureBrowser = async ({
 
 	const newStatus = getBrowserStatus(browserExecutable);
 	return newStatus;
+};
+
+export const internalEnsureBrowser = (
+	options: InternalEnsureBrowserOptions,
+): Promise<BrowserStatus> => {
+	currentEnsureBrowserOperation = currentEnsureBrowserOperation.then(() =>
+		internalEnsureBrowserUncapped(options),
+	);
+	return currentEnsureBrowserOperation as Promise<BrowserStatus>;
 };
 
 const getBrowserStatus = (
@@ -77,11 +88,9 @@ const getBrowserStatus = (
 	return {type: 'no-browser'};
 };
 
-/**
- * Ensures a browser is locally installed so a Remotion render can be executed. This function manages the browser's download or validates existing browser paths.
- * @see [Documentation](https://remotion.dev/docs/renderer/ensure-browser)
- * @param {EnsureBrowserOptions} [options] Configuration options which may include a `browserExecutable` path, `logLevel` settings, and `onBrowserDownload` function to manage download specifics and progression.
- * @returns {Promise<void>} A promise that resolves when the browser is prepared with no explicit return value.
+/*
+ * @description Ensures a browser is locally installed so a Remotion render can be executed.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/ensure-browser)
  */
 export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 	const indent = false;

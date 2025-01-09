@@ -21,7 +21,7 @@ export type CodemodStatus =
 	  };
 
 export const CodemodDiffPreview: React.FC<{
-	status: CodemodStatus;
+	readonly status: CodemodStatus;
 }> = ({status}) => {
 	if (status.type === 'loading') {
 		return null;

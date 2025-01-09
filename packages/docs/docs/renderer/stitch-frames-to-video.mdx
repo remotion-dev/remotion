@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-stitch-frames-to-video.png
 id: stitch-frames-to-video
 title: stitchFramesToVideo()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 _Part of the `@remotion/renderer` package._
@@ -17,10 +17,6 @@ In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API
 
 An object with the following properties:
 
-### `dir`
-
-A `string` containing the absolute path of the directory where the frames are located. This will be the directory where the `ffmpeg` command will be executed.
-
 ### `fps`
 
 A `number` specifying the desired frame rate of the output video.
@@ -33,13 +29,18 @@ A `number` specifying the desired output width in pixels for the video.
 
 A `number` specifying the desired output height in pixels for the video.
 
+### `metadata`<AvailableFrom v="4.0.216" />
+
+_object_
+
+<Options id="metadata" />
+
 ### `assetsInfo`
 
-Information about the audio mix. This is part of the return value of [renderFrames()](/docs/renderer/render-frames#return-value).
+Information about the frames and audio mix. This is part of the return value of [`renderFrames()`](/docs/renderer/render-frames#return-value).  
+The data structure is not stable between Remotion versions.
 
 ### `outputLocation?`
-
-_optional since v3.0.26_
 
 An absolute path specify where the output file should be written to.
 
@@ -47,25 +48,19 @@ If not specified or set to `null`, the file will be returned in-memory as a buff
 
 ### `force?`
 
-_optional_
-
 Whether Remotion should overwrite the file in `outputLocation` if it already exists. `true` by default.
 
 ### `pixelFormat?`
-
-_optional_
 
 Sets the pixel format. See [here](/docs/config#setpixelformat) for available values. The default is `yuv420p`.
 
 ### `codec?`
 
-_optional_
-
 Set a codec. See the [encoding guide](/docs/encoding) for available values and guidance on which one to choose. The default is `h264`.
 
-### `audioCodec?`
+### `audioCodec?`<AvailableFrom v="3.3.41" />
 
-_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+_"pcm-16" | "aac" | "mp3" | "opus"_
 
 Choose the encoding of your audio.
 
@@ -78,35 +73,29 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
-<Options id="audio-bitrate"/>
+<Options id="audio-bitrate" />
 
 ### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
-<Options id="video-bitrate"/>
+<Options id="video-bitrate" />
 
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
-<Options id="buffer-size"/>
+<Options id="buffer-size" />
 
 ### `maxRate?`<AvailableFrom v="4.0.78" />
 
-<Options id="max-rate"/>
+<Options id="max-rate" />
 
 ### `crf?`
-
-_optional_
 
 The constant rate factor of the output, a parameter which controls quality. See [here](/docs/config#setcrf) for more information about this parameter. Default is depending on the codec.
 
 ### `proResProfile?`
 
-_optional_
-
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
 ### `onProgress?`
-
-_optional_
 
 Callback function which informs about the encoding progress. The `frameNumber` value is a `number`.
 
@@ -118,8 +107,6 @@ const onProgress = (frameNumber: number) => {
 
 ### `onDownload?`
 
-_optional_
-
 Notifies when a remote asset needs to be downloaded in order to extract the audio track.
 
 ```ts twoslash
@@ -130,48 +117,58 @@ const onDownload = (src: string) => {
 
 ### `numberOfGifLoops?`<AvailableFrom v="3.1.0" />
 
-_optional_
-
 <Options id="number-of-gif-loops" />
 
 ### `muted?`<AvailableFrom v="3.2.1" />
 
-_optional_
-
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`renderFrames()`](/docs/renderer/render-frames).
 
-### `verbose?`
+### `hardwareAcceleration?`<AvailableFrom v="4.0.228" />
 
-_optional_
+<Options id="hardware-acceleration" />
+
+### `verbose?`
 
 A boolean value that when set to `true`, will log all kinds of debug information. Default `false`.
 
 ### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
-_optional_
-
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
+
+### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
+
+Render a silent audio track if there wouldn't be any otherwise.
 
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
 
+### `separateAudioTo?`<AvailableFrom v="4.0.123" />
+
+<Options cli id="separate-audio-to" />
+
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
 
-### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
+### `x264Preset?`
 
-_function - optional_
+<Options id="x264-preset" />
+
+### `colorSpace?`<AvailableFrom v="4.0.28"/>
+
+<Options id="color-space" />
+
+### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash
-import type { FfmpegOverrideFn } from "@remotion/renderer";
+import type {FfmpegOverrideFn} from '@remotion/renderer';
 
-const ffmpegOverride: FfmpegOverrideFn = ({ type, args }) => {
+const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
   console.log(type); // "stitcher" | "pre-stitcher
-  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+  return [...args, '-vf', 'eq=brightness=0:saturation=1'];
 };
 ```
 
@@ -194,13 +191,13 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 ### ~~`ffmpegExecutable`~~
 
-_removed in v4.0, optional_
+_removed in v4.0_
 
 A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
 
 ### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
-_removed in v4.0, optional_
+_removed in v4.0_
 
 An absolute path overriding the `ffprobe` executable to use.
 

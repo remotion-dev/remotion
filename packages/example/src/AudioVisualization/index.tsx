@@ -45,9 +45,9 @@ const Orb = styled.div`
 `;
 
 const Text: React.FC<{
-	color: string;
-	transform: string;
-	blur: number;
+	readonly color: string;
+	readonly transform: string;
+	readonly blur: number;
 }> = ({color, transform, blur}) => {
 	const frame = useCurrentFrame();
 	const cool = (offset: number) => Math.sin((frame + offset) / 10);

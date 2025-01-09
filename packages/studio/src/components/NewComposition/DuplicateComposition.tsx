@@ -6,7 +6,8 @@ import {
 	validateCompositionDimension,
 	validateCompositionName,
 } from '../../helpers/validate-new-comp-data';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalFooterContainer} from '../ModalFooter';
+import {ModalHeader} from '../ModalHeader';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
@@ -37,7 +38,7 @@ const comboBoxStyle: React.CSSProperties = {
 export type CompType = 'composition' | 'still';
 
 const DuplicateCompositionLoaded: React.FC<{
-	initialType: CompType;
+	readonly initialType: CompType;
 }> = ({initialType}) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -61,7 +62,6 @@ const DuplicateCompositionLoaded: React.FC<{
 		const initialName = resolved.result.id.replace(/([0-9]+)$/, '');
 		let currentName = initialName;
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			currentName = initialName + prefix;
 
@@ -216,7 +216,7 @@ const DuplicateCompositionLoaded: React.FC<{
 
 	return (
 		<>
-			<NewCompHeader title={`Duplicate ${resolved.result.id}`} />
+			<ModalHeader title={`Duplicate ${resolved.result.id}`} />
 			<form onSubmit={onSubmit}>
 				<div style={content}>
 					{initialCompType === 'composition' ? (
@@ -354,7 +354,7 @@ const DuplicateCompositionLoaded: React.FC<{
 						</div>
 					) : null}
 				</div>
-				<div style={{...content, borderTop: '1px solid black'}}>
+				<ModalFooterContainer>
 					<CodemodFooter
 						loadingNotification={'Duplicating...'}
 						errorNotification={'Could not duplicate composition'}
@@ -364,7 +364,7 @@ const DuplicateCompositionLoaded: React.FC<{
 						codemod={codemod}
 						valid={valid}
 					/>
-				</div>
+				</ModalFooterContainer>
 			</form>
 		</>
 	);

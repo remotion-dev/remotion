@@ -1,12 +1,12 @@
+import {getRemotionEnvironment} from 'remotion';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
 import {calcNewProps} from './helpers/calc-new-props';
 
-/**
- * Saves the defaultProps for a composition back to the root file.
- * @param {string} compositionId The ID of the composition to save the defaultProps for.
- * @param {SafeDefaultPropsFunction} defaultProps A function that returns the new defaultProps for the composition.
+/*
+ * @description Saves the defaultProps for a composition back to the root file.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/save-default-props)
  */
 export const saveDefaultProps = async ({
 	compositionId,
@@ -15,6 +15,14 @@ export const saveDefaultProps = async ({
 	compositionId: string;
 	defaultProps: UpdateDefaultPropsFunction;
 }) => {
+	if (!getRemotionEnvironment().isStudio) {
+		throw new Error('saveDefaultProps() is only available in the Studio');
+	}
+
+	if (window.remotion_isReadOnlyStudio) {
+		throw new Error('saveDefaultProps() is not available in read-only Studio');
+	}
+
 	try {
 		await import('zod');
 	} catch {

@@ -1,7 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {callLambda} from './call-lambda';
-import {COMMAND_NOT_FOUND, LambdaRoutines} from './constants';
+import {
+	COMMAND_NOT_FOUND,
+	ServerlessRoutines,
+} from '@remotion/serverless/client';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 
 export const getFunctionVersion = async ({
 	functionName,
@@ -13,13 +16,14 @@ export const getFunctionVersion = async ({
 	logLevel: LogLevel;
 }): Promise<string> => {
 	try {
-		const result = await callLambda({
+		const result = await awsImplementation.callFunctionSync({
 			functionName,
 			payload: {
 				logLevel,
+				type: ServerlessRoutines.info,
 			},
 			region,
-			type: LambdaRoutines.info,
+			type: ServerlessRoutines.info,
 			timeoutInTest: 120000,
 		});
 		return result.version;

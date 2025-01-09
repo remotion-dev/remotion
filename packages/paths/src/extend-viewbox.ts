@@ -1,7 +1,6 @@
-/**
- * @description Extends a viewbox in all directions by a scale factor.
- * @param {string} currentViewBox A valid SVG viewBox
- * @see [Documentation](https://remotion.dev/docs/paths/extend-viewbox)
+/*
+ * @description Widens an SVG viewBox in all directions by a certain scale factor.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/extend-viewbox)
  */
 export const extendViewBox = (currentViewBox: string, scale: number) => {
 	const relativeScale = scale - 1;

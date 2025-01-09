@@ -1,15 +1,15 @@
 import type {FunctionConfiguration} from '@aws-sdk/client-lambda';
 import {ListFunctionsCommand} from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
+import type {FunctionInfo} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
-import type {FunctionInfo} from './get-function-info';
 
 export type GetFunctionsInput = {
 	region: AwsRegion;
@@ -51,12 +51,9 @@ const getAllFunctions = async ({
 	return allLambdas;
 };
 
-/**
- * @description Lists Remotion Lambda render functions deployed to AWS Lambda.
+/*
+ * @description Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain region.
  * @see [Documentation](https://remotion.dev/docs/lambda/getfunctions)
- * @param params.region The region of which the functions should be listed.
- * @param params.compatibleOnly Whether only functions compatible with the installed version of Remotion Lambda should be returned.
- * @returns {Promise<FunctionInfo[]>} An array with the objects containing information about the deployed functions.
  */
 export const getFunctions = async (
 	params: GetFunctionsInput,
@@ -80,7 +77,7 @@ export const getFunctions = async (
 					logLevel: params.logLevel ?? 'info',
 				});
 				return version;
-			} catch (err) {
+			} catch {
 				return null;
 			}
 		}),

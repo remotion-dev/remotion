@@ -5,20 +5,24 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
-import {downloadMedia} from '../../../api/download-media';
+import {internalDownloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
-import type {EnhancedErrorInfo} from '../../../functions/helpers/write-lambda-error';
 
+import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
+import {
+	validateFramesPerFunction,
+	validatePrivacy,
+	type ServerlessCodec,
+} from '@remotion/serverless/client';
+import type {AwsProvider} from '../../../functions/aws-implementation';
+import {parseFunctionName} from '../../../functions/helpers/parse-function-name';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../../shared/constants';
 import {sleep} from '../../../shared/sleep';
-import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
-import type {LambdaCodec} from '../../../shared/validate-lambda-codec';
-import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
@@ -52,13 +56,20 @@ const {
 	overwriteOption,
 	binariesDirectoryOption,
 	preferLosslessOption,
+	metadataOption,
 } = BrowserSafeApis.options;
 
-export const renderCommand = async (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-) => {
+export const renderCommand = async ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
@@ -161,6 +172,9 @@ export const renderCommand = async (
 	const preferLossless = preferLosslessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const metadata = metadataOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -255,7 +269,7 @@ export const renderCommand = async (
 		uiImageFormat: null,
 	});
 
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -263,7 +277,10 @@ export const renderCommand = async (
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
+	validateFramesPerFunction({
+		framesPerFunction: framesPerLambda,
+		durationInFrames: 1,
+	});
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
@@ -271,7 +288,7 @@ export const renderCommand = async (
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as LambdaCodec,
+		codec: codec as ServerlessCodec,
 		imageFormat,
 		crf: crf ?? undefined,
 		envVariables,
@@ -318,6 +335,8 @@ export const renderCommand = async (
 		x264Preset: x264Preset ?? null,
 		preferLossless,
 		indent: false,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		metadata: metadata ?? null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -407,12 +426,15 @@ export const renderCommand = async (
 		);
 	}
 
+	const adheresToFunctionNameConvention = parseFunctionName(functionName);
+
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
 		logLevel,
+		skipLambdaInvocation: Boolean(adheresToFunctionNameConvention),
 	});
 	progressBar.update(
 		makeProgressString({
@@ -445,7 +467,7 @@ export const renderCommand = async (
 
 			if (downloadName) {
 				const downloadStart = Date.now();
-				const download = await downloadMedia({
+				const download = await internalDownloadMedia({
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -464,6 +486,8 @@ export const renderCommand = async (
 							false,
 						);
 					},
+					providerSpecifics: providerSpecifics,
+					forcePathStyle: parsedLambdaCli['force-path-style'],
 				});
 				downloadOrNothing = download;
 				progressBar.update(
@@ -567,6 +591,7 @@ export const renderCommand = async (
 					name: err.name,
 					stack: err.stack,
 					stackFrame: frames,
+					chunk: err.chunk,
 				});
 				await CliInternals.printError(errorWithStackFrame, logLevel);
 			}

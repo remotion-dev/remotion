@@ -4,7 +4,7 @@ import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalHeader} from '../ModalHeader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob, removeRenderJob} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
@@ -38,7 +38,9 @@ const buttonRow: React.CSSProperties = {
 	justifyContent: 'flex-end',
 };
 
-export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
+export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
+	jobId,
+}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {jobs} = useContext(RenderQueueContext);
 	const job = jobs.find((j) => j.id === jobId);
@@ -74,7 +76,7 @@ export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<NewCompHeader title={`Render ${job.compositionId}`} />
+			<ModalHeader title={`Render ${job.compositionId}`} />
 			<div style={container}>
 				{job.status === 'failed' ? (
 					<>

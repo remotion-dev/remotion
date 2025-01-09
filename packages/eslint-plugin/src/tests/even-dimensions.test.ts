@@ -1,18 +1,18 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules/even-dimensions";
+import {ESLintUtils} from '@typescript-eslint/utils';
+import rule from '../rules/even-dimensions';
 
 const ruleTester = new ESLintUtils.RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
 });
 
-ruleTester.run("even-dimensions", rule, {
-  valid: [
-    `
+ruleTester.run('even-dimensions', rule, {
+	valid: [
+		`
 import {Composition} from 'remotion';
 
 export const Re = () => {
@@ -21,7 +21,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Composition} from 'remotion';
 
 export const Re = () => {
@@ -30,7 +30,7 @@ export const Re = () => {
   );
 }
           `,
-    `
+		`
 import {Still} from 'remotion';
 
 export const Re = () => {
@@ -39,10 +39,10 @@ export const Re = () => {
   );
 }
           `,
-  ],
-  invalid: [
-    {
-      code: `
+	],
+	invalid: [
+		{
+			code: `
 import {Composition} from 'remotion';
 
 export const Re = () => {
@@ -51,14 +51,14 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "EvenDimensions",
-        },
-      ],
-    },
-    {
-      code: `
+			errors: [
+				{
+					messageId: 'EvenDimensions',
+				},
+			],
+		},
+		{
+			code: `
 import {Composition} from 'remotion';
 
 export const Re = () => {
@@ -67,11 +67,11 @@ export const Re = () => {
   );
 }
       `,
-      errors: [
-        {
-          messageId: "EvenDimensions",
-        },
-      ],
-    },
-  ],
+			errors: [
+				{
+					messageId: 'EvenDimensions',
+				},
+			],
+		},
+	],
 });

@@ -3,7 +3,7 @@ image: /generated/articles-docs-visual-editing.png
 id: visual-editing
 title: Edit default props visually
 sidebar_label: Visual editing
-crumb: "How To"
+crumb: 'How To'
 ---
 
 <YouTube
@@ -41,7 +41,9 @@ Controls are implemented for:
 - [`zColor()`](/docs/zod-types/z-color) (from `@remotion/zod-types`)
 - [`zTextarea()`](/docs/zod-types/z-textarea) (from `@remotion/zod-types`)
 - [`staticFile()`](/docs/staticfile) assets by typing as `z.string()` and using `staticFile()` in your code
-- `.default()`
+- `.min()`
+- `.max()`
+- `.step()`
 
 ## Editing JSON
 
@@ -53,8 +55,8 @@ Remotion can statically analyze your root file and allow you to save props back 
 
 ```tsx twoslash title="Inlined defaultProps" {15-18}
 // @filename: MyComponent.tsx
-import React from "react";
-import { z } from "zod";
+import React from 'react';
+import {z} from 'zod';
 
 export const myCompSchema = z.object({
   propOne: z.string(),
@@ -76,9 +78,9 @@ export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
 // @filename: Root.tsx
 // organize-imports-ignore
 // ---cut---
-import React from "react";
-import { Composition } from "remotion";
-import { MyComponent, myCompSchema } from "./MyComponent";
+import React from 'react';
+import {Composition} from 'remotion';
+import {MyComponent, myCompSchema} from './MyComponent';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -91,8 +93,8 @@ export const RemotionRoot: React.FC = () => {
       height={1080}
       schema={myCompSchema}
       defaultProps={{
-        propOne: "Hello World",
-        propTwo: "Welcome to Remotion",
+        propOne: 'Hello World',
+        propTwo: 'Welcome to Remotion',
       }}
     />
   );

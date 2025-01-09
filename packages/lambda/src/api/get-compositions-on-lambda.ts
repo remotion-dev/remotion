@@ -1,15 +1,15 @@
 import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {VideoConfig} from 'remotion/no-react';
-import {VERSION} from 'remotion/version';
-import type {AwsRegion} from '../client';
-import {LambdaRoutines} from '../defaults';
-import {callLambda} from '../shared/call-lambda';
 import {
+	ServerlessRoutines,
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
-} from '../shared/compress-props';
+} from '@remotion/serverless/client';
+import type {VideoConfig} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
+import {awsImplementation} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -23,24 +23,16 @@ export type GetCompositionsOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+	forcePathStyle?: boolean;
 } & Partial<
 	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
 >;
 
 export type GetCompositionsOnLambdaOutput = VideoConfig[];
 
-/**
- * @description Returns the compositions from a serveUrl
+/*
+ * @description Gets the compositions inside a Lambda function.
  * @see [Documentation](https://remotion.dev/docs/lambda/getcompositionsonlambda)
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.inputProps The input props that should be passed while the compositions are evaluated.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.region The AWS region in which the video should be rendered.
- * @param params.logLevel The log level of the Lambda function
- * @param params.timeoutInMilliseconds The timeout of the Lambda function
- * @param params.chromiumOptions The options to pass to Chromium
- * @returns The compositions
  */
 export const getCompositionsOnLambda = async ({
 	chromiumOptions,
@@ -54,6 +46,7 @@ export const getCompositionsOnLambda = async ({
 	forceBucketName: bucketName,
 	dumpBrowserLogs,
 	offthreadVideoCacheSizeInBytes,
+	forcePathStyle,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -62,25 +55,35 @@ export const getCompositionsOnLambda = async ({
 		region,
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		needsToUpload: getNeedsToUpload('video-or-audio', [
-			stringifiedInputProps.length,
-		]),
+		needsToUpload: getNeedsToUpload({
+			type: 'video-or-audio',
+			sizes: [
+				stringifiedInputProps.length,
+				JSON.stringify(envVariables).length,
+			],
+			providerSpecifics: awsImplementation,
+		}),
+		providerSpecifics: awsImplementation,
+		forcePathStyle: forcePathStyle ?? false,
+		skipPutAcl: false,
 	});
 
 	try {
-		const res = await callLambda({
+		const res = await awsImplementation.callFunctionSync({
 			functionName,
-			type: LambdaRoutines.compositions,
+			type: ServerlessRoutines.compositions,
 			payload: {
+				type: ServerlessRoutines.compositions,
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
-				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : (logLevel ?? 'info'),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+				forcePathStyle: forcePathStyle ?? false,
 			},
 			region,
 			timeoutInTest: 120000,

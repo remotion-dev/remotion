@@ -18,8 +18,8 @@ import {ShowRulersProvider} from './ShowRulersProvider';
 import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 
 export const EditorContexts: React.FC<{
-	children: React.ReactNode;
-	readOnlyStudio: boolean;
+	readonly children: React.ReactNode;
+	readonly readOnlyStudio: boolean;
 }> = ({children, readOnlyStudio}) => {
 	return (
 		<ZodProvider>

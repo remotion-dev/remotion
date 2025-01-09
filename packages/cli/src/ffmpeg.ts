@@ -35,11 +35,7 @@ export const dynamicLibEnv = (
 	};
 };
 
-export const ffmpegCommand = (
-	_root: string,
-	args: string[],
-	logLevel: LogLevel,
-) => {
+export const ffmpegCommand = (args: string[], logLevel: LogLevel) => {
 	const {value: binariesDirectory} =
 		BrowserSafeApis.options.binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
@@ -56,15 +52,12 @@ export const ffmpegCommand = (
 	const done = spawnSync(binary, args, {
 		stdio: 'inherit',
 		env: dynamicLibEnv(false, logLevel, binariesDirectory),
+		cwd: process.cwd(),
 	});
 	process.exit(done.status as number);
 };
 
-export const ffprobeCommand = (
-	_root: string,
-	args: string[],
-	logLevel: LogLevel,
-) => {
+export const ffprobeCommand = (args: string[], logLevel: LogLevel) => {
 	const {value: binariesDirectory} =
 		BrowserSafeApis.options.binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
@@ -78,7 +71,7 @@ export const ffprobeCommand = (
 	RenderInternals.makeFileExecutableIfItIsNot(binary);
 
 	const done = spawnSync(binary, args, {
-		cwd: path.dirname(binary),
+		cwd: process.cwd(),
 		stdio: 'inherit',
 		env: dynamicLibEnv(false, logLevel, binariesDirectory),
 	});

@@ -291,7 +291,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			opacity: premountingActive ? 0 : 1,
 			pointerEvents: premountingActive
 				? 'none'
-				: passedStyle?.pointerEvents ?? undefined,
+				: (passedStyle?.pointerEvents ?? undefined),
 		};
 	}, [premountingActive, passedStyle]);
 
@@ -325,7 +325,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	return <RegularSequence {...props} ref={ref} />;
 };
 
-/**
+/*
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */

@@ -1,0 +1,4 @@
+/**
+ * @description Preloads a video in the DOM so that when a video tag is mounted, it can play immediately.
+ * @see [Documentation](https://www.remotion.dev/docs/preload/preload-video)
+ */

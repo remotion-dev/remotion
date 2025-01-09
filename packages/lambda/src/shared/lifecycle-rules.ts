@@ -2,23 +2,26 @@ import {
 	DeleteBucketLifecycleCommand,
 	PutBucketLifecycleConfigurationCommand,
 } from '@aws-sdk/client-s3';
-import type {AwsRegion} from '../client';
+import type {CustomCredentials} from '@remotion/serverless/client';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {
 	createLifeCycleInput,
 	deleteLifeCycleInput,
 } from '../functions/helpers/apply-lifecyle';
 import {getLifeCycleRules} from '../functions/helpers/lifecycle';
-import type {CustomCredentials} from './aws-clients';
-import {getS3Client} from './aws-clients';
+import type {AwsRegion} from '../regions';
+import {getS3Client} from './get-s3-client';
 
 const createLCRules = async ({
 	bucketName,
 	region,
 	customCredentials,
+	forcePathStyle,
 }: {
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
+	forcePathStyle: boolean;
 }) => {
 	const lcRules = getLifeCycleRules();
 	// create the lifecyle rules
@@ -30,7 +33,9 @@ const createLCRules = async ({
 		createCommandInput,
 	);
 	try {
-		await getS3Client(region, customCredentials).send(createCommand);
+		await getS3Client({region, customCredentials, forcePathStyle}).send(
+			createCommand,
+		);
 	} catch (err) {
 		if ((err as Error).stack?.includes('AccessDenied')) {
 			throw new Error(
@@ -44,16 +49,18 @@ const deleteLCRules = async ({
 	bucketName,
 	region,
 	customCredentials,
+	forcePathStyle,
 }: {
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
+	forcePathStyle: boolean;
 }) => {
 	const deleteCommandInput = deleteLifeCycleInput({
 		bucketName,
 	});
 	try {
-		await getS3Client(region, customCredentials).send(
+		await getS3Client({region, customCredentials, forcePathStyle}).send(
 			new DeleteBucketLifecycleCommand(deleteCommandInput),
 		);
 	} catch (err) {
@@ -70,19 +77,31 @@ export const applyLifeCyleOperation = async ({
 	bucketName,
 	region,
 	customCredentials,
+	forcePathStyle,
 }: {
 	enableFolderExpiry: boolean | null;
 	bucketName: string;
 	region: AwsRegion;
-	customCredentials: CustomCredentials | null;
+	customCredentials: CustomCredentials<AwsProvider> | null;
+	forcePathStyle: boolean;
 }) => {
 	if (enableFolderExpiry === null) {
 		return;
 	}
 
 	if (enableFolderExpiry === true) {
-		await createLCRules({bucketName, region, customCredentials});
+		await createLCRules({
+			bucketName,
+			region,
+			customCredentials,
+			forcePathStyle,
+		});
 	} else {
-		await deleteLCRules({bucketName, region, customCredentials});
+		await deleteLCRules({
+			bucketName,
+			region,
+			customCredentials,
+			forcePathStyle,
+		});
 	}
 };

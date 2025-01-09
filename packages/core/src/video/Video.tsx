@@ -33,6 +33,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		_remotionInternalNativeLoopPassed,
 		showInTimeline,
+		onAutoPlayError,
 		...otherProps
 	} = props;
 	const {loop, _remotionDebugSeeking, ...propsOtherThanLoop} = props;
@@ -62,11 +63,23 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations],
 	);
 
+	const onVideoFrame = useCallback(() => {}, []);
+
 	const durationFetched =
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
 
 	if (loop && durationFetched !== undefined) {
+		if (!Number.isFinite(durationFetched)) {
+			return (
+				<Video
+					{...propsOtherThanLoop}
+					ref={ref}
+					_remotionInternalNativeLoopPassed
+				/>
+			);
+		}
+
 		const mediaDuration = durationFetched * fps;
 
 		return (
@@ -115,7 +128,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (environment.isRendering) {
 		return (
-			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
+			<VideoForRendering
+				onDuration={onDuration}
+				onVideoFrame={onVideoFrame ?? null}
+				{...otherProps}
+				ref={ref}
+			/>
 		);
 	}
 
@@ -124,6 +142,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			onlyWarnForMediaSeekingError={false}
 			{...otherProps}
 			ref={ref}
+			onVideoFrame={null}
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			onDuration={onDuration}
@@ -133,12 +152,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			}
 			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			showInTimeline={showInTimeline ?? true}
+			onAutoPlayError={onAutoPlayError ?? undefined}
 		/>
 	);
 };
 
-/**
- * @description allows you to include a video file in your Remotion project. It wraps the native HTMLVideoElement.
+/*
+ * @description Wraps the native `<video>` element to include video in your component that is synchronized with Remotion's time.
  * @see [Documentation](https://www.remotion.dev/docs/video)
  */
 export const Video = forwardRef(VideoForwardingFunction);

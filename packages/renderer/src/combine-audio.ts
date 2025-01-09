@@ -217,7 +217,7 @@ const combineAudioSeamlessly = async ({
 		return output;
 	} catch (e) {
 		rmSync(fileListTxt, {recursive: true});
-		console.log(e);
+		Log.error({indent, logLevel}, e);
 		throw e;
 	}
 };

@@ -1,14 +1,37 @@
 ---
 image: /generated/articles-docs-gif-gif.png
 slug: gif
-sidebar_label: "<Gif>"
-title: "<Gif>"
-crumb: "@remotion/gif"
+sidebar_label: '<Gif>'
+title: '<Gif>'
+crumb: '@remotion/gif'
 ---
 
 _Part of the [`@remotion/gif`](/docs/gif) package_
 
 Displays a GIF that synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
+
+```tsx twoslash
+import {useRef} from 'react';
+import {useVideoConfig} from 'remotion';
+// ---cut---
+import {Gif} from '@remotion/gif';
+
+export const MyComponent: React.FC = () => {
+  const {width, height} = useVideoConfig();
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  return (
+    <Gif
+      ref={ref}
+      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
+      width={width}
+      height={height}
+      fit="fill"
+      playbackRate={2}
+    />
+  );
+};
+```
 
 ## Props
 
@@ -22,15 +45,18 @@ The source of the GIF. Can be an URL or a local image - see [Importing assets](/
 Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-<summary>More info</summary>
-<ul>
-<li>
-Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
-</li>
-<li>
-You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
-</li>
-</ul>
+  <summary>More info</summary>
+  <ul>
+    <li>
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it
+      may be different if rendering on Lambda or the port is busy.
+    </li>
+    <li>
+      You can{' '}
+      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+      during renders.
+    </li>
+  </ul>
 </details>
 :::
 
@@ -86,32 +112,14 @@ Values:
 - `< 1`: Slows down the GIF speed (e.g., 0.5 plays it at half speed).
 - `> 1:` Speeds up the GIF speed (e.g., 2.0 plays it at double speed).
 
-## Example
+## Differences to `<AnimatedImage>`
 
-```tsx twoslash
-import { useRef } from "react";
-import { useVideoConfig } from "remotion";
-// ---cut---
-import { Gif } from "@remotion/gif";
-
-export const MyComponent: React.FC = () => {
-  const { width, height } = useVideoConfig();
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  return (
-    <Gif
-      ref={ref}
-      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
-      width={width}
-      height={height}
-      fit="fill"
-      playbackRate={2}
-    />
-  );
-};
-```
+- `<Gif>` does not support animated AVIF and WebP images.
+- `<Gif>` works in Safari as well since it uses a JavaScript-based GIF decoder.
+- `<Gif>` supports the [`onLoad`](#onload) prop.
 
 ## See also
 
+- [`<AnimatedImage>`](/docs/animatedimage)
 - [`getGifDurationInSeconds()`](/docs/gif/get-gif-duration-in-seconds)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/gif/src/Gif.tsx)

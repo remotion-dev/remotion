@@ -41,6 +41,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {setBrowserExecutable} from './browser-executable';
@@ -68,6 +69,7 @@ import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
 } from './keyboard-shortcuts';
+import {getMetadata, setMetadata} from './metadata';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
@@ -118,6 +120,7 @@ const {
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	publicPathOption,
+	hardwareAccelerationOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -502,6 +505,17 @@ type FlatConfig = RemotionConfigObject &
 		 * Set the amount of milliseconds after which the Player in the Studio will display a buffering UI after the Player has entered a buffer state.
 		 */
 		setBufferStateDelayInMilliseconds: (delay: number | null) => void;
+
+		/**
+		 * Metadata to be embedded into the output video file.
+		 */
+		setMetadata: (metadata: Record<string, string>) => void;
+		/**
+		 *
+		 */
+		setHardwareAcceleration: (
+			hardwareAccelerationOption: HardwareAccelerationOption,
+		) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -598,6 +612,7 @@ export const Config: FlatConfig = {
 	setJpegQuality: jpegQualityOption.setConfig,
 	setStillImageFormat,
 	setVideoImageFormat,
+	setMetadata,
 	setEncodingMaxRate: encodingMaxRateOption.setConfig,
 	setEncodingBufferSize: encodingBufferSizeOption.setConfig,
 	setFrameRange,
@@ -633,6 +648,7 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
+	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 };
 
 export const ConfigInternals = {
@@ -664,6 +680,7 @@ export const ConfigInternals = {
 	getFfmpegOverrideFunction,
 	getHeight,
 	getWidth,
+	getMetadata,
 	getEntryPoint,
 	getWebpackPolling,
 	getShouldOpenBrowser,

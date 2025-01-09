@@ -4,14 +4,22 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {ReceivedArtifact} from '../functions/helpers/overall-render-progress';
-import type {RenderStillLambdaResponsePayload} from '../functions/still';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {callLambdaWithStreaming} from '../shared/call-lambda';
-import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
-import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
+import type {DownloadBehavior} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {
+	CostsInfo,
+	ReceivedArtifact,
+	RenderStillFunctionResponsePayload,
+} from '@remotion/serverless';
+import type {OutNameInput, Privacy} from '@remotion/serverless/client';
+import {
+	awsImplementation,
+	type AwsProvider,
+} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
+import {DEFAULT_MAX_RETRIES} from '../shared/constants';
 import {
 	getCloudwatchMethodUrl,
 	getLambdaInsightsUrl,
@@ -36,7 +44,7 @@ type OptionalParameters = {
 	 */
 	quality?: never;
 	frame: number;
-	outName: OutNameInput | null;
+	outName: OutNameInput<AwsProvider> | null;
 	chromiumOptions: ChromiumOptions;
 	downloadBehavior: DownloadBehavior;
 	forceWidth: number | null;
@@ -52,6 +60,7 @@ type OptionalParameters = {
 		lambdaInsightsUrl: string;
 	}) => void;
 	indent: boolean;
+	forcePathStyle: boolean;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -68,7 +77,7 @@ export type RenderStillOnLambdaOutput = {
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
-	artifacts: ReceivedArtifact[];
+	artifacts: ReceivedArtifact<AwsProvider>[];
 };
 
 const internalRenderStillOnLambda = async (
@@ -77,11 +86,13 @@ const internalRenderStillOnLambda = async (
 	const {functionName, region, onInit} = input;
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
-		const res = await new Promise<RenderStillLambdaResponsePayload>(
-			(resolve, reject) => {
-				callLambdaWithStreaming({
+		const res = await new Promise<
+			RenderStillFunctionResponsePayload<AwsProvider>
+		>((resolve, reject) => {
+			awsImplementation
+				.callFunctionStreaming<ServerlessRoutines.still>({
 					functionName,
-					type: LambdaRoutines.still,
+					type: ServerlessRoutines.still,
 					payload,
 					region,
 					receivedStreamingPayload: ({message}) => {
@@ -90,7 +101,7 @@ const internalRenderStillOnLambda = async (
 								renderId: message.payload.renderId,
 								cloudWatchLogs: getCloudwatchMethodUrl({
 									functionName,
-									method: LambdaRoutines.still,
+									method: ServerlessRoutines.still,
 									region,
 									rendererFunctionName: null,
 									renderId: message.payload.renderId,
@@ -113,14 +124,13 @@ const internalRenderStillOnLambda = async (
 					timeoutInTest: 120000,
 					retriesRemaining: input.maxRetries,
 				})
-					.then(() => {
-						reject(new Error('Expected response to be streamed'));
-					})
-					.catch((err) => {
-						reject(err);
-					});
-			},
-		);
+				.then(() => {
+					reject(new Error('Expected response to be streamed'));
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
 
 		return {
 			estimatedPrice: res.estimatedPrice,
@@ -131,7 +141,7 @@ const internalRenderStillOnLambda = async (
 			renderId: res.renderId,
 			cloudWatchLogs: getCloudwatchMethodUrl({
 				functionName,
-				method: LambdaRoutines.still,
+				method: ServerlessRoutines.still,
 				region,
 				renderId: res.renderId,
 				rendererFunctionName: null,
@@ -149,25 +159,11 @@ const internalRenderStillOnLambda = async (
 	}
 };
 
-const errorHandled = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderStillOnLambda,
-);
+const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
 
-/**
- * @description Renders a still frame on Lambda
- * @link https://remotion.dev/docs/lambda/renderstillonlambda
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.imageFormat In which image format the frames should be rendered.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the video should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
- * @param params.frame Which frame should be used for the still image. Default 0.
- * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
- * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
+/*
+ * @description Renders a still image inside a lambda function and writes it to the specified output location.
+ * @see [Documentation](https://remotion.dev/docs/lambda/renderstillonlambda)
  */
 export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 	return errorHandled({
@@ -192,11 +188,12 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		region: input.region,
 		serveUrl: input.serveUrl,
 		jpegQuality: input.jpegQuality ?? 80,
-		logLevel: input.dumpBrowserLogs ? 'verbose' : input.logLevel ?? 'info',
+		logLevel: input.dumpBrowserLogs ? 'verbose' : (input.logLevel ?? 'info'),
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		dumpBrowserLogs: false,
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 };

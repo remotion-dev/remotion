@@ -25,7 +25,6 @@ import {promisify} from 'node:util';
 import {downloadFile} from '../assets/download-file';
 import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
-import {Log} from '../logger';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
@@ -151,7 +150,6 @@ export const downloadBrowser = async ({
 			indent,
 			logLevel,
 		});
-		Log.info({indent, logLevel});
 		await extractZip(archivePath, {dir: outputPath});
 		const chromePath = path.join(outputPath, 'chrome-linux', 'chrome');
 		const chromeHeadlessShellPath = path.join(

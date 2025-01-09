@@ -7,7 +7,7 @@ export const useMediaBuffering = ({
 	shouldBuffer,
 	isPremounting,
 }: {
-	element: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
 }) => {
@@ -28,6 +28,21 @@ export const useMediaBuffering = ({
 		}
 
 		if (isPremounting) {
+			// Needed by iOS Safari which will not load by default
+			// and therefore not fire the canplay event.
+
+			// Be cautious about using `current.load()` as it will
+			// reset if a video is already playing.
+			// Therefore only calling it after checking if the video
+			// has no future data.
+
+			// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
+			if (current.readyState < current.HAVE_FUTURE_DATA) {
+				if (!navigator.userAgent.includes('Firefox/')) {
+					current.load();
+				}
+			}
+
 			return;
 		}
 

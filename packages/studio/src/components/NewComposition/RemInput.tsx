@@ -23,8 +23,8 @@ type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
 > & {
-	status: RemInputStatus;
-	rightAlign: boolean;
+	readonly status: RemInputStatus;
+	readonly rightAlign: boolean;
 };
 
 export const INPUT_HORIZONTAL_PADDING = 8;
@@ -84,13 +84,9 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		};
 	}, [isFocused, isHovered, rightAlign, props.style, status]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return inputRef.current as HTMLInputElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return inputRef.current as HTMLInputElement;
+	}, []);
 
 	useEffect(() => {
 		if (!inputRef.current) {

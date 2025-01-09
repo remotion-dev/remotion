@@ -23,10 +23,9 @@ curl https://sh.rustup.rs -sSf | sh
 To build the Rust parts for your operating system, run:
 
 ```sh
-node build.mjs
+cd packages/compositor
+bun build.ts
 ```
-
-while you are in the `packages/renderer` directory.
 
 ## Building for all platforms
 
@@ -35,6 +34,7 @@ These instructions currently are for macOS. Contributions for other platforms ar
 To build the Rust binaries for all supported platforms, you need to install their toolchains:
 
 ```sh
+cd packages/compositor
 node install-toolchains.mjs
 ```
 
@@ -44,7 +44,7 @@ You can then build all binaries with:
 pnpm build-all
 ```
 
-in the `packages/renderer` package. The resulting artifacts should be checked into Git.
+The resulting artifacts should be checked into Git.
 
 ## Architecture
 

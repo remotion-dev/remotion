@@ -18,7 +18,7 @@ type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLTextAreaElement>,
 	HTMLTextAreaElement
 > & {
-	status: 'error' | 'warning' | 'ok';
+	readonly status: 'error' | 'warning' | 'ok';
 };
 
 const inputBaseStyle: React.CSSProperties = {
@@ -40,13 +40,9 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const {tabIndex} = useZIndex();
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return inputRef.current as HTMLTextAreaElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return inputRef.current as HTMLTextAreaElement;
+	}, []);
 
 	const style = useMemo(() => {
 		return {

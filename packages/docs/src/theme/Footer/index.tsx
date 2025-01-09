@@ -9,7 +9,7 @@ const Footer = () => {
 	useEffect(() => {
 		if (typeof document !== 'undefined') {
 			document
-				.querySelector('.navbar__logo')
+				.querySelector('.navbar__logo')!
 				.addEventListener('contextmenu', (e) => {
 					e.preventDefault();
 					window.open('https://remotion.dev/brand', '_blank');

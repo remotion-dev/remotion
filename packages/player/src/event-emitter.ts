@@ -120,71 +120,71 @@ export class PlayerEmitter {
 		);
 	}
 
-	dispatchSeek(frame: number) {
+	dispatchSeek = (frame: number) => {
 		this.dispatchEvent('seeked', {
 			frame,
 		});
-	}
+	};
 
-	dispatchVolumeChange(volume: number) {
+	dispatchVolumeChange = (volume: number) => {
 		this.dispatchEvent('volumechange', {
 			volume,
 		});
-	}
+	};
 
-	dispatchPause() {
+	dispatchPause = () => {
 		this.dispatchEvent('pause', undefined);
-	}
+	};
 
-	dispatchPlay() {
+	dispatchPlay = () => {
 		this.dispatchEvent('play', undefined);
-	}
+	};
 
-	dispatchEnded() {
+	dispatchEnded = () => {
 		this.dispatchEvent('ended', undefined);
-	}
+	};
 
-	dispatchRateChange(playbackRate: number) {
+	dispatchRateChange = (playbackRate: number) => {
 		this.dispatchEvent('ratechange', {
 			playbackRate,
 		});
-	}
+	};
 
-	dispatchScaleChange(scale: number) {
+	dispatchScaleChange = (scale: number) => {
 		this.dispatchEvent('scalechange', {
 			scale,
 		});
-	}
+	};
 
-	dispatchError(error: Error) {
+	dispatchError = (error: Error) => {
 		this.dispatchEvent('error', {
 			error,
 		});
-	}
+	};
 
-	dispatchTimeUpdate(event: TimeUpdateEventPayload) {
+	dispatchTimeUpdate = (event: TimeUpdateEventPayload) => {
 		this.dispatchEvent('timeupdate', event);
-	}
+	};
 
-	dispatchFrameUpdate(event: FrameUpdateEventPayload) {
+	dispatchFrameUpdate = (event: FrameUpdateEventPayload) => {
 		this.dispatchEvent('frameupdate', event);
-	}
+	};
 
-	dispatchFullscreenChange(event: FullscreenChangeEventPayload) {
+	dispatchFullscreenChange = (event: FullscreenChangeEventPayload) => {
 		this.dispatchEvent('fullscreenchange', event);
-	}
+	};
 
-	dispatchMuteChange(event: MuteChangeEventPayload) {
+	dispatchMuteChange = (event: MuteChangeEventPayload) => {
 		this.dispatchEvent('mutechange', event);
-	}
+	};
 
-	dispatchWaiting(event: WaitingEventPayload) {
+	dispatchWaiting = (event: WaitingEventPayload) => {
 		this.dispatchEvent('waiting', event);
-	}
+	};
 
-	dispatchResume(event: ResumeEventPayload) {
+	dispatchResume = (event: ResumeEventPayload) => {
 		this.dispatchEvent('resume', event);
-	}
+	};
 }
 
 export class ThumbnailEmitter {
@@ -221,17 +221,17 @@ export class ThumbnailEmitter {
 		);
 	}
 
-	dispatchError(error: Error) {
+	dispatchError = (error: Error) => {
 		this.dispatchEvent('error', {
 			error,
 		});
-	}
+	};
 
-	dispatchWaiting(event: WaitingEventPayload) {
+	dispatchWaiting = (event: WaitingEventPayload) => {
 		this.dispatchEvent('waiting', event);
-	}
+	};
 
-	dispatchResume(event: ResumeEventPayload) {
+	dispatchResume = (event: ResumeEventPayload) => {
 		this.dispatchEvent('resume', event);
-	}
+	};
 }

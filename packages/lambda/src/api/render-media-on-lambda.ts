@@ -8,12 +8,20 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {NoReactAPIs} from '@remotion/renderer/pure';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
-import {LambdaRoutines} from '../shared/constants';
-import type {DownloadBehavior} from '../shared/content-disposition-header';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {
+	DownloadBehavior,
+	OutNameInput,
+	Privacy,
+	ServerlessCodec,
+	WebhookOption,
+} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import {
+	awsImplementation,
+	type AwsProvider,
+} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
@@ -21,7 +29,6 @@ import {
 	getProgressJsonUrl,
 	getS3RenderUrl,
 } from '../shared/get-aws-urls';
-import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
@@ -31,7 +38,7 @@ export type RenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps?: Record<string, unknown>;
-	codec: LambdaCodec;
+	codec: ServerlessCodec;
 	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
@@ -46,7 +53,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	frameRange?: FrameRange;
-	outName?: OutNameInput;
+	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
 	everyNthFrame?: number;
@@ -63,6 +70,8 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+	forcePathStyle?: boolean;
+	metadata?: Record<string, string> | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -81,9 +90,9 @@ export const internalRenderMediaOnLambdaRaw = async (
 	const {functionName, region, rendererFunctionName} = input;
 
 	try {
-		const res = await callLambda({
+		const res = await awsImplementation.callFunctionSync({
 			functionName,
-			type: LambdaRoutines.start,
+			type: ServerlessRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
@@ -102,7 +111,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			cloudWatchMainLogs: getCloudwatchMethodUrl({
 				renderId: res.renderId,
 				functionName,
-				method: LambdaRoutines.launch,
+				method: ServerlessRoutines.launch,
 				region,
 				rendererFunctionName: rendererFunctionName ?? null,
 			}),
@@ -179,32 +188,17 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		x264Preset: options.x264Preset ?? null,
 		deleteAfter: options.deleteAfter ?? null,
 		preferLossless: options.preferLossless ?? false,
+		forcePathStyle: options.forcePathStyle ?? false,
 		indent: false,
+		metadata: options.metadata ?? null,
 	};
 };
 
-const wrapped = NoReactAPIs.wrapWithErrorHandling(
-	internalRenderMediaOnLambdaRaw,
-);
+const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 
-/**
- * @description Triggers a render on a lambda given a composition and a lambda function.
+/*
+ * @description Kicks off a render process on Remotion Lambda. The progress can be tracked using getRenderProgress().
  * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
- * @param params.functionName The name of the Lambda function that should be used
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.codec The media codec which should be used for encoding.
- * @param params.imageFormat In which image format the frames should be rendered. Default "jpeg"
- * @param params.crf The constant rate factor to be used during encoding.
- * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
- * @param params.region The AWS region in which the media should be rendered.
- * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
- * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
- * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,

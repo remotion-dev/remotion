@@ -1,8 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
+import {afterAll, expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {afterAll, expect, test} from 'vitest';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
 afterAll(async () => {

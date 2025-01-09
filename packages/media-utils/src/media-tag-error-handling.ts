@@ -11,7 +11,7 @@ async function fetchWithTimeout(
 		const response = await fetch(url, options);
 		clearTimeout(id);
 		return response;
-	} catch (e) {
+	} catch {
 		clearTimeout(id);
 		throw new Error(`Fetch timed out after ${timeout}ms`);
 	}
@@ -43,7 +43,7 @@ const checkFor404OrSkip = async ({
 
 	try {
 		return await checkFor404(src);
-	} catch (e) {
+	} catch {
 		return Promise.resolve(null);
 	}
 };

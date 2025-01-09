@@ -79,7 +79,7 @@ Choose a suitable codec for your output media. Refer to the [Encoding guide](/do
 
 _object - optional_
 
-[Input Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli).  
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
 Must be a JSON object.  
 From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
 You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
@@ -97,6 +97,12 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 _optional_
 
 A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+
+### `metadata`<AvailableFrom v="4.0.216" />
+
+_object - optional_
+
+<Options id="metadata" />
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
@@ -196,6 +202,10 @@ Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 _boolean - optional_
 
 If set to true, no audio is being rendered.
+
+### `hardwareAcceleration?`<AvailableFrom v="4.0.228" />
+
+<Options id="hardware-acceleration" />
 
 ### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
 
@@ -387,7 +397,7 @@ _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### `headless?`
+#### ~`headless?`~
 
 <Options id="disable-headless" />
 
@@ -452,6 +462,10 @@ _boolean - default `false`_
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
+
+### `separateAudioTo?`<AvailableFrom v="4.0.123" />
+
+<Options cli id="separate-audio-to" />
 
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 

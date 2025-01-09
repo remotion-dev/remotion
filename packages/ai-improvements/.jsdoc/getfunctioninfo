@@ -1,0 +1,4 @@
+/**
+ * @description Gets information about a function given its name and region.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getfunctioninfo)
+ */

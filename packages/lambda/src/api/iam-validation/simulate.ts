@@ -1,5 +1,5 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
-import type {AwsRegion} from '../../pricing/aws-regions';
+import type {AwsRegion} from '../../regions';
 import {getStsClient} from '../../shared/aws-clients';
 import type {EvalDecision, SimulationResult} from './simulate-rule';
 import {simulateRule} from './simulate-rule';
@@ -27,12 +27,9 @@ export type SimulatePermissionsOutput = {
 	results: SimulationResult[];
 };
 
-/**
+/*
  * @description Simulates calls using the AWS Simulator to validate the correct permissions.
- * @see [Documentation](http://remotion.dev/docs/lambda/simulatepermissions)
- * @param {AwsRegion} options.region The region which you would like to validate
- * @param {(result: SimulationResult) => void} options.onSimulation The region which you would like to validate
- * @returns {Promise<SimulatePermissionsOutput>} See documentation for detailed response structure.
+ * @see [Documentation](https://remotion.dev/docs/lambda/simulatepermissions)
  */
 export const simulatePermissions = async (
 	options: SimulatePermissionsInput,

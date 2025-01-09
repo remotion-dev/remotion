@@ -89,7 +89,7 @@ export const printCodeFrameAndStack = (
 		chalk.bgRed(chalk.white(` ${err.name} `)),
 		err.message,
 	);
-	printCodeFrame(firstFrame, logLevel);
+	printCodeFrame(firstFrame as SymbolicatedStackFrame, logLevel);
 	Log.info({indent: false, logLevel});
 	for (const frame of err.symbolicatedStackFrames) {
 		if (frame === firstFrame) {

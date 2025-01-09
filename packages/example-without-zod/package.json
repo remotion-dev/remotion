@@ -4,18 +4,18 @@
 	},
 	"name": "@remotion/example-without-zod",
 	"private": true,
-	"version": "4.0.183",
+	"version": "4.0.246",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "remotion preview",
+		"dev": "remotion studio",
 		"render": "remotion render react-svg"
 	},
 	"dependencies": {
 		"remotion": "workspace:*",
 		"@remotion/cli": "workspace:*",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.0.0",
+		"react-dom": "19.0.0"
 	}
 }

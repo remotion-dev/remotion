@@ -40,7 +40,7 @@ import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
 import {studioCommand} from './studio';
-import {upgrade} from './upgrade';
+import {upgradeCommand} from './upgrade';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
@@ -105,18 +105,19 @@ export const cli = async () => {
 		} else if (command === 'still') {
 			await still(remotionRoot, args, logLevel);
 		} else if (command === 'ffmpeg') {
-			ffmpegCommand(remotionRoot, process.argv.slice(3), logLevel);
+			ffmpegCommand(process.argv.slice(3), logLevel);
 		} else if (command === 'gpu') {
 			await gpuCommand(logLevel);
 		} else if (command === 'ffprobe') {
-			ffprobeCommand(remotionRoot, process.argv.slice(3), logLevel);
+			ffprobeCommand(process.argv.slice(3), logLevel);
 		} else if (command === 'upgrade') {
-			await upgrade(
+			await upgradeCommand({
 				remotionRoot,
-				parsedCli['package-manager'],
-				parsedCli.version,
+				packageManager: parsedCli['package-manager'],
+				version: parsedCli.version,
 				logLevel,
-			);
+				args,
+			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {

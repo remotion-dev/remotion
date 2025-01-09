@@ -36,14 +36,14 @@ const canvasStyle: React.CSSProperties = {
 };
 
 export const AudioWaveform: React.FC<{
-	src: string;
-	visualizationWidth: number;
-	startFrom: number;
-	durationInFrames: number;
-	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
-	volume: string | number;
-	doesVolumeChange: boolean;
-	playbackRate: number;
+	readonly src: string;
+	readonly visualizationWidth: number;
+	readonly startFrom: number;
+	readonly durationInFrames: number;
+	readonly setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
+	readonly volume: string | number;
+	readonly doesVolumeChange: boolean;
+	readonly playbackRate: number;
 }> = ({
 	src,
 	startFrom,

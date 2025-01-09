@@ -1,0 +1,6 @@
+{
+  "extends": "@remotion",
+  "globals": {
+    "process": "readonly",
+  },
+}

@@ -1,5 +1,6 @@
+import type {google} from '@google-cloud/run/build/protos/protos';
 import type {LogLevel} from '@remotion/renderer';
-import {NoReactAPIs} from '@remotion/renderer/pure';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {
 	DEFAULT_MAX_INSTANCES,
 	DEFAULT_MIN_INSTANCES,
@@ -24,6 +25,7 @@ type InternalDeployServiceInput = {
 	region: string;
 	logLevel: LogLevel;
 	indent: boolean;
+	onlyAllocateCpuDuringRequestProcessing: boolean;
 };
 export type DeployServiceInput = {
 	performImageVersionValidation?: boolean;
@@ -35,6 +37,7 @@ export type DeployServiceInput = {
 	logLevel?: LogLevel;
 	projectID: string;
 	region: string;
+	onlyAllocateCpuDuringRequestProcessing?: boolean;
 };
 
 export type DeployServiceOutput = {
@@ -54,6 +57,7 @@ const deployServiceRaw = async ({
 	projectID,
 	region,
 	logLevel,
+	onlyAllocateCpuDuringRequestProcessing,
 }: InternalDeployServiceInput): Promise<DeployServiceOutput> => {
 	validateGcpRegion(region);
 	validateProjectID(projectID);
@@ -89,16 +93,16 @@ const deployServiceRaw = async ({
 		};
 	}
 
-	const request = {
+	const request: google.cloud.run.v2.ICreateServiceRequest = {
 		parent,
 		service: {
-			// service structure: https://googleapis.dev/nodejs/run/latest/google.cloud.run.v2.IService.html
 			template: constructServiceTemplate({
 				memoryLimit,
 				cpuLimit,
 				timeoutSeconds,
 				minInstances,
 				maxInstances,
+				onlyAllocateCpuDuringRequestProcessing,
 			}),
 		},
 		serviceId: serviceName,
@@ -106,6 +110,7 @@ const deployServiceRaw = async ({
 
 	// Run request
 	const [operation] = await cloudRunClient.createService(request);
+
 	const [response] = await operation.promise();
 
 	return {
@@ -116,19 +121,11 @@ const deployServiceRaw = async ({
 	};
 };
 
-export const internalDeployService =
-	NoReactAPIs.wrapWithErrorHandling(deployServiceRaw);
+export const internalDeployService = wrapWithErrorHandling(deployServiceRaw);
 
-/**
+/*
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
- * @link https://remotion.dev/docs/cloudrun/deployservice
- * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
- * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
- * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
- * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
- * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
- * @param params.region GCP region to deploy the Cloud Run service to.
- * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deployservice)
  */
 
 export const deployService = ({
@@ -141,6 +138,7 @@ export const deployService = ({
 	projectID,
 	region,
 	logLevel,
+	onlyAllocateCpuDuringRequestProcessing,
 }: DeployServiceInput): Promise<DeployServiceOutput> => {
 	return internalDeployService({
 		performImageVersionValidation,
@@ -153,5 +151,7 @@ export const deployService = ({
 		region,
 		logLevel: logLevel ?? 'info',
 		indent: false,
+		onlyAllocateCpuDuringRequestProcessing:
+			onlyAllocateCpuDuringRequestProcessing ?? false,
 	});
 };

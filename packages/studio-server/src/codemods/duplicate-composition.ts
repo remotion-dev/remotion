@@ -8,7 +8,7 @@ import {applyCodemod} from './recast-mods';
 const getPrettier = async () => {
 	try {
 		return await import('prettier');
-	} catch (err) {
+	} catch {
 		throw new Error('Prettier cannot be found in the current project.');
 	}
 };
@@ -20,7 +20,9 @@ export const formatOutput = async (tsContent: string) => {
 
 	const configFilePath = await resolveConfigFile();
 	if (!configFilePath) {
-		throw new Error('The Prettier config file was not found');
+		throw new Error(
+			'The Prettier config file was not found. For this feature, the "prettier" package must be installed and a .prettierrc file must exist.',
+		);
 	}
 
 	const prettierConfig = await resolveConfig(configFilePath);

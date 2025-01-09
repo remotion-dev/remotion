@@ -1,6 +1,7 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {restartStudio} from '../api/restart-studio';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
 	ComboboxValue,
@@ -160,9 +161,15 @@ export const useMenuStructure = (
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
-	const sizes = getUniqueSizes(size);
+	const sizes = useMemo(() => getUniqueSizes(size), [size]);
 
 	const isFullscreenSupported = checkFullscreenSupport();
+
+	const {remotion_packageManager} = window;
+
+	const sizePreselectIndex = sizes.findIndex(
+		(s) => String(size.size) === String(s.size),
+	);
 
 	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
@@ -247,6 +254,24 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Acknowledgements',
 					},
+					{
+						type: 'divider' as const,
+						id: 'timeline-divider-1',
+					},
+					{
+						id: 'restart-studio',
+						value: 'restart-studio',
+						label: 'Restart Studio Server',
+						onClick: () => {
+							closeMenu();
+							restartStudio();
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Restart Studio Server',
+					},
 				],
 				quickSwitcherLabel: null,
 			},
@@ -270,9 +295,7 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: {
 							leaveLeftSpace: true,
-							preselectIndex: sizes.findIndex(
-								(s) => String(size.size) === String(s.size),
-							),
+							preselectIndex: sizePreselectIndex,
 							items: sizes.map((newSize) => ({
 								id: String(newSize.size),
 								keyHint: newSize.size === 1 ? '0' : null,
@@ -596,13 +619,13 @@ export const useMenuStructure = (
 						: null,
 				].filter(Internals.truthy),
 			},
-			'EyeDropper' in window
-				? {
-						id: 'tools' as const,
-						label: 'Tools',
-						leaveLeftPadding: false,
-						items: [
-							{
+			{
+				id: 'tools' as const,
+				label: 'Tools',
+				leaveLeftPadding: false,
+				items: [
+					'EyeDropper' in window
+						? {
 								id: 'color-picker',
 								value: 'color-picker',
 								label: 'Color Picker',
@@ -615,25 +638,51 @@ export const useMenuStructure = (
 								subMenu: null,
 								type: 'item' as const,
 								quickSwitcherLabel: 'Show Color Picker',
-							},
+							}
+						: null,
+					{
+						id: 'spring-editor',
+						value: 'spring-editor',
+						label: 'spring() Editor',
+						onClick: () => {
+							closeMenu();
+							window.open('https://springs.remotion.dev', '_blank');
+						},
+						leftItem: null,
+						keyHint: null,
+						subMenu: null,
+						type: 'item' as const,
+						quickSwitcherLabel: 'Open spring() Editor',
+					},
+				].filter(Internals.truthy),
+				quickSwitcherLabel: null,
+			},
+			readOnlyStudio || remotion_packageManager === 'unknown'
+				? null
+				: {
+						id: 'install' as const,
+						label: 'Packages',
+						leaveLeftPadding: false,
+						items: [
 							{
-								id: 'spring-editor',
-								value: 'spring-editor',
-								label: 'spring() Editor',
+								id: 'install-packages',
+								value: 'install-packages',
+								label: 'Install...',
 								onClick: () => {
 									closeMenu();
-									window.open('https://springs.remotion.dev', '_blank');
+									setSelectedModal({
+										type: 'install-packages',
+										packageManager: remotion_packageManager,
+									});
 								},
-								leftItem: null,
-								keyHint: null,
-								subMenu: null,
 								type: 'item' as const,
-								quickSwitcherLabel: 'Open spring() Editor',
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: `Install packages`,
 							},
 						],
-						quickSwitcherLabel: null,
-					}
-				: null,
+					},
 			{
 				id: 'help' as const,
 				label: 'Help',
@@ -744,7 +793,7 @@ export const useMenuStructure = (
 						label: 'YouTube',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://www.youtube/@remotion_dev');
+							openExternal('https://www.youtube.com/@remotion_dev');
 						},
 						type: 'item' as const,
 						keyHint: null,
@@ -813,7 +862,9 @@ export const useMenuStructure = (
 		return struct;
 	}, [
 		readOnlyStudio,
-		mobileLayout,
+		closeMenu,
+		type,
+		sizePreselectIndex,
 		sizes,
 		editorZoomGestures,
 		editorShowRulers,
@@ -822,9 +873,8 @@ export const useMenuStructure = (
 		sidebarCollapsedStateRight,
 		checkerboard,
 		isFullscreenSupported,
-		closeMenu,
-		setSelectedModal,
-		type,
+		remotion_packageManager,
+		mobileLayout,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
@@ -832,6 +882,7 @@ export const useMenuStructure = (
 		setEditorShowGuides,
 		setSidebarCollapsedState,
 		setCheckerboard,
+		setSelectedModal,
 	]);
 
 	return structure;

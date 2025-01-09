@@ -141,9 +141,11 @@ type RenderJobDynamicFields =
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
+			hardwareAcceleration: HardwareAccelerationOption;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 
 export type RequiredChromiumOptions = Required<ChromiumOptions>;
 export type UiOpenGlOptions = OpenGlRenderer | 'default';
@@ -164,6 +166,7 @@ export type RenderJob = {
 	beepOnFinish: boolean;
 	repro: boolean;
 	binariesDirectory: string | null;
+	metadata: Record<string, string> | null;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {

@@ -19,12 +19,9 @@ export type GetServiceInfoInput = {
 	region: GcpRegion;
 	serviceName: string;
 };
-/**
- * @description Given a region and service name, returns information about the service such as version, memory limit and timeout.
+/*
+ * @description Retrieves detailed information about a specific Cloud Run service using the service name and region.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getserviceinfo)
- * @param params.region The region in which the service resides in.
- * @param params.serviceName The name of the service.
- * @returns {Promise<ServiceInfo[]>} An array with the objects containing information about the deployed services.
  */
 
 export const getServiceInfo = async ({

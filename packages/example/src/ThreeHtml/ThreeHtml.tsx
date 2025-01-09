@@ -13,7 +13,7 @@ const Content = () => {
 };
 
 const Box: React.FC<{
-	portalTarget: React.MutableRefObject<HTMLDivElement>;
+	readonly portalTarget: React.MutableRefObject<HTMLDivElement>;
 }> = ({portalTarget}) => {
 	const frame = useCurrentFrame();
 	const rotation = interpolate(frame, [0, 1_000], [0, -5], {
@@ -40,8 +40,9 @@ const Box: React.FC<{
 };
 
 export const ThreeHtml = () => {
-	const portalRef =
-		useRef<HTMLDivElement>() as React.MutableRefObject<HTMLDivElement>;
+	const portalRef = useRef<HTMLDivElement | null>(
+		null,
+	) as React.MutableRefObject<HTMLDivElement>;
 
 	const {width, height} = useVideoConfig();
 

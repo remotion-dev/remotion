@@ -1,0 +1,4 @@
+/**
+ * @description Preloads audio in the DOM so that when an audio tag is mounted, it can play immediately.
+ * @see [Documentation](https://www.remotion.dev/docs/preload/preload-audio)
+ */

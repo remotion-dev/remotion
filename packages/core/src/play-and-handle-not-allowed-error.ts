@@ -1,8 +1,10 @@
 import type {RefObject} from 'react';
+import {getRemotionEnvironment} from './get-remotion-environment';
 
 export const playAndHandleNotAllowedError = (
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>,
 	mediaType: 'audio' | 'video',
+	onAutoPlayError: null | (() => void),
 ) => {
 	const {current} = mediaRef;
 	if (!current) {
@@ -50,11 +52,29 @@ export const playAndHandleNotAllowedError = (
 				return;
 			}
 
+			// Audio tag got unmounted
+			if (
+				err.message.includes("user didn't interact with the document") &&
+				current.muted
+			) {
+				return;
+			}
+
 			// eslint-disable-next-line no-console
 			console.log(`Could not play ${mediaType} due to following error: `, err);
 			if (!current.muted) {
+				if (onAutoPlayError) {
+					onAutoPlayError();
+					return;
+				}
+
 				// eslint-disable-next-line no-console
 				console.log(`The video will be muted and we'll retry playing it.`);
+				if (mediaType === 'video' && getRemotionEnvironment().isPlayer) {
+					// eslint-disable-next-line no-console
+					console.log('Use onAutoPlayError() to handle this error yourself.');
+				}
+
 				current.muted = true;
 				current.play();
 			}

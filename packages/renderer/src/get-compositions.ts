@@ -164,7 +164,7 @@ const internalGetCompositionsRaw = async ({
 	binariesDirectory,
 	onBrowserDownload,
 }: InternalGetCompositionsOptions) => {
-	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
+	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
@@ -245,12 +245,9 @@ export const internalGetCompositions = wrapWithErrorHandling(
 	internalGetCompositionsRaw,
 );
 
-/**
- * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://remotion.dev/docs/get-compositions)
- * @param serveUrlOrWebpackUrl URL pointing to the Remotion Bundle.
- * @param {GetCompositionsOptions} [config] Optional configurations for getting composition details.
- * @returns {Promise<VideoConfig[]>} Returns a promise that resolves to an array of available compositions.
+/*
+ * @description Gets a list of compositions defined in a Remotion project based on a Remotion Bundle by evaluating the Remotion Root.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,

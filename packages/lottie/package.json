@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lottie"
 	},
 	"name": "@remotion/lottie",
-	"version": "4.0.183",
+	"version": "4.0.246",
 	"description": "Include Lottie animations in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -11,9 +11,9 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"test": "bun test src",
-		"build": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -42,8 +42,10 @@
 		}
 	},
 	"devDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",

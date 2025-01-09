@@ -4,9 +4,9 @@ import React, {useMemo} from 'react';
 export const SPACING_UNIT = 8;
 
 export const Spacing: React.FC<{
-	x?: number;
-	y?: number;
-	block?: boolean;
+	readonly x?: number;
+	readonly y?: number;
+	readonly block?: boolean;
 }> = ({x = 0, y = 0, block = false}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -23,17 +23,17 @@ export const Spacing: React.FC<{
 const flexCss: React.CSSProperties = {flex: 1};
 
 export const Flex: React.FC<{
-	children?: React.ReactNode;
+	readonly children?: React.ReactNode;
 }> = ({children}) => <div style={flexCss}>{children}</div>;
 
 export const Row: React.FC<
 	{
-		justify?: 'center' | 'flex-start' | 'flex-end';
-		align?: 'center';
-		style?: React.CSSProperties;
-		flex?: number;
-		className?: string;
-		children: React.ReactNode;
+		readonly justify?: 'center' | 'flex-start' | 'flex-end';
+		readonly align?: 'center';
+		readonly style?: React.CSSProperties;
+		readonly flex?: number;
+		readonly className?: string;
+		readonly children: React.ReactNode;
 	} & HTMLAttributes<HTMLDivElement>
 > = ({children, justify, className, align, flex, style = {}, ...other}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
@@ -55,11 +55,11 @@ export const Row: React.FC<
 };
 
 export const Column: React.FC<{
-	justify?: 'center';
-	align?: 'center';
-	style?: React.CSSProperties;
-	className?: string;
-	children: React.ReactNode;
+	readonly justify?: 'center';
+	readonly align?: 'center';
+	readonly style?: React.CSSProperties;
+	readonly className?: string;
+	readonly children: React.ReactNode;
 }> = ({children, justify, className, align, style = {}}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
 		return {

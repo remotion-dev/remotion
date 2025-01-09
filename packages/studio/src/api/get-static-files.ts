@@ -25,9 +25,9 @@ const warnPlayerOnce = () => {
 	);
 };
 
-/**
- * @description The function array containing all files in the public/ folder. You can reference them by using staticFile().
- * @see [Documentation](https://www.remotion.dev/docs/getstaticfiles)
+/*
+ * @description Gets an array containing all files in the `public/` folder. You can reference them by using `staticFile()`.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/get-static-files)
  */
 export const getStaticFiles = (): StaticFile[] => {
 	if (typeof document === 'undefined') {

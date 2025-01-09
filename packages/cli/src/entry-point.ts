@@ -36,13 +36,13 @@ export const findEntryPoint = ({
 	remotionRoot,
 	allowDirectory,
 }: {
-	args: string[];
+	args: (string | number)[];
 	remotionRoot: string;
 	logLevel: LogLevel;
 	allowDirectory: boolean;
 }): {
 	file: string | null;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	reason: FoundReason;
 } => {
 	const result = findEntryPointInner(args, remotionRoot, logLevel);
@@ -74,17 +74,17 @@ const isBundledCode = (p: string) => {
 };
 
 const findEntryPointInner = (
-	args: string[],
+	args: (string | number)[],
 	remotionRoot: string,
 	logLevel: LogLevel,
 ): {
 	file: string | null;
 	isDirectory: boolean;
-	remainingArgs: string[];
+	remainingArgs: (string | number)[];
 	reason: FoundReason;
 } => {
 	// 1st priority: Explicitly passed entry point
-	let file: string | null = args[0];
+	let file: string | null = args[0] ? args[0].toString() : null;
 	if (file) {
 		Log.verbose(
 			{indent: false, logLevel},

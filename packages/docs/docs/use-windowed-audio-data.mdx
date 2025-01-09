@@ -1,0 +1,128 @@
+---
+image: /generated/articles-docs-use-windowed-audio-data.png
+title: useWindowedAudioData()
+id: use-windowed-audio-data
+crumb: '@remotion/media-utils'
+---
+
+# useWindowedAudioData()<AvailableFrom v="4.0.240" />
+
+_Part of the `@remotion/media-utils` package of helper functions._
+
+This is an alternative to [`useAudioData()`](/docs/use-audio-data) that only loads a portion of the audio around the current frame.  
+It only works with `.wav` files.
+
+Unlike [`useAudioData()`](/docs/use-audio-data), which keeps all of the audio data in memory, this function makes HTTP Range requests to only load the audio data around the current frame.  
+We recommend using this function for visualizing audio with a long duraiton.
+
+:::info
+Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+  <summary>More info</summary>
+  <ul>
+    <li>
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it
+      may be different if rendering on Lambda or the port is busy.
+    </li>
+    <li>
+      You can use{' '}
+      <a href="/docs/get-audio-duration-in-seconds">
+        <code>getAudioDurationInSeconds()</code>
+      </a>{' '}
+      without the audio needing CORS.
+    </li>
+    <li>
+      You can{' '}
+      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+      during renders.
+    </li>
+  </ul>
+</details>
+:::
+
+## Example
+
+```tsx twoslash
+// ---cut---
+import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
+import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComponent: React.FC = () => {
+  const {fps} = useVideoConfig();
+  const frame = useCurrentFrame();
+  const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
+    src: staticFile('podcast.wav'),
+    frame,
+    fps,
+    windowInSeconds: 10,
+  });
+
+  if (!audioData) {
+    return null;
+  }
+
+  const visualization = visualizeAudio({
+    fps,
+    frame,
+    audioData,
+    numberOfSamples: 16,
+    dataOffsetInSeconds,
+  });
+
+  return null;
+};
+```
+
+## Arguments
+
+An object with:
+
+### `src`
+
+A string pointing to an audio asset.
+
+### `frame`
+
+_`number`_
+
+The current frame of the composition.
+
+### `fps`
+
+_`number`_
+
+The frames per second of the composition. Should be taken from [`useVideoConfig()`](/docs/use-video-config).
+
+### `windowInSeconds`
+
+_`number`_
+
+The audio will be segmented into windows of this length.  
+The function will load the audio data around the current frame and the windows before and after.
+
+In this example, the window is 10 seconds long, so the function will load the current window as well as the previous and next one, leading to up to 30 seconds of audio being loaded at a time.
+
+## Return value
+
+An object with:
+
+### `audioData`
+
+_`AudioData | null`_
+
+An object containing audio data (see documentation of [`getAudioData()`](/docs/get-audio-data)) or `null` if the data has not been loaded.
+
+### `dataOffsetInSeconds`
+
+_`number`_
+
+The offset in seconds of the audio data that is currently loaded.  
+You should pass it through to [`visualizeAudio()`](/docs/visualize-audio).
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-audio-data.ts)
+- [`getAudioData()`](/docs/get-audio-data)
+- [`visualizeAudio()`](/docs/visualize-audio)
+- [Audio visualization](/docs/audio-visualization)

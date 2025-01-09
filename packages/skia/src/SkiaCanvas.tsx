@@ -1,14 +1,14 @@
-import type {CanvasProps} from '@shopify/react-native-skia';
+import type {CanvasProps, SkiaDomView} from '@shopify/react-native-skia';
 import {Canvas} from '@shopify/react-native-skia';
-import type {ReactNode} from 'react';
+import type {FunctionComponent, ReactNode, RefAttributes} from 'react';
 import React, {useMemo} from 'react';
 import type {ViewProps} from 'react-native';
 import {Internals} from 'remotion';
 
 type RemotionCanvasProps = CanvasProps & {
-	children: ReactNode;
-	width: number;
-	height: number;
+	readonly children: ReactNode;
+	readonly width: number;
+	readonly height: number;
 };
 
 /**
@@ -39,11 +39,15 @@ export const SkiaCanvas = ({
 		};
 	}, [mergedStyles, otherProps]);
 
+	const FixedCanvas = Canvas as FunctionComponent<
+		CanvasProps & RefAttributes<SkiaDomView>
+	>;
+
 	return (
-		<Canvas {...props}>
+		<FixedCanvas {...props}>
 			<Internals.RemotionContextProvider contexts={contexts}>
 				{children}
 			</Internals.RemotionContextProvider>
-		</Canvas>
+		</FixedCanvas>
 	);
 };

@@ -1,0 +1,186 @@
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.tabs {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 1rem;
+}
+
+.tab {
+	background: none;
+	border: none;
+	margin: 10px 15px; /* Adjust these values as needed */
+	cursor: pointer;
+	font-size: 16px; /* Default font size */
+	font-weight: bold;
+	transition: color 0.3s ease;
+	color: #888; /* Light gray for inactive tabs */
+	font-family: 'GTPlanar';
+}
+
+@media (max-width: 900px) {
+	.tab {
+		font-size: 14px; /* Smaller font size for screens less than 600px wide */
+		margin: 8px 10px; /* Smaller padding for narrow screens */
+	}
+}
+
+@media (max-width: 500px) {
+	.tab {
+		font-size: 12px; /* Even smaller font size for screens 500px and below */
+		margin: 6px 8px; /* Further reduce padding if needed */
+	}
+}
+
+.activeTab {
+	color: #007bff;
+}
+
+.content {
+	display: flex;
+	align-items: stretch;
+	border: 2px solid var(--text-color); /* Add black border */
+	border-bottom: 4px solid;
+	border-radius: 16px; /* Rounded corners */
+	overflow: hidden; /* Ensure content doesn't overflow rounded corners */
+}
+
+.videoWrapper {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.videoContainer {
+	width: 100%;
+	max-width: 500px;
+	aspect-ratio: 1 / 1;
+	position: relative;
+	border-radius: 8px;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	overflow: hidden;
+	background-color: rgba(104, 104, 104, 0.171);
+}
+
+.video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border-radius: 8px;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.playButton {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: rgba(84, 84, 84, 0.816);
+	color: white;
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 30px;
+	cursor: pointer;
+	transition: background-color 0.1s ease;
+}
+
+.playButton:hover {
+	background: rgba(11, 131, 243, 0.8);
+}
+
+.textContent {
+	flex: 1;
+	padding-left: 16px; /* Add some space between video and text */
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.textContent h1 {
+	font-size: 2.5rem;
+	margin-bottom: 1rem;
+	font-weight: bold;
+}
+
+.textContent p {
+	margin-bottom: 1rem;
+	font-size: 1.2rem;
+}
+
+.visitLink {
+	display: inline-block;
+	margin-top: 1rem;
+	padding: 0.5rem 1rem;
+	background-color: #007bff;
+	color: white;
+	text-decoration: none;
+	border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+	.content {
+		flex-direction: column;
+		padding: 12px; /* Slightly less padding on mobile */
+	}
+
+	.textContent {
+		padding-left: 0;
+		padding-top: 16px; /* Add space between video and text on mobile */
+	}
+
+	.videoContainer {
+		border-top-right-radius: 8px;
+		border-bottom-right-radius: 8px;
+	}
+}
+
+.titleContainer {
+	text-align: center;
+	margin-bottom: 2rem;
+}
+
+.title {
+	font-size: 2.5rem;
+	font-weight: bold;
+	line-height: 1.2;
+}
+
+.highlight {
+	color: #007bff; /* or any color you prefer for "video apps" */
+}
+
+.muteButton {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	background: rgba(0, 0, 0, 0.5);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.1s ease;
+}
+
+.muteButton:hover {
+	background: rgba(0, 0, 0, 0.7);
+}

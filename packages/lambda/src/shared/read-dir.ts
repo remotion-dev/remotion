@@ -1,18 +1,16 @@
+import type {ReadDir} from '@remotion/serverless';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {getEtagOfFile} from './get-etag';
 
 // Function to recursively read a directory and return a list of files
 // with their etags and file names
-export async function readDirectory({
+export const readDirectory: ReadDir = ({
 	dir,
 	etags,
 	originalDir,
-}: {
-	dir: string;
-	etags: {[key: string]: string};
-	originalDir: string;
-}) {
+	onProgress,
+}) => {
 	const files = fs.readdirSync(dir);
 
 	for (const file of files) {
@@ -23,23 +21,31 @@ export async function readDirectory({
 		if (fs.lstatSync(filePath).isDirectory()) {
 			etags = {
 				...etags,
-				...(await readDirectory({dir: filePath, etags, originalDir})),
+				...readDirectory({
+					dir: filePath,
+					etags,
+					originalDir,
+					onProgress,
+				}),
 			};
 			continue;
 		}
 
-		// eslint-disable-next-line no-lonely-if
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 
-			etags[path.relative(originalDir, filePath)] =
-				await getEtagOfFile(realPath);
+			etags[path.relative(originalDir, filePath)] = getEtagOfFile(
+				realPath,
+				onProgress,
+			);
 		} else {
-			etags[path.relative(originalDir, filePath)] =
-				await getEtagOfFile(filePath);
+			etags[path.relative(originalDir, filePath)] = getEtagOfFile(
+				filePath,
+				onProgress,
+			);
 		}
 	}
 
 	// Return the list of files with their etags and file names
 	return etags;
-}
+};

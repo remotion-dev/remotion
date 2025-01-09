@@ -1,45 +1,29 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
-import type {PackageManager} from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {spawn} from 'node:child_process';
-import path from 'node:path';
+import {chalk} from './chalk';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 
-const getUpgradeCommand = ({
-	manager,
-	packages,
+export const upgradeCommand = async ({
+	remotionRoot,
+	packageManager,
 	version,
+	logLevel,
+	args,
 }: {
-	manager: PackageManager;
-	packages: string[];
-	version: string;
-}): string[] => {
-	const pkgList = packages.map((p) => `${p}@${version}`);
-	const commands: {[key in PackageManager]: string[]} = {
-		npm: ['i', '--save-exact', '--no-fund', '--no-audit', ...pkgList],
-		pnpm: ['i', ...pkgList],
-		yarn: ['add', '--exact', ...pkgList],
-		bun: ['i', ...pkgList],
-	};
-
-	return commands[manager];
-};
-
-export const upgrade = async (
-	remotionRoot: string,
-	packageManager: string | undefined,
-	version: string | undefined,
-	logLevel: LogLevel,
-) => {
-	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
-	const packageJson = require(packageJsonFilePath);
-	const dependencies = Object.keys(packageJson.dependencies);
-	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
-	const optionalDependencies = Object.keys(
-		packageJson.optionalDependencies ?? {},
-	);
-	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
+	remotionRoot: string;
+	packageManager: string | undefined;
+	version: string | undefined;
+	logLevel: LogLevel;
+	args: string[];
+}) => {
+	const {
+		dependencies,
+		devDependencies,
+		optionalDependencies,
+		peerDependencies,
+	} = StudioServerInternals.getInstalledDependencies(remotionRoot);
 
 	let targetVersion: string;
 	if (version) {
@@ -60,6 +44,7 @@ export const upgrade = async (
 	const manager = StudioServerInternals.getPackageManager(
 		remotionRoot,
 		packageManager,
+		0,
 	);
 
 	if (manager === 'unknown') {
@@ -78,27 +63,38 @@ export const upgrade = async (
 			peerDependencies.includes(u),
 	);
 
-	const task = spawn(
-		manager.manager,
-		getUpgradeCommand({
-			manager: manager.manager,
-			packages: toUpgrade,
-			version: targetVersion,
-		}),
-		{
-			env: {
-				...process.env,
-				ADBLOCK: '1',
-				DISABLE_OPENCOLLECTIVE: '1',
-			},
-			stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
-				? 'inherit'
-				: 'ignore',
+	const command = StudioServerInternals.getInstallCommand({
+		manager: manager.manager,
+		packages: toUpgrade,
+		version: targetVersion,
+		additionalArgs: args,
+	});
+
+	Log.info({indent: false, logLevel}, chalk.gray(`$ ${command.join(' ')}`));
+
+	const task = spawn(manager.manager, command, {
+		env: {
+			...process.env,
+			ADBLOCK: '1',
+			DISABLE_OPENCOLLECTIVE: '1',
 		},
-	);
+		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
+			? 'inherit'
+			: 'ignore',
+	});
 
 	await new Promise<void>((resolve) => {
-		task.on('close', resolve);
+		task.on('close', (code) => {
+			if (code === 0) {
+				resolve();
+			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
+				throw new Error('Failed to upgrade Remotion, see logs above');
+			} else {
+				throw new Error(
+					'Failed to upgrade Remotion, run with --log=info info to see logs',
+				);
+			}
+		});
 	});
 
 	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');

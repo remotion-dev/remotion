@@ -27,6 +27,11 @@ import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {OffthreadVideoProps} from './props.js';
 
+type SrcAndHandle = {
+	src: string;
+	handle: ReturnType<typeof delayRender>;
+};
+
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onError,
 	volume: volumeProp,
@@ -41,6 +46,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
+	onVideoFrame,
+	// Remove crossOrigin prop during rendering
+	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
+	crossOrigin,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -151,15 +160,19 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		});
 	}, [toneMapped, currentTime, src, transparent]);
 
-	const [imageSrc, setImageSrc] = useState<string | null>(null);
+	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
 
 	useLayoutEffect(() => {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
 		const cleanup: Function[] = [];
 
 		setImageSrc(null);
 		const controller = new AbortController();
 
-		const newHandle = delayRender('Fetching ' + actualSrc + 'from server', {
+		const newHandle = delayRender(`Fetching ${actualSrc} from server`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -168,6 +181,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			try {
 				const res = await fetch(actualSrc, {
 					signal: controller.signal,
+					cache: 'no-store',
 				});
 				if (res.status !== 200) {
 					if (res.status === 500) {
@@ -191,9 +205,30 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 
 				const url = URL.createObjectURL(blob);
 				cleanup.push(() => URL.revokeObjectURL(url));
-				setImageSrc(url);
-				continueRender(newHandle);
+				setImageSrc({
+					src: url,
+					handle: newHandle,
+				});
 			} catch (err) {
+				// If component is unmounted, we should not throw
+				if ((err as Error).message.includes('aborted')) {
+					continueRender(newHandle);
+					return;
+				}
+
+				if (controller.signal.aborted) {
+					continueRender(newHandle);
+					return;
+				}
+
+				if ((err as Error).message.includes('Failed to fetch')) {
+					// eslint-disable-next-line no-ex-assign
+					err = new Error(
+						`Failed to fetch ${actualSrc}. This could be caused by Chrome rejecting the request because the disk space is low. Consider increasing the disk size of your environment.`,
+						{cause: err},
+					);
+				}
+
 				if (onError) {
 					onError(err as Error);
 				} else {
@@ -237,16 +272,28 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			.join(' ');
 	}, [props.className]);
 
-	if (!imageSrc) {
+	const onImageFrame = useCallback(
+		(img: HTMLImageElement) => {
+			if (onVideoFrame) {
+				onVideoFrame(img);
+			}
+		},
+		[onVideoFrame],
+	);
+
+	if (!imageSrc || !window.remotion_videoEnabled) {
 		return null;
 	}
 
+	continueRender(imageSrc.handle);
+
 	return (
 		<Img
-			src={imageSrc}
+			src={imageSrc.src}
 			className={className}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			onImageFrame={onImageFrame}
 			{...props}
 			onError={onErr}
 		/>

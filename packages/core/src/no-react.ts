@@ -3,14 +3,13 @@ export type {
 	AudioOrVideoAsset,
 	TRenderAsset,
 } from './CompositionManager';
-export type {ClipRegion} from './NativeLayers';
 export {
 	EasingFunction,
 	ExtrapolateType,
-	InterpolateOptions,
 	interpolate,
+	InterpolateOptions,
 } from './interpolate';
-export {RandomSeed, random} from './random.js';
+export {random, RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,

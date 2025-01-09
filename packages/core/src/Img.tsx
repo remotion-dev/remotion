@@ -27,6 +27,7 @@ export type ImgProps = Omit<
 	readonly pauseWhenLoading?: boolean;
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
+	readonly onImageFrame?: (imgelement: HTMLImageElement) => void;
 	readonly src: string;
 };
 
@@ -41,6 +42,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		pauseWhenLoading,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		onImageFrame,
 		...props
 	},
 	ref,
@@ -54,13 +56,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
-	useImperativeHandle(
-		ref,
-		() => {
-			return imageRef.current as HTMLImageElement;
-		},
-		[],
-	);
+	useImperativeHandle(ref, () => {
+		return imageRef.current as HTMLImageElement;
+	}, []);
 
 	const actualSrc = usePreload(src as string);
 
@@ -132,6 +130,15 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (window.process?.env?.NODE_ENV === 'test') {
+				if (imageRef.current) {
+					imageRef.current.src = actualSrc;
+				}
+
+				return;
+			}
+
+			const {current} = imageRef;
+			if (!current) {
 				return;
 			}
 
@@ -143,9 +150,16 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				pauseWhenLoading && !isPremounting
 					? delayPlayback().unblock
 					: () => undefined;
-			const {current} = imageRef;
+
+			let unmounted = false;
 
 			const onComplete = () => {
+				// the decode() promise isn't cancelable -- it may still resolve after unmounting
+				if (unmounted) {
+					continueRender(newHandle);
+					return;
+				}
+
 				if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
 					delete errors.current[imageRef.current?.src as string];
 					// eslint-disable-next-line no-console
@@ -156,25 +170,44 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 					);
 				}
 
+				if (current) {
+					onImageFrame?.(current);
+				}
+
 				unblock();
 				continueRender(newHandle);
 			};
 
-			const didLoad = () => {
+			if (!imageRef.current) {
 				onComplete();
-			};
+				return;
+			}
 
-			if (current?.complete) {
+			current.src = actualSrc;
+			if (current.complete) {
 				onComplete();
 			} else {
-				current?.addEventListener('load', didLoad, {once: true});
+				current
+					.decode()
+					.then(onComplete)
+					.catch((err) => {
+						// fall back to onload event if decode() fails
+						// eslint-disable-next-line no-console
+						console.warn(err);
+
+						if (current.complete) {
+							onComplete();
+						} else {
+							current.addEventListener('load', onComplete);
+						}
+					});
 			}
 
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {
-				current?.removeEventListener('load', didLoad);
+				unmounted = true;
+				current.removeEventListener('load', onComplete);
 				unblock();
-
 				continueRender(newHandle);
 			};
 		}, [
@@ -184,16 +217,16 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			delayRenderTimeoutInMilliseconds,
 			pauseWhenLoading,
 			isPremounting,
+			onImageFrame,
 		]);
 	}
 
-	return (
-		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />
-	);
+	// src gets set once we've loaded and decoded the image.
+	return <img {...props} ref={imageRef} onError={didGetError} />;
 };
 
-/**
+/*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
- * @see [Documentation](https://www.remotion.dev/docs/img)
+ * @see [Documentation](https://remotion.dev/docs/img)
  */
 export const Img = forwardRef(ImgRefForwarding);

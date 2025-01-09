@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export type OnProgress = (downloadedBytes: number, totalBytes: number) => void;
 
 export const downloadFile = async ({
@@ -35,7 +36,6 @@ export const downloadFile = async ({
 	// eslint-disable-next-line no-async-promise-executor
 	await new Promise<void>(async (resolve, reject) => {
 		try {
-			// eslint-disable-next-line no-constant-condition
 			while (true) {
 				const {done, value} = await reader.read();
 

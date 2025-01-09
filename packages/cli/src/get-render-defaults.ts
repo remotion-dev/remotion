@@ -26,6 +26,7 @@ const {
 	headlessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
+	hardwareAccelerationOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -99,6 +100,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const audioCodec = audioCodecOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const hardwareAcceleration = hardwareAccelerationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
@@ -106,6 +110,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
 	const userAgent = ConfigInternals.getChromiumUserAgent();
+	const metadata = ConfigInternals.getMetadata();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -146,5 +151,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		numberOfGifLoops,
 		beepOnFinish,
 		forSeamlessAacConcatenation,
+		metadata,
+		hardwareAcceleration,
 	};
 };

@@ -1,10 +1,16 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {
+	FullClientSpecifics,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
+import {DOCS_URL} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
-import {checkCredentials} from '../shared/check-credentials';
-import {DOCS_URL} from '../shared/docs-url';
+import type {AwsProvider} from '../functions/aws-implementation';
+import {awsImplementation} from '../functions/aws-implementation';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -42,34 +48,61 @@ const requiresCredentials = (args: string[]) => {
 	return true;
 };
 
-const matchCommand = (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-) => {
+const matchCommand = ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+	fullClientSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+}) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
 		quit(0);
 	}
 
 	if (requiresCredentials(args)) {
-		checkCredentials();
+		fullClientSpecifics.checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel);
+		return renderCommand({
+			args: args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === STILL_COMMAND) {
-		return stillCommand(args.slice(1), remotionRoot, logLevel);
+		return stillCommand({
+			args: args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics: providerSpecifics,
+		});
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1), logLevel);
+		return compositionsCommand({
+			args: args.slice(1),
+			logLevel,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
-		return functionsCommand(args.slice(1), logLevel);
+		return functionsCommand({
+			args: args.slice(1),
+			logLevel,
+			fullClientSpecifics,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
@@ -85,7 +118,12 @@ const matchCommand = (
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot, logLevel);
+		return sitesCommand(
+			args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics,
+		);
 	}
 
 	if (args[0] === 'upload') {
@@ -141,10 +179,18 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
+	providerSpecifics: ProviderSpecifics<AwsProvider> | null,
+	fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
 ) => {
 	try {
 		setIsCli(true);
-		await matchCommand(args, remotionRoot, logLevel);
+		await matchCommand({
+			args,
+			remotionRoot,
+			logLevel,
+			providerSpecifics: providerSpecifics ?? awsImplementation,
+			fullClientSpecifics: fullClientSpecifics ?? awsFullClientSpecifics,
+		});
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -234,6 +280,7 @@ AWS returned an error message "The security token included in the request is inv
 				name: error.name,
 				stack: error.stack,
 				stackFrame: frames,
+				chunk: null,
 			});
 			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
@@ -246,5 +293,11 @@ export const cli = async (logLevel: LogLevel) => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(parsedLambdaCli._, remotionRoot, logLevel);
+	await executeCommand(
+		parsedLambdaCli._,
+		remotionRoot,
+		logLevel,
+		awsImplementation,
+		awsFullClientSpecifics,
+	);
 };

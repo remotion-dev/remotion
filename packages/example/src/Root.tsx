@@ -1,15 +1,19 @@
+// @ts-expect-error no types
+import styles from './styles.module.scss';
+
 import {alias} from 'lib/alias';
 import React, {useCallback, useMemo} from 'react';
 import {
 	CalculateMetadataFunction,
 	Composition,
 	Folder,
+	Still,
 	getInputProps,
 	staticFile,
-	Still,
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
+import {UseanimatedEmojis} from './AnimatedEmojis';
 import BetaText, {betaTextSchema} from './BetaText';
 import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
@@ -20,23 +24,29 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {FreezePortion} from './FreezePortion/FreezePortion';
 import {Green} from './Green';
 import {HlsDemo} from './Hls/HlsDemo';
+import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
+import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
-	calculateMetadataFn,
 	OffthreadRemoteVideo,
+	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
@@ -49,8 +59,8 @@ import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
 import {
 	ArrayTest,
-	schemaArrayTestSchema,
 	SchemaTest,
+	schemaArrayTestSchema,
 	schemaTestSchema,
 } from './SchemaTest';
 import {Scripts} from './Scripts';
@@ -60,8 +70,6 @@ import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
-import {RuntimeShaderZoomBlur} from './Skia/Blur';
-import {RuntimeShaderDemo} from './Skia/Shader';
 import {SkipZeroFrame} from './SkipZeroFrame';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
@@ -76,12 +84,13 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
+import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
@@ -90,10 +99,12 @@ import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
+import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
+import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -102,9 +113,9 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
-// @ts-expect-error no types
-import styles from './styles.module.scss';
-import {ThreeHtml} from './ThreeHtml/ThreeHtml';
+import {AvifAnimatedImage} from './AnimatedImage/Avif';
+import {GifAnimatedImage} from './AnimatedImage/Gif';
+import {WebpAnimatedImage} from './AnimatedImage/Webp';
 
 class Vector2 {
 	readonly x: number;
@@ -358,6 +369,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={300}
 				/>
+				<Composition
+					id="freeze-portion"
+					component={FreezePortion}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={300}
+				/>
 			</Folder>
 			<Folder name="spring">
 				<Composition
@@ -501,6 +520,12 @@ export const Index: React.FC = () => {
 						calculated: new Vector2(15, 10),
 					}}
 				/>
+				<Still
+					id="svg-filter"
+					component={SvgFilter}
+					width={1080}
+					height={1080}
+				/>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -616,9 +641,14 @@ export const Index: React.FC = () => {
 					component={OffthreadRemoteVideo}
 					fps={30}
 					calculateMetadata={calculateMetadataFn}
-					defaultProps={{
-						src: staticFile('vid1.mp4'),
-					}}
+				/>
+				<Composition
+					id="OffthreadVideoToCanvas"
+					component={OffthreadVideoToCanvas}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -692,6 +722,32 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+			</Folder>
+			<Folder name="AnimatedImage">
+				<Composition
+					id="gif-animated-image"
+					component={GifAnimatedImage}
+					width={1920}
+					height={1080}
+					durationInFrames={200}
+					fps={30}
+				/>
+				<Composition
+					id="avif-animated-image"
+					component={AvifAnimatedImage}
+					width={1920}
+					height={1080}
+					durationInFrames={200}
+					fps={30}
+				/>
+				<Composition
+					id="webp-animated-image"
+					component={WebpAnimatedImage}
+					width={1920}
+					height={1080}
+					durationInFrames={200}
+					fps={30}
 				/>
 			</Folder>
 			<Folder name="still-tests">
@@ -1179,7 +1235,11 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						union: [
 							{type: 'boat' as const, depth: 10},
-							{type: 'car' as const, color: 'red', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
+							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
 							{type: 'car' as const, color: '', obj: [{link: ''}]},
@@ -1254,6 +1314,8 @@ export const Index: React.FC = () => {
 							{type: 'a' as const, a: {a: 'hi'}},
 							{type: 'b' as const, b: {b: 'hi'}},
 						],
+						discriminatedUnion: {type: 'auto'},
+						tuple: ['foo', 42, {a: 'hi'}],
 					}}
 				/>
 				{/**
@@ -1314,6 +1376,10 @@ export const Index: React.FC = () => {
 				width={1080}
 				durationInFrames={120}
 			/>
+			{/**
+			 * 
+			 * 
+			 * disabled for react   19
 			<Folder name="Skia">
 				<Composition
 					id="skia-shader"
@@ -1332,6 +1398,8 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 			</Folder>
+			 */}
+
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"
@@ -1407,7 +1475,43 @@ export const Index: React.FC = () => {
 					width={1080}
 					durationInFrames={10_000}
 				/>
+				<Composition
+					id="InfiniteAudio"
+					component={InfiniteAudio}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={1800}
+				/>
 			</Folder>
+			<Folder name="AnimatedEmojis">
+				<Composition
+					id="AnimatedEmojis"
+					component={UseanimatedEmojis}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
+				/>
+			</Folder>
+			<Folder name="VideoParser">
+				<Composition
+					id="VideoParser"
+					component={VideoParser}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={10_000}
+				/>
+			</Folder>
+			<Still
+				id="DecoderDemo"
+				component={DecoderDemo}
+				height={1000}
+				width={1024}
+			/>
+			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
+			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 		</>
 	);
 };

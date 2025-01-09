@@ -1,6 +1,6 @@
 import {MIN_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
-import type {AwsRegion} from '../pricing/aws-regions';
 import {pricing} from '../pricing/price-per-1-s';
+import type {AwsRegion} from '../regions';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../shared/validate-memory-size';
@@ -23,11 +23,9 @@ export type EstimatePriceInput = {
 	lambdasInvoked: number;
 } & Miliseconds;
 
-/**
- *
+/*
  * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
  * @see [Documentation](https://remotion.dev/docs/lambda/estimateprice)
- * @returns {number} Price in USD
  */
 export const estimatePrice = ({
 	region,

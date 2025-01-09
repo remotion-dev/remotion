@@ -8,9 +8,9 @@ const max = (arr: number[]) => {
 		throw new Error('Array of 0 length');
 	}
 
-	let biggest = arr[0];
+	let biggest = arr[0] as number;
 	for (let i = 0; i < arr.length; i++) {
-		const elem = arr[i];
+		const elem = arr[i] as number;
 		if (elem > biggest) {
 			biggest = elem;
 		}
@@ -40,7 +40,8 @@ export const printCompositions = (
 		return;
 	}
 
-	const firstColumnLength = max(compositions.map(({id}) => id.length)) + 4;
+	const firstColumnLength =
+		(max(compositions.map(({id}) => id.length)) as number) + 4;
 	const secondColumnLength = 8;
 	const thirdColumnLength = 15;
 

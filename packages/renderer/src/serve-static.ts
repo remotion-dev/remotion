@@ -64,7 +64,14 @@ export const serveStatic = async (
 	});
 
 	server.on('connection', (conn) => {
-		const key = conn.remoteAddress + ':' + conn.remotePort;
+		let key;
+		// Bun 1.0.43 fails on this
+		try {
+			key = conn.remoteAddress + ':' + conn.remotePort;
+		} catch {
+			key = ':';
+		}
+
 		connections[key] = conn;
 		conn.on('close', () => {
 			delete connections[key];
@@ -73,7 +80,7 @@ export const serveStatic = async (
 
 	let selectedPort: number | null = null;
 
-	const maxTries = 5;
+	const maxTries = 10;
 
 	const portConfig = getPortConfig(options.forceIPv4);
 
@@ -115,6 +122,11 @@ export const serveStatic = async (
 						// this is okay as we are in cleanup phase
 						closeCompositor()
 							.catch((err) => {
+								if ((err as Error).message.includes('Compositor quit')) {
+									resolve();
+									return;
+								}
+
 								reject(err);
 							})
 							.finally(() => {

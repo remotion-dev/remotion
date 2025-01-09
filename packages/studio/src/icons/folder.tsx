@@ -3,7 +3,7 @@ import React from 'react';
 
 export const CollapsedFolderIcon: React.FC<
 	SVGProps<SVGSVGElement> & {
-		color: string;
+		readonly color: string;
 	}
 > = ({color, ...props}) => {
 	return (
@@ -18,7 +18,7 @@ export const CollapsedFolderIcon: React.FC<
 
 export const ExpandedFolderIcon: React.FC<
 	SVGProps<SVGSVGElement> & {
-		color: string;
+		readonly color: string;
 	}
 > = ({color, ...props}) => {
 	return (
@@ -32,7 +32,7 @@ export const ExpandedFolderIcon: React.FC<
 };
 
 export const ExpandedFolderIconSolid: React.FC<
-	SVGProps<SVGSVGElement> & {color: string}
+	SVGProps<SVGSVGElement> & {readonly color: string}
 > = ({color, ...props}) => {
 	return (
 		<svg viewBox="0 0 576 512" {...props}>

@@ -84,11 +84,19 @@ const encodeBySplitting = (path: string): string => {
 	return merged;
 };
 
-/**
+/*
  * @description Reference a file from the public/ folder. If the file does not appear in the autocomplete, type the path manually.
  * @see [Documentation](https://www.remotion.dev/docs/staticfile)
  */
 export const staticFile = (path: string) => {
+	if (path === null) {
+		throw new TypeError('null was passed to staticFile()');
+	}
+
+	if (typeof path === 'undefined') {
+		throw new TypeError('undefined was passed to staticFile()');
+	}
+
 	if (path.startsWith('http://') || path.startsWith('https://')) {
 		throw new TypeError(
 			`staticFile() does not support remote URLs - got "${path}". Instead, pass the URL without wrapping it in staticFile(). See: https://remotion.dev/docs/staticfile-remote-urls`,

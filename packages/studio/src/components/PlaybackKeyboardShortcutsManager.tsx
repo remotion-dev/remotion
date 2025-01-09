@@ -4,7 +4,7 @@ import {useCallback, useEffect} from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 
 export const PlaybackKeyboardShortcutsManager: React.FC<{
-	setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
+	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 }> = ({setPlaybackRate}) => {
 	const keybindings = useKeybinding();
 

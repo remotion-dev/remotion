@@ -12,11 +12,13 @@ import React, {
 } from 'react';
 import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 import {Controls} from './PlayerControls.js';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -24,8 +26,10 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {RenderWarningIfBlacklist} from './license-blacklist.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
 import {IS_NODE} from './utils/is-node.js';
@@ -77,12 +81,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly initiallyShowControls: number | boolean;
 		readonly renderPlayPauseButton: RenderPlayPauseButton | null;
 		readonly renderFullscreen: RenderFullscreenButton | null;
+		readonly renderMuteButton: RenderMuteButton | null;
+		readonly renderVolumeSlider: RenderVolumeSlider | null;
 		readonly alwaysShowControls: boolean;
 		readonly showPlaybackRateControl: boolean | number[];
 		readonly posterFillMode: PosterFillMode;
 		readonly bufferStateDelayInMilliseconds: number;
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 		readonly overflowVisible: boolean;
+		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+		readonly overrideInternalClassName: string | undefined;
 	}
 > = (
 	{
@@ -111,12 +119,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
+		renderMuteButton,
+		renderVolumeSlider,
 		alwaysShowControls,
 		showPlaybackRateControl,
 		posterFillMode,
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove,
 		overflowVisible,
+		browserMediaControlsBehavior,
+		overrideInternalClassName,
 	},
 	ref,
 ) => {
@@ -146,13 +158,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const player = usePlayer();
+	const playerToggle = player.toggle;
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
-		frameRef: player.remotionInternal_currentFrameRef,
+		getCurrentFrame: player.getCurrentFrame,
+		browserMediaControlsBehavior,
 	});
 
 	useEffect(() => {
@@ -170,11 +184,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		}
 
 		const onFullscreenChange = () => {
-			setIsFullscreen(
+			const newValue =
 				document.fullscreenElement === current ||
-					// @ts-expect-error Types not defined
-					document.webkitFullscreenElement === current,
-			);
+				// @ts-expect-error Types not defined
+				document.webkitFullscreenElement === current;
+
+			setIsFullscreen(newValue);
 		};
 
 		document.addEventListener('fullscreenchange', onFullscreenChange);
@@ -190,13 +205,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (player.isPlaying()) {
-				player.pause();
-			} else {
-				player.play(e);
-			}
+			playerToggle(e);
 		},
-		[player],
+		[playerToggle],
 	);
 
 	const requestFullscreen = useCallback(() => {
@@ -353,104 +364,116 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		};
 	}, [bufferStateDelayInMilliseconds, player.emitter]);
 
-	useImperativeHandle(
-		ref,
-		() => {
-			const methods: PlayerMethods = {
-				play: player.play,
-				pause: () => {
-					// If, after .seek()-ing, the player was explicitly paused, we don't resume
-					setHasPausedToResume(false);
-					player.pause();
-				},
-				toggle,
-				getContainerNode: () => container.current,
-				getCurrentFrame: player.getCurrentFrame,
-				isPlaying: () => player.playing,
-				seekTo: (f) => {
-					const lastFrame = durationInFrames - 1;
-					const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
-
-					// continue playing after seeking if the player was playing before
-					if (player.isPlaying()) {
-						const pauseToResume = frameToSeekTo !== lastFrame || loop;
-						setHasPausedToResume(pauseToResume);
-						player.pause();
-					}
-
-					if (frameToSeekTo === lastFrame && !loop) {
-						player.emitter.dispatchEnded();
-					}
-
-					player.seek(frameToSeekTo);
-				},
-				isFullscreen: () => isFullscreen,
-				requestFullscreen,
-				exitFullscreen,
-				getVolume: () => {
-					if (mediaMuted) {
-						return 0;
-					}
-
-					return mediaVolume;
-				},
-				setVolume: (vol: number) => {
-					if (typeof vol !== 'number') {
-						throw new TypeError(
-							`setVolume() takes a number, got value of type ${typeof vol}`,
-						);
-					}
-
-					if (isNaN(vol)) {
-						throw new TypeError(
-							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`,
-						);
-					}
-
-					if (vol < 0 || vol > 1) {
-						throw new TypeError(
-							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
-						);
-					}
-
-					setMediaVolume(vol);
-				},
-				isMuted: () => isMuted,
-				mute: () => {
-					setMediaMuted(true);
-				},
-				unmute: () => {
-					setMediaMuted(false);
-				},
-				getScale: () => scale,
-				pauseAndReturnToPlayStart: () => {
-					player.pauseAndReturnToPlayStart();
-				},
-			};
-			return Object.assign(player.emitter, methods);
-		},
-		[
-			durationInFrames,
-			exitFullscreen,
-			isFullscreen,
-			loop,
-			mediaMuted,
-			isMuted,
-			mediaVolume,
-			player,
-			requestFullscreen,
-			setMediaMuted,
-			setMediaVolume,
+	useImperativeHandle(ref, () => {
+		const methods: PlayerMethods = {
+			play: player.play,
+			pause: () => {
+				// If, after .seek()-ing, the player was explicitly paused, we don't resume
+				setHasPausedToResume(false);
+				player.pause();
+			},
 			toggle,
-			scale,
-		],
-	);
+			getContainerNode: () => container.current,
+			getCurrentFrame: player.getCurrentFrame,
+			isPlaying: player.isPlaying,
+			seekTo: (f) => {
+				const lastFrame = durationInFrames - 1;
+				const frameToSeekTo = Math.max(0, Math.min(lastFrame, f));
+
+				// continue playing after seeking if the player was playing before
+				if (player.isPlaying()) {
+					const pauseToResume = frameToSeekTo !== lastFrame || loop;
+					setHasPausedToResume(pauseToResume);
+					player.pause();
+				}
+
+				if (frameToSeekTo === lastFrame && !loop) {
+					player.emitter.dispatchEnded();
+				}
+
+				player.seek(frameToSeekTo);
+			},
+			isFullscreen: () => {
+				const {current} = container;
+				if (!current) {
+					return false;
+				}
+
+				return (
+					document.fullscreenElement === current ||
+					// @ts-expect-error Types not defined
+					document.webkitFullscreenElement === current
+				);
+			},
+			requestFullscreen,
+			exitFullscreen,
+			getVolume: () => {
+				if (mediaMuted) {
+					return 0;
+				}
+
+				return mediaVolume;
+			},
+			setVolume: (vol: number) => {
+				if (typeof vol !== 'number') {
+					throw new TypeError(
+						`setVolume() takes a number, got value of type ${typeof vol}`,
+					);
+				}
+
+				if (isNaN(vol)) {
+					throw new TypeError(
+						`setVolume() got a number that is NaN. Volume must be between 0 and 1.`,
+					);
+				}
+
+				if (vol < 0 || vol > 1) {
+					throw new TypeError(
+						`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
+					);
+				}
+
+				setMediaVolume(vol);
+			},
+			isMuted: () => isMuted,
+			mute: () => {
+				setMediaMuted(true);
+			},
+			unmute: () => {
+				setMediaMuted(false);
+			},
+			getScale: () => scale,
+			pauseAndReturnToPlayStart: () => {
+				player.pauseAndReturnToPlayStart();
+			},
+		};
+		return Object.assign(player.emitter, methods);
+	}, [
+		durationInFrames,
+		exitFullscreen,
+		loop,
+		mediaMuted,
+		isMuted,
+		mediaVolume,
+		player,
+		requestFullscreen,
+		setMediaMuted,
+		setMediaVolume,
+		toggle,
+		scale,
+	]);
 
 	const VideoComponent = video ? video.component : null;
 
 	const outerStyle: React.CSSProperties = useMemo(() => {
-		return calculateOuterStyle({canvasSize, config, style, overflowVisible});
-	}, [canvasSize, config, overflowVisible, style]);
+		return calculateOuterStyle({
+			canvasSize,
+			config,
+			style,
+			overflowVisible,
+			layout,
+		});
+	}, [canvasSize, config, layout, overflowVisible, style]);
 
 	const outer = useMemo(() => {
 		return calculateOuter({config, layout, scale, overflowVisible});
@@ -466,13 +489,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		});
 	}, [canvasSize, config, layout, overflowVisible, scale]);
 
+	const playerPause = player.pause;
+	const playerDispatchError = player.emitter.dispatchError;
+
 	const onError = useCallback(
 		(error: Error) => {
-			player.pause();
+			playerPause();
 			// Pay attention to `this context`
-			player.emitter.dispatchError(error);
+			playerDispatchError(error);
 		},
-		[player],
+		[playerDispatchError, playerPause],
 	);
 
 	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -494,7 +520,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		);
 
 	const onSingleClick = useCallback(
-		(e: SyntheticEvent | PointerEvent) => {
+		(e: SyntheticEvent<Element, PointerEvent> | PointerEvent) => {
+			const rightClick =
+				e instanceof MouseEvent ? e.button === 2 : e.nativeEvent.button;
+			if (rightClick) {
+				return;
+			}
+
 			toggle(e);
 		},
 		[toggle],
@@ -589,17 +621,18 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
-				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+				<div
+					style={containerStyle}
+					className={playerCssClassname(overrideInternalClassName)}
+				>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<Internals.ClipComposition>
-								<Internals.CurrentScaleContext.Provider value={currentScale}>
-									<VideoComponent
-										{...(video?.props ?? {})}
-										{...(inputProps ?? {})}
-									/>
-								</Internals.CurrentScaleContext.Provider>
-							</Internals.ClipComposition>
+							<Internals.CurrentScaleContext.Provider value={currentScale}>
+								<VideoComponent
+									{...(video?.props ?? {})}
+									{...(inputProps ?? {})}
+								/>
+							</Internals.CurrentScaleContext.Provider>
 						</ErrorBoundary>
 					) : null}
 					{shouldShowPoster && posterFillMode === 'composition-size' ? (
@@ -618,6 +651,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						</div>
 					) : null}
 				</div>
+				<RenderWarningIfBlacklist />
 			</div>
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
@@ -633,8 +667,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{controls ? (
 				<Controls
 					fps={config.fps}
+					playing={player.playing}
+					toggle={player.toggle}
 					durationInFrames={config.durationInFrames}
-					player={player}
 					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
@@ -657,7 +692,15 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					onDoubleClick={
 						doubleClickToFullscreen ? handleDoubleClick : undefined
 					}
-					onPointerDown={clickToPlay ? handlePointerDown : undefined}
+					onPointerDown={
+						clickToPlay
+							? (handlePointerDown as (
+									e: SyntheticEvent<Element, Event> | PointerEvent,
+								) => void)
+							: undefined
+					}
+					renderMuteButton={renderMuteButton}
+					renderVolumeSlider={renderVolumeSlider}
 				/>
 			) : null}
 		</>

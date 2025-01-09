@@ -15,8 +15,8 @@ const containerColumn: React.CSSProperties = {
 };
 
 export const SplitterHandle: React.FC<{
-	allowToCollapse: 'right' | 'left' | 'none';
-	onCollapse: () => void;
+	readonly allowToCollapse: 'right' | 'left' | 'none';
+	readonly onCollapse: () => void;
 }> = ({allowToCollapse, onCollapse}) => {
 	const context = useContext(SplitterContext);
 	if (!context) {
@@ -31,10 +31,6 @@ export const SplitterHandle: React.FC<{
 			return;
 		}
 
-		if (!context.domRect) {
-			return;
-		}
-
 		const {current} = ref;
 		if (!current) {
 			return;
@@ -45,11 +41,11 @@ export const SplitterHandle: React.FC<{
 				throw new Error('cannot get value if not dragging');
 			}
 
-			if (!context.domRect) {
+			if (!context.ref.current) {
 				throw new Error('domRect is not mounted');
 			}
 
-			const {width, height} = context.domRect;
+			const {width, height} = context.ref.current.getBoundingClientRect();
 			const change = (() => {
 				if (context.orientation === 'vertical') {
 					return (
@@ -138,14 +134,7 @@ export const SplitterHandle: React.FC<{
 				cleanup();
 			}
 		};
-	}, [
-		allowToCollapse,
-		context,
-		context.domRect,
-		context.flexValue,
-		lastPointerUp,
-		onCollapse,
-	]);
+	}, [allowToCollapse, context, context.flexValue, lastPointerUp, onCollapse]);
 
 	return (
 		<div

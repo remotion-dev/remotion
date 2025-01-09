@@ -3,4 +3,4 @@
 
 [build]
 # Calling the directory "target" and adding it to turbo.json
-target-dir = "renderer/target"
+target-dir = "compositor/target"

@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-webcodecs-index.png
+sidebar_label: Overview
+title: '@remotion/webcodecs'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {TableOfContents, WebCodecsGuide} from './TableOfContents';
+
+_available from v4.0.229_
+
+This package provides APIs for converting videos in the browser.  
+It leverages [`@remotion/media-parser`](/docs/media-parser) to parse the video and audio data, and then uses the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) to encode the video.
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+## What can you to with this package?
+
+In browsers that implement WebCodecs, you can use this package to:
+
+- [Convert videos from one format to another](/docs/webcodecs/convert-a-video) (.mp4 and .webm bidirectional, .avi, .mkv, .mov as import)
+- [Rotate videos](/docs/webcodecs/rotate-a-video)
+- Extract audio from a video
+- Manipulate the pixels of a video
+- [Fix videos that were recorded with `MediaRecorder`](/docs/webcodecs/fix-mediarecorder-video)
+- Soon: Compress, trim, crop videos
+
+## 💼 License Disclaimer
+
+<LicenseDisclaimer />
+
+## 🚧 Unstable API Warning
+
+<UnstableDisclaimer />
+
+## Installation
+
+<Installation pkg="@remotion/webcodecs" />
+
+## Guide
+
+<WebCodecsGuide />
+
+## APIs
+
+The following APIs are available:
+
+<TableOfContents />

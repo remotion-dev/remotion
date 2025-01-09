@@ -17,6 +17,7 @@ import type {
 import {Composition, Internals} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
+import type {RenderMuteButton} from './MediaVolumeSlider.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
@@ -24,8 +25,10 @@ import type {
 import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
+import type {RenderVolumeSlider} from './render-volume-slider.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -73,6 +76,8 @@ export type PlayerProps<
 	readonly initiallyShowControls?: number | boolean;
 	readonly renderPlayPauseButton?: RenderPlayPauseButton;
 	readonly renderFullscreenButton?: RenderFullscreenButton;
+	readonly renderMuteButton?: RenderMuteButton;
+	readonly renderVolumeSlider?: RenderVolumeSlider;
 	readonly alwaysShowControls?: boolean;
 	readonly schema?: Schema;
 	readonly initiallyMuted?: boolean;
@@ -81,6 +86,8 @@ export type PlayerProps<
 	readonly bufferStateDelayInMilliseconds?: number;
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 	readonly overflowVisible?: boolean;
+	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
+	readonly overrideInternalClassName?: string;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -133,6 +140,7 @@ const PlayerFn = <
 		initiallyShowControls,
 		renderFullscreenButton,
 		renderPlayPauseButton,
+		renderVolumeSlider,
 		alwaysShowControls = false,
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
@@ -140,6 +148,9 @@ const PlayerFn = <
 		bufferStateDelayInMilliseconds,
 		hideControlsWhenPointerDoesntMove = true,
 		overflowVisible = false,
+		renderMuteButton,
+		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
+		overrideInternalClassName,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -333,14 +344,23 @@ const PlayerFn = <
 			// Inject CSS only on client, and also only after the Player has hydrated
 			Internals.CSSUtils.injectCSS(
 				Internals.CSSUtils.makeDefaultPreviewCSS(
-					`.${PLAYER_CSS_CLASSNAME}`,
+					`.${playerCssClassname(overrideInternalClassName)}`,
 					'#fff',
 				),
 			);
-		}, []);
+		}, [overrideInternalClassName]);
 	}
 
 	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
+
+	const browserMediaControlsBehavior: BrowserMediaControlsBehavior =
+		useMemo(() => {
+			return (
+				passedBrowserMediaControlsBehavior ?? {
+					mode: 'prevent-media-session',
+				}
+			);
+		}, [passedBrowserMediaControlsBehavior]);
 
 	return (
 		<Internals.IsPlayerContextProvider>
@@ -390,6 +410,8 @@ const PlayerFn = <
 							initiallyShowControls={initiallyShowControls ?? true}
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
+							renderMuteButton={renderMuteButton ?? null}
+							renderVolumeSlider={renderVolumeSlider ?? null}
 							alwaysShowControls={alwaysShowControls}
 							showPlaybackRateControl={showPlaybackRateControl}
 							bufferStateDelayInMilliseconds={
@@ -399,6 +421,8 @@ const PlayerFn = <
 								hideControlsWhenPointerDoesntMove
 							}
 							overflowVisible={overflowVisible}
+							browserMediaControlsBehavior={browserMediaControlsBehavior}
+							overrideInternalClassName={overrideInternalClassName ?? undefined}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
@@ -414,11 +438,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-/**
- * @description Creates and renders a customizable video player with various interactive controls for a React application.
- * @see [Documentation](https://remotion.dev/docs/player/player)
- * @param {PlayerProps<Schema, Props>} props The properties for configuring the player, including video specifics and UI controls.
- * @param {MutableRefObject<PlayerRef>} ref Reference to the player for controlling playback, volume, and other aspects.
- * @returns {JSX.Element} The rendered video player component.
+/*
+ * @description A component which can be rendered in a regular React App to display a Remotion video.
+ * @see [Documentation](https://www.remotion.dev/docs/player/player)
  */
 export const Player = forward(PlayerFn);

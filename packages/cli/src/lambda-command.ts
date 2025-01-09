@@ -13,12 +13,19 @@ export const lambdaCommand = async (
 		});
 		const {LambdaInternals} = require(path);
 
-		await LambdaInternals.executeCommand(args, remotionRoot, logLevel);
+		await LambdaInternals.executeCommand(
+			args,
+			remotionRoot,
+			logLevel,
+			null,
+			null,
+		);
 		process.exit(0);
 	} catch (err) {
 		const manager = StudioServerInternals.getPackageManager(
 			remotionRoot,
 			undefined,
+			0,
 		);
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;

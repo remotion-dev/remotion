@@ -1,9 +1,13 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {GetAccountId} from '@remotion/serverless';
+import type {AwsProvider} from '../functions/aws-implementation';
+import type {AwsRegion} from '../regions';
 import {getStsClient} from './aws-clients';
 import {validateAwsRegion} from './validate-aws-region';
 
-export const getAccountId = async (options: {region: AwsRegion}) => {
+export const getAccountIdImplementation: GetAccountId<
+	AwsProvider
+> = async (options: {region: AwsRegion}) => {
 	validateAwsRegion(options.region);
 
 	const callerIdentity = await getStsClient(options.region).send(

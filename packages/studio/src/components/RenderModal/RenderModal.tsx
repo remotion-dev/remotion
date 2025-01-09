@@ -10,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	RequiredChromiumOptions,
@@ -45,7 +46,7 @@ import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
-import {NewCompHeader} from '../ModalHeader';
+import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {
@@ -234,7 +235,9 @@ type RenderModalProps = {
 	readonly defaultConfigurationVideoCodec: Codec | null;
 	readonly defaultConfigurationAudioCodec: AudioCodec | null;
 	readonly initialForSeamlessAacConcatenation: boolean;
+	readonly initialHardwareAcceleration: HardwareAccelerationOption;
 	readonly renderTypeOfLastRender: RenderType | null;
+	readonly defaultMetadata: Record<string, string> | null;
 };
 
 const RenderModal: React.FC<
@@ -281,6 +284,8 @@ const RenderModal: React.FC<
 	initialRepro,
 	initialForSeamlessAacConcatenation,
 	renderTypeOfLastRender,
+	initialHardwareAcceleration,
+	defaultMetadata,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -438,6 +443,8 @@ const RenderModal: React.FC<
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);
+	const [hardwareAcceleration, setHardwareAcceleration] =
+		useState<HardwareAccelerationOption>(() => initialHardwareAcceleration);
 
 	const [userPreferredPixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat,
@@ -580,6 +587,8 @@ const RenderModal: React.FC<
 	}, [codec, x264PresetSetting, renderMode]);
 
 	const [inputProps, setInputProps] = useState(() => defaultProps);
+
+	const [metadata] = useState(() => defaultMetadata);
 
 	const endFrame = useMemo((): number => {
 		if (endFrameOrNull === null) {
@@ -739,6 +748,7 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			multiProcessOnLinux,
 			beepOnFinish,
+			metadata,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -765,6 +775,7 @@ const RenderModal: React.FC<
 		multiProcessOnLinux,
 		beepOnFinish,
 		setSelectedModal,
+		metadata,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -786,7 +797,9 @@ const RenderModal: React.FC<
 	}, [codec]);
 
 	const pixelFormat = useMemo(() => {
-		if (availablePixelFormats.includes(userPreferredPixelFormat)) {
+		if (
+			(availablePixelFormats as string[]).includes(userPreferredPixelFormat)
+		) {
 			return userPreferredPixelFormat;
 		}
 
@@ -834,6 +847,8 @@ const RenderModal: React.FC<
 			repro,
 			forSeamlessAacConcatenation,
 			separateAudioTo,
+			metadata,
+			hardwareAcceleration,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -883,6 +898,8 @@ const RenderModal: React.FC<
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		setSelectedModal,
+		metadata,
+		hardwareAcceleration,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -909,6 +926,7 @@ const RenderModal: React.FC<
 			multiProcessOnLinux,
 			beepOnFinish,
 			repro,
+			metadata,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -939,6 +957,7 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		repro,
 		setSelectedModal,
+		metadata,
 	]);
 
 	useEffect(() => {
@@ -1174,7 +1193,7 @@ const RenderModal: React.FC<
 
 	return (
 		<div style={outer}>
-			<NewCompHeader title={`Render ${resolvedComposition.id}`} />
+			<ModalHeader title={`Render ${resolvedComposition.id}`} />
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 				<div style={flexer} />
@@ -1283,6 +1302,8 @@ const RenderModal: React.FC<
 							endFrame={endFrame}
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}
+							setVerboseLogging={setLogLevel}
+							logLevel={logLevel}
 							startFrame={startFrame}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
@@ -1373,8 +1394,6 @@ const RenderModal: React.FC<
 							minConcurrency={minConcurrency}
 							renderMode={renderMode}
 							setConcurrency={setConcurrency}
-							setVerboseLogging={setLogLevel}
-							logLevel={logLevel}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							disallowParallelEncoding={disallowParallelEncoding}
@@ -1402,6 +1421,8 @@ const RenderModal: React.FC<
 							beep={beepOnFinish}
 							repro={repro}
 							setRepro={setRepro}
+							hardwareAcceleration={hardwareAcceleration}
+							setHardwareAcceleration={setHardwareAcceleration}
 						/>
 					)}
 				</div>

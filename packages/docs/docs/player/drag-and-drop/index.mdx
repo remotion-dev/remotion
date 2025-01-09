@@ -1,0 +1,674 @@
+---
+image: /generated/articles-docs-player-drag-and-drop-index.png
+sidebar_label: 'Drag & Drop'
+title: 'Drag & Drop in the Remotion Player'
+crumb: '@remotion/player'
+no_ai: true
+---
+
+import {DragAndDropDemo} from './Demo';
+
+The Remotion Player supports reacting to mouse events allowing for building interactions on the canvas.  
+Try to drag and resize the elements below.
+
+<br />
+<DragAndDropDemo />
+<br />
+
+## General considerations
+
+Pointer events work mostly just like in regular React.
+
+Disable the [`controls`](/docs/player/player#controls) prop to disable any obstructing elements. You can render Playback controls [outside of the Player](/docs/player/custom-controls).
+
+The Player might have CSS `scale()` applied to it.  
+[If you measure elements](/docs/measuring), you need to divide by the scale obtained by [`useCurrentScale()`](/docs/use-current-scale).
+
+You can pass state update functions via [`inputProps`](/docs/player/player#inputprops) to the Player.  
+Alternatively, wrapping the Player in React Context also works.
+
+## Example
+
+```twoslash include item
+export type Item = {
+	id: number;
+	durationInFrames: number;
+	from: number;
+	height: number;
+	left: number;
+	top: number;
+	width: number;
+	color: string;
+	isDragging: boolean;
+};
+```
+
+```twoslash include ResizeHandle
+import React, {useCallback, useMemo} from 'react';
+import {useCurrentScale} from 'remotion';
+import type {Item} from './item';
+
+const HANDLE_SIZE = 8;
+
+export const ResizeHandle: React.FC<{
+  type: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  setItem: (itemId: number, updater: (item: Item) => Item) => void;
+  item: Item;
+}> = ({type, setItem, item}) => {
+  const scale = useCurrentScale();
+  const size = Math.round(HANDLE_SIZE / scale);
+  const borderSize = 1 / scale;
+
+  const sizeStyle: React.CSSProperties = useMemo(() => {
+    return {
+      position: 'absolute',
+      height: size,
+      width: size,
+      backgroundColor: 'white',
+      border: `${borderSize}px solid #0B84F3`,
+    };
+  }, [borderSize, size]);
+
+  const margin = -size / 2 - borderSize;
+
+  const style: React.CSSProperties = useMemo(() => {
+    if (type === 'top-left') {
+      return {
+        ...sizeStyle,
+        marginLeft: margin,
+        marginTop: margin,
+        cursor: 'nwse-resize',
+      };
+    }
+
+    if (type === 'top-right') {
+      return {
+        ...sizeStyle,
+        marginTop: margin,
+        marginRight: margin,
+        right: 0,
+        cursor: 'nesw-resize',
+      };
+    }
+
+    if (type === 'bottom-left') {
+      return {
+        ...sizeStyle,
+        marginBottom: margin,
+        marginLeft: margin,
+        bottom: 0,
+        cursor: 'nesw-resize',
+      };
+    }
+
+    if (type === 'bottom-right') {
+      return {
+        ...sizeStyle,
+        marginBottom: margin,
+        marginRight: margin,
+        right: 0,
+        bottom: 0,
+        cursor: 'nwse-resize',
+      };
+    }
+
+    throw new Error('Unknown type: ' + JSON.stringify(type));
+  }, [margin, sizeStyle, type]);
+
+  const onPointerDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (e.button !== 0) {
+        return;
+      }
+
+      const initialX = e.clientX;
+      const initialY = e.clientY;
+
+      const onPointerMove = (pointerMoveEvent: PointerEvent) => {
+        const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
+        const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
+
+        const isLeft = type === 'top-left' || type === 'bottom-left';
+        const isTop = type === 'top-left' || type === 'top-right';
+
+        setItem(item.id, (i) => {
+          const newWidth = item.width + (isLeft ? -offsetX : offsetX);
+          const newHeight = item.height + (isTop ? -offsetY : offsetY);
+          const newLeft = item.left + (isLeft ? offsetX : 0);
+          const newTop = item.top + (isTop ? offsetY : 0);
+
+          return {
+            ...i,
+            width: Math.max(1, Math.round(newWidth)),
+            height: Math.max(1, Math.round(newHeight)),
+            left: Math.min(item.left + item.width - 1, Math.round(newLeft)),
+            top: Math.min(item.top + item.height - 1, Math.round(newTop)),
+            isDragging: true,
+          };
+        });
+      };
+
+      const onPointerUp = () => {
+        setItem(item.id, (i) => {
+          return {
+            ...i,
+            isDragging: false,
+          };
+        });
+        window.removeEventListener('pointermove', onPointerMove);
+      };
+
+      window.addEventListener('pointermove', onPointerMove, {passive: true});
+      window.addEventListener('pointerup', onPointerUp, {
+        once: true,
+      });
+    },
+    [item, scale, setItem, type],
+  );
+
+  return <div onPointerDown={onPointerDown} style={style} />;
+};
+```
+
+```twoslash include Layer
+import React, {useMemo} from 'react';
+import {Sequence} from 'remotion';
+import type {Item} from './item';
+
+export const Layer: React.FC<{
+  item: Item;
+}> = ({item}) => {
+  const style: React.CSSProperties = useMemo(() => {
+    return {
+      backgroundColor: item.color,
+      position: 'absolute',
+      left: item.left,
+      top: item.top,
+      width: item.width,
+      height: item.height,
+    };
+  }, [item.color, item.height, item.left, item.top, item.width]);
+
+  return (
+    <Sequence
+      key={item.id}
+      from={item.from}
+      durationInFrames={item.durationInFrames}
+      layout="none"
+    >
+      <div style={style} />
+    </Sequence>
+  );
+};
+```
+
+```twoslash include SelectionOutline
+import React, {useCallback, useMemo} from 'react';
+import {useCurrentScale} from 'remotion';
+
+import {ResizeHandle} from './ResizeHandle';
+import type {Item} from './item';
+
+export const SelectionOutline: React.FC<{
+	item: Item;
+	changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+	setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+	selectedItem: number | null;
+	isDragging: boolean;
+}> = ({item, changeItem, setSelectedItem, selectedItem, isDragging}) => {
+	const scale = useCurrentScale();
+	const scaledBorder = Math.ceil(2 / scale);
+
+	const [hovered, setHovered] = React.useState(false);
+
+	const onMouseEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onMouseLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
+
+	const isSelected = item.id === selectedItem;
+
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			width: item.width,
+			height: item.height,
+			left: item.left,
+			top: item.top,
+			position: 'absolute',
+			outline:
+				(hovered && !isDragging) || isSelected
+					? `${scaledBorder}px solid #0B84F3`
+					: undefined,
+			userSelect: 'none',
+			touchAction: 'none',
+		};
+	}, [item, hovered, isDragging, isSelected, scaledBorder]);
+
+	const startDragging = useCallback(
+		(e: PointerEvent | React.MouseEvent) => {
+			const initialX = e.clientX;
+			const initialY = e.clientY;
+
+			const onPointerMove = (pointerMoveEvent: PointerEvent) => {
+				const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
+				const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
+				changeItem(item.id, (i) => {
+					return {
+						...i,
+						left: Math.round(item.left + offsetX),
+						top: Math.round(item.top + offsetY),
+						isDragging: true,
+					};
+				});
+			};
+
+			const onPointerUp = () => {
+				changeItem(item.id, (i) => {
+					return {
+						...i,
+						isDragging: false,
+					};
+				});
+				window.removeEventListener('pointermove', onPointerMove);
+			};
+
+			window.addEventListener('pointermove', onPointerMove, {passive: true});
+
+			window.addEventListener('pointerup', onPointerUp, {
+				once: true,
+			});
+		},
+		[item, scale, changeItem],
+	);
+
+	const onPointerDown = useCallback(
+		(e: React.MouseEvent) => {
+			e.stopPropagation();
+			if (e.button !== 0) {
+				return;
+			}
+
+			setSelectedItem(item.id);
+			startDragging(e);
+		},
+		[item.id, setSelectedItem, startDragging],
+	);
+
+	return (
+		<div
+			onPointerDown={onPointerDown}
+			onPointerEnter={onMouseEnter}
+			onPointerLeave={onMouseLeave}
+			style={style}
+		>
+			{isSelected ? (
+				<>
+					<ResizeHandle item={item} setItem={changeItem} type="top-left" />
+					<ResizeHandle item={item} setItem={changeItem} type="top-right" />
+					<ResizeHandle item={item} setItem={changeItem} type="bottom-left" />
+					<ResizeHandle item={item} setItem={changeItem} type="bottom-right" />
+				</>
+			) : null}
+		</div>
+	);
+};
+```
+
+```twoslash include SortedOutlines
+import React from 'react';
+import {Sequence} from 'remotion';
+import {SelectionOutline} from './SelectionOutline';
+import type {Item} from './item';
+
+const displaySelectedItemOnTop = (
+  items: Item[],
+  selectedItem: number | null,
+): Item[] => {
+  const selectedItems = items.filter((item) => item.id === selectedItem);
+  const unselectedItems = items.filter((item) => item.id !== selectedItem);
+
+  return [...unselectedItems, ...selectedItems];
+};
+
+export const SortedOutlines: React.FC<{
+  items: Item[];
+  selectedItem: number | null;
+  changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+  setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+}> = ({items, selectedItem, changeItem, setSelectedItem}) => {
+  const itemsToDisplay = React.useMemo(
+    () => displaySelectedItemOnTop(items, selectedItem),
+    [items, selectedItem],
+  );
+
+  const isDragging = React.useMemo(
+    () => items.some((item) => item.isDragging),
+    [items],
+  );
+
+  return itemsToDisplay.map((item) => {
+    return (
+      <Sequence
+        key={item.id}
+        from={item.from}
+        durationInFrames={item.durationInFrames}
+        layout="none"
+      >
+        <SelectionOutline
+          changeItem={changeItem}
+          item={item}
+          setSelectedItem={setSelectedItem}
+          selectedItem={selectedItem}
+          isDragging={isDragging}
+        />
+      </Sequence>
+    );
+  });
+};
+```
+
+```twoslash include Main
+import React, {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
+import type {Item} from './item';
+import {Layer} from './Layer';
+import {SortedOutlines} from './SortedOutlines';
+
+export type MainProps = {
+  readonly items: Item[];
+  readonly setSelectedItem: React.Dispatch<React.SetStateAction<number | null>>;
+  readonly selectedItem: number | null;
+  readonly changeItem: (itemId: number, updater: (item: Item) => Item) => void;
+};
+
+const outer: React.CSSProperties = {
+  backgroundColor: '#eee',
+};
+
+const layerContainer: React.CSSProperties = {
+  overflow: 'hidden',
+};
+
+export const Main: React.FC<MainProps> = ({
+  items,
+  setSelectedItem,
+  selectedItem,
+  changeItem,
+}) => {
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.button !== 0) {
+        return;
+      }
+
+      setSelectedItem(null);
+    },
+    [setSelectedItem],
+  );
+
+  return (
+    <AbsoluteFill style={outer} onPointerDown={onPointerDown}>
+      <AbsoluteFill style={layerContainer}>
+        {items.map((item) => {
+          return <Layer key={item.id} item={item} />;
+        })}
+      </AbsoluteFill>
+      <SortedOutlines
+        selectedItem={selectedItem}
+        items={items}
+        setSelectedItem={setSelectedItem}
+        changeItem={changeItem}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+```twoslash include Demo
+import {Player} from '@remotion/player';
+import React, {useCallback, useMemo, useState} from 'react';
+import type {MainProps} from './Main';
+import {Main} from './Main';
+import type {Item} from './item';
+
+export const DragAndDropDemo: React.FC = () => {
+  const [items, setItems] = useState<Item[]>([
+    {
+      left: 395,
+      top: 270,
+      width: 540,
+      durationInFrames: 100,
+      from: 0,
+      height: 540,
+      id: 0,
+      color: '#ccc',
+      isDragging: false,
+    },
+    {
+      left: 985,
+      top: 270,
+      width: 540,
+      durationInFrames: 100,
+      from: 0,
+      height: 540,
+      id: 1,
+      color: '#ccc',
+      isDragging: false,
+    },
+  ]);
+  const [selectedItem, setSelectedItem] = useState<number | null>(null);
+
+  const changeItem = useCallback(
+    (itemId: number, updater: (item: Item) => Item) => {
+      setItems((oldItems) => {
+        return oldItems.map((item) => {
+          if (item.id === itemId) {
+            return updater(item);
+          }
+
+          return item;
+        });
+      });
+    },
+    [],
+  );
+
+  const inputProps: MainProps = useMemo(() => {
+    return {
+      items,
+      setSelectedItem,
+      changeItem,
+      selectedItem,
+    };
+  }, [changeItem, items, selectedItem]);
+
+  return (
+    <Player
+      style={{
+        width: '100%',
+      }}
+      component={Main}
+      compositionHeight={1080}
+      compositionWidth={1920}
+      durationInFrames={300}
+      fps={30}
+      inputProps={inputProps}
+      overflowVisible
+    />
+  );
+};
+```
+
+Let's build the demo above.
+
+The following features have been defined as goals:
+
+- Ability to freely position and resizing the squares with the mouse.
+- One item can be selected at a time. Clicking on an empty space will deselect the item.
+- Items can not overflow the container, however the blue outlines can overflow the container.
+
+### <TitleStep>1</TitleStep> Data structure
+
+Create a TypeScript type that describes the shape of your item.
+
+In this example we store an identifier `id`, start and end frame `from` and
+`durationInFrames`, the position `left`, `top`, `width` and `height`, a
+background `color` as well as a boolean `isDragging` to fine-tune the behavior while dragging.
+
+```tsx twoslash title="item.ts"
+// @filename: item.ts
+// ---cut---
+// @include: item
+```
+
+If you like to support different types of items (solid, video, image),
+see [here](/docs/building-a-timeline).
+
+### <TitleStep>2</TitleStep> Item rendering
+
+Declare a React component that renders the item.
+
+```tsx twoslash title="Layer.tsx"
+// @filename: item.ts
+// @include: item
+// @filename: Layer.tsx
+// ---cut---
+// @include: Layer
+```
+
+By using a [`<Sequence>`](/docs/sequence) component, the item is only displayed from `from` until `from + durationInFrames`.
+
+By adding [`layout="none"`](/docs/sequence#layout), the `<div>` is mounted as a direct child to the DOM.
+
+### <TitleStep>3</TitleStep> Outline rendering
+
+Create a React component that renders an outline when an item isselected or hovered.
+
+```tsx twoslash title="SelectionOutline.tsx"
+// @filename: ResizeHandle.tsx
+// @include: ResizeHandle
+// @filename: item.ts
+// @include: item
+// @filename: SelectionOutline.tsx
+// ---cut---
+// @include: SelectionOutline
+```
+
+```tsx twoslash title="ResizeHandle.tsx"
+// @filename: item.ts
+// @include: item
+// @filename: ResizeHandle.tsx
+// ---cut---
+// @include: ResizeHandle
+```
+
+**Z-indexing**: These elements will later in this tutorial be rendered on top of all layers so that they are able to accept mouse events.  
+Clicking on one of these elements will select the underlying item.
+
+**Scaling**: The [`<Player />`](/docs/player/player) has a CSS `scale` transform applied to it.  
+Since we consume the coordinates of the pointer events, we need to divide them by [`useCurrentScale()`](/docs/use-current-scale) to get the correct position.
+
+The thickness of the borders will also be affected by the scale, so we need to divide them by the scale too.
+
+**Pointer event handling**: On any `pointerdown` event, we call `e.stopPropagation()` prevent the event from bubbling up.  
+Later, we will treat any event that bubbles up as an click on an empty space and deselect the item.
+
+We also don't do any action if `e.button !== 0`. This prevents a bug where the item moves after a right click.
+
+We add `userSelect: 'none'` to disable the native selection and drag behavior of the browser.
+
+We also add `touchAction: 'none'` to disable scrolling the page on mobile while dragging.
+
+We keep track if the item is being dragged by using the `isDragging` property and disable the hover effect while an item is being dragged.
+
+### <TitleStep>4</TitleStep> Sorting outlines
+
+Let's create a component that renders all outlines.  
+The item which gets rendered as last element [will be on top of all other items](/docs/layers).
+
+The item that is selected should be rendered on top of all other items because it is the item that is responsive to mouse events.
+
+We render the selected outlines last. This ensures that the resize handles are always on top.  
+This logic only applies to the outlines, not the actual layers.
+
+```tsx twoslash title="SortedOutlines.tsx"
+// @filename: item.ts
+// @include: item
+// @filename: ResizeHandle.tsx
+// @include: ResizeHandle
+// @filename: SelectionOutline.tsx
+// @include: SelectionOutline
+// @filename: SortedOutlines.tsx
+// ---cut---
+// @include: SortedOutlines
+```
+
+### <TitleStep>5</TitleStep> Putting it together
+
+Next, we create a main component that renders the items and the outlines.
+
+```tsx twoslash title="SortedOutlines.tsx"
+// @filename: item.ts
+// @include: item
+// @filename: ResizeHandle.tsx
+// @include: ResizeHandle
+// @filename: SelectionOutline.tsx
+// @include: SelectionOutline
+// @filename: SortedOutlines.tsx
+// @include: SortedOutlines
+// @filename: Layer.tsx
+// @include: Layer
+// @filename: Main.tsx
+// ---cut---
+// @include: Main
+```
+
+**Z-indexing:** We render the layers first and then the outlines. This means the outlines get rendered on top the items.
+
+**Overflow behavior**: Note that we apply a different `overflow` behavior to the layers and the outlines.  
+We hide the overflow of the layers, but show the overflow of the outlines.  
+This is a UI behavior that is similar to Figma frames.
+
+**Click handling**: We also listen to `pointerdown` events on the canvas.  
+Any event that was not stopped using `e.stopPropagation()` before will be treated as a click on an empty space and results in deselecting the item.
+
+### <TitleStep>6</TitleStep> Rendering the Player
+
+We can now render the Main component that we created in the Remotion Player.
+
+```tsx twoslash title="Demo.tsx"
+// @filename: item.ts
+// @include: item
+// @filename: ResizeHandle.tsx
+// @include: ResizeHandle
+// @filename: SelectionOutline.tsx
+// @include: SelectionOutline
+// @filename: SortedOutlines.tsx
+// @include: SortedOutlines
+// @filename: Layer.tsx
+// @include: Layer
+// @filename: Main.tsx
+// @include: Main
+// @filename: Demo.tsx
+// ---cut---
+// @include: Demo
+```
+
+We omit the [`controls`](/docs/player/player#controls) prop to disable the built-in controls.  
+You can add [custom controls outside the Player](/docs/player/custom-controls).
+
+We add the [`overflowVisible`](/docs/player/player#overflowvisible) prop to make the outlines visible if they go outside the canvas.  
+Remember that we've hidden the overflow of the layers itself because it would also not be visible in the final video.
+
+We've now implemented thoughtful drag and drop interactions!
+
+## See also
+
+- [Source code for this demo](https://github.com/remotion-dev/remotion/blob/main/packages/docs/docs/player/drag-and-drop/Demo.tsx)
+- [Custom controls](/docs/player/custom-controls)
+- [`useCurrentScale()`](/docs/use-current-scale)
+- [`<Player />`](/docs/player/player)

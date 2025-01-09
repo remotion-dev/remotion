@@ -3,7 +3,7 @@ import React from 'react';
 import {useCurrentPlayerFrame} from './use-current-player-frame';
 
 export const TimeDisplay: React.FC<{
-	playerRef: React.RefObject<PlayerRef>;
+	readonly playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
 	const frame = useCurrentPlayerFrame(playerRef);
 

@@ -1,0 +1,4 @@
+/**
+ * @description By wrapping a <Composition /> inside a <Folder />, you can visually categorize it in your sidebar, should you have many compositions.
+ * @see [Documentation](https://remotion.dev/docs/folder)
+ */

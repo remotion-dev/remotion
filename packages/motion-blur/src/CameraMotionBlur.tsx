@@ -2,9 +2,9 @@ import React from 'react';
 import {AbsoluteFill, Freeze, useCurrentFrame} from 'remotion';
 
 export type CameraMotionBlurProps = {
-	children: React.ReactNode;
-	shutterAngle?: number;
-	samples?: number;
+	readonly children: React.ReactNode;
+	readonly shutterAngle?: number;
+	readonly samples?: number;
 };
 
 /**
@@ -27,7 +27,7 @@ const getNumberOfSamples = ({
 	return Math.max(1, Math.round(Math.min(factor * samples, samples)));
 };
 
-/**
+/*
  * @description Produces natural looking motion blur similar to what would be produced by a film camera.
  * @see [Documentation](https://www.remotion.dev/docs/motion-blur/camera-motion-blur)
  */

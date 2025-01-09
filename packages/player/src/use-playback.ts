@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import {useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
+import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
+import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
+import type {GetCurrentFrame} from './use-frame-imperative.js';
 import {usePlayer} from './use-player.js';
 
 export const usePlayback = ({
@@ -11,14 +14,16 @@ export const usePlayback = ({
 	moveToBeginningWhenEnded,
 	inFrame,
 	outFrame,
-	frameRef,
+	browserMediaControlsBehavior,
+	getCurrentFrame,
 }: {
 	loop: boolean;
 	playbackRate: number;
 	moveToBeginningWhenEnded: boolean;
 	inFrame: number | null;
 	outFrame: number | null;
-	frameRef: React.MutableRefObject<number>;
+	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+	getCurrentFrame: GetCurrentFrame;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -39,6 +44,14 @@ export const usePlayback = ({
 			'Missing the buffering context. Most likely you have a Remotion version mismatch.',
 		);
 	}
+
+	useBrowserMediaSession({
+		browserMediaControlsBehavior,
+		playbackRate,
+		videoConfig: config,
+	});
+
+	//	complete code for media session API
 
 	useEffect(() => {
 		const onBufferClear = context.listenForBuffering(() => {
@@ -98,7 +111,7 @@ export const usePlayback = ({
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
-			const currentFrame = frameRef.current;
+			const currentFrame = getCurrentFrame();
 			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
 				currentFrame,
@@ -113,7 +126,7 @@ export const usePlayback = ({
 			framesAdvanced += framesToAdvance;
 
 			if (
-				nextFrame !== frameRef.current &&
+				nextFrame !== getCurrentFrame() &&
 				(!hasEnded || moveToBeginningWhenEnded)
 			) {
 				setFrame((c) => ({...c, [config.id]: nextFrame}));
@@ -188,23 +201,23 @@ export const usePlayback = ({
 		outFrame,
 		moveToBeginningWhenEnded,
 		isBackgroundedRef,
-		frameRef,
+		getCurrentFrame,
 		buffering,
 		context,
 	]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			if (lastTimeUpdateEvent.current === frameRef.current) {
+			if (lastTimeUpdateEvent.current === getCurrentFrame()) {
 				return;
 			}
 
-			emitter.dispatchTimeUpdate({frame: frameRef.current as number});
-			lastTimeUpdateEvent.current = frameRef.current;
+			emitter.dispatchTimeUpdate({frame: getCurrentFrame()});
+			lastTimeUpdateEvent.current = getCurrentFrame();
 		}, 250);
 
 		return () => clearInterval(interval);
-	}, [emitter, frameRef]);
+	}, [emitter, getCurrentFrame]);
 
 	useEffect(() => {
 		emitter.dispatchFrameUpdate({frame});

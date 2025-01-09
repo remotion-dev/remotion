@@ -52,7 +52,7 @@ export const StaticFilePreview: React.FC<{
 		<FilePreview
 			currentAsset={currentAsset}
 			fileType={fileType}
-			src={staticFileSrc}
+			src={`${staticFileSrc}?date=${assetMetadata && assetMetadata.type === 'found' ? assetMetadata.fetchedAt : 0}`}
 			assetMetadata={assetMetadata}
 		/>
 	);

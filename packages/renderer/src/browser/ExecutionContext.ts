@@ -30,7 +30,7 @@ import {_createJSHandle, JSHandle} from './JSHandle';
 import {getExceptionMessage, isString, valueFromRemoteObject} from './util';
 
 export const EVALUATION_SCRIPT_URL = 'pptr://__puppeteer_evaluation_script__';
-const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
+const SOURCE_URL_REGEX = /^[\x20\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
 
 export class ExecutionContext {
 	_client: CDPSession;

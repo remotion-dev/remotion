@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {CanvasContent} from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, watchStaticFile} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
@@ -306,9 +306,25 @@ export const Canvas: React.FC<{
 			return;
 		}
 
-		const metadata = await getAssetMetadata(canvasContent);
+		const metadata = await getAssetMetadata(
+			canvasContent,
+			canvasContent.type === 'asset',
+		);
 		setAssetResolution(metadata);
 	}, [canvasContent]);
+
+	useEffect(() => {
+		if (canvasContent.type !== 'asset') {
+			return;
+		}
+
+		const file = watchStaticFile(canvasContent.asset, () => {
+			fetchMetadata();
+		});
+		return () => {
+			file.cancel();
+		};
+	}, [canvasContent, fetchMetadata]);
 
 	useEffect(() => {
 		fetchMetadata();

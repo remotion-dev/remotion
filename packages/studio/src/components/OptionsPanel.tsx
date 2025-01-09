@@ -84,18 +84,14 @@ export const OptionsPanel: React.FC<{
 		persistSelectedOptionsSidebarPanel('renders');
 	}, []);
 
-	useImperativeHandle(
-		optionsSidebarTabs,
-		() => {
-			return {
-				selectRendersPanel: () => {
-					setPanel('renders');
-					persistSelectedOptionsSidebarPanel('renders');
-				},
-			};
-		},
-		[],
-	);
+	useImperativeHandle(optionsSidebarTabs, () => {
+		return {
+			selectRendersPanel: () => {
+				setPanel('renders');
+				persistSelectedOptionsSidebarPanel('renders');
+			},
+		};
+	}, []);
 
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
@@ -152,9 +148,14 @@ export const OptionsPanel: React.FC<{
 		return !deepEqual(composition.defaultProps, currentDefaultProps);
 	}, [currentDefaultProps, composition]);
 
-	const reset = useCallback(() => {
-		resetUnsaved();
-	}, [resetUnsaved]);
+	const reset = useCallback(
+		(e: Event) => {
+			if ((e as CustomEvent).detail.resetUnsaved) {
+				resetUnsaved();
+			}
+		},
+		[resetUnsaved],
+	);
 
 	useEffect(() => {
 		window.addEventListener(Internals.PROPS_UPDATED_EXTERNALLY, reset);

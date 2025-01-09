@@ -61,7 +61,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
 			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
+			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'still',
+			initialHardwareAcceleration: defaults.hardwareAcceleration,
 		};
 	}
 
@@ -110,7 +112,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
 			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
+			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'sequence',
+			initialHardwareAcceleration: defaults.hardwareAcceleration,
 		};
 	}
 
@@ -160,7 +164,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialBeep: job.beepOnFinish,
 			initialRepro: job.repro,
 			initialForSeamlessAacConcatenation: job.forSeamlessAacConcatenation,
+			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'video',
+			initialHardwareAcceleration: job.hardwareAcceleration,
 		};
 	}
 

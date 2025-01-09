@@ -1,0 +1,4 @@
+/**
+ * @description Converts a two-dimensional array of Caption items into a string in the SubRip format (`.srt`).
+ * @see [Documentation](https://remotion.dev/docs/captions/serialize-srt)
+ */

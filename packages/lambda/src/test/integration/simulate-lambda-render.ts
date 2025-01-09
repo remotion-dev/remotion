@@ -1,25 +1,26 @@
 import {RenderInternals} from '@remotion/renderer';
+import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
 import {VERSION} from 'remotion/version';
 import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
-import {LambdaRoutines} from '../../defaults';
-import {lambdaReadFile} from '../../functions/helpers/io';
-import {callLambda} from '../../shared/call-lambda';
+import {mockImplementation} from '../mock-implementation';
 
 const functionName = 'remotion-dev-render';
 
 const waitUntilDone = async (bucketName: string, renderId: string) => {
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		const progress = await callLambda({
-			type: LambdaRoutines.status,
+		const progress = await mockImplementation.callFunctionSync({
+			type: ServerlessRoutines.status,
 			payload: {
+				type: ServerlessRoutines.status,
 				bucketName,
 				renderId,
 				version: VERSION,
 				logLevel: 'error',
+				forcePathStyle: false,
+				s3OutputProvider: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'eu-central-1',
@@ -58,27 +59,31 @@ export const simulateLambdaRender = async (
 		forceIPv4: false,
 	});
 
-	const res = await callLambda({
-		type: LambdaRoutines.start,
-		payload: await makeLambdaRenderMediaPayload(
-			renderMediaOnLambdaOptionalToRequired({
-				...input,
-				serveUrl: `http://localhost:${port}`,
-				functionName,
-			}),
-		),
-		functionName: 'remotion-dev-lambda',
-		region: 'eu-central-1',
-		timeoutInTest: 120000,
-	});
+	const payload = await makeLambdaRenderMediaPayload(
+		renderMediaOnLambdaOptionalToRequired({
+			...input,
+			serveUrl: `http://localhost:${port}`,
+			functionName,
+		}),
+	);
+
+	const res =
+		await mockImplementation.callFunctionSync<ServerlessRoutines.start>({
+			type: ServerlessRoutines.start,
+			payload,
+			functionName: 'remotion-dev-lambda',
+			region: 'eu-central-1',
+			timeoutInTest: 120000,
+		});
 
 	const progress = await waitUntilDone(res.bucketName, res.renderId);
 
-	const file = await lambdaReadFile({
+	const file = await mockImplementation.readFile({
 		bucketName: progress.outBucket as string,
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
+		forcePathStyle: false,
 	});
 
 	return {file, close, progress, renderId: res.renderId};

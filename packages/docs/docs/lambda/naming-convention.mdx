@@ -19,10 +19,10 @@ remotion-render-4-0-140-mem2048mb-disk2048mb-240sec
 
 When you deploy a function, the name is hardcoded. This has two functions:
 
-<Step>1</Step> Avoid having multiple functions with the same configuration unnecessarily.<br />
-<Step>2</Step> Being able to guess the function name using <a href="/docs/lambda/speculatefunctionname">
-  <code>speculateFunctionName()</code>
-</a> so you don't have to fetch a list of functions in your AWS account.
+- <Step>1</Step> Avoid having multiple functions with the same configuration unnecessarily.
+- <Step>2</Step> Being able to guess the function name using <a href="/docs/lambda/speculatefunctionname">
+    <code>speculateFunctionName()</code>
+  </a> so you don't have to fetch a list of functions in your AWS account.
 
 ## Why can't I rename the function?
 
@@ -68,7 +68,13 @@ You can pass [`--function-name`](/docs/lambda/cli/render#--function-name) to [`n
 ## I want to deploy multiple projects
 
 It is possible deploy multiple sites under different [Serve URLs](/docs/terminology/serve-url).  
-This convention only applies to the renderer functions.
+This convention only applies to functions, which do not contain any code that you write.
+
+## I want to deploy multiple functions to load-balance between them
+
+You do not need to do this, because you can invoke a function multiple times concurrently.  
+There is no concurrency limit per function, but a concurrency limit per region and account.  
+Therefore there is no benefit in having multiple identical functions in the same region and account for load-balancing.
 
 ## See also
 

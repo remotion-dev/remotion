@@ -7,7 +7,7 @@ import {
 } from 'remotion';
 
 const CarSlideshow: React.FC<{
-	title: string;
+	readonly title: string;
 }> = ({title}) => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();

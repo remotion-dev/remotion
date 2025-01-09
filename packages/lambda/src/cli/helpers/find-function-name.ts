@@ -1,7 +1,8 @@
 import type {LogLevel, LogOptions} from '@remotion/renderer';
+import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {getFunctions} from '../../api/get-functions';
-import {speculateFunctionName} from '../../client';
+import {speculateFunctionName} from '../../api/speculate-function-name';
+import {AwsProvider} from '../../functions/aws-implementation';
 import {BINARY_NAME} from '../../shared/constants';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
@@ -12,8 +13,14 @@ import {getAwsRegion} from '../get-aws-region';
 import {Log} from '../log';
 import {quit} from './quit';
 
-export const findFunctionName = async (logLevel: LogLevel) => {
-	const remotionLambdas = await getFunctions({
+export const findFunctionName = async ({
+	logLevel,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
+	const remotionLambdas = await providerSpecifics.getFunctions({
 		region: getAwsRegion(),
 		compatibleOnly: false,
 	});
@@ -91,7 +98,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 		);
 		Log.info(
 			logOptions,
-			`- Delete extraneous lambda functions in your AWS console or using:`,
+			`- Delete extraneous Lambda functions in your AWS console or using:`,
 		);
 		Log.info(
 			logOptions,

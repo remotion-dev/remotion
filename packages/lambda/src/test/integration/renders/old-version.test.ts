@@ -1,19 +1,18 @@
 import {RenderInternals} from '@remotion/renderer';
-import {afterAll, expect, test} from 'vitest';
-import {LambdaRoutines} from '../../../defaults';
-import {callLambda} from '../../../shared/call-lambda';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import {afterAll, expect, test} from 'bun:test';
+import {mockImplementation} from '../../mock-implementation';
 
 afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
 test('Should fail when using an incompatible version', async () => {
-	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
 	try {
-		const aha = await callLambda({
-			type: LambdaRoutines.launch,
+		const aha = await mockImplementation.callFunctionSync({
+			type: ServerlessRoutines.launch,
 			payload: {
+				type: ServerlessRoutines.launch,
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
@@ -21,7 +20,7 @@ test('Should fail when using an incompatible version', async () => {
 				crf: 9,
 				envVariables: {},
 				frameRange: [0, 12],
-				framesPerLambda: 8,
+				framesPerFunction: 8,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -32,14 +31,14 @@ test('Should fail when using an incompatible version', async () => {
 				outName: null,
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
-				proResProfile: undefined,
+				proResProfile: null,
 				x264Preset: null,
 				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 12000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
-				concurrencyPerLambda: 1,
+				concurrencyPerFunction: 1,
 				downloadBehavior: {
 					type: 'play-in-browser',
 				},
@@ -60,6 +59,8 @@ test('Should fail when using an incompatible version', async () => {
 				deleteAfter: null,
 				colorSpace: null,
 				preferLossless: false,
+				forcePathStyle: false,
+				metadata: {Author: 'Lunar'},
 			},
 			functionName: 'remotion-dev-render',
 			region: 'us-east-1',

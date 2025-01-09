@@ -22,7 +22,7 @@ When providing the possibility on how to configure Remotion, it was of big impor
 `remotion.config.ts`
 
 ```ts
-import { overrideWebpackConfig } from "@remotion/bundler";
+import {overrideWebpackConfig} from '@remotion/bundler';
 
 overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -44,7 +44,7 @@ There is a new Remotion config file, that you can write in Typescript. Updating 
 
 **[See docs](/docs/use-img-and-iframe)**
 
-The purpose of these new components is to help with something that is easy to overlook in Remotion: Images or Iframes are being rendered, but Remotion does not wait until the loading of these network resources are complete. The result: Flicker in the end result! The correct thing is [to wait using the `delayRender` API](/docs/data-fetching#telling-remotion-to-wait-until-the-data-is-loaded), but this is not very obvious. Now Remotion comes with built-in components that will wait until assets are loaded.
+The purpose of these new components is to help with something that is easy to overlook in Remotion: Images or Iframes are being rendered, but Remotion does not wait until the loading of these network resources are complete. The result: Flicker in the end result! The correct thing is [to wait using the `delayRender` API](/docs/data-fetching#fetching-data-before-the-render), but this is not very obvious. Now Remotion comes with built-in components that will wait until assets are loaded.
 
 ### Bonus: ESLint rule
 

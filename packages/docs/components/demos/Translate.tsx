@@ -2,9 +2,9 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 const Base: React.FC<{
-  transform?: string;
-  opacity?: number;
-  showChip: boolean;
+  readonly transform?: string;
+  readonly opacity?: number;
+  readonly showChip: boolean;
 }> = ({ transform, opacity, showChip }) => {
   return (
     <AbsoluteFill
@@ -72,8 +72,8 @@ const Base: React.FC<{
 };
 
 export const TranslateDemo: React.FC<{
-  translateX: number;
-  translateY: number;
+  readonly translateX: number;
+  readonly translateY: number;
 }> = ({ translateX: x, translateY: y }) => {
   return (
     <Base
@@ -84,25 +84,25 @@ export const TranslateDemo: React.FC<{
 };
 
 export const RotateDemo: React.FC<{
-  rotateZ: number;
+  readonly rotateZ: number;
 }> = ({ rotateZ }) => {
   return <Base showChip transform={`rotateZ(${rotateZ}deg)`} />;
 };
 
 export const SkewDemo: React.FC<{
-  skew: number;
+  readonly skew: number;
 }> = ({ skew }) => {
   return <Base showChip={false} transform={`skew(${skew}deg)`} />;
 };
 
 export const ScaleDemo: React.FC<{
-  scale: number;
+  readonly scale: number;
 }> = ({ scale }) => {
   return <Base showChip transform={`scale(${scale})`} />;
 };
 
 export const OpacityDemo: React.FC<{
-  opacity: number;
+  readonly opacity: number;
 }> = ({ opacity }) => {
   return <Base showChip={false} opacity={opacity} />;
 };

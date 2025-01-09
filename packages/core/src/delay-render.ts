@@ -23,11 +23,9 @@ export type DelayRenderOptions = {
 	retries?: number;
 };
 
-/**
- * @description Call this function to tell Remotion to wait before capturing this frame until data has loaded. Use continueRender() to unblock the render.
- * @param label _optional_ A label to identify the call in case it does time out.
- * @returns {number} An identifier to be passed to continueRender().
- * @see [Documentation](https://www.remotion.dev/docs/delay-render)
+/*
+ * @description Call this function to signal that a frame should not be rendered until an asynchronous task (such as data fetching) is complete. Use continueRender(handle) to proceed with rendering once the task is complete.
+ * @see [Documentation](https://remotion.dev/docs/delay-render)
  */
 export const delayRender = (
 	label?: string,
@@ -49,7 +47,7 @@ export const delayRender = (
 			(options?.timeoutInMilliseconds ??
 				(typeof window === 'undefined'
 					? defaultTimeout
-					: window.remotion_puppeteerTimeout ?? defaultTimeout)) - 2000;
+					: (window.remotion_puppeteerTimeout ?? defaultTimeout))) - 2000;
 		if (typeof window !== 'undefined') {
 			const retriesLeft =
 				(options?.retries ?? 0) - (window.remotion_attempt - 1);
@@ -81,10 +79,9 @@ export const delayRender = (
 	return handle;
 };
 
-/**
- * @description Unblock a render that has been blocked by delayRender()
- * @param handle The return value of delayRender().
- * @see [Documentation](https://www.remotion.dev/docs/continue-render)
+/*
+ * @description Unblock a render that has been blocked by delayRender().
+ * @see [Documentation](https://remotion.dev/docs/continue-render)
  */
 export const continueRender = (handle: number): void => {
 	if (typeof handle === 'undefined') {

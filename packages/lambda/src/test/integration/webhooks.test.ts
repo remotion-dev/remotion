@@ -1,15 +1,15 @@
-import {RenderInternals} from '@remotion/renderer';
+import {RenderInternals, ensureBrowser} from '@remotion/renderer';
+import {ServerlessRoutines} from '@remotion/serverless/client';
+import {beforeAll, beforeEach, describe, expect, mock, test} from 'bun:test';
 import path from 'path';
 import {VERSION} from 'remotion/version';
-import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
-import {LambdaRoutines} from '../../defaults';
-import {callLambda} from '../../shared/call-lambda';
-import {mockableHttpClients} from '../../shared/invoke-webhook';
+import {mockableHttpClients} from '../../functions/http-client';
+import {mockImplementation} from '../mock-implementation';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
 	// @ts-expect-error
-	mockableHttpClients.http = vi.fn(
+	mockableHttpClients.http = mock(
 		(
 			_url: string,
 			_options: unknown,
@@ -29,7 +29,8 @@ beforeEach(() => {
 	};
 });
 
-beforeAll(() => {
+beforeAll(async () => {
+	await ensureBrowser();
 	return async () => {
 		await RenderInternals.killAllBrowsers();
 	};
@@ -56,9 +57,10 @@ describe('Webhooks', () => {
 			forceIPv4: false,
 		});
 
-		const res = await callLambda({
-			type: LambdaRoutines.start,
+		const res = await mockImplementation.callFunctionSync({
+			type: ServerlessRoutines.start,
 			payload: {
+				type: ServerlessRoutines.start,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
@@ -111,6 +113,8 @@ describe('Webhooks', () => {
 				deleteAfter: null,
 				colorSpace: null,
 				preferLossless: false,
+				forcePathStyle: false,
+				metadata: {Author: 'Lunar'},
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -118,13 +122,16 @@ describe('Webhooks', () => {
 		});
 		const parsed = res;
 
-		await callLambda({
-			type: LambdaRoutines.status,
+		await mockImplementation.callFunctionSync({
+			type: ServerlessRoutines.status,
 			payload: {
+				type: ServerlessRoutines.status,
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
 				logLevel: 'info',
+				forcePathStyle: false,
+				s3OutputProvider: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -151,8 +158,6 @@ describe('Webhooks', () => {
 	});
 
 	test('Should call webhook upon timeout', async () => {
-		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
 		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
 
 		// Maybe this can use simulateLambdaRender instead
@@ -168,11 +173,12 @@ describe('Webhooks', () => {
 			forceIPv4: false,
 		});
 
-		await callLambda({
+		await mockImplementation.callFunctionSync({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
-			type: LambdaRoutines.launch,
+			type: ServerlessRoutines.launch,
 			payload: {
+				type: ServerlessRoutines.launch,
 				offthreadVideoCacheSizeInBytes: null,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
@@ -181,7 +187,7 @@ describe('Webhooks', () => {
 				crf: 9,
 				envVariables: {},
 				frameRange: [0, 10],
-				framesPerLambda: 8,
+				framesPerFunction: 8,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -192,14 +198,14 @@ describe('Webhooks', () => {
 				outName: 'out.mp4',
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
-				proResProfile: undefined,
+				proResProfile: null,
 				x264Preset: null,
 				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 3000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
-				concurrencyPerLambda: 1,
+				concurrencyPerFunction: 1,
 				downloadBehavior: {
 					type: 'play-in-browser',
 				},
@@ -223,6 +229,8 @@ describe('Webhooks', () => {
 				deleteAfter: null,
 				colorSpace: null,
 				preferLossless: false,
+				forcePathStyle: false,
+				metadata: null,
 			},
 			timeoutInTest: 1000,
 		});

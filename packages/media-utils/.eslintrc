@@ -1,6 +1,0 @@
-{
-	"extends": "@jonny",
-	"rules": {
-		"no-bitwise": "off"
-	}
-}

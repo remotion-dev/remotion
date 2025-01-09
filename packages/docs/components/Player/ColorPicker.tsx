@@ -3,8 +3,8 @@ import React from "react";
 export const colorPickerColors = ["#686de0", "#be2edd", "#f0932b", "#f9ca24"];
 
 export const ColorPicker: React.FC<{
-  selected: string;
-  onSelected: (color: string) => void;
+  readonly selected: string;
+  readonly onSelected: (color: string) => void;
 }> = ({ selected, onSelected }) => {
   return (
     <div

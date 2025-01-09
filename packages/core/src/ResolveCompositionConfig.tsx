@@ -87,7 +87,7 @@ export const ResolveCompositionConfig: React.FC<
 	const inputProps = useMemo(() => {
 		return typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 			? {}
-			: getInputProps() ?? {};
+			: (getInputProps() ?? {});
 	}, []);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
@@ -96,13 +96,13 @@ export const ResolveCompositionConfig: React.FC<
 
 	const selectedEditorProps = useMemo(() => {
 		return selectedComposition
-			? allEditorProps[selectedComposition.id] ?? {}
+			? (allEditorProps[selectedComposition.id] ?? {})
 			: {};
 	}, [allEditorProps, selectedComposition]);
 
 	const renderModalProps = useMemo(() => {
 		return renderModalComposition
-			? allEditorProps[renderModalComposition.id] ?? {}
+			? (allEditorProps[renderModalComposition.id] ?? {})
 			: {};
 	}, [allEditorProps, renderModalComposition]);
 
@@ -230,61 +230,57 @@ export const ResolveCompositionConfig: React.FC<
 	const currentComposition =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 
-	useImperativeHandle(
-		resolveCompositionsRef,
-		() => {
-			return {
-				setCurrentRenderModalComposition: (id: string | null) => {
-					setCurrentRenderModalComposition(id);
-				},
-				reloadCurrentlySelectedComposition: () => {
-					if (!currentComposition) {
-						return;
-					}
+	useImperativeHandle(resolveCompositionsRef, () => {
+		return {
+			setCurrentRenderModalComposition: (id: string | null) => {
+				setCurrentRenderModalComposition(id);
+			},
+			reloadCurrentlySelectedComposition: () => {
+				if (!currentComposition) {
+					return;
+				}
 
-					const composition = compositions.find(
-						(c) => c.id === currentComposition,
+				const composition = compositions.find(
+					(c) => c.id === currentComposition,
+				);
+
+				if (!composition) {
+					throw new Error(
+						`Could not find composition with id ${currentComposition}`,
 					);
+				}
 
-					if (!composition) {
-						throw new Error(
-							`Could not find composition with id ${currentComposition}`,
-						);
-					}
+				const editorProps = allEditorProps[currentComposition] ?? {};
 
-					const editorProps = allEditorProps[currentComposition] ?? {};
+				const defaultProps = {
+					...(composition.defaultProps ?? {}),
+					...(editorProps ?? {}),
+				};
 
-					const defaultProps = {
-						...(composition.defaultProps ?? {}),
-						...(editorProps ?? {}),
-					};
+				const props = {
+					...defaultProps,
+					...(inputProps ?? {}),
+				};
 
-					const props = {
-						...defaultProps,
-						...(inputProps ?? {}),
-					};
-
-					doResolution({
-						defaultProps,
-						calculateMetadata: composition.calculateMetadata,
-						combinedProps: props,
-						compositionDurationInFrames: composition.durationInFrames ?? null,
-						compositionFps: composition.fps ?? null,
-						compositionHeight: composition.height ?? null,
-						compositionWidth: composition.width ?? null,
-						compositionId: composition.id,
-					});
-				},
-			};
-		},
-		[
-			allEditorProps,
-			compositions,
-			currentComposition,
-			doResolution,
-			inputProps,
-		],
-	);
+				doResolution({
+					defaultProps,
+					calculateMetadata: composition.calculateMetadata,
+					combinedProps: props,
+					compositionDurationInFrames: composition.durationInFrames ?? null,
+					compositionFps: composition.fps ?? null,
+					compositionHeight: composition.height ?? null,
+					compositionWidth: composition.width ?? null,
+					compositionId: composition.id,
+				});
+			},
+		};
+	}, [
+		allEditorProps,
+		compositions,
+		currentComposition,
+		doResolution,
+		inputProps,
+	]);
 
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
 
@@ -355,7 +351,13 @@ export const ResolveCompositionConfig: React.FC<
 			return;
 		}
 
-		window.dispatchEvent(new CustomEvent('remotion.propsUpdatedExternally'));
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: boolean}>(PROPS_UPDATED_EXTERNALLY, {
+				detail: {
+					resetUnsaved: true,
+				},
+			}),
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fastRefreshes]);
 
@@ -435,7 +437,7 @@ export const useResolvedVideoConfig = (
 	const composition = compositions.find((c) => c.id === compositionId);
 
 	const selectedEditorProps = useMemo(() => {
-		return composition ? allEditorProps[composition.id] ?? {} : {};
+		return composition ? (allEditorProps[composition.id] ?? {}) : {};
 	}, [allEditorProps, composition]);
 
 	return useMemo(() => {
@@ -491,7 +493,7 @@ export const useResolvedVideoConfig = (
 						...(typeof window === 'undefined' ||
 						getRemotionEnvironment().isPlayer
 							? {}
-							: getInputProps() ?? {}),
+							: (getInputProps() ?? {})),
 					},
 					defaultCodec: null,
 				},

@@ -3,17 +3,19 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {validatePrivacy} from '@remotion/serverless/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
-import {downloadMedia} from '../../api/download-media';
+import {internalDownloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
+import type {AwsProvider} from '../../functions/aws-implementation';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../shared/constants';
 import {getS3RenderUrl} from '../../shared/get-aws-urls';
-import {validatePrivacy} from '../../shared/validate-privacy';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {validateServeUrl} from '../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../args';
@@ -46,11 +48,17 @@ const {
 
 export const STILL_COMMAND = 'still';
 
-export const stillCommand = async (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-) => {
+export const stillCommand = async ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -178,7 +186,7 @@ export const stillCommand = async (
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -296,12 +304,14 @@ export const stillCommand = async (
 	);
 
 	if (downloadName) {
-		const {outputPath, sizeInBytes} = await downloadMedia({
+		const {outputPath, sizeInBytes} = await internalDownloadMedia({
 			bucketName: res.bucketName,
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
 			logLevel,
+			providerSpecifics: providerSpecifics,
+			forcePathStyle: parsedLambdaCli['force-path-style'],
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);
 		Log.info(

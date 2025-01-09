@@ -2,6 +2,18 @@ import React, {createContext} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
+type Size = {
+	width: number;
+	height: number;
+	left: number;
+	top: number;
+	windowSize: {
+		width: number;
+		height: number;
+	};
+	refresh: () => void;
+};
+
 export type CurrentScaleContextType =
 	| {
 			type: 'scale';
@@ -9,10 +21,7 @@ export type CurrentScaleContextType =
 	  }
 	| {
 			type: 'canvas-size';
-			canvasSize: {
-				width: number;
-				height: number;
-			};
+			canvasSize: Size;
 	  };
 
 export const CurrentScaleContext =
@@ -61,9 +70,9 @@ export const calculateScale = ({
 	return previewSize === 'auto' ? ratio : Number(previewSize);
 };
 
-/**
- * Gets the current scale of the container in which the component is being rendered.
- * Only works in the Remotion Studio and in the Remotion Player.
+/*
+ * @description Retrieves the current scale of the canvas within Remotion's Studio or Player context. In the Studio, it corresponds to the zoom level (1 equals no scaling, i.e., 100% zoom). In the Player, it indicates the scaling necessary to fit the video into the player. If called outside of a Remotion context, by default, it throws an error unless configured not to.
+ * @see [Documentation](https://www.remotion.dev/docs/use-current-scale)
  */
 export const useCurrentScale = (options?: Options) => {
 	const hasContext = React.useContext(CurrentScaleContext);

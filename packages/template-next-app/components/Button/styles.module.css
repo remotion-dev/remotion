@@ -1,0 +1,37 @@
+.button {
+  border: 1px solid var(--foreground);
+  border-radius: var(--geist-border-radius);
+  background-color: var(--foreground);
+  color: var(--background);
+  padding-left: var(--geist-half-pad);
+  padding-right: var(--geist-half-pad);
+  height: 40px;
+  font-family: var(--geist-font);
+  font-weight: 500;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  appearance: none;
+  font-size: 14px;
+}
+
+.secondarybutton {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--unfocused-border-color);
+}
+
+.button:hover {
+  background-color: var(--background);
+  cursor: pointer;
+  color: var(--foreground);
+  border-color: var(--focused-border-color);
+}
+
+.button:disabled {
+  background-color: var(--button-disabled-color);
+  color: var(--disabled-text-color);
+  border-color: var(--unfocused-border-color);
+  cursor: not-allowed;
+}

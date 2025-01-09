@@ -3,12 +3,17 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
 	},
 	"name": "@remotion/eslint-config",
-	"version": "4.0.183",
+	"version": "4.0.246",
 	"description": "Default configuration for Remotion templates",
 	"main": "dist/index.js",
 	"files": [
 		"dist"
 	],
+	"scripts": {
+		"lint": "eslint src",
+		"formatting": "prettier src --check",
+		"make": "tsc -d"
+	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -19,11 +24,15 @@
 		"@typescript-eslint/eslint-plugin": "^7.16.1",
 		"@typescript-eslint/parser": "^7.16.1",
 		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.35.0",
-		"eslint-plugin-react-hooks": "5.1.0-rc-512b09b2-20240718"
+		"eslint-plugin-react": "7.37.3",
+		"eslint-plugin-react-hooks": "5.1.0"
 	},
 	"peerDependencies": {
 		"eslint": ">=8.56.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",

@@ -1,0 +1,4 @@
+/**
+ * @description Translates the path by the given x and y coordinates.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/translate-path)
+ */

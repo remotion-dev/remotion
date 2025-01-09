@@ -1,7 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {ProviderSpecifics} from '@remotion/serverless';
 import {getCompositionsOnLambda} from '../../..';
+import {AwsProvider} from '../../../functions/aws-implementation';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
@@ -19,10 +21,15 @@ const {
 	headlessOption,
 } = BrowserSafeApis.options;
 
-export const compositionsCommand = async (
-	args: string[],
-	logLevel: LogLevel,
-) => {
+export const compositionsCommand = async ({
+	args,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -73,7 +80,7 @@ export const compositionsCommand = async (
 
 	const region = getAwsRegion();
 	validateServeUrl(serveUrl);
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const comps = await getCompositionsOnLambda({
 		functionName,

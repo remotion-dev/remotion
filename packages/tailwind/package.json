@@ -3,15 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind"
 	},
 	"name": "@remotion/tailwind",
-	"version": "4.0.183",
+	"version": "4.0.246",
 	"description": "Enable TailwindCSS support in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"build": "bun --env-file=../.env.bundle bundle.ts"
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -20,20 +20,22 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"autoprefixer": "^10.4.14",
+		"autoprefixer": "10.4.20",
 		"css-loader": "5.2.7",
-		"postcss": "^8.4.31",
+		"postcss": "8.4.47",
 		"postcss-loader": "^7.3.0",
 		"postcss-preset-env": "^8.3.2",
 		"style-loader": "2.0.0",
-		"tailwindcss": "^3.3.2"
+		"tailwindcss": "3.4.13"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
-		"autoprefixer": "^10.4.14"
+		"autoprefixer": "10.4.20",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",

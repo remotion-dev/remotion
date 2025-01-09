@@ -36,6 +36,7 @@ export type RemotionVideoProps = Omit<
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
+	onAutoPlayError?: () => void;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -69,5 +70,10 @@ export type OffthreadVideoProps = {
 	 */
 	stack?: string;
 	showInTimeline?: boolean;
+	onAutoPlayError?: null | (() => void);
+	onVideoFrame?: OnVideoFrame;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
+
+export type OnVideoFrame = (frame: CanvasImageSource) => void;
