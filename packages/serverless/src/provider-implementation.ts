@@ -237,6 +237,33 @@ export type GetAccountId<Provider extends CloudProvider> = (options: {
 	region: Provider['region'];
 }) => Promise<string>;
 
+export type DeleteFunctionInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	functionName: string;
+};
+
+export type DeleteFunction<Provider extends CloudProvider> = (
+	options: DeleteFunctionInput<Provider>,
+) => Promise<void>;
+
+export type GetFunctionsInput<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	compatibleOnly: boolean;
+	logLevel?: LogLevel;
+};
+
+export type FunctionInfo = {
+	functionName: string;
+	timeoutInSeconds: number;
+	memorySizeInMb: number;
+	version: string | null;
+	diskSizeInMb: number;
+};
+
+export type GetFunctions<Provider extends CloudProvider> = (
+	params: GetFunctionsInput<Provider>,
+) => Promise<FunctionInfo[]>;
+
 export type ServerProviderSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -278,4 +305,6 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getMaxStillInlinePayloadSize: () => number;
 	getMaxNonInlinePayloadSizePerFunction: () => number;
 	getAccountId: GetAccountId<Provider>;
+	deleteFunction: DeleteFunction<Provider>;
+	getFunctions: GetFunctions<Provider>;
 };

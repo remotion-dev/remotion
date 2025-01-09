@@ -8,14 +8,12 @@ import type {AwsRegion} from '../regions';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-	RENDER_FN_PREFIX,
 } from '../shared/constants';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {
 	validateRuntimePreference,
 	type RuntimePreference,
 } from '../shared/get-layers';
-import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
@@ -23,6 +21,7 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
 import {createFunction} from './create-function';
+import {speculateFunctionName} from './speculate-function-name';
 
 type MandatoryParameters = {
 	createCloudWatchLogGroup: boolean;
@@ -65,12 +64,11 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 	validateCustomRoleArn(params.customRoleArn);
 	validateRuntimePreference(params.runtimePreference);
 
-	const fnNameRender = [
-		`${RENDER_FN_PREFIX}${LAMBDA_VERSION_STRING}`,
-		`mem${params.memorySizeInMb}mb`,
-		`disk${params.diskSizeInMb}mb`,
-		`${params.timeoutInSeconds}sec`,
-	].join('-');
+	const functionName = speculateFunctionName({
+		diskSizeInMb: params.diskSizeInMb,
+		memorySizeInMb: params.memorySizeInMb,
+		timeoutInSeconds: params.timeoutInSeconds,
+	});
 	const accountId = await params.providerSpecifics.getAccountId({
 		region: params.region,
 	});
@@ -92,7 +90,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
 		region: params.region,
 		zipFile: FUNCTION_ZIP_ARM64,
-		functionName: fnNameRender,
+		functionName,
 		accountId,
 		memorySizeInMb: params.memorySizeInMb,
 		timeoutInSeconds: params.timeoutInSeconds,

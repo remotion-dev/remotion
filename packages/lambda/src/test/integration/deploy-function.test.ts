@@ -1,10 +1,8 @@
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
 import {internalDeployFunction} from '../../api/deploy-function';
-import {getFunctions} from '../../api/get-functions';
 import {
 	cleanFnStore,
-	deleteMockFunction,
 	markFunctionAsIncompatible,
 } from '../../api/mock-functions';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
@@ -58,7 +56,7 @@ test('Should be able to get the function afterwards', async () => {
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
-	const fns = await getFunctions({
+	const fns = await mockImplementation.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
@@ -76,7 +74,7 @@ test('Should be able to get the function afterwards', async () => {
 			diskSizeInMb: 2048,
 		},
 	]);
-	const foreignFunctions = await getFunctions({
+	const foreignFunctions = await mockImplementation.getFunctions({
 		region: 'us-east-2',
 		compatibleOnly: true,
 	});
@@ -105,11 +103,15 @@ test('Should be able to delete the function', async () => {
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
-	deleteMockFunction(
-		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
-		'us-east-1',
-	);
-	const fns = await getFunctions({
+	mockImplementation.deleteFunction({
+		region: 'us-east-1',
+		functionName: expectedFunctionName(
+			2048,
+			120,
+			DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+		),
+	});
+	const fns = await mockImplementation.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
@@ -138,7 +140,7 @@ test('Should be able to get the function afterwards', async () => {
 	expect(functionName).toBe(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
-	const fns = await getFunctions({
+	const fns = await mockImplementation.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
@@ -159,11 +161,11 @@ test('Should be able to get the function afterwards', async () => {
 	markFunctionAsIncompatible(
 		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
-	const compatibleFns = await getFunctions({
+	const compatibleFns = await mockImplementation.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: true,
 	});
-	const incompatibleFns = await getFunctions({
+	const incompatibleFns = await mockImplementation.getFunctions({
 		region: 'us-east-1',
 		compatibleOnly: false,
 	});

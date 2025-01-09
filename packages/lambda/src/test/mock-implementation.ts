@@ -6,6 +6,7 @@ import type {
 } from '@remotion/serverless';
 import {Readable} from 'stream';
 import {estimatePrice} from '../api/estimate-price';
+import {deleteMockFunction, getAllMockFunctions} from '../api/mock-functions';
 import {speculateFunctionName} from '../api/speculate-function-name';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
@@ -168,6 +169,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		};
 	},
 	isFlakyError,
+	deleteFunction: deleteMockFunction,
+	getFunctions: getAllMockFunctions,
 };
 
 export const mockServerImplementation: ServerProviderSpecifics = {

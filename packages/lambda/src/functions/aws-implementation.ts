@@ -3,8 +3,10 @@ import {expiryDays} from '@remotion/serverless/client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from '../api/bucket-exists';
 import {createBucket} from '../api/create-bucket';
+import {deleteFunction} from '../api/delete-function';
 import {estimatePrice} from '../api/estimate-price';
 import {getRemotionBuckets} from '../api/get-buckets';
+import {getFunctions} from '../api/get-functions';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import {lambdaDeleteFileImplementation} from '../io/delete-file';
 import {lambdaHeadFileImplementation} from '../io/head-file';
@@ -119,4 +121,6 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getMaxStillInlinePayloadSize: () => 5_000_000,
 	getMaxNonInlinePayloadSizePerFunction: () => 200_000,
 	getAccountId: getAccountIdImplementation,
+	deleteFunction,
+	getFunctions,
 };
