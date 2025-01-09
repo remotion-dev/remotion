@@ -1,9 +1,13 @@
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
+import type {
+	CloudProvider,
+	FullClientSpecifics,
+	ProviderSpecifics,
+} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {getFunctions} from '../api/get-functions';
 import {awsImplementation} from '../functions/aws-implementation';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import type {AwsRegion} from '../regions';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
@@ -20,7 +24,6 @@ import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
-import {createFunction} from './create-function';
 import {speculateFunctionName} from './speculate-function-name';
 
 type MandatoryParameters = {
@@ -54,6 +57,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 	params: MandatoryParameters &
 		OptionalParameters & {
 			providerSpecifics: ProviderSpecifics<Provider>;
+			fullClientSpecifics: FullClientSpecifics<Provider>;
 		},
 ): Promise<DeployFunctionOutput> => {
 	validateMemorySize(params.memorySizeInMb);
@@ -73,7 +77,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		region: params.region,
 	});
 
-	const fns = await getFunctions({
+	const fns = await params.providerSpecifics.getFunctions({
 		compatibleOnly: true,
 		region: params.region,
 	});
@@ -86,7 +90,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 			f.diskSizeInMb === params.diskSizeInMb,
 	);
 
-	const created = await createFunction({
+	const created = await params.fullClientSpecifics.createFunction({
 		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
 		region: params.region,
 		zipFile: FUNCTION_ZIP_ARM64,
@@ -163,5 +167,6 @@ export const deployFunction = ({
 		vpcSecurityGroupIds,
 		runtimePreference: runtimePreference ?? 'default',
 		providerSpecifics: awsImplementation,
+		fullClientSpecifics: awsFullClientSpecifics,
 	});
 };

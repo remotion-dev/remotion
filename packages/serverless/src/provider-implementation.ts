@@ -299,6 +299,20 @@ export type UploadDir<Provider extends CloudProvider> = (options: {
 	forcePathStyle: boolean;
 }) => Promise<void>;
 
+type CreateFunctionOptions<Provider extends CloudProvider> = {
+	region: Provider['region'];
+	logLevel: LogLevel;
+	ephemerealStorageInMb: number;
+	timeoutInSeconds: number;
+	memorySizeInMb: number;
+	functionName: string;
+	zipFile: string;
+} & Provider['creationFunctionOptions'];
+
+export type CreateFunction<Provider extends CloudProvider> = (
+	options: CreateFunctionOptions<Provider>,
+) => Promise<{FunctionName: string}>;
+
 export type InsideFunctionSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -314,6 +328,7 @@ export type FullClientSpecifics<Provider extends CloudProvider> = {
 	bundleSite: typeof bundle;
 	readDirectory: ReadDir;
 	uploadDir: UploadDir<Provider>;
+	createFunction: CreateFunction<Provider>;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {

@@ -23,6 +23,7 @@ import {
 	getCloudwatchMethodUrl,
 	getCloudwatchRendererUrl,
 } from '../shared/get-aws-urls';
+import type {RuntimePreference} from '../shared/get-layers';
 import {isFlakyError} from '../shared/is-flaky-error';
 import {applyLifeCyleOperation} from '../shared/lifecycle-rules';
 import {randomHashImplementation} from '../shared/random-hash';
@@ -55,6 +56,17 @@ export type AwsProvider = {
 	receivedArtifactType: {
 		s3Key: string;
 		s3Url: string;
+	};
+	creationFunctionOptions: {
+		createCloudWatchLogGroup: boolean;
+		accountId: string;
+		alreadyCreated: boolean;
+		retentionInDays: number;
+		customRoleArn: string;
+		enableLambdaInsights: boolean;
+		vpcSubnetIds: string;
+		vpcSecurityGroupIds: string;
+		runtimePreference: RuntimePreference;
 	};
 };
 

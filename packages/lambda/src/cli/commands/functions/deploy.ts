@@ -3,6 +3,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../../api/deploy-function';
 import {awsImplementation} from '../../../functions/aws-implementation';
+import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -101,6 +102,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		vpcSecurityGroupIds,
 		runtimePreference,
 		providerSpecifics: awsImplementation,
+		fullClientSpecifics: awsFullClientSpecifics,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info({indent: false, logLevel}, functionName);

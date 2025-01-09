@@ -1,6 +1,6 @@
 import {NoReactInternals} from 'remotion/no-react';
 import {afterEach, beforeEach} from 'vitest';
-import {cleanFnStore} from '../../api/mock-functions';
+import {cleanFnStore} from '../mocks/mock-functions';
 
 let stdoutOutput: string[] = [];
 let stderrOutput: string[] = [];

@@ -7,7 +7,6 @@ import type {
 } from '@remotion/serverless';
 import {Readable} from 'stream';
 import {estimatePrice} from '../api/estimate-price';
-import {deleteMockFunction, getAllMockFunctions} from '../api/mock-functions';
 import {speculateFunctionName} from '../api/speculate-function-name';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
@@ -24,6 +23,8 @@ import {
 	getMockCallFunctionSync,
 } from './mocks/aws-clients';
 import {mockBundleSite} from './mocks/mock-bundle-site';
+import {mockCreateFunction} from './mocks/mock-create-function';
+import {deleteMockFunction, getAllMockFunctions} from './mocks/mock-functions';
 import {mockReadDirectory} from './mocks/mock-read-dir';
 import {
 	addMockBucket,
@@ -199,4 +200,5 @@ export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {
 	id: '__remotion_full_client_specifics',
 	readDirectory: mockReadDirectory,
 	uploadDir: mockUploadDir,
+	createFunction: mockCreateFunction,
 };

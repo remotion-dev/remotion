@@ -6,10 +6,15 @@ export interface CloudProvider<
 		string,
 		unknown
 	>,
+	CreateFunctionSpecifics extends Record<string, unknown> = Record<
+		string,
+		unknown
+	>,
 > {
 	type: string;
 	region: Region;
 	receivedArtifactType: ReceivedArtifactType;
+	creationFunctionOptions: CreateFunctionSpecifics;
 }
 
 export type ReceivedArtifact<Provider extends CloudProvider> = {

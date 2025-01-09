@@ -11,6 +11,7 @@ type MockProvider = {
 		s3Key: string;
 		s3Url: string;
 	};
+	creationFunctionOptions: {};
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
