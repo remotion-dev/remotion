@@ -318,7 +318,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		}
 
 		const response = await compositionsHandler({
-			params: params,
+			params,
 			options: {
 				expectedBucketOwner: currentUserId,
 			},
