@@ -2,7 +2,7 @@ import {makeTimeoutMessage} from './make-timeout-message';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export const makeTimeoutError = <Provider extends CloudProvider>({
 	timeoutInMilliseconds,

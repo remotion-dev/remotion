@@ -3,7 +3,7 @@ import {NoReactAPIs} from '@remotion/renderer/pure';
 import {NoReactInternals} from 'remotion/no-react';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {CustomCredentials} from './constants';
-import {estimatePriceFromBucket} from './estimate-price-from-bucket';
+import {estimatePriceFromMetadata} from './estimate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
@@ -15,7 +15,7 @@ import {lambdaRenderHasAudioVideo} from './render-has-audio-video';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import {truthy} from './truthy';
 import type {CloudProvider} from './types';
-import type {EnhancedErrorInfo} from './write-lambda-error';
+import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export const getProgress = async <Provider extends CloudProvider>({
 	bucketName,
@@ -197,10 +197,10 @@ export const getProgress = async <Provider extends CloudProvider>({
 		};
 	}
 
-	const priceFromBucket = estimatePriceFromBucket({
+	const priceFromBucket = estimatePriceFromMetadata({
 		renderMetadata,
 		memorySizeInMb,
-		lambdasInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
+		functionsInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 		timings: overallProgress.timings ?? [],
 		region,

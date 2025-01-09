@@ -40,7 +40,7 @@ test('Should calculate most expensive chunks', () => {
 				start: 2000,
 			},
 		],
-		framesPerLambda: 10,
+		framesPerFunction: 10,
 		firstFrame: 0,
 		lastFrame: 99,
 	});
@@ -55,7 +55,7 @@ test('Should calculate most expensive chunks', () => {
 });
 
 test('Render starting from frame 10 should have correct offset', () => {
-	const framesPerLambda = 10;
+	const framesPerFunction = 10;
 	const firstFrame = 10;
 	const lastFrame = 99;
 	const most = getMostExpensiveChunks({
@@ -96,7 +96,7 @@ test('Render starting from frame 10 should have correct offset', () => {
 				start: 2000,
 			},
 		],
-		framesPerLambda,
+		framesPerFunction,
 		firstFrame,
 		lastFrame,
 	});
@@ -111,7 +111,7 @@ test('Render starting from frame 10 should have correct offset', () => {
 });
 
 test('Render starting from frame 10 and last chunk in most expensive should be corret', () => {
-	const framesPerLambda = 10;
+	const framesPerFunction = 10;
 	const firstFrame = 10;
 	const lastFrame = 79;
 	const most = getMostExpensiveChunks({
@@ -152,7 +152,7 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 				start: 2000,
 			},
 		],
-		framesPerLambda,
+		framesPerFunction,
 		firstFrame,
 		lastFrame,
 	});

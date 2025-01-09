@@ -35,13 +35,20 @@ export const serializeOrThrow = (
 	}
 };
 
-export const getNeedsToUpload = (
-	type: 'still' | 'video-or-audio',
-	sizes: number[],
-) => {
+export const getNeedsToUpload = <Provider extends CloudProvider>({
+	type,
+	sizes,
+	providerSpecifics,
+}: {
+	type: 'still' | 'video-or-audio';
+	sizes: number[];
+	providerSpecifics: ProviderSpecifics<Provider>;
+}) => {
 	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
-		(type === 'still' ? 5_000_000 : 200_000) - MARGIN;
+		(type === 'still'
+			? providerSpecifics.getMaxStillInlinePayloadSize()
+			: providerSpecifics.getMaxNonInlinePayloadSizePerFunction()) - MARGIN;
 
 	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
 
@@ -52,7 +59,7 @@ export const getNeedsToUpload = (
 				MAX_INLINE_PAYLOAD_SIZE / 1000,
 			)}KB (${Math.ceil(
 				sizesAlreadyUsed / 1024,
-			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`,
+			)}KB) in size. Uploading them to ${providerSpecifics.serverStorageProductName()} to circumvent AWS Lambda payload size, which may lead to slowdown.`,
 		);
 		return true;
 	}

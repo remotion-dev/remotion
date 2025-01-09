@@ -60,18 +60,18 @@ export const sitesCommand = (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
+	providerSpecifics: ProviderSpecifics<AwsProvider>,
 ) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand(logLevel);
 	}
 
 	if (args[0] === SITES_RM_COMMAND) {
-		return sitesRmSubcommand(args.slice(1), logLevel, implementation);
+		return sitesRmSubcommand(args.slice(1), logLevel, providerSpecifics);
 	}
 
 	if (args[0] === SITES_RMALL_COMMAND) {
-		return sitesRmallSubcommand(logLevel, implementation);
+		return sitesRmallSubcommand(logLevel, providerSpecifics);
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {
@@ -79,7 +79,7 @@ export const sitesCommand = (
 			args.slice(1),
 			remotionRoot,
 			logLevel,
-			implementation,
+			providerSpecifics,
 		);
 	}
 

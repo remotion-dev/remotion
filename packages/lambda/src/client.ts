@@ -26,11 +26,11 @@ import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {RenderProgress} from './shared/constants';
 export type {WebhookPayload} from '@remotion/serverless';
 
-export {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
+export type {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
 export {
 	getAwsClient,
-	GetAwsClientInput,
-	GetAwsClientOutput,
+	type GetAwsClientInput,
+	type GetAwsClientOutput,
 } from './api/get-aws-client';
 export type {AwsRegion} from './regions';
 export {

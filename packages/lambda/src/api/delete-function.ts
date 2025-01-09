@@ -1,17 +1,18 @@
 import {DeleteFunctionCommand} from '@aws-sdk/client-lambda';
-import type {AwsRegion} from '../regions';
+import type {
+	DeleteFunction,
+	DeleteFunctionInput as GenericDeleteFunctionInput,
+} from '@remotion/serverless';
+import type {AwsProvider} from '../functions/aws-implementation';
 import {getLambdaClient} from '../shared/aws-clients';
 
-export type DeleteFunctionInput = {
-	region: AwsRegion;
-	functionName: string;
-};
+export type DeleteFunctionInput = GenericDeleteFunctionInput<AwsProvider>;
 
 /*
  * @description Deletes a deployed Lambda function based on its name.
  * @see [Documentation](https://remotion.dev/docs/lambda/deletefunction)
  */
-export const deleteFunction = async ({
+export const deleteFunction: DeleteFunction<AwsProvider> = async ({
 	region,
 	functionName,
 }: DeleteFunctionInput): Promise<void> => {

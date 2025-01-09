@@ -1,5 +1,11 @@
-import type {AwsRegion} from '../regions';
-import type {FunctionInfo} from './get-function-info';
+import type {
+	DeleteFunction,
+	FunctionInfo,
+	GetFunctions,
+} from '@remotion/serverless';
+import {VERSION} from 'remotion/version';
+import type {AwsProvider} from '../../functions/aws-implementation';
+import type {AwsRegion} from '../../regions';
 
 export let mockFunctionsStore: (FunctionInfo & {
 	region: AwsRegion;
@@ -14,10 +20,14 @@ export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
 	});
 };
 
-export const deleteMockFunction = (name: string, region: string) => {
+export const deleteMockFunction: DeleteFunction<AwsProvider> = ({
+	functionName,
+	region,
+}) => {
 	mockFunctionsStore = mockFunctionsStore.filter(
-		(fn) => fn.functionName !== name && fn.region !== region,
+		(fn) => fn.functionName !== functionName && fn.region !== region,
 	);
+	return Promise.resolve();
 };
 
 export const findFunction = (name: string, region: string) => {
@@ -26,9 +36,18 @@ export const findFunction = (name: string, region: string) => {
 	);
 };
 
-export const getAllMockFunctions = (region: string, version: string | null) => {
-	return mockFunctionsStore.filter(
-		(f) => f.region === region && (version ? f.version === version : true),
+export const getAllMockFunctions: GetFunctions<AwsProvider> = ({
+	compatibleOnly,
+	region,
+}) => {
+	return Promise.resolve(
+		mockFunctionsStore
+			.filter(
+				(f) =>
+					f.region === region &&
+					(compatibleOnly ? f.version === VERSION : true),
+			)
+			.map(({region: _region, ...f}) => f),
 	);
 };
 

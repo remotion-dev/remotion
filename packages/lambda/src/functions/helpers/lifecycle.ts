@@ -30,9 +30,12 @@ export const getLifeCycleRules = (): LifecycleRule[] => {
 
 export const generateRandomHashWithLifeCycleRule = <
 	Provider extends CloudProvider,
->(
-	deleteAfter: DeleteAfter | null,
-	providerSpecifics: ProviderSpecifics<Provider>,
-) => {
-	return [deleteAfter, providerSpecifics.randomHash()].filter(truthy).join('-');
+>({
+	deleteAfter,
+	randomHashFn,
+}: {
+	deleteAfter: DeleteAfter | null;
+	randomHashFn: ProviderSpecifics<Provider>['randomHash'];
+}) => {
+	return [deleteAfter, randomHashFn()].filter(truthy).join('-');
 };

@@ -1,17 +1,24 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import {ProviderSpecifics} from '@remotion/serverless';
 import {deleteFunction} from '../../../api/delete-function';
 import {getFunctionInfo} from '../../../api/get-function-info';
-import {getFunctions} from '../../../api/get-functions';
+import {AwsProvider} from '../../../functions/aws-implementation';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
 
 export const FUNCTIONS_RMALL_SUBCOMMAND = 'rmall';
 const LEFT_COL = 16;
 
-export const functionsRmallCommand = async (logLevel: LogLevel) => {
+export const functionsRmallCommand = async ({
+	logLevel,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const region = getAwsRegion();
-	const functions = await getFunctions({
+	const functions = await providerSpecifics.getFunctions({
 		region,
 		compatibleOnly: false,
 	});

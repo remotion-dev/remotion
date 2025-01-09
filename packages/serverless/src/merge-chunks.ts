@@ -15,8 +15,8 @@ import {createPostRenderData} from './create-post-render-data';
 import {inspectErrors} from './inspect-error';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from './provider-implementation';
 import type {RenderMetadata} from './render-metadata';
 import type {CloudProvider} from './types';
@@ -52,7 +52,7 @@ export const mergeChunksAndFinishRender = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	forcePathStyle: boolean;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
@@ -85,14 +85,14 @@ export const mergeChunksAndFinishRender = async <
 		preferLossless: options.preferLossless,
 		muted: options.renderMetadata.muted,
 		metadata: options.renderMetadata.metadata,
-		serverProviderSpecifics: options.serverProviderSpecifics,
+		insideFunctionSpecifics: options.insideFunctionSpecifics,
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
 	const outputSize = fs.statSync(outfile).size;
 
-	const writeToBucket = options.serverProviderSpecifics.timer(
+	const writeToBucket = options.insideFunctionSpecifics.timer(
 		`Writing to bucket (${outputSize} bytes)`,
 		options.logLevel,
 	);
@@ -131,7 +131,7 @@ export const mergeChunksAndFinishRender = async <
 
 	const postRenderData = createPostRenderData({
 		region: options.providerSpecifics.getCurrentRegionInFunction(),
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,
 		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),

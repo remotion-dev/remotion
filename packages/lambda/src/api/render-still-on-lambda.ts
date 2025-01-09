@@ -11,7 +11,7 @@ import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
 	CostsInfo,
 	ReceivedArtifact,
-	RenderStillLambdaResponsePayload,
+	RenderStillFunctionResponsePayload,
 } from '@remotion/serverless';
 import type {OutNameInput, Privacy} from '@remotion/serverless/client';
 import {
@@ -87,7 +87,7 @@ const internalRenderStillOnLambda = async (
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
 		const res = await new Promise<
-			RenderStillLambdaResponsePayload<AwsProvider>
+			RenderStillFunctionResponsePayload<AwsProvider>
 		>((resolve, reject) => {
 			awsImplementation
 				.callFunctionStreaming<ServerlessRoutines.still>({

@@ -1,4 +1,8 @@
-import type {EnhancedErrorInfo, LambdaErrorInfo} from '@remotion/serverless';
+import type {
+	EnhancedErrorInfo,
+	FunctionInfo,
+	LambdaErrorInfo,
+} from '@remotion/serverless';
 import type {
 	CustomCredentials,
 	GetOrCreateBucketInput,
@@ -32,7 +36,7 @@ import type {
 	GetCompositionsOnLambdaOutput,
 } from './api/get-compositions-on-lambda';
 import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
-import type {FunctionInfo, GetFunctionInfoInput} from './api/get-function-info';
+import type {GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
 import type {GetFunctionsInput} from './api/get-functions';
 import {getFunctions} from './api/get-functions';
@@ -68,11 +72,12 @@ import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import {
 	LambdaInternals,
-	_InternalAwsProvider,
-	_InternalOverallRenderProgress,
+	type _InternalAwsProvider,
+	type _InternalOverallRenderProgress,
 } from './internals';
 import type {AwsRegion} from './regions';
 import type {RenderProgress} from './shared/constants';
+
 export type {WebhookPayload} from '@remotion/serverless';
 
 /**
@@ -131,7 +136,6 @@ const getSites = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	: deprecatedGetSites;
 
 export {
-	LambdaInternals,
 	deleteFunction,
 	deleteRender,
 	deleteSite,
@@ -149,6 +153,7 @@ export {
 	getRolePolicy,
 	getSites,
 	getUserPolicy,
+	LambdaInternals,
 	presignUrl,
 	renderMediaOnLambda,
 	renderStillOnLambda,

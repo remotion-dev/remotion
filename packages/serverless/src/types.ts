@@ -6,10 +6,15 @@ export interface CloudProvider<
 		string,
 		unknown
 	>,
+	CreateFunctionSpecifics extends Record<string, unknown> = Record<
+		string,
+		unknown
+	>,
 > {
 	type: string;
 	region: Region;
 	receivedArtifactType: ReceivedArtifactType;
+	creationFunctionOptions: CreateFunctionSpecifics;
 }
 
 export type ReceivedArtifact<Provider extends CloudProvider> = {
@@ -26,17 +31,18 @@ export type CostsInfo = {
 	disclaimer: string;
 };
 
-export type RenderStillLambdaResponsePayload<Provider extends CloudProvider> = {
-	type: 'success';
-	output: string;
-	outKey: string;
-	size: number;
-	bucketName: string;
-	sizeInBytes: number;
-	estimatedPrice: CostsInfo;
-	renderId: string;
-	receivedArtifacts: ReceivedArtifact<Provider>[];
-};
+export type RenderStillFunctionResponsePayload<Provider extends CloudProvider> =
+	{
+		type: 'success';
+		output: string;
+		outKey: string;
+		size: number;
+		bucketName: string;
+		sizeInBytes: number;
+		estimatedPrice: CostsInfo;
+		renderId: string;
+		receivedArtifacts: ReceivedArtifact<Provider>[];
+	};
 
 export type ChunkRetry = {
 	chunk: number;

@@ -1,7 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
+import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../../api/deploy-function';
+import {AwsProvider} from '../../../functions/aws-implementation';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -20,7 +22,15 @@ import {Log} from '../../log';
 
 export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
-export const functionsDeploySubcommand = async (logLevel: LogLevel) => {
+export const functionsDeploySubcommand = async ({
+	logLevel,
+	providerSpecifics,
+	fullClientSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+}) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
@@ -99,6 +109,8 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference,
+		providerSpecifics,
+		fullClientSpecifics,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info({indent: false, logLevel}, functionName);

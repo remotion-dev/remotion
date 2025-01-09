@@ -10,12 +10,12 @@ export type ExpensiveChunk = {
 
 export const getMostExpensiveChunks = ({
 	parsedTimings,
-	framesPerLambda,
+	framesPerFunction: framesPerLambda,
 	firstFrame,
 	lastFrame,
 }: {
 	parsedTimings: ParsedTiming[];
-	framesPerLambda: number;
+	framesPerFunction: number;
 	firstFrame: number;
 	lastFrame: number;
 }): ExpensiveChunk[] => {

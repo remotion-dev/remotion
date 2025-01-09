@@ -1,15 +1,15 @@
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
+import {beforeAll, beforeEach, describe, expect, mock, test} from 'bun:test';
 import path from 'path';
 import {VERSION} from 'remotion/version';
-import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import {mockableHttpClients} from '../../functions/http-client';
 import {mockImplementation} from '../mock-implementation';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
 	// @ts-expect-error
-	mockableHttpClients.http = vi.fn(
+	mockableHttpClients.http = mock(
 		(
 			_url: string,
 			_options: unknown,
@@ -158,8 +158,6 @@ describe('Webhooks', () => {
 	});
 
 	test('Should call webhook upon timeout', async () => {
-		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
 		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
 
 		// Maybe this can use simulateLambdaRender instead
@@ -189,7 +187,7 @@ describe('Webhooks', () => {
 				crf: 9,
 				envVariables: {},
 				frameRange: [0, 10],
-				framesPerLambda: 8,
+				framesPerFunction: 8,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -207,7 +205,7 @@ describe('Webhooks', () => {
 				timeoutInMilliseconds: 3000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
-				concurrencyPerLambda: 1,
+				concurrencyPerFunction: 1,
 				downloadBehavior: {
 					type: 'play-in-browser',
 				},

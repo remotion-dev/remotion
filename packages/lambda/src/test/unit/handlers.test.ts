@@ -1,5 +1,5 @@
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {mockImplementation} from '../mock-implementation';
 
 test('Info handler should return version', async () => {

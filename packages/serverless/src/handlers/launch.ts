@@ -26,8 +26,8 @@ import {invokeWebhook} from '../invoke-webhook';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 
@@ -38,16 +38,11 @@ import {mergeChunksAndFinishRender} from '../merge-chunks';
 import {planFrameRanges} from '../plan-frame-ranges';
 import {streamRendererFunctionWithRetry} from '../stream-renderer';
 import type {CloudProvider} from '../types';
-import {
-	validateDimension,
-	validateDurationInFrames,
-	validateFps,
-} from '../validate';
 import {validateComposition} from '../validate-composition';
 import {validateFramesPerFunction} from '../validate-frames-per-function';
 import {validateOutname} from '../validate-outname';
 import {validatePrivacy} from '../validate-privacy';
-import {getTmpDirStateIfENoSp} from '../write-lambda-error';
+import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -61,7 +56,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress,
 	registerCleanupTask,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	functionName: string;
 	params: ServerlessPayload<Provider>;
@@ -69,7 +64,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -77,12 +72,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const browserInstance = serverProviderSpecifics.getBrowserInstance({
+	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 
 	const inputPropsPromise = decompressInputProps({
@@ -128,7 +123,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		server: undefined,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		onBrowserDownload: () => {
-			throw new Error('Should not download a browser in Lambda');
+			throw new Error('Should not download a browser in a function');
 		},
 		onServeUrlVisited: () => {
 			overallProgress.setServeUrlOpened(Date.now());
@@ -142,19 +137,11 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		comp.props,
 	);
 
-	validateDurationInFrames(comp.durationInFrames, {
-		component: 'passed to a Lambda render',
-		allowFloats: false,
-	});
-	validateFps(comp.fps, 'passed to a Lambda render', false);
-	validateDimension(comp.height, 'height', 'passed to a Lambda render');
-	validateDimension(comp.width, 'width', 'passed to a Lambda render');
-
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
 	RenderInternals.validateConcurrency({
-		value: params.concurrencyPerLambda,
+		value: params.concurrencyPerFunction,
 		setting: 'concurrencyPerLambda',
 		checkIfValidForCurrentMachine:
 			(params.rendererFunctionName ?? null) === null,
@@ -171,10 +158,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	const framesPerLambda =
-		params.framesPerLambda ?? bestFramesPerFunctionParam(frameCount.length);
+		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
 
 	validateFramesPerFunction({
-		framesPerLambda,
+		framesPerFunction: framesPerLambda,
 		durationInFrames: frameCount.length,
 	});
 
@@ -188,7 +175,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks} = planFrameRanges({
-		framesPerLambda,
+		framesPerFunction: framesPerLambda,
 		frameRange: realFrameRange,
 		everyNthFrame: params.everyNthFrame,
 	});
@@ -205,13 +192,17 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
-	const needsToUpload = getNeedsToUpload('video-or-audio', [
-		serializedResolved.length,
-		params.inputProps.type === 'bucket-url'
-			? params.inputProps.hash.length
-			: params.inputProps.payload.length,
-		JSON.stringify(params.envVariables).length,
-	]);
+	const needsToUpload = getNeedsToUpload({
+		type: 'video-or-audio',
+		sizes: [
+			serializedResolved.length,
+			params.inputProps.type === 'bucket-url'
+				? params.inputProps.hash.length
+				: params.inputProps.payload.length,
+			JSON.stringify(params.envVariables).length,
+		],
+		providerSpecifics,
+	});
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
@@ -269,7 +260,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
 			everyNthFrame: params.everyNthFrame,
-			concurrencyPerLambda: params.concurrencyPerLambda,
+			concurrencyPerLambda: params.concurrencyPerFunction,
 			muted: params.muted,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
@@ -316,7 +307,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda,
-		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: providerSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
@@ -330,7 +321,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		audioBitrate: params.audioBitrate,
 		muted: params.muted,
 		metadata: params.metadata,
-		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
 			width: comp.width * (params.scale ?? 1),
 			height: comp.height * (params.scale ?? 1),
@@ -346,7 +337,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	);
 
 	if (!params.overwrite) {
-		const findOutputFile = serverProviderSpecifics.timer(
+		const findOutputFile = insideFunctionSpecifics.timer(
 			'Checking if output file already exists',
 			params.logLevel,
 		);
@@ -494,7 +485,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		startTime,
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 
 	return postRenderData;
@@ -507,12 +498,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	options,
 	providerSpecifics,
 	client,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 	client: WebhookClient;
 }): Promise<{
 	type: 'success';
@@ -523,7 +514,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 	const functionName =
 		params.rendererFunctionName ??
-		(process.env.AWS_LAMBDA_FUNCTION_NAME as string);
+		insideFunctionSpecifics.getCurrentFunctionName();
 
 	const logOptions: LogOptions = {
 		indent: false,
@@ -684,7 +675,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			overallProgress,
 			registerCleanupTask,
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -845,6 +836,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		serverProviderSpecifics.forgetBrowserEventLoop(params.logLevel);
+		insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
 	}
 };

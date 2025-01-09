@@ -1,18 +1,11 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
 import type {LogLevel} from '@remotion/renderer';
+import type {FunctionInfo} from '@remotion/serverless';
 import type {AwsRegion} from '../regions';
 import {getLambdaClient} from '../shared/aws-clients';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../shared/constants';
 import {getFunctionVersion} from '../shared/get-function-version';
 import {validateAwsRegion} from '../shared/validate-aws-region';
-
-export type FunctionInfo = {
-	functionName: string;
-	timeoutInSeconds: number;
-	memorySizeInMb: number;
-	version: string | null;
-	diskSizeInMb: number;
-};
 
 export type GetFunctionInfoInput = {
 	region: AwsRegion;

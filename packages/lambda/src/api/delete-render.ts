@@ -8,7 +8,6 @@ import {
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
-import {getAccountId} from '../shared/get-account-id';
 import {cleanItems} from './clean-items';
 
 export type DeleteRenderInput = {
@@ -25,7 +24,7 @@ export const internalDeleteRender = async (
 		forcePathStyle: boolean;
 	},
 ) => {
-	const expectedBucketOwner = await getAccountId({
+	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
 		region: input.region,
 	});
 	const progress = await getOverallProgressFromStorage({

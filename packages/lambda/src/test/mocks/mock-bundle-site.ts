@@ -23,7 +23,7 @@ const convertArgumentsIntoOptions = (
 	return firstArg;
 };
 
-export const bundleSite: typeof bundle = (...args) => {
+export const mockBundleSite: typeof bundle = (...args) => {
 	const {entryPoint} = convertArgumentsIntoOptions(args);
 	if (entryPoint === 'first') {
 		return Promise.resolve('/path/to/bundle-1');

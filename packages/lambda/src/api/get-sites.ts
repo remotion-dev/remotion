@@ -3,7 +3,6 @@ import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {getSitesKey} from '../shared/constants';
-import {getAccountId} from '../shared/get-account-id';
 import {makeS3ServeUrl} from '../shared/make-s3-url';
 import type {BucketWithLocation} from './get-buckets';
 
@@ -51,7 +50,7 @@ export const internalGetSites = async ({
 				forceBucketName: null,
 				forcePathStyle,
 			});
-	const accountId = await getAccountId({region});
+	const accountId = await providerSpecifics.getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
 

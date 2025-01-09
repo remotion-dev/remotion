@@ -1,5 +1,5 @@
-import {writeMockS3File} from '../../test/mocks/mock-store';
-import type {MockFile, uploadDir as original} from '../upload-dir';
+import type {MockFile, uploadDir as original} from '../../api/upload-dir';
+import {writeMockS3File} from './mock-store';
 
 export const getDirFiles = (dir: string): MockFile[] => {
 	if (dir === '/path/to/bundle-1') {
@@ -31,7 +31,7 @@ export const getDirFiles = (dir: string): MockFile[] => {
 	throw new Error('could not get dir for ' + dir);
 };
 
-export const uploadDir: typeof original = (input) => {
+export const mockUploadDir: typeof original = (input) => {
 	const files = getDirFiles(input.localDir);
 	for (const file of files) {
 		writeMockS3File({

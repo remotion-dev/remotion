@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {encodeAwsUrlParams} from '../../shared/encode-aws-url-params';
 
 test('Encode AWS URL test', () => {

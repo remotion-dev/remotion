@@ -25,7 +25,8 @@
 	"dependencies": {
 		"remotion": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/streaming": "workspace:*"
+		"@remotion/streaming": "workspace:*",
+		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",

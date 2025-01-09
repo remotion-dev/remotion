@@ -20,15 +20,15 @@ import {RENDERER_PATH_TOKEN, ServerlessRoutines} from '../constants';
 import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {
+	InsideFunctionSpecifics,
 	ProviderSpecifics,
-	ServerProviderSpecifics,
 } from '../provider-implementation';
 import {serializeArtifact} from '../serialize-artifact';
 import type {OnStream} from '../streaming/streaming';
 import {truthy} from '../truthy';
 import type {CloudProvider, ObjectChunkTimingData} from '../types';
 import {enableNodeIntrospection} from '../why-is-node-running';
-import {getTmpDirStateIfENoSp} from '../write-lambda-error';
+import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -47,14 +47,14 @@ const renderHandler = async <Provider extends CloudProvider>({
 	logs,
 	onStream,
 	providerSpecifics,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	logs: BrowserLog[];
 	onStream: OnStream<Provider>;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -86,12 +86,12 @@ const renderHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 	});
 
-	const browserInstance = await serverProviderSpecifics.getBrowserInstance({
+	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
-		serverProviderSpecifics,
+		insideFunctionSpecifics,
 	});
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -343,13 +343,13 @@ const renderHandler = async <Provider extends CloudProvider>({
 			.catch((err) => reject(err));
 	});
 
-	const streamTimer = serverProviderSpecifics.timer(
+	const streamTimer = insideFunctionSpecifics.timer(
 		'Streaming chunk to the main function',
 		params.logLevel,
 	);
 
 	if (audioOutputLocation) {
-		const audioChunkTimer = serverProviderSpecifics.timer(
+		const audioChunkTimer = insideFunctionSpecifics.timer(
 			'Sending audio chunk',
 			params.logLevel,
 		);
@@ -361,7 +361,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (videoOutputLocation) {
-		const videoChunkTimer = serverProviderSpecifics.timer(
+		const videoChunkTimer = insideFunctionSpecifics.timer(
 			'Sending main chunk',
 			params.logLevel,
 		);
@@ -416,14 +416,14 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	params,
 	providerSpecifics,
 	requestContext,
-	serverProviderSpecifics,
+	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	serverProviderSpecifics: ServerProviderSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 }): Promise<{
 	type: 'success';
 }> => {
@@ -443,7 +443,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			logs,
 			onStream,
 			providerSpecifics,
-			serverProviderSpecifics,
+			insideFunctionSpecifics,
 		});
 		return {
 			type: 'success',
@@ -503,15 +503,15 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		throw err;
 	} finally {
 		if (shouldKeepBrowserOpen) {
-			serverProviderSpecifics.forgetBrowserEventLoop(params.logLevel);
+			insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
 		} else {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
-				'Lambda did not succeed with flaky error, not keeping browser open.',
+				'Function did not succeed with flaky error, not keeping browser open.',
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
-				'Quitting Lambda forcefully now to force not keeping the Lambda warm.',
+				'Quitting Function forcefully now to force not keeping the Function warm.',
 			);
 			process.exit(0);
 		}

@@ -1,50 +1,52 @@
-import {VERSION} from 'remotion/version';
 import type {ServerlessPayload} from '../constants';
 import {ServerlessRoutines} from '../constants';
 import {getProgress} from '../progress';
-import type {ProviderSpecifics} from '../provider-implementation';
+import type {
+	InsideFunctionSpecifics,
+	ProviderSpecifics,
+} from '../provider-implementation';
 import type {GenericRenderProgress} from '../render-progress';
 import type {CloudProvider} from '../types';
+import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {
 	expectedBucketOwner: string;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics;
 };
 
-export const progressHandler = async <Provider extends CloudProvider>(
-	lambdaParams: ServerlessPayload<Provider>,
-	options: Options<Provider>,
-): Promise<GenericRenderProgress<Provider>> => {
-	if (lambdaParams.type !== ServerlessRoutines.status) {
+export const progressHandler = async <Provider extends CloudProvider>({
+	params,
+	options,
+}: {
+	params: ServerlessPayload<Provider>;
+	options: Options<Provider>;
+}): Promise<GenericRenderProgress<Provider>> => {
+	if (params.type !== ServerlessRoutines.status) {
 		throw new TypeError('Expected status type');
 	}
 
-	if (lambdaParams.version !== VERSION) {
-		if (!lambdaParams.version) {
-			throw new Error(
-				`Version mismatch: When calling getRenderProgress(), you called the function ${process.env.AWS_LAMBDA_FUNCTION_NAME} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call getRenderProgress(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-			);
-		}
-
-		throw new Error(
-			`Version mismatch: When calling getRenderProgress(), you passed ${process.env.AWS_LAMBDA_FUNCTION_NAME} as the function, which has the version ${VERSION}, but the @remotion/lambda package you used to invoke the function has version ${lambdaParams.version}. Deploy a new function and use it to call getRenderProgress(). See: https://www.remotion.dev/docs/lambda/upgrading`,
-		);
-	}
+	checkVersionMismatch({
+		apiName: 'getRenderProgress()',
+		insideFunctionSpecifics: options.insideFunctionSpecifics,
+		params,
+	});
 
 	try {
 		const progress = await getProgress({
-			bucketName: lambdaParams.bucketName,
-			renderId: lambdaParams.renderId,
+			bucketName: params.bucketName,
+			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 			region: options.providerSpecifics.getCurrentRegionInFunction(),
-			memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
+			memorySizeInMb:
+				options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
-			customCredentials: lambdaParams.s3OutputProvider ?? null,
+			customCredentials: params.s3OutputProvider ?? null,
 			providerSpecifics: options.providerSpecifics,
-			forcePathStyle: lambdaParams.forcePathStyle,
-			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+			forcePathStyle: params.forcePathStyle,
+			functionName: options.insideFunctionSpecifics.getCurrentFunctionName(),
 		});
 		return progress;
 	} catch (err) {
@@ -56,11 +58,15 @@ export const progressHandler = async <Provider extends CloudProvider>(
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1000);
 			});
-			return progressHandler(lambdaParams, {
-				expectedBucketOwner: options.expectedBucketOwner,
-				timeoutInMilliseconds: options.timeoutInMilliseconds,
-				retriesRemaining: options.retriesRemaining - 1,
-				providerSpecifics: options.providerSpecifics,
+			return progressHandler({
+				params,
+				options: {
+					expectedBucketOwner: options.expectedBucketOwner,
+					timeoutInMilliseconds: options.timeoutInMilliseconds,
+					retriesRemaining: options.retriesRemaining - 1,
+					providerSpecifics: options.providerSpecifics,
+					insideFunctionSpecifics: options.insideFunctionSpecifics,
+				},
 			});
 		}
 
