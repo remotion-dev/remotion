@@ -28,6 +28,7 @@
 		"@testing-library/react": "16.1.0",
 		"@testing-library/dom": "10.4.0",
 		"@happy-dom/global-registrator": "14.5.1",
+		"@types/dom-webcodecs": "0.1.11",
 		"happy-dom": "15.10.2",
 		"jsdom": "21.1.0",
 		"react": "19.0.0",

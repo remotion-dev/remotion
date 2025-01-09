@@ -108,6 +108,15 @@ export const articles = [
 		slug: 'animated-emoji/index',
 	},
 	{
+		id: 'animatedimage',
+		title: '<AnimatedImage>',
+		relativePath: 'docs/animatedimage.mdx',
+		compId: 'articles-docs-animatedimage',
+		crumb: 'API',
+		noAi: false,
+		slug: 'animatedimage',
+	},
+	{
 		id: 'animating-properties',
 		title: 'Animating properties',
 		relativePath: 'docs/animating-properties.mdx',

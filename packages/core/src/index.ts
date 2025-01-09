@@ -91,6 +91,7 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
+export * from './animated-image/index.js';
 export {Artifact} from './Artifact.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
