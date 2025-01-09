@@ -41,9 +41,9 @@ A function that is called with a [`WebhookTimeoutPayload`](/docs/lambda/webhooks
 Setting up a webhook endpoint in a Next.js app which uses Pages Router. This will listen on the endpoint: `mydomain.com/api/webhook`
 
 ```tsx twoslash title="pages/api/webhook.ts"
-import {pageRouterWebhooks} from '@remotion/lambda/client';
+import {pagesRouterWebhook} from '@remotion/lambda/client';
 
-const handler = pageRouterWebhooks({
+const handler = pagesRouterWebhook({
   secret: 'mysecret',
   testing: true,
   extraHeaders: {
