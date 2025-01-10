@@ -12,8 +12,10 @@ import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import type {z} from 'zod';
 import type {
 	CloudRunCrashResponse,
+	CloudRunPayload,
 	CloudRunPayloadType,
 	DownloadBehavior,
 	ErrorResponsePayload,
@@ -59,6 +61,8 @@ type InternalRenderMediaOnCloudrun = {
 	logLevel: LogLevel;
 	downloadBehavior: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
+	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
@@ -72,6 +76,7 @@ export type RenderMediaOnCloudrunInput = {
 	forceBucketName?: string;
 	outName?: string;
 	updateRenderProgress?: (progress: number, error?: boolean) => void;
+	renderId: string | undefined;
 	codec: CloudrunCodec;
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
@@ -89,6 +94,8 @@ export type RenderMediaOnCloudrunInput = {
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	renderIdOverride?: z.infer<typeof CloudRunPayload>['renderIdOverride'];
+	renderStatusWebhook?: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -103,6 +110,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	privacy,
 	outName,
 	updateRenderProgress,
+	renderIdOverride,
+	renderStatusWebhook,
 	jpegQuality,
 	audioCodec,
 	audioBitrate,
@@ -192,6 +201,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		clientVersion: VERSION,
 		downloadBehavior,
 		metadata: metadata ?? null,
+		renderIdOverride,
+		renderStatusWebhook,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -325,6 +336,8 @@ export const renderMediaOnCloudrun = ({
 	colorSpace,
 	downloadBehavior,
 	metadata,
+	renderIdOverride,
+	renderStatusWebhook,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -373,5 +386,7 @@ export const renderMediaOnCloudrun = ({
 			type: 'play-in-browser',
 		},
 		metadata: metadata ?? null,
+		renderIdOverride: renderIdOverride ?? undefined,
+		renderStatusWebhook: renderStatusWebhook ?? undefined,
 	});
 };

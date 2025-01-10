@@ -136,6 +136,7 @@ test('Python package should create the same progress payload as normal Lambda pa
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
+
 	expect(parsedJson).toEqual(nativeVersion);
 });
 

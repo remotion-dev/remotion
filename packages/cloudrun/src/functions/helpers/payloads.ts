@@ -69,6 +69,16 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		clientVersion: z.string(),
 		downloadBehavior,
 		metadata: z.record(z.string()).optional().nullable(),
+		renderIdOverride: z.string().optional().nullable(),
+		renderStatusWebhook: z
+			.object({
+				url: z.string(),
+				headers: z.record(z.string()),
+				data: z.any(),
+				webhookProgressInterval: z.number().min(0).max(1).optional().nullable(),
+			})
+			.optional()
+			.nullable(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -92,6 +102,16 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		clientVersion: z.string(),
 		downloadBehavior,
 		metadata: z.record(z.string()).optional().nullable(),
+		renderIdOverride: z.string().optional().nullable(),
+		renderStatusWebhook: z
+			.object({
+				url: z.string(),
+				headers: z.record(z.string()),
+				data: z.any(),
+				webhookProgressInterval: z.number().min(0).max(1).optional().nullable(),
+			})
+			.optional()
+			.nullable(),
 	}),
 ]);
 

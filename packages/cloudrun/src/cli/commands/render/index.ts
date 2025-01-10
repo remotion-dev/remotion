@@ -325,6 +325,15 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		indent: false,
 		downloadBehavior: {type: 'play-in-browser'},
 		metadata,
+		renderIdOverride: parsedCloudrunCli['render-id-override'] ?? null,
+		renderStatusWebhook: parsedCloudrunCli.webhook
+			? {
+					url: parsedCloudrunCli.webhook,
+					headers: {},
+					data: null,
+					webhookProgressInterval: null,
+				}
+			: null,
 	});
 
 	if (res.type === 'crash') {
