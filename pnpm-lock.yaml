@@ -403,9 +403,24 @@ importers:
       '@remix-run/serve':
         specifier: ^2.15.2
         version: 2.15.2(typescript@5.5.4)
+      '@remotion/animated-emoji':
+        specifier: workspace:*
+        version: link:../animated-emoji
+      '@remotion/lambda':
+        specifier: workspace:*
+        version: link:../lambda
+      '@remotion/lottie':
+        specifier: workspace:*
+        version: link:../lottie
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser
+      '@remotion/paths':
+        specifier: workspace:*
+        version: link:../paths
+      '@remotion/player':
+        specifier: workspace:*
+        version: link:../player
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
@@ -421,27 +436,42 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      create-video:
+        specifier: workspace:*
+        version: link:../create-video
       fast-average-color:
         specifier: 9.4.0
         version: 9.4.0
+      hls.js:
+        specifier: ^0.14.17
+        version: 0.14.17
       isbot:
         specifier: 4.1.0
         version: 4.1.0
       lucide-react:
         specifier: ^0.439.0
         version: 0.439.0(react@19.0.0)
+      plyr:
+        specifier: ^3.7.3
+        version: 3.7.3
       react:
         specifier: 19.0.0
         version: 19.0.0
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
       tailwind-merge:
         specifier: 2.5.2
         version: 2.5.2
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.13)
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.15.2
@@ -449,12 +479,18 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      '@types/hls.js':
+        specifier: ^0.13.3
+        version: 0.13.3
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       eslint:
         specifier: 8.57.1
         version: 8.57.1
+      polished:
+        specifier: 4.3.1
+        version: 4.3.1
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -7089,13 +7125,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.9
-    dev: false
-
-  /@babel/runtime@7.24.8:
-    resolution: {integrity: sha512-5F7SDGs1T72ZczbRwbGO9lQi0NLjQxzl6i4lJxLxfW9U5UluCSyEJeniWvnhl3/euNiqQVbo8zruhsDfid0esA==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      regenerator-runtime: 0.14.1
     dev: false
 
   /@babel/runtime@7.26.0:
@@ -24782,8 +24811,7 @@ packages:
     resolution: {integrity: sha512-OBatVyC/N7SCW/FaDHrSd+vn0o5cS855TOmYi4OkdWUMSJCET/xip//ch8xGUvtr3i44X9LVyWwQlRMTN3pwSA==}
     engines: {node: '>=10'}
     dependencies:
-      '@babel/runtime': 7.24.8
-    dev: false
+      '@babel/runtime': 7.26.0
 
   /possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
