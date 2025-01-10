@@ -228,7 +228,6 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 	if (chromeMode === 'headless-shell') {
 		return path.join(
 			folderPath,
-			`chrome-${platform}`,
 			`chrome-headless-shell-${platform}`,
 			platform === 'win64'
 				? 'chrome-headless-shell.exe'

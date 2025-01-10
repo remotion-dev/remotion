@@ -38,13 +38,21 @@ export const defaultBrowserDownloadProgress =
 					progress.percent === 1
 				) {
 					lastProgress = progress.downloadedBytes;
-
-					Log.info(
-						{indent, logLevel},
-						`Downloading Chrome Headless Shell - ${toMegabytes(
-							progress.downloadedBytes,
-						)}/${toMegabytes(progress.totalSizeInBytes as number)}`,
-					);
+					if (chromeMode === 'chrome-for-testing') {
+						Log.info(
+							{indent, logLevel},
+							`Downloading Chrome for Testing - ${toMegabytes(
+								progress.downloadedBytes,
+							)}/${toMegabytes(progress.totalSizeInBytes as number)}`,
+						);
+					} else {
+						Log.info(
+							{indent, logLevel},
+							`Downloading Chrome Headless Shell - ${toMegabytes(
+								progress.downloadedBytes,
+							)}/${toMegabytes(progress.totalSizeInBytes as number)}`,
+						);
+					}
 				}
 			},
 			version: null,
