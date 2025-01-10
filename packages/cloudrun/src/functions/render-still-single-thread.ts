@@ -34,7 +34,7 @@ export const renderStillSingleThread = async (
 		);
 	}
 
-	const renderId = randomHash({randomInTests: true});
+	const renderId = body.renderIdOverride ?? randomHash({randomInTests: true});
 
 	try {
 		Log.verbose(

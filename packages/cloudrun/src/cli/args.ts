@@ -17,6 +17,8 @@ type servicesCommandLineOptions = {
 	['out-name']: string | undefined;
 	['output-bucket']: string;
 	['output-folder-path']: string;
+	webhook: string;
+	['render-id-override']: string;
 };
 
 export const parsedCloudrunCli =
