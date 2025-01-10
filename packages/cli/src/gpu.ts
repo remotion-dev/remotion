@@ -43,6 +43,20 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		commandLine: parsedCli,
 	}).value;
 
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		quiet: quietFlagProvided(),
+		indent: false,
+		logLevel,
+	});
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent: false,
+		logLevel,
+		onBrowserDownload,
+		chromeMode,
+	});
+
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,

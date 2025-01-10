@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import type {BrowserExecutable} from './browser-executable';
 import {getRevisionInfo} from './browser/BrowserFetcher';
 import type {BrowserStatus} from './ensure-browser';
-import {getLocalBrowser} from './get-local-browser';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromeMode} from './options/chrome-mode';
@@ -27,11 +26,6 @@ const getBrowserStatus = ({
 		}
 
 		return {path: browserExecutablePath, type: 'user-defined-path'};
-	}
-
-	const localBrowser = getLocalBrowser();
-	if (localBrowser !== null) {
-		return {path: localBrowser, type: 'local-browser'};
 	}
 
 	const revision = getRevisionInfo(chromeMode);

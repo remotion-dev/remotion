@@ -3,17 +3,12 @@ import type {BrowserExecutable} from './browser-executable';
 import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {BrowserSafeApis} from './client';
-import {getLocalBrowser} from './get-local-browser';
 import type {ChromeMode} from './options/chrome-mode';
 import type {ToOptions} from './options/option';
 
 export type BrowserStatus =
 	| {
 			type: 'user-defined-path';
-			path: string;
-	  }
-	| {
-			type: 'local-browser';
 			path: string;
 	  }
 	| {
@@ -80,11 +75,6 @@ const getBrowserStatus = ({
 		}
 
 		return {path: browserExecutable, type: 'user-defined-path'};
-	}
-
-	const localBrowser = getLocalBrowser();
-	if (localBrowser !== null) {
-		return {path: localBrowser, type: 'local-browser'};
 	}
 
 	const revision = getRevisionInfo(chromeMode);

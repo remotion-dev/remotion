@@ -35,11 +35,6 @@ export const ensureCommand = async (logLevel: LogLevel) => {
 		return;
 	}
 
-	if (status.type === 'local-browser') {
-		Log.info({indent, logLevel}, `Has browser at ${status.path}`);
-		return;
-	}
-
 	if (status.type === 'local-puppeteer-browser') {
 		Log.info({indent, logLevel}, `Has browser at ${status.path}`);
 	}
