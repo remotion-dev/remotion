@@ -29,6 +29,7 @@ h6 {
 	letter-spacing: -0.025em;
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
+	font-feature-settings: 'ss03' on;
 }
 
 @font-face {
@@ -145,6 +146,7 @@ code {
 	border-width: 0;
 	color: #0b84f3;
 	font-family: 'GTPlanar';
+	font-feature-settings: 'ss03' on;
 	vertical-align: baseline;
 	padding: 0;
 }
