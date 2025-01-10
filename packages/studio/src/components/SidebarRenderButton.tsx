@@ -94,6 +94,7 @@ export const SidebarRenderButton: React.FC<{
 				renderTypeOfLastRender: null,
 				defaulMetadata: defaults.metadata,
 				initialHardwareAcceleration: defaults.hardwareAcceleration,
+				initialChromeMode: defaults.chromeMode,
 			});
 
 			if (isMobileLayout) {

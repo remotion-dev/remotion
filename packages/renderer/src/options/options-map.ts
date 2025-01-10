@@ -1,6 +1,7 @@
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {binariesDirectoryOption} from './binaries-directory';
+import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -47,6 +48,7 @@ export const optionsMap = {
 		audioCodec: audioCodecOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		hardwareAcceleration: hardwareAccelerationOption,
+		chromeMode: chromeModeOption,
 	},
 	stitchFramesToVideo: {
 		separateAudioTo: separateAudioOption,
@@ -59,6 +61,7 @@ export const optionsMap = {
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
+		chromeMode: chromeModeOption,
 	},
 	getCompositions: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
@@ -66,6 +69,7 @@ export const optionsMap = {
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
+		chromeMode: chromeModeOption,
 	},
 	selectComposition: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
@@ -73,6 +77,7 @@ export const optionsMap = {
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
+		chromeMode: chromeModeOption,
 	},
 	renderFrames: {
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
@@ -82,6 +87,7 @@ export const optionsMap = {
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
+		chromeMode: chromeModeOption,
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
@@ -139,6 +145,12 @@ export const optionsMap = {
 	ensureBrowser: {
 		logLevel: logLevelOption,
 		onBrowserDownload: onBrowserDownloadOption,
+		chromeMode: chromeModeOption,
+	},
+	openBrowser: {
+		logLevel: logLevelOption,
+		onBrowserDownload: onBrowserDownloadOption,
+		chromeMode: chromeModeOption,
 	},
 	deploySiteLambda: {
 		logLevel: logLevelOption,

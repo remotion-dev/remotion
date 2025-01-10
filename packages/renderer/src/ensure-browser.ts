@@ -4,6 +4,7 @@ import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {BrowserSafeApis} from './client';
 import {getLocalBrowser} from './get-local-browser';
+import type {ChromeMode} from './options/chrome-mode';
 import type {ToOptions} from './options/option';
 
 export type BrowserStatus =
@@ -26,6 +27,7 @@ export type BrowserStatus =
 type InternalEnsureBrowserOptions = {
 	browserExecutable: BrowserExecutable;
 	indent: boolean;
+	chromeMode: ChromeMode;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>;
 
 export type EnsureBrowserOptions = Partial<
@@ -41,15 +43,16 @@ const internalEnsureBrowserUncapped = async ({
 	logLevel,
 	browserExecutable,
 	onBrowserDownload,
+	chromeMode,
 }: InternalEnsureBrowserOptions): Promise<BrowserStatus> => {
-	const status = getBrowserStatus(browserExecutable);
+	const status = getBrowserStatus({browserExecutable, chromeMode});
 	if (status.type === 'no-browser') {
-		const {onProgress, version} = onBrowserDownload();
+		const {onProgress, version} = onBrowserDownload({chromeMode});
 
-		await downloadBrowser({indent, logLevel, onProgress, version});
+		await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
 	}
 
-	const newStatus = getBrowserStatus(browserExecutable);
+	const newStatus = getBrowserStatus({browserExecutable, chromeMode});
 	return newStatus;
 };
 
@@ -62,9 +65,13 @@ export const internalEnsureBrowser = (
 	return currentEnsureBrowserOperation as Promise<BrowserStatus>;
 };
 
-const getBrowserStatus = (
-	browserExecutable: BrowserExecutable,
-): BrowserStatus => {
+const getBrowserStatus = ({
+	browserExecutable,
+	chromeMode,
+}: {
+	browserExecutable: BrowserExecutable;
+	chromeMode: ChromeMode;
+}): BrowserStatus => {
 	if (browserExecutable) {
 		if (!fs.existsSync(browserExecutable)) {
 			throw new Error(
@@ -80,7 +87,7 @@ const getBrowserStatus = (
 		return {path: localBrowser, type: 'local-browser'};
 	}
 
-	const revision = getRevisionInfo();
+	const revision = getRevisionInfo(chromeMode);
 	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
@@ -107,5 +114,6 @@ export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 				indent: false,
 				logLevel,
 			}),
+		chromeMode: options?.chromeMode ?? 'headless-shell',
 	});
 };

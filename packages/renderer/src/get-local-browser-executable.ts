@@ -5,15 +5,18 @@ import type {BrowserStatus} from './ensure-browser';
 import {getLocalBrowser} from './get-local-browser';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import type {ChromeMode} from './options/chrome-mode';
 
 const getBrowserStatus = ({
 	browserExecutablePath,
 	indent,
 	logLevel,
+	chromeMode,
 }: {
 	browserExecutablePath: BrowserExecutable;
 	indent: boolean;
 	logLevel: LogLevel;
+	chromeMode: ChromeMode;
 }): BrowserStatus => {
 	if (browserExecutablePath) {
 		if (!fs.existsSync(browserExecutablePath)) {
@@ -31,7 +34,7 @@ const getBrowserStatus = ({
 		return {path: localBrowser, type: 'local-browser'};
 	}
 
-	const revision = getRevisionInfo();
+	const revision = getRevisionInfo(chromeMode);
 	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
@@ -43,15 +46,18 @@ export const getLocalBrowserExecutable = ({
 	preferredBrowserExecutable,
 	logLevel,
 	indent,
+	chromeMode,
 }: {
 	preferredBrowserExecutable: BrowserExecutable;
 	logLevel: LogLevel;
 	indent: boolean;
+	chromeMode: ChromeMode;
 }): string => {
 	const status = getBrowserStatus({
 		browserExecutablePath: preferredBrowserExecutable,
 		indent,
 		logLevel,
+		chromeMode,
 	});
 	if (status.type === 'no-browser') {
 		throw new TypeError(

@@ -2,6 +2,7 @@ import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
 import {binariesDirectoryOption} from './binaries-directory';
+import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -77,6 +78,7 @@ export const allOptions = {
 	disableGitSourceOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	chromeModeOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

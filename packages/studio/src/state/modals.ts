@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -54,6 +55,7 @@ export type RenderModalState = {
 	initialHardwareAcceleration: HardwareAccelerationOption;
 	initialBeep: boolean;
 	initialRepro: boolean;
+	initialChromeMode: ChromeMode;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;

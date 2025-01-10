@@ -198,6 +198,7 @@ export const renderMediaSingleThread = async (
 			onArtifact,
 			metadata: body.metadata ?? null,
 			hardwareAcceleration: 'disable',
+			chromeMode: 'headless-shell',
 		});
 
 		const storage = new Storage();

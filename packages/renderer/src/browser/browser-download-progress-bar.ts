@@ -13,11 +13,18 @@ export const defaultBrowserDownloadProgress =
 		logLevel: LogLevel;
 		api: string;
 	}): OnBrowserDownload =>
-	() => {
-		Log.info(
-			{indent, logLevel},
-			'Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
-		);
+	({chromeMode}) => {
+		if (chromeMode === 'chrome-for-testing') {
+			Log.info(
+				{indent, logLevel},
+				'Downloading Chrome for Testing https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
+			);
+		} else {
+			Log.info(
+				{indent, logLevel},
+				'Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
+			);
+		}
 		Log.info(
 			{indent, logLevel},
 			`Customize this behavior by adding a onBrowserDownload function to ${api}.`,
