@@ -2545,7 +2545,7 @@ var require_extract_zip = __commonJS((exports, module) => {
 });
 
 // src/ensure-browser.ts
-import fs5 from "fs";
+import fs4 from "fs";
 
 // src/browser/BrowserFetcher.ts
 var import_extract_zip = __toESM(require_extract_zip(), 1);
@@ -3055,12 +3055,19 @@ var TESTED_VERSION = "123.0.6312.86";
 var PLAYWRIGHT_VERSION = "1105";
 function getChromeDownloadUrl({
   platform: platform2,
-  version
+  version,
+  chromeMode
 }) {
   if (platform2 === "linux-arm64") {
+    if (chromeMode === "chrome-for-testing") {
+      throw new Error(`chromeMode: 'chrome-for-testing' is not supported on platform linux-arm64`);
+    }
     return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
   }
-  return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
+  if (chromeMode === "headless-shell") {
+    return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-headless-shell-${platform2}.zip`;
+  }
+  return `https://storage.googleapis.com/chrome-for-testing-public/${version ?? TESTED_VERSION}/${platform2}/chrome-${platform2}.zip`;
 }
 var mkdirAsync = fs3.promises.mkdir;
 var unlinkAsync = promisify(fs3.unlink.bind(fs3));
@@ -3084,27 +3091,28 @@ var getPlatform = () => {
       throw new Error("Unsupported platform: " + platform2);
   }
 };
-var destination = "chrome-headless-shell";
-var getDownloadsFolder = () => {
+var getDownloadsFolder = (chromeMode) => {
+  const destination = chromeMode === "headless-shell" ? "chrome-headless-shell" : "chrome-for-testing";
   return path3.join(getDownloadsCacheDir(), destination);
 };
 var downloadBrowser = async ({
   logLevel,
   indent,
   onProgress,
-  version
+  version,
+  chromeMode
 }) => {
   const platform2 = getPlatform();
-  const downloadURL = getChromeDownloadUrl({ platform: platform2, version });
+  const downloadURL = getChromeDownloadUrl({ platform: platform2, version, chromeMode });
   const fileName = downloadURL.split("/").pop();
   if (!fileName) {
     throw new Error(`A malformed download URL was found: ${downloadURL}.`);
   }
-  const downloadsFolder = getDownloadsFolder();
+  const downloadsFolder = getDownloadsFolder(chromeMode);
   const archivePath = path3.join(downloadsFolder, fileName);
   const outputPath = getFolderPath(downloadsFolder, platform2);
   if (await existsAsync(outputPath)) {
-    return getRevisionInfo();
+    return getRevisionInfo(chromeMode);
   }
   if (!await existsAsync(downloadsFolder)) {
     await mkdirAsync(downloadsFolder, {
@@ -3149,25 +3157,40 @@ var downloadBrowser = async ({
       await unlinkAsync(archivePath);
     }
   }
-  const revisionInfo = getRevisionInfo();
+  const revisionInfo = getRevisionInfo(chromeMode);
   makeFileExecutableIfItIsNot(revisionInfo.executablePath);
   return revisionInfo;
 };
 var getFolderPath = (downloadsFolder, platform2) => {
   return path3.resolve(downloadsFolder, platform2);
 };
-var getExecutablePath = () => {
-  const downloadsFolder = getDownloadsFolder();
+var getExecutablePath = (chromeMode) => {
+  const downloadsFolder = getDownloadsFolder(chromeMode);
   const platform2 = getPlatform();
   const folderPath = getFolderPath(downloadsFolder, platform2);
-  return path3.join(folderPath, `chrome-headless-shell-${platform2}`, platform2 === "win64" ? "chrome-headless-shell.exe" : "chrome-headless-shell");
+  if (chromeMode === "chrome-for-testing") {
+    if (platform2 === "mac-arm64" || platform2 === "mac-x64") {
+      return path3.join(folderPath, `chrome-${platform2}`, "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
+    }
+    if (platform2 === "win64") {
+      return path3.join(folderPath, "chrome-win64", "chrome.exe");
+    }
+    if (platform2 === "linux64" || platform2 === "linux-arm64") {
+      return path3.join(folderPath, "chrome-linux64", "chrome");
+    }
+    throw new Error("unsupported platform" + platform2);
+  }
+  if (chromeMode === "headless-shell") {
+    return path3.join(folderPath, `chrome-headless-shell-${platform2}`, platform2 === "win64" ? "chrome-headless-shell.exe" : "chrome-headless-shell");
+  }
+  throw new Error("unsupported chrome mode" + chromeMode);
 };
-var getRevisionInfo = () => {
-  const executablePath = getExecutablePath();
-  const downloadsFolder = getDownloadsFolder();
+var getRevisionInfo = (chromeMode) => {
+  const executablePath = getExecutablePath(chromeMode);
+  const downloadsFolder = getDownloadsFolder(chromeMode);
   const platform2 = getPlatform();
   const folderPath = getFolderPath(downloadsFolder, platform2);
-  const url = getChromeDownloadUrl({ platform: platform2, version: null });
+  const url = getChromeDownloadUrl({ platform: platform2, version: null, chromeMode });
   const local = fs3.existsSync(folderPath);
   return {
     executablePath,
@@ -3188,33 +3211,27 @@ var defaultBrowserDownloadProgress = ({
   indent,
   logLevel,
   api
-}) => () => {
-  Log.info({ indent, logLevel }, "Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell");
+}) => ({ chromeMode }) => {
+  if (chromeMode === "chrome-for-testing") {
+    Log.info({ indent, logLevel }, "Downloading Chrome for Testing https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell");
+  } else {
+    Log.info({ indent, logLevel }, "Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell");
+  }
   Log.info({ indent, logLevel }, `Customize this behavior by adding a onBrowserDownload function to ${api}.`);
   let lastProgress = 0;
   return {
     onProgress: (progress) => {
       if (progress.downloadedBytes > lastProgress + 1e7 || progress.percent === 1) {
         lastProgress = progress.downloadedBytes;
-        Log.info({ indent, logLevel }, `Downloading Chrome Headless Shell - ${toMegabytes(progress.downloadedBytes)}/${toMegabytes(progress.totalSizeInBytes)}`);
+        if (chromeMode === "chrome-for-testing") {
+          Log.info({ indent, logLevel }, `Downloading Chrome for Testing - ${toMegabytes(progress.downloadedBytes)}/${toMegabytes(progress.totalSizeInBytes)}`);
+        } else {
+          Log.info({ indent, logLevel }, `Downloading Chrome Headless Shell - ${toMegabytes(progress.downloadedBytes)}/${toMegabytes(progress.totalSizeInBytes)}`);
+        }
       }
     },
     version: null
   };
-};
-
-// src/get-local-browser.ts
-import fs4 from "fs";
-var getSearchPathsForProduct = () => {
-  return [];
-};
-var getLocalBrowser = () => {
-  for (const p of getSearchPathsForProduct()) {
-    if (fs4.existsSync(p)) {
-      return p;
-    }
-  }
-  return null;
 };
 
 // src/ensure-browser.ts
@@ -3223,33 +3240,33 @@ var internalEnsureBrowserUncapped = async ({
   indent,
   logLevel,
   browserExecutable,
-  onBrowserDownload
+  onBrowserDownload,
+  chromeMode
 }) => {
-  const status = getBrowserStatus(browserExecutable);
+  const status = getBrowserStatus({ browserExecutable, chromeMode });
   if (status.type === "no-browser") {
-    const { onProgress, version } = onBrowserDownload();
-    await downloadBrowser({ indent, logLevel, onProgress, version });
+    const { onProgress, version } = onBrowserDownload({ chromeMode });
+    await downloadBrowser({ indent, logLevel, onProgress, version, chromeMode });
   }
-  const newStatus = getBrowserStatus(browserExecutable);
+  const newStatus = getBrowserStatus({ browserExecutable, chromeMode });
   return newStatus;
 };
 var internalEnsureBrowser = (options) => {
   currentEnsureBrowserOperation = currentEnsureBrowserOperation.then(() => internalEnsureBrowserUncapped(options));
   return currentEnsureBrowserOperation;
 };
-var getBrowserStatus = (browserExecutable) => {
+var getBrowserStatus = ({
+  browserExecutable,
+  chromeMode
+}) => {
   if (browserExecutable) {
-    if (!fs5.existsSync(browserExecutable)) {
+    if (!fs4.existsSync(browserExecutable)) {
       throw new Error(`"browserExecutable" was specified as '${browserExecutable}' but the path doesn't exist. Pass "null" for "browserExecutable" to download a browser automatically.`);
     }
     return { path: browserExecutable, type: "user-defined-path" };
   }
-  const localBrowser = getLocalBrowser();
-  if (localBrowser !== null) {
-    return { path: localBrowser, type: "local-browser" };
-  }
-  const revision = getRevisionInfo();
-  if (revision.local && fs5.existsSync(revision.executablePath)) {
+  const revision = getRevisionInfo(chromeMode);
+  if (revision.local && fs4.existsSync(revision.executablePath)) {
     return { path: revision.executablePath, type: "local-puppeteer-browser" };
   }
   return { type: "no-browser" };
@@ -3265,7 +3282,8 @@ var ensureBrowser = (options) => {
       api: "ensureBrowser()",
       indent: false,
       logLevel
-    })
+    }),
+    chromeMode: options?.chromeMode ?? "headless-shell"
   });
 };
 export {
