@@ -32,6 +32,7 @@ import {getWebpackCaching} from './webpack-caching';
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
+	ChromeMode,
 	CodecOrUndefined,
 	ColorSpace,
 	Crf,
@@ -98,6 +99,7 @@ const {
 	jpegQualityOption,
 	enforceAudioOption,
 	overwriteOption,
+	chromeModeOption,
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
@@ -517,6 +519,10 @@ type FlatConfig = RemotionConfigObject &
 			hardwareAccelerationOption: HardwareAccelerationOption,
 		) => void;
 		/**
+		 * Choose between using Chrome Headless Shell or Chrome for Testing
+		 */
+		setChromeMode: (chromeMode: ChromeMode) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -623,6 +629,7 @@ export const Config: FlatConfig = {
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
 	setOverwriteOutput: overwriteOption.setConfig,
+	setChromeMode: chromeModeOption.setConfig,
 	setPixelFormat,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
