@@ -3,6 +3,7 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
+import {NoReactInternals} from 'remotion/no-react';
 
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp4');
 
@@ -55,7 +56,11 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).toContain('yuvj420p');
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			expect(data).toContain('yuv420p');
+		} else {
+			expect(data).toContain('yuvj420p');
+		}
 		expect(data).toContain('2160x2160');
 		expect(data).toContain('30 fps');
 	},
@@ -102,7 +107,11 @@ test(
 		});
 		const data = info.stderr;
 		expect(data).toContain('Video: h264');
-		expect(data).toContain('yuvj420p');
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			expect(data).toContain('yuv420p');
+		} else {
+			expect(data).toContain('yuvj420p');
+		}
 		expect(data).toContain('108x108');
 		expect(data).toContain('30 fps');
 	},
