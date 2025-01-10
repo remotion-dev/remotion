@@ -139,7 +139,7 @@ describe('Templates should be valid', () => {
 				expect(contents).not.toInclude('outDir');
 			}
 			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
-			expect(contents).toInclude('"incremental": true');
+			expect(contents).not.toInclude('"incremental": true');
 		});
 
 		it(`${template.shortName} should use correct prettier`, async () => {
