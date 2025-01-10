@@ -3213,9 +3213,9 @@ var defaultBrowserDownloadProgress = ({
   api
 }) => ({ chromeMode }) => {
   if (chromeMode === "chrome-for-testing") {
-    Log.info({ indent, logLevel }, "Downloading Chrome for Testing https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell");
+    Log.info({ indent, logLevel }, "Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing");
   } else {
-    Log.info({ indent, logLevel }, "Downloading Chrome Headless Shell https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell");
+    Log.info({ indent, logLevel }, "Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell");
   }
   Log.info({ indent, logLevel }, `Customize this behavior by adding a onBrowserDownload function to ${api}.`);
   let lastProgress = 0;
