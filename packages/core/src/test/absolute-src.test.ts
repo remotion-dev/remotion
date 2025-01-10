@@ -1,7 +1,4 @@
-/**
- * @vitest-environment jsdom
- */
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {getAbsoluteSrc} from '../absolute-src.js';
 
 describe('Absolute src should behave as expected', () => {

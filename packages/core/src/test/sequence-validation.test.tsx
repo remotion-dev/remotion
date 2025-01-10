@@ -1,12 +1,13 @@
-/**
- * @vitest-environment jsdom
- */
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
+import {afterEach, describe, expect, test} from 'bun:test';
 import {renderToString} from 'react-dom/server';
-import {describe, expect, test} from 'vitest';
 import {Sequence} from '../Sequence.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
+
+afterEach(() => {
+	cleanup();
+});
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {
