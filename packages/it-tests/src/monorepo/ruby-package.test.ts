@@ -42,7 +42,7 @@ test('Set the right version for Ruby in remotion_lambda.gemspec', () => {
 
 test('Render progress payload', () => {
 	const output = execSync(
-		'ruby lib/remotion_lambda/render_progress_payload_spec.rb',
+		'bundle exec ruby lib/remotion_lambda/render_progress_payload_spec.rb',
 		{
 			cwd: rubySdk,
 		},

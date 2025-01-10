@@ -2,13 +2,18 @@
 image: /generated/articles-docs-miscellaneous-chrome-headless-shell.png
 sidebar_label: Chrome Headless Shell
 title: Chrome Headless Shell
-crumb: "FAQ"
+crumb: 'FAQ'
 ---
 
-# Chrome Headless Shell<AvailableFrom v="4.0.208"/>
+# Chrome Headless Shell and Chrome for Testing<AvailableFrom v="4.0.247"/>
+
+There are two modes that Remotion can use to render videos:
+
+- **Chrome Headless Shell**: Is faster for CPU-bound video rendering, and requires less dependencies and setup.
+- **Chrome for Testing**: Is faster for GPU-bound video rendering. Emulates a display surface and therefore requires more dependencies and
 
 From v4.0.208, Remotion will download [Chrome Headless Shell](https://developer.chrome.com/blog/chrome-headless-shell) before the first render.  
-This will future-proof your Remotion project, because headless mode will be removed in a future version of Chrome.  
+This will future-proof your Remotion project, because headless mode will be removed in a future version of Chrome.
 
 ## Supported platforms
 
@@ -17,7 +22,6 @@ The following platforms are supported:
 - macOS (x64 and arm64)
 - Windows (x64)
 - Linux (x64 and arm64) - [install the Linux dependencies](/docs/miscellaneous/linux-dependencies)
-
 
 ## Ensure Headless Shell is available
 
@@ -62,7 +66,7 @@ This workflow is bound to break at some point, which is why Remotion is not pick
 
 ## Best practices
 
-To ensure your project does not get disrupted by an upcoming Chrome change, you should use the Remotion mechanisms which uses and pins the version of Chrome Headless Shell.  
+To ensure your project does not get disrupted by an upcoming Chrome change, you should use the Remotion mechanisms which uses and pins the version of Chrome Headless Shell.
 
 - Use Remotion v4.0.208 or later to not pick up an externally installed browser.
 - Use [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure Chrome Headless Shell is available.
@@ -73,7 +77,6 @@ To ensure your project does not get disrupted by an upcoming Chrome change, you 
 Note: Most Linux distros do not allow you to pin a Chrome package.  
 If you use a Remotion version below v4.0.208, you are at risk of Chrome automatically being upgraded to a version that does not ship with a headless mode.  
 :::
-
 
 ## What is Chrome Headless Shell?
 
@@ -97,7 +100,6 @@ Upgrades may happen in a patch release and will be listed here.
 ## On Lambda and Cloud Run
 
 If you are using [Remotion Lambda](/docs/lambda) or [Cloud Run](/docs/cloudrun), you don't need to worry about installing a browser - it is included in the runtime already.
-
 
 ## Previous changes
 
