@@ -74,6 +74,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 			'--use-vulkan=swiftshader',
 			'--disable-vulkan-fallback-to-gl-for-testing',
 			'--dignore-gpu-blocklist',
+			'--enable-gpu',
 		];
 	}
 
