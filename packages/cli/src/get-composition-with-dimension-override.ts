@@ -1,5 +1,6 @@
 import type {
 	BrowserExecutable,
+	ChromeMode,
 	ChromiumOptions,
 	HeadlessBrowser,
 	LogLevel,
@@ -28,6 +29,7 @@ export const getCompositionWithDimensionOverride = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	onBrowserDownload,
+	chromeMode,
 }: {
 	height: number | null;
 	width: number | null;
@@ -47,6 +49,7 @@ export const getCompositionWithDimensionOverride = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
+	chromeMode: ChromeMode;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -70,6 +73,7 @@ export const getCompositionWithDimensionOverride = async ({
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	return {

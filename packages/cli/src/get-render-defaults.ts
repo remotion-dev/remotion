@@ -27,6 +27,7 @@ const {
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	hardwareAccelerationOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -103,6 +104,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const hardwareAcceleration = hardwareAccelerationOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const chromeMode = chromeModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
@@ -153,5 +157,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		forSeamlessAacConcatenation,
 		metadata,
 		hardwareAcceleration,
+		chromeMode,
 	};
 };

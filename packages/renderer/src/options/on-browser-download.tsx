@@ -1,3 +1,4 @@
+import type {ChromeMode} from './chrome-mode';
 import type {AnyRemotionOption} from './option';
 
 export type DownloadBrowserProgressFn = (progress: {
@@ -6,7 +7,7 @@ export type DownloadBrowserProgressFn = (progress: {
 	totalSizeInBytes: number;
 }) => void;
 
-export type OnBrowserDownload = () => {
+export type OnBrowserDownload = (options: {chromeMode: ChromeMode}) => {
 	onProgress: DownloadBrowserProgressFn;
 	version: string | null;
 };

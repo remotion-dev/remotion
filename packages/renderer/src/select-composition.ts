@@ -201,6 +201,7 @@ export const internalSelectCompositionRaw = async (
 		binariesDirectory,
 		onBrowserDownload,
 		onServeUrlVisited,
+		chromeMode,
 	} = options;
 
 	const [{page, cleanupPage}, serverUsed] = await Promise.all([
@@ -212,6 +213,7 @@ export const internalSelectCompositionRaw = async (
 			indent,
 			logLevel,
 			onBrowserDownload,
+			chromeMode,
 		}),
 		makeOrReuseServer(
 			options.server,
@@ -267,6 +269,7 @@ export const internalSelectCompositionRaw = async (
 			binariesDirectory,
 			onBrowserDownload,
 			onServeUrlVisited,
+			chromeMode,
 		})
 			.then((data) => {
 				return resolve(data);
@@ -313,6 +316,7 @@ export const selectComposition = async (
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		chromeMode,
 	} = options;
 
 	const indent = false;
@@ -347,6 +351,7 @@ export const selectComposition = async (
 				api: 'selectComposition()',
 			}),
 		onServeUrlVisited: () => undefined,
+		chromeMode: chromeMode ?? 'headless-shell',
 	});
 	return data.metadata;
 };
