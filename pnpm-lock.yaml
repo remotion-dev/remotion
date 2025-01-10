@@ -500,6 +500,9 @@ importers:
       webpack:
         specifier: 5.96.1
         version: 5.96.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/create-video:
     dependencies:
