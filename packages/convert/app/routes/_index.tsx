@@ -17,7 +17,7 @@ import {
 } from '~/components/homepage/VideoAppsTitle';
 import {WriteInReact} from '~/components/homepage/WriteInReact';
 import '../components/homepage/custom.css';
-import styles from './landing.module.css';
+import styles from '../components/landing.module.css';
 
 if (
 	typeof window !== 'undefined' &&
