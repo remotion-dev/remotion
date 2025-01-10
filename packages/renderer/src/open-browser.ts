@@ -71,9 +71,9 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	if (renderer === 'vulkan') {
 		return [
 			'--use-angle=vulkan',
-			'--use-vulkan=swiftshader',
+			'--use-vulkan=native',
 			'--disable-vulkan-fallback-to-gl-for-testing',
-			'--dignore-gpu-blocklist',
+			'--ignore-gpu-blocklist',
 			'--enable-gpu',
 		];
 	}
