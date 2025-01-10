@@ -38,13 +38,20 @@ export const defaultBrowserDownloadProgress = ({
 	logLevel: LogLevel;
 	quiet: boolean;
 }): OnBrowserDownload => {
-	return () => {
-		Log.info(
-			{indent, logLevel},
-			chalk.gray(
-				'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
-			),
-		);
+	return ({chromeMode}) => {
+		if (chromeMode === 'chrome-for-testing') {
+			Log.info(
+				{indent, logLevel},
+				'Downloading Chrome for Testing https://www.remotion.dev/docs/miscellaneous/chrome-headless-shell',
+			);
+		} else {
+			Log.info(
+				{indent, logLevel},
+				chalk.gray(
+					'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+				),
+			);
+		}
 
 		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
