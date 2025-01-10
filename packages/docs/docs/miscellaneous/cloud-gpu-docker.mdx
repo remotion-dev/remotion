@@ -2,8 +2,13 @@
 image: /generated/articles-docs-miscellaneous-cloud-gpu-docker.png
 title: Setup EC2 for Docker with GPU
 sidebar_label: GPU in the cloud (Docker)
-crumb: "FAQ"
+crumb: 'FAQ'
 ---
+
+:::note
+The guide is outdated and will not work anymore.  
+As of now, the [bare GPU guide](/docs/miscellaneous/cloud-gpu) is up to date.
+:::
 
 Follow these steps closely to render videos on EC2 in a Docker container.  
 These steps are opinionated, but specify a reference that works.
@@ -20,8 +25,7 @@ We recommend to first follow these instructions and make changes once you have a
 
 ## Setup EC2 for Docker with GPU
 
-<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>
-. You can skip installing Chrome, Node.js and cloning the repo to render a video.
+<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>. You can skip installing Chrome, Node.js and cloning the repo to render a video.
 
 <Step>2</Step> Install NVIDIA Container toolkit:
 
@@ -61,9 +65,7 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-<Step>5</Step> Create two files, <code>Dockerfile</code> and <code>entrypoint.sh</code>
-. You can for example create them using the <code>nano ./file-to-create</code> command.
-Use <kbd>Ctrl</kbd>
+<Step>5</Step> Create two files, <code>Dockerfile</code> and <code>entrypoint.sh</code>. You can for example create them using the <code>nano ./file-to-create</code> command. Use <kbd>Ctrl</kbd>
 <kbd>X</kbd> to save and quit. <br />
 
 ```bash title="Dockerfile"
@@ -108,12 +110,12 @@ Use the [`npx remotion gpu`](/docs/cli/gpu) command to get the output of `chrome
 <Credits
   contributors={[
     {
-      username: "UmungoBungo",
-      contribution: "Workflow author",
+      username: 'UmungoBungo',
+      contribution: 'Workflow author',
     },
     {
-      username: "kaf-lamed-beyt",
-      contribution: "Writeup",
+      username: 'kaf-lamed-beyt',
+      contribution: 'Writeup',
     },
   ]}
 />

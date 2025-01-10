@@ -61,11 +61,7 @@ In `v3.0.0`, a second argument was added: `frame`, returning the frame number th
 In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
 
 ```ts twoslash
-const onFrameUpdate = (
-  framesRendered: number,
-  frame: number,
-  timeToRenderInMilliseconds: number,
-) => {
+const onFrameUpdate = (framesRendered: number, frame: number, timeToRenderInMilliseconds: number) => {
   console.log(`${framesRendered} frames rendered.`);
 
   // From v3.0.0
@@ -187,31 +183,10 @@ interface ConsoleMessageLocation {
 type BrowserLog = {
   text: string;
   stackTrace: ConsoleMessageLocation[];
-  type:
-    | 'log'
-    | 'debug'
-    | 'info'
-    | 'error'
-    | 'warning'
-    | 'dir'
-    | 'dirxml'
-    | 'table'
-    | 'trace'
-    | 'clear'
-    | 'startGroup'
-    | 'startGroupCollapsed'
-    | 'endGroup'
-    | 'assert'
-    | 'profile'
-    | 'profileEnd'
-    | 'count'
-    | 'timeEnd'
-    | 'verbose';
+  type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd' | 'verbose';
 };
 
-const renderFrames = (options: {
-  onBrowserLog?: (log: BrowserLog) => void;
-}) => {};
+const renderFrames = (options: {onBrowserLog?: (log: BrowserLog) => void}) => {};
 // ---cut---
 renderFrames({
   onBrowserLog: (info) => {
@@ -310,6 +285,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 #### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### ~~`quality?`~~
 
