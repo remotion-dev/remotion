@@ -59,7 +59,7 @@ async function getFiles(
 	return _files.flat(1);
 }
 
-const limit = pLimit(30);
+const limit = pLimit(15);
 
 export const uploadDir = async ({
 	bucket,
