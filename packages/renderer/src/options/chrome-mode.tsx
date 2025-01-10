@@ -25,9 +25,11 @@ export const chromeModeOption = {
 						{i === validChromeModeOptions.length - 1 ? '' : ', '}
 					</code>
 				))}
-				. Default <code>headless-shell</code>. Use{' '}
-				<code>chrome-for-testing</code> to take advantage of GPU drivers on
-				Linux.
+				. Default <code>headless-shell</code>.{' '}
+				<a href="https://remotion.dev/docs/miscellaneous/chrome-headless-shell">
+					Use <code>chrome-for-testing</code> to take advantage of GPU drivers
+					on Linux.
+				</a>
 			</>
 		);
 	},

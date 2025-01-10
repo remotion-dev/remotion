@@ -39,9 +39,9 @@ You should use Chrome for Testing **only** if you want to set up a [GPU-accelera
 
 In order to use Chrome for testing instead:
 
-**In the CLI**: Pass `--chrome-mode="chrome-for-testing"` to `npx remotion render`, `npx remotion benchmark`, `npx remotion compositions` and `npx remotion still`.
+**In the CLI**: Pass `--chrome-mode="chrome-for-testing"` to `npx remotion render`, `npx remotion benchmark`, `npx remotion compositions`, `npx remotion still`, `npx remotion gpu` and `npx remotion browser ensure`.
 
-**In the API**: Pass `chromeMode: 'chrome-for-testing'` to your `renderFrames()`, `renderMedia()`, `renderStill()`, `selectComposition()` and `getComposition()` calls.
+**With the API**: Pass `chromeMode: 'chrome-for-testing'` to your `renderFrames()`, `renderMedia()`, `renderStill()`, `selectComposition()`, `getComposition()` and `ensureBrowser()` calls.
 
 **In the Studio**: Select "Chrome for Testing" in the "Chrome Mode" dropdown in the "Advanced" tab.
 
