@@ -54,7 +54,7 @@ const EvaluateRemotionSection: React.FC = () => {
 					href="https://cal.com/remotion/evaluate"
 					style={{textDecoration: 'none'}}
 				>
-					<BlueButton size="sm" fullWidth={false} loading={false}>
+					<BlueButton size="sm" loading={false}>
 						Schedule a call
 					</BlueButton>
 				</a>
@@ -72,7 +72,7 @@ const EvaluateRemotionSection: React.FC = () => {
 						href="/experts"
 						style={{textDecoration: 'none'}}
 					>
-						<BlueButton size="sm" fullWidth={false} loading={false}>
+						<BlueButton size="sm" loading={false}>
 							Remotion Experts
 						</BlueButton>
 					</a>

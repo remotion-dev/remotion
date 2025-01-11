@@ -2,7 +2,6 @@
 
 import {getLength} from '@remotion/paths';
 import React, {useEffect} from 'react';
-import styles from './bg-anim.module.css';
 
 const rx = 0.2;
 const ry = 0.45;
@@ -53,9 +52,9 @@ export const BackgroundAnimation: React.FC = () => {
 	}, [css]);
 
 	return (
-		<div className={styles.bganimcontainer}>
+		<div className="absolute w-full h-full left-[50%] ml-[-50%] min-w-0 lg:m-auto lg:relative lg:min-w-[700px] lg:max-w-[1200px] lg:ml-auto lg:left-auto pointer-events-none">
 			<svg
-				className={styles.svg}
+				className="translate-y-[-30%] lg:translate-y-[-50%]"
 				viewBox="0 0 1 1"
 				style={{
 					width: '100%',
@@ -68,7 +67,7 @@ export const BackgroundAnimation: React.FC = () => {
 					fill="none"
 					stroke="var(--ifm-color-primary)"
 					strokeLinecap="round"
-					className={styles.p}
+					className="stroke-[0.04] lg:stroke-[0.035]"
 					style={{
 						transformOrigin: 'center center',
 						transform: `rotate(120deg)`,
@@ -82,7 +81,7 @@ export const BackgroundAnimation: React.FC = () => {
 					stroke="var(--ifm-color-primary)"
 					strokeLinecap="round"
 					strokeWidth={strokeWidth}
-					className={styles.p}
+					className="stroke-[0.04] lg:stroke-[0.035]"
 					style={{
 						transformOrigin: 'center center',
 						transform: `rotate(0deg)`,
@@ -96,7 +95,7 @@ export const BackgroundAnimation: React.FC = () => {
 					stroke="var(--ifm-color-primary)"
 					strokeLinecap="round"
 					strokeWidth={strokeWidth}
-					className={styles.p}
+					className="stroke-[0.04] lg:stroke-[0.035]"
 					style={{
 						transformOrigin: 'center center',
 						transform: `rotate(240deg)`,

@@ -1,28 +1,25 @@
 import React from 'react';
 import {CodeExample} from './CodeExample';
-import styles from './ifyouknowreact.module.css';
 import {BlueButton} from './layout/Button';
-import {Spacer} from './Spacer';
 
 export const IfYouKnowReact: React.FC = () => {
 	return (
-		<div className={styles.ifyouknowrow}>
+		<div className="flex flex-col-reverse lg:flex-row text-left lg:text-right justify-start lg:justify-end items-start lg:items-center">
 			<CodeExample />
-			<div style={{width: 40}} />
-			<div>
-				<h2 className={styles.ifyouknowtitle}>
-					Leverage <span className={styles.rea}>React</span> <br />
+			<div className="h-10 lg:w-10" />
+			<div className="lg:text-right">
+				<h2 className="text-4xl font-brand">
+					Leverage <span className="text-brand">React</span> <br />
 					to express yourself.
 				</h2>
-				<p>
+				<p className="leading-relaxed">
 					Remotion gives you the tools for video creation, <br /> but the rules
 					of React stay the same. <br />
 				</p>
 				Learn the fundamentals in just a few minutes.
-				<Spacer />
-				<Spacer />
-				<a className={styles.aknow} href="/docs/the-fundamentals">
-					<BlueButton size="sm" fullWidth={false} loading={false}>
+				<div className="h-7" />
+				<a className="no-underline inline-block" href="/docs/the-fundamentals">
+					<BlueButton size="sm" loading={false}>
 						Learn Remotion
 					</BlueButton>
 				</a>

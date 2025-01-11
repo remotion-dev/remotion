@@ -79,7 +79,7 @@ export const CodeExample: React.FC = () => {
 			<div>
 				{tab === 'code' && (
 					<div style={container}>
-						<img src="/img/code-sample-new.png" />
+						<img src="/img/code-sample-new.png" className="w-full" />
 					</div>
 				)}
 				{tab === 'preview' && <Preview />}

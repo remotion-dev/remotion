@@ -8,7 +8,6 @@ import {Demo} from './homepage/Demo';
 import {LightningFastEditor} from './homepage/Editor';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
-import styles from './homepage/landing.module.css';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
@@ -28,7 +27,7 @@ const NewLanding: React.FC = () => {
 				<br />
 				<br />
 				<br />
-				<div className={styles.content}>
+				<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5">
 					<WriteInReact />
 					<br />
 					<IfYouKnowReact />
