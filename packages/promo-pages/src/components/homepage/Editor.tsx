@@ -51,7 +51,7 @@ export const LightningFastEditor: React.FC = () => {
 			</div>
 			<div style={{flex: 1}}>
 				<h2 className={styles.title}>
-					Fast and <br /> <span className={styles.mp4}>delightful</span> editing
+					Fast and <br /> <span className="text-brand">delightful</span> editing
 				</h2>
 				<p>
 					Preview your video in the browser. <br />

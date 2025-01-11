@@ -1690,6 +1690,9 @@ importers:
       '@tailwindcss/cli':
         specifier: 4.0.0-beta.9
         version: 4.0.0-beta.9
+      '@tailwindcss/vite':
+        specifier: 4.0.0-beta.9
+        version: 4.0.0-beta.9(vite@5.4.9)
       '@types/hls.js':
         specifier: ^0.13.3
         version: 0.13.3
@@ -1699,6 +1702,9 @@ importers:
       '@types/react-dom':
         specifier: 19.0.0
         version: 19.0.0
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.5.0
+        version: 3.7.2(vite@5.4.9)
       eslint:
         specifier: 9.14.0
         version: 9.14.0
@@ -14076,7 +14082,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-darwin-x64@1.3.80:
@@ -14093,7 +14098,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-linux-arm-gnueabihf@1.3.80:
@@ -14110,7 +14114,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-linux-arm64-gnu@1.3.80:
@@ -14127,7 +14130,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-linux-arm64-musl@1.3.80:
@@ -14144,7 +14146,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-linux-x64-gnu@1.3.80:
@@ -14161,7 +14162,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-linux-x64-musl@1.3.80:
@@ -14178,7 +14178,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-win32-arm64-msvc@1.3.80:
@@ -14195,7 +14194,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-win32-ia32-msvc@1.3.80:
@@ -14212,7 +14210,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core-win32-x64-msvc@1.3.80:
@@ -14229,7 +14226,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@swc/core@1.3.80:
@@ -14278,7 +14274,6 @@ packages:
       '@swc/core-win32-arm64-msvc': 1.8.0
       '@swc/core-win32-ia32-msvc': 1.8.0
       '@swc/core-win32-x64-msvc': 1.8.0
-    dev: false
 
   /@swc/counter@0.1.3:
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
@@ -14400,7 +14395,6 @@ packages:
     resolution: {integrity: sha512-PbSmTiYCN+GMrvfjrMo9bdY+f2COnwbdnoMw7rqU/PI5jXpKjxOGZ0qqZCImxnT81NkNsKnmEpvu+hRXLBeCJg==}
     dependencies:
       '@swc/counter': 0.1.3
-    dev: false
 
   /@swc/types@0.1.5:
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
@@ -14548,6 +14542,18 @@ packages:
       '@tailwindcss/oxide-linux-x64-musl': 4.0.0-beta.9
       '@tailwindcss/oxide-win32-arm64-msvc': 4.0.0-beta.9
       '@tailwindcss/oxide-win32-x64-msvc': 4.0.0-beta.9
+    dev: true
+
+  /@tailwindcss/vite@4.0.0-beta.9(vite@5.4.9):
+    resolution: {integrity: sha512-Hf28QkwSLM6bbOkcTQk1iEEOB37v+9vfqdpHUaLSluZpEGCVAFc0i+p2Gvp6MlK840tyixQu5L39VjL2lAZFFQ==}
+    peerDependencies:
+      vite: ^5.2.0 || ^6
+    dependencies:
+      '@tailwindcss/node': 4.0.0-beta.9
+      '@tailwindcss/oxide': 4.0.0-beta.9
+      lightningcss: 1.29.1
+      tailwindcss: 4.0.0-beta.9
+      vite: 5.4.9(@types/node@20.12.14)
     dev: true
 
   /@testing-library/dom@10.4.0:
@@ -16026,6 +16032,17 @@ packages:
       json-schema-to-ts: 1.6.4
       ts-morph: 12.0.0
     dev: false
+
+  /@vitejs/plugin-react-swc@3.7.2(vite@5.4.9):
+    resolution: {integrity: sha512-y0byko2b2tSVVf5Gpng1eEhX1OvPC7x8yns1Fx8jDzlJp4LS6CMkCPfLw47cjyoMrshQDoQw4qcgjsU9VvlCew==}
+    peerDependencies:
+      vite: ^4 || ^5 || ^6
+    dependencies:
+      '@swc/core': 1.8.0
+      vite: 5.4.9(@types/node@20.12.14)
+    transitivePeerDependencies:
+      - '@swc/helpers'
+    dev: true
 
   /@vitejs/plugin-react@4.3.4(vite@6.0.3):
     resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
@@ -18796,7 +18813,6 @@ packages:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.2.1
-    dev: true
 
   /entities@2.2.0:
     resolution: {integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==}
@@ -19450,7 +19466,7 @@ packages:
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.3.7
-      enhanced-resolve: 5.17.1
+      enhanced-resolve: 5.18.0
       eslint: 8.57.1
       eslint-module-utils: 2.12.0(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
@@ -19480,7 +19496,7 @@ packages:
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.3.7
-      enhanced-resolve: 5.17.1
+      enhanced-resolve: 5.18.0
       eslint: 8.57.1
       eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.12.2)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.12.2)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
@@ -19510,7 +19526,7 @@ packages:
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.3.7
-      enhanced-resolve: 5.17.1
+      enhanced-resolve: 5.18.0
       eslint: 9.14.0
       eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.12.2)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.14.0)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.12.2)(eslint-import-resolver-typescript@3.6.3)(eslint@9.14.0)
@@ -30937,7 +30953,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.17.1
+      enhanced-resolve: 5.18.0
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -30975,7 +30991,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.17.1
+      enhanced-resolve: 5.18.0
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -31014,7 +31030,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.17.1
+      enhanced-resolve: 5.18.0
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0

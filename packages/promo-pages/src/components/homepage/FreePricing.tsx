@@ -8,7 +8,7 @@ export const FreePricing: React.FC = () => {
 			<div className={styles.audience}>
 				For individuals and companies of up to 3 people
 			</div>
-			<h2 className={styles.pricingtitle}>Free License</h2>
+			<h2 className="pricingtitle">Free License</h2>
 			<PricingBulletPoint text="Unlimited videos" checked />
 			<PricingBulletPoint text="Commercial use allowed" checked />
 			<PricingBulletPoint

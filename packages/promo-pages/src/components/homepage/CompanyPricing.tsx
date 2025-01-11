@@ -48,7 +48,7 @@ export const CompanyPricing: React.FC = () => {
 			<div className={styles.audience}>
 				For collaborations and companies of 4+ people
 			</div>
-			<h2 className={styles.pricingtitle}>Company License</h2>
+			<h2 className="pricingtitle">Company License</h2>
 			<PricingBulletPoint text="Everything in Free License" checked />
 			<PricingBulletPoint text="Prioritized Support" checked />
 			<PricingBulletPoint text="Remotion Recorder included" checked />

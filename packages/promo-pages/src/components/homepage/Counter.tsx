@@ -85,6 +85,7 @@ export const Counter: React.FC<CounterProps> = ({
 			<div style={{display: 'flex', flexDirection: 'column', marginLeft: 10}}>
 				<button
 					type="button"
+					className="brand"
 					style={{
 						...buttonContainer,
 						borderLeft: '1px solid #EAEAEA',
