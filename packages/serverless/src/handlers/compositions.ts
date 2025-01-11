@@ -92,6 +92,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in a function');
 			},
+			chromeMode: 'headless-shell',
 		});
 
 		return Promise.resolve({

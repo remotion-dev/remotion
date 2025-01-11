@@ -68,5 +68,6 @@ export const processStill = async ({
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: job.binariesDirectory,
 		publicPath: null,
+		chromeMode: job.chromeMode,
 	});
 };

@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -39,6 +40,7 @@ type AddRenderRequestDynamicFields =
 			frame: number;
 			scale: number;
 			logLevel: LogLevel;
+			chromeMode: ChromeMode;
 	  }
 	| {
 			type: 'sequence';
@@ -51,6 +53,7 @@ type AddRenderRequestDynamicFields =
 			endFrame: number;
 			disallowParallelEncoding: boolean;
 			repro: boolean;
+			chromeMode: ChromeMode;
 	  }
 	| {
 			type: 'video';
@@ -81,6 +84,7 @@ type AddRenderRequestDynamicFields =
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
 			hardwareAcceleration: HardwareAccelerationOption;
+			chromeMode: ChromeMode;
 	  };
 
 export type CancelRenderRequest = {

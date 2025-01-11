@@ -38,6 +38,7 @@ const {
 	publicDirOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -121,7 +122,6 @@ export const render = async (
 	const colorSpace = colorSpaceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
@@ -165,6 +165,7 @@ export const render = async (
 	}).value;
 	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -243,5 +244,6 @@ export const render = async (
 		publicPath,
 		metadata,
 		hardwareAcceleration,
+		chromeMode,
 	});
 };

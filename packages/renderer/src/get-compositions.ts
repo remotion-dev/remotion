@@ -163,6 +163,7 @@ const internalGetCompositionsRaw = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	onBrowserDownload,
+	chromeMode,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -172,6 +173,7 @@ const internalGetCompositionsRaw = async ({
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -224,6 +226,7 @@ const internalGetCompositionsRaw = async ({
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
 					onBrowserDownload,
+					chromeMode,
 				});
 			})
 
@@ -272,6 +275,7 @@ export const getCompositions = (
 		onBrowserDownload,
 		binariesDirectory,
 		offthreadVideoCacheSizeInBytes,
+		chromeMode,
 	} = config ?? {};
 
 	const indent = false;
@@ -304,5 +308,6 @@ export const getCompositions = (
 				logLevel,
 				api: 'getCompositions()',
 			}),
+		chromeMode: chromeMode ?? 'headless-shell',
 	});
 };

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-select-composition.png
 title: selectComposition()
 id: select-composition
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 # selectComposition()<AvailableFrom v="4.0.0"/>
@@ -17,13 +17,13 @@ If no composition with the specified [ID](/docs/terminology/composition#composit
 // @module: ESNext
 // @target: ESNext
 // ---cut---
-import { bundle } from "@remotion/bundler";
-import { selectComposition } from "@remotion/renderer";
+import {bundle} from '@remotion/bundler';
+import {selectComposition} from '@remotion/renderer';
 
-const bundled = await bundle({ entryPoint: require.resolve("./src/index.ts") });
+const bundled = await bundle({entryPoint: require.resolve('./src/index.ts')});
 const composition = await selectComposition({
   serveUrl: bundled,
-  id: "MyComposition",
+  id: 'MyComposition',
   inputProps: {},
 });
 
@@ -95,7 +95,11 @@ See: [Environment variables](/docs/env-variables/)
 
 <Options id="binaries-directory" />
 
-#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
 

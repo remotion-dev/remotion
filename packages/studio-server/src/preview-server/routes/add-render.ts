@@ -62,6 +62,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				separateAudioTo: input.separateAudioTo,
 				metadata: input.metadata,
 				hardwareAcceleration: input.hardwareAcceleration,
+				chromeMode: input.chromeMode,
 			},
 			logLevel,
 		});
@@ -99,6 +100,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				repro: input.repro,
 				binariesDirectory,
 				metadata: input.metadata,
+				chromeMode: input.chromeMode,
 			},
 			logLevel,
 		});
@@ -132,6 +134,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				repro: false,
 				binariesDirectory,
 				metadata: input.metadata,
+				chromeMode: input.chromeMode,
 			},
 			entryPoint,
 			remotionRoot,

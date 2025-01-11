@@ -306,6 +306,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,
+		chromeMode: 'headless-shell',
 	});
 
 	const {size} = await fs.promises.stat(outputPath);

@@ -1,4 +1,4 @@
-import type {Codec, X264Preset} from '@remotion/renderer';
+import type {ChromeMode, Codec, X264Preset} from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {UiOpenGlOptions} from '@remotion/studio-shared';
@@ -48,6 +48,10 @@ export const RenderModalAdvanced: React.FC<{
 	readonly openGlOption: UiOpenGlOptions;
 	readonly setOpenGlOption: React.Dispatch<
 		React.SetStateAction<UiOpenGlOptions>
+	>;
+	readonly chromeModeOption: ChromeMode;
+	readonly setChromeModeOption: React.Dispatch<
+		React.SetStateAction<ChromeMode>
 	>;
 	readonly envVariables: [string, string][];
 	readonly setEnvVariables: React.Dispatch<
@@ -108,6 +112,8 @@ export const RenderModalAdvanced: React.FC<{
 	repro,
 	setRepro,
 	hardwareAcceleration,
+	chromeModeOption,
+	setChromeModeOption,
 	setHardwareAcceleration,
 }) => {
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
@@ -215,6 +221,23 @@ export const RenderModalAdvanced: React.FC<{
 			};
 		});
 	}, [extendedOpenGlOptions, openGlOption, setOpenGlOption]);
+
+	const chromeModeOptions = useMemo((): ComboboxValue[] => {
+		return BrowserSafeApis.validChromeModeOptions.map((option) => {
+			return {
+				label: option,
+				onClick: () => setChromeModeOption(option),
+				key: option,
+				leftItem: chromeModeOption === option ? <Checkmark /> : null,
+				id: option,
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: option,
+			};
+		});
+	}, [chromeModeOption, setChromeModeOption]);
 
 	const x264PresetOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.x264PresetOptions.map((option) => {
@@ -392,6 +415,20 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 				<div style={rightRow}>
 					<Checkbox checked={headless} onChange={onHeadless} name="headless" />
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Chrome Mode <Spacing x={0.5} />
+					<OptionExplainerBubble id="chromeModeOption" />
+				</div>
+
+				<div style={rightRow}>
+					<Combobox
+						values={chromeModeOptions}
+						selectedId={chromeModeOption}
+						title="Chrome mode"
+					/>
 				</div>
 			</div>
 			<div style={optionRow}>

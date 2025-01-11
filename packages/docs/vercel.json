@@ -328,6 +328,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/chrome-for-testing",
+			"destination": "/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead",
+			"permanent": false
+		},
+		{
 			"source": "/media-parser",
 			"destination": "/docs/media-parser",
 			"permanent": false

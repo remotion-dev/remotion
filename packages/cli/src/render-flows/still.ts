@@ -4,6 +4,7 @@ import type {
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
+	ChromeMode,
 	ChromiumOptions,
 	LogLevel,
 	RenderMediaOnDownload,
@@ -75,6 +76,7 @@ export const renderStillFlow = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	publicPath,
+	chromeMode,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -105,6 +107,7 @@ export const renderStillFlow = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
 	publicPath: string | null;
+	chromeMode: ChromeMode;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -151,6 +154,7 @@ export const renderStillFlow = async ({
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -162,6 +166,7 @@ export const renderStillFlow = async ({
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
@@ -234,6 +239,7 @@ export const renderStillFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
 			onBrowserDownload,
+			chromeMode,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -363,6 +369,7 @@ export const renderStillFlow = async ({
 		binariesDirectory,
 		onBrowserDownload,
 		onArtifact,
+		chromeMode,
 	});
 
 	aggregate.rendering = {

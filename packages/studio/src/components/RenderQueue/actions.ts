@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -38,6 +39,7 @@ export const addStillRenderJob = ({
 	multiProcessOnLinux,
 	beepOnFinish,
 	metadata,
+	chromeMode,
 }: {
 	compositionId: string;
 	outName: string;
@@ -54,6 +56,7 @@ export const addStillRenderJob = ({
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
+	chromeMode: ChromeMode;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -77,6 +80,7 @@ export const addStillRenderJob = ({
 		multiProcessOnLinux,
 		beepOnFinish,
 		metadata,
+		chromeMode,
 	});
 };
 
@@ -100,6 +104,7 @@ export const addSequenceRenderJob = ({
 	beepOnFinish,
 	repro,
 	metadata,
+	chromeMode,
 }: {
 	compositionId: string;
 	outName: string;
@@ -120,6 +125,7 @@ export const addSequenceRenderJob = ({
 	beepOnFinish: boolean;
 	repro: boolean;
 	metadata: Record<string, string> | null;
+	chromeMode: ChromeMode;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -147,6 +153,7 @@ export const addSequenceRenderJob = ({
 		beepOnFinish,
 		repro,
 		metadata,
+		chromeMode,
 	});
 };
 
@@ -188,6 +195,7 @@ export const addVideoRenderJob = ({
 	separateAudioTo,
 	metadata,
 	hardwareAcceleration,
+	chromeMode,
 }: {
 	compositionId: string;
 	outName: string;
@@ -226,6 +234,7 @@ export const addVideoRenderJob = ({
 	separateAudioTo: string | null;
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	chromeMode: ChromeMode;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -271,6 +280,7 @@ export const addVideoRenderJob = ({
 		separateAudioTo,
 		metadata,
 		hardwareAcceleration,
+		chromeMode,
 	});
 };
 
