@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import styles from './editor.module.css';
 
 export const LightningFastEditor: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -31,12 +30,16 @@ export const LightningFastEditor: React.FC = () => {
 		return () => observer.unobserve(current);
 	}, [callback]);
 	return (
-		<div ref={ref} className={styles.row}>
+		<div
+			ref={ref}
+			className={
+				'flex flex-col-reverse lg:flex-row justify-start lg:justify-end lg:text-right items-start lg:items-center'
+			}
+		>
 			<div>
 				<video
 					src="/img/player-demo.mp4"
 					autoPlay
-					className={styles.video}
 					muted
 					playsInline
 					loop
@@ -50,7 +53,7 @@ export const LightningFastEditor: React.FC = () => {
 				/>
 			</div>
 			<div style={{flex: 1}}>
-				<h2 className={styles.title}>
+				<h2 className={'font-brand text-4xl'}>
 					Fast and <br /> <span className="text-brand">delightful</span> editing
 				</h2>
 				<p>

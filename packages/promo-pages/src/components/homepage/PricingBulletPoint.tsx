@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './pricing.module.css';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -42,7 +41,7 @@ export const PricingBulletPoint: React.FC<{
 	return (
 		<div style={container}>
 			{checked ? checkmarkSVG : <div style={greyCircle} />}
-			<div className={styles.text}>
+			<div className={'font-brand text-lg	'}>
 				{text}
 				{children}
 			</div>

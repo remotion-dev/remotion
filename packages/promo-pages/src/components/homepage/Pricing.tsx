@@ -1,7 +1,5 @@
 import React from 'react';
-import {CompanyPricing} from './CompanyPricing';
-import {EnterpriseLicense} from './EnterpriseLicense';
-import {FreePricing} from './FreePricing';
+import {CompanyPricing, EnterpriseLicense, FreePricing} from './FreePricing';
 
 export const Pricing: React.FC = () => {
 	return (

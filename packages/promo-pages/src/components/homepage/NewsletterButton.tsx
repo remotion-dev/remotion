@@ -1,8 +1,8 @@
 import React, {useCallback, useState} from 'react';
+import {cn} from '../../cn';
 import {BlueButton} from './layout/Button';
 import styles from './newsletter.module.css';
 import {Spacer} from './Spacer';
-import {CoolInput} from './TextInput';
 
 export const NewsletterButton: React.FC<{}> = () => {
 	const [email, setEmail] = useState('');
@@ -46,7 +46,7 @@ export const NewsletterButton: React.FC<{}> = () => {
 		<div>
 			<div className={styles.newslettergrow}>
 				<div className={styles.portion}>
-					<div className={styles.panel}>
+					<div className={cn(styles.panel, 'border-brand')}>
 						<div className={[styles.tablenewsletter].join(' ')}>Newsletter</div>
 						<form
 							onSubmit={handleSubmit}
@@ -59,12 +59,9 @@ export const NewsletterButton: React.FC<{}> = () => {
 								Remotion once in a while.
 							</p>
 
-							<CoolInput
-								style={{
-									width: '100%',
-								}}
+							<input
+								className="w-full rounded-lg px-3 py-3 font-brand text-lg box-border"
 								disabled={submitting}
-								fullWidth
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								type={'email'}
@@ -76,10 +73,10 @@ export const NewsletterButton: React.FC<{}> = () => {
 							<div>
 								<BlueButton
 									type="submit"
-									fullWidth
+									className="w-full"
 									loading={submitting}
 									disabled={submitting || subscribed}
-									size="bg"
+									size="sm"
 								>
 									{subscribed ? 'Subscribed!' : 'Subscribe'}
 								</BlueButton>

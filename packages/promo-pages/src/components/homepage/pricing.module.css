@@ -20,15 +20,6 @@
 	margin: 0;
 }
 
-.pricingcontainer {
-	display: flex;
-	flex-direction: column;
-	border: 2px solid var(--box-stroke);
-	border-bottom: 4px solid var(--box-stroke);
-	border-radius: 10px;
-	padding: 20px;
-}
-
 .text {
 	font-family: 'GTPlanar', sans-serif;
 	font-size: 19px;
@@ -152,9 +143,6 @@
 	.description {
 		flex-shrink: 1;
 		min-width: auto;
-	}
-	.pricingcontainer {
-		text-align: left;
 	}
 	.portion {
 		max-width: 500px;

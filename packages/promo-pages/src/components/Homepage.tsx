@@ -21,58 +21,62 @@ import {WriteInReact} from './homepage/WriteInReact';
 const NewLanding: React.FC = () => {
 	return (
 		<ColorModeProvider>
-			<div>
-				<BackgroundAnimation />
-				<br />
-				<br />
-				<br />
-				<br />
-				<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5">
-					<WriteInReact />
-					<br />
-					<IfYouKnowReact />
+			<div data-theme="light" className="bg-[var(--background)] relative">
+				<div>
+					<div>
+						<BackgroundAnimation />
+					</div>
 					<br />
 					<br />
 					<br />
 					<br />
-					<br />
-					<br />
-					<RealMP4Videos />
-					<br />
-					<br />
-					<br />
-					<br />
-					<LightningFastEditor />
-					<br />
-					<br />
-					<br />
-					<VideoAppsTitle />
-					<VideoApps active="remotion" />
-					<br />
-					<br />
-					<VideoAppsShowcase />
-					<br />
-					<br />
-					<Demo />
-					<br />
-					<br />
-					<br />
-					<PricingTitle />
-					<Pricing />
-					<TrustedByBanner />
-					<br />
-					<EvaluateRemotionSection />
-					<br />
-					<br />
-					<br />
-					<CommunityStats />
-					<br />
-					<br />
-					<br />
-					<NewsletterButton />
-					<br />
-					<br />
-					<br />
+					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 relative">
+						<WriteInReact />
+						<br />
+						<IfYouKnowReact />
+						<br />
+						<br />
+						<br />
+						<br />
+						<br />
+						<br />
+						<RealMP4Videos />
+						<br />
+						<br />
+						<br />
+						<br />
+						<LightningFastEditor />
+						<br />
+						<br />
+						<br />
+						<VideoAppsTitle />
+						<VideoApps active="remotion" />
+						<br />
+						<br />
+						<VideoAppsShowcase />
+						<br />
+						<br />
+						<Demo />
+						<br />
+						<br />
+						<br />
+						<PricingTitle />
+						<Pricing />
+						<TrustedByBanner />
+						<br />
+						<EvaluateRemotionSection />
+						<br />
+						<br />
+						<br />
+						<CommunityStats />
+						<br />
+						<br />
+						<br />
+						<NewsletterButton />
+						<br />
+						<br />
+						<br />
+					</div>
 				</div>
 			</div>
 		</ColorModeProvider>

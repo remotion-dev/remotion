@@ -3,6 +3,9 @@
 html {
 	font-family: sans-serif;
 }
+body {
+	margin: 0;
+}
 
 @keyframes click {
 	0% {
@@ -27,11 +30,9 @@ html {
 	--font-brand: 'GTPlanar', sans-serif;
 }
 
-@utility pricingtitle {
-	font-size: 2.5em;
-	font-weight: 700;
-	line-height: 1.1;
-	font-family: 'GTPlanar', sans-serif;
+@utility border-brand {
+	border: 2px solid var(--box-stroke);
+	border-bottom: 4px solid var(--box-stroke);
 }
 
 @import 'tailwindcss/theme' layer(theme);

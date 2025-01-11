@@ -1,11 +1,8 @@
 .panel {
-	background-color: var(--ifm-background-color);
+	background-color: var(--ifm-background-surface-color);
 	padding: 20px 20px;
 	border-radius: 15px;
 	flex: 1;
-	border: 2px solid var(--box-stroke);
-	border-bottom: 4px solid var(--box-stroke);
-	min-height: 250px;
 	display: flex;
 	flex-direction: column;
 }

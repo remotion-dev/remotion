@@ -13,12 +13,12 @@
 	--ifm-font-size-base: 16px;
 	--ifm-font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas,
 		'Liberation Mono', 'Courier New', monospace;
-	--ifm-pre-line-height:   
+	--ifm-pre-line-height:    
 ;
 }
 
 [data-theme='light'] {
-	--background: #fff;
+	--background: #f8fafc;
 	--footer-background: #fcfcfc;
 	--footer-border: #eaeaea;
 	--text-color: #000;

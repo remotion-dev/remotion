@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import styles from './realvideos.module.css';
 
 export const RealMP4Videos: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -25,21 +24,21 @@ export const RealMP4Videos: React.FC = () => {
 	}, [callback]);
 
 	return (
-		<div ref={ref} className={styles.realvideos}>
+		<div ref={ref} className={'flex flex-col lg:flex-row'}>
 			<div>
-				<h2 className={styles.realtitle}>
-					Real <span className={styles.realgradient}>.mp4</span> videos
+				<h2 className="text-4xl font-brand">
+					Real <span className={'text-brand'}>.mp4</span> videos
 				</h2>
-				<p>
+				<p className="leading-relaxed">
 					Remotion renders all frames to images and <br /> encodes them to a
 					real video - audio support included. <br /> WebM and other formats are
 					also supported.
 				</p>
 			</div>
-			<div className={styles.realmp4container}>
+			<div className="flex flex-1 justify-start lg:justify-end items-end">
 				<img
 					src="/img/mp4.png"
-					className={styles.icon}
+					className="mb-[30px] lg:mb-0"
 					style={{
 						width: 110,
 						animationPlayState: isIntersecting ? 'running' : 'paused',
