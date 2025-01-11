@@ -3,6 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {BlueButton} from './layout/Button';
 import {MuxVideo} from './MuxVideo';
 import styles from './VideoAppsShowcase.module.css';
+import {SectionTitle} from './VideoAppsTitle';
 
 const tabs = [
 	'Music visualization',
@@ -168,25 +169,29 @@ const VideoAppsShowcase: React.FC = () => {
 	};
 
 	return (
-		<div ref={containerRef} className={styles.container}>
-			<div className={styles.titleContainer}>
-				<h2 className={styles.title}>Use Cases</h2>
-			</div>
-			<div className={styles.tabs}>
+		<div ref={containerRef}>
+			<SectionTitle>Use Cases</SectionTitle>
+			<div className={'flex justify-center mb-4'}>
 				{tabs.map((tab, index) => (
 					<button
 						key={tab}
 						type="button"
-						className={`${styles.tab} ${index === activeTab ? styles.activeTab : ''}`}
+						data-active={index === activeTab}
+						className={`bg-transparent border-none mx-3 my-4 cursor-pointer text-base font-brand font-bold transition-colors text-muted data-[active=true]:text-brand`}
 						onClick={() => setActiveTab(index)}
 					>
 						{tab}
 					</button>
 				))}
 			</div>
-			<div className={styles.content}>
-				<div className={styles.videoWrapper}>
-					<div className={styles.videoContainer} onClick={handlePlayPause}>
+			<div className={'card flex p-0'}>
+				<div className={'flex-1 flex justify-center items-center'}>
+					<div
+						className={
+							'w-full max-w-[500px] aspect-square relative rounded-lg rounded-tr-none rounded-br-none overflow-hidden bg-[#eee]'
+						}
+						onClick={handlePlayPause}
+					>
 						<MuxVideo
 							ref={videoRef}
 							muxId={videoApps[activeTab].muxId}
@@ -223,15 +228,24 @@ const VideoAppsShowcase: React.FC = () => {
 					</div>
 				</div>
 				<div className={styles.textContent}>
-					<h1>{videoApps[activeTab].title}</h1>
-					<p>{videoApps[activeTab].description}</p>
-					<p>{videoApps[activeTab].additionalInfo}</p>
+					<div className="text-4xl font-bold font-brand">
+						{videoApps[activeTab].title}
+					</div>
+					<div className="text-muted mt-4 text-base font-brand">
+						{videoApps[activeTab].description}
+					</div>
+					{videoApps[activeTab].additionalInfo ? (
+						<div className="text-muted mt-4 text-base font-brand">
+							{videoApps[activeTab].additionalInfo}
+						</div>
+					) : null}
+					<div className="h-5" />
 					<a
 						target="_blank"
 						href={videoApps[activeTab].link}
 						style={{textDecoration: 'none'}}
 					>
-						<BlueButton loading={false} fullWidth={false} size="sm">
+						<BlueButton loading={false} size="sm">
 							{videoApps[activeTab].buttonText}
 						</BlueButton>
 					</a>
@@ -249,7 +263,11 @@ const VideoAppsShowcase: React.FC = () => {
 						fontFamily: 'GTPlanar',
 					}}
 				>
-					For more examples see our <a href="/showcase">showcase page</a>.
+					For more examples see our{' '}
+					<a href="/showcase" className="bluelink">
+						showcase page
+					</a>
+					.
 				</div>
 			</div>
 		</div>

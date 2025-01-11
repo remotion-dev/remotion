@@ -8,49 +8,42 @@ import {
 	PagesOfDocs,
 	TemplatesAndExamples,
 } from './CommunityStatsItems';
+import {SectionTitle} from './VideoAppsTitle';
+
+const SectionLink: React.FC<{
+	readonly href: string;
+	readonly children: React.ReactNode;
+}> = ({href, children}) => (
+	<a target="_blank" href={href} className={styles.statItemLink}>
+		{children}
+	</a>
+);
 
 const CommunityStats: React.FC = () => (
 	<div className={styles.container}>
-		<h2 className={styles.title}>Never build alone</h2>
-		<p className={styles.subtitle}>Join a thriving community of developers.</p>
+		<SectionTitle>Never build alone</SectionTitle>
+		<div className={'font-brand text-center mb-10'}>
+			Join a thriving community of developers.
+		</div>
 		<div className={styles.statsGrid}>
-			<a
-				target="_blank"
-				href="https://www.npmjs.com/package/remotion"
-				className={styles.statItemLink}
-			>
+			<SectionLink href="https://www.npmjs.com/package/remotion">
 				<InstallsPerMonth />
-			</a>
-			<a href="https://www.remotion.dev/docs/" className={styles.statItemLink}>
+			</SectionLink>
+			<SectionLink href="https://www.remotion.dev/docs/">
 				<PagesOfDocs />
-			</a>
-			<a
-				href="https://www.remotion.dev/templates"
-				className={styles.statItemLink}
-			>
+			</SectionLink>
+			<SectionLink href="https://www.remotion.dev/templates">
 				<TemplatesAndExamples />
-			</a>
-			<a
-				target="_blank"
-				href="https://github.com/remotion-dev/remotion"
-				className={styles.statItemLink}
-			>
+			</SectionLink>
+			<SectionLink href="https://github.com/remotion-dev/remotion">
 				<GitHubStars />
-			</a>
-			<a
-				target="_blank"
-				href="https://remotion.dev/discord"
-				className={styles.statItemLink}
-			>
+			</SectionLink>
+			<SectionLink href="https://remotion.dev/discord">
 				<DiscordMembers />
-			</a>
-			<a
-				target="_blank"
-				href="https://github.com/remotion-dev/remotion/graphs/contributors"
-				className={styles.statItemLink}
-			>
+			</SectionLink>
+			<SectionLink href="https://github.com/remotion-dev/remotion/graphs/contributors">
 				<Contributors />
-			</a>
+			</SectionLink>
 		</div>
 	</div>
 );

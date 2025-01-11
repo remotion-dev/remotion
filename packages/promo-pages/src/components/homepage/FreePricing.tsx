@@ -1,12 +1,11 @@
 import React from 'react';
 import {PricingBulletPoint} from './PricingBulletPoint';
-import styles from './pricing.module.css';
 
 const Container: React.FC<{readonly children: React.ReactNode}> = ({
 	children,
 }) => {
 	return (
-		<div className={'flex flex-col border-brand rounded-xl p-5'}>
+		<div className={'flex flex-col border-effect rounded-xl p-5 bg-pane'}>
 			{children}
 		</div>
 	);
@@ -45,6 +44,20 @@ const PriceTag: React.FC<{
 		<div
 			className={
 				'font-brand text-2xl font-bold min-w-[60px] w-auto text-right shrink-0 ml-4'
+			}
+		>
+			{children}
+		</div>
+	);
+};
+
+const SmallPriceTag: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return (
+		<div
+			className={
+				'font-brand text-2xl font-medium min-w-[60px] w-auto text-right shrink-0 ml-4'
 			}
 		>
 			{children}
@@ -161,28 +174,29 @@ export const CompanyPricing: React.FC = () => {
 				<InfoTooltip text="Credits for Mux.com. Applies only to new Mux customers." />
 			</PricingBulletPoint>
 			<div style={{height: 30}} />
-			<div className={styles.rowcontainer}>
+			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
-					<div className={styles.boldtext}>Developer Seats</div>
-					<div className={styles.description}>
+					<div className={'font-brand font-bold text-lg'}>Developer Seats</div>
+					<div className={'text-muted font-brand text-sm'}>
 						Number of developers working with Remotion
 					</div>
 				</div>
 				<div style={{flex: 3}} />
 				<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
-				<div style={{flex: 1}} />
-				<div className={styles.pricetag}>
+				<SmallPriceTag>
 					$
 					{new Intl.NumberFormat('en-US', {
 						maximumFractionDigits: 0,
 					}).format(SEAT_PRICE * devSeatCount)}
-				</div>
+				</SmallPriceTag>
 			</div>
 			<div style={{height: 14}} />
-			<div className={styles.rowcontainer}>
+			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
-					<div className={styles.boldtext}>Cloud Rendering Units</div>
-					<div className={styles.description}>
+					<div className={'font-brand font-bold text-lg'}>
+						Cloud Rendering Units
+					</div>
+					<div className={'text-muted font-brand text-sm'}>
 						Allows for {rendersPerMonth} self-hosted renders per month
 					</div>
 				</div>
@@ -192,16 +206,15 @@ export const CompanyPricing: React.FC = () => {
 					setCount={setCloudUnitCount}
 					minCount={0}
 				/>
-				<div style={{flex: 1}} />
-				<div className={styles.pricetag}>
+				<SmallPriceTag>
 					$
 					{new Intl.NumberFormat('en-US', {
 						maximumFractionDigits: 0,
 					}).format(RENDER_UNIT_PRICE * cloudUnitCount)}
-				</div>
+				</SmallPriceTag>
 			</div>
 			<div style={{height: 20}} />
-			<div className={styles.rowContainer} style={{justifyContent: 'flex-end'}}>
+			<div className={'flex flex-row justify-end'}>
 				<div style={{...textUnitWrapper, alignItems: 'flex-end'}}>
 					<PriceTag>{totalPriceString}/mo</PriceTag>
 					{totalPrice <= 100 ? (

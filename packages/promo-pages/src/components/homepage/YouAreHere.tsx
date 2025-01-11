@@ -18,7 +18,7 @@ const label: React.CSSProperties = {
 	borderRadius: 6,
 	fontSize: 13,
 	position: 'absolute',
-	marginTop: -40,
+	marginTop: -25,
 };
 
 export const YouAreHere: React.FC = () => {

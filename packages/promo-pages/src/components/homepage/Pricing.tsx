@@ -26,11 +26,19 @@ export const Pricing: React.FC = () => {
 					}}
 				>
 					See our{' '}
-					<a target="_blank" href="https://remotion.pro/faq">
+					<a
+						target="_blank"
+						className="bluelink"
+						href="https://remotion.pro/faq"
+					>
 						FAQ
 					</a>{' '}
 					and{' '}
-					<a target="_blank" href="https://www.remotion.pro/terms">
+					<a
+						target="_blank"
+						className="bluelink"
+						href="https://www.remotion.pro/terms"
+					>
 						Terms and Conditions
 					</a>{' '}
 					for more details.

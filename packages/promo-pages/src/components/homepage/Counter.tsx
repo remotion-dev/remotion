@@ -1,6 +1,6 @@
 import type {ChangeEvent} from 'react';
 import React from 'react';
-import styles from './pricing.module.css';
+import {cn} from '../../cn';
 
 const Triangle: React.FC<{
 	readonly rotated: boolean;
@@ -26,7 +26,6 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	justifyContent: 'flex-end',
 	alignItems: 'center',
-	border: '1px solid #EAEAEA',
 	borderRadius: 4,
 	height: 42,
 	overflow: 'hidden',
@@ -67,9 +66,16 @@ export const Counter: React.FC<CounterProps> = ({
 	};
 
 	return (
-		<div style={container} className={styles.countercontainer}>
+		<div
+			style={container}
+			className={cn(
+				'border-2 has-[:focus]:border-brand border-solid w-[110px]',
+			)}
+		>
 			<input
-				className={styles.counterinput}
+				className={
+					'font-brand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0'
+				}
 				type="number"
 				value={count}
 				onChange={(e: ChangeEvent<HTMLInputElement>) => {

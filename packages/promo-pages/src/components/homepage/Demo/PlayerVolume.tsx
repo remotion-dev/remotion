@@ -2,7 +2,6 @@ import type {CallbackListener, PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {PALETTE} from '../layout/colors';
 import {IsMutedIcon, NotMutedIcon} from './icons';
-import styles from './player.module.css';
 
 export const PlayerVolume: React.FC<{
 	readonly playerRef: React.RefObject<PlayerRef | null>;
@@ -55,7 +54,7 @@ export const PlayerVolume: React.FC<{
 
 	return (
 		<div
-			className={styles['volume-button']}
+			className={'relative cursor-pointer block pl-4 pr-4 h-full'}
 			onMouseEnter={() => setIsHovered(true)}
 		>
 			<button

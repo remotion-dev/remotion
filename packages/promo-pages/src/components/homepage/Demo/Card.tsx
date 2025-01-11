@@ -8,7 +8,6 @@ import {
 	getPositionForIndex,
 	type Position,
 } from './math';
-import styles from './player-styles.module.css';
 import {Switcher} from './Switcher';
 
 const arePositionsEqual = (a: Position[], b: Position[]) => {
@@ -83,8 +82,8 @@ export const Card: React.FC<{
 				const finishAnimation = () => {
 					refsToUse.forEach((r) => {
 						r.current.style.zIndex = '1';
-						r.current.classList.remove(styles.active);
-						r.current.classList.remove(styles.passive);
+						r.current.style.scale = '1';
+						r.current.style.opacity = '1';
 					});
 					if (i === 0) {
 						setTimeout(() => {
@@ -157,13 +156,13 @@ export const Card: React.FC<{
 
 			let translateX = 0;
 			let translateY = 0;
-			refToUse.current.classList.add(styles.active);
+			refToUse.current.style.scale = '1.05';
 			refToUse.current.style.cursor = 'grabbing';
 
 			const onMove = (evt: PointerEvent) => {
 				refsToUse.forEach((r) => {
 					if (r !== refToUse) {
-						r.current.classList.add(styles.passive);
+						r.current.style.opacity = '0';
 					}
 				});
 				const scale =
@@ -239,7 +238,7 @@ export const Card: React.FC<{
 	return (
 		<div
 			ref={refToUse}
-			className={styles.card}
+			className={'transition-opacity duration-200'}
 			onPointerDown={onPointerDown}
 			onPointerUp={onPointerUp}
 			style={{
@@ -259,7 +258,7 @@ export const Card: React.FC<{
 					backgroundColor: color,
 					borderRadius: 12,
 				}}
-				className={styles.content}
+				className={'transition-opacity duration-200'}
 			>
 				{content}
 				{withSwitcher ? (

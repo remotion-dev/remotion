@@ -13,20 +13,12 @@ export const VideoAppsTitle: React.FC = () => {
 	);
 };
 
-export const PricingTitle: React.FC = () => {
+export const SectionTitle: React.FC<{readonly children: React.ReactNode}> = ({
+	children,
+}) => {
 	return (
 		<div className={'text-center'}>
-			<h2 className={'font-brand text-4xl'}>Pricing</h2>
-			<br />
-		</div>
-	);
-};
-
-export const DemoTitle: React.FC = () => {
-	return (
-		<div className={'text-center'}>
-			<h2 className={'font-brand text-4xl'}>Demo</h2>
-			<br />
+			<h2 className={'font-brand text-4xl'}>{children}</h2>
 		</div>
 	);
 };

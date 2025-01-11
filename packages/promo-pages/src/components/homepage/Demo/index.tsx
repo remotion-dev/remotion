@@ -11,7 +11,7 @@ import React, {
 
 import {PALETTE} from '../layout/colors';
 import {useColorMode} from '../layout/use-color-mode';
-import {DemoTitle} from '../VideoAppsTitle';
+import {SectionTitle} from '../VideoAppsTitle';
 import {
 	getDataAndProps,
 	HomepageVideoComp,
@@ -112,7 +112,7 @@ export const Demo: React.FC = () => {
 		<div>
 			<br />
 			<br />
-			<DemoTitle />
+			<SectionTitle>Demo</SectionTitle>
 			<div style={{height: 140, position: 'relative'}}>
 				<DragAndDropNudge />
 				<ThemeNudge />

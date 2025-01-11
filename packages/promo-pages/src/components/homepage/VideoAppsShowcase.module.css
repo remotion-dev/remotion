@@ -3,24 +3,6 @@
 	margin: 0 auto;
 }
 
-.tabs {
-	display: flex;
-	justify-content: center;
-	margin-bottom: 1rem;
-}
-
-.tab {
-	background: none;
-	border: none;
-	margin: 10px 15px; /* Adjust these values as needed */
-	cursor: pointer;
-	font-size: 16px; /* Default font size */
-	font-weight: bold;
-	transition: color 0.3s ease;
-	color: #888; /* Light gray for inactive tabs */
-	font-family: 'GTPlanar';
-}
-
 @media (max-width: 900px) {
 	.tab {
 		font-size: 14px; /* Smaller font size for screens less than 600px wide */
@@ -46,25 +28,6 @@
 	border-bottom: 4px solid;
 	border-radius: 16px; /* Rounded corners */
 	overflow: hidden; /* Ensure content doesn't overflow rounded corners */
-}
-
-.videoWrapper {
-	flex: 1;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.videoContainer {
-	width: 100%;
-	max-width: 500px;
-	aspect-ratio: 1 / 1;
-	position: relative;
-	border-radius: 8px;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-	overflow: hidden;
-	background-color: rgba(104, 104, 104, 0.171);
 }
 
 .video {

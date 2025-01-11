@@ -25,14 +25,42 @@ body {
 	}
 }
 
+@keyframes jump {
+	from {
+		transform: scale(0);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@layer base {
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
+
 @theme {
 	--color-brand: #0b84f3;
 	--font-brand: 'GTPlanar', sans-serif;
+	--color-pane: var(--ifm-background-surface-color);
+	--color-muted: var(--subtitle);
 }
 
-@utility border-brand {
+@utility border-effect {
 	border: 2px solid var(--box-stroke);
 	border-bottom: 4px solid var(--box-stroke);
+	border-radius: var(--radius-lg);
+}
+
+@utility bluelink {
+	@apply text-brand no-underline hover:underline underline-offset-2;
+}
+
+@utility card {
+	@apply border-effect bg-pane p-5;
 }
 
 @import 'tailwindcss/theme' layer(theme);

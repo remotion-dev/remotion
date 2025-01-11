@@ -1,7 +1,6 @@
 import type {PlayerRef} from '@remotion/player';
 import React from 'react';
 import {PALETTE} from '../layout/colors';
-import styles from './player.module.css';
 import {PlayerSeekBar} from './PlayerSeekBar';
 import {PlayerVolume} from './PlayerVolume';
 import {PlayPauseButton} from './PlayPauseButton';
@@ -25,7 +24,7 @@ export const PlayerControls: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({playerRef, durationInFrames, fps, children}) => {
 	return (
-		<div className={styles['controls-wrapper']}>
+		<div className={'flex flex-row items-center bg-pane'}>
 			<PlayPauseButton playerRef={playerRef} />
 			<Separator />
 			<PlayerVolume playerRef={playerRef} />

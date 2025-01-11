@@ -1,6 +1,5 @@
 import React from 'react';
 import {FONTS, PALETTE} from '../layout/colors';
-import styles from './nudge.module.css';
 
 const origWidth = 37;
 const scale = 0.4;
@@ -36,7 +35,7 @@ export const DragAndDropNudge: React.FC = () => {
 				paddingBottom: 5,
 				marginTop: 50,
 			}}
-			className={styles.nudge}
+			className={'ml-4 lg:-ml-5'}
 		>
 			<div>
 				<div
@@ -47,7 +46,7 @@ export const DragAndDropNudge: React.FC = () => {
 						paddingBottom: 8,
 						textWrap: 'balance',
 					}}
-					className={styles.nudgetext}
+					className={'-ml-3 lg:-ml-5'}
 				>
 					Drag and drop the cards to reorder them.
 				</div>

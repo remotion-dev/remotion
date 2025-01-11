@@ -2,7 +2,6 @@
 // with specified alignment and positioning requirements.
 
 import React, {useEffect, useState} from 'react';
-import styles from './EvaluateRemotionSection.module.css';
 import {BlueButton} from './layout/Button';
 
 const EvaluateRemotionSection: React.FC = () => {
@@ -40,16 +39,16 @@ const EvaluateRemotionSection: React.FC = () => {
 	}, []);
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.card}>
-				<div className={styles.contentWrapper}>
-					<h3 className={styles.title}>Evaluate Remotion for your company</h3>
-					<p className={styles.description}>
-						Book a 20 minute call with us to get all your questions answered.
-					</p>
+		<div className="flex flex-col lg:flex-row gap-2">
+			<div className={'card flex-1 flex flex-col'}>
+				<div className={'font-brand text-2xl font-bold'}>
+					Evaluate Remotion for your company
 				</div>
+				<p className={'text-muted font-brand leading-snug'}>
+					Book a 20 minute call with us to get all your questions answered.
+				</p>
+				<div className="flex-1" />
 				<a
-					className={styles.aknow}
 					target="_blank"
 					href="https://cal.com/remotion/evaluate"
 					style={{textDecoration: 'none'}}
@@ -59,28 +58,27 @@ const EvaluateRemotionSection: React.FC = () => {
 					</BlueButton>
 				</a>
 			</div>
-			<div className={styles.card}>
-				<div className={styles.contentWrapper}>
-					<h3 className={styles.title}>Get help for your projects</h3>
-					<p className={styles.description}>
-						Contact our experts for help and work.
-					</p>
+			<div className={'card flex-1 flex flex-col'}>
+				<div className={'font-brand text-2xl font-bold'}>
+					Get help for your projects
 				</div>
-				<div className={styles.expertsSection}>
-					<a
-						className={styles.aknow}
-						href="/experts"
-						style={{textDecoration: 'none'}}
-					>
+				<p className={'text-muted font-brand leading-snug'}>
+					Contact our experts for help and work.
+				</p>
+				<div className="flex-1" />
+				<div className={'flex flex-row justify-between'}>
+					<a href="/experts" style={{textDecoration: 'none'}}>
 						<BlueButton size="sm" loading={false}>
 							Remotion Experts
 						</BlueButton>
 					</a>
-					<div className={styles.avatars}>
+					<div className={'flex justify-end items-end gap-3'}>
 						{dailyAvatars.map((avatar) => (
 							<div
 								key={avatar}
-								className={styles.avatar}
+								className={
+									'w-12 h-12 rounded-full bg-muted bg-cover bg-center -ml-5 border-2 border-black'
+								}
 								style={{backgroundImage: `url(${avatar})`}}
 							/>
 						))}

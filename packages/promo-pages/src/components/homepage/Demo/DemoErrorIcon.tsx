@@ -1,6 +1,5 @@
 import React from 'react';
 import {RED} from '../layout/colors';
-import styles from './done.module.css';
 
 export const DemoErrorIcon: React.FC = () => {
 	return (
@@ -12,8 +11,8 @@ export const DemoErrorIcon: React.FC = () => {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
+				animation: 'jump 0.2s ease-out',
 			}}
-			className={styles.jump}
 		>
 			<svg
 				style={{

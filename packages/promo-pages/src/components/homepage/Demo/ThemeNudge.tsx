@@ -60,7 +60,7 @@ export const ThemeNudge: React.FC = () => {
 						marginTop: 5,
 					}}
 				>
-					<a href="#" onClick={toggleTheme}>
+					<a href="#" onClick={toggleTheme} className="bluelink">
 						Switch to {colorMode === 'dark' ? 'light' : 'dark'} mode
 					</a>{' '}
 					and see the video adjust!{' '}

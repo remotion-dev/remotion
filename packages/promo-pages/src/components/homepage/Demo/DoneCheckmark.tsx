@@ -1,6 +1,5 @@
 import React from 'react';
 import {PALETTE} from '../layout/colors';
-import styles from './done.module.css';
 
 export const DoneCheckmark: React.FC = () => {
 	return (
@@ -13,8 +12,8 @@ export const DoneCheckmark: React.FC = () => {
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
+				animation: 'jump 0.2s ease-out',
 			}}
-			className={styles.jump}
 		>
 			<svg
 				viewBox="0 0 20 20"

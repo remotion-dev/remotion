@@ -15,7 +15,7 @@ import {RealMP4Videos} from './homepage/RealMp4Videos';
 import TrustedByBanner from './homepage/TrustedByBanner';
 import {VideoApps} from './homepage/VideoApps';
 import VideoAppsShowcase from './homepage/VideoAppsShowcase';
-import {PricingTitle, VideoAppsTitle} from './homepage/VideoAppsTitle';
+import {SectionTitle, VideoAppsTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
 const NewLanding: React.FC = () => {
@@ -60,7 +60,7 @@ const NewLanding: React.FC = () => {
 						<br />
 						<br />
 						<br />
-						<PricingTitle />
+						<SectionTitle>Pricing</SectionTitle>
 						<Pricing />
 						<TrustedByBanner />
 						<br />
