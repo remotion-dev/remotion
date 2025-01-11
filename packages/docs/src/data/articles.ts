@@ -1476,6 +1476,15 @@ export const articles = [
 		slug: 'lambda/autodelete',
 	},
 	{
+		id: 'expresswebhook',
+		title: 'expressWebhook()',
+		relativePath: 'docs/lambda/expresswebhook.mdx',
+		compId: 'articles-docs-lambda-expresswebhook',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/expresswebhook',
+	},
+	{
 		id: 'lambda/bucket-naming',
 		title: 'Bucket names in Remotion Lambda',
 		relativePath: 'docs/lambda/bucket-naming.mdx',

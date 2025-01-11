@@ -253,6 +253,7 @@ module.exports = {
 				'lambda/validatewebhooksignature',
 				'lambda/approuterwebhook',
 				'lambda/pagesrouterwebhook',
+				'lambda/expresswebhook'
 			],
 		},
 		{
