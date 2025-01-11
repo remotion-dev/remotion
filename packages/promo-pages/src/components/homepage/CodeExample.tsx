@@ -1,3 +1,5 @@
+'use client';
+
 import {Player} from '@remotion/player';
 import React, {useState} from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';

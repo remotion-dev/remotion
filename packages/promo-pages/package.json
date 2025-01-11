@@ -1,0 +1,38 @@
+{
+	"name": "@remotion/promo-pages",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"next": "15.1.4",
+		"create-video": "workspace:*",
+		"remotion": "workspace:*",
+		"@remotion/animated-emoji": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/lambda": "workspace:*",
+		"@remotion/lottie": "workspace:*",
+		"hls.js": "^0.14.17",
+		"polished": "4.3.1",
+		"@remotion/paths": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"zod": "3.22.3"
+	},
+	"devDependencies": {
+		"@types/hls.js": "^0.13.3",
+		"@types/react": "19.0.0",
+		"@types/react-dom": "19.0.0",
+		"postcss": "8.4.47",
+		"plyr": "^3.7.3",
+		"tailwindcss": "3.4.13",
+		"eslint": "9.14.0",
+		"eslint-config-next": "15.0.4",
+		"@eslint/eslintrc": "3.1.0"
+	}
+}

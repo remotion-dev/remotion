@@ -1,24 +1,23 @@
+'use client';
+
 import React from 'react';
-import {BackgroundAnimation} from '~/components/homepage/BackgroundAnimation';
-import CommunityStats from '~/components/homepage/CommunityStats';
-import {Demo} from '~/components/homepage/Demo';
-import {LightningFastEditor} from '~/components/homepage/Editor';
-import EvaluateRemotionSection from '~/components/homepage/EvaluateRemotion';
-import {IfYouKnowReact} from '~/components/homepage/IfYouKnowReact';
-import {ColorModeProvider} from '~/components/homepage/layout/use-color-mode';
-import {NewsletterButton} from '~/components/homepage/NewsletterButton';
-import {Pricing} from '~/components/homepage/Pricing';
-import {RealMP4Videos} from '~/components/homepage/RealMp4Videos';
-import TrustedByBanner from '~/components/homepage/TrustedByBanner';
-import {VideoApps} from '~/components/homepage/VideoApps';
-import VideoAppsShowcase from '~/components/homepage/VideoAppsShowcase';
-import {
-	PricingTitle,
-	VideoAppsTitle,
-} from '~/components/homepage/VideoAppsTitle';
-import {WriteInReact} from '~/components/homepage/WriteInReact';
-import '../components/homepage/custom.css';
-import styles from '../components/landing.module.css';
+import {BackgroundAnimation} from './BackgroundAnimation';
+import CommunityStats from './CommunityStats';
+import './custom.css';
+import {Demo} from './Demo';
+import {LightningFastEditor} from './Editor';
+import EvaluateRemotionSection from './EvaluateRemotion';
+import {IfYouKnowReact} from './IfYouKnowReact';
+import styles from './landing.module.css';
+import {ColorModeProvider} from './layout/use-color-mode';
+import {NewsletterButton} from './NewsletterButton';
+import {Pricing} from './Pricing';
+import {RealMP4Videos} from './RealMp4Videos';
+import TrustedByBanner from './TrustedByBanner';
+import {VideoApps} from './VideoApps';
+import VideoAppsShowcase from './VideoAppsShowcase';
+import {PricingTitle, VideoAppsTitle} from './VideoAppsTitle';
+import {WriteInReact} from './WriteInReact';
 
 if (
 	typeof window !== 'undefined' &&

@@ -1,3 +1,5 @@
+'use client';
+
 import {getLength} from '@remotion/paths';
 import React, {useEffect} from 'react';
 import styles from './bg-anim.module.css';

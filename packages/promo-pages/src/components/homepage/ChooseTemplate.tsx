@@ -1,7 +1,7 @@
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 
-import {Link} from '@remix-run/react';
+import Link from 'next/link';
 import {IconForTemplate} from './IconForTemplate';
 import {MoreTemplatesButton} from './MoreTemplatesButton';
 import {TemplateIcon} from './TemplateIcon';
@@ -42,7 +42,7 @@ export const ChooseTemplate: React.FC = () => {
 							<Link
 								key={template.cliId}
 								style={{textDecoration: 'none'}}
-								to={`/templates/${template.cliId}`}
+								href={`/templates/${template.cliId}`}
 							>
 								<TemplateIcon label={template.featuredOnHomePage!}>
 									<IconForTemplate scale={0.7} template={template} />

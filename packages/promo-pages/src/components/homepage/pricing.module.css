@@ -25,8 +25,8 @@
 }
 
 /* removes up and down arrows from input field */
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
+.counterinput::-webkit-inner-spin-button,
+.counterinput::-webkit-outer-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }

@@ -1,4 +1,4 @@
-import {Link} from '@remix-run/react';
+import Link from 'next/link';
 import React from 'react';
 import {useMobileLayout} from './layout/use-mobile-layout';
 
@@ -38,7 +38,7 @@ export const MoreTemplatesButton: React.FC = () => {
 	const mobileLayout = useMobileLayout();
 
 	return (
-		<Link to="/templates" style={linkStyle}>
+		<Link href="/templates" style={linkStyle}>
 			<div style={rightStyle}>
 				{mobileLayout ? 'Templates' : 'Find a template'}
 				<svg
