@@ -11,6 +11,10 @@
 		Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica,
 		Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 	--ifm-font-size-base: 16px;
+	--ifm-font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas,
+		'Liberation Mono', 'Courier New', monospace;
+	--ifm-pre-line-height:  
+;
 }
 
 [data-theme='light'] {
@@ -29,6 +33,8 @@
 	--box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 	--ifm-out-of-focus: #eaeaea;
 	--box-stroke: #000;
+	--ifm-background-surface-color: #fff;
+	--ifm-color-emphasis-200: #ebedf0;
 }
 [data-theme='dark'] {
 	--background: #18191a;
@@ -46,4 +52,6 @@
 	--box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
 	--ifm-out-of-focus: #505050;
 	--box-stroke: gray;
+	--ifm-background-surface-color: #242526;
+	--ifm-color-emphasis-200: #444950;
 }
