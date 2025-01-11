@@ -1,3 +1,6 @@
+import '@remotion/promo-pages/dist/Homepage.css';
+import Homepage from '@remotion/promo-pages/dist/Homepage.js';
+import '@remotion/promo-pages/dist/tailwind.css';
 import Layout from '@theme/Layout';
 import React from 'react';
 
@@ -11,7 +14,7 @@ if (
 const NewLanding: React.FC = () => {
 	return (
 		<Layout>
-			<div>homepage is developed in packages/convert/app/_index.tsx</div>
+			<Homepage />
 		</Layout>
 	);
 };

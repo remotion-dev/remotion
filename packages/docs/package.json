@@ -39,6 +39,7 @@
 		"@remotion/cli": "workspace:*",
 		"@remotion/docusaurus-plugin": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
+		"@remotion/promo-pages": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",

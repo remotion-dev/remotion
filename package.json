@@ -30,7 +30,7 @@
 		}
 	},
 	"devDependencies": {
-		"@types/bun": "1.1.10",
+		"@types/bun": "1.1.16",
 		"@types/deno": "2.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",

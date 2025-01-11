@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import React from 'react';
 import {useMobileLayout} from './layout/use-mobile-layout';
 
@@ -38,7 +37,7 @@ export const MoreTemplatesButton: React.FC = () => {
 	const mobileLayout = useMobileLayout();
 
 	return (
-		<Link href="/templates" style={linkStyle}>
+		<a href="/templates" style={linkStyle}>
 			<div style={rightStyle}>
 				{mobileLayout ? 'Templates' : 'Find a template'}
 				<svg
@@ -52,6 +51,6 @@ export const MoreTemplatesButton: React.FC = () => {
 					/>
 				</svg>
 			</div>
-		</Link>
+		</a>
 	);
 };

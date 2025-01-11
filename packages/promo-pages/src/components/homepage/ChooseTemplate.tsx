@@ -1,7 +1,6 @@
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 
-import Link from 'next/link';
 import {IconForTemplate} from './IconForTemplate';
 import {MoreTemplatesButton} from './MoreTemplatesButton';
 import {TemplateIcon} from './TemplateIcon';
@@ -39,7 +38,7 @@ export const ChooseTemplate: React.FC = () => {
 						(f) => f.featuredOnHomePage,
 					).map((template) => {
 						return (
-							<Link
+							<a
 								key={template.cliId}
 								style={{textDecoration: 'none'}}
 								href={`/templates/${template.cliId}`}
@@ -47,7 +46,7 @@ export const ChooseTemplate: React.FC = () => {
 								<TemplateIcon label={template.featuredOnHomePage!}>
 									<IconForTemplate scale={0.7} template={template} />
 								</TemplateIcon>
-							</Link>
+							</a>
 						);
 					})}
 					<MoreTemplatesButton />
