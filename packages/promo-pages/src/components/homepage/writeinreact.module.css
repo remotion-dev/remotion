@@ -1,9 +1,0 @@
-.text {
-	text-shadow: 0 5px 30px var(--background);
-}
-
-@media screen and (max-width: 900px) {
-	.writeincss {
-		flex-direction: column;
-	}
-}

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './CommunityStats.module.css';
+import {cn} from '../../cn';
 
 // StatItemContent component
 const StatItemContent: React.FC<{
@@ -39,12 +39,25 @@ const StatItemContent: React.FC<{
 	</div>
 );
 
-export const InstallsPerMonth: React.FC = () => {
+const Pill: React.FC<{
+	readonly children: React.ReactNode;
+	readonly className?: string;
+}> = ({children, className}) => {
 	return (
 		<div
-			className={styles.statItem}
-			style={{width: '30%', flexDirection: 'column'}}
+			className={cn(
+				className,
+				'card leading-none flex flex-wrap justify-center items-center min-w-[200px] min-h-[80px] max-h-[110px] flex-1 p-0',
+			)}
 		>
+			{children}
+		</div>
+	);
+};
+
+export const InstallsPerMonth: React.FC = () => {
+	return (
+		<Pill className={'w-[30%] flex-col'}>
 			<div
 				style={{
 					display: 'flex',
@@ -82,16 +95,13 @@ export const InstallsPerMonth: React.FC = () => {
 				fontSize="1.0rem"
 				fontWeight="bold"
 			/>
-		</div>
+		</Pill>
 	);
 };
 
 export const PagesOfDocs: React.FC = () => {
 	return (
-		<div
-			className={styles.statItem}
-			style={{width: '30%', flexDirection: 'column'}}
-		>
+		<Pill className="flex-col">
 			<div style={{display: 'flex', alignItems: 'center'}}>
 				<StatItemContent
 					content={
@@ -124,19 +134,12 @@ export const PagesOfDocs: React.FC = () => {
 				fontSize="1.0rem"
 				fontWeight="bold"
 			/>
-		</div>
+		</Pill>
 	);
 };
 
 export const TemplatesAndExamples: React.FC = () => (
-	<div
-		className={styles.statItem}
-		style={{
-			width: '30%',
-			display: 'flex',
-			alignItems: 'center',
-		}}
-	>
+	<Pill className="w-[30%] flex items-center">
 		<StatItemContent
 			content="35"
 			width="60px"
@@ -149,15 +152,12 @@ export const TemplatesAndExamples: React.FC = () => (
 			fontSize="1.35rem"
 			fontWeight="bold"
 		/>
-	</div>
+	</Pill>
 );
 
 export const GitHubStars: React.FC = () => {
 	return (
-		<div
-			className={styles.statItem}
-			style={{width: '30%', flexDirection: 'column'}}
-		>
+		<Pill className="w-[30%] flex-col">
 			<div style={{display: 'flex', alignItems: 'center'}}>
 				<StatItemContent
 					content={
@@ -189,13 +189,13 @@ export const GitHubStars: React.FC = () => {
 				fontSize="1.0rem"
 				fontWeight="bold"
 			/>
-		</div>
+		</Pill>
 	);
 };
 
 export const DiscordMembers: React.FC = () => {
 	return (
-		<div className={styles.statItem} style={{width: '30%'}}>
+		<Pill className={'w-[30%]'}>
 			<div
 				style={{
 					width: '80%',
@@ -250,21 +250,13 @@ export const DiscordMembers: React.FC = () => {
 					/>
 				</div>
 			</div>
-		</div>
+		</Pill>
 	);
 };
 
 export const Contributors: React.FC = () => {
 	return (
-		<div
-			className={styles.statItem}
-			style={{
-				width: '30%',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-			}}
-		>
+		<Pill className="w-[30%]">
 			<div style={{display: 'flex', justifyContent: 'center'}}>
 				<div style={{display: 'flex', justifyContent: 'center'}}>
 					<StatItemContent
@@ -307,6 +299,6 @@ export const Contributors: React.FC = () => {
 					/>
 				</div>
 			</div>
-		</div>
+		</Pill>
 	);
 };

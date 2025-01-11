@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './CommunityStats.module.css';
 import {
 	Contributors,
 	DiscordMembers,
@@ -14,18 +13,22 @@ const SectionLink: React.FC<{
 	readonly href: string;
 	readonly children: React.ReactNode;
 }> = ({href, children}) => (
-	<a target="_blank" href={href} className={styles.statItemLink}>
+	<a
+		target="_blank"
+		href={href}
+		className={'no-underline text-inherit contents'}
+	>
 		{children}
 	</a>
 );
 
 const CommunityStats: React.FC = () => (
-	<div className={styles.container}>
+	<div className={'m-auto max-w-[700px] text-center'}>
 		<SectionTitle>Never build alone</SectionTitle>
 		<div className={'font-brand text-center mb-10'}>
 			Join a thriving community of developers.
 		</div>
-		<div className={styles.statsGrid}>
+		<div className={'flex flex-wrap justify-between gap-4 w-full items-center'}>
 			<SectionLink href="https://www.npmjs.com/package/remotion">
 				<InstallsPerMonth />
 			</SectionLink>
