@@ -1,11 +1,11 @@
 import {opacify} from 'polished';
 import type {ButtonHTMLAttributes, DetailedHTMLProps} from 'react';
 import React from 'react';
+import {cn} from '../../../cn';
 import {RED, UNDERLAY_RED} from './colors';
 
 type ExtraProps = {
 	readonly size: Size;
-	readonly fullWidth: boolean;
 	readonly background: string;
 	readonly hoverColor?: string;
 	readonly color: string;
@@ -27,14 +27,17 @@ type PrestyledProps = DetailedHTMLProps<
 	MandatoryProps;
 
 export const Button: React.FC<Props> = (props) => {
-	const {children, loading, hoverColor, fullWidth, color, size, ...other} =
+	const {children, loading, hoverColor, color, size, className, ...other} =
 		props;
 	const actualDisabled = other.disabled || loading;
 
 	return (
 		<button
 			type="button"
-			className="rounded font-bold appearance-none border-2 border-solid border-black border-b-4 font-sans flex flex-row items-center justify-center "
+			className={cn(
+				'text-base rounded-lg font-bold appearance-none border-2 border-solid border-black border-b-4 font-sans flex flex-row items-center justify-center ',
+				className,
+			)}
 			disabled={actualDisabled}
 			{...other}
 			style={{
@@ -45,7 +48,6 @@ export const Button: React.FC<Props> = (props) => {
 				color: props.color,
 				cursor: props.disabled ? 'default' : 'pointer',
 				backgroundColor: props.background,
-				...(props.fullWidth ? {width: '100%'} : {}),
 				opacity: props.disabled ? 0.7 : 1,
 			}}
 		>

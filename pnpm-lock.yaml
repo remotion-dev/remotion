@@ -1705,6 +1705,9 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.5.0
         version: 3.7.2(vite@5.4.9)
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       eslint:
         specifier: 9.14.0
         version: 9.14.0
@@ -1717,6 +1720,9 @@ importers:
       postcss:
         specifier: 8.4.47
         version: 8.4.47
+      tailwind-merge:
+        specifier: 2.5.2
+        version: 2.5.2
       tailwindcss:
         specifier: 4.0.0-beta.9
         version: 4.0.0-beta.9
@@ -17561,7 +17567,6 @@ packages:
   /clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
-    dev: false
 
   /code-block-writer@10.1.1:
     resolution: {integrity: sha512-67ueh2IRGst/51p0n6FvPrnRjAGHY5F8xdjkgrYE7DDzpJe6qA07RYQ9VcoUeo5ATOjSOiWpSL3SWBRRbempMw==}
@@ -18813,6 +18818,7 @@ packages:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.2.1
+    dev: true
 
   /entities@2.2.0:
     resolution: {integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==}
@@ -29091,7 +29097,6 @@ packages:
 
   /tailwind-merge@2.5.2:
     resolution: {integrity: sha512-kjEBm+pvD+6eAwzJL2Bi+02/9LFLal1Gs61+QB7HvTfQQ0aXwC5LGT8PEt1gS0CWKktKe6ysPTAy3cBC5MeiIg==}
-    dev: false
 
   /tailwindcss-animate@1.0.7(tailwindcss@3.4.13):
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
@@ -30953,7 +30958,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -30991,7 +30996,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -31030,7 +31035,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0

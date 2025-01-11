@@ -1,11 +1,30 @@
 @layer theme, base, components, utilities;
-@import 'tailwindcss/theme' layer(theme);
-@import 'tailwindcss/utilities' layer(utilities);
+
+html {
+	font-family: sans-serif;
+}
+
+@keyframes click {
+	0% {
+		transform: translateY(-18px);
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0.7;
+	}
+	70% {
+		opacity: 0.7;
+	}
+	100% {
+		transform: translateY(-23px);
+		opacity: 0;
+	}
+}
 
 @theme {
 	--color-brand: #0b84f3;
-	--font-brand: 'GTPlanar', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-		Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--font-brand: 'GTPlanar', sans-serif;
 }
 
 @utility pricingtitle {
@@ -14,3 +33,7 @@
 	line-height: 1.1;
 	font-family: 'GTPlanar', sans-serif;
 }
+
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+@import './fonts.css';
