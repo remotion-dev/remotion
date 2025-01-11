@@ -2,20 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/gt-planar-bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/gt-planar-medium.woff2') format('woff2');
+	font-weight: 500;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/gt-planar-regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	letter-spacing: -0.025em;
+	word-spacing: -0.025em;
+	font-family: 'GTPlanar';
+	font-feature-settings: 'ss03' on;
 }

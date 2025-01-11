@@ -1705,6 +1705,9 @@ importers:
       tailwindcss:
         specifier: 3.4.13
         version: 3.4.13
+      tailwindcss-scoped-preflight:
+        specifier: 3.4.10
+        version: 3.4.10(postcss@8.4.47)(tailwindcss@3.4.13)
 
   packages/renderer:
     dependencies:
@@ -28818,6 +28821,16 @@ packages:
     dependencies:
       tailwindcss: 3.4.13
     dev: false
+
+  /tailwindcss-scoped-preflight@3.4.10(postcss@8.4.47)(tailwindcss@3.4.13):
+    resolution: {integrity: sha512-eYG6wGrcaA2nu+iUSUB1kLR+kyq99mYD6PQaFo5Yp287KHm2uN8FBi37k56f8jeblCbDXe1HeeFnLSCSRTko4Q==}
+    peerDependencies:
+      postcss: ^8
+      tailwindcss: ^3
+    dependencies:
+      postcss: 8.4.47
+      tailwindcss: 3.4.13
+    dev: true
 
   /tailwindcss@3.4.13:
     resolution: {integrity: sha512-KqjHOJKogOUt5Bs752ykCeiwvi0fKVkr5oqsFNt/8px/tA8scFPIlkygsf6jXrfCqGHz7VflA6+yytWuM+XhFw==}
