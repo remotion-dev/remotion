@@ -3,7 +3,7 @@ import {NoReactInternals} from 'remotion/no-react';
 
 const nodeVersion =
 	await $`node -e "console.log(typeof structuredClone)"`.text();
-if (nodeVersion === 'undefined') {
+if (nodeVersion.trim() === 'undefined') {
 	if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
 		throw new Error(
 			'Error: You are using Node.js without structuredClone. Please upgrade to Node.js 17 or newer.',
