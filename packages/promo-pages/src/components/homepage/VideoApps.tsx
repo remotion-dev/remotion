@@ -1,27 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {BlueButton} from './layout/Button';
-import {PALETTE} from './layout/colors';
 import {useColorMode} from './layout/use-color-mode';
 import {Spacer} from './Spacer';
 import {YouAreHere} from './YouAreHere';
-
-const panel: React.CSSProperties = {
-	backgroundColor: 'var(--ifm-background-color)',
-	border: '2px solid ' + PALETTE.BOX_STROKE,
-	borderBottom: '4px solid ' + PALETTE.BOX_STROKE,
-	padding: 10,
-	borderRadius: 15,
-	flex: 1,
-	paddingTop: 30,
-	paddingBottom: 10,
-	minHeight: 500,
-	display: 'flex',
-	flexDirection: 'column',
-};
-
-const center: React.CSSProperties = {
-	textAlign: 'center',
-};
 
 const row: React.CSSProperties = {
 	display: 'flex',
