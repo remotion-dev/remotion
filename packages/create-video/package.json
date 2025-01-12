@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/create-video"
 	},
 	"name": "create-video",
-	"version": "4.0.246",
+	"version": "4.0.248",
 	"description": "Create a new Remotion project",
 	"main": "dist/index.js",
 	"bin": {
@@ -16,7 +16,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -34,6 +34,15 @@
 		"react": "19.0.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.14.0"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
 	},
 	"homepage": "https://remotion.dev/templates"
 }

@@ -12,10 +12,7 @@ Gets a list of compositions defined in a Remotion project based on a [Remotion B
 For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
 ```ts
-const getCompositions: (
-  serveUrlOrWebpackUrl: string,
-  options?: GetCompositionsConfig,
-) => Promise<TComposition[]>;
+const getCompositions: (serveUrlOrWebpackUrl: string, options?: GetCompositionsConfig) => Promise<TComposition[]>;
 ```
 
 ## Arguments
@@ -81,31 +78,10 @@ interface ConsoleMessageLocation {
 type BrowserLog = {
   text: string;
   stackTrace: ConsoleMessageLocation[];
-  type:
-    | 'log'
-    | 'debug'
-    | 'info'
-    | 'error'
-    | 'warning'
-    | 'dir'
-    | 'dirxml'
-    | 'table'
-    | 'trace'
-    | 'clear'
-    | 'startGroup'
-    | 'startGroupCollapsed'
-    | 'endGroup'
-    | 'assert'
-    | 'profile'
-    | 'profileEnd'
-    | 'count'
-    | 'timeEnd'
-    | 'verbose';
+  type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd' | 'verbose';
 };
 
-const getCompositions = (options: {
-  onBrowserLog?: (log: BrowserLog) => void;
-}) => {};
+const getCompositions = (options: {onBrowserLog?: (log: BrowserLog) => void}) => {};
 // ---cut---
 getCompositions({
   // ...
@@ -151,6 +127,10 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### ~~`ffmpegExecutable`~~
 

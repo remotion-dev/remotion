@@ -13,9 +13,11 @@ import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {type LogLevel} from './log-level';
 import {Log} from './logger';
+import type {ChromeMode} from './options/chrome-mode';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
-import type {OnBrowserDownload} from './options/on-browser-download';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
@@ -69,9 +71,10 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	if (renderer === 'vulkan') {
 		return [
 			'--use-angle=vulkan',
-			'--use-vulkan=swiftshader',
+			'--use-vulkan=native',
 			'--disable-vulkan-fallback-to-gl-for-testing',
-			'--dignore-gpu-blocklist',
+			'--ignore-gpu-blocklist',
+			'--enable-gpu',
 		];
 	}
 
@@ -89,9 +92,7 @@ type InternalOpenBrowserOptions = {
 	viewport: Viewport | null;
 	indent: boolean;
 	browser: Browser;
-	logLevel: LogLevel;
-	onBrowserDownload: OnBrowserDownload;
-};
+} & ToOptions<typeof optionsMap.openBrowser>;
 
 type LogOptions =
 	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
@@ -103,6 +104,7 @@ type LogOptions =
 export type OpenBrowserOptions = {
 	browserExecutable?: string | null;
 	chromiumOptions?: ChromiumOptions;
+	chromeMode?: ChromeMode;
 	forceDeviceScaleFactor?: number;
 } & LogOptions;
 
@@ -115,6 +117,7 @@ export const internalOpenBrowser = async ({
 	viewport,
 	logLevel,
 	onBrowserDownload,
+	chromeMode,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
@@ -128,12 +131,14 @@ export const internalOpenBrowser = async ({
 		logLevel,
 		indent,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const executablePath = getLocalBrowserExecutable({
 		preferredBrowserExecutable: browserExecutable,
 		logLevel,
 		indent,
+		chromeMode,
 	});
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
@@ -178,6 +183,7 @@ export const internalOpenBrowser = async ({
 			'--proxy-bypass-list=*',
 			'--disable-hang-monitor',
 			'--disable-extensions',
+			'--allow-chrome-scheme-url',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
 			'--disable-prompt-on-repost',
@@ -194,7 +200,7 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			'--headless=old',
+			chromeMode === 'chrome-for-testing' ? '--headless=new' : '--headless=old',
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
@@ -274,5 +280,6 @@ export const openBrowser = (
 			logLevel,
 			api: 'openBrowser()',
 		}),
+		chromeMode: options?.chromeMode ?? 'headless-shell',
 	});
 };

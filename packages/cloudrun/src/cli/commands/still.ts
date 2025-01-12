@@ -136,6 +136,7 @@ export const stillCommand = async (
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
 				}),
+				chromeMode: 'headless-shell',
 			});
 		composition = compositionId;
 	}

@@ -132,6 +132,7 @@ const innerRenderStill = async ({
 	serializedResolvedPropsWithCustomSchema,
 	onBrowserDownload,
 	onArtifact,
+	chromeMode,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -207,6 +208,7 @@ const innerRenderStill = async ({
 			viewport: null,
 			logLevel,
 			onBrowserDownload,
+			chromeMode,
 		}));
 	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
 	await page.setViewport({
@@ -448,6 +450,7 @@ export const renderStill = (
 		binariesDirectory,
 		onBrowserDownload,
 		onArtifact,
+		chromeMode,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -505,7 +508,12 @@ export const renderStill = (
 		binariesDirectory: binariesDirectory ?? null,
 		onBrowserDownload:
 			onBrowserDownload ??
-			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderStill()'}),
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'renderStill()',
+			}),
 		onArtifact: onArtifact ?? null,
+		chromeMode: chromeMode ?? 'headless-shell',
 	});
 };

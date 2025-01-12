@@ -118,6 +118,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in serverless');
 			},
+			chromeMode: 'headless-shell',
 		});
 		instance.on('disconnected', () => {
 			RenderInternals.Log.info(

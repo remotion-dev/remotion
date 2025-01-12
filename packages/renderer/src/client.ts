@@ -20,6 +20,7 @@ import {
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './options/audio-codec';
+import {validChromeModeOptions} from './options/chrome-mode';
 import {DEFAULT_COLOR_SPACE, validColorSpaces} from './options/color-space';
 import {validOpenGlRenderers} from './options/gl';
 import {hardwareAccelerationOptions} from './options/hardware-acceleration';
@@ -67,4 +68,5 @@ export const BrowserSafeApis = {
 	logLevels,
 	getOutputCodecOrUndefined,
 	getExtensionFromAudioCodec,
+	validChromeModeOptions,
 };

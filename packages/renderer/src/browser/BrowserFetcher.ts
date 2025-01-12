@@ -25,6 +25,7 @@ import {promisify} from 'node:util';
 import {downloadFile} from '../assets/download-file';
 import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
+import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
@@ -37,17 +38,30 @@ type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 function getChromeDownloadUrl({
 	platform,
 	version,
+	chromeMode,
 }: {
 	platform: Platform;
 	version: string | null;
+	chromeMode: ChromeMode;
 }): string {
 	if (platform === 'linux-arm64') {
+		if (chromeMode === 'chrome-for-testing') {
+			throw new Error(
+				`chromeMode: 'chrome-for-testing' is not supported on platform linux-arm64`,
+			);
+		}
 		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+	}
+
+	if (chromeMode === 'headless-shell') {
+		return `https://storage.googleapis.com/chrome-for-testing-public/${
+			version ?? TESTED_VERSION
+		}/${platform}/chrome-headless-shell-${platform}.zip`;
 	}
 
 	return `https://storage.googleapis.com/chrome-for-testing-public/${
 		version ?? TESTED_VERSION
-	}/${platform}/chrome-headless-shell-${platform}.zip`;
+	}/${platform}/chrome-${platform}.zip`;
 }
 
 const mkdirAsync = fs.promises.mkdir;
@@ -82,9 +96,12 @@ const getPlatform = (): Platform => {
 	}
 };
 
-const destination = 'chrome-headless-shell';
+const getDownloadsFolder = (chromeMode: ChromeMode) => {
+	const destination =
+		chromeMode === 'headless-shell'
+			? 'chrome-headless-shell'
+			: 'chrome-for-testing';
 
-const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
@@ -93,25 +110,27 @@ export const downloadBrowser = async ({
 	indent,
 	onProgress,
 	version,
+	chromeMode,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	onProgress: DownloadBrowserProgressFn;
 	version: string | null;
+	chromeMode: ChromeMode;
 }): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
-	const downloadURL = getChromeDownloadUrl({platform, version});
+	const downloadURL = getChromeDownloadUrl({platform, version, chromeMode});
 	const fileName = downloadURL.split('/').pop();
 	if (!fileName) {
 		throw new Error(`A malformed download URL was found: ${downloadURL}.`);
 	}
 
-	const downloadsFolder = getDownloadsFolder();
+	const downloadsFolder = getDownloadsFolder(chromeMode);
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
 
 	if (await existsAsync(outputPath)) {
-		return getRevisionInfo();
+		return getRevisionInfo(chromeMode);
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -174,7 +193,7 @@ export const downloadBrowser = async ({
 		}
 	}
 
-	const revisionInfo = getRevisionInfo();
+	const revisionInfo = getRevisionInfo(chromeMode);
 	makeFileExecutableIfItIsNot(revisionInfo.executablePath);
 
 	return revisionInfo;
@@ -184,27 +203,50 @@ const getFolderPath = (downloadsFolder: string, platform: Platform): string => {
 	return path.resolve(downloadsFolder, platform);
 };
 
-const getExecutablePath = () => {
-	const downloadsFolder = getDownloadsFolder();
+const getExecutablePath = (chromeMode: ChromeMode) => {
+	const downloadsFolder = getDownloadsFolder(chromeMode);
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	return path.join(
-		folderPath,
-		`chrome-headless-shell-${platform}`,
-		platform === 'win64'
-			? 'chrome-headless-shell.exe'
-			: 'chrome-headless-shell',
-	);
+	if (chromeMode === 'chrome-for-testing') {
+		if (platform === 'mac-arm64' || platform === 'mac-x64') {
+			return path.join(
+				folderPath,
+				`chrome-${platform}`,
+				'Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+			);
+		}
+		if (platform === 'win64') {
+			return path.join(folderPath, 'chrome-win64', 'chrome.exe');
+		}
+		if (platform === 'linux64' || platform === 'linux-arm64') {
+			return path.join(folderPath, 'chrome-linux64', 'chrome');
+		}
+
+		throw new Error('unsupported platform' + (platform satisfies never));
+	}
+	if (chromeMode === 'headless-shell') {
+		return path.join(
+			folderPath,
+			`chrome-headless-shell-${platform}`,
+			platform === 'win64'
+				? 'chrome-headless-shell.exe'
+				: 'chrome-headless-shell',
+		);
+	}
+
+	throw new Error('unsupported chrome mode' + (chromeMode satisfies never));
 };
 
-export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
-	const executablePath = getExecutablePath();
-	const downloadsFolder = getDownloadsFolder();
+export const getRevisionInfo = (
+	chromeMode: ChromeMode,
+): BrowserFetcherRevisionInfo => {
+	const executablePath = getExecutablePath(chromeMode);
+	const downloadsFolder = getDownloadsFolder(chromeMode);
 	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	const url = getChromeDownloadUrl({platform, version: null});
+	const url = getChromeDownloadUrl({platform, version: null, chromeMode});
 	const local = fs.existsSync(folderPath);
 	return {
 		executablePath,

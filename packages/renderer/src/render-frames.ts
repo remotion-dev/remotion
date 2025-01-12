@@ -802,6 +802,7 @@ const internalRenderFramesRaw = ({
 	compositionStart,
 	onBrowserDownload,
 	onArtifact,
+	chromeMode,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -836,6 +837,7 @@ const internalRenderFramesRaw = ({
 			viewport: null,
 			logLevel,
 			onBrowserDownload,
+			chromeMode,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -929,6 +931,7 @@ const internalRenderFramesRaw = ({
 					compositionStart,
 					onBrowserDownload,
 					onArtifact,
+					chromeMode,
 				});
 			}),
 		])
@@ -1025,6 +1028,7 @@ export const renderFrames = (
 		binariesDirectory,
 		onBrowserDownload,
 		onArtifact,
+		chromeMode,
 	} = options;
 
 	if (!composition) {
@@ -1097,5 +1101,6 @@ export const renderFrames = (
 			onBrowserDownload ??
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
 		onArtifact: onArtifact ?? null,
+		chromeMode: chromeMode ?? 'headless-shell',
 	});
 };

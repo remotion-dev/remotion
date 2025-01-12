@@ -1,0 +1,24 @@
+:global(:root) {
+	--plyr-color-main: #1b1b1b;
+	--plyr-range-fill-background: #ccc;
+}
+:global(.plyr__controls button),
+:global(.plyr__controls input) {
+	cursor: pointer;
+}
+.video-container {
+	margin-bottom: 40px;
+	margin-top: 40px;
+	border-radius: 30px;
+}
+:global(.plyr:fullscreen video) {
+	max-width: initial;
+	max-height: initial;
+	width: 100%;
+	height: 100%;
+}
+video {
+	display: block;
+	max-width: 100%;
+	cursor: pointer;
+}

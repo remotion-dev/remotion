@@ -249,6 +249,7 @@ const internalRenderMediaRaw = ({
 	onArtifact,
 	metadata,
 	hardwareAcceleration,
+	chromeMode,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -668,6 +669,7 @@ const internalRenderMediaRaw = ({
 					forSeamlessAacConcatenation,
 					onBrowserDownload,
 					onArtifact,
+					chromeMode,
 				});
 
 				return renderFramesProc;
@@ -892,6 +894,7 @@ export const renderMedia = ({
 	onArtifact,
 	metadata,
 	hardwareAcceleration,
+	chromeMode,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -966,11 +969,16 @@ export const renderMedia = ({
 		forSeamlessAacConcatenation: forSeamlessAacConcatenation ?? false,
 		onBrowserDownload:
 			onBrowserDownload ??
-			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderMedia()'}),
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'renderMedia()',
+			}),
 		onArtifact: onArtifact ?? null,
 		metadata: metadata ?? null,
 		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
 		compositionStart: 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
+		chromeMode: chromeMode ?? 'headless-shell',
 	});
 };

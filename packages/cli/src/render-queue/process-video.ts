@@ -98,5 +98,6 @@ export const processVideoJob = async ({
 		metadata: job.metadata,
 		hardwareAcceleration:
 			job.type === 'video' ? job.hardwareAcceleration : 'disable',
+		chromeMode: job.chromeMode,
 	});
 };

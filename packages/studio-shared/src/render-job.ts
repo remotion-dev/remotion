@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -167,6 +168,7 @@ export type RenderJob = {
 	repro: boolean;
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
+	chromeMode: ChromeMode;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {

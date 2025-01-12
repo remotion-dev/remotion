@@ -1,5 +1,6 @@
 import type {
 	BrowserExecutable,
+	ChromeMode,
 	ChromiumOptions,
 	HeadlessBrowser,
 	LogLevel,
@@ -61,6 +62,7 @@ export const getCompositionId = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	onBrowserDownload,
+	chromeMode,
 }: {
 	args: (string | number)[];
 	compositionIdFromUi: string | null;
@@ -78,6 +80,7 @@ export const getCompositionId = async ({
 	offthreadVideoCacheSizeInBytes: number | null;
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
+	chromeMode: ChromeMode;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -109,6 +112,7 @@ export const getCompositionId = async ({
 				binariesDirectory,
 				onBrowserDownload,
 				onServeUrlVisited: () => undefined,
+				chromeMode,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -154,6 +158,7 @@ export const getCompositionId = async ({
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
 			onBrowserDownload,
+			chromeMode,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(
 			comps,

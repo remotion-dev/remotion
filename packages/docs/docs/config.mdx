@@ -154,7 +154,7 @@ The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will t
 
 ## `setNumberOfSharedAudioTags()`<AvailableFrom v="3.3.2" />
 
-How many shared audio tags should be mounted in the Studio. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
+How many shared audio tags should be mounted in the Studio. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#using-the-numberofsharedaudiotags-prop which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -244,7 +244,19 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumMultiProcessOnLinux(true);
 ```
 
-The [command line flag](/docs/cli/render#--enable-multiprocess-on-linux) `--enable-multiprocess-on-linux` will take precedence over this option.
+## `setChromeMode()`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" cli />
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromeMode('chrome-for-testing');
+```
+
+The [command line flag](/docs/cli/render#--chrome-mode) `--chrome-mode` will take precedence over this option.
 
 ## `setChromiumOpenGlRenderer()`
 
@@ -759,18 +771,7 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideFfmpegCommand(({args}) => {
   // Define the custom FFmpeg options as an array of strings
-  const customFfmpegOptions = [
-    '-profile:v',
-    'main',
-    '-video_track_timescale',
-    '90000',
-    '-color_primaries',
-    'bt709',
-    '-color_trc',
-    'bt709',
-    '-strict',
-    'experimental',
-  ];
+  const customFfmpegOptions = ['-profile:v', 'main', '-video_track_timescale', '90000', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-strict', 'experimental'];
   // The customFfmpegOptions are inserted before the last element to ensure
   // they appear before the ffmpeg's output path
   args.splice(args.length - 1, 0, ...customFfmpegOptions);

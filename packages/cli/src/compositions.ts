@@ -20,6 +20,7 @@ const {
 	binariesDirectoryOption,
 	publicPathOption,
 	publicDirOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -95,6 +96,9 @@ export const listCompositionsCommand = async (
 			commandLine: parsedCli,
 		}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -144,6 +148,7 @@ export const listCompositionsCommand = async (
 			logLevel,
 			quiet: quietFlagProvided(),
 		}),
+		chromeMode,
 	});
 
 	printCompositions(compositions, logLevel);

@@ -112,6 +112,7 @@ export const RenderButton: React.FC = () => {
 			renderTypeOfLastRender: null,
 			defaulMetadata: defaults.metadata,
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
+			initialChromeMode: defaults.chromeMode,
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
