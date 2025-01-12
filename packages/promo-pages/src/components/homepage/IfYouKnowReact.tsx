@@ -8,7 +8,7 @@ export const IfYouKnowReact: React.FC = () => {
 			<CodeExample />
 			<div className="h-10 lg:w-10" />
 			<div className="lg:text-right">
-				<h2 className="text-4xl font-brand">
+				<h2 className="text-4xl fontbrand">
 					Leverage <span className="text-brand">React</span> <br />
 					to express yourself.
 				</h2>

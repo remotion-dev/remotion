@@ -41,7 +41,7 @@ export const PricingBulletPoint: React.FC<{
 	return (
 		<div style={container}>
 			{checked ? checkmarkSVG : <div style={greyCircle} />}
-			<div className={'font-brand text-lg	'}>
+			<div className={'fontbrand text-lg	'}>
 				{text}
 				{children}
 			</div>

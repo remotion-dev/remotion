@@ -1,5 +1,6 @@
+import {useColorMode} from '@docusaurus/theme-common';
 import '@remotion/promo-pages/dist/Homepage.css';
-import Homepage from '@remotion/promo-pages/dist/Homepage.js';
+import {NewLanding} from '@remotion/promo-pages/dist/Homepage.js';
 import '@remotion/promo-pages/dist/tailwind.css';
 import Layout from '@theme/Layout';
 import React from 'react';
@@ -11,12 +12,18 @@ if (
 	window.location.href = 'https://remotion.dev/convert';
 }
 
-const NewLanding: React.FC = () => {
+const Inner: React.FC = () => {
+	const {colorMode, setColorMode} = useColorMode();
+
+	return <NewLanding colorMode={colorMode} setColorMode={setColorMode} />;
+};
+
+const Homepage: React.FC = () => {
 	return (
 		<Layout>
-			<Homepage />
+			<Inner />
 		</Layout>
 	);
 };
 
-export default NewLanding;
+export default Homepage;

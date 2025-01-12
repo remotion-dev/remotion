@@ -53,7 +53,7 @@ export const LightningFastEditor: React.FC = () => {
 				/>
 			</div>
 			<div style={{flex: 1}}>
-				<h2 className={'font-brand text-4xl'}>
+				<h2 className={'fontbrand text-4xl'}>
 					Fast and <br /> <span className="text-brand">delightful</span> editing
 				</h2>
 				<p>

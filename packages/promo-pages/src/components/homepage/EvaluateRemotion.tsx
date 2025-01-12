@@ -41,10 +41,10 @@ const EvaluateRemotionSection: React.FC = () => {
 	return (
 		<div className="flex flex-col lg:flex-row gap-2">
 			<div className={'card flex-1 flex flex-col'}>
-				<div className={'font-brand text-2xl font-bold'}>
+				<div className={'fontbrand text-2xl font-bold'}>
 					Evaluate Remotion for your company
 				</div>
-				<p className={'text-muted font-brand leading-snug'}>
+				<p className={'text-muted fontbrand leading-snug'}>
 					Book a 20 minute call with us to get all your questions answered.
 				</p>
 				<div className="flex-1" />
@@ -59,10 +59,10 @@ const EvaluateRemotionSection: React.FC = () => {
 				</a>
 			</div>
 			<div className={'card flex-1 flex flex-col'}>
-				<div className={'font-brand text-2xl font-bold'}>
+				<div className={'fontbrand text-2xl font-bold'}>
 					Get help for your projects
 				</div>
-				<p className={'text-muted font-brand leading-snug'}>
+				<p className={'text-muted fontbrand leading-snug'}>
 					Contact our experts for help and work.
 				</p>
 				<div className="flex-1" />

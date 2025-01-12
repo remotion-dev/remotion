@@ -63,6 +63,11 @@ body {
 	@apply border-effect bg-pane p-5;
 }
 
+@utility fontbrand {
+	@apply font-brand;
+	font-feature-settings: 'ss03' on;
+}
+
 @import 'tailwindcss/theme' layer(theme);
 @import 'tailwindcss/utilities' layer(utilities);
 @import './fonts.css';

@@ -1,4 +1,7 @@
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
+import {cn} from '../../cn';
+import {Counter} from './Counter';
+import {InfoTooltip} from './InfoTooltip';
 import {PricingBulletPoint} from './PricingBulletPoint';
 
 const Container: React.FC<{readonly children: React.ReactNode}> = ({
@@ -15,7 +18,7 @@ const Title: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<div className="text-4xl font-bold leading-none font-brand mt-2 mb-5">
+		<div className="text-4xl font-bold leading-none fontbrand mt-2 mb-5">
 			{children}
 		</div>
 	);
@@ -24,14 +27,19 @@ const Title: React.FC<{
 const Audience: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	return <div className={'font-brand text-lg leading-none'}>{children}</div>;
+	return <div className={'fontbrand text-lg leading-none'}>{children}</div>;
 };
 
-const BottomInfo: React.FC<{
-	readonly children: React.ReactNode;
-}> = ({children}) => {
+const BottomInfo: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+	children,
+	className,
+	...props
+}) => {
 	return (
-		<div className={'text-[var(--subtitle)] font-brand text-sm'}>
+		<div
+			className={cn(className, 'text-[var(--subtitle)] fontbrand text-sm')}
+			{...props}
+		>
 			{children}
 		</div>
 	);
@@ -43,7 +51,7 @@ const PriceTag: React.FC<{
 	return (
 		<div
 			className={
-				'font-brand text-2xl font-bold min-w-[60px] w-auto text-right shrink-0 ml-4'
+				'fontbrand text-2xl font-bold min-w-[80px] w-auto text-right shrink-0 ml-4'
 			}
 		>
 			{children}
@@ -57,7 +65,7 @@ const SmallPriceTag: React.FC<{
 	return (
 		<div
 			className={
-				'font-brand text-2xl font-medium min-w-[60px] w-auto text-right shrink-0 ml-4'
+				'fontbrand text-2xl font-medium  w-auto min-w-[80px] text-right shrink-0 ml-4'
 			}
 		>
 			{children}
@@ -116,7 +124,7 @@ export const EnterpriseLicense: React.FC = () => {
 							Contact us
 						</a>
 					</PriceTag>
-					<div className={'text-[var(--subtitle)] font-brand text-sm'}>
+					<div className={'text-[var(--subtitle)] fontbrand text-sm'}>
 						Starting at $500 per month
 					</div>
 				</div>
@@ -124,10 +132,6 @@ export const EnterpriseLicense: React.FC = () => {
 		</Container>
 	);
 };
-
-import {useCallback, useMemo} from 'react';
-import {Counter} from './Counter';
-import {InfoTooltip} from './InfoTooltip';
 
 const SEAT_PRICE = 25;
 const RENDER_UNIT_PRICE = 10;
@@ -176,8 +180,8 @@ export const CompanyPricing: React.FC = () => {
 			<div style={{height: 30}} />
 			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
-					<div className={'font-brand font-bold text-lg'}>Developer Seats</div>
-					<div className={'text-muted font-brand text-sm'}>
+					<div className={'fontbrand font-bold text-lg'}>Developer Seats</div>
+					<div className={'text-muted fontbrand text-sm'}>
 						Number of developers working with Remotion
 					</div>
 				</div>
@@ -193,10 +197,10 @@ export const CompanyPricing: React.FC = () => {
 			<div style={{height: 14}} />
 			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
-					<div className={'font-brand font-bold text-lg'}>
+					<div className={'fontbrand font-bold text-lg'}>
 						Cloud Rendering Units
 					</div>
-					<div className={'text-muted font-brand text-sm'}>
+					<div className={'text-muted fontbrand text-sm'}>
 						Allows for {rendersPerMonth} self-hosted renders per month
 					</div>
 				</div>
@@ -217,11 +221,12 @@ export const CompanyPricing: React.FC = () => {
 			<div className={'flex flex-row justify-end'}>
 				<div style={{...textUnitWrapper, alignItems: 'flex-end'}}>
 					<PriceTag>{totalPriceString}/mo</PriceTag>
-					{totalPrice <= 100 ? (
-						<BottomInfo>The minimum is $100 per month</BottomInfo>
-					) : (
-						<div style={{height: 24}} />
-					)}
+					<BottomInfo
+						data-visible={totalPrice <= 100}
+						className="opacity-0 data-[visible=true]:opacity-100 transition-opacity"
+					>
+						The minimum is $100 per month
+					</BottomInfo>
 				</div>
 			</div>
 		</Container>

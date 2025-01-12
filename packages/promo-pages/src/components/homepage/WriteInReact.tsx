@@ -5,7 +5,7 @@ export const WriteInReact: React.FC = () => {
 	return (
 		<div>
 			<h1
-				className="text-5xl lg:text-[5em] text-center font-brand font-black leading-none "
+				className="text-5xl lg:text-[5em] text-center fontbrand font-black leading-none "
 				style={{
 					textShadow: '0 5px 30px var(--background)',
 				}}

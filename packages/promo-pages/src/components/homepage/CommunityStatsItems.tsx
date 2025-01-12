@@ -139,7 +139,7 @@ export const PagesOfDocs: React.FC = () => {
 };
 
 export const TemplatesAndExamples: React.FC = () => (
-	<Pill className="w-[30%] flex items-center">
+	<Pill className="w-[30%] flex items-center flex-row">
 		<StatItemContent
 			content="35"
 			width="60px"

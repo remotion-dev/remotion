@@ -15,8 +15,8 @@ const Triangle: React.FC<{
 		}}
 	>
 		<path
+			fill="currentcolor"
 			d="M7.17096 0.475588C6.73198 0.0764969 6.01906 0.0764969 5.58007 0.475588L1.08483 4.56228C0.761737 4.85601 0.666915 5.29341 0.84251 5.67654C1.01811 6.05966 1.42549 6.3087 1.88203 6.3087H10.8725C11.3255 6.3087 11.7364 6.05966 11.912 5.67654C12.0876 5.29341 11.9893 4.85601 11.6697 4.56228L7.17448 0.475588H7.17096Z"
-			fill="#EAEAEA"
 		/>
 	</svg>
 );
@@ -41,7 +41,6 @@ const buttonContainer: React.CSSProperties = {
 	alignItems: 'center',
 	backgroundColor: 'inherit',
 	cursor: 'pointer',
-	border: 'none',
 };
 
 interface CounterProps {
@@ -74,7 +73,7 @@ export const Counter: React.FC<CounterProps> = ({
 		>
 			<input
 				className={
-					'font-brand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0'
+					'fontbrand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0'
 				}
 				type="number"
 				value={count}
@@ -91,11 +90,9 @@ export const Counter: React.FC<CounterProps> = ({
 			<div style={{display: 'flex', flexDirection: 'column', marginLeft: 10}}>
 				<button
 					type="button"
-					className="brand"
+					className="border-0 border-l-2 border-l-solid border-b-2"
 					style={{
 						...buttonContainer,
-						borderLeft: '1px solid #EAEAEA',
-						borderBottom: '1px solid #EAEAEA',
 					}}
 					onClick={increment}
 				>
@@ -103,9 +100,9 @@ export const Counter: React.FC<CounterProps> = ({
 				</button>
 				<button
 					type="button"
+					className="border-0 border-l-2 border-l-solid"
 					style={{
 						...buttonContainer,
-						borderLeft: '1px solid #EAEAEA',
 					}}
 					onClick={decrement}
 				>

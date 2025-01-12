@@ -57,7 +57,7 @@ const StepTitle: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<div className="text-center text-xl font-semibold font-brand mt-2">
+		<div className="text-center text-xl font-semibold fontbrand mt-2">
 			{children}
 		</div>
 	);
@@ -67,7 +67,7 @@ const Subtitle: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<div className="text-center text-base font-brand text-[var(--subtitle)]">
+		<div className="text-center text-base fontbrand text-[var(--subtitle)]">
 			{children}
 		</div>
 	);

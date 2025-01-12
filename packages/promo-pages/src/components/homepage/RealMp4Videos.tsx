@@ -26,7 +26,7 @@ export const RealMP4Videos: React.FC = () => {
 	return (
 		<div ref={ref} className={'flex flex-col lg:flex-row'}>
 			<div>
-				<h2 className="text-4xl font-brand">
+				<h2 className="text-4xl fontbrand">
 					Real <span className={'text-brand'}>.mp4</span> videos
 				</h2>
 				<p className="leading-relaxed">

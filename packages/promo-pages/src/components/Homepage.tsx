@@ -8,6 +8,7 @@ import {Demo} from './homepage/Demo';
 import {LightningFastEditor} from './homepage/Editor';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
+import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
@@ -18,10 +19,13 @@ import VideoAppsShowcase from './homepage/VideoAppsShowcase';
 import {SectionTitle, VideoAppsTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
-const NewLanding: React.FC = () => {
+export const NewLanding: React.FC<{
+	readonly colorMode: ColorMode;
+	readonly setColorMode: (colorMode: ColorMode) => void;
+}> = ({colorMode, setColorMode}) => {
 	return (
-		<ColorModeProvider>
-			<div data-theme="light" className="bg-[var(--background)] relative">
+		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
+			<div data-theme={colorMode} className="bg-[var(--background)] relative">
 				<div>
 					<div>
 						<BackgroundAnimation />
@@ -82,5 +86,3 @@ const NewLanding: React.FC = () => {
 		</ColorModeProvider>
 	);
 };
-
-export default NewLanding;

@@ -3,8 +3,8 @@ import React from 'react';
 export const VideoAppsTitle: React.FC = () => {
 	return (
 		<div className={'text-center'}>
-			<h2 className={'font-brand text-4xl'}>
-				Build video <span className={'font-brand'}>apps</span>
+			<h2 className={'fontbrand text-4xl'}>
+				Build video <span className={'fontbrand'}>apps</span>
 			</h2>
 			<p>
 				Use our suite of tools to build apps that lets others create videos.
@@ -18,7 +18,7 @@ export const SectionTitle: React.FC<{readonly children: React.ReactNode}> = ({
 }) => {
 	return (
 		<div className={'text-center'}>
-			<h2 className={'font-brand text-4xl'}>{children}</h2>
+			<h2 className={'fontbrand text-4xl'}>{children}</h2>
 		</div>
 	);
 };

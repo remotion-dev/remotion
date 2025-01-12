@@ -45,20 +45,20 @@ export const NewsletterButton: React.FC<{}> = () => {
 			<div className="flex flex-col">
 				<div className={'w-full'}>
 					<div className={'border-effect bg-pane flex flex-col flex-1 p-5'}>
-						<div className={'text-2xl font-bold font-brand'}>Newsletter</div>
+						<div className={'text-2xl font-bold fontbrand'}>Newsletter</div>
 						<form
 							onSubmit={handleSubmit}
 							style={{
 								width: '100%',
 							}}
 						>
-							<p className="leading-snug">
+							<p className="leading-snug mt-1 text-muted fontbrand">
 								Read about new features and noteworthy updates we have made on
 								Remotion once in a while.
 							</p>
 
 							<input
-								className="w-full rounded-lg border-effect border-black outline-none px-3 py-3 font-brand text-lg box-border"
+								className="w-full rounded-lg border-effect border-black outline-none px-3 py-3 fontbrand text-lg box-border focus:border-brand"
 								disabled={submitting}
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}

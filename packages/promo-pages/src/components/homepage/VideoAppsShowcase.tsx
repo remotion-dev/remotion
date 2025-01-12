@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {BlueButton} from './layout/Button';
 import {MuxVideo} from './MuxVideo';
-import styles from './VideoAppsShowcase.module.css';
 import {SectionTitle} from './VideoAppsTitle';
 
 const tabs = [
@@ -177,7 +176,7 @@ const VideoAppsShowcase: React.FC = () => {
 						key={tab}
 						type="button"
 						data-active={index === activeTab}
-						className={`bg-transparent border-none mx-3 my-4 cursor-pointer text-base font-brand font-bold transition-colors text-muted data-[active=true]:text-brand`}
+						className={`bg-transparent border-none mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
 						onClick={() => setActiveTab(index)}
 					>
 						{tab}
@@ -195,47 +194,46 @@ const VideoAppsShowcase: React.FC = () => {
 						<MuxVideo
 							ref={videoRef}
 							muxId={videoApps[activeTab].muxId}
-							className={styles.video}
+							className={
+								'absolute left-0 top-0 w-full h-full object-contain rounded-lg rounded-tr-none rounded-br-none'
+							}
 							loop
 							playsInline
 							muted={isMuted}
 						/>
 
-						<button
-							type="button"
-							className={styles.muteButton}
-							onClick={(e) => {
-								e.stopPropagation();
-								handleMuteToggle();
-							}}
-						>
-							{isMuted ? (
+						{isMuted && (
+							<button
+								type="button"
+								className={
+									'absolute bottom-2.5 right-2.5 bg-white text-black rounded-full w-8 h-8 flex justify-center items-center text-base cursor-pointer transition-colors border-2 border-black border-solid'
+								}
+								onClick={(e) => {
+									e.stopPropagation();
+									handleMuteToggle();
+								}}
+							>
 								<svg style={{width: 24}} viewBox="0 0 576 512">
 									<path
-										fill="white"
+										fill="black"
 										d="M0 160L0 352l128 0L272 480l48 0 0-448-48 0L128 160 0 160zm441 23l-17-17L390.1 200l17 17 39 39-39 39-17 17L424 345.9l17-17 39-39 39 39 17 17L569.9 312l-17-17-39-39 39-39 17-17L536 166.1l-17 17-39 39-39-39z"
 									/>
 								</svg>
-							) : (
-								<svg style={{width: 24}} viewBox="0 0 576 512">
-									<path
-										fill="white"
-										d="M32 160l0 192 128 0L304 480l48 0 0-448-48 0L160 160 32 160zM441.6 332.8C464.9 315.3 480 287.4 480 256s-15.1-59.3-38.4-76.8l-28.8 38.4c11.7 8.8 19.2 22.7 19.2 38.4s-7.5 29.6-19.2 38.4l28.8 38.4zm57.6 76.8c46.6-35 76.8-90.8 76.8-153.6s-30.2-118.6-76.8-153.6l-28.8 38.4c35 26.3 57.6 68.1 57.6 115.2s-22.6 88.9-57.6 115.2l28.8 38.4z"
-									/>
-								</svg>
-							)}
-						</button>
+							</button>
+						)}
 					</div>
 				</div>
-				<div className={styles.textContent}>
-					<div className="text-4xl font-bold font-brand">
+				<div
+					className={'pl-0 pt-4 flex-1 lg:pl-4 flex flex-col justify-center'}
+				>
+					<div className="text-4xl font-bold fontbrand">
 						{videoApps[activeTab].title}
 					</div>
-					<div className="text-muted mt-4 text-base font-brand">
+					<div className="text-muted mt-4 text-base fontbrand">
 						{videoApps[activeTab].description}
 					</div>
 					{videoApps[activeTab].additionalInfo ? (
-						<div className="text-muted mt-4 text-base font-brand">
+						<div className="text-muted mt-4 text-base fontbrand">
 							{videoApps[activeTab].additionalInfo}
 						</div>
 					) : null}
