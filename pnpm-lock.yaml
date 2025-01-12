@@ -677,6 +677,9 @@ importers:
       '@remotion/studio':
         specifier: workspace:*
         version: link:../studio
+      '@remotion/svg-3d-engine':
+        specifier: workspace:*
+        version: link:../svg-3d-engine
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind
@@ -1693,9 +1696,6 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.0.0-beta.9
         version: 4.0.0-beta.9(vite@5.4.9)
-      '@types/hls.js':
-        specifier: 1.0.0
-        version: 1.0.0
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -2035,6 +2035,12 @@ importers:
       eslint:
         specifier: 9.14.0
         version: 9.14.0
+
+  packages/svg-3d-engine:
+    dependencies:
+      '@remotion/paths':
+        specifier: workspace:*
+        version: link:../paths
 
   packages/tailwind:
     dependencies:
@@ -14882,13 +14888,6 @@ packages:
   /@types/hls.js@0.13.3:
     resolution: {integrity: sha512-Po8ZPCsAcPPuf5OODPEkb6cdWJ/w4BdX1veP7IIOc2WG0x1SW4GEQ1+FHKN1AMG2AePJfNUceJbh5PKtP92yRQ==}
 
-  /@types/hls.js@1.0.0:
-    resolution: {integrity: sha512-EGY2QJefX+Z9XH4PAxI7RFoNqBlQEk16UpYR3kbr82CIgMX5SlMe0PjFdFV0JytRhyVPQCiwSyONuI6S1KdSag==}
-    deprecated: This is a stub types definition. hls.js provides its own type definitions, so you do not need this installed.
-    dependencies:
-      hls.js: 0.14.17
-    dev: true
-
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
@@ -20383,6 +20382,7 @@ packages:
 
   /eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
+    dev: false
 
   /eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
@@ -21714,6 +21714,7 @@ packages:
     dependencies:
       eventemitter3: 4.0.7
       url-toolkit: 2.2.3
+    dev: false
 
   /hls.js@1.5.17:
     resolution: {integrity: sha512-wA66nnYFvQa1o4DO/BFgLNRKnBTVXpNeldGRBJ2Y0SvFtdwvFKCbqa9zhHoZLoxHhZ+jYsj3aIBkWQQCPNOhMw==}
@@ -30244,6 +30245,7 @@ packages:
 
   /url-toolkit@2.2.3:
     resolution: {integrity: sha512-Da75SQoxsZ+2wXS56CZBrj2nukQ4nlGUZUP/dqUBG5E1su5GKThgT94Q00x81eVII7AyS1Pn+CtTTZ4Z0pLUtQ==}
+    dev: false
 
   /use-asset@1.0.4(react@19.0.0):
     resolution: {integrity: sha512-7/hqDrWa0iMnCoET9W1T07EmD4Eg/Wmoj/X8TGBc++ECRK4m5yTsjP4O6s0yagbxfqIOuUkIxe2/sA+VR2GxZA==}

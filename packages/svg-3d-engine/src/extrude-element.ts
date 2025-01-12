@@ -1,60 +1,11 @@
-import type {Instruction} from '@remotion/paths';
-import {PathInternals, reduceInstructions} from '@remotion/paths';
-import type {ThreeDReducedInstruction} from './3d-svg';
-import type {ThreeDElement} from './element';
-import {makeElement} from './element';
+import {Instruction, PathInternals, reduceInstructions} from '@remotion/paths';
+import {ThreeDReducedInstruction} from './3d-svg';
+import {makeElement, ThreeDElement} from './elements';
 import {turnInto3D} from './fix-z';
-import type {FaceType} from './map-face';
-import {transformFace, translateSvgInstruction} from './map-face';
-import type {Vector4D} from './matrix';
-import {translateZ} from './matrix';
-import {subdivideInstructions} from './subdivide-instruction';
+import {FaceType, transformFace, translateSvgInstruction} from './map-face';
+import {translateZ, Vector4D} from './matrix';
+import {subdivideInstructions} from './subdivide-instructions';
 import {truthy} from './truthy';
-
-const inverseInstruction = (
-	instruction: ThreeDReducedInstruction,
-	comingFrom: Vector4D,
-): ThreeDReducedInstruction => {
-	if (instruction.type === 'M') {
-		return {
-			type: 'M',
-			point: comingFrom,
-		};
-	}
-
-	if (instruction.type === 'L') {
-		return {
-			type: 'L',
-			point: comingFrom,
-		};
-	}
-
-	if (instruction.type === 'C') {
-		return {
-			type: 'C',
-			point: comingFrom,
-			cp1: instruction.cp2,
-			cp2: instruction.cp1,
-		};
-	}
-
-	if (instruction.type === 'Q') {
-		return {
-			type: 'Q',
-			point: comingFrom,
-			cp: instruction.cp,
-		};
-	}
-
-	if (instruction.type === 'Z') {
-		return {
-			type: 'L',
-			point: comingFrom,
-		};
-	}
-
-	throw new Error('Unknown instruction type');
-};
 
 export const extrudeElement = ({
 	depth,
@@ -65,6 +16,7 @@ export const extrudeElement = ({
 	strokeWidth,
 	description,
 	strokeColor,
+	crispEdges,
 }: {
 	depth: number;
 	sideColor: string;
@@ -74,6 +26,7 @@ export const extrudeElement = ({
 	strokeWidth: number;
 	description: string;
 	strokeColor: string;
+	crispEdges: boolean;
 }): ThreeDElement => {
 	const boundingBox = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(points),
@@ -92,7 +45,7 @@ export const extrudeElement = ({
 		strokeColor,
 		color: 'black',
 		description,
-		crispEdges: false,
+		crispEdges,
 	};
 
 	const unscaledBackFace = transformFace(instructions, [translateZ(depth / 2)]);
@@ -171,4 +124,44 @@ export const extrudeElement = ({
 		[centerX, centerY, 0, 1],
 		description,
 	);
+};
+
+const inverseInstruction = (
+	instruction: ThreeDReducedInstruction,
+	comingFrom: Vector4D,
+): ThreeDReducedInstruction => {
+	if (instruction.type === 'M') {
+		return {
+			type: 'M',
+			point: comingFrom,
+		};
+	}
+	if (instruction.type === 'L') {
+		return {
+			type: 'L',
+			point: comingFrom,
+		};
+	}
+	if (instruction.type === 'C') {
+		return {
+			type: 'C',
+			point: comingFrom,
+			cp1: instruction.cp2,
+			cp2: instruction.cp1,
+		};
+	}
+	if (instruction.type === 'Q') {
+		return {
+			type: 'Q',
+			point: comingFrom,
+			cp: instruction.cp,
+		};
+	}
+	if (instruction.type === 'Z') {
+		return {
+			type: 'L',
+			point: comingFrom,
+		};
+	}
+	throw new Error('Unknown instruction type');
 };

@@ -1,4 +1,5 @@
 export const packages = [
+	'svg-3d-engine',
 	'ai-improvements',
 	'animation-utils',
 	'animated-emoji',
@@ -149,6 +150,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'eslint-config-internal': "ESLint condig for Remotion's internal packages",
 	'example-videos': null,
 	'promo-pages': null,
+	'svg-3d-engine': '3D SVG extrusion effects',
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -225,4 +227,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	compositor: null,
 	'example-videos': null,
 	'promo-pages': null,
+	'svg-3d-engine': null,
 };

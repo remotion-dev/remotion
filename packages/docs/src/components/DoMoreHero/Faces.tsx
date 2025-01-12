@@ -1,8 +1,8 @@
+import type {ThreeDElement} from '@remotion/svg-3d-engine/src/elements';
+import type {FaceType} from '@remotion/svg-3d-engine/src/map-face';
 import React from 'react';
 import type {FaceSVGProps} from './Face';
 import {Face} from './Face';
-import type {ThreeDElement} from './element';
-import type {FaceType} from './map-face';
 
 const sortFacesZIndex = (face: FaceType[]): FaceType[] => {
 	return face.slice().sort((a, b) => {

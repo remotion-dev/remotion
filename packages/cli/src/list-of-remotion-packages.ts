@@ -1,5 +1,6 @@
 // Keep in sync with create-video
 export const listOfRemotionPackages = [
+	'@remotion/svg-3d-engine',
 	'@remotion/layout-utils',
 	'@remotion/bundler',
 	'@remotion/cli',

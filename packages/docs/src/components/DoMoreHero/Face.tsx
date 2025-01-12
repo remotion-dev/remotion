@@ -1,7 +1,5 @@
+import type {ThreeDReducedInstruction} from '@remotion/svg-3d-engine';
 import React, {useState} from 'react';
-import {random} from 'remotion';
-import type {ThreeDReducedInstruction} from './3d-svg';
-import {threeDIntoSvgPath} from './3d-svg';
 
 export type FaceSVGProps = {
 	readonly strokeLinecap?: React.SVGAttributes<SVGPathElement>['strokeLinecap'];
@@ -25,7 +23,7 @@ export const Face: React.FC<
 	strokeLinecap,
 	crispEdges,
 }) => {
-	const [id] = useState(() => random(null).toString().replace('.', ''));
+	const [id] = useState(() => Math.random().toString().replace('.', ''));
 	const d = threeDIntoSvgPath(points);
 
 	return (
