@@ -1,4 +1,22 @@
 import {$} from 'bun';
+import {NoReactInternals} from 'remotion/no-react';
+
+if (!NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+	const nodeVersion =
+		await $`node -e "console.log(typeof structuredClone)"`.text();
+	if (nodeVersion === 'undefined') {
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(
+				'Error: You are using Node.js without structuredClone. Please upgrade to Node.js 17 or newer.',
+			);
+		} else {
+			console.log(
+				'Node does not have structuredClone. Passing because we are not building the site.',
+			);
+			process.exit(0);
+		}
+	}
+}
 
 await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
