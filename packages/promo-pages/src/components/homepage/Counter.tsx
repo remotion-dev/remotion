@@ -65,17 +65,13 @@ export const Counter: React.FC<CounterProps> = ({
 	};
 
 	return (
-		<div
-			style={container}
-			className={cn(
-				'border-2 has-[:focus]:border-brand border-solid w-[110px]',
-			)}
-		>
+		<div style={container} className={cn('border-effect w-[110px]')}>
 			<input
 				className={
 					'fontbrand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0'
 				}
 				type="number"
+				onClick={(e) => e.currentTarget.select()}
 				value={count}
 				onChange={(e: ChangeEvent<HTMLInputElement>) => {
 					if (e.target.value.trim() === '') {
@@ -87,10 +83,10 @@ export const Counter: React.FC<CounterProps> = ({
 					setCount(max);
 				}}
 			/>
-			<div style={{display: 'flex', flexDirection: 'column', marginLeft: 10}}>
+			<div className="flex flex-col ml-3 h-full">
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid border-b-2"
+					className="border-0 border-l-2 border-l-solid border-b-2 flex-1"
 					style={{
 						...buttonContainer,
 					}}
@@ -100,7 +96,7 @@ export const Counter: React.FC<CounterProps> = ({
 				</button>
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid"
+					className="border-0 border-l-2 border-l-solid flex-1"
 					style={{
 						...buttonContainer,
 					}}

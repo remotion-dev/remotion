@@ -40,7 +40,7 @@ export const ChooseTemplate: React.FC = () => {
 						return (
 							<a
 								key={template.cliId}
-								style={{textDecoration: 'none'}}
+								className="text-inherit no-underline"
 								href={`/templates/${template.cliId}`}
 							>
 								<TemplateIcon label={template.featuredOnHomePage!}>

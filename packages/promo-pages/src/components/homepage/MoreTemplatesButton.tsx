@@ -1,44 +1,17 @@
 import React from 'react';
 import {useMobileLayout} from './layout/use-mobile-layout';
 
-const commonStyle: React.CSSProperties = {
-	height: 40,
-	borderRadius: 20,
-	backgroundColor: 'white',
-	border: '2px solid black',
-	color: 'var(--text-color)',
-	fontWeight: 'bold',
-	justifyContent: 'center',
-	alignItems: 'center',
-	display: 'flex',
-	cursor: 'pointer',
-	padding: 16,
-	fontSize: 14,
-	marginLeft: 10,
-};
-
-const rightStyle: React.CSSProperties = {
-	...commonStyle,
-	right: 0,
-	textDecoration: 'none',
-	color: 'black',
-};
-
 const icon: React.CSSProperties = {
 	height: 16,
 	marginLeft: 10,
-};
-
-const linkStyle: React.CSSProperties = {
-	textDecoration: 'none',
 };
 
 export const MoreTemplatesButton: React.FC = () => {
 	const mobileLayout = useMobileLayout();
 
 	return (
-		<a href="/templates" style={linkStyle}>
-			<div style={rightStyle}>
+		<a href="/templates" className="no-underline text-inherit">
+			<div className="right-0 border-2 rounded-full text-inherit px-4 py-2 fontbrand font-semibold text-sm flex flex-row items-center">
 				{mobileLayout ? 'Templates' : 'Find a template'}
 				<svg
 					style={icon}

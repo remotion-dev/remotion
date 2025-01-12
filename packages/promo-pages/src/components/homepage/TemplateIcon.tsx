@@ -21,10 +21,6 @@ const outer: React.CSSProperties = {
 	textDecoration: 'none',
 };
 
-const labelStyle: React.CSSProperties = {
-	fontSize: 12,
-};
-
 export const TemplateIcon: React.FC<{
 	readonly label: string;
 	readonly children: React.ReactNode;
@@ -34,7 +30,7 @@ export const TemplateIcon: React.FC<{
 	return (
 		<span style={outer}>
 			<div style={icon}>{children}</div>
-			{mobileLayout ? null : <div style={labelStyle}>{label}</div>}
+			{mobileLayout ? null : <div className="text-xs fontbrand">{label}</div>}
 		</span>
 	);
 };

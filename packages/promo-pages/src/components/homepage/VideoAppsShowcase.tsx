@@ -183,11 +183,11 @@ const VideoAppsShowcase: React.FC = () => {
 					</button>
 				))}
 			</div>
-			<div className={'card flex p-0'}>
+			<div className={'card flex p-0 overflow-hidden'}>
 				<div className={'flex-1 flex flex-col lg:flex-row justify-center'}>
 					<div
 						className={
-							'w-full max-w-[500px] aspect-square relative rounded-lg rounded-tr-none rounded-br-none overflow-hidden bg-[#eee]'
+							'w-full max-w-[500px] aspect-square relative overflow-hidden bg-[#eee]'
 						}
 						onClick={handlePlayPause}
 					>
