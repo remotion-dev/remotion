@@ -44,7 +44,6 @@ const playerWrapper: CSSProperties = {
 
 export const Demo: React.FC = () => {
 	const {colorMode} = useColorMode();
-	console.log({colorMode});
 	const [data, setData] = useState<LocationAndTrending | null>(null);
 	const ref = useRef<PlayerRef>(null);
 

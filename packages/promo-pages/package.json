@@ -17,7 +17,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"create-video": "workspace:*",
-		"hls.js": "^0.14.17",
+		"hls.js": "1.5.19",
 		"polished": "4.3.1",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
@@ -27,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "3.1.0",
-		"@types/hls.js": "^0.13.3",
+		"@types/hls.js": "1.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
 		"eslint": "9.14.0",
