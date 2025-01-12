@@ -2745,6 +2745,9 @@ importers:
       typescript:
         specifier: 5.5.4
         version: 5.5.4
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
 
   packages/template-tiktok:
     dependencies:
