@@ -56,7 +56,7 @@ export const LightningFastEditor: React.FC = () => {
 				<h2 className={'fontbrand text-4xl'}>
 					Fast and <br /> <span className="text-brand">delightful</span> editing
 				</h2>
-				<p>
+				<p className="leading-relaxed">
 					Preview your video in the browser. <br />
 					Fast refresh while the video is playing. <br />
 					Scrub through the timeline to get every frame perfect.
