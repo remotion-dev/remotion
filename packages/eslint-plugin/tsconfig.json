@@ -1,10 +1,12 @@
 {
-  "extends": "../tsconfig.settings.json",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "skipLibCheck": true,
-    "jsx": "react-jsx"
-  },
-  "include": ["./src"]
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"skipLibCheck": true,
+		"jsx": "react-jsx",
+		"moduleResolution": "node16",
+		"module": "Node16"
+	},
+	"include": ["./src"]
 }

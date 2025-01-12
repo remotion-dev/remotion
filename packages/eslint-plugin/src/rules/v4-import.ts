@@ -17,7 +17,6 @@ const rule = createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: ImportConfig,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],
@@ -33,7 +32,10 @@ const rule = createRule<Options, MessageIds>({
 					return;
 				}
 				const config = node.specifiers.find(
-					(s) => s.type === 'ImportSpecifier' && s.imported.name === 'Config',
+					(s) =>
+						s.type === 'ImportSpecifier' &&
+						s.imported.type === 'Identifier' &&
+						s.imported.name === 'Config',
 				);
 				if (config) {
 					context.report({

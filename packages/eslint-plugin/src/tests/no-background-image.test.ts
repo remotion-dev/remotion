@@ -1,9 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/no-background-image';
+import {makeRuleTester} from './rule-tester';
 
-const ruleTester = new ESLintUtils.RuleTester({
-	parser: '@typescript-eslint/parser',
-});
+const ruleTester = makeRuleTester();
 
 ruleTester.run('no-background-image', rule, {
 	valid: [

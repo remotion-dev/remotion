@@ -20,7 +20,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: UseGifComponent,
-			recommended: 'warn',
 		},
 		fixable: undefined,
 		schema: [],

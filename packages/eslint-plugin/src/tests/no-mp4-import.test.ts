@@ -1,8 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/no-mp4-import';
-const ruleTester = new ESLintUtils.RuleTester({
-	parser: '@typescript-eslint/parser',
-});
+import {makeRuleTester} from './rule-tester';
+
+const ruleTester = makeRuleTester();
 
 ruleTester.run('no-mp4-import', rule, {
 	valid: [

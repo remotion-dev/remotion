@@ -1,14 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/staticfile-no-relative';
+import {makeRuleTester} from './rule-tester';
 
-const ruleTester = new ESLintUtils.RuleTester({
-	parser: '@typescript-eslint/parser',
-	parserOptions: {
-		ecmaFeatures: {
-			jsx: true,
-		},
-	},
-});
+const ruleTester = makeRuleTester();
 
 ruleTester.run('staticfile-no-relative', rule, {
 	valid: [

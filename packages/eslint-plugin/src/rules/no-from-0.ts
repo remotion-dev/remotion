@@ -16,7 +16,6 @@ export default createRule<Options, MessageIds>({
 		type: 'problem',
 		docs: {
 			description: From0,
-			recommended: 'warn',
 		},
 		fixable: 'code',
 		schema: [],

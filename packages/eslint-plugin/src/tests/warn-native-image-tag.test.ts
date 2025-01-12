@@ -1,13 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/warn-native-media-tag';
-const ruleTester = new ESLintUtils.RuleTester({
-	parser: '@typescript-eslint/parser',
-	parserOptions: {
-		ecmaFeatures: {
-			jsx: true,
-		},
-	},
-});
+import {makeRuleTester} from './rule-tester';
+
+const ruleTester = makeRuleTester();
 
 ruleTester.run('warn-native-media-tag', rule, {
 	valid: [
