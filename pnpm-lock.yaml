@@ -1013,6 +1013,9 @@ importers:
       '@remotion/studio':
         specifier: workspace:*
         version: link:../studio
+      '@remotion/svg-3d-engine':
+        specifier: workspace:*
+        version: link:../svg-3d-engine
       '@remotion/tailwind':
         specifier: workspace:*
         version: link:../tailwind

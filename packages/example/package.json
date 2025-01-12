@@ -31,6 +31,7 @@
 		"@mdx-js/react": "^2.3.0",
 		"@react-three/drei": "9.120.0",
 		"@react-three/fiber": "9.0.0-rc.1",
+		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
