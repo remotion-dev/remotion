@@ -1,6 +1,10 @@
 import {$} from 'bun';
 import {NoReactInternals} from 'remotion/no-react';
 
+if (process.env.NODE_ENV !== 'production') {
+	throw new Error('This script must be run using NODE_ENV=production');
+}
+
 const nodeVersion =
 	await $`node -e "console.log(typeof structuredClone)"`.text();
 if (nodeVersion.trim() === 'undefined') {

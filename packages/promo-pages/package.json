@@ -3,7 +3,7 @@
 	"version": "4.0.248",
 	"private": true,
 	"scripts": {
-		"make": "bun bundle.ts",
+		"make": "NODE_ENV=production bun bundle.ts",
 		"lint": "tsc",
 		"dev": "vite"
 	},
