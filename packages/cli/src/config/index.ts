@@ -180,7 +180,7 @@ declare global {
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 		/**
-		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop
 		 * @param numberOfAudioTags
 		 * @default 0
 		 */
