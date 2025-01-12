@@ -2044,6 +2044,13 @@ importers:
       '@remotion/paths':
         specifier: workspace:*
         version: link:../paths
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.14.0
+        version: 9.14.0
 
   packages/tailwind:
     dependencies:

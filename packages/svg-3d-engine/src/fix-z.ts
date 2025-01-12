@@ -1,6 +1,7 @@
-import {Instruction, reduceInstructions} from '@remotion/paths';
-import {ThreeDReducedInstruction} from './3d-svg';
-import {Vector4D} from './matrix';
+import type {Instruction} from '@remotion/paths';
+import {reduceInstructions} from '@remotion/paths';
+import type {ThreeDReducedInstruction} from './3d-svg';
+import type {Vector4D} from './matrix';
 
 export const turnInto3D = (
 	instructions: Instruction[],

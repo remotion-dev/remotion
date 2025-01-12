@@ -1,8 +1,5 @@
-import {ThreeDReducedInstruction} from './3d-svg';
-
-export const translated4d = function (vec: Vector) {
-	return stride({v: vec, m: identity4(), width: 4, offset: 3, colStride: 0});
-};
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import type {ThreeDReducedInstruction} from './3d-svg';
 
 export const stride = function ({
 	v,
@@ -23,6 +20,7 @@ export const stride = function ({
 				((i * colStride + offset + width) % width) // Row
 		] = v[i];
 	}
+
 	return m;
 };
 
@@ -33,6 +31,7 @@ export const identity4 = function (): MatrixTransform4D {
 	while (size--) {
 		m[size] = size % (n + 1) === 0 ? 1.0 : 0.0;
 	}
+
 	return m;
 };
 
@@ -51,12 +50,14 @@ function multiplyMany(
 	if (listOfMatrices.length < 2) {
 		throw new Error('multiplication expected two or more matrices');
 	}
+
 	let result = mul(listOfMatrices[0], listOfMatrices[1], size);
 	let next = 2;
 	while (next < listOfMatrices.length) {
 		result = mul(result, listOfMatrices[next], size);
 		next++;
 	}
+
 	return result as MatrixTransform4D;
 }
 
@@ -66,6 +67,7 @@ function mul(m1: number[], m2: number[], size: number): number[] {
 			`Undefined for matrices of different sizes. m1.length=${m1.length}, m2.length=${m2.length}`,
 		);
 	}
+
 	if (size * size !== m1.length) {
 		throw new Error(
 			`Undefined for non-square matrices. array size was ${size}`,
@@ -80,9 +82,11 @@ function mul(m1: number[], m2: number[], size: number): number[] {
 			for (let k = 0; k < size; k++) {
 				acc += m1[size * r + k] * m2[size * k + c];
 			}
+
 			result[r * size + c] = acc;
 		}
 	}
+
 	return result;
 }
 
@@ -101,9 +105,15 @@ const rotated = function (axisVec: Vector, radians: number): MatrixTransform4D {
 export const rotateX = (radians: number) => {
 	return rotated([1, 0, 0], radians);
 };
+
 export const rotateY = (radians: number) => {
 	return rotated([0, 1, 0], radians);
 };
+
+export const translated4d = function (vec: Vector) {
+	return stride({v: vec, m: identity4(), width: 4, offset: 3, colStride: 0});
+};
+
 export const rotateZ = (radians: number) => {
 	return rotated([0, 0, 1], radians);
 };
@@ -178,12 +188,14 @@ const vectorLength = function (v: number[]) {
 const lengthSquared = function (v: number[]) {
 	return dot(v, v);
 };
+
 export const dot = function (a: number[], b: number[]) {
 	if (a.length !== b.length) {
 		throw new Error(
 			`Cannot perform dot product on arrays of different length (${a.length} vs ${b.length})`,
 		);
 	}
+
 	return a
 		.map((v, i) => {
 			return v * b[i];
@@ -242,6 +254,7 @@ export function multiplyMatrixAndSvgInstruction(
 			point: multiplyMatrix(matrix, point.point),
 		};
 	}
+
 	if (point.type === 'Q') {
 		return {
 			type: 'Q',
@@ -249,24 +262,28 @@ export function multiplyMatrixAndSvgInstruction(
 			point: multiplyMatrix(matrix, point.point),
 		};
 	}
+
 	if (point.type === 'M') {
 		return {
 			type: 'M',
 			point: multiplyMatrix(matrix, point.point),
 		};
 	}
+
 	if (point.type === 'L') {
 		return {
 			type: 'L',
 			point: multiplyMatrix(matrix, point.point),
 		};
 	}
+
 	if (point.type === 'Z') {
 		return {
 			type: 'Z',
 			point: multiplyMatrix(matrix, point.point),
 		};
 	}
+
 	throw new Error('Unknown instruction type: ' + JSON.stringify(point));
 }
 

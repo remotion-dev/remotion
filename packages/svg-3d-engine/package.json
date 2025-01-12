@@ -3,7 +3,10 @@
 	"dependencies": {
 		"@remotion/paths": "workspace:*"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.14.0"
+	},
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

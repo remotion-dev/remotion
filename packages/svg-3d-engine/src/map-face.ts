@@ -1,13 +1,10 @@
 import {parsePath} from '@remotion/paths';
-import {ThreeDReducedInstruction} from './3d-svg';
-import {ThreeDElement, transformElement} from './elements';
+import type {ThreeDReducedInstruction} from './3d-svg';
+import type {ThreeDElement} from './elements';
+import {transformElement} from './elements';
 import {turnInto3D} from './fix-z';
-import {
-	MatrixTransform4D,
-	multiplyMatrix,
-	multiplyMatrixAndSvgInstruction,
-	Vector4D,
-} from './matrix';
+import type {MatrixTransform4D, Vector4D} from './matrix';
+import {multiplyMatrix, multiplyMatrixAndSvgInstruction} from './matrix';
 
 export type FaceType = {
 	color: string;
@@ -36,6 +33,7 @@ export const translateSvgInstruction = (
 			],
 		};
 	}
+
 	if (instruction.type === 'L') {
 		return {
 			type: 'L',
@@ -47,6 +45,7 @@ export const translateSvgInstruction = (
 			],
 		};
 	}
+
 	if (instruction.type === 'C') {
 		return {
 			type: 'C',
@@ -70,6 +69,7 @@ export const translateSvgInstruction = (
 			],
 		};
 	}
+
 	if (instruction.type === 'Q') {
 		return {
 			type: 'Q',
@@ -87,6 +87,7 @@ export const translateSvgInstruction = (
 			],
 		};
 	}
+
 	if (instruction.type === 'Z') {
 		return {
 			type: 'Z',
@@ -98,6 +99,7 @@ export const translateSvgInstruction = (
 			],
 		};
 	}
+
 	throw new Error('Unknown instruction type: ' + JSON.stringify(instruction));
 };
 

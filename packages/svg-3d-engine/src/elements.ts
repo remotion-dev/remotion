@@ -1,13 +1,8 @@
 import {makeId} from './make-id';
-import {FaceType, transformFace} from './map-face';
-import {
-	MatrixTransform4D,
-	multiplyMatrix,
-	translateX,
-	translateY,
-	translateZ,
-	Vector4D,
-} from './matrix';
+import type {FaceType} from './map-face';
+import {transformFace} from './map-face';
+import type {MatrixTransform4D, Vector4D} from './matrix';
+import {multiplyMatrix, translateX, translateY, translateZ} from './matrix';
 
 export type ThreeDElement = {
 	faces: FaceType[];
