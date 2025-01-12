@@ -4,13 +4,14 @@ import {Player} from '@remotion/player';
 import {makeTriangle} from '@remotion/shapes';
 import {
 	extrudeElement,
-	Faces,
 	rotateX,
 	rotateY,
 	rotateZ,
+	scaled,
 	transformElement,
 	translateX,
 	translateY,
+	translateZ,
 } from '@remotion/svg-3d-engine';
 import React, {useMemo} from 'react';
 import {
@@ -21,8 +22,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {useMobileLayout} from '../../helpers/mobile-layout';
-
-import {translateZ} from '@remotion/svg-3d-engine';
+import {Faces} from './Faces';
 import styles from './more.module.css';
 
 const InFrameLogo: React.FC<{
