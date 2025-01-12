@@ -2,6 +2,17 @@ import {useColorMode} from '@docusaurus/theme-common';
 import {getBoundingBox, parsePath, resetPath} from '@remotion/paths';
 import {Player} from '@remotion/player';
 import {makeTriangle} from '@remotion/shapes';
+import {
+	extrudeElement,
+	rotateX,
+	rotateY,
+	rotateZ,
+	scaled,
+	transformElement,
+	translateX,
+	translateY,
+	translateZ,
+} from '@remotion/svg-3d-engine';
 import React, {useMemo} from 'react';
 import {
 	AbsoluteFill,
@@ -12,17 +23,6 @@ import {
 } from 'remotion';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {Faces} from './Faces';
-import {transformElement} from './element';
-import {extrudeElement} from './join-inbetween-tiles';
-import {
-	rotateX,
-	rotateY,
-	rotateZ,
-	scaled,
-	translateX,
-	translateY,
-	translateZ,
-} from './matrix';
 import styles from './more.module.css';
 
 const InFrameLogo: React.FC<{
@@ -82,6 +82,7 @@ const InFrameLogo: React.FC<{
 			strokeWidth: 20,
 			description: `triangle-${i}`,
 			strokeColor: 'black',
+			crispEdges: false,
 		});
 		const projected = transformElement(extruded, [
 			translateZ(spread * i - spread),

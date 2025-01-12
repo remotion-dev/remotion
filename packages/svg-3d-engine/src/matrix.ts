@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type {ThreeDReducedInstruction} from './3d-svg';
 
 export const stride = function ({
@@ -34,9 +35,31 @@ export const identity4 = function (): MatrixTransform4D {
 	return m;
 };
 
-export const translated4d = function (vec: Vector) {
-	return stride({v: vec, m: identity4(), width: 4, offset: 3, colStride: 0});
+export const m44multiply = (
+	...matrices: MatrixTransform4D[]
+): MatrixTransform4D => {
+	return multiplyMany(4, matrices);
 };
+
+// Accept an integer indicating the size of the matrices being multiplied (3 for 3x3), and any
+// number of matrices following it.
+function multiplyMany(
+	size: number,
+	listOfMatrices: MatrixTransform4D[],
+): MatrixTransform4D {
+	if (listOfMatrices.length < 2) {
+		throw new Error('multiplication expected two or more matrices');
+	}
+
+	let result = mul(listOfMatrices[0], listOfMatrices[1], size);
+	let next = 2;
+	while (next < listOfMatrices.length) {
+		result = mul(result, listOfMatrices[next], size);
+		next++;
+	}
+
+	return result as MatrixTransform4D;
+}
 
 function mul(m1: number[], m2: number[], size: number): number[] {
 	if (m1.length !== m2.length) {
@@ -67,35 +90,33 @@ function mul(m1: number[], m2: number[], size: number): number[] {
 	return result;
 }
 
-// Accept an integer indicating the size of the matrices being multiplied (3 for 3x3), and any
-// number of matrices following it.
-function multiplyMany(
-	size: number,
-	listOfMatrices: MatrixTransform4D[],
-): MatrixTransform4D {
-	if (listOfMatrices.length < 2) {
-		throw new Error('multiplication expected two or more matrices');
-	}
-
-	let result = mul(listOfMatrices[0], listOfMatrices[1], size);
-	let next = 2;
-	while (next < listOfMatrices.length) {
-		result = mul(result, listOfMatrices[next], size);
-		next++;
-	}
-
-	return result as MatrixTransform4D;
-}
-
-export const m44multiply = (
-	...matrices: MatrixTransform4D[]
-): MatrixTransform4D => {
-	return multiplyMany(4, matrices);
-};
-
 export type Vector2D = [number, number];
 export type Vector = [number, number, number];
 export type Vector4D = [number, number, number, number];
+
+const rotated = function (axisVec: Vector, radians: number): MatrixTransform4D {
+	return rotatedUnitSinCos(
+		normalize(axisVec),
+		Math.sin(radians),
+		Math.cos(radians),
+	);
+};
+
+export const rotateX = (radians: number) => {
+	return rotated([1, 0, 0], radians);
+};
+
+export const rotateY = (radians: number) => {
+	return rotated([0, 1, 0], radians);
+};
+
+export const translated4d = function (vec: Vector) {
+	return stride({v: vec, m: identity4(), width: 4, offset: 3, colStride: 0});
+};
+
+export const rotateZ = (radians: number) => {
+	return rotated([0, 0, 1], radians);
+};
 
 export type MatrixTransform4D = [
 	number,
@@ -152,6 +173,22 @@ const rotatedUnitSinCos = function (
 	];
 };
 
+export const normalize = function (v: Vector): Vector {
+	return mulScalar(v, 1 / vectorLength(v));
+};
+
+export const normalize4d = function (v: Vector4D): Vector4D {
+	return mulScalar(v, 1 / vectorLength(v));
+};
+
+const vectorLength = function (v: number[]) {
+	return Math.sqrt(lengthSquared(v));
+};
+
+const lengthSquared = function (v: number[]) {
+	return dot(v, v);
+};
+
 export const dot = function (a: number[], b: number[]) {
 	if (a.length !== b.length) {
 		throw new Error(
@@ -190,48 +227,6 @@ export const translateZ = (z: number) => {
 	return translated([0, 0, z]);
 };
 
-const lengthSquared = function (v: number[]) {
-	return dot(v, v);
-};
-
-const vectorLength = function (v: number[]) {
-	return Math.sqrt(lengthSquared(v));
-};
-
-export const mulScalar = function <T extends number[]>(v: T, s: number): T {
-	return v.map((i) => {
-		return i * s;
-	}) as T;
-};
-
-export const normalize = function (v: Vector): Vector {
-	return mulScalar(v, 1 / vectorLength(v));
-};
-
-export const normalize4d = function (v: Vector4D): Vector4D {
-	return mulScalar(v, 1 / vectorLength(v));
-};
-
-const rotated = function (axisVec: Vector, radians: number): MatrixTransform4D {
-	return rotatedUnitSinCos(
-		normalize(axisVec),
-		Math.sin(radians),
-		Math.cos(radians),
-	);
-};
-
-export const rotateX = (radians: number) => {
-	return rotated([1, 0, 0], radians);
-};
-
-export const rotateY = (radians: number) => {
-	return rotated([0, 1, 0], radians);
-};
-
-export const rotateZ = (radians: number) => {
-	return rotated([0, 0, 1], radians);
-};
-
 export type Camera = {
 	near: number;
 	far: number;
@@ -241,23 +236,10 @@ export type Camera = {
 	up: Vector;
 };
 
-export const multiplyMatrix = (
-	matrix: MatrixTransform4D,
-	point: Vector4D,
-): Vector4D => {
-	if (matrix.length !== 16 || point.length !== 4) {
-		throw new Error('Invalid matrix or vector dimension');
-	}
-
-	const result: Vector4D = [0, 0, 0, 0];
-
-	for (let i = 0; i < 4; i++) {
-		for (let j = 0; j < 4; j++) {
-			result[i] += matrix[i * 4 + j] * point[j];
-		}
-	}
-
-	return result;
+export const mulScalar = function <T extends number[]>(v: T, s: number): T {
+	return v.map((i) => {
+		return i * s;
+	}) as T;
 };
 
 export function multiplyMatrixAndSvgInstruction(
@@ -304,6 +286,25 @@ export function multiplyMatrixAndSvgInstruction(
 
 	throw new Error('Unknown instruction type: ' + JSON.stringify(point));
 }
+
+export const multiplyMatrix = (
+	matrix: MatrixTransform4D,
+	point: Vector4D,
+): Vector4D => {
+	if (matrix.length !== 16 || point.length !== 4) {
+		throw new Error('Invalid matrix or vector dimension');
+	}
+
+	const result: Vector4D = [0, 0, 0, 0];
+
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 4; j++) {
+			result[i] += matrix[i * 4 + j] * point[j];
+		}
+	}
+
+	return result;
+};
 
 export const sub4d = function (a: Vector4D, b: Vector4D): Vector4D {
 	return a.map((v, i) => {

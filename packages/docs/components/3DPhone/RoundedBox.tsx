@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import type {Vector3} from '@react-three/fiber';
+import type {JSX} from 'react';
 import React, {useMemo} from 'react';
 import {roundedRect} from './helpers/rounded-rectangle';
 

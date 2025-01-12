@@ -391,7 +391,7 @@ export type AfterRenderCost = {
 
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const MAX_FUNCTIONS_PER_RENDER = 200;
-export const MINIMUM_FRAMES_PER_LAMBDA = 4;
+export const MINIMUM_FRAMES_PER_FUNCTIONS = 4;
 
 export const REMOTION_CONCATED_TOKEN = 'remotion-concated-token';
 export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';

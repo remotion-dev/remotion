@@ -1,7 +1,7 @@
 import {parsePath} from '@remotion/paths';
 import type {ThreeDReducedInstruction} from './3d-svg';
-import type {ThreeDElement} from './element';
-import {transformElement} from './element';
+import type {ThreeDElement} from './elements';
+import {transformElement} from './elements';
 import {turnInto3D} from './fix-z';
 import type {MatrixTransform4D, Vector4D} from './matrix';
 import {multiplyMatrix, multiplyMatrixAndSvgInstruction} from './matrix';

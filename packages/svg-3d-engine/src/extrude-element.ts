@@ -1,14 +1,14 @@
 import type {Instruction} from '@remotion/paths';
 import {PathInternals, reduceInstructions} from '@remotion/paths';
 import type {ThreeDReducedInstruction} from './3d-svg';
-import type {ThreeDElement} from './element';
-import {makeElement} from './element';
+import type {ThreeDElement} from './elements';
+import {makeElement} from './elements';
 import {turnInto3D} from './fix-z';
 import type {FaceType} from './map-face';
 import {transformFace, translateSvgInstruction} from './map-face';
 import type {Vector4D} from './matrix';
 import {translateZ} from './matrix';
-import {subdivideInstructions} from './subdivide-instruction';
+import {subdivideInstructions} from './subdivide-instructions';
 import {truthy} from './truthy';
 
 const inverseInstruction = (
@@ -65,6 +65,7 @@ export const extrudeElement = ({
 	strokeWidth,
 	description,
 	strokeColor,
+	crispEdges,
 }: {
 	depth: number;
 	sideColor: string;
@@ -74,6 +75,7 @@ export const extrudeElement = ({
 	strokeWidth: number;
 	description: string;
 	strokeColor: string;
+	crispEdges: boolean;
 }): ThreeDElement => {
 	const boundingBox = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(points),
@@ -92,7 +94,7 @@ export const extrudeElement = ({
 		strokeColor,
 		color: 'black',
 		description,
-		crispEdges: false,
+		crispEdges,
 	};
 
 	const unscaledBackFace = transformFace(instructions, [translateZ(depth / 2)]);

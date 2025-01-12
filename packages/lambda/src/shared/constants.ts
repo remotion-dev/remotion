@@ -1,5 +1,8 @@
 import type {GenericRenderProgress} from '@remotion/serverless';
-import {type Privacy} from '@remotion/serverless/client';
+import {
+	type Privacy,
+	MINIMUM_FRAMES_PER_FUNCTIONS,
+} from '@remotion/serverless/client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
@@ -38,3 +41,4 @@ export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export type RenderProgress = GenericRenderProgress<AwsProvider>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
+export const MINIMUM_FRAMES_PER_LAMBDA = MINIMUM_FRAMES_PER_FUNCTIONS;
