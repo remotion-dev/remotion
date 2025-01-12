@@ -184,7 +184,7 @@ const VideoAppsShowcase: React.FC = () => {
 				))}
 			</div>
 			<div className={'card flex p-0'}>
-				<div className={'flex-1 flex justify-center items-center'}>
+				<div className={'flex-1 flex flex-col lg:flex-row justify-center'}>
 					<div
 						className={
 							'w-full max-w-[500px] aspect-square relative rounded-lg rounded-tr-none rounded-br-none overflow-hidden bg-[#eee]'
@@ -222,31 +222,29 @@ const VideoAppsShowcase: React.FC = () => {
 							</button>
 						)}
 					</div>
-				</div>
-				<div
-					className={'pl-0 pt-4 flex-1 lg:pl-4 flex flex-col justify-center'}
-				>
-					<div className="text-4xl font-bold fontbrand">
-						{videoApps[activeTab].title}
-					</div>
-					<div className="text-muted mt-4 text-base fontbrand">
-						{videoApps[activeTab].description}
-					</div>
-					{videoApps[activeTab].additionalInfo ? (
-						<div className="text-muted mt-4 text-base fontbrand">
-							{videoApps[activeTab].additionalInfo}
+					<div className={'pl-4 flex-1 lg:pl-4 flex flex-col h-full pt-8 pb-6'}>
+						<div className="text-4xl font-bold fontbrand">
+							{videoApps[activeTab].title}
 						</div>
-					) : null}
-					<div className="h-5" />
-					<a
-						target="_blank"
-						href={videoApps[activeTab].link}
-						style={{textDecoration: 'none'}}
-					>
-						<BlueButton loading={false} size="sm">
-							{videoApps[activeTab].buttonText}
-						</BlueButton>
-					</a>
+						<div className="text-muted mt-4 text-base fontbrand">
+							{videoApps[activeTab].description}
+						</div>
+						{videoApps[activeTab].additionalInfo ? (
+							<div className="text-muted mt-4 text-base fontbrand">
+								{videoApps[activeTab].additionalInfo}
+							</div>
+						) : null}
+						<div className="h-5" />
+						<a
+							target="_blank"
+							href={videoApps[activeTab].link}
+							style={{textDecoration: 'none'}}
+						>
+							<BlueButton loading={false} size="sm">
+								{videoApps[activeTab].buttonText}
+							</BlueButton>
+						</a>
+					</div>
 				</div>
 			</div>
 			<div
@@ -263,7 +261,7 @@ const VideoAppsShowcase: React.FC = () => {
 				>
 					For more examples see our{' '}
 					<a href="/showcase" className="bluelink">
-						showcase page
+						Showcase page
 					</a>
 					.
 				</div>

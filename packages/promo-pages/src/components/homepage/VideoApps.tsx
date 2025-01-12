@@ -106,7 +106,7 @@ export const VideoApps: React.FC<{
 
 	return (
 		<div className="w-full">
-			<div className={'flex flex-col lg:flex-row'}>
+			<div className={'flex flex-col lg:flex-row gap-2'}>
 				<Pane>
 					{active === 'remotion' ? <YouAreHere /> : null}
 					<StepTitle>Remotion</StepTitle>
@@ -152,9 +152,6 @@ export const VideoApps: React.FC<{
 						</div>
 					</div>
 				</Pane>
-				<Spacer />
-				<Spacer />
-				<Spacer />
 				<Pane>
 					{active === 'player' ? <YouAreHere /> : null}
 					<StepTitle>Remotion Player</StepTitle>
@@ -201,9 +198,6 @@ export const VideoApps: React.FC<{
 						</div>
 					</div>
 				</Pane>
-				<Spacer />
-				<Spacer />
-				<Spacer />
 				<Pane>
 					{active === 'lambda' ? <YouAreHere /> : null}
 					<StepTitle>Remotion Lambda</StepTitle>
