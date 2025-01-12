@@ -1,3 +1,5 @@
+export {MINIMUM_FRAMES_PER_FUNCTIONS} from './constants';
+
 export {COMMAND_NOT_FOUND} from './constants';
 
 export {Await} from './await';

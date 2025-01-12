@@ -1,4 +1,4 @@
-import {MINIMUM_FRAMES_PER_LAMBDA} from './constants';
+import {MINIMUM_FRAMES_PER_FUNCTIONS} from './constants';
 
 export const validateFramesPerFunction = ({
 	framesPerFunction,
@@ -42,7 +42,7 @@ export const validateFramesPerFunction = ({
 	}
 
 	const effectiveMinimum = Math.min(
-		MINIMUM_FRAMES_PER_LAMBDA,
+		MINIMUM_FRAMES_PER_FUNCTIONS,
 		durationInFrames,
 	);
 

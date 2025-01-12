@@ -1,5 +1,6 @@
 export type {ThreeDReducedInstruction} from './3d-svg';
 
+export {threeDIntoSvgPath} from './3d-svg';
 export {transformElement} from './elements';
 export {extrudeElement} from './extrude-element';
 export {

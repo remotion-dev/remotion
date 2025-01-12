@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type React from 'react';
+import type {JSX} from 'react';
 
 const options = Object.values(BrowserSafeApis.options);
 
