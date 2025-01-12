@@ -32,6 +32,7 @@ import {getWebpackCaching} from './webpack-caching';
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
+	ChromeMode,
 	CodecOrUndefined,
 	ColorSpace,
 	Crf,
@@ -98,6 +99,7 @@ const {
 	jpegQualityOption,
 	enforceAudioOption,
 	overwriteOption,
+	chromeModeOption,
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
@@ -105,7 +107,6 @@ const {
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
-	headlessOption,
 	numberOfGifLoopsOption,
 	beepOnFinishOption,
 	encodingMaxRateOption,
@@ -178,7 +179,7 @@ declare global {
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 		/**
-		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop
 		 * @param numberOfAudioTags
 		 * @default 0
 		 */
@@ -236,11 +237,6 @@ declare global {
 		 * Default: false
 		 */
 		readonly setChromiumIgnoreCertificateErrors: (should: boolean) => void;
-		/**
-		 * If false, will open an actual browser during rendering to observe progress.
-		 * Default: true
-		 */
-		readonly setChromiumHeadlessMode: (should: boolean) => void;
 		/**
 		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle', 'vulkan' and 'angle-egl'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
@@ -517,6 +513,10 @@ type FlatConfig = RemotionConfigObject &
 			hardwareAccelerationOption: HardwareAccelerationOption,
 		) => void;
 		/**
+		 * Choose between using Chrome Headless Shell or Chrome for Testing
+		 */
+		setChromeMode: (chromeMode: ChromeMode) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -593,7 +593,6 @@ export const Config: FlatConfig = {
 		delayRenderTimeoutInMillisecondsOption.setConfig,
 	setChromiumDisableWebSecurity,
 	setChromiumIgnoreCertificateErrors,
-	setChromiumHeadlessMode: headlessOption.setConfig,
 	setChromiumOpenGlRenderer: glOption.setConfig,
 	setChromiumUserAgent,
 	setDotEnvLocation,
@@ -623,6 +622,7 @@ export const Config: FlatConfig = {
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
 	setOverwriteOutput: overwriteOption.setConfig,
+	setChromeMode: chromeModeOption.setConfig,
 	setPixelFormat,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,

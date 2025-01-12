@@ -17,11 +17,11 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
 	publicPathOption,
 	publicDirOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -92,9 +92,6 @@ export const still = async (
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const overwrite = overwriteOption.getValue(
 		{
 			commandLine: parsedCli,
@@ -110,12 +107,14 @@ export const still = async (
 	const publicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const chromeMode = chromeModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -157,5 +156,6 @@ export const still = async (
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		publicPath,
+		chromeMode,
 	});
 };

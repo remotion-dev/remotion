@@ -52,6 +52,7 @@ export const packages = [
 	'rive',
 	'shapes',
 	'skia',
+	'promo-pages',
 	'streaming',
 	'serverless',
 	'studio-server',
@@ -147,6 +148,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'openai-whisper': 'Work with the output of the OpenAI Whisper API',
 	'eslint-config-internal': "ESLint condig for Remotion's internal packages",
 	'example-videos': null,
+	'promo-pages': null,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -222,4 +224,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'eslint-config-internal': null,
 	compositor: null,
 	'example-videos': null,
+	'promo-pages': null,
 };

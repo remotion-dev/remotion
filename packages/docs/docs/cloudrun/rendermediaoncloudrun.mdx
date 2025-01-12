@@ -122,6 +122,55 @@ _optional_
 
 A callback that is called with the progress of the render.
 
+### `renderStatusWebhook?`
+
+_optional_
+
+Your webhook URL that will be called with the progress of the render. This will be sent using a POST request.
+
+#### Arguments
+
+- `url`: The webhook URL endpoint.
+- `headers`: The headers to send. `Content-Type: application/json` is added automatically.
+- `data`: The data that you want to be sent alongside the progress data.
+- `webhookProgressInterval (optional)`: The interval at which the webhook is called. Defaults to 0.1 (10%). (min: 0.01, max: 1)
+
+
+```json title="Example Webhook URL Declaration"
+{
+  "url": "https://example.com/webhook",
+  "headers": {
+    "Authorization": "Bearer 1234567890"
+  },
+  "data": {
+    "projectId": "1234567890"
+  },
+  "webhookProgressInterval": 0.1
+}
+```
+
+#### Example Webhook Response
+
+```json title="Example Webhook Response"
+{
+  "progress": 0.1,
+  "renderedFrames": 100,
+  "encodedFrames": 100,
+  "renderId": "1234567890",
+  "projectId": "1234567890"
+}
+```
+
+### `renderIdOverride`
+
+_optional_
+
+Provide a specific render ID for the render. Otherwise a random one will be generated.
+
+:::note
+You will be responsible for ensuring that the render ID is unique, otherwise it will overwrite existing renders with the same configured Render ID.
+:::
+
 ### `audioCodec?`
 
 _optional_

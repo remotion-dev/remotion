@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -43,7 +44,6 @@ export type RenderDefaults = {
 	openGlRenderer: OpenGlRenderer | null;
 	ignoreCertificateErrors: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
-	headless: boolean;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
@@ -51,6 +51,7 @@ export type RenderDefaults = {
 	forSeamlessAacConcatenation: boolean;
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	chromeMode: ChromeMode;
 };
 
 declare global {

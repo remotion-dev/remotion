@@ -37,7 +37,7 @@ export const renderMediaSingleThread = async (
 		);
 	}
 
-	const renderId = randomHash({randomInTests: true});
+	const renderId = body.renderIdOverride ?? randomHash({randomInTests: true});
 
 	try {
 		const composition = await getCompositionFromBody(body);
@@ -47,7 +47,9 @@ export const renderMediaSingleThread = async (
 			body.audioCodec,
 		)}`;
 		const tempFilePath = `/tmp/${defaultOutName}`;
+
 		let previousProgress = 0.02;
+		let lastWebhookProgress = 0;
 
 		let writingProgress = Promise.resolve();
 
@@ -67,6 +69,7 @@ export const renderMediaSingleThread = async (
 					Math.round(progress * 100),
 					'%',
 				);
+
 				writingProgress = writingProgress.then(() => {
 					return new Promise((resolve) => {
 						res.write(JSON.stringify({onProgress: progress}) + '\n', () => {
@@ -74,6 +77,40 @@ export const renderMediaSingleThread = async (
 						});
 					});
 				});
+
+				if (body.renderStatusWebhook) {
+					const interval =
+						body.renderStatusWebhook.webhookProgressInterval ?? 0.1; // Default 10% intervals
+					const shouldCallWebhook =
+						progress === 1 || // Always call on completion
+						lastWebhookProgress === 0 || // Always call first time
+						progress - lastWebhookProgress >= interval; // Call if interval exceeded
+
+					if (shouldCallWebhook) {
+						fetch(body.renderStatusWebhook.url, {
+							method: 'POST',
+							headers: {
+								...body.renderStatusWebhook.headers,
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								...body.renderStatusWebhook.data,
+								progress,
+								renderId,
+								renderedFrames,
+								encodedFrames,
+							}),
+						}).catch((err) => {
+							RenderInternals.Log.warn(
+								{indent: false, logLevel: body.logLevel},
+								'Failed to call webhook:',
+								err,
+							);
+						});
+						lastWebhookProgress = progress;
+					}
+				}
+
 				previousProgress = progress;
 			}
 		};
@@ -161,6 +198,7 @@ export const renderMediaSingleThread = async (
 			onArtifact,
 			metadata: body.metadata ?? null,
 			hardwareAcceleration: 'disable',
+			chromeMode: 'headless-shell',
 		});
 
 		const storage = new Storage();

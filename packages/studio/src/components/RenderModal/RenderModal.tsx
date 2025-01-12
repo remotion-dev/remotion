@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -221,7 +222,6 @@ type RenderModalProps = {
 	readonly initialGl: OpenGlRenderer | null;
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
-	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
 	readonly initialEncodingMaxRate: string | null;
 	readonly initialEncodingBufferSize: string | null;
@@ -237,6 +237,7 @@ type RenderModalProps = {
 	readonly initialForSeamlessAacConcatenation: boolean;
 	readonly initialHardwareAcceleration: HardwareAccelerationOption;
 	readonly renderTypeOfLastRender: RenderType | null;
+	readonly initialChromeMode: ChromeMode;
 	readonly defaultMetadata: Record<string, string> | null;
 };
 
@@ -268,7 +269,6 @@ const RenderModal: React.FC<
 	initialEnvVariables,
 	initialDisableWebSecurity,
 	initialGl,
-	initialHeadless,
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
@@ -286,6 +286,7 @@ const RenderModal: React.FC<
 	renderTypeOfLastRender,
 	initialHardwareAcceleration,
 	defaultMetadata,
+	initialChromeMode,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -393,7 +394,6 @@ const RenderModal: React.FC<
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
 		() => initialDisableWebSecurity,
 	);
-	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
@@ -413,7 +413,6 @@ const RenderModal: React.FC<
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
-			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
@@ -422,7 +421,6 @@ const RenderModal: React.FC<
 			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
 	}, [
-		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
@@ -480,6 +478,7 @@ const RenderModal: React.FC<
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		() => initialDelayRenderTimeout,
 	);
+	const [chromeMode, setChromeMode] = useState(() => initialChromeMode);
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
@@ -749,6 +748,7 @@ const RenderModal: React.FC<
 			multiProcessOnLinux,
 			beepOnFinish,
 			metadata,
+			chromeMode,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -776,6 +776,7 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		setSelectedModal,
 		metadata,
+		chromeMode,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -849,6 +850,7 @@ const RenderModal: React.FC<
 			separateAudioTo,
 			metadata,
 			hardwareAcceleration,
+			chromeMode,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -900,6 +902,7 @@ const RenderModal: React.FC<
 		setSelectedModal,
 		metadata,
 		hardwareAcceleration,
+		chromeMode,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -927,6 +930,7 @@ const RenderModal: React.FC<
 			beepOnFinish,
 			repro,
 			metadata,
+			chromeMode,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -958,6 +962,7 @@ const RenderModal: React.FC<
 		repro,
 		setSelectedModal,
 		metadata,
+		chromeMode,
 	]);
 
 	useEffect(() => {
@@ -1400,8 +1405,6 @@ const RenderModal: React.FC<
 							setDisallowParallelEncoding={setDisallowParallelEncoding}
 							setDisableWebSecurity={setDisableWebSecurity}
 							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
-							setHeadless={setHeadless}
-							headless={headless}
 							ignoreCertificateErrors={ignoreCertificateErrors}
 							disableWebSecurity={disableWebSecurity}
 							openGlOption={openGlOption}
@@ -1423,6 +1426,8 @@ const RenderModal: React.FC<
 							setRepro={setRepro}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
+							chromeModeOption={chromeMode}
+							setChromeModeOption={setChromeMode}
 						/>
 					)}
 				</div>

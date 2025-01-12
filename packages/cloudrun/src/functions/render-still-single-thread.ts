@@ -34,7 +34,7 @@ export const renderStillSingleThread = async (
 		);
 	}
 
-	const renderId = randomHash({randomInTests: true});
+	const renderId = body.renderIdOverride ?? randomHash({randomInTests: true});
 
 	try {
 		Log.verbose(
@@ -101,6 +101,7 @@ export const renderStillSingleThread = async (
 			onArtifact: () => {
 				throw new Error('Emitting artifacts is not supported in Cloud Run');
 			},
+			chromeMode: 'headless-shell',
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

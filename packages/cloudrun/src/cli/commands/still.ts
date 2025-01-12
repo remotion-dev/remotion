@@ -20,7 +20,6 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	binariesDirectoryOption,
 } = BrowserSafeApis.options;
 
@@ -61,14 +60,10 @@ export const stillCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
-	const headless = headlessOption.getValue({
-		commandLine: CliInternals.parsedCli,
-	}).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -141,6 +136,7 @@ export const stillCommand = async (
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
 				}),
+				chromeMode: 'headless-shell',
 			});
 		composition = compositionId;
 	}

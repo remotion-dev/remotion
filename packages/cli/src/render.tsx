@@ -28,7 +28,6 @@ const {
 	encodingBufferSizeOption,
 	reproOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
@@ -38,6 +37,7 @@ const {
 	publicDirOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -121,7 +121,6 @@ export const render = async (
 	const colorSpace = colorSpaceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
@@ -140,9 +139,6 @@ export const render = async (
 	}).value;
 	const repro = reproOption.getValue({commandLine: parsedCli}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const overwrite = overwriteOption.getValue(
@@ -165,12 +161,12 @@ export const render = async (
 	}).value;
 	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -243,5 +239,6 @@ export const render = async (
 		publicPath,
 		metadata,
 		hardwareAcceleration,
+		chromeMode,
 	});
 };

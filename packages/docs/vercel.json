@@ -328,6 +328,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/chrome-for-testing",
+			"destination": "/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead",
+			"permanent": false
+		},
+		{
 			"source": "/media-parser",
 			"destination": "/docs/media-parser",
 			"permanent": false
@@ -370,6 +375,11 @@
 		{
 			"source": "/leads",
 			"destination": "https://github.com/orgs/remotion-dev/projects/15/views/1",
+			"permanent": false
+		},
+		{
+			"source": "/discord-blue-badges",
+			"destination": "https://github.com/remotion-dev/business/issues/347",
 			"permanent": false
 		},
 		{

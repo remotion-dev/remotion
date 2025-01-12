@@ -184,6 +184,10 @@ export const prefetch = (
 			resolve(objectUrl);
 		})
 		.catch((err) => {
+			if (err?.message.includes('free() called')) {
+				return;
+			}
+
 			reject(err);
 		});
 

@@ -3,6 +3,7 @@ import type {
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
+	ChromeMode,
 	ChromiumOptions,
 	Codec,
 	ColorSpace,
@@ -112,6 +113,7 @@ export const renderVideoFlow = async ({
 	publicPath,
 	metadata,
 	hardwareAcceleration,
+	chromeMode,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -167,6 +169,7 @@ export const renderVideoFlow = async ({
 	publicPath: string | null;
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
+	chromeMode: ChromeMode;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -191,6 +194,7 @@ export const renderVideoFlow = async ({
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -202,6 +206,7 @@ export const renderVideoFlow = async ({
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	let isUsingParallelEncoding = false;
@@ -330,6 +335,7 @@ export const renderVideoFlow = async ({
 			offthreadVideoCacheSizeInBytes,
 			binariesDirectory,
 			onBrowserDownload,
+			chromeMode,
 		});
 
 	const {onArtifact} = handleOnArtifact({
@@ -512,6 +518,7 @@ export const renderVideoFlow = async ({
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
 			onArtifact,
+			chromeMode,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
@@ -604,6 +611,7 @@ export const renderVideoFlow = async ({
 		onArtifact,
 		metadata: metadata ?? null,
 		hardwareAcceleration,
+		chromeMode,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

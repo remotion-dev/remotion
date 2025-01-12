@@ -10,7 +10,7 @@ If you are on Linux, Chrome Headless Shell requires some shared libraries to be 
 ## Ubuntu 24.04
 
 ```bash
-RUN apt install -y \
+apt install -y \
   libnss3 \
   libdbus-1-3 \
   libatk1.0-0 \
@@ -27,7 +27,7 @@ RUN apt install -y \
 ## Older versions of Ubuntu
 
 ```bash
-RUN apt install -y \
+apt install -y \
   libnss3 \
   libdbus-1-3 \
   libatk1.0-0 \
@@ -44,7 +44,7 @@ RUN apt install -y \
 ## Debian
 
 ```bash
-RUN apt install -y \
+apt install -y \
   libnss3 \
   libdbus-1-3 \
   libatk1.0-0 \
@@ -64,7 +64,7 @@ RUN apt install -y \
 ## Amazon Linux 2023
 
 ```bash
-RUN yum install -y \
+yum install -y \
   mesa-libgbm	\
   libX11 \
   libXrandr\

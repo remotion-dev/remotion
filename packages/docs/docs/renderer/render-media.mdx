@@ -272,13 +272,7 @@ const onProgress: RenderMediaOnProgress = ({progress}) => {
 ```tsx twoslash title="Advanced example - Fine-grained progress values"
 import {RenderMediaOnProgress} from '@remotion/renderer';
 
-const onProgress: RenderMediaOnProgress = ({
-  renderedFrames,
-  encodedFrames,
-  encodedDoneIn,
-  renderedDoneIn,
-  stitchStage,
-}) => {
+const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage}) => {
   if (stitchStage === 'encoding') {
     // First pass, parallel rendering of frames and encoding into video
     console.log('Encoding...');
@@ -399,11 +393,15 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### ~`headless?`~
 
-<Options id="disable-headless" />
+_removed in v5.0_
 
 #### `gl?`
 
 <Options id="gl" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 #### `userAgent?`<AvailableFrom v="3.3.83"/>
 

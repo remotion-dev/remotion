@@ -29,7 +29,6 @@ const {
 	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
-	headlessOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
@@ -100,9 +99,6 @@ export const renderCommand = async (
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
-		commandLine: CliInternals.parsedCli,
-	}).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -112,7 +108,6 @@ export const renderCommand = async (
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -174,6 +169,7 @@ export const renderCommand = async (
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
 				}),
+				chromeMode: 'headless-shell',
 			});
 		composition = compositionId;
 	}
@@ -325,6 +321,15 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		indent: false,
 		downloadBehavior: {type: 'play-in-browser'},
 		metadata,
+		renderIdOverride: parsedCloudrunCli['render-id-override'] ?? null,
+		renderStatusWebhook: parsedCloudrunCli.webhook
+			? {
+					url: parsedCloudrunCli.webhook,
+					headers: {},
+					data: null,
+					webhookProgressInterval: null,
+				}
+			: null,
 	});
 
 	if (res.type === 'crash') {

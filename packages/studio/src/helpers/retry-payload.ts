@@ -43,7 +43,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
@@ -64,6 +63,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'still',
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
+			initialChromeMode: job.chromeMode,
 		};
 	}
 
@@ -92,7 +92,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
@@ -115,6 +114,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'sequence',
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
+			initialChromeMode: job.chromeMode,
 		};
 	}
 
@@ -145,7 +145,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
@@ -167,6 +166,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'video',
 			initialHardwareAcceleration: job.hardwareAcceleration,
+			initialChromeMode: job.chromeMode,
 		};
 	}
 

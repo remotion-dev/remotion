@@ -44,7 +44,6 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
@@ -52,6 +51,7 @@ const {
 	publicDirOption,
 	metadataOption,
 	hardwareAccelerationOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -223,15 +223,14 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
-	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -249,6 +248,7 @@ export const benchmarkCommand = async (
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -260,6 +260,7 @@ export const benchmarkCommand = async (
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -318,6 +319,7 @@ export const benchmarkCommand = async (
 			commandLine: parsedCli,
 		}).value,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const ids = (
@@ -497,6 +499,7 @@ export const benchmarkCommand = async (
 					hardwareAcceleration: hardwareAccelerationOption.getValue({
 						commandLine: parsedCli,
 					}).value,
+					chromeMode,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

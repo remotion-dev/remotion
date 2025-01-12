@@ -71,6 +71,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		binariesDirectory: null,
 		onBrowserDownload,
 		onServeUrlVisited,
+		chromeMode: 'headless-shell',
 	});
 
 	const videoConfig: VideoConfig = {

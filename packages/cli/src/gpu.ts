@@ -13,7 +13,7 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const gpuCommand = async (logLevel: LogLevel) => {
@@ -35,15 +35,28 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
+	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		quiet: quietFlagProvided(),
+		indent: false,
+		logLevel,
+	});
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent: false,
+		logLevel,
+		onBrowserDownload,
+		chromeMode,
+	});
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -59,6 +72,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 			logLevel,
 			quiet: quietFlagProvided(),
 		}),
+		chromeMode,
 	});
 	for (const {feature, status} of statuses) {
 		Log.info({indent: false, logLevel}, `${feature}: ${colorStatus(status)}`);

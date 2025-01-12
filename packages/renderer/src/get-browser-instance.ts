@@ -6,6 +6,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
+import type {ChromeMode} from './options/chrome-mode';
 import type {OnBrowserDownload} from './options/on-browser-download';
 
 export const getPageAndCleanupFn = async ({
@@ -16,6 +17,7 @@ export const getPageAndCleanupFn = async ({
 	indent,
 	logLevel,
 	onBrowserDownload,
+	chromeMode,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -24,6 +26,7 @@ export const getPageAndCleanupFn = async ({
 	forceDeviceScaleFactor: number | undefined;
 	logLevel: LogLevel;
 	onBrowserDownload: OnBrowserDownload;
+	chromeMode: ChromeMode;
 }): Promise<{
 	cleanupPage: () => Promise<void>;
 	page: Page;
@@ -58,6 +61,7 @@ export const getPageAndCleanupFn = async ({
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 	const browserPage = await browserInstance.newPage(
 		() => null,

@@ -23,10 +23,10 @@ const {
 	reproOption,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	hardwareAccelerationOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -90,9 +90,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const delayRenderTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const forSeamlessAacConcatenation =
 		forSeamlessAacConcatenationOption.getValue({
 			commandLine: parsedCli,
@@ -101,6 +98,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 		commandLine: parsedCli,
 	}).value;
 	const hardwareAcceleration = hardwareAccelerationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -140,7 +140,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		delayRenderTimeout,
 		audioCodec,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		openGlRenderer: gl,
 		offthreadVideoCacheSizeInBytes,
@@ -153,5 +152,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		forSeamlessAacConcatenation,
 		metadata,
 		hardwareAcceleration,
+		chromeMode,
 	};
 };

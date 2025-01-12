@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -43,7 +44,6 @@ export type RenderModalState = {
 	initialDisableWebSecurity: boolean;
 	initialOpenGlRenderer: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
-	initialHeadless: boolean;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialColorSpace: ColorSpace;
 	initialMultiProcessOnLinux: boolean;
@@ -54,6 +54,7 @@ export type RenderModalState = {
 	initialHardwareAcceleration: HardwareAccelerationOption;
 	initialBeep: boolean;
 	initialRepro: boolean;
+	initialChromeMode: ChromeMode;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;

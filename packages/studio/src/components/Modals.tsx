@@ -61,7 +61,6 @@ export const Modals: React.FC<{
 					initialEnvVariables={modalContextType.initialEnvVariables}
 					initialDisableWebSecurity={modalContextType.initialDisableWebSecurity}
 					initialGl={modalContextType.initialOpenGlRenderer}
-					initialHeadless={modalContextType.initialHeadless}
 					initialIgnoreCertificateErrors={
 						modalContextType.initialIgnoreCertificateErrors
 					}
@@ -91,6 +90,7 @@ export const Modals: React.FC<{
 					initialHardwareAcceleration={
 						modalContextType.initialHardwareAcceleration
 					}
+					initialChromeMode={modalContextType.initialChromeMode}
 				/>
 			)}
 
