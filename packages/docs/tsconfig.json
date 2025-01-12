@@ -11,8 +11,7 @@
 		"noImplicitAny": false,
 		"strictNullChecks": true,
 		"strict": false,
-		"noEmit": true,
-		"incremental": true
+		"noEmit": true
 	},
 	"paths": {
 		"@site/*": ["./*"]

@@ -28,7 +28,8 @@
     "@types/web": "0.0.166",
     "eslint": "8.57.1",
     "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "zod": "3.23.8"
   },
   "private": true
 }

@@ -373,6 +373,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/discord-blue-badges",
+			"destination": "https://github.com/remotion-dev/business/issues/347",
+			"permanent": false
+		},
+		{
 			"source": "/content",
 			"destination": "https://github.com/orgs/remotion-dev/projects/16/views/1?layout=board",
 			"permanent": false

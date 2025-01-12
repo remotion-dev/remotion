@@ -1,5 +1,5 @@
+import {expect, test} from 'bun:test';
 import {renderToString} from 'react-dom/server';
-import {expect, test} from 'vitest';
 import {OffthreadVideo} from '../video/index.js';
 
 test('Passing imageFormat to OffthreadVideo should throw error', () => {

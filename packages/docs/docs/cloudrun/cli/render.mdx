@@ -130,6 +130,39 @@ Specify the name of the service which should be used to perform the render. This
 
 <Options id="video-bitrate" />
 
+### `--webhook`
+
+Your webhook URL that will be called with the progress of the render. This will be sent using a POST request.
+
+Example:
+```bash
+--webhook=https://example.com/webhook
+```
+
+The webhook will receive a POST request with a JSON body containing:
+```json
+{
+  "progress": 0.1,
+  "renderedFrames": 100,
+  "encodedFrames": 100,
+  "renderId": "1234567890",
+  "projectId": "1234567890"
+}
+```
+
+### `--render-id-override`
+
+Provide a specific render ID for the render. Otherwise a random one will be generated.
+
+Example:
+```bash
+--render-id-override=my-custom-render-id
+```
+
+:::note
+You will be responsible for ensuring that the render ID is unique, otherwise it will overwrite existing renders with the same configured Render ID.
+:::
+
 ### `--prores-profile`
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.

@@ -17,7 +17,6 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
 	publicPathOption,
@@ -92,9 +91,6 @@ export const still = async (
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const overwrite = overwriteOption.getValue(
 		{
 			commandLine: parsedCli,
@@ -115,7 +111,6 @@ export const still = async (
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};

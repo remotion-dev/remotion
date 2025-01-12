@@ -221,7 +221,6 @@ type RenderModalProps = {
 	readonly initialGl: OpenGlRenderer | null;
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
-	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
 	readonly initialEncodingMaxRate: string | null;
 	readonly initialEncodingBufferSize: string | null;
@@ -268,7 +267,6 @@ const RenderModal: React.FC<
 	initialEnvVariables,
 	initialDisableWebSecurity,
 	initialGl,
-	initialHeadless,
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
@@ -393,7 +391,6 @@ const RenderModal: React.FC<
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
 		() => initialDisableWebSecurity,
 	);
-	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
@@ -413,7 +410,6 @@ const RenderModal: React.FC<
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
-			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
@@ -422,7 +418,6 @@ const RenderModal: React.FC<
 			enableMultiProcessOnLinux: multiProcessOnLinux,
 		};
 	}, [
-		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
@@ -1400,8 +1395,6 @@ const RenderModal: React.FC<
 							setDisallowParallelEncoding={setDisallowParallelEncoding}
 							setDisableWebSecurity={setDisableWebSecurity}
 							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
-							setHeadless={setHeadless}
-							headless={headless}
 							ignoreCertificateErrors={ignoreCertificateErrors}
 							disableWebSecurity={disableWebSecurity}
 							openGlOption={openGlOption}

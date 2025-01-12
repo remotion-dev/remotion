@@ -23,7 +23,6 @@ const {
 	reproOption,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	hardwareAccelerationOption,
@@ -90,9 +89,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const delayRenderTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const forSeamlessAacConcatenation =
 		forSeamlessAacConcatenationOption.getValue({
 			commandLine: parsedCli,
@@ -140,7 +136,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		delayRenderTimeout,
 		audioCodec,
 		disableWebSecurity,
-		headless,
 		ignoreCertificateErrors,
 		openGlRenderer: gl,
 		offthreadVideoCacheSizeInBytes,
