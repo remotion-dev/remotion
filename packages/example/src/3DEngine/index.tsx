@@ -6,9 +6,11 @@ import {
 	rotateX,
 	rotateY,
 	scaled,
+	translateX,
+	translateY,
 } from '@remotion/svg-3d-engine';
-import React, {useEffect, useRef, useState} from 'react';
-import {AbsoluteFill, useCurrentScale} from 'remotion';
+import React, {useRef} from 'react';
+import {AbsoluteFill} from 'remotion';
 import {Svg} from './Svg';
 
 const measure = (
@@ -26,41 +28,41 @@ const measure = (
 };
 
 const transformations: MatrixTransform4D[] = [
-	scaled(1.3),
+	scaled(0.9),
 	rotateY(Math.PI / 8),
 	rotateX(Math.PI / 8),
 ];
 
 export const ThreeDEngine = () => {
 	const ref = useRef<HTMLDivElement>(null);
-	const [svgShape, setSvgShape] = useState<string | null>(null);
-	const scale = useCurrentScale();
 
-	useEffect(() => {
-		const measured = measure(ref, scale);
-		const path = makeRect({
-			width: measured.width,
-			height: measured.height,
-		});
-
-		setSvgShape((p) => (p === null ? path.path : p));
-	}, [scale]);
+	const width = 300;
+	const height = 300;
 
 	const reduced = reduceMatrices(transformations);
+	const centerOriented = reduceMatrices([
+		translateX(-width / 2),
+		translateY(-height / 2),
+		...transformations,
+		translateX(width / 2),
+		translateY(height / 2),
+	]);
 
 	return (
 		<AbsoluteFill className="flex justify-center items-center">
 			<div
 				ref={ref}
 				style={{
-					transformOrigin: 'top left',
-					transform: svgShape ? makeMatrix3dTransform(reduced) : undefined,
+					transform: makeMatrix3dTransform(reduced),
 				}}
 				className="bg-red-700 text-white w-[300px] h-[300px] flex justify-center items-center font-sans text-2xl"
 			>
 				hi there
 			</div>
-			{svgShape ? <Svg transformation={reduced} svgShape={svgShape} /> : null}
+			<Svg
+				transformation={centerOriented}
+				svgShape={makeRect({height, width}).path}
+			/>
 		</AbsoluteFill>
 	);
 };
