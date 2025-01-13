@@ -188,6 +188,35 @@ export const makeMatrix3dTransform = function (
 	].join(', ')}`;
 };
 
+const interpolate = (a: number, b: number, t: number) => {
+	return a + (b - a) * t;
+};
+
+export const interpolateMatrix4d = (
+	input: number,
+	matrix1: MatrixTransform4D,
+	matrix2: MatrixTransform4D,
+): MatrixTransform4D => {
+	return [
+		interpolate(matrix1[0], matrix2[0], input),
+		interpolate(matrix1[1], matrix2[1], input),
+		interpolate(matrix1[2], matrix2[2], input),
+		interpolate(matrix1[3], matrix2[3], input),
+		interpolate(matrix1[4], matrix2[4], input),
+		interpolate(matrix1[5], matrix2[5], input),
+		interpolate(matrix1[6], matrix2[6], input),
+		interpolate(matrix1[7], matrix2[7], input),
+		interpolate(matrix1[8], matrix2[8], input),
+		interpolate(matrix1[9], matrix2[9], input),
+		interpolate(matrix1[10], matrix2[10], input),
+		interpolate(matrix1[11], matrix2[11], input),
+		interpolate(matrix1[12], matrix2[12], input),
+		interpolate(matrix1[13], matrix2[13], input),
+		interpolate(matrix1[14], matrix2[14], input),
+		interpolate(matrix1[15], matrix2[15], input),
+	] as const;
+};
+
 export const scaled = function (value: number | Vector) {
 	const vec: Vector = typeof value === 'number' ? [value, value, value] : value;
 	return stride({v: vec, m: identity4(), width: 4, offset: 0, colStride: 1});

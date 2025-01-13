@@ -2,11 +2,11 @@ import type {Instruction} from '@remotion/paths';
 import {PathInternals, reduceInstructions} from '@remotion/paths';
 import type {ThreeDReducedInstruction} from './3d-svg';
 import type {ThreeDElement} from './elements';
-import {makeElement} from './elements';
+import {makeElement, transformElement} from './elements';
 import {turnInto3D} from './fix-z';
 import type {FaceType} from './map-face';
 import {transformFace, translateSvgInstruction} from './map-face';
-import type {Vector4D} from './matrix';
+import type {MatrixTransform4D, Vector4D} from './matrix';
 import {translateZ} from './matrix';
 import {subdivideInstructions} from './subdivide-instructions';
 import {truthy} from './truthy';
@@ -56,6 +56,18 @@ const inverseInstruction = (
 	throw new Error('Unknown instruction type');
 };
 
+type ExtrudeElementOptions = {
+	depth: number;
+	sideColor: string;
+	frontFaceColor: string;
+	backFaceColor: string;
+	points: Instruction[];
+	strokeWidth: number;
+	description?: string;
+	strokeColor: string;
+	crispEdges: boolean;
+};
+
 export const extrudeElement = ({
 	depth,
 	sideColor,
@@ -63,20 +75,10 @@ export const extrudeElement = ({
 	backFaceColor,
 	points,
 	strokeWidth,
-	description,
+	description = 'extruded',
 	strokeColor,
 	crispEdges,
-}: {
-	depth: number;
-	sideColor: string;
-	frontFaceColor: string;
-	backFaceColor: string;
-	points: Instruction[];
-	strokeWidth: number;
-	description: string;
-	strokeColor: string;
-	crispEdges: boolean;
-}): ThreeDElement => {
+}: ExtrudeElementOptions): ThreeDElement => {
 	const boundingBox = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(points),
 	);
@@ -93,14 +95,12 @@ export const extrudeElement = ({
 		strokeWidth,
 		strokeColor,
 		color: 'black',
-		description,
+		description: description ?? 'extruded',
 		crispEdges,
 	};
 
-	const unscaledBackFace = transformFace(instructions, [translateZ(depth / 2)]);
-	const unscaledFrontFace = transformFace(instructions, [
-		translateZ(-depth / 2),
-	]);
+	const unscaledBackFace = transformFace(instructions, []);
+	const unscaledFrontFace = transformFace(instructions, [translateZ(-depth)]);
 
 	const inbetween = unscaledBackFace.points.map((t, i): FaceType => {
 		const nextInstruction =
@@ -168,9 +168,17 @@ export const extrudeElement = ({
 		description: description + '(back)',
 	};
 
-	return makeElement(
-		[...inbetween, scaledFrontFace, scaledBackFace],
-		[centerX, centerY, 0, 1],
+	return makeElement({
+		face: [...inbetween, scaledFrontFace, scaledBackFace],
+		centerPoint: [centerX, centerY, 0, 1],
 		description,
-	);
+	});
+};
+
+export const extrudeAndTransformElement = (
+	options: ExtrudeElementOptions & {
+		transformations: MatrixTransform4D;
+	},
+): ThreeDElement => {
+	return transformElement(extrudeElement(options), [options.transformations]);
 };
