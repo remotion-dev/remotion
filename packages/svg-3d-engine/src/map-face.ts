@@ -4,11 +4,7 @@ import type {ThreeDElement} from './elements';
 import {transformElement} from './elements';
 import {turnInto3D} from './fix-z';
 import type {MatrixTransform4D, Vector4D} from './matrix';
-import {
-	multiplyMatrix,
-	multiplyMatrixAndSvgInstruction,
-	reduceMatrices,
-} from './matrix';
+import {multiplyMatrix, multiplyMatrixAndSvgInstruction} from './matrix';
 
 export type FaceType = {
 	color: string;
@@ -109,20 +105,17 @@ export const translateSvgInstruction = (
 
 export const transformPath = ({
 	path,
-	transformations,
+	transformation,
 }: {
 	path: string;
-	transformations: MatrixTransform4D[];
+	transformation: MatrixTransform4D;
 }): string => {
 	const parsed = parsePath(path);
 	const reduced = reduceInstructions(parsed);
 	const threeD = turnInto3D(reduced);
 	return threeDIntoSvgPath(
 		threeD.map((p) => {
-			return multiplyMatrixAndSvgInstruction(
-				reduceMatrices(transformations),
-				p,
-			);
+			return multiplyMatrixAndSvgInstruction(transformation, p);
 		}),
 	);
 };

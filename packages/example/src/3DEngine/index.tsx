@@ -1,6 +1,8 @@
 import {makeRect} from '@remotion/shapes';
 import {
+	makeMatrix3dTransform,
 	MatrixTransform4D,
+	reduceMatrices,
 	rotateX,
 	rotateY,
 	scaled,
@@ -13,18 +15,18 @@ const measure = (
 	ref: React.RefObject<HTMLDivElement | null>,
 	scale: number,
 ) => {
-	const reffed = ref.current?.getBoundingClientRect();
-	if (!reffed) {
+	const reffed = ref.current?.getClientRects();
+	if (!reffed?.[0]) {
 		throw new Error('No ref');
 	}
 	return {
-		width: reffed.width / scale,
-		height: reffed.height / scale,
+		width: reffed[0].width / scale,
+		height: reffed[0].height / scale,
 	};
 };
 
 const transformations: MatrixTransform4D[] = [
-	scaled(2),
+	scaled(1.3),
 	rotateY(Math.PI / 8),
 	rotateX(Math.PI / 8),
 ];
@@ -41,20 +43,24 @@ export const ThreeDEngine = () => {
 			height: measured.height,
 		});
 
-		setSvgShape(path.path);
+		setSvgShape((p) => (p === null ? path.path : p));
 	}, [scale]);
+
+	const reduced = reduceMatrices(transformations);
 
 	return (
 		<AbsoluteFill className="flex justify-center items-center">
 			<div
 				ref={ref}
+				style={{
+					transformOrigin: 'top left',
+					transform: svgShape ? makeMatrix3dTransform(reduced) : undefined,
+				}}
 				className="bg-red-700 text-white w-[300px] h-[300px] flex justify-center items-center font-sans text-2xl"
 			>
 				hi there
 			</div>
-			{svgShape ? (
-				<Svg transformations={transformations} svgShape={svgShape} />
-			) : null}
+			{svgShape ? <Svg transformation={reduced} svgShape={svgShape} /> : null}
 		</AbsoluteFill>
 	);
 };

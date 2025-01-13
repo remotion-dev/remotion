@@ -7,6 +7,8 @@ export {transformElement} from './elements';
 export {extrudeElement} from './extrude-element';
 export {transformPath} from './map-face';
 export {
+	makeMatrix3dTransform,
+	reduceMatrices,
 	rotateX,
 	rotateY,
 	rotateZ,

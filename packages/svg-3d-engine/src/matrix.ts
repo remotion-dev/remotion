@@ -165,6 +165,29 @@ export const reduceMatrices = (
 		}, identity4());
 };
 
+export const makeMatrix3dTransform = function (
+	matrix: MatrixTransform4D,
+): string {
+	return `matrix3d(${[
+		matrix[0],
+		matrix[4],
+		matrix[8],
+		matrix[12], // First column
+		matrix[1],
+		matrix[5],
+		matrix[9],
+		matrix[13], // Second column
+		matrix[2],
+		matrix[6],
+		matrix[10],
+		matrix[14], // Third column
+		matrix[3],
+		matrix[7],
+		matrix[11],
+		matrix[15], // Fourth column
+	].join(', ')}`;
+};
+
 export const scaled = function (value: number | Vector) {
 	const vec: Vector = typeof value === 'number' ? [value, value, value] : value;
 	return stride({v: vec, m: identity4(), width: 4, offset: 0, colStride: 1});

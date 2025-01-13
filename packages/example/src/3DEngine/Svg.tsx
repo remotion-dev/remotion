@@ -4,8 +4,8 @@ import React, {useMemo} from 'react';
 
 export const Svg: React.FC<{
 	readonly svgShape: string;
-	readonly transformations: MatrixTransform4D[];
-}> = ({svgShape, transformations}) => {
+	readonly transformation: MatrixTransform4D;
+}> = ({svgShape, transformation}) => {
 	const boundingBox = useMemo(() => getBoundingBox(svgShape), [svgShape]);
 
 	return (
@@ -18,7 +18,7 @@ export const Svg: React.FC<{
 			}}
 		>
 			<path
-				d={transformPath({path: svgShape, transformations})}
+				d={transformPath({path: svgShape, transformation})}
 				fill="gray"
 				stroke="black"
 				strokeWidth="1"
