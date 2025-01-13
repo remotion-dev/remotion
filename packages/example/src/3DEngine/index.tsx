@@ -1,7 +1,13 @@
-import {getBoundingBox} from '@remotion/paths';
 import {makeRect} from '@remotion/shapes';
+import {
+	MatrixTransform4D,
+	rotateX,
+	rotateY,
+	scaled,
+} from '@remotion/svg-3d-engine';
 import React, {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useCurrentScale} from 'remotion';
+import {Svg} from './Svg';
 
 const measure = (
 	ref: React.RefObject<HTMLDivElement | null>,
@@ -16,6 +22,12 @@ const measure = (
 		height: reffed.height / scale,
 	};
 };
+
+const transformations: MatrixTransform4D[] = [
+	scaled(2),
+	rotateY(Math.PI / 8),
+	rotateX(Math.PI / 8),
+];
 
 export const ThreeDEngine = () => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -41,16 +53,7 @@ export const ThreeDEngine = () => {
 				hi there
 			</div>
 			{svgShape ? (
-				<svg
-					viewBox={getBoundingBox(svgShape).viewBox}
-					style={{
-						height: getBoundingBox(svgShape).height,
-						width: getBoundingBox(svgShape).width,
-						overflow: 'visible',
-					}}
-				>
-					<path d={svgShape} fill="gray" stroke="black" strokeWidth="1" />
-				</svg>
+				<Svg transformations={transformations} svgShape={svgShape} />
 			) : null}
 		</AbsoluteFill>
 	);

@@ -1,10 +1,14 @@
-import {parsePath} from '@remotion/paths';
-import type {ThreeDReducedInstruction} from './3d-svg';
+import {parsePath, reduceInstructions} from '@remotion/paths';
+import {threeDIntoSvgPath, type ThreeDReducedInstruction} from './3d-svg';
 import type {ThreeDElement} from './elements';
 import {transformElement} from './elements';
 import {turnInto3D} from './fix-z';
 import type {MatrixTransform4D, Vector4D} from './matrix';
-import {multiplyMatrix, multiplyMatrixAndSvgInstruction} from './matrix';
+import {
+	multiplyMatrix,
+	multiplyMatrixAndSvgInstruction,
+	reduceMatrices,
+} from './matrix';
 
 export type FaceType = {
 	color: string;
@@ -101,6 +105,26 @@ export const translateSvgInstruction = (
 	}
 
 	throw new Error('Unknown instruction type: ' + JSON.stringify(instruction));
+};
+
+export const transformPath = ({
+	path,
+	transformations,
+}: {
+	path: string;
+	transformations: MatrixTransform4D[];
+}): string => {
+	const parsed = parsePath(path);
+	const reduced = reduceInstructions(parsed);
+	const threeD = turnInto3D(reduced);
+	return threeDIntoSvgPath(
+		threeD.map((p) => {
+			return multiplyMatrixAndSvgInstruction(
+				reduceMatrices(transformations),
+				p,
+			);
+		}),
+	);
 };
 
 export const transformFace = (

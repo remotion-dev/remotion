@@ -34,6 +34,7 @@
 		{"path": "../three"},
 		{"path": "../transitions"},
 		{"path": "../zod-types"},
+		{"path": "../svg-3d-engine"},
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
 		{"path": "../layout-utils"}

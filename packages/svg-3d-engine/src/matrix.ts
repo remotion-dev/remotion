@@ -137,6 +137,34 @@ export type MatrixTransform4D = [
 	number,
 ];
 
+export const multiplyMatrices = (
+	matrix1: MatrixTransform4D,
+	matrix2: MatrixTransform4D,
+): MatrixTransform4D => {
+	const result: MatrixTransform4D = new Array(16).fill(0) as MatrixTransform4D;
+
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 4; j++) {
+			for (let k = 0; k < 4; k++) {
+				result[i * 4 + j] += matrix1[i * 4 + k] * matrix2[k * 4 + j];
+			}
+		}
+	}
+
+	return result;
+};
+
+export const reduceMatrices = (
+	matrices: MatrixTransform4D[],
+): MatrixTransform4D => {
+	return matrices
+		.slice()
+		.reverse()
+		.reduce((acc, cur) => {
+			return multiplyMatrices(acc, cur);
+		}, identity4());
+};
+
 export const scaled = function (value: number | Vector) {
 	const vec: Vector = typeof value === 'number' ? [value, value, value] : value;
 	return stride({v: vec, m: identity4(), width: 4, offset: 0, colStride: 1});
