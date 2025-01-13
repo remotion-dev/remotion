@@ -67,10 +67,7 @@ export type WebhookTimeoutPayload = StaticWebhookPayload & {
   type: 'timeout';
 };
 
-export type WebhookPayload =
-  | WebhookErrorPayload
-  | WebhookSuccessPayload
-  | WebhookTimeoutPayload;
+export type WebhookPayload = WebhookErrorPayload | WebhookSuccessPayload | WebhookTimeoutPayload;
 ```
 
 The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
@@ -145,12 +142,12 @@ Instead of validating the signature yourself, you can use the [`validateWebhookS
 You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework, we are using [expressWebhook()](/docs/lambda/expresswebhook) to simplify the process.
 
 ```javascript twoslash title="server.js"
-const ENABLE_TESTING = false
+const ENABLE_TESTING = false;
 
 // ---cut---
-import express from "express";
-import bodyParser from "body-parser";
-import { expressWebhook } from "@remotion/lambda/client";
+import express from 'express';
+import bodyParser from 'body-parser';
+import {expressWebhook} from '@remotion/lambda/client';
 
 const router = express();
 const jsonParser = bodyParser.json();
@@ -163,39 +160,34 @@ const handler = expressWebhook({
   onError: ({renderId}) => console.log('Error', renderId),
 });
 
-router.post("/webhook", jsonParser, handler);
+router.post('/webhook', jsonParser, handler);
 
-router.options("/webhook", jsonParser, handler);
-
+router.options('/webhook', jsonParser, handler);
 
 router.listen(3000, () => {
-  console.log("Server is running on port 3000");
+  console.log('Server is running on port 3000');
 });
 ```
 
 This can also be done manually, to have the maximum control over the endpoint's logic:
 
 ```javascript twoslash title="server.js"
-import express from "express";
-import bodyParser from "body-parser";
-import { validateWebhookSignature } from "@remotion/lambda/client";
+import express from 'express';
+import bodyParser from 'body-parser';
+import {validateWebhookSignature} from '@remotion/lambda/client';
 
 const router = express();
 const jsonParser = bodyParser.json();
 
-const handler = (req, res)  => {
+const handler = (req, res) => {
   //  add headers to enable  testing
-  const ENABLE_TESTING = true
+  const ENABLE_TESTING = true;
 
   if (ENABLE_TESTING) {
-    res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
-    res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
-    );
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode');
   }
-
 
   // dont go forward if just testing
   if (req.method === 'OPTIONS') {
@@ -215,7 +207,7 @@ const handler = (req, res)  => {
   //  custom logic
   const payload = req.body;
   if (payload.type === 'success') {
-      //success logic here
+    //success logic here
   } else if (payload.type === 'error') {
     //error logic here
   } else if (payload.type === 'timeout') {
@@ -226,16 +218,14 @@ const handler = (req, res)  => {
   res.status(200).json({success: true});
 };
 
-router.post("/webhook", jsonParser, handler);
+router.post('/webhook', jsonParser, handler);
 
-router.options("/webhook", jsonParser, handler);
-
+router.options('/webhook', jsonParser, handler);
 
 router.listen(3000, () => {
-  console.log("Server is running on port 3000");
+  console.log('Server is running on port 3000');
 });
 ```
-
 
 ## Example webhook endpoint (Next.JS App Router)
 
