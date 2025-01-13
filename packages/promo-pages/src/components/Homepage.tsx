@@ -25,7 +25,7 @@ export const NewLanding: React.FC<{
 }> = ({colorMode, setColorMode}) => {
 	return (
 		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
-			<div data-theme={colorMode} className="bg-[var(--background)] relative">
+			<div className="bg-[var(--background)] relative">
 				<div>
 					<div>
 						<BackgroundAnimation />
