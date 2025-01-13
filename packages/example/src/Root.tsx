@@ -113,6 +113,7 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {ThreeDEngine} from './3DEngine';
 import {AnimatedImages} from './AnimatedImage/Avif';
 
 class Vector2 {
@@ -1494,6 +1495,12 @@ export const Index: React.FC = () => {
 			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
+			<Still
+				id="ThreeDEngine"
+				component={ThreeDEngine}
+				height={1000}
+				width={1000}
+			/>
 		</>
 	);
 };
