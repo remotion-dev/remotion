@@ -13,6 +13,7 @@ export type RemotionAnimatedImageProps = {
 	style?: React.CSSProperties;
 	loopBehavior?: RemotionAnimatedImageLoopBehavior;
 	id?: string;
+	className?: string;
 };
 
 export type AnimatedImageFillMode = 'contain' | 'cover' | 'fill';
