@@ -106,6 +106,12 @@ export const TableOfContents: React.FC = () => {
 						Handle incoming webhooks specifically for the Next.js pages router
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/expresswebhook">
+					<strong>expressWebhook()</strong>
+					<div>
+						Handle incoming webhooks specifically for Express.js
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

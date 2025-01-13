@@ -7,6 +7,7 @@ export type {
 export type {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
 export {NextWebhookArgs, appRouterWebhook} from './api/app-router-webhook';
 export {deleteRender, type DeleteRenderInput} from './api/delete-render';
+export {expressWebhook} from './api/express-webhook';
 export {
 	getAwsClient,
 	type GetAwsClientInput,
