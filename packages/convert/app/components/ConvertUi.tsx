@@ -68,7 +68,7 @@ export default function ConvertUI({
 	readonly tracks: TracksField | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
-	readonly dimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null | undefined;
 	readonly duration: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
@@ -101,7 +101,9 @@ export default function ConvertUI({
 	);
 	const [resizeOperation, setResizeOperation] =
 		useState<ResizeOperation | null>(() => {
-			return action.type === 'resize-format' || action.type === 'generic-resize'
+			return (action.type === 'resize-format' ||
+				action.type === 'generic-resize') &&
+				dimensions
 				? getInitialResizeSuggestion(dimensions)
 				: null;
 		});
