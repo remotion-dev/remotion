@@ -3,6 +3,8 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {getMpegFrameLength} from './get-frame-length';
+import {getSamplesPerMpegFrame} from './samples-per-mpeg-file';
 
 type Version = 1 | 2;
 type Level = 1 | 2 | 3;
@@ -172,40 +174,6 @@ function getBitrateKB({
 	return bitrateTable[bits][key];
 }
 
-const getSamplesPerFrame = ({
-	mpegVersion,
-	layer,
-}: {
-	mpegVersion: 1 | 2;
-	layer: number;
-}) => {
-	if (mpegVersion === 1) {
-		if (layer === 1) {
-			return 384;
-		}
-
-		if (layer === 2 || layer === 3) {
-			return 1152;
-		}
-	}
-
-	if (mpegVersion === 2) {
-		if (layer === 1) {
-			return 384;
-		}
-
-		if (layer === 2) {
-			return 1152;
-		}
-
-		if (layer === 3) {
-			return 576;
-		}
-	}
-
-	throw new Error('Invalid MPEG layer');
-};
-
 export const parseMpegHeader = async ({
 	iterator,
 	state,
@@ -275,11 +243,11 @@ export const parseMpegHeader = async ({
 
 	const samplingFrequencyIndex = iterator.getBits(2);
 
-	const samplingFrequency = getSamplingFrequency({
+	const sampleRate = getSamplingFrequency({
 		bits: samplingFrequencyIndex,
 		mpegVersion,
 	});
-	const padding = iterator.getBits(1);
+	const padding = Boolean(iterator.getBits(1));
 	iterator.getBits(1); // private bit
 	iterator.getBits(2); // channel mode
 	iterator.getBits(2); // mode extension
@@ -287,12 +255,14 @@ export const parseMpegHeader = async ({
 	iterator.getBits(1); // original
 	iterator.getBits(2); // emphasis
 
-	const samplesPerFrame = getSamplesPerFrame({mpegVersion, layer});
+	const samplesPerFrame = getSamplesPerMpegFrame({mpegVersion, layer});
 
-	const frameLength =
-		Math.floor(
-			(((samplesPerFrame / 8) * bitrateKbit) / samplingFrequency) * 1000,
-		) + (padding ? 1 : 0);
+	const frameLength = getMpegFrameLength({
+		bitrateKbit,
+		padding,
+		samplesPerFrame,
+		samplingFrequency: sampleRate,
+	});
 
 	iterator.stopReadingBits();
 
@@ -301,6 +271,13 @@ export const parseMpegHeader = async ({
 	const data = iterator.getSlice(frameLength);
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
+		state.mp3Info.setMp3Info({
+			layer,
+			mpegVersion,
+			sampleRate,
+			bitrateKbit,
+			startOfMpegStream: initialOffset,
+		});
 		await registerTrack({
 			container: 'mp3',
 			state,
@@ -314,7 +291,7 @@ export const parseMpegHeader = async ({
 				description: undefined,
 				// todo: return right amount of channels
 				numberOfChannels: 2,
-				sampleRate: samplingFrequency,
+				sampleRate,
 				timescale: 1_000_000,
 				trackId: 0,
 				trakBox: null,

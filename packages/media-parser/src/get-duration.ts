@@ -5,6 +5,7 @@ import {
 	getMoovBox,
 	getMvhdBox,
 } from './boxes/iso-base-media/traversal';
+import {getDurationFromMp3} from './boxes/mp3/get-duration';
 import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
@@ -140,8 +141,7 @@ export const getDuration = (
 	}
 
 	if (structure.type === 'mp3') {
-		// TODO: we can calculate duration from file size
-		return null;
+		return getDurationFromMp3(parserState);
 	}
 
 	throw new Error('Has no duration ' + (structure satisfies never));

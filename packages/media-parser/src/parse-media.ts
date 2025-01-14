@@ -69,6 +69,7 @@ export const parseMedia: ParseMedia = async function <
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		supportsContentRange,
+		contentLength,
 	});
 
 	let currentReader = reader;
@@ -94,10 +95,33 @@ export const parseMedia: ParseMedia = async function <
 		});
 	};
 
+	const checkIfDone = () => {
+		if (
+			hasAllInfo({
+				fields,
+				state,
+			})
+		) {
+			Log.verbose(logLevel, 'Got all info, skipping to the end.');
+			if (contentLength !== null) {
+				state.increaseSkippedBytes(
+					contentLength - iterator.counter.getOffset(),
+				);
+			}
+
+			return true;
+		}
+
+		return false;
+	};
+
 	triggerInfoEmit();
 
 	let didProgress = false;
-	while (parseResult === null || parseResult.status === 'incomplete') {
+	while (
+		!checkIfDone() &&
+		(parseResult === null || parseResult.status === 'incomplete')
+	) {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
 		}
@@ -155,22 +179,6 @@ export const parseMedia: ParseMedia = async function <
 			state.increaseSkippedBytes(
 				parseResult.skipTo - iterator.counter.getOffset(),
 			);
-		}
-
-		if (
-			hasAllInfo({
-				fields,
-				state,
-			})
-		) {
-			Log.verbose(logLevel, 'Got all info, skipping to the end.');
-			if (contentLength !== null) {
-				state.increaseSkippedBytes(
-					contentLength - iterator.counter.getOffset(),
-				);
-			}
-
-			break;
 		}
 
 		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
