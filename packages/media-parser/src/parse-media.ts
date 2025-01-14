@@ -31,7 +31,6 @@ export const parseMedia: ParseMedia = async function <
 	onParseProgress,
 	...more
 }: ParseMediaOptions<F>) {
-	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
@@ -48,6 +47,11 @@ export const parseMedia: ParseMedia = async function <
 		contentType,
 		supportsContentRange: readerSupportsContentRange,
 	} = await readerInterface.read(src, null, signal);
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		contentLength ?? 1_000_000_000,
+	);
+
 	const supportsContentRange =
 		readerSupportsContentRange &&
 		!(
@@ -93,39 +97,14 @@ export const parseMedia: ParseMedia = async function <
 	triggerInfoEmit();
 
 	while (parseResult === null || parseResult.status === 'incomplete') {
-		while (true) {
-			if (signal?.aborted) {
-				throw new Error('Aborted');
-			}
-
-			const result = await currentReader.reader.read();
-
-			if (iterator) {
-				if (!result.done) {
-					iterator.addData(result.value);
-				}
-			} else {
-				if (result.done) {
-					throw new Error('Unexpectedly reached EOF');
-				}
-
-				iterator = getArrayBufferIterator(
-					result.value,
-					contentLength ?? 1_000_000_000,
-				);
-			}
-
-			if (iterator.bytesRemaining() >= 0) {
-				break;
-			}
-
-			if (result.done) {
-				break;
-			}
+		if (signal?.aborted) {
+			throw new Error('Aborted');
 		}
 
-		if (!iterator) {
-			throw new Error('Unexpected null');
+		const result = await currentReader.reader.read();
+
+		if (!result.done) {
+			iterator.addData(result.value);
 		}
 
 		await onParseProgress?.({
