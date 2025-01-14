@@ -1,6 +1,8 @@
 // spec: http://www.mp3-tech.org/programmer/frame_header.html
 
 import type {BufferIterator} from '../../buffer-iterator';
+import {registerTrack} from '../../register-track';
+import type {ParserState} from '../../state/parser-state';
 
 type Version = 1 | 2;
 type Level = 1 | 2 | 3;
@@ -170,7 +172,19 @@ function getBitrateKB({
 	return bitrateTable[bits][key];
 }
 
-export const parseMpegHeader = (iterator: BufferIterator) => {
+export const parseMpegHeader = async ({
+	iterator,
+	state,
+}: {
+	iterator: BufferIterator;
+	state: ParserState;
+}): Promise<void> => {
+	const initialOffset = iterator.counter.getOffset();
+
+	if (iterator.bytesRemaining() < 32) {
+		return;
+	}
+
 	iterator.startReadingBits();
 	for (let i = 0; i < 11; i++) {
 		const expectToBe1 = iterator.getBits(1);
@@ -227,30 +241,62 @@ export const parseMpegHeader = (iterator: BufferIterator) => {
 		version: audioVersionId === 0b11 ? 1 : 2,
 	});
 	const padding = iterator.getBits(1);
-	const privateBit = iterator.getBits(1);
-	const channelMode = iterator.getBits(2);
-	const modeExtension = iterator.getBits(2);
-	const copyRight = iterator.getBits(1);
-	const original = iterator.getBits(1);
-	const emphasis = iterator.getBits(2);
+	iterator.getBits(1); // private bit
+	iterator.getBits(2); // channel mode
+	iterator.getBits(2); // mode extension
+	iterator.getBits(1); // copyright
+	iterator.getBits(1); // original
+	iterator.getBits(2); // emphasis
 
 	const frameLength =
+		// TODO: 144 is hardcoded
 		Math.floor(((144 * bitrateKbit) / samplingFrequency) * 1000) +
 		(padding ? 1 : 0);
 
-	return {
-		audioVersionId,
-		layer,
-		protectionBit,
-		bitrateKbit,
-		samplingFrequency,
-		padding,
-		privateBit,
-		channelMode,
-		modeExtension,
-		copyRight,
-		original,
-		emphasis,
-		frameLength,
-	};
+	iterator.stopReadingBits();
+
+	const offsetNow = iterator.counter.getOffset();
+	iterator.counter.decrement(offsetNow - initialOffset);
+	const data = iterator.getSlice(frameLength);
+
+	if (state.callbacks.tracks.getTracks().length === 0) {
+		await registerTrack({
+			container: 'mp3',
+			state,
+			track: {
+				type: 'audio',
+				// todo: investigate if that is right
+				codec: 'mp3',
+				codecPrivate: null,
+				codecWithoutConfig: 'mp3',
+				// todo: investigate if that is right
+				description: undefined,
+				// todo: return right amount of channels
+				numberOfChannels: 2,
+				sampleRate: samplingFrequency,
+				// todo: put right number
+				timescale: 1000,
+				trackId: 0,
+				trakBox: null,
+			},
+		});
+		state.callbacks.tracks.setIsDone();
+	}
+
+	await state.callbacks.onAudioSample(0, {
+		data,
+		// TODO: Put correct
+		cts: 0,
+		// TODO: put correct
+		dts: 0,
+		// TODO: put correct
+		duration: 1000,
+		offset: initialOffset,
+		// TODO: put correct
+		timescale: 1000,
+		// TODO: put correct
+		timestamp: 1000,
+		trackId: 0,
+		type: 'key',
+	});
 };

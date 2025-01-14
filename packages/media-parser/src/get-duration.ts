@@ -139,6 +139,11 @@ export const getDuration = (
 		return null;
 	}
 
+	if (structure.type === 'mp3') {
+		// TODO: we can calculate duration from file size
+		return null;
+	}
+
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 

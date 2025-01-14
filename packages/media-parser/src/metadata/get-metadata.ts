@@ -22,5 +22,10 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 		return [];
 	}
 
+	if (structure.type === 'mp3') {
+		// TODO: we actually have mp3
+		return [];
+	}
+
 	return getMetadataFromIsoBase(structure);
 };

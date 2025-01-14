@@ -14,7 +14,7 @@ import {
 } from './errors';
 import {Log, type LogLevel} from './log';
 import type {Options, ParseMediaFields} from './options';
-import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {IsoBaseMediaBox, Mp3Structure, ParseResult} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export type PartialMdatBox = {
@@ -116,8 +116,15 @@ export const parseVideo = ({
 	}
 
 	if (fileType.type === 'mp3') {
-		parseMp3(iterator);
-		throw new Error('MP3 parsing not implemented');
+		const structure: Mp3Structure = {
+			boxes: [],
+			type: 'mp3',
+		};
+		state.structure.setStructure({
+			boxes: [],
+			type: 'mp3',
+		});
+		return parseMp3({iterator, structure, state});
 	}
 
 	if (fileType.type === 'wav') {

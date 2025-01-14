@@ -10,24 +10,6 @@ import {
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('Should throw IsAnUnsupportedAudio for a mp3', async () => {
-	try {
-		await parseMedia({
-			src: exampleVideos.music,
-			reader: nodeReader,
-		});
-		throw new Error('Expected an error');
-	} catch (e) {
-		if (e instanceof IsAnUnsupportedAudioTypeError) {
-			expect(e.sizeInBytes).toEqual(5007068);
-			expect(e.audioType).toEqual('mp3');
-			return;
-		}
-
-		throw e;
-	}
-});
-
 test('Should throw IsAnUnsupportedAudio for a wav', async () => {
 	try {
 		await parseMedia({

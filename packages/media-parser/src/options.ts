@@ -106,7 +106,12 @@ export type TracksField = {
 	audioTracks: AudioTrack[];
 };
 
-export type ParseMediaContainer = 'mp4' | 'webm' | 'avi' | 'transport-stream';
+export type ParseMediaContainer =
+	| 'mp4'
+	| 'webm'
+	| 'avi'
+	| 'transport-stream'
+	| 'mp3';
 
 export type MediaParserKeyframe = {
 	positionInBytes: number;

@@ -70,6 +70,16 @@ export type IsoBaseMediaBox =
 	| TfdtBox
 	| TfhdBox;
 
+type Mp3Id3Header = {
+	type: 'id3-header';
+	versionMajor: number;
+	versionMinor: number;
+	flags: number;
+	size: number;
+};
+
+export type Mp3Box = Mp3Id3Header;
+
 export type AnySegment =
 	| MatroskaSegment
 	| IsoBaseMediaBox
@@ -96,11 +106,17 @@ export type TransportStreamStructure = {
 	boxes: TransportStreamBox[];
 };
 
+export type Mp3Structure = {
+	type: 'mp3';
+	boxes: Mp3Box[];
+};
+
 export type Structure =
 	| IsoBaseMediaStructure
 	| RiffStructure
 	| MatroskaStructure
-	| TransportStreamStructure;
+	| TransportStreamStructure
+	| Mp3Structure;
 
 export type ParseResult =
 	| {
