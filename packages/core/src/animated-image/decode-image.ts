@@ -145,7 +145,8 @@ export const decodeImage = async ({
 			}
 
 			if (!f.frame.duration) {
-				throw new Error('Frame has no duration');
+				// non-animated, or AVIF in firefox
+				break;
 			}
 
 			if (i === selectedTrack.frameCount && durationFound === null) {
