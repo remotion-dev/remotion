@@ -128,7 +128,7 @@ export const isoBaseMediaHasTracks = (structure: IsoBaseMediaStructure) => {
 	return tracks.length === numberOfTracks;
 };
 
-export const hasTracks = (
+export const getHasTracks = (
 	structure: Structure,
 	state: ParserState,
 ): boolean => {

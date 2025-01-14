@@ -5,7 +5,7 @@ import {hasDuration, hasSlowDuration} from './get-duration';
 import {hasFps, hasFpsSuitedForSlowFps} from './get-fps';
 import {hasHdr} from './get-is-hdr';
 import {hasKeyframes} from './get-keyframes';
-import {hasTracks} from './get-tracks';
+import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
@@ -69,7 +69,7 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'tracks') {
-			return Boolean(structure && hasTracks(structure, state));
+			return Boolean(structure && getHasTracks(structure, state));
 		}
 
 		if (key === 'keyframes') {

@@ -91,50 +91,6 @@ export const continueMdatRoutine = async ({
 			}
 		}
 
-		if (result.skipTo !== null) {
-			if (!state.supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return parseIsoBaseMediaBoxes({
-						iterator,
-						maxBytes,
-						allowIncompleteBoxes,
-						initialBoxes,
-						state,
-						signal,
-						logLevel,
-						fields,
-					});
-				},
-				skipTo: result.skipTo,
-			};
-		}
-
-		if (iterator.bytesRemaining() < 0) {
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return parseIsoBaseMediaBoxes({
-						iterator,
-						maxBytes,
-						allowIncompleteBoxes,
-						initialBoxes,
-						state,
-						signal,
-						logLevel,
-						fields,
-					});
-				},
-				skipTo: null,
-			};
-		}
-
 		iterator.removeBytesRead();
 	}
 

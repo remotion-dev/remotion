@@ -101,10 +101,20 @@ export const parseMedia: ParseMedia = async function <
 			throw new Error('Aborted');
 		}
 
-		const result = await currentReader.reader.read();
+		let stopped = false;
 
-		if (!result.done) {
-			iterator.addData(result.value);
+		while (iterator.bytesRemaining() <= 0 || !stopped) {
+			const result = await currentReader.reader.read();
+
+			if (result.value) {
+				iterator.addData(result.value);
+			}
+
+			if (result.done) {
+				break;
+			}
+
+			stopped = true;
 		}
 
 		await onParseProgress?.({
@@ -115,6 +125,7 @@ export const parseMedia: ParseMedia = async function <
 			totalBytes: contentLength,
 		});
 		triggerInfoEmit();
+
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.trace(
 				logLevel,

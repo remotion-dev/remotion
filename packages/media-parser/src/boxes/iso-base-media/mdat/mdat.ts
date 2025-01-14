@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {getTracks, hasTracks} from '../../../get-tracks';
+import {getHasTracks, getTracks} from '../../../get-tracks';
 import type {IsoBaseMediaBox} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
@@ -41,7 +41,7 @@ export const parseMdat = async ({
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
 }): Promise<MdatBox> => {
-	const alreadyHas = hasTracks(
+	const alreadyHas = getHasTracks(
 		{
 			type: 'iso-base-media',
 			boxes: existingBoxes,

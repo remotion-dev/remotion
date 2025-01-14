@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import {hasTracks} from '../../get-tracks';
+import {getHasTracks} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {Options, ParseMediaFields} from '../../options';
@@ -60,23 +60,6 @@ export const processBox = async ({
 
 	const boxSizeRaw = iterator.getFourByteNumber();
 
-	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
-	if (
-		(boxSizeRaw === 1 && iterator.bytesRemaining() < 12) ||
-		iterator.bytesRemaining() < 4
-	) {
-		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
-		if (allowIncompleteBoxes) {
-			return {
-				type: 'incomplete',
-			};
-		}
-
-		throw new Error(
-			`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
-		);
-	}
-
 	if (boxSizeRaw === 0) {
 		return {
 			type: 'complete',
@@ -89,58 +72,74 @@ export const processBox = async ({
 		};
 	}
 
-	const boxType = iterator.getByteString(4, false);
+	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
+	if (
+		(boxSizeRaw === 1 && iterator.bytesRemaining() < 12) ||
+		iterator.bytesRemaining() < 4
+	) {
+		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
+		if (!allowIncompleteBoxes) {
+			throw new Error(
+				`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
+			);
+		}
 
+		return {
+			type: 'incomplete',
+		};
+	}
+
+	const boxType = iterator.getByteString(4, false);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
 
 	if (bytesRemaining < boxSize) {
-		if (boxType === 'mdat') {
-			// Check if the moov atom is at the end
-			const shouldSkip =
-				maySkipVideoData({state}) ||
-				(!hasTracks({type: 'iso-base-media', boxes: parsedBoxes}, state) &&
-					state.supportsContentRange);
-
-			if (shouldSkip) {
-				const skipTo = fileOffset + boxSize;
-				const bytesToSkip = skipTo - iterator.counter.getOffset();
-
-				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
-				if (bytesToSkip > 1_000_000) {
-					return {
-						type: 'complete',
-						box: {
-							type: 'mdat-box',
-							boxSize,
-							fileOffset,
-							status: 'samples-skipped',
-						},
-						size: boxSize,
-						skipTo: fileOffset + boxSize,
-					};
-				}
-			} else {
-				return parseMdatPartially({
-					iterator,
-					boxSize,
-					fileOffset,
-					parsedBoxes,
-					state,
-					signal,
-				});
+		if (boxType !== 'mdat') {
+			iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
+			if (!allowIncompleteBoxes) {
+				throw new Error(
+					`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
+				);
 			}
-		}
 
-		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
-		if (allowIncompleteBoxes) {
 			return {
 				type: 'incomplete',
 			};
 		}
 
-		throw new Error(
-			`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
-		);
+		// Check if the moov atom is at the end
+		const shouldSkip =
+			maySkipVideoData({state}) ||
+			(!getHasTracks({type: 'iso-base-media', boxes: parsedBoxes}, state) &&
+				state.supportsContentRange);
+
+		if (shouldSkip) {
+			const skipTo = fileOffset + boxSize;
+			const bytesToSkip = skipTo - iterator.counter.getOffset();
+
+			// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+			if (bytesToSkip > 1_000_000) {
+				return {
+					type: 'complete',
+					box: {
+						type: 'mdat-box',
+						boxSize,
+						fileOffset,
+						status: 'samples-skipped',
+					},
+					size: boxSize,
+					skipTo: fileOffset + boxSize,
+				};
+			}
+		} else {
+			return parseMdatPartially({
+				iterator,
+				boxSize,
+				fileOffset,
+				parsedBoxes,
+				state,
+				signal,
+			});
+		}
 	}
 
 	if (boxType === 'ftyp') {
