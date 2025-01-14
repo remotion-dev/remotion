@@ -700,9 +700,6 @@ export const parseIsoBaseMediaBoxes = async ({
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
 	const initialOffset = iterator.counter.getOffset();
-	const alreadyHasMdat = state.structure
-		.getStructureOrNull()
-		?.boxes.find((b) => b.type === 'mdat-box');
 
 	while (
 		iterator.bytesRemaining() > 0 &&
@@ -772,6 +769,10 @@ export const parseIsoBaseMediaBoxes = async ({
 				skipTo: null,
 			};
 		}
+
+		const alreadyHasMdat = state.structure
+			.getStructureOrNull()
+			?.boxes.find((b) => b.type === 'mdat-box');
 
 		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
 			initialBoxes = initialBoxes.filter((b) => b.type !== 'mdat-box');
