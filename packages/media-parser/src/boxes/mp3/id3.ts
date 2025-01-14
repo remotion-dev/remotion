@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {MetadataEntry} from '../../metadata/get-metadata';
 import type {Mp3Structure} from '../../parse-result';
 
 function combine28Bits(a: number, b: number, c: number, d: number): number {
@@ -30,7 +31,37 @@ export const parseId3 = (iterator: BufferIterator, structure: Mp3Structure) => {
 		return;
 	}
 
-	iterator.getSlice(size);
+	const entries: MetadataEntry[] = [];
+
+	const initial = iterator.counter.getOffset();
+	while (iterator.counter.getOffset() < size + initial) {
+		const name =
+			versionMajor === 3
+				? iterator.getByteString(4, true)
+				: iterator.getByteString(3, true);
+		if (name === '') {
+			iterator.discard(size + initial - iterator.counter.getOffset());
+			break;
+		}
+
+		const s = versionMajor === 3 ? iterator.getUint32() : iterator.getUint24();
+		if (versionMajor === 3) {
+			iterator.getUint16(); // flags
+		}
+
+		let subtract = 0;
+		if (!name.startsWith('W')) {
+			iterator.getUint8(); // encoding
+			subtract += 1;
+		}
+
+		const information = iterator.getByteString(s - subtract, true);
+		entries.push({
+			key: name,
+			value: information,
+			trackId: 0,
+		});
+	}
 
 	structure.boxes.push({
 		type: 'id3-header',
@@ -38,5 +69,6 @@ export const parseId3 = (iterator: BufferIterator, structure: Mp3Structure) => {
 		size,
 		versionMajor,
 		versionMinor,
+		metatags: entries,
 	});
 };

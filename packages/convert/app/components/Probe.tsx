@@ -11,7 +11,7 @@ import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
 import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
-import type { VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 import {VideoThumbnail} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
 import styles from './probe.module.css';

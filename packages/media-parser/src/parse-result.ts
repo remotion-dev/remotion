@@ -30,6 +30,7 @@ import type {VoidBox} from './boxes/iso-base-media/void-box';
 import type {RiffBox} from './boxes/riff/riff-box';
 import type {TransportStreamBox} from './boxes/transport-stream/boxes';
 import type {MatroskaSegment} from './boxes/webm/segments';
+import type {MetadataEntry} from './metadata/get-metadata';
 
 export interface RegularBox extends BaseBox {
 	boxType: string;
@@ -76,6 +77,7 @@ type Mp3Id3Header = {
 	versionMinor: number;
 	flags: number;
 	size: number;
+	metatags: MetadataEntry[];
 };
 
 export type Mp3Box = Mp3Id3Header;

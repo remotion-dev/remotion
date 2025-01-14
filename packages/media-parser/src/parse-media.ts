@@ -146,6 +146,7 @@ export const parseMedia: ParseMedia = async function <
 			await fetchMoreData();
 		}
 
+		// TODO: Throttle parse progress
 		await onParseProgress?.({
 			bytes: iterator.counter.getOffset(),
 			percentage: contentLength
@@ -153,6 +154,7 @@ export const parseMedia: ParseMedia = async function <
 				: null,
 			totalBytes: contentLength,
 		});
+
 		triggerInfoEmit();
 
 		if (parseResult && parseResult.status === 'incomplete') {

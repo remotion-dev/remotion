@@ -8,6 +8,7 @@ import {hasKeyframes} from './get-keyframes';
 import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
+import {hasMetadata} from './metadata/get-metadata';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
 import type {ParserState} from './state/parser-state';
 
@@ -97,7 +98,7 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'metadata' || key === 'location') {
-			return false;
+			return Boolean(structure && hasMetadata(structure));
 		}
 
 		if (key === 'slowKeyframes') {

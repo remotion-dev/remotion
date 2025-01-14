@@ -119,10 +119,7 @@ export const parseVideo = ({
 			boxes: [],
 			type: 'mp3',
 		};
-		state.structure.setStructure({
-			boxes: [],
-			type: 'mp3',
-		});
+		state.structure.setStructure(structure);
 		return parseMp3({iterator, structure, state});
 	}
 
