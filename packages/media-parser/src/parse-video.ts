@@ -1,4 +1,5 @@
 import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
+import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-box';
 import {makeNextPesHeaderStore} from './boxes/transport-stream/next-pes-header-store';
 import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
@@ -115,15 +116,8 @@ export const parseVideo = ({
 	}
 
 	if (fileType.type === 'mp3') {
-		return Promise.reject(
-			new IsAnUnsupportedAudioTypeError({
-				message: 'MP3 files are not yet supported',
-				mimeType,
-				sizeInBytes: contentLength,
-				fileName: name,
-				audioType: 'mp3',
-			}),
-		);
+		parseMp3(iterator);
+		throw new Error('MP3 parsing not implemented');
 	}
 
 	if (fileType.type === 'wav') {
