@@ -28,6 +28,9 @@ export const parseMdatPartially = async ({
 		signal,
 		maySkipSampleProcessing: state.supportsContentRange,
 	});
+	if (box.type === 'partial-mdat-box') {
+		return box;
+	}
 
 	if (
 		(box.status === 'samples-processed' || box.status === 'samples-buffered') &&

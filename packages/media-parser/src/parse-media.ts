@@ -199,22 +199,20 @@ export const parseMedia: ParseMedia = async function <
 
 	Log.verbose(logLevel, 'Finished parsing file');
 
-	const hasInfo = (
-		Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
-	).reduce(
-		(acc, key) => {
-			if (fields?.[key]) {
-				acc[key] = true;
-			}
-
-			return acc;
-		},
-		{} as Record<keyof Options<ParseMediaFields>, boolean>,
-	);
-
 	// Force assign
 	emitAvailableInfo({
-		hasInfo,
+		hasInfo: (
+			Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
+		).reduce(
+			(acc, key) => {
+				if (fields?.[key]) {
+					acc[key] = true;
+				}
+
+				return acc;
+			},
+			{} as Record<keyof Options<ParseMediaFields>, boolean>,
+		),
 		callbacks: moreFields,
 		fieldsInReturnValue,
 		parseResult,

@@ -43,6 +43,10 @@ export const parseIsoBaseMediaBoxes = async ({
 		});
 	};
 
+	const alreadyHasMdat = state.structure
+		.getStructureOrNull()
+		?.boxes.find((b) => b.type === 'mdat-box');
+
 	while (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
@@ -90,10 +94,6 @@ export const parseIsoBaseMediaBoxes = async ({
 				skipTo: null,
 			};
 		}
-
-		const alreadyHasMdat = state.structure
-			.getStructureOrNull()
-			?.boxes.find((b) => b.type === 'mdat-box');
 
 		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
 			initialBoxes = initialBoxes.filter((b) => b.type !== 'mdat-box');

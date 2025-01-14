@@ -534,9 +534,8 @@ export const processBox = async ({
 			signal,
 			maySkipSampleProcessing: state.supportsContentRange,
 		});
-
-		if (box === null) {
-			throw new Error('Unexpected null');
+		if (box.type === 'partial-mdat-box') {
+			return box;
 		}
 
 		return {
