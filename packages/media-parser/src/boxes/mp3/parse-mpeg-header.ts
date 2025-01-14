@@ -288,11 +288,9 @@ export const parseMpegHeader = async ({
 			state,
 			track: {
 				type: 'audio',
-				// todo: investigate if that is right
 				codec: 'mp3',
 				codecPrivate: null,
 				codecWithoutConfig: 'mp3',
-				// todo: investigate if that is right
 				description: undefined,
 				numberOfChannels,
 				sampleRate,
