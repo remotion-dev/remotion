@@ -13,12 +13,23 @@ function combine28Bits(a: number, b: number, c: number, d: number): number {
 }
 
 export const parseId3 = (iterator: BufferIterator, structure: Mp3Structure) => {
+	if (iterator.bytesRemaining() < 9) {
+		return;
+	}
+
+	const {returnToCheckpoint} = iterator.startCheckpoint();
+	iterator.discard(3);
 	const versionMajor = iterator.getUint8();
 	const versionMinor = iterator.getUint8();
 	const flags = iterator.getUint8();
 	const sizeArr = iterator.getSlice(4);
 	const size = combine28Bits(sizeArr[0], sizeArr[1], sizeArr[2], sizeArr[3]);
-	// TODO: What if not enough data is available, don't do it
+
+	if (iterator.bytesRemaining() < size) {
+		returnToCheckpoint();
+		return;
+	}
+
 	iterator.getSlice(size);
 
 	structure.boxes.push({

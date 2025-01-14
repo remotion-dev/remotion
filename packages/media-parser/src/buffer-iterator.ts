@@ -79,6 +79,16 @@ export const getArrayBufferIterator = (
 	const counter = makeOffsetCounter();
 	let discardAllowed = true;
 
+	const startCheckpoint = () => {
+		const checkpoint = counter.getOffset();
+
+		return {
+			returnToCheckpoint: () => {
+				counter.decrement(counter.getOffset() - checkpoint);
+			},
+		};
+	};
+
 	const getSlice = (amount: number) => {
 		const value = data.slice(
 			counter.getDiscardedOffset(),
@@ -626,6 +636,7 @@ export const getArrayBufferIterator = (
 		allowDiscard,
 		startBox,
 		readExpGolomb,
+		startCheckpoint,
 	};
 };
 

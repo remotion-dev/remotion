@@ -23,34 +23,38 @@ export const parseMp3 = async ({
 		});
 	}
 
-	while (iterator.bytesRemaining() > 0) {
-		if (iterator.bytesRemaining() < 3) {
-			return {
-				status: 'incomplete',
-				skipTo: null,
-				continueParsing,
-			};
-		}
-
-		const bytes = iterator.getSlice(3);
-		if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) {
-			parseId3(iterator, structure);
-			break;
-		}
-
-		if (bytes[0] === 0xff) {
-			iterator.counter.decrement(3);
-			await parseMpegHeader({
-				iterator,
-				state,
-			});
-			break;
-		}
+	if (iterator.bytesRemaining() < 3) {
+		return {
+			status: 'incomplete',
+			skipTo: null,
+			continueParsing,
+		};
 	}
 
-	return {
-		status: 'incomplete',
-		continueParsing,
-		skipTo: null,
-	};
+	const {returnToCheckpoint} = iterator.startCheckpoint();
+	const bytes = iterator.getSlice(3);
+	returnToCheckpoint();
+
+	if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) {
+		parseId3(iterator, structure);
+		return {
+			status: 'incomplete',
+			continueParsing,
+			skipTo: null,
+		};
+	}
+
+	if (bytes[0] === 0xff) {
+		await parseMpegHeader({
+			iterator,
+			state,
+		});
+		return {
+			status: 'incomplete',
+			continueParsing,
+			skipTo: null,
+		};
+	}
+
+	throw new Error('Unknown MP3 header');
 };

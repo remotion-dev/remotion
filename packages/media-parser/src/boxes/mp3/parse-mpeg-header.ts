@@ -209,7 +209,6 @@ export const parseMpegHeader = async ({
 	const mpegVersion = audioVersionId === 0b11 ? 1 : 2;
 
 	const layerBits = iterator.getBits(2);
-	// TODO: investigate of other types are common
 	/**
    * 00 - reserved
      01 - Layer III
