@@ -67,7 +67,7 @@ export const parseVideo = ({
 			boxes: [],
 		});
 
-		return Promise.resolve(parseRiff({iterator, state}));
+		return Promise.resolve(parseRiff({iterator, state, fields}));
 	}
 
 	if (fileType.type === 'iso-base-media') {
