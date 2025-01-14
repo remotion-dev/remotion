@@ -73,6 +73,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 			'--use-angle=vulkan',
 			'--use-vulkan=native',
 			'--disable-vulkan-fallback-to-gl-for-testing',
+			'--disable-vulkan-surface',
 			'--ignore-gpu-blocklist',
 			'--enable-gpu',
 		];
