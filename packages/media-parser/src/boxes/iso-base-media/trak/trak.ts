@@ -35,7 +35,6 @@ export const parseTrak = async ({
 		allowIncompleteBoxes: false,
 		initialBoxes,
 		state: options,
-		continueMdat: false,
 		signal,
 		logLevel,
 		fields,

@@ -36,7 +36,6 @@ export const parseMoov = async ({
 		allowIncompleteBoxes: false,
 		initialBoxes: boxes,
 		state,
-		continueMdat: false,
 		signal,
 		logLevel,
 		fields,

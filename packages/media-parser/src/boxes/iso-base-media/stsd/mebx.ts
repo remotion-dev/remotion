@@ -39,7 +39,6 @@ export const parseMebx = async ({
 		allowIncompleteBoxes: false,
 		initialBoxes: boxes,
 		state,
-		continueMdat: false,
 		signal,
 		logLevel: 'info',
 		fields,

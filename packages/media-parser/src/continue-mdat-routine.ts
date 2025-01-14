@@ -1,20 +1,22 @@
-import type {BufferIterator} from '../../buffer-iterator';
-import {continueMdatRoutine} from '../../continue-mdat-routine';
-import {hasAllInfo} from '../../has-all-info';
-import type {LogLevel} from '../../log';
-import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
-import type {Options, ParseMediaFields} from '../../options';
-import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
-import type {ParserState} from '../../state/parser-state';
-import {processBox} from './process-box';
-import {getMdatBox} from './traversal';
+import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/parse-boxes';
+import {parseMdatPartially} from './boxes/iso-base-media/parse-mdat-partially';
+import {getMdatBox} from './boxes/iso-base-media/traversal';
+import type {BufferIterator} from './buffer-iterator';
+import {hasAllInfo} from './has-all-info';
+import type {LogLevel} from './log';
+import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
+import type {Options, ParseMediaFields} from './options';
+import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {PartialMdatBox} from './parse-video';
+import type {ParserState} from './state/parser-state';
 
-export const parseIsoBaseMediaBoxes = async ({
+export const continueMdatRoutine = async ({
 	iterator,
 	maxBytes,
 	allowIncompleteBoxes,
 	initialBoxes,
 	state,
+	continueMdat,
 	signal,
 	logLevel,
 	fields,
@@ -24,49 +26,28 @@ export const parseIsoBaseMediaBoxes = async ({
 	allowIncompleteBoxes: boolean;
 	initialBoxes: IsoBaseMediaBox[];
 	state: ParserState;
+	continueMdat: PartialMdatBox;
 	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
 	const initialOffset = iterator.counter.getOffset();
 
-	const continueParsing = () => {
-		return parseIsoBaseMediaBoxes({
-			iterator,
-			maxBytes,
-			allowIncompleteBoxes,
-			initialBoxes,
-			state,
-			signal,
-			logLevel,
-			fields,
-		});
-	};
-
 	while (
 		iterator.bytesRemaining() > 0 &&
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
-		const result = await processBox({
+		const result = await parseMdatPartially({
 			iterator,
-			allowIncompleteBoxes,
+			boxSize: continueMdat.boxSize,
+			fileOffset: continueMdat.fileOffset,
 			parsedBoxes: initialBoxes,
 			state,
 			signal,
-			logLevel,
-			fields,
 		});
 
 		if (result.type === 'incomplete') {
-			if (Number.isFinite(maxBytes)) {
-				throw new Error('maxBytes must be Infinity for top-level boxes');
-			}
-
-			return {
-				status: 'incomplete',
-				continueParsing,
-				skipTo: null,
-			};
+			throw new Error('Incomplete boxes are not allowed in this routine');
 		}
 
 		if (result.type === 'partial-mdat-box') {
@@ -119,7 +100,18 @@ export const parseIsoBaseMediaBoxes = async ({
 
 			return {
 				status: 'incomplete',
-				continueParsing,
+				continueParsing: () => {
+					return parseIsoBaseMediaBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes,
+						state,
+						signal,
+						logLevel,
+						fields,
+					});
+				},
 				skipTo: result.skipTo,
 			};
 		}
@@ -127,7 +119,18 @@ export const parseIsoBaseMediaBoxes = async ({
 		if (iterator.bytesRemaining() < 0) {
 			return {
 				status: 'incomplete',
-				continueParsing,
+				continueParsing: () => {
+					return parseIsoBaseMediaBoxes({
+						iterator,
+						maxBytes,
+						allowIncompleteBoxes,
+						initialBoxes,
+						state,
+						signal,
+						logLevel,
+						fields,
+					});
+				},
 				skipTo: null,
 			};
 		}

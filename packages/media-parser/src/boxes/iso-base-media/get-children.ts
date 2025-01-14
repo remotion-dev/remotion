@@ -42,7 +42,6 @@ export const getChildren = async ({
 			allowIncompleteBoxes: false,
 			initialBoxes: boxes,
 			state,
-			continueMdat: false,
 			signal,
 			logLevel,
 			fields,

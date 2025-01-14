@@ -84,7 +84,6 @@ export const parseVideo = ({
 			allowIncompleteBoxes: true,
 			initialBoxes,
 			state,
-			continueMdat: false,
 			signal,
 			logLevel,
 			fields,
