@@ -11,10 +11,10 @@ type MpegVersion = 1 | 2;
 
 function getSamplingFrequency({
 	bits,
-	version,
+	mpegVersion,
 }: {
 	bits: number;
-	version: MpegVersion;
+	mpegVersion: MpegVersion;
 }): number {
 	const samplingTable: Record<number, Record<string, number | 'reserved'>> = {
 		0b00: {MPEG1: 44100, MPEG2: 22050},
@@ -23,7 +23,7 @@ function getSamplingFrequency({
 		0b11: {MPEG1: 'reserved', MPEG2: 'reserved'},
 	};
 
-	const key = `MPEG${version}`;
+	const key = `MPEG${mpegVersion}`;
 	const value = samplingTable[bits][key];
 	if (value === 'reserved') {
 		throw new Error('Reserved sampling frequency');
@@ -32,7 +32,7 @@ function getSamplingFrequency({
 	if (!value) {
 		throw new Error(
 			'Invalid sampling frequency for MPEG version: ' +
-				JSON.stringify({bits, version}),
+				JSON.stringify({bits, version: mpegVersion}),
 		);
 	}
 
@@ -172,6 +172,40 @@ function getBitrateKB({
 	return bitrateTable[bits][key];
 }
 
+const getSamplesPerFrame = ({
+	mpegVersion,
+	layer,
+}: {
+	mpegVersion: 1 | 2;
+	layer: number;
+}) => {
+	if (mpegVersion === 1) {
+		if (layer === 1) {
+			return 384;
+		}
+
+		if (layer === 2 || layer === 3) {
+			return 1152;
+		}
+	}
+
+	if (mpegVersion === 2) {
+		if (layer === 1) {
+			return 384;
+		}
+
+		if (layer === 2) {
+			return 1152;
+		}
+
+		if (layer === 3) {
+			return 576;
+		}
+	}
+
+	throw new Error('Invalid MPEG layer');
+};
+
 export const parseMpegHeader = async ({
 	iterator,
 	state,
@@ -204,7 +238,9 @@ export const parseMpegHeader = async ({
 		throw new Error('Expected MPEG Version 1 or 2');
 	}
 
-	const layer = iterator.getBits(2);
+	const mpegVersion = audioVersionId === 0b11 ? 1 : 2;
+
+	const layerBits = iterator.getBits(2);
 	// TODO: investigate of other types are common
 	/**
    * 00 - reserved
@@ -212,9 +248,11 @@ export const parseMpegHeader = async ({
      10 - Layer II
      11 - Layer I
    */
-	if (layer === 0b00) {
+	if (layerBits === 0b00) {
 		throw new Error('Expected Layer I, II or III');
 	}
+
+	const layer = layerBits === 0b11 ? 1 : layerBits === 0b10 ? 2 : 3;
 
 	const protectionBit = iterator.getBits(1);
 	if (protectionBit !== 0b1) {
@@ -224,7 +262,7 @@ export const parseMpegHeader = async ({
 	const bitrateIndex = iterator.getBits(4);
 	const bitrateKbit = getBitrateKB({
 		bits: bitrateIndex,
-		version: layer as Version,
+		version: layerBits as Version,
 		level: audioVersionId as Level,
 	});
 	if (bitrateKbit === 'bad') {
@@ -236,9 +274,10 @@ export const parseMpegHeader = async ({
 	}
 
 	const samplingFrequencyIndex = iterator.getBits(2);
+
 	const samplingFrequency = getSamplingFrequency({
 		bits: samplingFrequencyIndex,
-		version: audioVersionId === 0b11 ? 1 : 2,
+		mpegVersion,
 	});
 	const padding = iterator.getBits(1);
 	iterator.getBits(1); // private bit
@@ -248,10 +287,12 @@ export const parseMpegHeader = async ({
 	iterator.getBits(1); // original
 	iterator.getBits(2); // emphasis
 
+	const samplesPerFrame = getSamplesPerFrame({mpegVersion, layer});
+
 	const frameLength =
-		// TODO: 144 is hardcoded
-		Math.floor(((144 * bitrateKbit) / samplingFrequency) * 1000) +
-		(padding ? 1 : 0);
+		Math.floor(
+			(((samplesPerFrame / 8) * bitrateKbit) / samplingFrequency) * 1000,
+		) + (padding ? 1 : 0);
 
 	iterator.stopReadingBits();
 
@@ -274,8 +315,7 @@ export const parseMpegHeader = async ({
 				// todo: return right amount of channels
 				numberOfChannels: 2,
 				sampleRate: samplingFrequency,
-				// todo: put right number
-				timescale: 1000,
+				timescale: 1_000_000,
 				trackId: 0,
 				trakBox: null,
 			},

@@ -96,25 +96,30 @@ export const parseMedia: ParseMedia = async function <
 
 	triggerInfoEmit();
 
+	let didProgress = false;
 	while (parseResult === null || parseResult.status === 'incomplete') {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
 		}
 
-		let stopped = false;
+		const offsetBefore = iterator.counter.getOffset();
 
-		while (iterator.bytesRemaining() <= 0 || !stopped) {
+		const fetchMoreData = async () => {
 			const result = await currentReader.reader.read();
 
 			if (result.value) {
 				iterator.addData(result.value);
 			}
+		};
 
-			if (result.done) {
-				break;
-			}
+		while (iterator.bytesRemaining() < 0) {
+			await fetchMoreData();
+		}
 
-			stopped = true;
+		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
+
+		if (!didProgress || !hasBigBuffer) {
+			await fetchMoreData();
 		}
 
 		await onParseProgress?.({
@@ -195,6 +200,8 @@ export const parseMedia: ParseMedia = async function <
 			currentReader = newReader;
 			iterator.skipTo(parseResult.skipTo, true);
 		}
+
+		didProgress = iterator.counter.getOffset() > offsetBefore;
 	}
 
 	Log.verbose(logLevel, 'Finished parsing file');

@@ -19,7 +19,7 @@ test('should read MP3 file', async () => {
 	});
 
 	expect(samples).toBe(4788);
-	console.log(tracks);
+	expect(tracks.audioTracks.length).toBe(1);
 });
 
 test.todo('should read only header');
