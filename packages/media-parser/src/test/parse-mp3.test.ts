@@ -30,7 +30,7 @@ test('should read MP3 file', async () => {
 	expect(tracks.audioTracks.length).toBe(1);
 });
 
-test('should read only header', async () => {
+test('should read only metadata', async () => {
 	const {internalStats} = await parseMedia({
 		src: exampleVideos.music,
 		reader: nodeReader,
@@ -45,7 +45,49 @@ test('should read only header', async () => {
 		finalCursorOffset: 5141,
 	});
 });
-test.todo('should read only metadata');
+test('should read only header', async () => {
+	const {internalStats} = await parseMedia({
+		src: exampleVideos.music,
+		reader: nodeReader,
+		fields: {
+			container: true,
+			internalStats: true,
+		},
+	});
+	expect(internalStats).toEqual({
+		skippedBytes: 5002972,
+		finalCursorOffset: 4096,
+	});
+});
+test('should read video fields', async () => {
+	const {dimensions, fps} = await parseMedia({
+		src: exampleVideos.music,
+		reader: nodeReader,
+		fields: {
+			fps: true,
+			dimensions: true,
+		},
+	});
+	expect(dimensions).toEqual(null);
+	expect(fps).toEqual(null);
+
+	const {slowDurationInSeconds, slowFps, slowNumberOfFrames} = await parseMedia(
+		{
+			src: exampleVideos.music,
+			reader: nodeReader,
+			fields: {
+				slowFps: true,
+				slowDurationInSeconds: true,
+				slowNumberOfFrames: true,
+			},
+		},
+	);
+	expect(slowFps).toEqual(0);
+	expect(slowDurationInSeconds).toEqual(125.17877551020408);
+	expect(slowNumberOfFrames).toEqual(0);
+	expect(fps).toEqual(null);
+});
+
 test.todo('should read only metadata');
 test.todo('should read ID3 tags');
 test.todo('should get video track');

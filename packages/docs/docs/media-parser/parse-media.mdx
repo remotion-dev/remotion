@@ -68,11 +68,13 @@ Possible fields are:
 
 #### `dimensions`
 
-_`{width: number, height: number}`_
+_`{width: number, height: number} | null`_
 
 The dimensions of the video.  
 Any rotation is already applied - the dimensions are like a media player would show them.  
 Use `unrotatedDimensions` to get the dimensions before rotation.
+
+If the media passed is an audio file, this will return `null`.
 
 #### `durationInSeconds`
 

@@ -15,13 +15,19 @@ export const getContainer = (segments: Structure): ParseMediaContainer => {
 		return 'transport-stream';
 	}
 
+	if (segments.type === 'mp3') {
+		return 'mp3';
+	}
+
 	if (segments.type === 'riff') {
 		if (isRiffAvi(segments)) {
 			return 'avi';
 		}
+
+		throw new Error('Unknown RIFF container ' + segments.type);
 	}
 
-	throw new Error('Unknown container');
+	throw new Error('Unknown container ' + (segments satisfies never));
 };
 
 export const hasContainer = (boxes: Structure): boolean => {

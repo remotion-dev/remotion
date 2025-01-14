@@ -197,8 +197,8 @@ test('Should stream ProRes video', async () => {
 	});
 
 	expect(parsed.fps).toBe(60);
-	expect(parsed.dimensions.width).toBe(1920);
-	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.dimensions?.width).toBe(1920);
+	expect(parsed.dimensions?.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.034);
 	expect(parsed.videoCodec).toBe('prores');
 	expect(parsed.audioCodec).toBe('aiff');
@@ -237,10 +237,10 @@ test('Should stream variable fps video', async () => {
 		},
 	});
 
-	expect(parsed.dimensions.width).toBe(1280);
-	expect(parsed.dimensions.height).toBe(720);
-	expect(parsed.unrotatedDimensions.width).toBe(1280);
-	expect(parsed.unrotatedDimensions.height).toBe(720);
+	expect(parsed.dimensions?.width).toBe(1280);
+	expect(parsed.dimensions?.height).toBe(720);
+	expect(parsed.unrotatedDimensions?.width).toBe(1280);
+	expect(parsed.unrotatedDimensions?.height).toBe(720);
 	expect(parsed.durationInSeconds).toBe(22.901);
 	expect(parsed.videoCodec).toBe('vp8');
 	expect(parsed.audioCodec).toBe('opus');
@@ -326,8 +326,8 @@ test('Should stream MKV video', async () => {
 		reader: nodeReader,
 	});
 
-	expect(parsed.dimensions.width).toBe(1080);
-	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.dimensions?.width).toBe(1080);
+	expect(parsed.dimensions?.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('pcm-s16');
@@ -366,8 +366,8 @@ test('Should stream MP3 in MP4 video', async () => {
 		reader: nodeReader,
 	});
 
-	expect(parsed.dimensions.width).toBe(1080);
-	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.dimensions?.width).toBe(1080);
+	expect(parsed.dimensions?.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.337);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('mp3');

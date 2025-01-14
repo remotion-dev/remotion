@@ -122,7 +122,7 @@ export type MediaParserKeyframe = {
 };
 
 export interface ParseMediaCallbacks {
-	onDimensions?: (dimensions: Dimensions) => void;
+	onDimensions?: (dimensions: Dimensions | null) => void;
 	onDurationInSeconds?: (durationInSeconds: number | null) => void;
 	onSlowDurationInSeconds?: (durationInSeconds: number) => void;
 	onSlowFps?: (fps: number) => void;
@@ -132,7 +132,7 @@ export interface ParseMediaCallbacks {
 	onAudioCodec?: (codec: MediaParserAudioCodec | null) => void;
 	onTracks?: (tracks: TracksField) => void;
 	onRotation?: (rotation: number | null) => void;
-	onUnrotatedDimensions?: (dimensions: Dimensions) => void;
+	onUnrotatedDimensions?: (dimensions: Dimensions | null) => void;
 	onInternalStats?: (internalStats: InternalStats) => void;
 	onSize?: (size: number | null) => void;
 	onName?: (name: string) => void;
@@ -147,7 +147,7 @@ export interface ParseMediaCallbacks {
 }
 
 export interface ParseMediaData {
-	dimensions: Dimensions;
+	dimensions: Dimensions | null;
 	durationInSeconds: number | null;
 	slowDurationInSeconds: number;
 	slowFps: number;
@@ -157,7 +157,7 @@ export interface ParseMediaData {
 	audioCodec: MediaParserAudioCodec | null;
 	tracks: TracksField;
 	rotation: number | null;
-	unrotatedDimensions: Dimensions;
+	unrotatedDimensions: Dimensions | null;
 	isHdr: boolean;
 	internalStats: InternalStats;
 	size: number | null;

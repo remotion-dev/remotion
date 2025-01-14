@@ -1,43 +1,79 @@
 import type {AudioOrVideoSample} from '../webcodec-sample-types';
 
 export const slowDurationAndFpsState = () => {
-	let smallestSample: number | undefined;
-	let largestSample: number | undefined;
-	let samples = 0;
+	let smallestVideoSample: number | undefined;
+	let largestVideoSample: number | undefined;
+	let smallestAudioSample: number | undefined;
+	let largestAudioSample: number | undefined;
+	let videoSamples = 0;
+	let audioSamples = 0;
 
 	const getSlowDurationInSeconds = () => {
-		if (smallestSample !== undefined && largestSample !== undefined) {
-			const startingTimestampDifference = largestSample - smallestSample;
-			const timeBetweenSamples = startingTimestampDifference / (samples - 1);
-			return timeBetweenSamples * samples;
+		let videoDuration: number | null = null;
+		let audioDuration: number | null = null;
+		if (smallestVideoSample !== undefined && largestVideoSample !== undefined) {
+			const startingTimestampDifference =
+				largestVideoSample - smallestVideoSample;
+			const timeBetweenSamples =
+				startingTimestampDifference / (videoSamples - 1);
+			videoDuration = timeBetweenSamples * videoSamples;
 		}
 
-		throw new Error('No samples');
+		if (smallestAudioSample !== undefined && largestAudioSample !== undefined) {
+			const startingTimestampDifferenceAudio =
+				largestAudioSample - smallestAudioSample;
+			const timeBetweenSamplesAudio =
+				startingTimestampDifferenceAudio / (audioSamples - 1);
+			audioDuration = timeBetweenSamplesAudio * audioSamples;
+		}
+
+		if (videoDuration === null && audioDuration === null) {
+			throw new Error('No samples');
+		}
+
+		return Math.max(videoDuration ?? 0, audioDuration ?? 0);
 	};
 
 	return {
-		addSample: (videoSample: AudioOrVideoSample) => {
-			samples++;
+		addVideoSample: (videoSample: AudioOrVideoSample) => {
+			videoSamples++;
 			const presentationTimeInSeconds = videoSample.cts / videoSample.timescale;
 			if (
-				largestSample === undefined ||
-				presentationTimeInSeconds > largestSample
+				largestVideoSample === undefined ||
+				presentationTimeInSeconds > largestVideoSample
 			) {
-				largestSample = presentationTimeInSeconds;
+				largestVideoSample = presentationTimeInSeconds;
 			}
 
 			if (
-				smallestSample === undefined ||
-				presentationTimeInSeconds < smallestSample
+				smallestVideoSample === undefined ||
+				presentationTimeInSeconds < smallestVideoSample
 			) {
-				smallestSample = presentationTimeInSeconds;
+				smallestVideoSample = presentationTimeInSeconds;
+			}
+		},
+		addAudioSample: (audioSample: AudioOrVideoSample) => {
+			audioSamples++;
+			const presentationTimeInSeconds = audioSample.cts / audioSample.timescale;
+			if (
+				largestAudioSample === undefined ||
+				presentationTimeInSeconds > largestAudioSample
+			) {
+				largestAudioSample = presentationTimeInSeconds;
+			}
+
+			if (
+				smallestAudioSample === undefined ||
+				presentationTimeInSeconds < smallestAudioSample
+			) {
+				smallestAudioSample = presentationTimeInSeconds;
 			}
 		},
 		getSlowDurationInSeconds,
 		getFps: () => {
-			return samples / getSlowDurationInSeconds();
+			return videoSamples / getSlowDurationInSeconds();
 		},
-		getSlowNumberOfFrames: () => samples,
+		getSlowNumberOfFrames: () => videoSamples,
 	};
 };
 

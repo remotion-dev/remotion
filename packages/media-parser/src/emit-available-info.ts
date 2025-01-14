@@ -158,10 +158,13 @@ export const emitAvailableInfo = ({
 				segments
 			) {
 				const dimensionsQueried = getDimensions(segments, state);
-				const dimensions: Dimensions = {
-					height: dimensionsQueried.height,
-					width: dimensionsQueried.width,
-				};
+				const dimensions: Dimensions | null =
+					dimensionsQueried === null
+						? null
+						: {
+								height: dimensionsQueried.height,
+								width: dimensionsQueried.width,
+							};
 				callbacks.onDimensions?.(dimensions);
 				if (fieldsInReturnValue.dimensions) {
 					returnValue.dimensions = dimensions;
@@ -181,10 +184,13 @@ export const emitAvailableInfo = ({
 				segments
 			) {
 				const dimensionsQueried = getDimensions(segments, state);
-				const unrotatedDimensions: Dimensions = {
-					height: dimensionsQueried.unrotatedHeight,
-					width: dimensionsQueried.unrotatedWidth,
-				};
+				const unrotatedDimensions: Dimensions | null =
+					dimensionsQueried === null
+						? null
+						: {
+								height: dimensionsQueried.unrotatedHeight,
+								width: dimensionsQueried.unrotatedWidth,
+							};
 
 				callbacks.onUnrotatedDimensions?.(unrotatedDimensions);
 				if (fieldsInReturnValue.unrotatedDimensions) {
@@ -205,7 +211,7 @@ export const emitAvailableInfo = ({
 				segments
 			) {
 				const dimensionsQueried = getDimensions(segments, state);
-				const {rotation} = dimensionsQueried;
+				const rotation = dimensionsQueried?.rotation ?? 0;
 
 				callbacks.onRotation?.(rotation);
 				if (fieldsInReturnValue.rotation) {
