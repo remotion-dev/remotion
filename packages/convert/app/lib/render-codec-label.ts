@@ -105,6 +105,10 @@ export const renderHumanReadableContainer = (
 		return 'AVI';
 	}
 
+	if (container === 'mp3') {
+		return 'MP3';
+	}
+
 	if (container === 'transport-stream') {
 		return 'Transport Stream';
 	}

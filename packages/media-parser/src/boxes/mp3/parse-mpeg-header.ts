@@ -251,11 +251,13 @@ export const parseMpegHeader = async ({
 	});
 	const padding = Boolean(iterator.getBits(1));
 	iterator.getBits(1); // private bit
-	iterator.getBits(2); // channel mode
+	const channelMode = iterator.getBits(2); // channel mode
 	iterator.getBits(2); // mode extension
 	iterator.getBits(1); // copyright
 	iterator.getBits(1); // original
 	iterator.getBits(2); // emphasis
+
+	const numberOfChannels = channelMode === 0b11 ? 1 : 2;
 
 	const samplesPerFrame = getSamplesPerMpegFrame({mpegVersion, layer});
 
@@ -292,8 +294,7 @@ export const parseMpegHeader = async ({
 				codecWithoutConfig: 'mp3',
 				// todo: investigate if that is right
 				description: undefined,
-				// todo: return right amount of channels
-				numberOfChannels: 2,
+				numberOfChannels,
 				sampleRate,
 				timescale: 1_000_000,
 				trackId: 0,
@@ -319,15 +320,16 @@ export const parseMpegHeader = async ({
 		(initialOffset - mp3Info.startOfMpegStream) / avgLength,
 	);
 
+	const durationInSeconds = samplesPerFrame / sampleRate;
 	const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
 	const timestamp = Math.round(timeInSeconds * 1_000_000);
+	const duration = Math.round(durationInSeconds * 1_000_000);
 
 	await state.callbacks.onAudioSample(0, {
 		data,
 		cts: timestamp,
 		dts: timestamp,
-		// TODO: put correct
-		duration: 1000,
+		duration,
 		offset: initialOffset,
 		timescale: 1_000_000,
 		timestamp,
