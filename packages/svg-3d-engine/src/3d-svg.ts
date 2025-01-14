@@ -25,7 +25,7 @@ export type ThreeDReducedInstruction =
 			point: Vector4D;
 	  };
 
-const serializeThreeDReducedInstruction = (
+export const serializeThreeDReducedInstruction = (
 	instruction: ThreeDReducedInstruction,
 ): string => {
 	if (instruction.type === 'M') {

@@ -46,6 +46,7 @@
 		{"path": "../lambda"},
 		{"path": "../bundler"},
 		{"path": "../renderer"},
+		{"path": "../svg-3d-engine"},
 		{"path": "../transitions"},
 		{"path": "../cli"}
 	],
