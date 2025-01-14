@@ -46,11 +46,11 @@ function getSamplingFrequency({
 
 function getBitrateKB({
 	bits,
-	version,
+	mpegVersion,
 	level,
 }: {
 	bits: number;
-	version: Version;
+	mpegVersion: Version;
 	level: Level;
 }): number | 'free' | 'bad' {
 	const bitrateTable: Record<
@@ -167,10 +167,10 @@ function getBitrateKB({
 
 	// Determine the correct key based on version and level
 	let key: string;
-	if (version === 2 && (level === 2 || level === 3)) {
+	if (mpegVersion === 2 && (level === 2 || level === 3)) {
 		key = 'V2,L2&L3';
 	} else {
-		key = `V${version},L${level}`;
+		key = `V${mpegVersion},L${level}`;
 	}
 
 	// Return the corresponding bitrate
@@ -232,7 +232,7 @@ export const parseMpegHeader = async ({
 	const bitrateIndex = iterator.getBits(4);
 	const bitrateKbit = getBitrateKB({
 		bits: bitrateIndex,
-		version: layerBits as Version,
+		mpegVersion,
 		level: audioVersionId as Level,
 	});
 	if (bitrateKbit === 'bad') {

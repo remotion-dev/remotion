@@ -1,4 +1,7 @@
-import type {ConvertMediaContainer, ConvertMediaProgress} from '@remotion/webcodecs';
+import type {
+	ConvertMediaContainer,
+	ConvertMediaProgress,
+} from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
@@ -9,7 +12,7 @@ import {
 } from '~/lib/title-context';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
-import type { VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 import {VideoThumbnail} from './VideoThumbnail';
 
 export const convertProgressRef = createRef<VideoThumbnailRef>();
@@ -62,7 +65,7 @@ export const ConvertProgress: React.FC<{
 				<div className="p-2">
 					<div>
 						{name ? (
-							<strong className="font-brand ">{name}</strong>
+							<strong className="font-brand ">{newName}</strong>
 						) : (
 							<Skeleton className="h-4 w-[200px]" />
 						)}

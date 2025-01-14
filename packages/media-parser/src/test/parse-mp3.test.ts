@@ -91,3 +91,33 @@ test('should read video fields', async () => {
 test.todo('should read only metadata');
 test.todo('should read ID3 tags');
 test.todo('should get video track');
+
+test('should read short mp3 file', async () => {
+	const {durationInSeconds} = await parseMedia({
+		src: exampleVideos.shortmp3,
+		reader: nodeReader,
+		fields: {
+			tracks: true,
+			durationInSeconds: true,
+		},
+		onAudioTrack: () => {
+			return () => {};
+		},
+	});
+	expect(durationInSeconds).toBe(0.984);
+});
+
+test('should read mpeg 1 layer 3 file', async () => {
+	const {durationInSeconds} = await parseMedia({
+		src: exampleVideos.mpeg1layer3,
+		reader: nodeReader,
+		fields: {
+			tracks: true,
+			durationInSeconds: true,
+		},
+		onAudioTrack: () => {
+			return () => {};
+		},
+	});
+	expect(durationInSeconds).toBe(56.55510204081633);
+});
