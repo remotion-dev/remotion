@@ -35,13 +35,15 @@ export const useProbe = ({
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
-	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
+		undefined,
+	);
 	const [unrotatedDimensions, setUnrotatedDimensions] =
 		useState<Dimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
-	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
-		null,
-	);
+	const [videoCodec, setVideoCodec] = useState<
+		MediaParserVideoCodec | undefined | null
+	>(undefined);
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);

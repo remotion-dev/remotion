@@ -19,7 +19,7 @@ import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
-	readonly dimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly videoCodec: MediaParserVideoCodec | null;
 	readonly audioCodec: MediaParserAudioCodec | null | undefined;
@@ -79,8 +79,10 @@ export const ContainerOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Dimensions</TableCell>
 					<TableCell className="text-right">
-						{dimensions === null ? (
+						{dimensions === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : dimensions === null ? (
+							<>N/A</>
 						) : (
 							<>
 								{dimensions.width}x{dimensions.height}
@@ -103,8 +105,10 @@ export const ContainerOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Video Codec</TableCell>
 					<TableCell className="text-right">
-						{videoCodec === null ? (
+						{videoCodec === undefined ? (
 							<Skeleton className="h-3 w-[100px] inline-block" />
+						) : videoCodec === null ? (
+							<>N/A</>
 						) : (
 							renderHumanReadableVideoCodec(videoCodec)
 						)}
