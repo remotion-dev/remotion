@@ -3,7 +3,10 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import {getMpegFrameLength} from './get-frame-length';
+import {
+	getAverageMpegFrameLength,
+	getMpegFrameLength,
+} from './get-frame-length';
 import {getSamplesPerMpegFrame} from './samples-per-mpeg-file';
 
 type Version = 1 | 2;
@@ -261,6 +264,7 @@ export const parseMpegHeader = async ({
 		padding,
 		samplesPerFrame,
 		samplingFrequency: sampleRate,
+		layer,
 	});
 
 	iterator.stopReadingBits();
@@ -299,19 +303,34 @@ export const parseMpegHeader = async ({
 		state.callbacks.tracks.setIsDone();
 	}
 
+	const mp3Info = state.mp3Info.getMp3Info();
+	if (!mp3Info) {
+		throw new Error('No MP3 info by now');
+	}
+
+	const avgLength = getAverageMpegFrameLength({
+		bitrateKbit,
+		layer,
+		samplesPerFrame,
+		samplingFrequency: sampleRate,
+	});
+
+	const nthFrame = Math.round(
+		(initialOffset - mp3Info.startOfMpegStream) / avgLength,
+	);
+
+	const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
+	const timestamp = Math.round(timeInSeconds * 1_000_000);
+
 	await state.callbacks.onAudioSample(0, {
 		data,
-		// TODO: Put correct
-		cts: 0,
-		// TODO: put correct
-		dts: 0,
+		cts: timestamp,
+		dts: timestamp,
 		// TODO: put correct
 		duration: 1000,
 		offset: initialOffset,
-		// TODO: put correct
-		timescale: 1000,
-		// TODO: put correct
-		timestamp: 1000,
+		timescale: 1_000_000,
+		timestamp,
 		trackId: 0,
 		type: 'key',
 	});

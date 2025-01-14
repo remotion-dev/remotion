@@ -21,6 +21,7 @@ export const getDurationFromMp3 = (state: ParserState): number | null => {
 		padding: false,
 		samplesPerFrame,
 		samplingFrequency: mp3Info.sampleRate,
+		layer: mp3Info.layer,
 	});
 
 	const frames = Math.floor(

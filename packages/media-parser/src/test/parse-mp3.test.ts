@@ -13,11 +13,14 @@ test('should read MP3 file', async () => {
 			durationInSeconds: true,
 		},
 		onAudioTrack: () => {
+			let lastSample = -1;
 			return (sample) => {
 				expect(
 					sample.data.byteLength === 1045 || sample.data.byteLength === 1044,
 				).toBe(true);
 				samples++;
+				expect(sample.timestamp).toBeGreaterThan(lastSample);
+				lastSample = sample.timestamp;
 			};
 		},
 	});
