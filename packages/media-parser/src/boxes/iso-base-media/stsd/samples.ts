@@ -7,7 +7,7 @@ import type {
 	ParseResult,
 } from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
-import {parseIsoBaseMediaBoxes} from '../process-box';
+import {parseIsoBaseMediaBoxes} from '../parse-boxes';
 
 type SampleBase = {
 	format: string;

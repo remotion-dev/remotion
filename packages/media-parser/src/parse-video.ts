@@ -1,4 +1,4 @@
-import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
+import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/parse-boxes';
 import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-box';
 import {makeNextPesHeaderStore} from './boxes/transport-stream/next-pes-header-store';

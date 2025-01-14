@@ -3,7 +3,7 @@ import type {Options, ParseMediaFields} from '../../../options';
 import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
-import {parseIsoBaseMediaBoxes} from '../process-box';
+import {parseIsoBaseMediaBoxes} from '../parse-boxes';
 
 export interface MebxBox extends BaseBox {
 	type: 'mebx-box';
