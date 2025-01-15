@@ -3,7 +3,7 @@ import type React from 'react';
 import {useEffect, useState} from 'react';
 
 export const EmbeddedImage: React.FC<{
-	images: MediaParserEmbeddedImage[];
+	readonly images: MediaParserEmbeddedImage[];
 }> = ({images}) => {
 	const [url, setUrl] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ export const EmbeddedImage: React.FC<{
 		return () => {
 			URL.revokeObjectURL(u);
 		};
-	}, []);
+	}, [firstImage]);
 
 	if (!firstImage) {
 		return null;

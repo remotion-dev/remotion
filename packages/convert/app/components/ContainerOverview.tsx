@@ -29,7 +29,7 @@ export const ContainerOverview: React.FC<{
 	readonly isHdr: boolean | undefined;
 	readonly metadata: MetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
-	isAudioOnly: boolean;
+	readonly isAudioOnly: boolean;
 }> = ({
 	container,
 	dimensions,

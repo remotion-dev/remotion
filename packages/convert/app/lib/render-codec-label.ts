@@ -90,27 +90,27 @@ export const renderHumanReadableContainer = (
 	container: ParseMediaContainer | ConvertMediaContainer,
 ) => {
 	if (container === 'webm') {
-		return 'WebM';
+		return '.webm';
 	}
 
 	if (container === 'mp4') {
-		return 'MP4';
+		return '.mp4';
 	}
 
 	if (container === 'wav') {
-		return 'WAV';
+		return '.wav';
 	}
 
 	if (container === 'avi') {
-		return 'AVI';
+		return '.avi';
 	}
 
 	if (container === 'mp3') {
-		return 'MP3';
+		return '.mp3';
 	}
 
 	if (container === 'transport-stream') {
-		return 'Transport Stream';
+		return '.ts';
 	}
 
 	throw new Error(`Unknown container ${container satisfies never}`);

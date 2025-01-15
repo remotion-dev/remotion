@@ -24,7 +24,8 @@ export const ConvertProgress: React.FC<{
 	readonly done: boolean;
 	readonly duration: number | null;
 	readonly isReencoding: boolean;
-}> = ({state, name, container, done, isReencoding, duration}) => {
+	readonly isAudioOnly: boolean;
+}> = ({state, name, container, done, isReencoding, duration, isAudioOnly}) => {
 	const progress = done
 		? 1
 		: duration === null
@@ -37,46 +38,42 @@ export const ConvertProgress: React.FC<{
 	useAddOutputFilenameToTitle(newName);
 
 	return (
-		<>
-			<Card className="overflow-hidden">
-				{isReencoding ? (
-					<>
-						<VideoThumbnail
-							ref={convertProgressRef}
-							initialReveal
-							smallThumbOnMobile={false}
-							rotation={0}
-							mirrorHorizontal={false}
-							mirrorVertical={false}
-						/>
-					</>
+		<Card className="overflow-hidden">
+			{isReencoding && !isAudioOnly ? (
+				<VideoThumbnail
+					ref={convertProgressRef}
+					initialReveal
+					smallThumbOnMobile={false}
+					rotation={0}
+					mirrorHorizontal={false}
+					mirrorVertical={false}
+				/>
+			) : null}
+			<div className="h-5 overflow-hidden">
+				{state.millisecondsWritten || done ? (
+					<div
+						className="w-[50%] h-5 bg-brand"
+						style={{
+							width: (progress ?? 0) * 100 + '%',
+						}}
+					/>
 				) : null}
-				<div className="h-5 overflow-hidden">
-					{state.millisecondsWritten || done ? (
-						<div
-							className="w-[50%] h-5 bg-brand"
-							style={{
-								width: (progress ?? 0) * 100 + '%',
-							}}
-						/>
-					) : null}
+			</div>
+			<div className="border-b-2 border-black" />
+			<div className="p-2">
+				<div>
+					{name ? (
+						<strong className="font-brand ">{newName}</strong>
+					) : (
+						<Skeleton className="h-4 w-[200px]" />
+					)}
 				</div>
-				<div className="border-b-2 border-black" />
-				<div className="p-2">
-					<div>
-						{name ? (
-							<strong className="font-brand ">{newName}</strong>
-						) : (
-							<Skeleton className="h-4 w-[200px]" />
-						)}
-					</div>
-					<div className="tabular-nums text-muted-foreground font-brand text-sm">
-						<span>{formatSeconds(state.millisecondsWritten / 1000)}</span>
-						{' • '}
-						<span>{formatBytes(state.bytesWritten)}</span>
-					</div>
+				<div className="tabular-nums text-muted-foreground font-brand text-sm">
+					<span>{formatSeconds(state.millisecondsWritten / 1000)}</span>
+					{' • '}
+					<span>{formatBytes(state.bytesWritten)}</span>
 				</div>
-			</Card>
-		</>
+			</div>
+		</Card>
 	);
 };

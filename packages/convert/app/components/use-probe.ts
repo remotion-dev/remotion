@@ -171,22 +171,23 @@ export const useProbe = ({
 			images,
 		};
 	}, [
+		tracks,
 		audioCodec,
-		container,
-		dimensions,
 		fps,
 		name,
-		size,
-		tracks,
+		container,
+		dimensions,
 		videoCodec,
+		size,
 		durationInSeconds,
+		isHdr,
 		done,
 		error,
-		isHdr,
 		rotation,
 		metadata,
 		location,
 		keyframes,
 		unrotatedDimensions,
+		images,
 	]);
 };

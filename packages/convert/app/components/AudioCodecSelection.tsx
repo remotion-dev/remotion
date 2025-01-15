@@ -38,6 +38,7 @@ export const AudioCodecSelection: React.FC<{
 				<SelectContent>
 					{audioTrackOptions.map((operation, i) => {
 						return (
+							// eslint-disable-next-line react/no-array-index-key
 							<SelectGroup key={i}>
 								<SelectItem
 									key={getAudioOperationId(operation)}

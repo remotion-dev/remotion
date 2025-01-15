@@ -346,6 +346,10 @@ export default function ConvertUI({
 		userRotation,
 	]);
 
+	const hasAudio = useMemo(() => {
+		return (tracks?.videoTracks.length ?? 0) === 0;
+	}, [tracks?.videoTracks.length]);
+
 	if (state.type === 'error') {
 		return (
 			<>
@@ -375,6 +379,7 @@ export default function ConvertUI({
 							enableConvert,
 						})
 					}
+					isAudioOnly={hasAudio}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -401,6 +406,7 @@ export default function ConvertUI({
 							enableConvert,
 						})
 					}
+					isAudioOnly={hasAudio}
 				/>
 				<div className="h-2" />
 				<ConversionDone
