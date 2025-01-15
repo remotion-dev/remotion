@@ -8,9 +8,9 @@ export const slowDurationAndFpsState = () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 
-	const getSlowDurationInSeconds = () => {
+	const getSlowVideoDurationInSeconds = () => {
 		let videoDuration: number | null = null;
-		let audioDuration: number | null = null;
+
 		if (smallestVideoSample !== undefined && largestVideoSample !== undefined) {
 			const startingTimestampDifference =
 				largestVideoSample - smallestVideoSample;
@@ -18,6 +18,13 @@ export const slowDurationAndFpsState = () => {
 				startingTimestampDifference / (videoSamples - 1);
 			videoDuration = timeBetweenSamples * videoSamples;
 		}
+
+		return videoDuration;
+	};
+
+	const getSlowDurationInSeconds = () => {
+		const videoDuration = getSlowVideoDurationInSeconds();
+		let audioDuration: number | null = null;
 
 		if (smallestAudioSample !== undefined && largestAudioSample !== undefined) {
 			const startingTimestampDifferenceAudio =
@@ -71,7 +78,12 @@ export const slowDurationAndFpsState = () => {
 		},
 		getSlowDurationInSeconds,
 		getFps: () => {
-			return videoSamples / getSlowDurationInSeconds();
+			const videoDuration = getSlowVideoDurationInSeconds() ?? 0;
+			if (videoDuration === 0) {
+				return 0;
+			}
+
+			return videoSamples / videoDuration;
 		},
 		getSlowNumberOfFrames: () => videoSamples,
 	};
