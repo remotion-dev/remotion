@@ -27,5 +27,8 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/svg-3d-engine"
 	},
-	"description": "3D SVG extrusion effects"
+	"description": "3D SVG extrusion effects",
+	"publishConfig": {
+		"access": "public"
+	}
 }
