@@ -162,6 +162,30 @@ export const renderMetadataLabel = (key: string) => {
 		return 'Comment';
 	}
 
+	if (key === 'TCOP') {
+		return 'Copyright';
+	}
+
+	if (key === 'TIT3') {
+		return 'Description';
+	}
+
+	if (key === 'TLAN') {
+		return 'Language';
+	}
+
+	if (key === 'TSRC') {
+		return 'ISRC';
+	}
+
+	if (key === 'WOAR') {
+		return 'Artist Webpage';
+	}
+
+	if (key === 'WPUB') {
+		return 'Publisher Webpage';
+	}
+
 	return key;
 };
 
