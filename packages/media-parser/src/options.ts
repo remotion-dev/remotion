@@ -200,6 +200,7 @@ export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	signal?: AbortSignal;
 	logLevel?: LogLevel;
 	onParseProgress?: ParseMediaOnProgress;
+	progressIntervalInMs?: number;
 } & ParseMediaDynamicOptions<F>;
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
