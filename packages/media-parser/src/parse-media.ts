@@ -17,6 +17,7 @@ import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import {fetchReader} from './readers/from-fetch';
 import {makeParserState} from './state/parser-state';
+import {throttledStateUpdate} from './throttled-progress';
 
 export const parseMedia: ParseMedia = async function <
 	F extends Options<ParseMediaFields>,
@@ -28,7 +29,8 @@ export const parseMedia: ParseMedia = async function <
 	onVideoTrack,
 	signal,
 	logLevel = 'info',
-	onParseProgress,
+	onParseProgress: onParseProgressDoNotCallDirectly,
+	progressIntervalInMs,
 	...more
 }: ParseMediaOptions<F>) {
 	let parseResult: ParseResult | null = null;
@@ -76,6 +78,13 @@ export const parseMedia: ParseMedia = async function <
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks;
+
+	const throttledState = throttledStateUpdate({
+		updateFn: onParseProgressDoNotCallDirectly ?? null,
+		everyMilliseconds: progressIntervalInMs ?? 100,
+		signal,
+		totalBytes: contentLength,
+	});
 
 	const triggerInfoEmit = () => {
 		const availableInfo = getAvailableInfo({
@@ -146,14 +155,13 @@ export const parseMedia: ParseMedia = async function <
 			await fetchMoreData();
 		}
 
-		// TODO: Throttle parse progress
-		await onParseProgress?.({
+		throttledState.update?.(() => ({
 			bytes: iterator.counter.getOffset(),
 			percentage: contentLength
 				? iterator.counter.getOffset() / contentLength
 				: null,
 			totalBytes: contentLength,
-		});
+		}));
 
 		triggerInfoEmit();
 
