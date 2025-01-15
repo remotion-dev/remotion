@@ -97,6 +97,11 @@ Use the [`container`](/docs/media-parser/parse-media#container) field to get the
 | --------- | ------------------------------------ | ----------------- |
 | `encoder` | Software used to encode stream/Video | `"Lavf57.19.100"` |
 
+### MP3
+
+See [here](https://exiftool.org/TagNames/ID3.html) for a list of tags that can be returned.  
+The `APIC` tag will not be returned as part of the `metadata` field, but separately as elements in the [`images`](/docs/media-parser/parse-media#images) array.
+
 ## Fields are not unique
 
 Some fields may appear multiple times per video, such as `encoder`, `comment` or `duration`.  
