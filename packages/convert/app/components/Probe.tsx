@@ -2,6 +2,7 @@
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
+import {isAudioOnly} from '~/lib/is-audio-container';
 import {useIsNarrow} from '~/lib/is-narrow';
 import {
 	useAddFilenameToTitle,
@@ -87,6 +88,8 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
+	const isAudio = isAudioOnly({tracks, container});
+
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
 
@@ -146,6 +149,7 @@ export const Probe: React.FC<{
 						<ScrollArea height={300} className="flex-1">
 							{selectedTrack === null ? (
 								<ContainerOverview
+									isAudioOnly={isAudio}
 									container={container ?? null}
 									dimensions={dimensions ?? null}
 									videoCodec={videoCodec ?? null}

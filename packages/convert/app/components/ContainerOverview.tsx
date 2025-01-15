@@ -29,6 +29,7 @@ export const ContainerOverview: React.FC<{
 	readonly isHdr: boolean | undefined;
 	readonly metadata: MetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
+	isAudioOnly: boolean;
 }> = ({
 	container,
 	dimensions,
@@ -40,6 +41,7 @@ export const ContainerOverview: React.FC<{
 	isHdr,
 	metadata,
 	location,
+	isAudioOnly,
 }) => {
 	return (
 		<Table className="table-fixed">
@@ -76,44 +78,50 @@ export const ContainerOverview: React.FC<{
 						)}
 					</TableCell>
 				</TableRow>
-				<TableRow>
-					<TableCell className="font-brand">Dimensions</TableCell>
-					<TableCell className="text-right">
-						{dimensions === undefined ? (
-							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : dimensions === null ? (
-							<>N/A</>
-						) : (
-							<>
-								{dimensions.width}x{dimensions.height}
-							</>
-						)}
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell className="font-brand">Frame Rate</TableCell>
-					<TableCell className="text-right">
-						{fps === undefined ? (
-							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : fps ? (
-							<>{fps.toFixed(2)} FPS</>
-						) : (
-							'N/A'
-						)}
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell className="font-brand">Video Codec</TableCell>
-					<TableCell className="text-right">
-						{videoCodec === undefined ? (
-							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : videoCodec === null ? (
-							<>N/A</>
-						) : (
-							renderHumanReadableVideoCodec(videoCodec)
-						)}
-					</TableCell>
-				</TableRow>
+				{!isAudioOnly && (
+					<TableRow>
+						<TableCell className="font-brand">Dimensions</TableCell>
+						<TableCell className="text-right">
+							{dimensions === undefined ? (
+								<Skeleton className="h-3 w-[100px] inline-block" />
+							) : dimensions === null ? (
+								<>N/A</>
+							) : (
+								<>
+									{dimensions.width}x{dimensions.height}
+								</>
+							)}
+						</TableCell>
+					</TableRow>
+				)}
+				{isAudioOnly ? null : (
+					<TableRow>
+						<TableCell className="font-brand">Frame Rate</TableCell>
+						<TableCell className="text-right">
+							{fps === undefined ? (
+								<Skeleton className="h-3 w-[100px] inline-block" />
+							) : fps ? (
+								<>{fps.toFixed(2)} FPS</>
+							) : (
+								'N/A'
+							)}
+						</TableCell>
+					</TableRow>
+				)}
+				{isAudioOnly ? null : (
+					<TableRow>
+						<TableCell className="font-brand">Video Codec</TableCell>
+						<TableCell className="text-right">
+							{videoCodec === undefined ? (
+								<Skeleton className="h-3 w-[100px] inline-block" />
+							) : videoCodec === null ? (
+								<>N/A</>
+							) : (
+								renderHumanReadableVideoCodec(videoCodec)
+							)}
+						</TableCell>
+					</TableRow>
+				)}
 				<TableRow>
 					<TableCell className="font-brand">Audio Codec</TableCell>
 					<TableCell className="text-right">
@@ -126,18 +134,20 @@ export const ContainerOverview: React.FC<{
 						)}
 					</TableCell>
 				</TableRow>
-				<TableRow>
-					<TableCell className="font-brand">HDR</TableCell>
-					<TableCell className="text-right">
-						{isHdr === undefined ? (
-							<Skeleton className="h-3 w-[100px] inline-block" />
-						) : isHdr ? (
-							'Yes'
-						) : (
-							'No'
-						)}
-					</TableCell>
-				</TableRow>
+				{isAudioOnly ? null : (
+					<TableRow>
+						<TableCell className="font-brand">HDR</TableCell>
+						<TableCell className="text-right">
+							{isHdr === undefined ? (
+								<Skeleton className="h-3 w-[100px] inline-block" />
+							) : isHdr ? (
+								'Yes'
+							) : (
+								'No'
+							)}
+						</TableCell>
+					</TableRow>
+				)}
 				<MetadataDisplay
 					location={location}
 					metadata={metadata ?? []}

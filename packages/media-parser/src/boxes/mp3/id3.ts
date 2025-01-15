@@ -59,7 +59,7 @@ export const parseId3 = (iterator: BufferIterator, structure: Mp3Structure) => {
 		entries.push({
 			key: name,
 			value: information,
-			trackId: 0,
+			trackId: null,
 		});
 	}
 
