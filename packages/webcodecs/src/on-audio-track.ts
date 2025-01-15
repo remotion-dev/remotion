@@ -222,9 +222,10 @@ export const makeAudioTrackHandler =
 							`onAudioData returned a different format than the input audio data. Original format: ${audioData.format}, new format: ${newAudioData.format}`,
 						);
 					}
+
 					if (newAudioData.timestamp !== audioData.timestamp) {
 						throw new Error(
-							`onAudioData returned a different timestamp than the input audio data. Original timestamp: ${audioData.timestamp}, new timestamp: ${newAudioData.timestamp
+							`onAudioData returned a different timestamp than the input audio data. Original timestamp: ${audioData.timestamp}, new timestamp: ${newAudioData.timestamp}`,
 						);
 					}
 
