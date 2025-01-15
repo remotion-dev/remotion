@@ -36,10 +36,8 @@ export const EmbeddedImage: React.FC<{
 	}
 
 	return (
-		<div>
-			<div>
-				<img src={url} />
-			</div>
+		<div className="h-[200px] justify-center items-center flex border-solid border-b-2 border-black bg-slate-100">
+			<img src={url} className="h-full" />
 		</div>
 	);
 };
