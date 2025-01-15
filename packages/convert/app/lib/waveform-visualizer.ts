@@ -15,7 +15,7 @@ export const makeWaveformVisualizer = (options: {
 			bars.durationInMicroseconds += frame.duration ?? 0;
 			if (duration !== null) {
 				const progress = bars.durationInMicroseconds / 1_000_000 / duration;
-				const bar = Math.floor(progress * AMOUNT_OF_BARS);
+				const bar = Math.round(progress * AMOUNT_OF_BARS);
 				if (combinedBars.length < bar) {
 					const arr = new Uint8Array(
 						frame.allocationSize({planeIndex: 0, format: 's16'}),

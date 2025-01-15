@@ -166,6 +166,9 @@ export default function ConvertUI({
 		const waveform = makeWaveformVisualizer({
 			onWaveformBars,
 		});
+		if (duration) {
+			waveform.setDuration(duration);
+		}
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
@@ -182,9 +185,6 @@ export default function ConvertUI({
 
 				videoFrames++;
 				return flipped;
-			},
-			onDurationInSeconds: (d) => {
-				waveform.setDuration(d);
 			},
 			onAudioData: ({audioData}) => {
 				waveform.add(audioData);
@@ -280,6 +280,7 @@ export default function ConvertUI({
 		};
 	}, [
 		onWaveformBars,
+		duration,
 		src,
 		userRotation,
 		logLevel,
