@@ -105,7 +105,7 @@ export const getDefaultContainerForConversion = (
 	}
 
 	if (guessed === 'mp3') {
-		return 'mp4';
+		return 'wav';
 	}
 
 	throw new Error('Unhandled container ' + (guessed satisfies never));
