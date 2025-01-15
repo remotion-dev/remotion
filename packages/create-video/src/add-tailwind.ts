@@ -41,7 +41,7 @@ export const addTailwindRootCss = (projectRoot: string) => {
 
 	const root = fs.readFileSync(rootFile, 'utf-8');
 
-	const newFile = `import './tailwind.css';\n${root}`;
+	const newFile = `import "./tailwind.css";\n${root}`;
 	fs.writeFileSync(rootFile, newFile);
 };
 
