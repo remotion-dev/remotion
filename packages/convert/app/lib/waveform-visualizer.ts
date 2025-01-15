@@ -1,4 +1,4 @@
-export const AMOUNT_OF_BARS = 65;
+export const AMOUNT_OF_BARS = 68;
 
 export const makeWaveformVisualizer = (options: {
 	onWaveformBars: (bars: number[]) => void;

@@ -24,6 +24,7 @@ import {
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
+import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
 import type {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
@@ -151,11 +152,20 @@ export default function ConvertUI({
 
 	const abortSignal = useRef<AbortController | null>(null);
 
+	const [bars, setBars] = useState<number[]>([]);
+
+	const onWaveformBars = useCallback((b: number[]) => {
+		setBars(b);
+	}, []);
+
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
 		abortSignal.current = abortController;
 
 		let videoFrames = 0;
+		const waveform = makeWaveformVisualizer({
+			onWaveformBars,
+		});
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
@@ -167,12 +177,18 @@ export default function ConvertUI({
 					vertical: flipVertical && enableRotateOrMirror === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
-					// TODO: Pass rotation that was applied
 					convertProgressRef.current?.draw(flipped);
 				}
 
 				videoFrames++;
 				return flipped;
+			},
+			onDurationInSeconds: (d) => {
+				waveform.setDuration(d);
+			},
+			onAudioData: ({audioData}) => {
+				waveform.add(audioData);
+				return audioData;
 			},
 			rotate: userRotation,
 			logLevel,
@@ -263,6 +279,7 @@ export default function ConvertUI({
 			abortController.abort();
 		};
 	}, [
+		onWaveformBars,
 		src,
 		userRotation,
 		logLevel,
@@ -270,7 +287,8 @@ export default function ConvertUI({
 		flipHorizontal,
 		enableRotateOrMirror,
 		flipVertical,
-		supportedConfigs,
+		supportedConfigs?.audioTrackOptions,
+		supportedConfigs?.videoTrackOptions,
 		enableConvert,
 		audioOperationSelection,
 		videoOperationSelection,
@@ -379,6 +397,7 @@ export default function ConvertUI({
 							enableConvert,
 						})
 					}
+					bars={bars}
 					isAudioOnly={hasAudio}
 				/>
 				<div className="h-2" />
@@ -406,6 +425,7 @@ export default function ConvertUI({
 							enableConvert,
 						})
 					}
+					bars={bars}
 					isAudioOnly={hasAudio}
 				/>
 				<div className="h-2" />

@@ -10,6 +10,7 @@ import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
 } from '~/lib/title-context';
+import {AudioWaveForm} from './AudioWaveform';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -25,7 +26,17 @@ export const ConvertProgress: React.FC<{
 	readonly duration: number | null;
 	readonly isReencoding: boolean;
 	readonly isAudioOnly: boolean;
-}> = ({state, name, container, done, isReencoding, duration, isAudioOnly}) => {
+	readonly bars: number[];
+}> = ({
+	state,
+	name,
+	bars,
+	container,
+	done,
+	isReencoding,
+	duration,
+	isAudioOnly,
+}) => {
 	const progress = done
 		? 1
 		: duration === null
@@ -49,6 +60,7 @@ export const ConvertProgress: React.FC<{
 					mirrorVertical={false}
 				/>
 			) : null}
+			{duration ? <AudioWaveForm bars={bars} /> : null}
 			<div className="h-5 overflow-hidden">
 				{state.millisecondsWritten || done ? (
 					<div

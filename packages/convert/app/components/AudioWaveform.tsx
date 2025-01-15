@@ -20,7 +20,7 @@ export const AudioWaveForm: React.FC<{readonly bars: number[]}> = ({bars}) => {
 						key={i}
 						className="rounded bg-slate-400 inline-block w-[4px]"
 						style={{
-							height: (bar / 255) * 40,
+							height: Math.max(6, (bar / 255) * 40),
 							transition: 'height 0.1s ease',
 						}}
 					/>

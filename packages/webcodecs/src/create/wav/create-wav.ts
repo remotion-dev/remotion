@@ -100,7 +100,7 @@ export const createWav = async ({
 	};
 
 	const addSample = async (chunk: AudioOrVideoSample) => {
-		Log.verbose(logLevel, 'Adding sample', chunk);
+		Log.trace(logLevel, 'Adding sample', chunk);
 		await w.write(chunk.data);
 		onMillisecondsProgress((chunk.timestamp + (chunk.duration ?? 0)) / 1000);
 		onBytesProgress(w.getWrittenByteCount());

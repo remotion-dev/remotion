@@ -4,6 +4,7 @@
  */
 
 import type {
+	AudioTrack,
 	LogLevel,
 	OnAudioTrack,
 	Options,
@@ -56,12 +57,17 @@ export type ConvertMediaOnVideoFrame = (options: {
 	frame: VideoFrame;
 	track: VideoTrack;
 }) => Promise<VideoFrame> | VideoFrame;
+export type ConvertMediaOnAudioData = (options: {
+	audioData: AudioData;
+	track: AudioTrack;
+}) => Promise<AudioData> | AudioData;
 
 export const convertMedia = async function <
 	F extends Options<ParseMediaFields>,
 >({
 	src,
 	onVideoFrame,
+	onAudioData,
 	onProgress: onProgressDoNotCallDirectly,
 	audioCodec,
 	container,
@@ -82,6 +88,7 @@ export const convertMedia = async function <
 	src: ParseMediaOptions<F>['src'];
 	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
+	onAudioData?: ConvertMediaOnAudioData;
 	onProgress?: ConvertMediaOnProgress;
 	videoCodec?: ConvertMediaVideoCodec;
 	audioCodec?: ConvertMediaAudioCodec;
@@ -200,6 +207,7 @@ export const convertMedia = async function <
 		logLevel,
 		outputContainer: container,
 		progressTracker,
+		onAudioData: onAudioData ?? null,
 	});
 
 	parseMedia({
