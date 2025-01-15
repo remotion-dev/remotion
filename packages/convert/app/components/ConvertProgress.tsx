@@ -51,32 +51,34 @@ export const ConvertProgress: React.FC<{
 	return (
 		<Card className="overflow-hidden">
 			{isReencoding && !isAudioOnly ? (
-				<VideoThumbnail
-					ref={convertProgressRef}
-					initialReveal
-					smallThumbOnMobile={false}
-					rotation={0}
-					mirrorHorizontal={false}
-					mirrorVertical={false}
-				/>
-			) : null}
-			{duration ? (
-				<AudioWaveForm bars={bars} />
-			) : (
 				<>
-					<div className="h-5 overflow-hidden">
-						{state.millisecondsWritten || done ? (
-							<div
-								className="w-[50%] h-5 bg-brand"
-								style={{
-									width: (progress ?? 0) * 100 + '%',
-								}}
-							/>
-						) : null}
-					</div>
-					<div className="border-b-2 border-black" />
+					<VideoThumbnail
+						ref={convertProgressRef}
+						initialReveal
+						smallThumbOnMobile={false}
+						rotation={0}
+						mirrorHorizontal={false}
+						mirrorVertical={false}
+					/>
+					{duration ? (
+						<>
+							<div className="h-5 overflow-hidden">
+								{state.millisecondsWritten || done ? (
+									<div
+										className="w-[50%] h-5 bg-brand"
+										style={{
+											width: (progress ?? 0) * 100 + '%',
+										}}
+									/>
+								) : null}
+							</div>
+							<div className="border-b-2 border-black" />
+						</>
+					) : null}
 				</>
-			)}
+			) : duration ? (
+				<AudioWaveForm bars={bars} />
+			) : null}
 			<div className="p-2">
 				<div>
 					{name ? (
