@@ -211,6 +211,17 @@ _number_
 
 The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
 
+#### `images`
+
+Return type: <TsType type="MediaParserEmbeddedImage[]" source="@remotion/media-parser" />
+
+Embedded images in the file, for example an album cover inside an MP3.  
+Each array element has the following fields:
+
+- `mimeType`: The MIME type of the image, or `null`
+- `description`: A description of the image, or `null`
+- `data`: The image data as a `Uint8Array`
+
 ### `reader?`
 
 A reader interface.  
