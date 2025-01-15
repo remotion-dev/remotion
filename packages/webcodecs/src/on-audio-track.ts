@@ -199,6 +199,35 @@ export const makeAudioTrackHandler =
 					? await onAudioData?.({audioData, track})
 					: audioData;
 				if (newAudioData !== audioData) {
+					if (newAudioData.duration !== audioData.duration) {
+						throw new Error(
+							`onAudioData returned a different duration than the input audio data. Original duration: ${audioData.duration}, new duration: ${newAudioData.duration}`,
+						);
+					}
+
+					if (newAudioData.numberOfChannels !== audioData.numberOfChannels) {
+						throw new Error(
+							`onAudioData returned a different number of channels than the input audio data. Original channels: ${audioData.numberOfChannels}, new channels: ${newAudioData.numberOfChannels}`,
+						);
+					}
+
+					if (newAudioData.sampleRate !== audioData.sampleRate) {
+						throw new Error(
+							`onAudioData returned a different sample rate than the input audio data. Original sample rate: ${audioData.sampleRate}, new sample rate: ${newAudioData.sampleRate}`,
+						);
+					}
+
+					if (newAudioData.format !== audioData.format) {
+						throw new Error(
+							`onAudioData returned a different format than the input audio data. Original format: ${audioData.format}, new format: ${newAudioData.format}`,
+						);
+					}
+					if (newAudioData.timestamp !== audioData.timestamp) {
+						throw new Error(
+							`onAudioData returned a different timestamp than the input audio data. Original timestamp: ${audioData.timestamp}, new timestamp: ${newAudioData.timestamp
+						);
+					}
+
 					audioData.close();
 				}
 

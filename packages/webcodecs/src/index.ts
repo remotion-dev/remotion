@@ -13,6 +13,7 @@ export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
 export {
 	convertMedia,
+	ConvertMediaOnAudioData,
 	ConvertMediaOnProgress,
 	ConvertMediaOnVideoFrame,
 	ConvertMediaProgress,
