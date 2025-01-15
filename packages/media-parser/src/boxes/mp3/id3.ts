@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {MetadataEntry} from '../../metadata/get-metadata';
 import type {Mp3Structure} from '../../parse-result';
+import type {ParserState} from '../../state/parser-state';
 
 function combine28Bits(a: number, b: number, c: number, d: number): number {
 	// Mask each number to ignore first bit (& 0x7F)
@@ -13,7 +14,15 @@ function combine28Bits(a: number, b: number, c: number, d: number): number {
 	return (val1 << 21) | (val2 << 14) | (val3 << 7) | val4;
 }
 
-export const parseId3 = (iterator: BufferIterator, structure: Mp3Structure) => {
+export const parseId3 = ({
+	iterator,
+	structure,
+	state,
+}: {
+	iterator: BufferIterator;
+	structure: Mp3Structure;
+	state: ParserState;
+}) => {
 	if (iterator.bytesRemaining() < 9) {
 		return;
 	}
@@ -55,12 +64,25 @@ export const parseId3 = (iterator: BufferIterator, structure: Mp3Structure) => {
 			subtract += 1;
 		}
 
-		const information = iterator.getByteString(s - subtract, true);
-		entries.push({
-			key: name,
-			value: information,
-			trackId: null,
-		});
+		if (name === 'APIC') {
+			const {discardRest} = iterator.planBytes(s - subtract);
+			const mimeType = iterator.readUntilNullTerminator();
+			iterator.getUint16(); // picture type
+			const description = iterator.readUntilNullTerminator();
+			const data = discardRest();
+			state.images.addImage({
+				data,
+				description,
+				mimeType,
+			});
+		} else {
+			const information = iterator.getByteString(s - subtract, true);
+			entries.push({
+				key: name,
+				value: information,
+				trackId: null,
+			});
+		}
 	}
 
 	structure.boxes.push({

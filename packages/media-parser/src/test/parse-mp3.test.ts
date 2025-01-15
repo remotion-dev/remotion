@@ -83,64 +83,64 @@ test('should read MP3 file', async () => {
 	expect(metadata).toEqual([
 		{
 			key: 'TLAN',
-			trackId: 0,
+			trackId: null,
 			value: 'eng',
 		},
 		{
 			key: 'TIT2',
-			trackId: 0,
+			trackId: null,
 			value: 'Monkeys Spinning Monkeys',
 		},
 		{
 			key: 'TIT3',
-			trackId: 0,
+			trackId: null,
 			value:
 				'License: CC BY, https://creativecommons.org/licenses/by/4.0/deed.de',
 		},
 		{
 			key: 'TPE1',
-			trackId: 0,
+			trackId: null,
 			value: 'Kevin MacLeod',
 		},
 		{
 			key: 'TYER',
-			trackId: 0,
+			trackId: null,
 			value: '2014',
 		},
 		{
 			key: 'COMM',
-			trackId: 0,
+			trackId: null,
 			value:
 				'eng\u0000Loopable happy light fluffy piece with bright flutes and a bunch of pizzicato strings. You can download an <A HREF="http://store.payloadz.com/go?id=1923791">uncompressed WAV format of this piece here</A> (in a lot of tempos)!',
 		},
 		{
 			key: 'TSRC',
-			trackId: 0,
+			trackId: null,
 			value: 'USUAN1400011',
 		},
 		{
 			key: 'WOAR',
-			trackId: 0,
+			trackId: null,
 			value: 'https://incompetech.com',
 		},
 		{
 			key: 'WPUB',
-			trackId: 0,
+			trackId: null,
 			value: 'https://filmmusic.io',
 		},
 		{
 			key: 'TCOP',
-			trackId: 0,
+			trackId: null,
 			value: 'https://filmmusic.io',
 		},
 		{
 			key: 'TCON',
-			trackId: 0,
+			trackId: null,
 			value: 'Orchestral',
 		},
 		{
 			key: 'TCON',
-			trackId: 0,
+			trackId: null,
 			value: 'Klassik',
 		},
 	]);
@@ -234,17 +234,23 @@ test('should read short mp3 file', async () => {
 	expect(durationInSeconds).toBe(0.984);
 });
 
-test('should read mpeg 1 layer 3 file', async () => {
-	const {durationInSeconds} = await parseMedia({
+test('should read mpeg 1 layer 3 file and album cover', async () => {
+	const {durationInSeconds, images} = await parseMedia({
 		src: exampleVideos.mpeg1layer3,
 		reader: nodeReader,
 		fields: {
 			tracks: true,
 			durationInSeconds: true,
+			metadata: true,
+			images: true,
 		},
 		onAudioTrack: () => {
 			return () => {};
 		},
 	});
-	expect(durationInSeconds).toBe(56.55510204081633);
+	expect(images.length).toBe(1);
+	expect(images[0].data.length).toBe(1287);
+	expect(images[0].mimeType).toBe('image/png');
+	expect(images[0].description).toBe('Album cover');
+	expect(durationInSeconds).toBe(56.58122448979592);
 });

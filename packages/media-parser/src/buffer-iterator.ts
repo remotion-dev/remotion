@@ -617,6 +617,19 @@ export const getArrayBufferIterator = (
 
 			return new TextDecoder().decode(bytes).trim();
 		},
+		planBytes: (size: number) => {
+			const currentOffset = counter.getOffset();
+			return {
+				discardRest: () => {
+					const toDiscard = size - (counter.getOffset() - currentOffset);
+					if (toDiscard < 0) {
+						throw new Error('read too many bytes');
+					}
+
+					return getSlice(toDiscard);
+				},
+			};
+		},
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getDiscardedOffset());
 			counter.increment(8);

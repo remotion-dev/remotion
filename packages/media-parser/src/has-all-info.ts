@@ -97,7 +97,7 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasContainer(structure));
 		}
 
-		if (key === 'metadata' || key === 'location') {
+		if (key === 'metadata' || key === 'location' || key === 'images') {
 			return Boolean(structure && hasMetadata(structure));
 		}
 

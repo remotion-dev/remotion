@@ -450,6 +450,19 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
+		if (key === 'images') {
+			if (!emittedFields.images && hasInfo.images && parseResult) {
+				callbacks.onImages?.(state.images.images);
+				if (fieldsInReturnValue.images) {
+					returnValue.images = state.images.images;
+				}
+
+				emittedFields.images = true;
+			}
+
+			continue;
+		}
+
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 };

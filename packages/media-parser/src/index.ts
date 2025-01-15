@@ -22,6 +22,7 @@ export {
 export type {SamplePosition} from './get-sample-positions';
 export {MetadataEntry} from './metadata/get-metadata';
 export {MediaParserKeyframe} from './options';
+export type {ParseMediaEmbeddedImage} from './state/images';
 
 export {
 	AudioTrack,

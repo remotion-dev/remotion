@@ -10,6 +10,7 @@ import type {LogLevel} from './log';
 import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
+import type {ParseMediaEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
@@ -45,6 +46,7 @@ export type ParseMediaFields = {
 	keyframes: boolean;
 	slowKeyframes: boolean;
 	slowNumberOfFrames: boolean;
+	images: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -70,6 +72,7 @@ export type AllParseMediaFields = {
 	mimeType: true;
 	keyframes: true;
 	slowKeyframes: true;
+	images: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -95,6 +98,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	keyframes: Fields['keyframes'];
 	slowKeyframes: Fields['slowKeyframes'];
 	slowNumberOfFrames: Fields['slowNumberOfFrames'];
+	images: Fields['images'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -144,6 +148,7 @@ export interface ParseMediaCallbacks {
 	onKeyframes?: (keyframes: MediaParserKeyframe[] | null) => void;
 	onSlowKeyframes?: (keyframes: MediaParserKeyframe[]) => void;
 	onSlowNumberOfFrames?: (samples: number) => void;
+	onImages?: (images: ParseMediaEmbeddedImage[]) => void;
 }
 
 export interface ParseMediaData {
@@ -169,6 +174,7 @@ export interface ParseMediaData {
 	keyframes: MediaParserKeyframe[] | null;
 	slowKeyframes: MediaParserKeyframe[];
 	slowNumberOfFrames: number;
+	images: ParseMediaEmbeddedImage[];
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

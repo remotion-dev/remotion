@@ -48,7 +48,7 @@ export const parseMp3 = async ({
 
 	// ID3 v2 or v3
 	if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) {
-		parseId3(iterator, structure);
+		parseId3({iterator, structure, state});
 		return {
 			status: 'incomplete',
 			continueParsing,
