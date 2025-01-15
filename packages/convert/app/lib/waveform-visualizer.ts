@@ -4,7 +4,6 @@ export const makeWaveformVisualizer = (options: {
 	onWaveformBars: (bars: number[]) => void;
 }) => {
 	const bars = {
-		values: [] as number[],
 		durationInMicroseconds: 0,
 	};
 	let duration: number | null = null;
@@ -24,10 +23,9 @@ export const makeWaveformVisualizer = (options: {
 					frame.copyTo(arr, {planeIndex: 0, format: 's16'});
 
 					const average = arr.reduce((a, b) => a + b, 0) / arr.length;
-					bars.values.push(average);
 
 					combinedBars.push(average);
-					options.onWaveformBars(combinedBars);
+					options.onWaveformBars([...combinedBars]);
 				}
 			}
 		},

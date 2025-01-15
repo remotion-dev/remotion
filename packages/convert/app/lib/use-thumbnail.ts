@@ -2,7 +2,7 @@ import type {LogLevel} from '@remotion/media-parser';
 import {parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';
 
@@ -27,6 +27,8 @@ export const useThumbnailAndWaveform = ({
 		});
 	}, [onWaveformBars]);
 
+	const hasStartedWaveform = useRef(false);
+
 	const execute = useCallback(() => {
 		const abortController = new AbortController();
 		parseMedia({
@@ -43,6 +45,12 @@ export const useThumbnailAndWaveform = ({
 				if (typeof AudioDecoder === 'undefined') {
 					return null;
 				}
+
+				if (hasStartedWaveform.current) {
+					return null;
+				}
+
+				hasStartedWaveform.current = true;
 
 				const decoder = new AudioDecoder({
 					output(frame) {
