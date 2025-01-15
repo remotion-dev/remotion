@@ -249,7 +249,7 @@ test('should read mpeg 1 layer 3 file and album cover', async () => {
 		},
 	});
 	expect(images.length).toBe(1);
-	expect(images[0].data.length).toBe(1287);
+	expect(images[0].data.length).toBe(1286);
 	expect(images[0].mimeType).toBe('image/png');
 	expect(images[0].description).toBe('Album cover');
 	expect(durationInSeconds).toBe(56.58122448979592);

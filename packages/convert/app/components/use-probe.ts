@@ -2,6 +2,7 @@ import type {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
+	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
 	MediaParserVideoCodec,
@@ -53,6 +54,7 @@ export const useProbe = ({
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);
+	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
@@ -110,6 +112,9 @@ export const useProbe = ({
 			onKeyframes: (k) => {
 				setKeyframes(k);
 			},
+			onImages: (i) => {
+				setImages(i);
+			},
 		})
 			.then(() => {})
 			.catch((err) => {
@@ -163,6 +168,7 @@ export const useProbe = ({
 			location,
 			keyframes,
 			unrotatedDimensions,
+			images,
 		};
 	}, [
 		audioCodec,

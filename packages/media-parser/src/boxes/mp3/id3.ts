@@ -69,6 +69,7 @@ export const parseId3 = ({
 			const mimeType = iterator.readUntilNullTerminator();
 			iterator.getUint16(); // picture type
 			const description = iterator.readUntilNullTerminator();
+			iterator.discard(1);
 			const data = discardRest();
 			state.images.addImage({
 				data,

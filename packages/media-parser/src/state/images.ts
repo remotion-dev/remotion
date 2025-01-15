@@ -1,13 +1,13 @@
-export type ParseMediaEmbeddedImage = {
+export type MediaParserEmbeddedImage = {
 	description: string | null;
 	mimeType: string | null;
 	data: Uint8Array;
 };
 
 export const imagesState = () => {
-	const images: ParseMediaEmbeddedImage[] = [];
+	const images: MediaParserEmbeddedImage[] = [];
 
-	const addImage = (image: ParseMediaEmbeddedImage) => {
+	const addImage = (image: MediaParserEmbeddedImage) => {
 		images.push(image);
 	};
 

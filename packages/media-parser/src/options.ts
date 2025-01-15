@@ -10,7 +10,7 @@ import type {LogLevel} from './log';
 import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
-import type {ParseMediaEmbeddedImage} from './state/images';
+import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
@@ -148,7 +148,7 @@ export interface ParseMediaCallbacks {
 	onKeyframes?: (keyframes: MediaParserKeyframe[] | null) => void;
 	onSlowKeyframes?: (keyframes: MediaParserKeyframe[]) => void;
 	onSlowNumberOfFrames?: (samples: number) => void;
-	onImages?: (images: ParseMediaEmbeddedImage[]) => void;
+	onImages?: (images: MediaParserEmbeddedImage[]) => void;
 }
 
 export interface ParseMediaData {
@@ -174,7 +174,7 @@ export interface ParseMediaData {
 	keyframes: MediaParserKeyframe[] | null;
 	slowKeyframes: MediaParserKeyframe[];
 	slowNumberOfFrames: number;
-	images: ParseMediaEmbeddedImage[];
+	images: MediaParserEmbeddedImage[];
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

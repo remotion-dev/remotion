@@ -10,6 +10,7 @@ import {
 } from '~/lib/title-context';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
+import {EmbeddedImage} from './EmbeddedImage';
 import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -61,6 +62,7 @@ export const Probe: React.FC<{
 		metadata,
 		location,
 		keyframes,
+		images,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -97,7 +99,8 @@ export const Probe: React.FC<{
 		<div className="w-full lg:w-[350px]">
 			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-					{error ? null : thumbnailError ? null : (
+					{images ? <EmbeddedImage images={images} /> : null}
+					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail
 							ref={videoThumbnailRef}
 							smallThumbOnMobile
