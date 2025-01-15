@@ -1,4 +1,6 @@
-# @remotion/promo-pages
+# @remotion/svg-3d-engine
+ 
+3D SVG extrusion effects
  
 ## Usage
  

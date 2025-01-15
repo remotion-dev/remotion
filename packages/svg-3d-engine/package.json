@@ -23,5 +23,9 @@
 			"require": "./dist/cjs/index.js"
 		}
 	},
-	"version": "4.0.248"
+	"version": "4.0.249",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/svg-3d-engine"
+	},
+	"description": "3D SVG extrusion effects"
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.248",
+	"version": "4.0.249",
 	"private": true,
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
@@ -40,5 +40,8 @@
 		"@vitejs/plugin-react-swc": "^3.5.0",
 		"tailwind-merge": "2.5.2",
 		"clsx": "2.1.1"
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/promo-pages"
 	}
 }
