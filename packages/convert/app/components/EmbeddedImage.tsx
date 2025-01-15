@@ -37,7 +37,7 @@ export const EmbeddedImage: React.FC<{
 
 	return (
 		<div className="h-[200px] justify-center items-center flex border-solid border-b-2 border-black bg-slate-100">
-			<img src={url} className="h-full" />
+			<img src={url} className="max-h-full" />
 		</div>
 	);
 };
