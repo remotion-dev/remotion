@@ -136,7 +136,11 @@ export const Probe: React.FC<{
 		<div className="w-full lg:w-[350px]">
 			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-					{images ? <EmbeddedImage images={images} /> : null}
+					{images ? (
+						<EmbeddedImage images={images} />
+					) : isAudio ? (
+						<AudioWaveForm bars={waveform} />
+					) : null}
 					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail
 							ref={videoThumbnailRef}
@@ -147,7 +151,6 @@ export const Probe: React.FC<{
 							initialReveal={false}
 						/>
 					)}
-					<AudioWaveForm bars={waveform} />
 					<CardHeader className="p-3 lg:p-4 w-full">
 						<CardTitle title={name ?? undefined}>
 							{name ? (

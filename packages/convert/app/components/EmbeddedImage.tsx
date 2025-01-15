@@ -1,6 +1,7 @@
 import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
 import type React from 'react';
 import {useEffect, useState} from 'react';
+import {THUMBNAIL_HEIGHT} from './VideoThumbnail';
 
 export const EmbeddedImage: React.FC<{
 	readonly images: MediaParserEmbeddedImage[];
@@ -36,7 +37,12 @@ export const EmbeddedImage: React.FC<{
 	}
 
 	return (
-		<div className="h-[200px] justify-center items-center flex border-solid border-b-2 border-black bg-slate-100">
+		<div
+			style={{
+				height: THUMBNAIL_HEIGHT,
+			}}
+			className="justify-center items-center flex border-solid border-b-2 border-black bg-slate-100"
+		>
 			<img src={url} className="max-h-full" />
 		</div>
 	);
