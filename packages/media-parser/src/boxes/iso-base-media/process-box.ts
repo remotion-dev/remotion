@@ -1,15 +1,15 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import {hasTracks} from '../../get-tracks';
-import {hasAllInfo} from '../../has-all-info';
+import {getHasTracks} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {Options, ParseMediaFields} from '../../options';
-import type {IsoBaseMediaBox, ParseResult} from '../../parse-result';
-import type {BoxAndNext, PartialMdatBox} from '../../parse-video';
+import type {IsoBaseMediaBox} from '../../parse-result';
+import type {BoxAndNext} from '../../parse-video';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
+import {getChildren} from './get-children';
 import {makeBaseMediaTrack} from './make-track';
 import {parseMdat} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
@@ -17,6 +17,7 @@ import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
+import {parseMdatPartially} from './parse-mdat-partially';
 import {parseAv1C} from './stsd/av1c';
 import {parseAvcc} from './stsd/avcc';
 import {parseColorParameterBox} from './stsd/colr';
@@ -35,111 +36,7 @@ import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
-import {getMdatBox} from './traversal';
 import {parseTrun} from './trun';
-
-const getChildren = async ({
-	boxType,
-	iterator,
-	bytesRemainingInBox,
-	state,
-	signal,
-	logLevel,
-	fields,
-}: {
-	boxType: string;
-	iterator: BufferIterator;
-	bytesRemainingInBox: number;
-	state: ParserState;
-	signal: AbortSignal | null;
-	logLevel: LogLevel;
-	fields: Options<ParseMediaFields>;
-}): Promise<IsoBaseMediaBox[]> => {
-	const parseChildren =
-		boxType === 'mdia' ||
-		boxType === 'minf' ||
-		boxType === 'stbl' ||
-		boxType === 'udta' ||
-		boxType === 'moof' ||
-		boxType === 'dims' ||
-		boxType === 'meta' ||
-		boxType === 'wave' ||
-		boxType === 'traf' ||
-		boxType === 'stsb';
-
-	if (parseChildren) {
-		const boxes: IsoBaseMediaBox[] = [];
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		const parsed = await parseIsoBaseMediaBoxes({
-			iterator,
-			maxBytes: bytesRemainingInBox,
-			allowIncompleteBoxes: false,
-			initialBoxes: boxes,
-			state,
-			continueMdat: false,
-			signal,
-			logLevel,
-			fields,
-		});
-
-		if (parsed.status === 'incomplete') {
-			throw new Error('Incomplete boxes are not allowed');
-		}
-
-		return boxes;
-	}
-
-	if (bytesRemainingInBox < 0) {
-		throw new Error('Box size is too big ' + JSON.stringify({boxType}));
-	}
-
-	iterator.discard(bytesRemainingInBox);
-	return [];
-};
-
-export const parseMdatPartially = async ({
-	iterator,
-	boxSize,
-	fileOffset,
-	parsedBoxes,
-	state,
-	signal,
-}: {
-	iterator: BufferIterator;
-	boxSize: number;
-	fileOffset: number;
-	parsedBoxes: IsoBaseMediaBox[];
-	state: ParserState;
-	signal: AbortSignal | null;
-}): Promise<BoxAndNext> => {
-	const box = await parseMdat({
-		data: iterator,
-		size: boxSize,
-		fileOffset,
-		existingBoxes: parsedBoxes,
-		state,
-		signal,
-		maySkipSampleProcessing: state.supportsContentRange,
-	});
-
-	if (
-		(box.status === 'samples-processed' || box.status === 'samples-buffered') &&
-		box.fileOffset + boxSize === iterator.counter.getOffset()
-	) {
-		return {
-			type: 'complete',
-			box,
-			size: boxSize,
-			skipTo: null,
-		};
-	}
-
-	return {
-		type: 'partial-mdat-box',
-		boxSize,
-		fileOffset,
-	};
-};
 
 export const processBox = async ({
 	iterator,
@@ -163,23 +60,6 @@ export const processBox = async ({
 
 	const boxSizeRaw = iterator.getFourByteNumber();
 
-	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
-	if (
-		(boxSizeRaw === 1 && iterator.bytesRemaining() < 12) ||
-		iterator.bytesRemaining() < 4
-	) {
-		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
-		if (allowIncompleteBoxes) {
-			return {
-				type: 'incomplete',
-			};
-		}
-
-		throw new Error(
-			`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
-		);
-	}
-
 	if (boxSizeRaw === 0) {
 		return {
 			type: 'complete',
@@ -192,58 +72,74 @@ export const processBox = async ({
 		};
 	}
 
-	const boxType = iterator.getByteString(4, false);
+	// If `boxSize === 1`, the 8 bytes after the box type are the size of the box.
+	if (
+		(boxSizeRaw === 1 && iterator.bytesRemaining() < 12) ||
+		iterator.bytesRemaining() < 4
+	) {
+		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
+		if (!allowIncompleteBoxes) {
+			throw new Error(
+				`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
+			);
+		}
 
+		return {
+			type: 'incomplete',
+		};
+	}
+
+	const boxType = iterator.getByteString(4, false);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
 
 	if (bytesRemaining < boxSize) {
-		if (boxType === 'mdat') {
-			// Check if the moov atom is at the end
-			const shouldSkip =
-				maySkipVideoData({state}) ||
-				(!hasTracks({type: 'iso-base-media', boxes: parsedBoxes}, state) &&
-					state.supportsContentRange);
-
-			if (shouldSkip) {
-				const skipTo = fileOffset + boxSize;
-				const bytesToSkip = skipTo - iterator.counter.getOffset();
-
-				// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
-				if (bytesToSkip > 1_000_000) {
-					return {
-						type: 'complete',
-						box: {
-							type: 'mdat-box',
-							boxSize,
-							fileOffset,
-							status: 'samples-skipped',
-						},
-						size: boxSize,
-						skipTo: fileOffset + boxSize,
-					};
-				}
-			} else {
-				return parseMdatPartially({
-					iterator,
-					boxSize,
-					fileOffset,
-					parsedBoxes,
-					state,
-					signal,
-				});
+		if (boxType !== 'mdat') {
+			iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
+			if (!allowIncompleteBoxes) {
+				throw new Error(
+					`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
+				);
 			}
-		}
 
-		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
-		if (allowIncompleteBoxes) {
 			return {
 				type: 'incomplete',
 			};
 		}
 
-		throw new Error(
-			`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
-		);
+		// Check if the moov atom is at the end
+		const shouldSkip =
+			maySkipVideoData({state}) ||
+			(!getHasTracks({type: 'iso-base-media', boxes: parsedBoxes}, state) &&
+				state.supportsContentRange);
+
+		if (shouldSkip) {
+			const skipTo = fileOffset + boxSize;
+			const bytesToSkip = skipTo - iterator.counter.getOffset();
+
+			// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
+			if (bytesToSkip > 1_000_000) {
+				return {
+					type: 'complete',
+					box: {
+						type: 'mdat-box',
+						boxSize,
+						fileOffset,
+						status: 'samples-skipped',
+					},
+					size: boxSize,
+					skipTo: fileOffset + boxSize,
+				};
+			}
+		} else {
+			return parseMdatPartially({
+				iterator,
+				boxSize,
+				fileOffset,
+				parsedBoxes,
+				state,
+				signal,
+			});
+		}
 	}
 
 	if (boxType === 'ftyp') {
@@ -638,9 +534,8 @@ export const processBox = async ({
 			signal,
 			maySkipSampleProcessing: state.supportsContentRange,
 		});
-
-		if (box === null) {
-			throw new Error('Unexpected null');
+		if (box.type === 'partial-mdat-box') {
+			return box;
 		}
 
 		return {
@@ -675,201 +570,5 @@ export const processBox = async ({
 		},
 		size: boxSize,
 		skipTo: null,
-	};
-};
-
-export const parseIsoBaseMediaBoxes = async ({
-	iterator,
-	maxBytes,
-	allowIncompleteBoxes,
-	initialBoxes,
-	state,
-	continueMdat,
-	signal,
-	logLevel,
-	fields,
-}: {
-	iterator: BufferIterator;
-	maxBytes: number;
-	allowIncompleteBoxes: boolean;
-	initialBoxes: IsoBaseMediaBox[];
-	state: ParserState;
-	continueMdat: false | PartialMdatBox;
-	signal: AbortSignal | null;
-	logLevel: LogLevel;
-	fields: Options<ParseMediaFields>;
-}): Promise<ParseResult> => {
-	const initialOffset = iterator.counter.getOffset();
-	const alreadyHasMdat = state.structure
-		.getStructureOrNull()
-		?.boxes.find((b) => b.type === 'mdat-box');
-
-	while (
-		iterator.bytesRemaining() > 0 &&
-		iterator.counter.getOffset() - initialOffset < maxBytes
-	) {
-		const result = continueMdat
-			? await parseMdatPartially({
-					iterator,
-					boxSize: continueMdat.boxSize,
-					fileOffset: continueMdat.fileOffset,
-					parsedBoxes: initialBoxes,
-					state,
-					signal,
-				})
-			: await processBox({
-					iterator,
-					allowIncompleteBoxes,
-					parsedBoxes: initialBoxes,
-					state,
-					signal,
-					logLevel,
-					fields,
-				});
-
-		if (result.type === 'incomplete') {
-			if (Number.isFinite(maxBytes)) {
-				throw new Error('maxBytes must be Infinity for top-level boxes');
-			}
-
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return parseIsoBaseMediaBoxes({
-						iterator,
-						maxBytes,
-						allowIncompleteBoxes,
-						initialBoxes,
-						state,
-						continueMdat: false,
-						signal,
-						logLevel,
-						fields,
-					});
-				},
-				skipTo: null,
-			};
-		}
-
-		if (result.type === 'partial-mdat-box') {
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return Promise.resolve(
-						parseIsoBaseMediaBoxes({
-							iterator,
-							maxBytes,
-							allowIncompleteBoxes,
-							initialBoxes,
-							state,
-							continueMdat: result,
-							signal,
-							logLevel,
-							fields,
-						}),
-					);
-				},
-				skipTo: null,
-			};
-		}
-
-		if (result.box.type === 'mdat-box' && alreadyHasMdat) {
-			initialBoxes = initialBoxes.filter((b) => b.type !== 'mdat-box');
-			initialBoxes.push(result.box);
-			iterator.allowDiscard();
-
-			break;
-		} else {
-			initialBoxes.push(result.box);
-			if (hasAllInfo({fields, state})) {
-				return {
-					status: 'done',
-				};
-			}
-		}
-
-		if (result.skipTo !== null) {
-			if (!state.supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return parseIsoBaseMediaBoxes({
-						iterator,
-						maxBytes,
-						allowIncompleteBoxes,
-						initialBoxes,
-						state,
-						continueMdat: false,
-						signal,
-						logLevel,
-						fields,
-					});
-				},
-				skipTo: result.skipTo,
-			};
-		}
-
-		if (iterator.bytesRemaining() < 0) {
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return parseIsoBaseMediaBoxes({
-						iterator,
-						maxBytes,
-						allowIncompleteBoxes,
-						initialBoxes,
-						state,
-						continueMdat: false,
-						signal,
-						logLevel,
-						fields,
-					});
-				},
-				skipTo: null,
-			};
-		}
-
-		iterator.removeBytesRead();
-	}
-
-	const mdatState = getMdatBox(initialBoxes);
-	const skipped =
-		mdatState?.status === 'samples-skipped' &&
-		!maySkipVideoData({state}) &&
-		state.supportsContentRange;
-	const buffered =
-		mdatState?.status === 'samples-buffered' && !maySkipVideoData({state});
-
-	if (skipped || buffered) {
-		return {
-			status: 'incomplete',
-			continueParsing: () => {
-				if (buffered) {
-					iterator.skipTo(mdatState.fileOffset, false);
-				}
-
-				return parseIsoBaseMediaBoxes({
-					iterator,
-					maxBytes,
-					allowIncompleteBoxes: false,
-					initialBoxes,
-					state,
-					continueMdat: false,
-					signal,
-					logLevel,
-					fields,
-				});
-			},
-			skipTo: skipped ? mdatState.fileOffset : null,
-		};
-	}
-
-	return {
-		status: 'done',
 	};
 };

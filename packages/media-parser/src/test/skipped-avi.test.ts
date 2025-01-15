@@ -4,13 +4,14 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Should skip media data if just wanting header', async () => {
-	const {name, size, internalStats} = await parseMedia({
+	const {name, size, internalStats, container} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
 		fields: {
 			name: true,
 			size: true,
 			internalStats: true,
+			container: true,
 		},
 	});
 
@@ -20,6 +21,7 @@ test('Should skip media data if just wanting header', async () => {
 		finalCursorOffset: 12,
 		skippedBytes: 742466,
 	});
+	expect(container).toEqual('avi');
 });
 
 test('Should skip media data if just wanting dimensions', async () => {
@@ -33,8 +35,8 @@ test('Should skip media data if just wanting dimensions', async () => {
 	});
 
 	expect(internalStats).toEqual({
-		skippedBytes: 1418372,
-		finalCursorOffset: 14600,
+		finalCursorOffset: 705094,
+		skippedBytes: 727878,
 	});
 	expect(dimensions).toEqual({height: 270, width: 480});
 });
@@ -53,8 +55,8 @@ test('Should skip if just a video track is requested', async () => {
 	});
 
 	expect(internalStats).toEqual({
-		skippedBytes: 1418372,
-		finalCursorOffset: 14600,
+		finalCursorOffset: 705094,
+		skippedBytes: 727878,
 	});
 	expect(dimensions).toEqual({height: 270, width: 480});
 });

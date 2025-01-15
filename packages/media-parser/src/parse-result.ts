@@ -30,6 +30,7 @@ import type {VoidBox} from './boxes/iso-base-media/void-box';
 import type {RiffBox} from './boxes/riff/riff-box';
 import type {TransportStreamBox} from './boxes/transport-stream/boxes';
 import type {MatroskaSegment} from './boxes/webm/segments';
+import type {MetadataEntry} from './metadata/get-metadata';
 
 export interface RegularBox extends BaseBox {
 	boxType: string;
@@ -70,6 +71,17 @@ export type IsoBaseMediaBox =
 	| TfdtBox
 	| TfhdBox;
 
+type Mp3Id3Header = {
+	type: 'id3-header';
+	versionMajor: number;
+	versionMinor: number;
+	flags: number;
+	size: number;
+	metatags: MetadataEntry[];
+};
+
+export type Mp3Box = Mp3Id3Header;
+
 export type AnySegment =
 	| MatroskaSegment
 	| IsoBaseMediaBox
@@ -96,11 +108,17 @@ export type TransportStreamStructure = {
 	boxes: TransportStreamBox[];
 };
 
+export type Mp3Structure = {
+	type: 'mp3';
+	boxes: Mp3Box[];
+};
+
 export type Structure =
 	| IsoBaseMediaStructure
 	| RiffStructure
 	| MatroskaStructure
-	| TransportStreamStructure;
+	| TransportStreamStructure
+	| Mp3Structure;
 
 export type ParseResult =
 	| {

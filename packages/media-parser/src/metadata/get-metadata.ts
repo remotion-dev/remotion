@@ -1,3 +1,4 @@
+import {getMetadataFromMp3} from '../boxes/mp3/get-metadata-from-mp3';
 import type {Structure} from '../parse-result';
 import {getMetadataFromIsoBase} from './metadata-from-iso';
 import {getMetadataFromMatroska} from './metadata-from-matroska';
@@ -22,5 +23,22 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 		return [];
 	}
 
+	if (structure.type === 'mp3') {
+		const tags = getMetadataFromMp3(structure);
+		if (tags === null) {
+			throw new Error('Failed to get metadata from mp3');
+		}
+
+		return tags;
+	}
+
 	return getMetadataFromIsoBase(structure);
+};
+
+export const hasMetadata = (structure: Structure): boolean => {
+	if (structure.type === 'mp3') {
+		return getMetadataFromMp3(structure) !== null;
+	}
+
+	return false;
 };

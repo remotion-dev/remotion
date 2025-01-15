@@ -16,6 +16,10 @@ const guessFromExtension = (src: string): ParseMediaContainer => {
 		return 'avi';
 	}
 
+	if (src.endsWith('.mp3')) {
+		return 'mp3';
+	}
+
 	if (src.endsWith('.ts')) {
 		return 'transport-stream';
 	}
@@ -98,6 +102,10 @@ export const getDefaultContainerForConversion = (
 
 	if (guessed === 'transport-stream') {
 		return 'mp4';
+	}
+
+	if (guessed === 'mp3') {
+		return 'wav';
 	}
 
 	throw new Error('Unhandled container ' + (guessed satisfies never));

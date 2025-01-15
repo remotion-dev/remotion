@@ -1,7 +1,8 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {getTracks, hasTracks} from '../../../get-tracks';
+import {getHasTracks, getTracks} from '../../../get-tracks';
 import type {IsoBaseMediaBox} from '../../../parse-result';
+import type {PartialMdatBox} from '../../../parse-video';
 import type {ParserState} from '../../../state/parser-state';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
 import type {TrakBox} from '../trak/trak';
@@ -40,8 +41,8 @@ export const parseMdat = async ({
 	state: ParserState;
 	signal: AbortSignal | null;
 	maySkipSampleProcessing: boolean;
-}): Promise<MdatBox> => {
-	const alreadyHas = hasTracks(
+}): Promise<MdatBox | PartialMdatBox> => {
+	const alreadyHas = getHasTracks(
 		{
 			type: 'iso-base-media',
 			boxes: existingBoxes,
@@ -193,6 +194,16 @@ export const parseMdat = async ({
 		if (remaining === 0) {
 			break;
 		}
+	}
+
+	const expectedOffsetNow = size + fileOffset;
+	const actualOffsetNow = data.counter.getOffset();
+	if (expectedOffsetNow !== actualOffsetNow) {
+		return Promise.resolve({
+			type: 'partial-mdat-box',
+			boxSize: size,
+			fileOffset,
+		});
 	}
 
 	return Promise.resolve({

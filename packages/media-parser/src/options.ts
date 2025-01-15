@@ -10,6 +10,7 @@ import type {LogLevel} from './log';
 import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
+import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
@@ -45,6 +46,7 @@ export type ParseMediaFields = {
 	keyframes: boolean;
 	slowKeyframes: boolean;
 	slowNumberOfFrames: boolean;
+	images: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -70,6 +72,7 @@ export type AllParseMediaFields = {
 	mimeType: true;
 	keyframes: true;
 	slowKeyframes: true;
+	images: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -95,6 +98,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	keyframes: Fields['keyframes'];
 	slowKeyframes: Fields['slowKeyframes'];
 	slowNumberOfFrames: Fields['slowNumberOfFrames'];
+	images: Fields['images'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -106,7 +110,12 @@ export type TracksField = {
 	audioTracks: AudioTrack[];
 };
 
-export type ParseMediaContainer = 'mp4' | 'webm' | 'avi' | 'transport-stream';
+export type ParseMediaContainer =
+	| 'mp4'
+	| 'webm'
+	| 'avi'
+	| 'transport-stream'
+	| 'mp3';
 
 export type MediaParserKeyframe = {
 	positionInBytes: number;
@@ -117,7 +126,7 @@ export type MediaParserKeyframe = {
 };
 
 export interface ParseMediaCallbacks {
-	onDimensions?: (dimensions: Dimensions) => void;
+	onDimensions?: (dimensions: Dimensions | null) => void;
 	onDurationInSeconds?: (durationInSeconds: number | null) => void;
 	onSlowDurationInSeconds?: (durationInSeconds: number) => void;
 	onSlowFps?: (fps: number) => void;
@@ -127,7 +136,7 @@ export interface ParseMediaCallbacks {
 	onAudioCodec?: (codec: MediaParserAudioCodec | null) => void;
 	onTracks?: (tracks: TracksField) => void;
 	onRotation?: (rotation: number | null) => void;
-	onUnrotatedDimensions?: (dimensions: Dimensions) => void;
+	onUnrotatedDimensions?: (dimensions: Dimensions | null) => void;
 	onInternalStats?: (internalStats: InternalStats) => void;
 	onSize?: (size: number | null) => void;
 	onName?: (name: string) => void;
@@ -139,10 +148,11 @@ export interface ParseMediaCallbacks {
 	onKeyframes?: (keyframes: MediaParserKeyframe[] | null) => void;
 	onSlowKeyframes?: (keyframes: MediaParserKeyframe[]) => void;
 	onSlowNumberOfFrames?: (samples: number) => void;
+	onImages?: (images: MediaParserEmbeddedImage[]) => void;
 }
 
 export interface ParseMediaData {
-	dimensions: Dimensions;
+	dimensions: Dimensions | null;
 	durationInSeconds: number | null;
 	slowDurationInSeconds: number;
 	slowFps: number;
@@ -152,7 +162,7 @@ export interface ParseMediaData {
 	audioCodec: MediaParserAudioCodec | null;
 	tracks: TracksField;
 	rotation: number | null;
-	unrotatedDimensions: Dimensions;
+	unrotatedDimensions: Dimensions | null;
 	isHdr: boolean;
 	internalStats: InternalStats;
 	size: number | null;
@@ -164,6 +174,7 @@ export interface ParseMediaData {
 	keyframes: MediaParserKeyframe[] | null;
 	slowKeyframes: MediaParserKeyframe[];
 	slowNumberOfFrames: number;
+	images: MediaParserEmbeddedImage[];
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {
@@ -195,6 +206,7 @@ export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	signal?: AbortSignal;
 	logLevel?: LogLevel;
 	onParseProgress?: ParseMediaOnProgress;
+	progressIntervalInMs?: number;
 } & ParseMediaDynamicOptions<F>;
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(

@@ -5,9 +5,10 @@ import {
 	getMoovBox,
 	getMvhdBox,
 } from './boxes/iso-base-media/traversal';
+import {getDurationFromMp3} from './boxes/mp3/get-duration';
 import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
-import {getTracks, hasTracks} from './get-tracks';
+import {getHasTracks, getTracks} from './get-tracks';
 import type {
 	AnySegment,
 	IsoBaseMediaStructure,
@@ -139,6 +140,10 @@ export const getDuration = (
 		return null;
 	}
 
+	if (structure.type === 'mp3') {
+		return getDurationFromMp3(parserState);
+	}
+
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 
@@ -148,7 +153,7 @@ export const hasDuration = (
 	structure: Structure,
 	parserState: ParserState,
 ): boolean => {
-	return hasTracks(structure, parserState);
+	return getHasTracks(structure, parserState);
 };
 
 // `slowDuration` does through everything, and therefore is false

@@ -4,11 +4,12 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Parse only header of WebM', async () => {
-	const {internalStats} = await parseMedia({
+	const {internalStats, container} = await parseMedia({
 		src: exampleVideos.stretchedVp8,
 		fields: {
 			size: true,
 			internalStats: true,
+			container: true,
 		},
 		reader: nodeReader,
 	});
@@ -17,6 +18,7 @@ test('Parse only header of WebM', async () => {
 		finalCursorOffset: 43,
 		skippedBytes: 13195316,
 	});
+	expect(container).toEqual('webm');
 });
 
 test('Parse WebM partially', async () => {

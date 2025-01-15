@@ -10,29 +10,12 @@ import {
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('Should throw IsAnUnsupportedAudio for a mp3', async () => {
-	try {
-		await parseMedia({
-			src: exampleVideos.music,
-			reader: nodeReader,
-		});
-		throw new Error('Expected an error');
-	} catch (e) {
-		if (e instanceof IsAnUnsupportedAudioTypeError) {
-			expect(e.sizeInBytes).toEqual(5007068);
-			expect(e.audioType).toEqual('mp3');
-			return;
-		}
-
-		throw e;
-	}
-});
-
 test('Should throw IsAnUnsupportedAudio for a wav', async () => {
 	try {
 		await parseMedia({
 			src: exampleVideos.chirp,
 			reader: nodeReader,
+			fields: {durationInSeconds: true},
 		});
 		throw new Error('Expected an error');
 	} catch (e) {
@@ -51,6 +34,7 @@ test('Should throw IsAnUnsupportedAudio for an aac', async () => {
 		await parseMedia({
 			src: exampleVideos.aac,
 			reader: nodeReader,
+			fields: {durationInSeconds: true},
 		});
 		throw new Error('Expected an error');
 	} catch (e) {
@@ -68,6 +52,9 @@ test('Should throw IsAGifError for a gif', () => {
 	const prom = parseMedia({
 		src: exampleVideos.gif,
 		reader: nodeReader,
+		fields: {
+			durationInSeconds: true,
+		},
 	});
 	expect(prom).rejects.toThrowError(IsAGifError);
 });
@@ -77,6 +64,7 @@ test('Should throw IsAnImageError for a png', async () => {
 		await parseMedia({
 			src: exampleVideos.png,
 			reader: nodeReader,
+			fields: {durationInSeconds: true},
 		});
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
@@ -96,6 +84,7 @@ test('Should throw IsAnImageError for a jpeg', async () => {
 		await parseMedia({
 			src: exampleVideos.jpeg,
 			reader: nodeReader,
+			fields: {durationInSeconds: true},
 		});
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
@@ -115,6 +104,9 @@ test('Should throw IsAnImageError for a bmp', async () => {
 		await parseMedia({
 			src: exampleVideos.bmp,
 			reader: nodeReader,
+			fields: {
+				durationInSeconds: true,
+			},
 		});
 	} catch (e) {
 		if (e instanceof IsAnImageError) {

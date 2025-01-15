@@ -31,8 +31,9 @@ export const MetadataDisplay: React.FC<{
 
 	return (
 		<>
-			{filtered.map((entry) => (
-				<TableRow key={entry.key}>
+			{filtered.map((entry, i) => (
+				// eslint-disable-next-line react/no-array-index-key
+				<TableRow key={entry.key + i}>
 					<TableCell className="font-brand">
 						<LimitedWidthLabel alt={entry.key}>
 							{renderMetadataLabel(entry.key)}

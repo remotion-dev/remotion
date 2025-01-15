@@ -1,19 +1,25 @@
 /* eslint-disable complexity */
+import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
 import clsx from 'clsx';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
+import {isAudioOnly} from '~/lib/is-audio-container';
 import {useIsNarrow} from '~/lib/is-narrow';
 import {
 	useAddFilenameToTitle,
 	useCopyThumbnailToFavicon,
 } from '~/lib/title-context';
+import {useThumbnailAndWaveform} from '~/lib/use-thumbnail';
 import {AudioTrackOverview} from './AudioTrackOverview';
+import {AudioWaveForm} from './AudioWaveform';
 import {ContainerOverview} from './ContainerOverview';
+import {EmbeddedImage} from './EmbeddedImage';
 import {SourceLabel} from './SourceLabel';
 import {TrackSwitcher} from './TrackSwitcher';
-import type { VideoThumbnailRef} from './VideoThumbnail';
+import type {VideoThumbnailRef} from './VideoThumbnail';
 import {VideoThumbnail} from './VideoThumbnail';
 import {VideoTrackOverview} from './VideoTrackOverview';
+import {getBrightnessOfFrame} from './get-brightness-of-frame';
 import styles from './probe.module.css';
 import {Button} from './ui/button';
 import {Card, CardDescription, CardHeader, CardTitle} from './ui/card';
@@ -21,6 +27,8 @@ import {ScrollArea} from './ui/scroll-area';
 import {Separator} from './ui/separator';
 import {Skeleton} from './ui/skeleton';
 import type {ProbeResult} from './use-probe';
+
+const idealBrightness = 0.8;
 
 export const Probe: React.FC<{
 	readonly src: Source;
@@ -31,7 +39,6 @@ export const Probe: React.FC<{
 	readonly userRotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
-	readonly thumbnailError: Error | null;
 }> = ({
 	src,
 	probeDetails,
@@ -41,8 +48,41 @@ export const Probe: React.FC<{
 	userRotation,
 	mirrorHorizontal,
 	mirrorVertical,
-	thumbnailError,
 }) => {
+	const [waveform, setWaveform] = useState<number[]>([]);
+	const bestBrightness = useRef<number | null>(null);
+
+	const onVideoThumbnail = useCallback(
+		async (frame: VideoFrame) => {
+			const brightness = await getBrightnessOfFrame(frame);
+			const differenceToIdeal = Math.abs(brightness - idealBrightness);
+			if (
+				bestBrightness.current === null ||
+				differenceToIdeal < bestBrightness.current
+			) {
+				bestBrightness.current = differenceToIdeal;
+				videoThumbnailRef.current?.draw(frame);
+			}
+		},
+		[videoThumbnailRef],
+	);
+
+	const onDone = useCallback(() => {
+		videoThumbnailRef.current?.onDone();
+	}, [videoThumbnailRef]);
+
+	const onWaveformBars = useCallback((bars: number[]) => {
+		setWaveform(bars);
+	}, []);
+
+	const {err: thumbnailError} = useThumbnailAndWaveform({
+		src,
+		logLevel: 'verbose',
+		onVideoThumbnail,
+		onDone,
+		onWaveformBars,
+	});
+
 	const {
 		audioCodec,
 		fps,
@@ -60,6 +100,7 @@ export const Probe: React.FC<{
 		metadata,
 		location,
 		keyframes,
+		images,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -87,6 +128,8 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
+	const isAudio = isAudioOnly({tracks, container});
+
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
 
@@ -94,7 +137,12 @@ export const Probe: React.FC<{
 		<div className="w-full lg:w-[350px]">
 			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-					{error ? null : thumbnailError ? null : (
+					{(images?.length ?? 0) > 0 ? (
+						<EmbeddedImage images={images as MediaParserEmbeddedImage[]} />
+					) : isAudio ? (
+						<AudioWaveForm bars={waveform} />
+					) : null}
+					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail
 							ref={videoThumbnailRef}
 							smallThumbOnMobile
@@ -146,6 +194,7 @@ export const Probe: React.FC<{
 						<ScrollArea height={300} className="flex-1">
 							{selectedTrack === null ? (
 								<ContainerOverview
+									isAudioOnly={isAudio}
 									container={container ?? null}
 									dimensions={dimensions ?? null}
 									videoCodec={videoCodec ?? null}

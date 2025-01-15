@@ -5,9 +5,10 @@ import {hasDuration, hasSlowDuration} from './get-duration';
 import {hasFps, hasFpsSuitedForSlowFps} from './get-fps';
 import {hasHdr} from './get-is-hdr';
 import {hasKeyframes} from './get-keyframes';
-import {hasTracks} from './get-tracks';
+import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
+import {hasMetadata} from './metadata/get-metadata';
 import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
 import type {ParserState} from './state/parser-state';
 
@@ -69,7 +70,7 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'tracks') {
-			return Boolean(structure && hasTracks(structure, state));
+			return Boolean(structure && getHasTracks(structure, state));
 		}
 
 		if (key === 'keyframes') {
@@ -96,8 +97,8 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasContainer(structure));
 		}
 
-		if (key === 'metadata' || key === 'location') {
-			return false;
+		if (key === 'metadata' || key === 'location' || key === 'images') {
+			return Boolean(structure && hasMetadata(structure));
 		}
 
 		if (key === 'slowKeyframes') {

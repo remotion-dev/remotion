@@ -3,7 +3,9 @@ import type {BufferIterator} from '../buffer-iterator';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {emittedState} from './emitted-fields';
+import {imagesState} from './images';
 import {keyframesState} from './keyframes';
+import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {slowDurationAndFpsState} from './slow-duration-fps';
@@ -29,6 +31,7 @@ export const makeParserState = ({
 	onAudioTrack,
 	onVideoTrack,
 	supportsContentRange,
+	contentLength,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -38,6 +41,7 @@ export const makeParserState = ({
 	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
+	contentLength: number | null;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -49,6 +53,8 @@ export const makeParserState = ({
 	const keyframes = keyframesState();
 	const emittedFields = emittedState();
 	const slowDurationAndFps = slowDurationAndFpsState();
+	const mp3Info = makeMp3State();
+	const images = imagesState();
 
 	return {
 		riff: riffSpecificState(),
@@ -76,6 +82,9 @@ export const makeParserState = ({
 		emittedFields,
 		fields,
 		slowDurationAndFps,
+		mp3Info,
+		contentLength,
+		images,
 	};
 };
 

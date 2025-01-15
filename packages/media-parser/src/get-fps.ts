@@ -151,6 +151,10 @@ export const getFps = (segments: Structure) => {
 		return null;
 	}
 
+	if (segments.type === 'mp3') {
+		return null;
+	}
+
 	throw new Error('Cannot get fps, not implemented');
 };
 

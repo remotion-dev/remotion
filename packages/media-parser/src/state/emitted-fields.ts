@@ -24,6 +24,7 @@ export const emittedState = () => {
 		slowKeyframes: false,
 		slowNumberOfFrames: false,
 		keyframes: false,
+		images: false,
 	};
 
 	return emittedFields;

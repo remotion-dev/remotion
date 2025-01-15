@@ -1,5 +1,5 @@
 import type {VideoTrack} from './get-tracks';
-import {getTracks, hasTracks} from './get-tracks';
+import {getHasTracks, getTracks} from './get-tracks';
 import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
@@ -18,5 +18,5 @@ export const getIsHdr = (boxes: Structure, state: ParserState): boolean => {
 };
 
 export const hasHdr = (boxes: Structure, state: ParserState): boolean => {
-	return hasTracks(boxes, state);
+	return getHasTracks(boxes, state);
 };

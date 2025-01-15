@@ -1,5 +1,5 @@
 import {getKeyframesFromIsoBaseMedia} from './boxes/iso-base-media/get-keyframes';
-import {hasTracks} from './get-tracks';
+import {getHasTracks} from './get-tracks';
 import type {MediaParserKeyframe} from './options';
 import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
@@ -19,7 +19,7 @@ export const hasKeyframes = (
 	parserState: ParserState,
 ) => {
 	if (structure.type === 'iso-base-media') {
-		return hasTracks(structure, parserState);
+		return getHasTracks(structure, parserState);
 	}
 
 	// Has, but will be null

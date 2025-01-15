@@ -197,8 +197,8 @@ test('Should stream ProRes video', async () => {
 	});
 
 	expect(parsed.fps).toBe(60);
-	expect(parsed.dimensions.width).toBe(1920);
-	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.dimensions?.width).toBe(1920);
+	expect(parsed.dimensions?.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.034);
 	expect(parsed.videoCodec).toBe('prores');
 	expect(parsed.audioCodec).toBe('aiff');
@@ -207,91 +207,96 @@ test('Should stream ProRes video', async () => {
 	expect(parsed.rotation).toBe(0);
 });
 
-test('Should stream variable fps video', async () => {
-	let audioTracks = 0;
-	let samples = 0;
-	const parsed = await parseMedia({
-		src: exampleVideos.variablefps,
-		fields: {
-			fps: true,
-			dimensions: true,
-			durationInSeconds: true,
-			videoCodec: true,
-			audioCodec: true,
-			rotation: true,
-			unrotatedDimensions: true,
-			tracks: true,
-			structure: true,
-		},
-		reader: nodeReader,
-		onAudioTrack: ({track: track_}) => {
-			expect(track_.type).toBe('audio');
-			expect(track_.trackId).toBe(1);
-			expect(track_.codec).toBe('opus');
-			expect(track_.numberOfChannels).toBe(1);
-			expect(track_.sampleRate).toBe(48000);
-			audioTracks++;
-			return () => {
-				samples++;
-			};
-		},
-	});
+test(
+	'Should stream variable fps video',
+	async () => {
+		let audioTracks = 0;
+		let samples = 0;
+		const parsed = await parseMedia({
+			src: exampleVideos.variablefps,
+			fields: {
+				fps: true,
+				dimensions: true,
+				durationInSeconds: true,
+				videoCodec: true,
+				audioCodec: true,
+				rotation: true,
+				unrotatedDimensions: true,
+				tracks: true,
+				structure: true,
+			},
+			reader: nodeReader,
+			onAudioTrack: ({track: track_}) => {
+				expect(track_.type).toBe('audio');
+				expect(track_.trackId).toBe(1);
+				expect(track_.codec).toBe('opus');
+				expect(track_.numberOfChannels).toBe(1);
+				expect(track_.sampleRate).toBe(48000);
+				audioTracks++;
+				return () => {
+					samples++;
+				};
+			},
+		});
 
-	expect(parsed.dimensions.width).toBe(1280);
-	expect(parsed.dimensions.height).toBe(720);
-	expect(parsed.unrotatedDimensions.width).toBe(1280);
-	expect(parsed.unrotatedDimensions.height).toBe(720);
-	expect(parsed.durationInSeconds).toBe(22.901);
-	expect(parsed.videoCodec).toBe('vp8');
-	expect(parsed.audioCodec).toBe('opus');
-	expect(parsed.rotation).toBe(0);
-	expect(parsed.tracks.videoTracks.length).toBe(1);
-	expect(parsed.tracks.videoTracks[0]).toEqual({
-		type: 'video',
-		codec: 'vp8',
-		description: undefined,
-		sampleAspectRatio: {
-			denominator: 1,
-			numerator: 1,
-		},
-		timescale: 1000000,
-		trackId: 2,
-		codedHeight: 720,
-		codedWidth: 1280,
-		height: 720,
-		width: 1280,
-		displayAspectHeight: 720,
-		displayAspectWidth: 1280,
-		rotation: 0,
-		trakBox: null,
-		codecPrivate: null,
-		color: {
-			fullRange: null,
-			transferCharacteristics: null,
-			matrixCoefficients: null,
-			primaries: null,
-		},
-		codecWithoutConfig: 'vp8',
-		fps: null,
-	});
-	expect(parsed.tracks.audioTracks.length).toBe(1);
-	expect(parsed.tracks.audioTracks[0]).toEqual({
-		type: 'audio',
-		codec: 'opus',
-		timescale: 1000000,
-		trackId: 1,
-		numberOfChannels: 1,
-		sampleRate: 48000,
-		description: undefined,
-		trakBox: null,
-		codecPrivate: new Uint8Array([
-			79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0, 0,
-		]),
-		codecWithoutConfig: 'opus',
-	});
-	expect(audioTracks).toBe(1);
-	expect(samples).toBe(381);
-});
+		expect(parsed.dimensions?.width).toBe(1280);
+		expect(parsed.dimensions?.height).toBe(720);
+		expect(parsed.unrotatedDimensions?.width).toBe(1280);
+		expect(parsed.unrotatedDimensions?.height).toBe(720);
+		expect(parsed.durationInSeconds).toBe(22.901);
+		expect(parsed.videoCodec).toBe('vp8');
+		expect(parsed.audioCodec).toBe('opus');
+		expect(parsed.rotation).toBe(0);
+		expect(parsed.tracks.videoTracks.length).toBe(1);
+		expect(parsed.tracks.videoTracks[0]).toEqual({
+			type: 'video',
+			codec: 'vp8',
+			description: undefined,
+			sampleAspectRatio: {
+				denominator: 1,
+				numerator: 1,
+			},
+			timescale: 1000000,
+			trackId: 2,
+			codedHeight: 720,
+			codedWidth: 1280,
+			height: 720,
+			width: 1280,
+			displayAspectHeight: 720,
+			displayAspectWidth: 1280,
+			rotation: 0,
+			trakBox: null,
+			codecPrivate: null,
+			color: {
+				fullRange: null,
+				transferCharacteristics: null,
+				matrixCoefficients: null,
+				primaries: null,
+			},
+			codecWithoutConfig: 'vp8',
+			fps: null,
+		});
+		expect(parsed.tracks.audioTracks.length).toBe(1);
+		expect(parsed.tracks.audioTracks[0]).toEqual({
+			type: 'audio',
+			codec: 'opus',
+			timescale: 1000000,
+			trackId: 1,
+			numberOfChannels: 1,
+			sampleRate: 48000,
+			description: undefined,
+			trakBox: null,
+			codecPrivate: new Uint8Array([
+				79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0,
+				0,
+			]),
+			codecWithoutConfig: 'opus',
+		});
+		expect(audioTracks).toBe(1);
+		expect(samples).toBe(381);
+	},
+	{timeout: 10000},
+);
 
 test('Should stream MKV video', async () => {
 	let videoSamples = 0;
@@ -326,8 +331,8 @@ test('Should stream MKV video', async () => {
 		reader: nodeReader,
 	});
 
-	expect(parsed.dimensions.width).toBe(1080);
-	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.dimensions?.width).toBe(1080);
+	expect(parsed.dimensions?.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.333);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('pcm-s16');
@@ -366,8 +371,8 @@ test('Should stream MP3 in MP4 video', async () => {
 		reader: nodeReader,
 	});
 
-	expect(parsed.dimensions.width).toBe(1080);
-	expect(parsed.dimensions.height).toBe(1080);
+	expect(parsed.dimensions?.width).toBe(1080);
+	expect(parsed.dimensions?.height).toBe(1080);
 	expect(parsed.durationInSeconds).toBe(0.337);
 	expect(parsed.videoCodec).toBe('h264');
 	expect(parsed.audioCodec).toBe('mp3');

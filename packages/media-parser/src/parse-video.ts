@@ -1,4 +1,5 @@
-import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/process-box';
+import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/parse-boxes';
+import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-box';
 import {makeNextPesHeaderStore} from './boxes/transport-stream/next-pes-header-store';
 import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
@@ -13,7 +14,7 @@ import {
 } from './errors';
 import {Log, type LogLevel} from './log';
 import type {Options, ParseMediaFields} from './options';
-import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {IsoBaseMediaBox, Mp3Structure, ParseResult} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export type PartialMdatBox = {
@@ -83,7 +84,6 @@ export const parseVideo = ({
 			allowIncompleteBoxes: true,
 			initialBoxes,
 			state,
-			continueMdat: false,
 			signal,
 			logLevel,
 			fields,
@@ -115,15 +115,12 @@ export const parseVideo = ({
 	}
 
 	if (fileType.type === 'mp3') {
-		return Promise.reject(
-			new IsAnUnsupportedAudioTypeError({
-				message: 'MP3 files are not yet supported',
-				mimeType,
-				sizeInBytes: contentLength,
-				fileName: name,
-				audioType: 'mp3',
-			}),
-		);
+		const structure: Mp3Structure = {
+			boxes: [],
+			type: 'mp3',
+		};
+		state.structure.setStructure(structure);
+		return parseMp3({iterator, structure, state});
 	}
 
 	if (fileType.type === 'wav') {

@@ -32,9 +32,9 @@ export const WhyRemotionConvert: React.FC = () => {
 							Private and offline
 						</div>
 						<div className="font-brand text-black/90">
-							You don't have to upload your video for it to be processed. This
-							site works completely offline and your video does not leave this
-							device.
+							You don&apos;t have to upload your video for it to be processed.
+							This site works completely offline and your video does not leave
+							this device.
 							<br />
 						</div>
 					</div>

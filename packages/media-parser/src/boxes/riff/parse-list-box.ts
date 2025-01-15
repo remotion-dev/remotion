@@ -1,17 +1,20 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {Options, ParseMediaFields} from '../../options';
 import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {parseRiffBody} from './parse-box';
+import {parseRiffBody} from './parse-riff-body';
 import type {RiffBox} from './riff-box';
 
 export const parseListBox = async ({
 	iterator,
 	size,
 	state,
+	fields,
 }: {
 	iterator: BufferIterator;
 	size: number;
 	state: ParserState;
+	fields: Options<ParseMediaFields>;
 }): Promise<RiffBox> => {
 	const counter = iterator.counter.getOffset();
 	const listType = iterator.getByteString(4, false);
@@ -29,6 +32,7 @@ export const parseListBox = async ({
 		iterator,
 		maxOffset: counter + size,
 		state,
+		fields,
 	});
 
 	if (result.status === 'incomplete') {

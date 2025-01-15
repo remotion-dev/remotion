@@ -79,6 +79,16 @@ export const getArrayBufferIterator = (
 	const counter = makeOffsetCounter();
 	let discardAllowed = true;
 
+	const startCheckpoint = () => {
+		const checkpoint = counter.getOffset();
+
+		return {
+			returnToCheckpoint: () => {
+				counter.decrement(counter.getOffset() - checkpoint);
+			},
+		};
+	};
+
 	const getSlice = (amount: number) => {
 		const value = data.slice(
 			counter.getDiscardedOffset(),
@@ -607,6 +617,19 @@ export const getArrayBufferIterator = (
 
 			return new TextDecoder().decode(bytes).trim();
 		},
+		planBytes: (size: number) => {
+			const currentOffset = counter.getOffset();
+			return {
+				discardRest: () => {
+					const toDiscard = size - (counter.getOffset() - currentOffset);
+					if (toDiscard < 0) {
+						throw new Error('read too many bytes');
+					}
+
+					return getSlice(toDiscard);
+				},
+			};
+		},
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getDiscardedOffset());
 			counter.increment(8);
@@ -626,6 +649,7 @@ export const getArrayBufferIterator = (
 		allowDiscard,
 		startBox,
 		readExpGolomb,
+		startCheckpoint,
 	};
 };
 

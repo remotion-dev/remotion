@@ -13,8 +13,8 @@ import {
 	getStsdVideoConfig,
 } from './get-sample-aspect-ratio';
 import {
+	getHasTracks,
 	getTracks,
-	hasTracks,
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
@@ -33,7 +33,7 @@ export const hasVideoCodec = (
 	boxes: Structure,
 	state: ParserState,
 ): boolean => {
-	return hasTracks(boxes, state);
+	return getHasTracks(boxes, state);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

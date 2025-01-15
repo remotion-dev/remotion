@@ -16,9 +16,13 @@ export type ExpandedDimensions = Dimensions & {
 export const getDimensions = (
 	boxes: Structure,
 	state: ParserState,
-): ExpandedDimensions => {
+): ExpandedDimensions | null => {
 	const {videoTracks} = getTracks(boxes, state);
 	if (!videoTracks.length) {
+		if (boxes.type === 'mp3') {
+			return null;
+		}
+
 		throw new Error('Expected video track');
 	}
 

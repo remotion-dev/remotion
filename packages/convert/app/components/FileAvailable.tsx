@@ -2,10 +2,9 @@ import type {ParseMediaOnProgress} from '@remotion/media-parser';
 import {WebCodecsInternals} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
-import type { RotateOrMirrorState} from '~/lib/default-ui';
+import type {RotateOrMirrorState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
 import {formatBytes} from '~/lib/format-bytes';
-import {useThumbnail} from '~/lib/use-thumbnail';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
@@ -13,10 +12,7 @@ import {Footer} from './Footer';
 import {Probe} from './Probe';
 import {ReplaceVideo} from './ReplaceVideo';
 import type {VideoThumbnailRef} from './VideoThumbnail';
-import {getBrightnessOfFrame} from './get-brightness-of-frame';
 import {useProbe} from './use-probe';
-
-const idealBrightness = 0.8;
 
 export const FileAvailable: React.FC<{
 	readonly src: Source;
@@ -27,25 +23,7 @@ export const FileAvailable: React.FC<{
 		() => routeAction.type === 'generic-probe',
 	);
 
-	const bestBrightness = useRef<number | null>(null);
-
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
-
-	const onVideoThumbnail = useCallback(async (frame: VideoFrame) => {
-		const brightness = await getBrightnessOfFrame(frame);
-		const differenceToIdeal = Math.abs(brightness - idealBrightness);
-		if (
-			bestBrightness.current === null ||
-			differenceToIdeal < bestBrightness.current
-		) {
-			bestBrightness.current = differenceToIdeal;
-			videoThumbnailRef.current?.draw(frame);
-		}
-	}, []);
-
-	const onDone = useCallback(() => {
-		videoThumbnailRef.current?.onDone();
-	}, []);
 
 	const onProgress: ParseMediaOnProgress = useCallback(
 		async ({bytes, percentage}) => {
@@ -69,12 +47,6 @@ export const FileAvailable: React.FC<{
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
 
-	const {err} = useThumbnail({
-		src,
-		logLevel: 'verbose',
-		onVideoThumbnail,
-		onDone,
-	});
 	const probeResult = useProbe({
 		src,
 		logLevel: 'verbose',
@@ -101,7 +73,6 @@ export const FileAvailable: React.FC<{
 					<div className="h-4" />
 					<div className="lg:inline-flex lg:flex-row items-start">
 						<Probe
-							thumbnailError={err}
 							src={src}
 							probeDetails={probeDetails}
 							setProbeDetails={setProbeDetails}

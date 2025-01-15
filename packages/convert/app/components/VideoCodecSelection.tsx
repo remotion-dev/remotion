@@ -30,6 +30,7 @@ export const VideoCodecSelection: React.FC<{
 			<SelectContent>
 				{videoOperations.map((operation, i) => {
 					return (
+						// eslint-disable-next-line react/no-array-index-key
 						<SelectGroup key={i}>
 							<SelectItem
 								key={getVideoOperationId(operation)}

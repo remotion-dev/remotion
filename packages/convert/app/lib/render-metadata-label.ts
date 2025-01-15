@@ -130,6 +130,62 @@ export const renderMetadataLabel = (key: string) => {
 		return 'Live Photo Auto Mode';
 	}
 
+	if (key === 'TPE1') {
+		return 'Artist';
+	}
+
+	if (key === 'TIT2') {
+		return 'Title';
+	}
+
+	if (key === 'TYER') {
+		return 'Year';
+	}
+
+	if (key === 'TCON') {
+		return 'Genre';
+	}
+
+	if (key === 'TCOM') {
+		return 'Composer';
+	}
+
+	if (key === 'TCMP') {
+		return 'Compilation';
+	}
+
+	if (key === 'TALB') {
+		return 'Album';
+	}
+
+	if (key === 'COMM') {
+		return 'Comment';
+	}
+
+	if (key === 'TCOP') {
+		return 'Copyright';
+	}
+
+	if (key === 'TIT3') {
+		return 'Description';
+	}
+
+	if (key === 'TLAN') {
+		return 'Language';
+	}
+
+	if (key === 'TSRC') {
+		return 'ISRC';
+	}
+
+	if (key === 'WOAR') {
+		return 'Artist Webpage';
+	}
+
+	if (key === 'WPUB') {
+		return 'Publisher Webpage';
+	}
+
 	return key;
 };
 
@@ -170,6 +226,14 @@ export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
 		'minor_version',
 		'compatible_brands',
 		'handler_name',
+		'TIT2',
+		'TPE1',
+		'TALB',
+		'TCON',
+		'TCOM',
+		'TCMP',
+		'COMM',
+		'TYER',
 	];
 
 	return metadata.slice().sort((a, b) => {
@@ -245,6 +309,10 @@ export const renderMetadataValue = ({
 
 	if (key === 'com.apple.quicktime.creationdate') {
 		return formatDateString(String(value));
+	}
+
+	if (key === 'TCMP') {
+		return value === '1' ? 'Yes' : 'No';
 	}
 
 	if (key === 'com.apple.quicktime.camera.focal_length.35mm_equivalent') {

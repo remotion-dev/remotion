@@ -7,7 +7,7 @@ import type {
 	ParseResult,
 } from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
-import {parseIsoBaseMediaBoxes} from '../process-box';
+import {parseIsoBaseMediaBoxes} from '../parse-boxes';
 
 type SampleBase = {
 	format: string;
@@ -195,7 +195,6 @@ export const processSample = async ({
 				maxBytes: bytesRemainingInBox,
 				initialBoxes,
 				state: options,
-				continueMdat: false,
 				signal,
 				logLevel,
 				fields,
@@ -252,7 +251,6 @@ export const processSample = async ({
 				maxBytes: bytesRemainingInBox,
 				initialBoxes,
 				state: options,
-				continueMdat: false,
 				signal,
 				logLevel,
 				fields,
@@ -311,7 +309,6 @@ export const processSample = async ({
 				maxBytes: bytesRemainingInBox,
 				initialBoxes: [],
 				state: options,
-				continueMdat: false,
 				signal,
 				logLevel,
 				fields,
@@ -377,7 +374,6 @@ export const processSample = async ({
 						maxBytes: bytesRemainingInBox,
 						initialBoxes,
 						state: options,
-						continueMdat: false,
 						signal,
 						logLevel,
 						fields,

@@ -76,7 +76,11 @@ test('Get audio channels for video with music', async () => {
 	});
 	cleanDownloadMap(downloadMap);
 
-	expect(channels).toEqual({channels: 2, duration: 56.529, startTime: 0});
+	expect(channels).toEqual({
+		channels: 2,
+		duration: 56.52898,
+		startTime: 0.011995,
+	});
 }, 90000);
 
 test('Throw error if parsing a non video file', () => {

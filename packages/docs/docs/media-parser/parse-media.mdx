@@ -68,11 +68,13 @@ Possible fields are:
 
 #### `dimensions`
 
-_`{width: number, height: number}`_
+_`{width: number, height: number} | null`_
 
 The dimensions of the video.  
 Any rotation is already applied - the dimensions are like a media player would show them.  
 Use `unrotatedDimensions` to get the dimensions before rotation.
+
+If the media passed is an audio file, this will return `null`.
 
 #### `durationInSeconds`
 
@@ -96,7 +98,7 @@ The name of the file.
 
 #### `container`
 
-_"mp4" | "webm" | "avi" | null_
+_"mp4" | "webm" | "avi" | "transport-stream" | "mp3"_
 
 The container of the file.
 
@@ -209,6 +211,17 @@ _number_
 
 The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
 
+#### `images`
+
+Return type: <TsType type="MediaParserEmbeddedImage[]" source="@remotion/media-parser" />
+
+Embedded images in the file, for example an album cover inside an MP3.  
+Each array element has the following fields:
+
+- `mimeType`: The MIME type of the image, or `null`
+- `description`: A description of the image, or `null`
+- `data`: The image data as a `Uint8Array`
+
 ### `reader?`
 
 A reader interface.  
@@ -275,6 +288,14 @@ import {ParseMediaProgress} from '@remotion/media-parser';
 You may make this an async function, and while it is not resolved, **the parsing process will be paused**.  
 This is useful if you want to add a small delay inbetween progress steps to keep the UI interactive.
 :::
+
+### `progressIntervalInMs?`
+
+_number_
+
+The interval in milliseconds at which the [`onParseProgress`](#onparseprogress) callback is called.  
+Default `100`. Set to `0` for unthrottled updates.  
+Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
 ### `logLevel?`
 

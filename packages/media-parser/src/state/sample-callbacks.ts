@@ -79,6 +79,10 @@ export const sampleCallback = ({
 					await callback(audioSample);
 				}
 			}
+
+			if (needsToIterateOverSamples({emittedFields, fields})) {
+				slowDurationAndFpsState.addAudioSample(audioSample);
+			}
 		},
 		getSamplesForTrack: (trackId: number) => {
 			return samplesForTrack[trackId] ?? 0;
@@ -117,7 +121,7 @@ export const sampleCallback = ({
 					});
 				}
 
-				slowDurationAndFpsState.addSample(videoSample);
+				slowDurationAndFpsState.addVideoSample(videoSample);
 			}
 		},
 		canSkipTracksState,

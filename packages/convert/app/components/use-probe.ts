@@ -2,6 +2,7 @@ import type {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
+	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
 	MediaParserVideoCodec,
@@ -35,13 +36,15 @@ export const useProbe = ({
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
-	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
+		undefined,
+	);
 	const [unrotatedDimensions, setUnrotatedDimensions] =
 		useState<Dimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
-	const [videoCodec, setVideoCodec] = useState<MediaParserVideoCodec | null>(
-		null,
-	);
+	const [videoCodec, setVideoCodec] = useState<
+		MediaParserVideoCodec | undefined | null
+	>(undefined);
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
@@ -51,6 +54,7 @@ export const useProbe = ({
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);
+	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
@@ -108,6 +112,9 @@ export const useProbe = ({
 			onKeyframes: (k) => {
 				setKeyframes(k);
 			},
+			onImages: (i) => {
+				setImages(i);
+			},
 		})
 			.then(() => {})
 			.catch((err) => {
@@ -161,24 +168,26 @@ export const useProbe = ({
 			location,
 			keyframes,
 			unrotatedDimensions,
+			images,
 		};
 	}, [
+		tracks,
 		audioCodec,
-		container,
-		dimensions,
 		fps,
 		name,
-		size,
-		tracks,
+		container,
+		dimensions,
 		videoCodec,
+		size,
 		durationInSeconds,
+		isHdr,
 		done,
 		error,
-		isHdr,
 		rotation,
 		metadata,
 		location,
 		keyframes,
 		unrotatedDimensions,
+		images,
 	]);
 };

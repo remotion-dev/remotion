@@ -17,6 +17,7 @@ import type {ParseResult} from './parse-result';
 import {parseVideo} from './parse-video';
 import {fetchReader} from './readers/from-fetch';
 import {makeParserState} from './state/parser-state';
+import {throttledStateUpdate} from './throttled-progress';
 
 export const parseMedia: ParseMedia = async function <
 	F extends Options<ParseMediaFields>,
@@ -28,10 +29,10 @@ export const parseMedia: ParseMedia = async function <
 	onVideoTrack,
 	signal,
 	logLevel = 'info',
-	onParseProgress,
+	onParseProgress: onParseProgressDoNotCallDirectly,
+	progressIntervalInMs,
 	...more
 }: ParseMediaOptions<F>) {
-	let iterator: BufferIterator | null = null;
 	let parseResult: ParseResult | null = null;
 
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
@@ -48,6 +49,11 @@ export const parseMedia: ParseMedia = async function <
 		contentType,
 		supportsContentRange: readerSupportsContentRange,
 	} = await readerInterface.read(src, null, signal);
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		contentLength ?? 1_000_000_000,
+	);
+
 	const supportsContentRange =
 		readerSupportsContentRange &&
 		!(
@@ -65,12 +71,20 @@ export const parseMedia: ParseMedia = async function <
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		supportsContentRange,
+		contentLength,
 	});
 
 	let currentReader = reader;
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks;
+
+	const throttledState = throttledStateUpdate({
+		updateFn: onParseProgressDoNotCallDirectly ?? null,
+		everyMilliseconds: progressIntervalInMs ?? 100,
+		signal,
+		totalBytes: contentLength,
+	});
 
 	const triggerInfoEmit = () => {
 		const availableInfo = getAvailableInfo({
@@ -90,52 +104,67 @@ export const parseMedia: ParseMedia = async function <
 		});
 	};
 
-	triggerInfoEmit();
-
-	while (parseResult === null || parseResult.status === 'incomplete') {
-		while (true) {
-			if (signal?.aborted) {
-				throw new Error('Aborted');
-			}
-
-			const result = await currentReader.reader.read();
-
-			if (iterator) {
-				if (!result.done) {
-					iterator.addData(result.value);
-				}
-			} else {
-				if (result.done) {
-					throw new Error('Unexpectedly reached EOF');
-				}
-
-				iterator = getArrayBufferIterator(
-					result.value,
-					contentLength ?? 1_000_000_000,
+	const checkIfDone = () => {
+		if (
+			hasAllInfo({
+				fields,
+				state,
+			})
+		) {
+			Log.verbose(logLevel, 'Got all info, skipping to the end.');
+			if (contentLength !== null) {
+				state.increaseSkippedBytes(
+					contentLength - iterator.counter.getOffset(),
 				);
 			}
 
-			if (iterator.bytesRemaining() >= 0) {
-				break;
-			}
-
-			if (result.done) {
-				break;
-			}
+			return true;
 		}
 
-		if (!iterator) {
-			throw new Error('Unexpected null');
+		return false;
+	};
+
+	triggerInfoEmit();
+
+	let didProgress = false;
+	while (
+		!checkIfDone() &&
+		(parseResult === null || parseResult.status === 'incomplete')
+	) {
+		if (signal?.aborted) {
+			throw new Error('Aborted');
 		}
 
-		await onParseProgress?.({
+		const offsetBefore = iterator.counter.getOffset();
+
+		const fetchMoreData = async () => {
+			const result = await currentReader.reader.read();
+
+			if (result.value) {
+				iterator.addData(result.value);
+			}
+		};
+
+		while (iterator.bytesRemaining() < 0) {
+			await fetchMoreData();
+		}
+
+		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
+
+		if (!didProgress || !hasBigBuffer) {
+			await fetchMoreData();
+		}
+
+		throttledState.update?.(() => ({
 			bytes: iterator.counter.getOffset(),
 			percentage: contentLength
 				? iterator.counter.getOffset() / contentLength
 				: null,
 			totalBytes: contentLength,
-		});
+		}));
+
 		triggerInfoEmit();
+
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.trace(
 				logLevel,
@@ -160,22 +189,6 @@ export const parseMedia: ParseMedia = async function <
 			state.increaseSkippedBytes(
 				parseResult.skipTo - iterator.counter.getOffset(),
 			);
-		}
-
-		if (
-			hasAllInfo({
-				fields,
-				state,
-			})
-		) {
-			Log.verbose(logLevel, 'Got all info, skipping to the end.');
-			if (contentLength !== null) {
-				state.increaseSkippedBytes(
-					contentLength - iterator.counter.getOffset(),
-				);
-			}
-
-			break;
 		}
 
 		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
@@ -205,26 +218,26 @@ export const parseMedia: ParseMedia = async function <
 			currentReader = newReader;
 			iterator.skipTo(parseResult.skipTo, true);
 		}
+
+		didProgress = iterator.counter.getOffset() > offsetBefore;
 	}
 
 	Log.verbose(logLevel, 'Finished parsing file');
 
-	const hasInfo = (
-		Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
-	).reduce(
-		(acc, key) => {
-			if (fields?.[key]) {
-				acc[key] = true;
-			}
-
-			return acc;
-		},
-		{} as Record<keyof Options<ParseMediaFields>, boolean>,
-	);
-
 	// Force assign
 	emitAvailableInfo({
-		hasInfo,
+		hasInfo: (
+			Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
+		).reduce(
+			(acc, key) => {
+				if (fields?.[key]) {
+					acc[key] = true;
+				}
+
+				return acc;
+			},
+			{} as Record<keyof Options<ParseMediaFields>, boolean>,
+		),
 		callbacks: moreFields,
 		fieldsInReturnValue,
 		parseResult,

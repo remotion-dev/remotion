@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import type {Options, ParseMediaFields} from '../../options';
 import type {ParserState} from '../../state/parser-state';
 import {parseAvih} from './parse-avih';
 import {parseFmtBox} from './parse-fmt-box';
@@ -14,19 +15,21 @@ export const parseRiffBox = ({
 	id,
 	boxes,
 	state,
+	fields,
 }: {
 	iterator: BufferIterator;
 	size: number;
 	id: string;
 	boxes: RiffBox[];
 	state: ParserState;
+	fields: Options<ParseMediaFields>;
 }): Promise<RiffBox> => {
 	if (id === 'fmt') {
 		return Promise.resolve(parseFmtBox({iterator, boxes, size}));
 	}
 
 	if (id === 'LIST') {
-		return parseListBox({iterator, size, state});
+		return parseListBox({iterator, size, state, fields});
 	}
 
 	if (id === 'ISFT') {

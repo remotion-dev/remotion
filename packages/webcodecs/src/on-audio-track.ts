@@ -9,6 +9,7 @@ import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import {canCopyAudioTrack} from './can-copy-audio-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
+import type {ConvertMediaOnAudioData} from './convert-media';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
@@ -31,6 +32,7 @@ export const makeAudioTrackHandler =
 		logLevel,
 		outputContainer,
 		progressTracker,
+		onAudioData,
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
@@ -41,6 +43,7 @@ export const makeAudioTrackHandler =
 		logLevel: LogLevel;
 		outputContainer: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
+		onAudioData: ConvertMediaOnAudioData | null;
 	}): OnAudioTrack =>
 	async ({track, container: inputContainer}) => {
 		const canCopyTrack = canCopyAudioTrack({
@@ -191,8 +194,45 @@ export const makeAudioTrackHandler =
 		});
 
 		const audioDecoder = createAudioDecoder({
-			onFrame: async (frame) => {
-				await audioEncoder.encodeFrame(frame);
+			onFrame: async (audioData) => {
+				const newAudioData = onAudioData
+					? await onAudioData?.({audioData, track})
+					: audioData;
+				if (newAudioData !== audioData) {
+					if (newAudioData.duration !== audioData.duration) {
+						throw new Error(
+							`onAudioData returned a different duration than the input audio data. Original duration: ${audioData.duration}, new duration: ${newAudioData.duration}`,
+						);
+					}
+
+					if (newAudioData.numberOfChannels !== audioData.numberOfChannels) {
+						throw new Error(
+							`onAudioData returned a different number of channels than the input audio data. Original channels: ${audioData.numberOfChannels}, new channels: ${newAudioData.numberOfChannels}`,
+						);
+					}
+
+					if (newAudioData.sampleRate !== audioData.sampleRate) {
+						throw new Error(
+							`onAudioData returned a different sample rate than the input audio data. Original sample rate: ${audioData.sampleRate}, new sample rate: ${newAudioData.sampleRate}`,
+						);
+					}
+
+					if (newAudioData.format !== audioData.format) {
+						throw new Error(
+							`onAudioData returned a different format than the input audio data. Original format: ${audioData.format}, new format: ${newAudioData.format}`,
+						);
+					}
+
+					if (newAudioData.timestamp !== audioData.timestamp) {
+						throw new Error(
+							`onAudioData returned a different timestamp than the input audio data. Original timestamp: ${audioData.timestamp}, new timestamp: ${newAudioData.timestamp}`,
+						);
+					}
+
+					audioData.close();
+				}
+
+				await audioEncoder.encodeFrame(newAudioData);
 				onMediaStateUpdate?.((prevState) => {
 					return {
 						...prevState,
@@ -200,7 +240,7 @@ export const makeAudioTrackHandler =
 					};
 				});
 
-				frame.close();
+				newAudioData.close();
 			},
 			onError(error) {
 				abortConversion(

@@ -37,63 +37,53 @@ export const parseTransportStream = async ({
 
 		return Promise.resolve({
 			status: 'done',
-			segments: structure,
 		});
 	}
 
-	while (true) {
-		if (
-			hasAllInfo({
-				fields,
-				state,
-			})
-		) {
-			break;
-		}
-
-		if (iterator.bytesRemaining() < 188) {
-			return Promise.resolve({
-				status: 'incomplete',
-				segments: structure,
-				skipTo: null,
-				continueParsing: () => {
-					return parseTransportStream({
-						iterator,
-						state,
-						streamBuffers,
-						fields,
-						nextPesHeaderStore,
-					});
-				},
-			});
-		}
-
-		const packet = await parsePacket({
+	const continueParsing = () => {
+		return parseTransportStream({
 			iterator,
-			structure,
+			state,
 			streamBuffers,
-			parserState: state,
+			fields,
 			nextPesHeaderStore,
 		});
+	};
 
-		if (packet) {
-			structure.boxes.push(packet);
-			break;
-		}
+	if (
+		hasAllInfo({
+			fields,
+			state,
+		})
+	) {
+		return Promise.resolve({
+			status: 'done',
+		});
+	}
+
+	if (iterator.bytesRemaining() < 188) {
+		return Promise.resolve({
+			status: 'incomplete',
+			continueParsing,
+			skipTo: null,
+		});
+	}
+
+	const packet = await parsePacket({
+		iterator,
+		structure,
+		streamBuffers,
+		parserState: state,
+		nextPesHeaderStore,
+	});
+
+	if (packet) {
+		structure.boxes.push(packet);
 	}
 
 	return Promise.resolve({
-		segments: structure,
 		status: 'incomplete',
-		continueParsing() {
-			return parseTransportStream({
-				iterator,
-				state,
-				streamBuffers,
-				fields,
-				nextPesHeaderStore,
-			});
-		},
+		continueParsing,
 		skipTo: null,
 	});
 };

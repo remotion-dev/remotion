@@ -24,6 +24,7 @@ import {
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
+import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
 import type {RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
@@ -68,7 +69,7 @@ export default function ConvertUI({
 	readonly tracks: TracksField | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
-	readonly dimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null | undefined;
 	readonly duration: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: ParseMediaContainer | null;
@@ -101,7 +102,9 @@ export default function ConvertUI({
 	);
 	const [resizeOperation, setResizeOperation] =
 		useState<ResizeOperation | null>(() => {
-			return action.type === 'resize-format' || action.type === 'generic-resize'
+			return (action.type === 'resize-format' ||
+				action.type === 'generic-resize') &&
+				dimensions
 				? getInitialResizeSuggestion(dimensions)
 				: null;
 		});
@@ -149,11 +152,23 @@ export default function ConvertUI({
 
 	const abortSignal = useRef<AbortController | null>(null);
 
+	const [bars, setBars] = useState<number[]>([]);
+
+	const onWaveformBars = useCallback((b: number[]) => {
+		setBars(b);
+	}, []);
+
 	const onClick = useCallback(() => {
 		const abortController = new AbortController();
 		abortSignal.current = abortController;
 
 		let videoFrames = 0;
+		const waveform = makeWaveformVisualizer({
+			onWaveformBars,
+		});
+		if (duration) {
+			waveform.setDuration(duration);
+		}
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
@@ -165,12 +180,15 @@ export default function ConvertUI({
 					vertical: flipVertical && enableRotateOrMirror === 'mirror',
 				});
 				if (videoFrames % 15 === 0) {
-					// TODO: Pass rotation that was applied
 					convertProgressRef.current?.draw(flipped);
 				}
 
 				videoFrames++;
 				return flipped;
+			},
+			onAudioData: ({audioData}) => {
+				waveform.add(audioData);
+				return audioData;
 			},
 			rotate: userRotation,
 			logLevel,
@@ -261,6 +279,8 @@ export default function ConvertUI({
 			abortController.abort();
 		};
 	}, [
+		onWaveformBars,
+		duration,
 		src,
 		userRotation,
 		logLevel,
@@ -268,7 +288,8 @@ export default function ConvertUI({
 		flipHorizontal,
 		enableRotateOrMirror,
 		flipVertical,
-		supportedConfigs,
+		supportedConfigs?.audioTrackOptions,
+		supportedConfigs?.videoTrackOptions,
 		enableConvert,
 		audioOperationSelection,
 		videoOperationSelection,
@@ -344,6 +365,10 @@ export default function ConvertUI({
 		userRotation,
 	]);
 
+	const isAudioExclusively = useMemo(() => {
+		return (tracks?.videoTracks.length ?? 0) === 0;
+	}, [tracks?.videoTracks.length]);
+
 	if (state.type === 'error') {
 		return (
 			<>
@@ -373,6 +398,8 @@ export default function ConvertUI({
 							enableConvert,
 						})
 					}
+					bars={bars}
+					isAudioOnly={isAudioExclusively}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -399,6 +426,8 @@ export default function ConvertUI({
 							enableConvert,
 						})
 					}
+					bars={bars}
+					isAudioOnly={isAudioExclusively}
 				/>
 				<div className="h-2" />
 				<ConversionDone
@@ -462,6 +491,10 @@ export default function ConvertUI({
 					}
 
 					if (section === 'mirror') {
+						if (isAudioExclusively) {
+							return null;
+						}
+
 						return (
 							<div key="mirror">
 								<ConvertUiSection
@@ -484,6 +517,10 @@ export default function ConvertUI({
 					}
 
 					if (section === 'rotate') {
+						if (isAudioExclusively) {
+							return null;
+						}
+
 						return (
 							<div key="rotate">
 								<ConvertUiSection
@@ -504,6 +541,10 @@ export default function ConvertUI({
 					}
 
 					if (section === 'resize') {
+						if (isAudioExclusively) {
+							return null;
+						}
+
 						return (
 							<div key="resize">
 								<ConvertUiSection

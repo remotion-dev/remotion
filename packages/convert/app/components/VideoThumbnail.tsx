@@ -2,7 +2,7 @@ import {FastAverageColor} from 'fast-average-color';
 import React, {useCallback, useImperativeHandle, useRef, useState} from 'react';
 import {useIsNarrow} from '~/lib/is-narrow';
 
-const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
+export const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
 type Props = {
 	readonly smallThumbOnMobile: boolean;
