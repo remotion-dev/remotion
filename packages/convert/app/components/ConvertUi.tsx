@@ -365,7 +365,7 @@ export default function ConvertUI({
 		userRotation,
 	]);
 
-	const hasAudio = useMemo(() => {
+	const isAudioExclusively = useMemo(() => {
 		return (tracks?.videoTracks.length ?? 0) === 0;
 	}, [tracks?.videoTracks.length]);
 
@@ -399,7 +399,7 @@ export default function ConvertUI({
 						})
 					}
 					bars={bars}
-					isAudioOnly={hasAudio}
+					isAudioOnly={isAudioExclusively}
 				/>
 				<div className="h-2" />
 				<Button className="block w-full" type="button" onClick={cancel}>
@@ -427,7 +427,7 @@ export default function ConvertUI({
 						})
 					}
 					bars={bars}
-					isAudioOnly={hasAudio}
+					isAudioOnly={isAudioExclusively}
 				/>
 				<div className="h-2" />
 				<ConversionDone
@@ -491,6 +491,10 @@ export default function ConvertUI({
 					}
 
 					if (section === 'mirror') {
+						if (isAudioExclusively) {
+							return null;
+						}
+
 						return (
 							<div key="mirror">
 								<ConvertUiSection
@@ -513,6 +517,10 @@ export default function ConvertUI({
 					}
 
 					if (section === 'rotate') {
+						if (isAudioExclusively) {
+							return null;
+						}
+
 						return (
 							<div key="rotate">
 								<ConvertUiSection
@@ -533,6 +541,10 @@ export default function ConvertUI({
 					}
 
 					if (section === 'resize') {
+						if (isAudioExclusively) {
+							return null;
+						}
+
 						return (
 							<div key="resize">
 								<ConvertUiSection

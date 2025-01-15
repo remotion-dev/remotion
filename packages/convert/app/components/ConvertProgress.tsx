@@ -60,18 +60,23 @@ export const ConvertProgress: React.FC<{
 					mirrorVertical={false}
 				/>
 			) : null}
-			{duration ? <AudioWaveForm bars={bars} /> : null}
-			<div className="h-5 overflow-hidden">
-				{state.millisecondsWritten || done ? (
-					<div
-						className="w-[50%] h-5 bg-brand"
-						style={{
-							width: (progress ?? 0) * 100 + '%',
-						}}
-					/>
-				) : null}
-			</div>
-			<div className="border-b-2 border-black" />
+			{duration ? (
+				<AudioWaveForm bars={bars} />
+			) : (
+				<>
+					<div className="h-5 overflow-hidden">
+						{state.millisecondsWritten || done ? (
+							<div
+								className="w-[50%] h-5 bg-brand"
+								style={{
+									width: (progress ?? 0) * 100 + '%',
+								}}
+							/>
+						) : null}
+					</div>
+					<div className="border-b-2 border-black" />
+				</>
+			)}
 			<div className="p-2">
 				<div>
 					{name ? (
