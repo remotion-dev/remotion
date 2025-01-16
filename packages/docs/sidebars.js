@@ -253,7 +253,7 @@ module.exports = {
 				'lambda/validatewebhooksignature',
 				'lambda/approuterwebhook',
 				'lambda/pagesrouterwebhook',
-				'lambda/expresswebhook'
+				'lambda/expresswebhook',
 			],
 		},
 		{
@@ -799,6 +799,7 @@ module.exports = {
 				'player/drag-and-drop/index',
 				'player/custom-controls',
 				'player/media-keys',
+				'player/playback-issues',
 			],
 		},
 
