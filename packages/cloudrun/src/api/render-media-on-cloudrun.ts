@@ -66,18 +66,18 @@ type InternalRenderMediaOnCloudrun = {
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 export type RenderMediaOnCloudrunInput = {
-	cloudRunUrl?: string;
-	serviceName?: string;
 	region: GcpRegion;
 	serveUrl: string;
 	composition: string;
+	renderId?: string | undefined;
+	codec: CloudrunCodec;
+	cloudRunUrl?: string;
+	serviceName?: string;
 	inputProps?: Record<string, unknown>;
 	privacy?: 'public' | 'private';
 	forceBucketName?: string;
 	outName?: string;
 	updateRenderProgress?: (progress: number, error?: boolean) => void;
-	renderId: string | undefined;
-	codec: CloudrunCodec;
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
