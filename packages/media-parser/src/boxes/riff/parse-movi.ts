@@ -138,13 +138,6 @@ export const parseMovi = async ({
 	maxOffset: number;
 	state: ParserState;
 }): Promise<RiffResult> => {
-	if (iterator.bytesRemaining() < 8) {
-		return {
-			box: null,
-			skipTo: null,
-		};
-	}
-
 	if (
 		maySkipVideoData({
 			state,
@@ -157,11 +150,19 @@ export const parseMovi = async ({
 		};
 	}
 
+	if (iterator.bytesRemaining() < 8) {
+		return {
+			box: null,
+			skipTo: null,
+		};
+	}
+
+	const checkpoint = iterator.startCheckpoint();
 	const ckId = iterator.getByteString(4, false);
 	const ckSize = iterator.getUint32Le();
 
 	if (iterator.bytesRemaining() < ckSize) {
-		iterator.counter.decrement(8);
+		checkpoint.returnToCheckpoint();
 		return {
 			box: null,
 			skipTo: null,
