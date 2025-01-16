@@ -1,22 +1,29 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {RiffBox} from './riff-box';
+import type {RiffStructure} from '../../parse-result';
+import type {ParserState} from '../../state/parser-state';
+import type {RiffBox, RiffHeader} from './riff-box';
 
 export const parseFmtBox = ({
 	iterator,
-	boxes,
 	size,
+	state,
 }: {
 	iterator: BufferIterator;
-	boxes: RiffBox[];
 	size: number;
+	state: ParserState;
 }): RiffBox => {
 	const box = iterator.startBox(size);
-	const header = boxes.find((b) => b.type === 'riff-header');
-	if (!header) {
-		throw new Error('Expected RIFF header');
+	const structure = state.structure.getStructure() as RiffStructure;
+
+	const riffHeader = structure.boxes.find((b) => b.type === 'riff-header') as
+		| RiffHeader
+		| undefined;
+	if (!riffHeader) {
+		throw new Error('Expected RIFF header to be parsed before fmt');
 	}
 
-	if (header.fileType !== 'WAVE') {
+	// TODO: Can we delete this?
+	if (riffHeader.fileType !== 'WAVE') {
 		throw new Error('Only supporting WAVE type');
 	}
 

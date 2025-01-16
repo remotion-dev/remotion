@@ -1,11 +1,10 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import {hasAllInfo} from '../../has-all-info';
 import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {parseRiffBody} from './parse-riff-body';
+import {parseRiff} from './parse-riff';
 
-export const parseRiff = ({
+export const parseRiffHeader = ({
 	iterator,
 	state,
 	fields,
@@ -13,7 +12,15 @@ export const parseRiff = ({
 	iterator: BufferIterator;
 	state: ParserState;
 	fields: Options<ParseMediaFields>;
-}): Promise<ParseResult> => {
+}): ParseResult => {
+	const continueParsing = () => {
+		return parseRiff({
+			fields,
+			iterator,
+			state,
+		});
+	};
+
 	const riff = iterator.getByteString(4, false);
 	if (riff !== 'RIFF') {
 		throw new Error('Not a RIFF file');
@@ -32,18 +39,9 @@ export const parseRiff = ({
 
 	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	if (hasAllInfo({fields, state})) {
-		return Promise.resolve({
-			status: 'done',
-			segments: structure,
-		});
-	}
-
-	return parseRiffBody({
-		iterator,
-		maxOffset: Infinity,
-		state,
-		structure,
-		fields,
-	});
+	return {
+		status: 'incomplete',
+		continueParsing,
+		skipTo: null,
+	};
 };

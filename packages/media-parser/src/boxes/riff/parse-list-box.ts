@@ -1,8 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {Options, ParseMediaFields} from '../../options';
-import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {parseRiffBody} from './parse-riff-body';
+import {expectRiffBox} from './expect-riff-box';
 import type {RiffBox} from './riff-box';
 
 export const parseListBox = async ({
@@ -23,25 +22,25 @@ export const parseListBox = async ({
 		throw new Error('should not be handled here');
 	}
 
-	const structure: RiffStructure = {
-		type: 'riff',
-		boxes: [],
-	};
-	const result = await parseRiffBody({
-		structure,
-		iterator,
-		maxOffset: counter + size,
-		state,
-		fields,
-	});
+	const boxes: RiffBox[] = [];
+	const maxOffset = counter + size;
 
-	if (result.status === 'incomplete') {
-		throw new Error(`Should only parse complete boxes (${listType})`);
+	while (iterator.counter.getOffset() < maxOffset) {
+		const result = await expectRiffBox({
+			iterator,
+			state,
+			fields,
+		});
+		if (result.box !== null) {
+			boxes.push(result.box);
+		} else {
+			throw new Error('Unexpected result');
+		}
 	}
 
 	return {
 		type: 'list-box',
 		listType,
-		children: structure.boxes,
+		children: boxes,
 	};
 };

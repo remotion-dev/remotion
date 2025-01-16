@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {RiffBox} from './riff-box';
+import type {FccType, StrfBoxAudio, StrfBoxVideo} from './riff-box';
 
 const parseStrfAudio = ({
 	iterator,
@@ -7,7 +7,7 @@ const parseStrfAudio = ({
 }: {
 	iterator: BufferIterator;
 	size: number;
-}): RiffBox => {
+}): StrfBoxAudio => {
 	const box = iterator.startBox(size);
 	const formatTag = iterator.getUint16Le();
 	const numberOfChannels = iterator.getUint16Le();
@@ -37,7 +37,7 @@ const parseStrfVideo = ({
 }: {
 	iterator: BufferIterator;
 	size: number;
-}): RiffBox => {
+}): StrfBoxVideo => {
 	const box = iterator.startBox(size);
 	const biSize = iterator.getUint32Le();
 	const width = iterator.getInt32Le();
@@ -72,24 +72,19 @@ const parseStrfVideo = ({
 export const parseStrf = ({
 	iterator,
 	size,
-	boxes,
+	fccType,
 }: {
 	iterator: BufferIterator;
 	size: number;
-	boxes: RiffBox[];
-}): RiffBox => {
-	const strh = boxes.find((b) => b.type === 'strh-box');
-	if (!strh) {
-		throw new Error('strh box not found');
-	}
-
-	if (strh.fccType === 'vids') {
+	fccType: FccType;
+}): StrfBoxAudio | StrfBoxVideo => {
+	if (fccType === 'vids') {
 		return parseStrfVideo({iterator, size});
 	}
 
-	if (strh.fccType === 'auds') {
+	if (fccType === 'auds') {
 		return parseStrfAudio({iterator, size});
 	}
 
-	throw new Error(`Unsupported fccType: ${strh.fccType}`);
+	throw new Error(`Unsupported fccType: ${fccType}`);
 };

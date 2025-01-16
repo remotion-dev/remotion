@@ -5,7 +5,6 @@ import {parseAvih} from './parse-avih';
 import {parseFmtBox} from './parse-fmt-box';
 import {parseIsft} from './parse-isft';
 import {parseListBox} from './parse-list-box';
-import {parseStrf} from './parse-strf';
 import {parseStrh} from './parse-strh';
 import type {RiffBox, RiffRegularBox} from './riff-box';
 
@@ -13,19 +12,17 @@ export const parseRiffBox = ({
 	iterator,
 	size,
 	id,
-	boxes,
 	state,
 	fields,
 }: {
 	iterator: BufferIterator;
 	size: number;
 	id: string;
-	boxes: RiffBox[];
 	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<RiffBox> => {
 	if (id === 'fmt') {
-		return Promise.resolve(parseFmtBox({iterator, boxes, size}));
+		return Promise.resolve(parseFmtBox({iterator, size, state}));
 	}
 
 	if (id === 'LIST') {
@@ -42,10 +39,6 @@ export const parseRiffBox = ({
 
 	if (id === 'strh') {
 		return Promise.resolve(parseStrh({iterator, size}));
-	}
-
-	if (id === 'strf') {
-		return Promise.resolve(parseStrf({iterator, size, boxes}));
 	}
 
 	iterator.discard(size);

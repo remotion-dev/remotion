@@ -30,13 +30,11 @@ const getStrhForIndex = (
 export const handleChunk = async ({
 	iterator,
 	state,
-	structure,
 	ckId,
 	ckSize,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	structure: RiffStructure;
 	ckId: string;
 	ckSize: number;
 }) => {
@@ -45,7 +43,10 @@ export const handleChunk = async ({
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
 		const trackId = parseInt(videoChunk[1], 10);
-		const strh = getStrhForIndex(structure, trackId);
+		const strh = getStrhForIndex(
+			state.structure.getStructure() as RiffStructure,
+			trackId,
+		);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -90,7 +91,10 @@ export const handleChunk = async ({
 	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
 	if (audioChunk) {
 		const trackId = parseInt(audioChunk[1], 10);
-		const strh = getStrhForIndex(structure, trackId);
+		const strh = getStrhForIndex(
+			state.structure.getStructure() as RiffStructure,
+			trackId,
+		);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -129,89 +133,57 @@ export const parseMovi = async ({
 	iterator,
 	maxOffset,
 	state,
-	structure,
 }: {
 	iterator: BufferIterator;
 	maxOffset: number;
 	state: ParserState;
-	structure: RiffStructure;
 }): Promise<RiffResult> => {
-	while (iterator.counter.getOffset() < maxOffset) {
-		if (iterator.bytesRemaining() < 8) {
-			return {
-				type: 'incomplete',
-				continueParsing: () => {
-					return Promise.resolve(
-						parseMovi({iterator, maxOffset, state, structure}),
-					);
-				},
-			};
-		}
-
-		const ckId = iterator.getByteString(4, false);
-		const ckSize = iterator.getUint32Le();
-
-		if (
-			maySkipVideoData({
-				state,
-			}) &&
-			state.riff.getAvcProfile()
-		) {
-			return {
-				type: 'complete',
-				box: {
-					type: 'movi-box',
-				},
-				skipTo: maxOffset,
-			};
-		}
-
-		if (iterator.bytesRemaining() < ckSize) {
-			iterator.counter.decrement(8);
-			return {
-				type: 'incomplete',
-				continueParsing: () => {
-					return Promise.resolve(
-						parseMovi({iterator, maxOffset, state, structure}),
-					);
-				},
-			};
-		}
-
-		await handleChunk({iterator, state, structure, ckId, ckSize});
-
-		// Discard added zeroes
-		while (
-			iterator.counter.getOffset() < maxOffset &&
-			iterator.bytesRemaining() > 0
-		) {
-			if (iterator.getUint8() !== 0) {
-				iterator.counter.decrement(1);
-				break;
-			}
-		}
+	if (
+		maySkipVideoData({
+			state,
+		}) &&
+		state.riff.getAvcProfile()
+	) {
+		return {
+			box: null,
+			skipTo: maxOffset,
+		};
 	}
 
-	if (iterator.counter.getOffset() === maxOffset) {
+	if (iterator.bytesRemaining() < 8) {
 		return {
-			type: 'complete',
-			box: {
-				type: 'movi-box',
-			},
+			box: null,
 			skipTo: null,
 		};
 	}
 
-	if (iterator.counter.getOffset() > maxOffset) {
-		throw new Error('Oops, this should not happen!');
+	const checkpoint = iterator.startCheckpoint();
+	const ckId = iterator.getByteString(4, false);
+	const ckSize = iterator.getUint32Le();
+
+	if (iterator.bytesRemaining() < ckSize) {
+		checkpoint.returnToCheckpoint();
+		return {
+			box: null,
+			skipTo: null,
+		};
+	}
+
+	await handleChunk({iterator, state, ckId, ckSize});
+
+	// Discard added zeroes
+	while (
+		iterator.counter.getOffset() < maxOffset &&
+		iterator.bytesRemaining() > 0
+	) {
+		if (iterator.getUint8() !== 0) {
+			iterator.counter.decrement(1);
+			break;
+		}
 	}
 
 	return {
-		type: 'incomplete',
-		continueParsing: () => {
-			return Promise.resolve(
-				parseMovi({iterator, maxOffset, state, structure}),
-			);
-		},
+		box: null,
+		skipTo: null,
 	};
 };

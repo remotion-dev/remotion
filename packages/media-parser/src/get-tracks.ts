@@ -233,6 +233,7 @@ export const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
 	};
 };
 
+// TODO: See if we can get rid of the first argument
 export const getTracks = (
 	segments: Structure,
 	state: ParserState,

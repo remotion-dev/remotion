@@ -121,6 +121,15 @@ export const parseMedia: ParseMedia = async function <
 			return true;
 		}
 
+		if (iterator.counter.getOffset() === contentLength) {
+			Log.verbose(logLevel, 'Reached end of file', contentLength);
+			// TODO: Make it possible for ISO base media too
+			return (
+				state.structure.getStructureOrNull()?.type !== 'iso-base-media' &&
+				state.structure.getStructureOrNull()?.type !== 'transport-stream'
+			);
+		}
+
 		return false;
 	};
 
@@ -165,6 +174,7 @@ export const parseMedia: ParseMedia = async function <
 
 		triggerInfoEmit();
 
+		// TODO: Deprecate 'incomplete' state
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.trace(
 				logLevel,
