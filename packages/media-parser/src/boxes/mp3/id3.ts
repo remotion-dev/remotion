@@ -45,7 +45,7 @@ export const parseId3 = ({
 	const initial = iterator.counter.getOffset();
 	while (iterator.counter.getOffset() < size + initial) {
 		const name =
-			versionMajor === 3
+			versionMajor === 3 || versionMajor === 4
 				? iterator.getByteString(4, true)
 				: iterator.getByteString(3, true);
 		if (name === '') {
@@ -53,8 +53,11 @@ export const parseId3 = ({
 			break;
 		}
 
-		const s = versionMajor === 3 ? iterator.getUint32() : iterator.getUint24();
-		if (versionMajor === 3) {
+		const s =
+			versionMajor === 3 || versionMajor === 4
+				? iterator.getUint32()
+				: iterator.getUint24();
+		if (versionMajor === 3 || versionMajor === 4) {
 			iterator.getUint16(); // flags
 		}
 

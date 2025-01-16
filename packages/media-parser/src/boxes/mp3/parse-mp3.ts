@@ -68,5 +68,5 @@ export const parseMp3 = async ({
 		};
 	}
 
-	throw new Error('Unknown MP3 header ');
+	throw new Error('Unknown MP3 header ' + JSON.stringify(bytes));
 };
