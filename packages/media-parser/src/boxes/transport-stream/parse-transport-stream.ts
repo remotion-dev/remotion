@@ -3,25 +3,17 @@ import {hasAllInfo} from '../../has-all-info';
 import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePacket} from './parse-packet';
-import {
-	processFinalStreamBuffers,
-	type StreamBufferMap,
-} from './process-stream-buffers';
+import {processFinalStreamBuffers} from './process-stream-buffers';
 
 export const parseTransportStream = async ({
 	iterator,
 	state,
-	streamBuffers,
 	fields,
-	nextPesHeaderStore,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	streamBuffers: StreamBufferMap;
 	fields: Options<ParseMediaFields>;
-	nextPesHeaderStore: NextPesHeaderStore;
 }): Promise<ParseResult> => {
 	const structure = state.structure.getStructure();
 	if (structure.type !== 'transport-stream') {
@@ -30,7 +22,6 @@ export const parseTransportStream = async ({
 
 	if (iterator.bytesRemaining() === 0) {
 		await processFinalStreamBuffers({
-			streamBufferMap: streamBuffers,
 			state,
 			structure,
 		});
@@ -44,9 +35,7 @@ export const parseTransportStream = async ({
 		return parseTransportStream({
 			iterator,
 			state,
-			streamBuffers,
 			fields,
-			nextPesHeaderStore,
 		});
 	};
 
@@ -72,9 +61,7 @@ export const parseTransportStream = async ({
 	const packet = await parsePacket({
 		iterator,
 		structure,
-		streamBuffers,
 		parserState: state,
-		nextPesHeaderStore,
 	});
 
 	if (packet) {

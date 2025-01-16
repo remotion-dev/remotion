@@ -10,6 +10,7 @@ import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
+import {transportStreamState} from './transport-stream';
 import {videoSectionState} from './video-section';
 import {webmState} from './webm';
 
@@ -59,6 +60,9 @@ export const makeParserState = ({
 
 	return {
 		riff: riffSpecificState(),
+		transportStream: transportStreamState(),
+		webm: webmState(),
+		mp3Info,
 		callbacks: sampleCallback({
 			signal,
 			hasAudioTrackHandlers,
@@ -79,11 +83,9 @@ export const makeParserState = ({
 		onAudioTrack,
 		onVideoTrack,
 		supportsContentRange,
-		webm: webmState(),
 		emittedFields,
 		fields,
 		slowDurationAndFps,
-		mp3Info,
 		contentLength,
 		images,
 		videoSection: videoSectionState(),

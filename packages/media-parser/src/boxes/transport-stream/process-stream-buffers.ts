@@ -58,15 +58,13 @@ export const processStreamBuffer = async ({
 };
 
 export const processFinalStreamBuffers = async ({
-	streamBufferMap,
 	state,
 	structure,
 }: {
-	streamBufferMap: StreamBufferMap;
 	state: ParserState;
 	structure: TransportStreamStructure;
 }) => {
-	for (const [programId, buffer] of streamBufferMap) {
+	for (const [programId, buffer] of state.transportStream.streamBuffers) {
 		if (buffer.buffer.byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
@@ -74,7 +72,7 @@ export const processFinalStreamBuffers = async ({
 				programId,
 				structure,
 			});
-			streamBufferMap.delete(programId);
+			state.transportStream.streamBuffers.delete(programId);
 		}
 	}
 };
