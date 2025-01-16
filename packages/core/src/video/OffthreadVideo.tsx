@@ -71,7 +71,6 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 	const {
 		transparent,
 		toneMapped,
-		_remotionDebugSeeking,
 		onAutoPlayError,
 		onVideoFrame,
 		crossOrigin,
@@ -84,7 +83,6 @@ export const OffthreadVideo: React.FC<OffthreadVideoProps> = (props) => {
 		<VideoForPreview
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={false}
-			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={pauseWhenBuffering ?? false}

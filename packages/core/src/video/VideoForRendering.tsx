@@ -18,6 +18,7 @@ import {
 import {continueRender, delayRender} from '../delay-render.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
+import {useLogLevel} from '../log-level-context.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -63,6 +64,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 	const environment = getRemotionEnvironment();
+	const logLevel = useLogLevel();
 
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -191,11 +193,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			continueRender(handle);
 		};
 
-		const seek = seekToTimeMultipleUntilRight(
-			current,
-			currentTime,
-			videoConfig.fps,
-		);
+		const seek = seekToTimeMultipleUntilRight({
+			element: current,
+			desiredTime: currentTime,
+			fps: videoConfig.fps,
+			logLevel,
+		});
 
 		seek.prom.then(() => {
 			continueRender(handle);
@@ -240,6 +243,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		onError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		logLevel,
 	]);
 
 	const {src} = props;

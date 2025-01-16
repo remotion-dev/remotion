@@ -9,7 +9,6 @@ export type RemotionMainVideoProps = {
 	 * @deprecated Only for internal `transparent` use
 	 */
 	_remotionInternalNativeLoopPassed?: boolean;
-	_remotionDebugSeeking?: boolean;
 };
 
 export type RemotionVideoProps = Omit<
