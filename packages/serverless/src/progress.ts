@@ -199,7 +199,9 @@ export const getProgress = async <Provider extends CloudProvider>({
 
 	const priceFromBucket = estimatePriceFromMetadata({
 		renderMetadata,
-		memorySizeInMb,
+		memorySizeInMb:
+			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
+				?.memorySizeInMb ?? memorySizeInMb,
 		functionsInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 		timings: overallProgress.timings ?? [],

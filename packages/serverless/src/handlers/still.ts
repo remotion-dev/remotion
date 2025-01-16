@@ -189,6 +189,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		audioBitrate: null,
 		metadata: null,
 		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
+		rendererFunctionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
 			height: composition.height * (params.scale ?? 1),
 			width: composition.width * (params.scale ?? 1),
