@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks, getTracks} from '../../../get-tracks';
-import {maySkipVideoData} from '../../../may-skip-video-data/may-skip-video-data';
 import type {IsoBaseMediaStructure} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
@@ -14,15 +13,12 @@ export const parseMdatSection = async ({
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-}): Promise<void> => {
+}): Promise<number | null> => {
 	const alreadyHas = getHasTracks(state.structure.getStructure(), state);
 	if (!alreadyHas) {
-		if (maySkipVideoData({state})) {
+		if (state.supportsContentRange) {
 			const videoSection = state.videoSection.getVideoSection();
-			iterator.discard(
-				videoSection.size + videoSection.start - iterator.counter.getOffset(),
-			);
-			return;
+			return videoSection.size + videoSection.start;
 		}
 
 		throw new Error(
@@ -72,15 +68,15 @@ export const parseMdatSection = async ({
 			iterator.discard(
 				nextSample_.samplePosition.offset - iterator.counter.getOffset(),
 			);
-			return;
+			return null;
 		}
 
 		// guess we reached the end!
-		return;
+		return null;
 	}
 
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {
-		return;
+		return null;
 	}
 
 	const bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
@@ -142,4 +138,5 @@ export const parseMdatSection = async ({
 	}
 
 	iterator.removeBytesRead();
+	return null;
 };

@@ -10,7 +10,6 @@ import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {getIsoBaseMediaChildren} from './get-children';
 import {makeBaseMediaTrack} from './make-track';
-import {parseMdatSection} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
@@ -54,7 +53,6 @@ export const processBox = async ({
 				type: 'void-box',
 				boxSize: 0,
 			},
-			size: 4,
 			skipTo: null,
 		};
 	}
@@ -76,19 +74,11 @@ export const processBox = async ({
 
 	if (boxType === 'mdat') {
 		state.videoSection.setVideoSection({
-			size: boxSize,
+			size: boxSize - 8,
 			start: iterator.counter.getOffset(),
 		});
-	}
 
-	if (bytesRemaining < boxSize) {
-		if (boxType !== 'mdat') {
-			throw new Error(
-				`Expected box size of ${bytesRemaining}, got ${boxSize} for ${boxType}. Incomplete boxes are not allowed.`,
-			);
-		}
-
-		// Check if the moov atom is at the end
+		// TODO: if content range is not supported we fall apart
 		const shouldSkip =
 			maySkipVideoData({state}) ||
 			(!getHasTracks(
@@ -98,25 +88,29 @@ export const processBox = async ({
 				state.supportsContentRange);
 
 		if (shouldSkip) {
+			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
 			return {
 				skipTo: fileOffset + boxSize,
 				box: null,
-				size: 0,
 			};
 		}
 
 		return {
 			box: null,
-			size: 0,
 			skipTo: null,
 		};
+	}
+
+	if (bytesRemaining < boxSize) {
+		throw new Error(
+			`Expected box size of ${bytesRemaining}, got ${boxSize} for ${boxType}. Incomplete boxes are not allowed.`,
+		);
 	}
 
 	if (boxType === 'ftyp') {
 		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -128,7 +122,6 @@ export const processBox = async ({
 		});
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -138,7 +131,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -148,7 +140,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -158,7 +149,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -168,7 +158,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -183,7 +172,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -197,7 +185,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -212,7 +199,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -226,7 +212,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -240,7 +225,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -254,7 +238,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -268,7 +251,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -283,7 +265,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -293,7 +274,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -303,7 +283,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -317,12 +296,19 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
 
 	if (boxType === 'moov') {
+		if (state.callbacks.tracks.hasAllTracks()) {
+			iterator.discard(boxSize - 8);
+			return {
+				box: null,
+				skipTo: null,
+			};
+		}
+
 		const box = await parseMoov({
 			iterator,
 			offset: fileOffset,
@@ -334,7 +320,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -357,7 +342,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -371,7 +355,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -384,7 +367,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -397,7 +379,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -411,7 +392,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -425,7 +405,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -439,7 +418,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -453,24 +431,6 @@ export const processBox = async ({
 
 		return {
 			box,
-			size: boxSize,
-			skipTo: null,
-		};
-	}
-
-	if (boxType === 'mdat') {
-		state.videoSection.setVideoSection({
-			size: boxSize,
-			start: iterator.counter.getOffset(),
-		});
-		await parseMdatSection({
-			iterator,
-			state,
-		});
-
-		return {
-			box: null,
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -501,7 +461,6 @@ export const processBox = async ({
 				children,
 				offset: fileOffset,
 			},
-			size: boxSize,
 			skipTo: null,
 		};
 	}
@@ -516,7 +475,6 @@ export const processBox = async ({
 			children: [],
 			offset: fileOffset,
 		},
-		size: boxSize,
 		skipTo: null,
 	};
 };

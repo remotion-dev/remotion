@@ -5,6 +5,7 @@ import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {emittedState} from './emitted-fields';
 import {imagesState} from './images';
+import {isoBaseMediaState} from './iso-state';
 import {keyframesState} from './keyframes';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
@@ -65,6 +66,7 @@ export const makeParserState = ({
 		riff: riffSpecificState(),
 		transportStream: transportStreamState(),
 		webm: webmState(),
+		iso: isoBaseMediaState(),
 		mp3Info,
 		callbacks: sampleCallback({
 			signal,

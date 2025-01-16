@@ -18,7 +18,6 @@ import type {ParserState} from './state/parser-state';
 
 export type BoxAndNext = {
 	box: IsoBaseMediaBox | null;
-	size: number;
 	skipTo: number | null;
 };
 

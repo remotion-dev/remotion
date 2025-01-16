@@ -54,6 +54,12 @@ export const parseMedia: ParseMedia = async function <
 		contentLength ?? 1_000_000_000,
 	);
 
+	if (contentLength === null) {
+		throw new Error(
+			'Media was passed with no content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
+		);
+	}
+
 	const supportsContentRange =
 		readerSupportsContentRange &&
 		!(
