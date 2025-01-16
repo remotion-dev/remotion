@@ -1,5 +1,4 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import {hasAllInfo} from '../../has-all-info';
 import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
@@ -20,17 +19,6 @@ export const parseTransportStream = async ({
 		throw new Error('Invalid structure type');
 	}
 
-	if (iterator.bytesRemaining() === 0) {
-		await processFinalStreamBuffers({
-			state,
-			structure,
-		});
-
-		return Promise.resolve({
-			status: 'done',
-		});
-	}
-
 	const continueParsing = () => {
 		return parseTransportStream({
 			iterator,
@@ -38,17 +26,6 @@ export const parseTransportStream = async ({
 			fields,
 		});
 	};
-
-	if (
-		hasAllInfo({
-			fields,
-			state,
-		})
-	) {
-		return Promise.resolve({
-			status: 'done',
-		});
-	}
 
 	if (iterator.bytesRemaining() < 188) {
 		return Promise.resolve({
@@ -60,12 +37,18 @@ export const parseTransportStream = async ({
 
 	const packet = await parsePacket({
 		iterator,
-		structure,
 		parserState: state,
 	});
 
 	if (packet) {
 		structure.boxes.push(packet);
+	}
+
+	if (iterator.bytesRemaining() === 0) {
+		await processFinalStreamBuffers({
+			state,
+			structure,
+		});
 	}
 
 	return Promise.resolve({

@@ -10,11 +10,9 @@ import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = async ({
 	iterator,
-	structure,
 	parserState,
 }: {
 	iterator: BufferIterator;
-	structure: TransportStreamStructure;
 	parserState: ParserState;
 }): Promise<TransportStreamBox | null> => {
 	const offset = iterator.counter.getOffset();
@@ -59,6 +57,9 @@ export const parsePacket = async ({
 	if (read === 188) {
 		return Promise.resolve(null);
 	}
+
+	const structure =
+		parserState.structure.getStructure() as TransportStreamStructure;
 
 	const pat = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',
