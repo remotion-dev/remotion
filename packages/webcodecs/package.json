@@ -70,6 +70,9 @@
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
 			],
+			"node": [
+				"dist/writers/node.d.ts"
+			],
 			"buffer": [
 				"dist/writers/buffer.d.ts"
 			]

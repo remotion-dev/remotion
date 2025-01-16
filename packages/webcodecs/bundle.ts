@@ -10,7 +10,6 @@ const output = await build({
 		'src/index.ts',
 		'src/writers/buffer.ts',
 		'src/writers/web-fs.ts',
-		'src/writers/node.ts',
 	],
 	naming: '[name].mjs',
 	external: ['@remotion/media-parser'],
@@ -21,6 +20,24 @@ if (!output.success) {
 }
 
 for (const file of output.outputs) {
+	const str = await file.text();
+	const out = path.join('dist', 'esm', file.path);
+
+	await Bun.write(out, str);
+}
+
+const nodeOutputs = await build({
+	entrypoints: ['src/writers/node.ts'],
+	target: 'node',
+	naming: '[name].mjs',
+	external: ['node:fs', 'fs'],
+});
+
+if (!nodeOutputs.success) {
+	process.exit(1);
+}
+
+for (const file of nodeOutputs.outputs) {
 	const str = await file.text();
 	const out = path.join('dist', 'esm', file.path);
 
