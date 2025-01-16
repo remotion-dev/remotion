@@ -92,6 +92,7 @@ export const useMediaPlayback = ({
 		element: mediaRef,
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
+		logLevel,
 	});
 
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
@@ -176,7 +177,7 @@ export const useMediaPlayback = ({
 				mediaRef: mediaRef.current,
 				time: shouldBeTime,
 				logLevel,
-				why: `seeking because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}, isVariableFpsVideo = ${isVariableFpsVideo}`,
+				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}, isVariableFpsVideo = ${isVariableFpsVideo}`,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 			if (playing && !isVariableFpsVideo) {

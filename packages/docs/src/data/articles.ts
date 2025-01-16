@@ -3235,6 +3235,15 @@ export const articles = [
 		slug: 'player/media-keys',
 	},
 	{
+		id: 'playback-issues',
+		title: 'Playback issues in the <Player>',
+		relativePath: 'docs/player/playback-issues.mdx',
+		compId: 'articles-docs-player-playback-issues',
+		crumb: 'Playback issues',
+		noAi: false,
+		slug: 'player/playback-issues',
+	},
+	{
 		id: 'examples',
 		title: 'Examples for @remotion/player',
 		relativePath: 'docs/player/player-examples.mdx',

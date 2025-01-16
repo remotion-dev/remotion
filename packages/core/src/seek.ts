@@ -17,7 +17,7 @@ export const seek = ({
 	const timeToSet = isIosSafari() ? Number(time.toFixed(1)) : time;
 	Log.trace(
 		logLevel,
-		`[seek] from ${mediaRef.currentTime} to ${timeToSet}. Reason; ${why}`,
+		`[seek] from ${mediaRef.currentTime} to ${timeToSet}. Reason: ${why}`,
 	);
 
 	mediaRef.currentTime = timeToSet;

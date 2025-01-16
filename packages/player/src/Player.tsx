@@ -320,6 +320,13 @@ const PlayerFn = <
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
+	useState(() => {
+		Internals.Log.trace(
+			logLevel,
+			`[player] Mounting <Player>. User agent = ${navigator.userAgent}`,
+		);
+	});
+
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
