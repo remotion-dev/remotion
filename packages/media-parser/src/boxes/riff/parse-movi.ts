@@ -138,60 +138,47 @@ export const parseMovi = async ({
 	maxOffset: number;
 	state: ParserState;
 }): Promise<RiffResult> => {
-	while (iterator.counter.getOffset() < maxOffset) {
-		if (iterator.bytesRemaining() < 8) {
-			return {
-				box: null,
-				skipTo: null,
-			};
-		}
-
-		if (
-			maySkipVideoData({
-				state,
-			}) &&
-			state.riff.getAvcProfile()
-		) {
-			return {
-				box: null,
-				skipTo: maxOffset,
-			};
-		}
-
-		const ckId = iterator.getByteString(4, false);
-		const ckSize = iterator.getUint32Le();
-
-		if (iterator.bytesRemaining() < ckSize) {
-			iterator.counter.decrement(8);
-			return {
-				box: null,
-				skipTo: null,
-			};
-		}
-
-		await handleChunk({iterator, state, ckId, ckSize});
-
-		// Discard added zeroes
-		while (
-			iterator.counter.getOffset() < maxOffset &&
-			iterator.bytesRemaining() > 0
-		) {
-			if (iterator.getUint8() !== 0) {
-				iterator.counter.decrement(1);
-				break;
-			}
-		}
-	}
-
-	if (iterator.counter.getOffset() === maxOffset) {
+	if (iterator.bytesRemaining() < 8) {
 		return {
 			box: null,
 			skipTo: null,
 		};
 	}
 
-	if (iterator.counter.getOffset() > maxOffset) {
-		throw new Error('Oops, this should not happen!');
+	if (
+		maySkipVideoData({
+			state,
+		}) &&
+		state.riff.getAvcProfile()
+	) {
+		return {
+			box: null,
+			skipTo: maxOffset,
+		};
+	}
+
+	const ckId = iterator.getByteString(4, false);
+	const ckSize = iterator.getUint32Le();
+
+	if (iterator.bytesRemaining() < ckSize) {
+		iterator.counter.decrement(8);
+		return {
+			box: null,
+			skipTo: null,
+		};
+	}
+
+	await handleChunk({iterator, state, ckId, ckSize});
+
+	// Discard added zeroes
+	while (
+		iterator.counter.getOffset() < maxOffset &&
+		iterator.bytesRemaining() > 0
+	) {
+		if (iterator.getUint8() !== 0) {
+			iterator.counter.decrement(1);
+			break;
+		}
 	}
 
 	return {
