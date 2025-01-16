@@ -141,7 +141,8 @@ export const parseMovi = async ({
 	while (iterator.counter.getOffset() < maxOffset) {
 		if (iterator.bytesRemaining() < 8) {
 			return {
-				type: 'incomplete',
+				box: null,
+				skipTo: null,
 			};
 		}
 
@@ -155,10 +156,7 @@ export const parseMovi = async ({
 			state.riff.getAvcProfile()
 		) {
 			return {
-				type: 'complete',
-				box: {
-					type: 'movi-box',
-				},
+				box: null,
 				skipTo: maxOffset,
 			};
 		}
@@ -166,7 +164,8 @@ export const parseMovi = async ({
 		if (iterator.bytesRemaining() < ckSize) {
 			iterator.counter.decrement(8);
 			return {
-				type: 'incomplete',
+				box: null,
+				skipTo: null,
 			};
 		}
 
@@ -186,10 +185,7 @@ export const parseMovi = async ({
 
 	if (iterator.counter.getOffset() === maxOffset) {
 		return {
-			type: 'complete',
-			box: {
-				type: 'movi-box',
-			},
+			box: null,
 			skipTo: null,
 		};
 	}
@@ -199,6 +195,7 @@ export const parseMovi = async ({
 	}
 
 	return {
-		type: 'incomplete',
+		box: null,
+		skipTo: null,
 	};
 };

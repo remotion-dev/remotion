@@ -31,7 +31,7 @@ export const parseListBox = async ({
 			state,
 			fields,
 		});
-		if (result.type === 'complete' && result.box !== null) {
+		if (result.box !== null) {
 			boxes.push(result.box);
 		} else {
 			throw new Error('Unexpected result');

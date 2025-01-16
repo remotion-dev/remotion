@@ -3,32 +3,33 @@ import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult, RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {expectRiffBox} from './expect-riff-box';
+import {parseRiff} from './parse-riff';
+import {parseVideoSection} from './parse-video-section';
 
 export const parseRiffBody = async ({
 	iterator,
-	structure,
-	maxOffset,
 	state,
 	fields,
 }: {
 	iterator: BufferIterator;
-	structure: RiffStructure;
-	maxOffset: number;
 	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
 	const continueParsing = () => {
-		return parseRiffBody({
+		return parseRiff({
 			fields,
 			iterator,
-			maxOffset,
 			state,
-			structure,
 		});
 	};
 
-	if (iterator.counter.getOffset() >= maxOffset) {
-		throw new Error('End of RIFF body');
+	if (state.videoSection.isInVideoSectionState(iterator) === 'in-section') {
+		const videoSec = await parseVideoSection({state, iterator});
+		return {
+			status: 'incomplete',
+			skipTo: videoSec.skipTo,
+			continueParsing,
+		};
 	}
 
 	const result = await expectRiffBox({
@@ -36,21 +37,14 @@ export const parseRiffBody = async ({
 		state,
 		fields,
 	});
-	if (result.type === 'complete' && result.box !== null) {
+	if (result.box !== null) {
+		const structure = state.structure.getStructure() as RiffStructure;
 		structure.boxes.push(result.box);
-	}
-
-	if (result.type === 'complete' && result.skipTo !== null) {
-		return {
-			status: 'incomplete',
-			skipTo: result.skipTo,
-			continueParsing,
-		};
 	}
 
 	return {
 		continueParsing,
-		skipTo: null,
+		skipTo: result.skipTo,
 		status: 'incomplete',
 	};
 };

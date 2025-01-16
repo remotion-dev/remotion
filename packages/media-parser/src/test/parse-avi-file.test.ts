@@ -291,9 +291,6 @@ test('AVI file', async () => {
 				type: 'riff-box',
 			},
 			{
-				type: 'movi-box',
-			},
-			{
 				id: 'idx1',
 				size: 37376,
 				type: 'riff-box',
