@@ -11,6 +11,10 @@ const createContent = (filename: string): CreateContent => {
 
 		await remove();
 
+		if (!fs.existsSync(filename)) {
+			fs.writeFileSync(filename, '');
+		}
+
 		const writeStream = fs.openSync(filename, 'w');
 
 		let written = 0;
