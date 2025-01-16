@@ -5,35 +5,29 @@ import type {ParserState} from '../../state/parser-state';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import {findNextSeparator} from './find-separator';
-import type {PacketPes} from './parse-pes';
 import type {TransportStreamEntry} from './parse-pmt';
-import {
-	processStreamBuffer,
-	type StreamBufferMap,
-} from './process-stream-buffers';
+import {processStreamBuffer} from './process-stream-buffers';
 
 const parseAdtsStream = async ({
 	restOfPacket,
 	transportStreamEntry,
-	streamBuffers,
-	nextPesHeader,
 	state,
 	structure,
 	offset,
 }: {
 	restOfPacket: Uint8Array;
 	transportStreamEntry: TransportStreamEntry;
-	streamBuffers: StreamBufferMap;
-	nextPesHeader: PacketPes;
 	structure: TransportStreamStructure;
 	state: ParserState;
 	offset: number;
 }) => {
+	const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
+		state.transportStream;
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 	if (!streamBuffer) {
 		streamBuffers.set(transportStreamEntry.pid, {
 			buffer: restOfPacket,
-			pesHeader: nextPesHeader,
+			pesHeader: nextPesHeader.getNextPesHeader(),
 			offset,
 		});
 
@@ -65,7 +59,7 @@ const parseAdtsStream = async ({
 		const rest = restOfPacket.slice(bytesToTake);
 		streamBuffers.set(transportStreamEntry.pid, {
 			buffer: rest,
-			pesHeader: nextPesHeader,
+			pesHeader: nextPesHeader.getNextPesHeader(),
 			offset,
 		});
 	}
@@ -74,8 +68,6 @@ const parseAdtsStream = async ({
 const parseAvcStream = async ({
 	restOfPacket,
 	transportStreamEntry,
-	streamBuffers,
-	nextPesHeader,
 	programId,
 	state,
 	structure,
@@ -83,9 +75,7 @@ const parseAvcStream = async ({
 }: {
 	restOfPacket: Uint8Array;
 	transportStreamEntry: TransportStreamEntry;
-	streamBuffers: StreamBufferMap;
 	programId: number;
-	nextPesHeader: PacketPes;
 	state: ParserState;
 	structure: TransportStreamStructure;
 	offset: number;
@@ -94,6 +84,8 @@ const parseAvcStream = async ({
 		restOfPacket,
 		transportStreamEntry,
 	);
+	const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
+		state.transportStream;
 
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 
@@ -107,7 +99,7 @@ const parseAvcStream = async ({
 		}
 
 		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader,
+			pesHeader: nextPesHeader.getNextPesHeader(),
 			buffer: restOfPacket,
 			offset,
 		});
@@ -126,7 +118,7 @@ const parseAvcStream = async ({
 		});
 		const rest = restOfPacket.slice(indexOfSeparator);
 		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader,
+			pesHeader: nextPesHeader.getNextPesHeader(),
 			buffer: rest,
 			offset,
 		});
@@ -140,7 +132,7 @@ const parseAvcStream = async ({
 	}
 
 	streamBuffers.set(programId, {
-		pesHeader: nextPesHeader,
+		pesHeader: nextPesHeader.getNextPesHeader(),
 		buffer: restOfPacket.slice(indexOfSeparator),
 		offset,
 	});
@@ -149,27 +141,21 @@ const parseAvcStream = async ({
 export const parseStream = ({
 	iterator,
 	transportStreamEntry,
-	streamBuffers,
 	state,
 	programId,
 	structure,
-	nextPesHeader,
 }: {
 	iterator: BufferIterator;
 	transportStreamEntry: TransportStreamEntry;
-	streamBuffers: StreamBufferMap;
 	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
-	nextPesHeader: PacketPes;
 }): Promise<void> => {
 	const restOfPacket = getRestOfPacket(iterator);
 	if (transportStreamEntry.streamType === 27) {
 		return parseAvcStream({
 			restOfPacket,
 			transportStreamEntry,
-			streamBuffers,
-			nextPesHeader,
 			state,
 			programId,
 			structure,
@@ -181,8 +167,6 @@ export const parseStream = ({
 		return parseAdtsStream({
 			restOfPacket,
 			transportStreamEntry,
-			streamBuffers,
-			nextPesHeader,
 			state,
 			structure,
 			offset: iterator.counter.getOffset(),

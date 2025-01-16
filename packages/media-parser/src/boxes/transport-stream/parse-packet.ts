@@ -2,26 +2,18 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {TransportStreamBox} from './boxes';
-import type {NextPesHeaderStore} from './next-pes-header-store';
 import {parsePat} from './parse-pat';
 import {parsePes} from './parse-pes';
 import {parsePmt} from './parse-pmt';
 import {parseStream} from './parse-stream-packet';
-import {type StreamBufferMap} from './process-stream-buffers';
 import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = async ({
 	iterator,
-	structure,
-	streamBuffers,
 	parserState,
-	nextPesHeaderStore,
 }: {
 	iterator: BufferIterator;
-	structure: TransportStreamStructure;
-	streamBuffers: StreamBufferMap;
 	parserState: ParserState;
-	nextPesHeaderStore: NextPesHeaderStore;
 }): Promise<TransportStreamBox | null> => {
 	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
@@ -66,6 +58,9 @@ export const parsePacket = async ({
 		return Promise.resolve(null);
 	}
 
+	const structure =
+		parserState.structure.getStructure() as TransportStreamStructure;
+
 	const pat = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',
 	);
@@ -74,7 +69,7 @@ export const parsePacket = async ({
 
 	if (isPes) {
 		const packetPes = parsePes(iterator);
-		nextPesHeaderStore.setNextPesHeader(packetPes);
+		parserState.transportStream.nextPesHeaderStore.setNextPesHeader(packetPes);
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField
 	}
@@ -94,8 +89,6 @@ export const parsePacket = async ({
 		await parseStream({
 			iterator,
 			transportStreamEntry: stream,
-			streamBuffers,
-			nextPesHeader: nextPesHeaderStore.getNextPesHeader(),
 			state: parserState,
 			programId,
 			structure,
