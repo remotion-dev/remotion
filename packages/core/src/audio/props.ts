@@ -20,7 +20,6 @@ export type RemotionAudioProps = Omit<
 	allowAmplificationDuringRender?: boolean;
 	_remotionInternalNeedsDurationCalculation?: boolean;
 	_remotionInternalNativeLoopPassed?: boolean;
-	_remotionDebugSeeking?: boolean;
 	toneFrequency?: number;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;

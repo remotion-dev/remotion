@@ -35,7 +35,6 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		pauseWhenBuffering,
 		showInTimeline,
-		_remotionDebugSeeking,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -157,7 +156,6 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				props._remotionInternalNativeLoopPassed ?? false
 			}
-			_remotionDebugSeeking={_remotionDebugSeeking ?? false}
 			_remotionInternalStack={stack ?? null}
 			shouldPreMountAudioTags={
 				audioContext !== null && audioContext.numberOfAudioTags > 0

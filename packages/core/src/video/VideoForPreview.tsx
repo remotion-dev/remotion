@@ -32,7 +32,6 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly pauseWhenBuffering: boolean;
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
-	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
@@ -58,7 +57,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
-		_remotionDebugSeeking,
 		style,
 		pauseWhenBuffering,
 		showInTimeline,
@@ -122,7 +120,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
-		debugSeeking: _remotionDebugSeeking,
 		onAutoPlayError: onAutoPlayError ?? null,
 	});
 
