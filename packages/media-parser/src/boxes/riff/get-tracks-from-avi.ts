@@ -149,7 +149,8 @@ export const hasAllTracksFromAvi = (
 			tracks.videoTracks.length +
 				tracks.audioTracks.length +
 				tracks.otherTracks.length ===
-			numberOfTracks
+				numberOfTracks &&
+			!tracks.videoTracks.find((t) => t.codec === TO_BE_OVERRIDDEN_LATER)
 		);
 	} catch {
 		return false;

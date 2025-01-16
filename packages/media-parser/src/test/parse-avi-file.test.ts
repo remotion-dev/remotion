@@ -23,7 +23,6 @@ test('AVI file', async () => {
 	} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
-		logLevel: 'trace',
 		fields: {
 			structure: true,
 			tracks: true,

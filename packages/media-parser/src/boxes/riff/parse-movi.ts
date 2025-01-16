@@ -138,15 +138,10 @@ export const parseMovi = async ({
 	maxOffset: number;
 	state: ParserState;
 }): Promise<RiffResult> => {
-	const continueParsing = () => {
-		return parseMovi({iterator, maxOffset, state});
-	};
-
 	while (iterator.counter.getOffset() < maxOffset) {
 		if (iterator.bytesRemaining() < 8) {
 			return {
 				type: 'incomplete',
-				continueParsing,
 			};
 		}
 
@@ -172,7 +167,6 @@ export const parseMovi = async ({
 			iterator.counter.decrement(8);
 			return {
 				type: 'incomplete',
-				continueParsing,
 			};
 		}
 
@@ -206,6 +200,5 @@ export const parseMovi = async ({
 
 	return {
 		type: 'incomplete',
-		continueParsing,
 	};
 };

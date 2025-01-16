@@ -10,6 +10,7 @@ import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
+import {videoSectionState} from './video-section';
 import {webmState} from './webm';
 
 export type InternalStats = {
@@ -85,6 +86,7 @@ export const makeParserState = ({
 		mp3Info,
 		contentLength,
 		images,
+		videoSection: videoSectionState(),
 	};
 };
 

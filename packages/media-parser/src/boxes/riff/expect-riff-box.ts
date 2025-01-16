@@ -1,11 +1,16 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {getTracks} from '../../get-tracks';
 import type {Options, ParseMediaFields} from '../../options';
 import {
 	registerTrack,
 	registerVideoTrackWhenProfileIsAvailable,
 } from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import {makeAviAudioTrack, makeAviVideoTrack} from './get-tracks-from-avi';
+import {
+	makeAviAudioTrack,
+	makeAviVideoTrack,
+	TO_BE_OVERRIDDEN_LATER,
+} from './get-tracks-from-avi';
 import {isMoviAtom} from './is-movi';
 import {parseMovi} from './parse-movi';
 import {parseRiffBox} from './parse-riff-box';
@@ -14,13 +19,34 @@ import type {RiffBox} from './riff-box';
 export type RiffResult =
 	| {
 			type: 'incomplete';
-			continueParsing: () => Promise<RiffResult>;
 	  }
 	| {
 			type: 'complete';
 			box: RiffBox | null;
 			skipTo: number | null;
 	  };
+
+const parseVideoSection = ({
+	state,
+	iterator,
+}: {
+	state: ParserState;
+	iterator: BufferIterator;
+}) => {
+	const videoSection = state.videoSection.getVideoSection();
+
+	const movi = parseMovi({
+		iterator,
+		maxOffset: videoSection.start + videoSection.size,
+		state,
+	});
+	const tracks = getTracks(state.structure.getStructure(), state);
+	if (!tracks.videoTracks.some((t) => t.codec === TO_BE_OVERRIDDEN_LATER)) {
+		state.callbacks.tracks.setIsDone();
+	}
+
+	return movi;
+};
 
 export const expectRiffBox = async ({
 	iterator,
@@ -31,36 +57,38 @@ export const expectRiffBox = async ({
 	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<RiffResult> => {
-	const continueParsing = () => {
-		return expectRiffBox({iterator, state, fields});
-	};
-
 	// Need at least 16 bytes to read LIST,size,movi,size
 	if (iterator.bytesRemaining() < 16) {
 		return {
 			type: 'incomplete',
-			continueParsing,
 		};
 	}
+
+	const isInsideVideoSection =
+		state.videoSection.isInVideoSectionState(iterator);
+	if (isInsideVideoSection === 'in-section') {
+		return parseVideoSection({state, iterator});
+	}
+
+	const checkpoint = iterator.startCheckpoint();
 
 	const ckId = iterator.getByteString(4, false);
 	const ckSize = iterator.getUint32Le();
 
 	if (isMoviAtom(iterator, ckId)) {
 		iterator.discard(4);
-
-		return parseMovi({
-			iterator,
-			maxOffset: ckSize + iterator.counter.getOffset() - 4,
-			state,
+		state.videoSection.setVideoSection({
+			start: iterator.counter.getOffset(),
+			size: ckSize - 4,
 		});
+
+		return parseVideoSection({state, iterator});
 	}
 
 	if (iterator.bytesRemaining() < ckSize) {
-		iterator.counter.decrement(8);
+		checkpoint.returnToCheckpoint();
 		return {
 			type: 'incomplete',
-			continueParsing,
 		};
 	}
 
