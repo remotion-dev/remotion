@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import type {
 	CompProps,
+	LogLevel,
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -88,6 +89,7 @@ export type PlayerProps<
 	readonly overflowVisible?: boolean;
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
 	readonly overrideInternalClassName?: string;
+	readonly logLevel?: LogLevel;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -151,6 +153,7 @@ const PlayerFn = <
 		renderMuteButton,
 		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
 		overrideInternalClassName,
+		logLevel = 'info',
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -373,6 +376,7 @@ const PlayerFn = <
 				fps={fps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
+				logLevel={logLevel}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}

@@ -1,6 +1,8 @@
+import {Internals, type LogLevel} from 'remotion';
+
 const VOLUME_PERSISTANCE_KEY = 'remotion.volumePreference';
 
-export const persistVolume = (volume: number) => {
+export const persistVolume = (volume: number, logLevel: LogLevel) => {
 	if (typeof window === 'undefined') {
 		return;
 	}
@@ -10,8 +12,8 @@ export const persistVolume = (volume: number) => {
 	} catch (e) {
 		// User can disallow localStorage access
 		// https://github.com/remotion-dev/remotion/issues/3540
-		// eslint-disable-next-line no-console
-		console.log('Could not persist volume', e);
+
+		Internals.Log.error(logLevel, 'Could not persist volume', e);
 	}
 };
 

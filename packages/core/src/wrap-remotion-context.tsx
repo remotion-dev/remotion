@@ -10,6 +10,7 @@ import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {BufferingContextReact} from './buffering.js';
+import {LogLevelContext} from './log-level-context.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
 import {
@@ -29,6 +30,7 @@ export function useRemotionContexts() {
 	const renderAssetManagerContext = React.useContext(RenderAssetManager);
 	const sequenceManagerContext = React.useContext(SequenceManager);
 	const bufferManagerContext = React.useContext(BufferingContextReact);
+	const logLevelContext = React.useContext(LogLevelContext);
 
 	return useMemo(
 		() => ({
@@ -43,6 +45,7 @@ export function useRemotionContexts() {
 			renderAssetManagerContext,
 			sequenceManagerContext,
 			bufferManagerContext,
+			logLevelContext,
 		}),
 		[
 			compositionManagerCtx,
@@ -56,6 +59,7 @@ export function useRemotionContexts() {
 			renderAssetManagerContext,
 			sequenceManagerContext,
 			bufferManagerContext,
+			logLevelContext,
 		],
 	);
 }
@@ -70,38 +74,40 @@ export const RemotionContextProvider = (
 ) => {
 	const {children, contexts} = props;
 	return (
-		<CanUseRemotionHooks.Provider value={contexts.canUseRemotionHooksContext}>
-			<NonceContext.Provider value={contexts.nonceContext}>
-				<PreloadContext.Provider value={contexts.preloadContext}>
-					<CompositionManager.Provider value={contexts.compositionManagerCtx}>
-						<SequenceManager.Provider value={contexts.sequenceManagerContext}>
-							<RenderAssetManager.Provider
-								value={contexts.renderAssetManagerContext}
-							>
-								<ResolveCompositionContext.Provider
-									value={contexts.resolveCompositionContext}
+		<LogLevelContext.Provider value={contexts.logLevelContext}>
+			<CanUseRemotionHooks.Provider value={contexts.canUseRemotionHooksContext}>
+				<NonceContext.Provider value={contexts.nonceContext}>
+					<PreloadContext.Provider value={contexts.preloadContext}>
+						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
+							<SequenceManager.Provider value={contexts.sequenceManagerContext}>
+								<RenderAssetManager.Provider
+									value={contexts.renderAssetManagerContext}
 								>
-									<TimelineContext.Provider value={contexts.timelineContext}>
-										<SetTimelineContext.Provider
-											value={contexts.setTimelineContext}
-										>
-											<SequenceContext.Provider
-												value={contexts.sequenceContext}
+									<ResolveCompositionContext.Provider
+										value={contexts.resolveCompositionContext}
+									>
+										<TimelineContext.Provider value={contexts.timelineContext}>
+											<SetTimelineContext.Provider
+												value={contexts.setTimelineContext}
 											>
-												<BufferingContextReact.Provider
-													value={contexts.bufferManagerContext}
+												<SequenceContext.Provider
+													value={contexts.sequenceContext}
 												>
-													{children}
-												</BufferingContextReact.Provider>
-											</SequenceContext.Provider>
-										</SetTimelineContext.Provider>
-									</TimelineContext.Provider>
-								</ResolveCompositionContext.Provider>
-							</RenderAssetManager.Provider>
-						</SequenceManager.Provider>
-					</CompositionManager.Provider>
-				</PreloadContext.Provider>
-			</NonceContext.Provider>
-		</CanUseRemotionHooks.Provider>
+													<BufferingContextReact.Provider
+														value={contexts.bufferManagerContext}
+													>
+														{children}
+													</BufferingContextReact.Provider>
+												</SequenceContext.Provider>
+											</SetTimelineContext.Provider>
+										</TimelineContext.Provider>
+									</ResolveCompositionContext.Provider>
+								</RenderAssetManager.Provider>
+							</SequenceManager.Provider>
+						</CompositionManager.Provider>
+					</PreloadContext.Provider>
+				</NonceContext.Provider>
+			</CanUseRemotionHooks.Provider>
+		</LogLevelContext.Provider>
 	);
 };

@@ -12,7 +12,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {CompProps, TimelineContextValue} from 'remotion';
+import type {CompProps, LogLevel, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {ThumbnailEmitterContext} from './emitter-context.js';
@@ -39,6 +39,7 @@ export type ThumbnailProps<
 		readonly renderLoading?: RenderLoading;
 		readonly className?: string;
 		readonly overrideInternalClassName?: string;
+		readonly logLevel?: LogLevel;
 	};
 
 export type ThumbnailPropsWithoutZod<Props extends Record<string, unknown>> =
@@ -61,6 +62,7 @@ const ThumbnailFn = <
 		renderLoading,
 		overflowVisible = false,
 		overrideInternalClassName,
+		logLevel = 'info',
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>,
@@ -118,6 +120,7 @@ const ThumbnailFn = <
 				fps={fps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
+				logLevel={logLevel}
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI

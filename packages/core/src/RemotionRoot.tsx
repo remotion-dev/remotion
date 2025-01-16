@@ -9,6 +9,7 @@ import {CompositionManagerProvider} from './CompositionManager.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import {BufferingProvider} from './buffering.js';
 import {continueRender, delayRender} from './delay-render.js';
+import {LogLevelContext} from './log-level-context.js';
 import type {TNonceContext} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -120,20 +121,24 @@ export const RemotionRoot: React.FC<{
 	}, []);
 
 	return (
-		<NonceContext.Provider value={nonceContext}>
-			<TimelineContext.Provider value={timelineContextValue}>
-				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<EditorPropsProvider>
-						<PrefetchProvider>
-							<CompositionManagerProvider numberOfAudioTags={numberOfAudioTags}>
-								<DurationsContextProvider>
-									<BufferingProvider>{children}</BufferingProvider>
-								</DurationsContextProvider>
-							</CompositionManagerProvider>
-						</PrefetchProvider>
-					</EditorPropsProvider>
-				</SetTimelineContext.Provider>
-			</TimelineContext.Provider>
-		</NonceContext.Provider>
+		<LogLevelContext.Provider value={'info'}>
+			<NonceContext.Provider value={nonceContext}>
+				<TimelineContext.Provider value={timelineContextValue}>
+					<SetTimelineContext.Provider value={setTimelineContextValue}>
+						<EditorPropsProvider>
+							<PrefetchProvider>
+								<CompositionManagerProvider
+									numberOfAudioTags={numberOfAudioTags}
+								>
+									<DurationsContextProvider>
+										<BufferingProvider>{children}</BufferingProvider>
+									</DurationsContextProvider>
+								</CompositionManagerProvider>
+							</PrefetchProvider>
+						</EditorPropsProvider>
+					</SetTimelineContext.Provider>
+				</TimelineContext.Provider>
+			</NonceContext.Provider>
+		</LogLevelContext.Provider>
 	);
 };
