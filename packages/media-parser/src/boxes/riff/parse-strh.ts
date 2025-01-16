@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
+import {parseStrf} from './parse-strf';
 import type {RiffBox} from './riff-box';
 
 export const parseStrh = ({
@@ -41,8 +42,19 @@ export const parseStrh = ({
 	const suggestedBufferSize = iterator.getUint32Le();
 	const quality = iterator.getUint32Le();
 	const sampleSize = iterator.getUint32Le();
-
 	box.discardRest();
+
+	const ckId = iterator.getByteString(4, false);
+	const ckSize = iterator.getUint32Le();
+	if (ckId !== 'strf') {
+		throw new Error(`Expected strf, got ${JSON.stringify(ckId)}`);
+	}
+
+	if (iterator.bytesRemaining() < ckSize) {
+		throw new Error('Expected strf to be complete');
+	}
+
+	const strf = parseStrf({iterator, size: ckSize, fccType});
 
 	return {
 		type: 'strh-box',
@@ -59,5 +71,6 @@ export const parseStrh = ({
 		start,
 		suggestedBufferSize,
 		language,
+		strf,
 	};
 };

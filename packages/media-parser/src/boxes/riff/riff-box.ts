@@ -34,9 +34,11 @@ export type AvihBox = {
 	height: number;
 };
 
+export type FccType = 'vids' | 'auds';
+
 export type StrhBox = {
 	type: 'strh-box';
-	fccType: 'vids' | 'auds';
+	fccType: FccType;
 	handler: 'H264' | number;
 	flags: number;
 	priority: number;
@@ -49,6 +51,7 @@ export type StrhBox = {
 	quality: number;
 	sampleSize: number;
 	language: number;
+	strf: StrfBoxVideo | StrfBoxAudio;
 };
 
 export type StrfBoxVideo = {

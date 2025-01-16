@@ -121,6 +121,11 @@ export const parseMedia: ParseMedia = async function <
 			return true;
 		}
 
+		if (iterator.counter.getOffset() === contentLength) {
+			Log.verbose(logLevel, 'Reached end of file');
+			return true;
+		}
+
 		return false;
 	};
 
@@ -165,6 +170,7 @@ export const parseMedia: ParseMedia = async function <
 
 		triggerInfoEmit();
 
+		// TODO: Deprecate 'incomplete' state
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.trace(
 				logLevel,

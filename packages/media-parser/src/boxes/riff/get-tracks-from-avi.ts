@@ -4,13 +4,7 @@ import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {StrfBoxAudio, StrfBoxVideo, StrhBox} from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
-import {
-	getAvihBox,
-	getStrfBox,
-	getStrhBox,
-	getStrlBoxes,
-	isRiffAvi,
-} from './traversal';
+import {getAvihBox, getStrhBox, getStrlBoxes, isRiffAvi} from './traversal';
 
 export type AllTracks = {
 	videoTracks: VideoTrack[];
@@ -115,10 +109,11 @@ export const getTracksFromAvi = (
 	let i = 0;
 	for (const box of boxes) {
 		const strh = getStrhBox(box.children);
-		const strf = getStrfBox(box.children);
-		if (!strh || !strf) {
+		if (!strh) {
 			continue;
 		}
+
+		const {strf} = strh;
 
 		if (strf.type === 'strf-box-video') {
 			videoTracks.push(
