@@ -127,20 +127,6 @@ h6 {
 	padding: 0 var(--ifm-pre-padding);
 }
 
-/* Hide code blocks according to theme */
-[data-theme='light'] .shiki.github-dark {
-	display: none;
-}
-
-[data-theme='dark'] .shiki.github-light {
-	display: none;
-}
-
-/* Patches */
-pre.shiki > .code-title {
-	color: var(--ifm-color-emphasis-900) !important;
-}
-
 code {
 	background-color: transparent;
 	border-width: 0;

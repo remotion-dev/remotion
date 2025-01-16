@@ -1,5 +1,9 @@
 /* Title */
 
+pre.shiki {
+	background-color: #282a36 !important;
+}
+
 pre.shiki > .code-title {
 	position: absolute;
 	left: 0;
@@ -7,13 +11,13 @@ pre.shiki > .code-title {
 	top: 0;
 	width: 100%;
 
-	font-family: var(--ifm-font-family-base);
-	font-size: var(--ifm-code-font-size);
-	font-weight: 500;
+	color: white !important;
+	font-size: 0.9rem;
 
 	color: var(--ifm-color-emphasis-900);
-	border-bottom: 1px solid var(--ifm-color-emphasis-300);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 	padding: 0 var(--ifm-pre-padding);
+	font-family: 'GT Planar';
 
 	height: 2.5rem;
 	display: flex;
