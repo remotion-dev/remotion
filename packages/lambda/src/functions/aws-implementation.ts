@@ -31,6 +31,7 @@ import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-re
 import {getFolderFiles} from './helpers/get-folder-files';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {makeAwsArtifact} from './helpers/make-aws-artifact';
+import {parseFunctionName} from './helpers/parse-function-name';
 
 if (
 	/^AWS_Lambda_nodejs(?:18|20)[.]x$/.test(
@@ -135,4 +136,5 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getAccountId: getAccountIdImplementation,
 	deleteFunction,
 	getFunctions,
+	parseFunctionName,
 };

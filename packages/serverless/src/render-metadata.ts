@@ -45,6 +45,7 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	framesPerLambda: number;
 	memorySizeInMb: number;
 	functionName: string;
+	rendererFunctionName: string;
 	lambdaVersion: string;
 	region: Provider['region'];
 	renderId: string;

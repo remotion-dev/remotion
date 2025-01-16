@@ -313,6 +313,13 @@ export type CreateFunction<Provider extends CloudProvider> = (
 	options: CreateFunctionOptions<Provider>,
 ) => Promise<{FunctionName: string}>;
 
+export type ParseFunctionName = (functionName: string) => {
+	version: string;
+	memorySizeInMb: number;
+	diskSizeInMb: number;
+	timeoutInSeconds: number;
+} | null;
+
 export type InsideFunctionSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -365,4 +372,5 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getAccountId: GetAccountId<Provider>;
 	deleteFunction: DeleteFunction<Provider>;
 	getFunctions: GetFunctions<Provider>;
+	parseFunctionName: ParseFunctionName;
 };

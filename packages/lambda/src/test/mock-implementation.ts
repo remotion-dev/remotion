@@ -10,6 +10,7 @@ import {estimatePrice} from '../api/estimate-price';
 import {speculateFunctionName} from '../api/speculate-function-name';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
+import {parseFunctionName} from '../functions/helpers/parse-function-name';
 import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
 import {
 	getCloudwatchMethodUrl,
@@ -177,6 +178,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	isFlakyError,
 	deleteFunction: deleteMockFunction,
 	getFunctions: getAllMockFunctions,
+	parseFunctionName,
 };
 
 export const mockServerImplementation: InsideFunctionSpecifics = {

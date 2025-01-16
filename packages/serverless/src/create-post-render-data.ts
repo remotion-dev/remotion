@@ -44,7 +44,9 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 
 	const cost = providerSpecifics.estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
-		memorySizeInMb,
+		memorySizeInMb:
+			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
+				?.memorySizeInMb ?? memorySizeInMb,
 		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),

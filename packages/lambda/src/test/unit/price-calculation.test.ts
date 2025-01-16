@@ -39,6 +39,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			muted: false,
 			metadata: {Author: 'Lunar'},
 			functionName: 'remotion-render-la8ffw',
+			rendererFunctionName: 'remotion-render-la8ffw',
 			dimensions: {
 				height: 1080,
 				width: 1920,

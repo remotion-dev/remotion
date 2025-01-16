@@ -50,7 +50,6 @@ type Options = {
 };
 
 const innerLaunchHandler = async <Provider extends CloudProvider>({
-	functionName,
 	params,
 	options,
 	overallProgress,
@@ -58,7 +57,6 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	insideFunctionSpecifics,
 }: {
-	functionName: string;
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	overallProgress: OverallProgressHelper<Provider>;
@@ -289,6 +287,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', '),
 	);
 
+	const rendererFunctionName =
+		params.rendererFunctionName ??
+		insideFunctionSpecifics.getCurrentFunctionName();
+
 	const renderMetadata: RenderMetadata<Provider> = {
 		startedDate,
 		totalChunks: chunks.length,
@@ -326,6 +328,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			width: comp.width * (params.scale ?? 1),
 			height: comp.height * (params.scale ?? 1),
 		},
+		rendererFunctionName:
+			params.rendererFunctionName ??
+			insideFunctionSpecifics.getCurrentFunctionName(),
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -444,7 +449,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		lambdaPayloads.map(async (payload) => {
 			await streamRendererFunctionWithRetry({
 				files,
-				functionName,
+				functionName: rendererFunctionName,
 				outdir,
 				overallProgress,
 				payload,
@@ -511,10 +516,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
-
-	const functionName =
-		params.rendererFunctionName ??
-		insideFunctionSpecifics.getCurrentFunctionName();
 
 	const logOptions: LogOptions = {
 		indent: false,
@@ -669,7 +670,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 	try {
 		const postRenderData = await innerLaunchHandler({
-			functionName,
 			params,
 			options,
 			overallProgress,
