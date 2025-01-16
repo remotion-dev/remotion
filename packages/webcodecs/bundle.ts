@@ -10,6 +10,7 @@ const output = await build({
 		'src/index.ts',
 		'src/writers/buffer.ts',
 		'src/writers/web-fs.ts',
+		'src/writers/node.ts',
 	],
 	naming: '[name].mjs',
 	external: ['@remotion/media-parser'],
