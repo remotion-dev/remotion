@@ -36,7 +36,7 @@ test('Should skip media data if just wanting dimensions', async () => {
 
 	expect(internalStats).toEqual({
 		finalCursorOffset: 705094,
-		skippedBytes: 727878,
+		skippedBytes: 727886,
 	});
 	expect(dimensions).toEqual({height: 270, width: 480});
 });
@@ -56,7 +56,7 @@ test('Should skip if just a video track is requested', async () => {
 
 	expect(internalStats).toEqual({
 		finalCursorOffset: 705094,
-		skippedBytes: 727878,
+		skippedBytes: 727886,
 	});
 	expect(dimensions).toEqual({height: 270, width: 480});
 });

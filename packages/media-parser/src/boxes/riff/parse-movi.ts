@@ -146,9 +146,6 @@ export const parseMovi = async ({
 			};
 		}
 
-		const ckId = iterator.getByteString(4, false);
-		const ckSize = iterator.getUint32Le();
-
 		if (
 			maySkipVideoData({
 				state,
@@ -160,6 +157,9 @@ export const parseMovi = async ({
 				skipTo: maxOffset,
 			};
 		}
+
+		const ckId = iterator.getByteString(4, false);
+		const ckSize = iterator.getUint32Le();
 
 		if (iterator.bytesRemaining() < ckSize) {
 			iterator.counter.decrement(8);
