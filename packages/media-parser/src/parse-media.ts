@@ -181,8 +181,7 @@ export const parseMedia: ParseMedia = async function <
 		if (parseResult && parseResult.status === 'incomplete') {
 			Log.trace(
 				logLevel,
-				'Continuing parsing of file, currently at position',
-				iterator.counter.getOffset(),
+				`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
 			);
 			parseResult = await parseResult.continueParsing();
 		} else {
