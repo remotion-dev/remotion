@@ -11,37 +11,30 @@ const createContent = (filename: string): CreateContent => {
 
 		await remove();
 
-		const writeStream = await new Promise<number>((resolve, reject) => {
-			fs.open(filename, 'w', (err, fd) => {
-				if (err) {
-					reject(err);
-					return;
-				}
-
-				resolve(fd);
-			});
-		});
+		const writeStream = fs.openSync(filename, 'w');
 
 		let written = 0;
 
-		const write = async (arr: Uint8Array) => {
+		const write = async (data: Uint8Array) => {
 			await new Promise<void>((resolve, reject) => {
-				fs.write(writeStream, arr, (err) => {
+				fs.write(writeStream, data, (err) => {
 					if (err) {
 						reject(err);
+						return;
 					}
 
 					resolve();
 				});
 			});
-			written += arr.byteLength;
+			written += data.byteLength;
 		};
 
-		const updateDataAt = async (position: number, data: Uint8Array) => {
+		const updateDataAt = (position: number, data: Uint8Array) => {
 			return new Promise<void>((resolve, reject) => {
 				fs.write(writeStream, data, 0, data.length, position, (err) => {
 					if (err) {
 						reject(err);
+						return;
 					}
 
 					resolve();
