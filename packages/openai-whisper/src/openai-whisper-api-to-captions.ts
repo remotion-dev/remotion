@@ -13,7 +13,14 @@ export const openAiWhisperApiToCaptions = ({
 	transcription,
 }: OpenAiToCaptionsInput): OpenAiToCaptionsOutput => {
 	const captions: Caption[] = [];
+
 	if (!transcription.words) {
+		if (transcription.task && transcription.task !== 'transcribe') {
+			throw new Error(
+				`The transcription does need to be a "transcribe" task. The input you gave is "task": "${transcription.task}"`,
+			);
+		}
+
 		throw new Error(
 			'The transcription does need to be been generated with `timestamp_granularities: ["word"]`',
 		);
