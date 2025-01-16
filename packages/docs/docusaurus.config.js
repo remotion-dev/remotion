@@ -263,7 +263,7 @@ const config = (mode) => ({
 			'./shiki',
 			{
 				vfsRoot: process.cwd(),
-				themes: ['github-light', 'github-dark'],
+				themes: ['github-dark'],
 				defaultCompilerOptions: {
 					types: ['node'],
 				},
