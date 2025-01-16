@@ -323,7 +323,7 @@ const PlayerFn = <
 	useState(() => {
 		Internals.Log.trace(
 			logLevel,
-			`[player] Mounting <Player>. User agent = ${navigator.userAgent}`,
+			`[player] Mounting <Player>. User agent = ${typeof navigator === 'undefined' ? 'server' : navigator.userAgent}`,
 		);
 	});
 
