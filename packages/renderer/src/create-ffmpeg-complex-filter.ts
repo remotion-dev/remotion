@@ -12,9 +12,14 @@ export const createFfmpegComplexFilter = async ({
 }): Promise<{
 	complexFilterFlag: [string, string] | null;
 	cleanup: () => void;
+	complexFilter: string | null;
 }> => {
 	if (filters.length === 0) {
-		return {complexFilterFlag: null, cleanup: () => undefined};
+		return {
+			complexFilterFlag: null,
+			cleanup: () => undefined,
+			complexFilter: null,
+		};
 	}
 
 	const complexFilter = createFfmpegMergeFilter({
@@ -29,5 +34,6 @@ export const createFfmpegComplexFilter = async ({
 	return {
 		complexFilterFlag: ['-filter_complex_script', file],
 		cleanup,
+		complexFilter,
 	};
 };
