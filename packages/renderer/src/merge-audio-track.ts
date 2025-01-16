@@ -7,6 +7,7 @@ import {OUTPUT_FILTER_NAME} from './create-ffmpeg-merge-filter';
 import {createSilentAudio} from './create-silent-audio';
 import {deleteDirectory} from './delete-directory';
 import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {pLimit} from './p-limit';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -124,11 +125,14 @@ const mergeAudioTrackUnlimited = async ({
 		}
 	}
 
-	const {complexFilterFlag: mergeFilter, cleanup} =
-		await createFfmpegComplexFilter({
-			filters: files,
-			downloadMap,
-		});
+	const {
+		complexFilterFlag: mergeFilter,
+		cleanup,
+		complexFilter,
+	} = await createFfmpegComplexFilter({
+		filters: files,
+		downloadMap,
+	});
 
 	const args = [
 		['-hide_banner'],
@@ -140,6 +144,15 @@ const mergeAudioTrackUnlimited = async ({
 	]
 		.filter(truthy)
 		.flat(2);
+
+	Log.verbose(
+		{indent, logLevel},
+		`Merging audio tracks`,
+		'Command:',
+		`ffmpeg ${args.join(' ')}`,
+		'Complex filter script:',
+		complexFilter,
+	);
 
 	const task = callFf({
 		bin: 'ffmpeg',
