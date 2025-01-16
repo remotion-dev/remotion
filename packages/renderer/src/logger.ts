@@ -26,6 +26,27 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
+	trace: (
+		options: VerboseLogOptions,
+		...args: Parameters<typeof console.log>
+	) => {
+		writeInRepro('trace', ...args);
+		if (isEqualOrBelowLogLevel(options.logLevel, 'trace')) {
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
+			return console.log(
+				...[
+					options.indent ? INDENT_TOKEN : null,
+					options.tag ? verboseTag(options.tag) : null,
+				]
+					.filter(truthy)
+					.concat(args.map((a) => chalk.gray(a))),
+			);
+		}
+	},
 	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
