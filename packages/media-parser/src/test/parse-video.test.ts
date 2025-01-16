@@ -65,7 +65,7 @@ test('Parse a full video', async () => {
 	});
 	if (!data) throw new Error('No data');
 
-	const [first, second, third] = data.structure.boxes;
+	const [first, second] = data.structure.boxes;
 
 	expect(first).toEqual({
 		offset: 0,
@@ -81,12 +81,6 @@ test('Parse a full video', async () => {
 		boxSize: 8,
 		type: 'regular-box',
 		children: [],
-	});
-	expect(third).toEqual({
-		type: 'mdat-box',
-		boxSize: 57014,
-		status: 'samples-skipped',
-		fileOffset: 40,
 	});
 });
 

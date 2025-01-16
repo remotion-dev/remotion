@@ -77,7 +77,6 @@ export const getArrayBufferIterator = (
 
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
-	let discardAllowed = true;
 
 	const startCheckpoint = () => {
 		const checkpoint = counter.getOffset();
@@ -97,14 +96,6 @@ export const getArrayBufferIterator = (
 		counter.increment(amount);
 
 		return value;
-	};
-
-	const disallowDiscard = () => {
-		discardAllowed = false;
-	};
-
-	const allowDiscard = () => {
-		discardAllowed = true;
 	};
 
 	const discard = (length: number) => {
@@ -260,10 +251,6 @@ export const getArrayBufferIterator = (
 	};
 
 	const removeBytesRead = () => {
-		if (!discardAllowed) {
-			return;
-		}
-
 		const bytesToRemove = counter.getDiscardedOffset();
 
 		// Only do this operation if it is really worth it 😇
@@ -645,8 +632,6 @@ export const getArrayBufferIterator = (
 		getInt32Le,
 		getInt32,
 		destroy,
-		disallowDiscard,
-		allowDiscard,
 		startBox,
 		readExpGolomb,
 		startCheckpoint,

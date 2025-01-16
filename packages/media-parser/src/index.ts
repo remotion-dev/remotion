@@ -1,7 +1,7 @@
 import {createAacCodecPrivate} from './aac-codecprivate';
 import {parseFtyp} from './boxes/iso-base-media/ftyp';
 import {parseMvhd} from './boxes/iso-base-media/mvhd';
-import {processSample} from './boxes/iso-base-media/stsd/samples';
+import {processIsoFormatBox} from './boxes/iso-base-media/stsd/samples';
 import {parseStsd} from './boxes/iso-base-media/stsd/stsd';
 import {parseTkhd} from './boxes/iso-base-media/tkhd';
 import {parseEbml} from './boxes/webm/parse-ebml';
@@ -67,7 +67,7 @@ export const MediaParserInternals = {
 	getArrayBufferIterator,
 	parseStsd,
 	makeParserState,
-	processSample,
+	processSample: processIsoFormatBox,
 	parseFtyp,
 	parseEbml,
 	parseMvhd,

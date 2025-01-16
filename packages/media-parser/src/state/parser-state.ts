@@ -1,5 +1,6 @@
 import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
 import type {BufferIterator} from '../buffer-iterator';
+import type {LogLevel} from '../log';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {emittedState} from './emitted-fields';
@@ -34,6 +35,7 @@ export const makeParserState = ({
 	onVideoTrack,
 	supportsContentRange,
 	contentLength,
+	logLevel,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -44,6 +46,7 @@ export const makeParserState = ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	contentLength: number | null;
+	logLevel: LogLevel;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -89,6 +92,7 @@ export const makeParserState = ({
 		contentLength,
 		images,
 		videoSection: videoSectionState(),
+		logLevel,
 	};
 };
 

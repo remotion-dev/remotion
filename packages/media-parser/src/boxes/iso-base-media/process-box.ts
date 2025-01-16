@@ -1,23 +1,21 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {getHasTracks} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import {Log} from '../../log';
 import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
-import type {Options, ParseMediaFields} from '../../options';
-import type {IsoBaseMediaBox} from '../../parse-result';
+import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
-import {getChildren} from './get-children';
+import {getIsoBaseMediaChildren} from './get-children';
 import {makeBaseMediaTrack} from './make-track';
-import {parseMdat} from './mdat/mdat';
+import {parseMdatSection} from './mdat/mdat';
 import {parseMdhd} from './mdhd';
 import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
-import {parseMdatPartially} from './parse-mdat-partially';
 import {parseAv1C} from './stsd/av1c';
 import {parseAvcc} from './stsd/avcc';
 import {parseColorParameterBox} from './stsd/colr';
@@ -40,20 +38,10 @@ import {parseTrun} from './trun';
 
 export const processBox = async ({
 	iterator,
-	allowIncompleteBoxes,
-	parsedBoxes,
 	state,
-	signal,
-	logLevel,
-	fields,
 }: {
 	iterator: BufferIterator;
-	allowIncompleteBoxes: boolean;
-	parsedBoxes: IsoBaseMediaBox[];
 	state: ParserState;
-	signal: AbortSignal | null;
-	logLevel: LogLevel;
-	fields: Options<ParseMediaFields>;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -62,7 +50,6 @@ export const processBox = async ({
 
 	if (boxSizeRaw === 0) {
 		return {
-			type: 'complete',
 			box: {
 				type: 'void-box',
 				boxSize: 0,
@@ -78,74 +65,56 @@ export const processBox = async ({
 		iterator.bytesRemaining() < 4
 	) {
 		iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
-		if (!allowIncompleteBoxes) {
-			throw new Error(
-				`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
-			);
-		}
-
-		return {
-			type: 'incomplete',
-		};
+		throw new Error(
+			`Expected box size of ${bytesRemaining}, got ${boxSizeRaw}. Incomplete boxes are not allowed.`,
+		);
 	}
 
 	const boxType = iterator.getByteString(4, false);
+	Log.trace(state.logLevel, 'Found box', boxType);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
+
+	if (boxType === 'mdat') {
+		state.videoSection.setVideoSection({
+			size: boxSize,
+			start: iterator.counter.getOffset(),
+		});
+	}
 
 	if (bytesRemaining < boxSize) {
 		if (boxType !== 'mdat') {
-			iterator.counter.decrement(iterator.counter.getOffset() - fileOffset);
-			if (!allowIncompleteBoxes) {
-				throw new Error(
-					`Expected box size of ${bytesRemaining}, got ${boxSize}. Incomplete boxes are not allowed.`,
-				);
-			}
-
-			return {
-				type: 'incomplete',
-			};
+			throw new Error(
+				`Expected box size of ${bytesRemaining}, got ${boxSize} for ${boxType}. Incomplete boxes are not allowed.`,
+			);
 		}
 
 		// Check if the moov atom is at the end
 		const shouldSkip =
 			maySkipVideoData({state}) ||
-			(!getHasTracks({type: 'iso-base-media', boxes: parsedBoxes}, state) &&
+			(!getHasTracks(
+				state.structure.getStructure() as IsoBaseMediaStructure,
+				state,
+			) &&
 				state.supportsContentRange);
 
 		if (shouldSkip) {
-			const skipTo = fileOffset + boxSize;
-			const bytesToSkip = skipTo - iterator.counter.getOffset();
-
-			// If there is a huge mdat chunk, we can skip it because we don't need it for the metadata
-			if (bytesToSkip > 1_000_000) {
-				return {
-					type: 'complete',
-					box: {
-						type: 'mdat-box',
-						boxSize,
-						fileOffset,
-						status: 'samples-skipped',
-					},
-					size: boxSize,
-					skipTo: fileOffset + boxSize,
-				};
-			}
-		} else {
-			return parseMdatPartially({
-				iterator,
-				boxSize,
-				fileOffset,
-				parsedBoxes,
-				state,
-				signal,
-			});
+			return {
+				skipTo: fileOffset + boxSize,
+				box: null,
+				size: 0,
+			};
 		}
+
+		return {
+			box: null,
+			size: 0,
+			skipTo: null,
+		};
 	}
 
 	if (boxType === 'ftyp') {
 		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -158,7 +127,6 @@ export const processBox = async ({
 			size: boxSize,
 		});
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -169,7 +137,6 @@ export const processBox = async ({
 		const box = parseMvhd({iterator, offset: fileOffset, size: boxSize});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -180,7 +147,6 @@ export const processBox = async ({
 		const box = parseTkhd({iterator, offset: fileOffset, size: boxSize});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -191,7 +157,6 @@ export const processBox = async ({
 		const box = parseTrun({iterator, offset: fileOffset, size: boxSize});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -202,7 +167,6 @@ export const processBox = async ({
 		const box = parseTfdt({iterator, size: boxSize, offset: fileOffset});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -215,12 +179,9 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			state,
-			signal,
-			fields,
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -235,7 +196,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -251,7 +211,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -266,7 +225,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -281,7 +239,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -296,7 +253,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -311,7 +267,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -324,12 +279,9 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			state,
-			signal,
-			fields,
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -340,7 +292,6 @@ export const processBox = async ({
 		const box = await parseHdlr({iterator, size: boxSize, offset: fileOffset});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -351,7 +302,6 @@ export const processBox = async ({
 		const box = parseKeys({iterator, size: boxSize, offset: fileOffset});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -366,7 +316,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -379,15 +328,11 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			state,
-			signal,
-			logLevel,
-			fields,
 		});
 
 		state.callbacks.tracks.setIsDone();
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -400,9 +345,6 @@ export const processBox = async ({
 			size: boxSize,
 			offsetAtStart: fileOffset,
 			state,
-			signal,
-			logLevel,
-			fields,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack) {
@@ -414,7 +356,6 @@ export const processBox = async ({
 		}
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -429,7 +370,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -443,7 +383,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -457,7 +396,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -472,7 +410,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -487,7 +424,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -502,7 +438,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -517,7 +452,6 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'complete',
 			box,
 			size: boxSize,
 			skipTo: null,
@@ -525,47 +459,61 @@ export const processBox = async ({
 	}
 
 	if (boxType === 'mdat') {
-		const box = await parseMdat({
-			data: iterator,
+		state.videoSection.setVideoSection({
 			size: boxSize,
-			fileOffset,
-			existingBoxes: parsedBoxes,
-			state,
-			signal,
-			maySkipSampleProcessing: state.supportsContentRange,
+			start: iterator.counter.getOffset(),
 		});
-		if (box.type === 'partial-mdat-box') {
-			return box;
-		}
+		await parseMdatSection({
+			iterator,
+			state,
+		});
 
 		return {
-			type: 'complete',
-			box,
+			box: null,
 			size: boxSize,
 			skipTo: null,
 		};
 	}
 
-	const bytesRemainingInBox =
-		boxSize - (iterator.counter.getOffset() - fileOffset);
+	if (
+		boxType === 'mdia' ||
+		boxType === 'minf' ||
+		boxType === 'stbl' ||
+		boxType === 'udta' ||
+		boxType === 'moof' ||
+		boxType === 'dims' ||
+		boxType === 'meta' ||
+		boxType === 'wave' ||
+		boxType === 'traf' ||
+		boxType === 'stsb'
+	) {
+		const children = await getIsoBaseMediaChildren({
+			iterator,
+			state,
+			size: boxSize - 8,
+		});
 
-	const children = await getChildren({
-		boxType,
-		iterator,
-		bytesRemainingInBox,
-		state,
-		signal,
-		logLevel,
-		fields,
-	});
+		return {
+			box: {
+				type: 'regular-box',
+				boxType,
+				boxSize,
+				children,
+				offset: fileOffset,
+			},
+			size: boxSize,
+			skipTo: null,
+		};
+	}
+
+	iterator.discard(boxSize - 8);
 
 	return {
-		type: 'complete',
 		box: {
 			type: 'regular-box',
 			boxType,
 			boxSize,
-			children,
+			children: [],
 			offset: fileOffset,
 		},
 		size: boxSize,

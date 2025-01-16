@@ -1,10 +1,8 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {LogLevel} from '../../../log';
-import type {Options, ParseMediaFields} from '../../../options';
-import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
+import type {AnySegment} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
-import {parseIsoBaseMediaBoxes} from '../parse-boxes';
+import {getIsoBaseMediaChildren} from '../get-children';
 
 export interface MoovBox extends BaseBox {
 	type: 'moov-box';
@@ -16,39 +14,22 @@ export const parseMoov = async ({
 	offset,
 	size,
 	state,
-	signal,
-	logLevel,
-	fields,
 }: {
 	iterator: BufferIterator;
 	offset: number;
 	size: number;
 	state: ParserState;
-	signal: AbortSignal | null;
-	logLevel: LogLevel;
-	fields: Options<ParseMediaFields>;
 }): Promise<MoovBox> => {
-	const boxes: IsoBaseMediaBox[] = [];
-
-	const children = await parseIsoBaseMediaBoxes({
+	const children = await getIsoBaseMediaChildren({
 		iterator,
-		maxBytes: size - (iterator.counter.getOffset() - offset),
-		allowIncompleteBoxes: false,
-		initialBoxes: boxes,
 		state,
-		signal,
-		logLevel,
-		fields,
+		size: size - 8,
 	});
-
-	if (children.status === 'incomplete') {
-		throw new Error('Incomplete boxes are not allowed');
-	}
 
 	return {
 		offset,
 		boxSize: size,
 		type: 'moov-box',
-		children: boxes,
+		children,
 	};
 };

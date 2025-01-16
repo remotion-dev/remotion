@@ -1,7 +1,6 @@
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
-import type {MdatBox} from './boxes/iso-base-media/mdat/mdat';
 import type {MdhdBox} from './boxes/iso-base-media/mdhd';
 import type {HdlrBox} from './boxes/iso-base-media/meta/hdlr';
 import type {IlstBox} from './boxes/iso-base-media/meta/ilst';
@@ -54,7 +53,6 @@ export type IsoBaseMediaBox =
 	| MdhdBox
 	| IlstBox
 	| EsdsBox
-	| MdatBox
 	| StszBox
 	| StcoBox
 	| StscBox

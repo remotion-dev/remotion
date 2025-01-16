@@ -9,6 +9,7 @@ test('mehmet video should be fast', async () => {
 	await parseMedia({
 		src: exampleVideos.iphonelivefoto,
 		reader: nodeReader,
+		logLevel: 'trace',
 		fields: {
 			structure: true,
 		},

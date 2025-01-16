@@ -1,6 +1,5 @@
 import type {AnySegment, IsoBaseMediaBox, RegularBox} from '../../parse-result';
 import type {FtypBox} from './ftyp';
-import type {MdatBox} from './mdat/mdat';
 import type {MdhdBox} from './mdhd';
 import type {MoovBox} from './moov/moov';
 import type {MvhdBox} from './mvhd';
@@ -279,17 +278,4 @@ export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
 	const trunBoxes = segment.children.filter((c) => c.type === 'trun-box');
 
 	return trunBoxes as TrunBox[];
-};
-
-export const getMdatBox = (anySegment: AnySegment[]): MdatBox | null => {
-	const mdat = anySegment.find((b) => b.type === 'mdat-box');
-	if (!mdat) {
-		return null;
-	}
-
-	if (mdat.type !== 'mdat-box') {
-		throw new Error('Expected mdat-box');
-	}
-
-	return mdat;
 };

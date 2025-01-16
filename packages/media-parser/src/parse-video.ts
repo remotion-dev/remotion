@@ -1,4 +1,4 @@
-import {parseIsoBaseMediaBoxes} from './boxes/iso-base-media/parse-boxes';
+import {parseIsoBaseMedia} from './boxes/iso-base-media/parse-boxes';
 import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-riff';
 import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
@@ -16,28 +16,15 @@ import type {Options, ParseMediaFields} from './options';
 import type {IsoBaseMediaBox, Mp3Structure, ParseResult} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
-export type PartialMdatBox = {
-	type: 'partial-mdat-box';
-	boxSize: number;
-	fileOffset: number;
+export type BoxAndNext = {
+	box: IsoBaseMediaBox | null;
+	size: number;
+	skipTo: number | null;
 };
-
-export type BoxAndNext =
-	| {
-			type: 'complete';
-			box: IsoBaseMediaBox;
-			size: number;
-			skipTo: number | null;
-	  }
-	| {
-			type: 'incomplete';
-	  }
-	| PartialMdatBox;
 
 export const parseVideo = ({
 	iterator,
 	state,
-	signal,
 	logLevel,
 	fields,
 	mimeType,
@@ -46,7 +33,6 @@ export const parseVideo = ({
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	signal: AbortSignal | null;
 	logLevel: LogLevel;
 	fields: Options<ParseMediaFields>;
 	mimeType: string | null;
@@ -71,21 +57,14 @@ export const parseVideo = ({
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(logLevel, 'Detected ISO Base Media container');
-		const initialBoxes: IsoBaseMediaBox[] = [];
 		state.structure.setStructure({
 			type: 'iso-base-media',
-			boxes: initialBoxes,
+			boxes: [],
 		});
 
-		return parseIsoBaseMediaBoxes({
+		return parseIsoBaseMedia({
 			iterator,
-			maxBytes: Infinity,
-			allowIncompleteBoxes: true,
-			initialBoxes,
 			state,
-			signal,
-			logLevel,
-			fields,
 		});
 	}
 

@@ -72,6 +72,7 @@ export const parseMedia: ParseMedia = async function <
 		onVideoTrack: onVideoTrack ?? null,
 		supportsContentRange,
 		contentLength,
+		logLevel,
 	});
 
 	let currentReader = reader;
@@ -122,9 +123,8 @@ export const parseMedia: ParseMedia = async function <
 		}
 
 		if (iterator.counter.getOffset() === contentLength) {
-			Log.verbose(logLevel, 'Reached end of file', contentLength);
-			// TODO: Make it possible for ISO base media too
-			return state.structure.getStructureOrNull()?.type !== 'iso-base-media';
+			Log.verbose(logLevel, 'Reached end of file');
+			return true;
 		}
 
 		return false;
@@ -183,7 +183,6 @@ export const parseMedia: ParseMedia = async function <
 			parseResult = await parseVideo({
 				iterator,
 				state,
-				signal: signal ?? null,
 				logLevel,
 				fields,
 				mimeType: contentType,
@@ -227,6 +226,7 @@ export const parseMedia: ParseMedia = async function <
 		}
 
 		didProgress = iterator.counter.getOffset() > offsetBefore;
+		iterator.removeBytesRead();
 	}
 
 	Log.verbose(logLevel, 'Finished parsing file');

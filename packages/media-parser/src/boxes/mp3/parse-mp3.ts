@@ -18,12 +18,6 @@ export const parseMp3 = async ({
 		return parseMp3({iterator, structure, state});
 	};
 
-	if (iterator.bytesRemaining() === 0) {
-		return Promise.resolve({
-			status: 'done',
-		});
-	}
-
 	if (iterator.bytesRemaining() < 3) {
 		return {
 			status: 'incomplete',
