@@ -73,7 +73,7 @@ export const parseVideo = ({
 			boxes: [],
 			type: 'matroska',
 		});
-		return parseWebm({counter: iterator, state, fields});
+		return parseWebm({iterator, state, fields});
 	}
 
 	if (fileType.type === 'transport-stream') {

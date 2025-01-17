@@ -128,23 +128,6 @@ export type ParseResult =
 			continueParsing: () => Promise<ParseResult>;
 	  };
 
-export type MatroskaParseResult =
-	| {
-			status: 'done';
-	  }
-	| {
-			status: 'incomplete';
-			skipTo: number | null;
-			continueParsing: () => Promise<MatroskaParseResult>;
-	  };
-
-export type ExpectSegmentParseResult =
-	| {
-			status: 'done';
-			segment: MatroskaSegment;
-	  }
-	| {
-			status: 'incomplete';
-			segment: MatroskaSegment | null;
-			continueParsing: () => Promise<ExpectSegmentParseResult>;
-	  };
+export type MatroskaParseResult = {
+	skipTo: number | null;
+};

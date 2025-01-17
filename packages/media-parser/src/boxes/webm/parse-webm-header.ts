@@ -1,40 +1,16 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {Options, ParseMediaFields} from '../../options';
-import type {
-	MatroskaParseResult,
-	MatroskaStructure,
-	ParseResult,
-} from '../../parse-result';
+import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {expectChildren} from './segments/parse-children';
-
-const continueAfterMatroskaResult = (
-	result: MatroskaParseResult,
-	structure: MatroskaStructure,
-): ParseResult => {
-	if (result.status === 'done') {
-		return {
-			status: 'done',
-		};
-	}
-
-	return {
-		status: 'incomplete',
-		continueParsing: async () => {
-			const newResult = await result.continueParsing();
-			return continueAfterMatroskaResult(newResult, structure);
-		},
-		skipTo: null,
-	};
-};
+import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = async ({
-	counter,
+	iterator,
 	state,
 	fields,
 }: {
-	counter: BufferIterator;
+	iterator: BufferIterator;
 	state: ParserState;
 	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
@@ -43,14 +19,26 @@ export const parseWebm = async ({
 		throw new Error('Invalid structure type');
 	}
 
-	const results = await expectChildren({
-		iterator: counter,
-		length: Infinity,
-		children: structure.boxes,
+	const continueParsing = () => {
+		return parseWebm({
+			iterator,
+			fields,
+			state,
+		});
+	};
+
+	const results = await expectSegment({
+		iterator,
 		state,
-		startOffset: counter.counter.getOffset(),
 		fields,
-		topLevelStructure: structure,
 	});
-	return continueAfterMatroskaResult(results, structure);
+	if (results !== null) {
+		structure.boxes.push(results);
+	}
+
+	return {
+		status: 'incomplete',
+		continueParsing,
+		skipTo: null,
+	};
 };

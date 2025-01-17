@@ -13,6 +13,7 @@ test('should be able to get keyframes from webm', async () => {
 			internalStats: true,
 		},
 		reader: nodeReader,
+		logLevel: 'trace',
 	});
 	expect(slowKeyframes).toEqual([
 		{

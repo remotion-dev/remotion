@@ -157,6 +157,10 @@ export const postprocessEbml = async ({
 		state.webm.setTimescale(ebml.value.value);
 	}
 
+	if (ebml.type === 'Tracks') {
+		state.callbacks.tracks.setIsDone();
+	}
+
 	if (ebml.type === 'TrackEntry') {
 		state.webm.onTrackEntrySegment(ebml);
 
