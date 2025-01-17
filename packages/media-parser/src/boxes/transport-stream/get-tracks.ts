@@ -5,9 +5,10 @@ import type {AllTracks} from '../riff/get-tracks-from-avi';
 import {findProgramMapTableOrThrow} from './traversal';
 
 export const getTracksFromTransportStream = (
-	structure: TransportStreamStructure,
 	parserState: ParserState,
 ): AllTracks => {
+	const structure =
+		parserState.structure.getStructure() as TransportStreamStructure;
 	const programMapTable = findProgramMapTableOrThrow(structure);
 	const parserTracks = parserState.callbacks.tracks.getTracks();
 
@@ -27,12 +28,9 @@ export const getTracksFromTransportStream = (
 	};
 };
 
-export const hasAllTracksFromTransportStream = (
-	structure: TransportStreamStructure,
-	parserState: ParserState,
-) => {
+export const hasAllTracksFromTransportStream = (parserState: ParserState) => {
 	try {
-		getTracksFromTransportStream(structure, parserState);
+		getTracksFromTransportStream(parserState);
 		return true;
 	} catch {
 		return false;

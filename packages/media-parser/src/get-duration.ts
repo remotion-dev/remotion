@@ -79,7 +79,7 @@ const getDurationFromIsoBaseMedia = (
 		return mvhdBox.durationInSeconds;
 	}
 
-	const tracks = getTracks(structure, parserState);
+	const tracks = getTracks(parserState);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,

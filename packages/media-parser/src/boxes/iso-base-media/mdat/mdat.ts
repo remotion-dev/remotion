@@ -35,7 +35,7 @@ export const parseMdatSection = async ({
 		);
 	}
 
-	const tracks = getTracks(state.structure.getStructure(), state);
+	const tracks = getTracks(state);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -56,7 +56,7 @@ export const parseMdatSection = async ({
 
 			return samplePositions.map((samplePosition) => {
 				return {
-					track: {...track},
+					track,
 					samplePosition,
 				};
 			});
@@ -66,6 +66,7 @@ export const parseMdatSection = async ({
 	const samplesWithIndex = flatSamples.find((sample) => {
 		return sample.samplePosition.offset === iterator.counter.getOffset();
 	});
+
 	if (!samplesWithIndex) {
 		// There are various reasons why in mdat we find weird stuff:
 		// - iphonevideo.hevc has a fake hoov atom which is not mapped

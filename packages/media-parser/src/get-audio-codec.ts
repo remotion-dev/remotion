@@ -13,10 +13,9 @@ import type {AnySegment, Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getAudioCodec = (
-	boxes: Structure,
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
-	const tracks = getTracks(boxes, parserState);
+	const tracks = getTracks(parserState);
 	const allTracks =
 		tracks.audioTracks.length +
 		tracks.otherTracks.length +

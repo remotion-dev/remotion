@@ -17,7 +17,7 @@ export const getDimensions = (
 	boxes: Structure,
 	state: ParserState,
 ): ExpandedDimensions | null => {
-	const {videoTracks} = getTracks(boxes, state);
+	const {videoTracks} = getTracks(state);
 	if (!videoTracks.length) {
 		if (boxes.type === 'mp3') {
 			return null;

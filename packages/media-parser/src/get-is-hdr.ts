@@ -11,8 +11,8 @@ const isVideoTrackHdr = (track: VideoTrack) => {
 	);
 };
 
-export const getIsHdr = (boxes: Structure, state: ParserState): boolean => {
-	const {videoTracks} = getTracks(boxes, state);
+export const getIsHdr = (state: ParserState): boolean => {
+	const {videoTracks} = getTracks(state);
 
 	return videoTracks.some((track) => isVideoTrackHdr(track));
 };

@@ -22,10 +22,9 @@ import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getVideoCodec = (
-	boxes: Structure,
 	state: ParserState,
 ): MediaParserVideoCodec | null => {
-	const track = getTracks(boxes, state);
+	const track = getTracks(state);
 	return track.videoTracks[0]?.codecWithoutConfig ?? null;
 };
 
