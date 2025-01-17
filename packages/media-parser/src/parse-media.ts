@@ -209,18 +209,18 @@ export const parseMedia: ParseMedia = async function <
 		}
 
 		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
-			if (!supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
 			if (parseResult.skipTo === contentLength) {
 				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
 				break;
 			}
 
 			const skippingAhead = parseResult.skipTo > iterator.counter.getOffset();
+			if (!skippingAhead && !supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
+
 			if (
 				skippingAhead &&
 				iterator.counter.getOffset() + iterator.bytesRemaining() >=

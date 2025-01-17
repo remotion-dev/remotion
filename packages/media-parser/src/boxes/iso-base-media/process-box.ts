@@ -1,8 +1,5 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import {getHasTracks} from '../../get-tracks';
 import {Log} from '../../log';
-import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
-import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {BoxAndNext} from '../../parse-video';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
@@ -78,23 +75,6 @@ export const processBox = async ({
 			size: boxSize - 8,
 			start: iterator.counter.getOffset(),
 		});
-
-		// TODO: if content range is not supported we fall apart
-		const shouldSkip =
-			maySkipVideoData({state}) ||
-			(!getHasTracks(
-				state.structure.getStructure() as IsoBaseMediaStructure,
-				state,
-			) &&
-				state.supportsContentRange);
-
-		if (shouldSkip) {
-			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
-			return {
-				skipTo: fileOffset + boxSize,
-				box: null,
-			};
-		}
 
 		return {
 			box: null,

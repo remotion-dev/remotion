@@ -12,7 +12,6 @@ afterEach(() => {
 });
 
 test('Should get duration of HEVC video', async () => {
-	let videoSamples = 0;
 	let hdrCalled = false;
 	const parsed = await parseMedia({
 		src: exampleVideos.iphonehevc,
@@ -26,11 +25,6 @@ test('Should get duration of HEVC video', async () => {
 			unrotatedDimensions: true,
 			videoCodec: true,
 			isHdr: true,
-		},
-		onVideoTrack: () => {
-			return () => {
-				videoSamples++;
-			};
 		},
 		onIsHdr: (isHdr) => {
 			hdrCalled = true;
@@ -67,5 +61,16 @@ test('Should get duration of HEVC video', async () => {
 		height: 1080,
 	});
 	expect(parsed.videoCodec).toBe('h265');
-	expect(videoSamples).toBe(102);
+});
+
+test('Should not be able to get HEVC while also asking for samples', () => {
+	expect(
+		parseMedia({
+			src: exampleVideos.iphonehevc,
+			onVideoTrack: () => {
+				return () => {};
+			},
+			reader: nodeReader,
+		}),
+	).rejects.toThrowError(/Source does not support reading partially/);
 });

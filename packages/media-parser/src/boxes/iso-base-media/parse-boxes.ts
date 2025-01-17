@@ -18,14 +18,16 @@ export const parseIsoBaseMedia = async ({
 		});
 	};
 
-	if (state.videoSection.isInVideoSectionState(iterator) === 'in-section') {
-		await parseMdatSection({
+	const videoSectionState = state.videoSection.isInVideoSectionState(iterator);
+
+	if (videoSectionState === 'in-section') {
+		const skipTo = await parseMdatSection({
 			iterator,
 			state,
 		});
 		return {
 			continueParsing,
-			skipTo: null,
+			skipTo,
 			status: 'incomplete',
 		};
 	}
@@ -54,12 +56,6 @@ export const parseIsoBaseMedia = async ({
 	}
 
 	if (result.skipTo !== null) {
-		if (!state.supportsContentRange) {
-			throw new Error(
-				'Content-Range header is not supported by the reader, but was asked to seek',
-			);
-		}
-
 		return {
 			status: 'incomplete',
 			continueParsing,

@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks, getTracks} from '../../../get-tracks';
+import {maySkipVideoData} from '../../../may-skip-video-data/may-skip-video-data';
 import type {IsoBaseMediaStructure} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
@@ -14,9 +15,18 @@ export const parseMdatSection = async ({
 	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<number | null> => {
+	// don't need mdat at all, can skip
+	if (maySkipVideoData({state})) {
+		const videoSection = state.videoSection.getVideoSection();
+		return videoSection.size + videoSection.start;
+	}
+
 	const alreadyHas = getHasTracks(state.structure.getStructure(), state);
 	if (!alreadyHas) {
+		// Will first read the end and then return
 		if (state.supportsContentRange) {
+			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
+
 			const videoSection = state.videoSection.getVideoSection();
 			return videoSection.size + videoSection.start;
 		}

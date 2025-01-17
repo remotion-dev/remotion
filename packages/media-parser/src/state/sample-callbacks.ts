@@ -144,5 +144,7 @@ export const sampleCallback = ({
 		tracks: tracksState,
 		audioSampleCallbacks,
 		videoSampleCallbacks,
+		hasAudioTrackHandlers,
+		hasVideoTrackHandlers,
 	};
 };
