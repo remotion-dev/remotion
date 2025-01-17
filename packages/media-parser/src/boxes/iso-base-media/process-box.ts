@@ -43,6 +43,7 @@ export const processBox = async ({
 	state: ParserState;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
+	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
 
 	const boxSizeRaw = iterator.getFourByteNumber();
@@ -69,8 +70,8 @@ export const processBox = async ({
 	}
 
 	const boxType = iterator.getByteString(4, false);
-	Log.trace(state.logLevel, 'Found box', boxType);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
+	Log.trace(state.logLevel, 'Found box', boxType, boxSize);
 
 	if (boxType === 'mdat') {
 		state.videoSection.setVideoSection({
@@ -102,9 +103,11 @@ export const processBox = async ({
 	}
 
 	if (bytesRemaining < boxSize) {
-		throw new Error(
-			`${boxType} has size ${boxSize}, but only ${bytesRemaining} bytes are available. Expected this to be handled before already.`,
-		);
+		returnToCheckpoint();
+		return {
+			box: null,
+			skipTo: null,
+		};
 	}
 
 	if (boxType === 'ftyp') {
