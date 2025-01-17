@@ -32,7 +32,6 @@ test('Should skip media data if just wanting dimensions', async () => {
 			dimensions: true,
 			internalStats: true,
 		},
-		logLevel: 'trace',
 	});
 
 	expect(internalStats).toEqual({

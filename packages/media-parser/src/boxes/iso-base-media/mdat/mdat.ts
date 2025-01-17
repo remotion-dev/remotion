@@ -15,9 +15,9 @@ export const parseMdatSection = async ({
 	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<number | null> => {
+	const videoSection = state.videoSection.getVideoSection();
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
-		const videoSection = state.videoSection.getVideoSection();
 		return videoSection.size + videoSection.start;
 	}
 
@@ -27,7 +27,6 @@ export const parseMdatSection = async ({
 		if (state.supportsContentRange) {
 			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
 
-			const videoSection = state.videoSection.getVideoSection();
 			return videoSection.size + videoSection.start;
 		}
 
@@ -82,7 +81,8 @@ export const parseMdatSection = async ({
 		}
 
 		// guess we reached the end!
-		return null;
+		// iphonevideo.mov has extra padding here, so let's make sure to jump ahead
+		return videoSection.size + videoSection.start;
 	}
 
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {

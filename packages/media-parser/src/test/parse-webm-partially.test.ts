@@ -32,8 +32,8 @@ test('Parse WebM partially', async () => {
 	});
 
 	expect(internalStats).toEqual({
-		finalCursorOffset: 4562,
-		skippedBytes: 13190797,
+		finalCursorOffset: 4540,
+		skippedBytes: 13190819,
 	});
 });
 

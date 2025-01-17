@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {BufferIterator} from '../../buffer-iterator';
 import {Log} from '../../log';
-import type {Options, ParseMediaFields} from '../../options';
 import type {ParserState} from '../../state/parser-state';
+import type {SegmentSection} from '../../state/webm';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
 import {
 	ebmlMap,
+	matroskaElements,
 	type PossibleEbml,
 	type TrackEntry,
 } from './segments/all-segments';
-import {expectChildren} from './segments/parse-children';
 
 export type MatroskaSegment = PossibleEbml;
 
@@ -19,11 +19,11 @@ export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 export const expectSegment = async ({
 	iterator,
 	state,
-	fields,
+	isInsideSegment,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	fields: Options<ParseMediaFields>;
+	isInsideSegment: SegmentSection | null;
 }): Promise<MatroskaSegment | null> => {
 	if (iterator.bytesRemaining() === 0) {
 		throw new Error('has no bytes');
@@ -32,11 +32,6 @@ export const expectSegment = async ({
 	const offset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const segmentId = iterator.getMatroskaSegmentId();
-	Log.trace(
-		state.logLevel,
-		'Segment ID:',
-		ebmlMap[segmentId as keyof typeof ebmlMap]?.name,
-	);
 
 	if (segmentId === null) {
 		returnToCheckpoint();
@@ -44,35 +39,57 @@ export const expectSegment = async ({
 	}
 
 	const offsetBeforeVInt = iterator.counter.getOffset();
-	const length = iterator.getVint();
+	const size = iterator.getVint();
 	const offsetAfterVInt = iterator.counter.getOffset();
 
-	if (length === null) {
+	if (size === null) {
 		returnToCheckpoint();
 		return null;
 	}
 
-	const bytesRemainingNow =
-		iterator.byteLength() - iterator.counter.getOffset();
+	const bytesRemainingNow = iterator.bytesRemaining();
 
-	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
-		const value = await expectChildren({
-			iterator,
-			length,
-			state,
-			startOffset: iterator.counter.getOffset(),
-			fields,
+	Log.trace(
+		state.logLevel,
+		'Segment ID:',
+		ebmlMap[segmentId as keyof typeof ebmlMap]?.name,
+		'Size:' + size,
+		bytesRemainingNow,
+	);
+
+	if (segmentId === matroskaElements.Segment) {
+		state.webm.addSegment({
+			start: offset,
+			size,
 		});
-		const newSegment: ClusterSegment | MainSegment = {
-			type: segmentId === '0x18538067' ? 'Segment' : 'Cluster',
+		const newSegment: MainSegment = {
+			type: 'Segment',
 			minVintWidth: offsetAfterVInt - offsetBeforeVInt,
-			value,
+			value: [],
 		};
-
 		return newSegment;
 	}
 
-	if (bytesRemainingNow < length) {
+	if (segmentId === matroskaElements.Cluster) {
+		if (isInsideSegment === null) {
+			throw new Error('Expected to be inside segment');
+		}
+
+		state.webm.addCluster({
+			start: offset,
+			size,
+			segment: isInsideSegment.index,
+		});
+
+		const newSegment: ClusterSegment = {
+			type: 'Cluster',
+			minVintWidth: offsetAfterVInt - offsetBeforeVInt,
+			value: [],
+		};
+		return newSegment;
+	}
+
+	if (bytesRemainingNow < size) {
 		returnToCheckpoint();
 		return null;
 	}
@@ -80,7 +97,7 @@ export const expectSegment = async ({
 	const segment = await parseSegment({
 		segmentId,
 		iterator,
-		length,
+		length: size,
 		state,
 		headerReadSoFar: iterator.counter.getOffset() - offset,
 	});

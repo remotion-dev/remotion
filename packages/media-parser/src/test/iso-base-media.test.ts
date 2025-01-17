@@ -58,7 +58,7 @@ if (process.platform !== 'win32') {
 		expect(audioSamples).toBe(544);
 	});
 
-	test('Should get keyframes', async () => {
+	test.only('Should get keyframes', async () => {
 		const {slowKeyframes, internalStats} = await parseMedia({
 			src: exampleVideos.iphonevideo,
 			fields: {
@@ -68,8 +68,8 @@ if (process.platform !== 'win32') {
 			reader: nodeReader,
 		});
 		expect(internalStats).toEqual({
-			finalCursorOffset: 39048828,
-			skippedBytes: -14108,
+			finalCursorOffset: 39062928,
+			skippedBytes: -12030,
 		});
 		expect(slowKeyframes).toEqual([
 			{

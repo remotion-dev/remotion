@@ -27,12 +27,47 @@ export const parseWebm = async ({
 		});
 	};
 
+	const isInsideSegment = state.webm.isInsideSegment(iterator);
+	const isInsideCluster = state.webm.isInsideCluster(iterator);
+
 	const results = await expectSegment({
 		iterator,
 		state,
-		fields,
+		isInsideSegment,
 	});
-	if (results !== null) {
+	if (results === null) {
+		return {
+			status: 'incomplete',
+			continueParsing,
+			skipTo: null,
+		};
+	}
+
+	if (isInsideCluster) {
+		const segments = structure.boxes.filter((box) => box.type === 'Segment');
+		const segment = segments[isInsideCluster.segment];
+		if (!segment) {
+			throw new Error('Expected segment');
+		}
+
+		const clusters = segment.value.find((box) => box.type === 'Cluster');
+		if (!clusters) {
+			throw new Error('Expected cluster');
+		}
+
+		// let's not add it to the cluster
+		if (results.type !== 'Block' && results.type !== 'SimpleBlock') {
+			clusters.value.push(results);
+		}
+	} else if (isInsideSegment) {
+		const segments = structure.boxes.filter((box) => box.type === 'Segment');
+		const segment = segments[isInsideSegment.index];
+		if (!segment) {
+			throw new Error('Expected segment');
+		}
+
+		segment.value.push(results);
+	} else {
 		structure.boxes.push(results);
 	}
 

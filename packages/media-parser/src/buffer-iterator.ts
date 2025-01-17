@@ -252,10 +252,6 @@ export const getArrayBufferIterator = (
 		view = new DataView(data.buffer);
 	};
 
-	const byteLength = () => {
-		return data.byteLength;
-	};
-
 	const bytesRemaining = () => {
 		return data.byteLength - counter.getDiscardedOffset();
 	};
@@ -402,7 +398,6 @@ export const getArrayBufferIterator = (
 		peekB,
 		peekD,
 		getBits,
-		byteLength,
 		bytesRemaining,
 		leb128,
 		removeBytesRead,

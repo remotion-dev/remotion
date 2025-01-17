@@ -21,7 +21,7 @@ const createContent = (filename: string): CreateContent => {
 
 		const write = async (data: Uint8Array) => {
 			await new Promise<void>((resolve, reject) => {
-				fs.write(writeStream, data, (err) => {
+				fs.write(writeStream, data, 0, data.length, undefined, (err) => {
 					if (err) {
 						reject(err);
 						return;
