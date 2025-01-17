@@ -9,6 +9,7 @@ import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
 import type {SlowDurationAndFpsState} from './slow-duration-fps';
+import type {StructureState} from './structure';
 
 export const sampleCallback = ({
 	signal,
@@ -18,6 +19,7 @@ export const sampleCallback = ({
 	keyframes,
 	emittedFields,
 	slowDurationAndFpsState,
+	structure,
 }: {
 	signal: AbortSignal | undefined;
 	hasAudioTrackHandlers: boolean;
@@ -26,6 +28,7 @@ export const sampleCallback = ({
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
 	slowDurationAndFpsState: SlowDurationAndFpsState;
+	structure: StructureState;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -37,6 +40,7 @@ export const sampleCallback = ({
 		hasAudioTrackHandlers,
 		fields,
 		hasVideoTrackHandlers,
+		structure,
 	});
 
 	const tracksState = makeTracksSectionState(canSkipTracksState);

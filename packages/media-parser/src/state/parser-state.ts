@@ -76,6 +76,7 @@ export const makeParserState = ({
 			keyframes,
 			emittedFields,
 			slowDurationAndFpsState: slowDurationAndFps,
+			structure,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
