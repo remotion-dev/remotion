@@ -103,7 +103,7 @@ export const processBox = async ({
 
 	if (bytesRemaining < boxSize) {
 		throw new Error(
-			`Expected box size of ${bytesRemaining}, got ${boxSize} for ${boxType}. Incomplete boxes are not allowed.`,
+			`${boxType} has size ${boxSize}, but only ${bytesRemaining} bytes are available. Expected this to be handled before already.`,
 		);
 	}
 

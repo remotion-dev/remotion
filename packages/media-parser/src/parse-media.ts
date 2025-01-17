@@ -138,7 +138,7 @@ export const parseMedia: ParseMedia = async function <
 
 	triggerInfoEmit();
 
-	let didProgress = false;
+	let iterationWithThisOffset = 0;
 	while (
 		!checkIfDone() &&
 		(parseResult === null || parseResult.status === 'incomplete')
@@ -163,7 +163,7 @@ export const parseMedia: ParseMedia = async function <
 
 		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
 
-		if (!didProgress || !hasBigBuffer) {
+		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
 			await fetchMoreData();
 		}
 
@@ -179,6 +179,12 @@ export const parseMedia: ParseMedia = async function <
 
 		// TODO: Deprecate 'incomplete' state
 		if (parseResult && parseResult.status === 'incomplete') {
+			if (iterationWithThisOffset > 300) {
+				throw new Error(
+					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
+				);
+			}
+
 			Log.trace(
 				logLevel,
 				`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
@@ -214,23 +220,39 @@ export const parseMedia: ParseMedia = async function <
 				break;
 			}
 
-			Log.verbose(
-				logLevel,
-				`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}`,
-			);
+			const skippingAhead = parseResult.skipTo > iterator.counter.getOffset();
+			if (
+				skippingAhead &&
+				iterator.counter.getOffset() + iterator.bytesRemaining() >=
+					parseResult.skipTo
+			) {
+				Log.verbose(
+					logLevel,
+					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Data already fetched`,
+				);
+				iterator.discard(parseResult.skipTo - iterator.counter.getOffset());
+			} else {
+				Log.verbose(
+					logLevel,
+					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Re-reading because this portion is not available`,
+				);
+				currentReader.abort();
 
-			currentReader.abort();
-
-			const {reader: newReader} = await readerInterface.read(
-				src,
-				parseResult.skipTo,
-				signal,
-			);
-			currentReader = newReader;
-			iterator.skipTo(parseResult.skipTo, true);
+				const {reader: newReader} = await readerInterface.read(
+					src,
+					parseResult.skipTo,
+					signal,
+				);
+				currentReader = newReader;
+				iterator.skipTo(parseResult.skipTo, true);
+			}
 		}
 
-		didProgress = iterator.counter.getOffset() > offsetBefore;
+		const didProgress = iterator.counter.getOffset() > offsetBefore;
+		if (!didProgress) {
+			iterationWithThisOffset++;
+		}
+
 		iterator.removeBytesRead();
 	}
 

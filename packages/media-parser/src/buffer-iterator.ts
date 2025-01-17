@@ -235,6 +235,16 @@ export const getArrayBufferIterator = (
 	const addData = (newData: Uint8Array) => {
 		const oldLength = buf.byteLength;
 		const newLength = oldLength + newData.byteLength;
+		if (newLength < oldLength) {
+			throw new Error('Cannot decrement size');
+		}
+
+		if (newLength > (maxBytes ?? Infinity)) {
+			throw new Error(
+				`Exceeded maximum byte length ${maxBytes} with ${newLength}`,
+			);
+		}
+
 		buf.resize(newLength);
 		const newArray = new Uint8Array(buf);
 		newArray.set(newData, oldLength);

@@ -12,7 +12,6 @@ test('should be able to get keyframes from webm', async () => {
 			slowKeyframes: true,
 			internalStats: true,
 		},
-
 		reader: nodeReader,
 	});
 	expect(slowKeyframes).toEqual([

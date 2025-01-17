@@ -1,11 +1,10 @@
-import {createReadStream} from 'fs';
-import {stat} from 'node:fs/promises';
+import {createReadStream, statSync} from 'fs';
 import {sep} from 'path';
 import {Readable} from 'stream';
 import type {ReaderInterface} from './reader';
 
 export const nodeReader: ReaderInterface = {
-	read: async (src, range, signal) => {
+	read: (src, range, signal) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `nodeReader`');
 		}
@@ -31,7 +30,7 @@ export const nodeReader: ReaderInterface = {
 			{once: true},
 		);
 
-		const stats = await stat(src);
+		const stats = statSync(src);
 
 		const reader = Readable.toWeb(
 			stream,
@@ -47,7 +46,7 @@ export const nodeReader: ReaderInterface = {
 			);
 		}
 
-		return {
+		return Promise.resolve({
 			reader: {
 				reader,
 				abort: () => {
@@ -58,14 +57,14 @@ export const nodeReader: ReaderInterface = {
 			contentType: null,
 			name: src.split(sep).pop() as string,
 			supportsContentRange: true,
-		};
+		});
 	},
-	getLength: async (src) => {
+	getLength: (src) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `nodeReader`');
 		}
 
-		const stats = await stat(src);
-		return stats.size;
+		const stats = statSync(src);
+		return Promise.resolve(stats.size);
 	},
 };

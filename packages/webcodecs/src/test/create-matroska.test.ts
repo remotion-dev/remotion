@@ -12,6 +12,7 @@ const state = MediaParserInternals.makeParserState({
 	onVideoTrack: null,
 	supportsContentRange: true,
 	contentLength: null,
+	logLevel: 'info',
 });
 
 test('Should make Matroska header that is same as input', async () => {

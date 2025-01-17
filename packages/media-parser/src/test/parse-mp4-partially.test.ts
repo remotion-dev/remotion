@@ -67,6 +67,9 @@ test('Should read the whole file', async () => {
 			tracks: true,
 			structure: true,
 		},
+		onAudioTrack: () => {
+			return () => {};
+		},
 		reader: nodeReader,
 	});
 
