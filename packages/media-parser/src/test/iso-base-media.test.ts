@@ -68,8 +68,8 @@ if (process.platform !== 'win32') {
 			reader: nodeReader,
 		});
 		expect(internalStats).toEqual({
-			finalCursorOffset: 39048828,
-			skippedBytes: -14108,
+			finalCursorOffset: 39062928,
+			skippedBytes: -12030,
 		});
 		expect(slowKeyframes).toEqual([
 			{

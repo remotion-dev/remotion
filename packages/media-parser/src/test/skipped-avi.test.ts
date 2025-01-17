@@ -35,8 +35,8 @@ test('Should skip media data if just wanting dimensions', async () => {
 	});
 
 	expect(internalStats).toEqual({
-		finalCursorOffset: 14592,
-		skippedBytes: 727886,
+		finalCursorOffset: 8914,
+		skippedBytes: 733564,
 	});
 	expect(dimensions).toEqual({height: 270, width: 480});
 });

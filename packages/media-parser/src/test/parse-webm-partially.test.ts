@@ -15,8 +15,8 @@ test('Parse only header of WebM', async () => {
 	});
 
 	expect(internalStats).toEqual({
-		finalCursorOffset: 43,
-		skippedBytes: 13195316,
+		finalCursorOffset: 0,
+		skippedBytes: 13195359,
 	});
 	expect(container).toEqual('webm');
 });
@@ -32,8 +32,8 @@ test('Parse WebM partially', async () => {
 	});
 
 	expect(internalStats).toEqual({
-		finalCursorOffset: 4562,
-		skippedBytes: 13190797,
+		finalCursorOffset: 4540,
+		skippedBytes: 13190819,
 	});
 });
 

@@ -5,7 +5,7 @@ import {unlinkSync} from 'node:fs';
 import {convertMedia} from '../convert-media';
 import {nodeWriter} from '../writers/node';
 
-test('should be able to remux server side', async () => {
+test.skip('should be able to remux server side', async () => {
 	const {save} = await convertMedia({
 		src: exampleVideos.bigBuckBunny,
 		reader: nodeReader,

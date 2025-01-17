@@ -1,7 +1,6 @@
 import type {BaseBox} from './boxes/iso-base-media/base-type';
 import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
 import type {FtypBox} from './boxes/iso-base-media/ftyp';
-import type {MdatBox} from './boxes/iso-base-media/mdat/mdat';
 import type {MdhdBox} from './boxes/iso-base-media/mdhd';
 import type {HdlrBox} from './boxes/iso-base-media/meta/hdlr';
 import type {IlstBox} from './boxes/iso-base-media/meta/ilst';
@@ -54,7 +53,6 @@ export type IsoBaseMediaBox =
 	| MdhdBox
 	| IlstBox
 	| EsdsBox
-	| MdatBox
 	| StszBox
 	| StcoBox
 	| StscBox
@@ -120,33 +118,10 @@ export type Structure =
 	| TransportStreamStructure
 	| Mp3Structure;
 
-export type ParseResult =
-	| {
-			status: 'done';
-	  }
-	| {
-			status: 'incomplete';
-			skipTo: number | null;
-			continueParsing: () => Promise<ParseResult>;
-	  };
+export type ParseResult = {
+	skipTo: number | null;
+};
 
-export type MatroskaParseResult =
-	| {
-			status: 'done';
-	  }
-	| {
-			status: 'incomplete';
-			skipTo: number | null;
-			continueParsing: () => Promise<MatroskaParseResult>;
-	  };
-
-export type ExpectSegmentParseResult =
-	| {
-			status: 'done';
-			segment: MatroskaSegment;
-	  }
-	| {
-			status: 'incomplete';
-			segment: MatroskaSegment | null;
-			continueParsing: () => Promise<ExpectSegmentParseResult>;
-	  };
+export type MatroskaParseResult = {
+	skipTo: number | null;
+};

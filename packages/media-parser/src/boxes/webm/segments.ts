@@ -1,209 +1,108 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {BufferIterator} from '../../buffer-iterator';
-import type {Options, ParseMediaFields} from '../../options';
-import type {
-	ExpectSegmentParseResult,
-	MatroskaParseResult,
-	MatroskaStructure,
-} from '../../parse-result';
+import {Log} from '../../log';
 import type {ParserState} from '../../state/parser-state';
+import type {SegmentSection} from '../../state/webm';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
-import {type PossibleEbml, type TrackEntry} from './segments/all-segments';
 import {
-	expectAndProcessSegment,
-	expectChildren,
-} from './segments/parse-children';
+	ebmlMap,
+	matroskaElements,
+	type PossibleEbml,
+	type TrackEntry,
+} from './segments/all-segments';
 
 export type MatroskaSegment = PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 
-const continueAfterMatroskaParseResult = async ({
-	result,
-	iterator,
-	state,
-	segment,
-}: {
-	result: MatroskaParseResult;
-	iterator: BufferIterator;
-	state: ParserState;
-	segment: MatroskaSegment;
-}): Promise<ExpectSegmentParseResult> => {
-	if (result.status === 'done') {
-		throw new Error('Should not continue after done');
-	}
-
-	const proceeded = await result.continueParsing();
-	if (proceeded.status === 'done') {
-		return {
-			status: 'done',
-			segment,
-		};
-	}
-
-	return {
-		continueParsing() {
-			return continueAfterMatroskaParseResult({
-				result: proceeded,
-				iterator,
-				state,
-				segment,
-			});
-		},
-		segment: null,
-		status: 'incomplete',
-	};
-};
-
 export const expectSegment = async ({
 	iterator,
 	state,
-	offset,
-	children,
-	fields,
-	topLevelStructure,
+	isInsideSegment,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	offset: number;
-	children: PossibleEbml[];
-	fields: Options<ParseMediaFields>;
-	topLevelStructure: MatroskaStructure;
-}): Promise<ExpectSegmentParseResult> => {
-	iterator.counter.decrement(iterator.counter.getOffset() - offset);
-
+	isInsideSegment: SegmentSection | null;
+}): Promise<MatroskaSegment | null> => {
 	if (iterator.bytesRemaining() === 0) {
-		return {
-			status: 'incomplete',
-			continueParsing: () => {
-				return expectAndProcessSegment({
-					iterator,
-					state,
-					offset,
-					children,
-					fields,
-					topLevelStructure,
-				});
-			},
-			segment: null,
-		};
+		throw new Error('has no bytes');
 	}
 
+	const offset = iterator.counter.getOffset();
+	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const segmentId = iterator.getMatroskaSegmentId();
 
 	if (segmentId === null) {
-		iterator.counter.decrement(iterator.counter.getOffset() - offset);
-		return {
-			status: 'incomplete',
-			continueParsing: () => {
-				return expectAndProcessSegment({
-					iterator,
-					state,
-					offset,
-					children,
-					fields,
-					topLevelStructure,
-				});
-			},
-			segment: null,
-		};
+		returnToCheckpoint();
+		return null;
 	}
 
 	const offsetBeforeVInt = iterator.counter.getOffset();
-	const length = iterator.getVint();
+	const size = iterator.getVint();
 	const offsetAfterVInt = iterator.counter.getOffset();
 
-	if (length === null) {
-		iterator.counter.decrement(iterator.counter.getOffset() - offset);
-		return {
-			status: 'incomplete',
-			continueParsing: () => {
-				return expectSegment({
-					iterator,
-					state,
-					offset,
-					children,
-					fields,
-					topLevelStructure,
-				});
-			},
-			segment: null,
-		};
+	if (size === null) {
+		returnToCheckpoint();
+		return null;
 	}
 
-	const bytesRemainingNow =
-		iterator.byteLength() - iterator.counter.getOffset();
+	const bytesRemainingNow = iterator.bytesRemaining();
 
-	if (segmentId === '0x18538067' || segmentId === '0x1f43b675') {
-		const newSegment: ClusterSegment | MainSegment = {
-			type: segmentId === '0x18538067' ? 'Segment' : 'Cluster',
+	Log.trace(
+		state.logLevel,
+		'Segment ID:',
+		ebmlMap[segmentId as keyof typeof ebmlMap]?.name,
+		'Size:' + size,
+		bytesRemainingNow,
+	);
+
+	if (segmentId === matroskaElements.Segment) {
+		state.webm.addSegment({
+			start: offset,
+			size,
+		});
+		const newSegment: MainSegment = {
+			type: 'Segment',
 			minVintWidth: offsetAfterVInt - offsetBeforeVInt,
 			value: [],
 		};
-
-		const main = await expectChildren({
-			iterator,
-			length,
-			children: newSegment.value,
-			state,
-			startOffset: iterator.counter.getOffset(),
-			fields,
-			topLevelStructure,
-		});
-
-		if (main.status === 'incomplete') {
-			return {
-				status: 'incomplete',
-				continueParsing: () => {
-					return continueAfterMatroskaParseResult({
-						iterator,
-						state,
-						result: main,
-						segment: newSegment,
-					});
-				},
-				segment: newSegment,
-			};
-		}
-
-		return {
-			status: 'done',
-			segment: newSegment,
-		};
+		return newSegment;
 	}
 
-	if (bytesRemainingNow < length) {
-		const bytesRead = iterator.counter.getOffset() - offset;
-		iterator.counter.decrement(bytesRead);
-		return {
-			status: 'incomplete',
-			segment: null,
-			continueParsing: () => {
-				return expectSegment({
-					iterator,
-					state,
-					offset,
-					children,
-					fields,
-					topLevelStructure,
-				});
-			},
+	if (segmentId === matroskaElements.Cluster) {
+		if (isInsideSegment === null) {
+			throw new Error('Expected to be inside segment');
+		}
+
+		state.webm.addCluster({
+			start: offset,
+			size,
+			segment: isInsideSegment.index,
+		});
+
+		const newSegment: ClusterSegment = {
+			type: 'Cluster',
+			minVintWidth: offsetAfterVInt - offsetBeforeVInt,
+			value: [],
 		};
+		return newSegment;
+	}
+
+	if (bytesRemainingNow < size) {
+		returnToCheckpoint();
+		return null;
 	}
 
 	const segment = await parseSegment({
 		segmentId,
 		iterator,
-		length,
+		length: size,
 		state,
 		headerReadSoFar: iterator.counter.getOffset() - offset,
 	});
 
-	return {
-		status: 'done',
-		segment,
-	};
+	return segment;
 };
 
 const parseSegment = async ({

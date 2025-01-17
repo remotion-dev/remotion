@@ -1,9 +1,11 @@
 import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
 import type {BufferIterator} from '../buffer-iterator';
+import type {LogLevel} from '../log';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {emittedState} from './emitted-fields';
 import {imagesState} from './images';
+import {isoBaseMediaState} from './iso-state';
 import {keyframesState} from './keyframes';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
@@ -34,6 +36,7 @@ export const makeParserState = ({
 	onVideoTrack,
 	supportsContentRange,
 	contentLength,
+	logLevel,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -44,6 +47,7 @@ export const makeParserState = ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	contentLength: number | null;
+	logLevel: LogLevel;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -62,6 +66,7 @@ export const makeParserState = ({
 		riff: riffSpecificState(),
 		transportStream: transportStreamState(),
 		webm: webmState(),
+		iso: isoBaseMediaState(),
 		mp3Info,
 		callbacks: sampleCallback({
 			signal,
@@ -71,6 +76,7 @@ export const makeParserState = ({
 			keyframes,
 			emittedFields,
 			slowDurationAndFpsState: slowDurationAndFps,
+			structure,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
@@ -89,6 +95,7 @@ export const makeParserState = ({
 		contentLength,
 		images,
 		videoSection: videoSectionState(),
+		logLevel,
 	};
 };
 

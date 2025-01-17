@@ -19,8 +19,8 @@ test('Should be able to parse only header of MP4', async () => {
 	expect(parsed.mimeType).toBe(null);
 	expect(parsed.container).toBe('mp4');
 	expect(parsed.internalStats).toEqual({
-		finalCursorOffset: 32,
-		skippedBytes: 26326,
+		finalCursorOffset: 0,
+		skippedBytes: 26358,
 	});
 });
 
@@ -66,6 +66,9 @@ test('Should read the whole file', async () => {
 			internalStats: true,
 			tracks: true,
 			structure: true,
+		},
+		onAudioTrack: () => {
+			return () => {};
 		},
 		reader: nodeReader,
 	});

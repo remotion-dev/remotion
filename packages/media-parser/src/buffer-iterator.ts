@@ -77,7 +77,6 @@ export const getArrayBufferIterator = (
 
 	let view = new DataView(data.buffer);
 	const counter = makeOffsetCounter();
-	let discardAllowed = true;
 
 	const startCheckpoint = () => {
 		const checkpoint = counter.getOffset();
@@ -97,14 +96,6 @@ export const getArrayBufferIterator = (
 		counter.increment(amount);
 
 		return value;
-	};
-
-	const disallowDiscard = () => {
-		discardAllowed = false;
-	};
-
-	const allowDiscard = () => {
-		discardAllowed = true;
 	};
 
 	const discard = (length: number) => {
@@ -244,6 +235,16 @@ export const getArrayBufferIterator = (
 	const addData = (newData: Uint8Array) => {
 		const oldLength = buf.byteLength;
 		const newLength = oldLength + newData.byteLength;
+		if (newLength < oldLength) {
+			throw new Error('Cannot decrement size');
+		}
+
+		if (newLength > (maxBytes ?? Infinity)) {
+			throw new Error(
+				`Exceeded maximum byte length ${maxBytes} with ${newLength}`,
+			);
+		}
+
 		buf.resize(newLength);
 		const newArray = new Uint8Array(buf);
 		newArray.set(newData, oldLength);
@@ -251,19 +252,11 @@ export const getArrayBufferIterator = (
 		view = new DataView(data.buffer);
 	};
 
-	const byteLength = () => {
-		return data.byteLength;
-	};
-
 	const bytesRemaining = () => {
 		return data.byteLength - counter.getDiscardedOffset();
 	};
 
 	const removeBytesRead = () => {
-		if (!discardAllowed) {
-			return;
-		}
-
 		const bytesToRemove = counter.getDiscardedOffset();
 
 		// Only do this operation if it is really worth it 😇
@@ -405,7 +398,6 @@ export const getArrayBufferIterator = (
 		peekB,
 		peekD,
 		getBits,
-		byteLength,
 		bytesRemaining,
 		leb128,
 		removeBytesRead,
@@ -645,8 +637,6 @@ export const getArrayBufferIterator = (
 		getInt32Le,
 		getInt32,
 		destroy,
-		disallowDiscard,
-		allowDiscard,
 		startBox,
 		readExpGolomb,
 		startCheckpoint,

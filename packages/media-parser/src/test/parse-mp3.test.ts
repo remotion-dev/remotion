@@ -186,8 +186,8 @@ test('should read only header', async () => {
 		},
 	});
 	expect(internalStats).toEqual({
-		skippedBytes: 5002972,
-		finalCursorOffset: 4096,
+		skippedBytes: 5007068,
+		finalCursorOffset: 0,
 	});
 });
 test('should read video fields', async () => {

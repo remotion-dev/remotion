@@ -54,6 +54,12 @@ export const parseMedia: ParseMedia = async function <
 		contentLength ?? 1_000_000_000,
 	);
 
+	if (contentLength === null) {
+		throw new Error(
+			'Media was passed with no content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
+		);
+	}
+
 	const supportsContentRange =
 		readerSupportsContentRange &&
 		!(
@@ -72,6 +78,7 @@ export const parseMedia: ParseMedia = async function <
 		onVideoTrack: onVideoTrack ?? null,
 		supportsContentRange,
 		contentLength,
+		logLevel,
 	});
 
 	let currentReader = reader;
@@ -122,9 +129,8 @@ export const parseMedia: ParseMedia = async function <
 		}
 
 		if (iterator.counter.getOffset() === contentLength) {
-			Log.verbose(logLevel, 'Reached end of file', contentLength);
-			// TODO: Make it possible for ISO base media too
-			return state.structure.getStructureOrNull()?.type !== 'iso-base-media';
+			Log.verbose(logLevel, 'Reached end of file');
+			return true;
 		}
 
 		return false;
@@ -132,11 +138,8 @@ export const parseMedia: ParseMedia = async function <
 
 	triggerInfoEmit();
 
-	let didProgress = false;
-	while (
-		!checkIfDone() &&
-		(parseResult === null || parseResult.status === 'incomplete')
-	) {
+	let iterationWithThisOffset = 0;
+	while (!checkIfDone()) {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
 		}
@@ -157,7 +160,7 @@ export const parseMedia: ParseMedia = async function <
 
 		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
 
-		if (!didProgress || !hasBigBuffer) {
+		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
 			await fetchMoreData();
 		}
 
@@ -171,62 +174,76 @@ export const parseMedia: ParseMedia = async function <
 
 		triggerInfoEmit();
 
-		// TODO: Deprecate 'incomplete' state
-		if (parseResult && parseResult.status === 'incomplete') {
-			Log.trace(
-				logLevel,
-				'Continuing parsing of file, currently at position',
-				iterator.counter.getOffset(),
+		if (iterationWithThisOffset > 300) {
+			throw new Error(
+				'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
 			);
-			parseResult = await parseResult.continueParsing();
-		} else {
-			parseResult = await parseVideo({
-				iterator,
-				state,
-				signal: signal ?? null,
-				logLevel,
-				fields,
-				mimeType: contentType,
-				contentLength,
-				name,
-			});
 		}
 
-		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
+		Log.trace(
+			logLevel,
+			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
+		);
+		parseResult = await parseVideo({
+			iterator,
+			state,
+			mimeType: contentType,
+			contentLength,
+			name,
+		});
+
+		if (parseResult.skipTo !== null) {
 			state.increaseSkippedBytes(
 				parseResult.skipTo - iterator.counter.getOffset(),
 			);
 		}
 
-		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
-			if (!supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
+		if (parseResult.skipTo !== null) {
 			if (parseResult.skipTo === contentLength) {
 				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
 				break;
 			}
 
-			Log.verbose(
-				logLevel,
-				`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}`,
-			);
+			const skippingAhead = parseResult.skipTo > iterator.counter.getOffset();
+			if (!skippingAhead && !supportsContentRange) {
+				throw new Error(
+					'Content-Range header is not supported by the reader, but was asked to seek',
+				);
+			}
 
-			currentReader.abort();
+			if (
+				skippingAhead &&
+				iterator.counter.getOffset() + iterator.bytesRemaining() >=
+					parseResult.skipTo
+			) {
+				Log.verbose(
+					logLevel,
+					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Data already fetched`,
+				);
+				iterator.discard(parseResult.skipTo - iterator.counter.getOffset());
+			} else {
+				Log.verbose(
+					logLevel,
+					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Re-reading because this portion is not available`,
+				);
+				currentReader.abort();
 
-			const {reader: newReader} = await readerInterface.read(
-				src,
-				parseResult.skipTo,
-				signal,
-			);
-			currentReader = newReader;
-			iterator.skipTo(parseResult.skipTo, true);
+				const {reader: newReader} = await readerInterface.read(
+					src,
+					parseResult.skipTo,
+					signal,
+				);
+				currentReader = newReader;
+				iterator.skipTo(parseResult.skipTo, true);
+			}
 		}
 
-		didProgress = iterator.counter.getOffset() > offsetBefore;
+		const didProgress = iterator.counter.getOffset() > offsetBefore;
+		if (!didProgress) {
+			iterationWithThisOffset++;
+		}
+
+		iterator.removeBytesRead();
 	}
 
 	Log.verbose(logLevel, 'Finished parsing file');

@@ -16,11 +16,9 @@ function combine28Bits(a: number, b: number, c: number, d: number): number {
 
 export const parseId3 = ({
 	iterator,
-	structure,
 	state,
 }: {
 	iterator: BufferIterator;
-	structure: Mp3Structure;
 	state: ParserState;
 }) => {
 	if (iterator.bytesRemaining() < 9) {
@@ -89,7 +87,7 @@ export const parseId3 = ({
 		}
 	}
 
-	structure.boxes.push({
+	(state.structure.getStructure() as Mp3Structure).boxes.push({
 		type: 'id3-header',
 		flags,
 		size,
