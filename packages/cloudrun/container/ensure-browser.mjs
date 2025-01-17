@@ -2710,7 +2710,7 @@ var chalk = (() => {
 })();
 
 // src/log-level.ts
-var logLevels = ["verbose", "info", "warn", "error"];
+var logLevels = ["trace", "verbose", "info", "warn", "error"];
 var getNumberForLogLevel = (level) => {
   return logLevels.indexOf(level);
 };
@@ -2745,6 +2745,19 @@ var verboseTag = (str) => {
   return isColorSupported() ? chalk.bgBlack(` ${str} `) : `[${str}]`;
 };
 var Log = {
+  trace: (options, ...args) => {
+    writeInRepro("trace", ...args);
+    if (isEqualOrBelowLogLevel(options.logLevel, "trace")) {
+      if (args.length === 0) {
+        return process.stdout.write(`
+`);
+      }
+      return console.log(...[
+        options.indent ? INDENT_TOKEN : null,
+        options.tag ? verboseTag(options.tag) : null
+      ].filter(truthy).concat(args.map((a) => chalk.gray(a))));
+    }
+  },
   verbose: (options, ...args) => {
     writeInRepro("verbose", ...args);
     if (isEqualOrBelowLogLevel(options.logLevel, "verbose")) {
