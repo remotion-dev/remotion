@@ -131,6 +131,8 @@ await convertMedia({
     const canReencode = await canReencodeVideoTrack({
       videoCodec: 'vp8',
       track,
+      resizeOperation: null,
+      rotate: 0,
     });
 
     if (canReencode) {
