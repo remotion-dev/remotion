@@ -50,10 +50,12 @@ await convertMedia({
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onVideoTrack: async ({track}) => {
+  onVideoTrack: async ({track, resizeOperation, rotate}) => {
     const canReencode = await canReencodeVideoTrack({
       track,
       videoCodec: 'vp8',
+      resizeOperation,
+      rotate,
     });
 
     if (canReencode) {
@@ -76,6 +78,14 @@ A `VideoTrack` object.
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
 
 One of the supported video codecs: `"vp8"`, `"vp9"`.
+
+### `resizeOperation`
+
+The [resize operation](/docs/webcodecs/resize-a-video) you would like to apply.
+
+### `rotate`
+
+The [rotate operation](/docs/webcodecs/rotate-a-video) you would like to apply.
 
 ## Return value
 

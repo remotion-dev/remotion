@@ -3,14 +3,15 @@ import type {
 	AudioOperation,
 	ConvertMediaContainer,
 	ResizeOperation,
-	VideoOperation} from '@remotion/webcodecs';
+	VideoOperation,
+} from '@remotion/webcodecs';
 import {
 	canCopyAudioTrack,
 	canCopyVideoTrack,
 	canReencodeAudioTrack,
 	canReencodeVideoTrack,
 	getAvailableAudioCodecs,
-	getAvailableVideoCodecs
+	getAvailableVideoCodecs,
 } from '@remotion/webcodecs';
 import type {RouteAction} from '~/seo';
 
@@ -112,6 +113,8 @@ export const getSupportedConfigs = async ({
 			const canReencode = await canReencodeVideoTrack({
 				videoCodec: outputCodec,
 				track,
+				resizeOperation,
+				rotate: userRotation,
 			});
 			if (canReencode) {
 				options.push({
