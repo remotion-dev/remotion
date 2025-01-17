@@ -32,7 +32,11 @@ export const expectSegment = async ({
 	const offset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const segmentId = iterator.getMatroskaSegmentId();
-	Log.trace(state.logLevel, 'Segment ID:', ebmlMap[segmentId as string]?.name);
+	Log.trace(
+		state.logLevel,
+		'Segment ID:',
+		ebmlMap[segmentId as keyof typeof ebmlMap]?.name,
+	);
 
 	if (segmentId === null) {
 		returnToCheckpoint();
