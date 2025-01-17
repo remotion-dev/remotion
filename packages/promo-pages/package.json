@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.249",
+	"version": "4.0.250",
 	"private": true,
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
