@@ -17,7 +17,7 @@ pre.shiki > .code-title {
 	color: var(--ifm-color-emphasis-900);
 	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 	padding: 0 var(--ifm-pre-padding);
-	font-family: 'GT Planar';
+	font-family: 'GTPlanar';
 
 	height: 2.5rem;
 	display: flex;
