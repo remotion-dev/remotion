@@ -11,13 +11,6 @@ export const parseIsoBaseMedia = async ({
 	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
-	const continueParsing = () => {
-		return parseIsoBaseMedia({
-			iterator,
-			state,
-		});
-	};
-
 	const videoSectionState = state.videoSection.isInVideoSectionState(iterator);
 
 	if (videoSectionState === 'in-section') {
@@ -26,9 +19,7 @@ export const parseIsoBaseMedia = async ({
 			state,
 		});
 		return {
-			continueParsing,
 			skipTo,
-			status: 'incomplete',
 		};
 	}
 
@@ -49,24 +40,18 @@ export const parseIsoBaseMedia = async ({
 		state.iso.setShouldReturnToVideoSectionAfterEnd(false);
 
 		return {
-			status: 'incomplete',
-			continueParsing,
 			skipTo: state.videoSection.getVideoSection().start,
 		};
 	}
 
 	if (result.skipTo !== null) {
 		return {
-			status: 'incomplete',
-			continueParsing,
 			skipTo: result.skipTo,
 		};
 	}
 
 	if (iterator.bytesRemaining() < 0) {
 		return {
-			status: 'incomplete',
-			continueParsing,
 			skipTo: null,
 		};
 	}
@@ -74,8 +59,6 @@ export const parseIsoBaseMedia = async ({
 	iterator.removeBytesRead();
 
 	return {
-		status: 'incomplete',
-		continueParsing,
 		skipTo: null,
 	};
 };

@@ -4,7 +4,7 @@ import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {StrfBoxAudio, StrfBoxVideo, StrhBox} from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
-import {getAvihBox, getStrhBox, getStrlBoxes, isRiffAvi} from './traversal';
+import {getAvihBox, getStrhBox, getStrlBoxes} from './traversal';
 
 export type AllTracks = {
 	videoTracks: VideoTrack[];
@@ -96,10 +96,6 @@ export const getTracksFromAvi = (
 	structure: RiffStructure,
 	state: ParserState,
 ): AllTracks => {
-	if (!isRiffAvi(structure)) {
-		throw new Error('Not an AVI file');
-	}
-
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
 	const otherTracks: OtherTrack[] = [];
@@ -138,10 +134,6 @@ export const hasAllTracksFromAvi = (
 	structure: RiffStructure,
 	state: ParserState,
 ): boolean => {
-	if (!isRiffAvi(structure)) {
-		throw new Error('Not an AVI file');
-	}
-
 	try {
 		const numberOfTracks = getNumberOfTracks(structure);
 		const tracks = getTracksFromAvi(structure, state);

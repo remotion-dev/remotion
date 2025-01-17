@@ -11,8 +11,7 @@ import {
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 } from './errors';
-import {Log, type LogLevel} from './log';
-import type {Options, ParseMediaFields} from './options';
+import {Log} from './log';
 import type {IsoBaseMediaBox, Mp3Structure, ParseResult} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
@@ -21,81 +20,65 @@ export type BoxAndNext = {
 	skipTo: number | null;
 };
 
-export const parseVideo = ({
+const initVideo = ({
 	iterator,
 	state,
-	logLevel,
-	fields,
 	mimeType,
-	contentLength,
 	name,
+	contentLength,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	logLevel: LogLevel;
-	fields: Options<ParseMediaFields>;
 	mimeType: string | null;
-	contentLength: number | null;
 	name: string | null;
-}): Promise<ParseResult> => {
-	if (iterator.bytesRemaining() === 0) {
-		return Promise.reject(new Error('no bytes'));
-	}
-
+	contentLength: number | null;
+}) => {
 	const fileType = iterator.detectFileType();
 
 	if (fileType.type === 'riff') {
-		Log.verbose(logLevel, 'Detected RIFF container');
+		Log.verbose(state.logLevel, 'Detected RIFF container');
 		state.structure.setStructure({
 			type: 'riff',
 			boxes: [],
 		});
-
-		return Promise.resolve(parseRiff({iterator, state, fields}));
+		return;
 	}
 
 	if (fileType.type === 'iso-base-media') {
-		Log.verbose(logLevel, 'Detected ISO Base Media container');
+		Log.verbose(state.logLevel, 'Detected ISO Base Media container');
 		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
-
-		return parseIsoBaseMedia({
-			iterator,
-			state,
-		});
+		return;
 	}
 
 	if (fileType.type === 'webm') {
-		Log.verbose(logLevel, 'Detected Matroska container');
+		Log.verbose(state.logLevel, 'Detected Matroska container');
 		state.structure.setStructure({
 			boxes: [],
 			type: 'matroska',
 		});
-		return parseWebm({iterator, state, fields});
+		return;
 	}
 
 	if (fileType.type === 'transport-stream') {
-		Log.verbose(logLevel, 'Detected MPEG-2 Transport Stream');
+		Log.verbose(state.logLevel, 'Detected MPEG-2 Transport Stream');
 		state.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
 		});
-		return parseTransportStream({
-			iterator,
-			state,
-			fields,
-		});
+		return;
 	}
 
 	if (fileType.type === 'mp3') {
+		Log.verbose(state.logLevel, 'Detected MP3');
 		const structure: Mp3Structure = {
 			boxes: [],
 			type: 'mp3',
 		};
 		state.structure.setStructure(structure);
-		return parseMp3({iterator, structure, state});
+		return;
 	}
 
 	if (fileType.type === 'wav') {
@@ -175,5 +158,60 @@ export const parseVideo = ({
 
 	return Promise.reject(
 		new Error('Unknown video format ' + (fileType satisfies never)),
+	);
+};
+
+export const parseVideo = async ({
+	iterator,
+	state,
+	mimeType,
+	contentLength,
+	name,
+}: {
+	iterator: BufferIterator;
+	state: ParserState;
+	mimeType: string | null;
+	contentLength: number | null;
+	name: string | null;
+}): Promise<ParseResult> => {
+	if (iterator.bytesRemaining() === 0) {
+		return Promise.reject(new Error('no bytes'));
+	}
+
+	const structure = state.structure.getStructureOrNull();
+
+	if (structure === null) {
+		await initVideo({iterator, state, mimeType, name, contentLength});
+		return {skipTo: null};
+	}
+
+	if (structure.type === 'riff') {
+		return parseRiff({iterator, state});
+	}
+
+	if (structure.type === 'mp3') {
+		return parseMp3({iterator, state});
+	}
+
+	if (structure.type === 'iso-base-media') {
+		return parseIsoBaseMedia({
+			iterator,
+			state,
+		});
+	}
+
+	if (structure.type === 'matroska') {
+		return parseWebm({iterator, state});
+	}
+
+	if (structure.type === 'transport-stream') {
+		return parseTransportStream({
+			iterator,
+			state,
+		});
+	}
+
+	return Promise.reject(
+		new Error('Unknown video format ' + (structure satisfies never)),
 	);
 };

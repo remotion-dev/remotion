@@ -118,15 +118,9 @@ export type Structure =
 	| TransportStreamStructure
 	| Mp3Structure;
 
-export type ParseResult =
-	| {
-			status: 'done';
-	  }
-	| {
-			status: 'incomplete';
-			skipTo: number | null;
-			continueParsing: () => Promise<ParseResult>;
-	  };
+export type ParseResult = {
+	skipTo: number | null;
+};
 
 export type MatroskaParseResult = {
 	skipTo: number | null;

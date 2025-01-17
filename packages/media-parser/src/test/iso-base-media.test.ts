@@ -58,7 +58,7 @@ if (process.platform !== 'win32') {
 		expect(audioSamples).toBe(544);
 	});
 
-	test.only('Should get keyframes', async () => {
+	test('Should get keyframes', async () => {
 		const {slowKeyframes, internalStats} = await parseMedia({
 			src: exampleVideos.iphonevideo,
 			fields: {

@@ -1,5 +1,4 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {Options, ParseMediaFields} from '../../options';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {expectSegment} from './segments';
@@ -8,24 +7,14 @@ import {expectSegment} from './segments';
 export const parseWebm = async ({
 	iterator,
 	state,
-	fields,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	fields: Options<ParseMediaFields>;
 }): Promise<ParseResult> => {
 	const structure = state.structure.getStructure();
 	if (structure.type !== 'matroska') {
 		throw new Error('Invalid structure type');
 	}
-
-	const continueParsing = () => {
-		return parseWebm({
-			iterator,
-			fields,
-			state,
-		});
-	};
 
 	const isInsideSegment = state.webm.isInsideSegment(iterator);
 	const isInsideCluster = state.webm.isInsideCluster(iterator);
@@ -37,8 +26,6 @@ export const parseWebm = async ({
 	});
 	if (results === null) {
 		return {
-			status: 'incomplete',
-			continueParsing,
 			skipTo: null,
 		};
 	}
@@ -72,8 +59,6 @@ export const parseWebm = async ({
 	}
 
 	return {
-		status: 'incomplete',
-		continueParsing,
 		skipTo: null,
 	};
 };

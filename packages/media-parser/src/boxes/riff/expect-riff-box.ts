@@ -1,5 +1,4 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {Options, ParseMediaFields} from '../../options';
 import {
 	registerTrack,
 	registerVideoTrackWhenProfileIsAvailable,
@@ -19,11 +18,9 @@ export type RiffResult = {
 export const expectRiffBox = async ({
 	iterator,
 	state,
-	fields,
 }: {
 	iterator: BufferIterator;
 	state: ParserState;
-	fields: Options<ParseMediaFields>;
 }): Promise<RiffResult> => {
 	// Need at least 16 bytes to read LIST,size,movi,size
 	if (iterator.bytesRemaining() < 16) {
@@ -61,7 +58,6 @@ export const expectRiffBox = async ({
 		iterator,
 		size: ckSize,
 		state,
-		fields,
 	});
 
 	if (box.type === 'strh-box') {

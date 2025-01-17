@@ -139,10 +139,7 @@ export const parseMedia: ParseMedia = async function <
 	triggerInfoEmit();
 
 	let iterationWithThisOffset = 0;
-	while (
-		!checkIfDone() &&
-		(parseResult === null || parseResult.status === 'incomplete')
-	) {
+	while (!checkIfDone()) {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
 		}
@@ -177,38 +174,31 @@ export const parseMedia: ParseMedia = async function <
 
 		triggerInfoEmit();
 
-		// TODO: Deprecate 'incomplete' state
-		if (parseResult && parseResult.status === 'incomplete') {
-			if (iterationWithThisOffset > 300) {
-				throw new Error(
-					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
-				);
-			}
-
-			Log.trace(
-				logLevel,
-				`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
+		if (iterationWithThisOffset > 300) {
+			throw new Error(
+				'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
 			);
-			parseResult = await parseResult.continueParsing();
-		} else {
-			parseResult = await parseVideo({
-				iterator,
-				state,
-				logLevel,
-				fields,
-				mimeType: contentType,
-				contentLength,
-				name,
-			});
 		}
 
-		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
+		Log.trace(
+			logLevel,
+			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
+		);
+		parseResult = await parseVideo({
+			iterator,
+			state,
+			mimeType: contentType,
+			contentLength,
+			name,
+		});
+
+		if (parseResult.skipTo !== null) {
 			state.increaseSkippedBytes(
 				parseResult.skipTo - iterator.counter.getOffset(),
 			);
 		}
 
-		if (parseResult.status === 'incomplete' && parseResult.skipTo !== null) {
+		if (parseResult.skipTo !== null) {
 			if (parseResult.skipTo === contentLength) {
 				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
 				break;
