@@ -1,12 +1,10 @@
 import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {getHasTracks, getTracks} from '../../../get-tracks';
+import {getHasTracks} from '../../../get-tracks';
 import {maySkipVideoData} from '../../../may-skip-video-data/may-skip-video-data';
-import type {IsoBaseMediaStructure} from '../../../parse-result';
+import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
+import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import type {ParserState} from '../../../state/parser-state';
-import {getSamplePositionsFromTrack} from '../get-sample-positions-from-track';
-import type {TrakBox} from '../trak/trak';
-import {getMoofBox} from '../traversal';
 
 export const parseMdatSection = async ({
 	iterator,
@@ -35,33 +33,11 @@ export const parseMdatSection = async ({
 		);
 	}
 
-	const tracks = getTracks(state);
-	const allTracks = [
-		...tracks.videoTracks,
-		...tracks.audioTracks,
-		...tracks.otherTracks,
-	];
+	if (!state.iso.flatSamples.getSamples()) {
+		state.iso.flatSamples.setSamples(calculateFlatSamples(state));
+	}
 
-	const flatSamples = allTracks
-		.map((track) => {
-			const samplePositions = getSamplePositionsFromTrack(
-				track.trakBox as TrakBox,
-				getMoofBox(
-					(state.structure.getStructure() as IsoBaseMediaStructure).boxes,
-				),
-			);
-			if (!samplePositions) {
-				throw new Error('No sample positions');
-			}
-
-			return samplePositions.map((samplePosition) => {
-				return {
-					track,
-					samplePosition,
-				};
-			});
-		})
-		.flat(1);
+	const flatSamples = state.iso.flatSamples.getSamples() as FlatSample[];
 
 	const samplesWithIndex = flatSamples.find((sample) => {
 		return sample.samplePosition.offset === iterator.counter.getOffset();

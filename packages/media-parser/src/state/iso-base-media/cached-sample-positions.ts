@@ -1,11 +1,18 @@
 import {getSamplePositionsFromTrack} from '../../boxes/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from '../../boxes/iso-base-media/trak/trak';
 import {getMoofBox} from '../../boxes/iso-base-media/traversal';
+import type {SamplePosition} from '../../get-sample-positions';
+import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
 import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {ParserState} from '../parser-state';
 
-const getSamples = (state: ParserState) => {
+export type FlatSample = {
+	track: VideoTrack | AudioTrack | OtherTrack;
+	samplePosition: SamplePosition;
+};
+
+export const calculateFlatSamples = (state: ParserState) => {
 	const tracks = getTracks(state);
 	const allTracks = [
 		...tracks.videoTracks,
@@ -37,15 +44,14 @@ const getSamples = (state: ParserState) => {
 };
 
 export const cachedSamplePositionsState = () => {
-	let cached: ReturnType<typeof getSamples> | null = null;
+	let cached: FlatSample[] | null = null;
 
 	return {
-		getSamples: (state: ParserState) => {
-			if (!cached) {
-				cached = getSamples(state);
-			}
-
+		getSamples: () => {
 			return cached;
+		},
+		setSamples: (samples: FlatSample[]) => {
+			cached = samples;
 		},
 	};
 };

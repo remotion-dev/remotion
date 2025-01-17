@@ -1,3 +1,5 @@
+import {cachedSamplePositionsState} from './cached-sample-positions';
+
 export const isoBaseMediaState = () => {
 	let shouldReturnToVideoSectionAfterEnd = false;
 
@@ -7,5 +9,6 @@ export const isoBaseMediaState = () => {
 		setShouldReturnToVideoSectionAfterEnd: (value: boolean) => {
 			shouldReturnToVideoSectionAfterEnd = value;
 		},
+		flatSamples: cachedSamplePositionsState(),
 	};
 };
