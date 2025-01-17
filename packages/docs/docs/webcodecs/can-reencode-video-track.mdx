@@ -50,7 +50,7 @@ await convertMedia({
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onVideoTrack: async ({track, resizeOperation}) => {
+  onVideoTrack: async ({track, resizeOperation, rotate}) => {
     const canReencode = await canReencodeVideoTrack({
       track,
       videoCodec: 'vp8',
