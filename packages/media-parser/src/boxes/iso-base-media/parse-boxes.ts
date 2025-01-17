@@ -18,6 +18,7 @@ export const parseIsoBaseMedia = async ({
 			iterator,
 			state,
 		});
+
 		return {
 			skipTo,
 		};

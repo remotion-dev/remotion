@@ -231,7 +231,7 @@ export const emitAvailableInfo = ({
 				parseResult &&
 				segments
 			) {
-				const videoCodec = getVideoCodec(segments, state);
+				const videoCodec = getVideoCodec(state);
 				callbacks.onVideoCodec?.(videoCodec);
 				if (fieldsInReturnValue.videoCodec) {
 					returnValue.videoCodec = videoCodec;
@@ -250,7 +250,7 @@ export const emitAvailableInfo = ({
 				parseResult &&
 				segments
 			) {
-				const audioCodec = getAudioCodec(segments, state);
+				const audioCodec = getAudioCodec(state);
 				callbacks.onAudioCodec?.(audioCodec);
 				if (fieldsInReturnValue.audioCodec) {
 					returnValue.audioCodec = audioCodec;
@@ -264,7 +264,7 @@ export const emitAvailableInfo = ({
 
 		if (key === 'tracks') {
 			if (!emittedFields.tracks && hasInfo.tracks && parseResult && segments) {
-				const {videoTracks, audioTracks} = getTracks(segments, state);
+				const {videoTracks, audioTracks} = getTracks(state);
 				callbacks.onTracks?.({videoTracks, audioTracks});
 				if (fieldsInReturnValue.tracks) {
 					returnValue.tracks = {videoTracks, audioTracks};
@@ -331,7 +331,7 @@ export const emitAvailableInfo = ({
 
 		if (key === 'isHdr') {
 			if (!returnValue.isHdr && hasInfo.isHdr && parseResult && segments) {
-				const isHdr = getIsHdr(segments, state);
+				const isHdr = getIsHdr(state);
 				callbacks.onIsHdr?.(isHdr);
 				if (fieldsInReturnValue.isHdr) {
 					returnValue.isHdr = isHdr;

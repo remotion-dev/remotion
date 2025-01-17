@@ -146,11 +146,11 @@ export const getHasTracks = (
 	}
 
 	if (structure.type === 'riff') {
-		return hasAllTracksFromAvi(structure, state);
+		return hasAllTracksFromAvi(state);
 	}
 
 	if (structure.type === 'transport-stream') {
-		return hasAllTracksFromTransportStream(structure, state);
+		return hasAllTracksFromTransportStream(state);
 	}
 
 	if (structure.type === 'mp3') {
@@ -233,30 +233,27 @@ export const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
 	};
 };
 
-// TODO: See if we can get rid of the first argument
-export const getTracks = (
-	segments: Structure,
-	state: ParserState,
-): AllTracks => {
-	if (segments.type === 'matroska') {
-		return getTracksFromMa(segments.boxes, state);
+export const getTracks = (state: ParserState): AllTracks => {
+	const structure = state.structure.getStructure();
+	if (structure.type === 'matroska') {
+		return getTracksFromMa(structure.boxes, state);
 	}
 
-	if (segments.type === 'iso-base-media') {
-		return getTracksFromIsoBaseMedia(segments.boxes);
+	if (structure.type === 'iso-base-media') {
+		return getTracksFromIsoBaseMedia(structure.boxes);
 	}
 
-	if (segments.type === 'riff') {
-		return getTracksFromAvi(segments, state);
+	if (structure.type === 'riff') {
+		return getTracksFromAvi(structure, state);
 	}
 
-	if (segments.type === 'transport-stream') {
-		return getTracksFromTransportStream(segments, state);
+	if (structure.type === 'transport-stream') {
+		return getTracksFromTransportStream(state);
 	}
 
-	if (segments.type === 'mp3') {
+	if (structure.type === 'mp3') {
 		return getTracksFromMp3(state);
 	}
 
-	throw new Error(`Unknown container${segments satisfies never}`);
+	throw new Error(`Unknown container${structure satisfies never}`);
 };

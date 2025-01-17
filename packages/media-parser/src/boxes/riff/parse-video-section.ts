@@ -18,7 +18,7 @@ export const parseVideoSection = ({
 		maxOffset: videoSection.start + videoSection.size,
 		state,
 	});
-	const tracks = getTracks(state.structure.getStructure(), state);
+	const tracks = getTracks(state);
 	if (!tracks.videoTracks.some((t) => t.codec === TO_BE_OVERRIDDEN_LATER)) {
 		state.callbacks.tracks.setIsDone();
 	}
