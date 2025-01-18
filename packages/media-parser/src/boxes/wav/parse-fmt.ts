@@ -26,6 +26,18 @@ export const parseFmt = async ({
 	const blockAlign = iterator.getUint16Le();
 	const bitsPerSample = iterator.getUint16Le();
 
+	const format =
+		bitsPerSample === 16
+			? 'pcm-s16'
+			: bitsPerSample === 32
+				? 'pcm-s32'
+				: bitsPerSample === 24
+					? 'pcm-s24'
+					: null;
+	if (format === null) {
+		throw new Error(`Unsupported bits per sample: ${bitsPerSample}`);
+	}
+
 	const wavHeader: WavFmt = {
 		bitsPerSample,
 		blockAlign,
@@ -40,12 +52,10 @@ export const parseFmt = async ({
 		state,
 		track: {
 			type: 'audio',
-			// TODO: Is this right
-			codec: 'pcm-s16',
+			codec: format,
 			codecPrivate: null,
 			description: undefined,
-			// TODO: is this right?
-			codecWithoutConfig: 'pcm-s32',
+			codecWithoutConfig: format,
 			numberOfChannels,
 			sampleRate,
 			timescale: 1_000_000,
