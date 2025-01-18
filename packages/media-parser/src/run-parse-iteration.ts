@@ -1,3 +1,4 @@
+import {parseAac} from './boxes/aac/parse-aac';
 import {parseIsoBaseMedia} from './boxes/iso-base-media/parse-boxes';
 import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-riff';
@@ -61,6 +62,10 @@ export const runParseIteration = async ({
 
 	if (structure.type === 'wav') {
 		return parseWav({iterator, state});
+	}
+
+	if (structure.type === 'aac') {
+		return parseAac({iterator, state});
 	}
 
 	return Promise.reject(

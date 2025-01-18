@@ -3,31 +3,11 @@ import {expect, test} from 'bun:test';
 import {
 	IsAGifError,
 	IsAnImageError,
-	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 } from '../errors';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
-
-test('Should throw IsAnUnsupportedAudio for an aac', async () => {
-	try {
-		await parseMedia({
-			src: exampleVideos.aac,
-			reader: nodeReader,
-			fields: {durationInSeconds: true},
-		});
-		throw new Error('Expected an error');
-	} catch (e) {
-		if (e instanceof IsAnUnsupportedAudioTypeError) {
-			expect(e.sizeInBytes).toEqual(1758426);
-			expect(e.audioType).toEqual('aac');
-			return;
-		}
-
-		throw e;
-	}
-});
 
 test('Should throw IsAGifError for a gif', () => {
 	const prom = parseMedia({

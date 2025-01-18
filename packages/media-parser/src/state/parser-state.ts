@@ -3,6 +3,7 @@ import type {BufferIterator} from '../buffer-iterator';
 import type {LogLevel} from '../log';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
+import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
@@ -68,6 +69,7 @@ export const makeParserState = ({
 		webm: webmState(),
 		iso: isoBaseMediaState(),
 		mp3Info,
+		aac: aacState(),
 		callbacks: sampleCallback({
 			signal,
 			hasAudioTrackHandlers,

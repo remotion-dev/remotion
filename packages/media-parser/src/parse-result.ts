@@ -1,3 +1,4 @@
+import type {AacStructure} from './boxes/aac/types';
 import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
 import type {RiffBox, RiffStructure} from './boxes/riff/riff-box';
 import type {TransportStreamBox} from './boxes/transport-stream/boxes';
@@ -48,6 +49,7 @@ export type Structure =
 	| MatroskaStructure
 	| TransportStreamStructure
 	| Mp3Structure
+	| AacStructure
 	| WavStructure;
 
 export type ParseResult = {

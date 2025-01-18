@@ -35,8 +35,8 @@ export {
 } from './get-tracks';
 
 export type {
+	MediaParserContainer,
 	Options,
-	ParseMediaContainer,
 	ParseMediaDynamicOptions,
 	ParseMediaFields,
 	ParseMediaOnProgress,

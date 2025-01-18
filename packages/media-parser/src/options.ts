@@ -110,12 +110,13 @@ export type TracksField = {
 	audioTracks: AudioTrack[];
 };
 
-export type ParseMediaContainer =
+export type MediaParserContainer =
 	| 'mp4'
 	| 'webm'
 	| 'avi'
 	| 'transport-stream'
 	| 'mp3'
+	| 'aac'
 	| 'wav';
 
 export type MediaParserKeyframe = {
@@ -141,7 +142,7 @@ export interface ParseMediaCallbacks {
 	onInternalStats?: (internalStats: InternalStats) => void;
 	onSize?: (size: number | null) => void;
 	onName?: (name: string) => void;
-	onContainer?: (container: ParseMediaContainer) => void;
+	onContainer?: (container: MediaParserContainer) => void;
 	onIsHdr?: (isHdr: boolean) => void;
 	onMetadata?: (metadata: MetadataEntry[]) => void;
 	onLocation?: (location: MediaParserLocation | null) => void;
@@ -170,7 +171,7 @@ export interface ParseMediaData {
 	name: string;
 	metadata: MetadataEntry[];
 	location: MediaParserLocation | null;
-	container: ParseMediaContainer;
+	container: MediaParserContainer;
 	mimeType: string | null;
 	keyframes: MediaParserKeyframe[] | null;
 	slowKeyframes: MediaParserKeyframe[];

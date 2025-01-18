@@ -16,17 +16,8 @@ export const parseTransportStream = async ({
 		throw new Error('Invalid structure type');
 	}
 
-	const continueParsing = () => {
-		return parseTransportStream({
-			iterator,
-			state,
-		});
-	};
-
 	if (iterator.bytesRemaining() < 188) {
 		return Promise.resolve({
-			status: 'incomplete',
-			continueParsing,
 			skipTo: null,
 		});
 	}
@@ -48,8 +39,6 @@ export const parseTransportStream = async ({
 	}
 
 	return Promise.resolve({
-		status: 'incomplete',
-		continueParsing,
 		skipTo: null,
 	});
 };

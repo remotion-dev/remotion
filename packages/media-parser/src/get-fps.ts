@@ -9,6 +9,7 @@ import {
 } from './boxes/iso-base-media/traversal';
 import type {RiffStructure} from './boxes/riff/riff-box';
 import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+import {isAudioStructure} from './is-audio-structure';
 import type {IsoBaseMediaStructure, Structure} from './parse-result';
 
 const calculateFps = ({
@@ -152,6 +153,10 @@ export const getFps = (segments: Structure) => {
 		return null;
 	}
 
+	if (segments.type === 'aac') {
+		return null;
+	}
+
 	throw new Error(
 		'Cannot get fps, not implemented: ' + (segments satisfies never),
 	);
@@ -169,6 +174,11 @@ export const hasFps = (boxes: Structure): boolean => {
 	// Matroska and Transport stream has no FPS metadata
 	// Not bothering to parse
 	// Users should use `slowFps` field
+	// same goes for audio
+	if (isAudioStructure(boxes)) {
+		return true;
+	}
+
 	if (boxes.type === 'matroska') {
 		return true;
 	}

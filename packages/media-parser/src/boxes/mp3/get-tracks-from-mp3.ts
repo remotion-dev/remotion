@@ -1,7 +1,9 @@
 import type {ParserState} from '../../state/parser-state';
 import type {AllTracks} from '../riff/get-tracks-from-avi';
 
-export const getTracksFromMp3OrWav = (parserState: ParserState): AllTracks => {
+export const getTracksFromMp3OrWavOrAac = (
+	parserState: ParserState,
+): AllTracks => {
 	const tracks = parserState.callbacks.tracks.getTracks();
 	if (tracks.length === 0) {
 		throw new Error('No tracks found');
@@ -14,9 +16,11 @@ export const getTracksFromMp3OrWav = (parserState: ParserState): AllTracks => {
 	};
 };
 
-export const hasAllTracksFromMp3OrWav = (parserState: ParserState): boolean => {
+export const hasAllTracksFromMp3OrWavOrAac = (
+	parserState: ParserState,
+): boolean => {
 	try {
-		getTracksFromMp3OrWav(parserState);
+		getTracksFromMp3OrWavOrAac(parserState);
 		return true;
 	} catch {
 		return false;

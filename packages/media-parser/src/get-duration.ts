@@ -149,6 +149,10 @@ export const getDuration = (
 		return getDurationFromWav(parserState);
 	}
 
+	if (structure.type === 'aac') {
+		return null;
+	}
+
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 

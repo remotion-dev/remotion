@@ -121,7 +121,7 @@ export class IsAnUnsupportedFileTypeError extends Error {
 	}
 }
 
-type UnsupportedAudioType = 'aac';
+type UnsupportedAudioType = never;
 
 export class IsAnUnsupportedAudioTypeError extends Error {
 	public mimeType: string | null;

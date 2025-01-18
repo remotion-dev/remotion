@@ -1,4 +1,4 @@
-import type {ParseMediaContainer, TracksField} from '@remotion/media-parser';
+import type {MediaParserContainer, TracksField} from '@remotion/media-parser';
 import type {
 	AudioOperation,
 	ConvertMediaContainer,
@@ -84,7 +84,7 @@ export const getSupportedConfigs = async ({
 	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
-	inputContainer: ParseMediaContainer;
+	inputContainer: MediaParserContainer;
 	resizeOperation: ResizeOperation | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
