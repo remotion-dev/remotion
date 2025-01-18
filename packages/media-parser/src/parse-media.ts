@@ -14,6 +14,7 @@ import type {
 	ParseMediaResult,
 } from './options';
 import type {ParseResult} from './parse-result';
+import {performSeek} from './perform-seek';
 import {fetchReader} from './readers/from-fetch';
 import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
@@ -163,14 +164,18 @@ export const parseMedia: ParseMedia = async function <
 
 		const fetchMoreData = async () => {
 			const result = await currentReader.reader.read();
-
 			if (result.value) {
 				iterator.addData(result.value);
 			}
+
+			return result.done;
 		};
 
 		while (iterator.bytesRemaining() < 0) {
-			await fetchMoreData();
+			const done = await fetchMoreData();
+			if (done) {
+				break;
+			}
 		}
 
 		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
@@ -219,38 +224,16 @@ export const parseMedia: ParseMedia = async function <
 				break;
 			}
 
-			const skippingAhead = parseResult.skipTo > iterator.counter.getOffset();
-			if (!skippingAhead && !supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
-			if (
-				skippingAhead &&
-				iterator.counter.getOffset() + iterator.bytesRemaining() >=
-					parseResult.skipTo
-			) {
-				Log.verbose(
-					logLevel,
-					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Data already fetched`,
-				);
-				iterator.discard(parseResult.skipTo - iterator.counter.getOffset());
-			} else {
-				Log.verbose(
-					logLevel,
-					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Re-reading because this portion is not available`,
-				);
-				currentReader.abort();
-
-				const {reader: newReader} = await readerInterface.read(
-					src,
-					parseResult.skipTo,
-					signal,
-				);
-				currentReader = newReader;
-				iterator.skipTo(parseResult.skipTo, true);
-			}
+			currentReader = await performSeek({
+				iterator,
+				seekTo: parseResult.skipTo,
+				supportsContentRange,
+				currentReader,
+				logLevel,
+				readerInterface,
+				signal,
+				src,
+			});
 		}
 
 		const didProgress = iterator.counter.getOffset() > offsetBefore;
@@ -258,7 +241,7 @@ export const parseMedia: ParseMedia = async function <
 			iterationWithThisOffset++;
 		}
 
-		iterator.removeBytesRead();
+		iterator.removeBytesRead(false);
 	}
 
 	Log.verbose(logLevel, 'Finished parsing file');

@@ -124,6 +124,5 @@ export const parseMdatSection = async ({
 		);
 	}
 
-	iterator.removeBytesRead();
 	return null;
 };

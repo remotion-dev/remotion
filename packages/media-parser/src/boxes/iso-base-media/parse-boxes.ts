@@ -57,8 +57,6 @@ export const parseIsoBaseMedia = async ({
 		};
 	}
 
-	iterator.removeBytesRead();
-
 	return {
 		skipTo: null,
 	};
