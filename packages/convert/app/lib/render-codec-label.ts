@@ -1,7 +1,7 @@
 import type {
 	MediaParserAudioCodec,
+	MediaParserContainer,
 	MediaParserVideoCodec,
-	ParseMediaContainer,
 } from '@remotion/media-parser';
 import type {
 	ConvertMediaAudioCodec,
@@ -87,7 +87,7 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 };
 
 export const renderHumanReadableContainer = (
-	container: ParseMediaContainer | ConvertMediaContainer,
+	container: MediaParserContainer | ConvertMediaContainer,
 ) => {
 	if (container === 'webm') {
 		return '.webm';
@@ -107,6 +107,10 @@ export const renderHumanReadableContainer = (
 
 	if (container === 'mp3') {
 		return '.mp3';
+	}
+
+	if (container === 'aac') {
+		return '.aac';
 	}
 
 	if (container === 'transport-stream') {

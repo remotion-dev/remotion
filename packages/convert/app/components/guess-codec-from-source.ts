@@ -1,9 +1,9 @@
-import type {ParseMediaContainer} from '@remotion/media-parser';
+import type {MediaParserContainer} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import type {Source} from '~/lib/convert-state';
 import type {RouteAction} from '~/seo';
 
-const guessFromExtension = (src: string): ParseMediaContainer => {
+const guessFromExtension = (src: string): MediaParserContainer => {
 	if (src.endsWith('.webm')) {
 		return 'webm';
 	}
@@ -29,7 +29,7 @@ const guessFromExtension = (src: string): ParseMediaContainer => {
 
 export const guessContainerFromSource = (
 	source: Source,
-): ParseMediaContainer => {
+): MediaParserContainer => {
 	if (source.type === 'file') {
 		return guessFromExtension(source.file.name);
 	}
@@ -109,6 +109,10 @@ export const getDefaultContainerForConversion = (
 	}
 
 	if (guessed === 'wav') {
+		return 'wav';
+	}
+
+	if (guessed === 'aac') {
 		return 'wav';
 	}
 

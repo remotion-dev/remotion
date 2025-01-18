@@ -1,8 +1,8 @@
 import {isRiffAvi} from './boxes/riff/traversal';
-import type {ParseMediaContainer} from './options';
+import type {MediaParserContainer} from './options';
 import type {Structure} from './parse-result';
 
-export const getContainer = (segments: Structure): ParseMediaContainer => {
+export const getContainer = (segments: Structure): MediaParserContainer => {
 	if (segments.type === 'iso-base-media') {
 		return 'mp4';
 	}
@@ -29,6 +29,10 @@ export const getContainer = (segments: Structure): ParseMediaContainer => {
 		}
 
 		throw new Error('Unknown RIFF container ' + segments.type);
+	}
+
+	if (segments.type === 'aac') {
+		return 'aac';
 	}
 
 	throw new Error('Unknown container ' + (segments satisfies never));

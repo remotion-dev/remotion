@@ -2,12 +2,12 @@ import type {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
+	MediaParserContainer,
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
 	MediaParserVideoCodec,
 	MetadataEntry,
-	ParseMediaContainer,
 	ParseMediaOnProgress,
 	TracksField,
 } from '@remotion/media-parser';
@@ -50,7 +50,7 @@ export const useProbe = ({
 	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
 	const [tracks, setTracks] = useState<TracksField | null>(null);
-	const [container, setContainer] = useState<ParseMediaContainer | null>(null);
+	const [container, setContainer] = useState<MediaParserContainer | null>(null);
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);

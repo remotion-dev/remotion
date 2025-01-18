@@ -1,12 +1,11 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
-import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffResult} from './expect-riff-box';
-import type {StrhBox} from './riff-box';
+import type {RiffStructure, StrhBox} from './riff-box';
 import {getStrhBox, getStrlBoxes} from './traversal';
 
 const getStrhForIndex = (

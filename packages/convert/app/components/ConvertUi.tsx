@@ -3,8 +3,8 @@ import type {
 	Dimensions,
 	LogLevel,
 	MediaParserAudioCodec,
+	MediaParserContainer,
 	MediaParserVideoCodec,
-	ParseMediaContainer,
 	TracksField,
 } from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
@@ -72,7 +72,7 @@ export default function ConvertUI({
 	readonly dimensions: Dimensions | null | undefined;
 	readonly duration: number | null;
 	readonly rotation: number | null;
-	readonly inputContainer: ParseMediaContainer | null;
+	readonly inputContainer: MediaParserContainer | null;
 	readonly logLevel: LogLevel;
 	readonly action: RouteAction;
 	readonly enableRotateOrMirror: RotateOrMirrorState;

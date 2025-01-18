@@ -1,4 +1,4 @@
-import type {ParseMediaContainer, VideoTrack} from '@remotion/media-parser';
+import type {MediaParserContainer, VideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ResizeOperation} from './resizing/mode';
 import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
@@ -11,7 +11,7 @@ export const canCopyVideoTrack = ({
 	resizeOperation,
 	inputTrack,
 }: {
-	inputContainer: ParseMediaContainer;
+	inputContainer: MediaParserContainer;
 	inputTrack: VideoTrack;
 	rotationToApply: number;
 	outputContainer: ConvertMediaContainer;

@@ -3,8 +3,8 @@ import {getTimescaleAndDuration} from '../../get-fps';
 import type {SamplePosition} from '../../get-sample-positions';
 import {getSamplePositions} from '../../get-sample-positions';
 import {getSamplePositionsFromLpcm} from '../../get-sample-positions-from-lpcm';
-import type {IsoBaseMediaBox} from '../../parse-result';
 import {getSamplesFromMoof} from '../../samples-from-moof';
+import type {IsoBaseMediaBox} from './base-media-box';
 import type {TrakBox} from './trak/trak';
 import {
 	getCttsBox,

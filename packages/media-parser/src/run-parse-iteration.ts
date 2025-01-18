@@ -1,3 +1,4 @@
+import {parseAac} from './boxes/aac/parse-aac';
 import {parseIsoBaseMedia} from './boxes/iso-base-media/parse-boxes';
 import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-riff';
@@ -6,13 +7,8 @@ import {parseWav} from './boxes/wav/parse-wav';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {initVideo} from './init-video';
-import type {IsoBaseMediaBox, ParseResult} from './parse-result';
+import type {ParseResult} from './parse-result';
 import type {ParserState} from './state/parser-state';
-
-export type BoxAndNext = {
-	box: IsoBaseMediaBox | null;
-	skipTo: number | null;
-};
 
 export const runParseIteration = async ({
 	iterator,
@@ -66,6 +62,10 @@ export const runParseIteration = async ({
 
 	if (structure.type === 'wav') {
 		return parseWav({iterator, state});
+	}
+
+	if (structure.type === 'aac') {
+		return parseAac({iterator, state});
 	}
 
 	return Promise.reject(

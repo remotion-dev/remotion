@@ -3,6 +3,7 @@ import type {
 	Primaries,
 	TransferCharacteristics,
 } from './boxes/avc/color';
+import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
@@ -11,7 +12,7 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
-import {getTracksFromMp3OrWav} from './boxes/mp3/get-tracks-from-mp3';
+import {getTracksFromMp3OrWavOrAac} from './boxes/mp3/get-tracks-from-mp3';
 import type {AllTracks} from './boxes/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
@@ -24,11 +25,7 @@ import {
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
-import type {
-	IsoBaseMediaBox,
-	IsoBaseMediaStructure,
-	Structure,
-} from './parse-result';
+import type {IsoBaseMediaStructure, Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {
@@ -161,6 +158,10 @@ export const getHasTracks = (
 		return state.callbacks.tracks.hasAllTracks();
 	}
 
+	if (structure.type === 'aac') {
+		return state.callbacks.tracks.hasAllTracks();
+	}
+
 	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
@@ -255,8 +256,12 @@ export const getTracks = (state: ParserState): AllTracks => {
 		return getTracksFromTransportStream(state);
 	}
 
-	if (structure.type === 'mp3' || structure.type === 'wav') {
-		return getTracksFromMp3OrWav(state);
+	if (
+		structure.type === 'mp3' ||
+		structure.type === 'wav' ||
+		structure.type === 'aac'
+	) {
+		return getTracksFromMp3OrWavOrAac(state);
 	}
 
 	throw new Error(`Unknown container${structure satisfies never}`);

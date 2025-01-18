@@ -1,5 +1,10 @@
-import type {RiffStructure} from '../../parse-result';
-import type {AvihBox, ListBox, RiffBox, StrhBox} from './riff-box';
+import type {
+	AvihBox,
+	ListBox,
+	RiffBox,
+	RiffStructure,
+	StrhBox,
+} from './riff-box';
 
 export const isRiffAvi = (structure: RiffStructure): boolean => {
 	return structure.boxes.some(

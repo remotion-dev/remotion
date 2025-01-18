@@ -90,3 +90,8 @@ export type RiffBox =
 	| StrfBoxVideo
 	| StrfBoxAudio
 	| IsftBox;
+
+export type RiffStructure = {
+	type: 'riff';
+	boxes: RiffBox[];
+};

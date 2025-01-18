@@ -1,4 +1,5 @@
 import type {Track} from '../get-tracks';
+import type {Options, ParseMediaFields} from '../options';
 import type {CanSkipTracksState} from './can-skip-tracks';
 
 export const makeTracksSectionState = (
@@ -16,8 +17,12 @@ export const makeTracksSectionState = (
 			tracks.push(track);
 		},
 		getTracks: () => tracks,
-		ensureHasTracksAtEnd: () => {
+		ensureHasTracksAtEnd: (fields: Options<ParseMediaFields>) => {
 			if (canSkipTracksState.canSkipTracks()) {
+				return;
+			}
+
+			if (!fields.tracks) {
 				return;
 			}
 

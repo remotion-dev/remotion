@@ -2,10 +2,10 @@ import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
 	Dimensions,
 	MediaParserAudioCodec,
+	MediaParserContainer,
 	MediaParserLocation,
 	MediaParserVideoCodec,
 	MetadataEntry,
-	ParseMediaContainer,
 } from '@remotion/media-parser';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
@@ -25,7 +25,7 @@ export const ContainerOverview: React.FC<{
 	readonly audioCodec: MediaParserAudioCodec | null | undefined;
 	readonly size: number | null;
 	readonly fps: number | null | undefined;
-	readonly container: ParseMediaContainer | null;
+	readonly container: MediaParserContainer | null;
 	readonly isHdr: boolean | undefined;
 	readonly metadata: MetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;

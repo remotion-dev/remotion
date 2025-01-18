@@ -4,7 +4,6 @@ import {
 	IsAGifError,
 	IsAPdfError,
 	IsAnImageError,
-	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 } from './errors';
 import {Log} from './log';
@@ -83,15 +82,12 @@ export const initVideo = ({
 	}
 
 	if (fileType.type === 'aac') {
-		return Promise.reject(
-			new IsAnUnsupportedAudioTypeError({
-				message: 'AAC files are not yet supported',
-				mimeType,
-				sizeInBytes: contentLength,
-				fileName: name,
-				audioType: 'aac',
-			}),
-		);
+		Log.verbose(state.logLevel, 'Detected AAC');
+		state.structure.setStructure({
+			type: 'aac',
+			boxes: [],
+		});
+		return;
 	}
 
 	if (fileType.type === 'gif') {

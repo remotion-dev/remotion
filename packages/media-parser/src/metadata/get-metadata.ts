@@ -37,6 +37,10 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 		return getMetadataFromWav(structure) ?? [];
 	}
 
+	if (structure.type === 'aac') {
+		return [];
+	}
+
 	return getMetadataFromIsoBase(structure);
 };
 

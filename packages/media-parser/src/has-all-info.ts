@@ -136,6 +136,7 @@ export const hasAllInfo = ({
 		fieldsToFetch: fields ?? {},
 		state,
 	});
+
 	if (!Object.values(availableInfo).every(Boolean)) {
 		return false;
 	}
