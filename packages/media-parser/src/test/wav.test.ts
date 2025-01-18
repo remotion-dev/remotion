@@ -3,7 +3,7 @@ import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('wav', async () => {
+test('parse full wav', async () => {
 	const {
 		tracks,
 		audioCodec,
@@ -136,4 +136,50 @@ test('wav', async () => {
 	});
 	expect(unrotatedDimensions).toBe(null);
 	expect(videoCodec).toBe(null);
+});
+
+test('should be fast to only get duration', async () => {
+	const {internalStats} = await parseMedia({
+		src: exampleVideos.chirp,
+		reader: nodeReader,
+		fields: {
+			durationInSeconds: true,
+			internalStats: true,
+			container: true,
+			size: true,
+			name: true,
+		},
+	});
+	expect(internalStats).toEqual({
+		skippedBytes: 2646106,
+		finalCursorOffset: 2646044,
+	});
+});
+
+test('should get all samples', async () => {
+	let samples = 0;
+	const {internalStats} = await parseMedia({
+		src: exampleVideos.chirp,
+		reader: nodeReader,
+		fields: {
+			internalStats: true,
+			container: true,
+			size: true,
+			name: true,
+			slowDurationInSeconds: true,
+		},
+		onAudioTrack: () => {
+			return (sample) => {
+				expect(sample.dts % 1_000_000).toBe(0);
+				expect(sample.cts % 1_000_000).toBe(0);
+				expect(sample.timestamp % 1_000_000).toBe(0);
+				samples++;
+			};
+		},
+	});
+	expect(samples).toBe(30);
+	expect(internalStats).toEqual({
+		skippedBytes: 0,
+		finalCursorOffset: 2646150,
+	});
 });

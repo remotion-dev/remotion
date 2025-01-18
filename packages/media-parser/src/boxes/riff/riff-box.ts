@@ -1,13 +1,3 @@
-export type WaveFormatBox = {
-	type: 'wave-format-box';
-	formatTag: 1;
-	numberOfChannels: number;
-	sampleRate: number;
-	blockAlign: number;
-	byteRate: number;
-	bitsPerSample: number;
-};
-
 export type ListBox = {
 	type: 'list-box';
 	listType: string;
@@ -93,7 +83,6 @@ export type IsftBox = {
 
 export type RiffBox =
 	| RiffRegularBox
-	| WaveFormatBox
 	| RiffHeader
 	| ListBox
 	| AvihBox

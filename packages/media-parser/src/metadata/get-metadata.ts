@@ -45,7 +45,6 @@ export const hasMetadata = (structure: Structure): boolean => {
 		return getMetadataFromMp3(structure) !== null;
 	}
 
-	// TOOD: Maybe a better heuristic would be if the end of the file has been reached once
 	if (structure.type === 'wav') {
 		return getMetadataFromWav(structure) !== null;
 	}

@@ -1,6 +1,5 @@
 import type {ParserState} from '../../state/parser-state';
-import type {WaveFormatBox} from '../riff/riff-box';
-import type {WavData} from './types';
+import type {WavData, WavFmt} from './types';
 
 export const getDurationFromWav = (state: ParserState) => {
 	const structure = state.structure.getStructure();
@@ -9,7 +8,7 @@ export const getDurationFromWav = (state: ParserState) => {
 	}
 
 	const fmt = structure.boxes.find((b) => b.type === 'wav-fmt') as
-		| WaveFormatBox
+		| WavFmt
 		| undefined;
 	if (!fmt) {
 		throw new Error('Expected fmt box');

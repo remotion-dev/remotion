@@ -7,6 +7,7 @@ import {parseFmt} from './parse-fmt';
 import {parseHeader} from './parse-header';
 import {parseId3} from './parse-id3';
 import {parseList} from './parse-list';
+import {parseVideoSection} from './parse-video-section';
 
 export const parseWav = ({
 	iterator,
@@ -15,8 +16,14 @@ export const parseWav = ({
 	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
+	const insideVideoSection = state.videoSection.isInVideoSectionState(iterator);
+	if (insideVideoSection === 'in-section') {
+		return parseVideoSection({iterator, state});
+	}
+
 	const type = iterator.getByteString(4, false);
 	Log.trace(state.logLevel, `Processing box type ${type}`);
+
 	if (type === 'RIFF') {
 		return parseHeader({iterator, state});
 	}
