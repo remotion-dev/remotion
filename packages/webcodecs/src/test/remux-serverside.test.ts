@@ -6,6 +6,11 @@ import {convertMedia} from '../convert-media';
 import {nodeWriter} from '../writers/node';
 
 test('should be able to remux server side', async () => {
+	// bun file descriptor problem
+	if (process.platform === 'win32') {
+		return;
+	}
+
 	const {save} = await convertMedia({
 		src: exampleVideos.bigBuckBunny,
 		reader: nodeReader,

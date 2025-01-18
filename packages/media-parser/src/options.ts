@@ -115,7 +115,8 @@ export type ParseMediaContainer =
 	| 'webm'
 	| 'avi'
 	| 'transport-stream'
-	| 'mp3';
+	| 'mp3'
+	| 'wav';
 
 export type MediaParserKeyframe = {
 	positionInBytes: number;

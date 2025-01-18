@@ -7,6 +7,7 @@ import {
 } from './boxes/iso-base-media/traversal';
 import {getDurationFromMp3} from './boxes/mp3/get-duration';
 import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+import {getDurationFromWav} from './boxes/wav/get-duration-from-wav';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
 import type {
@@ -142,6 +143,10 @@ export const getDuration = (
 
 	if (structure.type === 'mp3') {
 		return getDurationFromMp3(parserState);
+	}
+
+	if (structure.type === 'wav') {
+		return getDurationFromWav(parserState);
 	}
 
 	throw new Error('Has no duration ' + (structure satisfies never));

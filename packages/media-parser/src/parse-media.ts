@@ -14,8 +14,9 @@ import type {
 	ParseMediaResult,
 } from './options';
 import type {ParseResult} from './parse-result';
-import {parseVideo} from './parse-video';
+import {performSeek} from './perform-seek';
 import {fetchReader} from './readers/from-fetch';
+import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
 
@@ -67,10 +68,31 @@ export const parseMedia: ParseMedia = async function <
 			typeof process.env !== 'undefined' &&
 			process.env.DISABLE_CONTENT_RANGE === 'true'
 		);
+	const hasAudioTrackHandlers = Boolean(onAudioTrack);
+	const hasVideoTrackHandlers = Boolean(onVideoTrack);
+
+	if (
+		!hasAudioTrackHandlers &&
+		!hasVideoTrackHandlers &&
+		Object.values(fields).every((v) => !v)
+	) {
+		Log.warn(
+			logLevel,
+			new Error(
+				'Warning - No `fields` and no `on*` callbacks were passed to `parseMedia()`. Specify the data you would like to retrieve.',
+			),
+		);
+	}
+
+	let timeIterating = 0;
+	let timeReadingData = 0;
+	let timeSeeking = 0;
+	let timeCheckingIfDone = 0;
+	let timeFreeingData = 0;
 
 	const state = makeParserState({
-		hasAudioTrackHandlers: Boolean(onAudioTrack),
-		hasVideoTrackHandlers: Boolean(onVideoTrack),
+		hasAudioTrackHandlers,
+		hasVideoTrackHandlers,
 		signal,
 		getIterator: () => iterator,
 		fields,
@@ -112,12 +134,14 @@ export const parseMedia: ParseMedia = async function <
 	};
 
 	const checkIfDone = () => {
-		if (
-			hasAllInfo({
-				fields,
-				state,
-			})
-		) {
+		const startCheck = Date.now();
+		const hasAll = hasAllInfo({
+			fields,
+			state,
+		});
+		timeCheckingIfDone += Date.now() - startCheck;
+
+		if (hasAll) {
 			Log.verbose(logLevel, 'Got all info, skipping to the end.');
 			if (contentLength !== null) {
 				state.increaseSkippedBytes(
@@ -148,14 +172,19 @@ export const parseMedia: ParseMedia = async function <
 
 		const fetchMoreData = async () => {
 			const result = await currentReader.reader.read();
-
 			if (result.value) {
 				iterator.addData(result.value);
 			}
+
+			return result.done;
 		};
 
+		const readStart = Date.now();
 		while (iterator.bytesRemaining() < 0) {
-			await fetchMoreData();
+			const done = await fetchMoreData();
+			if (done) {
+				break;
+			}
 		}
 
 		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
@@ -163,6 +192,8 @@ export const parseMedia: ParseMedia = async function <
 		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
 			await fetchMoreData();
 		}
+
+		timeReadingData += Date.now() - readStart;
 
 		throttledState.update?.(() => ({
 			bytes: iterator.counter.getOffset(),
@@ -182,15 +213,17 @@ export const parseMedia: ParseMedia = async function <
 
 		Log.trace(
 			logLevel,
-			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
+			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
 		);
-		parseResult = await parseVideo({
+		const start = Date.now();
+		parseResult = await runParseIteration({
 			iterator,
 			state,
 			mimeType: contentType,
 			contentLength,
 			name,
 		});
+		timeIterating += Date.now() - start;
 
 		if (parseResult.skipTo !== null) {
 			state.increaseSkippedBytes(
@@ -204,38 +237,18 @@ export const parseMedia: ParseMedia = async function <
 				break;
 			}
 
-			const skippingAhead = parseResult.skipTo > iterator.counter.getOffset();
-			if (!skippingAhead && !supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
-			if (
-				skippingAhead &&
-				iterator.counter.getOffset() + iterator.bytesRemaining() >=
-					parseResult.skipTo
-			) {
-				Log.verbose(
-					logLevel,
-					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Data already fetched`,
-				);
-				iterator.discard(parseResult.skipTo - iterator.counter.getOffset());
-			} else {
-				Log.verbose(
-					logLevel,
-					`Skipping over video data from position ${iterator.counter.getOffset()} -> ${parseResult.skipTo}. Re-reading because this portion is not available`,
-				);
-				currentReader.abort();
-
-				const {reader: newReader} = await readerInterface.read(
-					src,
-					parseResult.skipTo,
-					signal,
-				);
-				currentReader = newReader;
-				iterator.skipTo(parseResult.skipTo, true);
-			}
+			const seekStart = Date.now();
+			currentReader = await performSeek({
+				iterator,
+				seekTo: parseResult.skipTo,
+				supportsContentRange,
+				currentReader,
+				logLevel,
+				readerInterface,
+				signal,
+				src,
+			});
+			timeSeeking += Date.now() - seekStart;
 		}
 
 		const didProgress = iterator.counter.getOffset() > offsetBefore;
@@ -243,7 +256,13 @@ export const parseMedia: ParseMedia = async function <
 			iterationWithThisOffset++;
 		}
 
-		iterator.removeBytesRead();
+		const timeFreeStart = Date.now();
+		const bytesRemoved = iterator.removeBytesRead(false);
+		if (bytesRemoved) {
+			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+		}
+
+		timeFreeingData += Date.now() - timeFreeStart;
 	}
 
 	Log.verbose(logLevel, 'Finished parsing file');
@@ -271,6 +290,12 @@ export const parseMedia: ParseMedia = async function <
 		mimeType: contentType,
 		name,
 	});
+
+	Log.verbose(logLevel, `Time iterating over file: ${timeIterating}ms`);
+	Log.verbose(logLevel, `Time fetching data: ${timeReadingData}ms`);
+	Log.verbose(logLevel, `Time seeking: ${timeSeeking}ms`);
+	Log.verbose(logLevel, `Time checking if done: ${timeCheckingIfDone}ms`);
+	Log.verbose(logLevel, `Time freeing data: ${timeFreeingData}ms`);
 
 	currentReader.abort();
 	iterator?.destroy();

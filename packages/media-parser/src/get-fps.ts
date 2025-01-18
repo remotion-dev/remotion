@@ -151,11 +151,13 @@ export const getFps = (segments: Structure) => {
 		return null;
 	}
 
-	if (segments.type === 'mp3') {
+	if (segments.type === 'mp3' || segments.type === 'wav') {
 		return null;
 	}
 
-	throw new Error('Cannot get fps, not implemented');
+	throw new Error(
+		'Cannot get fps, not implemented: ' + (segments satisfies never),
+	);
 };
 
 export const hasFpsSuitedForSlowFps = (boxes: Structure): boolean => {

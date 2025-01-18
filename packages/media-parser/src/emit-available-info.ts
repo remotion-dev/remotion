@@ -151,13 +151,8 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'dimensions') {
-			if (
-				hasInfo.dimensions &&
-				!emittedFields.dimensions &&
-				parseResult &&
-				segments
-			) {
-				const dimensionsQueried = getDimensions(segments, state);
+			if (hasInfo.dimensions && !emittedFields.dimensions && parseResult) {
+				const dimensionsQueried = getDimensions(state);
 				const dimensions: Dimensions | null =
 					dimensionsQueried === null
 						? null
@@ -180,10 +175,9 @@ export const emitAvailableInfo = ({
 			if (
 				hasInfo.unrotatedDimensions &&
 				!emittedFields.unrotatedDimensions &&
-				parseResult &&
-				segments
+				parseResult
 			) {
-				const dimensionsQueried = getDimensions(segments, state);
+				const dimensionsQueried = getDimensions(state);
 				const unrotatedDimensions: Dimensions | null =
 					dimensionsQueried === null
 						? null
@@ -204,13 +198,8 @@ export const emitAvailableInfo = ({
 		}
 
 		if (key === 'rotation') {
-			if (
-				hasInfo.rotation &&
-				!emittedFields.rotation &&
-				parseResult &&
-				segments
-			) {
-				const dimensionsQueried = getDimensions(segments, state);
+			if (hasInfo.rotation && !emittedFields.rotation && parseResult) {
+				const dimensionsQueried = getDimensions(state);
 				const rotation = dimensionsQueried?.rotation ?? 0;
 
 				callbacks.onRotation?.(rotation);

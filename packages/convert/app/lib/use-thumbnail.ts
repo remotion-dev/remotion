@@ -65,6 +65,22 @@ export const useThumbnailAndWaveform = ({
 					},
 				});
 
+				if (track.codecWithoutConfig === 'pcm-s16') {
+					return (sample) => {
+						waveform.add(
+							new AudioData({
+								data: sample.data,
+								format: 's16',
+								numberOfChannels: track.numberOfChannels,
+								sampleRate: track.sampleRate,
+								numberOfFrames:
+									((sample.duration as number) * track.sampleRate) / 1_000_000,
+								timestamp: sample.timestamp,
+							}),
+						);
+					};
+				}
+
 				if (!(await AudioDecoder.isConfigSupported(track)).supported) {
 					abortController.abort();
 					setError(new Error('Audio configuration not supported'));

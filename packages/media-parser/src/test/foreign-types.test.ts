@@ -10,25 +10,6 @@ import {
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('Should throw IsAnUnsupportedAudio for a wav', async () => {
-	try {
-		await parseMedia({
-			src: exampleVideos.chirp,
-			reader: nodeReader,
-			fields: {durationInSeconds: true},
-		});
-		throw new Error('Expected an error');
-	} catch (e) {
-		if (e instanceof IsAnUnsupportedAudioTypeError) {
-			expect(e.sizeInBytes).toEqual(2646150);
-			expect(e.audioType).toEqual('wav');
-			return;
-		}
-
-		throw e;
-	}
-});
-
 test('Should throw IsAnUnsupportedAudio for an aac', async () => {
 	try {
 		await parseMedia({
@@ -126,6 +107,9 @@ test('Should throw IsAnImageError for a webp', async () => {
 		await parseMedia({
 			src: exampleVideos.webp,
 			reader: nodeReader,
+			fields: {
+				container: true,
+			},
 		});
 	} catch (e) {
 		if (e instanceof IsAnImageError) {
@@ -145,6 +129,9 @@ test('Should throw IsAnPdfError for a pdf', async () => {
 		await parseMedia({
 			src: exampleVideos.pdf,
 			reader: nodeReader,
+			fields: {
+				container: true,
+			},
 		});
 	} catch (e) {
 		if (e instanceof IsAPdfError) {
@@ -162,6 +149,9 @@ test('Should throw IsAnUnsupportedFileTypeError on unknown type', async () => {
 		await parseMedia({
 			src: exampleVideos.unknown,
 			reader: nodeReader,
+			fields: {
+				container: true,
+			},
 		});
 	} catch (e) {
 		if (e instanceof IsAnUnsupportedFileTypeError) {

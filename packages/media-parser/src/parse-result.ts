@@ -28,6 +28,7 @@ import type {TrunBox} from './boxes/iso-base-media/trun';
 import type {VoidBox} from './boxes/iso-base-media/void-box';
 import type {RiffBox} from './boxes/riff/riff-box';
 import type {TransportStreamBox} from './boxes/transport-stream/boxes';
+import type {WavStructure} from './boxes/wav/types';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import type {MetadataEntry} from './metadata/get-metadata';
 
@@ -116,7 +117,8 @@ export type Structure =
 	| RiffStructure
 	| MatroskaStructure
 	| TransportStreamStructure
-	| Mp3Structure;
+	| Mp3Structure
+	| WavStructure;
 
 export type ParseResult = {
 	skipTo: number | null;

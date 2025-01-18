@@ -1,4 +1,4 @@
-type Reader = {
+export type Reader = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
 	abort: () => void;
 };

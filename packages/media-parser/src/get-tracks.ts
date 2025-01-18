@@ -11,7 +11,7 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
-import {getTracksFromMp3} from './boxes/mp3/get-tracks-from-mp3';
+import {getTracksFromMp3OrWav} from './boxes/mp3/get-tracks-from-mp3';
 import type {AllTracks} from './boxes/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
@@ -157,6 +157,10 @@ export const getHasTracks = (
 		return state.callbacks.tracks.getTracks().length > 0;
 	}
 
+	if (structure.type === 'wav') {
+		return state.callbacks.tracks.hasAllTracks();
+	}
+
 	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
@@ -251,8 +255,8 @@ export const getTracks = (state: ParserState): AllTracks => {
 		return getTracksFromTransportStream(state);
 	}
 
-	if (structure.type === 'mp3') {
-		return getTracksFromMp3(state);
+	if (structure.type === 'mp3' || structure.type === 'wav') {
+		return getTracksFromMp3OrWav(state);
 	}
 
 	throw new Error(`Unknown container${structure satisfies never}`);

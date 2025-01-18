@@ -45,7 +45,7 @@ export const getAvailableInfo = ({
 			key === 'rotation' ||
 			key === 'unrotatedDimensions'
 		) {
-			return Boolean(structure && hasDimensions(structure, state));
+			return Boolean(structure && hasDimensions(state));
 		}
 
 		if (key === 'fps') {
@@ -136,9 +136,13 @@ export const hasAllInfo = ({
 		fieldsToFetch: fields ?? {},
 		state,
 	});
-	return (
-		Object.values(availableInfo).every(Boolean) &&
-		(maySkipVideoData({state}) ||
-			state.callbacks.canSkipTracksState.canSkipTracks())
-	);
+	if (!Object.values(availableInfo).every(Boolean)) {
+		return false;
+	}
+
+	const canSkipSamples =
+		maySkipVideoData({state}) ||
+		state.callbacks.canSkipTracksState.canSkipTracks();
+
+	return canSkipSamples;
 };

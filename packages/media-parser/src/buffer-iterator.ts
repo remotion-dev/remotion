@@ -71,11 +71,11 @@ export const getArrayBufferIterator = (
 		);
 	}
 
-	let data = new Uint8Array(buf);
+	let uintArray = new Uint8Array(buf);
 
-	data.set(initialData);
+	uintArray.set(initialData);
 
-	let view = new DataView(data.buffer);
+	let view = new DataView(uintArray.buffer);
 	const counter = makeOffsetCounter();
 
 	const startCheckpoint = () => {
@@ -89,7 +89,7 @@ export const getArrayBufferIterator = (
 	};
 
 	const getSlice = (amount: number) => {
-		const value = data.slice(
+		const value = uintArray.slice(
 			counter.getDiscardedOffset(),
 			counter.getDiscardedOffset() + amount,
 		);
@@ -248,50 +248,50 @@ export const getArrayBufferIterator = (
 		buf.resize(newLength);
 		const newArray = new Uint8Array(buf);
 		newArray.set(newData, oldLength);
-		data = newArray;
-		view = new DataView(data.buffer);
+		uintArray = newArray;
+		view = new DataView(uintArray.buffer);
 	};
 
 	const bytesRemaining = () => {
-		return data.byteLength - counter.getDiscardedOffset();
+		return uintArray.byteLength - counter.getDiscardedOffset();
 	};
 
-	const removeBytesRead = () => {
+	const removeBytesRead = (force: boolean) => {
 		const bytesToRemove = counter.getDiscardedOffset();
 
 		// Only do this operation if it is really worth it 😇
-		if (bytesToRemove < 100_000) {
+		// let's set the threshold to 3MB
+		if (bytesToRemove < 3_000_000 && !force) {
+			return;
+		}
+
+		// Don't remove if the data is not even available
+		if (view.byteLength < bytesToRemove && !force) {
 			return;
 		}
 
 		counter.discardBytes(bytesToRemove);
-		const newData = data.slice(bytesToRemove);
-		data.set(newData);
+
+		const newData = uintArray.slice(bytesToRemove);
+		uintArray.set(newData);
 		buf.resize(newData.byteLength);
-		view = new DataView(data.buffer);
+		view = new DataView(uintArray.buffer);
+
+		return bytesToRemove;
 	};
 
-	const skipTo = (offset: number, reset: boolean) => {
+	const skipTo = (offset: number) => {
 		const becomesSmaller = offset < counter.getOffset();
-		if (becomesSmaller) {
-			if (reset) {
-				buf.resize(0);
-				counter.decrement(counter.getOffset() - offset);
-				counter.setDiscardedOffset(offset);
-			} else {
-				const toDecrement = counter.getOffset() - offset;
-				const newOffset = counter.getOffset() - toDecrement;
-				counter.decrement(toDecrement);
-				const c = counter.getDiscardedBytes();
-				if (c > newOffset) {
-					throw new Error('already discarded too many bytes');
-				}
-			}
-		} else {
+		if (!becomesSmaller) {
 			const currentOffset = counter.getOffset();
 			counter.increment(offset - currentOffset);
-			removeBytesRead();
+			removeBytesRead(true);
+			return;
 		}
+
+		buf.resize(0);
+		counter.decrement(counter.getOffset() - offset);
+		counter.setDiscardedOffset(offset);
 	};
 
 	const readExpGolomb = () => {
@@ -385,7 +385,7 @@ export const getArrayBufferIterator = (
 	};
 
 	const destroy = () => {
-		data = new Uint8Array(0);
+		uintArray = new Uint8Array(0);
 		buf.resize(0);
 	};
 
@@ -410,7 +410,7 @@ export const getArrayBufferIterator = (
 			return new TextDecoder().decode(atom);
 		},
 		detectFileType: () => {
-			return detectFileType(data);
+			return detectFileType(uintArray);
 		},
 		getPaddedFourByteNumber,
 		getMatroskaSegmentId: (): string | null => {
