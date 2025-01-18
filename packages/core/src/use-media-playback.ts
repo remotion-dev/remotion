@@ -177,7 +177,7 @@ export const useMediaPlayback = ({
 				mediaRef: mediaRef.current,
 				time: shouldBeTime,
 				logLevel,
-				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}, isVariableFpsVideo = ${isVariableFpsVideo}`,
+				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}, isVariableFpsVideo = ${Boolean(isVariableFpsVideo)}`,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 			if (playing && !isVariableFpsVideo) {
