@@ -16,10 +16,13 @@ export const makeWaveformVisualizer = (options: {
 			if (duration !== null) {
 				const progress = bars.durationInMicroseconds / 1_000_000 / duration;
 				const bar = Math.round(progress * AMOUNT_OF_BARS);
-				if (combinedBars.length < bar) {
-					const arr = new Uint8Array(
-						frame.allocationSize({planeIndex: 0, format: 's16'}),
-					);
+				while (combinedBars.length < bar) {
+					const allocationSize = frame.allocationSize({
+						planeIndex: 0,
+						format: 's16',
+					});
+					const arr = new Uint8Array(allocationSize);
+
 					frame.copyTo(arr, {planeIndex: 0, format: 's16'});
 
 					const average = arr.reduce((a, b) => a + b, 0) / arr.length;
