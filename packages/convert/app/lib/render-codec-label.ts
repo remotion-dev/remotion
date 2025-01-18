@@ -109,6 +109,10 @@ export const renderHumanReadableContainer = (
 		return '.mp3';
 	}
 
+	if (container === 'aac') {
+		return '.aac';
+	}
+
 	if (container === 'transport-stream') {
 		return '.ts';
 	}

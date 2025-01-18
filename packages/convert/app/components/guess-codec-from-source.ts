@@ -112,5 +112,9 @@ export const getDefaultContainerForConversion = (
 		return 'wav';
 	}
 
+	if (guessed === 'aac') {
+		return 'wav';
+	}
+
 	throw new Error('Unhandled container ' + (guessed satisfies never));
 };
