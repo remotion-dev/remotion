@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {IsoBaseMediaBox} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import type {IsoBaseMediaBox} from './base-media-box';
 import {processBox} from './process-box';
 
 export const getIsoBaseMediaChildren = async ({

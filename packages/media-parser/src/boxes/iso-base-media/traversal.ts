@@ -1,4 +1,5 @@
-import type {AnySegment, IsoBaseMediaBox, RegularBox} from '../../parse-result';
+import type {AnySegment} from '../../parse-result';
+import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
 import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
 import type {MoovBox} from './moov/moov';

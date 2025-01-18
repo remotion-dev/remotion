@@ -6,6 +6,7 @@ import {
 	getMvhdBox,
 } from './boxes/iso-base-media/traversal';
 import {getDurationFromMp3} from './boxes/mp3/get-duration';
+import type {RiffStructure} from './boxes/riff/riff-box';
 import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
 import {getDurationFromWav} from './boxes/wav/get-duration-from-wav';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
@@ -13,7 +14,6 @@ import {getHasTracks, getTracks} from './get-tracks';
 import type {
 	AnySegment,
 	IsoBaseMediaStructure,
-	RiffStructure,
 	Structure,
 } from './parse-result';
 import type {ParserState} from './state/parser-state';

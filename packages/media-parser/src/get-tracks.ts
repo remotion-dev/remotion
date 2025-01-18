@@ -3,6 +3,7 @@ import type {
 	Primaries,
 	TransferCharacteristics,
 } from './boxes/avc/color';
+import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
 import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
 import type {MoovBox} from './boxes/iso-base-media/moov/moov';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
@@ -24,11 +25,7 @@ import {
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
-import type {
-	IsoBaseMediaBox,
-	IsoBaseMediaStructure,
-	Structure,
-} from './parse-result';
+import type {IsoBaseMediaStructure, Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {

@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../../buffer-iterator';
-import type {AnySegment, IsoBaseMediaBox} from '../../../parse-result';
+import type {AnySegment} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
+import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
 
 type SampleBase = {

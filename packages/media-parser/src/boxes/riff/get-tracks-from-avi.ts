@@ -1,8 +1,12 @@
 import {addAvcProfileToTrack} from '../../add-avc-profile-to-track';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
-import type {RiffStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import type {StrfBoxAudio, StrfBoxVideo, StrhBox} from './riff-box';
+import type {
+	RiffStructure,
+	StrfBoxAudio,
+	StrfBoxVideo,
+	StrhBox,
+} from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {getAvihBox, getStrhBox, getStrlBoxes} from './traversal';
 

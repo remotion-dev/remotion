@@ -7,12 +7,9 @@ import {
 	getSttsBox,
 	getTraks,
 } from './boxes/iso-base-media/traversal';
+import type {RiffStructure} from './boxes/riff/riff-box';
 import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
-import type {
-	IsoBaseMediaStructure,
-	RiffStructure,
-	Structure,
-} from './parse-result';
+import type {IsoBaseMediaStructure, Structure} from './parse-result';
 
 const calculateFps = ({
 	sttsBox,

@@ -1,8 +1,9 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import type {ParseResult, RiffStructure} from '../../parse-result';
+import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {expectRiffBox} from './expect-riff-box';
 import {parseVideoSection} from './parse-video-section';
+import type {RiffStructure} from './riff-box';
 
 export const parseRiffBody = async ({
 	iterator,
