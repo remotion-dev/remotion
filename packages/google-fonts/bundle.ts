@@ -31,12 +31,13 @@ for (const file of output.outputs) {
 		throw new Error('not compiled correctly');
 	}
 
-	const bunFile = Bun.file(path.join('dist', 'esm', file.path));
+	const bunPath = path.join('dist', 'esm', file.path);
+	const bunFile = Bun.file(bunPath);
 	if (await bunFile.exists()) {
 		await bunFile.unlink();
 	}
 
-	Bun.write(bunFile, newStr, {});
+	Bun.write(Bun.file(bunPath), newStr, {});
 }
 
 // Bun does not yet support * external on Windows,
