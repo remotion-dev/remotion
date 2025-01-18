@@ -55,11 +55,10 @@ An error if the file is an audio file that `@remotion/media-parser` does not yet
 - `fileName`: The name of the file - from file name or `Content-Disposition` header.
 - `sizeInBytes`: The size of the file in bytes.
 - `mimeType`: The MIME type of the file.
-- `audioType`: The type of the audio file - one of `wav` or `aac`.
+- `audioType`: The type of the audio file.
 
 :::note
-`.mp3` is supported and will not throw an error.  
-`@remotion/media-parser` aims to support other audio formats in the future, in which case they will not throw an error but return audio tracks.
+Currently, as aac, mp3 and wav are supported and others are unknown, this error will never be thrown.
 :::
 
 ### `IsAGifError`
