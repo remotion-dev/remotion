@@ -45,7 +45,7 @@ export const getAvailableInfo = ({
 			key === 'rotation' ||
 			key === 'unrotatedDimensions'
 		) {
-			return Boolean(structure && hasDimensions(structure, state));
+			return Boolean(structure && hasDimensions(state));
 		}
 
 		if (key === 'fps') {
