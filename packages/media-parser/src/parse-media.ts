@@ -14,7 +14,7 @@ import type {
 	ParseMediaResult,
 } from './options';
 import type {ParseResult} from './parse-result';
-import {parseVideo} from './parse-video';
+import {runParseIteration} from './parse-video';
 import {fetchReader} from './readers/from-fetch';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
@@ -184,7 +184,7 @@ export const parseMedia: ParseMedia = async function <
 			logLevel,
 			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
 		);
-		parseResult = await parseVideo({
+		parseResult = await runParseIteration({
 			iterator,
 			state,
 			mimeType: contentType,

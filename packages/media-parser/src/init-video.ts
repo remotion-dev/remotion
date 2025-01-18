@@ -1,26 +1,16 @@
-import {parseIsoBaseMedia} from './boxes/iso-base-media/parse-boxes';
-import {parseMp3} from './boxes/mp3/parse-mp3';
-import {parseRiff} from './boxes/riff/parse-riff';
-import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
-import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {
 	IsAGifError,
+	IsAPdfError,
 	IsAnImageError,
 	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
-	IsAPdfError,
 } from './errors';
 import {Log} from './log';
-import type {IsoBaseMediaBox, Mp3Structure, ParseResult} from './parse-result';
+import type {Mp3Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
-export type BoxAndNext = {
-	box: IsoBaseMediaBox | null;
-	skipTo: number | null;
-};
-
-const initVideo = ({
+export const initVideo = ({
 	iterator,
 	state,
 	mimeType,
@@ -158,60 +148,5 @@ const initVideo = ({
 
 	return Promise.reject(
 		new Error('Unknown video format ' + (fileType satisfies never)),
-	);
-};
-
-export const parseVideo = async ({
-	iterator,
-	state,
-	mimeType,
-	contentLength,
-	name,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-	mimeType: string | null;
-	contentLength: number | null;
-	name: string | null;
-}): Promise<ParseResult> => {
-	if (iterator.bytesRemaining() === 0) {
-		return Promise.reject(new Error('no bytes'));
-	}
-
-	const structure = state.structure.getStructureOrNull();
-
-	if (structure === null) {
-		await initVideo({iterator, state, mimeType, name, contentLength});
-		return {skipTo: null};
-	}
-
-	if (structure.type === 'riff') {
-		return parseRiff({iterator, state});
-	}
-
-	if (structure.type === 'mp3') {
-		return parseMp3({iterator, state});
-	}
-
-	if (structure.type === 'iso-base-media') {
-		return parseIsoBaseMedia({
-			iterator,
-			state,
-		});
-	}
-
-	if (structure.type === 'matroska') {
-		return parseWebm({iterator, state});
-	}
-
-	if (structure.type === 'transport-stream') {
-		return parseTransportStream({
-			iterator,
-			state,
-		});
-	}
-
-	return Promise.reject(
-		new Error('Unknown video format ' + (structure satisfies never)),
 	);
 };
