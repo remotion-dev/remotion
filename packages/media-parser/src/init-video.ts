@@ -1,3 +1,4 @@
+import type {WavStructure} from './boxes/wav/types';
 import type {BufferIterator} from './buffer-iterator';
 import {
 	IsAGifError,
@@ -72,15 +73,13 @@ export const initVideo = ({
 	}
 
 	if (fileType.type === 'wav') {
-		return Promise.reject(
-			new IsAnUnsupportedAudioTypeError({
-				message: 'WAV files are not yet supported',
-				mimeType,
-				sizeInBytes: contentLength,
-				fileName: name,
-				audioType: 'wav',
-			}),
-		);
+		Log.verbose(state.logLevel, 'Detected WAV');
+		const structure: WavStructure = {
+			boxes: [],
+			type: 'wav',
+		};
+		state.structure.setStructure(structure);
+		return;
 	}
 
 	if (fileType.type === 'aac') {

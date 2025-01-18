@@ -14,8 +14,8 @@ import type {
 	ParseMediaResult,
 } from './options';
 import type {ParseResult} from './parse-result';
-import {runParseIteration} from './parse-video';
 import {fetchReader} from './readers/from-fetch';
+import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
 
@@ -67,10 +67,25 @@ export const parseMedia: ParseMedia = async function <
 			typeof process.env !== 'undefined' &&
 			process.env.DISABLE_CONTENT_RANGE === 'true'
 		);
+	const hasAudioTrackHandlers = Boolean(onAudioTrack);
+	const hasVideoTrackHandlers = Boolean(onVideoTrack);
+
+	if (
+		!hasAudioTrackHandlers &&
+		!hasVideoTrackHandlers &&
+		Object.values(fields).every((v) => !v)
+	) {
+		Log.warn(
+			logLevel,
+			new Error(
+				'Warning - No `fields` and no `on*` callbacks were passed to `parseMedia()`. Specify the data you would like to retrieve.',
+			),
+		);
+	}
 
 	const state = makeParserState({
-		hasAudioTrackHandlers: Boolean(onAudioTrack),
-		hasVideoTrackHandlers: Boolean(onVideoTrack),
+		hasAudioTrackHandlers,
+		hasVideoTrackHandlers,
 		signal,
 		getIterator: () => iterator,
 		fields,
@@ -182,7 +197,7 @@ export const parseMedia: ParseMedia = async function <
 
 		Log.trace(
 			logLevel,
-			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength}`,
+			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
 		);
 		parseResult = await runParseIteration({
 			iterator,

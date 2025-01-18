@@ -264,6 +264,11 @@ export const getArrayBufferIterator = (
 			return;
 		}
 
+		// Don't remove if the data is not even available
+		if (view.byteLength < bytesToRemove) {
+			return;
+		}
+
 		counter.discardBytes(bytesToRemove);
 		const newData = data.slice(bytesToRemove);
 		data.set(newData);

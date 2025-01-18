@@ -19,6 +19,10 @@ export const getContainer = (segments: Structure): ParseMediaContainer => {
 		return 'mp3';
 	}
 
+	if (segments.type === 'wav') {
+		return 'wav';
+	}
+
 	if (segments.type === 'riff') {
 		if (isRiffAvi(segments)) {
 			return 'avi';

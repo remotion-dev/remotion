@@ -23,6 +23,10 @@ export const getDimensions = (
 			return null;
 		}
 
+		if (boxes.type === 'wav') {
+			return null;
+		}
+
 		throw new Error('Expected video track');
 	}
 

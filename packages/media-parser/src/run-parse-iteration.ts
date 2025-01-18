@@ -2,6 +2,7 @@ import {parseIsoBaseMedia} from './boxes/iso-base-media/parse-boxes';
 import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-riff';
 import {parseTransportStream} from './boxes/transport-stream/parse-transport-stream';
+import {parseWav} from './boxes/wav/parse-wav';
 import {parseWebm} from './boxes/webm/parse-webm-header';
 import type {BufferIterator} from './buffer-iterator';
 import {initVideo} from './init-video';
@@ -61,6 +62,10 @@ export const runParseIteration = async ({
 			iterator,
 			state,
 		});
+	}
+
+	if (structure.type === 'wav') {
+		return parseWav({iterator, state});
 	}
 
 	return Promise.reject(

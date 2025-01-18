@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import {Log} from '../../log';
-import type {BoxAndNext} from '../../parse-video';
 import {registerTrack} from '../../register-track';
+import type {BoxAndNext} from '../../run-parse-iteration';
 import type {ParserState} from '../../state/parser-state';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
