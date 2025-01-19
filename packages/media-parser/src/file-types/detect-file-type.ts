@@ -75,6 +75,12 @@ export const isAac = (data: Uint8Array) => {
 	return matchesPattern(aacPattern)(data.subarray(0, 2));
 };
 
+export const isFlac = (data: Uint8Array) => {
+	const flacPattern = new Uint8Array([0x66, 0x4c, 0x61, 0x43]);
+
+	return matchesPattern(flacPattern)(data.subarray(0, 4));
+};
+
 export type RiffType = {
 	type: 'riff';
 };
@@ -107,6 +113,10 @@ export type GifType = {
 	type: 'gif';
 };
 
+export type FlacType = {
+	type: 'flac';
+};
+
 export type UnknownType = {
 	type: 'unknown';
 };
@@ -126,4 +136,5 @@ export type FileType =
 	| PngType
 	| BmpType
 	| AacType
+	| FlacType
 	| UnknownType;

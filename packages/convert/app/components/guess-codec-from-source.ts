@@ -116,5 +116,9 @@ export const getDefaultContainerForConversion = (
 		return 'wav';
 	}
 
+	if (guessed === 'flac') {
+		return 'wav';
+	}
+
 	throw new Error('Unhandled container ' + (guessed satisfies never));
 };

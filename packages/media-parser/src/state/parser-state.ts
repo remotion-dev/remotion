@@ -5,6 +5,7 @@ import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
+import {flacState} from './flac-state';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
@@ -70,6 +71,7 @@ export const makeParserState = ({
 		iso: isoBaseMediaState(),
 		mp3Info,
 		aac: aacState(),
+		flac: flacState(),
 		callbacks: sampleCallback({
 			signal,
 			hasAudioTrackHandlers,

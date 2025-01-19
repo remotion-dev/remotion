@@ -5,9 +5,11 @@ const createContent: CreateContent = async ({filename}) => {
 	const actualFilename = `__remotion_mediaparser:${filename}`;
 
 	const remove = async () => {
-		await directoryHandle.removeEntry(actualFilename, {
-			recursive: true,
-		});
+		try {
+			await directoryHandle.removeEntry(actualFilename, {
+				recursive: true,
+			});
+		} catch {}
 	};
 
 	await remove();

@@ -23,6 +23,10 @@ export const getContainer = (segments: Structure): MediaParserContainer => {
 		return 'wav';
 	}
 
+	if (segments.type === 'flac') {
+		return 'flac';
+	}
+
 	if (segments.type === 'riff') {
 		if (isRiffAvi(segments)) {
 			return 'avi';

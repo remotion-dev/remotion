@@ -1,3 +1,4 @@
+import type {FlacStructure} from './boxes/flac/types';
 import type {WavStructure} from './boxes/wav/types';
 import type {BufferIterator} from './buffer-iterator';
 import {
@@ -76,6 +77,16 @@ export const initVideo = ({
 		const structure: WavStructure = {
 			boxes: [],
 			type: 'wav',
+		};
+		state.structure.setStructure(structure);
+		return;
+	}
+
+	if (fileType.type === 'flac') {
+		Log.verbose(state.logLevel, 'Detected FLAC');
+		const structure: FlacStructure = {
+			boxes: [],
+			type: 'flac',
 		};
 		state.structure.setStructure(structure);
 		return;

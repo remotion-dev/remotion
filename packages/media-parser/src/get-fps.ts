@@ -149,11 +149,12 @@ export const getFps = (segments: Structure) => {
 		return null;
 	}
 
-	if (segments.type === 'mp3' || segments.type === 'wav') {
-		return null;
-	}
-
-	if (segments.type === 'aac') {
+	if (
+		segments.type === 'mp3' ||
+		segments.type === 'wav' ||
+		segments.type === 'flac' ||
+		segments.type === 'aac'
+	) {
 		return null;
 	}
 

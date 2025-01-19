@@ -1,3 +1,4 @@
+import {getMetadataFromFlac} from '../boxes/flac/get-metadata-from-flac';
 import {getMetadataFromMp3} from '../boxes/mp3/get-metadata-from-mp3';
 import {getMetadataFromWav} from '../boxes/wav/get-metadata-from-wav';
 import type {Structure} from '../parse-result';
@@ -39,6 +40,10 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 
 	if (structure.type === 'aac') {
 		return [];
+	}
+
+	if (structure.type === 'flac') {
+		return getMetadataFromFlac(structure) ?? [];
 	}
 
 	return getMetadataFromIsoBase(structure);

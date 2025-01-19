@@ -359,6 +359,45 @@ export const getArrayBufferIterator = (
 		byteToShift = getUint8();
 	};
 
+	// https://www.rfc-editor.org/rfc/rfc9639.html#name-coded-number
+	const getFlacCodecNumber = () => {
+		let ones = 0;
+		let bits = 0;
+
+		// eslint-disable-next-line no-constant-binary-expression
+		while ((++bits || true) && getBits(1) === 1) {
+			ones++;
+		}
+
+		if (ones === 0) {
+			return getBits(7);
+		}
+
+		const bitArray: number[] = [];
+		const firstByteBits = 8 - ones - 1;
+		for (let i = 0; i < firstByteBits; i++) {
+			bitArray.unshift(getBits(1));
+		}
+
+		const extraBytes = ones - 1;
+		for (let i = 0; i < extraBytes; i++) {
+			for (let j = 0; j < 8; j++) {
+				const val = getBits(1);
+				if (j < 2) {
+					continue;
+				}
+
+				bitArray.unshift(val);
+			}
+		}
+
+		const encoded = bitArray.reduce((acc, bit, index) => {
+			return acc | (bit << index);
+		}, 0);
+
+		return encoded;
+	};
+
 	const getBits = (bits: number) => {
 		let result = 0;
 		let bitsCollected = 0;
@@ -640,6 +679,7 @@ export const getArrayBufferIterator = (
 		startBox,
 		readExpGolomb,
 		startCheckpoint,
+		getFlacCodecNumber,
 	};
 };
 

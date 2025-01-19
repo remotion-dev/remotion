@@ -97,6 +97,10 @@ const makeAudioCodecId = (codecId: MediaParserAudioCodec) => {
 		return 'A_VORBIS';
 	}
 
+	if (codecId === 'flac') {
+		return 'A_FLAC';
+	}
+
 	if (codecId === 'pcm-u8') {
 		return 'A_PCM/INT/LIT';
 	}

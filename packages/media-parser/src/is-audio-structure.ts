@@ -13,6 +13,10 @@ export const isAudioStructure = (structure: Structure) => {
 		return true;
 	}
 
+	if (structure.type === 'flac') {
+		return true;
+	}
+
 	if (structure.type === 'iso-base-media') {
 		return false;
 	}
