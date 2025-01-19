@@ -4,6 +4,7 @@ import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {parseFlacFrame} from './parse-flac-frame';
 import {parseFlacHeader} from './parse-header';
+import {parseVorbisComment} from './parse-metadata';
 import {parseStreamInfo} from './parse-streaminfo';
 import {parseFlacUnkownBlock} from './parse-unknown-block';
 
@@ -60,6 +61,10 @@ export const parseFlac = ({
 
 	if (metaBlockType === flacTypes.streaminfo) {
 		return parseStreamInfo({iterator, state});
+	}
+
+	if (metaBlockType === flacTypes.vorbisComment) {
+		return parseVorbisComment({iterator, state, size});
 	}
 
 	return parseFlacUnkownBlock({iterator, state, size});

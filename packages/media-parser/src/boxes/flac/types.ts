@@ -1,3 +1,5 @@
+import type {MetadataEntry} from '../../metadata/get-metadata';
+
 export type FlacHeader = {
 	type: 'flac-header';
 };
@@ -14,11 +16,16 @@ export type FlacStreamInfo = {
 	totalSamples: number;
 };
 
+export type FlacVorbisComment = {
+	type: 'flac-vorbis-comment';
+	fields: MetadataEntry[];
+};
+
 export type FlacUnknownBlock = {
 	type: 'flac-unknown-block';
 };
 
 export type FlacStructure = {
 	type: 'flac';
-	boxes: (FlacHeader | FlacStreamInfo | FlacUnknownBlock)[];
+	boxes: (FlacHeader | FlacStreamInfo | FlacUnknownBlock | FlacVorbisComment)[];
 };
