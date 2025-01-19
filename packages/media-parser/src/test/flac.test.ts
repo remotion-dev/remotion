@@ -77,7 +77,7 @@ test('parse flac', async () => {
 				22, 231, 0, 113, 139, 185, 1, 33, 54, 155, 80, 241, 191, 203, 112,
 			]),
 			codecWithoutConfig: 'flac',
-			numberOfChannels: 1,
+			numberOfChannels: 2,
 			sampleRate: 44100,
 			timescale: 1000000,
 			trackId: 0,
@@ -151,7 +151,7 @@ test('parse flac', async () => {
 			},
 			{
 				bitsPerSample: 15,
-				channels: 1,
+				channels: 2,
 				maximumBlockSize: 4096,
 				maximumFrameSize: 9645,
 				minimumBlockSize: 4096,

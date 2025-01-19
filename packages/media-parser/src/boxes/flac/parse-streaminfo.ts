@@ -18,7 +18,7 @@ export const parseStreamInfo = async ({
 	const maximumFrameSize = iterator.getUint24();
 	iterator.startReadingBits();
 	const sampleRate = iterator.getBits(20);
-	const channels = iterator.getBits(3);
+	const channels = iterator.getBits(3) + 1;
 	const bitsPerSample = iterator.getBits(5);
 	const totalSamples = iterator.getBits(36);
 	iterator.getBits(128); // md5
