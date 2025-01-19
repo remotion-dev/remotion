@@ -55,6 +55,10 @@ export const renderHumanReadableAudioCodec = (
 		return 'WAV';
 	}
 
+	if (codec === 'flac') {
+		return 'FLAC';
+	}
+
 	throw new Error(`Unknown audio codec ${codec satisfies never}`);
 };
 
@@ -115,6 +119,10 @@ export const renderHumanReadableContainer = (
 
 	if (container === 'transport-stream') {
 		return '.ts';
+	}
+
+	if (container === 'flac') {
+		return '.flac';
 	}
 
 	throw new Error(`Unknown container ${container satisfies never}`);
