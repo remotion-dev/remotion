@@ -1,3 +1,4 @@
+import {getDurationFromFlac} from './boxes/flac/get-duration-from-flac';
 import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from './boxes/iso-base-media/trak/trak';
 import {
@@ -151,6 +152,10 @@ export const getDuration = (
 
 	if (structure.type === 'aac') {
 		return null;
+	}
+
+	if (structure.type === 'flac') {
+		return getDurationFromFlac(parserState);
 	}
 
 	throw new Error('Has no duration ' + (structure satisfies never));

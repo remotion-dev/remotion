@@ -117,6 +117,7 @@ export type MediaParserContainer =
 	| 'transport-stream'
 	| 'mp3'
 	| 'aac'
+	| 'flac'
 	| 'wav';
 
 export type MediaParserKeyframe = {

@@ -1,4 +1,5 @@
 import type {AacStructure} from './boxes/aac/types';
+import type {FlacStructure} from './boxes/flac/types';
 import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
 import type {RiffBox, RiffStructure} from './boxes/riff/riff-box';
 import type {TransportStreamBox} from './boxes/transport-stream/boxes';
@@ -50,7 +51,8 @@ export type Structure =
 	| TransportStreamStructure
 	| Mp3Structure
 	| AacStructure
-	| WavStructure;
+	| WavStructure
+	| FlacStructure;
 
 export type ParseResult = {
 	skipTo: number | null;

@@ -58,6 +58,7 @@ export type MediaParserAudioCodec =
 	| 'pcm-s24'
 	| 'pcm-s32'
 	| 'pcm-f32'
+	| 'flac'
 	| 'aiff';
 
 export type VideoTrack = {
@@ -162,6 +163,10 @@ export const getHasTracks = (
 		return state.callbacks.tracks.hasAllTracks();
 	}
 
+	if (structure.type === 'flac') {
+		return state.callbacks.tracks.hasAllTracks();
+	}
+
 	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
@@ -259,6 +264,7 @@ export const getTracks = (state: ParserState): AllTracks => {
 	if (
 		structure.type === 'mp3' ||
 		structure.type === 'wav' ||
+		structure.type === 'flac' ||
 		structure.type === 'aac'
 	) {
 		return getTracksFromMp3OrWavOrAac(state);

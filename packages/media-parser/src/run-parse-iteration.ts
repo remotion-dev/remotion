@@ -1,4 +1,5 @@
 import {parseAac} from './boxes/aac/parse-aac';
+import {parseFlac} from './boxes/flac/parse-flac';
 import {parseIsoBaseMedia} from './boxes/iso-base-media/parse-boxes';
 import {parseMp3} from './boxes/mp3/parse-mp3';
 import {parseRiff} from './boxes/riff/parse-riff';
@@ -66,6 +67,10 @@ export const runParseIteration = async ({
 
 	if (structure.type === 'aac') {
 		return parseAac({iterator, state});
+	}
+
+	if (structure.type === 'flac') {
+		return parseFlac({iterator, state});
 	}
 
 	return Promise.reject(

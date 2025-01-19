@@ -41,6 +41,11 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 		return [];
 	}
 
+	if (structure.type === 'flac') {
+		// TODO: Wrong
+		return [];
+	}
+
 	return getMetadataFromIsoBase(structure);
 };
 

@@ -68,6 +68,7 @@ export const exampleVideos = {
 		'renders',
 		'regular-audio.bmp',
 	),
+	flac: path.join(__dirname, '..', 'videos', 'sample.flac'),
 	webp: path.join(__dirname, '..', 'videos', '1.webp'),
 	pdf: path.join(
 		docsPackage,
