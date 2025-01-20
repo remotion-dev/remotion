@@ -727,7 +727,7 @@ export const Index: React.FC = () => {
 				<Composition
 					id="animated-images"
 					component={AnimatedImages}
-					width={1920}
+					width={2400}
 					height={1080}
 					durationInFrames={200}
 					fps={30}

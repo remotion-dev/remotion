@@ -24,6 +24,13 @@ export const AnimatedImages = () => {
 				/>
 				<div className="text-7xl font-sans font-bold">GIF</div>
 			</div>
+			<div className="flex flex-col items-center gap-8">
+				<AnimatedImage
+					className="h-96 inline-block rounded-2xl outline outline-8 outline-[#0B84F3]"
+					src={staticFile('animated-png.png')}
+				/>
+				<div className="text-7xl font-sans font-bold">APNG</div>
+			</div>
 		</AbsoluteFill>
 	);
 };

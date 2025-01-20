@@ -7,16 +7,14 @@ crumb: 'API'
 
 # `<AnimatedImage>`<AvailableFrom v="4.0.246" />
 
-Renders an animated GIF, AVIF or WebP image and syncs it with Remotion's timeline.  
+Renders an animated GIF, PNG, AVIF or WebP image and syncs it with Remotion's timeline.  
 Relies on the [`ImageDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder) Web API, meaning it only works in Google Chrome and Firefox as of writing.
 
 ```tsx twoslash title="Loading a remote animated image"
 import {AnimatedImage} from 'remotion';
 
 export const WebpAnimatedImage = () => {
-  return (
-    <AnimatedImage src="https://mathiasbynens.be/demo/animated-webp-supported.webp" />
-  );
+  return <AnimatedImage src="https://mathiasbynens.be/demo/animated-webp-supported.webp" />;
 };
 ```
 
@@ -41,13 +39,10 @@ Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/We
   <summary>More info</summary>
   <ul>
     <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it
-      may be different if rendering on Lambda or the port is busy.
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
-      You can{' '}
-      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
-      during renders.
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
 </details>
@@ -87,7 +82,7 @@ You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs
 
 ## Differences to `<Gif>`
 
-- `<AnimatedImage>` also supports AVIF and WebP images.
+- `<AnimatedImage>` also supports AVIF, APNG and WebP images.
 - `<AnimatedImage>` uses the [`ImageDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder) Web API, which has limited browser support.
 - `<AnimatedImage>` does not support the `onLoad` prop.
 
