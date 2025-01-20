@@ -28,6 +28,8 @@ test('parse full wav', async () => {
 		structure,
 		unrotatedDimensions,
 		videoCodec,
+		numberOfAudioChannels,
+		sampleRate,
 	} = await parseMedia({
 		src: exampleVideos.chirp,
 		reader: nodeReader,
@@ -55,6 +57,8 @@ test('parse full wav', async () => {
 			structure: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
+			sampleRate: true,
+			numberOfAudioChannels: true,
 		},
 	});
 	expect(dimensions).toBe(null);
@@ -136,6 +140,8 @@ test('parse full wav', async () => {
 	});
 	expect(unrotatedDimensions).toBe(null);
 	expect(videoCodec).toBe(null);
+	expect(numberOfAudioChannels).toBe(1);
+	expect(sampleRate).toBe(44100);
 });
 
 test('should be fast to only get duration', async () => {

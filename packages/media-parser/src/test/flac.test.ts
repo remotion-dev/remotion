@@ -29,6 +29,8 @@ test('parse flac', async () => {
 		slowNumberOfFrames,
 		structure,
 		unrotatedDimensions,
+		numberOfAudioChannels,
+		sampleRate,
 	} = await parseMedia({
 		src: exampleVideos.flac,
 		reader: nodeReader,
@@ -56,6 +58,8 @@ test('parse flac', async () => {
 			slowNumberOfFrames: true,
 			structure: true,
 			unrotatedDimensions: true,
+			numberOfAudioChannels: true,
+			sampleRate: true,
 		},
 		onAudioTrack: () => {
 			return () => {
@@ -203,6 +207,8 @@ test('parse flac', async () => {
 		],
 	});
 	expect(unrotatedDimensions).toBe(null);
+	expect(sampleRate).toBe(44100);
+	expect(numberOfAudioChannels).toBe(2);
 });
 
 test('parse flac minimal seek', async () => {

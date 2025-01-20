@@ -28,6 +28,8 @@ test('should read MP3 file', async () => {
 		structure,
 		unrotatedDimensions,
 		videoCodec,
+		numberOfAudioChannels,
+		sampleRate,
 	} = await parseMedia({
 		src: exampleVideos.music,
 		reader: nodeReader,
@@ -54,6 +56,8 @@ test('should read MP3 file', async () => {
 			structure: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
+			numberOfAudioChannels: true,
+			sampleRate: true,
 		},
 		onAudioTrack: () => {
 			let lastSample = -1;
@@ -158,6 +162,8 @@ test('should read MP3 file', async () => {
 	expect(slowNumberOfFrames).toBe(0);
 	expect(structure.boxes.length).toEqual(1);
 	expect(unrotatedDimensions).toBe(null);
+	expect(numberOfAudioChannels).toBe(2);
+	expect(sampleRate).toBe(44100);
 });
 
 test('should read only metadata', async () => {

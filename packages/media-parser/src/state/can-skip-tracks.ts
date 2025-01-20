@@ -34,7 +34,9 @@ export const needsTracksForField = ({
 		field === 'slowKeyframes' ||
 		field === 'slowNumberOfFrames' ||
 		field === 'keyframes' ||
-		field === 'images'
+		field === 'images' ||
+		field === 'sampleRate' ||
+		field === 'numberOfAudioChannels'
 	) {
 		return true;
 	}
