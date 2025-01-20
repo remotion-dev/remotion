@@ -2,19 +2,6 @@ import {MediaParserInternals} from '@remotion/media-parser';
 import {expect, test} from 'bun:test';
 import {makeMatroskaBytes} from '../create/matroska/matroska-utils';
 
-const state = MediaParserInternals.makeParserState({
-	hasAudioTrackHandlers: false,
-	hasVideoTrackHandlers: false,
-	signal: undefined,
-	getIterator: () => null,
-	fields: {},
-	onAudioTrack: null,
-	onVideoTrack: null,
-	supportsContentRange: true,
-	contentLength: null,
-	logLevel: 'info',
-});
-
 test('Should make Matroska header that is same as input', async () => {
 	const headerOutput = makeMatroskaBytes({
 		type: 'Header',
@@ -62,7 +49,20 @@ test('Should make Matroska header that is same as input', async () => {
 		headerOutput.bytes,
 		headerOutput.bytes.length,
 	);
-	const parsed = await MediaParserInternals.parseEbml(iterator, state);
+
+	const state = MediaParserInternals.makeParserState({
+		hasAudioTrackHandlers: false,
+		hasVideoTrackHandlers: false,
+		signal: undefined,
+		iterator,
+		fields: {},
+		onAudioTrack: null,
+		onVideoTrack: null,
+		supportsContentRange: true,
+		contentLength: null,
+		logLevel: 'info',
+	});
+	const parsed = await MediaParserInternals.parseEbml(state);
 
 	expect(parsed).toEqual({
 		type: 'Header',
