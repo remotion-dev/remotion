@@ -32,6 +32,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	onParseProgress: onParseProgressDoNotCallDirectly,
 	progressIntervalInMs,
 	mode,
+	onDiscardedData,
 	...more
 }: InternalParseMediaOptions<F>) {
 	let parseResult: ParseResult | null = null;
@@ -74,7 +75,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 	if (
 		!hasAudioTrackHandlers &&
 		!hasVideoTrackHandlers &&
-		Object.values(fields).every((v) => !v)
+		Object.values(fields).every((v) => !v) &&
+		mode === 'query'
 	) {
 		Log.warn(
 			logLevel,
@@ -141,7 +143,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		});
 		timeCheckingIfDone += Date.now() - startCheck;
 
-		if (hasAll) {
+		if (hasAll && mode === 'query') {
 			Log.verbose(logLevel, 'Got all info, skipping to the end.');
 			if (contentLength !== null) {
 				state.increaseSkippedBytes(
@@ -154,6 +156,11 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 		if (iterator.counter.getOffset() === contentLength) {
 			Log.verbose(logLevel, 'Reached end of file');
+			const {removedData} = iterator.removeBytesRead(true, mode);
+			if (removedData) {
+				onDiscardedData(removedData);
+			}
+
 			return true;
 		}
 
@@ -243,6 +250,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 				readerInterface: reader,
 				src,
 				state,
+				onDiscardedData,
 			});
 			timeSeeking += Date.now() - seekStart;
 		}
@@ -253,9 +261,13 @@ export const internalParseMedia: InternalParseMedia = async function <
 		}
 
 		const timeFreeStart = Date.now();
-		const bytesRemoved = iterator.removeBytesRead(false);
+		const {bytesRemoved, removedData} = iterator.removeBytesRead(false, mode);
 		if (bytesRemoved) {
 			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+		}
+
+		if (removedData) {
+			onDiscardedData(removedData);
 		}
 
 		timeFreeingData += Date.now() - timeFreeStart;

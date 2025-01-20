@@ -1,8 +1,8 @@
 import {internalParseMedia} from './internal-parse-media';
-import type {DownloadAndParseMedia} from './options';
+import type {ParseAndDownloadMedia} from './options';
 import {fetchReader} from './readers/from-fetch';
 
-export const downloadAndParseMedia: DownloadAndParseMedia = (options) => {
+export const parseAndDownloadMedia: ParseAndDownloadMedia = (options) => {
 	return internalParseMedia({
 		fields: options.fields ?? null,
 		logLevel: options.logLevel ?? 'info',

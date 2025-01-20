@@ -262,6 +262,6 @@ export type ParseMedia = <F extends Options<ParseMediaFields>>(
 	options: ParseMediaOptions<F>,
 ) => Promise<ParseMediaResult<F>>;
 
-export type DownloadAndParseMedia = <F extends Options<ParseMediaFields>>(
+export type ParseAndDownloadMedia = <F extends Options<ParseMediaFields>>(
 	options: DownloadAndParseMediaOptions<F>,
 ) => Promise<ParseMediaResult<F>>;

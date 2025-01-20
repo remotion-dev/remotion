@@ -8,12 +8,14 @@ export const performSeek = async ({
 	currentReader,
 	readerInterface,
 	src,
+	onDiscardedData,
 }: {
 	seekTo: number;
 	state: ParserState;
 	currentReader: Reader;
 	readerInterface: ReaderInterface;
 	src: string | Blob;
+	onDiscardedData: (data: Uint8Array) => void;
 }): Promise<Reader> => {
 	const {iterator, supportsContentRange, logLevel, signal, mode} = state;
 	const skippingAhead = seekTo > iterator.counter.getOffset();
@@ -59,6 +61,19 @@ export const performSeek = async ({
 
 	const {reader: newReader} = await readerInterface.read(src, seekTo, signal);
 	iterator.skipTo(seekTo);
+	const {bytesRemoved, removedData} = iterator.removeBytesRead(
+		true,
+		state.mode,
+	);
+
+	if (removedData) {
+		onDiscardedData(removedData);
+	}
+
+	if (bytesRemoved) {
+		Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+	}
+
 	Log.verbose(
 		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,
