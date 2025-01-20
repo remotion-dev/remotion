@@ -101,11 +101,12 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasMetadata(structure));
 		}
 
-		if (key === 'slowKeyframes') {
-			return false;
-		}
-
-		if (key === 'slowNumberOfFrames') {
+		if (
+			key === 'slowKeyframes' ||
+			key === 'slowVideoBitrate' ||
+			key === 'slowAudioBitrate' ||
+			key === 'slowNumberOfFrames'
+		) {
 			return false;
 		}
 

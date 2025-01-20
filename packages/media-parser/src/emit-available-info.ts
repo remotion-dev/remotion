@@ -426,6 +426,46 @@ export const emitAvailableInfo = ({
 			continue;
 		}
 
+		if (key === 'slowAudioBitrate') {
+			if (
+				!emittedFields.slowAudioBitrate &&
+				hasInfo.slowAudioBitrate &&
+				parseResult
+			) {
+				callbacks.onSlowAudioBitrate?.(
+					state.slowDurationAndFps.getAudioBitrate(),
+				);
+				if (fieldsInReturnValue.slowAudioBitrate) {
+					returnValue.slowAudioBitrate =
+						state.slowDurationAndFps.getAudioBitrate();
+				}
+
+				emittedFields.slowAudioBitrate = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'slowVideoBitrate') {
+			if (
+				!emittedFields.slowVideoBitrate &&
+				hasInfo.slowVideoBitrate &&
+				parseResult
+			) {
+				callbacks.onSlowVideoBitrate?.(
+					state.slowDurationAndFps.getVideoBitrate(),
+				);
+				if (fieldsInReturnValue.slowVideoBitrate) {
+					returnValue.slowVideoBitrate =
+						state.slowDurationAndFps.getVideoBitrate();
+				}
+
+				emittedFields.slowVideoBitrate = true;
+			}
+
+			continue;
+		}
+
 		if (key === 'keyframes') {
 			if (!emittedFields.keyframes && hasInfo.keyframes && parseResult) {
 				callbacks.onKeyframes?.(getKeyframes(state.structure.getStructure()));

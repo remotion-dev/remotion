@@ -21,6 +21,10 @@ if (process.platform !== 'win32') {
 				dimensions: true,
 				rotation: true,
 				unrotatedDimensions: true,
+				numberOfAudioChannels: true,
+				sampleRate: true,
+				slowVideoBitrate: true,
+				slowAudioBitrate: true,
 			},
 			reader: nodeReader,
 			onVideoTrack: ({track}) => {
@@ -52,6 +56,10 @@ if (process.platform !== 'win32') {
 			height: 2160,
 			width: 3840,
 		});
+		expect(result.sampleRate).toBe(44100);
+		expect(result.numberOfAudioChannels).toBe(2);
+		expect(result.slowVideoBitrate).toBe(24_521_925.585937504);
+		expect(result.slowAudioBitrate).toBe(163_756.20978860298);
 		expect(videoTracks).toBe(1);
 		expect(audioTracks).toBe(1);
 		expect(videoSamples).toBe(377);

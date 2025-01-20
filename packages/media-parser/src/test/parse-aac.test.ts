@@ -29,6 +29,10 @@ test('should be able to parse aac', async () => {
 		tracks,
 		unrotatedDimensions,
 		videoCodec,
+		numberOfAudioChannels,
+		sampleRate,
+		slowAudioBitrate,
+		slowVideoBitrate,
 	} = await parseMedia({
 		src: exampleVideos.aac,
 		reader: nodeReader,
@@ -56,6 +60,10 @@ test('should be able to parse aac', async () => {
 			structure: true,
 			tracks: true,
 			unrotatedDimensions: true,
+			numberOfAudioChannels: true,
+			sampleRate: true,
+			slowAudioBitrate: true,
+			slowVideoBitrate: true,
 		},
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
@@ -107,6 +115,10 @@ test('should be able to parse aac', async () => {
 	});
 	expect(tracks.audioTracks.length).toBe(1);
 	expect(tracks.videoTracks.length).toBe(0);
+	expect(numberOfAudioChannels).toBe(2);
+	expect(sampleRate).toBe(44100);
+	expect(slowAudioBitrate).toBe(132945.5141129032);
+	expect(slowVideoBitrate).toBe(null);
 });
 
 test.only('should be able to get basics without parsing all', async () => {

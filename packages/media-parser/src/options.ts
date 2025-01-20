@@ -46,6 +46,8 @@ export type ParseMediaFields = {
 	keyframes: boolean;
 	slowKeyframes: boolean;
 	slowNumberOfFrames: boolean;
+	slowVideoBitrate: boolean;
+	slowAudioBitrate: boolean;
 	images: boolean;
 };
 
@@ -73,6 +75,10 @@ export type AllParseMediaFields = {
 	keyframes: true;
 	slowKeyframes: true;
 	images: true;
+	sampleRate: true;
+	numberOfAudioChannels: true;
+	slowVideoBitrate: true;
+	slowAudioBitrate: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -99,6 +105,10 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	slowKeyframes: Fields['slowKeyframes'];
 	slowNumberOfFrames: Fields['slowNumberOfFrames'];
 	images: Fields['images'];
+	sampleRate: Fields['sampleRate'];
+	numberOfAudioChannels: Fields['numberOfAudioChannels'];
+	slowVideoBitrate: Fields['slowVideoBitrate'];
+	slowAudioBitrate: Fields['slowAudioBitrate'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -152,6 +162,10 @@ export interface ParseMediaCallbacks {
 	onSlowKeyframes?: (keyframes: MediaParserKeyframe[]) => void;
 	onSlowNumberOfFrames?: (samples: number) => void;
 	onImages?: (images: MediaParserEmbeddedImage[]) => void;
+	onSampleRate?: (sampleRate: number | null) => void;
+	onNumberOfAudioChannels?: (numberOfChannels: number | null) => void;
+	onSlowVideoBitrate?: (videoBitrate: number | null) => void;
+	onSlowAudioBitrate?: (audioBitrate: number | null) => void;
 }
 
 export interface ParseMediaData {
@@ -178,6 +192,10 @@ export interface ParseMediaData {
 	slowKeyframes: MediaParserKeyframe[];
 	slowNumberOfFrames: number;
 	images: MediaParserEmbeddedImage[];
+	sampleRate: number | null;
+	numberOfAudioChannels: number | null;
+	slowVideoBitrate: number | null;
+	slowAudioBitrate: number | null;
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

@@ -5,6 +5,8 @@ export const slowDurationAndFpsState = () => {
 	let largestVideoSample: number | undefined;
 	let smallestAudioSample: number | undefined;
 	let largestAudioSample: number | undefined;
+	let audioSizesInBytes = 0;
+	let videoSizeInBytes = 0;
 	let videoSamples = 0;
 	let audioSamples = 0;
 
@@ -58,6 +60,8 @@ export const slowDurationAndFpsState = () => {
 			) {
 				smallestVideoSample = presentationTimeInSeconds;
 			}
+
+			videoSizeInBytes += videoSample.data.byteLength;
 		},
 		addAudioSample: (audioSample: AudioOrVideoSample) => {
 			audioSamples++;
@@ -75,6 +79,8 @@ export const slowDurationAndFpsState = () => {
 			) {
 				smallestAudioSample = presentationTimeInSeconds;
 			}
+
+			audioSizesInBytes += audioSample.data.byteLength;
 		},
 		getSlowDurationInSeconds,
 		getFps: () => {
@@ -86,6 +92,22 @@ export const slowDurationAndFpsState = () => {
 			return videoSamples / videoDuration;
 		},
 		getSlowNumberOfFrames: () => videoSamples,
+		getAudioBitrate: () => {
+			const audioDuration = getSlowDurationInSeconds();
+			if (audioDuration === 0 || audioSizesInBytes === 0) {
+				return null;
+			}
+
+			return (audioSizesInBytes * 8) / audioDuration;
+		},
+		getVideoBitrate: () => {
+			const videoDuration = getSlowDurationInSeconds();
+			if (videoDuration === 0 || videoSizeInBytes === 0) {
+				return null;
+			}
+
+			return (videoSizeInBytes * 8) / videoDuration;
+		},
 	};
 };
 
