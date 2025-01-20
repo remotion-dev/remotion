@@ -153,8 +153,8 @@ export const still = async (
 		logLevel,
 		onProgress: () => undefined,
 		indent: false,
-		addCleanupCallback: (c) => {
-			registerCleanupJob(c);
+		addCleanupCallback: (label, c) => {
+			registerCleanupJob(label, c);
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,

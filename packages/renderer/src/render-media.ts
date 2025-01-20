@@ -115,7 +115,7 @@ export type InternalRenderMediaOptions = {
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
 	browserExecutable: BrowserExecutable | null;
-	onCtrlCExit: (fn: () => void) => void;
+	onCtrlCExit: (label: string, fn: () => void) => void;
 	indent: boolean;
 	server: RemotionServer | undefined;
 	preferLossless: boolean;
@@ -422,7 +422,7 @@ const internalRenderMediaRaw = ({
 		: null;
 
 	if (onCtrlCExit && workingDir) {
-		onCtrlCExit(() => deleteDirectory(workingDir));
+		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
 	validateEvenDimensionsWithCodec({

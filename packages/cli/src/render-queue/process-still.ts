@@ -19,7 +19,7 @@ export const processStill = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 }) => {
 	if (job.type !== 'still') {
 		throw new Error('Expected still job');

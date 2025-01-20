@@ -275,7 +275,9 @@ export const benchmarkCommand = async (
 			indentOutput: false,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+				registerCleanupJob(`Delete ${dir}`, () =>
+					RenderInternals.deleteDirectory(dir),
+				);
 			},
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
@@ -287,7 +289,7 @@ export const benchmarkCommand = async (
 			publicPath,
 		});
 
-	registerCleanupJob(() => cleanupBundle());
+	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 
