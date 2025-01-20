@@ -18,12 +18,6 @@ jobs:
       - uses: pnpm/action-setup@v3
         with:
           version: "8.10.2"
-      - name: Cache turbo build setup
-        uses: actions/cache/restore@v4
-        with:
-          path: .turbo
-          key: |
-            ${{ runner.os }}-turbo-
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -36,9 +30,13 @@ jobs:
           workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
-      - name: build
-        run: |
-          pnpm build
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - name: Test Lambda IT
         timeout-minutes: 12
         run: |
@@ -85,9 +83,6 @@ jobs:
           path: |
             node_modules/.cache/turbo
           key: ts-${{ runner.os }}-node16-v3
-      - name: build
-        run: |
-          pnpm build
       - name: Test SSR
         timeout-minutes: 8
         run: |
