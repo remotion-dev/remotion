@@ -187,6 +187,8 @@ export const downloadBrowser = async ({
 				path.join(outputPath, 'chrome-headless-shell-linux-arm64'),
 			);
 		}
+	} catch (err) {
+		return Promise.reject(err);
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);
