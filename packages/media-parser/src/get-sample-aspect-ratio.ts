@@ -1,12 +1,12 @@
-import type {Av1CBox} from './boxes/iso-base-media/stsd/av1c';
-import type {AvccBox} from './boxes/iso-base-media/stsd/avcc';
-import type {ColorParameterBox} from './boxes/iso-base-media/stsd/colr';
-import type {HvccBox} from './boxes/iso-base-media/stsd/hvcc';
-import type {PaspBox} from './boxes/iso-base-media/stsd/pasp';
-import type {VideoSample} from './boxes/iso-base-media/stsd/samples';
-import type {TkhdBox} from './boxes/iso-base-media/tkhd';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {getStsdBox} from './boxes/iso-base-media/traversal';
+import type {Av1CBox} from './containers/iso-base-media/stsd/av1c';
+import type {AvccBox} from './containers/iso-base-media/stsd/avcc';
+import type {ColorParameterBox} from './containers/iso-base-media/stsd/colr';
+import type {HvccBox} from './containers/iso-base-media/stsd/hvcc';
+import type {PaspBox} from './containers/iso-base-media/stsd/pasp';
+import type {VideoSample} from './containers/iso-base-media/stsd/samples';
+import type {TkhdBox} from './containers/iso-base-media/tkhd';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
+import {getStsdBox} from './containers/iso-base-media/traversal';
 import type {Dimensions} from './get-dimensions';
 
 type AspectRatio = {

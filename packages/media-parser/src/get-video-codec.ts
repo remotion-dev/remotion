@@ -2,9 +2,9 @@ import {
 	getMatrixCoefficientsFromIndex,
 	getPrimariesFromIndex,
 	getTransferCharacteristicsFromIndex,
-} from './boxes/avc/color';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
+} from './containers/avc/color';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
+import {parseAv1PrivateData} from './containers/webm/av1-codec-private';
 import {
 	getAv1CBox,
 	getAvccBox,

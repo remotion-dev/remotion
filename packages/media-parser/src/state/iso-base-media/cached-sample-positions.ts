@@ -1,6 +1,6 @@
-import {getSamplePositionsFromTrack} from '../../boxes/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from '../../boxes/iso-base-media/trak/trak';
-import {getMoofBox} from '../../boxes/iso-base-media/traversal';
+import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from '../../containers/iso-base-media/trak/trak';
+import {getMoofBox} from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';

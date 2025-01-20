@@ -1,5 +1,5 @@
-import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
 import type {BufferIterator} from '../buffer-iterator';
+import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
 import type {LogLevel} from '../log';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
@@ -32,7 +32,7 @@ export const makeParserState = ({
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	signal,
-	getIterator,
+	iterator,
 	fields,
 	onAudioTrack,
 	onVideoTrack,
@@ -43,7 +43,7 @@ export const makeParserState = ({
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	signal: AbortSignal | undefined;
-	getIterator: () => BufferIterator | null;
+	iterator: BufferIterator;
 	fields: Options<ParseMediaFields>;
 	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
@@ -84,7 +84,7 @@ export const makeParserState = ({
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
-			finalCursorOffset: getIterator()?.counter.getOffset() ?? 0,
+			finalCursorOffset: iterator.counter.getOffset() ?? 0,
 		}),
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
@@ -100,6 +100,7 @@ export const makeParserState = ({
 		images,
 		videoSection: videoSectionState(),
 		logLevel,
+		iterator,
 	};
 };
 

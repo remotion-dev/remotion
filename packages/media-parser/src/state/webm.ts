@@ -1,11 +1,11 @@
-import type {OnTrackEntrySegment} from '../boxes/webm/segments';
-import type {TrackInfo} from '../boxes/webm/segments/track-entry';
+import type {BufferIterator} from '../buffer-iterator';
+import type {OnTrackEntrySegment} from '../containers/webm/segments';
+import type {TrackInfo} from '../containers/webm/segments/track-entry';
 import {
 	getTrackCodec,
 	getTrackId,
 	getTrackTimestampScale,
-} from '../boxes/webm/traversal';
-import type {BufferIterator} from '../buffer-iterator';
+} from '../containers/webm/traversal';
 
 export type SegmentSection = {
 	start: number;

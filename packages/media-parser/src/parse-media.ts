@@ -6,11 +6,12 @@ import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
 import type {
 	AllParseMediaFields,
+	InternalParseMedia,
+	InternalParseMediaOptions,
 	Options,
 	ParseMedia,
 	ParseMediaCallbacks,
 	ParseMediaFields,
-	ParseMediaOptions,
 	ParseMediaResult,
 } from './options';
 import type {ParseResult} from './parse-result';
@@ -20,20 +21,20 @@ import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
 
-export const parseMedia: ParseMedia = async function <
+const internalParseMedia: InternalParseMedia = async function <
 	F extends Options<ParseMediaFields>,
 >({
 	src,
 	fields: _fieldsInReturnValue,
-	reader: readerInterface = fetchReader,
+	reader,
 	onAudioTrack,
 	onVideoTrack,
 	signal,
-	logLevel = 'info',
+	logLevel,
 	onParseProgress: onParseProgressDoNotCallDirectly,
 	progressIntervalInMs,
 	...more
-}: ParseMediaOptions<F>) {
+}: InternalParseMediaOptions<F>) {
 	let parseResult: ParseResult | null = null;
 
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
@@ -44,12 +45,12 @@ export const parseMedia: ParseMedia = async function <
 	});
 
 	const {
-		reader,
+		reader: readerInstance,
 		contentLength,
 		name,
 		contentType,
 		supportsContentRange: readerSupportsContentRange,
-	} = await readerInterface.read(src, null, signal);
+	} = await reader.read(src, null, signal);
 	const iterator: BufferIterator = getArrayBufferIterator(
 		new Uint8Array([]),
 		contentLength ?? 1_000_000_000,
@@ -94,7 +95,7 @@ export const parseMedia: ParseMedia = async function <
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
 		signal,
-		getIterator: () => iterator,
+		iterator,
 		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
@@ -103,7 +104,7 @@ export const parseMedia: ParseMedia = async function <
 		logLevel,
 	});
 
-	let currentReader = reader;
+	let currentReader = readerInstance;
 
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 	const moreFields = more as ParseMediaCallbacks;
@@ -216,7 +217,6 @@ export const parseMedia: ParseMedia = async function <
 		);
 		const start = Date.now();
 		parseResult = await runParseIteration({
-			iterator,
 			state,
 			mimeType: contentType,
 			contentLength,
@@ -243,7 +243,7 @@ export const parseMedia: ParseMedia = async function <
 				supportsContentRange,
 				currentReader,
 				logLevel,
-				readerInterface,
+				readerInterface: reader,
 				signal,
 				src,
 			});
@@ -300,4 +300,45 @@ export const parseMedia: ParseMedia = async function <
 
 	state.callbacks.tracks.ensureHasTracksAtEnd(fields);
 	return returnValue as ParseMediaResult<F>;
+};
+
+export const parseMedia: ParseMedia = (options) => {
+	return internalParseMedia({
+		fields: options.fields ?? null,
+		logLevel: options.logLevel ?? 'info',
+		onAudioCodec: options.onAudioCodec ?? null,
+		onAudioTrack: options.onAudioTrack ?? null,
+		onContainer: options.onContainer ?? null,
+		onDimensions: options.onDimensions ?? null,
+		onDurationInSeconds: options.onDurationInSeconds ?? null,
+		onFps: options.onFps ?? null,
+		onImages: options.onImages ?? null,
+		onInternalStats: options.onInternalStats ?? null,
+		onIsHdr: options.onIsHdr ?? null,
+		onKeyframes: options.onKeyframes ?? null,
+		onLocation: options.onLocation ?? null,
+		onMetadata: options.onMetadata ?? null,
+		onMimeType: options.onMimeType ?? null,
+		onName: options.onName ?? null,
+		onNumberOfAudioChannels: options.onNumberOfAudioChannels ?? null,
+		onParseProgress: options.onParseProgress ?? null,
+		onRotation: options.onRotation ?? null,
+		onSampleRate: options.onSampleRate ?? null,
+		onSize: options.onSize ?? null,
+		onSlowAudioBitrate: options.onSlowAudioBitrate ?? null,
+		onSlowDurationInSeconds: options.onSlowDurationInSeconds ?? null,
+		onSlowFps: options.onSlowFps ?? null,
+		onSlowKeyframes: options.onSlowKeyframes ?? null,
+		onSlowNumberOfFrames: options.onSlowNumberOfFrames ?? null,
+		onSlowVideoBitrate: options.onSlowVideoBitrate ?? null,
+		onStructure: options.onStructure ?? null,
+		onTracks: options.onTracks ?? null,
+		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
+		onVideoCodec: options.onVideoCodec ?? null,
+		onVideoTrack: options.onVideoTrack ?? null,
+		progressIntervalInMs: options.progressIntervalInMs ?? null,
+		reader: options.reader ?? fetchReader,
+		signal: options.signal ?? undefined,
+		src: options.src,
+	});
 };

@@ -3,7 +3,7 @@ import {
 	knownIdsWithOneLength,
 	knownIdsWithThreeLength,
 	knownIdsWithTwoLength,
-} from './boxes/webm/segments/all-segments';
+} from './containers/webm/segments/all-segments';
 import {detectFileType} from './file-types';
 
 export class OffsetCounter {

@@ -1,6 +1,6 @@
 /* eslint-disable max-depth */
-import type {PossibleEbml} from '../boxes/webm/segments/all-segments';
-import {getTrackWithUid} from '../boxes/webm/traversal';
+import type {PossibleEbml} from '../containers/webm/segments/all-segments';
+import {getTrackWithUid} from '../containers/webm/traversal';
 import type {MatroskaStructure} from '../parse-result';
 import type {MetadataEntry} from './get-metadata';
 

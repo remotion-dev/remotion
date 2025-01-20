@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {parseMvhd} from '../boxes/iso-base-media/mvhd';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {parseMvhd} from '../containers/iso-base-media/mvhd';
 
 test('Should be able to parse a MVHD box correctly', () => {
 	const buffer = Uint8Array.from([

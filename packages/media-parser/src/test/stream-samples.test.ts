@@ -1,7 +1,7 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getSamplePositionsFromTrack} from '../boxes/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from '../boxes/iso-base-media/trak/trak';
+import {getSamplePositionsFromTrack} from '../containers/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from '../containers/iso-base-media/trak/trak';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 

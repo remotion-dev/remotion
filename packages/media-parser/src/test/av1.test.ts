@@ -1,6 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getMoovBox, getTraks} from '../boxes/iso-base-media/traversal';
+import {getMoovBox, getTraks} from '../containers/iso-base-media/traversal';
 import {trakBoxContainsVideo} from '../get-fps';
 import {getAv1CBox} from '../get-sample-aspect-ratio';
 import {parseMedia} from '../parse-media';

@@ -1,6 +1,6 @@
-import {getMetadataFromFlac} from '../boxes/flac/get-metadata-from-flac';
-import {getMetadataFromMp3} from '../boxes/mp3/get-metadata-from-mp3';
-import {getMetadataFromWav} from '../boxes/wav/get-metadata-from-wav';
+import {getMetadataFromFlac} from '../containers/flac/get-metadata-from-flac';
+import {getMetadataFromMp3} from '../containers/mp3/get-metadata-from-mp3';
+import {getMetadataFromWav} from '../containers/wav/get-metadata-from-wav';
 import type {Structure} from '../parse-result';
 import {getMetadataFromIsoBase} from './metadata-from-iso';
 import {getMetadataFromMatroska} from './metadata-from-matroska';

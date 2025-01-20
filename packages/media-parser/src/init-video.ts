@@ -1,6 +1,5 @@
-import type {FlacStructure} from './boxes/flac/types';
-import type {WavStructure} from './boxes/wav/types';
-import type {BufferIterator} from './buffer-iterator';
+import type {FlacStructure} from './containers/flac/types';
+import type {WavStructure} from './containers/wav/types';
 import {
 	IsAGifError,
 	IsAPdfError,
@@ -12,19 +11,17 @@ import type {Mp3Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const initVideo = ({
-	iterator,
 	state,
 	mimeType,
 	name,
 	contentLength,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 	mimeType: string | null;
 	name: string | null;
 	contentLength: number | null;
 }) => {
-	const fileType = iterator.detectFileType();
+	const fileType = state.iterator.detectFileType();
 
 	if (fileType.type === 'riff') {
 		Log.verbose(state.logLevel, 'Detected RIFF container');

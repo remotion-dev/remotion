@@ -1,8 +1,8 @@
-import type {EsdsBox} from './boxes/iso-base-media/esds/esds';
-import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import type {AudioSample} from './boxes/iso-base-media/stsd/samples';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {getStsdBox, getTraks} from './boxes/iso-base-media/traversal';
+import type {EsdsBox} from './containers/iso-base-media/esds/esds';
+import type {MoovBox} from './containers/iso-base-media/moov/moov';
+import type {AudioSample} from './containers/iso-base-media/stsd/samples';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
+import {getStsdBox, getTraks} from './containers/iso-base-media/traversal';
 import {trakBoxContainsAudio} from './get-fps';
 import {
 	getHasTracks,

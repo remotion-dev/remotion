@@ -36,7 +36,6 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 	iterator.discard(8);
 
 	const parsed = await MediaParserInternals.parseStsd({
-		iterator,
 		offset: 0,
 		size: 159,
 		state: MediaParserInternals.makeParserState({
@@ -45,7 +44,7 @@ test('Should be able to parse a STSD audio box correctly', async () => {
 			hasAudioTrackHandlers: true,
 			hasVideoTrackHandlers: true,
 			signal: undefined,
-			getIterator: () => null,
+			iterator,
 			fields: {},
 			supportsContentRange: true,
 			contentLength: null,
@@ -206,14 +205,13 @@ test('Should be able to parse a STSD video box correctly', async () => {
 	]);
 
 	const parsed = await MediaParserInternals.processSample({
-		iterator: MediaParserInternals.getArrayBufferIterator(buffer, null),
 		state: MediaParserInternals.makeParserState({
 			onAudioTrack: null,
 			onVideoTrack: () => () => undefined,
 			hasAudioTrackHandlers: true,
 			hasVideoTrackHandlers: true,
 			signal: undefined,
-			getIterator: () => null,
+			iterator: MediaParserInternals.getArrayBufferIterator(buffer, null),
 			fields: {
 				structure: true,
 			},

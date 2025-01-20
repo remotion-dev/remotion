@@ -1,9 +1,9 @@
-import type {CttsBox} from './boxes/iso-base-media/stsd/ctts';
-import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
-import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
-import type {StssBox} from './boxes/iso-base-media/stsd/stss';
-import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
-import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
+import type {CttsBox} from './containers/iso-base-media/stsd/ctts';
+import type {StcoBox} from './containers/iso-base-media/stsd/stco';
+import type {StscBox} from './containers/iso-base-media/stsd/stsc';
+import type {StssBox} from './containers/iso-base-media/stsd/stss';
+import type {StszBox} from './containers/iso-base-media/stsd/stsz';
+import type {SttsBox} from './containers/iso-base-media/stsd/stts';
 
 export type SamplePosition = {
 	offset: number;

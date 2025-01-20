@@ -1,5 +1,5 @@
-import {getCodecStringFromSpsAndPps} from './boxes/avc/codec-string';
-import {createSpsPpsData} from './boxes/avc/create-sps-pps-data';
+import {getCodecStringFromSpsAndPps} from './containers/avc/codec-string';
+import {createSpsPpsData} from './containers/avc/create-sps-pps-data';
 import type {VideoTrack} from './get-tracks';
 import type {SpsAndPps} from './state/parser-state';
 
