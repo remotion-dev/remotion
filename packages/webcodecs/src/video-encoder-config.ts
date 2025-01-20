@@ -27,6 +27,7 @@ export const getVideoEncoderConfig = async ({
 		height,
 		width,
 		bitrate: isSafari() ? 3_000_000 : undefined,
+		bitrateMode: codec === 'vp9' ? 'quantizer' : undefined,
 	};
 
 	const hardware: VideoEncoderConfig = {
