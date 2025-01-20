@@ -14,12 +14,10 @@ export const getKeyframes = (
 	return null;
 };
 
-export const hasKeyframes = (
-	structure: Structure,
-	parserState: ParserState,
-) => {
+export const hasKeyframes = (parserState: ParserState) => {
+	const structure = parserState.structure.getStructure();
 	if (structure.type === 'iso-base-media') {
-		return getHasTracks(structure, parserState);
+		return getHasTracks(parserState);
 	}
 
 	// Has, but will be null

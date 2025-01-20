@@ -9,7 +9,7 @@ import {
 	getTracks,
 	type MediaParserAudioCodec,
 } from './get-tracks';
-import type {AnySegment, Structure} from './parse-result';
+import type {AnySegment} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getAudioCodec = (
@@ -37,11 +37,8 @@ export const getAudioCodec = (
 	return null;
 };
 
-export const hasAudioCodec = (
-	boxes: Structure,
-	state: ParserState,
-): boolean => {
-	return getHasTracks(boxes, state);
+export const hasAudioCodec = (state: ParserState): boolean => {
+	return getHasTracks(state);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({
