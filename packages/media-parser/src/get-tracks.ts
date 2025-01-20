@@ -2,29 +2,29 @@ import type {
 	MatrixCoefficients,
 	Primaries,
 	TransferCharacteristics,
-} from './boxes/avc/color';
-import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
-import {makeBaseMediaTrack} from './boxes/iso-base-media/make-track';
-import type {MoovBox} from './boxes/iso-base-media/moov/moov';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+} from './containers/avc/color';
+import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
+import {makeBaseMediaTrack} from './containers/iso-base-media/make-track';
+import type {MoovBox} from './containers/iso-base-media/moov/moov';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMoovBox,
 	getMvhdBox,
 	getTraks,
-} from './boxes/iso-base-media/traversal';
-import {getTracksFromMp3OrWavOrAac} from './boxes/mp3/get-tracks-from-mp3';
-import type {AllTracks} from './boxes/riff/get-tracks-from-avi';
+} from './containers/iso-base-media/traversal';
+import {getTracksFromMp3OrWavOrAac} from './containers/mp3/get-tracks-from-mp3';
+import type {AllTracks} from './containers/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
 	hasAllTracksFromAvi,
-} from './boxes/riff/get-tracks-from-avi';
+} from './containers/riff/get-tracks-from-avi';
 import {
 	getTracksFromTransportStream,
 	hasAllTracksFromTransportStream,
-} from './boxes/transport-stream/get-tracks';
-import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
-import type {MatroskaSegment} from './boxes/webm/segments';
-import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
+} from './containers/transport-stream/get-tracks';
+import {getTracksFromMatroska} from './containers/webm/get-ready-tracks';
+import type {MatroskaSegment} from './containers/webm/segments';
+import {getMainSegment, getTracksSegment} from './containers/webm/traversal';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 

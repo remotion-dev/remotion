@@ -1,4 +1,4 @@
-import {isRiffAvi} from './boxes/riff/traversal';
+import {isRiffAvi} from './containers/riff/traversal';
 import type {MediaParserContainer} from './options';
 import type {Structure} from './parse-result';
 

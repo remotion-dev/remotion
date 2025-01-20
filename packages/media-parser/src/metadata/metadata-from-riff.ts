@@ -1,4 +1,4 @@
-import type {ListBox, RiffStructure} from '../boxes/riff/riff-box';
+import type {ListBox, RiffStructure} from '../containers/riff/riff-box';
 import {truthy} from '../truthy';
 import type {MetadataEntry} from './get-metadata';
 

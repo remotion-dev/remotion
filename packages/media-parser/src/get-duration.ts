@@ -1,15 +1,15 @@
-import {getDurationFromFlac} from './boxes/flac/get-duration-from-flac';
-import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
+import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMoofBox,
 	getMoovBox,
 	getMvhdBox,
-} from './boxes/iso-base-media/traversal';
-import {getDurationFromMp3} from './boxes/mp3/get-duration';
-import {getDurationFromAvi} from './boxes/riff/get-duration';
-import {getDurationFromWav} from './boxes/wav/get-duration-from-wav';
-import type {DurationSegment} from './boxes/webm/segments/all-segments';
+} from './containers/iso-base-media/traversal';
+import {getDurationFromMp3} from './containers/mp3/get-duration';
+import {getDurationFromAvi} from './containers/riff/get-duration';
+import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
+import type {DurationSegment} from './containers/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
 import type {ParserState} from './state/parser-state';

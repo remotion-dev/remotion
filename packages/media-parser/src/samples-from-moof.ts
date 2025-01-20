@@ -1,9 +1,9 @@
-import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
+import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import {
 	getTfdtBox,
 	getTfhdBox,
 	getTrunBoxes,
-} from './boxes/iso-base-media/traversal';
+} from './containers/iso-base-media/traversal';
 import type {SamplePosition} from './get-sample-positions';
 import type {AnySegment} from './parse-result';
 

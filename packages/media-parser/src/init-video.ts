@@ -1,5 +1,5 @@
-import type {FlacStructure} from './boxes/flac/types';
-import type {WavStructure} from './boxes/wav/types';
+import type {FlacStructure} from './containers/flac/types';
+import type {WavStructure} from './containers/wav/types';
 import {
 	IsAGifError,
 	IsAPdfError,

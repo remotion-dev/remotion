@@ -1,10 +1,10 @@
-import type {AacStructure} from './boxes/aac/types';
-import type {FlacStructure} from './boxes/flac/types';
-import type {IsoBaseMediaBox} from './boxes/iso-base-media/base-media-box';
-import type {RiffBox, RiffStructure} from './boxes/riff/riff-box';
-import type {TransportStreamBox} from './boxes/transport-stream/boxes';
-import type {WavStructure} from './boxes/wav/types';
-import type {MatroskaSegment} from './boxes/webm/segments';
+import type {AacStructure} from './containers/aac/types';
+import type {FlacStructure} from './containers/flac/types';
+import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
+import type {RiffBox, RiffStructure} from './containers/riff/riff-box';
+import type {TransportStreamBox} from './containers/transport-stream/boxes';
+import type {WavStructure} from './containers/wav/types';
+import type {MatroskaSegment} from './containers/webm/segments';
 import type {MetadataEntry} from './metadata/get-metadata';
 
 type Mp3Id3Header = {

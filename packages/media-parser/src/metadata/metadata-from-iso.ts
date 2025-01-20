@@ -1,10 +1,10 @@
-import type {RegularBox} from '../boxes/iso-base-media/base-media-box';
-import type {IlstBox} from '../boxes/iso-base-media/meta/ilst';
+import type {RegularBox} from '../containers/iso-base-media/base-media-box';
+import type {IlstBox} from '../containers/iso-base-media/meta/ilst';
 import {
 	getMoovBox,
 	getTkhdBox,
 	getTraks,
-} from '../boxes/iso-base-media/traversal';
+} from '../containers/iso-base-media/traversal';
 import type {IsoBaseMediaStructure} from '../parse-result';
 import {truthy} from '../truthy';
 import type {MetadataEntry} from './get-metadata';

@@ -1,17 +1,20 @@
 import {createAacCodecPrivate} from './aac-codecprivate';
-import {parseFtyp} from './boxes/iso-base-media/ftyp';
-import {parseMvhd} from './boxes/iso-base-media/mvhd';
-import {processIsoFormatBox} from './boxes/iso-base-media/stsd/samples';
-import {parseStsd} from './boxes/iso-base-media/stsd/stsd';
-import {parseTkhd} from './boxes/iso-base-media/tkhd';
-import {parseEbml} from './boxes/webm/parse-ebml';
-import {ebmlMap, matroskaElements} from './boxes/webm/segments/all-segments';
 import {getArrayBufferIterator} from './buffer-iterator';
+import {parseFtyp} from './containers/iso-base-media/ftyp';
+import {parseMvhd} from './containers/iso-base-media/mvhd';
+import {processIsoFormatBox} from './containers/iso-base-media/stsd/samples';
+import {parseStsd} from './containers/iso-base-media/stsd/stsd';
+import {parseTkhd} from './containers/iso-base-media/tkhd';
+import {parseEbml} from './containers/webm/parse-ebml';
+import {
+	ebmlMap,
+	matroskaElements,
+} from './containers/webm/segments/all-segments';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {makeParserState} from './state/parser-state';
-export {MatroskaSegment} from './boxes/webm/segments';
-export {MatroskaElement} from './boxes/webm/segments/all-segments';
+export {MatroskaSegment} from './containers/webm/segments';
+export {MatroskaElement} from './containers/webm/segments/all-segments';
 export {
 	IsAGifError,
 	IsAnImageError,
@@ -73,7 +76,7 @@ export const MediaParserInternals = {
 	parseMvhd,
 };
 
-export type {Prettify} from './boxes/webm/parse-ebml';
+export type {Prettify} from './containers/webm/parse-ebml';
 export type {
 	Ebml,
 	EbmlValue,
@@ -82,7 +85,7 @@ export type {
 	PossibleEbml,
 	TrackEntry,
 	UintWithSize,
-} from './boxes/webm/segments/all-segments';
+} from './containers/webm/segments/all-segments';
 export type {LogLevel};
 
 export {VERSION} from './version';

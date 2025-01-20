@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {parseEsds} from '../boxes/iso-base-media/esds/esds';
 import {getArrayBufferIterator} from '../buffer-iterator';
+import {parseEsds} from '../containers/iso-base-media/esds/esds';
 
 test('Parse ESDS box', () => {
 	const buf = new Uint8Array([

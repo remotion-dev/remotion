@@ -1,5 +1,5 @@
-import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
 import type {BufferIterator} from '../buffer-iterator';
+import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
 import type {LogLevel} from '../log';
 import type {Options, ParseMediaFields} from '../options';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';

@@ -1,4 +1,4 @@
-import {getKeyframesFromIsoBaseMedia} from './boxes/iso-base-media/get-keyframes';
+import {getKeyframesFromIsoBaseMedia} from './containers/iso-base-media/get-keyframes';
 import {getHasTracks} from './get-tracks';
 import type {MediaParserKeyframe} from './options';
 import type {Structure} from './parse-result';

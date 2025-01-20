@@ -1,14 +1,14 @@
-import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {SttsBox} from './containers/iso-base-media/stsd/stts';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMdhdBox,
 	getMoovBox,
 	getStsdBox,
 	getSttsBox,
 	getTraks,
-} from './boxes/iso-base-media/traversal';
-import type {RiffStructure} from './boxes/riff/riff-box';
-import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+} from './containers/iso-base-media/traversal';
+import type {RiffStructure} from './containers/riff/riff-box';
+import {getStrhBox, getStrlBoxes} from './containers/riff/traversal';
 import {isAudioStructure} from './is-audio-structure';
 import type {IsoBaseMediaStructure, Structure} from './parse-result';
 
