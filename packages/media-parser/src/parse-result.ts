@@ -57,7 +57,3 @@ export type Structure =
 export type ParseResult = {
 	skipTo: number | null;
 };
-
-export type MatroskaParseResult = {
-	skipTo: number | null;
-};

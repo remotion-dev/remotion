@@ -1,28 +1,30 @@
-import type {BufferIterator} from './buffer-iterator';
-import type {LogLevel} from './log';
 import {Log} from './log';
 import type {Reader, ReaderInterface} from './readers/reader';
+import type {ParserState} from './state/parser-state';
 
 export const performSeek = async ({
 	seekTo,
-	iterator,
-	supportsContentRange,
-	logLevel,
+	state,
 	currentReader,
 	readerInterface,
 	src,
-	signal,
+	onDiscardedData,
 }: {
 	seekTo: number;
-	iterator: BufferIterator;
-	supportsContentRange: boolean;
-	logLevel: LogLevel;
+	state: ParserState;
 	currentReader: Reader;
 	readerInterface: ReaderInterface;
 	src: string | Blob;
-	signal: AbortSignal | undefined;
+	onDiscardedData: (data: Uint8Array) => void;
 }): Promise<Reader> => {
+	const {iterator, supportsContentRange, logLevel, signal, mode} = state;
 	const skippingAhead = seekTo > iterator.counter.getOffset();
+	if (mode === 'download' && !skippingAhead) {
+		throw new Error(
+			`Cannot seek backwards in download mode. Current position: ${iterator.counter.getOffset()}, seekTo: ${seekTo}`,
+		);
+	}
+
 	if (!skippingAhead && !supportsContentRange) {
 		throw new Error(
 			'Content-Range header is not supported by the reader, but was asked to seek',
@@ -59,6 +61,19 @@ export const performSeek = async ({
 
 	const {reader: newReader} = await readerInterface.read(src, seekTo, signal);
 	iterator.skipTo(seekTo);
+	const {bytesRemoved, removedData} = iterator.removeBytesRead(
+		true,
+		state.mode,
+	);
+
+	if (removedData) {
+		onDiscardedData(removedData);
+	}
+
+	if (bytesRemoved) {
+		Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+	}
+
 	Log.verbose(
 		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,

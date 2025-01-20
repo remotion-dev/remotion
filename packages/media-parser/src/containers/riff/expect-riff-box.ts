@@ -6,7 +6,6 @@ import type {ParserState} from '../../state/parser-state';
 import {makeAviAudioTrack, makeAviVideoTrack} from './get-tracks-from-avi';
 import {isMoviAtom} from './is-movi';
 import {parseRiffBox} from './parse-riff-box';
-import {parseVideoSection} from './parse-video-section';
 import type {RiffBox} from './riff-box';
 
 export type RiffResult = {
@@ -38,7 +37,7 @@ export const expectRiffBox = async (
 			size: ckSize - 4,
 		});
 
-		return parseVideoSection(state);
+		return {box: null, skipTo: null};
 	}
 
 	if (iterator.bytesRemaining() < ckSize) {

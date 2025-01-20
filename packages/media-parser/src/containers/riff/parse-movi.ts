@@ -1,9 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
-import type {RiffResult} from './expect-riff-box';
 import type {RiffStructure, StrhBox} from './riff-box';
 import {getStrhBox, getStrlBoxes} from './traversal';
 
@@ -127,31 +125,14 @@ export const handleChunk = async ({
 };
 
 export const parseMovi = async ({
-	maxOffset,
 	state,
 }: {
-	maxOffset: number;
 	state: ParserState;
-}): Promise<RiffResult> => {
-	if (
-		maySkipVideoData({
-			state,
-		}) &&
-		state.riff.getAvcProfile()
-	) {
-		return {
-			box: null,
-			skipTo: maxOffset,
-		};
-	}
-
+}): Promise<void> => {
 	const {iterator} = state;
 
 	if (iterator.bytesRemaining() < 8) {
-		return {
-			box: null,
-			skipTo: null,
-		};
+		return Promise.resolve();
 	}
 
 	const checkpoint = iterator.startCheckpoint();
@@ -160,13 +141,13 @@ export const parseMovi = async ({
 
 	if (iterator.bytesRemaining() < ckSize) {
 		checkpoint.returnToCheckpoint();
-		return {
-			box: null,
-			skipTo: null,
-		};
+		return Promise.resolve();
 	}
 
 	await handleChunk({state, ckId, ckSize});
+
+	const videoSection = state.videoSection.getVideoSection();
+	const maxOffset = videoSection.start + videoSection.size;
 
 	// Discard added zeroes
 	while (
@@ -178,9 +159,4 @@ export const parseMovi = async ({
 			break;
 		}
 	}
-
-	return {
-		box: null,
-		skipTo: null,
-	};
 };

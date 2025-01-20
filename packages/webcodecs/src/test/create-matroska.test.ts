@@ -61,6 +61,7 @@ test('Should make Matroska header that is same as input', async () => {
 		supportsContentRange: true,
 		contentLength: null,
 		logLevel: 'info',
+		mode: 'query',
 	});
 	const parsed = await MediaParserInternals.parseEbml(state);
 
