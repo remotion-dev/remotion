@@ -14,7 +14,7 @@
     "@remotion/eslint-config": "workspace:*",
     "@types/react": "19.0.0",
     "@types/web": "0.0.166",
-    "eslint": "8.57.1",
+    "eslint": "9.14.0",
     "prettier": "3.3.3",
     "typescript": "5.5.4"
   },

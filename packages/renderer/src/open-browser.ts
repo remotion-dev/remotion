@@ -201,11 +201,7 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			(chromiumOptions.headless ?? true)
-				? chromeMode === 'chrome-for-testing'
-					? '--headless=new'
-					: '--headless=old'
-				: null,
+			chromeMode === 'chrome-for-testing' ? '--headless=new' : '--headless=old',
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
@@ -270,8 +266,7 @@ export const openBrowser = (
 		options ?? {};
 
 	const indent = false;
-	const logLevel =
-		options?.logLevel ?? (options?.shouldDumpIo ? 'verbose' : 'info');
+	const logLevel = options?.logLevel ?? 'info';
 
 	return internalOpenBrowser({
 		browser,

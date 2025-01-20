@@ -41,7 +41,7 @@
 		"@remix-run/dev": "^2.15.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"autoprefixer": "10.4.20",
-		"eslint": "8.57.1",
+		"eslint": "9.14.0",
 		"postcss": "8.4.47",
 		"tailwindcss": "3.4.13",
 		"vite": "^5.4.6",
