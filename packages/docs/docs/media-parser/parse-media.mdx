@@ -324,6 +324,26 @@ _number | null_
 
 The number of audio channels, if there is an audio track.
 
+### `slowAudioBitrate`
+
+_number_
+
+The audio bitrate in bits per second. `null` if there is no audio track.
+
+:::note
+1 byte is 8 bits.
+:::
+
+### `slowVideoBitrate`
+
+_number | null_
+
+The video bitrate in bits per second. `null` if there is no video track.
+
+:::note
+1 byte is 8 bits.
+:::
+
 ## Callbacks
 
 Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.

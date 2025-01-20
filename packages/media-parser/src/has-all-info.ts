@@ -35,11 +35,11 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'durationInSeconds') {
-			return Boolean(structure && hasDuration(structure, state));
+			return Boolean(structure && hasDuration(state));
 		}
 
 		if (key === 'slowDurationInSeconds') {
-			return Boolean(structure && hasSlowDuration(structure, state));
+			return Boolean(structure && hasSlowDuration(state));
 		}
 
 		if (
@@ -60,23 +60,23 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'isHdr') {
-			return Boolean(structure && hasHdr(structure, state));
+			return Boolean(structure && hasHdr(state));
 		}
 
 		if (key === 'videoCodec') {
-			return Boolean(structure && hasVideoCodec(structure, state));
+			return Boolean(structure && hasVideoCodec(state));
 		}
 
 		if (key === 'audioCodec') {
-			return Boolean(structure && hasAudioCodec(structure, state));
+			return Boolean(structure && hasAudioCodec(state));
 		}
 
 		if (key === 'tracks') {
-			return Boolean(structure && getHasTracks(structure, state));
+			return Boolean(structure && getHasTracks(state));
 		}
 
 		if (key === 'keyframes') {
-			return Boolean(structure && hasKeyframes(structure, state));
+			return Boolean(structure && hasKeyframes(state));
 		}
 
 		if (key === 'internalStats') {
@@ -103,11 +103,12 @@ export const getAvailableInfo = ({
 			return Boolean(structure && hasMetadata(structure));
 		}
 
-		if (key === 'slowKeyframes') {
-			return false;
-		}
-
-		if (key === 'slowNumberOfFrames') {
+		if (
+			key === 'slowKeyframes' ||
+			key === 'slowVideoBitrate' ||
+			key === 'slowAudioBitrate' ||
+			key === 'slowNumberOfFrames'
+		) {
 			return false;
 		}
 

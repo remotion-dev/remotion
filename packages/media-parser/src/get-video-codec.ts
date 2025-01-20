@@ -18,7 +18,6 @@ import {
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
-import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getVideoCodec = (
@@ -28,11 +27,8 @@ export const getVideoCodec = (
 	return track.videoTracks[0]?.codecWithoutConfig ?? null;
 };
 
-export const hasVideoCodec = (
-	boxes: Structure,
-	state: ParserState,
-): boolean => {
-	return getHasTracks(boxes, state);
+export const hasVideoCodec = (state: ParserState): boolean => {
+	return getHasTracks(state);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

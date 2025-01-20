@@ -25,7 +25,7 @@ import {
 import {getTracksFromMatroska} from './boxes/webm/get-ready-tracks';
 import type {MatroskaSegment} from './boxes/webm/segments';
 import {getMainSegment, getTracksSegment} from './boxes/webm/traversal';
-import type {IsoBaseMediaStructure, Structure} from './parse-result';
+import type {IsoBaseMediaStructure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {
@@ -126,10 +126,8 @@ export const isoBaseMediaHasTracks = (structure: IsoBaseMediaStructure) => {
 	return tracks.length === numberOfTracks;
 };
 
-export const getHasTracks = (
-	structure: Structure,
-	state: ParserState,
-): boolean => {
+export const getHasTracks = (state: ParserState): boolean => {
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		const mainSegment = getMainSegment(structure.boxes);
 		if (!mainSegment) {
