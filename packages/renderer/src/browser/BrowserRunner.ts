@@ -101,6 +101,10 @@ export const makeBrowserRunner = async ({
 						// Killing the process group can fail due e.g. to missing permissions.
 						// Let's kill the process via Node API. This delays killing of all child
 						// processes of `this.proc` until the main Node.js process dies.
+						Log.verbose(
+							{indent, logLevel},
+							`Could not kill browser process group ${processGroupId}. Killing process via Node.js API`,
+						);
 						proc.kill('SIGKILL');
 					}
 				}

@@ -214,8 +214,8 @@ export const render = async (
 		frameRange,
 		jpegQuality,
 		onProgress: () => undefined,
-		addCleanupCallback: (c) => {
-			registerCleanupJob(c);
+		addCleanupCallback: (label, c) => {
+			registerCleanupJob(label, c);
 		},
 		outputLocationFromUI: null,
 		uiCodec: null,

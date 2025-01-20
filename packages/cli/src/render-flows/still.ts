@@ -101,7 +101,7 @@ export const renderStillFlow = async ({
 	logLevel: LogLevel;
 	onProgress: JobProgressCallback;
 	indent: boolean;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 	outputLocationFromUi: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -185,7 +185,7 @@ export const renderStillFlow = async ({
 			indentOutput: indent,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => {
+				registerCleanupJob(`Delete ${dir}`, () => {
 					RenderInternals.deleteDirectory(dir);
 				});
 			},
@@ -212,12 +212,14 @@ export const renderStillFlow = async ({
 		forceIPv4: false,
 	});
 
-	addCleanupCallback(() => server.closeServer(false));
+	addCleanupCallback(`Close server`, () => server.closeServer(false));
 
-	addCleanupCallback(() => cleanupBundle());
+	addCleanupCallback(`Cleanup bundle`, () => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
+	addCleanupCallback(`Close browser`, () =>
+		puppeteerInstance.close(false, logLevel, indent),
+	);
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({

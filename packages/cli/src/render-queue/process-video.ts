@@ -21,7 +21,7 @@ export const processVideoJob = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	logLevel: LogLevel;
 }) => {
 	if (job.type !== 'video' && job.type !== 'sequence') {
