@@ -724,14 +724,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="AnimatedImage">
-				<Composition
-					id="animated-images"
-					component={AnimatedImages}
-					width={2400}
-					height={1080}
-					durationInFrames={200}
-					fps={30}
-				/>
+				<AnimatedImages />
 			</Folder>
 			<Folder name="still-tests">
 				<Still

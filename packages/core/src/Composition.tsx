@@ -118,7 +118,6 @@ const Fallback: React.FC = () => {
  * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
  * @see [Documentation](https://remotion.dev/docs/composition)
  */
-
 export const Composition = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
