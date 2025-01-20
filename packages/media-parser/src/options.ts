@@ -140,35 +140,37 @@ export type MediaParserKeyframe = {
 	trackId: number;
 };
 
-export interface ParseMediaCallbacks {
-	onDimensions?: (dimensions: Dimensions | null) => void;
-	onDurationInSeconds?: (durationInSeconds: number | null) => void;
-	onSlowDurationInSeconds?: (durationInSeconds: number) => void;
-	onSlowFps?: (fps: number) => void;
-	onStructure?: (structure: Structure) => void;
-	onFps?: (fps: number | null) => void;
-	onVideoCodec?: (codec: MediaParserVideoCodec | null) => void;
-	onAudioCodec?: (codec: MediaParserAudioCodec | null) => void;
-	onTracks?: (tracks: TracksField) => void;
-	onRotation?: (rotation: number | null) => void;
-	onUnrotatedDimensions?: (dimensions: Dimensions | null) => void;
-	onInternalStats?: (internalStats: InternalStats) => void;
-	onSize?: (size: number | null) => void;
-	onName?: (name: string) => void;
-	onContainer?: (container: MediaParserContainer) => void;
-	onIsHdr?: (isHdr: boolean) => void;
-	onMetadata?: (metadata: MetadataEntry[]) => void;
-	onLocation?: (location: MediaParserLocation | null) => void;
-	onMimeType?: (mimeType: string | null) => void;
-	onKeyframes?: (keyframes: MediaParserKeyframe[] | null) => void;
-	onSlowKeyframes?: (keyframes: MediaParserKeyframe[]) => void;
-	onSlowNumberOfFrames?: (samples: number) => void;
-	onImages?: (images: MediaParserEmbeddedImage[]) => void;
-	onSampleRate?: (sampleRate: number | null) => void;
-	onNumberOfAudioChannels?: (numberOfChannels: number | null) => void;
-	onSlowVideoBitrate?: (videoBitrate: number | null) => void;
-	onSlowAudioBitrate?: (audioBitrate: number | null) => void;
-}
+export type MandatoryParseMediaCallbacks = {
+	onDimensions: null | ((dimensions: Dimensions | null) => void);
+	onDurationInSeconds: null | ((durationInSeconds: number | null) => void);
+	onSlowDurationInSeconds: null | ((durationInSeconds: number) => void);
+	onSlowFps: null | ((fps: number) => void);
+	onStructure: null | ((structure: Structure) => void);
+	onFps: null | ((fps: number | null) => void);
+	onVideoCodec: null | ((codec: MediaParserVideoCodec | null) => void);
+	onAudioCodec: null | ((codec: MediaParserAudioCodec | null) => void);
+	onTracks: null | ((tracks: TracksField) => void);
+	onRotation: null | ((rotation: number | null) => void);
+	onUnrotatedDimensions: null | ((dimensions: Dimensions | null) => void);
+	onInternalStats: null | ((internalStats: InternalStats) => void);
+	onSize: null | ((size: number | null) => void);
+	onName: null | ((name: string) => void);
+	onContainer: null | ((container: MediaParserContainer) => void);
+	onIsHdr: null | ((isHdr: boolean) => void);
+	onMetadata: null | ((metadata: MetadataEntry[]) => void);
+	onLocation: null | ((location: MediaParserLocation | null) => void);
+	onMimeType: null | ((mimeType: string | null) => void);
+	onKeyframes: null | ((keyframes: MediaParserKeyframe[] | null) => void);
+	onSlowKeyframes: null | ((keyframes: MediaParserKeyframe[]) => void);
+	onSlowNumberOfFrames: null | ((samples: number) => void);
+	onImages: null | ((images: MediaParserEmbeddedImage[]) => void);
+	onSampleRate: null | ((sampleRate: number | null) => void);
+	onNumberOfAudioChannels: null | ((numberOfChannels: number | null) => void);
+	onSlowVideoBitrate: null | ((videoBitrate: number | null) => void);
+	onSlowAudioBitrate: null | ((audioBitrate: number | null) => void);
+};
+
+export type ParseMediaCallbacks = Partial<MandatoryParseMediaCallbacks>;
 
 export interface ParseMediaData {
 	dimensions: Dimensions | null;
@@ -207,9 +209,6 @@ export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {
 			: never
 		: never;
 };
-export type ParseMediaDynamicOptions<F extends Options<ParseMediaFields>> = {
-	fields?: F;
-} & ParseMediaCallbacks;
 
 export type ParseMediaProgress = {
 	bytes: number;
@@ -221,16 +220,28 @@ export type ParseMediaOnProgress = (
 	progress: ParseMediaProgress,
 ) => void | Promise<void>;
 
+type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
+	reader: ReaderInterface;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	signal: AbortSignal | undefined;
+	logLevel: LogLevel;
+	onParseProgress: ParseMediaOnProgress | null;
+	progressIntervalInMs: number | null;
+	fields: F | null;
+} & MandatoryParseMediaCallbacks;
+
+export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
+	src: string | Blob;
+} & OptionalParseMediaParams<F>;
+
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	src: string | Blob;
-	reader?: ReaderInterface;
-	onAudioTrack?: OnAudioTrack;
-	onVideoTrack?: OnVideoTrack;
-	signal?: AbortSignal;
-	logLevel?: LogLevel;
-	onParseProgress?: ParseMediaOnProgress;
-	progressIntervalInMs?: number;
-} & ParseMediaDynamicOptions<F>;
+} & Partial<OptionalParseMediaParams<F>>;
+
+export type InternalParseMedia = <F extends Options<ParseMediaFields>>(
+	options: InternalParseMediaOptions<F>,
+) => Promise<ParseMediaResult<F>>;
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
 	options: ParseMediaOptions<F>,

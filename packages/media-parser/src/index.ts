@@ -37,7 +37,7 @@ export {
 export type {
 	MediaParserContainer,
 	Options,
-	ParseMediaDynamicOptions,
+	ParseMediaCallbacks,
 	ParseMediaFields,
 	ParseMediaOnProgress,
 	ParseMediaOptions,

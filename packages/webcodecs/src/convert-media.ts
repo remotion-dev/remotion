@@ -8,13 +8,13 @@ import type {
 	LogLevel,
 	OnAudioTrack,
 	Options,
-	ParseMediaDynamicOptions,
 	ParseMediaFields,
 	ParseMediaOptions,
 	VideoTrack,
 } from '@remotion/media-parser';
 import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
 
+import type {ParseMediaCallbacks} from '@remotion/media-parser';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
@@ -102,7 +102,8 @@ export const convertMedia = async function <
 	rotate?: number;
 	resize?: ResizeOperation;
 	apiKey?: string | null;
-} & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
+	fields?: F;
+} & ParseMediaCallbacks): Promise<ConvertMediaResult> {
 	if (userPassedAbortSignal?.aborted) {
 		return Promise.reject(new Error('Aborted'));
 	}
@@ -227,7 +228,7 @@ export const convertMedia = async function <
 				return null;
 			}
 
-			const casted = more as ParseMediaDynamicOptions<{
+			const casted = more as ParseMediaOptions<{
 				durationInSeconds: true;
 			}>;
 			if (casted.onDurationInSeconds) {
