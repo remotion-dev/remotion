@@ -27,6 +27,8 @@ export const emittedState = () => {
 		images: false,
 		numberOfAudioChannels: false,
 		sampleRate: false,
+		slowAudioBitrate: false,
+		slowVideoBitrate: false,
 	};
 
 	return emittedFields;

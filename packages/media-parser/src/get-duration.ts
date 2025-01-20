@@ -11,11 +11,7 @@ import {getDurationFromAvi} from './boxes/riff/get-duration';
 import {getDurationFromWav} from './boxes/wav/get-duration-from-wav';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
-import type {
-	AnySegment,
-	IsoBaseMediaStructure,
-	Structure,
-} from './parse-result';
+import type {AnySegment} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -56,10 +52,12 @@ export const isMatroska = (boxes: AnySegment[]) => {
 	return matroskaBox;
 };
 
-const getDurationFromIsoBaseMedia = (
-	structure: IsoBaseMediaStructure,
-	parserState: ParserState,
-) => {
+const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
+	const structure = parserState.structure.getStructure();
+	if (structure.type !== 'iso-base-media') {
+		throw new Error('Expected iso-base-media');
+	}
+
 	const moovBox = getMoovBox(structure.boxes);
 	if (!moovBox) {
 		return null;
@@ -102,16 +100,14 @@ const getDurationFromIsoBaseMedia = (
 	return highestTimestamp;
 };
 
-export const getDuration = (
-	structure: Structure,
-	parserState: ParserState,
-): number | null => {
+export const getDuration = (parserState: ParserState): number | null => {
+	const structure = parserState.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getDurationFromMatroska(structure.boxes);
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getDurationFromIsoBaseMedia(structure, parserState);
+		return getDurationFromIsoBaseMedia(parserState);
 	}
 
 	if (structure.type === 'riff') {
@@ -143,21 +139,15 @@ export const getDuration = (
 
 // `duration` just grabs from metadata, and otherwise returns null
 // Therefore just checking if we have tracks
-export const hasDuration = (
-	structure: Structure,
-	parserState: ParserState,
-): boolean => {
-	return getHasTracks(structure, parserState);
+export const hasDuration = (parserState: ParserState): boolean => {
+	return getHasTracks(parserState);
 };
 
 // `slowDuration` does through everything, and therefore is false
 // Unless it it somewhere in the metadata and is non-null
-export const hasSlowDuration = (
-	structure: Structure,
-	parserState: ParserState,
-): boolean => {
+export const hasSlowDuration = (parserState: ParserState): boolean => {
 	try {
-		return getDuration(structure, parserState) !== null;
+		return getDuration(parserState) !== null;
 	} catch {
 		return false;
 	}

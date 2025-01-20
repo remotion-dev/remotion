@@ -15,6 +15,8 @@ test('Should get duration of AV1 video', async () => {
 			slowNumberOfFrames: true,
 			numberOfAudioChannels: true,
 			sampleRate: true,
+			slowAudioBitrate: true,
+			slowVideoBitrate: true,
 		},
 		reader: nodeReader,
 	});
@@ -29,6 +31,8 @@ test('Should get duration of AV1 video', async () => {
 	});
 	expect(parsed.numberOfAudioChannels).toBe(null);
 	expect(parsed.sampleRate).toBe(null);
+	expect(parsed.slowAudioBitrate).toBe(null);
+	expect(parsed.slowVideoBitrate).toBe(2773832);
 
 	expect(parsed.structure.boxes).toEqual([
 		{

@@ -19,7 +19,7 @@ export const parseMdatSection = async ({
 		return videoSection.size + videoSection.start;
 	}
 
-	const alreadyHas = getHasTracks(state.structure.getStructure(), state);
+	const alreadyHas = getHasTracks(state);
 	if (!alreadyHas) {
 		// Will first read the end and then return
 		if (state.supportsContentRange) {
