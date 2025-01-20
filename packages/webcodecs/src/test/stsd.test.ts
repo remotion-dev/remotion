@@ -218,6 +218,7 @@ test('Should be able to parse a STSD video box correctly', async () => {
 			supportsContentRange: true,
 			contentLength: null,
 			logLevel: 'info',
+			mode: 'query',
 		}),
 	});
 	expect(parsed.sample).toEqual({

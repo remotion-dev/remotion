@@ -1,4 +1,5 @@
 import type {ParseResult} from '../../parse-result';
+import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {expectRiffBox} from './expect-riff-box';
 import {parseVideoSection} from './parse-video-section';
@@ -10,9 +11,21 @@ export const parseRiffBody = async (
 	if (
 		state.videoSection.isInVideoSectionState(state.iterator) === 'in-section'
 	) {
-		const videoSec = await parseVideoSection(state);
+		if (
+			maySkipVideoData({
+				state,
+			}) &&
+			state.riff.getAvcProfile()
+		) {
+			const videoSection = state.videoSection.getVideoSection();
+			return Promise.resolve({
+				skipTo: videoSection.start + videoSection.size,
+			});
+		}
+
+		await parseVideoSection(state);
 		return {
-			skipTo: videoSec.skipTo,
+			skipTo: null,
 		};
 	}
 

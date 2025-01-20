@@ -31,6 +31,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	logLevel,
 	onParseProgress: onParseProgressDoNotCallDirectly,
 	progressIntervalInMs,
+	mode,
 	...more
 }: InternalParseMediaOptions<F>) {
 	let parseResult: ParseResult | null = null;
@@ -100,6 +101,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		supportsContentRange,
 		contentLength,
 		logLevel,
+		mode,
 	});
 
 	let currentReader = readerInstance;
@@ -236,14 +238,11 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 			const seekStart = Date.now();
 			currentReader = await performSeek({
-				iterator,
 				seekTo: parseResult.skipTo,
-				supportsContentRange,
 				currentReader,
-				logLevel,
 				readerInterface: reader,
-				signal,
 				src,
+				state,
 			});
 			timeSeeking += Date.now() - seekStart;
 		}
