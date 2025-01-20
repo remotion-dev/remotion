@@ -22,11 +22,13 @@ test('Parse only header of WebM', async () => {
 });
 
 test('Parse WebM partially', async () => {
-	const {internalStats} = await parseMedia({
+	const {internalStats, numberOfAudioChannels, sampleRate} = await parseMedia({
 		src: exampleVideos.stretchedVp8,
 		fields: {
 			tracks: true,
 			internalStats: true,
+			sampleRate: true,
+			numberOfAudioChannels: true,
 		},
 		reader: nodeReader,
 	});
@@ -35,6 +37,8 @@ test('Parse WebM partially', async () => {
 		finalCursorOffset: 4540,
 		skippedBytes: 13190819,
 	});
+	expect(numberOfAudioChannels).toBe(2);
+	expect(sampleRate).toBe(44100);
 });
 
 test('Parse WebM fully', async () => {

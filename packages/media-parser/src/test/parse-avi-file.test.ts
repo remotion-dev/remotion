@@ -20,6 +20,8 @@ test('AVI file', async () => {
 		name,
 		rotation,
 		videoCodec,
+		numberOfAudioChannels,
+		sampleRate,
 	} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
@@ -35,6 +37,8 @@ test('AVI file', async () => {
 			name: true,
 			rotation: true,
 			videoCodec: true,
+			sampleRate: true,
+			numberOfAudioChannels: true,
 		},
 		onAudioTrack: () => {
 			audioTrackCount++;
@@ -297,4 +301,6 @@ test('AVI file', async () => {
 			},
 		],
 	});
+	expect(sampleRate).toBe(48000);
+	expect(numberOfAudioChannels).toBe(2);
 });

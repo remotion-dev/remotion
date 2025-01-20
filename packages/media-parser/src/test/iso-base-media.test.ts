@@ -21,6 +21,8 @@ if (process.platform !== 'win32') {
 				dimensions: true,
 				rotation: true,
 				unrotatedDimensions: true,
+				numberOfAudioChannels: true,
+				sampleRate: true,
 			},
 			reader: nodeReader,
 			onVideoTrack: ({track}) => {
@@ -52,6 +54,8 @@ if (process.platform !== 'win32') {
 			height: 2160,
 			width: 3840,
 		});
+		expect(result.sampleRate).toBe(44100);
+		expect(result.numberOfAudioChannels).toBe(2);
 		expect(videoTracks).toBe(1);
 		expect(audioTracks).toBe(1);
 		expect(videoSamples).toBe(377);

@@ -7,8 +7,7 @@ import {
 	getMvhdBox,
 } from './boxes/iso-base-media/traversal';
 import {getDurationFromMp3} from './boxes/mp3/get-duration';
-import type {RiffStructure} from './boxes/riff/riff-box';
-import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
+import {getDurationFromAvi} from './boxes/riff/get-duration';
 import {getDurationFromWav} from './boxes/wav/get-duration-from-wav';
 import type {DurationSegment} from './boxes/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
@@ -101,25 +100,6 @@ const getDurationFromIsoBaseMedia = (
 	});
 	const highestTimestamp = Math.max(...allSamples);
 	return highestTimestamp;
-};
-
-const getDurationFromAvi = (structure: RiffStructure) => {
-	const strl = getStrlBoxes(structure);
-
-	const lengths: number[] = [];
-	for (const s of strl) {
-		const strh = getStrhBox(s.children);
-		if (!strh) {
-			throw new Error('No strh box');
-		}
-
-		const samplesPerSecond = strh.rate / strh.scale;
-
-		const streamLength = strh.length / samplesPerSecond;
-		lengths.push(streamLength);
-	}
-
-	return Math.max(...lengths);
 };
 
 export const getDuration = (
