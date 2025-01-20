@@ -40,6 +40,7 @@ jobs:
         run: |
           pnpm build
       - name: Test Lambda IT
+        timeout-minutes: 12
         run: |
           pnpm run testlambda
   ssr-tests:

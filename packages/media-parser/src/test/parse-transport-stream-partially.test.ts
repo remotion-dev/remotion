@@ -32,6 +32,8 @@ test('Should be able to parse only tracks of Transport Stream', async () => {
 			tracks: true,
 			durationInSeconds: true,
 			fps: true,
+			sampleRate: true,
+			numberOfAudioChannels: true,
 		},
 		reader: nodeReader,
 	});
@@ -41,4 +43,6 @@ test('Should be able to parse only tracks of Transport Stream', async () => {
 		finalCursorOffset: 80652,
 		skippedBytes: 1832812,
 	});
+	expect(parsed.sampleRate).toBe(48000);
+	expect(parsed.numberOfAudioChannels).toBe(2);
 });

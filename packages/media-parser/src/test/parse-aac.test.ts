@@ -121,7 +121,7 @@ test('should be able to parse aac', async () => {
 	expect(slowVideoBitrate).toBe(null);
 });
 
-test.only('should be able to get basics without parsing all', async () => {
+test('should be able to get basics without parsing all', async () => {
 	const audioSamples = 0;
 	const {
 		durationInSeconds,

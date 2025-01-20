@@ -5,6 +5,8 @@ import {hasDuration, hasSlowDuration} from './get-duration';
 import {hasFps, hasFpsSuitedForSlowFps} from './get-fps';
 import {hasHdr} from './get-is-hdr';
 import {hasKeyframes} from './get-keyframes';
+import {hasNumberOfAudioChannels} from './get-number-of-audio-channels';
+import {hasSampleRate} from './get-sample-rate';
 import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {maySkipVideoData} from './may-skip-video-data/may-skip-video-data';
@@ -108,6 +110,14 @@ export const getAvailableInfo = ({
 			key === 'slowNumberOfFrames'
 		) {
 			return false;
+		}
+
+		if (key === 'numberOfAudioChannels') {
+			return hasNumberOfAudioChannels(state);
+		}
+
+		if (key === 'sampleRate') {
+			return hasSampleRate(state);
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

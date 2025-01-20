@@ -7,6 +7,8 @@ import {getFps} from './get-fps';
 import {getIsHdr} from './get-is-hdr';
 import {getKeyframes} from './get-keyframes';
 import {getLocation} from './get-location';
+import {getNumberOfAudioChannels} from './get-number-of-audio-channels';
+import {getSampleRate} from './get-sample-rate';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
@@ -487,6 +489,38 @@ export const emitAvailableInfo = ({
 				}
 
 				emittedFields.images = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'sampleRate') {
+			if (!emittedFields.sampleRate && hasInfo.sampleRate && parseResult) {
+				const sampleRate = getSampleRate(state);
+				callbacks.onSampleRate?.(sampleRate);
+				if (fieldsInReturnValue.sampleRate) {
+					returnValue.sampleRate = sampleRate;
+				}
+
+				emittedFields.sampleRate = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'numberOfAudioChannels') {
+			if (
+				!emittedFields.numberOfAudioChannels &&
+				hasInfo.numberOfAudioChannels &&
+				parseResult
+			) {
+				const numberOfAudioChannels = getNumberOfAudioChannels(state);
+				callbacks.onNumberOfAudioChannels?.(numberOfAudioChannels);
+				if (fieldsInReturnValue.numberOfAudioChannels) {
+					returnValue.numberOfAudioChannels = numberOfAudioChannels;
+				}
+
+				emittedFields.numberOfAudioChannels = true;
 			}
 
 			continue;

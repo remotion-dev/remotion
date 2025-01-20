@@ -49,6 +49,8 @@ export type ParseMediaFields = {
 	slowVideoBitrate: boolean;
 	slowAudioBitrate: boolean;
 	images: boolean;
+	sampleRate: boolean;
+	numberOfAudioChannels: boolean;
 };
 
 export type AllParseMediaFields = {
