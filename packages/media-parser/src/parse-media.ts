@@ -95,7 +95,7 @@ const internalParseMedia: InternalParseMedia = async function <
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
 		signal,
-		getIterator: () => iterator,
+		iterator,
 		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
@@ -217,7 +217,6 @@ const internalParseMedia: InternalParseMedia = async function <
 		);
 		const start = Date.now();
 		parseResult = await runParseIteration({
-			iterator,
 			state,
 			mimeType: contentType,
 			contentLength,

@@ -1,16 +1,14 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {WavFmt} from './types';
 
 export const parseVideoSection = async ({
-	iterator,
 	state,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
+	const {iterator} = state;
 	const structure = state.structure.getStructure();
 	if (structure.type !== 'wav') {
 		throw new Error('Expected wav structure');

@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {TransportStreamBox} from './boxes';
@@ -9,12 +8,11 @@ import {parseStream} from './parse-stream-packet';
 import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = async ({
-	iterator,
 	parserState,
 }: {
-	iterator: BufferIterator;
 	parserState: ParserState;
 }): Promise<TransportStreamBox | null> => {
+	const {iterator} = parserState;
 	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
@@ -87,7 +85,6 @@ export const parsePacket = async ({
 	const stream = getStreamForId(structure, programId);
 	if (stream) {
 		await parseStream({
-			iterator,
 			transportStreamEntry: stream,
 			state: parserState,
 			programId,

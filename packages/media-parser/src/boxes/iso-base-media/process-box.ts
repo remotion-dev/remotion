@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import {Log} from '../../log';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
@@ -32,13 +31,8 @@ import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
-export const processBox = async ({
-	iterator,
-	state,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-}): Promise<BoxAndNext> => {
+export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
+	const {iterator} = state;
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -147,7 +141,6 @@ export const processBox = async ({
 
 	if (boxType === 'stsd') {
 		const box = await parseStsd({
-			iterator,
 			offset: fileOffset,
 			size: boxSize,
 			state,
@@ -240,7 +233,6 @@ export const processBox = async ({
 
 	if (boxType === 'mebx') {
 		const box = await parseMebx({
-			iterator,
 			offset: fileOffset,
 			size: boxSize,
 			state,
@@ -293,7 +285,6 @@ export const processBox = async ({
 		}
 
 		const box = await parseMoov({
-			iterator,
 			offset: fileOffset,
 			size: boxSize,
 			state,
@@ -309,7 +300,6 @@ export const processBox = async ({
 
 	if (boxType === 'trak') {
 		const box = await parseTrak({
-			data: iterator,
 			size: boxSize,
 			offsetAtStart: fileOffset,
 			state,
@@ -431,7 +421,6 @@ export const processBox = async ({
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({
-			iterator,
 			state,
 			size: boxSize - 8,
 		});

@@ -1,4 +1,3 @@
-import {type BufferIterator} from '../../buffer-iterator';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
@@ -12,9 +11,9 @@ export type Prettify<T> = {
 } & {};
 
 export const parseEbml = async (
-	iterator: BufferIterator,
 	state: ParserState,
 ): Promise<Prettify<PossibleEbml>> => {
+	const {iterator} = state;
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
 		throw new Error(
@@ -115,7 +114,7 @@ export const parseEbml = async (
 			}
 
 			const offset = iterator.counter.getOffset();
-			const value = await parseEbml(iterator, state);
+			const value = await parseEbml(state);
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const remapped = await postprocessEbml({
 				offset,

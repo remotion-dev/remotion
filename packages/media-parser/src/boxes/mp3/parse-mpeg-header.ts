@@ -1,6 +1,5 @@
 // spec: http://www.mp3-tech.org/programmer/frame_header.html
 
-import type {BufferIterator} from '../../buffer-iterator';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {
@@ -178,12 +177,11 @@ function getBitrateKB({
 }
 
 export const parseMpegHeader = async ({
-	iterator,
 	state,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<void> => {
+	const {iterator} = state;
 	const initialOffset = iterator.counter.getOffset();
 
 	if (iterator.bytesRemaining() < 32) {

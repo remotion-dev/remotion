@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import type {IsoBaseMediaBox} from '../base-media-box';
@@ -120,12 +119,11 @@ const audioTags = [
 ];
 
 export const processIsoFormatBox = async ({
-	iterator,
 	state,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<FormatBoxAndNext> => {
+	const {iterator} = state;
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
@@ -174,7 +172,6 @@ export const processIsoFormatBox = async ({
 			const sampleRate = iterator.getFixedPointUnsigned1616Number();
 
 			const children = await getIsoBaseMediaChildren({
-				iterator,
 				state,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 			});
@@ -217,7 +214,6 @@ export const processIsoFormatBox = async ({
 			const bytesPerSample = iterator.getUint32();
 
 			const children = await getIsoBaseMediaChildren({
-				iterator,
 				state,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 			});
@@ -263,7 +259,6 @@ export const processIsoFormatBox = async ({
 			const samplesPerPacket = iterator.getUint32();
 
 			const children = await getIsoBaseMediaChildren({
-				iterator,
 				state,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 			});
@@ -317,7 +312,6 @@ export const processIsoFormatBox = async ({
 		const children: IsoBaseMediaBox[] =
 			bytesRemainingInBox > 8
 				? await getIsoBaseMediaChildren({
-						iterator,
 						state,
 						size: bytesRemainingInBox,
 					})
@@ -353,14 +347,13 @@ export const processIsoFormatBox = async ({
 };
 
 export const parseIsoFormatBoxes = async ({
-	iterator,
 	maxBytes,
 	state,
 }: {
-	iterator: BufferIterator;
 	maxBytes: number;
 	state: ParserState;
 }): Promise<Sample[]> => {
+	const {iterator} = state;
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -369,7 +362,6 @@ export const parseIsoFormatBoxes = async ({
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
 		const {sample} = await processIsoFormatBox({
-			iterator,
 			state,
 		});
 

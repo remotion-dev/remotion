@@ -1,17 +1,15 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 import {expectRiffBox} from './expect-riff-box';
 import type {RiffBox} from './riff-box';
 
 export const parseListBox = async ({
-	iterator,
 	size,
 	state,
 }: {
-	iterator: BufferIterator;
 	size: number;
 	state: ParserState;
 }): Promise<RiffBox> => {
+	const {iterator} = state;
 	const counter = iterator.counter.getOffset();
 	const listType = iterator.getByteString(4, false);
 
@@ -23,10 +21,7 @@ export const parseListBox = async ({
 	const maxOffset = counter + size;
 
 	while (iterator.counter.getOffset() < maxOffset) {
-		const result = await expectRiffBox({
-			iterator,
-			state,
-		});
+		const result = await expectRiffBox(state);
 		if (result.box !== null) {
 			boxes.push(result.box);
 		} else {

@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import {combineUint8Arrays} from '../../combine-uint8-arrays';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
@@ -139,18 +138,17 @@ const parseAvcStream = async ({
 };
 
 export const parseStream = ({
-	iterator,
 	transportStreamEntry,
 	state,
 	programId,
 	structure,
 }: {
-	iterator: BufferIterator;
 	transportStreamEntry: TransportStreamEntry;
 	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
 }): Promise<void> => {
+	const {iterator} = state;
 	const restOfPacket = getRestOfPacket(iterator);
 	if (transportStreamEntry.streamType === 27) {
 		return parseAvcStream({

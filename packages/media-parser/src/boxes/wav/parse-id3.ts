@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {WavId3, WavStructure} from './types';
@@ -6,11 +5,10 @@ import type {WavId3, WavStructure} from './types';
 // non-standard, we discard it in favor of LIST boxes
 export const parseId3 = ({
 	state,
-	iterator,
 }: {
 	state: ParserState;
-	iterator: BufferIterator;
 }): Promise<ParseResult> => {
+	const {iterator} = state;
 	const id3Size = iterator.getUint32Le();
 	iterator.discard(id3Size);
 

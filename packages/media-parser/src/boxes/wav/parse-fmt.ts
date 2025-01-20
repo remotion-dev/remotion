@@ -1,16 +1,14 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {WavFmt, WavStructure} from './types';
 
 export const parseFmt = async ({
-	iterator,
 	state,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
+	const {iterator} = state;
 	const ckSize = iterator.getUint32Le(); // chunkSize
 	const box = iterator.startBox(ckSize);
 	const audioFormat = iterator.getUint16Le();

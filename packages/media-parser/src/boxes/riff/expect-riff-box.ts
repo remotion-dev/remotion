@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import {
 	registerTrack,
 	registerVideoTrackWhenProfileIsAvailable,
@@ -15,15 +14,12 @@ export type RiffResult = {
 	skipTo: number | null;
 };
 
-export const expectRiffBox = async ({
-	iterator,
-	state,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-}): Promise<RiffResult> => {
+export const expectRiffBox = async (
+	state: ParserState,
+): Promise<RiffResult> => {
+	const {iterator} = state;
 	// Need at least 16 bytes to read LIST,size,movi,size
-	if (iterator.bytesRemaining() < 16) {
+	if (state.iterator.bytesRemaining() < 16) {
 		return {
 			box: null,
 			skipTo: null,
@@ -42,7 +38,7 @@ export const expectRiffBox = async ({
 			size: ckSize - 4,
 		});
 
-		return parseVideoSection({state, iterator});
+		return parseVideoSection(state);
 	}
 
 	if (iterator.bytesRemaining() < ckSize) {
@@ -55,7 +51,6 @@ export const expectRiffBox = async ({
 
 	const box = await parseRiffBox({
 		id: ckId,
-		iterator,
 		size: ckSize,
 		state,
 	});

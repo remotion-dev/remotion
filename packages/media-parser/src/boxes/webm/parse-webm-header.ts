@@ -1,26 +1,20 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
-export const parseWebm = async ({
-	iterator,
-	state,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-}): Promise<ParseResult> => {
+export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 	const structure = state.structure.getStructure();
 	if (structure.type !== 'matroska') {
 		throw new Error('Invalid structure type');
 	}
 
+	const {iterator} = state;
+
 	const isInsideSegment = state.webm.isInsideSegment(iterator);
 	const isInsideCluster = state.webm.isInsideCluster(iterator);
 
 	const results = await expectSegment({
-		iterator,
 		state,
 		isInsideSegment,
 	});

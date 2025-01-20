@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks} from '../../../get-tracks';
 import {maySkipVideoData} from '../../../may-skip-video-data/may-skip-video-data';
@@ -6,13 +5,9 @@ import type {FlatSample} from '../../../state/iso-base-media/cached-sample-posit
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import type {ParserState} from '../../../state/parser-state';
 
-export const parseMdatSection = async ({
-	iterator,
-	state,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-}): Promise<number | null> => {
+export const parseMdatSection = async (
+	state: ParserState,
+): Promise<number | null> => {
 	const videoSection = state.videoSection.getVideoSection();
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
@@ -38,6 +33,7 @@ export const parseMdatSection = async ({
 	}
 
 	const flatSamples = state.iso.flatSamples.getSamples() as FlatSample[];
+	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {
 		return sample.samplePosition.offset === iterator.counter.getOffset();

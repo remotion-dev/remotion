@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {MetadataEntry} from '../../metadata/get-metadata';
 import type {Mp3Structure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
@@ -14,13 +13,8 @@ function combine28Bits(a: number, b: number, c: number, d: number): number {
 	return (val1 << 21) | (val2 << 14) | (val3 << 7) | val4;
 }
 
-export const parseId3 = ({
-	iterator,
-	state,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-}) => {
+export const parseId3 = ({state}: {state: ParserState}) => {
+	const {iterator} = state;
 	if (iterator.bytesRemaining() < 9) {
 		return;
 	}

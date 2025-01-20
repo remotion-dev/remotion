@@ -1,38 +1,31 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {IsoBaseMediaStructure, ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {parseMdatSection} from './mdat/mdat';
 import {processBox} from './process-box';
 
-export const parseIsoBaseMedia = async ({
-	iterator,
-	state,
-}: {
-	iterator: BufferIterator;
-	state: ParserState;
-}): Promise<ParseResult> => {
-	const videoSectionState = state.videoSection.isInVideoSectionState(iterator);
+export const parseIsoBaseMedia = async (
+	state: ParserState,
+): Promise<ParseResult> => {
+	const videoSectionState = state.videoSection.isInVideoSectionState(
+		state.iterator,
+	);
 
 	if (videoSectionState === 'in-section') {
-		const skipTo = await parseMdatSection({
-			iterator,
-			state,
-		});
+		const skipTo = await parseMdatSection(state);
 
 		return {
 			skipTo,
 		};
 	}
 
-	const result = await processBox({
-		iterator,
-		state,
-	});
+	const result = await processBox(state);
 	if (result.box) {
 		(state.structure.getStructure() as IsoBaseMediaStructure).boxes.push(
 			result.box,
 		);
 	}
+
+	const {iterator} = state;
 
 	if (
 		iterator.counter.getOffset() === state.contentLength &&

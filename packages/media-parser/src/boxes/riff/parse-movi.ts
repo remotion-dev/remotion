@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
@@ -27,16 +26,15 @@ const getStrhForIndex = (
 };
 
 export const handleChunk = async ({
-	iterator,
 	state,
 	ckId,
 	ckSize,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 	ckId: string;
 	ckSize: number;
 }) => {
+	const {iterator} = state;
 	const offset = iterator.counter.getOffset();
 
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
@@ -129,11 +127,9 @@ export const handleChunk = async ({
 };
 
 export const parseMovi = async ({
-	iterator,
 	maxOffset,
 	state,
 }: {
-	iterator: BufferIterator;
 	maxOffset: number;
 	state: ParserState;
 }): Promise<RiffResult> => {
@@ -148,6 +144,8 @@ export const parseMovi = async ({
 			skipTo: maxOffset,
 		};
 	}
+
+	const {iterator} = state;
 
 	if (iterator.bytesRemaining() < 8) {
 		return {
@@ -168,7 +166,7 @@ export const parseMovi = async ({
 		};
 	}
 
-	await handleChunk({iterator, state, ckId, ckSize});
+	await handleChunk({state, ckId, ckSize});
 
 	// Discard added zeroes
 	while (

@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 import {parseAvih} from './parse-avih';
 import {parseIsft} from './parse-isft';
@@ -7,18 +6,17 @@ import {parseStrh} from './parse-strh';
 import type {RiffBox, RiffRegularBox} from './riff-box';
 
 export const parseRiffBox = ({
-	iterator,
 	size,
 	id,
 	state,
 }: {
-	iterator: BufferIterator;
 	size: number;
 	id: string;
 	state: ParserState;
 }): Promise<RiffBox> => {
+	const {iterator} = state;
 	if (id === 'LIST') {
-		return parseListBox({iterator, size, state});
+		return parseListBox({size, state});
 	}
 
 	if (id === 'ISFT') {

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {BufferIterator} from '../../buffer-iterator';
 import {Log} from '../../log';
 import type {ParserState} from '../../state/parser-state';
 import type {SegmentSection} from '../../state/webm';
@@ -17,14 +16,13 @@ export type MatroskaSegment = PossibleEbml;
 export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 
 export const expectSegment = async ({
-	iterator,
 	state,
 	isInsideSegment,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 	isInsideSegment: SegmentSection | null;
 }): Promise<MatroskaSegment | null> => {
+	const {iterator} = state;
 	if (iterator.bytesRemaining() === 0) {
 		throw new Error('has no bytes');
 	}
@@ -96,7 +94,6 @@ export const expectSegment = async ({
 
 	const segment = await parseSegment({
 		segmentId,
-		iterator,
 		length: size,
 		state,
 		headerReadSoFar: iterator.counter.getOffset() - offset,
@@ -107,13 +104,11 @@ export const expectSegment = async ({
 
 const parseSegment = async ({
 	segmentId,
-	iterator,
 	length,
 	state,
 	headerReadSoFar,
 }: {
 	segmentId: string;
-	iterator: BufferIterator;
 	length: number;
 	state: ParserState;
 	headerReadSoFar: number;
@@ -122,10 +117,10 @@ const parseSegment = async ({
 		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
 	}
 
-	iterator.counter.decrement(headerReadSoFar);
+	state.iterator.counter.decrement(headerReadSoFar);
 
-	const offset = iterator.counter.getOffset();
-	const ebml = await parseEbml(iterator, state);
+	const offset = state.iterator.counter.getOffset();
+	const ebml = await parseEbml(state);
 	const remapped = await postprocessEbml({offset, ebml, state});
 
 	return remapped;

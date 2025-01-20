@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../../../buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
@@ -10,18 +9,15 @@ export interface TrakBox extends BaseBox {
 }
 
 export const parseTrak = async ({
-	data,
 	size,
 	offsetAtStart,
 	state: options,
 }: {
-	data: BufferIterator;
 	size: number;
 	offsetAtStart: number;
 	state: ParserState;
 }): Promise<TrakBox> => {
 	const children = await getIsoBaseMediaChildren({
-		iterator: data,
 		state: options,
 		size: size - 8,
 	});

@@ -1,16 +1,14 @@
-import type {BufferIterator} from '../../buffer-iterator';
 import type {MetadataEntry} from '../../metadata/get-metadata';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {WavList, WavStructure} from './types';
 
 export const parseList = ({
-	iterator,
 	state,
 }: {
-	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
+	const {iterator} = state;
 	const ckSize = iterator.getUint32Le(); // chunkSize
 	const box = iterator.startBox(ckSize);
 
