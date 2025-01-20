@@ -1,4 +1,3 @@
-import {needsToIterateOverSamples} from '../may-skip-video-data/need-samples-for-fields';
 import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
@@ -8,6 +7,7 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
+import {needsToIterateOverSamples} from './need-samples-for-fields';
 import type {SlowDurationAndFpsState} from './slow-duration-fps';
 import type {StructureState} from './structure';
 

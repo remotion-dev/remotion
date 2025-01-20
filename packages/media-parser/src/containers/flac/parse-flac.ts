@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
-import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {ParseResult} from '../../parse-result';
+import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {parseFlacFrame} from './parse-flac-frame';
 import {parseFlacHeader} from './parse-header';

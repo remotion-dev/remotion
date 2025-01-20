@@ -1,5 +1,5 @@
-import {maySkipVideoData} from '../../may-skip-video-data/may-skip-video-data';
 import type {ParseResult} from '../../parse-result';
+import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import type {WavData, WavStructure} from './types';
 

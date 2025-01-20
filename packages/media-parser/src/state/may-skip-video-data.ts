@@ -1,5 +1,5 @@
-import type {ParserState} from '../state/parser-state';
 import {needsToIterateOverSamples} from './need-samples-for-fields';
+import type {ParserState} from './parser-state';
 
 export const maySkipVideoData = ({state}: {state: ParserState}) => {
 	const hasAllTracksAndNoCallbacks =

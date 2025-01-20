@@ -1,8 +1,8 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks} from '../../../get-tracks';
-import {maySkipVideoData} from '../../../may-skip-video-data/may-skip-video-data';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
+import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 
 export const parseMdatSection = async (
