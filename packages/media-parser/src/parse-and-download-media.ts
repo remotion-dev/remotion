@@ -1,15 +1,19 @@
 import {internalParseMedia} from './internal-parse-media';
-import type {ParseMedia} from './options';
+import type {DownloadAndParseMedia} from './options';
 import {fetchReader} from './readers/from-fetch';
 
-export const parseMedia: ParseMedia = (options) => {
+export const downloadAndParseMedia: DownloadAndParseMedia = (options) => {
 	return internalParseMedia({
 		fields: options.fields ?? null,
 		logLevel: options.logLevel ?? 'info',
+		mode: 'download',
 		onAudioCodec: options.onAudioCodec ?? null,
-		onAudioTrack: options.onAudioTrack ?? null,
+		onAudioTrack: null,
 		onContainer: options.onContainer ?? null,
 		onDimensions: options.onDimensions ?? null,
+		onDiscardedData: (data) => {
+			console.log(data);
+		},
 		onDurationInSeconds: options.onDurationInSeconds ?? null,
 		onFps: options.onFps ?? null,
 		onImages: options.onImages ?? null,
@@ -35,12 +39,10 @@ export const parseMedia: ParseMedia = (options) => {
 		onTracks: options.onTracks ?? null,
 		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
 		onVideoCodec: options.onVideoCodec ?? null,
-		onVideoTrack: options.onVideoTrack ?? null,
+		onVideoTrack: null,
 		progressIntervalInMs: options.progressIntervalInMs ?? null,
 		reader: options.reader ?? fetchReader,
 		signal: options.signal ?? undefined,
 		src: options.src,
-		mode: 'query',
-		onDiscardedData: () => undefined,
 	});
 };

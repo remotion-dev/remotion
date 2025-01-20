@@ -222,8 +222,6 @@ export type ParseMediaOnProgress = (
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	reader: ReaderInterface;
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
 	signal: AbortSignal | undefined;
 	logLevel: LogLevel;
 	onParseProgress: ParseMediaOnProgress | null;
@@ -231,13 +229,30 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	fields: F | null;
 } & MandatoryParseMediaCallbacks;
 
+type ParseMediaSampleCallbacks = {
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+};
+
+export type ParseMediaMode = 'query' | 'download';
+
 export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	src: string | Blob;
-} & OptionalParseMediaParams<F>;
+} & OptionalParseMediaParams<F> &
+	ParseMediaSampleCallbacks & {
+		onDiscardedData: (data: Uint8Array) => void;
+		mode: ParseMediaMode;
+	};
 
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	src: string | Blob;
-} & Partial<OptionalParseMediaParams<F>>;
+} & Partial<OptionalParseMediaParams<F>> &
+	Partial<ParseMediaSampleCallbacks>;
+
+export type DownloadAndParseMediaOptions<F extends Options<ParseMediaFields>> =
+	{
+		src: string | Blob;
+	} & Partial<OptionalParseMediaParams<F>>;
 
 export type InternalParseMedia = <F extends Options<ParseMediaFields>>(
 	options: InternalParseMediaOptions<F>,
@@ -245,4 +260,8 @@ export type InternalParseMedia = <F extends Options<ParseMediaFields>>(
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
 	options: ParseMediaOptions<F>,
+) => Promise<ParseMediaResult<F>>;
+
+export type DownloadAndParseMedia = <F extends Options<ParseMediaFields>>(
+	options: DownloadAndParseMediaOptions<F>,
 ) => Promise<ParseMediaResult<F>>;
