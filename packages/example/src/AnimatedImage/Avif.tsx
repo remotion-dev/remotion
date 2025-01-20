@@ -1,6 +1,7 @@
+import {StudioInternals} from '@remotion/studio';
 import {AbsoluteFill, AnimatedImage, staticFile} from 'remotion';
 
-export const AnimatedImages = () => {
+const Comp = () => {
 	return (
 		<AbsoluteFill className="bg-white justify-center items-center flex flex-row gap-20">
 			<div className="flex flex-col items-center gap-8">
@@ -34,3 +35,12 @@ export const AnimatedImages = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const AnimatedImages = StudioInternals.createComposition({
+	component: Comp,
+	id: 'animated-images',
+	width: 2400,
+	height: 1080,
+	durationInFrames: 200,
+	fps: 30,
+});
