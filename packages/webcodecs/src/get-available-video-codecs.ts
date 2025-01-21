@@ -1,7 +1,6 @@
 import type {ConvertMediaContainer} from './get-available-containers';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const availableVideoCodecs = ['vp8', 'vp9', 'h264', 'h265'] as const;
+export const availableVideoCodecs = ['vp8', 'vp9', 'h264', 'h265'] as const;
 export type ConvertMediaVideoCodec = (typeof availableVideoCodecs)[number];
 
 export const getAvailableVideoCodecs = ({

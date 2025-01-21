@@ -22,8 +22,14 @@ import {withResolversAndWaitForReturn} from './create/with-resolvers';
 import Error from './error-cause';
 import {generateOutputFilename} from './generate-output-filename';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
-import type {ConvertMediaContainer} from './get-available-containers';
-import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {
+	availableContainers,
+	type ConvertMediaContainer,
+} from './get-available-containers';
+import {
+	availableVideoCodecs,
+	type ConvertMediaVideoCodec,
+} from './get-available-video-codecs';
 import {Log} from './log';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
@@ -108,18 +114,18 @@ export const convertMedia = async function <
 		return Promise.reject(new Error('Aborted'));
 	}
 
-	if (container !== 'webm' && container !== 'mp4' && container !== 'wav') {
+	if (container !== 'webm' && availableContainers.indexOf(container) === -1) {
 		return Promise.reject(
 			new TypeError(
-				'Only `to: "webm"`, `to: "mp4"` and `to: "wav"` is supported currently',
+				`Only the following values for "container" are supported currently: ${JSON.stringify(availableContainers)}`,
 			),
 		);
 	}
 
-	if (videoCodec && videoCodec !== 'vp8' && videoCodec !== 'vp9') {
+	if (videoCodec && availableVideoCodecs.indexOf(videoCodec) === -1) {
 		return Promise.reject(
 			new TypeError(
-				'Only `videoCodec: "vp8"` and `videoCodec: "vp9"` are supported currently',
+				`Only the following values for "videoCodec" are supported currently: ${JSON.stringify(availableVideoCodecs)}`,
 			),
 		);
 	}
