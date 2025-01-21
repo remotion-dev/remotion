@@ -85,6 +85,7 @@ const videoTags = [
 	'v410',
 	'v210',
 	'hvc1',
+	'hev1',
 	'ap4h',
 	'av01',
 ];
