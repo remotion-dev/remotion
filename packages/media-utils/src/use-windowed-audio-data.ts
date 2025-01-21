@@ -53,25 +53,40 @@ export const useWindowedAudioData = ({
 		};
 	}, []);
 
-	const fetchMetadata = useCallback(async () => {
-		const handle = delayRender(
-			`Waiting for audio metadata with src="${src}" to be loaded`,
-		);
+	const fetchMetadata = useCallback(
+		async (signal: AbortSignal) => {
+			const handle = delayRender(
+				`Waiting for audio metadata with src="${src}" to be loaded`,
+			);
+			const cont = () => {
+				continueRender(handle);
+			};
 
-		try {
-			const data = await probeWaveFile(src);
-			if (isMounted.current) {
-				setWaveProbe(data);
+			signal.addEventListener('abort', cont, {once: true});
+
+			try {
+				const data = await probeWaveFile(src);
+				if (isMounted.current) {
+					setWaveProbe(data);
+				}
+
+				continueRender(handle);
+			} catch (err) {
+				cancelRender(err);
+			} finally {
+				signal.removeEventListener('abort', cont);
 			}
-
-			continueRender(handle);
-		} catch (err) {
-			cancelRender(err);
-		}
-	}, [src]);
+		},
+		[src],
+	);
 
 	useLayoutEffect(() => {
-		fetchMetadata();
+		const controller = new AbortController();
+		fetchMetadata(controller.signal);
+
+		return () => {
+			controller.abort();
+		};
 	}, [fetchMetadata]);
 
 	const currentTime = frame / fps;
