@@ -12,6 +12,7 @@ export const performSeek = async ({
 	readerInterface,
 	src,
 	signal,
+	contentLength,
 }: {
 	seekTo: number;
 	iterator: BufferIterator;
@@ -21,12 +22,17 @@ export const performSeek = async ({
 	readerInterface: ReaderInterface;
 	src: string | Blob;
 	signal: AbortSignal | undefined;
+	contentLength: number;
 }): Promise<Reader> => {
 	const skippingAhead = seekTo > iterator.counter.getOffset();
 	if (!skippingAhead && !supportsContentRange) {
 		throw new Error(
 			'Content-Range header is not supported by the reader, but was asked to seek',
 		);
+	}
+
+	if (seekTo > contentLength) {
+		throw new Error(`Unexpected seek: ${seekTo} > ${contentLength}`);
 	}
 
 	if (
