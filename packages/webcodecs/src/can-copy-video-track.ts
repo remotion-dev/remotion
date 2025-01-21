@@ -47,7 +47,8 @@ export const canCopyVideoTrack = ({
 
 	if (outputContainer === 'mp4') {
 		return (
-			inputTrack.codecWithoutConfig === 'h264' &&
+			(inputTrack.codecWithoutConfig === 'h264' ||
+				inputTrack.codecWithoutConfig === 'h265') &&
 			(inputContainer === 'mp4' || inputContainer === 'avi')
 		);
 	}
