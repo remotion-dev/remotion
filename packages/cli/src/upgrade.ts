@@ -70,7 +70,10 @@ export const upgradeCommand = async ({
 		additionalArgs: args,
 	});
 
-	Log.info({indent: false, logLevel}, chalk.gray(`$ ${command.join(' ')}`));
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray(`$ ${manager.manager} ${command.join(' ')}`),
+	);
 
 	const task = spawn(manager.manager, command, {
 		env: {
