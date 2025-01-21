@@ -22,7 +22,7 @@
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remotion": "workspace:*",
-		"vite": "^5.4.6",
+		"vite": "^5.4.12",
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
