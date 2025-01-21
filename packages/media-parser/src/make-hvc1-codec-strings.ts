@@ -20,12 +20,12 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 	const generalConstraintIndicator = data.getSlice(6);
 	const generalLevelIdc = data.getUint8();
 
-	let reversedGeneralProfileSpace = 0;
+	let profileId = 0;
 	for (let i = 0; i < 32; i++) {
-		reversedGeneralProfileSpace |= generalProfileCompatibility & 1;
+		profileId |= generalProfileCompatibility & 1;
 		if (i === 31) break;
 
-		reversedGeneralProfileSpace <<= 1;
+		profileId <<= 1;
 		generalProfileCompatibility >>= 1;
 	}
 
@@ -51,5 +51,5 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 		}
 	}
 
-	return `${profileSpaceChar}${generalProfileIdc.toString(16)}.${reversedGeneralProfileSpace.toString(16)}.${generalTierChar}${generalLevelIdc}.${generalConstraintString}`;
+	return `${profileSpaceChar}${generalProfileIdc.toString(16)}.${profileId.toString(16)}.${generalTierChar}${generalLevelIdc}.${generalConstraintString}`;
 };
