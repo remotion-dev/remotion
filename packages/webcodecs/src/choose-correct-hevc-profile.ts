@@ -50,7 +50,7 @@ export const chooseCorrectHevcProfile = ({
 		'L'
 	}${
 		// Level
-		Number(profile.level) * 30
+		Math.round(Number(profile.level) * 30)
 	}.${
 		// Bit depth
 		'b0'
