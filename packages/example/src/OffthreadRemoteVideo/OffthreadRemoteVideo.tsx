@@ -1,4 +1,5 @@
 import {getVideoMetadata} from '@remotion/media-utils';
+import {StudioInternals} from '@remotion/studio';
 import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
@@ -39,6 +40,20 @@ export const LoopedOffthreadVideo: React.FC<{
 	);
 };
 
-export const OffthreadRemoteVideo: React.FC = () => {
-	return <LoopedOffthreadVideo durationInFrames={100} />;
-};
+export const OffthreadRemoteVideo = StudioInternals.createComposition({
+	component: () => {
+		return <OffthreadVideo src={src} />;
+	},
+	id: 'OffthreadRemoteVideo',
+	calculateMetadata: calculateMetadataFn,
+	fps,
+});
+
+export const LoopedOffthreadRemoteVideo = StudioInternals.createComposition({
+	component: () => {
+		return <LoopedOffthreadVideo durationInFrames={100} />;
+	},
+	id: 'LoopedOffthreadRemoteVideo',
+	calculateMetadata: calculateMetadataFn,
+	fps,
+});

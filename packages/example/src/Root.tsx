@@ -43,8 +43,8 @@ import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderErro
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
+	LoopedOffthreadRemoteVideo,
 	OffthreadRemoteVideo,
-	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
@@ -635,12 +635,8 @@ export const Index: React.FC = () => {
 						codec: 'mp4' as const,
 					}}
 				/>
-				<Composition
-					id="OffthreadRemoteVideo"
-					component={OffthreadRemoteVideo}
-					fps={30}
-					calculateMetadata={calculateMetadataFn}
-				/>
+				<OffthreadRemoteVideo />
+				<LoopedOffthreadRemoteVideo />
 				<Composition
 					id="OffthreadVideoToCanvas"
 					component={OffthreadVideoToCanvas}
