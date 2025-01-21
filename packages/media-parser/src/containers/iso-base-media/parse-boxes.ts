@@ -38,19 +38,7 @@ export const parseIsoBaseMedia = async (
 		};
 	}
 
-	if (result.skipTo !== null) {
-		return {
-			skipTo: result.skipTo,
-		};
-	}
-
-	if (iterator.bytesRemaining() < 0) {
-		return {
-			skipTo: null,
-		};
-	}
-
 	return {
-		skipTo: null,
+		skipTo: result.skipTo,
 	};
 };

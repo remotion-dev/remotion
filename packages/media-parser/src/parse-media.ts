@@ -246,6 +246,7 @@ const internalParseMedia: InternalParseMedia = async function <
 				readerInterface: reader,
 				signal,
 				src,
+				contentLength,
 			});
 			timeSeeking += Date.now() - seekStart;
 		}
