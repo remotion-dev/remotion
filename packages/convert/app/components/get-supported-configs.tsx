@@ -1,4 +1,8 @@
-import type {MediaParserContainer, TracksField} from '@remotion/media-parser';
+import type {
+	MediaParserAudioCodec,
+	MediaParserContainer,
+	TracksField,
+} from '@remotion/media-parser';
 import type {
 	AudioOperation,
 	ConvertMediaContainer,
@@ -23,6 +27,7 @@ export type VideoTrackOption = {
 export type AudioTrackOption = {
 	trackId: number;
 	operations: AudioOperation[];
+	audioCodec: MediaParserAudioCodec;
 };
 
 export type SupportedConfigs = {
@@ -178,6 +183,7 @@ export const getSupportedConfigs = async ({
 		audioTrackOptions.push({
 			trackId: track.trackId,
 			operations: audioTrackOperations,
+			audioCodec: track.codecWithoutConfig,
 		});
 	}
 
