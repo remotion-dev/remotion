@@ -15,11 +15,11 @@ export const getIsoBaseMediaChildren = async ({
 
 	while (iterator.counter.getOffset() < size + initial) {
 		const parsed = await processBox(state);
-		if (!parsed.box) {
+		if (!parsed) {
 			throw new Error('Expected box');
 		}
 
-		boxes.push(parsed.box);
+		boxes.push(parsed);
 	}
 
 	if (iterator.counter.getOffset() > size + initial) {

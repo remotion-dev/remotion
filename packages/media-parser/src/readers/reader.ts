@@ -1,3 +1,5 @@
+import type {ParseMediaSrc} from '../options';
+
 export type Reader = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
 	abort: () => void;
@@ -11,11 +13,11 @@ type ReadResult = {
 	supportsContentRange: boolean;
 };
 type ReadContent = (options: {
-	src: string | Blob;
+	src: ParseMediaSrc;
 	range: [number, number] | number | null;
 	signal: AbortSignal | undefined;
 }) => Promise<ReadResult>;
-type GetLength = (src: string | Blob) => Promise<number>;
+type GetLength = (src: ParseMediaSrc) => Promise<number>;
 
 export type ReaderInterface = {
 	read: ReadContent;

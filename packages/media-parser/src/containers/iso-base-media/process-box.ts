@@ -42,10 +42,8 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 	if (boxSizeRaw === 0) {
 		return {
-			box: {
-				type: 'void-box',
-				boxSize: 0,
-			},
+			type: 'void-box',
+			boxSize: 0,
 		};
 	}
 
@@ -71,198 +69,126 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 			start: iterator.counter.getOffset(),
 		});
 
-		return {
-			box: null,
-		};
+		return null;
 	}
 
 	if (bytesRemaining < boxSize) {
 		returnToCheckpoint();
-		return {
-			box: null,
-		};
+		return null;
 	}
 
 	if (boxType === 'ftyp') {
-		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
-		return {
-			box,
-		};
+		return parseFtyp({iterator, size: boxSize, offset: fileOffset});
 	}
 
 	if (boxType === 'colr') {
-		const box = parseColorParameterBox({
+		return parseColorParameterBox({
 			iterator,
 			size: boxSize,
 		});
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'mvhd') {
-		const box = parseMvhd({iterator, offset: fileOffset, size: boxSize});
-
-		return {
-			box,
-		};
+		return parseMvhd({iterator, offset: fileOffset, size: boxSize});
 	}
 
 	if (boxType === 'tkhd') {
-		const box = parseTkhd({iterator, offset: fileOffset, size: boxSize});
-
-		return {
-			box,
-		};
+		return parseTkhd({iterator, offset: fileOffset, size: boxSize});
 	}
 
 	if (boxType === 'trun') {
-		const box = parseTrun({iterator, offset: fileOffset, size: boxSize});
-
-		return {
-			box,
-		};
+		return parseTrun({iterator, offset: fileOffset, size: boxSize});
 	}
 
 	if (boxType === 'tfdt') {
-		const box = parseTfdt({iterator, size: boxSize, offset: fileOffset});
-
-		return {
-			box,
-		};
+		return parseTfdt({iterator, size: boxSize, offset: fileOffset});
 	}
 
 	if (boxType === 'stsd') {
-		const box = await parseStsd({
+		return parseStsd({
 			offset: fileOffset,
 			size: boxSize,
 			state,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'stsz') {
-		const box = parseStsz({
+		return parseStsz({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'stco' || boxType === 'co64') {
-		const box = parseStco({
+		return parseStco({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 			mode64Bit: boxType === 'co64',
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'pasp') {
-		const box = parsePasp({
+		return parsePasp({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'stss') {
-		const box = parseStss({
+		return parseStss({
 			iterator,
 			offset: fileOffset,
 			boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'ctts') {
-		const box = parseCtts({
+		return parseCtts({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'stsc') {
-		const box = parseStsc({
+		return parseStsc({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'mebx') {
-		const box = await parseMebx({
+		return parseMebx({
 			offset: fileOffset,
 			size: boxSize,
 			state,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'hdlr') {
-		const box = await parseHdlr({iterator, size: boxSize, offset: fileOffset});
-
-		return {
-			box,
-		};
+		return parseHdlr({iterator, size: boxSize, offset: fileOffset});
 	}
 
 	if (boxType === 'keys') {
-		const box = parseKeys({iterator, size: boxSize, offset: fileOffset});
-
-		return {
-			box,
-		};
+		return parseKeys({iterator, size: boxSize, offset: fileOffset});
 	}
 
 	if (boxType === 'ilst') {
-		const box = parseIlstBox({
+		return parseIlstBox({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'moov') {
 		if (state.callbacks.tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
-			return {
-				box: null,
-			};
+			return null;
 		}
 
 		const box = await parseMoov({
@@ -273,9 +199,7 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		state.callbacks.tracks.setIsDone();
 
-		return {
-			box,
-		};
+		return box;
 	}
 
 	if (boxType === 'trak') {
@@ -293,91 +217,61 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 			});
 		}
 
-		return {
-			box,
-		};
+		return box;
 	}
 
 	if (boxType === 'stts') {
-		const box = parseStts({
+		return parseStts({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'avcC') {
-		const box = parseAvcc({
+		return parseAvcc({
 			data: iterator,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'av1C') {
-		const box = parseAv1C({
+		return parseAv1C({
 			data: iterator,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'hvcC') {
-		const box = parseHvcc({
+		return parseHvcc({
 			data: iterator,
 			size: boxSize,
 			offset: fileOffset,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'tfhd') {
-		const box = getTfhd({
+		return getTfhd({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'mdhd') {
-		const box = parseMdhd({
+		return parseMdhd({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (boxType === 'esds') {
-		const box = parseEsds({
+		return parseEsds({
 			data: iterator,
 			size: boxSize,
 			fileOffset,
 		});
-
-		return {
-			box,
-		};
 	}
 
 	if (
@@ -398,25 +292,21 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		});
 
 		return {
-			box: {
-				type: 'regular-box',
-				boxType,
-				boxSize,
-				children,
-				offset: fileOffset,
-			},
+			type: 'regular-box',
+			boxType,
+			boxSize,
+			children,
+			offset: fileOffset,
 		};
 	}
 
 	iterator.discard(boxSize - 8);
 
 	return {
-		box: {
-			type: 'regular-box',
-			boxType,
-			boxSize,
-			children: [],
-			offset: fileOffset,
-		},
+		type: 'regular-box',
+		boxType,
+		boxSize,
+		children: [],
+		offset: fileOffset,
 	};
 };

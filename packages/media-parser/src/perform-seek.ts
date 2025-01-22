@@ -1,4 +1,5 @@
 import {Log} from './log';
+import type {ParseMediaSrc} from './options';
 import type {Reader, ReaderInterface} from './readers/reader';
 import type {ParserState} from './state/parser-state';
 
@@ -14,7 +15,7 @@ export const performSeek = async ({
 	state: ParserState;
 	currentReader: Reader;
 	readerInterface: ReaderInterface;
-	src: string | Blob;
+	src: ParseMediaSrc;
 	onDiscardedData: (data: Uint8Array) => void;
 }): Promise<Reader> => {
 	const {

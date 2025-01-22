@@ -51,16 +51,17 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentType,
 		supportsContentRange: assetSupportsContentRange,
 	} = await reader.read({src, range: null, signal});
-	const iterator: BufferIterator = getArrayBufferIterator(
-		new Uint8Array([]),
-		contentLength ?? 1_000_000_000,
-	);
 
 	if (contentLength === null) {
 		throw new Error(
 			'Media was passed with no content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
 		);
 	}
+
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		contentLength,
+	);
 
 	const supportsContentRange =
 		assetSupportsContentRange &&

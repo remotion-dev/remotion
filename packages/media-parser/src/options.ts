@@ -236,8 +236,10 @@ type ParseMediaSampleCallbacks = {
 
 export type ParseMediaMode = 'query' | 'download';
 
+export type ParseMediaSrc = string | Blob;
+
 export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
-	src: string | Blob;
+	src: ParseMediaSrc;
 } & OptionalParseMediaParams<F> &
 	ParseMediaSampleCallbacks & {
 		onDiscardedData: (data: Uint8Array) => void;
@@ -245,13 +247,13 @@ export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	};
 
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
-	src: string | Blob;
+	src: ParseMediaSrc;
 } & Partial<OptionalParseMediaParams<F>> &
 	Partial<ParseMediaSampleCallbacks>;
 
 export type DownloadAndParseMediaOptions<F extends Options<ParseMediaFields>> =
 	{
-		src: string | Blob;
+		src: ParseMediaSrc;
 	} & Partial<OptionalParseMediaParams<F>>;
 
 export type InternalParseMedia = <F extends Options<ParseMediaFields>>(

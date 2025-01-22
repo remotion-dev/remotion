@@ -18,9 +18,9 @@ export const parseIsoBaseMedia = async (
 	}
 
 	const result = await processBox(state);
-	if (result.box) {
+	if (result) {
 		(state.structure.getStructure() as IsoBaseMediaStructure).boxes.push(
-			result.box,
+			result,
 		);
 	}
 

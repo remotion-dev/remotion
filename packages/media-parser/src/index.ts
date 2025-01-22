@@ -24,7 +24,7 @@ export {
 } from './errors';
 export type {SamplePosition} from './get-sample-positions';
 export {MetadataEntry} from './metadata/get-metadata';
-export {MediaParserKeyframe} from './options';
+export {MediaParserKeyframe, ParseMediaSrc} from './options';
 export type {MediaParserEmbeddedImage} from './state/images';
 
 export {
