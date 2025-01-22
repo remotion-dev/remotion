@@ -4,7 +4,6 @@ import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {expectRiffBox} from './expect-riff-box';
 import {parseVideoSection} from './parse-video-section';
-import type {RiffStructure} from './riff-box';
 
 export const parseRiffBody = async (
 	state: ParserState,
@@ -30,7 +29,7 @@ export const parseRiffBody = async (
 
 	const box = await expectRiffBox(state);
 	if (box !== null) {
-		const structure = state.structure.getStructure() as RiffStructure;
+		const structure = state.getRiffStructure();
 		structure.boxes.push(box);
 	}
 

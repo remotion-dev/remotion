@@ -1,4 +1,6 @@
 import type {Track} from '../get-tracks';
+import type {LogLevel} from '../log';
+import {Log} from '../log';
 import type {Options, ParseMediaFields} from '../options';
 import type {CanSkipTracksState} from './can-skip-tracks';
 
@@ -10,7 +12,15 @@ export const makeTracksSectionState = (
 
 	return {
 		hasAllTracks: () => doneWithTracks,
-		setIsDone: () => {
+		getIsDone: () => doneWithTracks,
+		setIsDone: (logLevel: LogLevel) => {
+			if (doneWithTracks) {
+				throw new Error(
+					'Error in Media Parser: Tracks have already been parsed',
+				);
+			}
+
+			Log.verbose(logLevel, 'All tracks have been parsed');
 			doneWithTracks = true;
 		},
 		addTrack: (track: Track) => {

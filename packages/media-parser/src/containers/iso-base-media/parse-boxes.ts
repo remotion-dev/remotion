@@ -1,5 +1,4 @@
-import type {IsoBaseMediaStructure, ParseResult} from '../../parse-result';
-import {makeSkip} from '../../skip';
+import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {parseMdatSection} from './mdat/mdat';
 import {processBox} from './process-box';
@@ -19,20 +18,7 @@ export const parseIsoBaseMedia = async (
 
 	const result = await processBox(state);
 	if (result) {
-		(state.structure.getStructure() as IsoBaseMediaStructure).boxes.push(
-			result,
-		);
-	}
-
-	const {iterator} = state;
-
-	if (
-		iterator.counter.getOffset() === state.contentLength &&
-		state.iso.getShouldReturnToVideoSectionAfterEnd()
-	) {
-		state.iso.setShouldReturnToVideoSectionAfterEnd(false);
-
-		return makeSkip(state.videoSection.getVideoSection().start);
+		state.getIsoStructure().boxes.push(result);
 	}
 
 	return null;

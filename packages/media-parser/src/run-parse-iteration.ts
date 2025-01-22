@@ -25,7 +25,7 @@ export const runParseIteration = async ({
 		return Promise.reject(new Error('no bytes'));
 	}
 
-	const structure = state.structure.getStructureOrNull();
+	const structure = state.getStructureOrNull();
 
 	if (structure === null) {
 		await initVideo({state, mimeType, name, contentLength});

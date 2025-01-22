@@ -2,7 +2,7 @@ import type {ParseResult} from '../../parse-result';
 import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
-import type {WavData, WavStructure} from './types';
+import type {WavData} from './types';
 
 export const parseData = ({
 	state,
@@ -16,8 +16,8 @@ export const parseData = ({
 		dataSize: ckSize,
 	};
 
-	(state.structure.getStructure() as WavStructure).boxes.push(box);
-	state.callbacks.tracks.setIsDone();
+	state.getWavStructure().boxes.push(box);
+	state.callbacks.tracks.setIsDone(state.logLevel);
 
 	state.videoSection.setVideoSection({
 		size: ckSize,

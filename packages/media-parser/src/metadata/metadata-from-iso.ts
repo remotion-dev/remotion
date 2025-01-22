@@ -5,7 +5,7 @@ import {
 	getTkhdBox,
 	getTraks,
 } from '../containers/iso-base-media/traversal';
-import type {IsoBaseMediaStructure} from '../parse-result';
+import type {ParserState} from '../state/parser-state';
 import {truthy} from '../truthy';
 import type {MetadataEntry} from './get-metadata';
 
@@ -145,10 +145,8 @@ export const parseIsoMetaBox = (
 	return entries;
 };
 
-export const getMetadataFromIsoBase = (
-	isoBase: IsoBaseMediaStructure,
-): MetadataEntry[] => {
-	const moov = getMoovBox(isoBase.boxes);
+export const getMetadataFromIsoBase = (state: ParserState): MetadataEntry[] => {
+	const moov = getMoovBox(state);
 	if (!moov) {
 		return [];
 	}

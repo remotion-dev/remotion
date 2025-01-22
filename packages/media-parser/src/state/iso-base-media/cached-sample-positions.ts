@@ -4,7 +4,6 @@ import {getMoofBox} from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
-import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {ParserState} from '../parser-state';
 
 export type FlatSample = {
@@ -24,9 +23,7 @@ export const calculateFlatSamples = (state: ParserState) => {
 		.map((track) => {
 			const samplePositions = getSamplePositionsFromTrack(
 				track.trakBox as TrakBox,
-				getMoofBox(
-					(state.structure.getStructure() as IsoBaseMediaStructure).boxes,
-				),
+				getMoofBox(state.getIsoStructure().boxes),
 			);
 			if (!samplePositions) {
 				throw new Error('No sample positions');

@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import type {FlacStructure} from './types';
 
 export const parseFlacUnkownBlock = ({
 	iterator,
@@ -14,7 +13,7 @@ export const parseFlacUnkownBlock = ({
 }): Promise<ParseResult> => {
 	iterator.discard(size);
 
-	(state.structure.getStructure() as FlacStructure).boxes.push({
+	state.getFlacStructure().boxes.push({
 		type: 'flac-header',
 	});
 

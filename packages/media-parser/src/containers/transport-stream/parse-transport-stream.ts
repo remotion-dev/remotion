@@ -6,10 +6,7 @@ import {processFinalStreamBuffers} from './process-stream-buffers';
 export const parseTransportStream = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'transport-stream') {
-		throw new Error('Invalid structure type');
-	}
+	const structure = state.getTsStructure();
 
 	const {iterator} = state;
 

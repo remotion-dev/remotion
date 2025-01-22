@@ -191,13 +191,19 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 			return null;
 		}
 
+		if (state.iso.moov.getMoovBox()) {
+			Log.verbose(state.logLevel, 'Moov box already parsed, skipping');
+			iterator.discard(boxSize - 8);
+			return null;
+		}
+
 		const box = await parseMoov({
 			offset: fileOffset,
 			size: boxSize,
 			state,
 		});
 
-		state.callbacks.tracks.setIsDone();
+		state.callbacks.tracks.setIsDone(state.logLevel);
 
 		return box;
 	}

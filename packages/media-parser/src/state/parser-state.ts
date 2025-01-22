@@ -1,7 +1,13 @@
 import type {BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
 import type {LogLevel} from '../log';
-import type {Options, ParseMediaFields, ParseMediaMode} from '../options';
+import type {
+	Options,
+	ParseMediaFields,
+	ParseMediaMode,
+	ParseMediaSrc,
+} from '../options';
+import type {ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
@@ -41,6 +47,8 @@ export const makeParserState = ({
 	contentLength,
 	logLevel,
 	mode,
+	src,
+	readerInterface,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -53,6 +61,8 @@ export const makeParserState = ({
 	contentLength: number;
 	logLevel: LogLevel;
 	mode: ParseMediaMode;
+	src: ParseMediaSrc;
+	readerInterface: ReaderInterface;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -92,7 +102,7 @@ export const makeParserState = ({
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		keyframes,
-		structure,
+		...structure,
 		onAudioTrack,
 		onVideoTrack,
 		supportsContentRange,
@@ -107,6 +117,8 @@ export const makeParserState = ({
 		signal,
 		mode,
 		eventLoop: eventLoopState(logLevel),
+		src,
+		readerInterface,
 	};
 };
 

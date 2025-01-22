@@ -53,12 +53,9 @@ export const isMatroska = (boxes: AnySegment[]) => {
 };
 
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
-	const structure = parserState.structure.getStructure();
-	if (structure.type !== 'iso-base-media') {
-		throw new Error('Expected iso-base-media');
-	}
+	const structure = parserState.getIsoStructure();
 
-	const moovBox = getMoovBox(structure.boxes);
+	const moovBox = getMoovBox(parserState);
 	if (!moovBox) {
 		return null;
 	}
@@ -101,7 +98,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 };
 
 export const getDuration = (parserState: ParserState): number | null => {
-	const structure = parserState.structure.getStructure();
+	const structure = parserState.getStructure();
 	if (structure.type === 'matroska') {
 		return getDurationFromMatroska(structure.boxes);
 	}

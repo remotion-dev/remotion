@@ -24,7 +24,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 >({
 	src,
 	fields: _fieldsInReturnValue,
-	reader,
+	reader: readerInterface,
 	onAudioTrack,
 	onVideoTrack,
 	signal,
@@ -50,7 +50,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		name,
 		contentType,
 		supportsContentRange: assetSupportsContentRange,
-	} = await reader.read({src, range: null, signal});
+	} = await readerInterface.read({src, range: null, signal});
 
 	if (contentLength === null) {
 		throw new Error(
@@ -105,6 +105,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentLength,
 		logLevel,
 		mode,
+		readerInterface,
+		src,
 	});
 
 	let currentReader = readerInstance;
@@ -249,7 +251,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 			currentReader = await performSeek({
 				seekTo: parseResult.skipTo,
 				currentReader,
-				readerInterface: reader,
+				readerInterface,
 				src,
 				state,
 				onDiscardedData,

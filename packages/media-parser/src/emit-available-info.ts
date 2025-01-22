@@ -45,9 +45,9 @@ export const emitAvailableInfo = ({
 	for (const key of keys) {
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
-				callbacks.onStructure?.(state.structure.getStructure());
+				callbacks.onStructure?.(state.getStructure());
 				if (fieldsInReturnValue.structure) {
-					returnValue.structure = state.structure.getStructure();
+					returnValue.structure = state.getStructure();
 				}
 
 				emittedFields.structure = true;
@@ -94,7 +94,7 @@ export const emitAvailableInfo = ({
 		if (key === 'fps') {
 			if (hasInfo.fps) {
 				if (!emittedFields.fps) {
-					const fps = getFps(state.structure.getStructure());
+					const fps = getFps(state);
 					callbacks.onFps?.(fps);
 					if (fieldsInReturnValue.fps) {
 						returnValue.fps = fps;
@@ -104,7 +104,7 @@ export const emitAvailableInfo = ({
 				}
 
 				if (!emittedFields.slowFps) {
-					const fps = getFps(state.structure.getStructure());
+					const fps = getFps(state);
 					if (fps) {
 						callbacks.onSlowFps?.(fps);
 						if (fieldsInReturnValue.slowFps) {
@@ -304,7 +304,7 @@ export const emitAvailableInfo = ({
 
 		if (key === 'container') {
 			if (!returnValue.container && hasInfo.container) {
-				const container = getContainer(state.structure.getStructure());
+				const container = getContainer(state.getStructure());
 				callbacks.onContainer?.(container);
 				if (fieldsInReturnValue.container) {
 					returnValue.container = container;
@@ -318,7 +318,7 @@ export const emitAvailableInfo = ({
 
 		if (key === 'metadata') {
 			if (!emittedFields.metadata && hasInfo.metadata) {
-				const metadata = getMetadata(state.structure.getStructure());
+				const metadata = getMetadata(state);
 				callbacks.onMetadata?.(metadata);
 				if (fieldsInReturnValue.metadata) {
 					returnValue.metadata = metadata;
@@ -332,7 +332,7 @@ export const emitAvailableInfo = ({
 
 		if (key === 'location') {
 			if (!emittedFields.location && hasInfo.location) {
-				const location = getLocation(state.structure.getStructure());
+				const location = getLocation(state);
 				callbacks.onLocation?.(location);
 				if (fieldsInReturnValue.location) {
 					returnValue.location = location;
@@ -407,9 +407,9 @@ export const emitAvailableInfo = ({
 
 		if (key === 'keyframes') {
 			if (!emittedFields.keyframes && hasInfo.keyframes) {
-				callbacks.onKeyframes?.(getKeyframes(state.structure.getStructure()));
+				callbacks.onKeyframes?.(getKeyframes(state));
 				if (fieldsInReturnValue.keyframes) {
-					returnValue.keyframes = getKeyframes(state.structure.getStructure());
+					returnValue.keyframes = getKeyframes(state);
 				}
 
 				emittedFields.keyframes = true;

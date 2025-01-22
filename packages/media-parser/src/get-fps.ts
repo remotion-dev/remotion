@@ -10,7 +10,7 @@ import {
 import type {RiffStructure} from './containers/riff/riff-box';
 import {getStrhBox, getStrlBoxes} from './containers/riff/traversal';
 import {isAudioStructure} from './is-audio-structure';
-import type {IsoBaseMediaStructure, Structure} from './parse-result';
+import type {ParserState} from './state/parser-state';
 
 const calculateFps = ({
 	sttsBox,
@@ -95,8 +95,8 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 	});
 };
 
-const getFpsFromIsoMaseMedia = (structure: IsoBaseMediaStructure) => {
-	const moovBox = getMoovBox(structure.boxes);
+const getFpsFromIsoMaseMedia = (state: ParserState) => {
+	const moovBox = getMoovBox(state);
 	if (!moovBox) {
 		return null;
 	}
@@ -130,9 +130,11 @@ const getFpsFromAvi = (structure: RiffStructure) => {
 	return null;
 };
 
-export const getFps = (segments: Structure) => {
+export const getFps = (state: ParserState) => {
+	const segments = state.getStructure();
+
 	if (segments.type === 'iso-base-media') {
-		return getFpsFromIsoMaseMedia(segments);
+		return getFpsFromIsoMaseMedia(state);
 	}
 
 	if (segments.type === 'riff') {
@@ -163,30 +165,33 @@ export const getFps = (segments: Structure) => {
 	);
 };
 
-export const hasFpsSuitedForSlowFps = (boxes: Structure): boolean => {
+export const hasFpsSuitedForSlowFps = (state: ParserState): boolean => {
 	try {
-		return getFps(boxes) !== null;
+		return getFps(state) !== null;
 	} catch {
 		return false;
 	}
 };
 
-export const hasFps = (boxes: Structure): boolean => {
+export const hasFps = (state: ParserState): boolean => {
 	// Matroska and Transport stream has no FPS metadata
 	// Not bothering to parse
 	// Users should use `slowFps` field
 	// same goes for audio
-	if (isAudioStructure(boxes)) {
+
+	const structure = state.getStructure();
+
+	if (isAudioStructure(structure)) {
 		return true;
 	}
 
-	if (boxes.type === 'matroska') {
+	if (structure.type === 'matroska') {
 		return true;
 	}
 
-	if (boxes.type === 'transport-stream') {
+	if (structure.type === 'transport-stream') {
 		return true;
 	}
 
-	return hasFpsSuitedForSlowFps(boxes);
+	return hasFpsSuitedForSlowFps(state);
 };

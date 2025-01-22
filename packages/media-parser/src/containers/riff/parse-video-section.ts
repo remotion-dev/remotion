@@ -9,7 +9,10 @@ export const parseVideoSection = async (state: ParserState): Promise<void> => {
 	});
 
 	const tracks = getTracks(state);
-	if (!tracks.videoTracks.some((t) => t.codec === TO_BE_OVERRIDDEN_LATER)) {
-		state.callbacks.tracks.setIsDone();
+	if (
+		!tracks.videoTracks.some((t) => t.codec === TO_BE_OVERRIDDEN_LATER) &&
+		!state.callbacks.tracks.getIsDone()
+	) {
+		state.callbacks.tracks.setIsDone(state.logLevel);
 	}
 };

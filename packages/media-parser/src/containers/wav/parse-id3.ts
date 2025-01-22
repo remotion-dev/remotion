@@ -1,6 +1,6 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import type {WavId3, WavStructure} from './types';
+import type {WavId3} from './types';
 
 // non-standard, we discard it in favor of LIST boxes
 export const parseId3 = ({
@@ -16,7 +16,7 @@ export const parseId3 = ({
 		type: 'wav-id3',
 	};
 
-	(state.structure.getStructure() as WavStructure).boxes.push(id3Box);
+	state.getWavStructure().boxes.push(id3Box);
 
 	return Promise.resolve(null);
 };

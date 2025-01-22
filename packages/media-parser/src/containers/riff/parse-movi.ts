@@ -38,10 +38,7 @@ export const handleChunk = async ({
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
 		const trackId = parseInt(videoChunk[1], 10);
-		const strh = getStrhForIndex(
-			state.structure.getStructure() as RiffStructure,
-			trackId,
-		);
+		const strh = getStrhForIndex(state.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -54,9 +51,9 @@ export const handleChunk = async ({
 
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
-		if (avcProfile && ppsProfile) {
+		if (avcProfile && ppsProfile && !state.riff.getAvcProfile()) {
 			await state.riff.onProfile({pps: ppsProfile, sps: avcProfile});
-			state.callbacks.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 
 		// We must also NOT pass a duration because if the the next sample is 0,
@@ -86,10 +83,7 @@ export const handleChunk = async ({
 	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
 	if (audioChunk) {
 		const trackId = parseInt(audioChunk[1], 10);
-		const strh = getStrhForIndex(
-			state.structure.getStructure() as RiffStructure,
-			trackId,
-		);
+		const strh = getStrhForIndex(state.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);

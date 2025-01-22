@@ -26,7 +26,7 @@ export const getAvailableInfo = ({
 		boolean,
 	][];
 
-	const structure = state.structure.getStructureOrNull();
+	const structure = state.getStructureOrNull();
 
 	const infos = keys.map(([_key]) => {
 		const key = _key as keyof Options<AllParseMediaFields>;
@@ -51,12 +51,12 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'fps') {
-			return Boolean(structure && hasFps(structure));
+			return Boolean(structure && hasFps(state));
 		}
 
 		if (key === 'slowFps') {
 			// In case FPS is available an non-null, it also works for `slowFps`
-			return Boolean(structure && hasFpsSuitedForSlowFps(structure));
+			return Boolean(structure && hasFpsSuitedForSlowFps(state));
 		}
 
 		if (key === 'isHdr') {

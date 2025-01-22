@@ -1,7 +1,7 @@
 import type {ParseResult} from '../../parse-result';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import type {WavFmt, WavStructure} from './types';
+import type {WavFmt} from './types';
 
 export const parseFmt = async ({
 	state,
@@ -45,7 +45,7 @@ export const parseFmt = async ({
 		type: 'wav-fmt',
 	};
 
-	(state.structure.getStructure() as WavStructure).boxes.push(wavHeader);
+	state.getWavStructure().boxes.push(wavHeader);
 	await registerTrack({
 		state,
 		track: {

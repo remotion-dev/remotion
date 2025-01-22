@@ -7,6 +7,5 @@ test('should be able to parse and download video', async () => {
 	await parseAndDownloadMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
-		logLevel: 'trace',
 	});
 });

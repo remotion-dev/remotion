@@ -297,7 +297,7 @@ export const parseMpegHeader = async ({
 				trakBox: null,
 			},
 		});
-		state.callbacks.tracks.setIsDone();
+		state.callbacks.tracks.setIsDone(state.logLevel);
 	}
 
 	const mp3Info = state.mp3Info.getMp3Info();

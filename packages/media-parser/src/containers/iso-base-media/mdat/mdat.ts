@@ -6,14 +6,17 @@ import type {FlatSample} from '../../../state/iso-base-media/cached-sample-posit
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
+import {getMoovAtom} from '../get-moov-atom';
 
 export const parseMdatSection = async (
 	state: ParserState,
 ): Promise<Skip | null> => {
 	const videoSection = state.videoSection.getVideoSection();
+	const endOfMdat = videoSection.size + videoSection.start;
+
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
-		return makeSkip(videoSection.size + videoSection.start);
+		return makeSkip(endOfMdat);
 	}
 
 	const alreadyHas = getHasTracks(state);
@@ -24,10 +27,15 @@ export const parseMdatSection = async (
 			);
 		}
 
-		// Will first read the end and then return
-		state.iso.setShouldReturnToVideoSectionAfterEnd(true);
+		const moov = await getMoovAtom({
+			endOfMdat,
+			state,
+		});
+		state.iso.moov.setMoovBox(moov);
+		state.callbacks.tracks.setIsDone(state.logLevel);
+		state.getIsoStructure().boxes.push(moov);
 
-		return makeSkip(videoSection.size + videoSection.start);
+		return parseMdatSection(state);
 	}
 
 	if (!state.iso.flatSamples.getSamples()) {
@@ -57,7 +65,7 @@ export const parseMdatSection = async (
 
 		// guess we reached the end!
 		// iphonevideo.mov has extra padding here, so let's make sure to jump ahead
-		return makeSkip(videoSection.size + videoSection.start);
+		return makeSkip(endOfMdat);
 	}
 
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {

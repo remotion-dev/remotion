@@ -1,6 +1,6 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import type {WavHeader, WavStructure} from './types';
+import type {WavHeader} from './types';
 
 export const parseHeader = ({
 	state,
@@ -18,7 +18,7 @@ export const parseHeader = ({
 		fileSize,
 	};
 
-	(state.structure.getStructure() as WavStructure).boxes.push(header);
+	state.getWavStructure().boxes.push(header);
 
 	return Promise.resolve(null);
 };

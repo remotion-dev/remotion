@@ -1,4 +1,5 @@
 import type {AnySegment} from '../../parse-result';
+import type {ParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
 import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
@@ -26,8 +27,14 @@ export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
 	return ftypBox;
 };
 
-export const getMoovBox = (segments: IsoBaseMediaBox[]): MoovBox | null => {
-	const moovBox = segments.find((s) => s.type === 'moov-box');
+export const getMoovBox = (state: ParserState): MoovBox | null => {
+	if (state.iso.moov.getMoovBox()) {
+		return state.iso.moov.getMoovBox();
+	}
+
+	const structure = state.getIsoStructure();
+
+	const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		return null;
 	}
