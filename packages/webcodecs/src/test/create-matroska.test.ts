@@ -59,7 +59,7 @@ test('Should make Matroska header that is same as input', async () => {
 		onAudioTrack: null,
 		onVideoTrack: null,
 		supportsContentRange: true,
-		contentLength: null,
+		contentLength: 1_000_000,
 		logLevel: 'info',
 		mode: 'query',
 	});

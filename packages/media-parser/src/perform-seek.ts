@@ -9,7 +9,6 @@ export const performSeek = async ({
 	readerInterface,
 	src,
 	onDiscardedData,
-	contentLength,
 }: {
 	seekTo: number;
 	state: ParserState;
@@ -17,10 +16,15 @@ export const performSeek = async ({
 	readerInterface: ReaderInterface;
 	src: string | Blob;
 	onDiscardedData: (data: Uint8Array) => void;
-
-	contentLength: number;
 }): Promise<Reader> => {
-	const {iterator, supportsContentRange, logLevel, signal, mode} = state;
+	const {
+		iterator,
+		supportsContentRange,
+		logLevel,
+		signal,
+		mode,
+		contentLength,
+	} = state;
 	const skippingAhead = seekTo > iterator.counter.getOffset();
 	if (mode === 'download' && !skippingAhead) {
 		throw new Error(
@@ -34,7 +38,7 @@ export const performSeek = async ({
 		);
 	}
 
-	if (seekTo > contentLength) {
+	if (seekTo > state.contentLength) {
 		throw new Error(`Unexpected seek: ${seekTo} > ${contentLength}`);
 	}
 

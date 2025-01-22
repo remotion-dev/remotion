@@ -49,7 +49,7 @@ export const makeParserState = ({
 	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
-	contentLength: number | null;
+	contentLength: number;
 	logLevel: LogLevel;
 	mode: ParseMediaMode;
 }) => {
