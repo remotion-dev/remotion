@@ -11,6 +11,7 @@ import type {
 	ParseMediaFields,
 	ParseMediaOptions,
 	VideoTrack,
+	WriterInterface,
 } from '@remotion/media-parser';
 import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
 
@@ -39,7 +40,6 @@ import type {ResizeOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
-import type {WriterInterface} from './writers/writer';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;

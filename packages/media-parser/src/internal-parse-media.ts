@@ -1,5 +1,3 @@
-import type {BufferIterator} from './buffer-iterator';
-import {getArrayBufferIterator} from './buffer-iterator';
 import {emitAvailableInfo} from './emit-available-info';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
@@ -13,7 +11,6 @@ import type {
 	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
-import type {ParseResult} from './parse-result';
 import {performSeek} from './perform-seek';
 import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
@@ -35,8 +32,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 	onDiscardedData,
 	...more
 }: InternalParseMediaOptions<F>) {
-	let parseResult: ParseResult | null = null;
-
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
 
 	const fields = getFieldsFromCallback({
@@ -57,11 +52,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 			'Media was passed with no content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
 		);
 	}
-
-	const iterator: BufferIterator = getArrayBufferIterator(
-		new Uint8Array([]),
-		contentLength,
-	);
 
 	const supportsContentRange =
 		assetSupportsContentRange &&
@@ -97,7 +87,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
 		signal,
-		iterator,
 		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
@@ -107,7 +96,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 		mode,
 		readerInterface,
 		src,
+		onDiscardedData,
 	});
+	const {iterator} = state;
 
 	let currentReader = readerInstance;
 
@@ -149,19 +140,16 @@ export const internalParseMedia: InternalParseMedia = async function <
 			Log.verbose(logLevel, 'Got all info, skipping to the end.');
 			if (contentLength !== null) {
 				state.increaseSkippedBytes(
-					contentLength - iterator.counter.getOffset(),
+					contentLength - state.iterator.counter.getOffset(),
 				);
 			}
 
 			return true;
 		}
 
-		if (iterator.counter.getOffset() === contentLength) {
+		if (state.iterator.counter.getOffset() === contentLength) {
 			Log.verbose(logLevel, 'Reached end of file');
-			const {removedData} = iterator.removeBytesRead(true, mode);
-			if (removedData) {
-				onDiscardedData(removedData);
-			}
+			state.discardReadBytes(true);
 
 			return true;
 		}
@@ -227,7 +215,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
 		);
 		const start = Date.now();
-		parseResult = await runParseIteration({
+		const skip = await runParseIteration({
 			state,
 			mimeType: contentType,
 			contentLength,
@@ -235,26 +223,20 @@ export const internalParseMedia: InternalParseMedia = async function <
 		});
 		timeIterating += Date.now() - start;
 
-		if (parseResult !== null) {
-			state.increaseSkippedBytes(
-				parseResult.skipTo - iterator.counter.getOffset(),
-			);
-		}
-
-		if (parseResult !== null) {
-			if (parseResult.skipTo === contentLength) {
+		if (skip !== null) {
+			state.increaseSkippedBytes(skip.skipTo - iterator.counter.getOffset());
+			if (skip.skipTo === contentLength) {
 				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
 				break;
 			}
 
 			const seekStart = Date.now();
 			currentReader = await performSeek({
-				seekTo: parseResult.skipTo,
+				seekTo: skip.skipTo,
 				currentReader,
 				readerInterface,
 				src,
 				state,
-				onDiscardedData,
 			});
 			timeSeeking += Date.now() - seekStart;
 		}
@@ -265,14 +247,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		}
 
 		const timeFreeStart = Date.now();
-		const {bytesRemoved, removedData} = iterator.removeBytesRead(false, mode);
-		if (bytesRemoved) {
-			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
-		}
-
-		if (removedData) {
-			onDiscardedData(removedData);
-		}
+		state.discardReadBytes(false);
 
 		timeFreeingData += Date.now() - timeFreeStart;
 	}

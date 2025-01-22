@@ -1,4 +1,8 @@
-import type {CreateContent, Writer, WriterInterface} from './writer';
+import type {
+	CreateContent,
+	Writer,
+	WriterInterface,
+} from '@remotion/media-parser';
 
 const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();

@@ -61,6 +61,8 @@ export {Dimensions} from './get-dimensions';
 export {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';
 
+export type {CreateContent, Writer, WriterInterface} from './writers/writer';
+
 export const MediaParserInternals = {
 	Log,
 	createAacCodecPrivate,

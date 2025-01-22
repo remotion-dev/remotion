@@ -41,6 +41,6 @@ export const parseMedia: ParseMedia = (options) => {
 		signal: options.signal ?? undefined,
 		src: options.src,
 		mode: 'query',
-		onDiscardedData: () => undefined,
+		onDiscardedData: null,
 	});
 };

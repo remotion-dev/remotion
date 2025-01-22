@@ -1,5 +1,3 @@
-import type {BufferIterator} from '../../buffer-iterator';
-import {getArrayBufferIterator} from '../../buffer-iterator';
 import {Log} from '../../log';
 import {nodeReader} from '../../readers/from-node';
 import {registerTrack} from '../../register-track';
@@ -30,27 +28,10 @@ export const getMoovAtom = async ({
 		);
 	}
 
-	const iterator: BufferIterator = getArrayBufferIterator(
-		new Uint8Array([]),
-		contentLength - endOfMdat,
-	);
-
-	while (true) {
-		const result = await reader.reader.read();
-		if (result.value) {
-			iterator.addData(result.value);
-		}
-
-		if (result.done) {
-			break;
-		}
-	}
-
 	const childState = makeParserState({
 		hasAudioTrackHandlers: false,
 		hasVideoTrackHandlers: false,
 		signal: state.signal,
-		iterator,
 		fields: {
 			structure: true,
 		},
@@ -72,7 +53,19 @@ export const getMoovAtom = async ({
 		mode: 'query',
 		readerInterface: nodeReader,
 		src: state.src,
+		onDiscardedData: null,
 	});
+
+	while (true) {
+		const result = await reader.reader.read();
+		if (result.value) {
+			childState.iterator.addData(result.value);
+		}
+
+		if (result.done) {
+			break;
+		}
+	}
 
 	const boxes: IsoBaseMediaBox[] = [];
 
@@ -82,11 +75,11 @@ export const getMoovAtom = async ({
 			boxes.push(box);
 		}
 
-		if (iterator.counter.getOffset() + endOfMdat > contentLength) {
+		if (childState.iterator.counter.getOffset() + endOfMdat > contentLength) {
 			throw new Error('Read past end of file');
 		}
 
-		if (iterator.counter.getOffset() + endOfMdat === contentLength) {
+		if (childState.iterator.counter.getOffset() + endOfMdat === contentLength) {
 			break;
 		}
 	}

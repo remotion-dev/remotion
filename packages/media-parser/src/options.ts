@@ -13,6 +13,7 @@ import type {ReaderInterface} from './readers/reader';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
+import type {WriterInterface} from './writers/writer';
 
 export type KnownAudioCodecs =
 	| 'aac'
@@ -238,11 +239,13 @@ export type ParseMediaMode = 'query' | 'download';
 
 export type ParseMediaSrc = string | Blob;
 
+export type OnDiscardedData = (data: Uint8Array) => Promise<void>;
+
 export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
 	src: ParseMediaSrc;
 } & OptionalParseMediaParams<F> &
 	ParseMediaSampleCallbacks & {
-		onDiscardedData: (data: Uint8Array) => void;
+		onDiscardedData: OnDiscardedData | null;
 		mode: ParseMediaMode;
 	};
 
@@ -254,7 +257,9 @@ export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {
 export type DownloadAndParseMediaOptions<F extends Options<ParseMediaFields>> =
 	{
 		src: ParseMediaSrc;
-	} & Partial<OptionalParseMediaParams<F>>;
+	} & Partial<OptionalParseMediaParams<F>> & {
+			writer: WriterInterface;
+		};
 
 export type InternalParseMedia = <F extends Options<ParseMediaFields>>(
 	options: InternalParseMediaOptions<F>,

@@ -1,7 +1,8 @@
-import type {BufferIterator} from '../buffer-iterator';
+import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
-import type {LogLevel} from '../log';
+import {Log, type LogLevel} from '../log';
 import type {
+	OnDiscardedData,
 	Options,
 	ParseMediaFields,
 	ParseMediaMode,
@@ -39,7 +40,6 @@ export const makeParserState = ({
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	signal,
-	iterator,
 	fields,
 	onAudioTrack,
 	onVideoTrack,
@@ -49,11 +49,11 @@ export const makeParserState = ({
 	mode,
 	src,
 	readerInterface,
+	onDiscardedData,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	signal: AbortSignal | undefined;
-	iterator: BufferIterator;
 	fields: Options<ParseMediaFields>;
 	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
@@ -63,8 +63,14 @@ export const makeParserState = ({
 	mode: ParseMediaMode;
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;
+	onDiscardedData: OnDiscardedData | null;
 }) => {
 	let skippedBytes: number = 0;
+
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		contentLength,
+	);
 
 	const increaseSkippedBytes = (bytes: number) => {
 		skippedBytes += bytes;
@@ -76,6 +82,21 @@ export const makeParserState = ({
 	const slowDurationAndFps = slowDurationAndFpsState();
 	const mp3Info = makeMp3State();
 	const images = imagesState();
+
+	const discardReadBytes = (force: boolean) => {
+		const {bytesRemoved, removedData} = iterator.removeBytesRead(force, mode);
+		if (bytesRemoved) {
+			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+		}
+
+		if (removedData && onDiscardedData) {
+			onDiscardedData(removedData);
+		}
+
+		if (bytesRemoved) {
+			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+		}
+	};
 
 	return {
 		riff: riffSpecificState(),
@@ -119,6 +140,7 @@ export const makeParserState = ({
 		eventLoop: eventLoopState(logLevel),
 		src,
 		readerInterface,
+		discardReadBytes,
 	};
 };
 

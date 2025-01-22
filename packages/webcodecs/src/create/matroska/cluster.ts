@@ -1,10 +1,10 @@
+import type {Writer} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
 	type AudioOrVideoSample,
 } from '@remotion/media-parser';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {Writer} from '../../writers/writer';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
 	createClusterSegment,

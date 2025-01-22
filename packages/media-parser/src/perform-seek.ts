@@ -9,14 +9,12 @@ export const performSeek = async ({
 	currentReader,
 	readerInterface,
 	src,
-	onDiscardedData,
 }: {
 	seekTo: number;
 	state: ParserState;
 	currentReader: Reader;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
-	onDiscardedData: (data: Uint8Array) => void;
 }): Promise<Reader> => {
 	const {
 		iterator,
@@ -77,18 +75,7 @@ export const performSeek = async ({
 		signal,
 	});
 	iterator.skipTo(seekTo);
-	const {bytesRemoved, removedData} = iterator.removeBytesRead(
-		true,
-		state.mode,
-	);
-
-	if (removedData) {
-		onDiscardedData(removedData);
-	}
-
-	if (bytesRemoved) {
-		Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
-	}
+	state.discardReadBytes(true);
 
 	Log.verbose(
 		logLevel,

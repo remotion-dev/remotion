@@ -18,7 +18,6 @@ export const maySkipVideoData = ({state}: {state: ParserState}) => {
 		!needsToIterateOverSamples({
 			emittedFields: state.emittedFields,
 			fields: state.fields,
-		}) &&
-		state.mode === 'query'
+		})
 	);
 };
