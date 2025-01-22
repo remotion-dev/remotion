@@ -89,6 +89,10 @@ const makeAudioCodecId = (codecId: MediaParserAudioCodec) => {
 		return 'A_AAC';
 	}
 
+	if (codecId === 'ac3') {
+		return 'A_AC3';
+	}
+
 	if (codecId === 'mp3') {
 		return 'A_MPEG/L3';
 	}

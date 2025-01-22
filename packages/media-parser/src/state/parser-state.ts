@@ -9,6 +9,7 @@ import {flacState} from './flac-state';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
+import {eventLoopState} from './last-eventloop-break';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
@@ -105,6 +106,7 @@ export const makeParserState = ({
 		iterator,
 		signal,
 		mode,
+		eventLoop: eventLoopState(logLevel),
 	};
 };
 

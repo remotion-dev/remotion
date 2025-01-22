@@ -59,6 +59,10 @@ export const renderHumanReadableAudioCodec = (
 		return 'FLAC';
 	}
 
+	if (codec === 'ac3') {
+		return 'AC3';
+	}
+
 	throw new Error(`Unknown audio codec ${codec satisfies never}`);
 };
 
