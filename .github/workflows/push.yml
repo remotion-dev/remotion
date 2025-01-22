@@ -24,7 +24,7 @@ jobs:
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.45
+          bun-version: 1.1.41
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/compositor -> target"
@@ -61,7 +61,7 @@ jobs:
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.45
+          bun-version: 1.1.41
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: Setup Python
@@ -107,7 +107,7 @@ jobs:
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.45
+          bun-version: 1.1.41
       - name: Install
         run: pnpm i --frozen-lockfile
         env:
@@ -155,7 +155,7 @@ jobs:
             ${{ runner.os }}-turbo-
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.45
+          bun-version: 1.1.41
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/compositor -> target"
