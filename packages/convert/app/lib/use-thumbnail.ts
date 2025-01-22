@@ -31,6 +31,11 @@ export const useThumbnailAndWaveform = ({
 
 	const execute = useCallback(() => {
 		const abortController = new AbortController();
+
+		const hasEnoughData = () => {
+			onDone();
+		};
+
 		parseMedia({
 			signal: abortController.signal,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
@@ -114,7 +119,7 @@ export const useThumbnailAndWaveform = ({
 						if (frames >= framesToGet) {
 							abortController.abort();
 							frame.close();
-							onDone();
+							hasEnoughData();
 							return;
 						}
 
