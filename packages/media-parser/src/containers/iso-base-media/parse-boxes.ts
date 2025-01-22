@@ -32,7 +32,6 @@ export const parseIsoBaseMedia = async (
 	) {
 		state.iso.setShouldReturnToVideoSectionAfterEnd(false);
 
-		// TODO: Be smart about skipTo
 		return makeSkip(state.videoSection.getVideoSection().start);
 	}
 

@@ -18,16 +18,16 @@ export const parseMdatSection = async (
 
 	const alreadyHas = getHasTracks(state);
 	if (!alreadyHas) {
-		// Will first read the end and then return
-		if (state.supportsContentRange) {
-			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
-
-			return makeSkip(videoSection.size + videoSection.start);
+		if (!state.supportsContentRange) {
+			throw new Error(
+				'Source does not support reading partially, but metadata is at the end of the file. This would require buffering the entire file in memory, leading to a leak. Remotion does not currently support this scenario, make sure to pass a source that supports Content-Range.',
+			);
 		}
 
-		throw new Error(
-			'Source does not support reading partially, but metadata is at the end of the file. This would require buffering the entire file in memory, leading to a leak. Remotion does not currently support this scenario, make sure to pass a source that supports Content-Range.',
-		);
+		// Will first read the end and then return
+		state.iso.setShouldReturnToVideoSectionAfterEnd(true);
+
+		return makeSkip(videoSection.size + videoSection.start);
 	}
 
 	if (!state.iso.flatSamples.getSamples()) {
