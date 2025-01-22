@@ -18,7 +18,5 @@ export const parseId3 = ({
 
 	(state.structure.getStructure() as WavStructure).boxes.push(id3Box);
 
-	return Promise.resolve({
-		skipTo: null,
-	});
+	return Promise.resolve(null);
 };

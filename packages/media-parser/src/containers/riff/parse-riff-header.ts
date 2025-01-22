@@ -20,7 +20,5 @@ export const parseRiffHeader = (state: ParserState): ParseResult => {
 
 	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	return {
-		skipTo: null,
-	};
+	return null;
 };

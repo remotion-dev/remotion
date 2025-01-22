@@ -14,9 +14,7 @@ export const parseTransportStream = async (
 	const {iterator} = state;
 
 	if (iterator.bytesRemaining() < 188) {
-		return Promise.resolve({
-			skipTo: null,
-		});
+		return Promise.resolve(null);
 	}
 
 	const packet = await parsePacket({
@@ -34,7 +32,5 @@ export const parseTransportStream = async (
 		});
 	}
 
-	return Promise.resolve({
-		skipTo: null,
-	});
+	return Promise.resolve(null);
 };

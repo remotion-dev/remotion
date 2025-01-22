@@ -55,5 +55,5 @@ export const parseVideoSection = async ({
 			1,
 		),
 	);
-	return {skipTo: null};
+	return null;
 };

@@ -233,5 +233,5 @@ export const parseFlacFrame = async ({
 		}
 	}
 
-	return {skipTo: null};
+	return null;
 };

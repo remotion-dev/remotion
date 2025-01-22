@@ -36,5 +36,5 @@ export const parseVorbisComment = ({
 
 	expectNoMoreBytes();
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

@@ -231,13 +231,13 @@ export const internalParseMedia: InternalParseMedia = async function <
 		});
 		timeIterating += Date.now() - start;
 
-		if (parseResult.skipTo !== null) {
+		if (parseResult !== null) {
 			state.increaseSkippedBytes(
 				parseResult.skipTo - iterator.counter.getOffset(),
 			);
 		}
 
-		if (parseResult.skipTo !== null) {
+		if (parseResult !== null) {
 			if (parseResult.skipTo === contentLength) {
 				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
 				break;

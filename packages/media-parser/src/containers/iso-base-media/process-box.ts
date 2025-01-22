@@ -46,7 +46,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 				type: 'void-box',
 				boxSize: 0,
 			},
-			skipTo: null,
 		};
 	}
 
@@ -74,7 +73,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box: null,
-			skipTo: null,
 		};
 	}
 
@@ -82,7 +80,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		returnToCheckpoint();
 		return {
 			box: null,
-			skipTo: null,
 		};
 	}
 
@@ -90,7 +87,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		const box = parseFtyp({iterator, size: boxSize, offset: fileOffset});
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -101,7 +97,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		});
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -110,7 +105,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -119,7 +113,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -128,7 +121,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -137,7 +129,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -150,7 +141,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -163,7 +153,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -177,7 +166,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -190,7 +178,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -203,7 +190,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -216,7 +202,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -229,7 +214,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -242,7 +226,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -251,7 +234,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -260,7 +242,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -273,7 +254,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -282,7 +262,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 			iterator.discard(boxSize - 8);
 			return {
 				box: null,
-				skipTo: null,
 			};
 		}
 
@@ -296,7 +275,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -317,7 +295,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -330,7 +307,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -342,7 +318,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -354,7 +329,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -367,7 +341,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -380,7 +353,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -393,7 +365,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -406,7 +377,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 		return {
 			box,
-			skipTo: null,
 		};
 	}
 
@@ -435,7 +405,6 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 				children,
 				offset: fileOffset,
 			},
-			skipTo: null,
 		};
 	}
 
@@ -449,6 +418,5 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 			children: [],
 			offset: fileOffset,
 		},
-		skipTo: null,
 	};
 };

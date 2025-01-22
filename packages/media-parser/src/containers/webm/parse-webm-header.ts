@@ -19,9 +19,7 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 		isInsideSegment,
 	});
 	if (results === null) {
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
 	if (isInsideCluster) {
@@ -52,7 +50,5 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 		structure.boxes.push(results);
 	}
 
-	return {
-		skipTo: null,
-	};
+	return null;
 };

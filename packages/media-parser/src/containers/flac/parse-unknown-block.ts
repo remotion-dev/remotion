@@ -18,5 +18,5 @@ export const parseFlacUnkownBlock = ({
 		type: 'flac-header',
 	});
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

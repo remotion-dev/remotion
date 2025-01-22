@@ -10,19 +10,15 @@ import type {RiffBox} from './riff-box';
 
 export type RiffResult = {
 	box: RiffBox | null;
-	skipTo: number | null;
 };
 
 export const expectRiffBox = async (
 	state: ParserState,
-): Promise<RiffResult> => {
+): Promise<RiffBox | null> => {
 	const {iterator} = state;
 	// Need at least 16 bytes to read LIST,size,movi,size
 	if (state.iterator.bytesRemaining() < 16) {
-		return {
-			box: null,
-			skipTo: null,
-		};
+		return null;
 	}
 
 	const checkpoint = iterator.startCheckpoint();
@@ -37,15 +33,12 @@ export const expectRiffBox = async (
 			size: ckSize - 4,
 		});
 
-		return {box: null, skipTo: null};
+		return null;
 	}
 
 	if (iterator.bytesRemaining() < ckSize) {
 		checkpoint.returnToCheckpoint();
-		return {
-			box: null,
-			skipTo: null,
-		};
+		return null;
 	}
 
 	const box = await parseRiffBox({
@@ -83,8 +76,5 @@ export const expectRiffBox = async (
 		state.riff.incrementNextTrackIndex();
 	}
 
-	return {
-		box,
-		skipTo: null,
-	};
+	return box;
 };

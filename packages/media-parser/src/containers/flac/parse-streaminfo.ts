@@ -61,5 +61,5 @@ export const parseStreamInfo = async ({
 
 	state.callbacks.tracks.setIsDone();
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

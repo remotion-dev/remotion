@@ -1,4 +1,5 @@
 import type {IsoBaseMediaStructure, ParseResult} from '../../parse-result';
+import {makeSkip} from '../../skip';
 import type {ParserState} from '../../state/parser-state';
 import {parseMdatSection} from './mdat/mdat';
 import {processBox} from './process-box';
@@ -13,9 +14,7 @@ export const parseIsoBaseMedia = async (
 	if (videoSectionState === 'in-section') {
 		const skipTo = await parseMdatSection(state);
 
-		return {
-			skipTo,
-		};
+		return skipTo;
 	}
 
 	const result = await processBox(state);
@@ -33,12 +32,9 @@ export const parseIsoBaseMedia = async (
 	) {
 		state.iso.setShouldReturnToVideoSectionAfterEnd(false);
 
-		return {
-			skipTo: state.videoSection.getVideoSection().start,
-		};
+		// TODO: Be smart about skipTo
+		return makeSkip(state.videoSection.getVideoSection().start);
 	}
 
-	return {
-		skipTo: result.skipTo,
-	};
+	return null;
 };

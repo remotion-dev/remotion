@@ -1,4 +1,5 @@
 import type {ParseResult} from '../../parse-result';
+import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {expectRiffBox} from './expect-riff-box';
@@ -18,24 +19,20 @@ export const parseRiffBody = async (
 			state.riff.getAvcProfile()
 		) {
 			const videoSection = state.videoSection.getVideoSection();
-			return Promise.resolve({
-				skipTo: videoSection.start + videoSection.size,
-			});
+
+			// only skipping forward in query mode
+			return Promise.resolve(makeSkip(videoSection.start + videoSection.size));
 		}
 
 		await parseVideoSection(state);
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
-	const result = await expectRiffBox(state);
-	if (result.box !== null) {
+	const box = await expectRiffBox(state);
+	if (box !== null) {
 		const structure = state.structure.getStructure() as RiffStructure;
-		structure.boxes.push(result.box);
+		structure.boxes.push(box);
 	}
 
-	return {
-		skipTo: result.skipTo,
-	};
+	return null;
 };

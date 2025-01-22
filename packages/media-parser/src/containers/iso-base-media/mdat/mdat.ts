@@ -1,5 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks} from '../../../get-tracks';
+import type {Skip} from '../../../skip';
+import {makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
@@ -7,11 +9,11 @@ import type {ParserState} from '../../../state/parser-state';
 
 export const parseMdatSection = async (
 	state: ParserState,
-): Promise<number | null> => {
+): Promise<Skip | null> => {
 	const videoSection = state.videoSection.getVideoSection();
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
-		return videoSection.size + videoSection.start;
+		return makeSkip(videoSection.size + videoSection.start);
 	}
 
 	const alreadyHas = getHasTracks(state);
@@ -20,7 +22,7 @@ export const parseMdatSection = async (
 		if (state.supportsContentRange) {
 			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
 
-			return videoSection.size + videoSection.start;
+			return makeSkip(videoSection.size + videoSection.start);
 		}
 
 		throw new Error(
@@ -55,7 +57,7 @@ export const parseMdatSection = async (
 
 		// guess we reached the end!
 		// iphonevideo.mov has extra padding here, so let's make sure to jump ahead
-		return videoSection.size + videoSection.start;
+		return makeSkip(videoSection.size + videoSection.start);
 	}
 
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {

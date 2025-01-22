@@ -29,7 +29,7 @@ export const runParseIteration = async ({
 
 	if (structure === null) {
 		await initVideo({state, mimeType, name, contentLength});
-		return {skipTo: null};
+		return null;
 	}
 
 	if (structure.type === 'riff') {

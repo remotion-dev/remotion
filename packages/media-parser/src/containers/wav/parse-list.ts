@@ -40,5 +40,5 @@ export const parseList = ({
 
 	box.expectNoMoreBytes();
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

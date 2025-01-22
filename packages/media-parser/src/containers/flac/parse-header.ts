@@ -13,5 +13,5 @@ export const parseFlacHeader = ({
 		type: 'flac-header',
 	});
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

@@ -20,5 +20,5 @@ export const parseHeader = ({
 
 	(state.structure.getStructure() as WavStructure).boxes.push(header);
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

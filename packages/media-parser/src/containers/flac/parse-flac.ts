@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
+import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {parseFlacFrame} from './parse-flac-frame';
@@ -27,7 +28,7 @@ export const parseFlac = ({
 				throw new Error('Need content-length for FLAC to parse');
 			}
 
-			return Promise.resolve({skipTo: state.contentLength});
+			return Promise.resolve(makeSkip(state.contentLength));
 		}
 
 		return parseFlacFrame({state, iterator});

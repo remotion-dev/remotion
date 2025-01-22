@@ -7,9 +7,7 @@ import {parseMpegHeader} from './parse-mpeg-header';
 export const parseMp3 = async (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
 	if (iterator.bytesRemaining() < 3) {
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
 	const {returnToCheckpoint} = iterator.startCheckpoint();
@@ -19,26 +17,20 @@ export const parseMp3 = async (state: ParserState): Promise<ParseResult> => {
 	// ID3 v1
 	if (bytes[0] === 0x54 && bytes[1] === 0x41 && bytes[2] === 0x47) {
 		parseID3V1(iterator);
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
 	// ID3 v2 or v3
 	if (bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) {
 		parseId3({state});
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
 	if (bytes[0] === 0xff) {
 		await parseMpegHeader({
 			state,
 		});
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
 	throw new Error('Unknown MP3 header ' + JSON.stringify(bytes));

@@ -100,5 +100,5 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 		),
 	);
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };
