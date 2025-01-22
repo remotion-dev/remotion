@@ -70,7 +70,11 @@ export const performSeek = async ({
 	);
 	currentReader.abort();
 
-	const {reader: newReader} = await readerInterface.read(src, seekTo, signal);
+	const {reader: newReader} = await readerInterface.read({
+		src,
+		range: seekTo,
+		signal,
+	});
 	iterator.skipTo(seekTo);
 	const {bytesRemoved, removedData} = iterator.removeBytesRead(
 		true,

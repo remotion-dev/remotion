@@ -50,7 +50,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		name,
 		contentType,
 		supportsContentRange: readerSupportsContentRange,
-	} = await reader.read(src, null, signal);
+	} = await reader.read({src, range: null, signal});
 	const iterator: BufferIterator = getArrayBufferIterator(
 		new Uint8Array([]),
 		contentLength ?? 1_000_000_000,
@@ -129,7 +129,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 			fieldsInReturnValue,
 			state,
 			returnValue,
-			contentLength,
 			name,
 			mimeType: contentType,
 		});
@@ -293,7 +292,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 		fieldsInReturnValue,
 		state,
 		returnValue,
-		contentLength,
 		mimeType: contentType,
 		name,
 	});

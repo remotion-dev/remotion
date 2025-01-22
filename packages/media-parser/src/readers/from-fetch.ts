@@ -67,7 +67,7 @@ const validateContentRangeAndDetectIfSupported = (
 };
 
 export const fetchReader: ReaderInterface = {
-	read: async (src, range, signal) => {
+	read: async ({src, range, signal}) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `fetchReader`');
 		}

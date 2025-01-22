@@ -26,7 +26,6 @@ export const emitAvailableInfo = ({
 	callbacks,
 	state,
 	returnValue,
-	contentLength,
 	name,
 	mimeType,
 	fieldsInReturnValue,
@@ -36,7 +35,6 @@ export const emitAvailableInfo = ({
 	fieldsInReturnValue: Options<ParseMediaFields>;
 	state: ParserState;
 	returnValue: ParseMediaResult<AllParseMediaFields>;
-	contentLength: number | null;
 	mimeType: string | null;
 	name: string;
 }) => {
@@ -253,9 +251,9 @@ export const emitAvailableInfo = ({
 
 		if (key === 'size') {
 			if (!emittedFields.size && hasInfo.size) {
-				callbacks.onSize?.(contentLength);
+				callbacks.onSize?.(state.contentLength);
 				if (fieldsInReturnValue.size) {
-					returnValue.size = contentLength;
+					returnValue.size = state.contentLength;
 				}
 
 				emittedFields.size = true;
