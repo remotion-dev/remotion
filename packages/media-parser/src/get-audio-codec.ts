@@ -275,6 +275,10 @@ const getAudioCodecFromAudioCodecInfo = (
 		return 'aiff';
 	}
 
+	if (codec.format === 'ac-3') {
+		return 'ac3';
+	}
+
 	if (codec.format === 'mp4a') {
 		if (codec.primarySpecificator === 0x40) {
 			return 'aac';
