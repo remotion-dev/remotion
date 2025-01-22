@@ -4995,6 +4995,15 @@ export const articles = [
 		slug: 'troubleshooting/sigkill',
 	},
 	{
+		id: 'troubleshooting/subpixel-rendering',
+		title: 'Text subpixel rendering',
+		relativePath: 'docs/troubleshooting/subpixel-rendering.mdx',
+		compId: 'articles-docs-troubleshooting-subpixel-rendering',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/subpixel-rendering',
+	},
+	{
 		id: 'troubleshooting/timed-out-page-function',
 		title: 'Timed out evaluating page function',
 		relativePath: 'docs/troubleshooting/timed-out-page-function.mdx',
