@@ -49,7 +49,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentLength,
 		name,
 		contentType,
-		supportsContentRange: readerSupportsContentRange,
+		supportsContentRange: assetSupportsContentRange,
 	} = await reader.read({src, range: null, signal});
 	const iterator: BufferIterator = getArrayBufferIterator(
 		new Uint8Array([]),
@@ -63,7 +63,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	}
 
 	const supportsContentRange =
-		readerSupportsContentRange &&
+		assetSupportsContentRange &&
 		!(
 			typeof process !== 'undefined' &&
 			typeof process.env !== 'undefined' &&
