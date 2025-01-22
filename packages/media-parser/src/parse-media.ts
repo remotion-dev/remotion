@@ -187,6 +187,8 @@ const internalParseMedia: InternalParseMedia = async function <
 			}
 		}
 
+		await state.eventLoop.eventLoopBreakIfNeeded();
+
 		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
 
 		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
