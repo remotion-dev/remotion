@@ -115,6 +115,7 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 import {ThreeDEngine} from './3DEngine';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {SmoothTextTransition} from './SmoothTextTransition';
 
 class Vector2 {
 	readonly x: number;
@@ -1490,6 +1491,7 @@ export const Index: React.FC = () => {
 				height={1000}
 				width={1000}
 			/>
+			<SmoothTextTransition />
 		</>
 	);
 };
