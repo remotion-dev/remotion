@@ -1001,6 +1001,7 @@ module.exports = {
 				'troubleshooting/bundling-bundle',
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',
+				'troubleshooting/subpixel-rendering',
 				'troubleshooting/could-not-find-executable-to-run',
 				'troubleshooting/stuck-render',
 			],
