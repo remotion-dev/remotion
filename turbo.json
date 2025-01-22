@@ -9,7 +9,7 @@
 		},
 		"clean": {},
 		"testssr": {
-			"dependsOn": ["@remotion/example#bundle"]
+			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
 		"testlambda": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]

@@ -43,8 +43,8 @@ import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderErro
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
+	LoopedOffthreadRemoteVideo,
 	OffthreadRemoteVideo,
-	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
@@ -115,6 +115,7 @@ const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
 import {ThreeDEngine} from './3DEngine';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {SmoothTextTransition} from './SmoothTextTransition';
 
 class Vector2 {
 	readonly x: number;
@@ -635,12 +636,8 @@ export const Index: React.FC = () => {
 						codec: 'mp4' as const,
 					}}
 				/>
-				<Composition
-					id="OffthreadRemoteVideo"
-					component={OffthreadRemoteVideo}
-					fps={30}
-					calculateMetadata={calculateMetadataFn}
-				/>
+				<OffthreadRemoteVideo />
+				<LoopedOffthreadRemoteVideo />
 				<Composition
 					id="OffthreadVideoToCanvas"
 					component={OffthreadVideoToCanvas}
@@ -1494,6 +1491,7 @@ export const Index: React.FC = () => {
 				height={1000}
 				width={1000}
 			/>
+			<SmoothTextTransition />
 		</>
 	);
 };

@@ -6,7 +6,7 @@ export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 	if (stsdBox && stsdBox.type === 'stsd-box') {
 		const videoSample = stsdBox.samples.find((s) => s.type === 'video');
 		if (videoSample && videoSample.type === 'video') {
-			if (videoSample.format === 'hvc1') {
+			if (videoSample.format === 'hvc1' || videoSample.format === 'hev1') {
 				return 'h265';
 			}
 

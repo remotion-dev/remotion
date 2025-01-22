@@ -117,6 +117,10 @@ export const createVideoEncoder = ({
 			convertToCorrectVideoFrame({videoFrame: frame, outputCodec}),
 			{
 				keyFrame,
+				// @ts-expect-error
+				vp9: {
+					quantizer: 36,
+				},
 			},
 		);
 

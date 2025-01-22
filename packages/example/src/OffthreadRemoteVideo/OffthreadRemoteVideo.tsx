@@ -1,4 +1,5 @@
-import {getVideoMetadata} from '@remotion/media-utils';
+import {parseMedia} from '@remotion/media-parser';
+import {StudioInternals} from '@remotion/studio';
 import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
@@ -13,13 +14,22 @@ const src = staticFile('bigbuckbunny.mp4');
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {durationInSeconds, width, height} = await getVideoMetadata(src);
+	const {slowDurationInSeconds, dimensions} = await parseMedia({
+		src,
+		fields: {
+			dimensions: true,
+			slowDurationInSeconds: true,
+		},
+	});
+	if (dimensions === null) {
+		throw new Error('No video track');
+	}
 
 	return {
-		durationInFrames: Math.round(durationInSeconds * fps),
+		durationInFrames: Math.round(slowDurationInSeconds * fps),
 		fps,
-		width: Math.floor(width / 2) * 2,
-		height: Math.floor(height / 2) * 2,
+		width: Math.floor(dimensions.width / 2) * 2,
+		height: Math.floor(dimensions.height / 2) * 2,
 	};
 };
 
@@ -39,6 +49,20 @@ export const LoopedOffthreadVideo: React.FC<{
 	);
 };
 
-export const OffthreadRemoteVideo: React.FC = () => {
-	return <LoopedOffthreadVideo durationInFrames={100} />;
-};
+export const OffthreadRemoteVideo = StudioInternals.createComposition({
+	component: () => {
+		return <OffthreadVideo src={src} />;
+	},
+	id: 'OffthreadRemoteVideo',
+	calculateMetadata: calculateMetadataFn,
+	fps,
+});
+
+export const LoopedOffthreadRemoteVideo = StudioInternals.createComposition({
+	component: () => {
+		return <LoopedOffthreadVideo durationInFrames={100} />;
+	},
+	id: 'LoopedOffthreadRemoteVideo',
+	calculateMetadata: calculateMetadataFn,
+	fps,
+});

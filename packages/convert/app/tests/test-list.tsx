@@ -1,12 +1,11 @@
 import {convertMedia} from '@remotion/webcodecs';
 import {flipVideoFrame} from '~/components/flip-video';
-import type {
-	TestStructure} from './test-structure';
+import type {TestStructure} from './test-structure';
 import {
 	addTestWatcher,
 	allowSafariAudioDrop,
 	isSafari,
-	makeProgressReporter
+	makeProgressReporter,
 } from './test-structure';
 
 const basicMp4ToWebM = (): TestStructure => {
@@ -38,6 +37,25 @@ const av1WebmToMp4 = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'mp4',
+				onAudioTrack: allowSafariAudioDrop,
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
+const av1WebmToMp4H265 = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/av1-bbb.webm';
+
+	return addTestWatcher({
+		name: 'AV1 WebM to MP4 (H.265)',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'mp4',
+				videoCodec: 'h265',
 				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
@@ -268,6 +286,7 @@ export const testList: TestStructure[] = [
 	av1WebmToMp4(),
 	aviToMp4(),
 	aviToMp4ReEncode(),
+	av1WebmToMp4H265(),
 	convertToWav(),
 	weirdMp4aConfig(),
 	rotatedVideo(),

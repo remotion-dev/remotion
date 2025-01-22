@@ -37,6 +37,7 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
 
+	const startOff = iterator.counter.getOffset();
 	const boxSizeRaw = iterator.getFourByteNumber();
 
 	if (boxSizeRaw === 0) {
@@ -63,10 +64,11 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	const boxType = iterator.getByteString(4, false);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
 	Log.trace(state.logLevel, 'Found box', boxType, boxSize);
+	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
 		state.videoSection.setVideoSection({
-			size: boxSize - 8,
+			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});
 
