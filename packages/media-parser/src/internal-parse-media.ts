@@ -128,7 +128,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		});
 	};
 
-	const checkIfDone = () => {
+	const checkIfDone = async () => {
 		const startCheck = Date.now();
 		const hasAll = hasAllInfo({
 			fields,
@@ -149,7 +149,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 		if (state.iterator.counter.getOffset() === contentLength) {
 			Log.verbose(logLevel, 'Reached end of file');
-			state.discardReadBytes(true);
+			await state.discardReadBytes(true);
 
 			return true;
 		}
@@ -160,7 +160,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	triggerInfoEmit();
 
 	let iterationWithThisOffset = 0;
-	while (!checkIfDone()) {
+	while (!(await checkIfDone())) {
 		if (signal?.aborted) {
 			throw new Error('Aborted');
 		}
@@ -247,7 +247,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		}
 
 		const timeFreeStart = Date.now();
-		state.discardReadBytes(false);
+		await state.discardReadBytes(false);
 
 		timeFreeingData += Date.now() - timeFreeStart;
 	}

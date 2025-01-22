@@ -7,7 +7,7 @@ export const parseAndDownloadMedia: ParseAndDownloadMedia = async (options) => {
 		filename: 'hmm',
 		mimeType: 'shouldnotmatter',
 	});
-	return internalParseMedia({
+	const returnValue = await internalParseMedia({
 		fields: options.fields ?? null,
 		logLevel: options.logLevel ?? 'info',
 		mode: 'download',
@@ -49,4 +49,8 @@ export const parseAndDownloadMedia: ParseAndDownloadMedia = async (options) => {
 		signal: options.signal ?? undefined,
 		src: options.src,
 	});
+
+	await content.finish();
+
+	return returnValue;
 };

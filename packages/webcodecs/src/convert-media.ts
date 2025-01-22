@@ -259,7 +259,7 @@ export const convertMedia = async function <
 		})
 		.then(() => {
 			resolve({
-				save: state.save,
+				save: state.getBlob,
 				remove: state.remove,
 				finalState: throttledState.get(),
 			});

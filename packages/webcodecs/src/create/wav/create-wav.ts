@@ -109,8 +109,8 @@ export const createWav = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
-		save: () => {
-			return w.save();
+		getBlob: () => {
+			return w.getBlob();
 		},
 		remove: () => {
 			return w.remove();
@@ -144,7 +144,7 @@ export const createWav = async ({
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
 			await updateSize();
-			await w.waitForFinish();
+			await w.finish();
 		},
 		addTrack: async (track) => {
 			if (track.type !== 'audio') {

@@ -217,8 +217,8 @@ export const createIsoBaseMedia = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
-		save: () => {
-			return w.save();
+		getBlob: () => {
+			return w.getBlob();
 		},
 		remove: async () => {
 			await w.remove();
@@ -273,7 +273,7 @@ export const createIsoBaseMedia = async ({
 				logLevel,
 				'All write operations done. Waiting for finish...',
 			);
-			await w.waitForFinish();
+			await w.finish();
 		},
 	};
 };

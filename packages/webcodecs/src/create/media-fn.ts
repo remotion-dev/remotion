@@ -4,7 +4,7 @@ import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 import type {ProgressTracker} from './progress-tracker';
 
 export type MediaFn = {
-	save: () => Promise<Blob>;
+	getBlob: () => Promise<Blob>;
 	remove: () => Promise<void>;
 	addSample: (options: {
 		chunk: AudioOrVideoSample;

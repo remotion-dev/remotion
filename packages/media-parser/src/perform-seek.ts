@@ -24,16 +24,10 @@ export const performSeek = async ({
 		mode,
 		contentLength,
 	} = state;
-	const skippingAhead = seekTo > iterator.counter.getOffset();
-	if (mode === 'download' && !skippingAhead) {
-		throw new Error(
-			`Cannot seek backwards in download mode. Current position: ${iterator.counter.getOffset()}, seekTo: ${seekTo}`,
-		);
-	}
 
-	if (!skippingAhead && !supportsContentRange) {
+	if (seekTo <= iterator.counter.getOffset()) {
 		throw new Error(
-			'Content-Range header is not supported by the reader, but was asked to seek',
+			`Seeking backwards is not supported. Current position: ${iterator.counter.getOffset()}, seekTo: ${seekTo}`,
 		);
 	}
 
@@ -41,10 +35,7 @@ export const performSeek = async ({
 		throw new Error(`Unexpected seek: ${seekTo} > ${contentLength}`);
 	}
 
-	if (
-		skippingAhead &&
-		iterator.counter.getOffset() + iterator.bytesRemaining() >= seekTo
-	) {
+	if (iterator.counter.getOffset() + iterator.bytesRemaining() >= seekTo) {
 		Log.verbose(
 			logLevel,
 			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Data already fetched`,
@@ -53,10 +44,19 @@ export const performSeek = async ({
 		return currentReader;
 	}
 
-	if (skippingAhead && !supportsContentRange) {
+	if (!supportsContentRange) {
 		Log.verbose(
 			logLevel,
 			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Fetching but not reading all the data inbetween because Content-Range is not supported`,
+		);
+		iterator.discard(seekTo - iterator.counter.getOffset());
+		return currentReader;
+	}
+
+	if (mode === 'download') {
+		Log.verbose(
+			logLevel,
+			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Fetching but not reading all the data inbetween because in download mode`,
 		);
 		iterator.discard(seekTo - iterator.counter.getOffset());
 		return currentReader;
@@ -75,7 +75,7 @@ export const performSeek = async ({
 		signal,
 	});
 	iterator.skipTo(seekTo);
-	state.discardReadBytes(true);
+	await state.discardReadBytes(true);
 
 	Log.verbose(
 		logLevel,

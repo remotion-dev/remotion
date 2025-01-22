@@ -56,19 +56,20 @@ const createContent = (filename: string): CreateContent => {
 				writPromise.then(() => updateDataAt(position, data));
 				return writPromise;
 			},
-			waitForFinish: async () => {
-				await writPromise;
-			},
 			getWrittenByteCount: () => written,
 			remove,
-			save: async () => {
+			finish: async () => {
+				await writPromise;
 				try {
 					fs.closeSync(writeStream);
-					const file = await fs.promises.readFile(filename);
-					return new Blob([file]);
+					return Promise.resolve();
 				} catch (e) {
 					return Promise.reject(e);
 				}
+			},
+			getBlob: async () => {
+				const file = await fs.promises.readFile(filename);
+				return new Blob([file]);
 			},
 		};
 

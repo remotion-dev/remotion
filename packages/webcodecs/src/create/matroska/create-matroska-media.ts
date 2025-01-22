@@ -239,8 +239,8 @@ export const createMatroskaMedia = async ({
 				}
 			});
 		},
-		save: () => {
-			return w.save();
+		getBlob: async () => {
+			return w.getBlob();
 		},
 		remove: async () => {
 			await w.remove();
@@ -274,13 +274,13 @@ export const createMatroskaMedia = async ({
 			await updateSeekWrite();
 
 			await w.write(createMatroskaCues(cues).bytes);
-			await w.waitForFinish();
 			const segmentSize =
 				w.getWrittenByteCount() -
 				segmentOffset -
 				matroskaToHex(matroskaElements.Segment).byteLength -
 				MATROSKA_SEGMENT_MIN_VINT_WIDTH;
 			await updateSegmentSize(segmentSize);
+			await w.finish();
 		},
 	};
 };

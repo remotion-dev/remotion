@@ -83,18 +83,14 @@ export const makeParserState = ({
 	const mp3Info = makeMp3State();
 	const images = imagesState();
 
-	const discardReadBytes = (force: boolean) => {
+	const discardReadBytes = async (force: boolean) => {
 		const {bytesRemoved, removedData} = iterator.removeBytesRead(force, mode);
 		if (bytesRemoved) {
 			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
 		}
 
 		if (removedData && onDiscardedData) {
-			onDiscardedData(removedData);
-		}
-
-		if (bytesRemoved) {
-			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+			await onDiscardedData(removedData);
 		}
 	};
 

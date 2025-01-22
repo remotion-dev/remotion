@@ -43,13 +43,16 @@ const createContent: CreateContent = async ({filename}) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;
 		},
-		save: async () => {
+		finish: async () => {
+			await writPromise;
+
 			try {
 				await writable.close();
 			} catch {
 				// Ignore, could already be closed
 			}
-
+		},
+		async getBlob() {
 			const newHandle = await directoryHandle.getFileHandle(actualFilename, {
 				create: true,
 			});
@@ -60,9 +63,6 @@ const createContent: CreateContent = async ({filename}) => {
 		updateDataAt: (position: number, data: Uint8Array) => {
 			writPromise = writPromise.then(() => updateDataAt(position, data));
 			return writPromise;
-		},
-		waitForFinish: async () => {
-			await writPromise;
 		},
 		remove,
 	};
