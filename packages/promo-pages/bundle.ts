@@ -24,7 +24,6 @@ await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
 const result = await Bun.build({
 	entrypoints: ['./src/components/Homepage.tsx'],
-	experimentalCss: true,
 	format: 'esm',
 	external: ['react', 'react-dom', 'lottie-web', 'hls.js', 'plyr', 'zod'],
 });

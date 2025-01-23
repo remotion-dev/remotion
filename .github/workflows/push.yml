@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.20
+          bun-version: 1.2.0
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/compositor -> target"
@@ -51,7 +51,7 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.20
+          bun-version: 1.2.0
       - name: Install
         run: bun i
       - name: Setup Python
@@ -93,7 +93,7 @@ jobs:
           node-version: 20
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.20
+          bun-version: 1.2.0
       - name: Install
         run: bun i
         env:
@@ -137,7 +137,7 @@ jobs:
             ${{ runner.os }}-turbo-
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.1.20
+          bun-version: 1.2.0
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "packages/compositor -> target"
