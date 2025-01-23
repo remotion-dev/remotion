@@ -15,17 +15,11 @@ export const getMoovAtom = async ({
 }): Promise<MoovBox> => {
 	const start = Date.now();
 	Log.verbose(state.logLevel, 'Starting second fetch to get moov atom');
-	const {contentLength, reader} = await state.readerInterface.read({
+	const {reader} = await state.readerInterface.read({
 		src: state.src,
 		range: endOfMdat,
 		signal: state.signal,
 	});
-
-	if (contentLength === null) {
-		throw new Error(
-			'Media was passed with no content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
-		);
-	}
 
 	const childState = makeParserState({
 		hasAudioTrackHandlers: false,
@@ -46,7 +40,7 @@ export const getMoovAtom = async ({
 					return null;
 				}
 			: null,
-		contentLength,
+		contentLength: state.contentLength,
 		logLevel: state.logLevel,
 		mode: 'query',
 		readerInterface: state.readerInterface,
@@ -73,11 +67,17 @@ export const getMoovAtom = async ({
 			boxes.push(box);
 		}
 
-		if (childState.iterator.counter.getOffset() + endOfMdat > contentLength) {
+		if (
+			childState.iterator.counter.getOffset() + endOfMdat >
+			state.contentLength
+		) {
 			throw new Error('Read past end of file');
 		}
 
-		if (childState.iterator.counter.getOffset() + endOfMdat === contentLength) {
+		if (
+			childState.iterator.counter.getOffset() + endOfMdat ===
+			state.contentLength
+		) {
 			break;
 		}
 	}
