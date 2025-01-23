@@ -8,7 +8,6 @@ export type FaceType = {
 	color: string;
 	points: ThreeDReducedInstruction[];
 	centerPoint: Vector4D;
-	description: string;
 	crispEdges: boolean;
 };
 
@@ -149,14 +148,12 @@ export const transformFaces = ({
 export const makeFace = ({
 	points,
 	fill,
-	description,
 	crispEdges,
 }: {
 	points: string | ThreeDReducedInstruction[];
 	strokeWidth: number;
 	strokeColor: string;
 	fill: string;
-	description: string;
 	crispEdges: boolean;
 }): FaceType => {
 	const centerPoint: Vector4D = [0, 0, 0, 1];
@@ -165,7 +162,6 @@ export const makeFace = ({
 		centerPoint,
 		color: fill,
 		points: typeof points === 'string' ? turnInto3D(parsePath(points)) : points,
-		description,
 		crispEdges,
 	};
 };

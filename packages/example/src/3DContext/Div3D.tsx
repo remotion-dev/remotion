@@ -24,7 +24,7 @@ export const Div3D: React.FC<{
 				}}
 			>
 				<DivExtrusion depth={depth} />
-				{frontFace ? (
+				{!frontFace ? (
 					<Face type="front" depth={depth}>
 						{children}
 					</Face>

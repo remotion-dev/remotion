@@ -65,7 +65,6 @@ export const extrudeElement = ({
 	depth,
 	sideColor,
 	points,
-	description = 'extruded',
 	crispEdges,
 }: ExtrudeElementOptions): FaceType[] => {
 	const threeD = turnInto3D(points);
@@ -75,11 +74,10 @@ export const extrudeElement = ({
 			subdivideInstructions(subdivideInstructions(threeD)),
 		),
 		color: 'black',
-		description: description ?? 'extruded',
 		crispEdges,
 	};
 
-	const unscaledBackFace = transformFace(instructions, [translateZ(0)]);
+	const unscaledBackFace = transformFace(instructions, [translateZ(depth / 2)]);
 
 	const inbetween = unscaledBackFace.points.map((t, i): FaceType => {
 		const nextInstruction =
@@ -129,7 +127,6 @@ export const extrudeElement = ({
 			points: newInstructions,
 			color: sideColor,
 			centerPoint: [0, 0, 0, 1],
-			description: description + 'inbetween',
 			crispEdges: true,
 		};
 	});

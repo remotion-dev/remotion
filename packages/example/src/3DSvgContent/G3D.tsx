@@ -33,7 +33,6 @@ export const G3D: React.FC<
 			-(strokeWidth ?? 0) / 2,
 		);
 	}, [d, strokeWidth]);
-	console.log({isFrontFacing});
 
 	return (
 		<PathProvider d={scaledPath}>
