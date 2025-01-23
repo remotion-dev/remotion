@@ -1,20 +1,11 @@
-import {PathInternals, reduceInstructions} from '@remotion/paths';
-import {makeRect} from '@remotion/shapes';
-import {MatrixTransform4D} from '@remotion/svg-3d-engine';
 import {SvgExtrusion} from './Extrusion';
+import {useRect} from './path-context';
 
 export const DivExtrusion: React.FC<{
-	height: number;
-	width: number;
-	cornerRadius: number;
 	depth: number;
-	transformatations: MatrixTransform4D[];
-}> = ({height, width, cornerRadius, depth, transformatations}) => {
-	const {instructions} = makeRect({height, width, cornerRadius});
+}> = ({depth}) => {
+	const {viewBox, height, width} = useRect();
 
-	const {viewBox} = PathInternals.getBoundingBoxFromInstructions(
-		reduceInstructions(instructions),
-	);
 	return (
 		<svg
 			viewBox={viewBox}
@@ -27,13 +18,7 @@ export const DivExtrusion: React.FC<{
 			}}
 			pointerEvents="none"
 		>
-			<SvgExtrusion
-				transformations={transformatations}
-				cornerRadius={cornerRadius}
-				depth={depth}
-				height={height}
-				width={width}
-			/>
+			<SvgExtrusion depth={depth} />
 		</svg>
 	);
 };

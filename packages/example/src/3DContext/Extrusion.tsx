@@ -1,28 +1,25 @@
 import {parsePath} from '@remotion/paths';
-import {makeRect} from '@remotion/shapes';
 import {
 	extrudeAndTransformElement,
-	MatrixTransform4D,
 	reduceMatrices,
 	translateX,
 	translateY,
 } from '@remotion/svg-3d-engine';
 import {Faces} from '../3DEngine/Faces';
+import {useRect} from './path-context';
+import {useTransformations} from './transformation-context';
 
 export const SvgExtrusion: React.FC<{
-	transformations: MatrixTransform4D[];
 	depth: number;
-	height: number;
-	width: number;
-	cornerRadius: number;
-}> = ({transformations, cornerRadius, depth, height, width}) => {
-	const {path} = makeRect({height, width, cornerRadius});
-	const reduced = reduceMatrices(transformations);
+}> = ({depth}) => {
+	const {path, width, height} = useRect();
+
+	const transformations = useTransformations();
 
 	const centerOriented = reduceMatrices([
 		translateX(-width / 2),
 		translateY(-height / 2),
-		reduced,
+		transformations,
 		translateX(width / 2),
 		translateY(height / 2),
 	]);
@@ -39,5 +36,6 @@ export const SvgExtrusion: React.FC<{
 		strokeWidth: 3,
 		transformations: centerOriented,
 	});
+
 	return <Faces elements={[extruded]} />;
 };
