@@ -33,12 +33,13 @@
 		"eslint-config-next": "15.0.4",
 		"plyr": "^3.7.3",
 		"postcss": "8.4.47",
-		"tailwindcss": "4.0.0-beta.9",
-		"@tailwindcss/cli": "4.0.0-beta.9",
-		"@tailwindcss/vite": "4.0.0-beta.9",
+		"tailwindcss": "4.0.0",
+		"@tailwindcss/cli": "4.0.0",
+		"@tailwindcss/vite": "4.0.0",
 		"tailwindcss-scoped-preflight": "3.4.10",
 		"@vitejs/plugin-react-swc": "^3.5.0",
 		"tailwind-merge": "2.5.2",
+		"bun-plugin-tailwind": "0.0.13",
 		"clsx": "2.1.1"
 	},
 	"repository": {
