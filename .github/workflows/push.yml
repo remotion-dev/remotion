@@ -25,9 +25,6 @@ jobs:
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.2.0
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: Cache turbo build setup
@@ -156,9 +153,6 @@ jobs:
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.2.0
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: "packages/compositor -> target"
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: Build & Test
