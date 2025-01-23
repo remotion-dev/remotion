@@ -7,7 +7,6 @@ import {nodeWriter} from '../writers/node';
 
 test('should be able to parse and download video', async () => {
 	const {size} = await downloadAndParseMedia({
-		logLevel: 'trace',
 		src: exampleVideos.avi,
 		reader: nodeReader,
 		fields: {
@@ -24,7 +23,6 @@ test('should be able to parse and download video', async () => {
 
 test('should be able to parse and download mp4 video', async () => {
 	const {size} = await downloadAndParseMedia({
-		logLevel: 'trace',
 		src: exampleVideos.iphonehevc,
 		reader: nodeReader,
 		fields: {
@@ -43,7 +41,6 @@ test(
 	'should be able to parse and download remote video',
 	async () => {
 		const {size} = await downloadAndParseMedia({
-			logLevel: 'trace',
 			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts',
 			fields: {
 				size: true,
@@ -63,7 +60,6 @@ test('should be able to abort the download by throwing an error', () => {
 	const controller = new AbortController();
 	expect(
 		downloadAndParseMedia({
-			logLevel: 'trace',
 			src: 'https://www.w3schools.com/html/mov_bbb.mp4',
 			onContainer: (container) => {
 				if (container === 'mp4') {
@@ -80,7 +76,6 @@ test('should be able to parse and download video with audio', () => {
 	const controller = new AbortController();
 	expect(
 		downloadAndParseMedia({
-			logLevel: 'trace',
 			src: 'https://www.w3schools.com/html/mov_bbb.mp4',
 			onContainer: async (container) => {
 				await new Promise((resolve) => {
@@ -101,7 +96,6 @@ test('should be able to continue on error', () => {
 	const controller = new AbortController();
 	expect(
 		downloadAndParseMedia({
-			logLevel: 'trace',
 			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/jkl.gif',
 			signal: controller.signal,
 			writer: nodeWriter('jkl.gif'),
