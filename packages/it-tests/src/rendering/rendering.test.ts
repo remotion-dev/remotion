@@ -448,6 +448,8 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
 
 test('Should render a still that uses the staticFile() API and should apply props', async () => {
 	const out = outputPath.replace('.mp4', '.png');
+	const props = JSON.stringify({flag: true});
+	await Bun.write('props.json', props);
 	const task = await execa(
 		'bun',
 		[
@@ -459,7 +461,7 @@ test('Should render a still that uses the staticFile() API and should apply prop
 			out,
 			'--log=verbose',
 			`--props`,
-			JSON.stringify({flag: true}),
+			'props.json',
 		],
 		{
 			cwd: path.join(process.cwd(), '..', 'example'),
@@ -468,6 +470,7 @@ test('Should render a still that uses the staticFile() API and should apply prop
 			},
 		},
 	);
+	await Bun.file('props.json').delete();
 	expect(task.exitCode).toBe(0);
 	fs.unlinkSync(out);
 });
@@ -476,6 +479,8 @@ test('Dynamic duration should work and audio separation', async () => {
 	const audio = path.join(process.cwd(), '..', 'example', 'audio.wav');
 
 	const randomDuration = Math.round(Math.random() * 18 + 2);
+	const props = JSON.stringify({duration: randomDuration, offthread: true});
+	await Bun.file('props.json').write(props);
 	const task = await execa(
 		'bun',
 		[
@@ -485,7 +490,7 @@ test('Dynamic duration should work and audio separation', async () => {
 			'build',
 			'dynamic-duration',
 			`--props`,
-			JSON.stringify({duration: randomDuration, offthread: true}),
+			'props.json',
 			'--separate-audio-to',
 			'audio.wav',
 			outputPath,
@@ -494,6 +499,7 @@ test('Dynamic duration should work and audio separation', async () => {
 			cwd: path.join(process.cwd(), '..', 'example'),
 		},
 	);
+	await Bun.file('props.json').delete();
 
 	expect(task.exitCode).toBe(0);
 	expect(fs.existsSync(outputPath)).toBe(true);
