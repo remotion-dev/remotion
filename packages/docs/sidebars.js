@@ -568,6 +568,7 @@ module.exports = {
 					label: 'Guide',
 				},
 				'media-parser/parse-media',
+				'media-parser/download-and-parse-media',
 				'media-parser/node-reader',
 				'media-parser/fetch-reader',
 				'media-parser/web-file-reader',

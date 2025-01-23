@@ -1,9 +1,9 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {nodeReader} from '@remotion/media-parser/node';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
 import {expect, test} from 'bun:test';
 import {unlinkSync} from 'node:fs';
 import {convertMedia} from '../convert-media';
-import {nodeWriter} from '../writers/node';
 
 test('should be able to remux server side', async () => {
 	// bun file descriptor problem

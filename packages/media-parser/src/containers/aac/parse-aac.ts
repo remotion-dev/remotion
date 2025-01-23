@@ -74,7 +74,7 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 				type: 'audio',
 			},
 		});
-		state.callbacks.tracks.setIsDone();
+		state.callbacks.tracks.setIsDone(state.logLevel);
 	}
 
 	const duration = 1024 / sampleRate;
@@ -100,5 +100,5 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 		),
 	);
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

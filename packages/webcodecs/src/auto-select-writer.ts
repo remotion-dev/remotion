@@ -1,10 +1,10 @@
 import {canUseWebFsWriter, webFsWriter} from './writers/web-fs';
 
+import type {WriterInterface} from '@remotion/media-parser';
 import {withResolvers} from './create/with-resolvers';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {bufferWriter} from './writers/buffer';
-import type {WriterInterface} from './writers/writer';
 
 export const autoSelectWriter = async (
 	writer: WriterInterface | undefined,

@@ -24,7 +24,7 @@ export {
 } from './errors';
 export type {SamplePosition} from './get-sample-positions';
 export {MetadataEntry} from './metadata/get-metadata';
-export {MediaParserKeyframe} from './options';
+export {MediaParserKeyframe, ParseMediaSrc} from './options';
 export type {MediaParserEmbeddedImage} from './state/images';
 
 export {
@@ -37,6 +37,7 @@ export {
 	VideoTrackColorParams,
 } from './get-tracks';
 
+export {downloadAndParseMedia} from './download-and-parse-media';
 export type {
 	MediaParserContainer,
 	Options,
@@ -60,6 +61,8 @@ export {
 export {Dimensions} from './get-dimensions';
 export {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';
+
+export type {CreateContent, Writer, WriterInterface} from './writers/writer';
 
 export const MediaParserInternals = {
 	Log,

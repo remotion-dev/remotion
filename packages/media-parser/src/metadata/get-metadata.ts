@@ -2,6 +2,7 @@ import {getMetadataFromFlac} from '../containers/flac/get-metadata-from-flac';
 import {getMetadataFromMp3} from '../containers/mp3/get-metadata-from-mp3';
 import {getMetadataFromWav} from '../containers/wav/get-metadata-from-wav';
 import type {Structure} from '../parse-result';
+import type {ParserState} from '../state/parser-state';
 import {getMetadataFromIsoBase} from './metadata-from-iso';
 import {getMetadataFromMatroska} from './metadata-from-matroska';
 import {getMetadataFromRiff} from './metadata-from-riff';
@@ -12,7 +13,8 @@ export type MetadataEntry = {
 	trackId: number | null;
 };
 
-export const getMetadata = (structure: Structure): MetadataEntry[] => {
+export const getMetadata = (state: ParserState): MetadataEntry[] => {
+	const structure = state.getStructure();
 	if (structure.type === 'matroska') {
 		return getMetadataFromMatroska(structure);
 	}
@@ -46,7 +48,7 @@ export const getMetadata = (structure: Structure): MetadataEntry[] => {
 		return getMetadataFromFlac(structure) ?? [];
 	}
 
-	return getMetadataFromIsoBase(structure);
+	return getMetadataFromIsoBase(state);
 };
 
 export const hasMetadata = (structure: Structure): boolean => {

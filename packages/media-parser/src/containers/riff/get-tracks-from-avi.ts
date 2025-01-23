@@ -136,7 +136,7 @@ export const getTracksFromAvi = (
 
 export const hasAllTracksFromAvi = (state: ParserState): boolean => {
 	try {
-		const structure = state.structure.getStructure() as RiffStructure;
+		const structure = state.getRiffStructure();
 		const numberOfTracks = getNumberOfTracks(structure);
 		const tracks = getTracksFromAvi(structure, state);
 		return (

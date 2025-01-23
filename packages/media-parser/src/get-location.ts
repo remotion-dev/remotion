@@ -1,5 +1,5 @@
 import {getMetadata} from './metadata/get-metadata';
-import type {Structure} from './parse-result';
+import type {ParserState} from './state/parser-state';
 
 export type MediaParserLocation = {
 	latitude: number;
@@ -29,10 +29,8 @@ export function parseLocation(locationString: string) {
 	};
 }
 
-export const getLocation = (
-	structure: Structure,
-): MediaParserLocation | null => {
-	const metadata = getMetadata(structure);
+export const getLocation = (state: ParserState): MediaParserLocation | null => {
+	const metadata = getMetadata(state);
 	const locationEntry = metadata.find(
 		(entry) => entry.key === 'com.apple.quicktime.location.ISO6709',
 	);

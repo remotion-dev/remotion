@@ -1,20 +1,20 @@
 import type {ReaderInterface} from './reader';
 
 export const webFileReader: ReaderInterface = {
-	read: (file, range, signal) => {
-		if (typeof file === 'string') {
+	read: ({src, range, signal}) => {
+		if (typeof src === 'string') {
 			throw new Error('`inputTypeFileReader` only supports `File` objects');
 		}
 
 		const part =
 			range === null
-				? file
+				? src
 				: typeof range === 'number'
-					? file.slice(range)
-					: file.slice(range[0], range[1]);
+					? src.slice(range)
+					: src.slice(range[0], range[1]);
 
 		const reader = new FileReader();
-		reader.readAsArrayBuffer(file);
+		reader.readAsArrayBuffer(src);
 
 		const controller = new AbortController();
 
@@ -50,10 +50,10 @@ export const webFileReader: ReaderInterface = {
 							controller.abort();
 						},
 					},
-					contentLength: file.size,
-					name: file.name,
+					contentLength: src.size,
+					name: src.name,
 					supportsContentRange: true,
-					contentType: file.type,
+					contentType: src.type,
 				});
 			};
 

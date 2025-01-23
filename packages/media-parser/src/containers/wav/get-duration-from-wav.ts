@@ -2,10 +2,7 @@ import type {ParserState} from '../../state/parser-state';
 import type {WavData, WavFmt} from './types';
 
 export const getDurationFromWav = (state: ParserState) => {
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'wav') {
-		throw new Error('Expected wav structure');
-	}
+	const structure = state.getWavStructure();
 
 	const fmt = structure.boxes.find((b) => b.type === 'wav-fmt') as
 		| WavFmt

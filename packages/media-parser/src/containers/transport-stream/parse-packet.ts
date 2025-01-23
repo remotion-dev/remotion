@@ -1,4 +1,3 @@
-import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {TransportStreamBox} from './boxes';
 import {parsePat} from './parse-pat';
@@ -56,8 +55,7 @@ export const parsePacket = async ({
 		return Promise.resolve(null);
 	}
 
-	const structure =
-		parserState.structure.getStructure() as TransportStreamStructure;
+	const structure = parserState.getTsStructure();
 
 	const pat = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',

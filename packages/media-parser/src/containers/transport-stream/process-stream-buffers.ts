@@ -52,7 +52,7 @@ export const processStreamBuffer = async ({
 		const tracksRegistered = state.callbacks.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (streams.length === tracksRegistered) {
-			state.callbacks.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 	}
 };

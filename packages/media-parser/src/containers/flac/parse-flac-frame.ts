@@ -8,7 +8,6 @@ import type {ParserState} from '../../state/parser-state';
 import {getBlockSize} from './get-block-size';
 import {getChannelCount} from './get-channel-count';
 import {getSampleRate} from './get-sample-rate';
-import type {FlacStructure} from './types';
 
 // https://www.rfc-editor.org/rfc/rfc9639.html#section-9.1.1
 
@@ -101,7 +100,7 @@ const emitSample = async ({
 	const {blockSize, num, sampleRate} = parsed;
 
 	const duration = blockSize / sampleRate;
-	const structure = state.structure.getStructure() as FlacStructure;
+	const structure = state.getFlacStructure();
 	const streamInfo = structure.boxes.find(
 		(box) => box.type === 'flac-streaminfo',
 	);
@@ -174,10 +173,7 @@ export const parseFlacFrame = async ({
 
 	iterator.stopReadingBits();
 
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'flac') {
-		throw new Error('Expected flac-structure');
-	}
+	const structure = state.getFlacStructure();
 
 	const minimumFrameSize =
 		structure.boxes.find((b) => b.type === 'flac-streaminfo')
@@ -191,10 +187,6 @@ export const parseFlacFrame = async ({
 	}
 
 	while (true) {
-		if (!state.contentLength) {
-			throw new Error('Need content-length for FLAC to parse');
-		}
-
 		if (iterator.counter.getOffset() === state.contentLength) {
 			const size = iterator.counter.getOffset() - offset;
 			returnToCheckpoint();
@@ -233,5 +225,5 @@ export const parseFlacFrame = async ({
 		}
 	}
 
-	return {skipTo: null};
+	return null;
 };

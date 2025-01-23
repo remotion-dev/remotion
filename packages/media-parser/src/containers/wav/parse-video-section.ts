@@ -9,10 +9,7 @@ export const parseVideoSection = async ({
 	state: ParserState;
 }): Promise<ParseResult> => {
 	const {iterator} = state;
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'wav') {
-		throw new Error('Expected wav structure');
-	}
+	const structure = state.getWavStructure();
 
 	const videoSection = state.videoSection.getVideoSection();
 	const maxOffset = videoSection.start + videoSection.size;
@@ -55,5 +52,5 @@ export const parseVideoSection = async ({
 			1,
 		),
 	);
-	return {skipTo: null};
+	return null;
 };
