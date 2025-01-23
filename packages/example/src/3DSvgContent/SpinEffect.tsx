@@ -4,7 +4,8 @@ import {RotateX, RotateY, Scale} from '../3DContext/transformation-context';
 
 export const SpinEffect: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly delay?: number;
+}> = ({children, delay}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -15,6 +16,7 @@ export const SpinEffect: React.FC<{
 			damping: 200,
 		},
 		durationInFrames: 40,
+		delay,
 	});
 
 	const rotateDown = spring({
@@ -23,7 +25,7 @@ export const SpinEffect: React.FC<{
 		config: {
 			damping: 200,
 		},
-		delay: 15,
+		delay: 15 + (delay ?? 0),
 		durationInFrames: 40,
 	});
 
