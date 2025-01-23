@@ -7,7 +7,6 @@
 	"description": "Rust binary for Remotion",
 	"sideEffects": false,
 	"scripts": {
-		"make": "bun build.ts --debug",
 		"build-all": "bun build.ts --all"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
