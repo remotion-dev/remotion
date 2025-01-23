@@ -105,7 +105,7 @@ test(
 			inputProps: {},
 		});
 
-		const testOut = path.join(folder, `.${imageFormat}`);
+		const testOut = path.join(folder, `edgecase.${imageFormat}`);
 
 		await renderStill({
 			composition,
