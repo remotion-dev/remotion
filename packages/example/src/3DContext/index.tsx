@@ -1,4 +1,4 @@
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {Div3D} from './Div3D';
 import {RotateX, RotateY, Scale} from './transformation-context';
 
@@ -10,10 +10,12 @@ const Comp = () => {
 
 	const angle = Math.PI / 4;
 
+	const progress = useCurrentFrame();
+
 	return (
 		<AbsoluteFill className="flex justify-center items-center bg-[#F8FAFC]">
 			<Scale factor={1.3}>
-				<RotateX radians={-Math.PI / 16}>
+				<RotateX radians={progress / 10}>
 					<RotateX radians={Math.sin(angle) / 4}>
 						<RotateY radians={-Math.cos(angle) / 4}>
 							<Div3D width={width} height={height} depth={40} cornerRadius={10}>

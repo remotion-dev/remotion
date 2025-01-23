@@ -12,14 +12,19 @@ import {useTransformations} from './transformation-context';
 export const SvgExtrusion: React.FC<{
 	depth: number;
 }> = ({depth}) => {
-	const {path, width, height} = useRect();
+	const {path, width, height, left, top} = useRect();
 
 	const transformations = useTransformations();
 
+	console.log({left, top});
 	const centerOriented = reduceMatrices([
+		translateX(-left),
+		translateY(-top),
 		translateX(-width / 2),
 		translateY(-height / 2),
 		transformations,
+		translateX(left),
+		translateY(top),
 		translateX(width / 2),
 		translateY(height / 2),
 	]);
