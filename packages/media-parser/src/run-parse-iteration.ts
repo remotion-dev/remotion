@@ -18,7 +18,7 @@ export const runParseIteration = async ({
 }: {
 	state: ParserState;
 	mimeType: string | null;
-	contentLength: number | null;
+	contentLength: number;
 	name: string | null;
 }): Promise<ParseResult> => {
 	if (state.iterator.bytesRemaining() === 0) {

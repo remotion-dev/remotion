@@ -187,10 +187,6 @@ export const parseFlacFrame = async ({
 	}
 
 	while (true) {
-		if (!state.contentLength) {
-			throw new Error('Need content-length for FLAC to parse');
-		}
-
 		if (iterator.counter.getOffset() === state.contentLength) {
 			const size = iterator.counter.getOffset() - offset;
 			returnToCheckpoint();

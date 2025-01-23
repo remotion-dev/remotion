@@ -21,12 +21,6 @@ export const parseMdatSection = async (
 
 	const alreadyHas = getHasTracks(state);
 	if (!alreadyHas) {
-		if (!state.supportsContentRange) {
-			throw new Error(
-				'Source does not support reading partially, but metadata is at the end of the file. This would require buffering the entire file in memory, leading to a leak. Remotion does not currently support this scenario, make sure to pass a source that supports Content-Range.',
-			);
-		}
-
 		const moov = await getMoovAtom({
 			endOfMdat,
 			state,

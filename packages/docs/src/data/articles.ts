@@ -2385,6 +2385,15 @@ export const articles = [
 		slug: 'media-fragments',
 	},
 	{
+		id: 'download-and-parse-media',
+		title: 'downloadAndParseMedia()',
+		relativePath: 'docs/media-parser/download-and-parse-media.mdx',
+		compId: 'articles-docs-media-parser-download-and-parse-media',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/download-and-parse-media',
+	},
+	{
 		id: 'fast-and-slow',
 		title: 'Fast and slow operations',
 		relativePath: 'docs/media-parser/fast-and-slow.mdx',

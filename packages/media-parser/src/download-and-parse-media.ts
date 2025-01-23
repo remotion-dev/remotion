@@ -1,15 +1,18 @@
 import {internalParseMedia} from './internal-parse-media';
-import type {ParseAndDownloadMedia} from './options';
+import {Log} from './log';
+import type {DownloadAndParseMedia} from './options';
 import {fetchReader} from './readers/from-fetch';
 
-export const parseAndDownloadMedia: ParseAndDownloadMedia = async (options) => {
+export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
+	const logLevel = options.logLevel ?? 'info';
 	const content = await options.writer.createContent({
 		filename: 'hmm',
 		mimeType: 'shouldnotmatter',
+		logLevel,
 	});
 	const returnValue = await internalParseMedia({
 		fields: options.fields ?? null,
-		logLevel: options.logLevel ?? 'info',
+		logLevel,
 		mode: 'download',
 		onAudioCodec: options.onAudioCodec ?? null,
 		onAudioTrack: null,
@@ -48,9 +51,17 @@ export const parseAndDownloadMedia: ParseAndDownloadMedia = async (options) => {
 		reader: options.reader ?? fetchReader,
 		signal: options.signal ?? undefined,
 		src: options.src,
+		onError: async (err) => {
+			const action = (await options.onError?.(err)) ?? {action: 'fail'};
+			if (action.action === 'fail') {
+				Log.verbose(logLevel, 'Removing content');
+				await content.finish();
+				await content.remove();
+			}
+
+			return action;
+		},
 	});
-
 	await content.finish();
-
 	return returnValue;
 };

@@ -1,17 +1,20 @@
 import fs from 'node:fs';
+import {Log} from '../log';
 import type {CreateContent, Writer} from './writer';
 
 const createContent = (filename: string): CreateContent => {
-	return async () => {
+	return async ({logLevel}) => {
 		const writPromise = Promise.resolve();
 
 		const remove = async () => {
+			Log.verbose(logLevel, 'Removing file', filename);
 			await fs.promises.unlink(filename).catch(() => {});
 		};
 
 		await remove();
 
 		if (!fs.existsSync(filename)) {
+			Log.verbose(logLevel, 'Creating file', filename);
 			fs.writeFileSync(filename, '');
 		}
 
@@ -27,6 +30,7 @@ const createContent = (filename: string): CreateContent => {
 						return;
 					}
 
+					Log.verbose(logLevel, 'Wrote', data.length, 'bytes to', filename);
 					resolve();
 				});
 			});
@@ -40,6 +44,16 @@ const createContent = (filename: string): CreateContent => {
 						reject(err);
 						return;
 					}
+
+					Log.verbose(
+						logLevel,
+						'Wrote',
+						data.length,
+						'bytes to',
+						filename,
+						'at position',
+						position,
+					);
 
 					resolve();
 				});
@@ -61,6 +75,7 @@ const createContent = (filename: string): CreateContent => {
 			finish: async () => {
 				await writPromise;
 				try {
+					Log.verbose(logLevel, 'Closing file', filename);
 					fs.closeSync(writeStream);
 					return Promise.resolve();
 				} catch (e) {

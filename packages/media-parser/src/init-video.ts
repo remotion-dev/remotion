@@ -19,7 +19,7 @@ export const initVideo = ({
 	state: ParserState;
 	mimeType: string | null;
 	name: string | null;
-	contentLength: number | null;
+	contentLength: number;
 }) => {
 	const fileType = state.iterator.detectFileType();
 

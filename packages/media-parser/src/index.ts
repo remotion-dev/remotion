@@ -37,6 +37,7 @@ export {
 	VideoTrackColorParams,
 } from './get-tracks';
 
+export {downloadAndParseMedia} from './download-and-parse-media';
 export type {
 	MediaParserContainer,
 	Options,

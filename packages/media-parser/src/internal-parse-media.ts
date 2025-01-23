@@ -30,6 +30,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	progressIntervalInMs,
 	mode,
 	onDiscardedData,
+	onError,
 	...more
 }: InternalParseMediaOptions<F>) {
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
@@ -44,22 +45,21 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentLength,
 		name,
 		contentType,
-		supportsContentRange: assetSupportsContentRange,
+		supportsContentRange,
 	} = await readerInterface.read({src, range: null, signal});
 
 	if (contentLength === null) {
 		throw new Error(
-			'Media was passed with no content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
+			'Cannot read media without a content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
 		);
 	}
 
-	const supportsContentRange =
-		assetSupportsContentRange &&
-		!(
-			typeof process !== 'undefined' &&
-			typeof process.env !== 'undefined' &&
-			process.env.DISABLE_CONTENT_RANGE === 'true'
+	if (!supportsContentRange) {
+		throw new Error(
+			'Cannot read media without it supporting the "Content-Range" header. This is currently not supported. Ensure the media supports the "Content-Range" HTTP header.',
 		);
+	}
+
 	const hasAudioTrackHandlers = Boolean(onAudioTrack);
 	const hasVideoTrackHandlers = Boolean(onVideoTrack);
 
@@ -82,6 +82,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	let timeSeeking = 0;
 	let timeCheckingIfDone = 0;
 	let timeFreeingData = 0;
+	let errored: Error | null = null;
 
 	const state = makeParserState({
 		hasAudioTrackHandlers,
@@ -90,7 +91,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
-		supportsContentRange,
 		contentLength,
 		logLevel,
 		mode,
@@ -112,12 +112,12 @@ export const internalParseMedia: InternalParseMedia = async function <
 		totalBytes: contentLength,
 	});
 
-	const triggerInfoEmit = () => {
+	const triggerInfoEmit = async () => {
 		const availableInfo = getAvailableInfo({
 			fieldsToFetch: fields,
 			state,
 		});
-		emitAvailableInfo({
+		await emitAvailableInfo({
 			hasInfo: availableInfo,
 			callbacks: moreFields,
 			fieldsInReturnValue,
@@ -138,11 +138,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 		if (hasAll && mode === 'query') {
 			Log.verbose(logLevel, 'Got all info, skipping to the end.');
-			if (contentLength !== null) {
-				state.increaseSkippedBytes(
-					contentLength - state.iterator.counter.getOffset(),
-				);
-			}
+			state.increaseSkippedBytes(
+				contentLength - state.iterator.counter.getOffset(),
+			);
 
 			return true;
 		}
@@ -154,10 +152,19 @@ export const internalParseMedia: InternalParseMedia = async function <
 			return true;
 		}
 
+		if (
+			state.iterator.counter.getOffset() + state.iterator.bytesRemaining() ===
+				contentLength &&
+			errored
+		) {
+			Log.verbose(logLevel, 'Reached end of file and errorred');
+			return true;
+		}
+
 		return false;
 	};
 
-	triggerInfoEmit();
+	await triggerInfoEmit();
 
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
@@ -202,48 +209,74 @@ export const internalParseMedia: InternalParseMedia = async function <
 			totalBytes: contentLength,
 		}));
 
-		triggerInfoEmit();
-
-		if (iterationWithThisOffset > 300) {
-			throw new Error(
-				'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
+		if (!errored) {
+			Log.trace(
+				logLevel,
+				`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
 			);
-		}
 
-		Log.trace(
-			logLevel,
-			`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
-		);
-		const start = Date.now();
-		const skip = await runParseIteration({
-			state,
-			mimeType: contentType,
-			contentLength,
-			name,
-		});
-		timeIterating += Date.now() - start;
-
-		if (skip !== null) {
-			state.increaseSkippedBytes(skip.skipTo - iterator.counter.getOffset());
-			if (skip.skipTo === contentLength) {
-				Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
-				break;
+			if (iterationWithThisOffset > 300) {
+				throw new Error(
+					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
+				);
 			}
 
-			const seekStart = Date.now();
-			currentReader = await performSeek({
-				seekTo: skip.skipTo,
-				currentReader,
-				readerInterface,
-				src,
-				state,
-			});
-			timeSeeking += Date.now() - seekStart;
-		}
+			try {
+				await triggerInfoEmit();
 
-		const didProgress = iterator.counter.getOffset() > offsetBefore;
-		if (!didProgress) {
-			iterationWithThisOffset++;
+				const start = Date.now();
+				const skip = await runParseIteration({
+					state,
+					mimeType: contentType,
+					contentLength,
+					name,
+				});
+				timeIterating += Date.now() - start;
+
+				if (skip !== null) {
+					state.increaseSkippedBytes(
+						skip.skipTo - iterator.counter.getOffset(),
+					);
+					if (skip.skipTo === contentLength) {
+						Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
+						break;
+					}
+
+					const seekStart = Date.now();
+					currentReader = await performSeek({
+						seekTo: skip.skipTo,
+						currentReader,
+						readerInterface,
+						src,
+						state,
+					});
+					timeSeeking += Date.now() - seekStart;
+				}
+			} catch (e) {
+				const err = await onError(e as Error);
+				if (!err.action) {
+					throw new Error(
+						'onError was used but did not return an "action" field. See docs for this API on how to use onError.',
+					);
+				}
+
+				if (err.action === 'fail') {
+					throw e;
+				}
+
+				if (err.action === 'download') {
+					errored = e as Error;
+					Log.verbose(
+						logLevel,
+						'Error was handled by onError and deciding to continue.',
+					);
+				}
+			}
+
+			const didProgress = iterator.counter.getOffset() > offsetBefore;
+			if (!didProgress) {
+				iterationWithThisOffset++;
+			}
 		}
 
 		const timeFreeStart = Date.now();
@@ -255,7 +288,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	Log.verbose(logLevel, 'Finished parsing file');
 
 	// Force assign
-	emitAvailableInfo({
+	await emitAvailableInfo({
 		hasInfo: (
 			Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
 		).reduce(
@@ -286,5 +319,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 	iterator?.destroy();
 
 	state.callbacks.tracks.ensureHasTracksAtEnd(fields);
+	if (errored) {
+		throw errored;
+	}
+
 	return returnValue as ParseMediaResult<F>;
 };

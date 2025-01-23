@@ -16,14 +16,7 @@ export const performSeek = async ({
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 }): Promise<Reader> => {
-	const {
-		iterator,
-		supportsContentRange,
-		logLevel,
-		signal,
-		mode,
-		contentLength,
-	} = state;
+	const {iterator, logLevel, signal, mode, contentLength} = state;
 
 	if (seekTo <= iterator.counter.getOffset()) {
 		throw new Error(
@@ -39,15 +32,6 @@ export const performSeek = async ({
 		Log.verbose(
 			logLevel,
 			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Data already fetched`,
-		);
-		iterator.discard(seekTo - iterator.counter.getOffset());
-		return currentReader;
-	}
-
-	if (!supportsContentRange) {
-		Log.verbose(
-			logLevel,
-			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Fetching but not reading all the data inbetween because Content-Range is not supported`,
 		);
 		iterator.discard(seekTo - iterator.counter.getOffset());
 		return currentReader;

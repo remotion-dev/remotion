@@ -1,5 +1,4 @@
 import {Log} from '../../log';
-import {nodeReader} from '../../readers/from-node';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {makeParserState} from '../../state/parser-state';
@@ -47,11 +46,10 @@ export const getMoovAtom = async ({
 					return null;
 				}
 			: null,
-		supportsContentRange: true,
 		contentLength,
 		logLevel: state.logLevel,
 		mode: 'query',
-		readerInterface: nodeReader,
+		readerInterface: state.readerInterface,
 		src: state.src,
 		onDiscardedData: null,
 	});

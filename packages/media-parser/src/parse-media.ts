@@ -42,5 +42,6 @@ export const parseMedia: ParseMedia = (options) => {
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,
+		onError: () => ({action: 'fail'}),
 	});
 };

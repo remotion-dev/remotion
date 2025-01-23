@@ -24,10 +24,6 @@ export const parseFlac = ({
 	const videoSectionState = state.videoSection.isInVideoSectionState(iterator);
 	if (videoSectionState === 'in-section') {
 		if (maySkipVideoData({state})) {
-			if (!state.contentLength) {
-				throw new Error('Need content-length for FLAC to parse');
-			}
-
 			return Promise.resolve(makeSkip(state.contentLength));
 		}
 
@@ -50,10 +46,6 @@ export const parseFlac = ({
 	iterator.stopReadingBits();
 	const size = iterator.getUint24();
 	if (isLastMetadata) {
-		if (!state.contentLength) {
-			throw new Error('Need content-length for FLAC to parse');
-		}
-
 		state.videoSection.setVideoSection({
 			start: iterator.counter.getOffset() + size,
 			size: state.contentLength - iterator.counter.getOffset() - size,

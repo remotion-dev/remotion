@@ -43,7 +43,6 @@ export const makeParserState = ({
 	fields,
 	onAudioTrack,
 	onVideoTrack,
-	supportsContentRange,
 	contentLength,
 	logLevel,
 	mode,
@@ -55,7 +54,6 @@ export const makeParserState = ({
 	hasVideoTrackHandlers: boolean;
 	signal: AbortSignal | undefined;
 	fields: Options<ParseMediaFields>;
-	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	contentLength: number;
@@ -122,7 +120,6 @@ export const makeParserState = ({
 		...structure,
 		onAudioTrack,
 		onVideoTrack,
-		supportsContentRange,
 		emittedFields,
 		fields,
 		slowDurationAndFps,
