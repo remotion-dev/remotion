@@ -4,7 +4,7 @@ import type {CreateContent, Writer} from './writer';
 
 const createContent = (filename: string): CreateContent => {
 	return async ({logLevel}) => {
-		const writPromise = Promise.resolve();
+		let writPromise = Promise.resolve();
 
 		const remove = async () => {
 			Log.verbose(logLevel, 'Removing file', filename);
@@ -62,12 +62,12 @@ const createContent = (filename: string): CreateContent => {
 
 		const writer: Writer = {
 			write: (arr: Uint8Array) => {
-				writPromise.then(() => write(arr));
+				writPromise = writPromise.then(() => write(arr));
 				return writPromise;
 			},
 
 			updateDataAt: (position: number, data: Uint8Array) => {
-				writPromise.then(() => updateDataAt(position, data));
+				writPromise = writPromise.then(() => updateDataAt(position, data));
 				return writPromise;
 			},
 			getWrittenByteCount: () => written,
