@@ -15,6 +15,7 @@ import {
 } from '@remotion/svg-3d-engine';
 import {useRef} from 'react';
 import {interpolate} from 'remotion';
+import {isBacksideVisible} from '../3DContext/viewing-frontside';
 import {Faces} from './Faces';
 import {
 	useClickTransforms,
@@ -69,18 +70,19 @@ export const Outer: React.FC<{
 	const {viewBox} = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(instructions),
 	);
-	const extruded = extrudeAndTransformElement({
+	const {inbetween, scaledBackFace} = extrudeAndTransformElement({
 		backFaceColor: 'black',
 		sideColor: 'black',
 		crispEdges: false,
 		depth,
 		points: parsePath(path),
 		description: 'rect',
-		frontFaceColor: 'white',
-		strokeColor: 'black',
-		strokeWidth: 3,
 		transformations: centerOriented,
 	});
+
+	const extruded = isBacksideVisible(centerOriented)
+		? [...inbetween, scaledBackFace]
+		: [scaledBackFace, ...inbetween];
 
 	return (
 		<div ref={ref} className="relative" style={{width, height}}>
@@ -95,7 +97,7 @@ export const Outer: React.FC<{
 				}}
 				pointerEvents="none"
 			>
-				<Faces elements={[extruded]} />
+				<Faces elements={extruded} />
 			</svg>
 			<div
 				style={{

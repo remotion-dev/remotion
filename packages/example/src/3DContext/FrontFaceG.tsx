@@ -18,7 +18,7 @@ export const FrontFaceG: React.FC<{
 				transform: makeMatrix3dTransform(frontFace),
 				transformBox: 'fill-box',
 				transformOrigin: 'center center',
-				opacity: isBacksideVisible(frontFace) ? 1 : 0,
+				opacity: isBacksideVisible(frontFace) ? 0 : 1,
 			}}
 		>
 			{children}

@@ -32,5 +32,5 @@ export function isBacksideVisible(
 		normal[2] * viewDirection[2];
 
 	// If the dot product is negative, the backside is visible
-	return dotProduct < 0;
+	return dotProduct >= 0;
 }
