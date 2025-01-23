@@ -81,6 +81,10 @@
 			],
 			"outputLogs": "new-only"
 		},
+		"@remotion/example#test": {
+			"dependsOn": ["@remotion/example#bundle"],
+			"outputLogs": "new-only"
+		},
 		"@remotion/convert#build-page": {
 			"dependsOn": ["^make"],
 			"outputs": ["build", ".vercel"],
