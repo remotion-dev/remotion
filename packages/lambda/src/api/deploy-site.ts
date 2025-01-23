@@ -174,9 +174,11 @@ const mandatoryDeploySite = async ({
 		),
 	]);
 
-	fs.rmSync(bundled, {
-		recursive: true,
-	});
+	if (fs.existsSync(bundled)) {
+		fs.rmSync(bundled, {
+			recursive: true,
+		});
+	}
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
