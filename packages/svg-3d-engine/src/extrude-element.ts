@@ -56,7 +56,6 @@ const inverseInstruction = (
 type ExtrudeElementOptions = {
 	depth: number;
 	sideColor: string;
-	backFaceColor: string;
 	points: Instruction[];
 	description?: string;
 	crispEdges: boolean;
@@ -68,11 +67,7 @@ export const extrudeElement = ({
 	points,
 	description = 'extruded',
 	crispEdges,
-	backFaceColor,
-}: ExtrudeElementOptions): {
-	inbetween: FaceType[];
-	scaledBackFace: FaceType;
-} => {
+}: ExtrudeElementOptions): FaceType[] => {
 	const threeD = turnInto3D(points);
 	const instructions: FaceType = {
 		centerPoint: [0, 0, 0, 1],
@@ -139,26 +134,17 @@ export const extrudeElement = ({
 		};
 	});
 
-	const scaledBackFace: FaceType = {
-		...transformFace(unscaledBackFace, [translateZ(-depth * 0.01)]),
-		color: backFaceColor,
-		description: description + '(back)',
-	};
-
-	return {inbetween, scaledBackFace};
+	return inbetween;
 };
 
 export const extrudeAndTransformElement = (
 	options: ExtrudeElementOptions & {
 		transformations: MatrixTransform4D;
 	},
-): {inbetween: FaceType[]; scaledBackFace: FaceType} => {
-	const {inbetween, scaledBackFace} = extrudeElement(options);
+): FaceType[] => {
+	const inbetween = extrudeElement(options);
 
-	return {
-		inbetween: inbetween.map((face) => ({
-			...transformFace(face, [options.transformations]),
-		})),
-		scaledBackFace: transformFace(scaledBackFace, [options.transformations]),
-	};
+	return inbetween.map((face) => ({
+		...transformFace(face, [options.transformations]),
+	}));
 };

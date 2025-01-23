@@ -8,7 +8,6 @@ import {
 import {Faces} from '../3DEngine/Faces';
 import {useRect} from './path-context';
 import {useTransformations} from './transformation-context';
-import {isBacksideVisible} from './viewing-frontside';
 
 export const SvgExtrusion: React.FC<{
 	depth: number;
@@ -29,8 +28,7 @@ export const SvgExtrusion: React.FC<{
 		translateY(height / 2),
 	]);
 
-	const {inbetween, scaledBackFace} = extrudeAndTransformElement({
-		backFaceColor: 'white',
+	const inbetween = extrudeAndTransformElement({
 		sideColor: 'black',
 		crispEdges: false,
 		depth,
@@ -39,9 +37,5 @@ export const SvgExtrusion: React.FC<{
 		transformations: centerOriented,
 	});
 
-	const extruded = isBacksideVisible(centerOriented)
-		? [...inbetween, scaledBackFace]
-		: [scaledBackFace, ...inbetween];
-
-	return <Faces elements={extruded} />;
+	return <Faces elements={inbetween} />;
 };

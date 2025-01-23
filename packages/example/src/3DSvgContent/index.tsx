@@ -16,7 +16,7 @@ export const ThreeDSvgContent: React.FC = () => {
 		>
 			<rect width="574" height="434" fill="#F8FAFC" />
 			<RotateX radians={0}>
-				<G3D d="M 0 0 L 574 434" depth={0}>
+				<G3D backFace="red" d="M 0 0 L 574 434" depth={0}>
 					<g id="remotionwebcodecs">
 						<text
 							id="@remotion/webcodecs"
@@ -62,6 +62,7 @@ export const ThreeDSvgContent: React.FC = () => {
 						</g>
 						<SpinEffect>
 							<G3D
+								backFace="red"
 								d="M212 81C212 76.0294 216.029 72 221 72H353C357.971 72 362 76.0294 362 81V185C362 189.971 357.971 194 353 194H221C216.029 194 212 189.971 212 185V81Z"
 								depth={10}
 								id="Group 30"
@@ -518,6 +519,7 @@ export const ThreeDSvgContent: React.FC = () => {
 						</g>
 						<SpinEffect>
 							<G3D
+								backFace="green"
 								d={translatePath(
 									makeRect({width: 150, height: 124, cornerRadius: 9}).path,
 									212,
@@ -634,6 +636,7 @@ export const ThreeDSvgContent: React.FC = () => {
 									</g>
 									<SpinEffect delay={2}>
 										<G3D
+											backFace="blue"
 											d={translatePath(
 												makeCircle({radius: 6}).path,
 												232 - 6,

@@ -12,6 +12,8 @@ export {
 	rotateX,
 	rotateY,
 	rotateZ,
+	scaleX,
+	scaleY,
 	scaled,
 	translateX,
 	translateY,

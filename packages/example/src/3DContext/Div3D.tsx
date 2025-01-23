@@ -1,6 +1,8 @@
 import {DivExtrusion} from './DivExtrusion';
-import {FrontFace} from './FrontFace';
+import {Face} from './FrontFace';
 import {RectProvider} from './path-context';
+import {useTransformations} from './transformation-context';
+import {isBacksideVisible} from './viewing-frontside';
 
 export const Div3D: React.FC<{
 	children: React.ReactNode;
@@ -8,12 +10,29 @@ export const Div3D: React.FC<{
 	height: number;
 	depth: number;
 	cornerRadius: number;
-}> = ({children, width, height, depth, cornerRadius}) => {
+	backFace?: React.ReactNode;
+}> = ({children, width, height, depth, cornerRadius, backFace}) => {
+	const frontFace = isBacksideVisible(useTransformations());
+
 	return (
 		<RectProvider height={height} width={width} cornerRadius={cornerRadius}>
-			<div style={{width, height, position: 'relative'}}>
+			<div
+				style={{
+					width,
+					height,
+					position: 'relative',
+				}}
+			>
 				<DivExtrusion depth={depth} />
-				<FrontFace depth={depth}>{children}</FrontFace>
+				{frontFace ? (
+					<Face type="front" depth={depth}>
+						{children}
+					</Face>
+				) : (
+					<Face type="back" depth={depth}>
+						{backFace}
+					</Face>
+				)}
 			</div>
 		</RectProvider>
 	);

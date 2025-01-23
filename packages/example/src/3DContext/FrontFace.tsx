@@ -1,16 +1,22 @@
 import {
 	makeMatrix3dTransform,
 	reduceMatrices,
+	scaleY,
 	translateZ,
 } from '@remotion/svg-3d-engine';
 import {useRect} from './path-context';
 import {useTransformations} from './transformation-context';
 
-export const FrontFace: React.FC<{
+export const Face: React.FC<{
 	children: React.ReactNode;
 	depth: number;
-}> = ({children, depth}) => {
-	const frontFace = reduceMatrices([translateZ(-depth), useTransformations()]);
+	type: 'front' | 'back';
+}> = ({children, depth, type}) => {
+	const frontFace = reduceMatrices([
+		type === 'back' ? scaleY(-1) : null,
+		translateZ(type === 'front' ? -depth : 0.01 * depth),
+		useTransformations(),
+	]);
 	const {height, width} = useRect();
 
 	return (
@@ -20,7 +26,7 @@ export const FrontFace: React.FC<{
 				display: 'flex',
 				width,
 				height,
-				backfaceVisibility: 'hidden',
+				position: 'absolute',
 			}}
 		>
 			{children}

@@ -18,7 +18,27 @@ const Comp = () => {
 				<RotateX radians={progress / 10}>
 					<RotateX radians={Math.sin(angle) / 4}>
 						<RotateY radians={-Math.cos(angle) / 4}>
-							<Div3D width={width} height={height} depth={40} cornerRadius={10}>
+							<Div3D
+								width={width}
+								height={height}
+								depth={40}
+								cornerRadius={10}
+								backFace={
+									<div
+										style={{
+											borderRadius: cornerRadius,
+											width,
+											height,
+											fontFamily: 'GT Planar',
+											backgroundColor: 'white',
+											border: '2px solid black',
+										}}
+										className="text-red-800 flex justify-center items-center font-sans text-2xl border-solid border-black font-bold cursor-pointer"
+									>
+										Back side
+									</div>
+								}
+							>
 								<div
 									style={{
 										borderRadius: cornerRadius,
