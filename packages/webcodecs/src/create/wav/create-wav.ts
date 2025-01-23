@@ -26,7 +26,11 @@ export const createWav = async ({
 	writer,
 	progressTracker,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
-	const w = await writer.createContent({filename, mimeType: 'audio/wav'});
+	const w = await writer.createContent({
+		filename,
+		mimeType: 'audio/wav',
+		logLevel,
+	});
 
 	await w.write(new Uint8Array([0x52, 0x49, 0x46, 0x46])); // "RIFF"
 	const sizePosition = w.getWrittenByteCount();

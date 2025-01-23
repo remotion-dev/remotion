@@ -144,61 +144,67 @@ export type MediaParserKeyframe = {
 export type MandatoryParseMediaCallbacks = {
 	onDimensions:
 		| null
-		| ((dimensions: Dimensions | null) => void | Promise<void>);
+		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
 	onDurationInSeconds:
 		| null
-		| ((durationInSeconds: number | null) => void | Promise<void>);
+		| ((durationInSeconds: number | null) => unknown | Promise<unknown>);
 	onSlowDurationInSeconds:
 		| null
-		| ((durationInSeconds: number) => void | Promise<void>);
-	onSlowFps: null | ((fps: number) => void | Promise<void>);
-	onStructure: null | ((structure: Structure) => void | Promise<void>);
-	onFps: null | ((fps: number | null) => void | Promise<void>);
+		| ((durationInSeconds: number) => unknown | Promise<unknown>);
+	onSlowFps: null | ((fps: number) => unknown | Promise<unknown>);
+	onStructure: null | ((structure: Structure) => unknown | Promise<unknown>);
+	onFps: null | ((fps: number | null) => unknown | Promise<unknown>);
 	onVideoCodec:
 		| null
-		| ((codec: MediaParserVideoCodec | null) => void | Promise<void>);
+		| ((codec: MediaParserVideoCodec | null) => unknown | Promise<unknown>);
 	onAudioCodec:
 		| null
-		| ((codec: MediaParserAudioCodec | null) => void | Promise<void>);
-	onTracks: null | ((tracks: TracksField) => void | Promise<void>);
-	onRotation: null | ((rotation: number | null) => void | Promise<void>);
+		| ((codec: MediaParserAudioCodec | null) => unknown | Promise<unknown>);
+	onTracks: null | ((tracks: TracksField) => unknown | Promise<unknown>);
+	onRotation: null | ((rotation: number | null) => unknown | Promise<unknown>);
 	onUnrotatedDimensions:
 		| null
-		| ((dimensions: Dimensions | null) => void | Promise<void>);
+		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
 	onInternalStats:
 		| null
-		| ((internalStats: InternalStats) => void | Promise<void>);
-	onSize: null | ((size: number | null) => void | Promise<void>);
-	onName: null | ((name: string) => void | Promise<void>);
+		| ((internalStats: InternalStats) => unknown | Promise<unknown>);
+	onSize: null | ((size: number | null) => unknown | Promise<unknown>);
+	onName: null | ((name: string) => unknown | Promise<unknown>);
 	onContainer:
 		| null
-		| ((container: MediaParserContainer) => void | Promise<void>);
-	onIsHdr: null | ((isHdr: boolean) => void | Promise<void>);
-	onMetadata: null | ((metadata: MetadataEntry[]) => void | Promise<void>);
+		| ((container: MediaParserContainer) => unknown | Promise<unknown>);
+	onIsHdr: null | ((isHdr: boolean) => unknown | Promise<unknown>);
+	onMetadata:
+		| null
+		| ((metadata: MetadataEntry[]) => unknown | Promise<unknown>);
 	onLocation:
 		| null
-		| ((location: MediaParserLocation | null) => void | Promise<void>);
-	onMimeType: null | ((mimeType: string | null) => void | Promise<void>);
+		| ((location: MediaParserLocation | null) => unknown | Promise<unknown>);
+	onMimeType: null | ((mimeType: string | null) => unknown | Promise<unknown>);
 	onKeyframes:
 		| null
-		| ((keyframes: MediaParserKeyframe[] | null) => void | Promise<void>);
+		| ((keyframes: MediaParserKeyframe[] | null) => unknown | Promise<unknown>);
 	onSlowKeyframes:
 		| null
-		| ((keyframes: MediaParserKeyframe[]) => void | Promise<void>);
-	onSlowNumberOfFrames: null | ((samples: number) => void | Promise<void>);
+		| ((keyframes: MediaParserKeyframe[]) => unknown | Promise<unknown>);
+	onSlowNumberOfFrames:
+		| null
+		| ((samples: number) => unknown | Promise<unknown>);
 	onImages:
 		| null
-		| ((images: MediaParserEmbeddedImage[]) => void | Promise<void>);
-	onSampleRate: null | ((sampleRate: number | null) => void | Promise<void>);
+		| ((images: MediaParserEmbeddedImage[]) => unknown | Promise<unknown>);
+	onSampleRate:
+		| null
+		| ((sampleRate: number | null) => unknown | Promise<unknown>);
 	onNumberOfAudioChannels:
 		| null
-		| ((numberOfChannels: number | null) => void | Promise<void>);
+		| ((numberOfChannels: number | null) => unknown | Promise<unknown>);
 	onSlowVideoBitrate:
 		| null
-		| ((videoBitrate: number | null) => void | Promise<void>);
+		| ((videoBitrate: number | null) => unknown | Promise<unknown>);
 	onSlowAudioBitrate:
 		| null
-		| ((audioBitrate: number | null) => void | Promise<void>);
+		| ((audioBitrate: number | null) => unknown | Promise<unknown>);
 };
 
 export type ParseMediaCallbacks = Partial<MandatoryParseMediaCallbacks>;
