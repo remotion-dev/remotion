@@ -24,9 +24,9 @@ const Comp = () => {
 										borderRadius: cornerRadius,
 										fontFamily: 'GT Planar',
 										backgroundColor: 'white',
-										border: '2px solid black',
+										border: '2px solid #000',
 									}}
-									className="text-black flex justify-center items-center font-sans text-2xl border-solid border-black font-bold cursor-pointer flex-1"
+									className="text-black flex justify-center items-center font-sans text-2xl font-bold cursor-pointer flex-1"
 								>
 									Get started
 								</div>

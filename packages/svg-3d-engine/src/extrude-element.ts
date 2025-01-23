@@ -72,12 +72,12 @@ export const extrudeElement = ({
 	depth,
 	sideColor,
 	frontFaceColor,
-	backFaceColor,
 	points,
 	strokeWidth,
 	description = 'extruded',
 	strokeColor,
 	crispEdges,
+	backFaceColor,
 }: ExtrudeElementOptions): ThreeDElement => {
 	const boundingBox = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(points),
@@ -99,7 +99,7 @@ export const extrudeElement = ({
 		crispEdges,
 	};
 
-	const unscaledBackFace = transformFace(instructions, []);
+	const unscaledBackFace = transformFace(instructions, [translateZ(0)]);
 	const unscaledFrontFace = transformFace(instructions, [translateZ(-depth)]);
 
 	const inbetween = unscaledBackFace.points.map((t, i): FaceType => {
@@ -163,7 +163,8 @@ export const extrudeElement = ({
 		description: description + '(front)',
 	};
 	const scaledBackFace: FaceType = {
-		...unscaledBackFace,
+		...transformFace(unscaledBackFace, [translateZ(-depth * 0.01)]),
+		strokeWidth: 0,
 		color: backFaceColor,
 		description: description + '(back)',
 	};

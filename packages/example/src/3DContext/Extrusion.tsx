@@ -16,7 +16,6 @@ export const SvgExtrusion: React.FC<{
 
 	const transformations = useTransformations();
 
-	console.log({left, top});
 	const centerOriented = reduceMatrices([
 		translateX(-left),
 		translateY(-top),
