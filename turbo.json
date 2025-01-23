@@ -13,6 +13,13 @@
 		"testlambda": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
+		"@remotion/it-tests#testlambda": {
+			"dependsOn": [
+				"^make",
+				"@remotion/lambda#testlambda",
+				"@remotion/example#bundle"
+			]
+		},
 		"make": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],
