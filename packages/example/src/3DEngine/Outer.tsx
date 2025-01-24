@@ -69,16 +69,12 @@ export const Outer: React.FC<{
 	const {viewBox} = PathInternals.getBoundingBoxFromInstructions(
 		reduceInstructions(instructions),
 	);
-	const extruded = extrudeAndTransformElement({
-		backFaceColor: 'black',
+	const inbetween = extrudeAndTransformElement({
 		sideColor: 'black',
 		crispEdges: false,
 		depth,
 		points: parsePath(path),
 		description: 'rect',
-		frontFaceColor: 'white',
-		strokeColor: 'black',
-		strokeWidth: 3,
 		transformations: centerOriented,
 	});
 
@@ -95,7 +91,7 @@ export const Outer: React.FC<{
 				}}
 				pointerEvents="none"
 			>
-				<Faces elements={[extruded]} />
+				<Faces elements={inbetween} />
 			</svg>
 			<div
 				style={{

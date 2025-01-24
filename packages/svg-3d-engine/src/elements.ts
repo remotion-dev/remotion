@@ -1,46 +1,18 @@
-import {makeId} from './make-id';
 import type {FaceType} from './map-face';
 import {transformFace} from './map-face';
-import type {MatrixTransform4D, Vector4D} from './matrix';
-import {multiplyMatrix} from './matrix';
+import type {MatrixTransform4D} from './matrix';
 
 export type ThreeDElement = {
 	faces: FaceType[];
 	id: string;
 	description: string;
-	centerPoint: Vector4D;
 };
 
-export const makeElement = ({
-	face: faces,
-	centerPoint,
-	description,
-}: {
-	face: FaceType[];
-	centerPoint: Vector4D;
-	description: string;
-}): ThreeDElement => {
-	return {
-		faces,
-		id: makeId(),
-		centerPoint,
-		description,
-	};
-};
-
-export const transformElement = (
-	element: ThreeDElement,
+export const transformFaces = (
+	faces: FaceType[],
 	transformations: MatrixTransform4D[],
-): ThreeDElement => {
-	return {
-		...element,
-		faces: element.faces.map((face) => {
-			return transformFace(face, transformations);
-		}),
-		id: makeId(),
-		centerPoint: transformations.reduce(
-			(point, transformation) => multiplyMatrix(transformation, point),
-			element.centerPoint,
-		),
-	};
+): FaceType[] => {
+	return faces.map((face) => {
+		return transformFace(face, transformations);
+	});
 };

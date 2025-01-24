@@ -28,18 +28,14 @@ export const SvgExtrusion: React.FC<{
 		translateY(height / 2),
 	]);
 
-	const extruded = extrudeAndTransformElement({
-		backFaceColor: 'black',
+	const inbetween = extrudeAndTransformElement({
 		sideColor: 'black',
 		crispEdges: false,
 		depth,
 		points: parsePath(path),
 		description: 'rect',
-		frontFaceColor: 'white',
-		strokeColor: 'black',
-		strokeWidth: 3,
 		transformations: centerOriented,
 	});
 
-	return <Faces elements={[extruded]} />;
+	return <Faces elements={inbetween} />;
 };
