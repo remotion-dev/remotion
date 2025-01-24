@@ -1,5 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
+import {$} from 'bun';
 import {afterAll, expect, test} from 'bun:test';
+import path from 'path';
+import {streamToUint8Array} from '../../mocks/mock-store';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
 afterAll(async () => {
@@ -21,21 +24,19 @@ test('Should be able to render to another bucket, and silent audio should be add
 		region: 'eu-central-1',
 	});
 
-	const probe = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: ['-'],
-		indent: false,
-		logLevel: 'info',
-		options: {
-			stdin: file,
-		},
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	expect(probe.stderr).toMatch(/Stream #0:0/);
-	expect(probe.stderr).toMatch(/Video: h264/);
-	expect(probe.stderr).toMatch(/Stream #0:1/);
-	expect(probe.stderr).toMatch(/Audio: aac/);
+	const stream = await streamToUint8Array(file);
+
+	const probe = await $`bunx remotion ffprobe - < ${stream}`
+		.cwd(path.join(__dirname, '..', '..', '..', '..', '..', 'example'))
+		.nothrow()
+		.quiet();
+
+	const stderr = new TextDecoder().decode(probe.stderr);
+
+	expect(stderr).toMatch(/Stream #0:0/);
+	expect(stderr).toMatch(/Video: h264/);
+	expect(stderr).toMatch(/Stream #0:1/);
+	expect(stderr).toMatch(/Audio: aac/);
 
 	await close();
 });

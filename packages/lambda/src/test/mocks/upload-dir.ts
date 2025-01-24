@@ -31,10 +31,10 @@ export const getDirFiles = (dir: string): MockFile[] => {
 	throw new Error('could not get dir for ' + dir);
 };
 
-export const mockUploadDir: typeof original = (input) => {
+export const mockUploadDir: typeof original = async (input) => {
 	const files = getDirFiles(input.localDir);
 	for (const file of files) {
-		writeMockS3File({
+		await writeMockS3File({
 			privacy: input.privacy,
 			bucketName: input.bucket,
 			body: file.content,

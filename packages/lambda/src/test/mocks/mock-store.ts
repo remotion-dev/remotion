@@ -1,6 +1,6 @@
 import type {CloudProvider} from '@remotion/serverless';
-import {streamToString, type Privacy} from '@remotion/serverless/client';
-import type {Readable} from 'stream';
+import type {Privacy} from '@remotion/serverless/client';
+import {Readable} from 'stream';
 import type {BucketWithLocation} from '../../api/get-buckets';
 import type {AwsProvider} from '../../functions/aws-implementation';
 import type {AwsRegion} from '../../regions';
@@ -12,7 +12,7 @@ type S3MockFile<Provider extends CloudProvider> = {
 	region: Provider['region'];
 	acl: 'public-read' | 'private' | 'none';
 	key: string;
-	content: string;
+	content: Uint8Array;
 };
 
 let mockS3Store: S3MockFile<AwsProvider>[] = [];
@@ -31,6 +31,11 @@ export const mockBucketExists = (bucketName: string, region: string) => {
 	);
 };
 
+export const resetMockStore = () => {
+	mockBucketStore.length = 0;
+	mockS3Store.length = 0;
+};
+
 export const getS3FilesInBucket = ({
 	bucketName,
 	region,
@@ -38,10 +43,37 @@ export const getS3FilesInBucket = ({
 	bucketName: string;
 	region: string;
 }) => {
-	return mockS3Store.filter(
+	const list = mockS3Store.filter(
 		(s) => s.bucketName === bucketName && s.region === region,
 	);
+	return list;
 };
+
+export function streamToUint8Array(
+	obj: Readable | string | Uint8Array,
+): Promise<Uint8Array> {
+	return new Promise<Uint8Array>((resolve, reject) => {
+		if (obj instanceof Readable) {
+			let data = Uint8Array.from([]);
+
+			obj.on('data', (chunk) => {
+				data = Uint8Array.from([...data, ...chunk]);
+			});
+
+			obj.on('end', () => {
+				resolve(data);
+			});
+
+			obj.on('error', (err) => {
+				reject(err);
+			});
+		} else if (typeof obj === 'string') {
+			resolve(Uint8Array.from(Buffer.from(obj)));
+		} else {
+			resolve(obj);
+		}
+	});
+}
 
 export const writeMockS3File = async ({
 	body,
@@ -63,13 +95,9 @@ export const writeMockS3File = async ({
 			m.key === key
 		);
 	});
+	const content = await streamToUint8Array(body);
 	mockS3Store.push({
-		content:
-			typeof body === 'string'
-				? body
-				: body instanceof Uint8Array
-					? Buffer.from(body).toString()
-					: await streamToString(body),
+		content,
 		acl:
 			privacy === 'no-acl'
 				? 'none'

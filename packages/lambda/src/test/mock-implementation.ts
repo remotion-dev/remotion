@@ -1,4 +1,4 @@
-import {openBrowser} from '@remotion/renderer';
+import {openBrowser, RenderInternals} from '@remotion/renderer';
 import type {
 	FullClientSpecifics,
 	GetBrowserInstance,
@@ -6,7 +6,8 @@ import type {
 	InvokeWebhookParams,
 	ProviderSpecifics,
 } from '@remotion/serverless';
-import {Readable} from 'stream';
+import {createReadStream, writeFileSync} from 'fs';
+import path from 'path';
 import {estimatePrice} from '../api/estimate-price';
 import {speculateFunctionName} from '../api/speculate-function-name';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
@@ -87,7 +88,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			files
 				.filter((p) => p.key.startsWith(input.prefix))
 				.map((file) => {
-					const size = file.content.length;
+					const size = file.content.byteLength;
 					return {
 						Key: file.key,
 						ETag: 'etag',
@@ -100,6 +101,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		);
 	},
 	deleteFile: ({bucketName, key, region}) => {
+		console.log('deleting file', key, bucketName, region);
 		mockDeleteS3File({
 			bucketName,
 			key,
@@ -117,7 +119,9 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			throw new Error(`no file ${key}`);
 		}
 
-		return Promise.resolve(Readable.from(Buffer.from(file.content)));
+		const tmp = path.join(RenderInternals.tmpDir('justtest'), 'test');
+		writeFileSync(tmp, file.content);
+		return Promise.resolve(createReadStream(tmp));
 	},
 	writeFile: async ({body, bucketName, key, privacy, region}) => {
 		await writeMockS3File({

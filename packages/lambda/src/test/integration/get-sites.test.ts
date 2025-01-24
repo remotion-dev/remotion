@@ -6,8 +6,10 @@ import {
 	mockFullClientSpecifics,
 	mockImplementation,
 } from '../mock-implementation';
+import {resetMockStore} from '../mocks/mock-store';
 
 test('Should have no buckets at first', async () => {
+	resetMockStore();
 	expect(
 		await internalGetSites({
 			region: 'us-east-1',
@@ -19,6 +21,7 @@ test('Should have no buckets at first', async () => {
 });
 
 test('Should have a site after deploying', async () => {
+	resetMockStore();
 	await internalGetOrCreateBucket({
 		region: 'eu-central-1',
 		providerSpecifics: mockImplementation,
