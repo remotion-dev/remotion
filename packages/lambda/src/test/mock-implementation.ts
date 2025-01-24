@@ -87,7 +87,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			files
 				.filter((p) => p.key.startsWith(input.prefix))
 				.map((file) => {
-					const size = file.content.byteLength;
+					const size = file.content.length;
 					return {
 						Key: file.key,
 						ETag: 'etag',

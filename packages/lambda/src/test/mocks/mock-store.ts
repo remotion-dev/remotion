@@ -1,6 +1,6 @@
 import type {CloudProvider} from '@remotion/serverless';
-import type {Privacy} from '@remotion/serverless/client';
-import {Readable} from 'stream';
+import {streamToString, type Privacy} from '@remotion/serverless/client';
+import type {Readable} from 'stream';
 import type {BucketWithLocation} from '../../api/get-buckets';
 import type {AwsProvider} from '../../functions/aws-implementation';
 import type {AwsRegion} from '../../regions';
@@ -12,7 +12,7 @@ type S3MockFile<Provider extends CloudProvider> = {
 	region: Provider['region'];
 	acl: 'public-read' | 'private' | 'none';
 	key: string;
-	content: Uint8Array;
+	content: string;
 };
 
 let mockS3Store: S3MockFile<AwsProvider>[] = [];
@@ -43,32 +43,6 @@ export const getS3FilesInBucket = ({
 	);
 };
 
-function streamToUint8Array(
-	obj: Readable | string | Uint8Array,
-): Promise<Uint8Array> {
-	return new Promise<Uint8Array>((resolve, reject) => {
-		if (obj instanceof Readable) {
-			let data = Uint8Array.from([]);
-
-			obj.on('data', (chunk) => {
-				data = Uint8Array.from([...data, ...chunk]);
-			});
-
-			obj.on('end', () => {
-				resolve(data);
-			});
-
-			obj.on('error', (err) => {
-				reject(err);
-			});
-		} else if (typeof obj === 'string') {
-			resolve(Uint8Array.from(Buffer.from(obj)));
-		} else {
-			resolve(obj);
-		}
-	});
-}
-
 export const writeMockS3File = async ({
 	body,
 	privacy,
@@ -90,7 +64,12 @@ export const writeMockS3File = async ({
 		);
 	});
 	mockS3Store.push({
-		content: await streamToUint8Array(body),
+		content:
+			typeof body === 'string'
+				? body
+				: body instanceof Uint8Array
+					? Buffer.from(body).toString()
+					: await streamToString(body),
 		acl:
 			privacy === 'no-acl'
 				? 'none'

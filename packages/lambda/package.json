@@ -10,7 +10,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"testlambda": "exit 0",
+		"testlambda": "bun test src/test/integration",
 		"test": "bun test src/test/unit",
 		"make": "tsc -d && bun build.ts",
 		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"

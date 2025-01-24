@@ -34,19 +34,13 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
+      - name: Ensure Lambda browser
+        run: |
+          cd packages/lambda && bunx remotion browser ensure
       - name: Test Lambda IT
         timeout-minutes: 12
         run: |
           pnpm run testlambda
-      - name: Ensure Lambda browser
-        run: |
-          cd packages/lambda && bunx remotion browser ensure
-      - name: IT Tests
-        run: |
-          cd packages/it-tests && bun test src/lambda src/cloudrun --run
-      - name: Lambda Units
-        run: |
-          cd packages/lambda && bun test src/test/integration --run
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
