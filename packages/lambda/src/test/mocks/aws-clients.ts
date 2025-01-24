@@ -67,7 +67,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			},
 		},
 		context: {
-			invokedFunctionArn: 'arn:fake',
+			invokedFunctionArn: 'arn:fake:1234:1234:124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},
@@ -88,7 +88,7 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {
-			invokedFunctionArn: 'arn:fake',
+			invokedFunctionArn: 'arn:fake:1234:1234:124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},
@@ -111,7 +111,7 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {
-			invokedFunctionArn: 'arn:fake',
+			invokedFunctionArn: 'arn:fake:1234:1234:124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
 			awsRequestId: 'fake',
 		},

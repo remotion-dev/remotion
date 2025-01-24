@@ -35,9 +35,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
       - name: Test Lambda IT
-        timeout-minutes: 12
         run: |
           pnpm run testlambda
+      - name: IT tests
+        timeout-minutes: 10
+        run: |
+          cd packages/it-tests && bun test src/lambda src/cloudrun --run
+      - name: Lambda tests
+        timeout-minutes: 10
+        run: |
+          cd packages/lambda && bun test src/test/integration --run
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration

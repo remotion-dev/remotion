@@ -255,6 +255,19 @@ test('Should keep the previous site if deploying the new one with different ID',
 		forcePathStyle: false,
 	});
 
+	expect(
+		files.map((f) => {
+			return f.Key;
+		}),
+	).toEqual([
+		...getDirFiles('/path/to/bundle-1').map((f) => {
+			return 'sites/testing/' + f.name;
+		}),
+		...getDirFiles('/path/to/bundle-2').map((f) => {
+			return 'sites/testing-2/' + f.name;
+		}),
+	]);
+
 	await internalDeleteSite({
 		bucketName,
 		region: 'ap-northeast-1',
@@ -271,18 +284,6 @@ test('Should keep the previous site if deploying the new one with different ID',
 		forcePathStyle: false,
 		onAfterItemDeleted: null,
 	});
-	expect(
-		files.map((f) => {
-			return f.Key;
-		}),
-	).toEqual([
-		...getDirFiles('/path/to/bundle-1').map((f) => {
-			return 'sites/testing/' + f.name;
-		}),
-		...getDirFiles('/path/to/bundle-2').map((f) => {
-			return 'sites/testing-2/' + f.name;
-		}),
-	]);
 });
 
 test('Should not delete site with same prefix', async () => {

@@ -1,10 +1,12 @@
 import {RenderInternals} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
+import {$} from 'bun';
 import {afterAll, expect, test} from 'bun:test';
 import {existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {internalDeleteRender} from '../../../api/delete-render';
 import {mockImplementation} from '../../mock-implementation';
+import {streamToUint8Array} from '../../mocks/mock-store';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
@@ -31,17 +33,8 @@ test(
 			unlinkSync(wav);
 		}
 
-		await RenderInternals.callFf({
-			bin: 'ffmpeg',
-			args: ['-i', '-', '-ac', '1', '-c:a', 'pcm_s16le', '-y', wav],
-			options: {
-				stdin: file,
-			},
-			indent: false,
-			binariesDirectory: null,
-			cancelSignal: undefined,
-			logLevel: 'info',
-		});
+		const stream = await streamToUint8Array(file);
+		await $`bunx remotion ffmpeg -i - -ac 1 -c:a pcm_s16le -y ${wav} < ${stream}`.quiet();
 
 		const wd = new Wavedraw(wav);
 
