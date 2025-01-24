@@ -182,6 +182,7 @@ export const internalOpenBrowser = async ({
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
+			'--force-gpu-mem-available-mb=4096',
 			'--disable-hang-monitor',
 			'--disable-extensions',
 			'--allow-chrome-scheme-url',
