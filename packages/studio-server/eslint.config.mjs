@@ -7,12 +7,6 @@ export default {
 	rules: {
 		...config.rules,
 		'no-console': 'error',
-		'no-restricted-imports': [
-			'error',
-			{
-				patterns: ['@remotion/*/src/*', 'remotion/src/*'],
-			},
-		],
 		'@typescript-eslint/no-use-before-define': 'off',
 	},
 };

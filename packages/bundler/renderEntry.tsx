@@ -237,7 +237,10 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'composition') {
 		const markup = (
-			<Internals.RemotionRoot numberOfAudioTags={0}>
+			<Internals.RemotionRoot
+				logLevel={window.remotion_logLevel}
+				numberOfAudioTags={0}
+			>
 				<Root />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
@@ -248,7 +251,10 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
-			<Internals.RemotionRoot numberOfAudioTags={0}>
+			<Internals.RemotionRoot
+				logLevel={window.remotion_logLevel}
+				numberOfAudioTags={0}
+			>
 				<Root />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>

@@ -36,7 +36,7 @@ import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
-import {LogLevelContext} from './log-level-context.js';
+import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
@@ -164,6 +164,7 @@ export const Internals = {
 	validateRenderAsset,
 	Log,
 	LogLevelContext,
+	useLogLevel,
 } as const;
 
 export type {
