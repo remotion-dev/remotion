@@ -21,13 +21,12 @@ import {
 } from '../constants';
 import {DOCS_URL} from '../docs-url';
 import {getExpectedOutName} from '../expected-out-name';
-import type {WebhookClient} from '../invoke-webhook';
-import {invokeWebhook} from '../invoke-webhook';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
 import type {
 	InsideFunctionSpecifics,
 	ProviderSpecifics,
+	WebhookClient,
 } from '../provider-implementation';
 import type {RenderMetadata} from '../render-metadata';
 
@@ -587,8 +586,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		try {
-			await invokeWebhook(
-				{
+			await insideFunctionSpecifics.invokeWebhook({
+				options: {
 					url: params.webhook.url,
 					secret: params.webhook.secret,
 					payload: {
@@ -601,8 +600,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 					redirectsSoFar: 0,
 					client,
 				},
-				params.logLevel,
-			);
+				logLevel: params.logLevel,
+			});
 			RenderInternals.Log.verbose(
 				{
 					indent: false,
@@ -686,8 +685,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		try {
-			await invokeWebhook(
-				{
+			await insideFunctionSpecifics.invokeWebhook({
+				options: {
 					url: params.webhook.url,
 					secret: params.webhook.secret,
 					payload: {
@@ -705,8 +704,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 					redirectsSoFar: 0,
 					client,
 				},
-				params.logLevel,
-			);
+				logLevel: params.logLevel,
+			});
 			webhookInvoked = true;
 		} catch (err) {
 			if (process.env.NODE_ENV === 'test') {
@@ -781,8 +780,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		if (params.webhook && !webhookInvoked) {
 			try {
-				await invokeWebhook(
-					{
+				await insideFunctionSpecifics.invokeWebhook({
+					options: {
 						url: params.webhook.url,
 						secret: params.webhook.secret,
 						payload: {
@@ -800,8 +799,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						redirectsSoFar: 0,
 						client,
 					},
-					params.logLevel,
-				);
+					logLevel: params.logLevel,
+				});
 				webhookInvoked = true;
 			} catch (error) {
 				if (process.env.NODE_ENV === 'test') {

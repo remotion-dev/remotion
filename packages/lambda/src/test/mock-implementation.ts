@@ -3,6 +3,7 @@ import type {
 	FullClientSpecifics,
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
+	InvokeWebhookParams,
 	ProviderSpecifics,
 } from '@remotion/serverless';
 import {Readable} from 'stream';
@@ -181,6 +182,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	parseFunctionName,
 };
 
+const paramsArray: InvokeWebhookParams[] = [];
+
 export const mockServerImplementation: InsideFunctionSpecifics = {
 	forgetBrowserEventLoop: () => {},
 	getBrowserInstance,
@@ -196,6 +199,18 @@ export const mockServerImplementation: InsideFunctionSpecifics = {
 			timeoutInSeconds: 120,
 		}),
 	getCurrentMemorySizeInMb: () => 3009,
+	invokeWebhook: (params) => {
+		paramsArray.push(params);
+		return Promise.resolve();
+	},
+};
+
+export const resetWebhookCalls = () => {
+	paramsArray.length = 0;
+};
+
+export const getWebhookCalls = () => {
+	return paramsArray;
 };
 
 export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {

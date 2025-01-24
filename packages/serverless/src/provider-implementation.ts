@@ -4,6 +4,8 @@ import type {
 	EmittedArtifact,
 	LogLevel,
 } from '@remotion/renderer';
+import type https from 'https';
+import type http from 'node:http';
 import type {Readable} from 'stream';
 import type {
 	CustomCredentials,
@@ -14,6 +16,7 @@ import type {
 } from './constants';
 import type {LaunchedBrowser} from './get-browser-instance';
 import type {GetFolderFiles} from './get-files-in-folder';
+import type {WebhookPayload} from './invoke-webhook';
 import type {RenderMetadata} from './render-metadata';
 import type {ServerlessReturnValues} from './return-values';
 import type {OnMessage} from './streaming/streaming';
@@ -320,6 +323,31 @@ export type ParseFunctionName = (functionName: string) => {
 	timeoutInSeconds: number;
 } | null;
 
+export type WebhookClient = (
+	url: string,
+) => (
+	url: string | URL,
+	options: https.RequestOptions,
+	callback?: (res: http.IncomingMessage) => void,
+) => http.ClientRequest;
+
+export type InvokeWebhookOptions = {
+	payload: WebhookPayload;
+	url: string;
+	secret: string | null;
+	redirectsSoFar: number;
+	client: WebhookClient;
+};
+
+export type InvokeWebhookParams = {
+	options: InvokeWebhookOptions;
+	logLevel: LogLevel;
+	retries?: number;
+	errors?: number;
+};
+
+export type InvokeWebhook = (params: InvokeWebhookParams) => Promise<void>;
+
 export type InsideFunctionSpecifics = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
@@ -328,6 +356,7 @@ export type InsideFunctionSpecifics = {
 	deleteTmpDir: () => Promise<void>;
 	getCurrentFunctionName: () => string;
 	getCurrentMemorySizeInMb: () => number;
+	invokeWebhook: InvokeWebhook;
 };
 
 export type FullClientSpecifics<Provider extends CloudProvider> = {

@@ -1,33 +1,13 @@
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
-import {beforeAll, beforeEach, describe, expect, mock, test} from 'bun:test';
+import {beforeAll, describe, expect, test} from 'bun:test';
 import path from 'path';
 import {VERSION} from 'remotion/version';
-import {mockableHttpClients} from '../../functions/http-client';
-import {mockImplementation} from '../mock-implementation';
-
-const originalFetch = mockableHttpClients.http;
-beforeEach(() => {
-	// @ts-expect-error
-	mockableHttpClients.http = mock(
-		(
-			_url: string,
-			_options: unknown,
-			cb: (a: {statusCode: number}) => void,
-		) => {
-			cb({
-				statusCode: 201,
-			});
-			return {
-				on: () => undefined,
-				end: () => undefined,
-			};
-		},
-	);
-	return () => {
-		mockableHttpClients.http = originalFetch;
-	};
-});
+import {
+	getWebhookCalls,
+	mockImplementation,
+	resetWebhookCalls,
+} from '../mock-implementation';
 
 beforeAll(async () => {
 	await ensureBrowser();
@@ -37,13 +17,14 @@ beforeAll(async () => {
 });
 
 const TEST_URL = 'http://localhost:8000';
+const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
 
 describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 		process.env.AWS_LAMBDA_FUNCTION_NAME = 'remotion-dev-lambda';
 
-		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
+		resetWebhookCalls();
 
 		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 			binariesDirectory: null,
@@ -138,28 +119,36 @@ describe('Webhooks', () => {
 			timeoutInTest: 120000,
 		});
 
-		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
-		expect(mockableHttpClients.http).toHaveBeenCalledWith(
-			TEST_URL,
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-Remotion-Signature': expect.stringContaining('sha512='),
-					'X-Remotion-Status': 'success',
-					'X-Remotion-Mode': 'production',
-					'Content-Length': expect.any(Number),
-				},
-				timeout: 5000,
+		const webhookCalls = getWebhookCalls();
+
+		expect(webhookCalls.length).toBe(1);
+		expect(webhookCalls[0].options.url).toBe(TEST_URL);
+		const {payload} = webhookCalls[0].options;
+		if (payload.type !== 'success') {
+			throw new Error(`Expected success, got ${payload.type}`);
+		}
+
+		const {
+			expectedBucketOwner,
+			timeToFinish,
+			renderId,
+			costs,
+			...testablePayload
+		} = payload;
+		expect(testablePayload).toEqual({
+			type: 'success',
+			bucketName: 'remotionlambda-eucentral1-abcdef',
+			customData: {
+				customID: 123,
 			},
-			expect.anything(),
-		);
+			outputUrl: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
+			lambdaErrors: [],
+			outputFile: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
+		});
 		await close();
 	});
 
 	test('Should call webhook upon timeout', async () => {
-		const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
-
 		// Maybe this can use simulateLambdaRender instead
 		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 			binariesDirectory: null,
@@ -172,6 +161,8 @@ describe('Webhooks', () => {
 			remotionRoot: path.dirname(exampleBuild),
 			forceIPv4: false,
 		});
+
+		resetWebhookCalls();
 
 		await mockImplementation.callFunctionSync({
 			functionName: 'remotion-dev-lambda',
@@ -238,22 +229,19 @@ describe('Webhooks', () => {
 		await new Promise((resolve) => {
 			setTimeout(resolve, 2000);
 		});
-		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
-		expect(mockableHttpClients.http).toHaveBeenCalledWith(
-			TEST_URL,
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-Remotion-Mode': 'production',
-					'X-Remotion-Signature': expect.stringContaining('sha512='),
-					'X-Remotion-Status': 'timeout',
-					'Content-Length': 84,
-				},
-				timeout: 5000,
+
+		const webhookCalls = getWebhookCalls();
+
+		expect(webhookCalls.length).toBe(1);
+		expect(webhookCalls[0].options.payload).toEqual({
+			type: 'timeout',
+			renderId: 'abc',
+			expectedBucketOwner: '124',
+			bucketName: 'abc',
+			customData: {
+				customID: 123,
 			},
-			expect.anything(),
-		);
+		});
 		await close();
 	});
 });

@@ -10,13 +10,13 @@ import {rendererHandler} from './handlers/renderer';
 import {startHandler} from './handlers/start';
 import {stillHandler} from './handlers/still';
 import {infoHandler} from './info';
-import type {WebhookClient} from './invoke-webhook';
 import {getWarm, setWarm} from './is-warm';
 import {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {
 	InsideFunctionSpecifics,
 	ProviderSpecifics,
+	WebhookClient,
 } from './provider-implementation';
 import type {OrError} from './return-values';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
@@ -59,6 +59,10 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	setWarm();
 
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
+	if (!currentUserId) {
+		throw new Error('Expected current user ID');
+	}
+
 	if (params.type === ServerlessRoutines.still) {
 		providerSpecifics.validateDeleteAfter(params.deleteAfter);
 		const renderId = insideFunctionSpecifics.generateRandomId({
