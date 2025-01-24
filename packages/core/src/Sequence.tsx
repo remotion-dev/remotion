@@ -29,6 +29,7 @@ export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
 	premountFor?: number;
 	style?: React.CSSProperties;
+	styleWhilePremounted?: React.CSSProperties;
 	className?: string;
 };
 
@@ -281,7 +282,13 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const {style: passedStyle, from = 0, premountFor = 0, ...otherProps} = props;
+	const {
+		style: passedStyle,
+		from = 0,
+		premountFor = 0,
+		styleWhilePremounted,
+		...otherProps
+	} = props;
 
 	const premountingActive = frame < from && frame >= from - premountFor;
 
@@ -292,8 +299,9 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			pointerEvents: premountingActive
 				? 'none'
 				: (passedStyle?.pointerEvents ?? undefined),
+			...(premountingActive ? styleWhilePremounted : {}),
 		};
-	}, [premountingActive, passedStyle]);
+	}, [passedStyle, premountingActive, styleWhilePremounted]);
 
 	return (
 		<Freeze frame={from} active={premountingActive}>
