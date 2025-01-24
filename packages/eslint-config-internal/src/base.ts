@@ -195,6 +195,7 @@ export const rules = ({
 					'@remotion/*/dist/*',
 					'remotion/src/*',
 					'remotion/dist/*',
+					'!@remotion/promo-pages/dist/*',
 				],
 			},
 		],
