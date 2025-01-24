@@ -87,8 +87,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			files
 				.filter((p) => p.key.startsWith(input.prefix))
 				.map((file) => {
-					const size =
-						typeof file.content === 'string' ? file.content.length : 0;
+					const size = file.content.byteLength;
 					return {
 						Key: file.key,
 						ETag: 'etag',
@@ -118,15 +117,11 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			throw new Error(`no file ${key}`);
 		}
 
-		if (typeof file.content === 'string') {
-			return Promise.resolve(Readable.from(Buffer.from(file.content)));
-		}
-
-		return Promise.resolve(file.content);
+		return Promise.resolve(Readable.from(Buffer.from(file.content)));
 	},
-	writeFile: ({body, bucketName, key, privacy, region}) => {
-		writeMockS3File({
-			body: body as string,
+	writeFile: async ({body, bucketName, key, privacy, region}) => {
+		await writeMockS3File({
+			body,
 			bucketName,
 			key,
 			privacy,

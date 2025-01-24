@@ -8,6 +8,7 @@ import {
 	mockImplementation,
 	resetWebhookCalls,
 } from '../mock-implementation';
+import {waitUntilDone} from './wait-until-done';
 
 beforeAll(async () => {
 	await ensureBrowser();
@@ -100,23 +101,8 @@ test('Should call webhook upon completion', async () => {
 		region: 'us-east-1',
 		timeoutInTest: 120000,
 	});
-	const parsed = res;
 
-	await mockImplementation.callFunctionSync({
-		type: ServerlessRoutines.status,
-		payload: {
-			type: ServerlessRoutines.status,
-			bucketName: parsed.bucketName,
-			renderId: parsed.renderId,
-			version: VERSION,
-			logLevel: 'info',
-			forcePathStyle: false,
-			s3OutputProvider: null,
-		},
-		functionName: 'remotion-dev-lambda',
-		region: 'us-east-1',
-		timeoutInTest: 120000,
-	});
+	await waitUntilDone(res.bucketName, res.renderId);
 
 	const webhookCalls = getWebhookCalls();
 

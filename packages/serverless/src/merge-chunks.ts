@@ -91,7 +91,6 @@ export const mergeChunksAndFinishRender = async <
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
 
 	const outputSize = fs.statSync(outfile).size;
-	console.log({outputSize, outfile});
 
 	const writeToBucket = options.insideFunctionSpecifics.timer(
 		`Writing to bucket (${outputSize} bytes)`,
