@@ -75,6 +75,7 @@ const VideoAppsShowcase: React.FC = () => {
 							.play()
 							.then(() => {})
 							.catch((error) => {
+								// eslint-disable-next-line no-console
 								console.error('Playback error:', error);
 							});
 					}
@@ -116,6 +117,7 @@ const VideoAppsShowcase: React.FC = () => {
 								.play()
 								.then(() => {})
 								.catch((error) => {
+									// eslint-disable-next-line no-console
 									console.error('Playback error:', error);
 								});
 						}
@@ -150,6 +152,7 @@ const VideoAppsShowcase: React.FC = () => {
 						})
 						.catch((error) => {
 							// Auto-play was prevented or there was an error
+							// eslint-disable-next-line no-console
 							console.error('Playback error:', error);
 						});
 				}

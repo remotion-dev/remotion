@@ -33,6 +33,7 @@ const MuxVideoForward: React.ForwardRefRenderFunction<
 				hls.loadSource(vidUrl);
 				hls.attachMedia(current);
 			} else {
+				// eslint-disable-next-line no-console
 				console.error("This is a legacy browser that doesn't support MSE");
 			}
 		}
@@ -57,6 +58,7 @@ export const NewMuxVideo: React.FC<{
 			playbackId={muxId}
 			poster={'https://image.mux.com/' + muxId + '/thumbnail.png?time=1'}
 			onError={(error) => {
+				// eslint-disable-next-line no-console
 				console.log(error);
 			}}
 			onLoaded={() => undefined}

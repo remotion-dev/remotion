@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
-		"lint": "tsc",
+		"lint": "tsc && eslint src",
 		"dev": "vite"
 	},
 	"type": "module",

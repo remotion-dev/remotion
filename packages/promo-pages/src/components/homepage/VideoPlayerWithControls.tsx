@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable react/require-default-props */
 import Hls from 'hls.js';
 import type Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
@@ -96,6 +98,7 @@ export const VideoPlayerWithControls = forwardRef<
 					onLoaded();
 				} else {
 					onLoaded();
+
 					console.error('Error getting img dimensions', event);
 				}
 			},

@@ -58,6 +58,7 @@ export const Demo: React.FC = () => {
 				setData(d);
 			})
 			.catch((err) => {
+				// eslint-disable-next-line no-console
 				console.log(err);
 				setError(true);
 			});
