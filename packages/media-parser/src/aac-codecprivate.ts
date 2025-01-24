@@ -110,11 +110,20 @@ export const createAacCodecPrivate = ({
 	audioObjectType,
 	sampleRate,
 	channelConfiguration,
+	codecPrivate,
 }: {
 	audioObjectType: number;
 	sampleRate: number;
 	channelConfiguration: number;
+	codecPrivate: Uint8Array | null;
 }) => {
+	if (codecPrivate !== null && codecPrivate.length > 2) {
+		// Video submitted
+		// submitted by Yossi Elkrief
+		// TOOD: Check if we are now parsing correctly
+		return codecPrivate;
+	}
+
 	const bits = `${audioObjectType.toString(2).padStart(5, '0')}${getConfigForSampleRate(sampleRate).toString(2).padStart(4, '0')}${channelConfiguration.toString(2).padStart(4, '0')}000`;
 	if (bits.length !== 16) {
 		throw new Error('Invalid AAC codec private ' + bits.length);
@@ -135,14 +144,40 @@ export const parseAacCodecPrivate = (bytes: Uint8Array) => {
 		throw new Error('Invalid AAC codec private length');
 	}
 
-	const bits = `${bytes[0].toString(2).padStart(8, '0')}${bytes[1].toString(2).padStart(8, '0')}`;
-	if (bits.length !== 16) {
-		throw new Error('Invalid AAC codec private bits length');
+	const bits = [...bytes].map((b) => b.toString(2).padStart(8, '0')).join('');
+
+	let offset = 0;
+	const audioObjectType = parseInt(bits.slice(offset, offset + 5), 2);
+	offset += 5;
+
+	const samplingFrequencyIndex = parseInt(bits.slice(offset, offset + 4), 2);
+	offset += 4;
+
+	if (samplingFrequencyIndex === 0xf) {
+		offset += 24;
 	}
 
-	const audioObjectType = parseInt(bits.slice(0, 5), 2);
-	const samplingFrequencyIndex = parseInt(bits.slice(5, 9), 2);
-	const channelConfiguration = parseInt(bits.slice(9, 13), 2);
+	const channelConfiguration = parseInt(bits.slice(offset, offset + 4), 2);
+	offset += 4;
+
+	if (audioObjectType === 5) {
+		const extensionSamplingFrequencyIndex = parseInt(
+			bits.slice(offset, offset + 4),
+			2,
+		);
+		offset += 4;
+
+		const newAudioObjectType = parseInt(bits.slice(offset, offset + 5), 2);
+		offset += 5;
+
+		return {
+			audioObjectType: newAudioObjectType,
+			sampleRate: getSampleRateFromSampleFrequencyIndex(
+				extensionSamplingFrequencyIndex,
+			),
+			channelConfiguration,
+		};
+	}
 
 	const sampleRate = getSampleRateFromSampleFrequencyIndex(
 		samplingFrequencyIndex,

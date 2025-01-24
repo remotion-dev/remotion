@@ -36,6 +36,6 @@ export const getActualDecoderParameters = ({
 	return {
 		numberOfChannels: parsed.channelConfiguration,
 		sampleRate: parsed.sampleRate,
-		codecPrivate: createAacCodecPrivate(parsed),
+		codecPrivate: createAacCodecPrivate({...parsed, codecPrivate}),
 	};
 };

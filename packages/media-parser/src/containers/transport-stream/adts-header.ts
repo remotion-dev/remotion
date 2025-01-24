@@ -41,6 +41,7 @@ export const readAdtsHeader = (buffer: Uint8Array) => {
 		audioObjectType,
 		sampleRate,
 		channelConfiguration,
+		codecPrivate: null,
 	});
 	iterator.getBits(1); // originality
 	iterator.getBits(1); // home

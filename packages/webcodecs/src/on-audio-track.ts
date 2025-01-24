@@ -139,6 +139,7 @@ export const makeAudioTrackHandler =
 						audioObjectType: 2,
 						sampleRate: track.sampleRate,
 						channelConfiguration: track.numberOfChannels,
+						codecPrivate: null,
 					})
 				: null;
 
