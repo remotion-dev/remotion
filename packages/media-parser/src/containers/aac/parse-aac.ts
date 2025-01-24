@@ -41,6 +41,7 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 		audioObjectType,
 		sampleRate,
 		channelConfiguration,
+		codecPrivate: null,
 	});
 	iterator.getBits(1); // originality
 	iterator.getBits(1); // home
