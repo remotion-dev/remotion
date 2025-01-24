@@ -198,6 +198,8 @@ export const callFunctionWithStreamingImplementation = async <
 		if (
 			!(err as Error).message.includes(INVALID_JSON_MESSAGE) &&
 			!(err as Error).message.includes(LAMBDA_STREAM_STALL) &&
+			// https://discord.com/channels/809501355504959528/1332166561242288220/1332166561242288220
+			!(err as Error).message.includes('Runtime.TruncatedResponse') &&
 			!(err as Error).message.includes('aborted')
 		) {
 			throw err;
