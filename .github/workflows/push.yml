@@ -68,11 +68,10 @@ jobs:
       - uses: ruby/setup-ruby@master
         with:
           ruby-version: "3.1"
-      - name: Setup PHP with PHPUnit
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
-          tools: phpunit:10.1.3
+          php-version: "8.4"
       - run: pip install pylint boto3 pytest
       - name: Turbo Cache
         uses: actions/cache@v3.0.11

@@ -1,5 +1,6 @@
 import {LambdaInternals} from '@remotion/lambda';
-import {describe, expect, test} from 'bun:test';
+import {$} from 'bun';
+import {beforeAll, describe, expect, test} from 'bun:test';
 import {execSync} from 'child_process';
 import {readFileSync, writeFileSync} from 'fs';
 import path from 'path';
@@ -10,6 +11,12 @@ const referenceVersion = readFileSync(
 );
 const referenceVersionJson = JSON.parse(referenceVersion);
 const version = referenceVersionJson.version;
+
+beforeAll(async () => {
+	await $`php composer.phar update --quiet --lock`.cwd(
+		path.join(process.cwd(), '..', 'lambda-php'),
+	);
+});
 
 describe('These should run serially', () => {
 	test('Set the right version for phpunit', () => {
@@ -61,7 +68,7 @@ class Semantic
 		execSync('php composer.phar --quiet install', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
-		const phpOutput = execSync('phpunit ./tests/PHPClientTest.php', {
+		const phpOutput = execSync('php phpunit.phar ./tests/PHPClientTest.php', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
 		const output = phpOutput.toString().split('\n');
@@ -130,9 +137,12 @@ class Semantic
 		execSync('php composer.phar --quiet install', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
-		const phpOutput = execSync('phpunit ./tests/PHPRenderProgressTest.php', {
-			cwd: path.join(process.cwd(), '..', 'lambda-php'),
-		});
+		const phpOutput = execSync(
+			'php phpunit.phar ./tests/PHPRenderProgressTest.php',
+			{
+				cwd: path.join(process.cwd(), '..', 'lambda-php'),
+			},
+		);
 		const output = phpOutput.toString().split('\n');
 		const toParse = output[5];
 		const nativeVersion = LambdaInternals.getRenderProgressPayload({
