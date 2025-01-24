@@ -38,6 +38,9 @@ jobs:
         timeout-minutes: 12
         run: |
           pnpm run testlambda
+      - name: Ensure Lambda browser
+        run: |
+          cd packages/lambda && bunx remotion browser ensure
       - name: IT Tests
         run: |
           cd packages/it-tests && bun test src/lambda src/cloudrun --run
