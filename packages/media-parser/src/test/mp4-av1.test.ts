@@ -21,6 +21,7 @@ test('mp4-av1', async () => {
 				audioCodec: true,
 				videoCodec: true,
 			},
+			logLevel: 'trace',
 			reader: nodeReader,
 			onVideoTrack: () => {
 				return (sample) => {
