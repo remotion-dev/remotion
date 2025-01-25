@@ -1,7 +1,7 @@
 import type {MetadataEntry} from '../../metadata/get-metadata';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import type {WavList, WavStructure} from './types';
+import type {WavList} from './types';
 
 export const parseList = ({
 	state,
@@ -36,9 +36,9 @@ export const parseList = ({
 		metadata,
 	};
 
-	(state.structure.getStructure() as WavStructure).boxes.push(wavList);
+	state.getWavStructure().boxes.push(wavList);
 
 	box.expectNoMoreBytes();
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

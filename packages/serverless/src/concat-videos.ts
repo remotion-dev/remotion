@@ -8,7 +8,7 @@ import {
 	canConcatVideoSeamlessly,
 } from './can-concat-seamlessly';
 import {
-	REMOTION_CONCATED_TOKEN,
+	REMOTION_CONCATENATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
 	type ServerlessCodec,
 } from './constants';
@@ -52,7 +52,7 @@ export const concatVideos = async ({
 	insideFunctionSpecifics: InsideFunctionSpecifics;
 }) => {
 	const outfile = join(
-		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
+		RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN),
 		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
 	);
 	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);

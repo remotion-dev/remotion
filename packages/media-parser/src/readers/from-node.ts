@@ -4,7 +4,7 @@ import {Readable} from 'stream';
 import type {ReaderInterface} from './reader';
 
 export const nodeReader: ReaderInterface = {
-	read: (src, range, signal) => {
+	read: ({src, range, signal}) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `nodeReader`');
 		}

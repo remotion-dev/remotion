@@ -104,6 +104,7 @@ export const ConvertForm: React.FC<{
 							<AudioTrackLabel
 								trackId={track.trackId}
 								totalAudioTracks={supportedConfigs.audioTrackOptions.length}
+								audioCodec={track.audioCodec}
 							/>
 							<AudioCodecSelection
 								index={getAudioOperationId(

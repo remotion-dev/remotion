@@ -1,9 +1,10 @@
-import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type https from 'https';
 import * as Crypto from 'node:crypto';
-import type http from 'node:http';
 import type {AfterRenderCost} from './constants';
+import type {
+	InvokeWebhook,
+	InvokeWebhookOptions,
+} from './provider-implementation';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export function calculateSignature(payload: string, secret: string | null) {
@@ -53,22 +54,6 @@ export type WebhookPayload =
 // Don't handle 304 status code (Not Modified) as a redirect,
 // since the browser will display the right page.
 const redirectStatusCodes = [301, 302, 303, 307, 308];
-
-export type WebhookClient = (
-	url: string,
-) => (
-	url: string | URL,
-	options: https.RequestOptions,
-	callback?: (res: http.IncomingMessage) => void,
-) => http.ClientRequest;
-
-type InvokeWebhookOptions = {
-	payload: WebhookPayload;
-	url: string;
-	secret: string | null;
-	redirectsSoFar: number;
-	client: WebhookClient;
-};
 
 function invokeWebhookRaw({
 	payload,
@@ -152,12 +137,12 @@ function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
 
-export const invokeWebhook = async (
-	options: InvokeWebhookOptions,
-	logLevel: LogLevel,
+export const invokeWebhook: InvokeWebhook = async ({
+	options,
+	logLevel,
 	retries = 2,
 	errors = 0,
-): Promise<void> => {
+}) => {
 	try {
 		await invokeWebhookRaw(options);
 	} catch (err) {
@@ -181,6 +166,11 @@ export const invokeWebhook = async (
 			}, exponentialBackoff(errors));
 		});
 
-		return invokeWebhook(options, logLevel, retries - 1, errors + 1);
+		return invokeWebhook({
+			options,
+			logLevel,
+			retries: retries - 1,
+			errors: errors + 1,
+		});
 	}
 };

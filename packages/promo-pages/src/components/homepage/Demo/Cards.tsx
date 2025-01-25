@@ -107,6 +107,7 @@ export const Cards: React.FC<{
 
 				return (
 					<Card
+						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						onUpdate={onUpdate}
 						// @ts-expect-error

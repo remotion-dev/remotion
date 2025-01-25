@@ -2,6 +2,7 @@ import type {InsideFunctionSpecifics} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoopImplementation,
 	getBrowserInstanceImplementation,
+	invokeWebhook,
 } from '@remotion/serverless';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
 import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
@@ -25,4 +26,5 @@ export const serverAwsImplementation: InsideFunctionSpecifics = {
 	getCurrentMemorySizeInMb: () => {
 		return Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE);
 	},
+	invokeWebhook,
 };

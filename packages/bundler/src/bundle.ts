@@ -305,6 +305,9 @@ export const internalBundle = async (
 		}),
 		installedDependencies: null,
 		packageManager: 'unknown',
+		// Actual log level is set in setPropsAndEnv()
+		logLevel: 'info',
+		mode: 'bundle',
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

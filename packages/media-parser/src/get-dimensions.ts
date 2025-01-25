@@ -16,7 +16,7 @@ export type ExpandedDimensions = Dimensions & {
 export const getDimensions = (
 	state: ParserState,
 ): ExpandedDimensions | null => {
-	const structure = state.structure.getStructureOrNull();
+	const structure = state.getStructureOrNull();
 	if (structure && isAudioStructure(structure)) {
 		return null;
 	}
@@ -38,7 +38,7 @@ export const getDimensions = (
 };
 
 export const hasDimensions = (state: ParserState): boolean => {
-	const structure = state.structure.getStructureOrNull();
+	const structure = state.getStructureOrNull();
 	if (structure && isAudioStructure(structure)) {
 		return true;
 	}

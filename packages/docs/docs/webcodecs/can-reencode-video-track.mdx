@@ -36,6 +36,8 @@ for (const track of tracks.videoTracks) {
   await canReencodeVideoTrack({
     track,
     videoCodec: 'vp8',
+    resizeOperation: null,
+    rotate: null,
   });
 }
 ```

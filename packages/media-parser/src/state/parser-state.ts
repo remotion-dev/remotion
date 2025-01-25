@@ -1,7 +1,14 @@
-import type {BufferIterator} from '../buffer-iterator';
+import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
-import type {LogLevel} from '../log';
-import type {Options, ParseMediaFields} from '../options';
+import {Log, type LogLevel} from '../log';
+import type {
+	OnDiscardedData,
+	Options,
+	ParseMediaFields,
+	ParseMediaMode,
+	ParseMediaSrc,
+} from '../options';
+import type {ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
@@ -9,6 +16,7 @@ import {flacState} from './flac-state';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
+import {eventLoopState} from './last-eventloop-break';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
@@ -32,26 +40,35 @@ export const makeParserState = ({
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	signal,
-	iterator,
 	fields,
 	onAudioTrack,
 	onVideoTrack,
-	supportsContentRange,
 	contentLength,
 	logLevel,
+	mode,
+	src,
+	readerInterface,
+	onDiscardedData,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	signal: AbortSignal | undefined;
-	iterator: BufferIterator;
 	fields: Options<ParseMediaFields>;
-	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
-	contentLength: number | null;
+	contentLength: number;
 	logLevel: LogLevel;
+	mode: ParseMediaMode;
+	src: ParseMediaSrc;
+	readerInterface: ReaderInterface;
+	onDiscardedData: OnDiscardedData | null;
 }) => {
 	let skippedBytes: number = 0;
+
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		contentLength,
+	);
 
 	const increaseSkippedBytes = (bytes: number) => {
 		skippedBytes += bytes;
@@ -63,6 +80,17 @@ export const makeParserState = ({
 	const slowDurationAndFps = slowDurationAndFpsState();
 	const mp3Info = makeMp3State();
 	const images = imagesState();
+
+	const discardReadBytes = async (force: boolean) => {
+		const {bytesRemoved, removedData} = iterator.removeBytesRead(force, mode);
+		if (bytesRemoved) {
+			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+		}
+
+		if (removedData && onDiscardedData) {
+			await onDiscardedData(removedData);
+		}
+	};
 
 	return {
 		riff: riffSpecificState(),
@@ -89,10 +117,9 @@ export const makeParserState = ({
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		keyframes,
-		structure,
+		...structure,
 		onAudioTrack,
 		onVideoTrack,
-		supportsContentRange,
 		emittedFields,
 		fields,
 		slowDurationAndFps,
@@ -101,6 +128,12 @@ export const makeParserState = ({
 		videoSection: videoSectionState(),
 		logLevel,
 		iterator,
+		signal,
+		mode,
+		eventLoop: eventLoopState(logLevel),
+		src,
+		readerInterface,
+		discardReadBytes,
 	};
 };
 

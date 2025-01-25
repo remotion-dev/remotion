@@ -2,7 +2,7 @@ import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
 import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
-	getMoofBox,
+	getMoofBoxes,
 	getMoovBox,
 	getMvhdBox,
 } from './containers/iso-base-media/traversal';
@@ -53,17 +53,14 @@ export const isMatroska = (boxes: AnySegment[]) => {
 };
 
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
-	const structure = parserState.structure.getStructure();
-	if (structure.type !== 'iso-base-media') {
-		throw new Error('Expected iso-base-media');
-	}
+	const structure = parserState.getIsoStructure();
 
-	const moovBox = getMoovBox(structure.boxes);
+	const moovBox = getMoovBox(parserState);
 	if (!moovBox) {
 		return null;
 	}
 
-	const moofBox = getMoofBox(structure.boxes);
+	const moofBoxes = getMoofBoxes(structure.boxes);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -86,10 +83,10 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	];
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack(
-			t.trakBox as TrakBox,
-			moofBox,
-		);
+		const samplePositions = getSamplePositionsFromTrack({
+			trakBox: t.trakBox as TrakBox,
+			moofBoxes,
+		});
 
 		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
@@ -101,7 +98,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 };
 
 export const getDuration = (parserState: ParserState): number | null => {
-	const structure = parserState.structure.getStructure();
+	const structure = parserState.getStructure();
 	if (structure.type === 'matroska') {
 		return getDurationFromMatroska(structure.boxes);
 	}

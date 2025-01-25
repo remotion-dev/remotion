@@ -1,9 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
-import type {RiffResult} from './expect-riff-box';
 import type {RiffStructure, StrhBox} from './riff-box';
 import {getStrhBox, getStrlBoxes} from './traversal';
 
@@ -40,10 +38,7 @@ export const handleChunk = async ({
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
 		const trackId = parseInt(videoChunk[1], 10);
-		const strh = getStrhForIndex(
-			state.structure.getStructure() as RiffStructure,
-			trackId,
-		);
+		const strh = getStrhForIndex(state.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -56,9 +51,9 @@ export const handleChunk = async ({
 
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
-		if (avcProfile && ppsProfile) {
+		if (avcProfile && ppsProfile && !state.riff.getAvcProfile()) {
 			await state.riff.onProfile({pps: ppsProfile, sps: avcProfile});
-			state.callbacks.tracks.setIsDone();
+			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 
 		// We must also NOT pass a duration because if the the next sample is 0,
@@ -88,10 +83,7 @@ export const handleChunk = async ({
 	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
 	if (audioChunk) {
 		const trackId = parseInt(audioChunk[1], 10);
-		const strh = getStrhForIndex(
-			state.structure.getStructure() as RiffStructure,
-			trackId,
-		);
+		const strh = getStrhForIndex(state.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -127,31 +119,14 @@ export const handleChunk = async ({
 };
 
 export const parseMovi = async ({
-	maxOffset,
 	state,
 }: {
-	maxOffset: number;
 	state: ParserState;
-}): Promise<RiffResult> => {
-	if (
-		maySkipVideoData({
-			state,
-		}) &&
-		state.riff.getAvcProfile()
-	) {
-		return {
-			box: null,
-			skipTo: maxOffset,
-		};
-	}
-
+}): Promise<void> => {
 	const {iterator} = state;
 
 	if (iterator.bytesRemaining() < 8) {
-		return {
-			box: null,
-			skipTo: null,
-		};
+		return Promise.resolve();
 	}
 
 	const checkpoint = iterator.startCheckpoint();
@@ -160,13 +135,13 @@ export const parseMovi = async ({
 
 	if (iterator.bytesRemaining() < ckSize) {
 		checkpoint.returnToCheckpoint();
-		return {
-			box: null,
-			skipTo: null,
-		};
+		return Promise.resolve();
 	}
 
 	await handleChunk({state, ckId, ckSize});
+
+	const videoSection = state.videoSection.getVideoSection();
+	const maxOffset = videoSection.start + videoSection.size;
 
 	// Discard added zeroes
 	while (
@@ -178,9 +153,4 @@ export const parseMovi = async ({
 			break;
 		}
 	}
-
-	return {
-		box: null,
-		skipTo: null,
-	};
 };

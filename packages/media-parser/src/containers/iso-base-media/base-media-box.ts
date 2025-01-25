@@ -35,10 +35,7 @@ export interface RegularBox extends BaseBox {
 	type: 'regular-box';
 }
 
-export type BoxAndNext = {
-	box: IsoBaseMediaBox | null;
-	skipTo: number | null;
-};
+export type BoxAndNext = IsoBaseMediaBox | null;
 
 export type IsoBaseMediaBox =
 	| RegularBox

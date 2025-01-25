@@ -6,17 +6,12 @@ import {processFinalStreamBuffers} from './process-stream-buffers';
 export const parseTransportStream = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'transport-stream') {
-		throw new Error('Invalid structure type');
-	}
+	const structure = state.getTsStructure();
 
 	const {iterator} = state;
 
 	if (iterator.bytesRemaining() < 188) {
-		return Promise.resolve({
-			skipTo: null,
-		});
+		return Promise.resolve(null);
 	}
 
 	const packet = await parsePacket({
@@ -34,7 +29,5 @@ export const parseTransportStream = async (
 		});
 	}
 
-	return Promise.resolve({
-		skipTo: null,
-	});
+	return Promise.resolve(null);
 };

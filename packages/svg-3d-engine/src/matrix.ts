@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {ThreeDReducedInstruction} from './3d-svg';
+import {truthy} from './truthy';
 
 export const stride = function ({
 	v,
@@ -155,9 +156,10 @@ export const multiplyMatrices = (
 };
 
 export const reduceMatrices = (
-	matrices: MatrixTransform4D[],
+	matrices: (MatrixTransform4D | null)[],
 ): MatrixTransform4D => {
 	return matrices
+		.filter(truthy)
 		.slice()
 		.reverse()
 		.reduce((acc, cur) => {
@@ -220,6 +222,14 @@ export const interpolateMatrix4d = (
 export const scaled = function (value: number | Vector) {
 	const vec: Vector = typeof value === 'number' ? [value, value, value] : value;
 	return stride({v: vec, m: identity4(), width: 4, offset: 0, colStride: 1});
+};
+
+export const scaleX = (x: number) => {
+	return scaled([x, 1, 1]);
+};
+
+export const scaleY = (y: number) => {
+	return scaled([1, y, 1]);
 };
 
 const rotatedUnitSinCos = function (

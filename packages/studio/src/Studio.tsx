@@ -31,6 +31,7 @@ export const Studio: React.FC<{
 
 	return (
 		<Internals.RemotionRoot
+			logLevel={window.remotion_logLevel}
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
 		>
 			<EditorContexts readOnlyStudio={readOnly}>

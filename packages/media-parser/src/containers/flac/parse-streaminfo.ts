@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {registerTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import type {FlacStreamInfo, FlacStructure} from './types';
+import type {FlacStreamInfo} from './types';
 
 export const parseStreamInfo = async ({
 	iterator,
@@ -40,7 +40,7 @@ export const parseStreamInfo = async ({
 		totalSamples,
 	};
 
-	(state.structure.getStructure() as FlacStructure).boxes.push(flacStreamInfo);
+	state.getFlacStructure().boxes.push(flacStreamInfo);
 
 	await registerTrack({
 		container: 'flac',
@@ -59,7 +59,7 @@ export const parseStreamInfo = async ({
 		},
 	});
 
-	state.callbacks.tracks.setIsDone();
+	state.callbacks.tracks.setIsDone(state.logLevel);
 
-	return Promise.resolve({skipTo: null});
+	return Promise.resolve(null);
 };

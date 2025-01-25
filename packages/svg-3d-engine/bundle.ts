@@ -20,3 +20,4 @@ const text = await file.text();
 await Bun.write('dist/esm/index.mjs', text);
 
 export {};
+console.log('Generated.');

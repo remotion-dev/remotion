@@ -7,10 +7,7 @@ export const parseRiffHeader = (state: ParserState): ParseResult => {
 		throw new Error('Not a RIFF file');
 	}
 
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'riff') {
-		throw new Error('Structure is not a RIFF structure');
-	}
+	const structure = state.getRiffStructure();
 
 	const size = state.iterator.getUint32Le();
 	const fileType = state.iterator.getByteString(4, false);
@@ -20,7 +17,5 @@ export const parseRiffHeader = (state: ParserState): ParseResult => {
 
 	structure.boxes.push({type: 'riff-header', fileSize: size, fileType});
 
-	return {
-		skipTo: null,
-	};
+	return null;
 };

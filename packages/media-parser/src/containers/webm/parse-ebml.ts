@@ -157,7 +157,7 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'Tracks') {
-		state.callbacks.tracks.setIsDone();
+		state.callbacks.tracks.setIsDone(state.logLevel);
 	}
 
 	if (ebml.type === 'TrackEntry') {

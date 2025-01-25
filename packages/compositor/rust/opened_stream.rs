@@ -313,103 +313,113 @@ impl OpenedStream {
             // but it'll still work!
             let res = self.video.send_packet(&packet);
             if res.is_err() {
+                if res.err().unwrap().to_string().contains("Resource temporarily unavailable") {
+                    _print_verbose(&format!("Need to send another packet"))?;
+
+                }
                 _print_verbose(&format!("Error sending packet: {}", res.err().unwrap()))?;
             }
 
-            let result = self.receive_frame();
+            loop {
+                let result = self.receive_frame();
 
-            match result {
-                Ok(Some(unfiltered)) => {
-                    _print_verbose(&format!("received frame {}", tone_mapped))?;
+                match result {
+                    Ok(Some(unfiltered)) => {
+                        _print_verbose(&format!("received frame {}", tone_mapped))?;
 
-                    let frame_cache_id = get_frame_cache_id();
+                        let frame_cache_id = get_frame_cache_id();
 
-                    let mut size: u128 = 0;
+                        let mut size: u128 = 0;
 
-                    let amount_of_planes = unfiltered.planes();
-                    for i in 0..amount_of_planes {
-                        size += unfiltered.data(i).len() as u128;
-                    }
+                        let amount_of_planes = unfiltered.planes();
+                        for i in 0..amount_of_planes {
+                            size += unfiltered.data(i).len() as u128;
+                        }
 
-                    let frame = NotRgbFrame {
-                        original_height: self.original_height,
-                        original_width: self.original_width,
-                        scaled_height: self.scaled_height,
-                        scaled_width: self.scaled_width,
-                        rotate: self.rotation,
-                        original_src: self.original_src.clone(),
-                        size,
-                        unscaled_frame: unfiltered.clone(),
-                        tone_mapped,
-                        filter_graph: self.filter_graph,
-                        colorspace: unfiltered.color_space(),
-                        src_range: unfiltered.color_range(),
-                    };
-
-                    let previous_pts = match freshly_seeked || self.last_position.is_none() {
-                        true => None,
-                        false => Some(self.last_position.unwrap()),
-                    };
-                    let item = FrameCacheItem {
-                        resolved_pts: unfiltered.pts().expect("expected pts"),
-                        frame: ScalableFrame::new(frame, self.transparent),
-                        id: frame_cache_id,
-                        asked_time: target_position,
-                        last_used: get_time(),
-                        previous_pts,
-                    };
-
-                    self.last_position = Some(unfiltered.pts().expect("expected pts"));
-                    freshly_seeked = false;
-                    FrameCacheManager::get_instance()
-                        .get_frame_cache(
-                            &self.src,
-                            &self.original_src,
-                            self.transparent,
+                        let frame = NotRgbFrame {
+                            original_height: self.original_height,
+                            original_width: self.original_width,
+                            scaled_height: self.scaled_height,
+                            scaled_width: self.scaled_width,
+                            rotate: self.rotation,
+                            original_src: self.original_src.clone(),
+                            size,
+                            unscaled_frame: unfiltered.clone(),
                             tone_mapped,
-                        )
-                        .lock()?
-                        .add_item(item);
+                            filter_graph: self.filter_graph,
+                            colorspace: unfiltered.color_space(),
+                            src_range: unfiltered.color_range(),
+                        };
 
-                    items_in_loop += 1;
+                        let previous_pts = match freshly_seeked || self.last_position.is_none() {
+                            true => None,
+                            false => Some(self.last_position.unwrap()),
+                        };
+                        let item = FrameCacheItem {
+                            resolved_pts: unfiltered.pts().expect("expected pts"),
+                            frame: ScalableFrame::new(frame, self.transparent),
+                            id: frame_cache_id,
+                            asked_time: target_position,
+                            last_used: get_time(),
+                            previous_pts,
+                        };
 
-                    if items_in_loop % 10 == 0 {
-                        match maximum_frame_cache_size_in_bytes {
-                            Some(cache_size) => {
-                                ffmpeg::keep_only_latest_frames(cache_size)?;
+                        self.last_position = Some(unfiltered.pts().expect("expected pts"));
+                        freshly_seeked = false;
+                        FrameCacheManager::get_instance()
+                            .get_frame_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                tone_mapped,
+                            )
+                            .lock()?
+                            .add_item(item);
+
+                        items_in_loop += 1;
+
+
+                        
+                        if items_in_loop % 10 == 0 {
+                            match maximum_frame_cache_size_in_bytes {
+                                Some(cache_size) => {
+                                    ffmpeg::keep_only_latest_frames(cache_size)?;
+                                }
+                                None => {}
                             }
+                        }
+
+                        match stop_after_n_diverging_pts {
+                            Some(stop) => match last_frame_received {
+                                Some(last_frame) => {
+                                    let prev_difference = (last_frame.pts - target_position).abs();
+                                    let new_difference =
+                                        (unfiltered.pts().expect("pts") - target_position).abs();
+
+                                    if new_difference >= prev_difference {
+                                        stop_after_n_diverging_pts = Some(stop - 1);
+                                    } else if prev_difference > new_difference {
+                                        // Fixing test video crazy1.mp4, frames 240-259
+                                        stop_after_n_diverging_pts =
+                                            Some((stop + 1).min(MAX_DIVERGING_SEEK));
+                                    }
+                                }
+                                None => {}
+                            },
                             None => {}
                         }
+
+                        last_frame_received = Some(LastFrameInfo {
+                            index: frame_cache_id,
+                            pts: unfiltered.pts().expect("pts"),
+                        });
                     }
-
-                    match stop_after_n_diverging_pts {
-                        Some(stop) => match last_frame_received {
-                            Some(last_frame) => {
-                                let prev_difference = (last_frame.pts - target_position).abs();
-                                let new_difference =
-                                    (unfiltered.pts().expect("pts") - target_position).abs();
-
-                                if new_difference >= prev_difference {
-                                    stop_after_n_diverging_pts = Some(stop - 1);
-                                } else if prev_difference > new_difference {
-                                    // Fixing test video crazy1.mp4, frames 240-259
-                                    stop_after_n_diverging_pts =
-                                        Some((stop + 1).min(MAX_DIVERGING_SEEK));
-                                }
-                            }
-                            None => {}
-                        },
-                        None => {}
+                    Ok(None) => {
+                        break;
                     }
-
-                    last_frame_received = Some(LastFrameInfo {
-                        index: frame_cache_id,
-                        pts: unfiltered.pts().expect("pts"),
-                    });
-                }
-                Ok(None) => {}
-                Err(err) => {
-                    return Err(err);
+                    Err(err) => {
+                        return Err(err);
+                    }
                 }
             }
         }

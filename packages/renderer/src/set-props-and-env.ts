@@ -63,63 +63,63 @@ const innerSetPropsAndEnv = async ({
 		window.process.env.NODE_ENV = 'production';
 	}, actualTimeout);
 
-	await page.evaluateOnNewDocument((input: string) => {
-		window.remotion_inputProps = input;
-	}, serializedInputPropsWithCustomSchema);
-
 	if (envVariables) {
 		await page.evaluateOnNewDocument((input: string) => {
 			window.remotion_envVariables = input;
 		}, JSON.stringify(envVariables));
 	}
 
-	await page.evaluateOnNewDocument((key: number) => {
-		window.remotion_initialFrame = key;
-	}, initialFrame);
+	await page.evaluateOnNewDocument(
+		(
+			input: string,
+			key: number,
+			port: number,
+			audEnabled: boolean,
+			vidEnabled: boolean,
+			level: LogLevel,
+			// eslint-disable-next-line max-params
+		) => {
+			window.remotion_inputProps = input;
+			window.remotion_initialFrame = key;
+			window.remotion_attempt = 1;
+			window.remotion_proxyPort = port;
+			window.remotion_audioEnabled = audEnabled;
+			window.remotion_videoEnabled = vidEnabled;
+			window.remotion_logLevel = level;
 
-	await page.evaluateOnNewDocument(() => {
-		window.remotion_attempt = 1;
-	});
+			window.alert = (message) => {
+				if (message) {
+					window.window.remotion_cancelledError = new Error(
+						`alert("${message}") was called. It cannot be called in a headless browser.`,
+					).stack;
+				} else {
+					window.window.remotion_cancelledError = new Error(
+						'alert() was called. It cannot be called in a headless browser.',
+					).stack;
+				}
+			};
 
-	await page.evaluateOnNewDocument((port: number) => {
-		window.remotion_proxyPort = port;
-	}, proxyPort);
+			window.confirm = (message) => {
+				if (message) {
+					window.remotion_cancelledError = new Error(
+						`confirm("${message}") was called. It cannot be called in a headless browser.`,
+					).stack;
+				} else {
+					window.remotion_cancelledError = new Error(
+						'confirm() was called. It cannot be called in a headless browser.',
+					).stack;
+				}
 
-	await page.evaluateOnNewDocument((enabled: boolean) => {
-		window.remotion_audioEnabled = enabled;
-	}, audioEnabled);
-
-	await page.evaluateOnNewDocument((enabled: boolean) => {
-		window.remotion_videoEnabled = enabled;
-	}, videoEnabled);
-
-	await page.evaluateOnNewDocument(() => {
-		window.alert = (message) => {
-			if (message) {
-				window.window.remotion_cancelledError = new Error(
-					`alert("${message}") was called. It cannot be called in a headless browser.`,
-				).stack;
-			} else {
-				window.window.remotion_cancelledError = new Error(
-					'alert() was called. It cannot be called in a headless browser.',
-				).stack;
-			}
-		};
-
-		window.confirm = (message) => {
-			if (message) {
-				window.remotion_cancelledError = new Error(
-					`confirm("${message}") was called. It cannot be called in a headless browser.`,
-				).stack;
-			} else {
-				window.remotion_cancelledError = new Error(
-					'confirm() was called. It cannot be called in a headless browser.',
-				).stack;
-			}
-
-			return false;
-		};
-	});
+				return false;
+			};
+		},
+		serializedInputPropsWithCustomSchema,
+		initialFrame,
+		proxyPort,
+		audioEnabled,
+		videoEnabled,
+		logLevel,
+	);
 
 	const retry = async () => {
 		await new Promise<void>((resolve) => {

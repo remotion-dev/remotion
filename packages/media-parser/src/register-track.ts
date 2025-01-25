@@ -1,5 +1,6 @@
 import {addAvcProfileToTrack} from './add-avc-profile-to-track';
 import type {Track, VideoTrack} from './get-tracks';
+import {Log} from './log';
 import type {MediaParserContainer} from './options';
 import type {ParserState} from './state/parser-state';
 
@@ -12,6 +13,16 @@ export const registerTrack = async ({
 	track: Track;
 	container: MediaParserContainer;
 }) => {
+	if (
+		state.callbacks.tracks.getTracks().find((t) => t.trackId === track.trackId)
+	) {
+		Log.trace(
+			state.logLevel,
+			`Track ${track.trackId} already registered, skipping`,
+		);
+		return;
+	}
+
 	if (track.type === 'video') {
 		state.callbacks.tracks.addTrack(track);
 		if (state.onVideoTrack) {

@@ -3,7 +3,6 @@ import type {
 	Primaries,
 	TransferCharacteristics,
 } from './containers/avc/color';
-import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import {makeBaseMediaTrack} from './containers/iso-base-media/make-track';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
@@ -25,7 +24,6 @@ import {
 import {getTracksFromMatroska} from './containers/webm/get-ready-tracks';
 import type {MatroskaSegment} from './containers/webm/segments';
 import {getMainSegment, getTracksSegment} from './containers/webm/traversal';
-import type {IsoBaseMediaStructure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 type SampleAspectRatio = {
@@ -52,6 +50,7 @@ export type MediaParserAudioCodec =
 	| 'opus'
 	| 'aac'
 	| 'mp3'
+	| 'ac3'
 	| 'vorbis'
 	| 'pcm-u8'
 	| 'pcm-s16'
@@ -113,21 +112,12 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	return mvHdBox.nextTrackId - 1;
 };
 
-export const isoBaseMediaHasTracks = (structure: IsoBaseMediaStructure) => {
-	const moovBox = getMoovBox(structure.boxes);
-
-	if (!moovBox) {
-		return false;
-	}
-
-	const numberOfTracks = getNumberOfTracks(moovBox);
-	const tracks = getTraks(moovBox);
-
-	return tracks.length === numberOfTracks;
+export const isoBaseMediaHasTracks = (state: ParserState) => {
+	return Boolean(getMoovBox(state));
 };
 
 export const getHasTracks = (state: ParserState): boolean => {
-	const structure = state.structure.getStructure();
+	const structure = state.getStructure();
 	if (structure.type === 'matroska') {
 		const mainSegment = getMainSegment(structure.boxes);
 		if (!mainSegment) {
@@ -138,7 +128,7 @@ export const getHasTracks = (state: ParserState): boolean => {
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return isoBaseMediaHasTracks(structure);
+		return isoBaseMediaHasTracks(state);
 	}
 
 	if (structure.type === 'riff') {
@@ -203,12 +193,12 @@ const getTracksFromMa = (
 	};
 };
 
-export const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
+export const getTracksFromIsoBaseMedia = (state: ParserState) => {
 	const videoTracks: VideoTrack[] = [];
 	const audioTracks: AudioTrack[] = [];
 	const otherTracks: OtherTrack[] = [];
 
-	const moovBox = getMoovBox(segments);
+	const moovBox = getMoovBox(state);
 	if (!moovBox) {
 		return {
 			videoTracks,
@@ -242,13 +232,13 @@ export const getTracksFromIsoBaseMedia = (segments: IsoBaseMediaBox[]) => {
 };
 
 export const getTracks = (state: ParserState): AllTracks => {
-	const structure = state.structure.getStructure();
+	const structure = state.getStructure();
 	if (structure.type === 'matroska') {
 		return getTracksFromMa(structure.boxes, state);
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getTracksFromIsoBaseMedia(structure.boxes);
+		return getTracksFromIsoBaseMedia(state);
 	}
 
 	if (structure.type === 'riff') {

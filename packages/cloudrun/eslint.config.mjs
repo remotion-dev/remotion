@@ -9,17 +9,6 @@ export default [
 		rules: {
 			...config.rules,
 			'no-console': 'error',
-			'no-restricted-imports': [
-				'error',
-				{
-					patterns: [
-						'@remotion/*/src/*',
-						'@remotion/renderer/*/src/*',
-						'@remotion/cli/*/src/*',
-						'remotion/src/*',
-					],
-				},
-			],
 		},
 	},
 	{

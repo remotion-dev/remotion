@@ -21,14 +21,5 @@ export default [
 	{
 		...config,
 		files: ['src/test/**'],
-		rules: {
-			...config.rules,
-			'no-restricted-imports': [
-				'error',
-				{
-					patterns: ['@remotion/*/src/*', 'remotion/src/*'],
-				},
-			],
-		},
 	},
 ];

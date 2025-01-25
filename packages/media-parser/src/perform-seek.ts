@@ -1,44 +1,34 @@
-import type {BufferIterator} from './buffer-iterator';
-import type {LogLevel} from './log';
 import {Log} from './log';
+import type {ParseMediaSrc} from './options';
 import type {Reader, ReaderInterface} from './readers/reader';
+import type {ParserState} from './state/parser-state';
 
 export const performSeek = async ({
 	seekTo,
-	iterator,
-	supportsContentRange,
-	logLevel,
+	state,
 	currentReader,
 	readerInterface,
 	src,
-	signal,
-	contentLength,
 }: {
 	seekTo: number;
-	iterator: BufferIterator;
-	supportsContentRange: boolean;
-	logLevel: LogLevel;
+	state: ParserState;
 	currentReader: Reader;
 	readerInterface: ReaderInterface;
-	src: string | Blob;
-	signal: AbortSignal | undefined;
-	contentLength: number;
+	src: ParseMediaSrc;
 }): Promise<Reader> => {
-	const skippingAhead = seekTo > iterator.counter.getOffset();
-	if (!skippingAhead && !supportsContentRange) {
+	const {iterator, logLevel, signal, mode, contentLength} = state;
+
+	if (seekTo <= iterator.counter.getOffset()) {
 		throw new Error(
-			'Content-Range header is not supported by the reader, but was asked to seek',
+			`Seeking backwards is not supported. Current position: ${iterator.counter.getOffset()}, seekTo: ${seekTo}`,
 		);
 	}
 
-	if (seekTo > contentLength) {
+	if (seekTo > state.contentLength) {
 		throw new Error(`Unexpected seek: ${seekTo} > ${contentLength}`);
 	}
 
-	if (
-		skippingAhead &&
-		iterator.counter.getOffset() + iterator.bytesRemaining() >= seekTo
-	) {
+	if (iterator.counter.getOffset() + iterator.bytesRemaining() >= seekTo) {
 		Log.verbose(
 			logLevel,
 			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Data already fetched`,
@@ -47,10 +37,10 @@ export const performSeek = async ({
 		return currentReader;
 	}
 
-	if (skippingAhead && !supportsContentRange) {
+	if (mode === 'download') {
 		Log.verbose(
 			logLevel,
-			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Fetching but not reading all the data inbetween because Content-Range is not supported`,
+			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Fetching but not reading all the data inbetween because in download mode`,
 		);
 		iterator.discard(seekTo - iterator.counter.getOffset());
 		return currentReader;
@@ -63,8 +53,14 @@ export const performSeek = async ({
 	);
 	currentReader.abort();
 
-	const {reader: newReader} = await readerInterface.read(src, seekTo, signal);
+	const {reader: newReader} = await readerInterface.read({
+		src,
+		range: seekTo,
+		signal,
+	});
 	iterator.skipTo(seekTo);
+	await state.discardReadBytes(true);
+
 	Log.verbose(
 		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,

@@ -1,4 +1,3 @@
-import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {truthy} from '../../truthy';
 import type {AllTracks} from '../riff/get-tracks-from-avi';
@@ -7,8 +6,7 @@ import {findProgramMapTableOrThrow} from './traversal';
 export const getTracksFromTransportStream = (
 	parserState: ParserState,
 ): AllTracks => {
-	const structure =
-		parserState.structure.getStructure() as TransportStreamStructure;
+	const structure = parserState.getTsStructure();
 	const programMapTable = findProgramMapTableOrThrow(structure);
 	const parserTracks = parserState.callbacks.tracks.getTracks();
 

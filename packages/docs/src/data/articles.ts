@@ -2385,6 +2385,15 @@ export const articles = [
 		slug: 'media-fragments',
 	},
 	{
+		id: 'download-and-parse-media',
+		title: 'downloadAndParseMedia()',
+		relativePath: 'docs/media-parser/download-and-parse-media.mdx',
+		compId: 'articles-docs-media-parser-download-and-parse-media',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/download-and-parse-media',
+	},
+	{
 		id: 'fast-and-slow',
 		title: 'Fast and slow operations',
 		relativePath: 'docs/media-parser/fast-and-slow.mdx',
@@ -4993,6 +5002,15 @@ export const articles = [
 		crumb: 'Troubleshooting',
 		noAi: false,
 		slug: 'troubleshooting/sigkill',
+	},
+	{
+		id: 'troubleshooting/subpixel-rendering',
+		title: 'Text subpixel rendering',
+		relativePath: 'docs/troubleshooting/subpixel-rendering.mdx',
+		compId: 'articles-docs-troubleshooting-subpixel-rendering',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/subpixel-rendering',
 	},
 	{
 		id: 'troubleshooting/timed-out-page-function',

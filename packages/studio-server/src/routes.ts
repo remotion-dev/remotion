@@ -56,6 +56,7 @@ const handleFallback = async ({
 	getRenderDefaults,
 	numberOfAudioTags,
 	gitSource,
+	logLevel,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -67,6 +68,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
 	gitSource: GitSource | null;
+	logLevel: LogLevel;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
@@ -104,6 +106,8 @@ const handleFallback = async ({
 			installedDependencies,
 			packageManager:
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
+			logLevel,
+			mode: 'dev',
 		}),
 	);
 };
@@ -427,5 +431,6 @@ export const handleRoutes = ({
 		getRenderDefaults,
 		numberOfAudioTags,
 		gitSource,
+		logLevel,
 	});
 };

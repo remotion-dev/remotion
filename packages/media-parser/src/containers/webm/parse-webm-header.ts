@@ -4,10 +4,7 @@ import {expectSegment} from './segments';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
-	const structure = state.structure.getStructure();
-	if (structure.type !== 'matroska') {
-		throw new Error('Invalid structure type');
-	}
+	const structure = state.getMatroskaStructure();
 
 	const {iterator} = state;
 
@@ -19,9 +16,7 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 		isInsideSegment,
 	});
 	if (results === null) {
-		return {
-			skipTo: null,
-		};
+		return null;
 	}
 
 	if (isInsideCluster) {
@@ -52,7 +47,5 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 		structure.boxes.push(results);
 	}
 
-	return {
-		skipTo: null,
-	};
+	return null;
 };

@@ -1,44 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import path from 'path';
-import {VERSION} from 'remotion/version';
 import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
 import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
 import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
 import {mockImplementation} from '../mock-implementation';
+import {waitUntilDone} from './wait-until-done';
 
 const functionName = 'remotion-dev-render';
-
-const waitUntilDone = async (bucketName: string, renderId: string) => {
-	while (true) {
-		const progress = await mockImplementation.callFunctionSync({
-			type: ServerlessRoutines.status,
-			payload: {
-				type: ServerlessRoutines.status,
-				bucketName,
-				renderId,
-				version: VERSION,
-				logLevel: 'error',
-				forcePathStyle: false,
-				s3OutputProvider: null,
-			},
-			functionName: 'remotion-dev-lambda',
-			region: 'eu-central-1',
-			timeoutInTest: 120000,
-		});
-		if (progress.done) {
-			return progress;
-		}
-
-		if (progress.fatalErrorEncountered) {
-			throw new Error(progress.errors.join('\n'));
-		}
-
-		await new Promise((resolve) => {
-			setTimeout(resolve, 1000);
-		});
-	}
-};
 
 export const simulateLambdaRender = async (
 	input: Omit<RenderMediaOnLambdaInput, 'serveUrl' | 'functionName'>,

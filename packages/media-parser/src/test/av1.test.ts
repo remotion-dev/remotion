@@ -1,6 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getMoovBox, getTraks} from '../containers/iso-base-media/traversal';
+import {getTraks} from '../containers/iso-base-media/traversal';
 import {trakBoxContainsVideo} from '../get-fps';
 import {getAv1CBox} from '../get-sample-aspect-ratio';
 import {parseMedia} from '../parse-media';
@@ -28,8 +28,10 @@ if (process.platform !== 'win32') {
 			throw new Error('Not an ISO base media file');
 		}
 
-		const moovBox = getMoovBox(parsed.structure.boxes);
-		if (!moovBox) {
+		const {structure} = parsed;
+
+		const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
+		if (!moovBox || moovBox.type !== 'moov-box') {
 			throw new Error('No moov box');
 		}
 
@@ -86,8 +88,14 @@ if (process.platform !== 'win32') {
 			throw new Error('Not an ISO base media file');
 		}
 
-		const moovBox = getMoovBox(parsed.structure.boxes);
-		if (!moovBox) {
+		const {structure} = parsed;
+
+		if (structure.type !== 'iso-base-media') {
+			throw new Error('Expected iso-base-media');
+		}
+
+		const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
+		if (!moovBox || moovBox.type !== 'moov-box') {
 			throw new Error('No moov box');
 		}
 
