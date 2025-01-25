@@ -1,3 +1,5 @@
+import {uploadWithProgress} from './upload-with-progress';
+
 export const handleDrop = async (file: File) => {
 	const presignedResponse = await fetch('https://www.remotion.pro/api/upload', {
 		method: 'POST',
@@ -10,5 +12,13 @@ export const handleDrop = async (file: File) => {
 		},
 	});
 	const json = await presignedResponse.json();
-	console.log(json);
+	const {presignedUrl, readUrl} = json;
+
+	await uploadWithProgress({
+		file,
+		url: presignedUrl,
+		onProgress: (uploadProgress) => {
+			console.log(uploadProgress);
+		},
+	});
 };
