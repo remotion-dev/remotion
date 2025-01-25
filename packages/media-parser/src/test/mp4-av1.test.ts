@@ -22,7 +22,8 @@ test('mp4-av1', async () => {
 				videoCodec: true,
 			},
 			reader: nodeReader,
-			onVideoTrack: () => {
+			onVideoTrack: ({track}) => {
+				expect(track.codec).toBe('av01.0.13M.08.0.110.06.01.06.0');
 				return (sample) => {
 					expect(Math.floor(sample.duration ?? 0)).toBe(16666);
 					expect(sample.cts).toBeGreaterThanOrEqual(lastSampleTime);
