@@ -32,11 +32,16 @@ export const parseMdatSection = async (
 		return parseMdatSection(state);
 	}
 
-	if (!state.iso.flatSamples.getSamples()) {
-		state.iso.flatSamples.setSamples(calculateFlatSamples(state));
+	if (!state.iso.flatSamples.getSamples(videoSection.start)) {
+		state.iso.flatSamples.setSamples(
+			videoSection.start,
+			calculateFlatSamples(state),
+		);
 	}
 
-	const flatSamples = state.iso.flatSamples.getSamples() as FlatSample[];
+	const flatSamples = state.iso.flatSamples.getSamples(
+		videoSection.start,
+	) as FlatSample[];
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {
