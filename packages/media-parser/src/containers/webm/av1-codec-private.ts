@@ -33,7 +33,7 @@ export const parseAv1PrivateData = (
 	const seq_tier_0 = iterator.getBits(1);
 	// Level
 	// The level parameter value SHALL equal the first level value indicated by seq_level_idx in the Sequence Header OBU
-	str += seq_level_idx.toString(16).padStart(2, '0');
+	str += String(seq_level_idx).padStart(2, '0');
 	str += seq_tier_0 ? 'H' : 'M';
 	str += '.';
 
