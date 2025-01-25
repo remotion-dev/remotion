@@ -42,16 +42,11 @@ export const getMoovBox = (state: ParserState): MoovBox | null => {
 	return moovBox;
 };
 
-export const getMoofBox = (main: AnySegment[]): IsoBaseMediaBox | null => {
-	const moofBox = main.find(
+export const getMoofBoxes = (main: AnySegment[]): IsoBaseMediaBox[] => {
+	const moofBoxes = main.filter(
 		(s) => s.type === 'regular-box' && s.boxType === 'moof',
 	);
-
-	if (!moofBox || moofBox.type !== 'regular-box') {
-		return null;
-	}
-
-	return moofBox;
+	return moofBoxes as IsoBaseMediaBox[];
 };
 
 export const getMvhdBox = (moovBox: MoovBox): MvhdBox | null => {

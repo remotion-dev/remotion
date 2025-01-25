@@ -1,6 +1,6 @@
 import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from '../../containers/iso-base-media/trak/trak';
-import {getMoofBox} from '../../containers/iso-base-media/traversal';
+import {getMoofBoxes} from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
@@ -21,10 +21,10 @@ export const calculateFlatSamples = (state: ParserState) => {
 
 	const flatSamples = allTracks
 		.map((track) => {
-			const samplePositions = getSamplePositionsFromTrack(
-				track.trakBox as TrakBox,
-				getMoofBox(state.getIsoStructure().boxes),
-			);
+			const samplePositions = getSamplePositionsFromTrack({
+				trakBox: track.trakBox as TrakBox,
+				moofBoxes: getMoofBoxes(state.getIsoStructure().boxes),
+			});
 			if (!samplePositions) {
 				throw new Error('No sample positions');
 			}
@@ -41,14 +41,18 @@ export const calculateFlatSamples = (state: ParserState) => {
 };
 
 export const cachedSamplePositionsState = () => {
-	let cached: FlatSample[] | null = null;
+	const cachedForMdatStar: Record<string, FlatSample[]> = {};
 
 	return {
-		getSamples: () => {
-			return cached;
+		getSamples: (mdatStart: number) => {
+			if (cachedForMdatStar[mdatStart]) {
+				return cachedForMdatStar[mdatStart];
+			}
+
+			return null;
 		},
-		setSamples: (samples: FlatSample[]) => {
-			cached = samples;
+		setSamples: (mdatStart: number, samples: FlatSample[]) => {
+			cachedForMdatStar[mdatStart] = samples;
 		},
 	};
 };

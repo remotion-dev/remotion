@@ -16,10 +16,13 @@ import {
 	getTkhdBox,
 } from './traversal';
 
-export const getSamplePositionsFromTrack = (
-	trakBox: TrakBox,
-	moofBox: IsoBaseMediaBox | null,
-): SamplePosition[] => {
+export const getSamplePositionsFromTrack = ({
+	trakBox,
+	moofBoxes,
+}: {
+	trakBox: TrakBox;
+	moofBoxes: IsoBaseMediaBox[];
+}): SamplePosition[] => {
 	const isLpcm = isLpcmAudioCodec(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
@@ -68,8 +71,12 @@ export const getSamplePositionsFromTrack = (
 		cttsBox,
 	});
 
-	if (samplePositions.length === 0 && moofBox) {
-		samplePositions = getSamplesFromMoof({moofBox, trackId: tkhdBox.trackId});
+	if (samplePositions.length === 0 && moofBoxes.length > 0) {
+		samplePositions = moofBoxes
+			.map((m) => {
+				return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
+			})
+			.flat(1);
 	}
 
 	return samplePositions;
