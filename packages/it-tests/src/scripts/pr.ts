@@ -34,8 +34,9 @@ const indexOfDiff = bodyIfThereIsOne.indexOf('\ndiff');
 const body = bodyIfThereIsOne.slice(0, indexOfDiff).trim();
 
 await $`git push origin HEAD`;
+
 const output =
-	await $`gh pr create --title "${goodPrTitle.message}" --body "${body ?? ''}"`.nothrow();
+	await $`gh pr create --title "${goodPrTitle.message}" --body "${body || goodPrTitle.message}"`.nothrow();
 
 const prLine = new TextDecoder()
 	.decode(output.stderr)
@@ -43,4 +44,7 @@ const prLine = new TextDecoder()
 	.split('\n')
 	.find((line) => line.startsWith('https://'));
 
+if (!prLine) {
+	process.exit(0);
+}
 await $`open ${prLine}`;
