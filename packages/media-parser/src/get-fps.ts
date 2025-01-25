@@ -27,6 +27,10 @@ const calculateFps = ({
 		totalSamples += sample.sampleCount;
 	}
 
+	if (totalSamples === 0) {
+		return null;
+	}
+
 	const durationInSeconds = durationInSamples / timeScale;
 	const fps = totalSamples / durationInSeconds;
 

@@ -2,7 +2,7 @@ import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
 import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
-	getMoofBox,
+	getMoofBoxes,
 	getMoovBox,
 	getMvhdBox,
 } from './containers/iso-base-media/traversal';
@@ -60,7 +60,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return null;
 	}
 
-	const moofBox = getMoofBox(structure.boxes);
+	const moofBoxes = getMoofBoxes(structure.boxes);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -83,10 +83,10 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	];
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack(
-			t.trakBox as TrakBox,
-			moofBox,
-		);
+		const samplePositions = getSamplePositionsFromTrack({
+			trakBox: t.trakBox as TrakBox,
+			moofBoxes,
+		});
 
 		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
