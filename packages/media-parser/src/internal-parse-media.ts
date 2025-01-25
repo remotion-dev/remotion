@@ -276,6 +276,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 			const didProgress = iterator.counter.getOffset() > offsetBefore;
 			if (!didProgress) {
 				iterationWithThisOffset++;
+			} else {
+				iterationWithThisOffset = 0;
 			}
 		}
 
