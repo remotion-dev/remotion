@@ -19,12 +19,8 @@ if (messages.length === 0) {
 	throw new Error('No commits found');
 }
 
-const goodPrTitle = messages.find((message) => message.message.startsWith('`'));
-if (!goodPrTitle) {
-	throw new Error(
-		'Could not find good PR title. Commit something on this branch with the commit message format "`[package-name]`: description"',
-	);
-}
+const goodPrTitle =
+	messages.find((message) => message.message.startsWith('`')) ?? messages[0];
 
 const bodyIfThereIsOne =
 	await $`git show --format=%b ${goodPrTitle.hash}`.text();
