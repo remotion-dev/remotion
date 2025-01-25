@@ -6,7 +6,6 @@ import type {ConvertMediaOnVideoFrame} from './convert-media';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
-import Error from './error-cause';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {getDefaultVideoCodec} from './get-default-video-codec';

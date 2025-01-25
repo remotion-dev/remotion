@@ -1,4 +1,5 @@
 import {emitAvailableInfo} from './emit-available-info';
+import {MediaParserAbortError} from './errors';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
@@ -169,7 +170,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
 		if (signal?.aborted) {
-			throw new Error('Aborted');
+			throw new MediaParserAbortError('Aborted');
 		}
 
 		const offsetBefore = iterator.counter.getOffset();

@@ -7,7 +7,7 @@ import type {
 	MediaParserVideoCodec,
 	TracksField,
 } from '@remotion/media-parser';
-import {MediaParserInternals} from '@remotion/media-parser';
+import {hasBeenAborted, MediaParserInternals} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
@@ -265,7 +265,7 @@ export default function ConvertUI({
 				});
 			})
 			.catch((e) => {
-				if ((e as Error).stack?.toLowerCase()?.includes('aborted')) {
+				if (hasBeenAborted(e)) {
 					setState({type: 'idle'});
 					return;
 				}
