@@ -1,4 +1,3 @@
-import {bundle} from '@remotion/bundler';
 import {
 	RenderInternals,
 	renderMedia,
@@ -6,37 +5,30 @@ import {
 	selectComposition,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {afterAll, beforeAll, expect, test} from 'bun:test';
+import {$} from 'bun';
+import {beforeAll, expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {existsSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
-// @ts-expect-error it does work
-import {webpackOverride} from '../webpack-override.mjs';
-
-let bundled = 'none';
 
 if (process.platform === 'win32') {
 	process.exit(0);
 }
 
-beforeAll(async () => {
-	bundled = await bundle({
-		entryPoint: path.join(process.cwd(), 'src/index.ts'),
-		webpackOverride,
-	});
-});
+const exampleDir = path.join(__dirname, '..', '..');
 
-afterAll(() => {
-	RenderInternals.deleteDirectory(bundled);
+beforeAll(async () => {
+	await $`bunx remotion browser ensure`.cwd(exampleDir);
+	await $`bunx remotion bundle`.cwd(exampleDir);
 });
 
 test(
 	'Can render a still png using Node.JS APIs',
 	async () => {
 		const composition = await selectComposition({
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			id: 'react-svg',
 			inputProps: {},
 		});
@@ -50,7 +42,7 @@ test(
 			renderStill({
 				composition,
 				output: testOut,
-				serveUrl: bundled,
+				serveUrl: path.join(exampleDir, 'build'),
 				frame: 500,
 			}),
 		).rejects.toThrow(
@@ -61,7 +53,7 @@ test(
 			renderStill({
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
-				serveUrl: bundled,
+				serveUrl: path.join(exampleDir, 'build'),
 			}),
 		).rejects.toThrow(/already exists, but is not a file/);
 
@@ -69,7 +61,7 @@ test(
 			renderStill({
 				composition,
 				output: 'src/index.ts',
-				serveUrl: bundled,
+				serveUrl: path.join(exampleDir, 'build'),
 				overwrite: false,
 			}),
 		).rejects.toThrow(
@@ -79,7 +71,7 @@ test(
 		await renderStill({
 			composition,
 			output: testOut,
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			frame: 100,
 		});
 
@@ -100,7 +92,7 @@ test(
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 
 		const composition = await selectComposition({
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			id: 'tiles',
 			inputProps: {},
 		});
@@ -110,7 +102,7 @@ test(
 		await renderStill({
 			composition,
 			output: testOut,
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			frame: 15,
 			imageFormat,
 		});
@@ -128,14 +120,14 @@ test(
 
 test('Bt709 encoding should work', async () => {
 	const composition = await selectComposition({
-		serveUrl: bundled,
+		serveUrl: path.join(exampleDir, 'build'),
 		id: 'green',
 		inputProps: {},
 	});
 
 	const still = await renderStill({
 		composition,
-		serveUrl: bundled,
+		serveUrl: path.join(exampleDir, 'build'),
 	});
 
 	const img = await sharp(still.buffer as Buffer)
@@ -155,7 +147,7 @@ test('Bt709 encoding should work', async () => {
 		codec: 'h264',
 		composition,
 		imageFormat: 'png',
-		serveUrl: bundled,
+		serveUrl: path.join(exampleDir, 'build'),
 		muted: true,
 	});
 
