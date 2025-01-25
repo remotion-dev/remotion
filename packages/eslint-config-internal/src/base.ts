@@ -179,13 +179,25 @@ export const rules = ({
 		'no-buffer-constructor': 'error',
 		'no-restricted-imports': [
 			'error',
-			'domain',
-			'freelist',
-			'smalloc',
-			'punycode',
-			'sys',
-			'querystring',
-			'colors',
+			{
+				paths: [
+					'error',
+					'domain',
+					'freelist',
+					'smalloc',
+					'punycode',
+					'sys',
+					'querystring',
+					'colors',
+				],
+				patterns: [
+					'@remotion/*/src/*',
+					'@remotion/*/dist/*',
+					'remotion/src/*',
+					'remotion/dist/*',
+					'!@remotion/promo-pages/dist/*',
+				],
+			},
 		],
 		'func-name-matching': [
 			'error',

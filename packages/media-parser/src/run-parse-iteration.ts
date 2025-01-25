@@ -18,18 +18,18 @@ export const runParseIteration = async ({
 }: {
 	state: ParserState;
 	mimeType: string | null;
-	contentLength: number | null;
+	contentLength: number;
 	name: string | null;
 }): Promise<ParseResult> => {
 	if (state.iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
 	}
 
-	const structure = state.structure.getStructureOrNull();
+	const structure = state.getStructureOrNull();
 
 	if (structure === null) {
 		await initVideo({state, mimeType, name, contentLength});
-		return {skipTo: null};
+		return null;
 	}
 
 	if (structure.type === 'riff') {

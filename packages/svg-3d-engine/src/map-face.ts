@@ -1,7 +1,5 @@
 import {parsePath, reduceInstructions} from '@remotion/paths';
 import {threeDIntoSvgPath, type ThreeDReducedInstruction} from './3d-svg';
-import type {ThreeDElement} from './elements';
-import {transformElement} from './elements';
 import {turnInto3D} from './fix-z';
 import type {MatrixTransform4D, Vector4D} from './matrix';
 import {multiplyMatrix, multiplyMatrixAndSvgInstruction} from './matrix';
@@ -10,9 +8,6 @@ export type FaceType = {
 	color: string;
 	points: ThreeDReducedInstruction[];
 	centerPoint: Vector4D;
-	strokeWidth: number;
-	strokeColor: string;
-	description: string;
 	crispEdges: boolean;
 };
 
@@ -150,28 +145,15 @@ export const transformFaces = ({
 	});
 };
 
-export const transformElements = (
-	elements: ThreeDElement[],
-	transformations: MatrixTransform4D[],
-) => {
-	return elements.map((element) => {
-		return transformElement(element, transformations);
-	});
-};
-
 export const makeFace = ({
 	points,
-	strokeWidth,
-	strokeColor,
 	fill,
-	description,
 	crispEdges,
 }: {
 	points: string | ThreeDReducedInstruction[];
 	strokeWidth: number;
 	strokeColor: string;
 	fill: string;
-	description: string;
 	crispEdges: boolean;
 }): FaceType => {
 	const centerPoint: Vector4D = [0, 0, 0, 1];
@@ -180,9 +162,6 @@ export const makeFace = ({
 		centerPoint,
 		color: fill,
 		points: typeof points === 'string' ? turnInto3D(parsePath(points)) : points,
-		strokeWidth,
-		strokeColor,
-		description,
 		crispEdges,
 	};
 };

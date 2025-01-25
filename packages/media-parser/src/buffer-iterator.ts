@@ -5,6 +5,7 @@ import {
 	knownIdsWithTwoLength,
 } from './containers/webm/segments/all-segments';
 import {detectFileType} from './file-types';
+import type {ParseMediaMode} from './options';
 
 export class OffsetCounter {
 	#offset: number;
@@ -256,28 +257,31 @@ export const getArrayBufferIterator = (
 		return uintArray.byteLength - counter.getDiscardedOffset();
 	};
 
-	const removeBytesRead = (force: boolean) => {
+	const removeBytesRead = (force: boolean, mode: ParseMediaMode) => {
 		const bytesToRemove = counter.getDiscardedOffset();
 
 		// Only do this operation if it is really worth it 😇
 		// let's set the threshold to 3MB
 		if (bytesToRemove < 3_000_000 && !force) {
-			return;
+			return {bytesRemoved: 0, removedData: null};
 		}
 
 		// Don't remove if the data is not even available
 		if (view.byteLength < bytesToRemove && !force) {
-			return;
+			return {bytesRemoved: 0, removedData: null};
 		}
 
 		counter.discardBytes(bytesToRemove);
+
+		const removedData =
+			mode === 'download' ? uintArray.slice(0, bytesToRemove) : null;
 
 		const newData = uintArray.slice(bytesToRemove);
 		uintArray.set(newData);
 		buf.resize(newData.byteLength);
 		view = new DataView(uintArray.buffer);
 
-		return bytesToRemove;
+		return {bytesRemoved: bytesToRemove, removedData};
 	};
 
 	const skipTo = (offset: number) => {
@@ -285,7 +289,6 @@ export const getArrayBufferIterator = (
 		if (!becomesSmaller) {
 			const currentOffset = counter.getOffset();
 			counter.increment(offset - currentOffset);
-			removeBytesRead(true);
 			return;
 		}
 

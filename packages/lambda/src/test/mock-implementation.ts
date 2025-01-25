@@ -1,11 +1,13 @@
-import {openBrowser} from '@remotion/renderer';
+import {openBrowser, RenderInternals} from '@remotion/renderer';
 import type {
 	FullClientSpecifics,
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
+	InvokeWebhookParams,
 	ProviderSpecifics,
 } from '@remotion/serverless';
-import {Readable} from 'stream';
+import {createReadStream, writeFileSync} from 'fs';
+import path from 'path';
 import {estimatePrice} from '../api/estimate-price';
 import {speculateFunctionName} from '../api/speculate-function-name';
 import {MAX_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
@@ -86,8 +88,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			files
 				.filter((p) => p.key.startsWith(input.prefix))
 				.map((file) => {
-					const size =
-						typeof file.content === 'string' ? file.content.length : 0;
+					const size = file.content.byteLength;
 					return {
 						Key: file.key,
 						ETag: 'etag',
@@ -100,6 +101,7 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		);
 	},
 	deleteFile: ({bucketName, key, region}) => {
+		console.log('deleting file', key, bucketName, region);
 		mockDeleteS3File({
 			bucketName,
 			key,
@@ -117,15 +119,13 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 			throw new Error(`no file ${key}`);
 		}
 
-		if (typeof file.content === 'string') {
-			return Promise.resolve(Readable.from(Buffer.from(file.content)));
-		}
-
-		return Promise.resolve(file.content);
+		const tmp = path.join(RenderInternals.tmpDir('justtest'), 'test');
+		writeFileSync(tmp, file.content);
+		return Promise.resolve(createReadStream(tmp));
 	},
-	writeFile: ({body, bucketName, key, privacy, region}) => {
-		writeMockS3File({
-			body: body as string,
+	writeFile: async ({body, bucketName, key, privacy, region}) => {
+		await writeMockS3File({
+			body,
 			bucketName,
 			key,
 			privacy,
@@ -181,6 +181,8 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	parseFunctionName,
 };
 
+const paramsArray: InvokeWebhookParams[] = [];
+
 export const mockServerImplementation: InsideFunctionSpecifics = {
 	forgetBrowserEventLoop: () => {},
 	getBrowserInstance,
@@ -196,6 +198,18 @@ export const mockServerImplementation: InsideFunctionSpecifics = {
 			timeoutInSeconds: 120,
 		}),
 	getCurrentMemorySizeInMb: () => 3009,
+	invokeWebhook: (params) => {
+		paramsArray.push(params);
+		return Promise.resolve();
+	},
+};
+
+export const resetWebhookCalls = () => {
+	paramsArray.length = 0;
+};
+
+export const getWebhookCalls = () => {
+	return paramsArray;
 };
 
 export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {

@@ -147,6 +147,7 @@ export const mergeChunksAndFinishRender = async <
 
 	options.overallProgress.setPostRenderData(postRenderData);
 
-	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
+	fs.unlinkSync(outfile);
+	await cleanupChunksProm;
 	return postRenderData;
 };

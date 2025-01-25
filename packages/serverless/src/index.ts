@@ -16,7 +16,6 @@ export {infoHandler} from './info';
 export {innerHandler} from './inner-routine';
 export {inspectErrors} from './inspect-error';
 export {
-	WebhookClient,
 	WebhookErrorPayload,
 	WebhookPayload,
 	WebhookSuccessPayload,

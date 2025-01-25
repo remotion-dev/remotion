@@ -1,10 +1,10 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.251",
+	"version": "4.0.252",
 	"private": true,
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
-		"lint": "tsc",
+		"lint": "tsc && eslint src",
 		"dev": "vite"
 	},
 	"type": "module",

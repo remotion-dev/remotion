@@ -1,38 +1,47 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks} from '../../../get-tracks';
+import type {Skip} from '../../../skip';
+import {makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
+import {getMoovAtom} from '../get-moov-atom';
 
 export const parseMdatSection = async (
 	state: ParserState,
-): Promise<number | null> => {
+): Promise<Skip | null> => {
 	const videoSection = state.videoSection.getVideoSection();
+	const endOfMdat = videoSection.size + videoSection.start;
+
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
-		return videoSection.size + videoSection.start;
+		return makeSkip(endOfMdat);
 	}
 
 	const alreadyHas = getHasTracks(state);
 	if (!alreadyHas) {
-		// Will first read the end and then return
-		if (state.supportsContentRange) {
-			state.iso.setShouldReturnToVideoSectionAfterEnd(true);
+		const moov = await getMoovAtom({
+			endOfMdat,
+			state,
+		});
+		state.iso.moov.setMoovBox(moov);
+		state.callbacks.tracks.setIsDone(state.logLevel);
+		state.getIsoStructure().boxes.push(moov);
 
-			return videoSection.size + videoSection.start;
-		}
+		return parseMdatSection(state);
+	}
 
-		throw new Error(
-			'Source does not support reading partially, but metadata is at the end of the file. This would require buffering the entire file in memory, leading to a leak. Remotion does not currently support this scenario, make sure to pass a source that supports Content-Range.',
+	if (!state.iso.flatSamples.getSamples(videoSection.start)) {
+		state.iso.flatSamples.setSamples(
+			videoSection.start,
+			calculateFlatSamples(state),
 		);
 	}
 
-	if (!state.iso.flatSamples.getSamples()) {
-		state.iso.flatSamples.setSamples(calculateFlatSamples(state));
-	}
-
-	const flatSamples = state.iso.flatSamples.getSamples() as FlatSample[];
+	const flatSamples = state.iso.flatSamples.getSamples(
+		videoSection.start,
+	) as FlatSample[];
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {
@@ -55,7 +64,7 @@ export const parseMdatSection = async (
 
 		// guess we reached the end!
 		// iphonevideo.mov has extra padding here, so let's make sure to jump ahead
-		return videoSection.size + videoSection.start;
+		return makeSkip(endOfMdat);
 	}
 
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {

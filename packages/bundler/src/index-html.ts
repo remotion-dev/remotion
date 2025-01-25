@@ -4,7 +4,7 @@ import type {
 	PackageManager,
 	RenderDefaults,
 } from '@remotion/studio-shared';
-import type {StaticFile} from 'remotion';
+import type {LogLevel, StaticFile} from 'remotion';
 import {Internals, VERSION} from 'remotion';
 
 export const indexHtml = ({
@@ -26,6 +26,8 @@ export const indexHtml = ({
 	projectName,
 	installedDependencies,
 	packageManager,
+	logLevel,
+	mode,
 }: {
 	staticHash: string;
 	publicPath: string;
@@ -45,6 +47,8 @@ export const indexHtml = ({
 	projectName: string;
 	installedDependencies: InstallablePackage[] | null;
 	packageManager: PackageManager | 'unknown';
+	logLevel: LogLevel;
+	mode: 'dev' | 'bundle';
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -62,6 +66,7 @@ export const indexHtml = ({
 	</head>
 	<body>
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
+		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
 		<script>window.remotion_staticBase = "${staticHash}";</script>
 		${
 			editorName

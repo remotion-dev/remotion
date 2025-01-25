@@ -1,5 +1,4 @@
 import type {MetadataEntry} from '../../metadata/get-metadata';
-import type {Mp3Structure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 
 function combine28Bits(a: number, b: number, c: number, d: number): number {
@@ -81,7 +80,7 @@ export const parseId3 = ({state}: {state: ParserState}) => {
 		}
 	}
 
-	(state.structure.getStructure() as Mp3Structure).boxes.push({
+	state.getMp3Structure().boxes.push({
 		type: 'id3-header',
 		flags,
 		size,

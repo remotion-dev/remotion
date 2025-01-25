@@ -21,12 +21,12 @@ export const parseListBox = async ({
 	const maxOffset = counter + size;
 
 	while (iterator.counter.getOffset() < maxOffset) {
-		const result = await expectRiffBox(state);
-		if (result.box !== null) {
-			boxes.push(result.box);
-		} else {
+		const box = await expectRiffBox(state);
+		if (box === null) {
 			throw new Error('Unexpected result');
 		}
+
+		boxes.push(box);
 	}
 
 	return {

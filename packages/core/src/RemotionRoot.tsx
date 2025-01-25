@@ -10,6 +10,7 @@ import {EditorPropsProvider} from './EditorProps.js';
 import {BufferingProvider} from './buffering.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {LogLevelContext} from './log-level-context.js';
+import type {LogLevel} from './log.js';
 import type {TNonceContext} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -35,7 +36,8 @@ declare const __webpack_module__: {
 export const RemotionRoot: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
-}> = ({children, numberOfAudioTags}) => {
+	readonly logLevel: LogLevel;
+}> = ({children, numberOfAudioTags, logLevel}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<Record<string, number>>(() =>
 		getInitialFrameState(),
@@ -121,7 +123,7 @@ export const RemotionRoot: React.FC<{
 	}, []);
 
 	return (
-		<LogLevelContext.Provider value={'info'}>
+		<LogLevelContext.Provider value={logLevel}>
 			<NonceContext.Provider value={nonceContext}>
 				<TimelineContext.Provider value={timelineContextValue}>
 					<SetTimelineContext.Provider value={setTimelineContextValue}>

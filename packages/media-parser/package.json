@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.251",
+	"version": "4.0.252",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -38,6 +38,12 @@
 			"module": "./dist/esm/from-node.mjs",
 			"import": "./dist/esm/from-node.mjs"
 		},
+		"./node-writer": {
+			"types": "./dist/writers/node.d.ts",
+			"require": "./dist/writers/node.js",
+			"module": "./dist/esm/node.mjs",
+			"import": "./dist/esm/node.mjs"
+		},
 		"./fetch": {
 			"types": "./dist/readers/from-fetch.d.ts",
 			"require": "./dist/readers/from-fetch.js",
@@ -57,17 +63,14 @@
 			"node": [
 				"dist/readers/from-node.d.ts"
 			],
+			"node-writer": [
+				"dist/writers/node.d.ts"
+			],
 			"fetch": [
 				"dist/readers/from-fetch.d.ts"
 			],
 			"web-file": [
 				"dist/readers/from-web-file.d.ts"
-			],
-			"web-fs": [
-				"dist/writers/web-fs.d.ts"
-			],
-			"buffer": [
-				"dist/writers/buffer.d.ts"
 			]
 		}
 	},
