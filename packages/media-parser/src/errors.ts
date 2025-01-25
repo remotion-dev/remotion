@@ -154,3 +154,17 @@ export class IsAnUnsupportedAudioTypeError extends Error {
 		}
 	}
 }
+
+export class MediaParserAbortError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'MediaParserAbortError';
+		this.cause = undefined;
+	}
+}
+
+export const hasBeenAborted = (
+	error: unknown,
+): error is MediaParserAbortError => {
+	return error instanceof MediaParserAbortError;
+};

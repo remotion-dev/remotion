@@ -1,5 +1,6 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-eq-null */
+import {MediaParserAbortError} from '../errors';
 import type {ReaderInterface} from './reader';
 
 interface ParsedContentRange {
@@ -128,7 +129,7 @@ export const fetchReader: ReaderInterface = {
 		signal?.addEventListener(
 			'abort',
 			() => {
-				controller.abort(new Error('Aborted by user'));
+				controller.abort(new MediaParserAbortError('Aborted by user'));
 			},
 			{once: true},
 		);

@@ -13,14 +13,17 @@ import type {
 	VideoTrack,
 	WriterInterface,
 } from '@remotion/media-parser';
-import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
+import {
+	MediaParserAbortError,
+	parseMedia,
+	type OnVideoTrack,
+} from '@remotion/media-parser';
 
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
 import {withResolversAndWaitForReturn} from './create/with-resolvers';
-import Error from './error-cause';
 import {generateOutputFilename} from './generate-output-filename';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {
@@ -143,7 +146,7 @@ export const convertMedia = async function <
 	};
 
 	const onUserAbort = () => {
-		abortConversion(new Error('Conversion aborted by user'));
+		abortConversion(new MediaParserAbortError('Conversion aborted by user'));
 	};
 
 	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
