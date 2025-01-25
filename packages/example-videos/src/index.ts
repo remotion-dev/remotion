@@ -79,3 +79,5 @@ export const exampleVideos = {
 	unknown: __filename,
 	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
 };
+
+export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';
