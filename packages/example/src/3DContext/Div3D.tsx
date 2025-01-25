@@ -42,26 +42,14 @@ export const ExtrudeDiv: React.FC<{
 	);
 };
 
-export const ThreeDPlane: React.FC<{
-	readonly children: React.ReactNode;
-	readonly width: number;
-	readonly height: number;
-	readonly cornerRadius: number;
-	readonly style?: React.CSSProperties;
-}> = ({children, width, height, cornerRadius, style}) => {
+export const ThreeDiv: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = ({
+	style,
+	...props
+}) => {
 	return (
-		<RectProvider height={height} width={width} cornerRadius={cornerRadius}>
-			<div
-				style={{
-					width,
-					height,
-					position: 'relative',
-					transform: makeMatrix3dTransform(useTransformations()),
-					...style,
-				}}
-			>
-				{children}
-			</div>
-		</RectProvider>
+		<div
+			{...props}
+			style={{...style, transform: makeMatrix3dTransform(useTransformations())}}
+		/>
 	);
 };
