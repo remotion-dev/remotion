@@ -35,7 +35,7 @@ const body = bodyIfThereIsOne.slice(0, indexOfDiff).trim();
 
 await $`git push origin HEAD`;
 const output =
-	await $`gh pr create --title "${goodPrTitle.message}" --body "${body}"`.nothrow();
+	await $`gh pr create --title "${goodPrTitle.message}" --body "${body ?? ''}"`.nothrow();
 
 const prLine = new TextDecoder()
 	.decode(output.stderr)
