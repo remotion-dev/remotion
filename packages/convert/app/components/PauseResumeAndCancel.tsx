@@ -1,10 +1,13 @@
 import type {MediaParserController} from 'node_modules/@remotion/media-parser/src/controller';
 import React, {useCallback, useEffect, useState} from 'react';
+import {useAddPausedToTitle} from '~/lib/title-context';
 import {Button} from './ui/button';
 
 export const PauseResumeAndCancel: React.FC<{
 	readonly controller: MediaParserController;
 }> = ({controller}) => {
+	useAddPausedToTitle(controller);
+
 	const [isPaused, setIsPaused] = useState(false);
 
 	const onClickPause = useCallback(() => {
