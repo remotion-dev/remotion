@@ -39,15 +39,15 @@ export const PauseResumeAndCancel: React.FC<{
 
 	if (isPaused) {
 		return (
-			<>
+			<div className="flex flex-row">
 				<Button className="block w-full" type="button" onClick={onClickResume}>
 					Resume
 				</Button>
-				<div className="h-2" />
+				<div className="w-2" />
 				<Button className="block w-full" type="button" onClick={onClickAbort}>
 					Cancel
 				</Button>
-			</>
+			</div>
 		);
 	}
 
