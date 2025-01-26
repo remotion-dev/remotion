@@ -3,6 +3,7 @@ import React from 'react';
 import {DivExtrusion} from './DivExtrusion';
 import {Face} from './FrontFace';
 import {RectProvider} from './path-context';
+import {BottomSide, TopSide} from './TopSide';
 import {useTransformations} from './transformation-context';
 import {isBacksideVisible} from './viewing-frontside';
 
@@ -13,8 +14,20 @@ export const ExtrudeDiv: React.FC<{
 	readonly depth: number;
 	readonly cornerRadius: number;
 	readonly backFace?: React.ReactNode;
+	readonly topFace?: React.ReactNode;
+	readonly bottomFace?: React.ReactNode;
 	readonly style?: React.CSSProperties;
-}> = ({children, width, height, depth, cornerRadius, backFace, style}) => {
+}> = ({
+	children,
+	width,
+	height,
+	depth,
+	cornerRadius,
+	backFace,
+	style,
+	topFace,
+	bottomFace,
+}) => {
 	const frontFace = isBacksideVisible(useTransformations());
 
 	return (
@@ -37,6 +50,16 @@ export const ExtrudeDiv: React.FC<{
 						{backFace}
 					</Face>
 				)}
+				{topFace ? (
+					<TopSide depth={depth} width={width} height={height}>
+						{topFace}
+					</TopSide>
+				) : null}
+				{bottomFace ? (
+					<BottomSide depth={depth} width={width} height={height}>
+						{bottomFace}
+					</BottomSide>
+				) : null}
 			</div>
 		</RectProvider>
 	);
