@@ -40,6 +40,7 @@ if (process.platform !== 'win32') {
 					audioSamples++;
 				};
 			},
+			acknowledgeRemotionLicense: true,
 		});
 		expect(result.dimensions).toEqual({
 			width: 2160,
@@ -74,6 +75,7 @@ if (process.platform !== 'win32') {
 				internalStats: true,
 			},
 			reader: nodeReader,
+			acknowledgeRemotionLicense: true,
 		});
 		expect(internalStats).toEqual({
 			finalCursorOffset: 39062928,

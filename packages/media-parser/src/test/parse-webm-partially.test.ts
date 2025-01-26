@@ -11,6 +11,7 @@ test('Parse only header of WebM', async () => {
 			internalStats: true,
 			container: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
@@ -30,6 +31,7 @@ test('Parse WebM partially', async () => {
 			sampleRate: true,
 			numberOfAudioChannels: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
@@ -48,6 +50,7 @@ test('Parse WebM fully', async () => {
 			tracks: true,
 			internalStats: true,
 		},
+		acknowledgeRemotionLicense: true,
 		onVideoTrack: () => () => undefined,
 		reader: nodeReader,
 	});

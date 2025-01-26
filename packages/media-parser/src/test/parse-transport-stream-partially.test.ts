@@ -12,6 +12,7 @@ test('Should be able to parse only header of Transport Stream', async () => {
 			name: true,
 			internalStats: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
@@ -35,6 +36,7 @@ test('Should be able to parse only tracks of Transport Stream', async () => {
 			sampleRate: true,
 			numberOfAudioChannels: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 

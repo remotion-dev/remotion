@@ -15,11 +15,12 @@ import type {
 } from '@remotion/media-parser';
 import {
 	MediaParserAbortError,
-	parseMedia,
+	MediaParserInternals,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
 
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
+import {fetchReader} from '@remotion/media-parser/fetch';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
@@ -92,6 +93,33 @@ export const convertMedia = async function <
 	rotate,
 	apiKey,
 	resize,
+	onAudioCodec,
+	onContainer,
+	onDimensions,
+	onDurationInSeconds,
+	onFps,
+	onImages,
+	onInternalStats,
+	onIsHdr,
+	onKeyframes,
+	onLocation,
+	onMetadata,
+	onMimeType,
+	onName,
+	onNumberOfAudioChannels,
+	onRotation,
+	onSampleRate,
+	onSize,
+	onSlowAudioBitrate,
+	onSlowDurationInSeconds,
+	onSlowFps,
+	onSlowKeyframes,
+	onSlowNumberOfFrames,
+	onSlowVideoBitrate,
+	onStructure,
+	onTracks,
+	onUnrotatedDimensions,
+	onVideoCodec,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -220,7 +248,7 @@ export const convertMedia = async function <
 		onAudioData: onAudioData ?? null,
 	});
 
-	parseMedia({
+	MediaParserInternals.internalParseMedia({
 		logLevel,
 		src,
 		onVideoTrack,
@@ -230,7 +258,7 @@ export const convertMedia = async function <
 			...fields,
 			durationInSeconds: true,
 		},
-		reader,
+		reader: reader ?? fetchReader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
 			if (durationInSeconds === null) {
@@ -256,6 +284,39 @@ export const convertMedia = async function <
 				};
 			});
 		},
+		acknowledgeRemotionLicense: true,
+		mode: 'query',
+		onDiscardedData: null,
+		onError: () => ({action: 'fail'}),
+		onParseProgress: null,
+		progressIntervalInMs: null,
+		onAudioCodec: onAudioCodec ?? null,
+		onContainer: onContainer ?? null,
+		onDimensions: onDimensions ?? null,
+		onFps: onFps ?? null,
+		onImages: onImages ?? null,
+		onInternalStats: onInternalStats ?? null,
+		onIsHdr: onIsHdr ?? null,
+		onKeyframes: onKeyframes ?? null,
+		onLocation: onLocation ?? null,
+		onMetadata: onMetadata ?? null,
+		onMimeType: onMimeType ?? null,
+		onName: onName ?? null,
+		onNumberOfAudioChannels: onNumberOfAudioChannels ?? null,
+		onRotation: onRotation ?? null,
+		onSampleRate: onSampleRate ?? null,
+		onSize: onSize ?? null,
+		onSlowAudioBitrate: onSlowAudioBitrate ?? null,
+		onSlowDurationInSeconds: onSlowDurationInSeconds ?? null,
+		onSlowFps: onSlowFps ?? null,
+		onSlowKeyframes: onSlowKeyframes ?? null,
+		onSlowNumberOfFrames: onSlowNumberOfFrames ?? null,
+		onSlowVideoBitrate: onSlowVideoBitrate ?? null,
+		onStructure: onStructure ?? null,
+		onTracks: onTracks ?? null,
+		onUnrotatedDimensions: onUnrotatedDimensions ?? null,
+		onVideoCodec: onVideoCodec ?? null,
+		apiName: 'convertMedia()',
 	})
 		.then(() => {
 			return state.waitForFinish();

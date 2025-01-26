@@ -11,6 +11,7 @@ test('parse colr', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	const trak = structure.boxes

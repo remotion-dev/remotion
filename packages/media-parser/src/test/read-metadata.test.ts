@@ -11,6 +11,7 @@ test('iPhone metadata', async () => {
 			metadata: true,
 			location: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
@@ -100,6 +101,7 @@ test('AVI metadata', async () => {
 		fields: {
 			metadata: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 	expect(metadata).toEqual([
@@ -118,6 +120,7 @@ test('Metadata from Matroska', async () => {
 			metadata: true,
 			structure: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 	expect(metadata).toEqual([
@@ -155,6 +158,7 @@ test('webm Big buck bunny metadata', async () => {
 		fields: {
 			metadata: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 	expect(metadata).toEqual([
@@ -219,6 +223,7 @@ test('mp4 Big buck bunny metadata', async () => {
 			metadata: true,
 			structure: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
