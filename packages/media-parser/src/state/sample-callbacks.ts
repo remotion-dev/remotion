@@ -1,3 +1,4 @@
+import type {ParseMediaController} from '../controller';
 import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
@@ -12,7 +13,7 @@ import type {SlowDurationAndFpsState} from './slow-duration-fps';
 import type {StructureState} from './structure';
 
 export const sampleCallback = ({
-	signal,
+	controller,
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	fields,
@@ -21,7 +22,7 @@ export const sampleCallback = ({
 	slowDurationAndFpsState,
 	structure,
 }: {
-	signal: AbortSignal | undefined;
+	controller: ParseMediaController | undefined;
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;
@@ -66,7 +67,7 @@ export const sampleCallback = ({
 			queuedVideoSamples[id] = [];
 		},
 		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
-			if (signal?.aborted) {
+			if (controller?.signal?.aborted) {
 				throw new Error('Aborted');
 			}
 
@@ -92,7 +93,7 @@ export const sampleCallback = ({
 			return samplesForTrack[trackId] ?? 0;
 		},
 		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
-			if (signal?.aborted) {
+			if (controller?.signal?.aborted) {
 				throw new Error('Aborted');
 			}
 

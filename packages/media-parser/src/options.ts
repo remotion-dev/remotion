@@ -1,3 +1,4 @@
+import type {ParseMediaController} from './controller';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
@@ -259,7 +260,7 @@ export type ParseMediaOnProgress = (
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	reader: ReaderInterface;
-	signal: AbortSignal | undefined;
+	controller: ParseMediaController | undefined;
 	logLevel: LogLevel;
 	onParseProgress: ParseMediaOnProgress | null;
 	progressIntervalInMs: number | null;

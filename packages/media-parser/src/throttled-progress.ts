@@ -1,3 +1,4 @@
+import type {ParseMediaController} from './controller';
 import type {ParseMediaOnProgress, ParseMediaProgress} from './options';
 
 type ReturnType = {
@@ -13,11 +14,11 @@ export type ParseMediaProgressFn = (
 export const throttledStateUpdate = ({
 	updateFn,
 	everyMilliseconds,
-	signal,
+	controller,
 }: {
 	updateFn: ParseMediaOnProgress | null;
 	everyMilliseconds: number;
-	signal: AbortSignal | undefined;
+	controller: ParseMediaController | undefined;
 	totalBytes: number | null;
 }): ReturnType => {
 	let currentState: ParseMediaProgress = {
@@ -53,7 +54,7 @@ export const throttledStateUpdate = ({
 		clearInterval(interval);
 	};
 
-	signal?.addEventListener('abort', onAbort, {once: true});
+	controller?.signal?.addEventListener('abort', onAbort, {once: true});
 
 	return {
 		get: () => currentState,
@@ -62,7 +63,7 @@ export const throttledStateUpdate = ({
 		},
 		stopAndGetLastProgress: () => {
 			clearInterval(interval);
-			signal?.removeEventListener('abort', onAbort);
+			controller?.signal?.removeEventListener('abort', onAbort);
 			return currentState;
 		},
 	};

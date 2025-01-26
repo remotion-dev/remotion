@@ -1,6 +1,7 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {existsSync, statSync, unlinkSync} from 'node:fs';
+import {createController} from '../controller';
 import {downloadAndParseMedia} from '../download-and-parse-media';
 import {nodeReader} from '../readers/from-node';
 import {nodeWriter} from '../writers/node';
@@ -57,7 +58,7 @@ test(
 );
 
 test('should be able to abort the download by throwing an error', () => {
-	const controller = new AbortController();
+	const controller = createController();
 	expect(
 		downloadAndParseMedia({
 			src: 'https://www.w3schools.com/html/mov_bbb.mp4',
@@ -66,14 +67,13 @@ test('should be able to abort the download by throwing an error', () => {
 					throw new Error('Unsupported format');
 				}
 			},
-			signal: controller.signal,
+			controller,
 			writer: nodeWriter('output3.mp4'),
 		}),
 	).rejects.toThrow('Unsupported format');
 });
 
 test('should be able to parse and download video with audio', () => {
-	const controller = new AbortController();
 	expect(
 		downloadAndParseMedia({
 			src: 'https://www.w3schools.com/html/mov_bbb.mp4',
@@ -85,7 +85,6 @@ test('should be able to parse and download video with audio', () => {
 					throw new Error('Unsupported format');
 				}
 			},
-			signal: controller.signal,
 			writer: nodeWriter('output3.mp4'),
 		}),
 	).rejects.toThrow('Unsupported format');
@@ -93,11 +92,11 @@ test('should be able to parse and download video with audio', () => {
 });
 
 test('should be able to continue on error', () => {
-	const controller = new AbortController();
+	const controller = createController();
 	expect(
 		downloadAndParseMedia({
 			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/jkl.gif',
-			signal: controller.signal,
+			controller,
 			writer: nodeWriter('jkl.gif'),
 			onError: () => ({action: 'download'}),
 		}),

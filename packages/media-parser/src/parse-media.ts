@@ -38,7 +38,7 @@ export const parseMedia: ParseMedia = (options) => {
 		onVideoTrack: options.onVideoTrack ?? null,
 		progressIntervalInMs: options.progressIntervalInMs ?? null,
 		reader: options.reader ?? fetchReader,
-		signal: options.signal ?? undefined,
+		controller: options.controller ?? undefined,
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,

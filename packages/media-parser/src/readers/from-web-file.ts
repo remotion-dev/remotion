@@ -1,7 +1,7 @@
 import type {ReaderInterface} from './reader';
 
 export const webFileReader: ReaderInterface = {
-	read: ({src, range, signal}) => {
+	read: ({src, range, controller}) => {
 		if (typeof src === 'string') {
 			throw new Error('`inputTypeFileReader` only supports `File` objects');
 		}
@@ -16,10 +16,10 @@ export const webFileReader: ReaderInterface = {
 		const reader = new FileReader();
 		reader.readAsArrayBuffer(src);
 
-		const controller = new AbortController();
+		const ownController = new AbortController();
 
-		if (controller) {
-			controller.signal.addEventListener(
+		if (ownController) {
+			ownController.signal.addEventListener(
 				'abort',
 				() => {
 					reader.abort();
@@ -28,11 +28,11 @@ export const webFileReader: ReaderInterface = {
 			);
 		}
 
-		if (signal) {
-			signal.addEventListener(
+		if (controller) {
+			controller.signal.addEventListener(
 				'abort',
 				() => {
-					controller.abort();
+					ownController.abort();
 				},
 				{once: true},
 			);
@@ -47,7 +47,7 @@ export const webFileReader: ReaderInterface = {
 						reader: streamReader,
 						abort() {
 							streamReader.cancel();
-							controller.abort();
+							ownController.abort();
 						},
 					},
 					contentLength: src.size,
