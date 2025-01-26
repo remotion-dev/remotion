@@ -6,6 +6,8 @@ export type WebCodecsController = {
 	abort: (reason?: any) => void;
 	pause: ParseMediaController['pause'];
 	resume: ParseMediaController['resume'];
+	addEventListener: ParseMediaController['addEventListener'];
+	removeEventListener: ParseMediaController['removeEventListener'];
 	/**
 	 * @deprecated Not public API
 	 */
@@ -22,6 +24,8 @@ export const webcodecsController = (): WebCodecsController => {
 		abort: controller.abort,
 		pause: controller.pause,
 		resume: controller.resume,
+		addEventListener: controller.addEventListener,
+		removeEventListener: controller.removeEventListener,
 		_internals: controller._internals,
 	};
 };

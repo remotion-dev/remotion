@@ -112,8 +112,10 @@ export const makeIoSynchronizer = ({
 		minimumProgress: number | null;
 		controller: WebCodecsController;
 	}) => {
-		const {timeoutPromise, clear} = makeTimeoutPromise(
-			() =>
+		await controller._internals.checkForAbortAndPause();
+
+		const {timeoutPromise, clear} = makeTimeoutPromise({
+			label: () =>
 				[
 					`Waited too long for ${label} to finish:`,
 					`${getUnemittedItems()} unemitted items`,
@@ -123,11 +125,10 @@ export const makeIoSynchronizer = ({
 					`last output: ${lastOutput}`,
 					`wanted: ${unemitted} unemitted items, ${unprocessed} unprocessed items, minimum progress ${minimumProgress}`,
 				].join('\n'),
-			10_000,
-		);
+			ms: 10000,
+			controller,
+		});
 		controller._internals.signal.addEventListener('abort', clear);
-
-		await controller._internals.checkForAbortAndPause();
 
 		await Promise.race([
 			timeoutPromise,

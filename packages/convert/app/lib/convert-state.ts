@@ -16,7 +16,7 @@ export type ConvertState =
 	  }
 	| {
 			type: 'in-progress';
-			abortConversion: () => void;
+			pauseConversion: () => void;
 			state: ConvertMediaProgress;
 	  }
 	| {

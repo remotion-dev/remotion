@@ -1,3 +1,4 @@
+import {MediaParserEmitter} from './emitter';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
 
@@ -6,6 +7,8 @@ export type MediaParserController = {
 	abort: (reason?: any) => void;
 	pause: PauseSignal['pause'];
 	resume: PauseSignal['resume'];
+	addEventListener: MediaParserEmitter['addEventListener'];
+	removeEventListener: MediaParserEmitter['removeEventListener'];
 	/**
 	 * @deprecated Not public API
 	 */
@@ -17,7 +20,8 @@ export type MediaParserController = {
 
 export const mediaParserController = (): MediaParserController => {
 	const abortController = new AbortController();
-	const pauseSignal = makePauseSignal();
+	const emitter = new MediaParserEmitter();
+	const pauseSignal = makePauseSignal(emitter);
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
@@ -34,6 +38,8 @@ export const mediaParserController = (): MediaParserController => {
 		},
 		pause: pauseSignal.pause,
 		resume: pauseSignal.resume,
+		addEventListener: emitter.addEventListener,
+		removeEventListener: emitter.removeEventListener,
 		_internals: {
 			signal: abortController.signal,
 			checkForAbortAndPause,
