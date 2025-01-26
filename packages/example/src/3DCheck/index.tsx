@@ -1,5 +1,5 @@
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Div3D} from '../3DContext/Div3D';
+import {ExtrudeDiv} from '../3DContext/Div3D';
 import {RotateY} from '../3DContext/transformation-context';
 
 const Comp = () => {
@@ -18,7 +18,7 @@ const Comp = () => {
 	return (
 		<AbsoluteFill className="flex justify-center items-center bg-[#F8FAFC]">
 			<RotateY radians={progress * Math.PI}>
-				<Div3D
+				<ExtrudeDiv
 					width={width}
 					height={height}
 					depth={20}
@@ -68,7 +68,7 @@ const Comp = () => {
 							/>
 						</svg>
 					</div>
-				</Div3D>
+				</ExtrudeDiv>
 			</RotateY>
 		</AbsoluteFill>
 	);

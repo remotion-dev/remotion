@@ -118,6 +118,7 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 
 class Vector2 {
@@ -1501,6 +1502,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="3DContext"
 					component={ThreeDContext}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
+				/>
+				<Composition
+					id="ParseAndDownloadMedia"
+					component={ParseAndDownloadMedia}
 					width={1080}
 					height={1080}
 					fps={30}
