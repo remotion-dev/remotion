@@ -132,6 +132,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	preferLossless,
 	forcePathStyle,
 	metadata,
+	apiKey,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -211,6 +212,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		preferLossless: preferLossless ?? false,
 		forcePathStyle: forcePathStyle ?? false,
 		metadata: metadata ?? null,
+		apiKey: apiKey ?? null,
 	};
 };
 
@@ -256,6 +258,7 @@ export const makeLambdaRenderStillPayload = async ({
 	offthreadVideoCacheSizeInBytes,
 	deleteAfter,
 	forcePathStyle,
+	apiKey,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -311,5 +314,6 @@ export const makeLambdaRenderStillPayload = async ({
 		type: ServerlessRoutines.still,
 		streamed: true,
 		forcePathStyle,
+		apiKey: apiKey ?? null,
 	};
 };

@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-renderstillonlambda.png
 id: renderstillonlambda
 title: renderStillOnLambda()
 slug: /lambda/renderstillonlambda
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Renders a still image inside a lambda function and writes it to the specified output location.
@@ -17,18 +17,17 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderStillOnLambda } from "@remotion/lambda/client";
+import {renderStillOnLambda} from '@remotion/lambda/client';
 
-const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  composition: "MyVideo",
+const {estimatedPrice, url, sizeInBytes} = await renderStillOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  composition: 'MyVideo',
   inputProps: {},
-  imageFormat: "png",
+  imageFormat: 'png',
   maxRetries: 1,
-  privacy: "public",
+  privacy: 'public',
   envVariables: {},
   frame: 10,
 });
@@ -104,27 +103,23 @@ Example usage:
 // @module: esnext
 // @target: es2022
 
-import {
-  renderStillOnLambda,
-  RenderStillOnLambdaInput,
-} from "@remotion/lambda/client";
+import {renderStillOnLambda, RenderStillOnLambdaInput} from '@remotion/lambda/client';
 
 const otherParameters: RenderStillOnLambdaInput = {
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  composition: "MyVideo",
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  composition: 'MyVideo',
   inputProps: {},
-  imageFormat: "png",
+  imageFormat: 'png',
   maxRetries: 1,
-  privacy: "public",
+  privacy: 'public',
   envVariables: {},
   frame: 10,
 };
 await renderStillOnLambda({
   ...otherParameters,
-  onInit: ({ cloudWatchLogs, renderId, lambdaInsightsUrl }) => {
+  onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
     console.log(console.log(`Render invoked with ID = ${renderId}`));
     console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
     console.log(`Lambda Insights (if enabled): ${lambdaInsightsUrl}`);
@@ -262,6 +257,9 @@ _optional - default `false`, deprecated in v4.0_
 
 Deprecated in favor of [`logLevel`](#loglevel).
 
+### `apiKey?`<AvailableFrom v="4.0.253"/>
+
+<Options id="api-key" />
 
 ## Return value
 

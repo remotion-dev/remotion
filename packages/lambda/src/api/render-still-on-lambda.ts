@@ -195,5 +195,6 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
 		dumpBrowserLogs: false,
 		forcePathStyle: input.forcePathStyle ?? false,
+		apiKey: input.apiKey ?? null,
 	});
 };

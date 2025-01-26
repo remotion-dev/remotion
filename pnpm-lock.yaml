@@ -1843,6 +1843,9 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/licensing':
+        specifier: workspace:*
+        version: link:../licensing
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer

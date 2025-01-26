@@ -1,3 +1,4 @@
+import {apiKeyOption} from './api-key';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {binariesDirectoryOption} from './binaries-directory';
@@ -103,6 +104,7 @@ export const optionsMap = {
 		muted: mutedOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
+		apiKey: apiKeyOption,
 	},
 	renderStillOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
@@ -111,6 +113,7 @@ export const optionsMap = {
 		deleteAfter: deleteAfterOption,
 		scale: scaleOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
+		apiKey: apiKeyOption,
 	},
 	getCompositionsOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,

@@ -191,6 +191,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		forcePathStyle: options.forcePathStyle ?? false,
 		indent: false,
 		metadata: options.metadata ?? null,
+		apiKey: options.apiKey ?? null,
 	};
 };
 
