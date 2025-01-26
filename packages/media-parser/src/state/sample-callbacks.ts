@@ -1,4 +1,4 @@
-import type {ParseMediaController} from '../controller';
+import type {MediaParserController} from '../controller';
 import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,
@@ -22,7 +22,7 @@ export const sampleCallback = ({
 	slowDurationAndFpsState,
 	structure,
 }: {
-	controller: ParseMediaController | undefined;
+	controller: MediaParserController | undefined;
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;

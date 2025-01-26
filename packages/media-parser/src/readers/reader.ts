@@ -1,4 +1,4 @@
-import type {ParseMediaController} from '../controller';
+import type {MediaParserController} from '../controller';
 import type {ParseMediaSrc} from '../options';
 
 export type Reader = {
@@ -16,7 +16,7 @@ type ReadResult = {
 type ReadContent = (options: {
 	src: ParseMediaSrc;
 	range: [number, number] | number | null;
-	controller: ParseMediaController | undefined;
+	controller: MediaParserController | undefined;
 }) => Promise<ReadResult>;
 type GetLength = (src: ParseMediaSrc) => Promise<number>;
 

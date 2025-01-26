@@ -1,4 +1,4 @@
-import type {ParseMediaController} from './controller';
+import type {MediaParserController} from './controller';
 import type {ParseMediaOnProgress, ParseMediaProgress} from './options';
 
 type ReturnType = {
@@ -18,7 +18,7 @@ export const throttledStateUpdate = ({
 }: {
 	updateFn: ParseMediaOnProgress | null;
 	everyMilliseconds: number;
-	controller: ParseMediaController | undefined;
+	controller: MediaParserController | undefined;
 	totalBytes: number | null;
 }): ReturnType => {
 	let currentState: ParseMediaProgress = {

@@ -92,4 +92,8 @@ export type {
 } from './containers/webm/segments/all-segments';
 export type {LogLevel};
 
+export {
+	mediaParserController,
+	MediaParserController as ParseMediaController,
+} from './controller';
 export {VERSION} from './version';

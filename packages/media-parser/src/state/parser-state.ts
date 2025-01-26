@@ -1,6 +1,6 @@
 import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
-import type {ParseMediaController} from '../controller';
+import type {MediaParserController} from '../controller';
 import {Log, type LogLevel} from '../log';
 import type {
 	OnDiscardedData,
@@ -53,7 +53,7 @@ export const makeParserState = ({
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
-	controller: ParseMediaController | undefined;
+	controller: MediaParserController | undefined;
 	fields: Options<ParseMediaFields>;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
