@@ -3,7 +3,7 @@ image: /generated/articles-docs-using-audio.png
 title: Using audio
 sidebar_label: Audio
 id: using-audio
-crumb: "Techniques"
+crumb: 'Techniques'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -15,12 +15,12 @@ import TabItem from '@theme/TabItem';
 Add an [`<Audio/>`](/docs/audio) tag to your component to add sound to it.
 
 ```tsx twoslash
-import { AbsoluteFill, Audio, staticFile } from "remotion";
+import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile("audio.mp3")} />
+      <Audio src={staticFile('audio.mp3')} />
     </AbsoluteFill>
   );
 };
@@ -29,7 +29,7 @@ export const MyComposition = () => {
 You can also add remote audio by passing a URL:
 
 ```tsx twoslash
-import { AbsoluteFill, Audio } from "remotion";
+import {AbsoluteFill, Audio} from 'remotion';
 
 export const MyComposition = () => {
   return (
@@ -48,12 +48,12 @@ You can mix multiple tracks together by adding more audio tags.
 The `<Audio />` tag supports the `startFrom` and `endAt` props. In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 ```tsx twoslash {6}
-import { AbsoluteFill, Audio, staticFile } from "remotion";
+import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile("audio.mp3")} startFrom={60} endAt={120} />
+      <Audio src={staticFile('audio.mp3')} startFrom={60} endAt={120} />
     </AbsoluteFill>
   );
 };
@@ -70,13 +70,13 @@ Use a `<Sequence>` with a positive `from` value to delay the audio from playing.
 In the following example, the audio will start playing (from the beginning) after 100 frames.
 
 ```tsx twoslash {6-8}
-import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
+import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
       <Sequence from={100}>
-        <Audio src={staticFile("audio.mp3")} />
+        <Audio src={staticFile('audio.mp3')} />
       </Sequence>
     </AbsoluteFill>
   );
@@ -90,8 +90,8 @@ You can use the [`volume`](/docs/audio#volume) prop to control the volume.
 The simplest way is to pass a number between 0 and 1. `1` is the maximum volume and `0` mutes the audio.
 
 ```tsx twoslash {8}
-import { Audio } from "remotion";
-import audio from "./audio.mp3";
+import {Audio} from 'remotion';
+import audio from './audio.mp3';
 
 export const MyComposition = () => {
   return (
@@ -106,17 +106,12 @@ export const MyComposition = () => {
 You can also change volume over time by passing in a function that takes a frame number and returns the volume.
 
 ```tsx twoslash {8-10}
-import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
+import {AbsoluteFill, Audio, interpolate, staticFile} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio
-        src={staticFile("audio.mp3")}
-        volume={(f) =>
-          interpolate(f, [0, 30], [0, 1], { extrapolateLeft: "clamp" })
-        }
-      />
+      <Audio src={staticFile('audio.mp3')} volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} />
     </AbsoluteFill>
   );
 };
@@ -137,14 +132,14 @@ When using the [`<Player>`](/docs/player), note that Mobile Safari [does not sup
 You may pass in the `muted` and it may change over time. When `muted` is true, audio will be omitted at that time. In the following example, we are muting the track between frame 40 and 60.
 
 ```tsx twoslash {8}
-import { AbsoluteFill, Audio, staticFile, useCurrentFrame } from "remotion";
+import {AbsoluteFill, Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyComposition = () => {
   const frame = useCurrentFrame();
 
   return (
     <AbsoluteFill>
-      <Audio src={staticFile("audio.mp3")} muted={frame >= 40 && frame <= 60} />
+      <Audio src={staticFile('audio.mp3')} muted={frame >= 40 && frame <= 60} />
     </AbsoluteFill>
   );
 };
@@ -199,16 +194,14 @@ npx remotion render src/index.ts my-comp --codec=mp3
 To render only the audio via Node.JS, use [`renderMedia()`](/docs/renderer/render-media) and set the [`codec`](/docs/renderer/render-media#codec) to an audio codec.
 
 ```tsx twoslash
-// @module: ESNext
-// @target: ESNext
-import { bundle } from "@remotion/bundler";
-import { getCompositions, renderMedia } from "@remotion/renderer"; // The composition you want to render
-import path from "path";
-const compositionId = "HelloWorld";
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderMedia} from '@remotion/renderer'; // The composition you want to render
+import path from 'path';
+const compositionId = 'HelloWorld';
 
 // You only have to do this once, you can reuse the bundle.
-const entry = "./src/index";
-console.log("Creating a Webpack bundle of the video");
+const entry = './src/index';
+console.log('Creating a Webpack bundle of the video');
 const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
   // If you have a Webpack override, make sure to add it here
   webpackOverride: (config) => config,
@@ -216,7 +209,7 @@ const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
 
 // Parametrize the video by passing arbitrary props to your component.
 const inputProps = {
-  foo: "bar",
+  foo: 'bar',
 };
 
 // Extract all the compositions you have defined in your project
@@ -242,7 +235,7 @@ const outputLocation = `out/${compositionId}.mp4`;
 await renderMedia({
   composition,
   serveUrl: bundleLocation,
-  codec: "mp3",
+  codec: 'mp3',
   outputLocation,
   inputProps,
 });
@@ -254,23 +247,20 @@ await renderMedia({
 To render only the audio via Lambda, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and set the [`codec`](/docs/lambda/rendermediaonlambda#codec) to an audio codec and [`imageFormat`](/docs/lambda/rendermediaonlambda#imageformat) to `none`.
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
-import { renderMediaOnLambda } from "@remotion/lambda";
+import {renderMediaOnLambda} from '@remotion/lambda';
 // ---cut---
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
   framesPerLambda: 20,
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
-  codec: "mp3",
-  imageFormat: "none",
+  codec: 'mp3',
+  imageFormat: 'none',
   maxRetries: 1,
-  privacy: "public",
+  privacy: 'public',
 });
 ```
 

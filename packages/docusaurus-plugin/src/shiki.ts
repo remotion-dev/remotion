@@ -90,14 +90,6 @@ export const runTwoSlashOnNode = (
 	{lang, meta}: {lang: string; meta: Record<string, string>},
 	settings = {},
 ) => {
-	// Offer a way to do high-perf iterations, this is less useful
-	// given that we cache the results of twoslash in the file-system
-	const shouldDisableTwoslash =
-		typeof process !== 'undefined' &&
-		process.env &&
-		Boolean(process.env.TWOSLASH_DISABLE);
-	if (shouldDisableTwoslash) return undefined;
-
 	// Only run twoslash when the meta has the attribute twoslash
 	if (meta.twoslash) {
 		const importedCode = replaceIncludesInCode(includes, code);

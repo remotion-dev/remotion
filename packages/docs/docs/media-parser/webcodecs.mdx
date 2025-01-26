@@ -27,8 +27,6 @@ It is a higher-level API that is easier to use than `@remotion/media-parser`.
 `@remotion/media-parser` is a lower-level API that allows you to interface with WebCodecs directly.
 
 ```tsx twoslash title="Reading video frames"
-// @module: es2022
-// @target: es2017
 import {parseMedia, OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
 
 const onVideoTrack: OnVideoTrack = ({track}) => {

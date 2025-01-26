@@ -15,8 +15,6 @@ A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) 
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
 // ---cut---
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
@@ -24,8 +22,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   region: 'us-east-1',
   functionName: 'remotion-render-bds9aab',
   composition: 'MyVideo',
-  serveUrl:
-    'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   codec: 'h264',
 });
 ```

@@ -19,9 +19,6 @@ You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-me
 ## Examples
 
 ```tsx twoslash title="Check if video tracks can be re-encoded to VP8"
-// @module: es2022
-// @target: es2017
-
 import {parseMedia} from '@remotion/media-parser';
 import {canReencodeVideoTrack} from '@remotion/webcodecs';
 
@@ -43,8 +40,6 @@ for (const track of tracks.videoTracks) {
 ```
 
 ```tsx twoslash title="Convert a video track to VP8, otherwise drop it"
-// @module: es2022
-// @target: es2017
 import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
