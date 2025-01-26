@@ -42,6 +42,7 @@ import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {MirrorComponents} from './MirrorComponents';
+import {PauseResumeAndCancel} from './PauseResumeAndCancel';
 import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
@@ -301,14 +302,6 @@ export default function ConvertUI({
 		videoOperationSelection,
 	]);
 
-	const cancel = useCallback(() => {
-		if (state.type !== 'in-progress') {
-			throw new Error('Cannot cancel when not in progress');
-		}
-
-		controllerRef.current?.pause();
-	}, [state]);
-
 	const dimissError = useCallback(() => {
 		setState({type: 'idle'});
 	}, []);
@@ -407,9 +400,7 @@ export default function ConvertUI({
 					isAudioOnly={isAudioExclusively}
 				/>
 				<div className="h-2" />
-				<Button className="block w-full" type="button" onClick={cancel}>
-					Cancel
-				</Button>
+				<PauseResumeAndCancel controller={state.controller} />
 			</>
 		);
 	}
