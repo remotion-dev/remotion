@@ -10,16 +10,12 @@ crumb: '@remotion/renderer'
 Ensures a browser is locally installed so a Remotion render can be executed.
 
 ```tsx twoslash title="Simple usage"
-// @module: ESNext
-// @target: ESNext
 import {ensureBrowser} from '@remotion/renderer';
 
 await ensureBrowser();
 ```
 
 ```tsx twoslash title="Setting a specific Chrome version and listening to progress"
-// @module: ESNext
-// @target: ESNext
 import {ensureBrowser} from '@remotion/renderer';
 
 await ensureBrowser({
@@ -60,8 +56,6 @@ Specify a specific version of Chrome that should be used and hook into the downl
 See the example below for the function signature.
 
 ```tsx twoslash title="init.ts"
-// @module: ESNext
-// @target: ESNext
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
 
 const onProgress: DownloadBrowserProgressFn = ({percent, downloadedBytes, totalSizeInBytes}) => {

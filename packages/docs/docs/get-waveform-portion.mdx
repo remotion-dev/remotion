@@ -2,7 +2,7 @@
 image: /generated/articles-docs-get-waveform-portion.png
 title: getWaveformPortion()
 id: get-waveform-portion
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
@@ -56,14 +56,11 @@ A value describing the amplitude / volume / loudness of the audio. Values range 
 ## Example
 
 ```tsx twoslash
-// @module: ESNext
-// @target: ESNext
-
 // ---cut---
-import { getAudioData, getWaveformPortion } from "@remotion/media-utils";
-import { staticFile } from "remotion";
+import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
+import {staticFile} from 'remotion';
 
-const audioData = await getAudioData(staticFile("music.mp3")); /* {
+const audioData = await getAudioData(staticFile('music.mp3')); /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
   sampleRate: 44100,
   durationInSeconds: 100.0000,

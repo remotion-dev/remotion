@@ -50,7 +50,7 @@ The following [`fields`](/docs/media-parser#fields) require only the metadata se
 - [`rotation`](/docs/media-parser/parse-media#rotation)
 - [`location`](/docs/media-parser/parse-media#location)
 - [`keyframes`](/docs/media-parser/parse-media#keyframes)
-- [`sampleRate`](/docs/media-parser/parse-media#sampleRate)
+- [`sampleRate`](/docs/media-parser/parse-media#samplerate)
 - [`numberOfAudioChannels`](/docs/media-parser/parse-media#numberofaudiochannels)
 
 Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, only the parsing of the metadata section is required if `null` is returned from the handler function.
@@ -72,8 +72,6 @@ Otherwise, `@remotion/media-parser` has no choice but to read the full file if t
 ## Example
 
 ```tsx twoslash title="Reading header only"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
 // ---cut---

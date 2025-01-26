@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getsites.png
 id: getsites
 title: getSites()
 slug: /lambda/getsites
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Gets an array of Remotion projects in your S3 account.
@@ -15,12 +15,10 @@ The projects are located in the `sites/` subdirectory of your S3 bucket. Remembe
 Gets all sites and logs information about them.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getSites } from "@remotion/lambda/client";
+import {getSites} from '@remotion/lambda/client';
 
-const { sites, buckets } = await getSites({
-  region: "eu-central-1",
+const {sites, buckets} = await getSites({
+  region: 'eu-central-1',
 });
 
 for (const site of sites) {
