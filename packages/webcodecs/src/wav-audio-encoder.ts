@@ -3,14 +3,14 @@ import type {AudioEncoderInit, WebCodecsAudioEncoder} from './audio-encoder';
 
 export const getWaveAudioEncoder = ({
 	onChunk,
-	signal,
-}: Pick<AudioEncoderInit, 'onChunk' | 'signal'>): WebCodecsAudioEncoder => {
+	controller,
+}: Pick<AudioEncoderInit, 'onChunk' | 'controller'>): WebCodecsAudioEncoder => {
 	return {
 		close: () => {
 			return Promise.resolve();
 		},
 		encodeFrame: (audioData) => {
-			if (signal.aborted) {
+			if (controller.signal.aborted) {
 				return Promise.resolve();
 			}
 

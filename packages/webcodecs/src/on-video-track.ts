@@ -1,6 +1,7 @@
 import type {LogLevel, OnVideoTrack} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {canCopyVideoTrack} from './can-copy-video-track';
+import type {WebCodecsController} from './controller';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import type {MediaFn} from './create/media-fn';
@@ -39,7 +40,7 @@ export const makeVideoTrackHandler =
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		abortConversion: (errCause: Error) => void;
-		controller: AbortController;
+		controller: WebCodecsController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
@@ -49,7 +50,7 @@ export const makeVideoTrackHandler =
 		resizeOperation: ResizeOperation | null;
 	}): OnVideoTrack =>
 	async ({track, container: inputContainer}) => {
-		if (controller.signal.aborted) {
+		if (controller?.signal.aborted) {
 			throw new Error('Aborted');
 		}
 
@@ -202,7 +203,7 @@ export const makeVideoTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			config: videoEncoderConfig,
 			logLevel,
 			outputCodec: videoOperation.videoCodec,
@@ -232,7 +233,7 @@ export const makeVideoTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			logLevel,
 			progress,
 		});

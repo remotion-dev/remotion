@@ -1,4 +1,5 @@
-import type {LogLevel} from '@remotion/media-parser';
+import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
+import type {WebCodecsController} from './controller';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
@@ -15,7 +16,7 @@ export type WebCodecsVideoEncoder = {
 export const createVideoEncoder = ({
 	onChunk,
 	onError,
-	signal,
+	controller,
 	config,
 	logLevel,
 	outputCodec,
@@ -26,14 +27,16 @@ export const createVideoEncoder = ({
 		metadata: EncodedVideoChunkMetadata | null,
 	) => Promise<void>;
 	onError: (error: DOMException) => void;
-	signal: AbortSignal;
+	controller: WebCodecsController;
 	config: VideoEncoderConfig;
 	logLevel: LogLevel;
 	outputCodec: ConvertMediaVideoCodec;
 	progress: ProgressTracker;
 }): WebCodecsVideoEncoder => {
-	if (signal.aborted) {
-		throw new Error('Not creating video encoder, already aborted');
+	if (controller.signal.aborted) {
+		throw new MediaParserAbortError(
+			'Not creating video encoder, already aborted',
+		);
 	}
 
 	const ioSynchronizer = makeIoSynchronizer({
@@ -55,7 +58,7 @@ export const createVideoEncoder = ({
 
 			outputQueue = outputQueue
 				.then(() => {
-					if (signal.aborted) {
+					if (controller.signal.aborted) {
 						return;
 					}
 
@@ -73,7 +76,7 @@ export const createVideoEncoder = ({
 
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		signal.removeEventListener('abort', onAbort);
+		controller.signal.removeEventListener('abort', onAbort);
 		if (encoder.state === 'closed') {
 			return;
 		}
@@ -85,7 +88,7 @@ export const createVideoEncoder = ({
 		close();
 	};
 
-	signal.addEventListener('abort', onAbort);
+	controller.signal.addEventListener('abort', onAbort);
 
 	Log.verbose(logLevel, 'Configuring video encoder', config);
 	encoder.configure(config);
@@ -104,7 +107,7 @@ export const createVideoEncoder = ({
 			unemitted: 10,
 			unprocessed: 10,
 			minimumProgress: frame.timestamp - 10_000_000,
-			signal,
+			controller,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -139,7 +142,7 @@ export const createVideoEncoder = ({
 		waitForFinish: async () => {
 			await encoder.flush();
 			await outputQueue;
-			await ioSynchronizer.waitForFinish(signal);
+			await ioSynchronizer.waitForFinish(controller);
 		},
 		close,
 		flush: async () => {

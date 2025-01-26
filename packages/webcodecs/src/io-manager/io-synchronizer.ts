@@ -1,3 +1,4 @@
+import type {WebCodecsController} from '../controller';
 import {IoEventEmitter} from '../create/event-emitter';
 import type {ProgressTracker} from '../create/progress-tracker';
 import {withResolvers} from '../create/with-resolvers';
@@ -104,12 +105,12 @@ export const makeIoSynchronizer = ({
 		unprocessed,
 		unemitted,
 		minimumProgress,
-		signal,
+		controller,
 	}: {
 		unemitted: number;
 		unprocessed: number;
 		minimumProgress: number | null;
-		signal: AbortSignal;
+		controller: WebCodecsController;
 	}) => {
 		const {timeoutPromise, clear} = makeTimeoutPromise(
 			() =>
@@ -124,7 +125,7 @@ export const makeIoSynchronizer = ({
 				].join('\n'),
 			10_000,
 		);
-		signal.addEventListener('abort', clear);
+		controller.signal.addEventListener('abort', clear);
 
 		await Promise.race([
 			timeoutPromise,
@@ -148,15 +149,15 @@ export const makeIoSynchronizer = ({
 						})(),
 			]),
 		]).finally(() => clear());
-		signal.removeEventListener('abort', clear);
+		controller.signal.removeEventListener('abort', clear);
 	};
 
-	const waitForFinish = async (signal: AbortSignal) => {
+	const waitForFinish = async (controller: WebCodecsController) => {
 		await waitFor({
 			unprocessed: 0,
 			unemitted: 0,
 			minimumProgress: null,
-			signal,
+			controller,
 		});
 	};
 

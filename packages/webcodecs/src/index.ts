@@ -11,6 +11,7 @@ export {canCopyAudioTrack} from './can-copy-audio-track';
 export {canCopyVideoTrack} from './can-copy-video-track';
 export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
+export {webcodecsController, WebCodecsController} from './controller';
 export {
 	convertMedia,
 	ConvertMediaOnAudioData,

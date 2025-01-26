@@ -187,7 +187,7 @@ export const makeAudioTrackHandler =
 				);
 			},
 			codec: audioOperation.audioCodec,
-			signal: controller.signal,
+			controller,
 			config: audioEncoderConfig,
 			logLevel,
 			progressTracker,
@@ -252,7 +252,7 @@ export const makeAudioTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			config: audioDecoderConfig,
 			logLevel,
 			track,
