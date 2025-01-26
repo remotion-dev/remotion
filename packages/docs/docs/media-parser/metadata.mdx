@@ -15,8 +15,6 @@ Specify the [`fields`](/docs/media-parser/parse-media#fields) you would like to 
 This works in the browser as well as in Node.js and Bun.
 
 ```tsx twoslash title="Parsing a hosted video"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
@@ -37,8 +35,6 @@ Use [`nodeReader`](/docs/media-parser/node-reader) to read a file from a filesys
 This can be used in Node.js and Bun.
 
 ```tsx twoslash title="Parsing a video from a file path"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
@@ -61,8 +57,6 @@ If you take user uploads in the browser, they will be in the form of a [`File`](
 Use [`webFileReader`](/docs/media-parser/web-file-reader) to read a video from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).
 
 ```tsx twoslash title="Parsing a video from a file path"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 import {webFileReader} from '@remotion/media-parser/web-file';
 
@@ -91,8 +85,6 @@ See [Fields](/docs/media-parser/parse-media#fields) for a complete list.
 ## Getting metadata as soon as possible
 
 ```tsx twoslash title="Parsing a video from a File"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({

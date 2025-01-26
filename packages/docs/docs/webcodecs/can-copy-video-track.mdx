@@ -22,8 +22,6 @@ You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-me
 ## Examples
 
 ```tsx twoslash title="Check if a video tracks can be copied"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 import {canCopyVideoTrack} from '@remotion/webcodecs';
 
@@ -47,9 +45,6 @@ for (const track of tracks.videoTracks) {
 ```
 
 ```tsx twoslash title="Copy a video track to VP8, otherwise drop it"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia, canCopyVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({

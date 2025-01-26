@@ -10,8 +10,6 @@ This is the default function if no [`onAudioTrack`](/docs/webcodecs/convert-medi
 You may use this function if you want to customize part of the track transformation logic, but fall back to the default behavior for the rest.
 
 ```tsx twoslash title="Falling back to the default behavior"
-// @module: es2022
-// @target: es2017
 import {convertMedia, defaultOnVideoTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -40,52 +38,39 @@ The default behavior is as follows:
 This is the source code for the default function. You may use this as a reference to create your own custom handler.
 
 ```tsx twoslash title="Source code for defaultOnAudioTrackHandler"
-import {
-  canReencodeAudioTrack,
-  AudioOperation,
-  ConvertMediaOnAudioTrackHandler,
-  getDefaultAudioCodec,
-} from '@remotion/webcodecs';
+import {canReencodeAudioTrack, AudioOperation, ConvertMediaOnAudioTrackHandler, getDefaultAudioCodec} from '@remotion/webcodecs';
 
 const DEFAULT_BITRATE = 128_000;
 
-export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
-  async ({
+export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler = async ({track, defaultAudioCodec, logLevel, inputContainer, outputContainer, canCopyTrack}): Promise<AudioOperation> => {
+  const bitrate = DEFAULT_BITRATE;
+
+  if (canCopyTrack) {
+    return Promise.resolve({type: 'copy'});
+  }
+
+  // In the future, we might support containers that don't support audio
+  // (like GIF, animated WebP, etc.) - in that case, we should drop the audio
+  if (defaultAudioCodec === null) {
+    return Promise.resolve({type: 'drop'});
+  }
+
+  const canReencode = await canReencodeAudioTrack({
+    audioCodec: defaultAudioCodec,
     track,
-    defaultAudioCodec,
-    logLevel,
-    inputContainer,
-    outputContainer,
-    canCopyTrack,
-  }): Promise<AudioOperation> => {
-    const bitrate = DEFAULT_BITRATE;
+    bitrate,
+  });
 
-    if (canCopyTrack) {
-      return Promise.resolve({type: 'copy'});
-    }
-
-    // In the future, we might support containers that don't support audio
-    // (like GIF, animated WebP, etc.) - in that case, we should drop the audio
-    if (defaultAudioCodec === null) {
-      return Promise.resolve({type: 'drop'});
-    }
-
-    const canReencode = await canReencodeAudioTrack({
-      audioCodec: defaultAudioCodec,
-      track,
+  if (canReencode) {
+    return Promise.resolve({
+      type: 'reencode',
       bitrate,
+      audioCodec: defaultAudioCodec,
     });
+  }
 
-    if (canReencode) {
-      return Promise.resolve({
-        type: 'reencode',
-        bitrate,
-        audioCodec: defaultAudioCodec,
-      });
-    }
-
-    return Promise.resolve({type: 'fail'});
-  };
+  return Promise.resolve({type: 'fail'});
+};
 ```
 
 ## See also

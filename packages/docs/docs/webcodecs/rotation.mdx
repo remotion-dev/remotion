@@ -24,8 +24,6 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 ## Simple Example
 
 ```tsx twoslash title="Rotate 90 degrees clockwise"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -50,8 +48,6 @@ If you want the video to not automatically be rotated, you need to re-apply the 
 The rotations will negate each other, and [`convertMedia()`](/docs/webcodecs/convert-media) will not execute any code to apply rotation.
 
 ```tsx twoslash title="Prevent automatic video rotation"
-// @module: es2022
-// @target: es2017
 import {convertMedia, defaultOnVideoTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({

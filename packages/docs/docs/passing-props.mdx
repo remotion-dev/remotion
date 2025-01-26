@@ -3,7 +3,7 @@ image: /generated/articles-docs-passing-props.png
 id: passing-props
 title: Passing props to a composition
 sidebar_label: Passing props
-crumb: "How To"
+crumb: 'How To'
 ---
 
 ```twoslash include example
@@ -38,7 +38,7 @@ When registering a component that takes props as a composition, you must define 
 // organize-imports-ignore
 
 // @filename: MyComponent.tsx
-import React from "react";
+import React from 'react';
 export const MyComponent: React.FC<{
   propOne: string;
   propTwo: number;
@@ -47,9 +47,9 @@ export const MyComponent: React.FC<{
 // @filename: Root.tsx
 
 // ---cut---
-import React from "react";
-import { Composition } from "remotion";
-import { MyComponent } from "./MyComponent";
+import React from 'react';
+import {Composition} from 'remotion';
+import {MyComponent} from './MyComponent';
 
 export const Root: React.FC = () => {
   return (
@@ -62,7 +62,7 @@ export const Root: React.FC = () => {
         durationInFrames={30}
         component={MyComponent}
         defaultProps={{
-          propOne: "Hi",
+          propOne: 'Hi',
           propTwo: 10,
         }}
       />
@@ -102,27 +102,25 @@ npx remotion render HelloWorld out/helloworld.mp4 --props=./path/to/props.json
 When server-rendering using [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you can pass props using the [`inputProps`](/docs/renderer/render-media#inputprops) option:
 
 ```tsx twoslash {3-5, 10, 18}
-// @module: esnext
-// @target: es2017
-const serveUrl = "/path/to/bundle";
-const outputLocation = "/path/to/frames";
+const serveUrl = '/path/to/bundle';
+const outputLocation = '/path/to/frames';
 // ---cut---
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import {renderMedia, selectComposition} from '@remotion/renderer';
 
 const inputProps = {
-  titleText: "Hello World",
+  titleText: 'Hello World',
 };
 
 const composition = await selectComposition({
   serveUrl,
-  id: "my-video",
+  id: 'my-video',
   inputProps,
 });
 
 await renderMedia({
   composition,
   serveUrl,
-  codec: "h264",
+  codec: 'h264',
   outputLocation,
   inputProps,
 });
@@ -140,13 +138,13 @@ When using GitHub Actions, you need to adjust the file at `.github/workflows/ren
 workflow_dispatch:
   inputs:
     titleText:
-      description: "Which text should it say?"
+      description: 'Which text should it say?'
       required: true
-      default: "Welcome to Remotion"
+      default: 'Welcome to Remotion'
     titleColor:
-      description: "Which color should it be in?"
+      description: 'Which color should it be in?'
       required: true
-      default: "black"
+      default: 'black'
 ```
 
 ### Retrieve input props
@@ -173,7 +171,7 @@ const AnotherComponent: React.FC = () => {
   return null;
 };
 // ---cut---
-import { Series } from "remotion";
+import {Series} from 'remotion';
 
 const ChainedScenes = () => {
   return (

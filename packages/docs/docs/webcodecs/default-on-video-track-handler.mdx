@@ -10,8 +10,6 @@ This is the default function if no [`onVideoTrack`](/docs/webcodecs/convert-medi
 You may use this function if you want to customize part of the track transformation logic, but fall back to the default behavior for the rest.
 
 ```tsx twoslash title="Falling back to the default behavior"
-// @module: es2022
-// @target: es2017
 import {convertMedia, defaultOnAudioTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({

@@ -46,10 +46,10 @@ Throw an error to stop the download.
 import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
-const {duration} = await downloadAndParseMedia({
+const {durationInSeconds} = await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
   writer: nodeWriter('output.mp4'),
-  onDuration: (duration) => {
+  onDurationInSeconds: (duration) => {
     if (duration && duration > 600) {
       throw new Error('Video is too long');
     }
@@ -63,7 +63,7 @@ If an error occurs (including one you've thrown yourself), you can decide what t
 import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
-const {duration} = await downloadAndParseMedia({
+await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
   writer: nodeWriter('output.mp4'),
   onError: (error) => {

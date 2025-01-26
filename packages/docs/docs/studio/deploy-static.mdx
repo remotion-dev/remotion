@@ -121,8 +121,6 @@ npx remotion render https://remotion-helloworld.vercel.app HelloWorld --props '{
 <TabItem value="ssr">
 
 ```tsx twoslash title="render.mjs"
-// @module: esnext
-// @target: es2017
 const outputLocation = '/path/to/frames';
 
 import {renderMedia, selectComposition} from '@remotion/renderer';
@@ -159,8 +157,6 @@ npx remotion lambda render https://remotion-helloworld.vercel.app HelloWorld --p
 ```
 
 ```tsx twoslash title="Node.js/Bun"
-// @module: esnext
-// @target: es2017
 // ---cut---
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
@@ -187,8 +183,6 @@ npx remotion cloudrun render https://remotion-helloworld.vercel.app HelloWorld -
 ```
 
 ```tsx twoslash title="Node.js/Bun"
-// @module: esnext
-// @target: es2017
 // ---cut---
 import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
