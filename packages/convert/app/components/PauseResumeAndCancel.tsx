@@ -40,11 +40,21 @@ export const PauseResumeAndCancel: React.FC<{
 	if (isPaused) {
 		return (
 			<div className="flex flex-row">
-				<Button className="block w-full" type="button" onClick={onClickResume}>
+				<Button
+					variant={'brand'}
+					className="block w-full"
+					type="button"
+					onClick={onClickResume}
+				>
 					Resume
 				</Button>
-				<div className="w-2" />
-				<Button className="block w-full" type="button" onClick={onClickAbort}>
+				<div className="w-4" />
+				<Button
+					variant={'brandsecondary'}
+					className="block w-full text-red-600"
+					type="button"
+					onClick={onClickAbort}
+				>
 					Cancel
 				</Button>
 			</div>
@@ -52,7 +62,12 @@ export const PauseResumeAndCancel: React.FC<{
 	}
 
 	return (
-		<Button className="block w-full" type="button" onClick={onClickPause}>
+		<Button
+			variant={'brandsecondary'}
+			className="block w-full"
+			type="button"
+			onClick={onClickPause}
+		>
 			Pause
 		</Button>
 	);
