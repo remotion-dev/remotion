@@ -1,5 +1,5 @@
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
-import {Div3D} from './Div3D';
+import {ExtrudeDiv} from './Div3D';
 import {RotateX, RotateY, Scale} from './transformation-context';
 
 const Comp = () => {
@@ -18,7 +18,7 @@ const Comp = () => {
 				<RotateX radians={progress / 10}>
 					<RotateX radians={Math.sin(angle) / 4}>
 						<RotateY radians={-Math.cos(angle) / 4}>
-							<Div3D
+							<ExtrudeDiv
 								width={width}
 								height={height}
 								depth={40}
@@ -50,7 +50,7 @@ const Comp = () => {
 								>
 									Get started
 								</div>
-							</Div3D>
+							</ExtrudeDiv>
 						</RotateY>
 					</RotateX>
 				</RotateX>

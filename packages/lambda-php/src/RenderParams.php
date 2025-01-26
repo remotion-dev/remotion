@@ -45,6 +45,7 @@ class RenderParams
     protected $webhook = null;
     protected $forceHeight = null;
     protected $forceWidth = null;
+    protected $apiKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $audioCodec = null;
     protected $rendererFunctionName = null;
@@ -83,6 +84,7 @@ class RenderParams
         ?string $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
+        ?int    $apiKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
         ?string $audioCodec = null,
         ?int    $framesPerLambda = null,
@@ -133,6 +135,7 @@ class RenderParams
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
+        $this->apiKey = $apiKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->audioCodec = $audioCodec;
         $this->framesPerLambda = $framesPerLambda;
@@ -182,6 +185,7 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
+            'apiKey' => $this->getApiKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
@@ -702,6 +706,11 @@ class RenderParams
         $this->forceWidth = $forceWidth;
     }
 
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+    }
+
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
@@ -756,6 +765,11 @@ class RenderParams
     public function getForceWidth()
     {
         return $this->forceWidth;
+    }
+
+    public function getApiKey()
+    {
+        return $this->apiKey;
     }
 
     public function getOffthreadVideoCacheSizeInBytes()

@@ -118,6 +118,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		preferLossless: params.preferLossless,
 		forcePathStyle: params.forcePathStyle,
 		metadata: params.metadata,
+		apiKey: params.apiKey,
 	};
 
 	await providerSpecifics.callFunctionAsync({

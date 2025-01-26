@@ -38,6 +38,7 @@ import {validateOutname} from '../validate-outname';
 import {validatePrivacy} from '../validate-privacy';
 import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 import {checkVersionMismatch} from './check-version-mismatch';
+import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;
@@ -333,6 +334,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
+		sendTelemetryEvent(params.apiKey, params.logLevel),
 	]);
 
 	const estimatedPrice = providerSpecifics.estimatePrice({

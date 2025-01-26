@@ -15,6 +15,8 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ## Example
 
 ```tsx twoslash
+// @module: esnext
+// @target: es2017
 import {renderStillOnLambda} from '@remotion/lambda/client';
 
 const {estimatedPrice, url, sizeInBytes} = await renderStillOnLambda({
@@ -98,6 +100,9 @@ It receives an object with the following properties:
 Example usage:
 
 ```tsx twoslash
+// @module: esnext
+// @target: es2022
+
 import {renderStillOnLambda, RenderStillOnLambdaInput} from '@remotion/lambda/client';
 
 const otherParameters: RenderStillOnLambdaInput = {

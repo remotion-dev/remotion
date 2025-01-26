@@ -167,6 +167,28 @@ export const reduceMatrices = (
 		}, identity4());
 };
 
+export const aroundCenterPoint = ({
+	matrix,
+	x,
+	y,
+	z,
+}: {
+	matrix: MatrixTransform4D;
+	x: number;
+	y: number;
+	z: number;
+}) => {
+	return reduceMatrices([
+		translateX(-x),
+		translateY(-y),
+		translateZ(-z),
+		matrix,
+		translateX(x),
+		translateY(y),
+		translateZ(z),
+	]);
+};
+
 export const makeMatrix3dTransform = function (
 	matrix: MatrixTransform4D,
 ): string {

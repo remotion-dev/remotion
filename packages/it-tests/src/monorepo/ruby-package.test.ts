@@ -130,6 +130,7 @@ test('Render Media payload', async () => {
 		metadata: {
 			Author: 'Lunar',
 		},
+		apiKey: null,
 	});
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
@@ -172,6 +173,7 @@ test('Render Still payload', async () => {
 		dumpBrowserLogs: false,
 		quality: undefined,
 		forcePathStyle: false,
+		apiKey: null,
 	});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});
