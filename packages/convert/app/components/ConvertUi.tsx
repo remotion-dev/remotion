@@ -10,8 +10,16 @@ import type {
 import {hasBeenAborted, MediaParserInternals} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
-import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
-import {convertMedia, WebCodecsInternals} from '@remotion/webcodecs';
+import type {
+	ConvertMediaContainer,
+	ResizeOperation,
+	WebCodecsController,
+} from '@remotion/webcodecs';
+import {
+	convertMedia,
+	webcodecsController,
+	WebCodecsInternals,
+} from '@remotion/webcodecs';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import type {ConvertState, Source} from '~/lib/convert-state';
@@ -150,7 +158,7 @@ export default function ConvertUI({
 		}));
 	}, []);
 
-	const abortSignal = useRef<AbortController | null>(null);
+	const controllerRef = useRef<WebCodecsController | null>(null);
 
 	const [bars, setBars] = useState<number[]>([]);
 
@@ -159,8 +167,8 @@ export default function ConvertUI({
 	}, []);
 
 	const onClick = useCallback(() => {
-		const abortController = new AbortController();
-		abortSignal.current = abortController;
+		const controller = webcodecsController();
+		controllerRef.current = controller;
 
 		let videoFrames = 0;
 		const waveform = makeWaveformVisualizer({
@@ -197,12 +205,12 @@ export default function ConvertUI({
 					type: 'in-progress',
 					state: s,
 					abortConversion: () => {
-						abortController.abort();
+						controller.abort();
 					},
 				});
 			},
 			container: outputContainer,
-			signal: abortController.signal,
+			controller,
 			fields: {
 				name: true,
 			},
@@ -276,7 +284,7 @@ export default function ConvertUI({
 			});
 
 		return () => {
-			abortController.abort();
+			controller.abort();
 		};
 	}, [
 		onWaveformBars,
@@ -310,8 +318,8 @@ export default function ConvertUI({
 
 	useEffect(() => {
 		return () => {
-			if (abortSignal.current) {
-				abortSignal.current.abort();
+			if (controllerRef.current) {
+				controllerRef.current.abort();
 			}
 		};
 	}, []);
