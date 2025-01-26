@@ -203,10 +203,8 @@ export default function ConvertUI({
 			onProgress: (s) => {
 				setState({
 					type: 'in-progress',
+					controller,
 					state: s,
-					pauseConversion: () => {
-						controller.pause();
-					},
 				});
 			},
 			container: outputContainer,
@@ -308,7 +306,7 @@ export default function ConvertUI({
 			throw new Error('Cannot cancel when not in progress');
 		}
 
-		state.pauseConversion();
+		controllerRef.current?.pause();
 	}, [state]);
 
 	const dimissError = useCallback(() => {
