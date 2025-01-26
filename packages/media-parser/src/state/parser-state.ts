@@ -53,7 +53,7 @@ export const makeParserState = ({
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
-	controller: MediaParserController | undefined;
+	controller: MediaParserController;
 	fields: Options<ParseMediaFields>;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;

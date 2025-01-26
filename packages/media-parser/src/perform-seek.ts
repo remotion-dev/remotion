@@ -53,6 +53,7 @@ export const performSeek = async ({
 	);
 	currentReader.abort();
 
+	await controller?._internals.checkForAbortAndPause();
 	const {reader: newReader} = await readerInterface.read({
 		src,
 		range: seekTo,

@@ -127,6 +127,8 @@ export const makeIoSynchronizer = ({
 		);
 		controller._internals.signal.addEventListener('abort', clear);
 
+		await controller._internals.checkForAbortAndPause();
+
 		await Promise.race([
 			timeoutPromise,
 			Promise.all([

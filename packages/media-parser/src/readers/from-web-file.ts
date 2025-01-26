@@ -29,7 +29,7 @@ export const webFileReader: ReaderInterface = {
 		}
 
 		if (controller) {
-			controller.signal.addEventListener(
+			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
 					ownController.abort();

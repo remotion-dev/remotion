@@ -1,6 +1,5 @@
 import {mediaParserController} from './controller';
 import {emitAvailableInfo} from './emit-available-info';
-import {MediaParserAbortError} from './errors';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
@@ -170,13 +169,12 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
-		if (controller._internals.signal.aborted) {
-			throw new MediaParserAbortError('Aborted');
-		}
+		await controller._internals.checkForAbortAndPause();
 
 		const offsetBefore = iterator.counter.getOffset();
 
 		const fetchMoreData = async () => {
+			await controller._internals.checkForAbortAndPause();
 			const result = await currentReader.reader.read();
 			if (result.value) {
 				iterator.addData(result.value);
@@ -225,8 +223,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 			try {
 				await triggerInfoEmit();
-
 				const start = Date.now();
+
+				await controller._internals.checkForAbortAndPause();
 				const skip = await runParseIteration({
 					state,
 					mimeType: contentType,

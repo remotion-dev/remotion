@@ -11,7 +11,7 @@ export type WebCodecsController = {
 	 */
 	_internals: {
 		signal: AbortSignal;
-		waitUntilResume: ParseMediaController['_internals']['waitUntilResume'];
+		checkForAbortAndPause: ParseMediaController['_internals']['checkForAbortAndPause'];
 	};
 };
 

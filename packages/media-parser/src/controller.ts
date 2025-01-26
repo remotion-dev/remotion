@@ -11,13 +11,21 @@ export type MediaParserController = {
 	 */
 	_internals: {
 		signal: AbortSignal;
-		waitUntilResume: PauseSignal['waitUntilResume'];
+		checkForAbortAndPause: () => Promise<void>;
 	};
 };
 
 export const mediaParserController = (): MediaParserController => {
 	const abortController = new AbortController();
 	const pauseSignal = makePauseSignal();
+
+	const checkForAbortAndPause = async () => {
+		if (abortController.signal.aborted) {
+			throw new Error('Aborted');
+		}
+
+		await pauseSignal.waitUntilResume();
+	};
 
 	return {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +36,7 @@ export const mediaParserController = (): MediaParserController => {
 		resume: pauseSignal.resume,
 		_internals: {
 			signal: abortController.signal,
-			waitUntilResume: pauseSignal.waitUntilResume,
+			checkForAbortAndPause,
 		},
 	};
 };
