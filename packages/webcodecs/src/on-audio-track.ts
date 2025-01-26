@@ -8,6 +8,7 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import {canCopyAudioTrack} from './can-copy-audio-track';
+import type {WebCodecsController} from './controller';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnAudioData} from './convert-media';
 import type {MediaFn} from './create/media-fn';
@@ -35,7 +36,7 @@ export const makeAudioTrackHandler =
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
-		controller: AbortController;
+		controller: WebCodecsController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;

@@ -1,3 +1,4 @@
+import {mediaParserController} from './controller';
 import {emitAvailableInfo} from './emit-available-info';
 import {MediaParserAbortError} from './errors';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
@@ -25,7 +26,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	reader: readerInterface,
 	onAudioTrack,
 	onVideoTrack,
-	controller,
+	controller = mediaParserController(),
 	logLevel,
 	onParseProgress: onParseProgressDoNotCallDirectly,
 	progressIntervalInMs,
@@ -169,7 +170,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
-		if (controller?.signal?.aborted) {
+		if (controller._internals.signal.aborted) {
 			throw new MediaParserAbortError('Aborted');
 		}
 

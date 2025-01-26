@@ -22,7 +22,7 @@ export const nodeReader: ReaderInterface = {
 			signal: ownController.signal,
 		});
 
-		controller?.signal?.addEventListener(
+		controller._internals.signal.addEventListener(
 			'abort',
 			() => {
 				ownController.abort();
@@ -37,7 +37,7 @@ export const nodeReader: ReaderInterface = {
 		).getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
 		if (controller) {
-			controller.signal.addEventListener(
+			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
 					reader.cancel().catch(() => {});

@@ -34,7 +34,7 @@ export const createAudioDecoder = ({
 	track,
 	progressTracker,
 }: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
-	if (controller.signal.aborted) {
+	if (controller._internals.signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
 	}
 
@@ -57,10 +57,12 @@ export const createAudioDecoder = ({
 				frame.close();
 			};
 
-			controller.signal.addEventListener('abort', abortHandler, {once: true});
+			controller._internals.signal.addEventListener('abort', abortHandler, {
+				once: true,
+			});
 			outputQueue = outputQueue
 				.then(() => {
-					if (controller.signal.aborted) {
+					if (controller._internals.signal.aborted) {
 						return;
 					}
 
@@ -68,7 +70,10 @@ export const createAudioDecoder = ({
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
-					controller.signal.removeEventListener('abort', abortHandler);
+					controller._internals.signal.removeEventListener(
+						'abort',
+						abortHandler,
+					);
 					return Promise.resolve();
 				})
 				.catch((err) => {
@@ -83,7 +88,7 @@ export const createAudioDecoder = ({
 
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		controller.signal.removeEventListener('abort', onAbort);
+		controller._internals.signal.removeEventListener('abort', onAbort);
 
 		if (audioDecoder.state === 'closed') {
 			return;
@@ -96,7 +101,7 @@ export const createAudioDecoder = ({
 		close();
 	};
 
-	controller.signal.addEventListener('abort', onAbort);
+	controller._internals.signal.addEventListener('abort', onAbort);
 
 	audioDecoder.configure(config);
 

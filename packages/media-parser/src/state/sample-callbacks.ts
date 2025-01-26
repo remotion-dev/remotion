@@ -22,7 +22,7 @@ export const sampleCallback = ({
 	slowDurationAndFpsState,
 	structure,
 }: {
-	controller: MediaParserController | undefined;
+	controller: MediaParserController;
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;
@@ -67,7 +67,7 @@ export const sampleCallback = ({
 			queuedVideoSamples[id] = [];
 		},
 		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
-			if (controller?.signal?.aborted) {
+			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 
@@ -93,7 +93,7 @@ export const sampleCallback = ({
 			return samplesForTrack[trackId] ?? 0;
 		},
 		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
-			if (controller?.signal?.aborted) {
+			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 

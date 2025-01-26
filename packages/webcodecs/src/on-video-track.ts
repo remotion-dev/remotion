@@ -50,7 +50,7 @@ export const makeVideoTrackHandler =
 		resizeOperation: ResizeOperation | null;
 	}): OnVideoTrack =>
 	async ({track, container: inputContainer}) => {
-		if (controller?.signal.aborted) {
+		if (controller._internals.signal.aborted) {
 			throw new Error('Aborted');
 		}
 

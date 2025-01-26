@@ -41,11 +41,13 @@ export const createVideoDecoder = ({
 				inputFrame.close();
 			};
 
-			controller.signal.addEventListener('abort', abortHandler, {once: true});
+			controller._internals.signal.addEventListener('abort', abortHandler, {
+				once: true,
+			});
 
 			outputQueue = outputQueue
 				.then(() => {
-					if (controller.signal.aborted) {
+					if (controller._internals.signal.aborted) {
 						return;
 					}
 
@@ -53,7 +55,10 @@ export const createVideoDecoder = ({
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
-					controller.signal.removeEventListener('abort', abortHandler);
+					controller._internals.signal.removeEventListener(
+						'abort',
+						abortHandler,
+					);
 					return Promise.resolve();
 				})
 				.catch((err) => {
@@ -68,7 +73,7 @@ export const createVideoDecoder = ({
 
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		controller.signal.removeEventListener('abort', onAbort);
+		controller._internals.signal.removeEventListener('abort', onAbort);
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -80,7 +85,7 @@ export const createVideoDecoder = ({
 		close();
 	};
 
-	controller.signal.addEventListener('abort', onAbort);
+	controller._internals.signal.addEventListener('abort', onAbort);
 
 	videoDecoder.configure(config);
 

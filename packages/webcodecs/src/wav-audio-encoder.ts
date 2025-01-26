@@ -10,7 +10,7 @@ export const getWaveAudioEncoder = ({
 			return Promise.resolve();
 		},
 		encodeFrame: (audioData) => {
-			if (controller.signal.aborted) {
+			if (controller._internals.signal.aborted) {
 				return Promise.resolve();
 			}
 

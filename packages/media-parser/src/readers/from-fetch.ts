@@ -126,7 +126,7 @@ export const fetchReader: ReaderInterface = {
 			res.status,
 		);
 
-		controller?.signal?.addEventListener(
+		controller._internals.signal.addEventListener(
 			'abort',
 			() => {
 				ownController.abort(new MediaParserAbortError('Aborted by user'));
@@ -158,7 +158,7 @@ export const fetchReader: ReaderInterface = {
 		const reader = res.body.getReader();
 
 		if (controller) {
-			controller.signal.addEventListener(
+			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
 					reader.cancel().catch(() => {

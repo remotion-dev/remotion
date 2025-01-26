@@ -18,7 +18,7 @@ export const throttledStateUpdate = ({
 }: {
 	updateFn: ParseMediaOnProgress | null;
 	everyMilliseconds: number;
-	controller: MediaParserController | undefined;
+	controller: MediaParserController;
 	totalBytes: number | null;
 }): ReturnType => {
 	let currentState: ParseMediaProgress = {
@@ -54,7 +54,7 @@ export const throttledStateUpdate = ({
 		clearInterval(interval);
 	};
 
-	controller?.signal?.addEventListener('abort', onAbort, {once: true});
+	controller._internals.signal.addEventListener('abort', onAbort, {once: true});
 
 	return {
 		get: () => currentState,
@@ -63,7 +63,7 @@ export const throttledStateUpdate = ({
 		},
 		stopAndGetLastProgress: () => {
 			clearInterval(interval);
-			controller?.signal?.removeEventListener('abort', onAbort);
+			controller._internals.signal.removeEventListener('abort', onAbort);
 			return currentState;
 		},
 	};

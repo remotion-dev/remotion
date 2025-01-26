@@ -114,7 +114,7 @@ export const convertMedia = async function <
 	apiKey?: string | null;
 	fields?: F;
 } & ParseMediaCallbacks): Promise<ConvertMediaResult> {
-	if (controller.signal.aborted) {
+	if (controller._internals.signal.aborted) {
 		return Promise.reject(new MediaParserAbortError('Aborted'));
 	}
 
@@ -140,7 +140,7 @@ export const convertMedia = async function <
 	const abortConversion = (errCause: Error) => {
 		reject(errCause);
 
-		if (!controller.signal.aborted) {
+		if (!controller._internals.signal.aborted) {
 			controller.abort();
 		}
 	};
@@ -149,14 +149,14 @@ export const convertMedia = async function <
 		abortConversion(new MediaParserAbortError('Conversion aborted by user'));
 	};
 
-	controller.signal.addEventListener('abort', onUserAbort);
+	controller._internals.signal.addEventListener('abort', onUserAbort);
 
 	const creator = selectContainerCreator(container);
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal: controller.signal,
+		signal: controller._internals.signal,
 	});
 
 	const progressTracker = makeProgressTracker();
@@ -285,6 +285,6 @@ export const convertMedia = async function <
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {
-		controller.signal.removeEventListener('abort', onUserAbort);
+		controller._internals.signal.removeEventListener('abort', onUserAbort);
 	});
 };

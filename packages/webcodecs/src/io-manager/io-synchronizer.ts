@@ -125,7 +125,7 @@ export const makeIoSynchronizer = ({
 				].join('\n'),
 			10_000,
 		);
-		controller.signal.addEventListener('abort', clear);
+		controller._internals.signal.addEventListener('abort', clear);
 
 		await Promise.race([
 			timeoutPromise,
@@ -149,7 +149,7 @@ export const makeIoSynchronizer = ({
 						})(),
 			]),
 		]).finally(() => clear());
-		controller.signal.removeEventListener('abort', clear);
+		controller._internals.signal.removeEventListener('abort', clear);
 	};
 
 	const waitForFinish = async (controller: WebCodecsController) => {

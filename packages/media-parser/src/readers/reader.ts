@@ -16,7 +16,7 @@ type ReadResult = {
 type ReadContent = (options: {
 	src: ParseMediaSrc;
 	range: [number, number] | number | null;
-	controller: MediaParserController | undefined;
+	controller: MediaParserController;
 }) => Promise<ReadResult>;
 type GetLength = (src: ParseMediaSrc) => Promise<number>;
 
