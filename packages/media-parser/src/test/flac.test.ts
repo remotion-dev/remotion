@@ -70,6 +70,7 @@ test('parse flac', async () => {
 				samples++;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(durationInSeconds).toBe(19.714285714285715);
 	expect(tracks.audioTracks).toEqual([
@@ -226,6 +227,7 @@ test('parse flac minimal seek', async () => {
 			container: true,
 			internalStats: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(audioCodec).toBe('flac');
@@ -247,6 +249,7 @@ test('parse flac get duration and metadata', async () => {
 			durationInSeconds: true,
 			metadata: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(audioCodec).toBe('flac');

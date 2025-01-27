@@ -61,6 +61,8 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 
 			return action;
 		},
+		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
+		apiName: 'parseAndDownloadMedia()',
 	});
 	await content.finish();
 	return returnValue;

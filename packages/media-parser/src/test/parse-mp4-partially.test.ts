@@ -13,6 +13,7 @@ test('Should be able to parse only header of MP4', async () => {
 			internalStats: true,
 			mimeType: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
@@ -36,6 +37,7 @@ test('Should be able to parse only tracks of MP4', async () => {
 			mimeType: true,
 			keyframes: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 
@@ -70,6 +72,7 @@ test('Should read the whole file', async () => {
 		onAudioTrack: () => {
 			return () => {};
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
 

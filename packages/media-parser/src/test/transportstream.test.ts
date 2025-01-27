@@ -39,6 +39,7 @@ test('Transport stream', async () => {
 			slowNumberOfFrames: true,
 			slowKeyframes: true,
 		},
+		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({

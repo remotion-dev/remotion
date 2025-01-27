@@ -265,6 +265,7 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	onParseProgress: ParseMediaOnProgress | null;
 	progressIntervalInMs: number | null;
 	fields: F | null;
+	acknowledgeRemotionLicense: boolean;
 } & MandatoryParseMediaCallbacks;
 
 type ParseMediaSampleCallbacks = {
@@ -297,6 +298,7 @@ export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
 		onDiscardedData: OnDiscardedData | null;
 		mode: ParseMediaMode;
 		onError: ParseMediaOnError;
+		apiName: string;
 	};
 
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {

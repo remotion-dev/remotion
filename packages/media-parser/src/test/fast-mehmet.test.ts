@@ -27,6 +27,7 @@ test('mehmet video should be fast', async () => {
 				audioSamples++;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(audioTracks).toBe(1);

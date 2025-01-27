@@ -33,6 +33,7 @@ test('parse full wav', async () => {
 	} = await parseMedia({
 		src: exampleVideos.chirp,
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 		fields: {
 			tracks: true,
 			audioCodec: true,
@@ -148,6 +149,7 @@ test('should be fast to only get duration', async () => {
 	const {internalStats} = await parseMedia({
 		src: exampleVideos.chirp,
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 		fields: {
 			durationInSeconds: true,
 			internalStats: true,
@@ -167,6 +169,7 @@ test('should get all samples', async () => {
 	const {internalStats} = await parseMedia({
 		src: exampleVideos.chirp,
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 		fields: {
 			internalStats: true,
 			container: true,
