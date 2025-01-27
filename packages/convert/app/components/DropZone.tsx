@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from 'react';
+import {formatBytes} from '~/lib/format-bytes';
 import {handleDrop} from '~/lib/upload-report';
 import type {UploadProgress} from '~/lib/upload-with-progress';
 
@@ -24,19 +25,25 @@ type State =
 			type: 'error';
 			err: Error;
 	  }
-	| {type: 'done'; url: string};
+	| {type: 'done'; url: string; filename: string; size: number};
 
-export const DropZone: React.FC = () => {
+export const DropZone: React.FC<{
+	readonly onUrl: (src: string) => void;
+}> = ({onUrl}) => {
 	const [progress, setProgress] = useState<State>({type: 'idle'});
 
-	const selectVideo = useCallback(async (file: File) => {
-		setProgress({type: 'waiting-for-presign'});
-		const url = await handleDrop({
-			file,
-			onProgress: (p) => setProgress({type: 'progress', progress: p}),
-		});
-		setProgress({type: 'done', url});
-	}, []);
+	const selectVideo = useCallback(
+		async (file: File) => {
+			setProgress({type: 'waiting-for-presign'});
+			const url = await handleDrop({
+				file,
+				onProgress: (p) => setProgress({type: 'progress', progress: p}),
+			});
+			setProgress({type: 'done', url, filename: file.name, size: file.size});
+			onUrl(url);
+		},
+		[onUrl],
+	);
 
 	const onDrop: React.DragEventHandler = useCallback(
 		async (e) => {
@@ -67,8 +74,10 @@ export const DropZone: React.FC = () => {
 	if (progress.type === 'done') {
 		return (
 			<Container>
-				<div className="text-muted-foreground font-medium text-sm">
-					Video uploaded!
+				<div className="text-muted-foreground font-medium text-sm text-center">
+					File uploaded!
+					<br />
+					{progress.filename} ({formatBytes(progress.size)})
 				</div>
 			</Container>
 		);
@@ -101,7 +110,7 @@ export const DropZone: React.FC = () => {
 					{progress.type === 'waiting-for-presign' ? (
 						<div>Starting Upload...</div>
 					) : (
-						<div>Drag a video or click here</div>
+						<div>Drag a file or click here</div>
 					)}
 				</div>
 			</div>
