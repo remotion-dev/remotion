@@ -18,7 +18,7 @@ const filterData = (audioBuffer: Float32Array, samples: number) => {
 	return filteredData;
 };
 
-const normalizeData = (filteredData) => {
+const normalizeData = (filteredData: number[]) => {
     const max = Math.max(...filteredData);
     
     // If the maximum amplitude is below this threshold, treat it as silence
