@@ -95,5 +95,5 @@ export type {LogLevel};
 export {
 	mediaParserController,
 	MediaParserController as ParseMediaController,
-} from './controller';
+} from './media-parser-controller';
 export {VERSION} from './version';

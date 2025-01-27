@@ -1,4 +1,4 @@
-import type {MediaParserController} from './controller';
+import type {MediaParserController} from './media-parser-controller';
 import type {ParseMediaOnProgress, ParseMediaProgress} from './options';
 
 type ReturnType = {

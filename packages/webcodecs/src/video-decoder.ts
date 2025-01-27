@@ -1,8 +1,8 @@
 import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
-import type {WebCodecsController} from './controller';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
 	processSample: (videoSample: AudioOrVideoSample) => Promise<void>;

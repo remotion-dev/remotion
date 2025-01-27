@@ -1,4 +1,4 @@
-import type {MediaParserController} from '../controller';
+import type {MediaParserController} from '../media-parser-controller';
 import type {AllOptions, Options, ParseMediaFields} from '../options';
 import type {
 	AudioOrVideoSample,

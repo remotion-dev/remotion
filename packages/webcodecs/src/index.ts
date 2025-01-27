@@ -11,7 +11,6 @@ export {canCopyAudioTrack} from './can-copy-audio-track';
 export {canCopyVideoTrack} from './can-copy-video-track';
 export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
-export {webcodecsController, WebCodecsController} from './controller';
 export {
 	convertMedia,
 	ConvertMediaOnAudioData,
@@ -47,6 +46,7 @@ export {
 export type {ResizeOperation} from './resizing/mode';
 export {createVideoDecoder, WebCodecsVideoDecoder} from './video-decoder';
 export {createVideoEncoder, WebCodecsVideoEncoder} from './video-encoder';
+export {webcodecsController, WebCodecsController} from './webcodecs-controller';
 
 export const WebCodecsInternals = {
 	rotateAndResizeVideoFrame,

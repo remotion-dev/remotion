@@ -1,10 +1,10 @@
 import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
-import type {WebCodecsController} from './controller';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoEncoder = {
 	encodeFrame: (videoFrame: VideoFrame, timestamp: number) => Promise<void>;

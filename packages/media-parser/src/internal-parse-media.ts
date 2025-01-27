@@ -1,8 +1,8 @@
-import {mediaParserController} from './controller';
 import {emitAvailableInfo} from './emit-available-info';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
+import {mediaParserController} from './media-parser-controller';
 import type {
 	AllParseMediaFields,
 	InternalParseMedia,

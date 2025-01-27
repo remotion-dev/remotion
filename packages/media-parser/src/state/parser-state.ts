@@ -1,7 +1,7 @@
 import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
-import type {MediaParserController} from '../controller';
 import {Log, type LogLevel} from '../log';
+import type {MediaParserController} from '../media-parser-controller';
 import type {
 	OnDiscardedData,
 	Options,

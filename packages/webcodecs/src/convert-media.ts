@@ -22,7 +22,6 @@ import {
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
-import {webcodecsController, type WebCodecsController} from './controller';
 import {makeProgressTracker} from './create/progress-tracker';
 import {withResolversAndWaitForReturn} from './create/with-resolvers';
 import {generateOutputFilename} from './generate-output-filename';
@@ -44,6 +43,10 @@ import type {ResizeOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
+import {
+	webcodecsController,
+	type WebCodecsController,
+} from './webcodecs-controller';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;

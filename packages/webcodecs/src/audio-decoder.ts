@@ -3,10 +3,10 @@ import type {
 	AudioTrack,
 	LogLevel,
 } from '@remotion/media-parser';
-import type {WebCodecsController} from './controller';
 import type {ProgressTracker} from './create/progress-tracker';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
 	processSample: (audioSample: AudioOrVideoSample) => Promise<void>;

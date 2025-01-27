@@ -1,9 +1,9 @@
 import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
-import type {WebCodecsController} from './controller';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {getWaveAudioEncoder} from './wav-audio-encoder';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;

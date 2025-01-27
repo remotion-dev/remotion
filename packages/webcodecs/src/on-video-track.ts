@@ -1,7 +1,6 @@
 import type {LogLevel, OnVideoTrack} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {canCopyVideoTrack} from './can-copy-video-track';
-import type {WebCodecsController} from './controller';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import type {MediaFn} from './create/media-fn';
@@ -20,6 +19,7 @@ import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
 import {getVideoEncoderConfig} from './video-encoder-config';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeVideoTrackHandler =
 	({

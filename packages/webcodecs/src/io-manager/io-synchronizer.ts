@@ -1,9 +1,9 @@
-import type {WebCodecsController} from '../controller';
 import {IoEventEmitter} from '../create/event-emitter';
 import type {ProgressTracker} from '../create/progress-tracker';
 import {withResolvers} from '../create/with-resolvers';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {WebCodecsController} from '../webcodecs-controller';
 import {makeTimeoutPromise} from './make-timeout-promise';
 
 export const makeIoSynchronizer = ({

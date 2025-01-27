@@ -1,4 +1,3 @@
-import type {MediaParserController} from './controller';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
@@ -8,6 +7,7 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
+import type {MediaParserController} from './media-parser-controller';
 import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';

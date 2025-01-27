@@ -1,5 +1,5 @@
-import type {WebCodecsController} from '../controller';
 import {withResolvers} from '../create/with-resolvers';
+import type {WebCodecsController} from '../webcodecs-controller';
 
 export const makeTimeoutPromise = ({
 	label,

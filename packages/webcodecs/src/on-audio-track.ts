@@ -8,7 +8,6 @@ import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import {canCopyAudioTrack} from './can-copy-audio-track';
-import type {WebCodecsController} from './controller';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnAudioData} from './convert-media';
 import type {MediaFn} from './create/media-fn';
@@ -20,6 +19,7 @@ import {getDefaultAudioCodec} from './get-default-audio-codec';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeAudioTrackHandler =
 	({
