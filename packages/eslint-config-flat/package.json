@@ -3,9 +3,9 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-flat"
 	},
 	"name": "@remotion/eslint-config-flat",
-	"version": "4.0.254",
+	"version": "4.0.255",
 	"description": "Default configuration for Remotion templates (ESLint >= 9)",
-	"main": "dist/index.js",
+	"main": "dist/esm/index.mjs",
 	"type": "module",
 	"files": [
 		"dist"
@@ -39,6 +39,15 @@
 		"react",
 		"player"
 	],
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
 	"publishConfig": {
 		"access": "public"
 	},
