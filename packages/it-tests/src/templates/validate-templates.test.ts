@@ -62,6 +62,9 @@ describe('Templates should be valid', () => {
 					body.devDependencies['@remotion/eslint-config']?.match(
 						'workspace:*',
 					) ||
+					body.devDependencies['@remotion/eslint-config-flat']?.match(
+						'workspace:*',
+					) ||
 					body.devDependencies['@remotion/eslint-plugin']?.match('workspace:*');
 				expect(eitherPluginOrConfig).toBeTruthy();
 			}
