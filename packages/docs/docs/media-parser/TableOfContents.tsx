@@ -14,12 +14,20 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<strong>Fast and slow operations</strong>
 					<div>Efficently use parseMedia()</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/pause-resume-abort">
+					<strong>Pause, resume and abort</strong>
+					<div>Steer the parsing process</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/tags">
 					<strong>Extract ID3 tags and EXIF data</strong>
 					<div>Get embedded tags from video files</div>
 				</TOCItem>
-				<TOCItem link="/docs/media-parser/support">
-					<strong>Runtime supports</strong>
+				<TOCItem link="/docs/media-parser/format-support">
+					<strong>Format support</strong>
+					<div>What you can parse with Media Parser</div>
+				</TOCItem>
+				<TOCItem link="/docs/media-parser/runtime-support">
+					<strong>Runtime support</strong>
 					<div>Where you can run Media Parser</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/webcodecs">
@@ -43,6 +51,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'downloadAndParseMedia()'}</strong>
 					<div>Download and parse a media file.</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/media-parser-controller">
+					<strong>{'mediaParserController()'}</strong>
+					<div>Pause, resume and abort the parse.</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/node-reader">
 					<strong>{'nodeReader'}</strong>
 					<div>Read a file from the local file system.</div>
@@ -58,6 +70,10 @@ export const TableOfContents: React.FC = () => {
 					<div>
 						Read a file from <code>&lt;input type=&quot;file&quot;&gt;</code>.
 					</div>
+				</TOCItem>
+				<TOCItem link="/docs/media-parser/node-writer">
+					<strong>{'nodeWriter'}</strong>
+					<div>Write a file to the local file system using Node.</div>
 				</TOCItem>
 			</Grid>
 		</div>

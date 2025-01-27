@@ -68,7 +68,7 @@ const validateContentRangeAndDetectIfSupported = (
 };
 
 export const fetchReader: ReaderInterface = {
-	read: async ({src, range, signal}) => {
+	read: async ({src, range, controller}) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `fetchReader`');
 		}
@@ -91,7 +91,7 @@ export const fetchReader: ReaderInterface = {
 			);
 		}
 
-		const controller = new AbortController();
+		const ownController = new AbortController();
 
 		const cache =
 			typeof navigator !== 'undefined' &&
@@ -111,7 +111,7 @@ export const fetchReader: ReaderInterface = {
 					: {
 							Range: `bytes=${`${actualRange[0]}-${actualRange[1]}`}`,
 						},
-			signal: controller.signal,
+			signal: ownController.signal,
 			cache,
 		});
 
@@ -126,10 +126,10 @@ export const fetchReader: ReaderInterface = {
 			res.status,
 		);
 
-		signal?.addEventListener(
+		controller._internals.signal.addEventListener(
 			'abort',
 			() => {
-				controller.abort(new MediaParserAbortError('Aborted by user'));
+				ownController.abort(new MediaParserAbortError('Aborted by user'));
 			},
 			{once: true},
 		);
@@ -157,8 +157,8 @@ export const fetchReader: ReaderInterface = {
 
 		const reader = res.body.getReader();
 
-		if (signal) {
-			signal.addEventListener(
+		if (controller) {
+			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
 					reader.cancel().catch(() => {
@@ -173,7 +173,7 @@ export const fetchReader: ReaderInterface = {
 			reader: {
 				reader,
 				abort: () => {
-					controller.abort();
+					ownController.abort();
 				},
 			},
 			contentLength,

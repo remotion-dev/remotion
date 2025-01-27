@@ -1,8 +1,8 @@
 import {emitAvailableInfo} from './emit-available-info';
-import {MediaParserAbortError} from './errors';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
+import {mediaParserController} from './media-parser-controller';
 import type {
 	AllParseMediaFields,
 	InternalParseMedia,
@@ -26,7 +26,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	reader: readerInterface,
 	onAudioTrack,
 	onVideoTrack,
-	signal,
+	controller = mediaParserController(),
 	logLevel,
 	onParseProgress: onParseProgressDoNotCallDirectly,
 	progressIntervalInMs,
@@ -55,7 +55,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		name,
 		contentType,
 		supportsContentRange,
-	} = await readerInterface.read({src, range: null, signal});
+	} = await readerInterface.read({src, range: null, controller});
 
 	if (contentLength === null) {
 		throw new Error(
@@ -96,7 +96,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	const state = makeParserState({
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
-		signal,
+		controller,
 		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
@@ -117,7 +117,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	const throttledState = throttledStateUpdate({
 		updateFn: onParseProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal,
+		controller,
 		totalBytes: contentLength,
 	});
 
@@ -177,13 +177,12 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
-		if (signal?.aborted) {
-			throw new MediaParserAbortError('Aborted');
-		}
+		await controller._internals.checkForAbortAndPause();
 
 		const offsetBefore = iterator.counter.getOffset();
 
 		const fetchMoreData = async () => {
+			await controller._internals.checkForAbortAndPause();
 			const result = await currentReader.reader.read();
 			if (result.value) {
 				iterator.addData(result.value);
@@ -232,8 +231,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 			try {
 				await triggerInfoEmit();
-
 				const start = Date.now();
+
+				await controller._internals.checkForAbortAndPause();
 				const skip = await runParseIteration({
 					state,
 					mimeType: contentType,

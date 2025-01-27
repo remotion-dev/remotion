@@ -16,7 +16,7 @@ export const performSeek = async ({
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 }): Promise<Reader> => {
-	const {iterator, logLevel, signal, mode, contentLength} = state;
+	const {iterator, logLevel, controller, mode, contentLength} = state;
 
 	if (seekTo <= iterator.counter.getOffset()) {
 		throw new Error(
@@ -53,10 +53,11 @@ export const performSeek = async ({
 	);
 	currentReader.abort();
 
+	await controller?._internals.checkForAbortAndPause();
 	const {reader: newReader} = await readerInterface.read({
 		src,
 		range: seekTo,
-		signal,
+		controller,
 	});
 	iterator.skipTo(seekTo);
 	await state.discardReadBytes(true);

@@ -1,6 +1,7 @@
 import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
 import {Log, type LogLevel} from '../log';
+import type {MediaParserController} from '../media-parser-controller';
 import type {
 	OnDiscardedData,
 	Options,
@@ -39,7 +40,7 @@ export type SpsAndPps = {
 export const makeParserState = ({
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
-	signal,
+	controller,
 	fields,
 	onAudioTrack,
 	onVideoTrack,
@@ -52,7 +53,7 @@ export const makeParserState = ({
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
-	signal: AbortSignal | undefined;
+	controller: MediaParserController;
 	fields: Options<ParseMediaFields>;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
@@ -101,7 +102,7 @@ export const makeParserState = ({
 		aac: aacState(),
 		flac: flacState(),
 		callbacks: sampleCallback({
-			signal,
+			controller,
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
 			fields,
@@ -128,7 +129,7 @@ export const makeParserState = ({
 		videoSection: videoSectionState(),
 		logLevel,
 		iterator,
-		signal,
+		controller,
 		mode,
 		eventLoop: eventLoopState(logLevel),
 		src,

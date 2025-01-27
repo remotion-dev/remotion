@@ -20,7 +20,7 @@ export const throttledStateUpdate = ({
 }: {
 	updateFn: ConvertMediaOnProgress | null;
 	everyMilliseconds: number;
-	signal: AbortSignal;
+	signal: AbortSignal | null;
 }): ReturnType => {
 	let currentState: ConvertMediaProgress = {
 		decodedAudioFrames: 0,
@@ -60,7 +60,7 @@ export const throttledStateUpdate = ({
 		clearInterval(interval);
 	};
 
-	signal.addEventListener('abort', onAbort, {once: true});
+	signal?.addEventListener('abort', onAbort, {once: true});
 
 	return {
 		get: () => currentState,
@@ -69,7 +69,7 @@ export const throttledStateUpdate = ({
 		},
 		stopAndGetLastProgress: () => {
 			clearInterval(interval);
-			signal.removeEventListener('abort', onAbort);
+			signal?.removeEventListener('abort', onAbort);
 			return currentState;
 		},
 	};

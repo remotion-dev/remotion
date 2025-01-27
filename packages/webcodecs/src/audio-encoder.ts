@@ -1,8 +1,9 @@
-import type {LogLevel} from '@remotion/media-parser';
+import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {getWaveAudioEncoder} from './wav-audio-encoder';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioEncoder = {
 	encodeFrame: (audioData: AudioData) => Promise<void>;
@@ -15,7 +16,7 @@ export type AudioEncoderInit = {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
 	onError: (error: DOMException) => void;
 	codec: ConvertMediaAudioCodec;
-	signal: AbortSignal;
+	controller: WebCodecsController;
 	config: AudioEncoderConfig;
 	logLevel: LogLevel;
 	onNewAudioSampleRate: (sampleRate: number) => void;
@@ -26,18 +27,20 @@ export const createAudioEncoder = ({
 	onChunk,
 	onError,
 	codec,
-	signal,
+	controller,
 	config: audioEncoderConfig,
 	logLevel,
 	onNewAudioSampleRate,
 	progressTracker,
 }: AudioEncoderInit): WebCodecsAudioEncoder => {
-	if (signal.aborted) {
-		throw new Error('Not creating audio encoder, already aborted');
+	if (controller._internals.signal.aborted) {
+		throw new MediaParserAbortError(
+			'Not creating audio encoder, already aborted',
+		);
 	}
 
 	if (codec === 'wav') {
-		return getWaveAudioEncoder({onChunk, signal});
+		return getWaveAudioEncoder({onChunk, controller});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer({
@@ -53,7 +56,7 @@ export const createAudioEncoder = ({
 			ioSynchronizer.onOutput(chunk.timestamp);
 			prom = prom
 				.then(() => {
-					if (signal.aborted) {
+					if (controller._internals.signal.aborted) {
 						return;
 					}
 
@@ -74,7 +77,7 @@ export const createAudioEncoder = ({
 
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		signal.removeEventListener('abort', onAbort);
+		controller._internals.signal.removeEventListener('abort', onAbort);
 		if (encoder.state === 'closed') {
 			return;
 		}
@@ -86,7 +89,7 @@ export const createAudioEncoder = ({
 		close();
 	};
 
-	signal.addEventListener('abort', onAbort);
+	controller._internals.signal.addEventListener('abort', onAbort);
 
 	if (codec !== 'opus' && codec !== 'aac') {
 		throw new Error(
@@ -107,7 +110,7 @@ export const createAudioEncoder = ({
 			unemitted: 20,
 			unprocessed: 20,
 			minimumProgress: audioData.timestamp - 10_000_000,
-			signal,
+			controller,
 		});
 
 		// @ts-expect-error - can have changed in the meanwhile
@@ -140,7 +143,7 @@ export const createAudioEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish(signal);
+			await ioSynchronizer.waitForFinish(controller);
 			await prom;
 		},
 		close,

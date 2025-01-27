@@ -49,7 +49,7 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		onVideoTrack: null,
 		progressIntervalInMs: options.progressIntervalInMs ?? null,
 		reader: options.reader ?? fetchReader,
-		signal: options.signal ?? undefined,
+		controller: options.controller ?? undefined,
 		src: options.src,
 		onError: async (err) => {
 			const action = (await options.onError?.(err)) ?? {action: 'fail'};

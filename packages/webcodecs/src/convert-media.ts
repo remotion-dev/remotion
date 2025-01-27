@@ -44,6 +44,10 @@ import type {ResizeOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
+import {
+	webcodecsController,
+	type WebCodecsController,
+} from './webcodecs-controller';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;
@@ -82,7 +86,7 @@ export const convertMedia = async function <
 	audioCodec,
 	container,
 	videoCodec,
-	signal: userPassedAbortSignal,
+	controller = webcodecsController(),
 	onAudioTrack: userAudioResolver,
 	onVideoTrack: userVideoResolver,
 	reader,
@@ -129,7 +133,7 @@ export const convertMedia = async function <
 	onProgress?: ConvertMediaOnProgress;
 	videoCodec?: ConvertMediaVideoCodec;
 	audioCodec?: ConvertMediaAudioCodec;
-	signal?: AbortSignal;
+	controller?: WebCodecsController;
 	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	reader?: ParseMediaOptions<F>['reader'];
@@ -141,11 +145,11 @@ export const convertMedia = async function <
 	apiKey?: string | null;
 	fields?: F;
 } & ParseMediaCallbacks): Promise<ConvertMediaResult> {
-	if (userPassedAbortSignal?.aborted) {
-		return Promise.reject(new Error('Aborted'));
+	if (controller._internals.signal.aborted) {
+		return Promise.reject(new MediaParserAbortError('Aborted'));
 	}
 
-	if (container !== 'webm' && availableContainers.indexOf(container) === -1) {
+	if (availableContainers.indexOf(container) === -1) {
 		return Promise.reject(
 			new TypeError(
 				`Only the following values for "container" are supported currently: ${JSON.stringify(availableContainers)}`,
@@ -163,12 +167,11 @@ export const convertMedia = async function <
 
 	const {resolve, reject, getPromiseToImmediatelyReturn} =
 		withResolversAndWaitForReturn<ConvertMediaResult>();
-	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
 		reject(errCause);
 
-		if (!controller.signal.aborted) {
+		if (!controller._internals.signal.aborted) {
 			controller.abort();
 		}
 	};
@@ -177,14 +180,14 @@ export const convertMedia = async function <
 		abortConversion(new MediaParserAbortError('Conversion aborted by user'));
 	};
 
-	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
+	controller._internals.signal.addEventListener('abort', onUserAbort);
 
 	const creator = selectContainerCreator(container);
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal: controller.signal,
+		signal: controller._internals.signal,
 	});
 
 	const progressTracker = makeProgressTracker();
@@ -253,7 +256,7 @@ export const convertMedia = async function <
 		src,
 		onVideoTrack,
 		onAudioTrack,
-		signal: controller.signal,
+		controller,
 		fields: {
 			...fields,
 			durationInSeconds: true,
@@ -346,6 +349,6 @@ export const convertMedia = async function <
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {
-		userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
+		controller._internals.signal.removeEventListener('abort', onUserAbort);
 	});
 };

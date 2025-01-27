@@ -3,6 +3,7 @@ import type {ProgressTracker} from '../create/progress-tracker';
 import {withResolvers} from '../create/with-resolvers';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {WebCodecsController} from '../webcodecs-controller';
 import {makeTimeoutPromise} from './make-timeout-promise';
 
 export const makeIoSynchronizer = ({
@@ -104,15 +105,17 @@ export const makeIoSynchronizer = ({
 		unprocessed,
 		unemitted,
 		minimumProgress,
-		signal,
+		controller,
 	}: {
 		unemitted: number;
 		unprocessed: number;
 		minimumProgress: number | null;
-		signal: AbortSignal;
+		controller: WebCodecsController;
 	}) => {
-		const {timeoutPromise, clear} = makeTimeoutPromise(
-			() =>
+		await controller._internals.checkForAbortAndPause();
+
+		const {timeoutPromise, clear} = makeTimeoutPromise({
+			label: () =>
 				[
 					`Waited too long for ${label} to finish:`,
 					`${getUnemittedItems()} unemitted items`,
@@ -122,9 +125,10 @@ export const makeIoSynchronizer = ({
 					`last output: ${lastOutput}`,
 					`wanted: ${unemitted} unemitted items, ${unprocessed} unprocessed items, minimum progress ${minimumProgress}`,
 				].join('\n'),
-			10_000,
-		);
-		signal.addEventListener('abort', clear);
+			ms: 10000,
+			controller,
+		});
+		controller._internals.signal.addEventListener('abort', clear);
 
 		await Promise.race([
 			timeoutPromise,
@@ -148,15 +152,15 @@ export const makeIoSynchronizer = ({
 						})(),
 			]),
 		]).finally(() => clear());
-		signal.removeEventListener('abort', clear);
+		controller._internals.signal.removeEventListener('abort', clear);
 	};
 
-	const waitForFinish = async (signal: AbortSignal) => {
+	const waitForFinish = async (controller: WebCodecsController) => {
 		await waitFor({
 			unprocessed: 0,
 			unemitted: 0,
 			minimumProgress: null,
-			signal,
+			controller,
 		});
 	};
 

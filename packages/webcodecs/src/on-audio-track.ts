@@ -19,6 +19,7 @@ import {getDefaultAudioCodec} from './get-default-audio-codec';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeAudioTrackHandler =
 	({
@@ -35,7 +36,7 @@ export const makeAudioTrackHandler =
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
-		controller: AbortController;
+		controller: WebCodecsController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
@@ -187,7 +188,7 @@ export const makeAudioTrackHandler =
 				);
 			},
 			codec: audioOperation.audioCodec,
-			signal: controller.signal,
+			controller,
 			config: audioEncoderConfig,
 			logLevel,
 			progressTracker,
@@ -252,7 +253,7 @@ export const makeAudioTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			config: audioDecoderConfig,
 			logLevel,
 			track,

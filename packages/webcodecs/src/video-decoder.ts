@@ -2,6 +2,7 @@ import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
 	processSample: (videoSample: AudioOrVideoSample) => Promise<void>;
@@ -13,14 +14,14 @@ export type WebCodecsVideoDecoder = {
 export const createVideoDecoder = ({
 	onFrame,
 	onError,
-	signal,
+	controller,
 	config,
 	logLevel,
 	progress,
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: DOMException) => void;
-	signal: AbortSignal;
+	controller: WebCodecsController;
 	config: VideoDecoderConfig;
 	logLevel: LogLevel;
 	progress: ProgressTracker;
@@ -40,11 +41,13 @@ export const createVideoDecoder = ({
 				inputFrame.close();
 			};
 
-			signal.addEventListener('abort', abortHandler, {once: true});
+			controller._internals.signal.addEventListener('abort', abortHandler, {
+				once: true,
+			});
 
 			outputQueue = outputQueue
 				.then(() => {
-					if (signal.aborted) {
+					if (controller._internals.signal.aborted) {
 						return;
 					}
 
@@ -52,7 +55,10 @@ export const createVideoDecoder = ({
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
-					signal.removeEventListener('abort', abortHandler);
+					controller._internals.signal.removeEventListener(
+						'abort',
+						abortHandler,
+					);
 					return Promise.resolve();
 				})
 				.catch((err) => {
@@ -67,7 +73,7 @@ export const createVideoDecoder = ({
 
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		signal.removeEventListener('abort', onAbort);
+		controller._internals.signal.removeEventListener('abort', onAbort);
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -79,7 +85,7 @@ export const createVideoDecoder = ({
 		close();
 	};
 
-	signal.addEventListener('abort', onAbort);
+	controller._internals.signal.addEventListener('abort', onAbort);
 
 	videoDecoder.configure(config);
 
@@ -105,7 +111,7 @@ export const createVideoDecoder = ({
 			unemitted: 20,
 			unprocessed: 2,
 			minimumProgress: sample.timestamp - 10_000_000,
-			signal,
+			controller,
 		});
 		if (sample.type === 'key') {
 			await videoDecoder.flush();
@@ -126,7 +132,7 @@ export const createVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
-			await ioSynchronizer.waitForFinish(signal);
+			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;
 			Log.verbose(logLevel, 'Output queue finished');

@@ -19,6 +19,7 @@ import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
 import {getVideoEncoderConfig} from './video-encoder-config';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeVideoTrackHandler =
 	({
@@ -39,7 +40,7 @@ export const makeVideoTrackHandler =
 		onVideoFrame: null | ConvertMediaOnVideoFrame;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		abortConversion: (errCause: Error) => void;
-		controller: AbortController;
+		controller: WebCodecsController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
 		logLevel: LogLevel;
@@ -49,7 +50,7 @@ export const makeVideoTrackHandler =
 		resizeOperation: ResizeOperation | null;
 	}): OnVideoTrack =>
 	async ({track, container: inputContainer}) => {
-		if (controller.signal.aborted) {
+		if (controller._internals.signal.aborted) {
 			throw new Error('Aborted');
 		}
 
@@ -202,7 +203,7 @@ export const makeVideoTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			config: videoEncoderConfig,
 			logLevel,
 			outputCodec: videoOperation.videoCodec,
@@ -232,7 +233,7 @@ export const makeVideoTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			logLevel,
 			progress,
 		});

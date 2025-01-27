@@ -1,0 +1,95 @@
+---
+image: /generated/articles-docs-webcodecs-pause-resume-abort.png
+id: pause-resume-abort
+title: Pause, resume and abort conversion
+sidebar_label: Pause, resume and abort
+slug: /webcodecs/pause-resume-abort
+crumb: '@remotion/webcodecs'
+---
+
+You can pause, resume and abort the conversion process.
+
+Create a [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) and use the following methods:
+
+## Pause and resume
+
+```tsx twoslash title="Pause and resume"
+import {webcodecsController, convertMedia} from '@remotion/webcodecs';
+
+const controller = webcodecsController();
+
+convertMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  container: 'webm',
+  controller,
+})
+  .then(() => {
+    console.log('Finished downloading');
+  })
+  .catch((err) => {
+    console.error('Error downloading', err);
+  });
+
+// Wait 1 sec, pause, wait 1 sec, resume
+await new Promise((resolve) => setTimeout(resolve, 1000));
+controller.pause();
+await new Promise((resolve) => setTimeout(resolve, 1000));
+controller.resume();
+```
+
+## Cancel a conversion
+
+```tsx twoslash title="Cancel a conversion process"
+import {webcodecsController, convertMedia} from '@remotion/webcodecs';
+
+const controller = webcodecsController();
+
+convertMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  container: 'webm',
+  controller,
+})
+  .then(() => {
+    console.log('Finished parsing');
+  })
+  .catch((err) => {
+    console.error('Error parsing', err);
+  });
+
+// Cancel after 10 seconds
+await new Promise((resolve) => setTimeout(resolve, 10_000));
+controller.abort();
+```
+
+## Checking if a conversion was aborted
+
+Use the [`hasBeenAborted()`](/docs/media-parser/has-been-aborted) function to check if a conversion was aborted using the `.abort()` method.
+
+```tsx twoslash title="Checking if a conversion was aborted"
+import {hasBeenAborted} from '@remotion/media-parser';
+import {webcodecsController, convertMedia} from '@remotion/webcodecs';
+
+const controller = webcodecsController();
+
+const promise = convertMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  container: 'webm',
+  controller,
+})
+  .then(() => {
+    console.log('Finished conversion');
+  })
+  .catch((err) => {
+    if (hasBeenAborted(err)) {
+      console.log('Conversion was cancelled');
+    } else {
+      console.error('Error converting', err);
+    }
+  });
+```
+
+## See also
+
+- [`webcodecsController`](/docs/webcodecs/webcodecs-controller)
+- [`hasBeenAborted`](/docs/media-parser/has-been-aborted)
+- [`convertMedia()`](/docs/webcodecs/convert-media)

@@ -18,13 +18,13 @@ export const getMoovAtom = async ({
 	const {reader} = await state.readerInterface.read({
 		src: state.src,
 		range: endOfMdat,
-		signal: state.signal,
+		controller: state.controller,
 	});
 
 	const childState = makeParserState({
 		hasAudioTrackHandlers: false,
 		hasVideoTrackHandlers: false,
-		signal: state.signal,
+		controller: state.controller,
 		fields: {
 			structure: true,
 		},

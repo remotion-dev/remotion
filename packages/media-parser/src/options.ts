@@ -7,6 +7,7 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
+import type {MediaParserController} from './media-parser-controller';
 import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
@@ -259,7 +260,7 @@ export type ParseMediaOnProgress = (
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	reader: ReaderInterface;
-	signal: AbortSignal | undefined;
+	controller: MediaParserController | undefined;
 	logLevel: LogLevel;
 	onParseProgress: ParseMediaOnProgress | null;
 	progressIntervalInMs: number | null;
