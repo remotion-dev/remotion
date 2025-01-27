@@ -1,4 +1,5 @@
 import {emitAvailableInfo} from './emit-available-info';
+import {MediaParserAbortError} from './errors';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
@@ -12,6 +13,7 @@ import type {
 	ParseMediaResult,
 } from './options';
 import {performSeek} from './perform-seek';
+import {warnIfRemotionLicenseNotAcknowledged} from './remotion-license-acknowledge';
 import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
@@ -31,8 +33,15 @@ export const internalParseMedia: InternalParseMedia = async function <
 	mode,
 	onDiscardedData,
 	onError,
+	acknowledgeRemotionLicense,
+	apiName,
 	...more
 }: InternalParseMediaOptions<F>) {
+	warnIfRemotionLicenseNotAcknowledged({
+		acknowledgeRemotionLicense,
+		logLevel,
+		apiName,
+	});
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
 
 	const fields = getFieldsFromCallback({
@@ -169,7 +178,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
 		if (signal?.aborted) {
-			throw new Error('Aborted');
+			throw new MediaParserAbortError('Aborted');
 		}
 
 		const offsetBefore = iterator.counter.getOffset();
@@ -276,6 +285,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 			const didProgress = iterator.counter.getOffset() > offsetBefore;
 			if (!didProgress) {
 				iterationWithThisOffset++;
+			} else {
+				iterationWithThisOffset = 0;
 			}
 		}
 

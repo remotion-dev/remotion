@@ -17,6 +17,7 @@ test('should be able to use callback fields only', async () => {
 			expect(videoCodec).toBe('vp8');
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	expect(assertions).toBe(2);
 	expect(webm).toEqual({});

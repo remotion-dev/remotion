@@ -37,10 +37,7 @@ export const VideosInSequence: React.FC<Props> = ({videos}) => {
         }
 
         return (
-          <Series.Sequence
-            key={vid.src}
-            durationInFrames={vid.durationInFrames}
-          >
+          <Series.Sequence key={vid.src} durationInFrames={vid.durationInFrames}>
             <OffthreadVideo src={vid.src} />
           </Series.Sequence>
         );
@@ -52,23 +49,15 @@ export const VideosInSequence: React.FC<Props> = ({videos}) => {
 
 In the same file, create a function that calculates the metadata for the composition:
 
-<Step>1</Step> Calls [`parseMedia()`](/docs/media-parser) to get the duration of
-each video.
+<Step>1</Step> Calls [`parseMedia()`](/docs/media-parser) to get the duration of each video.
 <div style={{marginTop: -14}} />
-<Step>2</Step> Create a [`calculateMetadata()`](/docs/calculate-metadata)
-function that fetches the duration of each video.
+<Step>2</Step> Create a [`calculateMetadata()`](/docs/calculate-metadata) function that fetches the duration of each video.
 <div style={{marginTop: -14}} />
-<Step>3</Step> Sums up all durations to get the total duration of the
-composition.
+<Step>3</Step> Sums up all durations to get the total duration of the composition.
 
 ```tsx twoslash title="VideosInSequence.tsx"
 import React from 'react';
-import {
-  OffthreadVideo,
-  staticFile,
-  Series,
-  CalculateMetadataFunction,
-} from 'remotion';
+import {OffthreadVideo, staticFile, Series, CalculateMetadataFunction} from 'remotion';
 import {parseMedia} from '@remotion/media-parser';
 
 type VideoToEmbed = {
@@ -81,9 +70,7 @@ type Props = {
 };
 
 // ---cut---
-export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
-  props,
-}) => {
+export const calculateMetadata: CalculateMetadataFunction<Props> = async ({props}) => {
   const fps = 30;
   const videos = await Promise.all([
     ...props.videos.map(async (video): Promise<VideoToEmbed> => {
@@ -101,10 +88,7 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
     }),
   ]);
 
-  const totalDurationInFrames = videos.reduce(
-    (acc, video) => acc + (video.durationInFrames ?? 0),
-    0,
-  );
+  const totalDurationInFrames = videos.reduce((acc, video) => acc + (video.durationInFrames ?? 0), 0);
 
   return {
     props: {
@@ -122,12 +106,7 @@ In your [root file](/docs/terminology/root-file), create a [`<Composition>`](/do
 ```tsx twoslash title="Root.tsx"
 // @filename: VideosInSequence.tsx
 import React from 'react';
-import {
-  OffthreadVideo,
-  staticFile,
-  Series,
-  CalculateMetadataFunction,
-} from 'remotion';
+import {OffthreadVideo, staticFile, Series, CalculateMetadataFunction} from 'remotion';
 import {parseMedia} from '@remotion/media-parser';
 
 type VideoToEmbed = {
@@ -139,9 +118,7 @@ type Props = {
   videos: VideoToEmbed[];
 };
 
-export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
-  props,
-}) => {
+export const calculateMetadata: CalculateMetadataFunction<Props> = async ({props}) => {
   const fps = 30;
   const videos = await Promise.all([
     ...props.videos.map(async (video): Promise<VideoToEmbed> => {
@@ -159,10 +136,7 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
     }),
   ]);
 
-  const totalDurationInFrames = videos.reduce(
-    (acc, video) => acc + video.durationInFrames!,
-    0,
-  );
+  const totalDurationInFrames = videos.reduce((acc, video) => acc + video.durationInFrames!, 0);
 
   return {
     props: {
@@ -183,10 +157,7 @@ export const VideosInSequence: React.FC<Props> = ({videos}) => {
         }
 
         return (
-          <Series.Sequence
-            key={vid.src}
-            durationInFrames={vid.durationInFrames}
-          >
+          <Series.Sequence key={vid.src} durationInFrames={vid.durationInFrames}>
             <OffthreadVideo src={staticFile('video.mp4')} />
           </Series.Sequence>
         );
@@ -238,7 +209,7 @@ To create a smoother preview playback, we should do two things to all videos:
 <Step>1</Step> Add a [`premountFor`](/docs/series#premountfor) prop to [`<Series.Sequence>`](/docs/series). This will
 invisibly mount the video tag before it is played, giving it some time to load.{' '}
 <div style={{marginTop: -14}} />
-<Step>2</Step> Add the [`pauseWhenBuffering`](/docs/series#premount) prop. This will transition the Player into a [buffering state](/docs/player/buffer-state), should the video still need to load.
+<Step>2</Step> Add the [`pauseWhenBuffering`](/docs/offthreadvideo#pausewhenbuffering) prop. This will transition the Player into a [buffering state](/docs/player/buffer-state), should the video still need to load.
 
 ```tsx twoslash title="VideosInSequence.tsx" {14, 17}
 import React from 'react';
@@ -265,11 +236,7 @@ export const VideosInSequence: React.FC<Props> = ({videos}) => {
         }
 
         return (
-          <Series.Sequence
-            key={vid.src}
-            premountFor={4 * fps}
-            durationInFrames={vid.durationInFrames}
-          >
+          <Series.Sequence key={vid.src} premountFor={4 * fps} durationInFrames={vid.durationInFrames}>
             <OffthreadVideo pauseWhenBuffering src={vid.src} />
           </Series.Sequence>
         );

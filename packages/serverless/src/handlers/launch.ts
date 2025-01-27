@@ -42,6 +42,7 @@ import {validateFramesPerFunction} from '../validate-frames-per-function';
 import {validateOutname} from '../validate-outname';
 import {validatePrivacy} from '../validate-privacy';
 import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
+import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -677,6 +678,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			insideFunctionSpecifics,
 		});
 		clearTimeout(webhookDueToTimeout);
+
+		sendTelemetryEvent(params.apiKey ?? null, params.logLevel);
 
 		if (!params.webhook || webhookInvoked) {
 			return {

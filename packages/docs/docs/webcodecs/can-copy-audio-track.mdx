@@ -19,9 +19,6 @@ You can obtain an `AudioTrack` using [`parseMedia()`](/docs/media-parser/parse-m
 ## Examples
 
 ```tsx twoslash title="Check if an audio track can be copied"
-// @module: es2022
-// @target: es2017
-
 import {parseMedia} from '@remotion/media-parser';
 import {canCopyAudioTrack} from '@remotion/webcodecs';
 
@@ -43,9 +40,6 @@ for (const track of tracks.audioTracks) {
 ```
 
 ```tsx twoslash title="Copy an audio track to Opus, otherwise drop it"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia, canCopyAudioTrack} from '@remotion/webcodecs';
 
 await convertMedia({

@@ -12,8 +12,7 @@ These functions can be used in Node.js and Bun.
 Rendering a video takes three steps:
 
 <div>
-  <Step>1</Step> Creating a{' '}
-  <a href="/docs/terminology/bundle">Remotion Bundle</a>
+  <Step>1</Step> Creating a <a href="/docs/terminology/bundle">Remotion Bundle</a>
   <br />
   <Step>2</Step> Select the composition to render and calculate its metadata
   <br />
@@ -25,8 +24,6 @@ Rendering a video takes three steps:
 Follow this commented example to see how to render a video:
 
 ```tsx twoslash title="render.mjs"
-// @module: ESNext
-// @target: ESNext
 import {bundle} from '@remotion/bundler';
 import {renderMedia, selectComposition} from '@remotion/renderer';
 import path from 'path';

@@ -10,6 +10,7 @@ import {nodeReader} from '../readers/from-node';
 if (process.platform !== 'win32') {
 	test('AV1 in MP4', async () => {
 		const parsed = await parseMedia({
+			acknowledgeRemotionLicense: true,
 			src: exampleVideos.av1mp4,
 			fields: {
 				durationInSeconds: true,
@@ -64,6 +65,7 @@ if (process.platform !== 'win32') {
 		let samples = 0;
 
 		const parsed = await parseMedia({
+			acknowledgeRemotionLicense: true,
 			src: exampleVideos.av1mp4WithColr,
 			fields: {
 				durationInSeconds: true,

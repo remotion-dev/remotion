@@ -13,7 +13,6 @@ import type {ConvertMediaOnAudioData} from './convert-media';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
-import Error from './error-cause';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 import {getDefaultAudioCodec} from './get-default-audio-codec';

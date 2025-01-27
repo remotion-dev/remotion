@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-downloadmedia.png
 id: downloadmedia
 title: downloadMedia()
 slug: /lambda/downloadmedia
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Downloads a rendered video, audio or still to the disk of the machine this API is called from.
@@ -11,21 +11,15 @@ Downloads a rendered video, audio or still to the disk of the machine this API i
 If you want to let the user download a result to their machine, use [`renderMediaOnLambda()` -> `downloadBehavior`](/docs/lambda/rendermediaonlambda#downloadbehavior) instead.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { downloadMedia } from "@remotion/lambda";
+import {downloadMedia} from '@remotion/lambda';
 
-const { outputPath, sizeInBytes } = await downloadMedia({
-  bucketName: "remotionlambda-r42fs9fk",
-  region: "us-east-1",
-  renderId: "8hfxlw",
-  outPath: "out.mp4",
-  onProgress: ({ totalSize, downloaded, percent }) => {
-    console.log(
-      `Download progress: ${totalSize}/${downloaded} bytes (${(
-        percent * 100
-      ).toFixed(0)}%)`
-    );
+const {outputPath, sizeInBytes} = await downloadMedia({
+  bucketName: 'remotionlambda-r42fs9fk',
+  region: 'us-east-1',
+  renderId: '8hfxlw',
+  outPath: 'out.mp4',
+  onProgress: ({totalSize, downloaded, percent}) => {
+    console.log(`Download progress: ${totalSize}/${downloaded} bytes (${(percent * 100).toFixed(0)}%)`);
   },
 });
 

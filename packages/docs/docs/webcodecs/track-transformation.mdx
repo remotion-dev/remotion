@@ -19,8 +19,6 @@ When transforming media, there are multiple thing that can be done for each audi
 The minimum amount of configuration is to only specify a [`src`](/docs/webcodecs/convert-media#src) and an output [`container`](/docs/webcodecs/convert-media#container).
 
 ```tsx twoslash title="Using the default codecs"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -36,8 +34,6 @@ The default codecs are defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get
 You can use the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options to transform all tracks to the codecs you specify.
 
 ```tsx twoslash title="Choosing video and audio codecs"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -53,8 +49,6 @@ await convertMedia({
 With the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAudioTrack`](/docs/webcodecs/convert-media#onaudiotrack) callbacks, you can decide for each track what to do with it.
 
 ```tsx twoslash title="Using the onVideoTrack() API"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -94,8 +88,6 @@ The enums `ConvertMediaVideoCodec` and `ConvertMediaAudioCodec` can be imported 
 To check if it is possible to return `{"type": "copy"}`, you can use `canCopyTrack` property you get from `onVideoTrack`.
 
 ```tsx twoslash title="Using the canCopyVideoTrack() API"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -119,8 +111,6 @@ To check outside of a `onVideoTrack` handler, you can also use the the [`canCopy
 To check if it is possible to return `{"type": "reencode"}`, you can use the [`canReencodeVideoTrack()`](/docs/webcodecs/can-reencode-video-track) and [`canReencodeAudioTrack()`](/docs/webcodecs/can-reencode-audio-track) APIs.
 
 ```tsx twoslash title="Using the canReencodeVideoTrack() API"
-// @module: es2022
-// @target: es2017
 import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -156,9 +146,6 @@ If you want to display a UI letting the user choose codec settings before the co
 Use [`parseMedia()`](/docs/media-parser/parse-media) to get video and audio tracks respectively:
 
 ```tsx twoslash title="Using parseMedia() to get tracks upfront."
-// @module: es2022
-// @target: es2017
-
 import {parseMedia} from '@remotion/media-parser';
 
 const {tracks} = await parseMedia({
@@ -183,8 +170,6 @@ The default values for [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotra
 If you only want to override part of the logic, you can return the default resolver functions at the end of your logic.
 
 ```tsx twoslash title="Falling back to the default behavior"
-// @module: es2022
-// @target: es2017
 import {convertMedia, defaultOnAudioTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({

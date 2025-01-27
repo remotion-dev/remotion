@@ -74,6 +74,7 @@ test('should read MP3 file', async () => {
 				lastSample = sample.timestamp;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(samples).toBe(4788);
@@ -182,6 +183,7 @@ test('should read only metadata', async () => {
 			internalStats: true,
 			metadata: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(internalStats).toEqual({
 		skippedBytes: 5001927,
@@ -196,6 +198,7 @@ test('should read only header', async () => {
 			container: true,
 			internalStats: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(internalStats).toEqual({
 		skippedBytes: 5007068,
@@ -210,6 +213,7 @@ test('should read video fields', async () => {
 			fps: true,
 			dimensions: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(dimensions).toEqual(null);
 	expect(fps).toEqual(null);
@@ -223,6 +227,7 @@ test('should read video fields', async () => {
 				slowDurationInSeconds: true,
 				slowNumberOfFrames: true,
 			},
+			acknowledgeRemotionLicense: true,
 		},
 	);
 	expect(slowFps).toEqual(0);
@@ -242,6 +247,7 @@ test('should read short mp3 file', async () => {
 		onAudioTrack: () => {
 			return () => {};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(durationInSeconds).toBe(0.984);
 });
@@ -259,6 +265,7 @@ test('should read mpeg 1 layer 3 file and album cover', async () => {
 		onAudioTrack: () => {
 			return () => {};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(images.length).toBe(1);
 	expect(images[0].data.length).toBe(1286);

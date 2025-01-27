@@ -47,9 +47,6 @@ ffmpeg -i input.webm -c copy output.webm
 You can also re-encode the video in the browser using the new and experimental [`@remotion/webcodecs`](/docs/webcodecs) package.
 
 ```tsx twoslash title="Re-encoding a video"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia} from '@remotion/webcodecs';
 import {webFileReader} from '@remotion/media-parser/web-file';
 
@@ -82,9 +79,6 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 Instead of re-encoding to an MP4, you can also re-mux the video to a new WebM file:
 
 ```tsx twoslash title="Re-muxing a video"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia} from '@remotion/webcodecs';
 import {webFileReader} from '@remotion/media-parser/web-file';
 

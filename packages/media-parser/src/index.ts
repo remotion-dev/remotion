@@ -10,23 +10,22 @@ import {
 	ebmlMap,
 	matroskaElements,
 } from './containers/webm/segments/all-segments';
+import {internalParseMedia} from './internal-parse-media';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {makeParserState} from './state/parser-state';
 export {MatroskaSegment} from './containers/webm/segments';
 export {MatroskaElement} from './containers/webm/segments/all-segments';
 export {
+	hasBeenAborted,
 	IsAGifError,
 	IsAnImageError,
 	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
+	MediaParserAbortError,
 } from './errors';
 export type {SamplePosition} from './get-sample-positions';
-export {MetadataEntry} from './metadata/get-metadata';
-export {MediaParserKeyframe, ParseMediaSrc} from './options';
-export type {MediaParserEmbeddedImage} from './state/images';
-
 export {
 	AudioTrack,
 	MediaParserAudioCodec,
@@ -36,6 +35,9 @@ export {
 	VideoTrack,
 	VideoTrackColorParams,
 } from './get-tracks';
+export {MetadataEntry} from './metadata/get-metadata';
+export {MediaParserKeyframe, ParseMediaSrc} from './options';
+export type {MediaParserEmbeddedImage} from './state/images';
 
 export {downloadAndParseMedia} from './download-and-parse-media';
 export type {
@@ -77,6 +79,7 @@ export const MediaParserInternals = {
 	parseFtyp,
 	parseEbml,
 	parseMvhd,
+	internalParseMedia,
 };
 
 export type {Prettify} from './containers/webm/parse-ebml';

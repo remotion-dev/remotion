@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-autodelete.png
 title: Auto-delete renders
 id: autodelete
 slug: /lambda/autodelete
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -13,7 +13,7 @@ _available from v4.0.32_
 
 To automatically delete renders and associated files after some time, you need to:
 
-<Step>1</Step> Enable the lifecycle rules on the AWS bucket. <br/>
+<Step>1</Step> Enable the lifecycle rules on the AWS bucket. <br />
 <Step>2</Step> Render a video with the <code>deleteAfter</code> option.
 
 ## Apply the lifecycle rules
@@ -32,7 +32,7 @@ To put a lifecycle rule on the bucket, you need to have the `s3:PutLifecycleConf
   6. Under the `"Sid": "Storage"` section, add `"s3:PutLifecycleConfiguration"` to the `"Action"` array.
   7. Save.
 
-<br/>
+<br />
 <Step>2</Step> <strong>Enable the lifecycle rules</strong>
 
 Redeploy the site with the `--enable-folder-expiry` option. This operation will modify the S3 bucket to apply [AWS Lifecycle Rules](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html).
@@ -55,20 +55,18 @@ npx remotion lambda sites create --site-name=my-site-name --enable-folder-expiry
   <TabItem value="bucket">
 
 ```ts twoslash title="deploy.mjs" {6}
-// @module: esnext
-// @target: es2017
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
-import path from "path";
+import {deploySite, getOrCreateBucket} from '@remotion/lambda';
+import path from 'path';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east-1',
   enableFolderExpiry: true,
 });
 
-const { serveUrl } = await deploySite({
-  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
+const {serveUrl} = await deploySite({
+  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
   bucketName, // use the bucket with lifecyle rules
-  region: "us-east-1",
+  region: 'us-east-1',
 });
 console.log(serveUrl);
 ```
@@ -78,14 +76,12 @@ console.log(serveUrl);
 </Tabs>
 
 <details>
-<summary>
-Verify that it worked
-</summary>
-<p>In your S3 bucket, under "Management", you should see 4 lifecycle rules.</p>
-<img src="/img/lambda/applied-lc-rules.png" />
+  <summary>Verify that it worked</summary>
+  <p>In your S3 bucket, under "Management", you should see 4 lifecycle rules.</p>
+  <img src="/img/lambda/applied-lc-rules.png" />
 </details>
 
-<br/>
+<br />
 
 ## Trigger a render with expiration
 
@@ -110,19 +106,16 @@ npx remotion lambda render testbed-v6 react-svg --delete-after="1-day"
   <TabItem value="rendermedia">
 
 ```tsx twoslash title="render.ts" {10}
-// @module: esnext
-// @target: es2017
 // ---cut---
-import { renderMediaOnLambda } from "@remotion/lambda/client";
+import {renderMediaOnLambda} from '@remotion/lambda/client';
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  codec: "h264",
-  deleteAfter: "1-day",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
+  deleteAfter: '1-day',
 });
 ```
 
@@ -130,21 +123,18 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   <TabItem value="renderstill">
 
 ```tsx twoslash title="render.ts" {12}
-// @module: esnext
-// @target: es2017
 // ---cut---
-import { renderStillOnLambda } from "@remotion/lambda/client";
+import {renderStillOnLambda} from '@remotion/lambda/client';
 
-const { bucketName, renderId } = await renderStillOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+const {bucketName, renderId} = await renderStillOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
-  privacy: "public",
-  imageFormat: "png",
-  deleteAfter: "1-day",
+  privacy: 'public',
+  imageFormat: 'png',
+  deleteAfter: '1-day',
 });
 ```
 
@@ -157,15 +147,13 @@ Verify that it worked
 
 </summary>
 
-<p>
-All files should have an expiration rule and expiration date set when viewing the object properties.
-</p>
+<p>All files should have an expiration rule and expiration date set when viewing the object properties.</p>
 
 <img src="/img/lambda/rendered-file-path.png" />
 <img src="/img/lambda/rendered-file-management.png" />
 
-<br/>
-<br/>
+<br />
+<br />
 
 AWS does not delete the file at the exact time, but the deletion will happen.
 

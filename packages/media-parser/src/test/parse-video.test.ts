@@ -10,6 +10,7 @@ test('Parse Big Buck bunny', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	expect(data.structure.boxes.slice(0, 2)).toEqual([
 		{
@@ -37,6 +38,7 @@ test('Parse framer', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	expect(parsed.structure.boxes.slice(0, 2)).toEqual([
 		{
@@ -62,6 +64,7 @@ test('Parse a full video', async () => {
 		src: exampleVideos.framer24fps,
 		fields: {structure: true},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	if (!data) throw new Error('No data');
 
@@ -90,6 +93,7 @@ test('Should warn if missing node reader', () => {
 		fields: {
 			structure: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(data).rejects.toThrow(/node/);
 });

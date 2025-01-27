@@ -43,5 +43,7 @@ export const parseMedia: ParseMedia = (options) => {
 		mode: 'query',
 		onDiscardedData: null,
 		onError: () => ({action: 'fail'}),
+		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
+		apiName: 'parseMedia()',
 	});
 };

@@ -14,8 +14,6 @@ This function only works with Whisper.cpp 1.5.5 or later, unless `tokenLevelTime
 :::
 
 ```tsx twoslash title="transcribe.mjs"
-// @module: esnext
-// @target: es2022
 import path from 'path';
 import {transcribe} from '@remotion/install-whisper-cpp';
 
@@ -209,9 +207,7 @@ export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
   model: Model;
   params: Params;
   result: Result;
-  transcription: true extends WithTokenLevelTimestamp
-    ? TranscriptionItemWithTimestamp[]
-    : TranscriptionItem[];
+  transcription: true extends WithTokenLevelTimestamp ? TranscriptionItemWithTimestamp[] : TranscriptionItem[];
 };
 ```
 

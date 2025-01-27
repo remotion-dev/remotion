@@ -12,8 +12,6 @@ This requires your secret key that you can obtain from the remotion.pro dashboar
 You should only call this API from the backend to avoid exposing your secret key to the client.
 
 ```tsx twoslash title="Get the current usage of your license"
-// @module: es2022
-// @target: es2017
 import {getUsage} from '@remotion/licensing';
 
 const usage = await getUsage({

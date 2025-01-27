@@ -13,6 +13,7 @@ test('Should skip media data if just wanting header', async () => {
 			internalStats: true,
 			container: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(name).toEqual('example.avi');
@@ -32,6 +33,7 @@ test('Should skip media data if just wanting dimensions', async () => {
 			dimensions: true,
 			internalStats: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(internalStats).toEqual({
@@ -52,6 +54,7 @@ test('Should skip if just a video track is requested', async () => {
 		onVideoTrack: () => {
 			return null;
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(internalStats).toEqual({
@@ -73,6 +76,7 @@ test('Should not skip if just a video track is requested', async () => {
 		onVideoTrack: () => {
 			return () => undefined;
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(internalStats).toEqual({
