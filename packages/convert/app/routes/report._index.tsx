@@ -1,25 +1,13 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
+import {DropZone} from '~/components/DropZone';
 import {Page} from '~/components/Page';
 import {Button} from '~/components/ui/button';
 import {Card} from '~/components/ui/card';
 import {Label} from '~/components/ui/label';
 import {RadioGroup, RadioGroupItem} from '~/components/ui/radio';
 import {Textarea} from '~/components/ui/textarea';
-import {handleDrop} from '~/lib/upload-report';
 
 const Report: React.FC = () => {
-	const onDrop: React.DragEventHandler = useCallback(async (e) => {
-		const firstItem = e.dataTransfer?.files?.[0];
-		if (!firstItem) {
-			return;
-		}
-
-		e.preventDefault();
-
-		await handleDrop(firstItem);
-	}, []);
-
-	const [file, setFile] = useState<File | null>(null);
 	const [description, setDescription] = useState('');
 
 	return (
@@ -27,12 +15,7 @@ const Report: React.FC = () => {
 			<div className="m-auto max-w-[800px] w-full">
 				<Card className="mx-4 px-8 py-8 mt-12 pt-8">
 					<h1 className="text-3xl font-brand font-black">Report a video</h1>
-					<input
-						onDrop={onDrop}
-						type="file"
-						placeholder="Video URL"
-						className="mt-10"
-					/>
+					<DropZone />
 					<br />
 					<h2 className="font-brand mt-5 font-bold">
 						Which product has an issue with this video?
