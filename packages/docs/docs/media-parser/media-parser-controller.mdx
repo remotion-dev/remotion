@@ -1,0 +1,51 @@
+---
+id: media-parser-controller
+title: mediaParserController()
+slug: /media-parser/media-parser-controller
+crumb: '@remotion/media-parser'
+---
+
+Pass `mediaParserController()` to [`controller`](/docs/media-parser/parse-media#controller) to steer the `parseMedia()` function.
+
+```tsx twoslash title="Use mediaParserController()"
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+parseMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  controller,
+});
+
+// Pause
+controller.pause();
+
+// Resume
+controller.resume();
+
+// Abort
+controller.abort();
+```
+
+## API
+
+This function returns an object that can be passed to [`parseMedia({controller})`](/docs/media-parser/parse-media#controller) and [`downloadAndParseMedia({controller})`](/docs/media-parser/download-and-parse-media#controller).
+
+It has the following methods:
+
+### `pause()`
+
+Pauses the download and parsing process.
+
+### `resume()`
+
+Resumes the download and parsing process.
+
+### `abort()`
+
+Aborts the download and parsing process.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/media-parser-controller.ts)
+- [`parseMedia()`](/docs/media-parser/parse-media)

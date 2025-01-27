@@ -201,6 +201,29 @@ module.exports = {
 				'get-image-dimensions',
 			],
 		},
+		{
+			type: 'category',
+			label: '@remotion/media-parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser/metadata',
+					label: 'Guide',
+				},
+				'media-parser/parse-media',
+				'media-parser/download-and-parse-media',
+				'media-parser/media-parser-controller',
+				'media-parser/has-been-aborted',
+				'media-parser/node-reader',
+				'media-parser/fetch-reader',
+				'media-parser/web-file-reader',
+				'media-parser/node-writer',
+			],
+		},
 
 		{
 			type: 'category',
@@ -552,26 +575,6 @@ module.exports = {
 			items: [
 				'animated-emoji/animated-emoji',
 				'animated-emoji/get-available-emoji',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/media-parser',
-			link: {
-				type: 'doc',
-				id: 'media-parser/index',
-			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/media-parser/metadata',
-					label: 'Guide',
-				},
-				'media-parser/parse-media',
-				'media-parser/download-and-parse-media',
-				'media-parser/node-reader',
-				'media-parser/fetch-reader',
-				'media-parser/web-file-reader',
 			],
 		},
 		{
