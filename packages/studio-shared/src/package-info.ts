@@ -24,6 +24,7 @@ export const packages = [
 	'docs',
 	'enable-scss',
 	'eslint-config',
+	'eslint-config-flat',
 	'eslint-config-internal',
 	'eslint-plugin',
 	'example-without-zod',
@@ -98,7 +99,9 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'zod-types': 'Zod types for Remotion',
 	gif: 'Embed GIFs in a Remotion video',
 	'eslint-plugin': 'Rules for writing Remotion code',
-	'eslint-config': 'Default configuration for Remotion templates',
+	'eslint-config': 'Default configuration for Remotion templates (ESLint <= 8)',
+	'eslint-config-flat':
+		'Default configuration for Remotion templates (ESLint >= 9)',
 	'compositor-linux-x64-gnu': 'Linux x64 binary for the Remotion Rust code',
 	'compositor-linux-x64-musl': 'Linux x64 binary for the Remotion Rust code',
 	'compositor-darwin-x64': 'MacOS x64 binary for the Remotion Rust code',
@@ -177,6 +180,8 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'eslint-plugin':
 		'https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin',
 	'eslint-config':
+		'https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin',
+	'eslint-config-flat':
 		'https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin',
 	'compositor-linux-x64-gnu': null,
 	'compositor-linux-x64-musl': null,

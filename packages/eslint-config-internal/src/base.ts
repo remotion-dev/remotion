@@ -1,14 +1,7 @@
 import js from '@eslint/js';
 import {Linter} from 'eslint';
-import {autoImportRules} from './auto-import-rules.js';
 
-export const rules = ({
-	react,
-	enable10x,
-}: {
-	react: boolean;
-	enable10x: boolean;
-}) => {
+export const rules = ({react}: {react: boolean}) => {
 	return {
 		...js.configs.recommended.rules,
 		'for-direction': 'error',
@@ -367,20 +360,6 @@ export const rules = ({
 		'@typescript-eslint/prefer-interface': 'off',
 		'@typescript-eslint/ban-types': 'off',
 		'require-atomic-updates': 'off',
-		...{
-			...(enable10x
-				? {
-						'10x/no-full-import': 'error',
-						'10x/react-in-scope': 'off',
-						'10x/auto-import': [
-							'error',
-							{
-								imports: autoImportRules,
-							},
-						],
-					}
-				: {}),
-		},
 		complexity: 'off',
 		'no-shadow': 'off',
 		'no-undef': 'off',
@@ -626,7 +605,6 @@ export const plugins = ({react}: {react: boolean}) => {
 		react ? 'react' : undefined,
 		react ? 'react-hooks' : undefined,
 		'@typescript-eslint/eslint-plugin',
-		'10x',
 	].filter(Boolean) as string[];
 };
 
@@ -657,7 +635,7 @@ export const base = ({
 				jsx: true,
 			},
 		},
-		rules: rules({react, enable10x: true}),
+		rules: rules({react}),
 		settings: {
 			...(react
 				? {

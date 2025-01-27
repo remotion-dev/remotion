@@ -52,7 +52,7 @@ export const remotionFlatConfig = ({
 		'@typescript-eslint': typescriptPlugin,
 		...(react ? compat.plugins('react-hooks')[0].plugins : {}),
 	},
-	rules: rules({react, enable10x: false}),
+	rules: rules({react}),
 	files: [
 		'src/**/*.ts',
 		'src/**/*.tsx',

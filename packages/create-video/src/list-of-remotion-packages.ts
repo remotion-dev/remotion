@@ -6,6 +6,7 @@ export const listOfRemotionPackages = [
 	'@remotion/cli',
 	'@remotion/cloudrun',
 	'@remotion/eslint-config',
+	'@remotion/eslint-config-flat',
 	'@remotion/eslint-plugin',
 	'@remotion/enable-scss',
 	'@remotion/renderer',
