@@ -1,3 +1,3 @@
 package lambda_go_sdk;
 
-const VERSION = "4.0.252"
+const VERSION = "4.0.253"

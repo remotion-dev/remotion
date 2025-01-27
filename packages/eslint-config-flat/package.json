@@ -3,8 +3,8 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-flat"
 	},
 	"name": "@remotion/eslint-config-flat",
-	"version": "4.0.252",
-	"description": "Default configuration for Remotion templates",
+	"version": "4.0.253",
+	"description": "Default configuration for Remotion templates (ESLint >= 9)",
 	"main": "dist/index.js",
 	"type": "module",
 	"files": [
