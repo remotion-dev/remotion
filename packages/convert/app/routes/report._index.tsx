@@ -26,25 +26,32 @@ type SubmitStatus =
 const Report: React.FC = () => {
 	const [description, setDescription] = useState('');
 	const [url, setUrl] = useState<string | null>(null);
+	const [filename, setFilename] = useState<string | null>(null);
 	const [product, setProduct] = useState<Product | null>(null);
 	const [usage, setUsage] = useState<Usage | null>(null);
 	const [contact, setContact] = useState('');
-
-	const submitPossible = url && description && product && usage && contact;
 
 	const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({
 		type: 'idle',
 	});
 
+	const submitPossible =
+		url &&
+		description &&
+		product &&
+		usage &&
+		contact &&
+		(submitStatus.type === 'idle' || submitStatus.type === 'error');
+
 	const submit = useCallback(async () => {
-		if (submitStatus.type !== 'idle' && submitStatus.type !== 'error') {
+		if (!submitPossible) {
 			return;
 		}
 
 		setSubmitStatus({type: 'submitting'});
 
 		try {
-			await fetch('https://remotion.pro/api/report', {
+			await fetch('https://www.remotion.pro/api/report', {
 				method: 'POST',
 				body: JSON.stringify({
 					url,
@@ -52,6 +59,7 @@ const Report: React.FC = () => {
 					description,
 					usage,
 					contact,
+					filename,
 				}),
 				headers: {
 					'content-type': 'application/json',
@@ -61,7 +69,7 @@ const Report: React.FC = () => {
 		} catch (err) {
 			setSubmitStatus({type: 'error', err: err as Error});
 		}
-	}, [contact, description, product, submitStatus.type, url, usage]);
+	}, [contact, description, filename, product, submitPossible, url, usage]);
 
 	return (
 		<Page className="flex-col">
@@ -69,6 +77,9 @@ const Report: React.FC = () => {
 				<Card className="mx-4 px-8 py-8 mt-12 pt-8">
 					<h1 className="text-3xl font-brand font-black">Report a video</h1>
 					<DropZone
+						onFilename={(f) => {
+							setFilename(f);
+						}}
 						onUrl={(u) => {
 							setUrl(u);
 						}}
@@ -189,10 +200,12 @@ const Report: React.FC = () => {
 						Submit
 					</Button>
 					{submitStatus.type === 'done' && (
-						<p className="text-green-500 mt-4">Report submitted!</p>
+						<p className="text-green-500 mt-4 text-sm">
+							Thank you! We have received your report and will get back to you.
+						</p>
 					)}
 					{submitStatus.type === 'error' && (
-						<p className="text-red-500 mt-4">
+						<p className="text-red-500 mt-4 text-sm">
 							An error occurred: {submitStatus.err.message}
 						</p>
 					)}

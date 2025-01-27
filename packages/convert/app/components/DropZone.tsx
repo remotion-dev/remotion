@@ -29,11 +29,13 @@ type State =
 
 export const DropZone: React.FC<{
 	readonly onUrl: (src: string) => void;
-}> = ({onUrl}) => {
+	readonly onFilename: (filename: string) => void;
+}> = ({onUrl, onFilename}) => {
 	const [progress, setProgress] = useState<State>({type: 'idle'});
 
 	const selectVideo = useCallback(
 		async (file: File) => {
+			onFilename(file.name);
 			setProgress({type: 'waiting-for-presign'});
 			const url = await handleDrop({
 				file,
@@ -42,7 +44,7 @@ export const DropZone: React.FC<{
 			setProgress({type: 'done', url, filename: file.name, size: file.size});
 			onUrl(url);
 		},
-		[onUrl],
+		[onFilename, onUrl],
 	);
 
 	const onDrop: React.DragEventHandler = useCallback(
