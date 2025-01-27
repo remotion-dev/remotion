@@ -126,14 +126,12 @@ class Vector2 {
 	readonly y: number;
 
 	constructor(x: number, y: number) {
-		// eslint-disable-next-line react/no-this-in-sfc
 		this.x = x;
-		// eslint-disable-next-line react/no-this-in-sfc
+
 		this.y = y;
 	}
 
 	toString(): string {
-		// eslint-disable-next-line react/no-this-in-sfc
 		return `Vector2 [X: ${this.x}, Y: ${this.y}]`;
 	}
 }
@@ -1296,7 +1294,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-				 // @ts-expect-error */}
+				 // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}

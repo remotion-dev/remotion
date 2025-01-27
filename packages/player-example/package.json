@@ -12,7 +12,7 @@
 	],
 	"dependencies": {
 		"@remotion/bundler": "workspace:*",
-		"@remotion/eslint-config": "workspace:*",
+		"@remotion/eslint-config-flat": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
@@ -23,11 +23,11 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"eslint": "8.57.1"
+		"eslint": "9.14.0"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"dev": "next dev",
 		"build-site": "next build"
 	}

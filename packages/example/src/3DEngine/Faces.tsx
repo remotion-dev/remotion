@@ -9,7 +9,6 @@ export const Faces: React.FC<{
 		<>
 			{elements.map(({points, color, crispEdges}, idx) => {
 				return (
-					// eslint-disable-next-line react/no-array-index-key
 					<path
 						key={idx}
 						d={threeDIntoSvgPath(points)}

@@ -6,7 +6,7 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src --ext ts,tsx,js,jsx"
+    "lint": "eslint src"
   },
   "repository": {},
   "license": "UNLICENSED",
@@ -18,9 +18,9 @@
     "zod": "3.22.3"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
+    "@remotion/eslint-config-flat": "workspace:*",
     "prettier": "3.3.3",
-    "eslint": "8.57.1"
+    "eslint": "9.14.0"
   },
   "private": true
 }

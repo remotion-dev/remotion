@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "remotion studio",
     "build": "remotion bundle",
-    "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src && tsc"
   },
   "license": "UNLICENSED",
   "dependencies": {
@@ -17,9 +17,9 @@
     "zod": "3.22.3"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
+    "@remotion/eslint-config-flat": "workspace:*",
     "@types/react": "19.0.0",
-    "eslint": "8.57.1",
+    "eslint": "9.14.0",
     "prettier": "3.3.3",
     "typescript": "5.5.4"
   },

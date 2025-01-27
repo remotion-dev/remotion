@@ -979,9 +979,9 @@ importers:
       '@remotion/enable-scss':
         specifier: workspace:*
         version: link:../enable-scss
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@remotion/eslint-plugin':
         specifier: workspace:*
         version: link:../eslint-plugin
@@ -1143,8 +1143,8 @@ importers:
         specifier: 0.1.11
         version: 0.1.11
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier-plugin-organize-imports:
         specifier: 3.2.4
         version: 3.2.4(prettier@3.3.3)(typescript@5.5.4)
@@ -1633,9 +1633,9 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@remotion/gif':
         specifier: workspace:*
         version: link:../gif
@@ -1662,8 +1662,8 @@ importers:
         version: link:../core
     devDependencies:
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
 
   packages/preload:
     devDependencies:
@@ -2154,9 +2154,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -2164,8 +2164,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2188,9 +2188,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -2198,8 +2198,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2246,9 +2246,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -2256,8 +2256,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2323,12 +2323,12 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2588,9 +2588,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -2598,8 +2598,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2710,9 +2710,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/dom-webcodecs':
         specifier: 0.1.11
         version: 0.1.11
@@ -2723,8 +2723,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2756,15 +2756,15 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2829,15 +2829,15 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       bun:
         specifier: 1.1.30
         version: 1.1.30
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2878,9 +2878,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -2891,8 +2891,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2933,9 +2933,9 @@ importers:
       '@remotion/captions':
         specifier: workspace:*
         version: link:../captions
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@remotion/install-whisper-cpp':
         specifier: workspace:*
         version: link:../install-whisper-cpp
@@ -2946,8 +2946,8 @@ importers:
         specifier: 0.0.166
         version: 0.0.166
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -2985,9 +2985,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/md5':
         specifier: 2.3.0
         version: 2.3.0
@@ -2998,8 +2998,8 @@ importers:
         specifier: 19.0.0
         version: 19.0.0
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -3067,9 +3067,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
-      '@remotion/eslint-config':
+      '@remotion/eslint-config-flat':
         specifier: workspace:*
-        version: link:../eslint-config
+        version: link:../eslint-config-flat
       '@types/md5':
         specifier: 2.3.0
         version: 2.3.0
@@ -3080,8 +3080,8 @@ importers:
         specifier: 19.0.0
         version: 19.0.0
       eslint:
-        specifier: 8.57.1
-        version: 8.57.1
+        specifier: 9.14.0
+        version: 9.14.0
       prettier:
         specifier: 3.3.3
         version: 3.3.3
@@ -20602,7 +20602,7 @@ packages:
       '@types/json-schema': 7.0.15
       ajv: 6.12.6
       chalk: 4.1.2
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       debug: 4.3.7
       escape-string-regexp: 4.0.0
       eslint-scope: 8.2.0
