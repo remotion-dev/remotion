@@ -23,7 +23,7 @@
 	"dependencies": {
 		"@remotion/eslint-plugin": "workspace:*",
 		"typescript-eslint": "8.21.0",
-		"@eslint/js": "9.19.0",
+		"@eslint/js": "9.14.0",
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "5.2.0-canary-de1eaa26-20250124"
 	},
@@ -32,7 +32,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "9.14.0"
 	},
 	"keywords": [
 		"remotion",
