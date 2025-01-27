@@ -69,6 +69,10 @@ The audio codec to convert to. Currently, only `"opus"` is supported.
 The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
 If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
 
+### `controller?`
+
+A [controller](/docs/webcodecs/webcodecs-controller) object that allows you to pause, resume and abort the conversion process.
+
 ### `rotate?`
 
 _number_
@@ -190,10 +194,6 @@ This will destroy the audio data and free up memory.
 If you need a reference to the audio data that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/clone) on it.
 
 If you return a different audio data than the one you received, it should have the same [`duration`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/duration), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels), [`sampleRate`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/sampleRate), [`timestamp`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/timestamp), [`format`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format) and [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels) as the input audio data.
-
-### `signal?`
-
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the conversion process whenever the signal is aborted.
 
 ### `writer?`
 

@@ -45,7 +45,51 @@ Resumes the download and parsing process.
 
 Aborts the download and parsing process.
 
+### `addEventListener()`
+
+See events below.
+
+### `removeEventListener()`
+
+See events below.
+
+## Events
+
+You can attach event listeners to the `mediaParserController` object.
+
+```tsx twoslash title="Use events"
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+const onPause = () => {
+  console.log('Paused');
+};
+
+const onResume = () => {
+  console.log('Resumed');
+};
+
+controller.addEventListener('pause', onPause);
+controller.addEventListener('resume', onResume);
+
+// Make sure to cleanup later:
+controller.removeEventListener('pause', onPause);
+controller.removeEventListener('resume', onResume);
+```
+
+The `mediaParserController` object emits the following events:
+
+### `pause`
+
+Emitted when the download and parsing process is paused.
+
+### `resume`
+
+Emitted when the download and parsing process is resumed.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/media-parser-controller.ts)
+- [Pause, resume and abort parsing](/docs/media-parser/pause-resume-abort)
 - [`parseMedia()`](/docs/media-parser/parse-media)

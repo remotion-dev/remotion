@@ -72,6 +72,10 @@ Default value: `fetchReader`, which uses `fetch()` to read the video.
 If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
 If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
 
+### `controller?`
+
+A [controller](/docs/media-parser/media-parser-controller) object that allows you to pause, resume and abort the parsing process.
+
 ### `onVideoTrack?`
 
 A callback that is called when a video track is detected.  
@@ -140,11 +144,6 @@ Note that updates are fired very often and updating the DOM often may slow down 
 
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
-
-### `signal?`
-
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) instance.  
-If the signal is aborted, the parser will stop reading the media and stop the decoding process and throw an error.
 
 ### `acknowledgeRemotionLicense?`
 
