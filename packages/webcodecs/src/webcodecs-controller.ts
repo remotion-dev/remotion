@@ -1,19 +1,19 @@
-import type {ParseMediaController} from '@remotion/media-parser';
+import type {MediaParserController} from '@remotion/media-parser';
 import {mediaParserController} from '@remotion/media-parser';
 
 export type WebCodecsController = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	abort: (reason?: any) => void;
-	pause: ParseMediaController['pause'];
-	resume: ParseMediaController['resume'];
-	addEventListener: ParseMediaController['addEventListener'];
-	removeEventListener: ParseMediaController['removeEventListener'];
+	pause: MediaParserController['pause'];
+	resume: MediaParserController['resume'];
+	addEventListener: MediaParserController['addEventListener'];
+	removeEventListener: MediaParserController['removeEventListener'];
 	/**
 	 * @deprecated Not public API
 	 */
 	_internals: {
 		signal: AbortSignal;
-		checkForAbortAndPause: ParseMediaController['_internals']['checkForAbortAndPause'];
+		checkForAbortAndPause: MediaParserController['_internals']['checkForAbortAndPause'];
 	};
 };
 

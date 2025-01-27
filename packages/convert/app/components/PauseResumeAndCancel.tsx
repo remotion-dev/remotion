@@ -1,4 +1,4 @@
-import type {MediaParserController} from 'node_modules/@remotion/media-parser/src/controller';
+import type {MediaParserController} from '@remotion/media-parser';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useAddPausedToTitle} from '~/lib/title-context';
 import {Button} from './ui/button';
