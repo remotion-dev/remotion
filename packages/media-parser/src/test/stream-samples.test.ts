@@ -14,6 +14,7 @@ test('Stream samples', async () => {
 			audioCodec: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	const description = new Uint8Array([

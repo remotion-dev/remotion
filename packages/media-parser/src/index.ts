@@ -10,6 +10,7 @@ import {
 	ebmlMap,
 	matroskaElements,
 } from './containers/webm/segments/all-segments';
+import {internalParseMedia} from './internal-parse-media';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {makeParserState} from './state/parser-state';
@@ -78,6 +79,7 @@ export const MediaParserInternals = {
 	parseFtyp,
 	parseEbml,
 	parseMvhd,
+	internalParseMedia,
 };
 
 export type {Prettify} from './containers/webm/parse-ebml';

@@ -13,6 +13,7 @@ test('should be able to parse and download video', async () => {
 			size: true,
 		},
 		writer: nodeWriter('output.avi'),
+		acknowledgeRemotionLicense: true,
 	});
 
 	const s = statSync('output.avi');
@@ -29,6 +30,7 @@ test('should be able to parse and download mp4 video', async () => {
 			size: true,
 		},
 		writer: nodeWriter('iphonehevc.mp4'),
+		acknowledgeRemotionLicense: true,
 	});
 
 	const s = statSync('iphonehevc.mp4');
@@ -46,6 +48,7 @@ test(
 				size: true,
 			},
 			writer: nodeWriter('output2'),
+			acknowledgeRemotionLicense: true,
 		});
 
 		const s = statSync('output2');
@@ -68,6 +71,7 @@ test('should be able to abort the download by throwing an error', () => {
 			},
 			signal: controller.signal,
 			writer: nodeWriter('output3.mp4'),
+			acknowledgeRemotionLicense: true,
 		}),
 	).rejects.toThrow('Unsupported format');
 });
@@ -87,6 +91,7 @@ test('should be able to parse and download video with audio', () => {
 			},
 			signal: controller.signal,
 			writer: nodeWriter('output3.mp4'),
+			acknowledgeRemotionLicense: true,
 		}),
 	).rejects.toThrow('Unsupported format');
 	expect(existsSync('output3.mp4')).toBe(false);
@@ -100,6 +105,7 @@ test('should be able to continue on error', () => {
 			signal: controller.signal,
 			writer: nodeWriter('jkl.gif'),
 			onError: () => ({action: 'download'}),
+			acknowledgeRemotionLicense: true,
 		}),
 	).rejects.toThrow('GIF files are not yet supported');
 	expect(existsSync('jkl.gif')).toBe(true);

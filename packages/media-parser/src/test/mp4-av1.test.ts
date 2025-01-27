@@ -31,6 +31,7 @@ test('mp4-av1', async () => {
 					samples++;
 				};
 			},
+			acknowledgeRemotionLicense: true,
 		});
 
 	expect(samples).toBe(1185);

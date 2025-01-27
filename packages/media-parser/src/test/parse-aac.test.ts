@@ -82,6 +82,7 @@ test('should be able to parse aac', async () => {
 				audioSamples++;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(audioSamples).toBe(4557);
@@ -168,6 +169,7 @@ test('should be able to get basics without parsing all', async () => {
 			});
 			return null;
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(audioSamples).toBe(0);

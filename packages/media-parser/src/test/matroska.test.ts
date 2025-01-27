@@ -19,6 +19,7 @@ test('Should get duration of AV1 video', async () => {
 			slowVideoBitrate: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
