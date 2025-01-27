@@ -41,6 +41,10 @@ export const defaultRotateOrMirorState = (
 		return null;
 	}
 
+	if (action.type === 'report') {
+		return null;
+	}
+
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
 	);
@@ -80,6 +84,10 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'resize-format') {
+		return true;
+	}
+
+	if (action.type === 'report') {
 		return true;
 	}
 
@@ -129,7 +137,11 @@ export const getOrderOfSections = (
 		};
 	}
 
-	if (action.type === 'generic-resize' || action.type === 'resize-format') {
+	if (
+		action.type === 'generic-resize' ||
+		action.type === 'resize-format' ||
+		action.type === 'report'
+	) {
 		return {
 			resize: 0,
 			rotate: 1,

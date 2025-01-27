@@ -72,6 +72,10 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 		return false;
 	}
 
+	if (routeAction.type === 'report') {
+		return false;
+	}
+
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
 
