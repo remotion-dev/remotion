@@ -226,7 +226,12 @@ export const Probe: React.FC<{
 					</>
 				)}
 				<div className="flex flex-row items-center justify-center">
-					<Button disabled={!tracks} variant="link" onClick={onClick}>
+					<Button
+						className="w-full h-full hover:bg-slate-100 transition-colors"
+						disabled={!tracks}
+						variant="ghost"
+						onClick={onClick}
+					>
 						{probeDetails ? 'Hide details' : 'Show details'}
 					</Button>
 				</div>
