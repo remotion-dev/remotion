@@ -26,7 +26,7 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<strong>Format support</strong>
 					<div>What you can parse with Media Parser</div>
 				</TOCItem>
-				<TOCItem link="/docs/media-parser/browser-support">
+				<TOCItem link="/docs/media-parser/runtime-support">
 					<strong>Runtime support</strong>
 					<div>Where you can run Media Parser</div>
 				</TOCItem>
