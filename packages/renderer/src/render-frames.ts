@@ -30,6 +30,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makePage} from './make-page';
+import {nextFrameToRenderState} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -326,14 +327,17 @@ const innerRenderFrames = async ({
 	// not always frame perfect and give a flicker.
 	// We reduce the chance of flicker by rendering the frames in order.
 
+	const allFramesAndExtraFrames = [
+		...extraFramesToCaptureAssetsFrontend,
+		...framesToRender,
+		...extraFramesToCaptureAssetsBackend,
+	];
+
+	const nextFrameToRender = nextFrameToRenderState(allFramesAndExtraFrames);
+
 	await Promise.all(
-		[
-			...extraFramesToCaptureAssetsFrontend,
-			...framesToRender,
-			...extraFramesToCaptureAssetsBackend,
-		].map((frame) => {
+		allFramesAndExtraFrames.map(() => {
 			return renderFrameAndRetryTargetClose({
-				frame,
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
 				assets,
@@ -364,6 +368,7 @@ const innerRenderFrames = async ({
 				makeNewPage,
 				onFrameBuffer,
 				onFrameUpdate,
+				nextFrameToRender,
 			});
 		}),
 	);
