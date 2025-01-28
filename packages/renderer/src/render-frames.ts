@@ -38,7 +38,7 @@ import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
-import {renderFrameWithOptionToReject} from './render-frame';
+import {renderFrame} from './render-frame';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import type {EmittedArtifact} from './serialize-artifact';
@@ -301,7 +301,9 @@ const innerRenderFrames = async ({
 		totalFrames: framesToRender.length,
 		countType,
 	});
-	let framesRendered = 0;
+	const framesRenderedObj = {
+		count: 0,
+	};
 
 	const poolPromise = getPool();
 
@@ -319,69 +321,6 @@ const innerRenderFrames = async ({
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
 
-	const renderFrame = ({
-		frame,
-		index,
-		assetsOnly,
-		attempt,
-	}: {
-		frame: number;
-		index: number | null;
-		assetsOnly: boolean;
-		attempt: number;
-	}) => {
-		return new Promise<void>((resolve, reject) => {
-			const startTime = performance.now();
-
-			renderFrameWithOptionToReject({
-				frame,
-				index,
-				reject,
-				width: composition.width,
-				height: composition.height,
-				compId: composition.id,
-				assetsOnly,
-				attempt,
-				indent,
-				logLevel,
-				poolPromise,
-				stoppedSignal,
-				timeoutInMilliseconds,
-				imageFormat,
-				onFrameBuffer,
-				outputDir,
-				assets,
-				binariesDirectory,
-				cancelSignal,
-				countType,
-				downloadMap,
-				frameDir,
-				framesToRender,
-				jpegQuality,
-				lastFrame,
-				onArtifact,
-				onDownload,
-				onError,
-				scale,
-			})
-				.then(() => {
-					if (!assetsOnly) {
-						framesRendered++;
-						onFrameUpdate?.(
-							framesRendered,
-							frame,
-							performance.now() - startTime,
-						);
-					}
-
-					resolve();
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-	};
-
 	const renderFrameAndRetryTargetClose = async ({
 		frame,
 		index,
@@ -397,7 +336,36 @@ const innerRenderFrames = async ({
 	}): Promise<void> => {
 		try {
 			await Promise.race([
-				renderFrame({frame, index, assetsOnly, attempt}),
+				renderFrame({
+					frame,
+					index,
+					assetsOnly,
+					attempt,
+					assets,
+					binariesDirectory,
+					cancelSignal,
+					countType,
+					downloadMap,
+					frameDir,
+					framesToRender,
+					imageFormat,
+					indent,
+					jpegQuality,
+					logLevel,
+					onArtifact,
+					onDownload,
+					poolPromise,
+					scale,
+					composition,
+					framesRenderedObj,
+					lastFrame,
+					onError,
+					onFrameBuffer,
+					onFrameUpdate,
+					outputDir,
+					stoppedSignal,
+					timeoutInMilliseconds,
+				}),
 				new Promise((_, reject) => {
 					cancelSignal?.(() => {
 						reject(new Error(cancelErrorMessages.renderFrames));
@@ -661,12 +629,12 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-				const cycle = cycleBrowserTabs(
-					browserReplacer,
-					resolvedConcurrency,
+				const cycle = cycleBrowserTabs({
+					puppeteerInstance: browserReplacer,
+					concurrency: resolvedConcurrency,
 					logLevel,
 					indent,
-				);
+				});
 				cleanup.push(() => {
 					cycle.stopCycling();
 					return Promise.resolve();
