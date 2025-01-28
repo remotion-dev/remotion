@@ -1,11 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {performance} from 'perf_hooks';
 
 import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
@@ -16,20 +14,14 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
-import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
-import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
-import {
-	getFilePadLength,
-	getFrameOutputFileName,
-} from './get-frame-padded-index';
+import {getFilePadLength} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
@@ -43,16 +35,13 @@ import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
-import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
+import {renderFrameWithOptionToReject} from './render-frame';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
-import {seekToFrame} from './seek-to-frame';
 import type {EmittedArtifact} from './serialize-artifact';
-import {takeFrame} from './take-frame';
-import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {
 	validateDimension,
@@ -323,194 +312,12 @@ const innerRenderFrames = async ({
 	});
 
 	const assets: FrameAndAssets[] = [];
-	let stopped = false;
+	const stoppedSignal = {stopped: false};
 	cancelSignal?.(() => {
-		stopped = true;
+		stoppedSignal.stopped = true;
 	});
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
-
-	const renderFrameWithOptionToReject = async ({
-		frame,
-		index,
-		reject,
-		width,
-		height,
-		compId,
-		assetsOnly,
-		attempt,
-	}: {
-		frame: number;
-		index: number | null;
-		reject: (err: Error) => void;
-		width: number;
-		height: number;
-		compId: string;
-		assetsOnly: boolean;
-		attempt: number;
-	}) => {
-		const pool = await poolPromise;
-		const freePage = await pool.acquire();
-
-		if (stopped) {
-			return reject(new Error('Render was stopped'));
-		}
-
-		const startTime = performance.now();
-
-		const errorCallbackOnFrame = (err: Error) => {
-			reject(err);
-		};
-
-		const cleanupPageError = handleJavascriptException({
-			page: freePage,
-			onError: errorCallbackOnFrame,
-			frame,
-		});
-		freePage.on('error', errorCallbackOnFrame);
-
-		const startSeeking = Date.now();
-
-		await seekToFrame({
-			frame,
-			page: freePage,
-			composition: compId,
-			timeoutInMilliseconds,
-			indent,
-			logLevel,
-			attempt,
-		});
-
-		const timeToSeek = Date.now() - startSeeking;
-		if (timeToSeek > 1000) {
-			Log.verbose(
-				{indent, logLevel},
-				`Seeking to frame ${frame} took ${timeToSeek}ms`,
-			);
-		}
-
-		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
-			throw new Error(
-				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`',
-			);
-		}
-
-		if (outputDir && onFrameBuffer && imageFormat !== 'none') {
-			throw new Error(
-				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.',
-			);
-		}
-
-		const id = startPerfMeasure('save');
-
-		const {buffer, collectedAssets} = await takeFrame({
-			frame,
-			freePage,
-			height,
-			imageFormat: assetsOnly ? 'none' : imageFormat,
-			output:
-				index === null
-					? null
-					: path.join(
-							frameDir,
-							getFrameOutputFileName({
-								frame,
-								imageFormat,
-								index,
-								countType,
-								lastFrame,
-								totalFrames: framesToRender.length,
-							}),
-						),
-			jpegQuality,
-			width,
-			scale,
-			wantsBuffer: Boolean(onFrameBuffer),
-			timeoutInMilliseconds,
-		});
-		if (onFrameBuffer && !assetsOnly) {
-			if (!buffer) {
-				throw new Error('unexpected null buffer');
-			}
-
-			onFrameBuffer(buffer, frame);
-		}
-
-		stopPerfMeasure(id);
-
-		const previousAudioRenderAssets = assets
-			.filter(truthy)
-			.map((a) => a.audioAndVideoAssets)
-			.flat(2);
-
-		const previousArtifactAssets = assets
-			.filter(truthy)
-			.map((a) => a.artifactAssets)
-			.flat(2);
-
-		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
-		const artifactAssets = onlyArtifact(collectedAssets);
-
-		for (const artifact of artifactAssets) {
-			for (const previousArtifact of previousArtifactAssets) {
-				if (artifact.filename === previousArtifact.filename) {
-					reject(
-						new Error(
-							`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
-						),
-					);
-					return;
-				}
-			}
-
-			onArtifact?.(artifact);
-		}
-
-		const compressedAssets = audioAndVideoAssets.map((asset) => {
-			return compressAsset(previousAudioRenderAssets, asset);
-		});
-
-		assets.push({
-			audioAndVideoAssets: compressedAssets,
-			frame,
-			artifactAssets: artifactAssets.map((a) => {
-				return {
-					frame: a.frame,
-					filename: a.filename,
-				};
-			}),
-		});
-		for (const renderAsset of compressedAssets) {
-			downloadAndMapAssetsToFileUrl({
-				renderAsset,
-				onDownload,
-				downloadMap,
-				indent,
-				logLevel,
-				binariesDirectory,
-				cancelSignalForAudioAnalysis: cancelSignal,
-				shouldAnalyzeAudioImmediately: true,
-			}).catch((err) => {
-				const truncateWithEllipsis =
-					renderAsset.src.substring(0, 1000) +
-					(renderAsset.src.length > 1000 ? '...' : '');
-				onError(
-					new Error(
-						`Error while downloading ${truncateWithEllipsis}: ${(err as Error).stack}`,
-					),
-				);
-			});
-		}
-
-		if (!assetsOnly) {
-			framesRendered++;
-			onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
-		}
-
-		cleanupPageError();
-		freePage.off('error', errorCallbackOnFrame);
-		pool.release(freePage);
-	};
 
 	const renderFrame = ({
 		frame,
@@ -524,6 +331,8 @@ const innerRenderFrames = async ({
 		attempt: number;
 	}) => {
 		return new Promise<void>((resolve, reject) => {
+			const startTime = performance.now();
+
 			renderFrameWithOptionToReject({
 				frame,
 				index,
@@ -533,8 +342,38 @@ const innerRenderFrames = async ({
 				compId: composition.id,
 				assetsOnly,
 				attempt,
+				indent,
+				logLevel,
+				poolPromise,
+				stoppedSignal,
+				timeoutInMilliseconds,
+				imageFormat,
+				onFrameBuffer,
+				outputDir,
+				assets,
+				binariesDirectory,
+				cancelSignal,
+				countType,
+				downloadMap,
+				frameDir,
+				framesToRender,
+				jpegQuality,
+				lastFrame,
+				onArtifact,
+				onDownload,
+				onError,
+				scale,
 			})
 				.then(() => {
+					if (!assetsOnly) {
+						framesRendered++;
+						onFrameUpdate?.(
+							framesRendered,
+							frame,
+							performance.now() - startTime,
+						);
+					}
+
 					resolve();
 				})
 				.catch((err) => {
@@ -580,7 +419,7 @@ const innerRenderFrames = async ({
 				throw err;
 			}
 
-			if (stopped) {
+			if (stoppedSignal.stopped) {
 				return;
 			}
 
