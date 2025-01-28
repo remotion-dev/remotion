@@ -218,7 +218,7 @@ export const renderStillFlow = async ({
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(`Close browser`, () =>
-		puppeteerInstance.close(false, logLevel, indent),
+		puppeteerInstance.close({silent: false}),
 	);
 
 	const {compositionId, config, reason, argsAfterComposition} =

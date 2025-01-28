@@ -18,6 +18,7 @@ export const getPageAndCleanupFn = async ({
 	logLevel,
 	onBrowserDownload,
 	chromeMode,
+	pageIndex,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -27,12 +28,18 @@ export const getPageAndCleanupFn = async ({
 	logLevel: LogLevel;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
+	pageIndex: number;
 }): Promise<{
 	cleanupPage: () => Promise<void>;
 	page: Page;
 }> => {
 	if (passedInInstance) {
-		const page = await passedInInstance.newPage(() => null, logLevel, indent);
+		const page = await passedInInstance.newPage({
+			context: () => null,
+			logLevel,
+			indent,
+			pageIndex,
+		});
 		return {
 			page,
 			cleanupPage: () => {
@@ -63,17 +70,18 @@ export const getPageAndCleanupFn = async ({
 		onBrowserDownload,
 		chromeMode,
 	});
-	const browserPage = await browserInstance.newPage(
-		() => null,
+	const browserPage = await browserInstance.newPage({
+		context: () => null,
 		logLevel,
 		indent,
-	);
+		pageIndex,
+	});
 
 	return {
 		page: browserPage,
 		cleanupPage: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close(true, logLevel, indent).catch((err) => {
+			browserInstance.close({silent: true}).catch((err) => {
 				if (!(err as Error).message.includes('Target closed')) {
 					Log.error(
 						{indent, logLevel},

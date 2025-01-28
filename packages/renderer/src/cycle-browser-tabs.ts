@@ -28,7 +28,7 @@ export const cycleBrowserTabs = ({
 		interval = setTimeout(() => {
 			puppeteerInstance
 				.getBrowser()
-				.pages(logLevel, indent)
+				.pages()
 				.then((pages) => {
 					if (pages.length === 0) {
 						return;

@@ -1,8 +1,18 @@
-export const nextFrameToRenderState = (allFramesAndExtraFrames: number[]) => {
+import {renderPartitions} from './render-partitions';
+
+export const nextFrameToRenderState = ({
+	allFramesAndExtraFrames,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	concurrencyOrFramesToRender: _concurrency,
+}: {
+	allFramesAndExtraFrames: number[];
+	concurrencyOrFramesToRender: number;
+}) => {
 	const rendered = new Map<number, boolean>();
 
 	return {
-		getNextFrame: () => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		getNextFrame: (_pageIndex: number) => {
 			const nextFrame = allFramesAndExtraFrames.find((frame) => {
 				return !rendered.has(frame);
 			});
@@ -16,4 +26,21 @@ export const nextFrameToRenderState = (allFramesAndExtraFrames: number[]) => {
 	};
 };
 
-export type NextFrameToRender = ReturnType<typeof nextFrameToRenderState>;
+type Fn = typeof nextFrameToRenderState;
+export type NextFrameToRender = ReturnType<Fn>;
+
+export const partitionedNextFrameToRenderState: Fn = ({
+	allFramesAndExtraFrames,
+	concurrencyOrFramesToRender: concurrency,
+}) => {
+	const partitions = renderPartitions({
+		frames: allFramesAndExtraFrames,
+		concurrency,
+	});
+
+	return {
+		getNextFrame: (pageIndex) => {
+			return partitions.getNextFrame(pageIndex);
+		},
+	};
+};

@@ -97,6 +97,7 @@ export class Page extends EventEmitter {
 		sourceMapGetter,
 		logLevel,
 		indent,
+		pageIndex,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -105,6 +106,7 @@ export class Page extends EventEmitter {
 		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
+		pageIndex: number;
 	}): Promise<Page> {
 		const page = new Page({
 			client,
@@ -113,6 +115,7 @@ export class Page extends EventEmitter {
 			sourceMapGetter,
 			logLevel,
 			indent,
+			pageIndex,
 		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
@@ -130,6 +133,7 @@ export class Page extends EventEmitter {
 	screenshotTaskQueue: TaskQueue;
 	sourceMapGetter: SourceMapGetter;
 	logLevel: LogLevel;
+	pageIndex: number;
 
 	constructor({
 		client,
@@ -138,6 +142,7 @@ export class Page extends EventEmitter {
 		sourceMapGetter,
 		logLevel,
 		indent,
+		pageIndex,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -145,6 +150,7 @@ export class Page extends EventEmitter {
 		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
+		pageIndex: number;
 	}) {
 		super();
 		this.#client = client;
@@ -155,6 +161,7 @@ export class Page extends EventEmitter {
 		this.id = String(Math.random());
 		this.sourceMapGetter = sourceMapGetter;
 		this.logLevel = logLevel;
+		this.pageIndex = pageIndex;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {

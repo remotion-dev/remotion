@@ -210,7 +210,12 @@ const innerRenderStill = async ({
 			onBrowserDownload,
 			chromeMode,
 		}));
-	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
+	const page = await browserInstance.newPage({
+		context: sourceMapGetter,
+		logLevel,
+		indent,
+		pageIndex: 0,
+	});
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -243,7 +248,7 @@ const innerRenderStill = async ({
 		if (puppeteerInstance) {
 			await page.close();
 		} else {
-			browserInstance.close(true, logLevel, indent).catch((err) => {
+			browserInstance.close({silent: true}).catch((err) => {
 				Log.error({indent, logLevel}, 'Unable to close browser', err);
 			});
 		}

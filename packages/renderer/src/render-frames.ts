@@ -14,6 +14,7 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
+import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
@@ -30,7 +31,10 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makePage} from './make-page';
-import {nextFrameToRenderState} from './next-frame-to-render';
+import {
+	nextFrameToRenderState,
+	partitionedNextFrameToRenderState,
+} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -260,7 +264,7 @@ const innerRenderFrames = async ({
 		resolvedConcurrency,
 	);
 
-	const makeNewPage = (frame: number) => {
+	const makeNewPage = (frame: number, pageIndex: number) => {
 		return makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
@@ -279,13 +283,15 @@ const innerRenderFrames = async ({
 			serializedResolvedPropsWithCustomSchema,
 			serveUrl,
 			timeoutInMilliseconds,
+			pageIndex,
 		});
 	};
 
 	const getPool = async () => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			.map((_, i) => makeNewPage(framesToRender[i]));
+			// TODO: Change different initial frame
+			.map((_, i) => makeNewPage(framesToRender[i], i));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -333,7 +339,24 @@ const innerRenderFrames = async ({
 		...extraFramesToCaptureAssetsBackend,
 	];
 
-	const nextFrameToRender = nextFrameToRenderState(allFramesAndExtraFrames);
+	const shouldUsePartitionedRendering = getShouldUsePartitionedRendering();
+
+	if (shouldUsePartitionedRendering) {
+		Log.info(
+			{indent, logLevel},
+			'Experimental: Using partitioned rendering (https://github.com/remotion-dev/remotion/pull/4830)',
+		);
+	}
+
+	const nextFrameToRender = shouldUsePartitionedRendering
+		? partitionedNextFrameToRenderState({
+				allFramesAndExtraFrames,
+				concurrencyOrFramesToRender,
+			})
+		: nextFrameToRenderState({
+				allFramesAndExtraFrames,
+				concurrencyOrFramesToRender,
+			});
 
 	await Promise.all(
 		allFramesAndExtraFrames.map(() => {
@@ -597,7 +620,7 @@ const internalRenderFramesRaw = ({
 				} else {
 					Promise.resolve(browserInstance)
 						.then((instance) => {
-							return instance.close(true, logLevel, indent);
+							return instance.close({silent: true});
 						})
 						.catch((err) => {
 							if (

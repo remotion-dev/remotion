@@ -37,6 +37,7 @@ export const getChromiumGpuInformation = async ({
 		logLevel,
 		onBrowserDownload,
 		chromeMode,
+		pageIndex: 0,
 	});
 
 	await page.goto({url: 'chrome://gpu', timeout: 12000});

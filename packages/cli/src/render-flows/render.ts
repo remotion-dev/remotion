@@ -301,7 +301,7 @@ export const renderVideoFlow = async ({
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(`Closing browser instance`, () =>
-		puppeteerInstance.close(false, logLevel, indent),
+		puppeteerInstance.close({silent: false}),
 	);
 
 	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);

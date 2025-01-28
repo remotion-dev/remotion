@@ -56,7 +56,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	imageFormat: VideoImageFormat;
 	cancelSignal: CancelSignal | undefined;
 	binariesDirectory: string | null;
-	poolPromise: Promise<Pool<Page>>;
+	poolPromise: Promise<Pool>;
 	jpegQuality: number;
 	frameDir: string;
 	scale: number;
@@ -74,7 +74,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 	makeBrowser: () => Promise<HeadlessBrowser>;
-	makeNewPage: (frame: number) => Promise<Page>;
+	makeNewPage: (frame: number, pageIndex: number) => Promise<Page>;
 	browserReplacer: BrowserReplacer;
 	concurrencyOrFramesToRender: number;
 	lastFrame: number;
@@ -97,7 +97,7 @@ export const renderFrameAndRetryTargetClose = async ({
 
 	const freePage = await currentPool.acquire();
 
-	const frame = nextFrameToRender.getNextFrame();
+	const frame = nextFrameToRender.getNextFrame(freePage.pageIndex);
 
 	try {
 		await Promise.race([
@@ -170,7 +170,7 @@ export const renderFrameAndRetryTargetClose = async ({
 		if (shouldRetryError) {
 			const pool = await poolPromise;
 			// Replace the closed page
-			const newPage = await makeNewPage(frame);
+			const newPage = await makeNewPage(frame, freePage.pageIndex);
 			pool.release(newPage);
 			Log.warn(
 				{indent, logLevel},
@@ -221,7 +221,7 @@ export const renderFrameAndRetryTargetClose = async ({
 		await browserReplacer.replaceBrowser(makeBrowser, async () => {
 			const pages = new Array(concurrencyOrFramesToRender)
 				.fill(true)
-				.map(() => makeNewPage(frame));
+				.map((_, i) => makeNewPage(frame, i));
 			const puppeteerPages = await Promise.all(pages);
 			const pool = await poolPromise;
 			for (const newPage of puppeteerPages) {
