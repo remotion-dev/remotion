@@ -98,9 +98,6 @@ export const renderFrameAndRetryTargetClose = async ({
 	const freePage = await currentPool.acquire();
 
 	const frame = nextFrameToRender.getNextFrame();
-	if (frame === undefined) {
-		throw new Error('No more frames to render');
-	}
 
 	try {
 		await Promise.race([

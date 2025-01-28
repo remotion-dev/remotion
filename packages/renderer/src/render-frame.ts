@@ -35,7 +35,6 @@ export const renderFrame = ({
 	onFrameBuffer,
 	onFrameUpdate,
 	framesRenderedObj,
-	nextFrameToRender,
 	frame,
 	page,
 }: {
@@ -100,7 +99,6 @@ export const renderFrame = ({
 			onDownload,
 			onError,
 			scale,
-			nextFrameToRender,
 			framesRenderedObj,
 			onFrameUpdate,
 			frame,

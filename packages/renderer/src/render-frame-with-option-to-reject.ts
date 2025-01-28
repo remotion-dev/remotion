@@ -12,7 +12,6 @@ import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import type {NextFrameToRender} from './next-frame-to-render';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
@@ -45,7 +44,6 @@ export const renderFrameWithOptionToReject = async ({
 	downloadMap,
 	binariesDirectory,
 	cancelSignal,
-	nextFrameToRender,
 	framesRenderedObj,
 	onFrameUpdate,
 	frame,
@@ -76,7 +74,6 @@ export const renderFrameWithOptionToReject = async ({
 	downloadMap: DownloadMap;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	nextFrameToRender: NextFrameToRender;
 	framesRenderedObj: {count: number};
 	onFrameUpdate:
 		| null
@@ -242,7 +239,6 @@ export const renderFrameWithOptionToReject = async ({
 
 	cleanupPageError();
 	page.off('error', errorCallbackOnFrame);
-	nextFrameToRender.setAsRendered(frame);
 
 	if (!assetsOnly) {
 		framesRenderedObj.count++;
