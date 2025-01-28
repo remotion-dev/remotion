@@ -3,7 +3,7 @@ use std::sync::Mutex;
 
 pub struct MaxCacheSize {
     max_cache_size: Option<u64>,
-    current_cache_size: i128,
+    current_cache_size: u64,
 }
 
 impl MaxCacheSize {
@@ -26,10 +26,13 @@ impl MaxCacheSize {
     }
 
     pub fn add_to_current_cache_size(&mut self, value: i128) {
-        self.current_cache_size += value;
+        self.current_cache_size += value as u64;
     }
     pub fn remove_from_cache_size(&mut self, value: i128) {
-        self.current_cache_size -= value;
+        self.current_cache_size -= value as u64;
+    }
+    pub fn get_current_cache_size(&self) -> u64 {
+        self.current_cache_size
     }
 }
 

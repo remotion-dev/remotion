@@ -11,6 +11,7 @@ use crate::{
     errors::ErrorWithBacktrace,
     global_printer::_print_verbose,
     image::get_png_data,
+    max_cache_size,
     tone_map::{make_tone_map_filtergraph, FilterGraph},
 };
 
@@ -71,6 +72,8 @@ impl ScalableFrame {
             return Ok(());
         }
 
+        let size_before = self.get_size();
+
         match &self.native_frame {
             None => Err(ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
@@ -124,6 +127,18 @@ impl ScalableFrame {
                     scale_and_make_bitmap(&frame, planes, format, linesize, self.transparent)?;
                 self.rgb_frame = Some(RgbFrame { data: bitmap });
                 self.native_frame = None;
+                let size_after = self.get_size();
+                if size_after > size_before {
+                    max_cache_size::get_instance()
+                        .lock()
+                        .unwrap()
+                        .add_to_current_cache_size((size_after - size_before) as i128);
+                } else {
+                    max_cache_size::get_instance()
+                        .lock()
+                        .unwrap()
+                        .remove_from_cache_size((size_before - size_after) as i128);
+                }
                 Ok(())
             }
         }

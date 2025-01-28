@@ -30,7 +30,7 @@ pub fn execute_command(
                 command.time,
                 command.transparent,
                 command.tone_mapped,
-                max_cache_size::get_instance().lock().unwrap().get_value(),
+                current_maximum_cache_size,
                 thread_index,
                 opened_video_manager,
                 frame_cache_manager,

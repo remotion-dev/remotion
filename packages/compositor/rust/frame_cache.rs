@@ -133,10 +133,12 @@ impl FrameCache {
                 if self.last_frame.is_some() && id == self.last_frame.expect("last_frame") {
                     self.last_frame = None;
                 }
+
                 max_cache_size::get_instance()
                     .lock()
                     .unwrap()
                     .remove_from_cache_size(self.items[i].frame.get_size().into());
+
                 self.items.remove(i);
                 break;
             }

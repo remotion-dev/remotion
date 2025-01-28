@@ -4,6 +4,7 @@ use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{FrameCache, FrameCacheReference},
     global_printer::_print_verbose,
+    max_cache_size,
 };
 
 pub struct FrameCacheAndOriginalSource {
@@ -159,7 +160,10 @@ impl FrameCacheManager {
 
         let mut pruned = 0;
         for removal in sorted {
-            let current_cache_size_in_bytes = self.get_total_size()?;
+            let current_cache_size_in_bytes = max_cache_size::get_instance()
+                .lock()
+                .unwrap()
+                .get_current_cache_size();
             if current_cache_size_in_bytes < maximum_frame_cache_size_in_bytes {
                 break;
             }
@@ -179,11 +183,12 @@ impl FrameCacheManager {
 
         if pruned > 0 {
             _print_verbose(&format!(
-                "Pruned {} to save memory, keeping {}. Cache size on thread {}: {}MB",
+                "Pruned {} to save memory, keeping {}. Cache size on thread {}: {}MB, total cache: {}MB",
                 pruned,
                 self.get_frames_in_cache()?,
                 thread_index,
-                self.get_total_size()? / 1024 / 1024
+                self.get_total_size()? / 1024 / 1024,
+                max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
             ))?;
         }
 
