@@ -12,12 +12,10 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
-import type {Codec} from './codec';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -40,6 +38,7 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
+import {makePage} from './make-page';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -48,12 +47,10 @@ import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import type {EmittedArtifact} from './serialize-artifact';
-import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrame} from './take-frame';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
@@ -269,95 +266,37 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: SourceMapGetter, initialFrame: number) => {
-		const page = await browserReplacer
-			.getBrowser()
-			.newPage(context, logLevel, indent);
-		pagesArray.push(page);
-		await page.setViewport({
-			width: composition.width,
-			height: composition.height,
-			deviceScaleFactor: scale,
-		});
-
-		const logCallback = (log: ConsoleMessage) => {
-			onBrowserLog?.({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		};
-
-		if (onBrowserLog) {
-			page.on('console', logCallback);
-		}
-
-		await setPropsAndEnv({
-			serializedInputPropsWithCustomSchema,
-			envVariables,
-			page,
-			serveUrl,
-			initialFrame,
-			timeoutInMilliseconds,
-			proxyPort,
-			retriesRemaining: 2,
-			audioEnabled: !muted,
-			videoEnabled: imageFormat !== 'none',
-			indent,
-			logLevel,
-			onServeUrlVisited: () => undefined,
-		});
-
-		await puppeteerEvaluateWithCatch({
-			// eslint-disable-next-line max-params
-			pageFunction: (
-				id: string,
-				props: string,
-				durationInFrames: number,
-				fps: number,
-				height: number,
-				width: number,
-				defaultCodec: Codec,
-			) => {
-				window.remotion_setBundleMode({
-					type: 'composition',
-					compositionName: id,
-					serializedResolvedPropsWithSchema: props,
-					compositionDurationInFrames: durationInFrames,
-					compositionFps: fps,
-					compositionHeight: height,
-					compositionWidth: width,
-					compositionDefaultCodec: defaultCodec,
-				});
-			},
-			args: [
-				composition.id,
-				serializedResolvedPropsWithCustomSchema,
-				composition.durationInFrames,
-				composition.fps,
-				composition.height,
-				composition.width,
-				composition.defaultCodec,
-			],
-			frame: null,
-			page,
-			timeoutInMilliseconds,
-		});
-
-		page.off('console', logCallback);
-
-		return page;
-	};
-
 	const concurrencyOrFramesToRender = Math.min(
 		framesToRender.length,
 		resolvedConcurrency,
 	);
 
-	const getPool = async (context: SourceMapGetter) => {
+	const makeNewPage = (frame: number) => {
+		return makePage({
+			context: sourceMapGetter,
+			initialFrame: frame,
+			browserReplacer,
+			indent,
+			logLevel,
+			onBrowserLog,
+			pagesArray,
+			scale,
+			composition,
+			envVariables,
+			imageFormat,
+			muted,
+			proxyPort,
+			serializedInputPropsWithCustomSchema,
+			serializedResolvedPropsWithCustomSchema,
+			serveUrl,
+			timeoutInMilliseconds,
+		});
+	};
+
+	const getPool = async () => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			.map((_, i) => makePage(context, framesToRender[i]));
+			.map((_, i) => makeNewPage(framesToRender[i]));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -375,7 +314,7 @@ const innerRenderFrames = async ({
 	});
 	let framesRendered = 0;
 
-	const poolPromise = getPool(sourceMapGetter);
+	const poolPromise = getPool();
 
 	onStart?.({
 		frameCount: framesToRender.length,
@@ -659,7 +598,7 @@ const innerRenderFrames = async ({
 			if (shouldRetryError) {
 				const pool = await poolPromise;
 				// Replace the closed page
-				const newPage = await makePage(sourceMapGetter, frame);
+				const newPage = await makeNewPage(frame);
 				pool.release(newPage);
 				Log.warn(
 					{indent, logLevel},
@@ -684,7 +623,7 @@ const innerRenderFrames = async ({
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(concurrencyOrFramesToRender)
 					.fill(true)
-					.map(() => makePage(sourceMapGetter, frame));
+					.map(() => makeNewPage(frame));
 				const puppeteerPages = await Promise.all(pages);
 				const pool = await poolPromise;
 				for (const newPage of puppeteerPages) {
