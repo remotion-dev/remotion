@@ -47,9 +47,14 @@ impl OpenedVideo {
 
         Ok(())
     }
-    pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, ErrorWithBacktrace> {
+    pub fn open_new_stream(
+        &mut self,
+        transparent: bool,
+        thread_index: usize,
+    ) -> Result<usize, ErrorWithBacktrace> {
         let (opened_stream, _, _) =
             opened_stream::open_stream(&self.src, &self.original_src, transparent)?;
+        _print_verbose(&format!("Opening new stream on thread {}", thread_index))?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);
         return Ok(self.opened_streams.len() - 1);

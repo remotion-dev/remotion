@@ -245,6 +245,9 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct Eof {}
+
+    #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
     pub enum CliInputCommandPayload {
         ExtractFrame(ExtractFrameCommand),
@@ -257,6 +260,7 @@ pub mod payloads {
         GetVideoMetadata(GetVideoMetadata),
         GetSilences(GetSilences),
         ExtractAudio(ExtractAudio),
+        Eof(Eof),
     }
 
     #[derive(Serialize, Deserialize, Debug)]

@@ -21,9 +21,11 @@ use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
 use global_printer::{_print_verbose, set_verbose_logging};
 use memory::get_ideal_maximum_frame_cache_size;
-use std::{env, thread};
+use std::env;
+use std::sync::mpsc;
+use std::thread;
 
-use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
+use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, Eof};
 
 extern crate png;
 
@@ -57,7 +59,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
-            let data = execute_command(opts.payload)?;
+            let data = execute_command(opts.payload, 0)?;
             global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
         }
     }
@@ -75,9 +77,37 @@ fn start_long_running_process(
     threads: usize,
     maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
-    let pool = rayon_core::ThreadPoolBuilder::new()
-        .num_threads(threads)
-        .build()?;
+    let mut thread_handles = vec![];
+    let mut send_handles = vec![];
+    for thread_index in 0..threads {
+        let (tx, rx) = mpsc::channel::<CliInputCommand>();
+
+        let handle = thread::spawn(move || {
+            while let Ok(message) = rx.recv() {
+                match message.payload {
+                    CliInputCommandPayload::Eof(_) => {
+                        break;
+                    }
+                    _ => (),
+                }
+                match execute_command(message.payload, thread_index) {
+                    Ok(res) => {
+                        global_printer::synchronized_write_buf(0, &message.nonce, &res).unwrap()
+                    }
+                    Err(err) => global_printer::synchronized_write_buf(
+                        1,
+                        &message.nonce,
+                        &error_to_json(err).unwrap().as_bytes(),
+                    )
+                    .unwrap(),
+                };
+            }
+
+            // Thread work here
+        });
+        send_handles.push(tx);
+        thread_handles.push(handle);
+    }
 
     max_cache_size::get_instance()
         .lock()
@@ -95,39 +125,21 @@ fn start_long_running_process(
 
         input = matched.trim().to_string();
         if input == "EOF" {
+            for handle in send_handles {
+                handle.send(CliInputCommand {
+                    payload: CliInputCommandPayload::Eof(Eof {}),
+                    nonce: "".to_string(),
+                });
+            }
             break;
         }
         let opts: CliInputCommand = parse_cli(&input)?;
+        // TODO: Find best thread to send to
+        send_handles[0].send(opts).unwrap();
+    }
 
-        if threads > 1 {
-            pool.install(move || {
-                let handle = thread::spawn(move || {
-                    match execute_command(opts.payload) {
-                        Ok(res) => {
-                            global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap()
-                        }
-                        Err(err) => global_printer::synchronized_write_buf(
-                            1,
-                            &opts.nonce,
-                            &error_to_json(err).unwrap().as_bytes(),
-                        )
-                        .unwrap(),
-                    };
-                });
-
-                handle.join().unwrap();
-            });
-        } else {
-            match execute_command(opts.payload) {
-                Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
-                Err(err) => global_printer::synchronized_write_buf(
-                    1,
-                    &opts.nonce,
-                    &error_to_json(err).unwrap().as_bytes(),
-                )
-                .unwrap(),
-            };
-        }
+    for handle in thread_handles {
+        handle.join().unwrap();
     }
 
     Ok(())

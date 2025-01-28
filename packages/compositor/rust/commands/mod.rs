@@ -5,7 +5,10 @@ use crate::payloads::payloads::CliInputCommandPayload;
 use crate::{ffmpeg, get_silent_parts, max_cache_size};
 use std::io::ErrorKind;
 
-pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
+pub fn execute_command(
+    opts: CliInputCommandPayload,
+    thread_index: usize,
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
 
     if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
@@ -25,6 +28,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
                 command.transparent,
                 command.tone_mapped,
                 max_cache_size::get_instance().lock().unwrap().get_value(),
+                thread_index,
             )?;
             Ok(res)
         }
@@ -39,6 +43,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             hi.unwrap();
             Ok(vec![])
         }
+        CliInputCommandPayload::Eof(_) => Ok(vec![]),
         CliInputCommandPayload::FreeUpMemory(payload) => {
             ffmpeg::keep_only_latest_frames_and_close_videos(payload.remaining_bytes)?;
             Ok(vec![])

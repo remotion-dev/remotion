@@ -62,11 +62,11 @@ pub fn extract_frame(
     transparent: bool,
     tone_mapped: bool,
     maximum_frame_cache_size_in_bytes: Option<u128>,
+    thread_index: usize,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, &original_src, transparent)?;
     let mut vid = video_locked.lock()?;
-
     // The requested position in the video.
     let position = calc_position(time, vid.time_base);
 
@@ -114,8 +114,8 @@ pub fn extract_frame(
 
     // Seeking too far back in a stream is not efficient, rather open a new stream
     // 15 seconds was chosen arbitrarily
-    let max_stream_position = calc_position(time + 15.0, vid.time_base);
-    let min_stream_position = calc_position(time - 15.0, vid.time_base);
+    let max_stream_position = calc_position(time + 5.0, vid.time_base);
+    let min_stream_position = calc_position(time - 5.0, vid.time_base);
     for i in 0..open_stream_count {
         let stream = vid.opened_streams[i].lock()?;
         if stream.reached_eof {
@@ -136,7 +136,7 @@ pub fn extract_frame(
 
     let stream_index = match suitable_open_stream {
         Some(index) => Ok(index),
-        None => vid.open_new_stream(transparent),
+        None => vid.open_new_stream(transparent, thread_index),
     };
 
     let opened_stream = match vid.opened_streams.get(stream_index?) {
