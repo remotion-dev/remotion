@@ -188,13 +188,6 @@ impl FrameCacheManager {
         Ok(())
     }
 
-    pub fn prune_oldest(
-        &mut self,
-        maximum_frame_cache_size_in_bytes: u128,
-    ) -> Result<(), ErrorWithBacktrace> {
-        self.prune(maximum_frame_cache_size_in_bytes)
-    }
-
     // Should be called if system is about to run out of memory
     pub fn halfen_cache_size(&mut self) -> Result<(), ErrorWithBacktrace> {
         let current_cache_size = self.get_total_size()?;

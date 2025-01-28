@@ -31,7 +31,7 @@ pub fn keep_only_latest_frames(
     maximum_frame_cache_size_in_bytes: u128,
     frame_cache_manager: &mut FrameCacheManager,
 ) -> Result<(), ErrorWithBacktrace> {
-    frame_cache_manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
+    frame_cache_manager.prune(maximum_frame_cache_size_in_bytes)?;
 
     Ok(())
 }
