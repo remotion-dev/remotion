@@ -126,7 +126,7 @@ impl FrameCacheManager {
         return Ok(vec);
     }
 
-    fn get_total_size(&mut self) -> Result<u128, ErrorWithBacktrace> {
+    fn get_total_size(&mut self) -> Result<u64, ErrorWithBacktrace> {
         let mut total_size = 0;
 
         let keys = self.cache.keys().cloned().collect::<Vec<String>>();
@@ -141,7 +141,7 @@ impl FrameCacheManager {
                 let original_src = self.cache.get(&src).unwrap().original_src.clone();
                 let lock = self.get_frame_cache(&src, &original_src, transparent, tone_mapped);
                 let frame_cache = lock.lock()?;
-                total_size += frame_cache.get_size_in_bytes();
+                total_size += frame_cache.get_local_size_in_bytes();
             }
         }
 
@@ -150,7 +150,8 @@ impl FrameCacheManager {
 
     pub fn prune(
         &mut self,
-        maximum_frame_cache_size_in_bytes: u128,
+        maximum_frame_cache_size_in_bytes: u64,
+        thread_index: usize,
     ) -> Result<(), ErrorWithBacktrace> {
         let references = self.get_frame_references()?;
         let mut sorted = references.clone();
@@ -178,9 +179,10 @@ impl FrameCacheManager {
 
         if pruned > 0 {
             _print_verbose(&format!(
-                "Pruned {} to save memory, keeping {}. Total cache size: {}MB",
+                "Pruned {} to save memory, keeping {}. Cache size on thread {}: {}MB",
                 pruned,
                 self.get_frames_in_cache()?,
+                thread_index,
                 self.get_total_size()? / 1024 / 1024
             ))?;
         }
@@ -189,9 +191,9 @@ impl FrameCacheManager {
     }
 
     // Should be called if system is about to run out of memory
-    pub fn halfen_cache_size(&mut self) -> Result<(), ErrorWithBacktrace> {
+    pub fn halfen_cache_size(&mut self, thread_index: usize) -> Result<(), ErrorWithBacktrace> {
         let current_cache_size = self.get_total_size()?;
-        self.prune(current_cache_size / 2)
+        self.prune(current_cache_size / 2, thread_index)
     }
 
     pub fn get_frames_in_cache(&mut self) -> Result<usize, ErrorWithBacktrace> {

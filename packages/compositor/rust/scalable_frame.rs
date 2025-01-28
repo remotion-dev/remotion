@@ -30,7 +30,7 @@ pub struct NotRgbFrame {
     pub rotate: Rotate,
     pub original_src: String,
     pub unscaled_frame: Video,
-    pub size: u128,
+    pub size: u64,
     pub tone_mapped: bool,
     pub filter_graph: FilterGraph,
     pub colorspace: color::Space,
@@ -139,12 +139,12 @@ impl ScalableFrame {
         }
     }
 
-    pub fn get_size(&self) -> u128 {
-        let mut size: u128 = 0;
+    pub fn get_size(&self) -> u64 {
+        let mut size: u64 = 0;
         match self.rgb_frame {
             None => {}
             Some(ref frame) => {
-                size += frame.data.len() as u128;
+                size += frame.data.len() as u64;
             }
         }
         match self.native_frame {

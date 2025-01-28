@@ -85,7 +85,7 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 
 fn start_long_running_process(
     threads: usize,
-    maximum_frame_cache_size_in_bytes: u128,
+    maximum_frame_cache_size_in_bytes: u64,
 ) -> Result<(), ErrorWithBacktrace> {
     let mut thread_handles = vec![];
     let mut send_handles = vec![];

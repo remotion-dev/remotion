@@ -88,11 +88,11 @@ impl OpenedStream {
                 Ok(Some(video)) => {
                     let frame_cache_id = get_frame_cache_id();
 
-                    let mut size: u128 = 0;
+                    let mut size: u64 = 0;
 
                     let amount_of_planes = video.planes();
                     for i in 0..amount_of_planes {
-                        size += video.data(i).len() as u128;
+                        size += video.data(i).len() as u64;
                     }
 
                     let frame = NotRgbFrame {
@@ -156,9 +156,10 @@ impl OpenedStream {
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
-        maximum_frame_cache_size_in_bytes: Option<u128>,
+        maximum_frame_cache_size_in_bytes: Option<u64>,
         tone_mapped: bool,
-        frame_cache_manager: &mut FrameCacheManager
+        frame_cache_manager: &mut FrameCacheManager,
+        thread_index: usize,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let position_to_seek_to = match self.duration_or_zero {
@@ -325,11 +326,11 @@ impl OpenedStream {
 
                         let frame_cache_id = get_frame_cache_id();
 
-                        let mut size: u128 = 0;
+                        let mut size: u64 = 0;
 
                         let amount_of_planes = unfiltered.planes();
                         for i in 0..amount_of_planes {
-                            size += unfiltered.data(i).len() as u128;
+                            size += unfiltered.data(i).len() as u64;
                         }
 
                         let frame = NotRgbFrame {
@@ -379,7 +380,7 @@ impl OpenedStream {
                         if items_in_loop % 10 == 0 {
                             match maximum_frame_cache_size_in_bytes {
                                 Some(cache_size) => {
-                                    ffmpeg::keep_only_latest_frames(cache_size, frame_cache_manager)?;
+                                    ffmpeg::keep_only_latest_frames(cache_size, frame_cache_manager, thread_index)?;
                                 }
                                 None => {}
                             }

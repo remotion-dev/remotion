@@ -35,7 +35,7 @@ pub fn is_about_to_run_out_of_memory() -> bool {
     return get_available_memory() < 100 * 1024 * 1024;
 }
 
-pub fn get_ideal_maximum_frame_cache_size() -> u128 {
+pub fn get_ideal_maximum_frame_cache_size() -> u64 {
     let available_memory = get_available_memory();
 
     // Take 40% of available memory

@@ -5,6 +5,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use crate::{
     errors::ErrorWithBacktrace,
     global_printer::{_print_debug, _print_verbose},
+    max_cache_size,
     opened_stream::get_time,
     scalable_frame::ScalableFrame,
 };
@@ -74,6 +75,10 @@ impl FrameCache {
     }
 
     pub fn add_item(&mut self, item: FrameCacheItem) {
+        max_cache_size::get_instance()
+            .lock()
+            .unwrap()
+            .add_to_current_cache_size(item.frame.get_size().into());
         self.items.push(item);
     }
 
@@ -128,6 +133,10 @@ impl FrameCache {
                 if self.last_frame.is_some() && id == self.last_frame.expect("last_frame") {
                     self.last_frame = None;
                 }
+                max_cache_size::get_instance()
+                    .lock()
+                    .unwrap()
+                    .remove_from_cache_size(self.items[i].frame.get_size().into());
                 self.items.remove(i);
                 break;
             }
@@ -143,8 +152,8 @@ impl FrameCache {
         self.items.len()
     }
 
-    pub fn get_size_in_bytes(&self) -> u128 {
-        let mut size: u128 = 0;
+    pub fn get_local_size_in_bytes(&self) -> u64 {
+        let mut size: u64 = 0;
         for item in &self.items {
             size += item.frame.get_size();
         }

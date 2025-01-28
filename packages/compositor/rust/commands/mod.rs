@@ -15,7 +15,7 @@ pub fn execute_command(
     let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
 
     if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
-        ffmpeg::emergency_memory_free_up(frame_cache_manager).unwrap();
+        ffmpeg::emergency_memory_free_up(frame_cache_manager, thread_index).unwrap();
         max_cache_size::get_instance()
             .lock()
             .unwrap()
@@ -54,6 +54,7 @@ pub fn execute_command(
                 payload.remaining_bytes,
                 opened_video_manager,
                 frame_cache_manager,
+                thread_index,
             )?;
             Ok(vec![])
         }
@@ -94,6 +95,7 @@ pub fn execute_command(
             current_maximum_cache_size.unwrap(),
             opened_video_manager,
             frame_cache_manager,
+            thread_index,
         )
         .unwrap();
     }
