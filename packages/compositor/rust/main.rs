@@ -19,8 +19,10 @@ mod tone_map;
 
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
+use frame_cache_manager::make_frame_cache_manager;
 use global_printer::{_print_verbose, set_verbose_logging};
 use memory::get_ideal_maximum_frame_cache_size;
+use opened_video_manager::make_opened_stream_manager;
 use std::env;
 use std::sync::mpsc;
 use std::thread;
@@ -42,6 +44,9 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
 
     let opts: CliInputCommand = parse_init_command(&first_arg)?;
 
+    let mut frame_cache_manager = make_frame_cache_manager().unwrap();
+    let mut open_video_manager = make_opened_stream_manager().unwrap();
+
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
             set_verbose_logging(payload.verbose);
@@ -59,7 +64,12 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
-            let data = execute_command(opts.payload, 0)?;
+            let data = execute_command(
+                opts.payload,
+                0,
+                &mut frame_cache_manager,
+                &mut open_video_manager,
+            )?;
             global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
         }
     }
@@ -83,6 +93,9 @@ fn start_long_running_process(
         let (tx, rx) = mpsc::channel::<CliInputCommand>();
 
         let handle = thread::spawn(move || {
+            let mut frame_cache_manager = make_frame_cache_manager().unwrap();
+            let mut opened_video_manager = make_opened_stream_manager().unwrap();
+
             while let Ok(message) = rx.recv() {
                 match message.payload {
                     CliInputCommandPayload::Eof(_) => {
@@ -90,7 +103,12 @@ fn start_long_running_process(
                     }
                     _ => (),
                 }
-                match execute_command(message.payload, thread_index) {
+                match execute_command(
+                    message.payload,
+                    thread_index,
+                    &mut frame_cache_manager,
+                    &mut opened_video_manager,
+                ) {
                     Ok(res) => {
                         global_printer::synchronized_write_buf(0, &message.nonce, &res).unwrap()
                     }
@@ -126,13 +144,16 @@ fn start_long_running_process(
         input = matched.trim().to_string();
         if input == "EOF" {
             for handle in send_handles {
-                handle.send(CliInputCommand {
-                    payload: CliInputCommandPayload::Eof(Eof {}),
-                    nonce: "".to_string(),
-                });
+                handle
+                    .send(CliInputCommand {
+                        payload: CliInputCommandPayload::Eof(Eof {}),
+                        nonce: "".to_string(),
+                    })
+                    .unwrap();
             }
             break;
         }
+
         let opts: CliInputCommand = parse_cli(&input)?;
         // TODO: Find best thread to send to
         send_handles[0].send(opts).unwrap();

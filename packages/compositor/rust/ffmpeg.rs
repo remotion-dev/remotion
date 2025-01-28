@@ -12,12 +12,13 @@ use std::io::{BufReader, ErrorKind};
 extern crate ffmpeg_next as remotionffmpeg;
 use remotionffmpeg::{codec, encoder, format, media, Rational};
 
-pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
-    let cache_manager = FrameCacheManager::get_instance();
+pub fn get_open_video_stats(
+    frame_cache_manager: &mut FrameCacheManager,
+    manager: &OpenedVideoManager,
+) -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let open_videos = manager.get_open_videos()?;
     let open_streams = manager.get_open_video_streams()?;
-    let frames_in_cache = cache_manager.get_frames_in_cache()?;
+    let frames_in_cache = frame_cache_manager.get_frames_in_cache()?;
 
     Ok(OpenVideoStats {
         open_videos,
@@ -28,29 +29,29 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
 
 pub fn keep_only_latest_frames(
     maximum_frame_cache_size_in_bytes: u128,
+    frame_cache_manager: &mut FrameCacheManager,
 ) -> Result<(), ErrorWithBacktrace> {
-    let manager = FrameCacheManager::get_instance();
-
-    manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
+    frame_cache_manager.prune_oldest(maximum_frame_cache_size_in_bytes)?;
 
     Ok(())
 }
 pub fn keep_only_latest_frames_and_close_videos(
     maximum_frame_cache_size_in_bytes: u128,
+    opened_video_manager: &mut OpenedVideoManager,
+    frame_cache_manager: &mut FrameCacheManager,
 ) -> Result<(), ErrorWithBacktrace> {
-    keep_only_latest_frames(maximum_frame_cache_size_in_bytes)?;
+    keep_only_latest_frames(maximum_frame_cache_size_in_bytes, frame_cache_manager)?;
 
-    let opened_video_manager = OpenedVideoManager::get_instance();
-    opened_video_manager.close_videos_if_cache_empty()?;
+    opened_video_manager.close_videos_if_cache_empty(frame_cache_manager)?;
 
     Ok(())
 }
 
-pub fn emergency_memory_free_up() -> Result<(), ErrorWithBacktrace> {
-    let manager = FrameCacheManager::get_instance();
-
+pub fn emergency_memory_free_up(
+    frame_cache_manager: &mut FrameCacheManager,
+) -> Result<(), ErrorWithBacktrace> {
     _print_verbose("System is about to run out of memory, freeing up memory.")?;
-    manager.halfen_cache_size()?;
+    frame_cache_manager.halfen_cache_size()?;
 
     Ok(())
 }
@@ -63,8 +64,9 @@ pub fn extract_frame(
     tone_mapped: bool,
     maximum_frame_cache_size_in_bytes: Option<u128>,
     thread_index: usize,
+    manager: &mut OpenedVideoManager,
+    frame_cache_manager: &mut FrameCacheManager,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, &original_src, transparent)?;
     let mut vid = video_locked.lock()?;
     // The requested position in the video.
@@ -84,7 +86,7 @@ pub fn extract_frame(
     };
 
     // Don't allow previous frame, but allow for some flexibility
-    let cache_item = FrameCacheManager::get_instance().get_cache_item_id(
+    let cache_item = frame_cache_manager.get_cache_item_id(
         &src,
         &original_src,
         transparent,
@@ -95,7 +97,7 @@ pub fn extract_frame(
 
     match cache_item {
         Ok(Some(item)) => {
-            return Ok(FrameCacheManager::get_instance().get_cache_item_from_id(
+            return Ok(frame_cache_manager.get_cache_item_from_id(
                 &src,
                 &original_src,
                 transparent,
@@ -159,9 +161,10 @@ pub fn extract_frame(
         threshold,
         maximum_frame_cache_size_in_bytes,
         tone_mapped,
+        frame_cache_manager,
     )?;
 
-    let from_cache = FrameCacheManager::get_instance()
+    let from_cache = frame_cache_manager
         .get_frame_cache(&src, &original_src, transparent, tone_mapped)
         .lock()?
         .get_item_from_id(frame_id);

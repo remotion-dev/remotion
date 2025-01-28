@@ -6,14 +6,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
 use crate::{
-    errors::ErrorWithBacktrace,
-    ffmpeg,
-    frame_cache::{get_frame_cache_id, FrameCacheItem},
-    frame_cache_manager::FrameCacheManager,
-    global_printer::_print_verbose,
-    rotation,
-    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
-    tone_map::FilterGraph,
+    errors::ErrorWithBacktrace, ffmpeg, frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose, rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
 };
 
 pub struct OpenedStream {
@@ -80,6 +73,7 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
         tone_mapped: bool,
+        frame_cache_manager: &mut FrameCacheManager,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -128,7 +122,7 @@ impl OpenedStream {
                     };
 
                     looped_pts = video.pts();
-                    FrameCacheManager::get_instance()
+                    frame_cache_manager
                         .get_frame_cache(
                             &self.src,
                             &self.original_src,
@@ -164,6 +158,7 @@ impl OpenedStream {
         threshold: i64,
         maximum_frame_cache_size_in_bytes: Option<u128>,
         tone_mapped: bool,
+        frame_cache_manager: &mut FrameCacheManager
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let position_to_seek_to = match self.duration_or_zero {
@@ -241,10 +236,11 @@ impl OpenedStream {
                             false => Some(self.last_position.unwrap()),
                         },
                         tone_mapped,
+                        frame_cache_manager
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
-                        FrameCacheManager::get_instance()
+                     frame_cache_manager
                             .get_frame_cache(
                                 &self.src,
                                 &self.original_src,
@@ -254,7 +250,7 @@ impl OpenedStream {
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap().index);
                     } else {
-                        FrameCacheManager::get_instance()
+                        frame_cache_manager
                             .get_frame_cache(
                                 &self.src,
                                 &self.original_src,
@@ -366,7 +362,7 @@ impl OpenedStream {
 
                         self.last_position = Some(unfiltered.pts().expect("expected pts"));
                         freshly_seeked = false;
-                        FrameCacheManager::get_instance()
+                       frame_cache_manager
                             .get_frame_cache(
                                 &self.src,
                                 &self.original_src,
@@ -383,7 +379,7 @@ impl OpenedStream {
                         if items_in_loop % 10 == 0 {
                             match maximum_frame_cache_size_in_bytes {
                                 Some(cache_size) => {
-                                    ffmpeg::keep_only_latest_frames(cache_size)?;
+                                    ffmpeg::keep_only_latest_frames(cache_size, frame_cache_manager)?;
                                 }
                                 None => {}
                             }
@@ -424,7 +420,7 @@ impl OpenedStream {
             }
         }
 
-        let final_frame = FrameCacheManager::get_instance()
+        let final_frame = frame_cache_manager
             .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
             .lock()?
             .get_item_id(target_position, threshold)?;

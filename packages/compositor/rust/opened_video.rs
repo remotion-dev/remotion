@@ -1,5 +1,5 @@
 use remotionffmpeg::Rational;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use crate::{
     errors::ErrorWithBacktrace,
@@ -10,7 +10,7 @@ use crate::{
 extern crate ffmpeg_next as remotionffmpeg;
 
 pub struct OpenedVideo {
-    pub opened_streams: Vec<Arc<Mutex<OpenedStream>>>,
+    pub opened_streams: Vec<Mutex<OpenedStream>>,
     pub fps: Rational,
     pub time_base: Rational,
     pub src: String,
@@ -26,7 +26,7 @@ pub fn open_video(
         opened_stream::open_stream(src, original_src, transparent)?;
 
     let opened_video = OpenedVideo {
-        opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
+        opened_streams: vec![(Mutex::new(opened_stream))],
         fps,
         time_base,
         src: src.to_string(),
@@ -55,45 +55,54 @@ impl OpenedVideo {
         let (opened_stream, _, _) =
             opened_stream::open_stream(&self.src, &self.original_src, transparent)?;
         _print_verbose(&format!("Opening new stream on thread {}", thread_index))?;
-        let arc_mutex = Arc::new(Mutex::new(opened_stream));
+        let arc_mutex = Mutex::new(opened_stream);
         self.opened_streams.push(arc_mutex);
         return Ok(self.opened_streams.len() - 1);
     }
 
-    pub fn close_video_if_frame_cache_empty(&mut self) -> Result<bool, ErrorWithBacktrace> {
-        let transparent_tone_mapped_cache = FrameCacheManager::get_instance().get_frame_cache(
-            &self.src,
-            &self.original_src,
-            true,
-            true,
-        );
-        let transparent_original_cache = FrameCacheManager::get_instance().get_frame_cache(
-            &self.src,
-            &self.original_src,
-            true,
-            false,
-        );
-        let opaque_tone_mapped_cache = FrameCacheManager::get_instance().get_frame_cache(
-            &self.src,
-            &self.original_src,
-            false,
-            true,
-        );
-        let opaque_original_cache = FrameCacheManager::get_instance().get_frame_cache(
-            &self.src,
-            &self.original_src,
-            false,
-            false,
-        );
-        if opaque_tone_mapped_cache.lock()?.is_empty()
-            && opaque_original_cache.lock()?.is_empty()
-            && transparent_original_cache.lock()?.is_empty()
-            && transparent_tone_mapped_cache.lock()?.is_empty()
+    pub fn close_video_if_frame_cache_empty(
+        &mut self,
+        frame_cache_manager: &mut FrameCacheManager,
+    ) -> Result<bool, ErrorWithBacktrace> {
+        if !frame_cache_manager
+            .get_frame_cache(&self.src, &self.original_src, true, true)
+            .lock()
+            .unwrap()
+            .items
+            .is_empty()
         {
-            self.close()?;
-            Ok(true)
-        } else {
-            Ok(false)
+            return Ok(false);
         }
+
+        if !frame_cache_manager
+            .get_frame_cache(&self.src, &self.original_src, true, false)
+            .lock()
+            .unwrap()
+            .items
+            .is_empty()
+        {
+            return Ok(false);
+        }
+        if !frame_cache_manager
+            .get_frame_cache(&self.src, &self.original_src, false, true)
+            .lock()
+            .unwrap()
+            .items
+            .is_empty()
+        {
+            return Ok(false);
+        }
+        if !frame_cache_manager
+            .get_frame_cache(&self.src, &self.original_src, false, false)
+            .lock()
+            .unwrap()
+            .items
+            .is_empty()
+        {
+            return Ok(false);
+        }
+
+        self.close()?;
+        Ok(true)
     }
 }

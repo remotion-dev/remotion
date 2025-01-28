@@ -1,4 +1,5 @@
 use crate::errors::ErrorWithBacktrace;
+use crate::frame_cache_manager::FrameCacheManager;
 use crate::memory::is_about_to_run_out_of_memory;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
@@ -8,11 +9,13 @@ use std::io::ErrorKind;
 pub fn execute_command(
     opts: CliInputCommandPayload,
     thread_index: usize,
+    frame_cache_manager: &mut FrameCacheManager,
+    opened_video_manager: &mut OpenedVideoManager,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
 
     if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
-        ffmpeg::emergency_memory_free_up().unwrap();
+        ffmpeg::emergency_memory_free_up(frame_cache_manager).unwrap();
         max_cache_size::get_instance()
             .lock()
             .unwrap()
@@ -29,11 +32,13 @@ pub fn execute_command(
                 command.tone_mapped,
                 max_cache_size::get_instance().lock().unwrap().get_value(),
                 thread_index,
+                opened_video_manager,
+                frame_cache_manager,
             )?;
             Ok(res)
         }
         CliInputCommandPayload::GetOpenVideoStats(_) => {
-            let res = ffmpeg::get_open_video_stats()?;
+            let res = ffmpeg::get_open_video_stats(frame_cache_manager, opened_video_manager)?;
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
         }
@@ -45,12 +50,15 @@ pub fn execute_command(
         }
         CliInputCommandPayload::Eof(_) => Ok(vec![]),
         CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::keep_only_latest_frames_and_close_videos(payload.remaining_bytes)?;
+            ffmpeg::keep_only_latest_frames_and_close_videos(
+                payload.remaining_bytes,
+                opened_video_manager,
+                frame_cache_manager,
+            )?;
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
-            let manager = OpenedVideoManager::get_instance();
-            manager.close_all_videos()?;
+            opened_video_manager.close_all_videos(frame_cache_manager)?;
 
             Ok(vec![])
         }
@@ -82,8 +90,12 @@ pub fn execute_command(
         }
     };
     if current_maximum_cache_size.is_some() {
-        ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size.unwrap())
-            .unwrap();
+        ffmpeg::keep_only_latest_frames_and_close_videos(
+            current_maximum_cache_size.unwrap(),
+            opened_video_manager,
+            frame_cache_manager,
+        )
+        .unwrap();
     }
 
     return res;
