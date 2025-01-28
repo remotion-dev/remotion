@@ -1,37 +1,27 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {performance} from 'perf_hooks';
 
 import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
-import type {Codec} from './codec';
-import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
-import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
-import {
-	getFilePadLength,
-	getFrameOutputFileName,
-} from './get-frame-padded-index';
+import {getFilePadLength} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
@@ -40,22 +30,18 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
+import {makePage} from './make-page';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
-import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {renderFrame} from './render-frame';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
-import {seekToFrame} from './seek-to-frame';
 import type {EmittedArtifact} from './serialize-artifact';
-import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrame} from './take-frame';
-import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {
 	validateDimension,
@@ -269,95 +255,37 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: SourceMapGetter, initialFrame: number) => {
-		const page = await browserReplacer
-			.getBrowser()
-			.newPage(context, logLevel, indent);
-		pagesArray.push(page);
-		await page.setViewport({
-			width: composition.width,
-			height: composition.height,
-			deviceScaleFactor: scale,
-		});
-
-		const logCallback = (log: ConsoleMessage) => {
-			onBrowserLog?.({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		};
-
-		if (onBrowserLog) {
-			page.on('console', logCallback);
-		}
-
-		await setPropsAndEnv({
-			serializedInputPropsWithCustomSchema,
-			envVariables,
-			page,
-			serveUrl,
-			initialFrame,
-			timeoutInMilliseconds,
-			proxyPort,
-			retriesRemaining: 2,
-			audioEnabled: !muted,
-			videoEnabled: imageFormat !== 'none',
-			indent,
-			logLevel,
-			onServeUrlVisited: () => undefined,
-		});
-
-		await puppeteerEvaluateWithCatch({
-			// eslint-disable-next-line max-params
-			pageFunction: (
-				id: string,
-				props: string,
-				durationInFrames: number,
-				fps: number,
-				height: number,
-				width: number,
-				defaultCodec: Codec,
-			) => {
-				window.remotion_setBundleMode({
-					type: 'composition',
-					compositionName: id,
-					serializedResolvedPropsWithSchema: props,
-					compositionDurationInFrames: durationInFrames,
-					compositionFps: fps,
-					compositionHeight: height,
-					compositionWidth: width,
-					compositionDefaultCodec: defaultCodec,
-				});
-			},
-			args: [
-				composition.id,
-				serializedResolvedPropsWithCustomSchema,
-				composition.durationInFrames,
-				composition.fps,
-				composition.height,
-				composition.width,
-				composition.defaultCodec,
-			],
-			frame: null,
-			page,
-			timeoutInMilliseconds,
-		});
-
-		page.off('console', logCallback);
-
-		return page;
-	};
-
 	const concurrencyOrFramesToRender = Math.min(
 		framesToRender.length,
 		resolvedConcurrency,
 	);
 
-	const getPool = async (context: SourceMapGetter) => {
+	const makeNewPage = (frame: number) => {
+		return makePage({
+			context: sourceMapGetter,
+			initialFrame: frame,
+			browserReplacer,
+			indent,
+			logLevel,
+			onBrowserLog,
+			pagesArray,
+			scale,
+			composition,
+			envVariables,
+			imageFormat,
+			muted,
+			proxyPort,
+			serializedInputPropsWithCustomSchema,
+			serializedResolvedPropsWithCustomSchema,
+			serveUrl,
+			timeoutInMilliseconds,
+		});
+	};
+
+	const getPool = async () => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			.map((_, i) => makePage(context, framesToRender[i]));
+			.map((_, i) => makeNewPage(framesToRender[i]));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -373,9 +301,11 @@ const innerRenderFrames = async ({
 		totalFrames: framesToRender.length,
 		countType,
 	});
-	let framesRendered = 0;
+	const framesRenderedObj = {
+		count: 0,
+	};
 
-	const poolPromise = getPool(sourceMapGetter);
+	const poolPromise = getPool();
 
 	onStart?.({
 		frameCount: framesToRender.length,
@@ -384,225 +314,12 @@ const innerRenderFrames = async ({
 	});
 
 	const assets: FrameAndAssets[] = [];
-	let stopped = false;
+	const stoppedSignal = {stopped: false};
 	cancelSignal?.(() => {
-		stopped = true;
+		stoppedSignal.stopped = true;
 	});
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
-
-	const renderFrameWithOptionToReject = async ({
-		frame,
-		index,
-		reject,
-		width,
-		height,
-		compId,
-		assetsOnly,
-		attempt,
-	}: {
-		frame: number;
-		index: number | null;
-		reject: (err: Error) => void;
-		width: number;
-		height: number;
-		compId: string;
-		assetsOnly: boolean;
-		attempt: number;
-	}) => {
-		const pool = await poolPromise;
-		const freePage = await pool.acquire();
-
-		if (stopped) {
-			return reject(new Error('Render was stopped'));
-		}
-
-		const startTime = performance.now();
-
-		const errorCallbackOnFrame = (err: Error) => {
-			reject(err);
-		};
-
-		const cleanupPageError = handleJavascriptException({
-			page: freePage,
-			onError: errorCallbackOnFrame,
-			frame,
-		});
-		freePage.on('error', errorCallbackOnFrame);
-
-		const startSeeking = Date.now();
-
-		await seekToFrame({
-			frame,
-			page: freePage,
-			composition: compId,
-			timeoutInMilliseconds,
-			indent,
-			logLevel,
-			attempt,
-		});
-
-		const timeToSeek = Date.now() - startSeeking;
-		if (timeToSeek > 1000) {
-			Log.verbose(
-				{indent, logLevel},
-				`Seeking to frame ${frame} took ${timeToSeek}ms`,
-			);
-		}
-
-		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
-			throw new Error(
-				'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`',
-			);
-		}
-
-		if (outputDir && onFrameBuffer && imageFormat !== 'none') {
-			throw new Error(
-				'Pass either `outputDir` or `onFrameBuffer` to renderFrames(), not both.',
-			);
-		}
-
-		const id = startPerfMeasure('save');
-
-		const {buffer, collectedAssets} = await takeFrame({
-			frame,
-			freePage,
-			height,
-			imageFormat: assetsOnly ? 'none' : imageFormat,
-			output:
-				index === null
-					? null
-					: path.join(
-							frameDir,
-							getFrameOutputFileName({
-								frame,
-								imageFormat,
-								index,
-								countType,
-								lastFrame,
-								totalFrames: framesToRender.length,
-							}),
-						),
-			jpegQuality,
-			width,
-			scale,
-			wantsBuffer: Boolean(onFrameBuffer),
-			timeoutInMilliseconds,
-		});
-		if (onFrameBuffer && !assetsOnly) {
-			if (!buffer) {
-				throw new Error('unexpected null buffer');
-			}
-
-			onFrameBuffer(buffer, frame);
-		}
-
-		stopPerfMeasure(id);
-
-		const previousAudioRenderAssets = assets
-			.filter(truthy)
-			.map((a) => a.audioAndVideoAssets)
-			.flat(2);
-
-		const previousArtifactAssets = assets
-			.filter(truthy)
-			.map((a) => a.artifactAssets)
-			.flat(2);
-
-		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
-		const artifactAssets = onlyArtifact(collectedAssets);
-
-		for (const artifact of artifactAssets) {
-			for (const previousArtifact of previousArtifactAssets) {
-				if (artifact.filename === previousArtifact.filename) {
-					reject(
-						new Error(
-							`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
-						),
-					);
-					return;
-				}
-			}
-
-			onArtifact?.(artifact);
-		}
-
-		const compressedAssets = audioAndVideoAssets.map((asset) => {
-			return compressAsset(previousAudioRenderAssets, asset);
-		});
-
-		assets.push({
-			audioAndVideoAssets: compressedAssets,
-			frame,
-			artifactAssets: artifactAssets.map((a) => {
-				return {
-					frame: a.frame,
-					filename: a.filename,
-				};
-			}),
-		});
-		for (const renderAsset of compressedAssets) {
-			downloadAndMapAssetsToFileUrl({
-				renderAsset,
-				onDownload,
-				downloadMap,
-				indent,
-				logLevel,
-				binariesDirectory,
-				cancelSignalForAudioAnalysis: cancelSignal,
-				shouldAnalyzeAudioImmediately: true,
-			}).catch((err) => {
-				const truncateWithEllipsis =
-					renderAsset.src.substring(0, 1000) +
-					(renderAsset.src.length > 1000 ? '...' : '');
-				onError(
-					new Error(
-						`Error while downloading ${truncateWithEllipsis}: ${(err as Error).stack}`,
-					),
-				);
-			});
-		}
-
-		if (!assetsOnly) {
-			framesRendered++;
-			onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
-		}
-
-		cleanupPageError();
-		freePage.off('error', errorCallbackOnFrame);
-		pool.release(freePage);
-	};
-
-	const renderFrame = ({
-		frame,
-		index,
-		assetsOnly,
-		attempt,
-	}: {
-		frame: number;
-		index: number | null;
-		assetsOnly: boolean;
-		attempt: number;
-	}) => {
-		return new Promise<void>((resolve, reject) => {
-			renderFrameWithOptionToReject({
-				frame,
-				index,
-				reject,
-				width: composition.width,
-				height: composition.height,
-				compId: composition.id,
-				assetsOnly,
-				attempt,
-			})
-				.then(() => {
-					resolve();
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-	};
 
 	const renderFrameAndRetryTargetClose = async ({
 		frame,
@@ -619,7 +336,36 @@ const innerRenderFrames = async ({
 	}): Promise<void> => {
 		try {
 			await Promise.race([
-				renderFrame({frame, index, assetsOnly, attempt}),
+				renderFrame({
+					frame,
+					index,
+					assetsOnly,
+					attempt,
+					assets,
+					binariesDirectory,
+					cancelSignal,
+					countType,
+					downloadMap,
+					frameDir,
+					framesToRender,
+					imageFormat,
+					indent,
+					jpegQuality,
+					logLevel,
+					onArtifact,
+					onDownload,
+					poolPromise,
+					scale,
+					composition,
+					framesRenderedObj,
+					lastFrame,
+					onError,
+					onFrameBuffer,
+					onFrameUpdate,
+					outputDir,
+					stoppedSignal,
+					timeoutInMilliseconds,
+				}),
 				new Promise((_, reject) => {
 					cancelSignal?.(() => {
 						reject(new Error(cancelErrorMessages.renderFrames));
@@ -641,7 +387,7 @@ const innerRenderFrames = async ({
 				throw err;
 			}
 
-			if (stopped) {
+			if (stoppedSignal.stopped) {
 				return;
 			}
 
@@ -659,7 +405,7 @@ const innerRenderFrames = async ({
 			if (shouldRetryError) {
 				const pool = await poolPromise;
 				// Replace the closed page
-				const newPage = await makePage(sourceMapGetter, frame);
+				const newPage = await makeNewPage(frame);
 				pool.release(newPage);
 				Log.warn(
 					{indent, logLevel},
@@ -684,7 +430,7 @@ const innerRenderFrames = async ({
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(concurrencyOrFramesToRender)
 					.fill(true)
-					.map(() => makePage(sourceMapGetter, frame));
+					.map(() => makeNewPage(frame));
 				const puppeteerPages = await Promise.all(pages);
 				const pool = await poolPromise;
 				for (const newPage of puppeteerPages) {
@@ -883,12 +629,12 @@ const internalRenderFramesRaw = ({
 
 				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-				const cycle = cycleBrowserTabs(
-					browserReplacer,
-					resolvedConcurrency,
+				const cycle = cycleBrowserTabs({
+					puppeteerInstance: browserReplacer,
+					concurrency: resolvedConcurrency,
 					logLevel,
 					indent,
-				);
+				});
 				cleanup.push(() => {
 					cycle.stopCycling();
 					return Promise.resolve();
