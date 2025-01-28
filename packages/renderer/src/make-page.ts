@@ -1,4 +1,4 @@
-import type {VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';

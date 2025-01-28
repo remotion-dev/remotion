@@ -84,7 +84,7 @@ export const renderFrameWithOptionToReject = async ({
 	const freePage = await pool.acquire();
 
 	if (stoppedSignal.stopped) {
-		return reject(new Error('Render was stopped'));
+		return Promise.reject(new Error('Render was stopped'));
 	}
 
 	const errorCallbackOnFrame = (err: Error) => {
@@ -183,12 +183,11 @@ export const renderFrameWithOptionToReject = async ({
 	for (const artifact of artifactAssets) {
 		for (const previousArtifact of previousArtifactAssets) {
 			if (artifact.filename === previousArtifact.filename) {
-				reject(
+				return Promise.reject(
 					new Error(
 						`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
 					),
 				);
-				return;
 			}
 		}
 
