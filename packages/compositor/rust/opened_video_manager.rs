@@ -40,12 +40,8 @@ impl OpenedVideoManager {
         original_src: &str,
         transparent: bool,
     ) -> Result<&Mutex<OpenedVideo>, ErrorWithBacktrace> {
-        // Adding a block scope because of the RwLock,
-        // preventing a deadlock
-        {
-            if self.videos.contains_key(src) {
-                return Ok(self.videos.get(src).expect("Video contains key"));
-            }
+        if self.videos.contains_key(src) {
+            return Ok(self.videos.get(src).expect("Video contains key"));
         }
 
         let video = open_video(src, original_src, transparent)?;
