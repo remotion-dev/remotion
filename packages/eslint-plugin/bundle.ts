@@ -12,6 +12,7 @@ for (const format of formats) {
 		naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
 		external: [],
 		target: 'node',
+		format
 	});
 
 	const [file] = output.outputs;
