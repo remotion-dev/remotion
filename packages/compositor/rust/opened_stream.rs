@@ -322,7 +322,7 @@ impl OpenedStream {
 
                 match result {
                     Ok(Some(unfiltered)) => {
-                        _print_verbose(&format!("received frame {}", tone_mapped))?;
+                        _print_verbose(&format!("Thread {} - received frame, tone_mapped ={}", thread_index, tone_mapped))?;
 
                         let frame_cache_id = get_frame_cache_id();
 

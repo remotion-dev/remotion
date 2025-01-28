@@ -15,6 +15,7 @@ mod opened_video_manager;
 mod payloads;
 mod rotation;
 mod scalable_frame;
+mod select_right_thread;
 mod tone_map;
 
 use commands::execute_command;
@@ -89,6 +90,7 @@ fn start_long_running_process(
 ) -> Result<(), ErrorWithBacktrace> {
     let mut thread_handles = vec![];
     let mut send_handles = vec![];
+    let mut thread_map = select_right_thread::ThreadMap::new(threads);
     for thread_index in 0..threads {
         let (tx, rx) = mpsc::channel::<CliInputCommand>();
 
@@ -155,8 +157,14 @@ fn start_long_running_process(
         }
 
         let opts: CliInputCommand = parse_cli(&input)?;
-        // TODO: Find best thread to send to
-        send_handles[0].send(opts).unwrap();
+        let opts_again: CliInputCommand = parse_cli(&input)?;
+        let thread_id = match opts.payload {
+            CliInputCommandPayload::ExtractFrame(command) => thread_map
+                .select_right_thread(&command.src, command.time)
+                .unwrap(),
+            _ => 0,
+        };
+        send_handles[thread_id].send(opts_again).unwrap();
     }
 
     for handle in thread_handles {
