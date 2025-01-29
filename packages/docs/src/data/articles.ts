@@ -4535,13 +4535,13 @@ export const articles = [
 		slug: 'tailwind-v4/enable-tailwind',
 	},
 	{
-		id: 'tailwind-v4',
+		id: 'overview',
 		title: '@remotion/tailwind-v4',
 		relativePath: 'docs/tailwind-v4/overview.mdx',
 		compId: 'articles-docs-tailwind-v4-overview',
 		crumb: null,
 		noAi: false,
-		slug: 'tailwind-v4/tailwind-v4',
+		slug: 'tailwind-v4/overview',
 	},
 	{
 		id: 'tailwind',

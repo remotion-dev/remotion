@@ -321,7 +321,7 @@ module.exports = {
 			label: '@remotion/tailwind-v4',
 			link: {
 				type: 'doc',
-				id: 'tailwind-v4/tailwind-v4',
+				id: 'tailwind-v4/overview',
 			},
 			items: ['tailwind-v4/enable-tailwind'],
 		},
