@@ -32,6 +32,7 @@ export const listOfRemotionPackages = [
 	'@remotion/studio-shared',
 	'@remotion/zod-types',
 	'@remotion/tailwind',
+	'@remotion/-v4',
 	'@remotion/transitions',
 	'@remotion/install-whisper-cpp',
 	'@remotion/openai-whisper',

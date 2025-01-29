@@ -57,7 +57,6 @@
 		"@types/prompts": "^2.4.1",
 		"@types/prettier": "^2.7.2",
 		"@remotion/zod-types": "workspace:*",
-		"@remotion/tailwind": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
 		"react": "19.0.0",

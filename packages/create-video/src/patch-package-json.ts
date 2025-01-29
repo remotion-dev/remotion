@@ -64,7 +64,7 @@ export const patchPackageJson = (
 	const newDependenciesWithTailwind = addTailwind
 		? {
 				...newDependencies,
-				'@remotion/tailwind': latestRemotionVersion,
+				'@remotion/tailwind-v4': latestRemotionVersion,
 			}
 		: newDependencies;
 

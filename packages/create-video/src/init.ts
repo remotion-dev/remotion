@@ -2,9 +2,8 @@ import chalk from 'chalk';
 import execa from 'execa';
 import path from 'node:path';
 import {
-	addTailwindConfigJs,
+	addPostcssConfig,
 	addTailwindRootCss,
-	addTailwindStyleCss,
 	addTailwindToConfig,
 } from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
@@ -126,9 +125,8 @@ export const init = async () => {
 		});
 		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
 		if (shouldOverrideTailwind) {
-			addTailwindStyleCss(projectRoot);
 			addTailwindToConfig(projectRoot);
-			addTailwindConfigJs(projectRoot);
+			addPostcssConfig(projectRoot);
 			addTailwindRootCss(projectRoot);
 		}
 
