@@ -260,6 +260,9 @@ importers:
       '@remotion/skia':
         specifier: workspace:*
         version: link:../skia
+      '@remotion/tailwind-v4':
+        specifier: workspace:*
+        version: link:../tailwind-v4
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1042,9 +1045,9 @@ importers:
       '@remotion/svg-3d-engine':
         specifier: workspace:*
         version: link:../svg-3d-engine
-      '@remotion/tailwind':
+      '@remotion/tailwind-v4':
         specifier: workspace:*
-        version: link:../tailwind
+        version: link:../tailwind-v4
       '@remotion/three':
         specifier: workspace:*
         version: link:../three
@@ -1126,6 +1129,9 @@ importers:
       styled-components:
         specifier: 6.1.13
         version: 6.1.13(react-dom@19.0.0)(react@19.0.0)
+      tailwindcss:
+        specifier: 4.0.0
+        version: 4.0.0
       three:
         specifier: 0.171.0
         version: 0.171.0
@@ -16075,7 +16081,7 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      '@types/json-schema': 7.0.15
+      '@types/json-schema': 7.0.13
       '@typescript-eslint/scope-manager': 5.19.0
       '@typescript-eslint/types': 5.19.0
       '@typescript-eslint/typescript-estree': 5.19.0(typescript@5.5.4)

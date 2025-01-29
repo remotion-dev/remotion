@@ -318,6 +318,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/tailwind-v4',
+			link: {
+				type: 'doc',
+				id: 'tailwind-v4/tailwind',
+			},
+			items: ['tailwind-v4/enable-tailwind'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/enable-scss',
 			link: {
 				type: 'doc',

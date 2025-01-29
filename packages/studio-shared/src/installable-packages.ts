@@ -19,6 +19,7 @@ export const listOfInstallableRemotionPackages = [
 	'@remotion/skia',
 	'@remotion/studio',
 	'@remotion/tailwind',
+	'@remotion/tailwind-v4',
 	'@remotion/three',
 	'@remotion/transitions',
 	'@remotion/zod-types',

@@ -1,8 +1,7 @@
 ---
-image: /generated/articles-docs-tailwind-overview.png
 id: tailwind
 sidebar_label: Overview
-title: '@remotion/tailwind'
+title: '@remotion/tailwind-v4'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,18 +9,13 @@ import TabItem from '@theme/TabItem';
 import {ExperimentalBadge} from '../../components/Experimental';
 import {TableOfContents} from './TableOfContents';
 
-:::note
-This is documentation for enabling Tailwind v3.  
-For the Tailwind v4 version of this site, see the [Tailwind v4 documentation](/docs/tailwind-v4).
-:::
-
-This package provides utilities useful for integrating [TailwindCSS](https://tailwindcss.com/) with Remotion, as documented on our [TailwindCSS](/docs/tailwind) page.
+This package provides utilities useful for integrating [TailwindCSS v4](https://tailwindcss.com/) with Remotion, as documented on our [TailwindCSS](/docs/tailwind) page.
 
 ## Installation
 
-Install `@remotion/tailwind` as well as TailwindCSS dependencies.
+Install `@remotion/tailwind-v4` as well as TailwindCSS dependencies.
 
-<Installation pkg="@remotion/tailwind" />
+<Installation pkg="@remotion/tailwind-v4" />
 
 <br />
 
@@ -29,7 +23,7 @@ Install `@remotion/tailwind` as well as TailwindCSS dependencies.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
-import {enableTailwind} from '@remotion/tailwind';
+import {enableTailwind} from '@remotion/tailwind-v4';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);

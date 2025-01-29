@@ -19,6 +19,7 @@ export default {
 export const addTailwindRootCss = (projectRoot: string) => {
 	const rootFileTsx = path.join(projectRoot, 'src', 'Root.tsx');
 	const rootFileJsx = path.join(projectRoot, 'src', 'Root.jsx');
+	const indexCss = path.join(projectRoot, 'src', 'index.css');
 
 	const rootFile = fs.existsSync(rootFileTsx) ? rootFileTsx : rootFileJsx;
 
@@ -28,8 +29,11 @@ export const addTailwindRootCss = (projectRoot: string) => {
 
 	const root = fs.readFileSync(rootFile, 'utf-8');
 
-	const newFile = `@import "tailwindcss";\n${root}`;
+	const newFile = `import "./index.css";\n${root}`;
 	fs.writeFileSync(rootFile, newFile);
+
+	const css = `@import "tailwindcss";\n`;
+	fs.writeFileSync(indexCss, css);
 };
 
 export const addTailwindToConfig = (projectRoot: string) => {
