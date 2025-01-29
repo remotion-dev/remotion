@@ -159,7 +159,6 @@ export class Page extends EventEmitter {
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
-		console.log({sourceMapGetter});
 		this.sourceMapGetter = sourceMapGetter;
 		this.logLevel = logLevel;
 		this.pageIndex = pageIndex;
