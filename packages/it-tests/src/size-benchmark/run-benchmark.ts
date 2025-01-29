@@ -60,6 +60,9 @@ export const runBenchmark = async ({
 	if (!fps) {
 		throw new Error('Could not get fps of video');
 	}
+	if (!dimensions) {
+		throw new Error('Could not get fps of video');
+	}
 
 	const output = `${os.tmpdir()}/output.mp4`;
 

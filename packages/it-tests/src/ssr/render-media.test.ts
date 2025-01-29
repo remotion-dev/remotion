@@ -34,7 +34,7 @@ test('Render video with browser instance open', async () => {
 		puppeteerInstance,
 		metadata: {Author: 'Lunar'},
 	});
-	await puppeteerInstance.close(false, 'info', false);
+	await puppeteerInstance.close({silent: false});
 	expect(existsSync(outPath)).toBe(true);
 });
 
@@ -99,7 +99,7 @@ test('should fail on invalid CRF', async () => {
 		);
 	}
 
-	await browserInstance.close(false, 'info', false);
+	await browserInstance.close({silent: false});
 });
 
 test('Render video to a buffer', async () => {
