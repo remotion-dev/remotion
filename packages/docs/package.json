@@ -63,6 +63,7 @@
 		"@remotion/skia": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",

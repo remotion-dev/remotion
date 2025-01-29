@@ -75,6 +75,7 @@ export const InstallPackageModal: React.FC<{
 		'@remotion/skia': false,
 		'@remotion/studio': false,
 		'@remotion/tailwind': false,
+		'@remotion/tailwind-v4': false,
 		'@remotion/three': false,
 		'@remotion/transitions': false,
 		'@remotion/zod-types': false,

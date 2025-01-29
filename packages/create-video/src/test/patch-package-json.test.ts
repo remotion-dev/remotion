@@ -50,7 +50,7 @@ for (const packageManager of packageManagers) {
 			dependencies: {
 				...packageJson.dependencies,
 				'@remotion/cli': latestRemotionVersion,
-				'@remotion/tailwind': latestRemotionVersion,
+				'@remotion/tailwind-v4': latestRemotionVersion,
 				remotion: latestRemotionVersion,
 			},
 			sideEffects: ['*.css'],

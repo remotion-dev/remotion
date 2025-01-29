@@ -1,6 +1,6 @@
 import {enableScss} from '@remotion/enable-scss';
 import {enableSkia} from '@remotion/skia/enable';
-import {enableTailwind} from '@remotion/tailwind';
+import {enableTailwind} from '@remotion/tailwind-v4';
 
 import path from 'node:path';
 
