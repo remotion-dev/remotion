@@ -76,6 +76,7 @@ test('Go package should create the same payload as normal Lambda package', async
 		metadata: {
 			Author: 'Remotion',
 		},
+		apiKey: null,
 	});
 
 	expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

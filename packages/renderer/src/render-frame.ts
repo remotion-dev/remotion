@@ -6,21 +6,17 @@ import type {CountType} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
-import type {Pool} from './pool';
+import type {NextFrameToRender} from './next-frame-to-render';
 import {renderFrameWithOptionToReject} from './render-frame-with-option-to-reject';
 import type {FrameAndAssets, OnArtifact} from './render-frames';
 
 export const renderFrame = ({
-	frame,
-	index,
-	assetsOnly,
 	attempt,
 	binariesDirectory,
 	cancelSignal,
 	imageFormat,
 	indent,
 	logLevel,
-	poolPromise,
 	assets,
 	countType,
 	downloadMap,
@@ -39,17 +35,15 @@ export const renderFrame = ({
 	onFrameBuffer,
 	onFrameUpdate,
 	framesRenderedObj,
+	frame,
+	page,
 }: {
-	frame: number;
-	index: number | null;
-	assetsOnly: boolean;
 	attempt: number;
 	indent: boolean;
 	logLevel: LogLevel;
 	imageFormat: VideoImageFormat;
 	cancelSignal: CancelSignal | undefined;
 	binariesDirectory: string | null;
-	poolPromise: Promise<Pool<Page>>;
 	jpegQuality: number;
 	frameDir: string;
 	scale: number;
@@ -74,22 +68,19 @@ export const renderFrame = ({
 				timeToRenderInMilliseconds: number,
 		  ) => void);
 	framesRenderedObj: {count: number};
+	nextFrameToRender: NextFrameToRender;
+	frame: number;
+	page: Page;
 }) => {
 	return new Promise<void>((resolve, reject) => {
-		const startTime = performance.now();
-
 		renderFrameWithOptionToReject({
-			frame,
-			index,
 			reject,
 			width: composition.width,
 			height: composition.height,
 			compId: composition.id,
-			assetsOnly,
 			attempt,
 			indent,
 			logLevel,
-			poolPromise,
 			stoppedSignal,
 			timeoutInMilliseconds,
 			imageFormat,
@@ -108,17 +99,12 @@ export const renderFrame = ({
 			onDownload,
 			onError,
 			scale,
+			framesRenderedObj,
+			onFrameUpdate,
+			frame,
+			page,
 		})
 			.then(() => {
-				if (!assetsOnly) {
-					framesRenderedObj.count++;
-					onFrameUpdate?.(
-						framesRenderedObj.count,
-						frame,
-						performance.now() - startTime,
-					);
-				}
-
 				resolve();
 			})
 			.catch((err) => {

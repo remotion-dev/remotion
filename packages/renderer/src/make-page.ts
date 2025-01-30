@@ -28,6 +28,7 @@ export const makePage = async ({
 	serializedInputPropsWithCustomSchema,
 	imageFormat,
 	serializedResolvedPropsWithCustomSchema,
+	pageIndex,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -46,10 +47,11 @@ export const makePage = async ({
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	imageFormat: VideoImageFormat;
+	pageIndex: number;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
-		.newPage(context, logLevel, indent);
+		.newPage({context, logLevel, indent, pageIndex});
 	pagesArray.push(page);
 	await page.setViewport({
 		width: composition.width,

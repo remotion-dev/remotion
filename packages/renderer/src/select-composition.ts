@@ -214,6 +214,7 @@ export const internalSelectCompositionRaw = async (
 			logLevel,
 			onBrowserDownload,
 			chromeMode,
+			pageIndex: 0,
 		}),
 		makeOrReuseServer(
 			options.server,

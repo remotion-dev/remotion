@@ -13,22 +13,17 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
-import type {Pool} from './pool';
 import type {FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
 import {truthy} from './truthy';
 
 export const renderFrameWithOptionToReject = async ({
-	frame,
-	index,
 	reject,
 	width,
 	height,
 	compId,
-	assetsOnly,
 	attempt,
-	poolPromise,
 	stoppedSignal,
 	indent,
 	logLevel,
@@ -49,16 +44,16 @@ export const renderFrameWithOptionToReject = async ({
 	downloadMap,
 	binariesDirectory,
 	cancelSignal,
+	framesRenderedObj,
+	onFrameUpdate,
+	frame,
+	page,
 }: {
-	frame: number;
-	index: number | null;
 	reject: (err: Error) => void;
 	width: number;
 	height: number;
 	compId: string;
-	assetsOnly: boolean;
 	attempt: number;
-	poolPromise: Promise<Pool<Page>>;
 	stoppedSignal: {stopped: boolean};
 	timeoutInMilliseconds: number;
 	indent: boolean;
@@ -79,9 +74,21 @@ export const renderFrameWithOptionToReject = async ({
 	downloadMap: DownloadMap;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	framesRenderedObj: {count: number};
+	onFrameUpdate:
+		| null
+		| ((
+				framesRendered: number,
+				frameIndex: number,
+				timeToRenderInMilliseconds: number,
+		  ) => void);
+	frame: number;
+	page: Page;
 }) => {
-	const pool = await poolPromise;
-	const freePage = await pool.acquire();
+	const startTime = performance.now();
+
+	const index = framesToRender.indexOf(frame);
+	const assetsOnly = index === -1;
 
 	if (stoppedSignal.stopped) {
 		return Promise.reject(new Error('Render was stopped'));
@@ -92,17 +99,17 @@ export const renderFrameWithOptionToReject = async ({
 	};
 
 	const cleanupPageError = handleJavascriptException({
-		page: freePage,
+		page,
 		onError: errorCallbackOnFrame,
 		frame,
 	});
-	freePage.on('error', errorCallbackOnFrame);
+	page.on('error', errorCallbackOnFrame);
 
 	const startSeeking = Date.now();
 
 	await seekToFrame({
 		frame,
-		page: freePage,
+		page,
 		composition: compId,
 		timeoutInMilliseconds,
 		indent,
@@ -134,7 +141,7 @@ export const renderFrameWithOptionToReject = async ({
 
 	const {buffer, collectedAssets} = await takeFrame({
 		frame,
-		freePage,
+		freePage: page,
 		height,
 		imageFormat: assetsOnly ? 'none' : imageFormat,
 		output:
@@ -167,13 +174,13 @@ export const renderFrameWithOptionToReject = async ({
 
 	stopPerfMeasure(id);
 
-	const previousAudioRenderAssets = assets
-		.filter(truthy)
+	const onlyAvailableAssets = assets.filter(truthy);
+
+	const previousAudioRenderAssets = onlyAvailableAssets
 		.map((a) => a.audioAndVideoAssets)
 		.flat(2);
 
-	const previousArtifactAssets = assets
-		.filter(truthy)
+	const previousArtifactAssets = onlyAvailableAssets
 		.map((a) => a.artifactAssets)
 		.flat(2);
 
@@ -231,6 +238,14 @@ export const renderFrameWithOptionToReject = async ({
 	}
 
 	cleanupPageError();
-	freePage.off('error', errorCallbackOnFrame);
-	pool.release(freePage);
+	page.off('error', errorCallbackOnFrame);
+
+	if (!assetsOnly) {
+		framesRenderedObj.count++;
+		onFrameUpdate?.(
+			framesRenderedObj.count,
+			frame,
+			performance.now() - startTime,
+		);
+	}
 };

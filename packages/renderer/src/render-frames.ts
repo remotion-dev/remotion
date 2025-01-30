@@ -12,8 +12,9 @@ import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
-import {isFlakyNetworkError, isTargetClosedErr} from './browser/flaky-errors';
+import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
+import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
@@ -24,13 +25,16 @@ import type {CountType} from './get-frame-padded-index';
 import {getFilePadLength} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {getRetriesLeftFromError} from './is-delay-render-error-with-retry';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
 import {makePage} from './make-page';
+import {
+	nextFrameToRenderState,
+	partitionedNextFrameToRenderState,
+} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -38,7 +42,7 @@ import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
-import {renderFrame} from './render-frame';
+import {renderFrameAndRetryTargetClose} from './render-frame-and-retry-target-close';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import type {EmittedArtifact} from './serialize-artifact';
@@ -260,7 +264,7 @@ const innerRenderFrames = async ({
 		resolvedConcurrency,
 	);
 
-	const makeNewPage = (frame: number) => {
+	const makeNewPage = (frame: number, pageIndex: number) => {
 		return makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
@@ -279,13 +283,15 @@ const innerRenderFrames = async ({
 			serializedResolvedPropsWithCustomSchema,
 			serveUrl,
 			timeoutInMilliseconds,
+			pageIndex,
 		});
 	};
 
 	const getPool = async () => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			.map((_, i) => makeNewPage(framesToRender[i]));
+			// TODO: Change different initial frame
+			.map((_, i) => makeNewPage(framesToRender[i], i));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -321,169 +327,71 @@ const innerRenderFrames = async ({
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
 
-	const renderFrameAndRetryTargetClose = async ({
-		frame,
-		index,
-		retriesLeft,
-		attempt,
-		assetsOnly,
-	}: {
-		frame: number;
-		index: number | null;
-		retriesLeft: number;
-		attempt: number;
-		assetsOnly: boolean;
-	}): Promise<void> => {
-		try {
-			await Promise.race([
-				renderFrame({
-					frame,
-					index,
-					assetsOnly,
-					attempt,
-					assets,
-					binariesDirectory,
-					cancelSignal,
-					countType,
-					downloadMap,
-					frameDir,
-					framesToRender,
-					imageFormat,
-					indent,
-					jpegQuality,
-					logLevel,
-					onArtifact,
-					onDownload,
-					poolPromise,
-					scale,
-					composition,
-					framesRenderedObj,
-					lastFrame,
-					onError,
-					onFrameBuffer,
-					onFrameUpdate,
-					outputDir,
-					stoppedSignal,
-					timeoutInMilliseconds,
-				}),
-				new Promise((_, reject) => {
-					cancelSignal?.(() => {
-						reject(new Error(cancelErrorMessages.renderFrames));
-					});
-				}),
-			]);
-		} catch (err) {
-			const isTargetClosedError = isTargetClosedErr(err as Error);
-			const shouldRetryError = (err as Error).stack?.includes(
-				NoReactInternals.DELAY_RENDER_RETRY_TOKEN,
-			);
-			const flakyNetworkError = isFlakyNetworkError(err as Error);
-
-			if (isUserCancelledRender(err) && !shouldRetryError) {
-				throw err;
-			}
-
-			if (!isTargetClosedError && !shouldRetryError && !flakyNetworkError) {
-				throw err;
-			}
-
-			if (stoppedSignal.stopped) {
-				return;
-			}
-
-			if (retriesLeft === 0) {
-				Log.warn(
-					{
-						indent,
-						logLevel,
-					},
-					`The browser crashed ${attempt} times while rendering frame ${frame}. Not retrying anymore. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
-				);
-				throw err;
-			}
-
-			if (shouldRetryError) {
-				const pool = await poolPromise;
-				// Replace the closed page
-				const newPage = await makeNewPage(frame);
-				pool.release(newPage);
-				Log.warn(
-					{indent, logLevel},
-					`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
-				);
-				const actualRetriesLeft = getRetriesLeftFromError(err as Error);
-
-				return renderFrameAndRetryTargetClose({
-					frame,
-					index,
-					retriesLeft: actualRetriesLeft,
-					attempt: attempt + 1,
-					assetsOnly,
-				});
-			}
-
-			Log.warn(
-				{indent, logLevel},
-				`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
-			);
-			// Replace the entire browser
-			await browserReplacer.replaceBrowser(makeBrowser, async () => {
-				const pages = new Array(concurrencyOrFramesToRender)
-					.fill(true)
-					.map(() => makeNewPage(frame));
-				const puppeteerPages = await Promise.all(pages);
-				const pool = await poolPromise;
-				for (const newPage of puppeteerPages) {
-					pool.release(newPage);
-				}
-			});
-			await renderFrameAndRetryTargetClose({
-				frame,
-				index,
-				retriesLeft: retriesLeft - 1,
-				attempt: attempt + 1,
-				assetsOnly,
-			});
-		}
-	};
-
 	// Render the extra frames at the beginning of the video first,
 	// then the regular frames, then the extra frames at the end of the video.
 	// While the order technically doesn't matter, components such as <Video> are
 	// not always frame perfect and give a flicker.
 	// We reduce the chance of flicker by rendering the frames in order.
 
-	await Promise.all(
-		extraFramesToCaptureAssetsFrontend.map((frame) => {
-			return renderFrameAndRetryTargetClose({
-				frame,
-				index: null,
-				retriesLeft: MAX_RETRIES_PER_FRAME,
-				attempt: 1,
-				assetsOnly: true,
+	const allFramesAndExtraFrames = [
+		...extraFramesToCaptureAssetsFrontend,
+		...framesToRender,
+		...extraFramesToCaptureAssetsBackend,
+	];
+
+	const shouldUsePartitionedRendering = getShouldUsePartitionedRendering();
+
+	if (shouldUsePartitionedRendering) {
+		Log.info(
+			{indent, logLevel},
+			'Experimental: Using partitioned rendering (https://github.com/remotion-dev/remotion/pull/4830)',
+		);
+	}
+
+	const nextFrameToRender = shouldUsePartitionedRendering
+		? partitionedNextFrameToRenderState({
+				allFramesAndExtraFrames,
+				concurrencyOrFramesToRender,
+			})
+		: nextFrameToRenderState({
+				allFramesAndExtraFrames,
+				concurrencyOrFramesToRender,
 			});
-		}),
-	);
-	await Promise.all(
-		framesToRender.map((frame, index) => {
-			return renderFrameAndRetryTargetClose({
-				frame,
-				index,
-				retriesLeft: MAX_RETRIES_PER_FRAME,
-				attempt: 1,
-				assetsOnly: false,
-			});
-		}),
-	);
 
 	await Promise.all(
-		extraFramesToCaptureAssetsBackend.map((frame) => {
+		allFramesAndExtraFrames.map(() => {
 			return renderFrameAndRetryTargetClose({
-				frame,
-				index: null,
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
-				assetsOnly: true,
+				assets,
+				binariesDirectory,
+				cancelSignal,
+				composition,
+				countType,
+				downloadMap,
+				frameDir,
+				framesToRender,
+				imageFormat,
+				indent,
+				jpegQuality,
+				logLevel,
+				onArtifact,
+				onDownload,
+				onError,
+				outputDir,
+				poolPromise,
+				scale,
+				stoppedSignal,
+				timeoutInMilliseconds,
+				makeBrowser,
+				browserReplacer,
+				concurrencyOrFramesToRender,
+				framesRenderedObj,
+				lastFrame,
+				makeNewPage,
+				onFrameBuffer,
+				onFrameUpdate,
+				nextFrameToRender,
 			});
 		}),
 	);
@@ -712,7 +620,7 @@ const internalRenderFramesRaw = ({
 				} else {
 					Promise.resolve(browserInstance)
 						.then((instance) => {
-							return instance.close(true, logLevel, indent);
+							return instance.close({silent: true});
 						})
 						.catch((err) => {
 							if (

@@ -6,7 +6,14 @@ import path from 'path';
 test('Bundle studio', async () => {
 	const browser = openBrowser('chrome');
 
-	const tab = await (await browser).newPage(() => null, 'info', false);
+	const tab = await (
+		await browser
+	).newPage({
+		context: () => null,
+		logLevel: 'info',
+		indent: false,
+		pageIndex: 0,
+	});
 	const folder = path.join(process.cwd(), '..', 'example', 'build');
 	const indexHtmlExists = existsSync(path.join(folder, 'index.html'));
 	if (!indexHtmlExists) {
@@ -42,6 +49,6 @@ test('Bundle studio', async () => {
 	});
 	expect(result.toString()).toBeGreaterThan(1);
 
-	await (await browser).close(false, 'info', false);
+	await (await browser).close({silent: false});
 	await close();
 });
