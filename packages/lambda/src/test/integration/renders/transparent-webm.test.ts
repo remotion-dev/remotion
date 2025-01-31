@@ -25,6 +25,7 @@ test(
 			region: 'eu-central-1',
 			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
+			scale: 0.25,
 		});
 
 		// We create a temporary directory for storing the frames
