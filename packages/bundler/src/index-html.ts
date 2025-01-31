@@ -1,6 +1,5 @@
 import type {
 	GitSource,
-	InstallablePackage,
 	PackageManager,
 	RenderDefaults,
 } from '@remotion/studio-shared';
@@ -45,7 +44,7 @@ export const indexHtml = ({
 	renderDefaults: RenderDefaults | undefined;
 	gitSource: GitSource | null;
 	projectName: string;
-	installedDependencies: InstallablePackage[] | null;
+	installedDependencies: string[] | null;
 	packageManager: PackageManager | 'unknown';
 	logLevel: LogLevel;
 	mode: 'dev' | 'bundle';

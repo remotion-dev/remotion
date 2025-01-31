@@ -1,10 +1,9 @@
-import type {InstallablePackage} from '@remotion/studio-shared';
-import {listOfInstallableRemotionPackages} from '@remotion/studio-shared';
+import {installableMap} from '@remotion/studio-shared';
 import {getInstalledDependencies} from './get-installed-dependencies';
 
 export const getInstalledInstallablePackages = (
 	remotionRoot: string,
-): InstallablePackage[] => {
+): string[] => {
 	const {dependencies, devDependencies, optionalDependencies} =
 		getInstalledDependencies(remotionRoot);
 	const installablePackages = [
@@ -13,7 +12,8 @@ export const getInstalledInstallablePackages = (
 		...optionalDependencies,
 	];
 
-	return listOfInstallableRemotionPackages.filter((pkg) =>
-		installablePackages.includes(pkg),
-	);
+	return Object.entries(installableMap)
+		.filter(([, _installable]) => _installable)
+		.map(([pkg]) => (pkg === 'core' ? 'remotion' : `@remotion/${pkg}`))
+		.filter((pkg) => installablePackages.includes(pkg));
 };
