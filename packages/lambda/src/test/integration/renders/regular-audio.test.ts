@@ -23,6 +23,7 @@ test(
 			logLevel: 'error',
 			region: 'eu-central-1',
 			inputProps: {playbackRate: 2},
+			framesPerLambda: 30,
 		});
 
 		const wav = path.join(process.cwd(), 'regular.wav');
