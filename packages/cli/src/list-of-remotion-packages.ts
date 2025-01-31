@@ -40,5 +40,7 @@ export const listOfRemotionPackages = [
 	'@remotion/animation-utils',
 	'@remotion/animated-emoji',
 	'@remotion/media-parser',
+	'@remotion/streaming',
+	'@remotion/webcodecs',
 	'remotion',
 ];
