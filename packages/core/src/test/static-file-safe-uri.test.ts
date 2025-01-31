@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {serializeThenDeserialize} from '../input-props-serialization.js';
 import {staticFile} from '../static-file.js';
 
 test('staticFile() should convert # into %23', () => {
@@ -33,4 +34,23 @@ test('if no leading slash exists, one should be added', () => {
 test('problematic character at the beginning should be encoded correctly', () => {
 	const problematicStart = '#test/example';
 	expect(staticFile(problematicStart)).toBe('/static-abcdef/%23test/example');
+});
+
+test('should handle this properly', () => {
+	expect(
+		staticFile('mediaparsernextsteps/Screenshot 2025-01-31 at 08.13.54.png'),
+	).toBe(
+		'/static-abcdef/mediaparsernextsteps/Screenshot%202025-01-31%20at%2008.13.54.png',
+	);
+});
+
+test('should keep spaces', () => {
+	const hi = serializeThenDeserialize({
+		file: staticFile(
+			'mediaparsernextsteps/Screenshot 2025-01-31 at 08.13.54.png',
+		),
+	});
+	expect(hi.file).toBe(
+		'/static-abcdef/mediaparsernextsteps/Screenshot%202025-01-31%20at%2008.13.54.png',
+	);
 });
