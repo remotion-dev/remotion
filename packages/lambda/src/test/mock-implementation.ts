@@ -101,7 +101,6 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		);
 	},
 	deleteFile: ({bucketName, key, region}) => {
-		console.log('deleting file', key, bucketName, region);
 		mockDeleteS3File({
 			bucketName,
 			key,
