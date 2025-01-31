@@ -199,10 +199,14 @@ const transcribeToTemporaryFile = async ({
 			}
 		};
 
+		let stderr = '';
+
 		const onStderr = (data: Buffer) => {
 			onData(data);
+			const utf8 = data.toString('utf-8');
+			stderr += utf8;
 			if (printOutput) {
-				process.stderr.write(data.toString('utf-8'));
+				process.stderr.write(utf8);
 			}
 		};
 
@@ -231,6 +235,14 @@ const transcribeToTemporaryFile = async ({
 					new Error(`Process was killed with signal ${exitSignal}: ${output}`),
 				);
 				return;
+			}
+
+			if (stderr.includes('must be 16 kHz')) {
+				reject(
+					new Error(
+						'wav file must be 16 kHz - use this command to make it so: "ffmpeg -i input.wav -ar 16000 output.wav -y"',
+					),
+				);
 			}
 
 			reject(
@@ -283,7 +295,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 
 	if (!isWavFile(inputPath)) {
 		throw new Error(
-			'Invalid inputFile type. The provided file is not a wav file!',
+			'Invalid inputFile type. The provided file is not a wav file! Convert the file to a 16KHz wav file first: "ffmpeg -i input.mp4 -ar 16000 output.wav -y"',
 		);
 	}
 
