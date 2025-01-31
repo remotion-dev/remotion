@@ -1,6 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
 import {
-	listOfInstallableRemotionPackages,
 	type InstallPackageRequest,
 	type InstallPackageResponse,
 } from '@remotion/studio-shared';
@@ -15,7 +14,7 @@ export const handleInstallPackage: ApiHandler<
 	InstallPackageResponse
 > = async ({logLevel, remotionRoot, input: {packageNames}}) => {
 	for (const packageName of packageNames) {
-		if (listOfInstallableRemotionPackages.includes(packageName) === false) {
+		if (!packageName.startsWith('@remotion/')) {
 			return Promise.reject(
 				new Error(`Package ${packageName} is not allowed to be installed.`),
 			);
