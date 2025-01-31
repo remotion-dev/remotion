@@ -176,7 +176,7 @@ const transcribeToTemporaryFile = async ({
 
 	const outputPath = await new Promise<string>((resolve, reject) => {
 		const task = spawn(executable, args, {
-			cwd: whisperPath,
+			cwd: path.resolve(process.cwd(), whisperPath),
 			signal: signal ?? undefined,
 		});
 		const predictedPath = `${tmpJSONPath}.json`;

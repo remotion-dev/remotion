@@ -136,8 +136,8 @@ const installWhisperForUnix = async ({
 
 export const getWhisperExecutablePath = (whisperPath: string) => {
 	return os.platform() === 'win32'
-		? path.join(whisperPath, 'main.exe')
-		: path.join(whisperPath, './main');
+		? path.join(path.resolve(process.cwd(), whisperPath), 'main.exe')
+		: path.join(path.resolve(process.cwd(), whisperPath), './main');
 };
 
 export const installWhisperCpp = async ({
