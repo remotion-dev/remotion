@@ -26,6 +26,7 @@ test(
 			region: 'eu-central-1',
 			inputProps: {playbackRate: 2},
 			metadata: {Author: 'Lunar'},
+			framesPerLambda: 30,
 		});
 
 		const wav = path.join(process.cwd(), 'seamless.wav');
