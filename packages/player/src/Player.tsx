@@ -331,10 +331,14 @@ const PlayerFn = <
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
 	useState(() => {
-		Internals.Log.trace(
+		Internals.playbackLogging({
 			logLevel,
-			`[player] Mounting <Player>. User agent = ${typeof navigator === 'undefined' ? 'server' : navigator.userAgent}`,
-		);
+			message: `[player] Mounting <Player>. User agent = ${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
+			tag: 'player',
+			mountTime: Date.now(),
+		});
 	});
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {

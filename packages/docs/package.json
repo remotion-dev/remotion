@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.255",
+	"version": "4.0.257",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -63,6 +63,7 @@
 		"@remotion/skia": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",

@@ -112,7 +112,7 @@ If you have multiple overrides, you should curry them:
 ```tsx twoslash
 import {Config} from '@remotion/cli/config';
 import {enableScss} from '@remotion/enable-scss';
-import {enableTailwind} from '@remotion/tailwind';
+import {enableTailwind} from '@remotion/tailwind-v4';
 
 Config.overrideWebpackConfig((c) => enableScss(enableTailwind(c)));
 ```
@@ -122,7 +122,7 @@ From Remotion v4.0.229, you can also use `Config.overrideWebpackConfig` multiple
 ```tsx twoslash
 import {Config} from '@remotion/cli/config';
 import {enableScss} from '@remotion/enable-scss';
-import {enableTailwind} from '@remotion/tailwind';
+import {enableTailwind} from '@remotion/tailwind-v4';
 
 Config.overrideWebpackConfig(enableScss);
 Config.overrideWebpackConfig(enableTailwind);
@@ -147,9 +147,7 @@ export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
         {
           test: /\.mdx?$/,
           use: [
@@ -231,9 +229,7 @@ export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
           return {
             ...r,
             // Remove Remotion loading SVGs as a URL
-            test: new RegExp(
-              r.test.toString().replace(/svg\|/g, '').slice(1, -1),
-            ),
+            test: new RegExp(r.test.toString().replace(/svg\|/g, '').slice(1, -1)),
           };
         }),
       ],
@@ -277,9 +273,7 @@ export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
         {
           test: /\.(glsl|vs|fs|vert|frag)$/,
           exclude: /node_modules/,

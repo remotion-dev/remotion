@@ -3,8 +3,8 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind"
 	},
 	"name": "@remotion/tailwind",
-	"version": "4.0.255",
-	"description": "Enable TailwindCSS support in Remotion",
+	"version": "4.0.257",
+	"description": "Enable TailwindCSS support in Remotion (TailwindCSS v3)",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",

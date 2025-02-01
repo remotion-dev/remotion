@@ -1,12 +1,16 @@
-import {RenderInternals} from '@remotion/renderer';
+import {ensureBrowser, RenderInternals} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'bun:test';
+import {afterAll, beforeAll, expect, test} from 'bun:test';
 import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {internalDeleteRender} from '../../../api/delete-render';
 import {mockImplementation} from '../../mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
+
+beforeAll(async () => {
+	await ensureBrowser();
+});
 
 afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
@@ -25,6 +29,7 @@ test(
 			region: 'eu-central-1',
 			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
+			scale: 0.25,
 		});
 
 		// We create a temporary directory for storing the frames

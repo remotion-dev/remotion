@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.255",
+	"version": "4.0.257",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -58,7 +58,7 @@
 		"@remotion/skia": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/studio": "workspace:*",
-		"@remotion/tailwind": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
@@ -89,7 +89,8 @@
 		"style-loader": "2.0.0",
 		"css-loader": "5.2.7",
 		"sass-loader": "14.2.1",
-		"sass": "1.77.2"
+		"sass": "1.77.2",
+		"tailwindcss": "4.0.0"
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "3.2.4",

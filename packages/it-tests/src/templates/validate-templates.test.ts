@@ -87,6 +87,7 @@ describe('Templates should be valid', () => {
 				false,
 			);
 			expect(existsSync(getFileForTemplate(template, 'bun.lockb'))).toBe(false);
+			expect(existsSync(getFileForTemplate(template, 'bun.lock'))).toBe(false);
 		});
 
 		it(`${template.shortName} should have a standard entry point`, async () => {

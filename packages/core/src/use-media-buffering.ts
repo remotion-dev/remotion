@@ -1,7 +1,7 @@
 import type React from 'react';
 import {useEffect, useState} from 'react';
 import type {LogLevel} from './log';
-import {Log} from './log';
+import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
 
 export const useMediaBuffering = ({
@@ -9,11 +9,13 @@ export const useMediaBuffering = ({
 	shouldBuffer,
 	isPremounting,
 	logLevel,
+	mountTime,
 }: {
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
 	logLevel: LogLevel;
+	mountTime: number;
 }) => {
 	const buffer = useBufferState();
 	const [isBuffering, setIsBuffering] = useState(false);
@@ -43,10 +45,12 @@ export const useMediaBuffering = ({
 			// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
 			if (current.readyState < current.HAVE_FUTURE_DATA) {
 				if (!navigator.userAgent.includes('Firefox/')) {
-					Log.trace(
+					playbackLogging({
 						logLevel,
-						`[load] Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted`,
-					);
+						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted`,
+						tag: 'load',
+						mountTime,
+					});
 					current.load();
 				}
 			}
@@ -62,10 +66,12 @@ export const useMediaBuffering = ({
 
 		const blockMedia = (reason: string) => {
 			setIsBuffering(true);
-			Log.trace(
+			playbackLogging({
 				logLevel,
-				`[buffer] buffering ${current.src}. reason = ${reason}`,
-			);
+				message: `Buffering ${current.src}. Reason: ${reason}`,
+				tag: 'buffer',
+				mountTime,
+			});
 			const {unblock} = buffer.delayPlayback();
 			const onCanPlay = () => {
 				cleanup('"canplay" was fired');
@@ -93,10 +99,12 @@ export const useMediaBuffering = ({
 				current.removeEventListener('error', onError);
 			});
 			cleanupFns.push((cleanupReason) => {
-				Log.trace(
+				playbackLogging({
 					logLevel,
-					`unblocking ${current.src} from buffer. reason = ${cleanupReason}`,
-				);
+					message: `Unblocking ${current.src} from buffer. Reason: ${cleanupReason}`,
+					tag: 'buffer',
+					mountTime,
+				});
 				unblock();
 			});
 		};
@@ -117,10 +125,12 @@ export const useMediaBuffering = ({
 
 				// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
 				if (!navigator.userAgent.includes('Firefox/')) {
-					Log.trace(
+					playbackLogging({
 						logLevel,
-						`[load] Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox.`,
-					);
+						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox.`,
+						tag: 'load',
+						mountTime,
+					});
 
 					current.load();
 				}
@@ -141,7 +151,7 @@ export const useMediaBuffering = ({
 		return () => {
 			cleanup('element was unmounted or prop changed');
 		};
-	}, [buffer, element, isPremounting, logLevel, shouldBuffer]);
+	}, [buffer, element, isPremounting, logLevel, shouldBuffer, mountTime]);
 
 	return isBuffering;
 };

@@ -12,7 +12,6 @@ import type {
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {RecastCodemod} from './codemods';
-import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
@@ -199,7 +198,7 @@ export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
 export type InstallPackageRequest = {
-	packageNames: InstallablePackage[];
+	packageNames: string[];
 };
 export type InstallPackageResponse = {};
 

@@ -456,6 +456,7 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
 
 test('Should render a still that uses the staticFile() API and should apply props', async () => {
 	const out = outputPath.replace('.mp4', '.png');
+	await Bun.write('props.json', JSON.stringify({flag: true}));
 	const task = await execa(
 		'pnpm',
 		[
@@ -470,6 +471,7 @@ test('Should render a still that uses the staticFile() API and should apply prop
 		],
 		{
 			cwd: path.join(process.cwd(), '..', 'example'),
+			// @ts-expect-error staticfile
 			env: {
 				REMOTION_FLAG: 'hi',
 			},
