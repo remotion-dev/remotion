@@ -30,7 +30,7 @@ RUN apt install -y \
   libcups2
 
 # Copy everything from your project to the Docker image. Adjust if needed.
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
 COPY src ./src
 
 # If you have a public folder:
@@ -88,7 +88,7 @@ RUN apt install -y \
 </p>
 
 ```docker
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
 COPY src ./src
 COPY public ./public
 ```
