@@ -20,7 +20,7 @@ jobs:
           version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: "pnpm"
       - uses: oven-sh/setup-bun@v1
         with:
