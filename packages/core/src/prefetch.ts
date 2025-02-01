@@ -2,6 +2,7 @@ import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {Log} from './log.js';
+import {playbackLogging} from './playback-logging.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const usePreload = (src: string): string => {
@@ -181,10 +182,12 @@ export const prefetch = (
 				return;
 			}
 
-			Log.trace(
+			playbackLogging({
 				logLevel,
-				`[prefetch] Finished prefetch ${src} with method ${method}`,
-			);
+				tag: 'prefetch',
+				message: `Finished prefetch ${src} with method ${method}`,
+				mountTime: null,
+			});
 
 			objectUrl = url as string;
 
@@ -204,7 +207,12 @@ export const prefetch = (
 
 	return {
 		free: () => {
-			Log.trace(logLevel, `[prefetch] Freeing ${src}`);
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Freeing ${src}`,
+				mountTime: null,
+			});
 			if (objectUrl) {
 				if (method === 'blob-url') {
 					URL.revokeObjectURL(objectUrl);
