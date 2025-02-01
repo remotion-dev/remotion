@@ -3,9 +3,11 @@ import {
 	reduceMatrices,
 	rotateX,
 	rotateY,
+	rotateZ,
 	scaled,
 	translateX,
 	translateY,
+	translateZ,
 } from '@remotion/svg-3d-engine';
 import React, {useContext, useMemo} from 'react';
 
@@ -40,6 +42,16 @@ export const RotateX: React.FC<{
 		</NewTransform>
 	);
 };
+export const RotateZ: React.FC<{
+	readonly children: React.ReactNode;
+	readonly radians: number;
+}> = ({children, radians}) => {
+	return (
+		<NewTransform transform={useMemo(() => rotateZ(radians), [radians])}>
+			{children}
+		</NewTransform>
+	);
+};
 
 export const TranslateY: React.FC<{
 	readonly children: React.ReactNode;
@@ -58,6 +70,17 @@ export const TranslateX: React.FC<{
 }> = ({children, px}) => {
 	return (
 		<NewTransform transform={useMemo(() => translateX(px), [px])}>
+			{children}
+		</NewTransform>
+	);
+};
+
+export const TranslateZ: React.FC<{
+	readonly children: React.ReactNode;
+	readonly px: number;
+}> = ({children, px}) => {
+	return (
+		<NewTransform transform={useMemo(() => translateZ(px), [px])}>
 			{children}
 		</NewTransform>
 	);

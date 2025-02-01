@@ -15,7 +15,6 @@ export const DivExtrusion: React.FC<{
 				width,
 				position: 'absolute',
 				top: 0,
-				filter: 'drop-shadow(0 0 10px rgba(0, 0, 0, 0.1))',
 			}}
 			pointerEvents="none"
 		>
