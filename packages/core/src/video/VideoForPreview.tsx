@@ -10,8 +10,8 @@ import React, {
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
-import {useLogLevel} from '../log-level-context.js';
-import {Log} from '../log.js';
+import {useLogLevel, useMountTime} from '../log-level-context.js';
+import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
@@ -77,6 +77,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const parentSequence = useContext(SequenceContext);
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 
 	const [timelineId] = useState(() => String(Math.random()));
 	const isSequenceHidden = hidden[timelineId] ?? false;
@@ -143,7 +144,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, []);
 
 	useState(() =>
-		Log.trace(logLevel, `[video] Mounting video with source = ${actualSrc}`),
+		playbackLogging({
+			logLevel,
+			message: `Mounting video with source = ${actualSrc}`,
+			tag: 'video',
+			mountTime,
+		}),
 	);
 
 	useEffect(() => {
