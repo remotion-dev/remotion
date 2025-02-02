@@ -1504,7 +1504,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={1000}
+					durationInFrames={240}
 				/>
 				<Composition
 					id="3DContext"
