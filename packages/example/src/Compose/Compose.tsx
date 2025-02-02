@@ -48,14 +48,22 @@ const VideoLayers: React.FC<{
 	label: string;
 }> = ({label}) => {
 	return (
-		<AbsoluteFill className="flex justify-center items-center">
-			<Rotations delay={0}>
+		<Rotations delay={0}>
+			<AbsoluteFill id="video" className="flex justify-center items-center">
 				<ExtrudeDiv
 					width={width}
 					height={height}
 					depth={depth}
 					cornerRadius={10}
-					backFace={<AbsoluteFill className="bg-black"></AbsoluteFill>}
+					backFace={
+						<AbsoluteFill
+							className="bg-gray-700"
+							style={{
+								borderRadius: cornerRadius,
+								border: '3px solid black',
+							}}
+						></AbsoluteFill>
+					}
 					bottomFace={<Label>{label}</Label>}
 				>
 					<div
@@ -77,15 +85,15 @@ const VideoLayers: React.FC<{
 						></div>
 					</div>
 				</ExtrudeDiv>
-			</Rotations>
-		</AbsoluteFill>
+			</AbsoluteFill>
+		</Rotations>
 	);
 };
 
 const CaptionLayers = () => {
 	return (
-		<AbsoluteFill className="flex justify-center items-center">
-			<Rotations delay={1}>
+		<Rotations delay={1}>
+			<AbsoluteFill id="captions" className="flex justify-center items-center">
 				<ExtrudeDiv
 					width={300}
 					height={60}
@@ -112,8 +120,8 @@ const CaptionLayers = () => {
 						</div>
 					</div>
 				</ExtrudeDiv>
-			</Rotations>
-		</AbsoluteFill>
+			</AbsoluteFill>
+		</Rotations>
 	);
 };
 

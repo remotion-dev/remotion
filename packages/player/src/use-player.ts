@@ -149,10 +149,15 @@ export const usePlayer = (): UsePlayerMethods => {
 			}
 
 			setFrame((c) => {
-				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const prevFrame = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const newFrame = Math.max(0, prevFrame - frames);
+				if (prevFrame === newFrame) {
+					return c;
+				}
+
 				return {
 					...c,
-					[videoId]: Math.max(0, prev - frames),
+					[videoId]: newFrame,
 				};
 			});
 		},
@@ -170,10 +175,15 @@ export const usePlayer = (): UsePlayerMethods => {
 			}
 
 			setFrame((c) => {
-				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const prevFrame = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const newFrame = Math.min(lastFrame, prevFrame + frames);
+				if (prevFrame === newFrame) {
+					return c;
+				}
+
 				return {
 					...c,
-					[videoId]: Math.min(lastFrame, prev + frames),
+					[videoId]: newFrame,
 				};
 			});
 		},
