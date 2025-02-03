@@ -595,7 +595,7 @@ export const useMenuStructure = (
 						subMenu: null,
 						type: 'item' as const,
 						value: 'clear-marks',
-						quickSwitcherLabel: 'Timeline: Clear In and Out Mark',
+						quickSwitcherLabel: 'Timeline: Go to frame',
 					},
 					{
 						id: 'fullscreen-divider',

@@ -43,6 +43,7 @@ const frameStyle: React.CSSProperties = {
 
 export const timeValueRef = React.createRef<{
 	goToFrame: () => void;
+	seek: (newFrame: number) => void;
 }>();
 
 export const TimeValue: React.FC = () => {
@@ -72,8 +73,9 @@ export const TimeValue: React.FC = () => {
 			goToFrame: () => {
 				ref.current?.click();
 			},
+			seek,
 		}),
-		[],
+		[seek],
 	);
 
 	useEffect(() => {

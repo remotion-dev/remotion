@@ -4454,6 +4454,15 @@ export const articles = [
 		slug: 'studio/save-default-props',
 	},
 	{
+		id: 'studio/seek',
+		title: 'seek()',
+		relativePath: 'docs/studio/seek.mdx',
+		compId: 'articles-docs-studio-seek',
+		crumb: '@remotion/studio',
+		noAi: false,
+		slug: 'studio/seek',
+	},
+	{
 		id: 'studio/shortcuts',
 		title: 'Keyboard navigation',
 		relativePath: 'docs/studio/shortcuts.mdx',

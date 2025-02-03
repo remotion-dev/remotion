@@ -10,6 +10,7 @@ export {UpdateDefaultPropsFunction} from './api/helpers/calc-new-props';
 export {reevaluateComposition} from './api/reevaluate-composition';
 export {restartStudio} from './api/restart-studio';
 export {saveDefaultProps} from './api/save-default-props';
+export {seek} from './api/seek';
 export {updateDefaultProps} from './api/update-default-props';
 export {watchPublicFolder} from './api/watch-public-folder';
 export {watchStaticFile} from './api/watch-static-file';
