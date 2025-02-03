@@ -1,6 +1,7 @@
 import {parseAac} from './containers/aac/parse-aac';
 import {parseFlac} from './containers/flac/parse-flac';
 import {parseIsoBaseMedia} from './containers/iso-base-media/parse-boxes';
+import {fetchM3u8Stream} from './containers/m3u/fetch-m3u8-stream';
 import {getStreams} from './containers/m3u/get-streams';
 import {parseM3u} from './containers/m3u/parse-m3u';
 import {parseMp3} from './containers/mp3/parse-mp3';
@@ -78,6 +79,7 @@ export const runParseIteration = async ({
 
 			// TODO: Select the first stream for now
 			const selectedStream = streams[0];
+			await fetchM3u8Stream(selectedStream);
 			console.log(selectedStream);
 		}
 
