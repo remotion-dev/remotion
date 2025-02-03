@@ -1,16 +1,11 @@
-import {RenderInternals} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'fs';
 import path from 'path';
 import {internalDeleteRender} from '../../../api/delete-render';
 import {mockImplementation} from '../../mock-implementation';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test(
 	'Should make regular (non-seamless) audio',
