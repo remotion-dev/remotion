@@ -336,7 +336,6 @@
         "@docusaurus/theme-common": "3.7.0",
         "@docusaurus/types": "3.7.0",
         "@mdx-js/react": "3.0.1",
-        "@remotion-dev/cube-presentation": "https://www.remotion.pro/pkg/cube-transition/1.0.2/docs",
         "@remotion/animated-emoji": "workspace:*",
         "@remotion/animation-utils": "workspace:*",
         "@remotion/babel-loader": "workspace:*",
@@ -2784,8 +2783,6 @@
     "@remix-run/web-form-data": ["@remix-run/web-form-data@3.1.0", "", { "dependencies": { "web-encoding": "1.1.5" } }, "sha512-NdeohLMdrb+pHxMQ/Geuzdp0eqPbea+Ieo8M8Jx2lGC6TBHsgHzYcBvr0LyPdPVycNRDEpWpiDdCOdCryo3f9A=="],
 
     "@remix-run/web-stream": ["@remix-run/web-stream@1.1.0", "", { "dependencies": { "web-streams-polyfill": "^3.1.1" } }, "sha512-KRJtwrjRV5Bb+pM7zxcTJkhIqWWSy+MYsIxHK+0m5atcznsf15YwUBWHWulZerV2+vvHH1Lp1DD7pw6qKW8SgA=="],
-
-    "@remotion-dev/cube-presentation": ["@remotion-dev/cube-presentation@https://www.remotion.pro/pkg/cube-transition/1.0.2/docs", { "peerDependencies": { "@remotion/transitions": "^4.0.84", "react": "^18.2.0 || ^19.0.0", "remotion": "*" } }],
 
     "@remotion/animated-emoji": ["@remotion/animated-emoji@workspace:packages/animated-emoji"],
 
