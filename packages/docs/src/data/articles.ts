@@ -2070,6 +2070,15 @@ export const articles = [
 		slug: 'lambda/sqs',
 	},
 	{
+		id: 'supabase',
+		title: 'Using Remotion Lambda with Supabase',
+		relativePath: 'docs/lambda/supabase.mdx',
+		compId: 'articles-docs-lambda-supabase',
+		crumb: null,
+		noAi: false,
+		slug: 'lambda/supabase',
+	},
+	{
 		id: 'bucket-disallows-acl',
 		title: 'The bucket does not allow ACLs',
 		relativePath: 'docs/lambda/troubleshooting/bucket-disallows-acl.mdx',
