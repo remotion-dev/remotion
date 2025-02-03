@@ -1,5 +1,6 @@
 import {DOCS_URL, truthy} from '@remotion/serverless/client';
 import {getIsCli} from '../cli/is-cli';
+import {getEnvVariable} from './get-env-variable';
 import {isLikelyToHaveAwsProfile} from './is-likely-to-have-aws-profile';
 
 const messageForVariable = (variable: string) => {
@@ -16,11 +17,11 @@ const messageForVariable = (variable: string) => {
 };
 
 export const checkCredentials = () => {
-	if (process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK) {
+	if (getEnvVariable('REMOTION_SKIP_AWS_CREDENTIALS_CHECK')) {
 		return;
 	}
 
-	if (process.env.REMOTION_AWS_PROFILE || process.env.AWS_PROFILE) {
+	if (getEnvVariable('REMOTION_AWS_PROFILE') || getEnvVariable('AWS_PROFILE')) {
 		return;
 	}
 
@@ -29,8 +30,8 @@ export const checkCredentials = () => {
 	}
 
 	if (
-		!process.env.AWS_ACCESS_KEY_ID &&
-		!process.env.REMOTION_AWS_ACCESS_KEY_ID
+		!getEnvVariable('AWS_ACCESS_KEY_ID') &&
+		!getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID')
 	) {
 		throw new Error(
 			messageForVariable('AWS_ACCESS_KEY_ID or REMOTION_AWS_ACCESS_KEY_ID'),
@@ -38,8 +39,8 @@ export const checkCredentials = () => {
 	}
 
 	if (
-		!process.env.AWS_SECRET_ACCESS_KEY &&
-		!process.env.REMOTION_AWS_SECRET_ACCESS_KEY
+		!getEnvVariable('AWS_SECRET_ACCESS_KEY') &&
+		!getEnvVariable('REMOTION_AWS_SECRET_ACCESS_KEY')
 	) {
 		throw new Error(
 			messageForVariable(

@@ -1,6 +1,7 @@
 import {readFileSync} from 'fs';
 import {homedir} from 'os';
 import {join, sep} from 'path';
+import {getEnvVariable} from './get-env-variable';
 
 const homeDirCache: Record<string, string> = {};
 
@@ -31,12 +32,18 @@ const ENV_CREDENTIALS_PATH = 'AWS_SHARED_CREDENTIALS_FILE';
 // Logic is inline to https://github.com/smithy-lang/smithy-typescript/blob/main/packages/shared-ini-file-loader/src/getCredentialsFilepath.ts#L7
 const pathOfCredentialsFile = () => {
 	return (
-		process.env[ENV_CREDENTIALS_PATH] ||
+		getEnvVariable(ENV_CREDENTIALS_PATH) ||
 		join(getHomeDir(), '.aws', 'credentials')
 	);
 };
 
 export const isLikelyToHaveAwsProfile = (): boolean => {
+	// Supabase uses Deno and does not support readFile
+	// https://github.com/remotion-dev/remotion/issues/4844
+	if (typeof Deno !== 'undefined') {
+		return false;
+	}
+
 	const credentialsFile = pathOfCredentialsFile();
 
 	try {
