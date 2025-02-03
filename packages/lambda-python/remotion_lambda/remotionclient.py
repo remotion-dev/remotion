@@ -110,16 +110,18 @@ class RemotionClient:
                 FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
             decoded_result = self._parse_stream(result)[-1]
-        except client.exceptions.ResourceNotFoundException:
-            raise ValueError(f"The function {function_name} does not exist.")
-        except client.exceptions.InvalidRequestContentException:
-            raise ValueError("The request content is invalid.")
-        except client.exceptions.RequestTooLargeException:
-            raise ValueError("The request payload is too large.")
+        except client.exceptions.ResourceNotFoundException as e:
+            raise ValueError(
+                f"The function {function_name} does not exist.") from e
+        except client.exceptions.InvalidRequestContentException as e:
+            raise ValueError("The request content is invalid.") from e
+        except client.exceptions.RequestTooLargeException as e:
+            raise ValueError("The request payload is too large.") from e
         except client.exceptions.ServiceException as e:
-            raise ValueError(f"An internal service error occurred: {str(e)}")
+            raise ValueError(
+                f"An internal service error occurred: {str(e)}") from e
         except Exception as e:
-            raise ValueError(f"An unexpected error occurred: {str(e)}")
+            raise ValueError(f"An unexpected error occurred: {str(e)}") from e
 
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
