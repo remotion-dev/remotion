@@ -1953,6 +1953,15 @@ export const articles = [
 		slug: 'lambda/python',
 	},
 	{
+		id: 'r2',
+		title: 'Using Remotion Lambda with R2',
+		relativePath: 'docs/lambda/r2.mdx',
+		compId: 'articles-docs-lambda-r2',
+		crumb: null,
+		noAi: false,
+		slug: 'lambda/r2',
+	},
+	{
 		id: 'region-selection',
 		title: 'Region selection',
 		relativePath: 'docs/lambda/region-selection.mdx',
