@@ -11,7 +11,7 @@ env:
   TURBO_NO_UPDATE_NOTIFIER: 1
 jobs:
   lambda-tests:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     name: Lambda integration
     steps:
       - uses: actions/checkout@v4
