@@ -132,6 +132,7 @@ export type MediaParserContainer =
 	| 'mp3'
 	| 'aac'
 	| 'flac'
+	| 'm3u8'
 	| 'wav';
 
 export type MediaParserKeyframe = {

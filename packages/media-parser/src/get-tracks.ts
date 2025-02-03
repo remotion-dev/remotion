@@ -11,7 +11,6 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './containers/iso-base-media/traversal';
-import {getTracksFromMp3OrWavOrAac} from './containers/mp3/get-tracks-from-mp3';
 import type {AllTracks} from './containers/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
@@ -155,6 +154,10 @@ export const getHasTracks = (state: ParserState): boolean => {
 		return state.callbacks.tracks.hasAllTracks();
 	}
 
+	if (structure.type === 'm3u') {
+		return state.callbacks.tracks.hasAllTracks();
+	}
+
 	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
@@ -231,6 +234,28 @@ export const getTracksFromIsoBaseMedia = (state: ParserState) => {
 	};
 };
 
+export const defaultGetTracks = (parserState: ParserState): AllTracks => {
+	const tracks = parserState.callbacks.tracks.getTracks();
+	if (tracks.length === 0) {
+		throw new Error('No tracks found');
+	}
+
+	return {
+		audioTracks: tracks.filter((t) => t.type === 'audio'),
+		otherTracks: [],
+		videoTracks: [],
+	};
+};
+
+export const defaultHasallTracks = (parserState: ParserState): boolean => {
+	try {
+		defaultGetTracks(parserState);
+		return true;
+	} catch {
+		return false;
+	}
+};
+
 export const getTracks = (state: ParserState): AllTracks => {
 	const structure = state.getStructure();
 	if (structure.type === 'matroska') {
@@ -255,7 +280,11 @@ export const getTracks = (state: ParserState): AllTracks => {
 		structure.type === 'flac' ||
 		structure.type === 'aac'
 	) {
-		return getTracksFromMp3OrWavOrAac(state);
+		return defaultGetTracks(state);
+	}
+
+	if (structure.type === 'm3u') {
+		return defaultGetTracks(state);
 	}
 
 	throw new Error(`Unknown container${structure satisfies never}`);

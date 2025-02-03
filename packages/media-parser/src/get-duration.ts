@@ -131,6 +131,10 @@ export const getDuration = (parserState: ParserState): number | null => {
 		return getDurationFromFlac(parserState);
 	}
 
+	if (structure.type === 'm3u') {
+		throw new Error('No duration for m3u');
+	}
+
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 

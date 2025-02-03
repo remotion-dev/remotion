@@ -81,6 +81,10 @@ export const isFlac = (data: Uint8Array) => {
 	return matchesPattern(flacPattern)(data.subarray(0, 4));
 };
 
+export const isM3u = (data: Uint8Array) => {
+	return new TextDecoder('utf-8').decode(data).substring(0, 7) === '#EXTM3U';
+};
+
 export type RiffType = {
 	type: 'riff';
 };
@@ -117,6 +121,10 @@ export type FlacType = {
 	type: 'flac';
 };
 
+export type M3uType = {
+	type: 'm3u';
+};
+
 export type UnknownType = {
 	type: 'unknown';
 };
@@ -137,4 +145,5 @@ export type FileType =
 	| BmpType
 	| AacType
 	| FlacType
+	| M3uType
 	| UnknownType;

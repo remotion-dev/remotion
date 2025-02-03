@@ -1,6 +1,8 @@
 import {parseAac} from './containers/aac/parse-aac';
 import {parseFlac} from './containers/flac/parse-flac';
 import {parseIsoBaseMedia} from './containers/iso-base-media/parse-boxes';
+import {getStreams} from './containers/m3u/get-streams';
+import {parseM3u} from './containers/m3u/parse-m3u';
 import {parseMp3} from './containers/mp3/parse-mp3';
 import {parseRiff} from './containers/riff/parse-riff';
 import {parseTransportStream} from './containers/transport-stream/parse-transport-stream';
@@ -62,6 +64,24 @@ export const runParseIteration = async ({
 
 	if (structure.type === 'flac') {
 		return parseFlac({state, iterator: state.iterator});
+	}
+
+	if (structure.type === 'm3u') {
+		const box = parseM3u({
+			iterator: state.iterator,
+			structure,
+			contentLength: state.contentLength,
+		});
+		const isDoneNow = state.iterator.counter.getOffset() === contentLength;
+		if (isDoneNow) {
+			const streams = getStreams(structure);
+
+			// TODO: Select the first stream for now
+			const selectedStream = streams[0];
+			console.log(selectedStream);
+		}
+
+		return box;
 	}
 
 	return Promise.reject(

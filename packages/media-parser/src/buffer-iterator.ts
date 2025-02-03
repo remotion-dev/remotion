@@ -115,6 +115,26 @@ export const getArrayBufferIterator = (
 		return new TextDecoder().decode(new Uint8Array(bytes));
 	};
 
+	const readUntilLineEnd = () => {
+		const bytes = [];
+		// 10 is "\n"
+		while (true) {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
+			const byte = getUint8();
+			bytes.push(byte);
+			if (byte === 10) {
+				break;
+			}
+		}
+
+		const str = new TextDecoder().decode(new Uint8Array(bytes)).trim();
+
+		return str;
+	};
+
 	const getUint8 = () => {
 		const val = view.getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
@@ -683,6 +703,7 @@ export const getArrayBufferIterator = (
 		readExpGolomb,
 		startCheckpoint,
 		getFlacCodecNumber,
+		readUntilLineEnd,
 	};
 };
 
