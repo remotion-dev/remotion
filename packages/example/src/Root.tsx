@@ -120,6 +120,7 @@ import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
+import {Seek} from './StudioApis/Seek';
 
 class Vector2 {
 	readonly x: number;
@@ -1379,6 +1380,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="save-default-props"
 					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="seek"
+					component={Seek}
 					fps={30}
 					durationInFrames={100}
 					height={200}
