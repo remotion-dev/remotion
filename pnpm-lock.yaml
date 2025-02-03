@@ -1386,9 +1386,6 @@ importers:
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming
-      '@remotion/studio-server':
-        specifier: workspace:*
-        version: link:../studio-server
       '@smithy/abort-controller':
         specifier: 3.1.1
         version: 3.1.1
