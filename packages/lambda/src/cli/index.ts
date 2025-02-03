@@ -11,6 +11,7 @@ import {BINARY_NAME} from '../defaults';
 import type {AwsProvider} from '../functions/aws-implementation';
 import {awsImplementation} from '../functions/aws-implementation';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import {getEnvVariable} from '../shared/get-env-variable';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -247,11 +248,13 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			)
 		) {
 			const keyButDoesntStartWithAki =
-				process.env.REMOTION_AWS_ACCESS_KEY_ID &&
-				!process.env.REMOTION_AWS_ACCESS_KEY_ID.startsWith('AKI');
+				getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') &&
+				!(getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') as string).startsWith(
+					'AKI',
+				);
 			const pureKeyButDoesntStartWithAki =
-				process.env.AWS_ACCESS_KEY_ID &&
-				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
+				getEnvVariable('AWS_ACCESS_KEY_ID') &&
+				!(getEnvVariable('AWS_ACCESS_KEY_ID') as string).startsWith('AKI');
 			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
 				Log.error(
 					{indent: false, logLevel},

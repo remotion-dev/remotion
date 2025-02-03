@@ -11,6 +11,7 @@ import type {AwsProvider} from '../functions/aws-implementation';
 import type {AwsRegion} from '../regions';
 import {checkCredentials} from './check-credentials';
 import {getCredentials} from './get-credentials';
+import {getEnvVariable} from './get-env-variable';
 
 export type ServiceMapping = {
 	s3: S3Client;
@@ -34,33 +35,33 @@ const getCredentialsHash = ({
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
-	if (process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK) {
+	if (getEnvVariable('REMOTION_SKIP_AWS_CREDENTIALS_CHECK')) {
 		hashComponents.credentials = {
 			credentialsSkipped: true,
 		};
-	} else if (process.env.REMOTION_AWS_PROFILE) {
+	} else if (getEnvVariable('REMOTION_AWS_PROFILE')) {
 		hashComponents.credentials = {
-			awsProfile: process.env.REMOTION_AWS_PROFILE,
+			awsProfile: getEnvVariable('REMOTION_AWS_PROFILE'),
 		};
 	} else if (
-		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
-		process.env.REMOTION_AWS_SECRET_ACCESS_KEY
+		getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') &&
+		getEnvVariable('REMOTION_AWS_SECRET_ACCESS_KEY')
 	) {
 		hashComponents.credentials = {
-			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
-			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
+			accessKeyId: getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID'),
+			secretAccessKey: getEnvVariable('REMOTION_AWS_SECRET_ACCESS_KEY'),
 		};
-	} else if (process.env.AWS_PROFILE) {
+	} else if (getEnvVariable('AWS_PROFILE')) {
 		hashComponents.credentials = {
-			awsProfile: process.env.AWS_PROFILE,
+			awsProfile: getEnvVariable('AWS_PROFILE'),
 		};
 	} else if (
-		process.env.AWS_ACCESS_KEY_ID &&
-		process.env.AWS_SECRET_ACCESS_KEY
+		getEnvVariable('AWS_ACCESS_KEY_ID') &&
+		getEnvVariable('AWS_SECRET_ACCESS_KEY')
 	) {
 		hashComponents.credentials = {
-			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+			accessKeyId: getEnvVariable('AWS_ACCESS_KEY_ID') as string,
+			secretAccessKey: getEnvVariable('AWS_SECRET_ACCESS_KEY') as string,
 		};
 	}
 
@@ -155,7 +156,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 					endpoint: customCredentials.endpoint,
 					requestHandler: lambdaOptions,
 				})
-			: process.env.REMOTION_SKIP_AWS_CREDENTIALS_CHECK
+			: getEnvVariable('REMOTION_SKIP_AWS_CREDENTIALS_CHECK')
 				? new Client({
 						region,
 						requestHandler: lambdaOptions,
@@ -166,7 +167,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 						requestHandler: lambdaOptions,
 					});
 
-		if (process.env.REMOTION_DISABLE_AWS_CLIENT_CACHE) {
+		if (getEnvVariable('REMOTION_DISABLE_AWS_CLIENT_CACHE')) {
 			return client as ServiceMapping[T];
 		}
 
