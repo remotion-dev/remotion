@@ -22,7 +22,7 @@ test(
 			composition: 'framer',
 			frameRange: [100, 200],
 			imageFormat: 'none',
-			logLevel: 'verbose',
+			logLevel: 'trace',
 			region: 'eu-central-1',
 			inputProps: {playbackRate: 2},
 			metadata: {Author: 'Lunar'},
