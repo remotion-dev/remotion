@@ -155,6 +155,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 							: undefined,
 					endpoint: customCredentials.endpoint,
 					requestHandler: lambdaOptions,
+					forcePathStyle: customCredentials.forcePathStyle,
 				})
 			: getEnvVariable('REMOTION_SKIP_AWS_CREDENTIALS_CHECK')
 				? new Client({
