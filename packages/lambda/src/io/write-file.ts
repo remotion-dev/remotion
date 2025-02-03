@@ -59,7 +59,7 @@ export const lambdaWriteFileImplementation = async (
 			setTimeout(resolve, backoff);
 		});
 
-		console.warn('Failed to write file to Lambda:');
+		console.warn('Failed to write file to storage:');
 		console.warn(err);
 		console.warn(`Retrying (${remainingRetries} retries remaining)...`);
 

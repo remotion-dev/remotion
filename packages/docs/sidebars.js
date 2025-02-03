@@ -874,6 +874,8 @@ module.exports = {
 				'lambda/python',
 				'lambda/ruby',
 				'lambda/serverless-framework-integration',
+				'lambda/supabase',
+				'lambda/r2',
 				'lambda/insights',
 				'lambda/multiple-buckets',
 				'lambda/how-lambda-works',
