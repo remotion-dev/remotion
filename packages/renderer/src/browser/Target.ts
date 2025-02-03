@@ -93,11 +93,17 @@ export class Target {
 	/**
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
-	async page(
-		sourceMapGetter: SourceMapGetter,
-		logLevel: LogLevel,
-		indent: boolean,
-	): Promise<Page | null> {
+	async page({
+		sourceMapGetter,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		sourceMapGetter: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
 				return Page._create({
@@ -108,10 +114,15 @@ export class Target {
 					sourceMapGetter,
 					logLevel,
 					indent,
+					pageIndex,
 				});
 			});
 		}
 
+		return (await this.#pagePromise) ?? null;
+	}
+
+	async expectPage(): Promise<Page | null> {
 		return (await this.#pagePromise) ?? null;
 	}
 

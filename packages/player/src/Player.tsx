@@ -30,6 +30,7 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
+import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -90,6 +91,7 @@ export type PlayerProps<
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
 	readonly overrideInternalClassName?: string;
 	readonly logLevel?: LogLevel;
+	readonly acknowledgeRemotionLicense?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -154,6 +156,7 @@ const PlayerFn = <
 		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
 		overrideInternalClassName,
 		logLevel = 'info',
+		acknowledgeRemotionLicense,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -188,6 +191,13 @@ const PlayerFn = <
 			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`,
 		);
 	}
+
+	useState(() =>
+		acknowledgeRemotionLicenseMessage(
+			Boolean(acknowledgeRemotionLicense),
+			logLevel,
+		),
+	);
 
 	const component = Internals.useLazyComponent(
 		componentProps,
@@ -321,10 +331,14 @@ const PlayerFn = <
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
 	useState(() => {
-		Internals.Log.trace(
+		Internals.playbackLogging({
 			logLevel,
-			`[player] Mounting <Player>. User agent = ${typeof navigator === 'undefined' ? 'server' : navigator.userAgent}`,
-		);
+			message: `[player] Mounting <Player>. User agent = ${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
+			tag: 'player',
+			mountTime: Date.now(),
+		});
 	});
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {

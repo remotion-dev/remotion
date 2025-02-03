@@ -67,7 +67,7 @@ export const Overlay: React.FC = () => {
     <AbsoluteFill>
       <div style={container}>
         <div style={title}>Look</div>
-        <div style={text}>I'm an overlay!</div>
+        <div style={text}>I&apos;m an overlay!</div>
       </div>
     </AbsoluteFill>
   );

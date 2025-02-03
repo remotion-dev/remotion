@@ -4,12 +4,12 @@ import {Readable} from 'stream';
 import type {ReaderInterface} from './reader';
 
 export const nodeReader: ReaderInterface = {
-	read: ({src, range, signal}) => {
+	read: ({src, range, controller}) => {
 		if (typeof src !== 'string') {
 			throw new Error('src must be a string when using `nodeReader`');
 		}
 
-		const controller = new AbortController();
+		const ownController = new AbortController();
 
 		const stream = createReadStream(src, {
 			start: range === null ? 0 : typeof range === 'number' ? range : range[0],
@@ -19,13 +19,13 @@ export const nodeReader: ReaderInterface = {
 					: typeof range === 'number'
 						? Infinity
 						: range[1],
-			signal: controller.signal,
+			signal: ownController.signal,
 		});
 
-		signal?.addEventListener(
+		controller._internals.signal.addEventListener(
 			'abort',
 			() => {
-				controller.abort();
+				ownController.abort();
 			},
 			{once: true},
 		);
@@ -36,8 +36,8 @@ export const nodeReader: ReaderInterface = {
 			stream,
 		).getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
-		if (signal) {
-			signal.addEventListener(
+		if (controller) {
+			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
 					reader.cancel().catch(() => {});
@@ -50,7 +50,7 @@ export const nodeReader: ReaderInterface = {
 			reader: {
 				reader,
 				abort: () => {
-					controller.abort();
+					ownController.abort();
 				},
 			},
 			contentLength: stats.size,

@@ -1,3 +1,4 @@
+import {apiKeyOption} from './api-key';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
@@ -79,6 +80,7 @@ export const allOptions = {
 	metadataOption,
 	hardwareAccelerationOption,
 	chromeModeOption,
+	apiKeyOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

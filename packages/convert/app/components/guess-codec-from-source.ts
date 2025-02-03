@@ -78,6 +78,10 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 		return true;
 	}
 
+	if (action.type === 'report') {
+		return true;
+	}
+
 	throw new Error(`Unhandled action type: ${action satisfies never}`);
 };
 

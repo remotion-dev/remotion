@@ -63,8 +63,6 @@ Install the `@remotion/webcodecs` and `@remotion/media-parser` packages:
 (needs to be CORS-enabled)
 
 ```tsx twoslash title="Converting an MP4 to a WebM"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -76,9 +74,6 @@ await convertMedia({
 ### Converting from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File):
 
 ```tsx twoslash title="Converting a file"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia} from '@remotion/webcodecs';
 import {webFileReader} from '@remotion/media-parser/web-file';
 
@@ -97,9 +92,6 @@ await convertMedia({
 You can specify the output codec by passing the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options:
 
 ```tsx twoslash title="Converting to VP9"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({

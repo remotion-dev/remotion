@@ -634,6 +634,7 @@ const PlayerOnly: React.FC<
 		<Player
 			ref={playerRef}
 			controls
+			acknowledgeRemotionLicense
 			showVolumeControls={showVolumeControls}
 			compositionWidth={1920}
 			compositionHeight={1080}

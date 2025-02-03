@@ -174,6 +174,7 @@ const internalGetCompositionsRaw = async ({
 		logLevel,
 		onBrowserDownload,
 		chromeMode,
+		pageIndex: 0,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];

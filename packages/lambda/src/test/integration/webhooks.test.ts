@@ -96,6 +96,7 @@ test('Should call webhook upon completion', async () => {
 			preferLossless: false,
 			forcePathStyle: false,
 			metadata: {Author: 'Lunar'},
+			apiKey: null,
 		},
 		functionName: 'remotion-dev-lambda',
 		region: 'us-east-1',
@@ -207,6 +208,7 @@ test('Should call webhook upon timeout', async () => {
 			preferLossless: false,
 			forcePathStyle: false,
 			metadata: null,
+			apiKey: null,
 		},
 		timeoutInTest: 1000,
 	});

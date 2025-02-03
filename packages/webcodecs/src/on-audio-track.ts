@@ -13,13 +13,13 @@ import type {ConvertMediaOnAudioData} from './convert-media';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
-import Error from './error-cause';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 import {getDefaultAudioCodec} from './get-default-audio-codec';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeAudioTrackHandler =
 	({
@@ -36,7 +36,7 @@ export const makeAudioTrackHandler =
 	}: {
 		state: MediaFn;
 		defaultAudioCodec: ConvertMediaAudioCodec | null;
-		controller: AbortController;
+		controller: WebCodecsController;
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
@@ -188,7 +188,7 @@ export const makeAudioTrackHandler =
 				);
 			},
 			codec: audioOperation.audioCodec,
-			signal: controller.signal,
+			controller,
 			config: audioEncoderConfig,
 			logLevel,
 			progressTracker,
@@ -253,7 +253,7 @@ export const makeAudioTrackHandler =
 					),
 				);
 			},
-			signal: controller.signal,
+			controller,
 			config: audioDecoderConfig,
 			logLevel,
 			track,

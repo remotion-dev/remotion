@@ -17,8 +17,6 @@ The API for getting video metadata is stable and may be used in production.
 ## Examples
 
 ```tsx twoslash title="Parsing a hosted video"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
@@ -34,8 +32,6 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 ```
 
 ```tsx twoslash title="Parsing a local file"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
@@ -76,6 +72,10 @@ Default value: `fetchReader`, which uses `fetch()` to read the video.
 If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
 If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
 
+### `controller?`
+
+A [controller](/docs/media-parser/media-parser-controller) object that allows you to pause, resume and abort the parsing process.
+
 ### `onVideoTrack?`
 
 A callback that is called when a video track is detected.  
@@ -85,8 +85,6 @@ You must return either `null` or a callback that is called for each sample that 
 The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
 
 ```tsx twoslash title="Reading video frames"
-// @module: es2022
-// @target: es2017
 import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
 
 const onVideoTrack: OnVideoTrack = ({track}) => {
@@ -107,8 +105,6 @@ You must return either `null` or a callback that is called for each sample that 
 The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
 
 ```tsx twoslash title="Reading audio frames"
-// @module: es2022
-// @target: es2017
 // @noErrors
 import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
 
@@ -149,10 +145,9 @@ Note that updates are fired very often and updating the DOM often may slow down 
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
 
-### `signal?`
+### `acknowledgeRemotionLicense?`
 
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) instance.  
-If the signal is aborted, the parser will stop reading the media and stop the decoding process and throw an error.
+Acknowledge the [Remotion License](https://remotion.dev/license) to make the console message disappear.
 
 ## Available fields
 
@@ -354,9 +349,6 @@ You do not have to add the field to the [`fields`](#fields) object if you use th
 However, just like with [`fields`](#fields), adding a callback for a [slow field](/docs/media-parser/fast-and-slow) may require reading more of the file.
 
 ```tsx twoslash title="Using a callback"
-// @module: es2022
-// @target: es2017
-
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({

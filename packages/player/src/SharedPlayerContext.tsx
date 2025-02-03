@@ -4,6 +4,7 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {
 	CompositionManagerContext,
+	LoggingContextValue,
 	LogLevel,
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -97,8 +98,15 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, [setMediaVolumeAndPersist]);
 
+	const logLevelContext: LoggingContextValue = useMemo(() => {
+		return {
+			logLevel,
+			mountTime: Date.now(),
+		};
+	}, [logLevel]);
+
 	return (
-		<Internals.LogLevelContext.Provider value={logLevel}>
+		<Internals.LogLevelContext.Provider value={logLevelContext}>
 			<Internals.CanUseRemotionHooksProvider>
 				<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
 					<Internals.CompositionManager.Provider

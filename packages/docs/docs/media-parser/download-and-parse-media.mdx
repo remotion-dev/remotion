@@ -10,7 +10,7 @@ Same as [`parseMedia()`](/docs/media-parser/parse-media), but also downloads the
 
 Meant to be used in Node.js and Bun.
 
-```tsx title="Download a file"
+```tsx twoslash title="Download a file"
 import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
@@ -22,8 +22,9 @@ await downloadAndParseMedia({
 
 You can obtain [fields](/docs/media-parser/parse-media#fields) like `tracks` and `duration` by passing them to the `fields` object.
 
-```tsx title="Download a file and get metadata"
+```tsx twoslash title="Download a file and get metadata"
 import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
 
 const {durationInSeconds, tracks} = await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
@@ -41,13 +42,14 @@ console.log(tracks);
 You can use callback functions to listen when new fields are available.  
 Throw an error to stop the download.
 
-```tsx title="Stop the download if the video is too long"
+```tsx twoslash title="Stop the download if the video is too long"
 import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
 
-const {duration} = await downloadAndParseMedia({
+const {durationInSeconds} = await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
   writer: nodeWriter('output.mp4'),
-  onDuration: (duration) => {
+  onDurationInSeconds: (duration) => {
     if (duration && duration > 600) {
       throw new Error('Video is too long');
     }
@@ -57,10 +59,11 @@ const {duration} = await downloadAndParseMedia({
 
 If an error occurs (including one you've thrown yourself), you can decide what to do using [`onError`](#onerror).
 
-```tsx title="Continue download despite error"
+```tsx twoslash title="Continue download despite error"
 import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
 
-const {duration} = await downloadAndParseMedia({
+await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
   writer: nodeWriter('output.mp4'),
   onError: (error) => {

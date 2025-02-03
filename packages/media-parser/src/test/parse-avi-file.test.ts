@@ -56,6 +56,7 @@ test('AVI file', async () => {
 				videoSamples++;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(container).toBe('avi');
 	expect(dimensions).toEqual({

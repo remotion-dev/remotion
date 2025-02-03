@@ -123,6 +123,7 @@ class Semantic
 			metadata: {
 				Author: 'Remotion',
 			},
+			apiKey: null,
 		});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);

@@ -12,6 +12,7 @@ export const OverlayInDavinci: React.FC = () => {
 				controls
 				autoPlay
 				loop
+				playsInline
 			/>
 		</div>
 	);

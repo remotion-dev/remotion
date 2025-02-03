@@ -252,8 +252,8 @@ export const internalOpenBrowser = async ({
 		},
 	});
 
-	const pages = await browserInstance.pages(logLevel, indent);
-	await pages[0].close();
+	const pages = await browserInstance.pages();
+	await pages[0]?.close();
 
 	addHeadlessBrowser(browserInstance);
 	return browserInstance;

@@ -3,9 +3,10 @@ import {useCallback, useContext, useEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
-import {useLogLevel} from './log-level-context.js';
+import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
 	TimelineContext,
@@ -52,6 +53,7 @@ export const useMediaPlayback = ({
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
 	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 
 	if (!buffering) {
 		throw new Error(
@@ -93,6 +95,7 @@ export const useMediaPlayback = ({
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
 		logLevel,
+		mountTime,
 	});
 
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
@@ -120,6 +123,12 @@ export const useMediaPlayback = ({
 
 	useEffect(() => {
 		if (!playing) {
+			playbackLogging({
+				logLevel,
+				tag: 'pause',
+				message: `Pausing ${mediaRef.current?.src} because player is not playing`,
+				mountTime,
+			});
 			mediaRef.current?.pause();
 			return;
 		}
@@ -127,9 +136,24 @@ export const useMediaPlayback = ({
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 
 		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
+			playbackLogging({
+				logLevel,
+				tag: 'pause',
+				message: `Pausing ${mediaRef.current?.src} because player is buffering but media tag is not`,
+				mountTime,
+			});
 			mediaRef.current?.pause();
 		}
-	}, [isBuffering, isMediaTagBuffering, isPlayerBuffering, mediaRef, playing]);
+	}, [
+		isBuffering,
+		isMediaTagBuffering,
+		isPlayerBuffering,
+		logLevel,
+		mediaRef,
+		mediaType,
+		mountTime,
+		playing,
+	]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -177,7 +201,8 @@ export const useMediaPlayback = ({
 				mediaRef: mediaRef.current,
 				time: shouldBeTime,
 				logLevel,
-				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}, isVariableFpsVideo = ${Boolean(isVariableFpsVideo)}`,
+				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}${isVariableFpsVideo ? ', isVariableFpsVideo = true' : ''}, isPremounting = ${isPremounting}, pauseWhenBuffering = ${pauseWhenBuffering}`,
+				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
 			if (playing && !isVariableFpsVideo) {
@@ -186,7 +211,13 @@ export const useMediaPlayback = ({
 				}
 
 				if (mediaRef.current.paused) {
-					playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
+					playAndHandleNotAllowedError({
+						mediaRef,
+						mediaType,
+						onAutoPlayError,
+						logLevel,
+						mountTime,
+					});
 				}
 			}
 
@@ -221,6 +252,7 @@ export const useMediaPlayback = ({
 					time: shouldBeTime,
 					logLevel,
 					why: `not playing or something else is buffering. time offset is over seek threshold (${seekThreshold})`,
+					mountTime,
 				});
 			}
 
@@ -238,10 +270,17 @@ export const useMediaPlayback = ({
 					time: shouldBeTime,
 					logLevel,
 					why: `is over timeshift threshold (threshold = ${seekThreshold}) is paused OR has reached end of timeline and is starting over`,
+					mountTime,
 				});
 			}
 
-			playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
+			playAndHandleNotAllowedError({
+				mediaRef,
+				mediaType,
+				onAutoPlayError,
+				logLevel,
+				mountTime,
+			});
 			if (!isVariableFpsVideo) {
 				if (playbackRate > 0) {
 					bufferUntilFirstFrame(shouldBeTime);
@@ -265,5 +304,8 @@ export const useMediaPlayback = ({
 		playing,
 		src,
 		onAutoPlayError,
+		isPremounting,
+		pauseWhenBuffering,
+		mountTime,
 	]);
 };

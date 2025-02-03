@@ -3,11 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
 	},
 	"name": "@remotion/eslint-plugin",
-	"version": "4.0.252",
+	"version": "4.0.258",
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "vitest --run",
-		"make": "tsc -d"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"main": "dist/index.js",
 	"bugs": {
@@ -15,9 +15,7 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
-	"dependencies": {
-		"@typescript-eslint/utils": "5.19.0"
-	},
+	"dependencies": {},
 	"keywords": [
 		"eslint",
 		"eslintplugin"
@@ -26,7 +24,17 @@
 		"eslint": ">=7.0.0"
 	},
 	"devDependencies": {
+		"@typescript-eslint/utils": "5.19.0",
 		"vitest": "0.31.1"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/esm/index.mjs",
+			"module": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./package.json": "./package.json"
 	},
 	"private": false,
 	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"

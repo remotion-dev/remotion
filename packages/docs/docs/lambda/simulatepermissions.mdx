@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-simulatepermissions.png
 id: simulatepermissions
 title: simulatePermissions()
 slug: /lambda/simulatepermissions
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Runs tests through the AWS Simulator ensuring that all the necessary permissions are set for the authenticated user.
@@ -17,13 +17,10 @@ This function does only validate the validity of the **user policy**, not the **
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
+import {simulatePermissions} from '@remotion/lambda';
 
-import { simulatePermissions } from "@remotion/lambda";
-
-const { results } = await simulatePermissions({
-  region: "us-east-1",
+const {results} = await simulatePermissions({
+  region: 'us-east-1',
 });
 
 for (const result of results) {
@@ -47,13 +44,10 @@ _optional_
 A callback function that gets called every time a new simulation has been executed. This allows you to react to new simulation results coming in much faster than waiting for the return value of the function. Example:
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
+import {simulatePermissions} from '@remotion/lambda';
 
-import { simulatePermissions } from "@remotion/lambda";
-
-const { results } = await simulatePermissions({
-  region: "us-east-1",
+const {results} = await simulatePermissions({
+  region: 'us-east-1',
   onSimulation: (result) => {
     console.log(result.decision); // "allowed"
     console.log(result.name); // "iam:SimulatePrincipalPolicy"

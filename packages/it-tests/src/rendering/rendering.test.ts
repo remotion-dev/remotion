@@ -465,7 +465,8 @@ test('Should render a still that uses the staticFile() API and should apply prop
 			'props.json',
 		],
 		{
-			cwd: path.join(process.cwd(), '..', 'example'),
+			cwd,
+			// @ts-expect-error staticfile
 			env: {
 				REMOTION_FLAG: 'hi',
 			},

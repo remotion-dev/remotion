@@ -2,6 +2,7 @@ import {emitAvailableInfo} from './emit-available-info';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
+import {mediaParserController} from './media-parser-controller';
 import type {
 	AllParseMediaFields,
 	InternalParseMedia,
@@ -12,6 +13,7 @@ import type {
 	ParseMediaResult,
 } from './options';
 import {performSeek} from './perform-seek';
+import {warnIfRemotionLicenseNotAcknowledged} from './remotion-license-acknowledge';
 import {runParseIteration} from './run-parse-iteration';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
@@ -24,15 +26,22 @@ export const internalParseMedia: InternalParseMedia = async function <
 	reader: readerInterface,
 	onAudioTrack,
 	onVideoTrack,
-	signal,
+	controller = mediaParserController(),
 	logLevel,
 	onParseProgress: onParseProgressDoNotCallDirectly,
 	progressIntervalInMs,
 	mode,
 	onDiscardedData,
 	onError,
+	acknowledgeRemotionLicense,
+	apiName,
 	...more
 }: InternalParseMediaOptions<F>) {
+	warnIfRemotionLicenseNotAcknowledged({
+		acknowledgeRemotionLicense,
+		logLevel,
+		apiName,
+	});
 	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
 
 	const fields = getFieldsFromCallback({
@@ -46,7 +55,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		name,
 		contentType,
 		supportsContentRange,
-	} = await readerInterface.read({src, range: null, signal});
+	} = await readerInterface.read({src, range: null, controller});
 
 	if (contentLength === null) {
 		throw new Error(
@@ -87,7 +96,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	const state = makeParserState({
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
-		signal,
+		controller,
 		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
@@ -108,7 +117,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	const throttledState = throttledStateUpdate({
 		updateFn: onParseProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal,
+		controller,
 		totalBytes: contentLength,
 	});
 
@@ -168,13 +177,12 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
-		if (signal?.aborted) {
-			throw new Error('Aborted');
-		}
+		await controller._internals.checkForAbortAndPause();
 
 		const offsetBefore = iterator.counter.getOffset();
 
 		const fetchMoreData = async () => {
+			await controller._internals.checkForAbortAndPause();
 			const result = await currentReader.reader.read();
 			if (result.value) {
 				iterator.addData(result.value);
@@ -223,8 +231,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 			try {
 				await triggerInfoEmit();
-
 				const start = Date.now();
+
+				await controller._internals.checkForAbortAndPause();
 				const skip = await runParseIteration({
 					state,
 					mimeType: contentType,
@@ -276,6 +285,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 			const didProgress = iterator.counter.getOffset() > offsetBefore;
 			if (!didProgress) {
 				iterationWithThisOffset++;
+			} else {
+				iterationWithThisOffset = 0;
 			}
 		}
 

@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {existsSync, statSync, unlinkSync} from 'node:fs';
 import {downloadAndParseMedia} from '../download-and-parse-media';
+import {mediaParserController} from '../media-parser-controller';
 import {nodeReader} from '../readers/from-node';
 import {nodeWriter} from '../writers/node';
 
@@ -13,6 +14,7 @@ test('should be able to parse and download video', async () => {
 			size: true,
 		},
 		writer: nodeWriter('output.avi'),
+		acknowledgeRemotionLicense: true,
 	});
 
 	const s = statSync('output.avi');
@@ -29,6 +31,7 @@ test('should be able to parse and download mp4 video', async () => {
 			size: true,
 		},
 		writer: nodeWriter('iphonehevc.mp4'),
+		acknowledgeRemotionLicense: true,
 	});
 
 	const s = statSync('iphonehevc.mp4');
@@ -46,6 +49,7 @@ test(
 				size: true,
 			},
 			writer: nodeWriter('output2'),
+			acknowledgeRemotionLicense: true,
 		});
 
 		const s = statSync('output2');
@@ -57,7 +61,7 @@ test(
 );
 
 test('should be able to abort the download by throwing an error', () => {
-	const controller = new AbortController();
+	const controller = mediaParserController();
 	expect(
 		downloadAndParseMedia({
 			src: 'https://www.w3schools.com/html/mov_bbb.mp4',
@@ -66,14 +70,14 @@ test('should be able to abort the download by throwing an error', () => {
 					throw new Error('Unsupported format');
 				}
 			},
-			signal: controller.signal,
+			controller,
 			writer: nodeWriter('output3.mp4'),
+			acknowledgeRemotionLicense: true,
 		}),
 	).rejects.toThrow('Unsupported format');
 });
 
 test('should be able to parse and download video with audio', () => {
-	const controller = new AbortController();
 	expect(
 		downloadAndParseMedia({
 			src: 'https://www.w3schools.com/html/mov_bbb.mp4',
@@ -85,21 +89,22 @@ test('should be able to parse and download video with audio', () => {
 					throw new Error('Unsupported format');
 				}
 			},
-			signal: controller.signal,
 			writer: nodeWriter('output3.mp4'),
+			acknowledgeRemotionLicense: true,
 		}),
 	).rejects.toThrow('Unsupported format');
 	expect(existsSync('output3.mp4')).toBe(false);
 });
 
 test('should be able to continue on error', () => {
-	const controller = new AbortController();
+	const controller = mediaParserController();
 	expect(
 		downloadAndParseMedia({
 			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/jkl.gif',
-			signal: controller.signal,
+			controller,
 			writer: nodeWriter('jkl.gif'),
 			onError: () => ({action: 'download'}),
+			acknowledgeRemotionLicense: true,
 		}),
 	).rejects.toThrow('GIF files are not yet supported');
 	expect(existsSync('jkl.gif')).toBe(true);

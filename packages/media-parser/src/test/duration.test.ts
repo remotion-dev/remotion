@@ -11,6 +11,7 @@ test('Should get duration of video', async () => {
 			dimensions: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(parsed.durationInSeconds).toBe(4.167);

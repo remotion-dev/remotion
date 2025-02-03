@@ -9,6 +9,7 @@ def get_render_still_on_lambda_payload(
   force_height: nil,
   force_path_style: false,
   force_width: nil,
+  api_key: nil,
   image_format: "jpeg",
   input_props: {},
   jpeg_quality: 80,
@@ -35,6 +36,7 @@ payload = {
     forceHeight: force_height,
     forcePathStyle: force_path_style,
     forceWidth: force_width,
+    apiKey: api_key,
     imageFormat: image_format,
     inputProps: {
       type: "payload",

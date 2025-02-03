@@ -14,6 +14,14 @@ export const WebCodecsGuide: React.FC = () => {
 					<strong>Rotate a video</strong>
 					<div>Fix bad orientation</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/track-transformation">
+					<strong>Track Transformation</strong>
+					<div>Copy, re-encode or drop tracks</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/pause-resume-abort">
+					<strong>Pause, resume and abort conversion</strong>
+					<div>Steer the conversion process</div>
+				</TOCItem>
 				<TOCItem link="/docs/webcodecs/fix-mediarecorder-video">
 					<strong>Fix a MediaRecorder video</strong>
 					<div>Fix missing video duration and poor seeking performance</div>
@@ -36,6 +44,10 @@ export const TableOfContents: React.FC = () => {
 					<div>
 						Get a list of containers <code>@remotion/webcodecs</code> supports.
 					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/webcodecs-controller">
+					<strong>{'webcodecsController()'}</strong>
+					<div>Pause, resume and abort the conversion.</div>
 				</TOCItem>
 				<TOCItem link="/docs/webcodecs/can-reencode-video-track">
 					<strong>{'canReencodeVideoTrack()'}</strong>

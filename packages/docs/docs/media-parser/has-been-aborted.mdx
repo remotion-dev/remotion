@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-media-parser-has-been-aborted.png
+id: has-been-aborted
+title: hasBeenAborted()
+slug: /media-parser/has-been-aborted
+crumb: '@remotion/media-parser'
+---
+
+Pass an error to the `hasBeenAborted()` function to check if the error was thrown because you opted to abort the render.  
+In this case, the error is intentional and you probably don't want to display it.
+
+Check if a media file download has been aborted.
+
+```tsx twoslash title="Check if a download has been aborted"
+import {parseMedia, hasBeenAborted} from '@remotion/media-parser';
+
+try {
+  await parseMedia({
+    src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  });
+} catch (e) {
+  if (hasBeenAborted(e)) {
+    console.log('Has been aborted by user / developer');
+  } else {
+    console.error('Download failed', e);
+  }
+}
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/errors.ts)
+- [`parseMedia()`](/docs/media-parser/parse-media)

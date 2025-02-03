@@ -201,6 +201,29 @@ module.exports = {
 				'get-image-dimensions',
 			],
 		},
+		{
+			type: 'category',
+			label: '@remotion/media-parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser/metadata',
+					label: 'Guide',
+				},
+				'media-parser/parse-media',
+				'media-parser/download-and-parse-media',
+				'media-parser/media-parser-controller',
+				'media-parser/has-been-aborted',
+				'media-parser/node-reader',
+				'media-parser/fetch-reader',
+				'media-parser/web-file-reader',
+				'media-parser/node-writer',
+			],
+		},
 
 		{
 			type: 'category',
@@ -292,6 +315,15 @@ module.exports = {
 				id: 'tailwind/tailwind',
 			},
 			items: ['tailwind/enable-tailwind'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/tailwind-v4',
+			link: {
+				type: 'doc',
+				id: 'tailwind-v4/overview',
+			},
+			items: ['tailwind-v4/enable-tailwind'],
 		},
 		{
 			type: 'category',
@@ -556,26 +588,6 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/media-parser',
-			link: {
-				type: 'doc',
-				id: 'media-parser/index',
-			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/media-parser/metadata',
-					label: 'Guide',
-				},
-				'media-parser/parse-media',
-				'media-parser/download-and-parse-media',
-				'media-parser/node-reader',
-				'media-parser/fetch-reader',
-				'media-parser/web-file-reader',
-			],
-		},
-		{
-			type: 'category',
 			label: '@remotion/webcodecs',
 			link: {
 				type: 'doc',
@@ -587,8 +599,8 @@ module.exports = {
 					href: '/docs/webcodecs/convert-a-video',
 					label: 'Guide',
 				},
-				'webcodecs/track-transformation',
 				'webcodecs/convert-media',
+				'webcodecs/webcodecs-controller',
 				'webcodecs/get-available-containers',
 				'webcodecs/can-reencode-audio-track',
 				'webcodecs/can-reencode-video-track',
@@ -862,6 +874,8 @@ module.exports = {
 				'lambda/python',
 				'lambda/ruby',
 				'lambda/serverless-framework-integration',
+				'lambda/supabase',
+				'lambda/r2',
 				'lambda/insights',
 				'lambda/multiple-buckets',
 				'lambda/how-lambda-works',
@@ -914,7 +928,9 @@ module.exports = {
 				'media-parser/metadata',
 				'media-parser/fast-and-slow',
 				'media-parser/tags',
-				'media-parser/support',
+				'media-parser/format-support',
+				'media-parser/runtime-support',
+				'media-parser/pause-resume-abort',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
 			],
@@ -936,6 +952,8 @@ module.exports = {
 				'webcodecs/rotate-a-video',
 				'webcodecs/resize-a-video',
 				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/track-transformation',
+				'webcodecs/pause-resume-abort',
 				'webcodecs/telemetry',
 			],
 		},

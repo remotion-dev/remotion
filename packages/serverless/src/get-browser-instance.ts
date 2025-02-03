@@ -127,7 +127,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 				'Browser disconnected or crashed.',
 			);
 			insideFunctionSpecifics.forgetBrowserEventLoop(logLevel);
-			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
+			_browserInstance?.instance?.close({silent: true}).catch((err) => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
 					'Could not close browser instance',
@@ -151,7 +151,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 			'Warm function, but Browser configuration changed. Killing old browser instance.',
 		);
 		_browserInstance.instance.runner.rememberEventLoop();
-		await _browserInstance.instance.close(true, logLevel, indent);
+		await _browserInstance.instance.close({silent: true});
 		_browserInstance = null;
 		return insideFunctionSpecifics.getBrowserInstance({
 			logLevel,

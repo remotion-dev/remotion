@@ -25,8 +25,6 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
 
 ```tsx twoslash title="Converting a video"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -70,6 +68,10 @@ _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
 The audio codec to convert to. Currently, only `"opus"` is supported.  
 The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
 If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
+
+### `controller?`
+
+A [controller](/docs/webcodecs/webcodecs-controller) object that allows you to pause, resume and abort the conversion process.
 
 ### `rotate?`
 
@@ -193,10 +195,6 @@ If you need a reference to the audio data that lasts longer than the lifetime of
 
 If you return a different audio data than the one you received, it should have the same [`duration`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/duration), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels), [`sampleRate`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/sampleRate), [`timestamp`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/timestamp), [`format`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format) and [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels) as the input audio data.
 
-### `signal?`
-
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the conversion process whenever the signal is aborted.
-
 ### `writer?`
 
 _object_ <TsType type="WriterInterface" source="@remotion/webcodecs" />
@@ -211,8 +209,6 @@ import {bufferWriter} from '@remotion/webcodecs/buffer';
 Write to a resizable Array Buffer.
 
 ```tsx twoslash title="Web File System writer"
-// @module: es2022
-// @target: es2017
 import {canUseWebFsWriter, webFsWriter} from '@remotion/webcodecs/web-fs';
 //                          ^?
 
@@ -251,8 +247,6 @@ You can obtain information about the video file while you are converting it.
 This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media), but only the callback-style API is available.
 
 ```tsx twoslash title="Converting a video"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({

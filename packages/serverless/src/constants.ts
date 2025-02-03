@@ -45,6 +45,7 @@ export type CustomCredentials<Provider extends CloudProvider> =
 		accessKeyId: string | null;
 		secretAccessKey: string | null;
 		region?: Provider['region'];
+		forcePathStyle?: boolean;
 	};
 
 export type OutNameInput<Provider extends CloudProvider> =
@@ -161,6 +162,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	preferLossless: boolean;
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
+	apiKey: string | null;
 };
 
 export type ServerlessPayloads<Provider extends CloudProvider> = {
@@ -214,6 +216,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		preferLossless: boolean;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
+		apiKey: string | null;
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
@@ -291,6 +294,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
+		apiKey: string | null;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;

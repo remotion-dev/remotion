@@ -118,6 +118,7 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 
 class Vector2 {
@@ -125,14 +126,12 @@ class Vector2 {
 	readonly y: number;
 
 	constructor(x: number, y: number) {
-		// eslint-disable-next-line react/no-this-in-sfc
 		this.x = x;
-		// eslint-disable-next-line react/no-this-in-sfc
+
 		this.y = y;
 	}
 
 	toString(): string {
-		// eslint-disable-next-line react/no-this-in-sfc
 		return `Vector2 [X: ${this.x}, Y: ${this.y}]`;
 	}
 }
@@ -1295,7 +1294,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-				 // @ts-expect-error */}
+				 // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1501,6 +1500,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="3DContext"
 					component={ThreeDContext}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
+				/>
+				<Composition
+					id="ParseAndDownloadMedia"
+					component={ParseAndDownloadMedia}
 					width={1080}
 					height={1080}
 					fps={30}

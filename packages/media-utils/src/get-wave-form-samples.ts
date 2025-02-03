@@ -20,7 +20,15 @@ const filterData = (audioBuffer: Float32Array, samples: number) => {
 
 const normalizeData = (filteredData: number[]) => {
 	const max = Math.max(...filteredData);
-	const multiplier = max === 0 ? 0 : max ** -1;
+
+	// If the maximum amplitude is below this threshold, treat it as silence
+	const MINIMUM_AMPLITUDE_THRESHOLD = 0.001;
+
+	if (max < MINIMUM_AMPLITUDE_THRESHOLD) {
+		return new Array(filteredData.length).fill(0);
+	}
+
+	const multiplier = max ** -1;
 	return filteredData.map((n) => n * multiplier);
 };
 

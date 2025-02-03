@@ -96,14 +96,12 @@ function getFilenameFromUrl(
 
 					filename = path.join(filename, indexValue);
 
-					// eslint-disable-next-line max-depth
 					try {
 						fsStats = context.outputFileSystem.statSync(filename);
 					} catch {
 						continue;
 					}
 
-					// eslint-disable-next-line max-depth
 					if (fsStats.isFile()) {
 						foundFilename = filename;
 

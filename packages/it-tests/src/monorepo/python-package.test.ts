@@ -100,6 +100,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 		metadata: {
 			Author: 'Lunar',
 		},
+		apiKey: null,
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
@@ -181,6 +182,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 		dumpBrowserLogs: false,
 		quality: undefined,
 		forcePathStyle: false,
+		apiKey: null,
 	});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);

@@ -181,19 +181,31 @@ export class HeadlessBrowser extends EventEmitter {
 		}
 	}
 
-	newPage(
-		context: SourceMapGetter,
-		logLevel: LogLevel,
-		indent: boolean,
-	): Promise<Page> {
-		return this.#defaultContext.newPage(context, logLevel, indent);
+	newPage({
+		context,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		context: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
+		return this.#defaultContext.newPage({context, logLevel, indent, pageIndex});
 	}
 
-	async _createPageInContext(
-		context: SourceMapGetter,
-		logLevel: LogLevel,
-		indent: boolean,
-	): Promise<Page> {
+	async _createPageInContext({
+		context,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		context: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
 		const {
 			value: {targetId},
 		} = await this.connection.send('Target.createTarget', {
@@ -210,7 +222,12 @@ export class HeadlessBrowser extends EventEmitter {
 			throw new Error(`Failed to create target for page (id = ${targetId})`);
 		}
 
-		const page = await target.page(context, logLevel, indent);
+		const page = await target.page({
+			sourceMapGetter: context,
+			logLevel,
+			indent,
+			pageIndex,
+		});
 		if (!page) {
 			throw new Error(`Failed to create a page for context`);
 		}
@@ -256,10 +273,10 @@ export class HeadlessBrowser extends EventEmitter {
 		}
 	}
 
-	async pages(logLevel: LogLevel, indent: boolean): Promise<Page[]> {
+	async pages(): Promise<Page[]> {
 		const contextPages = await Promise.all(
 			this.browserContexts().map((context) => {
-				return context.pages(logLevel, indent);
+				return context.pages();
 			}),
 		);
 		// Flatten array.
@@ -268,13 +285,9 @@ export class HeadlessBrowser extends EventEmitter {
 		}, []);
 	}
 
-	async close(
-		silent: boolean,
-		logLevel: LogLevel,
-		indent: boolean,
-	): Promise<void> {
+	async close({silent}: {silent: boolean}): Promise<void> {
 		await this.runner.closeProcess();
-		(await this.pages(logLevel, indent)).forEach((page) => {
+		(await this.pages()).forEach((page) => {
 			page.emit(PageEmittedEvents.Disposed);
 			page.closed = true;
 		});
@@ -313,23 +326,34 @@ export class BrowserContext extends EventEmitter {
 		}, options);
 	}
 
-	async pages(logLevel: LogLevel, indent: boolean): Promise<Page[]> {
+	async pages(): Promise<Page[]> {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page(() => null, logLevel, indent)),
+				.map((target) => target.expectPage()),
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
 		});
 	}
 
-	newPage(
-		context: SourceMapGetter,
-		logLevel: LogLevel,
-		indent: boolean,
-	): Promise<Page> {
-		return this.#browser._createPageInContext(context, logLevel, indent);
+	newPage({
+		context,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		context: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
+		return this.#browser._createPageInContext({
+			context,
+			logLevel,
+			indent,
+			pageIndex,
+		});
 	}
 
 	browser(): HeadlessBrowser {

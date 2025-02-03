@@ -5,7 +5,7 @@ const browserInstances: HeadlessBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close(true, 'info', false);
+			await browser.close({silent: true});
 		} catch {}
 	}
 };

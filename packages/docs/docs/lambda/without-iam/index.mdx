@@ -34,9 +34,7 @@ The steps below provide authorization for the Lambda function to execute `render
 - Click on JSON
 - Copy the JSON policy template below:
   <details>
-    <summary>
-      Show full role permissions JSON file for latest Remotion Lambda version
-    </summary>
+    <summary>Show full role permissions JSON file for latest Remotion Lambda version</summary>
     <UserPolicy />
   </details>
 - Click next. On the tags page, you don't need to fill in anything. Click next again.
@@ -75,18 +73,13 @@ Optionally, if you want to move the video to another S3 bucket after it is rende
 Use the `outName` property to select a different bucket. See: [Custom output destination](/docs/lambda/custom-destination)
 
 ```ts twoslash title="my-function.ts"
-// @module: esnext
-// @target: es2017
-// ---cut---
-
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
 const {bucketName, renderId} = await renderMediaOnLambda({
   region: 'us-east-1',
   functionName: 'remotion-render-bds9aab',
   composition: 'MyVideo',
-  serveUrl:
-    'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   codec: 'h264',
   outName: {
     key: 'my-output',

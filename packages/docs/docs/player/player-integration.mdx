@@ -106,15 +106,7 @@ import {MyComp} from './MyComp';
 export const MyVideo = () => {
   return (
     <>
-      <Composition
-        component={MyComp}
-        durationInFrames={120}
-        width={1920}
-        height={1080}
-        fps={30}
-        id="my-comp"
-        defaultProps={{text: 'World'}}
-      />
+      <Composition component={MyComp} durationInFrames={120} width={1920} height={1080} fps={30} id="my-comp" defaultProps={{text: 'World'}} />
     </>
   );
 };
@@ -201,15 +193,10 @@ If everything worked, you can now run your webapp and preview your video.
 In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video. You need to add `@remotion/bundler` to your package.json for this.
 
 ```ts twoslash title="server.tsx"
-// @module: ESNext
-// @target: ESNext
-
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 
-const bundled = await bundle(
-  path.join(process.cwd(), 'src', 'remotion', 'index.ts'),
-);
+const bundled = await bundle(path.join(process.cwd(), 'src', 'remotion', 'index.ts'));
 ```
 
 See [Server-side rendering](/docs/ssr) for a full example.

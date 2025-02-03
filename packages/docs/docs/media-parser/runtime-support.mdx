@@ -1,0 +1,43 @@
+---
+image: /generated/articles-docs-media-parser-runtime-support.png
+id: runtime-support
+title: Runtime support
+slug: /media-parser/runtime-support
+crumb: '@remotion/media-parser'
+---
+
+`@remotion/media-parser` works in the Browser, Node.js and Bun.
+
+However, all of these require some quite modern versions (considered modern as of August 2024).
+
+## For parsing
+
+For parsing a video, the following minimum versions are required:
+
+- Node.js: 20.0.0
+- Bun 1.0.0
+- Chrome 111
+- Edge 111
+- Safari 16.4
+- Firefox 128
+
+### Feature detection
+
+Use this to check if the runtime supports `parseMedia()`:
+
+```tsx
+const canUseMediaParser = typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
+```
+
+## For using WebCodecs
+
+WebCodecs support is not tied to `@remotion/media-parser` itself, but if you use it to extract samples, you need to use the following minimum versions:
+
+- Chrome 94
+- Edge 94
+- Safari 16.4 - No support for `AudioDecoder`
+- Firefox - No support, but in development
+
+## See also
+
+- [Format support](/docs/media-parser/format-support)

@@ -1,5 +1,5 @@
 import type {LogLevel} from '@remotion/media-parser';
-import {parseMedia} from '@remotion/media-parser';
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -30,14 +30,14 @@ export const useThumbnailAndWaveform = ({
 	const hasStartedWaveform = useRef(false);
 
 	const execute = useCallback(() => {
-		const abortController = new AbortController();
-
 		const hasEnoughData = () => {
 			onDone();
 		};
 
+		const controller = mediaParserController();
+
 		parseMedia({
-			signal: abortController.signal,
+			controller,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
@@ -66,7 +66,7 @@ export const useThumbnailAndWaveform = ({
 						// eslint-disable-next-line no-console
 						console.log(error);
 						setError(error);
-						abortController.abort();
+						controller.abort();
 					},
 				});
 
@@ -87,7 +87,7 @@ export const useThumbnailAndWaveform = ({
 				}
 
 				if (!(await AudioDecoder.isConfigSupported(track)).supported) {
-					abortController.abort();
+					controller.abort();
 					setError(new Error('Audio configuration not supported'));
 					return null;
 				}
@@ -113,11 +113,11 @@ export const useThumbnailAndWaveform = ({
 						// eslint-disable-next-line no-console
 						console.log(error);
 						setError(error);
-						abortController.abort();
+						controller.abort();
 					},
 					output(frame) {
 						if (frames >= framesToGet) {
-							abortController.abort();
+							controller.abort();
 							frame.close();
 							hasEnoughData();
 							return;
@@ -132,7 +132,7 @@ export const useThumbnailAndWaveform = ({
 				});
 
 				if (!(await VideoDecoder.isConfigSupported(track)).supported) {
-					abortController.abort();
+					controller.abort();
 					setError(new Error('Video configuration not supported'));
 					return null;
 				}
@@ -170,7 +170,7 @@ export const useThumbnailAndWaveform = ({
 			setError(err2 as Error);
 		});
 
-		return abortController;
+		return controller;
 	}, [logLevel, onDone, onVideoThumbnail, src, waveform]);
 
 	useEffect(() => {

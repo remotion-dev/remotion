@@ -1,5 +1,9 @@
 import {VideoTrack} from '@remotion/media-parser';
-import {ConvertMediaProgress, convertMedia} from '@remotion/webcodecs';
+import {
+	ConvertMediaProgress,
+	convertMedia,
+	webcodecsController,
+} from '@remotion/webcodecs';
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
@@ -132,7 +136,7 @@ export const SrcEncoder: React.FC<{
 
 	const onClick = useCallback(async () => {
 		try {
-			const abortController = new AbortController();
+			const abortController = webcodecsController();
 			setAbortFn(() => () => abortController.abort());
 			const fn = await convertMedia({
 				src,
@@ -145,7 +149,7 @@ export const SrcEncoder: React.FC<{
 				videoCodec: 'vp9',
 				audioCodec: 'opus',
 				container: 'webm',
-				signal: abortController.signal,
+				controller: abortController,
 			});
 			setDownloadFn(() => {
 				return async () => {

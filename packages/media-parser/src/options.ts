@@ -7,6 +7,7 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
+import type {MediaParserController} from './media-parser-controller';
 import type {MetadataEntry} from './metadata/get-metadata';
 import type {Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
@@ -259,11 +260,12 @@ export type ParseMediaOnProgress = (
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	reader: ReaderInterface;
-	signal: AbortSignal | undefined;
+	controller: MediaParserController | undefined;
 	logLevel: LogLevel;
 	onParseProgress: ParseMediaOnProgress | null;
 	progressIntervalInMs: number | null;
 	fields: F | null;
+	acknowledgeRemotionLicense: boolean;
 } & MandatoryParseMediaCallbacks;
 
 type ParseMediaSampleCallbacks = {
@@ -296,6 +298,7 @@ export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
 		onDiscardedData: OnDiscardedData | null;
 		mode: ParseMediaMode;
 		onError: ParseMediaOnError;
+		apiName: string;
 	};
 
 export type ParseMediaOptions<F extends Options<ParseMediaFields>> = {

@@ -86,6 +86,10 @@ extraPages.push({
 	type: 'generic-resize',
 });
 
+extraPages.push({
+	type: 'report',
+});
+
 for (const page of extraPages) {
 	const slug = seo.makeSlug(page);
 	const pageTitle = seo.getPageTitle(page);

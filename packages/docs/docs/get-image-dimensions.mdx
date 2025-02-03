@@ -2,7 +2,7 @@
 image: /generated/articles-docs-get-image-dimensions.png
 title: getImageDimensions()
 id: get-image-dimensions
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions. Available from v4.0.143._
@@ -36,13 +36,9 @@ The image height, in pixels (px).
 ## Example
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getImageDimensions } from "@remotion/media-utils";
+import {getImageDimensions} from '@remotion/media-utils';
 
-const { width, height } = await getImageDimensions(
-  "https://example.com/remote-image.png",
-);
+const {width, height} = await getImageDimensions('https://example.com/remote-image.png');
 console.log(width, height);
 ```
 

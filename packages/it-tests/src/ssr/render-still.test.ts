@@ -46,7 +46,7 @@ test('Render video with browser instance open', async () => {
 		puppeteerInstance,
 	});
 	expect(buffer).toBe(null);
-	await puppeteerInstance.close(false, 'info', false);
+	await puppeteerInstance.close({silent: false});
 });
 
 test('Render still with browser instance not open and legacy webpack config', async () => {

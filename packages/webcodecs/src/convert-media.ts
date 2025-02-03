@@ -13,14 +13,18 @@ import type {
 	VideoTrack,
 	WriterInterface,
 } from '@remotion/media-parser';
-import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
+import {
+	MediaParserAbortError,
+	MediaParserInternals,
+	type OnVideoTrack,
+} from '@remotion/media-parser';
 
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
+import {fetchReader} from '@remotion/media-parser/fetch';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
 import {withResolversAndWaitForReturn} from './create/with-resolvers';
-import Error from './error-cause';
 import {generateOutputFilename} from './generate-output-filename';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {
@@ -40,6 +44,10 @@ import type {ResizeOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
+import {
+	webcodecsController,
+	type WebCodecsController,
+} from './webcodecs-controller';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;
@@ -78,7 +86,7 @@ export const convertMedia = async function <
 	audioCodec,
 	container,
 	videoCodec,
-	signal: userPassedAbortSignal,
+	controller = webcodecsController(),
 	onAudioTrack: userAudioResolver,
 	onVideoTrack: userVideoResolver,
 	reader,
@@ -89,6 +97,33 @@ export const convertMedia = async function <
 	rotate,
 	apiKey,
 	resize,
+	onAudioCodec,
+	onContainer,
+	onDimensions,
+	onDurationInSeconds,
+	onFps,
+	onImages,
+	onInternalStats,
+	onIsHdr,
+	onKeyframes,
+	onLocation,
+	onMetadata,
+	onMimeType,
+	onName,
+	onNumberOfAudioChannels,
+	onRotation,
+	onSampleRate,
+	onSize,
+	onSlowAudioBitrate,
+	onSlowDurationInSeconds,
+	onSlowFps,
+	onSlowKeyframes,
+	onSlowNumberOfFrames,
+	onSlowVideoBitrate,
+	onStructure,
+	onTracks,
+	onUnrotatedDimensions,
+	onVideoCodec,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -98,7 +133,7 @@ export const convertMedia = async function <
 	onProgress?: ConvertMediaOnProgress;
 	videoCodec?: ConvertMediaVideoCodec;
 	audioCodec?: ConvertMediaAudioCodec;
-	signal?: AbortSignal;
+	controller?: WebCodecsController;
 	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	reader?: ParseMediaOptions<F>['reader'];
@@ -110,11 +145,11 @@ export const convertMedia = async function <
 	apiKey?: string | null;
 	fields?: F;
 } & ParseMediaCallbacks): Promise<ConvertMediaResult> {
-	if (userPassedAbortSignal?.aborted) {
-		return Promise.reject(new Error('Aborted'));
+	if (controller._internals.signal.aborted) {
+		return Promise.reject(new MediaParserAbortError('Aborted'));
 	}
 
-	if (container !== 'webm' && availableContainers.indexOf(container) === -1) {
+	if (availableContainers.indexOf(container) === -1) {
 		return Promise.reject(
 			new TypeError(
 				`Only the following values for "container" are supported currently: ${JSON.stringify(availableContainers)}`,
@@ -132,28 +167,27 @@ export const convertMedia = async function <
 
 	const {resolve, reject, getPromiseToImmediatelyReturn} =
 		withResolversAndWaitForReturn<ConvertMediaResult>();
-	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
 		reject(errCause);
 
-		if (!controller.signal.aborted) {
+		if (!controller._internals.signal.aborted) {
 			controller.abort();
 		}
 	};
 
 	const onUserAbort = () => {
-		abortConversion(new Error('Conversion aborted by user'));
+		abortConversion(new MediaParserAbortError('Conversion aborted by user'));
 	};
 
-	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
+	controller._internals.signal.addEventListener('abort', onUserAbort);
 
 	const creator = selectContainerCreator(container);
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal: controller.signal,
+		signal: controller._internals.signal,
 	});
 
 	const progressTracker = makeProgressTracker();
@@ -217,17 +251,17 @@ export const convertMedia = async function <
 		onAudioData: onAudioData ?? null,
 	});
 
-	parseMedia({
+	MediaParserInternals.internalParseMedia({
 		logLevel,
 		src,
 		onVideoTrack,
 		onAudioTrack,
-		signal: controller.signal,
+		controller,
 		fields: {
 			...fields,
 			durationInSeconds: true,
 		},
-		reader,
+		reader: reader ?? fetchReader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
 			if (durationInSeconds === null) {
@@ -253,6 +287,39 @@ export const convertMedia = async function <
 				};
 			});
 		},
+		acknowledgeRemotionLicense: true,
+		mode: 'query',
+		onDiscardedData: null,
+		onError: () => ({action: 'fail'}),
+		onParseProgress: null,
+		progressIntervalInMs: null,
+		onAudioCodec: onAudioCodec ?? null,
+		onContainer: onContainer ?? null,
+		onDimensions: onDimensions ?? null,
+		onFps: onFps ?? null,
+		onImages: onImages ?? null,
+		onInternalStats: onInternalStats ?? null,
+		onIsHdr: onIsHdr ?? null,
+		onKeyframes: onKeyframes ?? null,
+		onLocation: onLocation ?? null,
+		onMetadata: onMetadata ?? null,
+		onMimeType: onMimeType ?? null,
+		onName: onName ?? null,
+		onNumberOfAudioChannels: onNumberOfAudioChannels ?? null,
+		onRotation: onRotation ?? null,
+		onSampleRate: onSampleRate ?? null,
+		onSize: onSize ?? null,
+		onSlowAudioBitrate: onSlowAudioBitrate ?? null,
+		onSlowDurationInSeconds: onSlowDurationInSeconds ?? null,
+		onSlowFps: onSlowFps ?? null,
+		onSlowKeyframes: onSlowKeyframes ?? null,
+		onSlowNumberOfFrames: onSlowNumberOfFrames ?? null,
+		onSlowVideoBitrate: onSlowVideoBitrate ?? null,
+		onStructure: onStructure ?? null,
+		onTracks: onTracks ?? null,
+		onUnrotatedDimensions: onUnrotatedDimensions ?? null,
+		onVideoCodec: onVideoCodec ?? null,
+		apiName: 'convertMedia()',
 	})
 		.then(() => {
 			return state.waitForFinish();
@@ -282,6 +349,6 @@ export const convertMedia = async function <
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {
-		userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
+		controller._internals.signal.removeEventListener('abort', onUserAbort);
 	});
 };

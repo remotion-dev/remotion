@@ -10,8 +10,6 @@ Downloads a Whisper.cpp model to a folder.
 You should first install Whisper.cpp, for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).
 
 ```tsx twoslash title="install-whisper.mjs"
-// @module: esnext
-// @target: es2022
 import path from 'path';
 import {downloadWhisperModel} from '@remotion/install-whisper-cpp';
 
@@ -38,10 +36,7 @@ Act upon download progress. This is the function signature:
 ```tsx twoslash
 import type {OnProgress} from '@remotion/install-whisper-cpp';
 
-const onProgress: OnProgress = (
-  downloadedBytes: number,
-  totalBytes: number,
-) => {
+const onProgress: OnProgress = (downloadedBytes: number, totalBytes: number) => {
   const progress = downloadedBytes / totalBytes;
 };
 ```
