@@ -960,10 +960,10 @@ importers:
         version: 2.3.0(react@19.0.0)
       '@react-three/drei':
         specifier: 9.120.0
-        version: 9.120.0(@react-three/fiber@9.0.0-rc.1)(@types/react@19.0.0)(@types/three@0.170.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
+        version: 9.120.0(@react-three/fiber@9.0.0-rc.6)(@types/react@19.0.0)(@types/three@0.170.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
       '@react-three/fiber':
-        specifier: 9.0.0-rc.1
-        version: 9.0.0-rc.1(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
+        specifier: 9.0.0-rc.6
+        version: 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
       '@remotion/animated-emoji':
         specifier: workspace:*
         version: link:../animated-emoji
@@ -1767,9 +1767,6 @@ importers:
       tailwindcss:
         specifier: 4.0.0
         version: 4.0.0
-      tailwindcss-scoped-preflight:
-        specifier: 3.4.10
-        version: 3.4.10(postcss@8.4.47)(tailwindcss@4.0.0)
 
   packages/renderer:
     dependencies:
@@ -2885,8 +2882,8 @@ importers:
   packages/template-three:
     dependencies:
       '@react-three/fiber':
-        specifier: 9.0.0-rc.1
-        version: 9.0.0-rc.1(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
+        specifier: 9.0.0-rc.6
+        version: 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
@@ -3154,8 +3151,8 @@ importers:
         version: link:../core
     devDependencies:
       '@react-three/fiber':
-        specifier: 9.0.0-rc.1
-        version: 9.0.0-rc.1(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
+        specifier: 9.0.0-rc.6
+        version: 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
@@ -12498,7 +12495,7 @@ packages:
       react: 19.0.0
     dev: false
 
-  /@react-spring/three@9.7.5(@react-three/fiber@9.0.0-rc.1)(react@19.0.0)(three@0.171.0):
+  /@react-spring/three@9.7.5(@react-three/fiber@9.0.0-rc.6)(react@19.0.0)(three@0.171.0):
     resolution: {integrity: sha512-RxIsCoQfUqOS3POmhVHa1wdWS0wyHAUway73uRLp3GAL5U2iYVNdnzQsep6M2NZ994BlW8TcKuMtQHUqOsy6WA==}
     peerDependencies:
       '@react-three/fiber': '>=6.0'
@@ -12509,7 +12506,7 @@ packages:
       '@react-spring/core': 9.7.5(react@19.0.0)
       '@react-spring/shared': 9.7.5(react@19.0.0)
       '@react-spring/types': 9.7.5
-      '@react-three/fiber': 9.0.0-rc.1(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
+      '@react-three/fiber': 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
       react: 19.0.0
       three: 0.171.0
     dev: false
@@ -12518,7 +12515,7 @@ packages:
     resolution: {integrity: sha512-HVj7LrZ4ReHWBimBvu2SKND3cDVUPWKLqRTmWe/fNY6o1owGOX0cAHbdPDTMelgBlVbrTKrre6lFkhqGZErK/g==}
     dev: false
 
-  /@react-three/drei@9.120.0(@react-three/fiber@9.0.0-rc.1)(@types/react@19.0.0)(@types/three@0.170.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0):
+  /@react-three/drei@9.120.0(@react-three/fiber@9.0.0-rc.6)(@types/react@19.0.0)(@types/three@0.170.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0):
     resolution: {integrity: sha512-RAZxvEACy9QXPs1gHOXuosZYqN8CY5bVBTpiqz7i52YH0w5YgF+cvvoMtK/fS06vaBNZTu/D84K6c+oM75ptaQ==}
     peerDependencies:
       '@react-three/fiber': '>=8.0'
@@ -12532,8 +12529,8 @@ packages:
       '@babel/runtime': 7.26.0
       '@mediapipe/tasks-vision': 0.10.17
       '@monogrid/gainmap-js': 3.1.0(three@0.171.0)
-      '@react-spring/three': 9.7.5(@react-three/fiber@9.0.0-rc.1)(react@19.0.0)(three@0.171.0)
-      '@react-three/fiber': 9.0.0-rc.1(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
+      '@react-spring/three': 9.7.5(@react-three/fiber@9.0.0-rc.6)(react@19.0.0)(three@0.171.0)
+      '@react-three/fiber': 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0)
       '@use-gesture/react': 10.3.1(react@19.0.0)
       camera-controls: 2.9.0(three@0.171.0)
       cross-env: 7.0.3
@@ -12563,17 +12560,17 @@ packages:
       - use-sync-external-store
     dev: false
 
-  /@react-three/fiber@9.0.0-rc.1(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0):
-    resolution: {integrity: sha512-3x/y/ZmW6PPC3yb7/pZBEmAT957xhkVGUplO1ez5qKOFw9hNGL2xkBszkiNsCTJ2/stSnTSHuD68yy0xBYwu/Q==}
+  /@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)(three@0.171.0):
+    resolution: {integrity: sha512-H4NY1jZcOxi5t86jH1/gQyJg9g0kiRuLaQ6frW1hwcRer2Kv4UhafcEnU8UslUpxJkfwVnlgL01eNH2ZpO5tew==}
     peerDependencies:
       expo: '>=43.0'
       expo-asset: '>=8.4'
       expo-file-system: '>=11.0'
       expo-gl: '>=11.0'
-      react: '>=19.0'
-      react-dom: '>=19.0'
-      react-native: '>=0.69'
-      three: '>=0.141'
+      react: ^19.0.0
+      react-dom: ^19.0.0
+      react-native: '>=0.78'
+      three: '>=0.156'
     peerDependenciesMeta:
       expo:
         optional: true
@@ -12589,17 +12586,16 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.26.0
-      '@types/debounce': 1.2.4
       '@types/react-reconciler': 0.28.8
       '@types/webxr': 0.5.2
       base64-js: 1.5.1
       buffer: 6.0.3
-      debounce: 1.2.1
       its-fine: 1.2.5(react@19.0.0)
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      react-reconciler: 0.31.0-rc.1(react@19.0.0)
-      scheduler: 0.25.0-rc.1
+      react-reconciler: 0.31.0(react@19.0.0)
+      react-use-measure: 2.1.7(react-dom@19.0.0)(react@19.0.0)
+      scheduler: 0.25.0
       suspend-react: 0.1.3(react@19.0.0)
       three: 0.171.0
       zustand: 4.5.5(@types/react@19.0.0)(react@19.0.0)
@@ -15027,9 +15023,6 @@ packages:
   /@types/css-font-loading-module@0.0.14:
     resolution: {integrity: sha512-+EwJ/RW2vPqbYn0JXRHy593huPCtgmLF/kg57iLK9KUn6neTqGGOTZ0CbssP8Uou/gqT/5XmWKQ8A7ve7xNV6A==}
     dev: true
-
-  /@types/debounce@1.2.4:
-    resolution: {integrity: sha512-jBqiORIzKDOToaF63Fm//haOCHuwQuLa2202RK4MozpA6lh93eCBc+/8+wZn5OzjJt3ySdc+74SXWXB55Ewtyw==}
 
   /@types/debug@4.1.7:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
@@ -18725,6 +18718,7 @@ packages:
 
   /debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
+    dev: false
 
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -27668,14 +27662,14 @@ packages:
       scheduler: 0.21.0
     dev: false
 
-  /react-reconciler@0.31.0-rc.1(react@19.0.0):
-    resolution: {integrity: sha512-00zcXpgYtum76DyrmzDWyg6MeyWWputWTHQUQO22P3rbtUfK1fWll4aZhS9jp215aCicM98TANJ88ITeyh8aZQ==}
+  /react-reconciler@0.31.0(react@19.0.0):
+    resolution: {integrity: sha512-7Ob7Z+URmesIsIVRjnLoDGwBEG/tVitidU0nMsqX/eeJaLY89RISO/10ERe0MqmzuKUUB1rmY+h1itMbUHg9BQ==}
     engines: {node: '>=0.10.0'}
     peerDependencies:
-      react: 19.0.0-rc.1
+      react: ^19.0.0
     dependencies:
       react: 19.0.0
-      scheduler: 0.25.0-rc.1
+      scheduler: 0.25.0
 
   /react-refresh@0.14.2:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
@@ -27873,6 +27867,18 @@ packages:
       react: 19.0.0
       tslib: 2.8.1
     dev: false
+
+  /react-use-measure@2.1.7(react-dom@19.0.0)(react@19.0.0):
+    resolution: {integrity: sha512-KrvcAo13I/60HpwGO5jpW7E9DfusKyLPLvuHlUyP5zqnmAPhNc6qTRjUQrdTADl0lpPpDVU2/Gg51UlOGHXbdg==}
+    peerDependencies:
+      react: '>=16.13'
+      react-dom: '>=16.13'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
 
   /react@18.0.0:
     resolution: {integrity: sha512-x+VL6wbT4JRVPm7EGxXhZ8w8LTROaxPXOqhlGyVSrv0sB1jkyFGgXxJ8LVoPRLvPR6/CIZGFmfzqUa2NYeMr2A==}
@@ -28665,9 +28671,6 @@ packages:
 
   /scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
-
-  /scheduler@0.25.0-rc.1:
-    resolution: {integrity: sha512-fVinv2lXqYpKConAMdergOl5owd0rY1O4P/QTe0aWKCqGtu7VsCt1iqQFxSJtqK4Lci/upVSBpGwVC7eWcuS9Q==}
 
   /schema-utils@2.7.0:
     resolution: {integrity: sha512-0ilKFI6QQF5nxDZLFn2dMjvc4hjg/Wkg7rHd3jK6/A4a1Hl9VFdQWvgB1UMGoU94pad1P/8N7fMcEnLnSiju8A==}
@@ -29652,16 +29655,6 @@ packages:
     dependencies:
       tailwindcss: 3.4.13
     dev: false
-
-  /tailwindcss-scoped-preflight@3.4.10(postcss@8.4.47)(tailwindcss@4.0.0):
-    resolution: {integrity: sha512-eYG6wGrcaA2nu+iUSUB1kLR+kyq99mYD6PQaFo5Yp287KHm2uN8FBi37k56f8jeblCbDXe1HeeFnLSCSRTko4Q==}
-    peerDependencies:
-      postcss: ^8
-      tailwindcss: ^3
-    dependencies:
-      postcss: 8.4.47
-      tailwindcss: 4.0.0
-    dev: true
 
   /tailwindcss@3.4.13:
     resolution: {integrity: sha512-KqjHOJKogOUt5Bs752ykCeiwvi0fKVkr5oqsFNt/8px/tA8scFPIlkygsf6jXrfCqGHz7VflA6+yytWuM+XhFw==}
