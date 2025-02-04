@@ -29,7 +29,7 @@ test('Memory usage should be determined ', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: 40 * 24 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
@@ -120,7 +120,7 @@ test('Memory usage should be determined ', async () => {
 });
 
 test('Should respect the maximum frame cache limit', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: 50 * 24 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
@@ -149,7 +149,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: 100 * 24 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,

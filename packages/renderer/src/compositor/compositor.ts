@@ -30,7 +30,7 @@ type Waiter = {
 	reject: (err: Error) => void;
 };
 
-export const startLongRunningCompositor = ({
+export const startLongRunningCompositor = async ({
 	maximumFrameCacheItemsInBytes,
 	logLevel,
 	indent,
@@ -44,7 +44,11 @@ export const startLongRunningCompositor = ({
 	return startCompositor({
 		type: 'StartLongRunningProcess',
 		payload: {
-			concurrency: resolveConcurrency(null),
+			concurrency: await resolveConcurrency({
+				userPreference: null,
+				indent,
+				logLevel,
+			}),
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},

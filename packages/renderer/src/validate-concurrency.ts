@@ -1,13 +1,18 @@
 import {getCpuCount} from './get-cpu-count';
+import type {LogLevel} from './log-level';
 
-export const validateConcurrency = ({
+export const validateConcurrency = async ({
 	setting,
 	value,
 	checkIfValidForCurrentMachine,
+	indent,
+	logLevel,
 }: {
 	value: unknown;
 	setting: string;
 	checkIfValidForCurrentMachine: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
 }) => {
 	if (typeof value === 'undefined') {
 		return;
@@ -35,9 +40,11 @@ export const validateConcurrency = ({
 				);
 			}
 
-			if (value > getMaxConcurrency()) {
+			if (value > (await getCpuCount({indent, logLevel}))) {
 				throw new Error(
-					`${setting} is set higher than the amount of CPU cores available. Available CPU cores: ${getMaxConcurrency()}, value set: ${value}`,
+					`${setting} is set higher than the amount of CPU cores available. Available CPU cores: ${await getCpuCount(
+						{indent, logLevel},
+					)}, value set: ${value}`,
 				);
 			}
 		}
@@ -48,10 +55,6 @@ export const validateConcurrency = ({
 			)}`,
 		);
 	}
-};
-
-export const getMaxConcurrency = () => {
-	return getCpuCount();
 };
 
 export const getMinConcurrency = () => 1;

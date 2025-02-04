@@ -1,7 +1,16 @@
 import {getCpuCount} from './get-cpu-count';
+import type {LogLevel} from './log-level';
 
-export const resolveConcurrency = (userPreference: number | string | null) => {
-	const maxCpus = getCpuCount();
+export const resolveConcurrency = async ({
+	indent,
+	logLevel,
+	userPreference,
+}: {
+	userPreference: number | string | null;
+	indent: boolean;
+	logLevel: LogLevel;
+}) => {
+	const maxCpus = await getCpuCount({indent, logLevel});
 
 	if (userPreference === null) {
 		return Math.round(Math.min(8, Math.max(1, maxCpus / 2)));

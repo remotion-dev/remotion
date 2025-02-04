@@ -62,11 +62,7 @@ import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {getChromiumGpuInformation} from './test-gpu';
 import {tmpDir} from './tmp-dir';
-import {
-	getMaxConcurrency,
-	getMinConcurrency,
-	validateConcurrency,
-} from './validate-concurrency';
+import {getMinConcurrency, validateConcurrency} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {Browser} from './browser';
@@ -201,7 +197,6 @@ export const RenderInternals = {
 	validateBitrate,
 	combineChunks,
 	getMinConcurrency,
-	getMaxConcurrency,
 	getDefaultAudioCodec,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,

@@ -11,7 +11,7 @@ export const extractAudio = async (options: {
 	logLevel?: LogLevel;
 	binariesDirectory?: string | null;
 }) => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: options?.logLevel ?? 'info',
 		indent: false,

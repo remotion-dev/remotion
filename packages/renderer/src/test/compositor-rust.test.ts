@@ -4,7 +4,7 @@ import {startLongRunningCompositor} from '../compositor/compositor';
 test(
 	'Compositor should process messages in the right order',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,

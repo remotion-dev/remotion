@@ -421,7 +421,7 @@ const innerRenderFrames = async ({
 
 type CleanupFn = () => Promise<unknown>;
 
-const internalRenderFramesRaw = ({
+const internalRenderFramesRaw = async ({
 	browserExecutable,
 	cancelSignal,
 	chromiumOptions,
@@ -496,7 +496,11 @@ const internalRenderFramesRaw = ({
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
 
-	const resolvedConcurrency = resolveConcurrency(concurrency);
+	const resolvedConcurrency = await resolveConcurrency({
+		userPreference: concurrency,
+		indent,
+		logLevel,
+	});
 
 	const openedPages: Page[] = [];
 

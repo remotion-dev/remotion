@@ -12,7 +12,7 @@ export const getVideoMetadata = async (
 	videoSource: string,
 	options?: {logLevel?: LogLevel; binariesDirectory?: string | null},
 ): Promise<VideoMetadata> => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: options?.logLevel ?? 'info',
 		indent: false,

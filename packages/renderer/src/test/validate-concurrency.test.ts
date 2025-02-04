@@ -9,6 +9,8 @@ test('setConcurrency should throw if concurrency is not a number or percentage',
 			value: invalidConcurrency,
 			setting: 'concurrencyPerLambda',
 			checkIfValidForCurrentMachine: false,
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toThrow(/concurrencyPerLambda must be a number or percentage, but is/);
 });
@@ -19,6 +21,8 @@ test('setConcurrency should NOT throw if concurrency is a number', () => {
 			value: 2,
 			setting: 'concurrencyPerLambda',
 			checkIfValidForCurrentMachine: false,
+			indent: false,
+			logLevel: 'info',
 		}),
 	).not.toThrow();
 });
@@ -29,6 +33,8 @@ test('setConcurrency should throw if concurrency is too high', () => {
 			checkIfValidForCurrentMachine: true,
 			value: 50,
 			setting: 'concurrencyPerLambda',
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toThrow(
 		/concurrencyPerLambda is set higher than the amount of CPU cores available/,
@@ -41,16 +47,20 @@ test('setConcurrency should throw if concurrency is string 0', () => {
 			value: '0',
 			checkIfValidForCurrentMachine: false,
 			setting: 'concurrency',
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toThrow(/concurrency must be a number or percentage, but is "0"/);
 });
 
-test('setConcurrency should throw if concurrency is too high', () => {
+test('setConcurrency should throw if concurrency is too high', async () => {
 	expect(
-		validateConcurrency({
+		await validateConcurrency({
 			checkIfValidForCurrentMachine: false,
 			value: '50%',
 			setting: 'concurrency',
+			indent: false,
+			logLevel: 'info',
 		}),
 	).toBe(undefined);
 });

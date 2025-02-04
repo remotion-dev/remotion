@@ -3,7 +3,7 @@ import {callCompositor, serializeCommand} from '../compositor/compose';
 import {startLongRunningCompositor} from '../compositor/compositor';
 
 test('Should get Rust errors in a good way', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -29,7 +29,7 @@ test('Should get Rust errors in a good way', async () => {
 });
 
 test('Handle panics', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,

@@ -8,7 +8,7 @@ const BMP_HEADER_SIZE = 54;
 test(
 	'Should be able to extract a frame using Rust',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -44,7 +44,7 @@ test(
 test(
 	'Should be able to get a PNG',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -80,14 +80,14 @@ test(
 );
 
 test('Should be able to start two compositors', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
 	});
 
-	const compositor2 = startLongRunningCompositor({
+	const compositor2 = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -111,7 +111,7 @@ test('Should be able to start two compositors', async () => {
 });
 
 test('Should be able to seek backwards', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -142,7 +142,7 @@ test('Should be able to seek backwards', async () => {
 test(
 	'Should be able to extract a frame that has no file extension',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -167,7 +167,7 @@ test(
 test(
 	'Should get the last frame if out of range',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -201,7 +201,7 @@ test(
 test(
 	'Should get the last frame of a corrupted video',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -231,7 +231,7 @@ test(
 test(
 	'Should get a frame of a transparent video with a custom DAR',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -273,7 +273,7 @@ test(
 );
 
 test('Should be able to extract a frame with abnormal DAR', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -302,7 +302,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 });
 
 test('Should be able to extract the frames in reverse order', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -348,7 +348,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 });
 
 test('Last frame should be fast', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -416,7 +416,7 @@ test('Last frame should be fast', async () => {
 });
 
 test('Should get from a screen recording', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -438,7 +438,7 @@ test('Should get from a screen recording', async () => {
 });
 
 test('Should get from video with no fps', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -460,7 +460,7 @@ test('Should get from video with no fps', async () => {
 });
 
 test('Should get from broken webcam video', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -484,7 +484,7 @@ test('Should get from broken webcam video', async () => {
 test(
 	'Should get from iPhone video',
 	async () => {
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: null,
 			logLevel: 'info',
 			indent: false,
@@ -510,7 +510,7 @@ test(
 );
 
 test('Should get from AV1 video', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -532,7 +532,7 @@ test('Should get from AV1 video', async () => {
 });
 
 test('Should handle getting a frame from a WebM when it is not transparent', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -558,7 +558,7 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 });
 
 test('Should handle a video with no frames at the beginning', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -584,7 +584,7 @@ test('Should handle a video with no frames at the beginning', async () => {
 });
 
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: 500 * 1024 * 1024,
 		logLevel: 'info',
 		indent: false,
@@ -694,7 +694,7 @@ test(
 				startFrom: 0,
 			}) / 30;
 
-		const compositor = startLongRunningCompositor({
+		const compositor = await startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: 500,
 			logLevel: 'info',
 			indent: false,

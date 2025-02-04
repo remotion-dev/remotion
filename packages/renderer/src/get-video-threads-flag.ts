@@ -5,9 +5,9 @@ import type {LogLevel} from './log-level';
 const MEMORY_USAGE_PER_THREAD = 400_000_000; // 400MB
 const RESERVED_MEMORY = 2_000_000_000;
 
-export const getIdealVideoThreadsFlag = (logLevel: LogLevel) => {
+export const getIdealVideoThreadsFlag = async (logLevel: LogLevel) => {
 	const freeMemory = getAvailableMemory(logLevel);
-	const cpus = getCpuCount();
+	const cpus = await getCpuCount({indent: false, logLevel});
 
 	const maxRecommendedBasedOnCpus = (cpus * 2) / 3;
 	const maxRecommendedBasedOnMemory =

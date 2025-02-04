@@ -5,7 +5,7 @@ import {startLongRunningCompositor} from '../compositor/compositor';
 import type {VideoMetadata} from '../compositor/payloads';
 
 test('Should return video metadata', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -47,7 +47,7 @@ test('Should return video metadata', async () => {
 });
 
 test('Should return an error due to non existing file', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,
@@ -66,7 +66,7 @@ test('Should return an error due to non existing file', async () => {
 });
 
 test('Should return an error due to using a audio file', async () => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: 'info',
 		indent: false,

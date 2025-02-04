@@ -26,7 +26,7 @@ export const getSilentParts = async ({
 	noiseThresholdInDecibels?: number;
 	binariesDirectory?: string | null;
 }): Promise<GetSilentPartsResponse> => {
-	const compositor = startLongRunningCompositor({
+	const compositor = await startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
 		logLevel: logLevel ?? 'info',
 		indent: false,

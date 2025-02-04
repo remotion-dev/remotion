@@ -138,11 +138,13 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
-	RenderInternals.validateConcurrency({
+	await RenderInternals.validateConcurrency({
 		value: params.concurrencyPerFunction,
 		setting: 'concurrencyPerLambda',
 		checkIfValidForCurrentMachine:
 			(params.rendererFunctionName ?? null) === null,
+		indent: false,
+		logLevel: params.logLevel,
 	});
 
 	const realFrameRange = RenderInternals.getRealFrameRange(

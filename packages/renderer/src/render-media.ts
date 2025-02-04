@@ -194,7 +194,7 @@ type RenderMediaResult = {
 	slowestFrames: SlowFrame[];
 };
 
-const internalRenderMediaRaw = ({
+const internalRenderMediaRaw = async ({
 	proResProfile,
 	x264Preset,
 	crf,
@@ -342,7 +342,11 @@ const internalRenderMediaRaw = ({
 		'Estimated usage parallel encoding',
 		estimatedUsage,
 	);
-	const resolvedConcurrency = resolveConcurrency(concurrency);
+	const resolvedConcurrency = await resolveConcurrency({
+		indent,
+		logLevel,
+		userPreference: concurrency,
+	});
 	Log.verbose(
 		{
 			indent,
