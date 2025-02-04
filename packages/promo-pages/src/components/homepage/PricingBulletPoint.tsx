@@ -15,7 +15,7 @@ const greyCircle: React.CSSProperties = {
 };
 
 export const PricingBulletPoint: React.FC<{
-	readonly text: string;
+	readonly text: React.ReactNode;
 	readonly checked: boolean;
 	readonly children?: React.ReactNode;
 }> = ({text, checked, children}) => {
