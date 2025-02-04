@@ -69,12 +69,12 @@ export const buildPackage = async ({
 			target,
 			format,
 		});
-		if (!output.success) {
-			throw new Error('Build failed');
-		}
 
 		for (const file of output.outputs) {
 			const text = await file.text();
+			if (text.includes('jonathanburger')) {
+				throw new Error('Absolute path was included');
+			}
 
 			const outputPath = './' + path.join('./dist', format, file.path);
 			await Bun.write(path.join(process.cwd(), outputPath), text);

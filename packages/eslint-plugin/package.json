@@ -15,7 +15,9 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
-	"dependencies": {},
+	"dependencies": {
+		"@typescript-eslint/utils": "5.19.0"
+	},
 	"keywords": [
 		"eslint",
 		"eslintplugin"
@@ -24,7 +26,6 @@
 		"eslint": ">=7.0.0"
 	},
 	"devDependencies": {
-		"@typescript-eslint/utils": "5.19.0",
 		"vitest": "0.31.1"
 	},
 	"exports": {
