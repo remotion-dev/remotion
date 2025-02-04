@@ -95,7 +95,7 @@ export const bundleCommand = async (
 		rmSync(outputPath, {recursive: true});
 	}
 
-	const gitSource = getGitSource({remotionRoot, disableGitSource});
+	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
 	const output = await bundleOnCli({
 		fullPath: file,
