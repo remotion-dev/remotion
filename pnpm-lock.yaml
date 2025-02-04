@@ -1706,12 +1706,6 @@ importers:
       polished:
         specifier: 4.3.1
         version: 4.3.1
-      react:
-        specifier: 19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: 19.0.0
-        version: 19.0.0(react@19.0.0)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -1761,6 +1755,12 @@ importers:
       postcss:
         specifier: 8.4.47
         version: 8.4.47
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       tailwind-merge:
         specifier: 2.5.2
         version: 2.5.2
