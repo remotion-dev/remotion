@@ -1227,8 +1227,8 @@ importers:
         version: link:../core
     devDependencies:
       '@types/css-font-loading-module':
-        specifier: ^0.0.7
-        version: 0.0.7
+        specifier: 0.0.14
+        version: 0.0.14
       '@types/prettier':
         specifier: ^2.7.1
         version: 2.7.1
@@ -1682,9 +1682,6 @@ importers:
       '@remotion/animated-emoji':
         specifier: workspace:*
         version: link:../animated-emoji
-      '@remotion/eslint-config-internal':
-        specifier: workspace:*
-        version: link:../eslint-config-internal
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -1709,12 +1706,6 @@ importers:
       polished:
         specifier: 4.3.1
         version: 4.3.1
-      react:
-        specifier: 19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: 19.0.0
-        version: 19.0.0(react@19.0.0)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -1728,6 +1719,9 @@ importers:
       '@eslint/eslintrc':
         specifier: 3.1.0
         version: 3.1.0
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@tailwindcss/cli':
         specifier: 4.0.0
         version: 4.0.0
@@ -1761,6 +1755,12 @@ importers:
       postcss:
         specifier: 8.4.47
         version: 8.4.47
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       tailwind-merge:
         specifier: 2.5.2
         version: 2.5.2
@@ -15024,8 +15024,8 @@ packages:
       '@types/node': 20.12.14
     dev: false
 
-  /@types/css-font-loading-module@0.0.7:
-    resolution: {integrity: sha512-nl09VhutdjINdWyXxHWN/w9zlNCfr60JUqJbd24YXUuCwgeL0TpFSdElCwb6cxfB6ybE19Gjj4g0jsgkXxKv1Q==}
+  /@types/css-font-loading-module@0.0.14:
+    resolution: {integrity: sha512-+EwJ/RW2vPqbYn0JXRHy593huPCtgmLF/kg57iLK9KUn6neTqGGOTZ0CbssP8Uou/gqT/5XmWKQ8A7ve7xNV6A==}
     dev: true
 
   /@types/debounce@1.2.4:
