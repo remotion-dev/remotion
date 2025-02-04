@@ -46,7 +46,6 @@ export const loadFont = async ({
 			style,
 			unicodeRange,
 			weight,
-			// @ts-expect-error - Types are incorrect
 			variant,
 		});
 		await font.load();
