@@ -253,7 +253,7 @@ export const CompanyPricing: React.FC = () => {
 			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>
-						WebCodec Conversion Units
+						WebCodecs Conversion Units
 					</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						Allows for{' '}
