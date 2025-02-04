@@ -46,6 +46,8 @@ export const loadFont = async ({
 			style,
 			unicodeRange,
 			weight,
+			// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+			// @ts-ignore variant is not in the FontFace constructor
 			variant,
 		});
 		await font.load();
