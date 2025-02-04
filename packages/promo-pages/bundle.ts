@@ -23,7 +23,10 @@ if (nodeVersion.trim() === 'undefined') {
 await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
 const result = await Bun.build({
-	entrypoints: ['./src/components/Homepage.tsx'],
+	entrypoints: [
+		'./src/components/Homepage.tsx',
+		'./src/components/homepage/Pricing.tsx',
+	],
 	format: 'esm',
 	external: ['react', 'react-dom', 'lottie-web', 'hls.js', 'plyr', 'zod'],
 });

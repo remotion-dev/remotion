@@ -1,7 +1,9 @@
 {
 	"name": "@remotion/promo-pages",
 	"version": "4.0.258",
-	"private": true,
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
 		"lint": "tsc && eslint src",
