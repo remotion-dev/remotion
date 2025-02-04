@@ -65,7 +65,7 @@ const handleFallback = async ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	getRenderQueue: () => RenderJob[];
-	getRenderDefaults: () => RenderDefaults;
+	getRenderDefaults: () => Promise<RenderDefaults>;
 	numberOfAudioTags: number;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
@@ -95,7 +95,7 @@ const handleFallback = async ({
 			publicFiles: getFiles(),
 			includeFavicon: true,
 			title: 'Remotion Studio',
-			renderDefaults: getRenderDefaults(),
+			renderDefaults: await getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 			gitSource,
 			projectName: getProjectName({
@@ -315,7 +315,7 @@ export const handleRoutes = ({
 	publicDir: string;
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
-	getRenderDefaults: () => RenderDefaults;
+	getRenderDefaults: () => Promise<RenderDefaults>;
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;

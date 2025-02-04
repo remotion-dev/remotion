@@ -83,6 +83,8 @@ export const getCliOptions = (options: {
 		value: concurrency,
 		setting: 'concurrency',
 		checkIfValidForCurrentMachine: false,
+		indent: options.indent,
+		logLevel: options.logLevel,
 	});
 
 	return {

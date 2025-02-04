@@ -95,7 +95,7 @@ export const startStudio = async ({
 	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
-	getRenderDefaults: () => RenderDefaults;
+	getRenderDefaults: () => Promise<RenderDefaults>;
 	getRenderQueue: () => RenderJob[];
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;

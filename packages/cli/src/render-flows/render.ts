@@ -304,7 +304,11 @@ export const renderVideoFlow = async ({
 		puppeteerInstance.close({silent: false}),
 	);
 
-	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);
+	const resolvedConcurrency = await RenderInternals.resolveConcurrency({
+		userPreference: concurrency,
+		indent,
+		logLevel,
+	});
 	const server = await RenderInternals.prepareServer({
 		concurrency: resolvedConcurrency,
 		indent,

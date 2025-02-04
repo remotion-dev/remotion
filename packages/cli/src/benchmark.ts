@@ -55,11 +55,23 @@ const {
 	chromeModeOption,
 } = BrowserSafeApis.options;
 
-const getValidConcurrency = (cliConcurrency: number | string | null) => {
+const getValidConcurrency = async ({
+	cliConcurrency,
+	logLevel,
+}: {
+	cliConcurrency: number | string | null;
+	logLevel: LogLevel;
+}) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.resolveConcurrency(cliConcurrency)];
+		return [
+			await RenderInternals.resolveConcurrency({
+				indent: false,
+				logLevel,
+				userPreference: cliConcurrency,
+			}),
+		];
 	}
 
 	return String(concurrencies)
@@ -406,7 +418,10 @@ export const benchmarkCommand = async (
 				compositionCodec: composition.defaultCodec ?? null,
 			},
 		);
-		const concurrency = getValidConcurrency(unparsedConcurrency);
+		const concurrency = await getValidConcurrency({
+			cliConcurrency: unparsedConcurrency,
+			logLevel,
+		});
 
 		benchmark[composition.id] = {};
 		for (const con of concurrency) {

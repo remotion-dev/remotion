@@ -30,15 +30,17 @@ const {
 	chromeModeOption,
 } = BrowserSafeApis.options;
 
-export const getRenderDefaults = (): RenderDefaults => {
+export const getRenderDefaults = async (): Promise<RenderDefaults> => {
 	const defaultJpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
-	const concurrency = RenderInternals.resolveConcurrency(
-		ConfigInternals.getConcurrency(),
-	);
+	const concurrency = await RenderInternals.resolveConcurrency({
+		indent: false,
+		logLevel,
+		userPreference: ConfigInternals.getConcurrency(),
+	});
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
 
@@ -116,7 +118,10 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 	const metadata = ConfigInternals.getMetadata();
 
-	const maxConcurrency = RenderInternals.getMaxConcurrency();
+	const maxConcurrency = await RenderInternals.getCpuCount({
+		logLevel,
+		indent: false,
+	});
 	const minConcurrency = RenderInternals.getMinConcurrency();
 
 	return {

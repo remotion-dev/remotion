@@ -35,7 +35,7 @@ export const startServer = async (options: {
 	outputHashPrefix: string;
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
-	getRenderDefaults: () => RenderDefaults;
+	getRenderDefaults: () => Promise<RenderDefaults>;
 	numberOfAudioTags: number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
