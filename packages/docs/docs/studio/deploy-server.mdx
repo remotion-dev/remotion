@@ -54,7 +54,7 @@ RUN npm i
 # Install Chrome
 RUN npx remotion browser ensure
 
-CMD ["npx", "remotion studio"]
+CMD ["npx", "remotion", "studio"]
 ```
 
 ## Fly.io
@@ -65,8 +65,8 @@ To deploy the Remotion Studio to [Fly.io](https://fly.io):
 - Make the following change to the `Dockerfile` (works from v4.0.125):
 
 ```diff
-- CMD ["npx", "remotion studio"]
-+ CMD ["npx", "remotion studio", "--ipv4"]
+- CMD ["npx", "remotion", "studio"]
++ CMD ["npx", "remotion", "studio", "--ipv4"]
 ```
 
 - Ensure you are on a paid plan (free plan has too little memory)
