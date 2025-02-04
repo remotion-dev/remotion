@@ -1682,9 +1682,6 @@ importers:
       '@remotion/animated-emoji':
         specifier: workspace:*
         version: link:../animated-emoji
-      '@remotion/eslint-config-internal':
-        specifier: workspace:*
-        version: link:../eslint-config-internal
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -1728,6 +1725,9 @@ importers:
       '@eslint/eslintrc':
         specifier: 3.1.0
         version: 3.1.0
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@tailwindcss/cli':
         specifier: 4.0.0
         version: 4.0.0
