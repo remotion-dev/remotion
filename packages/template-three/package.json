@@ -11,7 +11,7 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@react-three/fiber": "9.0.0-rc.1",
+    "@react-three/fiber": "9.0.0-rc.6",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/three": "workspace:*",

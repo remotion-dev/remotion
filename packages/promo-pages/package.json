@@ -38,7 +38,6 @@
 		"@tailwindcss/vite": "4.0.0",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
-		"tailwindcss-scoped-preflight": "3.4.10",
 		"@vitejs/plugin-react-swc": "^3.5.0",
 		"tailwind-merge": "2.5.2",
 		"bun-plugin-tailwind": "0.0.13",
