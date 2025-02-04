@@ -346,7 +346,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		return;
 	}
 
-	throw new Error(COMMAND_NOT_FOUND);
+	throw new Error(`${COMMAND_NOT_FOUND}: ${JSON.stringify(params)}`);
 };
 
 export const innerRoutine = async <Provider extends CloudProvider>({
