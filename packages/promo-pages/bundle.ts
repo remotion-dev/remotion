@@ -28,7 +28,15 @@ const result = await Bun.build({
 		'./src/components/homepage/Pricing.tsx',
 	],
 	format: 'esm',
-	external: ['react', 'react-dom', 'lottie-web', 'hls.js', 'plyr', 'zod'],
+	external: [
+		'react',
+		'react/jsx-runtime',
+		'react-dom',
+		'lottie-web',
+		'hls.js',
+		'plyr',
+		'zod',
+	],
 });
 
 for (const output of result.outputs) {
