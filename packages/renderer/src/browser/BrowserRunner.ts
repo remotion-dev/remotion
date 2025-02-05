@@ -274,7 +274,7 @@ function waitForWSEndpoint({
 					'signal',
 					signal,
 				);
-				return onClose();
+				return onClose(new Error(`Closed with ${code} signal: ${signal}`));
 			}),
 			addEventListener(browserProcess, 'error', (error) => {
 				return onClose(error);
@@ -288,7 +288,7 @@ function waitForWSEndpoint({
 				new Error(
 					[
 						'Failed to launch the browser process!',
-						error ? error.message : null,
+						error ? error.stack : null,
 						stderrString,
 						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]
