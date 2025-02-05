@@ -17,6 +17,12 @@ const eslintConfig = [
   nextPlugin,
   {
     ...remotion.flatPlugin,
+    rules: {
+      ...remotion.flatPlugin.rules,
+      ...Object.entries(nextPlugin.rules).reduce((acc, [key]) => {
+        return { ...acc, [key]: "off" };
+      }, {}),
+    },
     files: ["src/remotion/**"],
   },
 ];
