@@ -12,7 +12,14 @@ export const makeConfig = ({
 }): tseslint.ConfigArray =>
 	tseslint.config(
 		{
-			ignores: ['**/build/**', '**/dist/**', '**/out/**', 'eslint.config.mjs'],
+			ignores: [
+				'**/build/**',
+				'**/dist/**',
+				'**/out/**',
+				'eslint.config.mjs',
+				'remotion.config.ts',
+				'remotion.config.js',
+			],
 		},
 		eslint.configs.recommended,
 		tseslint.configs.recommended,
