@@ -12,7 +12,7 @@ export const RenderProgress = ({ renderId, bucketName }: Props) => {
   });
 
   if (!progress) {
-    return <div>Invoking...</div>;
+    return <div> Invoking...</div>;
   }
 
   if (progress.errors.length > 0) {

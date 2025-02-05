@@ -5,47 +5,61 @@ import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
-export const config: tseslint.ConfigArray = tseslint.config(
-	{
-		ignores: ['**/build/**', '**/dist/**', '**/out/**', 'eslint.config.mjs'],
-	},
-	eslint.configs.recommended,
-	tseslint.configs.recommended,
-	{
-		plugins: {
-			react: reactPlugin,
-			'react-hooks': hooksPlugin,
-			'@remotion': remotionPlugin,
+export const makeConfig = ({
+	remotionDir,
+}: {
+	remotionDir: string | undefined;
+}): tseslint.ConfigArray =>
+	tseslint.config(
+		{
+			ignores: ['**/build/**', '**/dist/**', '**/out/**', 'eslint.config.mjs'],
 		},
-		languageOptions: {
-			...reactPlugin.configs.flat.recommended.languageOptions,
-			parser: tseslint.parser,
-			parserOptions: {
-				projectService: true,
+		eslint.configs.recommended,
+		tseslint.configs.recommended,
+		{
+			plugins: {
+				react: reactPlugin,
+				'react-hooks': hooksPlugin,
+			},
+			languageOptions: {
+				...reactPlugin.configs.flat.recommended.languageOptions,
+				parser: tseslint.parser,
+				parserOptions: {
+					projectService: true,
+				},
+			},
+			rules: {
+				...reactPlugin.configs.flat.rules,
+				...hooksPlugin.configs.recommended.rules,
+				// Turning off rules that are too strict or don't apply to Remotion
+				'no-console': 'off',
+				'react/jsx-key': 'off',
+				'react/jsx-no-target-blank': 'off',
+				// In Root.tsx we encourage using fragment for just a single composition
+				// since we intend to add more compositions later and you should then use a fragment.
+				'react/jsx-no-useless-fragment': 'off',
+				// This is generally okay because on every frame, there will be a full rerender anyway!
+				'react/no-array-index-key': 'off',
+			},
+			settings: {
+				react: {
+					version: 'detect',
+				},
 			},
 		},
-		rules: {
-			...reactPlugin.configs.flat.rules,
-			...hooksPlugin.configs.recommended.rules,
-			...remotionPlugin.configs.recommended.rules,
-			// Turning off rules that are too strict or don't apply to Remotion
-			'no-console': 'off',
-			'react/jsx-key': 'off',
-			'react/jsx-no-target-blank': 'off',
-			// In Root.tsx we encourage using fragment for just a single composition
-			// since we intend to add more compositions later and you should then use a fragment.
-			'react/jsx-no-useless-fragment': 'off',
-			// This is generally okay because on every frame, there will be a full rerender anyway!
-			'react/no-array-index-key': 'off',
-		},
-		settings: {
-			react: {
-				version: 'detect',
+		{
+			plugins: {
+				'@remotion': remotionPlugin,
 			},
+			rules: remotionPlugin.configs.recommended.rules,
+			...(remotionDir ? {files: [remotionDir]} : {}),
 		},
-	},
-	{
-		files: ['**/*.js'],
-		extends: [tseslint.configs.disableTypeChecked],
-	},
-);
+		{
+			files: ['**/*.js'],
+			extends: [tseslint.configs.disableTypeChecked],
+		},
+	);
+
+export const config: tseslint.ConfigArray = makeConfig({
+	remotionDir: undefined,
+});

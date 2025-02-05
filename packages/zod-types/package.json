@@ -29,7 +29,7 @@
 	"devDependencies": {
 		"zod": "3.22.3",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"zod",
