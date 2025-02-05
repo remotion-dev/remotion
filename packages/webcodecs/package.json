@@ -32,7 +32,7 @@
 		"@types/dom-webcodecs": "0.1.11",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"keywords": [],
 	"publishConfig": {

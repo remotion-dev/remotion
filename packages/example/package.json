@@ -96,7 +96,7 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"sharp": "0.32.6",
 		"@types/dom-webcodecs": "0.1.11",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"
