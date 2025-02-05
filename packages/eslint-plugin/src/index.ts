@@ -26,25 +26,39 @@ const rules = {
 	'v4-config-import': v4Import,
 };
 
-export = {
-	rules,
-	configs: {
-		recommended: {
-			rules: {
-				'@remotion/warn-native-media-tag': 'error',
-				'@remotion/deterministic-randomness': 'error',
-				'@remotion/no-string-assets': 'error',
-				'@remotion/even-dimensions': 'error',
-				'@remotion/duration-in-frames': 'error',
-				'@remotion/from-0': 'error',
-				'@remotion/volume-callback': 'error',
-				'@remotion/use-gif-component': 'error',
-				'@remotion/staticfile-no-relative': 'error',
-				'@remotion/staticfile-no-remote': 'error',
-				'@remotion/no-background-image': 'error',
-				'@remotion/v4-config-import': 'error',
-			},
-			plugins: ['@remotion'],
-		},
+const recommendedRuleConfig = {
+	'@remotion/warn-native-media-tag': 'error',
+	'@remotion/deterministic-randomness': 'error',
+	'@remotion/no-string-assets': 'error',
+	'@remotion/even-dimensions': 'error',
+	'@remotion/duration-in-frames': 'error',
+	'@remotion/from-0': 'error',
+	'@remotion/volume-callback': 'error',
+	'@remotion/use-gif-component': 'error',
+	'@remotion/staticfile-no-relative': 'error',
+	'@remotion/staticfile-no-remote': 'error',
+	'@remotion/no-background-image': 'error',
+	'@remotion/v4-config-import': 'error',
+} as const;
+
+const configs = {
+	recommended: {
+		rules: recommendedRuleConfig,
+		plugins: ['@remotion'],
 	},
 } as const;
+
+const flatPlugin = {
+	rules: recommendedRuleConfig,
+	plugins: {
+		'@remotion': {
+			rules: rules,
+		},
+	},
+};
+
+export = {
+	configs,
+	rules,
+	flatPlugin,
+};

@@ -1,6 +1,7 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
+import remotion from "@remotion/eslint-plugin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,22 +11,13 @@ const compat = new FlatCompat({
 });
 
 const [nextPlugin] = compat.extends("plugin:@next/next/recommended");
-const [remotionPlugin] = compat.extends(
-  "plugin:@remotion/eslint-plugin/recommended",
-);
 
 const eslintConfig = [
   ...compat.extends("next/typescript"),
   nextPlugin,
   {
-    ...remotionPlugin,
+    ...remotion.flatPlugin,
     files: ["src/remotion/**"],
-    rules: {
-      ...remotionPlugin.rules,
-      ...Object.entries(nextPlugin.rules).reduce((acc, [key]) => {
-        return { ...acc, [key]: "off" };
-      }, {}),
-    },
   },
 ];
 
