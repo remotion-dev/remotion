@@ -96,6 +96,7 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/index.js'),
 				getFileForTemplate(template, 'remotion/index.ts'),
 				getFileForTemplate(template, 'app/remotion/index.ts'),
+				getFileForTemplate(template, 'src/remotion/index.ts'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/RemotionRoot/);
