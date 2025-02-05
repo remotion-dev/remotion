@@ -1,4 +1,4 @@
-import "../styles/global.css";
+import "../../styles/global.css";
 import { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
