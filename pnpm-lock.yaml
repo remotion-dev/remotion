@@ -2406,6 +2406,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: 3.1.0
+        version: 3.1.0
       '@next/eslint-plugin-next':
         specifier: 15.1.6
         version: 15.1.6
@@ -2485,6 +2488,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: 3.1.0
+        version: 3.1.0
       '@next/eslint-plugin-next':
         specifier: 15.1.6
         version: 15.1.6
@@ -2564,6 +2570,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@eslint/eslintrc':
+        specifier: 3.1.0
+        version: 3.1.0
       '@next/eslint-plugin-next':
         specifier: 15.1.6
         version: 15.1.6
