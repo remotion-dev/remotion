@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "next lint",
     "remotion": "remotion studio",
     "render": "remotion render",
     "deploy": "node deploy.mjs"
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@remotion/eslint-plugin": "workspace:*",
+    "@eslint/eslintrc": "3.1.0",
     "@types/node": "20.12.14",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",

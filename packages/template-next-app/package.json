@@ -35,6 +35,7 @@
     "eslint": "9.14.0",
     "@next/eslint-plugin-next": "15.1.6",
     "typescript": "5.5.4",
-    "prettier": "3.3.3"
+    "prettier": "3.3.3",
+    "@eslint/eslintrc": "3.1.0"
   }
 }
