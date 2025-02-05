@@ -184,6 +184,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 					JSON.stringify({type: 'error', message: (err as Error).message}),
 				),
 			);
+			return;
 		}
 	}
 

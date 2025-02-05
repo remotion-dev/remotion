@@ -47,7 +47,7 @@
 		"@types/minimist": "1.2.2",
 		"@types/prompt": "^1.1.0",
 		"eslint": "9.14.0",
-		"next": "15.1.2",
+		"next": "15.1.6",
 		"pureimage": "0.4.13",
 		"zip-lib": "^0.7.2"
 	},
