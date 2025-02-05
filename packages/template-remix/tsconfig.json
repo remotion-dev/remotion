@@ -18,5 +18,6 @@
       "~/*": ["./app/*"]
     },
     "noEmit": true
-  }
+  },
+  "exclude": ["remotion.config.ts"]
 }
