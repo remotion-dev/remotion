@@ -33,6 +33,7 @@
   "devDependencies": {
     "@remix-run/dev": "2.15.1",
     "@remix-run/eslint-config": "2.15.1",
+    "@remotion/eslint-config-flat": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
     "@types/node": "20.12.14",
     "@types/react": "19.0.0",

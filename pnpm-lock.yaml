@@ -2692,6 +2692,9 @@ importers:
       '@remix-run/eslint-config':
         specifier: 2.15.1
         version: 2.15.1(eslint@9.19.0)(react@19.0.0)(typescript@5.5.4)
+      '@remotion/eslint-config-flat':
+        specifier: workspace:*
+        version: link:../eslint-config-flat
       '@remotion/eslint-plugin':
         specifier: workspace:*
         version: link:../eslint-plugin
