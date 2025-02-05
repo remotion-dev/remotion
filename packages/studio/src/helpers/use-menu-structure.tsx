@@ -10,7 +10,6 @@ import type {
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
-import {timeValueRef} from '../components/TimeValue';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Row} from '../components/layout';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
@@ -590,7 +589,7 @@ export const useMenuStructure = (
 						leftItem: null,
 						onClick: () => {
 							closeMenu();
-							timeValueRef.current?.goToFrame();
+							Internals.timeValueRef.current?.goToFrame();
 						},
 						subMenu: null,
 						type: 'item' as const,
