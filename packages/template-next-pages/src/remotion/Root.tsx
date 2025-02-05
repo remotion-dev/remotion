@@ -7,7 +7,7 @@ import {
   VIDEO_FPS,
   VIDEO_HEIGHT,
   VIDEO_WIDTH,
-} from "../types/constants";
+} from "../../types/constants";
 import { NextLogo } from "./MyComp/NextLogo";
 
 export const RemotionRoot: React.FC = () => {

@@ -10,7 +10,7 @@ import {
   VIDEO_FPS,
   VIDEO_HEIGHT,
   VIDEO_WIDTH,
-} from "../types/constants";
+} from "../../types/constants";
 import { z } from "zod";
 import { RenderControls } from "../components/RenderControls";
 import { Tips } from "../components/Tips/Tips";
