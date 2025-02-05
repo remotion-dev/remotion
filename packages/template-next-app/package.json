@@ -26,7 +26,6 @@
     "zod": "3.22.3"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
     "@types/node": "20.12.14",
     "@types/react": "19.0.0",

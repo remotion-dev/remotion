@@ -10,7 +10,17 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("plugin:@next/next/recommended", "next/typescript"),
+  ...compat.extends("next/typescript"),
+  ...compat.extends("plugin:@next/next/recommended").map((config) => {
+    return {
+      ...config,
+      ignores: ["src/remotion/**"],
+    };
+  }),
+  {
+    ...compat.extends("plugin:@remotion/eslint-plugin/recommended")[0],
+    files: ["src/remotion/**"],
+  },
 ];
 
 export default eslintConfig;

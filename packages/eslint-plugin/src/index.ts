@@ -44,6 +44,7 @@ export = {
 				'@remotion/no-background-image': 'error',
 				'@remotion/v4-config-import': 'error',
 			},
+			plugins: ['@remotion'],
 		},
 	},
 } as const;
