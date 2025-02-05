@@ -3,7 +3,7 @@ import './tailwind.css';
 
 import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 
-export function Layout({children}: {readonly children: React.ReactNode}) {
+export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 	return (
 		<html lang="en">
 			<head>
@@ -25,8 +25,10 @@ export function Layout({children}: {readonly children: React.ReactNode}) {
 			</body>
 		</html>
 	);
-}
+};
 
-export default function App() {
+const App = () => {
 	return <Outlet />;
-}
+};
+
+export default App;

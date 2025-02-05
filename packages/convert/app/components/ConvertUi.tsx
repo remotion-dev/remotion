@@ -48,7 +48,7 @@ import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
 
-export default function ConvertUI({
+const ConvertUI = ({
 	src,
 	currentAudioCodec,
 	currentVideoCodec,
@@ -94,7 +94,7 @@ export default function ConvertUI({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+}) => {
 	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src, action),
 	);
@@ -583,4 +583,6 @@ export default function ConvertUI({
 			</Button>
 		</>
 	);
-}
+};
+
+export default ConvertUI;
