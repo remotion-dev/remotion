@@ -13,7 +13,7 @@ export const ErrorComp: React.FC<{
         strokeLinejoin="round"
         strokeWidth="2"
         viewBox="0 0 24 24"
-        className="h-5 align-text-bottom mr-1.5"
+        className="h-5 align-text-bottom mr-1.5 inline"
       >
         <circle cx="12" cy="12" r="10" fill="var(--geist-fill)"></circle>
         <path d="M12 8v4" stroke="currentColor"></path>

@@ -1,4 +1,4 @@
-import { enableTailwind } from "@remotion/tailwind";
+import { enableTailwind } from "@remotion/tailwind-v4";
 
 /**
  *  @param {import('webpack').Configuration} currentConfig

@@ -2466,9 +2466,9 @@ importers:
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
-      '@remotion/tailwind':
+      '@remotion/tailwind-v4':
         specifier: workspace:*
-        version: link:../tailwind
+        version: link:../tailwind-v4
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -2485,8 +2485,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       tailwind-merge:
-        specifier: 2.5.2
-        version: 2.5.2
+        specifier: 3.0.1
+        version: 3.0.1
       zod:
         specifier: 3.22.3
         version: 3.22.3
@@ -2528,8 +2528,8 @@ importers:
         specifier: 3.3.3
         version: 3.3.3
       tailwindcss:
-        specifier: 3.4.13
-        version: 3.4.13
+        specifier: 4.0.3
+        version: 4.0.3
       typescript:
         specifier: 5.5.4
         version: 5.5.4
@@ -29327,6 +29327,10 @@ packages:
   /tailwind-merge@2.5.2:
     resolution: {integrity: sha512-kjEBm+pvD+6eAwzJL2Bi+02/9LFLal1Gs61+QB7HvTfQQ0aXwC5LGT8PEt1gS0CWKktKe6ysPTAy3cBC5MeiIg==}
 
+  /tailwind-merge@3.0.1:
+    resolution: {integrity: sha512-AvzE8FmSoXC7nC+oU5GlQJbip2UO7tmOhOfQyOmPhrStOGXHU08j8mZEHZ4BmCqY5dWTCo4ClWkNyRNx1wpT0g==}
+    dev: false
+
   /tailwindcss-animate@1.0.7(tailwindcss@3.4.13):
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
@@ -29370,6 +29374,10 @@ packages:
 
   /tailwindcss@4.0.0-beta.9:
     resolution: {integrity: sha512-96KpsfQi+/sFIOfyFnGzyy5pobuzf1iMBD9NVtelerPM/lPI2XUS4Kikw9yuKRniXXw77ov1sl7gCSKLsn6CJA==}
+    dev: true
+
+  /tailwindcss@4.0.3:
+    resolution: {integrity: sha512-ImmZF0Lon5RrQpsEAKGxRvHwCvMgSC4XVlFRqmbzTEDb/3wvin9zfEZrMwgsa3yqBbPqahYcVI6lulM2S7IZAA==}
     dev: true
 
   /tapable@1.1.3:
