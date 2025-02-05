@@ -35,6 +35,11 @@ export const editorPropsProviderRef = React.createRef<{
 	setProps: React.Dispatch<React.SetStateAction<Props>>;
 }>();
 
+export const timeValueRef = React.createRef<{
+	goToFrame: () => void;
+	seek: (newFrame: number) => void;
+}>();
+
 export const EditorPropsProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {

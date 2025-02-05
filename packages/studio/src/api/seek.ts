@@ -3,8 +3,8 @@
  * @see [Documentation](https://www.remotion.dev/docs/studio/seek)
  */
 
-import {timeValueRef} from '../components/TimeValue';
+import {Internals} from 'remotion';
 
 export const seek = (frame: number) => {
-	timeValueRef.current?.seek(Math.max(0, frame));
+	Internals.timeValueRef.current?.seek(Math.max(0, frame));
 };
