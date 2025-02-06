@@ -189,6 +189,18 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	const getSyncSafeInt32 = () => {
+		const val = view.getUint32(counter.getDiscardedOffset());
+		counter.increment(4);
+
+		return (
+			((val & 0x7f000000) >> 3) |
+			((val & 0x007f0000) >> 2) |
+			((val & 0x00007f00) >> 1) |
+			(val & 0x0000007f)
+		);
+	};
+
 	const getUint64 = (littleEndian = false) => {
 		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(8);
@@ -683,6 +695,7 @@ export const getArrayBufferIterator = (
 		readExpGolomb,
 		startCheckpoint,
 		getFlacCodecNumber,
+		getSyncSafeInt32,
 	};
 };
 
