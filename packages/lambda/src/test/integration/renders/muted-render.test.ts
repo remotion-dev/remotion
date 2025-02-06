@@ -1,16 +1,12 @@
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {internalDeleteRender} from '../../../api/delete-render';
 import {mockImplementation} from '../../mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test('Should make muted render audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({

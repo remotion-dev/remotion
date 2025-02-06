@@ -1,7 +1,6 @@
-import {RenderInternals} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
 import {$} from 'bun';
-import {afterAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {internalDeleteRender} from '../../../api/delete-render';
@@ -9,10 +8,6 @@ import {mockImplementation} from '../../mock-implementation';
 import {streamToUint8Array} from '../../mocks/mock-store';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test(
 	'Should make slowed down seamless audio',

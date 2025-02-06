@@ -12,9 +12,6 @@ import {waitUntilDone} from './wait-until-done';
 
 beforeAll(async () => {
 	await ensureBrowser();
-	return async () => {
-		await RenderInternals.killAllBrowsers();
-	};
 });
 
 const TEST_URL = 'http://localhost:8000';
