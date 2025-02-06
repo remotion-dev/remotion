@@ -3,6 +3,7 @@ import {
 	AbsoluteFill,
 	Easing,
 	interpolate,
+	measureSpring,
 	OffthreadVideo,
 	Sequence,
 	spring,
@@ -21,6 +22,7 @@ import {
 	TranslateZ,
 } from '../3DContext/transformation-context';
 import {Captions} from './Captions';
+import {CodeFrame} from './CodeFrame';
 
 const height = 700;
 const width = (height / 16) * 9;
@@ -48,16 +50,25 @@ const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = (rest) => {
 	);
 };
 
+const getActualLayerWidth = (progress: number) => {
+	return {
+		width: interpolate(progress, [0, 1], [width * 1.5, width]),
+		height: interpolate(progress, [0, 1], [height, height]),
+	};
+};
+
 const VideoLayers: React.FC<{
 	label: string;
 	delay: number;
 	footage?: boolean;
-}> = ({label, delay, footage}) => {
+	boxWidth: number;
+	boxHeight: number;
+}> = ({label, delay, footage, boxHeight, boxWidth}) => {
 	return (
 		<Rotations zIndexHack={false} delay={delay}>
 			<ExtrudeDiv
-				width={width}
-				height={height}
+				width={boxWidth}
+				height={boxHeight}
 				depth={depth}
 				cornerRadius={10}
 				backFace={
@@ -67,7 +78,9 @@ const VideoLayers: React.FC<{
 							borderRadius: cornerRadius,
 							border: '3px solid black',
 						}}
-					></AbsoluteFill>
+					>
+						<CodeFrame />
+					</AbsoluteFill>
 				}
 				bottomFace={<Label>{label}</Label>}
 			>
@@ -247,24 +260,53 @@ export const Compose = () => {
 		durationInFrames: 20,
 	});
 
+	const spr = spring({
+		fps,
+		frame,
+		delay: animationStart,
+		config: {
+			damping: 200,
+		},
+		durationInFrames: measureSpring({fps, config: {}}),
+	});
+	const actual = getActualLayerWidth(spr);
+
+	const outActual = getActualLayerWidth(1 - outAnimation);
+
 	return (
 		<AbsoluteFill className="flex justify-center items-center">
 			<Scale factor={1.3}>
 				<TranslateX px={firstX}>
 					<TranslateZ px={1.5 * depth * layerDownProgress}>
-						<VideoLayers footage delay={animationStart} label="<Video />" />
+						<VideoLayers
+							footage
+							delay={animationStart}
+							boxHeight={actual.height}
+							boxWidth={actual.width}
+							label="<Video />"
+						/>
 					</TranslateZ>
 				</TranslateX>
 				<TranslateY
 					px={interpolate(bRollEnter + bRollExit, [0, 1, 2], [1500, 0, -1500])}
 				>
-					<VideoLayers delay={animationStart} label="<BRoll />" />
+					<VideoLayers
+						boxWidth={width}
+						boxHeight={height}
+						delay={animationStart}
+						label="<BRoll />"
+					/>
 				</TranslateY>
 				{endCard > 0 && (
 					<TranslateX px={secondX}>
 						<RotateY radians={Math.PI * outAnimation}>
 							<LabelOpacityContext.Provider value={1 - outAnimation}>
-								<VideoLayers delay={animationStart} label="<EndCard />" />
+								<VideoLayers
+									boxHeight={outActual.height}
+									boxWidth={outActual.width}
+									delay={animationStart}
+									label="<EndCard />"
+								/>
 							</LabelOpacityContext.Provider>
 						</RotateY>
 					</TranslateX>
