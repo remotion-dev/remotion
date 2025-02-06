@@ -40,6 +40,7 @@ test('Should create captions', () => {
 	});
 	expect(tikTokStyleCaptions).toEqual([
 		{
+			durationMs: 860,
 			text: "Using Remotion's",
 			startMs: 40,
 			tokens: [
@@ -58,6 +59,7 @@ test('Should create captions', () => {
 		{
 			text: 'TikTok template,',
 			startMs: 900,
+			durationMs: 1050,
 			tokens: [
 				{
 					text: 'TikTok',

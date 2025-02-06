@@ -19,7 +19,7 @@ const NoNativeIFrameTag =
 const NoNativeAudioTag =
 	"Use the <Audio /> tag from 'remotion' package, because it will synchronize with the Remotion timeline.";
 const NoNativeVideoTag =
-	"Use the <Video /> tag from 'remotion' package, because it will synchronize with the Remotion timeline.";
+	"Use the <OffthreadVideo /> tag from 'remotion' package, because it will synchronize with the Remotion timeline.";
 
 export default createRule<Options, MessageIds>({
 	name: 'warn-native-media-tag',

@@ -3,7 +3,10 @@ import {
 	AbsoluteFill,
 	Easing,
 	interpolate,
+	OffthreadVideo,
+	Sequence,
 	spring,
+	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -17,11 +20,13 @@ import {
 	TranslateY,
 	TranslateZ,
 } from '../3DContext/transformation-context';
+import {Captions} from './Captions';
 
 const height = 700;
 const width = (height / 16) * 9;
 const cornerRadius = 10;
 const depth = 60;
+const animationStart = 50;
 
 const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = (rest) => {
 	const opacity = useLabelOpacity();
@@ -46,7 +51,8 @@ const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = (rest) => {
 const VideoLayers: React.FC<{
 	label: string;
 	delay: number;
-}> = ({label, delay}) => {
+	footage?: boolean;
+}> = ({label, delay, footage}) => {
 	return (
 		<Rotations zIndexHack={false} delay={delay}>
 			<ExtrudeDiv
@@ -77,11 +83,21 @@ const VideoLayers: React.FC<{
 				>
 					<div
 						style={{
-							backgroundColor: 'white',
+							backgroundColor: 'black',
 							width: '100%',
 							height: '100%',
+							overflow: 'hidden',
 						}}
-					></div>
+					>
+						{footage ? (
+							<Sequence from={animationStart} layout="none">
+								<OffthreadVideo
+									style={{width: '100%', height: '100%', objectFit: 'cover'}}
+									src={staticFile('video.mp4')}
+								></OffthreadVideo>
+							</Sequence>
+						) : null}
+					</div>
 				</div>
 			</ExtrudeDiv>
 		</Rotations>
@@ -116,12 +132,9 @@ const CaptionLayers: React.FC<{
 					}}
 					className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"
 				>
-					<div>
-						Hallo{' '}
-						<span className="bg-blue-600 px-2 py-1 rounded text-white">
-							IPT!
-						</span>
-					</div>
+					<Sequence from={animationStart}>
+						<Captions></Captions>
+					</Sequence>
 				</div>
 			</ExtrudeDiv>
 		</Rotations>
@@ -173,8 +186,6 @@ const Rotations: React.FC<{
 };
 
 export const Compose = () => {
-	const animationStart = 50;
-
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const bRollEnter = spring({
@@ -241,7 +252,7 @@ export const Compose = () => {
 			<Scale factor={1.3}>
 				<TranslateX px={firstX}>
 					<TranslateZ px={1.5 * depth * layerDownProgress}>
-						<VideoLayers delay={animationStart} label="<Video />" />
+						<VideoLayers footage delay={animationStart} label="<Video />" />
 					</TranslateZ>
 				</TranslateX>
 				<TranslateY
