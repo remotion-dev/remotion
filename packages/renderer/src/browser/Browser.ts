@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {removeHeadlessBrowser} from '../browser-instances';
 import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
@@ -295,7 +294,6 @@ export class HeadlessBrowser extends EventEmitter {
 		this.emit(
 			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed,
 		);
-		removeHeadlessBrowser(this);
 	}
 
 	disconnect(): void {

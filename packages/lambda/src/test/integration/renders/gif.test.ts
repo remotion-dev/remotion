@@ -1,13 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
-import {afterAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test('Should make a distributed GIF', async () => {
 	const {file, close} = await simulateLambdaRender({
