@@ -28,7 +28,7 @@ const height = 700;
 const width = (height / 16) * 9;
 const cornerRadius = 10;
 const depth = 60;
-const animationStart = 50;
+const animationStart = 55;
 
 const Label: React.FC<React.HTMLAttributes<HTMLDivElement>> = (rest) => {
 	const opacity = useLabelOpacity();
@@ -63,7 +63,8 @@ const VideoLayers: React.FC<{
 	footage?: boolean;
 	boxWidth: number;
 	boxHeight: number;
-}> = ({label, delay, footage, boxHeight, boxWidth}) => {
+	codeFrame?: boolean;
+}> = ({label, delay, footage, boxHeight, boxWidth, codeFrame}) => {
 	return (
 		<Rotations zIndexHack={false} delay={delay}>
 			<ExtrudeDiv
@@ -79,7 +80,7 @@ const VideoLayers: React.FC<{
 							border: '3px solid black',
 						}}
 					>
-						<CodeFrame />
+						{codeFrame && <CodeFrame />}
 					</AbsoluteFill>
 				}
 				bottomFace={<Label>{label}</Label>}
@@ -105,6 +106,7 @@ const VideoLayers: React.FC<{
 						{footage ? (
 							<Sequence from={animationStart} layout="none">
 								<OffthreadVideo
+									muted
 									style={{width: '100%', height: '100%', objectFit: 'cover'}}
 									src={staticFile('video.mp4')}
 								></OffthreadVideo>
@@ -280,6 +282,7 @@ export const Compose = () => {
 					<TranslateZ px={1.5 * depth * layerDownProgress}>
 						<VideoLayers
 							footage
+							codeFrame
 							delay={animationStart}
 							boxHeight={actual.height}
 							boxWidth={actual.width}

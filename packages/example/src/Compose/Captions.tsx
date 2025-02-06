@@ -1,6 +1,64 @@
-import {Caption, createTikTokStyleCaptions} from '@remotion/captions';
-import React from 'react';
-import {Sequence, staticFile, useVideoConfig} from 'remotion';
+import {
+	Caption,
+	createTikTokStyleCaptions,
+	TikTokToken,
+} from '@remotion/captions';
+import React, {useMemo} from 'react';
+import {
+	Sequence,
+	spring,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+
+const Token: React.FC<{
+	token: TikTokToken;
+	pageStart: number;
+}> = ({token, pageStart}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const start = ((token.fromMs - pageStart) / 1000) * 30;
+	const end = ((token.toMs - pageStart) / 1000) * 30;
+
+	const active = frame >= start && frame < end;
+	const jump =
+		spring({
+			fps,
+			frame,
+			config: {damping: 200},
+			durationInFrames: 3,
+			delay: start,
+		}) -
+		spring({
+			fps,
+			frame,
+			config: {damping: 200},
+			durationInFrames: 3,
+			delay: 1 + start,
+		});
+
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'inline-block',
+			background: active ? '#0983F1' : 'white',
+			paddingTop: 3,
+			paddingBottom: 3,
+			outline: active ? '4px solid ' + '#0983F1' : 'none',
+			color: active ? 'white' : 'black',
+			border: active ? '2px solid #0983F1' : '1px solid transparent',
+			borderRadius: 5,
+			scale: String(1 + jump * 0.1),
+		};
+	}, [active, jump]);
+
+	return (
+		<span>
+			{' '}
+			<span style={style}>{token.text.trim()}</span>
+		</span>
+	);
+};
 
 export const Captions: React.FC = () => {
 	const [captions, setCaptions] = React.useState<Caption[] | null>(null);
@@ -36,10 +94,13 @@ export const Captions: React.FC = () => {
 						from={(page.startMs / 1000) * fps}
 						durationInFrames={(page.durationMs / 1000) * fps}
 						layout="none"
+						key={page.startMs}
 					>
 						<div key={page.startMs}>
 							{page.tokens.map((t) => {
-								return <span style={{display: 'inline'}}>{t.text}</span>;
+								return (
+									<Token pageStart={page.startMs} key={t.fromMs} token={t} />
+								);
 							})}
 						</div>
 					</Sequence>
