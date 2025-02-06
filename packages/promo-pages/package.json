@@ -30,7 +30,7 @@
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
 		"eslint": "9.19.0",
-		"eslint-config-next": "15.0.4",
+		"eslint-config-next": "15.1.6",
 		"plyr": "^3.7.3",
 		"postcss": "8.4.47",
 		"tailwindcss": "4.0.0",

@@ -35,6 +35,7 @@
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
     "@next/eslint-plugin-next": "15.1.6",
+    "eslint-config-next": "15.1.6",
     "typescript": "5.5.4",
     "prettier": "3.3.3"
   }
