@@ -13,9 +13,7 @@ import {
 } from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 import {
-	RotateX,
 	RotateY,
-	RotateZ,
 	Scale,
 	TranslateX,
 	TranslateY,
@@ -23,6 +21,9 @@ import {
 } from '../3DContext/transformation-context';
 import {Captions} from './Captions';
 import {CodeFrame} from './CodeFrame';
+import {EndCard} from './EndCard';
+import {LabelOpacityContext, useLabelOpacity} from './LabelOpacity';
+import {Rotations} from './Rotations';
 
 const height = 700;
 const width = (height / 16) * 9;
@@ -61,10 +62,21 @@ const VideoLayers: React.FC<{
 	label: string;
 	delay: number;
 	footage?: boolean;
+	bRoll?: boolean;
 	boxWidth: number;
 	boxHeight: number;
 	codeFrame?: boolean;
-}> = ({label, delay, footage, boxHeight, boxWidth, codeFrame}) => {
+	endCard?: boolean;
+}> = ({
+	label,
+	delay,
+	footage,
+	boxHeight,
+	boxWidth,
+	codeFrame,
+	bRoll,
+	endCard,
+}) => {
 	return (
 		<Rotations zIndexHack={false} delay={delay}>
 			<ExtrudeDiv
@@ -112,6 +124,21 @@ const VideoLayers: React.FC<{
 								></OffthreadVideo>
 							</Sequence>
 						) : null}
+						{bRoll ? (
+							<Sequence from={animationStart} layout="none">
+								<OffthreadVideo
+									muted
+									style={{width: '100%', height: '100%', objectFit: 'cover'}}
+									src={staticFile('spiral_.mp4')}
+								></OffthreadVideo>
+							</Sequence>
+						) : null}
+						{endCard ? (
+							<AbsoluteFill
+								className="bg-white"
+								style={{borderRadius: cornerRadius, border: '3px solid black'}}
+							></AbsoluteFill>
+						) : null}
 					</div>
 				</div>
 			</ExtrudeDiv>
@@ -153,50 +180,6 @@ const CaptionLayers: React.FC<{
 				</div>
 			</ExtrudeDiv>
 		</Rotations>
-	);
-};
-
-const LabelOpacityContext = React.createContext<number>(1);
-
-const useLabelOpacity = () => {
-	return React.useContext(LabelOpacityContext);
-};
-
-const Rotations: React.FC<{
-	children: React.ReactNode;
-	delay: number;
-	zIndexHack: boolean;
-}> = ({children, delay, zIndexHack}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const opacity = useLabelOpacity();
-
-	const spr = spring({
-		fps,
-		frame,
-		delay,
-	});
-
-	const rotate = interpolate(spr, [0, 1], [Math.PI, 0]);
-
-	return (
-		<RotateY radians={rotate - 0.4}>
-			<RotateX radians={-0.6}>
-				<RotateZ radians={-0.5}>
-					<LabelOpacityContext.Provider value={spr * opacity}>
-						<AbsoluteFill
-							id="video"
-							style={{
-								zIndex: zIndexHack ? (spr > 0.3 ? 1 : -1) : undefined,
-							}}
-							className="flex justify-center items-center"
-						>
-							{children}
-						</AbsoluteFill>
-					</LabelOpacityContext.Provider>
-				</RotateZ>
-			</RotateX>
-		</RotateY>
 	);
 };
 
@@ -294,6 +277,7 @@ export const Compose = () => {
 					px={interpolate(bRollEnter + bRollExit, [0, 1, 2], [1500, 0, -1500])}
 				>
 					<VideoLayers
+						bRoll
 						boxWidth={width}
 						boxHeight={height}
 						delay={animationStart}
@@ -309,11 +293,30 @@ export const Compose = () => {
 									boxWidth={outActual.width}
 									delay={animationStart}
 									label="<EndCard />"
-								/>
+									endCard
+								></VideoLayers>
 							</LabelOpacityContext.Provider>
 						</RotateY>
 					</TranslateX>
 				)}
+				<TranslateX px={secondX}>
+					<AbsoluteFill
+						style={{
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						<div
+							style={{
+								width: width,
+								height: height,
+								position: 'relative',
+							}}
+						>
+							{endCard ? <EndCard cornerRadius={cornerRadius}></EndCard> : null}
+						</div>
+					</AbsoluteFill>
+				</TranslateX>
 				<TranslateY px={190}>
 					<TranslateZ px={-depth * 2 + liftCaptions}>
 						<CaptionLayers delay={animationStart} />
