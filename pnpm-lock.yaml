@@ -1931,6 +1931,9 @@ importers:
       eslint:
         specifier: 9.19.0
         version: 9.19.0
+      remotion:
+        specifier: workspace:*
+        version: link:../core
 
   packages/shapes:
     dependencies:

@@ -1,6 +1,5 @@
 import {NoReactAPIs} from '@remotion/renderer/pure';
 
-import {NoReactInternals} from 'remotion/no-react';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {CustomCredentials} from './constants';
 import {estimatePriceFromMetadata} from './estimate-price-from-bucket';
@@ -260,7 +259,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 				})
 			: null,
 		...errorExplanations,
-	].filter(NoReactInternals.truthy);
+	].filter(truthy);
 
 	return {
 		framesRendered: overallProgress.framesRendered ?? 0,

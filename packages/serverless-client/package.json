@@ -24,6 +24,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
+		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/licensing": "workspace:*",
