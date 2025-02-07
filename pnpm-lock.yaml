@@ -1350,6 +1350,24 @@ importers:
 
   packages/lambda:
     dependencies:
+      '@aws-sdk/client-cloudwatch-logs':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-iam':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-lambda':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-s3':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-service-quotas':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-sts':
+        specifier: 3.738.0
+        version: 3.738.0
       '@aws-sdk/credential-providers':
         specifier: 3.738.0
         version: 3.738.0

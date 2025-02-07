@@ -18,6 +18,15 @@ const getExternal = (deps: string[] | 'dependencies'): string[] => {
 	return deps;
 };
 
+const sortObject = (obj: Record<string, string>) => {
+	return {
+		...(obj.types !== undefined && {types: obj.types}),
+		...(obj.require !== undefined && {require: obj.require}),
+		...(obj.module !== undefined && {module: obj.module}),
+		...(obj.import !== undefined && {import: obj.import}),
+	};
+};
+
 export const buildPackage = async ({
 	formats,
 	external,
@@ -56,23 +65,21 @@ export const buildPackage = async ({
 
 			const firstName = file.path.split('.')[1].slice(1);
 			const exportName = firstName === 'index' ? '.' : './' + firstName;
-			newExports[exportName] = {
+			newExports[exportName] = sortObject({
 				types: `./dist/${firstName}.d.ts`,
-				// Order is important!
-				// require() must be at top
 				...(format === 'cjs'
 					? {
 							require: outputPath,
 						}
 					: {}),
-				...(newExports[exportName] ?? {}),
 				...(format === 'esm'
 					? {
-							module: outputPath,
 							import: outputPath,
+							module: outputPath,
 						}
 					: {}),
-			};
+				...(newExports[exportName] ?? {}),
+			});
 			if (firstName !== 'index') {
 				versions[firstName] = [`dist/${firstName}.d.ts`];
 			}

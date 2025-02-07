@@ -20,6 +20,12 @@
 	"dependencies": {
 		"@aws-sdk/s3-request-presigner": "3.738.0",
 		"@aws-sdk/credential-providers": "3.738.0",
+		"@aws-sdk/client-lambda": "3.738.0",
+		"@aws-sdk/client-s3": "3.738.0",
+		"@aws-sdk/client-sts": "3.738.0",
+		"@aws-sdk/client-iam": "3.738.0",
+		"@aws-sdk/client-cloudwatch-logs": "3.738.0",
+		"@aws-sdk/client-service-quotas": "3.738.0",
 		"@aws-sdk/lib-storage": "3.738.0",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",

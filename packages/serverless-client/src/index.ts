@@ -53,7 +53,7 @@ export type {
 } from '@remotion/renderer';
 export {BrowserSafeApis} from '@remotion/renderer/client';
 export {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-export * from '@remotion/streaming';
+export {makeStreamer, makeStreamPayloadMessage} from '@remotion/streaming';
 export type {VideoConfig} from 'remotion/no-react';
 export {VERSION} from 'remotion/version';
 export {Await} from './await';
