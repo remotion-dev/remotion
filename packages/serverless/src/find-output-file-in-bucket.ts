@@ -1,8 +1,10 @@
-import type {CustomCredentials} from './constants';
-import {getExpectedOutName} from './expected-out-name';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider} from './types';
+import type {
+	CloudProvider,
+	CustomCredentials,
+	ProviderSpecifics,
+	RenderMetadata,
+} from '@remotion/serverless-client';
+import {getExpectedOutName} from '@remotion/serverless-client';
 
 export type OutputFileMetadata = {
 	url: string;

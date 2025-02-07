@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 import {PutObjectCommand} from '@aws-sdk/client-s3';
-import type {WriteFileInput} from '@remotion/serverless';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import type {
+	CustomCredentials,
+	WriteFileInput,
+} from '@remotion/serverless-client';
 import mimeTypes from 'mime-types';
 import type {AwsProvider} from './aws-provider';
 import {getContentDispositionHeader} from './content-disposition-header';

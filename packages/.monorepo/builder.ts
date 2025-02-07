@@ -33,7 +33,7 @@ const validateExports = (
 				entry !== 'module' &&
 				entry !== 'types'
 			) {
-				throw new Error(`Invalid export: ${entry}`);
+				throw new Error(`Invalid export: ${entry}: ${JSON.stringify(exports)}`);
 			}
 			const pathToCheck = path.join(process.cwd(), value[entry]);
 			const exists = existsSync(pathToCheck);

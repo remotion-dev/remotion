@@ -1,7 +1,7 @@
 import type {AwsProvider} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {GetOrCreateBucketInput} from '@remotion/serverless/client';
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
+import type {GetOrCreateBucketInput} from '@remotion/serverless';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
 
 /*
  * @description Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If one already exists, it will get returned instead.

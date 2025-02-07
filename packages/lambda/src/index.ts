@@ -7,7 +7,6 @@ import type {
 	EnhancedErrorInfo,
 	estimatePrice,
 	EstimatePriceInput,
-	FunctionInfo,
 	getAwsClient,
 	GetAwsClientInput,
 	GetAwsClientOutput,
@@ -21,7 +20,6 @@ import type {
 	GetRenderProgressInput,
 	GetSitesInput,
 	GetSitesOutput,
-	LambdaErrorInfo,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	RenderProgress,
@@ -39,6 +37,7 @@ import {
 	validateWebhookSignature,
 } from '@remotion/lambda-client';
 import {NoReactInternals} from 'remotion/no-react';
+import type {FunctionInfo} from '../../serverless-client/src/provider-implementation';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
 import type {
@@ -181,7 +180,6 @@ export type {
 	GetRenderProgressInput,
 	GetSitesInput,
 	GetSitesOutput,
-	LambdaErrorInfo,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	RenderProgress,

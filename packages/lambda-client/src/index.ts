@@ -1,12 +1,8 @@
-export type {
-	EnhancedErrorInfo,
-	FunctionInfo,
-	LambdaErrorInfo,
-} from '@remotion/serverless';
+export type {EnhancedErrorInfo} from '@remotion/serverless';
 export {
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 export type {RuntimePreference} from './runtime-preference';
 import {
 	getCloudWatchLogsClient,
@@ -39,7 +35,11 @@ import {
 	generateRandomHashWithLifeCycleRule,
 	getLifeCycleRules,
 } from './lifecycle';
-import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
+import {
+	getRenderProgressPayload,
+	makeLambdaRenderMediaPayload,
+	makeLambdaRenderStillPayload,
+} from './make-lambda-payload';
 import {makeS3ServeUrl} from './make-s3-url';
 import {pLimit} from './p-limit';
 import {parseFunctionName} from './parse-function-name';
@@ -61,7 +61,7 @@ export type {
 	WebhookSuccessPayload,
 	WebhookTimeoutPayload,
 } from '@remotion/serverless';
-export type {CustomCredentials, DeleteAfter} from '@remotion/serverless/client';
+export type {CustomCredentials, DeleteAfter} from '@remotion/serverless-client';
 export {appRouterWebhook, NextWebhookArgs} from './app-router-webhook';
 export {AwsProvider} from './aws-provider';
 export type {RenderProgress} from './constants';
@@ -141,4 +141,6 @@ export const LambdaClientInternals = {
 	getEnvVariable,
 	internalRenderMediaOnLambdaRaw,
 	cleanItems,
+	makeLambdaRenderStillPayload,
+	getRenderProgressPayload,
 };

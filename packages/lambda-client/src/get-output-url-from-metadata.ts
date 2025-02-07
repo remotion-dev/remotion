@@ -1,5 +1,5 @@
-import type {GetOutputUrl} from '@remotion/serverless';
-import {getExpectedOutName} from '@remotion/serverless/client';
+import type {GetOutputUrl} from '@remotion/serverless-client';
+import {getExpectedOutName} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 
 export const getOutputUrlFromMetadata: GetOutputUrl<AwsProvider> = ({

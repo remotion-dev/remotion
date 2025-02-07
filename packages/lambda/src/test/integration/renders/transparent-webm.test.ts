@@ -1,6 +1,6 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {ensureBrowser, RenderInternals} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
+import {rendersPrefix} from '@remotion/serverless';
 import {beforeAll, expect, test} from 'bun:test';
 import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';

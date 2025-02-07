@@ -1,4 +1,4 @@
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless/client';
+import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless';
 import {
 	LAMBDA_INSIGHTS_PREFIX,
 	LOG_GROUP_PREFIX,

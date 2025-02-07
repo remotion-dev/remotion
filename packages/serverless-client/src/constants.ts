@@ -1,3 +1,5 @@
+export const COMMAND_NOT_FOUND = 'Command not found';
+
 import type {
 	AudioCodec,
 	ChromiumOptions,
@@ -401,4 +403,3 @@ export const REMOTION_CONCATENATED_TOKEN = 'remotion-concatenated-token';
 export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
-export const COMMAND_NOT_FOUND = 'Command not found';

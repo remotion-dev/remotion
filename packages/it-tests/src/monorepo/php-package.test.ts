@@ -1,4 +1,4 @@
-import {LambdaInternals} from '@remotion/lambda';
+import {LambdaClientInternals} from '@remotion/lambda/src/client';
 import {$} from 'bun';
 import {beforeAll, describe, expect, test} from 'bun:test';
 import {execSync} from 'child_process';
@@ -73,58 +73,59 @@ class Semantic
 		});
 		const output = phpOutput.toString().split('\n');
 		const toParse = output[5];
-		const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
-			region: 'us-east-1',
-			composition: 'react-svg',
-			functionName: 'remotion-render',
-			serveUrl: 'testbed',
-			codec: 'h264',
-			inputProps: {
-				hi: 'there',
-			},
-			audioBitrate: null,
-			audioCodec: null,
-			chromiumOptions: {},
-			colorSpace: null,
-			concurrencyPerLambda: 1,
-			crf: undefined,
-			deleteAfter: null,
-			downloadBehavior: {type: 'play-in-browser'},
-			envVariables: {},
-			everyNthFrame: 1,
-			forceBucketName: null,
-			forceHeight: null,
-			forceWidth: null,
-			frameRange: null,
-			framesPerLambda: null,
-			imageFormat: 'jpeg',
-			jpegQuality: 80,
-			logLevel: 'info',
-			maxRetries: 1,
-			muted: false,
-			numberOfGifLoops: 0,
-			offthreadVideoCacheSizeInBytes: null,
-			outName: null,
-			overwrite: false,
-			pixelFormat: undefined,
-			privacy: 'public',
-			proResProfile: undefined,
-			rendererFunctionName: null,
-			scale: 1,
-			timeoutInMilliseconds: 30000,
-			videoBitrate: null,
-			encodingMaxRate: null,
-			encodingBufferSize: null,
-			webhook: null,
-			x264Preset: null,
-			preferLossless: false,
-			indent: false,
-			forcePathStyle: false,
-			metadata: {
-				Author: 'Remotion',
-			},
-			apiKey: null,
-		});
+		const nativeVersion =
+			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				region: 'us-east-1',
+				composition: 'react-svg',
+				functionName: 'remotion-render',
+				serveUrl: 'testbed',
+				codec: 'h264',
+				inputProps: {
+					hi: 'there',
+				},
+				audioBitrate: null,
+				audioCodec: null,
+				chromiumOptions: {},
+				colorSpace: null,
+				concurrencyPerLambda: 1,
+				crf: undefined,
+				deleteAfter: null,
+				downloadBehavior: {type: 'play-in-browser'},
+				envVariables: {},
+				everyNthFrame: 1,
+				forceBucketName: null,
+				forceHeight: null,
+				forceWidth: null,
+				frameRange: null,
+				framesPerLambda: null,
+				imageFormat: 'jpeg',
+				jpegQuality: 80,
+				logLevel: 'info',
+				maxRetries: 1,
+				muted: false,
+				numberOfGifLoops: 0,
+				offthreadVideoCacheSizeInBytes: null,
+				outName: null,
+				overwrite: false,
+				pixelFormat: undefined,
+				privacy: 'public',
+				proResProfile: undefined,
+				rendererFunctionName: null,
+				scale: 1,
+				timeoutInMilliseconds: 30000,
+				videoBitrate: null,
+				encodingMaxRate: null,
+				encodingBufferSize: null,
+				webhook: null,
+				x264Preset: null,
+				preferLossless: false,
+				indent: false,
+				forcePathStyle: false,
+				metadata: {
+					Author: 'Remotion',
+				},
+				apiKey: null,
+			});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);
 
@@ -146,7 +147,7 @@ class Semantic
 		);
 		const output = phpOutput.toString().split('\n');
 		const toParse = output[5];
-		const nativeVersion = LambdaInternals.getRenderProgressPayload({
+		const nativeVersion = LambdaClientInternals.getRenderProgressPayload({
 			region: 'us-east-1',
 			functionName: 'remotion-render',
 			bucketName: 'remotion-render',

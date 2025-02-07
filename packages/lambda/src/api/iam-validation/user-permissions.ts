@@ -1,4 +1,4 @@
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless/client';
+import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless';
 import {LOG_GROUP_PREFIX, RENDER_FN_PREFIX} from '../../defaults';
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 

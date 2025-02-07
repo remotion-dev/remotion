@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import type {ServerlessCodec} from '@remotion/serverless/client';
-import {serverlessCodecs} from '@remotion/serverless/client';
+import type {ServerlessCodec} from '@remotion/serverless-client';
+import {serverlessCodecs} from '@remotion/serverless-client';
 
 export const validateLambdaCodec = (codec: unknown): ServerlessCodec => {
 	if (typeof codec !== 'string') {

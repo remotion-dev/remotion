@@ -5,10 +5,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 
 import {AwsProvider} from '@remotion/lambda-client';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {
-	internalGetOrCreateBucket,
-	type Privacy,
-} from '@remotion/serverless/client';
+import {internalGetOrCreateBucket, type Privacy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 import {BINARY_NAME} from '../../../defaults';
 import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';

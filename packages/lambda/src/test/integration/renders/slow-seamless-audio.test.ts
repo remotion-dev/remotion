@@ -1,5 +1,5 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {rendersPrefix} from '@remotion/serverless/client';
+import {rendersPrefix} from '@remotion/serverless';
 import {$} from 'bun';
 import {expect, test} from 'bun:test';
 import {existsSync, unlinkSync} from 'fs';

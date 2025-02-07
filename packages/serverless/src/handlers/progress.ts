@@ -1,12 +1,11 @@
-import type {ServerlessPayload} from '../constants';
-import {ServerlessRoutines} from '../constants';
-import {getProgress} from '../progress';
 import type {
-	InsideFunctionSpecifics,
+	CloudProvider,
+	GenericRenderProgress,
 	ProviderSpecifics,
-} from '../provider-implementation';
-import type {GenericRenderProgress} from '../render-progress';
-import type {CloudProvider} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {ServerlessRoutines, getProgress} from '@remotion/serverless-client';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {

@@ -1444,16 +1444,13 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: 3.738.0
         version: 3.738.0
-      '@remotion/serverless':
-        specifier: workspace:*
-        version: link:../serverless
-      '@remotion/streaming':
-        specifier: workspace:*
-        version: link:../streaming
     devDependencies:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      '@remotion/serverless-client':
+        specifier: workspace:*
+        version: link:../serverless-client
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
@@ -1900,22 +1897,31 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
-      '@remotion/licensing':
-        specifier: workspace:*
-        version: link:../licensing
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
-      '@remotion/streaming':
+      '@remotion/serverless-client':
         specifier: workspace:*
-        version: link:../streaming
-      remotion:
-        specifier: workspace:*
-        version: link:../core
+        version: link:../serverless-client
     devDependencies:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+
+  packages/serverless-client:
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      '@remotion/licensing':
+        specifier: workspace:*
+        version: link:../licensing
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
       eslint:
         specifier: 9.19.0
         version: 9.19.0

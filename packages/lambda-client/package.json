@@ -9,11 +9,12 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier src --check",
+		"test": "bun test src",
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "MIT",
+	"license": "UNLICENSED",
 	"dependencies": {
 		"@aws-sdk/client-cloudwatch-logs": "3.738.0",
 		"@aws-sdk/client-iam": "3.738.0",
@@ -21,11 +22,10 @@
 		"@aws-sdk/s3-request-presigner": "3.738.0",
 		"@aws-sdk/client-s3": "3.738.0",
 		"@aws-sdk/client-service-quotas": "3.738.0",
-		"@aws-sdk/client-sts": "3.738.0",
-		"@remotion/serverless": "workspace:*",
-		"@remotion/streaming": "workspace:*"
+		"@aws-sdk/client-sts": "3.738.0"
 	},
 	"devDependencies": {
+		"@remotion/serverless-client": "workspace:*",
 		"@types/express": "^5.0.0",
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",

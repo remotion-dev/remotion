@@ -5,7 +5,7 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": "turbo run lint test --no-update-notifier",
-		"ts-build": "tsc -b --verbose",
+		"ts-build": "tsc -b --verbose --watch",
 		"stylecheck": "turbo run lint formatting --no-update-notifier",
 		"build": "turbo run make --no-update-notifier",
 		"build-docs": "turbo run build-docs --no-update-notifier",

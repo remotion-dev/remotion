@@ -1,4 +1,4 @@
-import {estimatePriceFromBucket} from '@remotion/serverless';
+import {estimatePriceFromMetadata} from '@remotion/serverless-client';
 import {expect, test} from 'bun:test';
 import {awsImplementation} from '../aws-provider';
 
@@ -6,7 +6,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
 	process.env.AWS_REGION = 'us-east-1';
 
-	const price = estimatePriceFromBucket({
+	const price = estimatePriceFromMetadata({
 		memorySizeInMb: 1024,
 		renderMetadata: {
 			audioBitrate: null,

@@ -13,11 +13,11 @@ import type {
 import type {
 	MessageTypeId,
 	ServerlessRoutines,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import {
 	formatMap,
 	messageTypeIdToMessageType,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import {makeStreamer} from '@remotion/streaming';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';

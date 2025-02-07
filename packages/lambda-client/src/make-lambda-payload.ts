@@ -21,7 +21,7 @@ import type {
 	ServerlessStartPayload,
 	ServerlessStatusPayload,
 	WebhookOption,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import {
 	ServerlessRoutines,
 	compressInputProps,
@@ -29,12 +29,12 @@ import {
 	serializeOrThrow,
 	validateDownloadBehavior,
 	validateFramesPerFunction,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import {VERSION} from 'remotion/version';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 
-import {validateWebhook} from '@remotion/serverless/client';
+import {validateWebhook} from '@remotion/serverless-client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';

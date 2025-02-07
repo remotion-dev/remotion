@@ -1,4 +1,4 @@
-import {LambdaInternals} from '@remotion/lambda';
+import {LambdaClientInternals} from '@remotion/lambda/src/client';
 import {expect, test} from 'bun:test';
 import {execSync} from 'child_process';
 import {readFileSync, writeFileSync} from 'fs';
@@ -41,67 +41,68 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	);
 	const output = pythonOutput.toString().split('\n');
 	const toParse = output[PYTHON_OUTPUT_MARKER];
-	const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
-		region: 'us-east-1',
-		composition: 'react-svg',
-		functionName: 'remotion-render',
-		serveUrl: 'testbed',
-		codec: 'h264',
-		inputProps: {
-			hi: 'there',
-		},
-		audioBitrate: null,
-		audioCodec: null,
-		chromiumOptions: {},
-		colorSpace: null,
-		concurrencyPerLambda: 1,
-		crf: undefined,
-		deleteAfter: null,
-		downloadBehavior: {
-			fileName: 'hi',
-			type: 'download',
-		},
-		envVariables: {},
-		everyNthFrame: 1,
-		forceBucketName: null,
-		forceHeight: null,
-		forceWidth: null,
-		frameRange: null,
-		framesPerLambda: null,
-		imageFormat: 'jpeg',
-		jpegQuality: 80,
-		logLevel: 'info',
-		maxRetries: 1,
-		muted: false,
-		numberOfGifLoops: 0,
-		offthreadVideoCacheSizeInBytes: null,
-		outName: null,
-		overwrite: false,
-		pixelFormat: undefined,
-		privacy: 'public',
-		proResProfile: undefined,
-		rendererFunctionName: null,
-		scale: 1,
-		timeoutInMilliseconds: 30000,
-		videoBitrate: null,
-		encodingMaxRate: null,
-		encodingBufferSize: null,
-		webhook: {
-			secret: 'abc',
-			url: 'https://example.com',
-			customData: {
+	const nativeVersion =
+		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			region: 'us-east-1',
+			composition: 'react-svg',
+			functionName: 'remotion-render',
+			serveUrl: 'testbed',
+			codec: 'h264',
+			inputProps: {
 				hi: 'there',
 			},
-		},
-		x264Preset: null,
-		preferLossless: false,
-		indent: false,
-		forcePathStyle: false,
-		metadata: {
-			Author: 'Lunar',
-		},
-		apiKey: null,
-	});
+			audioBitrate: null,
+			audioCodec: null,
+			chromiumOptions: {},
+			colorSpace: null,
+			concurrencyPerLambda: 1,
+			crf: undefined,
+			deleteAfter: null,
+			downloadBehavior: {
+				fileName: 'hi',
+				type: 'download',
+			},
+			envVariables: {},
+			everyNthFrame: 1,
+			forceBucketName: null,
+			forceHeight: null,
+			forceWidth: null,
+			frameRange: null,
+			framesPerLambda: null,
+			imageFormat: 'jpeg',
+			jpegQuality: 80,
+			logLevel: 'info',
+			maxRetries: 1,
+			muted: false,
+			numberOfGifLoops: 0,
+			offthreadVideoCacheSizeInBytes: null,
+			outName: null,
+			overwrite: false,
+			pixelFormat: undefined,
+			privacy: 'public',
+			proResProfile: undefined,
+			rendererFunctionName: null,
+			scale: 1,
+			timeoutInMilliseconds: 30000,
+			videoBitrate: null,
+			encodingMaxRate: null,
+			encodingBufferSize: null,
+			webhook: {
+				secret: 'abc',
+				url: 'https://example.com',
+				customData: {
+					hi: 'there',
+				},
+			},
+			x264Preset: null,
+			preferLossless: false,
+			indent: false,
+			forcePathStyle: false,
+			metadata: {
+				Author: 'Lunar',
+			},
+			apiKey: null,
+		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
 
@@ -122,7 +123,7 @@ test('Python package should create the same progress payload as normal Lambda pa
 	);
 	const output = pythonOutput.toString().split('\n');
 	const toParse = output[PYTHON_OUTPUT_MARKER];
-	const nativeVersion = LambdaInternals.getRenderProgressPayload({
+	const nativeVersion = LambdaClientInternals.getRenderProgressPayload({
 		region: 'us-east-1',
 		functionName: 'remotion-render',
 		bucketName: 'remotion-render',
@@ -152,38 +153,39 @@ test('Python package should create the same renderStill payload as normal Lambda
 	);
 	const output = pythonOutput.toString().split('\n');
 	const toParse = output[PYTHON_OUTPUT_MARKER];
-	const nativeVersion = await LambdaInternals.makeLambdaRenderStillPayload({
-		region: 'us-east-1',
-		composition: 'still-helloworld',
-		functionName: 'remotion-render',
-		serveUrl: 'testbed',
-		inputProps: {
-			message: 'Hello from props!',
-		},
-		chromiumOptions: {},
-		deleteAfter: null,
-		downloadBehavior: {type: 'play-in-browser'},
-		envVariables: {},
-		forceBucketName: null,
-		forceHeight: null,
-		forceWidth: null,
-		imageFormat: 'jpeg',
-		jpegQuality: 80,
-		logLevel: 'info',
-		maxRetries: 1,
-		offthreadVideoCacheSizeInBytes: null,
-		outName: null,
-		privacy: 'public',
-		scale: 1,
-		timeoutInMilliseconds: 30000,
-		frame: 0,
-		indent: false,
-		onInit: () => undefined,
-		dumpBrowserLogs: false,
-		quality: undefined,
-		forcePathStyle: false,
-		apiKey: null,
-	});
+	const nativeVersion =
+		await LambdaClientInternals.makeLambdaRenderStillPayload({
+			region: 'us-east-1',
+			composition: 'still-helloworld',
+			functionName: 'remotion-render',
+			serveUrl: 'testbed',
+			inputProps: {
+				message: 'Hello from props!',
+			},
+			chromiumOptions: {},
+			deleteAfter: null,
+			downloadBehavior: {type: 'play-in-browser'},
+			envVariables: {},
+			forceBucketName: null,
+			forceHeight: null,
+			forceWidth: null,
+			imageFormat: 'jpeg',
+			jpegQuality: 80,
+			logLevel: 'info',
+			maxRetries: 1,
+			offthreadVideoCacheSizeInBytes: null,
+			outName: null,
+			privacy: 'public',
+			scale: 1,
+			timeoutInMilliseconds: 30000,
+			frame: 0,
+			indent: false,
+			onInit: () => undefined,
+			dumpBrowserLogs: false,
+			quality: undefined,
+			forcePathStyle: false,
+			apiKey: null,
+		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);
 	// remove the bucketName field because request input does not have that value

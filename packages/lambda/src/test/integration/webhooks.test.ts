@@ -1,5 +1,5 @@
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless';
 import {beforeAll, expect, test} from 'bun:test';
 import path from 'path';
 import {VERSION} from 'remotion/version';

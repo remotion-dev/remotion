@@ -4,7 +4,7 @@ import {
 	getOverallProgressFromStorage,
 	rendersPrefix,
 	type CustomCredentials,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';

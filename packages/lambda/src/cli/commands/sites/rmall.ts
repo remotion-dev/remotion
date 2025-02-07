@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {AwsProvider, getSites} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {deleteSite} from '../../../api/delete-site';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';

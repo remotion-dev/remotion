@@ -1,6 +1,9 @@
 import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
-import type {BucketWithLocation, CloudProvider} from '@remotion/serverless';
-import type {Privacy} from '@remotion/serverless/client';
+import type {
+	BucketWithLocation,
+	CloudProvider,
+	Privacy,
+} from '@remotion/serverless';
 import {Readable} from 'stream';
 
 export const mockBucketStore: BucketWithLocation<AwsProvider>[] = [];

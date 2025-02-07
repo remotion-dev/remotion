@@ -1,7 +1,10 @@
+import type {
+	CloudProvider,
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {ServerlessRoutines} from '@remotion/serverless-client';
 import {VERSION} from 'remotion/version';
-import {ServerlessRoutines, type ServerlessPayload} from '../constants';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
-import type {CloudProvider} from '../types';
 
 export const checkVersionMismatch = <Provider extends CloudProvider>({
 	params,

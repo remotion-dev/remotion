@@ -1,11 +1,13 @@
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	AfterRenderCost,
+	EnhancedErrorInfo,
+} from '@remotion/serverless-client';
 import * as Crypto from 'node:crypto';
-import type {AfterRenderCost} from './constants';
 import type {
 	InvokeWebhook,
 	InvokeWebhookOptions,
 } from './provider-implementation';
-import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export function calculateSignature(payload: string, secret: string | null) {
 	if (!secret) {

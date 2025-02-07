@@ -1,14 +1,16 @@
 import {RenderInternals} from '@remotion/renderer';
-import {decompressInputProps} from '../compress-props';
-import type {ServerlessPayload} from '../constants';
-import {ServerlessRoutines} from '../constants';
-import {} from '../get-browser-instance';
-import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import type {
-	InsideFunctionSpecifics,
+	CloudProvider,
 	ProviderSpecifics,
-} from '../provider-implementation';
-import type {CloudProvider} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {
+	ServerlessRoutines,
+	decompressInputProps,
+	internalGetOrCreateBucket,
+} from '@remotion/serverless-client';
+import {} from '../get-browser-instance';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {

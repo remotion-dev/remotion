@@ -1,13 +1,15 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	Await,
+	CloudProvider,
+	ProviderSpecifics,
+} from '@remotion/serverless-client';
 import {VERSION} from 'remotion/version';
-import type {Await} from './await';
 import type {
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
-	ProviderSpecifics,
 } from './provider-implementation';
-import type {CloudProvider} from './types';
 
 export type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;

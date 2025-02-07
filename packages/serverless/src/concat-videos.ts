@@ -7,13 +7,13 @@ import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
 } from './can-concat-seamlessly';
+
+import type {CloudProvider, ServerlessCodec} from '@remotion/serverless-client';
 import {
 	REMOTION_CONCATENATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
-	type ServerlessCodec,
-} from './constants';
+} from '@remotion/serverless-client';
 import type {InsideFunctionSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
 
 export const concatVideos = async <Provider extends CloudProvider>({
 	onProgress,

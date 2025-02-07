@@ -1,7 +1,16 @@
 import {RenderInternals} from '@remotion/renderer';
-import {makeStreamPayload} from './client';
-import type {ServerlessPayload} from './constants';
-import {COMMAND_NOT_FOUND, ServerlessRoutines} from './constants';
+import type {
+	CloudProvider,
+	OrError,
+	ProviderSpecifics,
+	ServerlessPayload,
+	StreamingPayload,
+} from '@remotion/serverless-client';
+import {
+	COMMAND_NOT_FOUND,
+	makeStreamPayload,
+	ServerlessRoutines,
+} from '@remotion/serverless-client';
 import {compositionsHandler} from './handlers/compositions';
 import {launchHandler} from './handlers/launch';
 import {progressHandler} from './handlers/progress';
@@ -15,13 +24,9 @@ import {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {
 	InsideFunctionSpecifics,
-	ProviderSpecifics,
 	WebhookClient,
 } from './provider-implementation';
-import type {OrError} from './return-values';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
-import type {StreamingPayload} from './streaming/streaming';
-import type {CloudProvider} from './types';
 
 export const innerHandler = async <Provider extends CloudProvider>({
 	params,
@@ -276,7 +281,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 
 					const writeProm = responseWriter.write(message);
 
-					return new Promise((innerResolve, innerReject) => {
+					return new Promise<void>((innerResolve, innerReject) => {
 						writeProm
 							.then(() => {
 								innerResolve();

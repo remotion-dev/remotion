@@ -4,8 +4,8 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {DownloadBehavior} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import type {DownloadBehavior} from '@remotion/serverless-client';
+import {ServerlessRoutines} from '@remotion/serverless-client';
 
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
@@ -13,7 +13,7 @@ import type {
 	ReceivedArtifact,
 	RenderStillFunctionResponsePayload,
 } from '@remotion/serverless';
-import type {OutNameInput, Privacy} from '@remotion/serverless/client';
+import type {OutNameInput, Privacy} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';

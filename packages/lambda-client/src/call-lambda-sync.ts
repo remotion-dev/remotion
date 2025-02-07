@@ -3,9 +3,11 @@ import type {
 	CallFunctionOptions,
 	CloudProvider,
 	OrError,
-	ServerlessReturnValues,
 } from '@remotion/serverless';
-import type {ServerlessRoutines} from '@remotion/serverless/client';
+import type {
+	ServerlessReturnValues,
+	ServerlessRoutines,
+} from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';
 

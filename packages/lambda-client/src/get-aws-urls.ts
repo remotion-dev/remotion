@@ -1,5 +1,5 @@
 import type {GetLoggingUrlForRendererFunction} from '@remotion/serverless';
-import type {ServerlessRoutines} from '@remotion/serverless/client';
+import type {ServerlessRoutines} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {encodeAwsUrlParams} from './encode-aws-url-params';
 import type {AwsRegion} from './regions';

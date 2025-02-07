@@ -17,7 +17,7 @@ import {
 	validateFramesPerFunction,
 	validatePrivacy,
 	type ServerlessCodec,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,

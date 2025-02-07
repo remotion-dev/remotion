@@ -4,7 +4,7 @@ import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless';
 
 export type LambdaReadFileProgress = (progress: {
 	totalSize: number;

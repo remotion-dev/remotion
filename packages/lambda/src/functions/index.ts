@@ -1,8 +1,11 @@
 import type {AwsProvider} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {RequestContext, ResponseStream} from '@remotion/serverless';
+import type {
+	RequestContext,
+	ResponseStream,
+	ServerlessPayload,
+} from '@remotion/serverless';
 import {innerHandler, streamWriter} from '@remotion/serverless';
-import type {ServerlessPayload} from '@remotion/serverless/client';
 import {serverAwsImplementation} from './aws-server-implementation';
 import {streamifyResponse} from './helpers/streamify-response';
 import {getWebhookClient} from './http-client';

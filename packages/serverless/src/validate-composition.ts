@@ -6,10 +6,12 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	Await,
+	CloudProvider,
+	ProviderSpecifics,
+} from '@remotion/serverless-client';
 import type {VideoConfig} from 'remotion/no-react';
-import type {Await} from './await';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
 import {
 	validateDimension,
 	validateDurationInFrames,

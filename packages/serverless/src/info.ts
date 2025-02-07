@@ -1,7 +1,9 @@
+import type {
+	CloudProvider,
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {ServerlessRoutines} from '@remotion/serverless-client';
 import {VERSION} from 'remotion/version';
-import type {ServerlessPayload} from './constants';
-import {ServerlessRoutines} from './constants';
-import type {CloudProvider} from './types';
 
 export const infoHandler = <Provider extends CloudProvider>(
 	serverlessParams: ServerlessPayload<Provider>,

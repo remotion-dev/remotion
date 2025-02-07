@@ -9,7 +9,7 @@ import type {
 	ProviderSpecifics,
 	UploadDirProgress,
 } from '@remotion/serverless';
-import {validateBucketName, validatePrivacy} from '@remotion/serverless/client';
+import {validateBucketName, validatePrivacy} from '@remotion/serverless';
 import fs from 'node:fs';
 import {getSitesKey} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';

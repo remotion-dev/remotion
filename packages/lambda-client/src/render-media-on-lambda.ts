@@ -15,8 +15,8 @@ import type {
 	Privacy,
 	ServerlessCodec,
 	WebhookOption,
-} from '@remotion/serverless/client';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
+import {ServerlessRoutines} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import {
 	getCloudwatchMethodUrl,

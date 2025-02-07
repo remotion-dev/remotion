@@ -2,7 +2,7 @@ import type {GenericRenderProgress} from '@remotion/serverless';
 import {
 	type Privacy,
 	MINIMUM_FRAMES_PER_FUNCTIONS,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import {NoReactInternals} from 'remotion/no-react';
 import type {AwsProvider} from './aws-provider';
 import type {AwsRegion} from './regions';

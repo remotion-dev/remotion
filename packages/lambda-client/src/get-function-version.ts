@@ -2,7 +2,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {
 	COMMAND_NOT_FOUND,
 	ServerlessRoutines,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import {awsImplementation} from './aws-provider';
 import type {AwsRegion} from './regions';
 

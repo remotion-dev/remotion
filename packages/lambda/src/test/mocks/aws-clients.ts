@@ -4,18 +4,20 @@ import type {
 	CallFunctionOptions,
 	CallFunctionStreaming,
 	CallFunctionSync,
+	MessageTypeId,
 	OnMessage,
 	OrError,
 	ServerlessReturnValues,
 	ServerlessRoutines,
 	StreamingMessage,
 } from '@remotion/serverless';
-import {innerHandler, ResponseStream, streamWriter} from '@remotion/serverless';
-import type {MessageTypeId} from '@remotion/serverless/client';
 import {
 	formatMap,
+	innerHandler,
 	messageTypeIdToMessageType,
-} from '@remotion/serverless/client';
+	ResponseStream,
+	streamWriter,
+} from '@remotion/serverless';
 import {makeStreamer} from '@remotion/streaming';
 import {getWebhookClient} from '../../functions/http-client';
 import {mockServerImplementation} from '../mock-implementation';

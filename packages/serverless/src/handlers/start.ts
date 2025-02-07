@@ -1,12 +1,15 @@
-import type {ServerlessPayload} from '../constants';
-import {ServerlessRoutines, overallProgressKey} from '../constants';
-import {internalGetOrCreateBucket} from '../get-or-create-bucket';
-import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {
-	InsideFunctionSpecifics,
+	CloudProvider,
 	ProviderSpecifics,
-} from '../provider-implementation';
-import type {CloudProvider} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {
+	ServerlessRoutines,
+	internalGetOrCreateBucket,
+	overallProgressKey,
+} from '@remotion/serverless-client';
+import {makeInitialOverallRenderProgress} from '../overall-render-progress';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {

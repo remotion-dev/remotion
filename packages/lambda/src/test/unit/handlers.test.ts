@@ -1,4 +1,4 @@
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {mockImplementation} from '../mocks/mock-implementation';
 

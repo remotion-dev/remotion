@@ -2,7 +2,7 @@ import {
 	DeleteBucketLifecycleCommand,
 	PutBucketLifecycleConfigurationCommand,
 } from '@aws-sdk/client-s3';
-import type {CustomCredentials} from '@remotion/serverless/client';
+import type {CustomCredentials} from '@remotion/serverless-client';
 import {createLifeCycleInput, deleteLifeCycleInput} from './apply-lifecycle';
 import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';

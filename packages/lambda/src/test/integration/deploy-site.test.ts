@@ -1,5 +1,5 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';

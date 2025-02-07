@@ -1,8 +1,7 @@
 import {Upload} from '@aws-sdk/lib-storage';
 import type {AwsRegion} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {UploadDirProgress} from '@remotion/serverless';
-import type {Privacy} from '@remotion/serverless/client';
+import type {Privacy, UploadDirProgress} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
 import type {Dirent} from 'node:fs';
 import {createReadStream, promises as fs} from 'node:fs';

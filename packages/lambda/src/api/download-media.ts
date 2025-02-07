@@ -7,7 +7,7 @@ import {
 	getExpectedOutName,
 	getOverallProgressFromStorage,
 	type CustomCredentials,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless';
 import path from 'node:path';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';

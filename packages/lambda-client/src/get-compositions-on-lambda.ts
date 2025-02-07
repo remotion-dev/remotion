@@ -5,7 +5,7 @@ import {
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless-client';
 import type {VideoConfig} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import {awsImplementation} from './aws-provider';

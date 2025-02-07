@@ -3,10 +3,10 @@ import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {
+	DOCS_URL,
 	FullClientSpecifics,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
-import {DOCS_URL} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';

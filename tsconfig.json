@@ -208,6 +208,9 @@
 			"path": "./packages/serverless"
 		},
 		{
+			"path": "./packages/serverless-client"
+		},
+		{
 			"path": "./packages/docusaurus-plugin"
 		},
 		{

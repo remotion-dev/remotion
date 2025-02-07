@@ -1,6 +1,6 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
+import {rendersPrefix} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
