@@ -67,9 +67,7 @@ export const buildPackage = async ({
 }) => {
 	console.time(`Generated ${formats.join(', ')}.`);
 	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
-	const newExports = {
-		...pkg.exports,
-	};
+	const newExports = {};
 	const versions = {};
 
 	for (const format of formats) {
@@ -96,16 +94,18 @@ export const buildPackage = async ({
 			const exportName = firstName === 'index' ? '.' : './' + firstName;
 			newExports[exportName] = {
 				types: `./dist/${firstName}.d.ts`,
+				// Order is important!
+				// require() must be at top
+				...(format === 'cjs'
+					? {
+							require: outputPath,
+						}
+					: {}),
+				...(newExports[exportName] ?? {}),
 				...(format === 'esm'
 					? {
 							module: outputPath,
 							import: outputPath,
-						}
-					: {}),
-				...(newExports[exportName] ?? {}),
-				...(format === 'cjs'
-					? {
-							require: outputPath,
 						}
 					: {}),
 			};

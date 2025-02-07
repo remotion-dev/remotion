@@ -1,5 +1,5 @@
 export type {EnhancedErrorInfo} from '@remotion/serverless';
-export {
+export type {
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
 } from '@remotion/serverless-client';

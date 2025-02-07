@@ -36,24 +36,23 @@
 		"access": "public"
 	},
 	"exports": {
-		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
+			"require": "./dist/cjs/index.js",
 			"module": "./dist/esm/index.mjs",
-			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.js"
+			"import": "./dist/esm/index.mjs"
 		},
 		"./constants": {
 			"types": "./dist/constants.d.ts",
+			"require": "./dist/cjs/constants.js",
 			"module": "./dist/esm/constants.mjs",
-			"import": "./dist/esm/constants.mjs",
-			"require": "./dist/cjs/constants.js"
+			"import": "./dist/esm/constants.mjs"
 		},
 		"./regions": {
 			"types": "./dist/regions.d.ts",
+			"require": "./dist/cjs/regions.js",
 			"module": "./dist/esm/regions.mjs",
-			"import": "./dist/esm/regions.mjs",
-			"require": "./dist/cjs/regions.js"
+			"import": "./dist/esm/regions.mjs"
 		}
 	},
 	"typesVersions": {
