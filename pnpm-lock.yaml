@@ -1284,6 +1284,9 @@ importers:
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
+      '@remotion/lambda-client':
+        specifier: workspace:*
+        version: link:../lambda-client
       '@remotion/layout-utils':
         specifier: workspace:*
         version: link:../layout-utils

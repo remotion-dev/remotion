@@ -1,4 +1,4 @@
-import {LambdaClientInternals} from '@remotion/lambda/src/client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {$} from 'bun';
 import {beforeAll, describe, expect, test} from 'bun:test';
 import {execSync} from 'child_process';
