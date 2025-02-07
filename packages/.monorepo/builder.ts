@@ -71,6 +71,7 @@ export const buildPackage = async ({
 	const newExports = {
 		...pkg.exports,
 	};
+	const versions = {};
 
 	for (const format of formats) {
 		const output = await build({
@@ -84,13 +85,8 @@ export const buildPackage = async ({
 		for (const file of output.outputs) {
 			const text = await file.text();
 
-			const outputPath = './' + path.join('./dist', format, file.path);
-			const typesOutputPath =
-				'./' +
-				path.join(
-					'./dist',
-					file.path.replace('.mjs', '.d.ts').replace('.js', '.d.ts'),
-				);
+			const outputPath = `./${path.join('./dist', format, file.path)}`;
+
 			await Bun.write(path.join(process.cwd(), outputPath), text);
 
 			if (text.includes('jonathanburger')) {
@@ -100,20 +96,23 @@ export const buildPackage = async ({
 			const firstName = file.path.split('.')[1].slice(1);
 			const exportName = firstName === 'index' ? '.' : './' + firstName;
 			newExports[exportName] = {
-				...(newExports[exportName] ?? {}),
-				types: typesOutputPath,
+				types: `./dist/${firstName}.d.ts`,
 				...(format === 'esm'
 					? {
-							import: outputPath,
 							module: outputPath,
+							import: outputPath,
 						}
 					: {}),
+				...(newExports[exportName] ?? {}),
 				...(format === 'cjs'
 					? {
 							require: outputPath,
 						}
 					: {}),
 			};
+			if (firstName !== 'index') {
+				versions[firstName] = [`dist/${firstName}.d.ts`];
+			}
 		}
 	}
 	validateExports(newExports);
@@ -123,6 +122,9 @@ export const buildPackage = async ({
 			{
 				...pkg,
 				exports: newExports,
+				...(Object.keys(versions).length > 0
+					? {typesVersions: {'>=1.0': versions}}
+					: {}),
 			},
 			null,
 			'\t',
