@@ -38,22 +38,22 @@
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
-			"require": "./dist/cjs/index.js",
-			"import": "./dist/esm/index.mjs",
+			"types": "./dist/index.d.ts",
 			"module": "./dist/esm/index.mjs",
-			"types": "./dist/index.d.ts"
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
 		},
 		"./constants": {
 			"types": "./dist/constants.d.ts",
-			"require": "./dist/cjs/constants.js",
+			"module": "./dist/esm/constants.mjs",
 			"import": "./dist/esm/constants.mjs",
-			"module": "./dist/esm/constants.mjs"
+			"require": "./dist/cjs/constants.js"
 		},
 		"./regions": {
 			"types": "./dist/regions.d.ts",
-			"require": "./dist/cjs/regions.js",
+			"module": "./dist/esm/regions.mjs",
 			"import": "./dist/esm/regions.mjs",
-			"module": "./dist/esm/regions.mjs"
+			"require": "./dist/cjs/regions.js"
 		}
 	},
 	"typesVersions": {
