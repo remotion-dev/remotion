@@ -6,7 +6,10 @@ import {join} from 'path';
 import type {ServerlessPayload} from './constants';
 import {ServerlessRoutines} from './constants';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {
+	InsideFunctionSpecifics,
+	ProviderSpecifics,
+} from './provider-implementation';
 import {deserializeArtifact} from './serialize-artifact';
 import type {OnMessage} from './streaming/streaming';
 import type {CloudProvider} from './types';
@@ -30,6 +33,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	logLevel,
 	onArtifact,
 	providerSpecifics,
+	insideFunctionSpecifics,
 }: {
 	payload: ServerlessPayload<Provider>;
 	functionName: string;
@@ -39,6 +43,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -162,7 +167,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 				functionName,
 				payload,
 				retriesRemaining: 1,
-				region: providerSpecifics.getCurrentRegionInFunction(),
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 				timeoutInTest: 12000,
 				type: ServerlessRoutines.renderer,
 				receivedStreamingPayload,
@@ -196,6 +201,7 @@ export const streamRendererFunctionWithRetry = async <
 	logLevel,
 	onArtifact,
 	providerSpecifics,
+	insideFunctionSpecifics,
 }: {
 	payload: ServerlessPayload<Provider>;
 	functionName: string;
@@ -205,6 +211,7 @@ export const streamRendererFunctionWithRetry = async <
 	logLevel: LogLevel;
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -219,6 +226,7 @@ export const streamRendererFunctionWithRetry = async <
 		logLevel,
 		onArtifact,
 		providerSpecifics,
+		insideFunctionSpecifics,
 	});
 
 	if (result.type === 'error') {
@@ -245,6 +253,7 @@ export const streamRendererFunctionWithRetry = async <
 			logLevel,
 			onArtifact,
 			providerSpecifics,
+			insideFunctionSpecifics,
 		});
 	}
 };

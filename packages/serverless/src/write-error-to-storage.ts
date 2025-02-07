@@ -1,6 +1,6 @@
 import {errorIsOutOfSpaceError} from './error-category';
 import type {FileNameAndSize} from './get-files-in-folder';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {InsideFunctionSpecifics} from './provider-implementation';
 import type {CloudProvider} from './types';
 
 export type FunctionErrorInfo = {
@@ -19,13 +19,13 @@ export type FunctionErrorInfo = {
 
 export const getTmpDirStateIfENoSp = <Provider extends CloudProvider>(
 	err: string,
-	providerSpecifics: ProviderSpecifics<Provider>,
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>,
 ): FunctionErrorInfo['tmpDir'] => {
 	if (!errorIsOutOfSpaceError(err)) {
 		return null;
 	}
 
-	const files = providerSpecifics.getFolderFiles('/tmp');
+	const files = insideFunctionSpecifics.getFolderFiles('/tmp');
 	return {
 		files: files
 			.slice(0)

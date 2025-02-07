@@ -47,7 +47,7 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(
@@ -93,7 +93,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const bucketNamePromise =
 		params.bucketName ??
 		internalGetOrCreateBucket({
-			region: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			enableFolderExpiry: null,
 			customCredentials: null,
 			providerSpecifics,
@@ -105,7 +105,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const region = providerSpecifics.getCurrentRegionInFunction();
+	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
@@ -179,7 +179,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
@@ -204,7 +204,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		bucketName,
 		key: overallProgressKey(renderId),
 		body: JSON.stringify(still),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
@@ -232,7 +232,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		receivedArtifact.push(
-			providerSpecifics.makeArtifactWithDetails({
+			insideFunctionSpecifics.makeArtifactWithDetails({
 				storageKey,
 				artifact,
 				region,
@@ -319,7 +319,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		privacy: params.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		downloadBehavior: params.downloadBehavior,
 		customCredentials,
 		forcePathStyle: params.forcePathStyle,
@@ -328,7 +328,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			region: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			serialized: params.inputProps,
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
@@ -340,7 +340,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const estimatedPrice = providerSpecifics.estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 	});
@@ -349,7 +349,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		renderMetadata,
 		bucketName,
 		customCredentials,
-		currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+		currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 	});
 
 	const payload: RenderStillFunctionResponsePayload<Provider> = {
@@ -429,7 +429,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 						isFatal: false,
 						tmpDir: getTmpDirStateIfENoSp(
 							(err as Error).stack as string,
-							options.providerSpecifics,
+							options.insideFunctionSpecifics,
 						),
 						attempt: params.attempt,
 						totalAttempts: 1 + params.maxRetries,

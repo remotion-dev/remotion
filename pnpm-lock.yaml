@@ -1000,6 +1000,9 @@ importers:
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
+      '@remotion/lambda-client':
+        specifier: workspace:*
+        version: link:../lambda-client
       '@remotion/layout-utils':
         specifier: workspace:*
         version: link:../layout-utils
@@ -1344,24 +1347,6 @@ importers:
 
   packages/lambda:
     dependencies:
-      '@aws-sdk/client-cloudwatch-logs':
-        specifier: 3.738.0
-        version: 3.738.0
-      '@aws-sdk/client-iam':
-        specifier: 3.738.0
-        version: 3.738.0
-      '@aws-sdk/client-lambda':
-        specifier: 3.738.0
-        version: 3.738.0
-      '@aws-sdk/client-s3':
-        specifier: 3.738.0
-        version: 3.738.0
-      '@aws-sdk/client-service-quotas':
-        specifier: 3.738.0
-        version: 3.738.0
-      '@aws-sdk/client-sts':
-        specifier: 3.738.0
-        version: 3.738.0
       '@aws-sdk/credential-providers':
         specifier: 3.738.0
         version: 3.738.0
@@ -1377,6 +1362,9 @@ importers:
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
+      '@remotion/lambda-client':
+        specifier: workspace:*
+        version: link:../lambda-client
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -1432,6 +1420,52 @@ importers:
       zip-lib:
         specifier: ^0.7.2
         version: 0.7.2
+
+  packages/lambda-client:
+    dependencies:
+      '@aws-sdk/client-cloudwatch-logs':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-iam':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-lambda':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-s3':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-service-quotas':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/client-sts':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@aws-sdk/s3-request-presigner':
+        specifier: 3.738.0
+        version: 3.738.0
+      '@remotion/serverless':
+        specifier: workspace:*
+        version: link:../serverless
+      '@remotion/streaming':
+        specifier: workspace:*
+        version: link:../streaming
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.0
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+      express:
+        specifier: 4.21.0
+        version: 4.21.0
+      next:
+        specifier: 15.1.6
+        version: 15.1.6(@babel/core@7.23.2)(react-dom@19.0.0)(react@19.0.0)
 
   packages/lambda-go:
     devDependencies:
@@ -13685,7 +13719,7 @@ packages:
     engines: {node: '>=16.0.0'}
     dependencies:
       '@smithy/types': 3.3.0
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /@smithy/abort-controller@4.0.1:
@@ -27110,7 +27144,7 @@ packages:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
     dependencies:
-      side-channel: 1.0.6
+      side-channel: 1.1.0
 
   /qs@6.9.7:
     resolution: {integrity: sha512-IhMFgUmuNpyRfxA90umL7ByLlgRXu6tIfKPpF5TmcfRLlLCckfP/g3IQmju6jjpu+Hh8rA+2p6A27ZSPOOHdKw==}
@@ -28706,15 +28740,6 @@ packages:
       get-intrinsic: 1.2.7
       object-inspect: 1.13.3
       side-channel-map: 1.0.1
-
-  /side-channel@1.0.6:
-    resolution: {integrity: sha512-fDW/EZ6Q9RiO8eFG8Hj+7u/oW+XrPTIChwCOM2+th2A6OblDtYYIpve9m+KvI9Z4C9qSEXlaGR6bTEYHReuglA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.8
-      es-errors: 1.3.0
-      get-intrinsic: 1.2.7
-      object-inspect: 1.13.3
 
   /side-channel@1.1.0:
     resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}

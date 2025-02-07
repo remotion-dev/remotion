@@ -1,9 +1,7 @@
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {getSitesKey} from '../defaults';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
-import type {AwsRegion} from '../regions';
-import {cleanItems} from './clean-items';
 
 type MandatoryParameters = {
 	bucketName: string;
@@ -53,7 +51,7 @@ export const internalDeleteSite = async ({
 		totalSize += files.reduce((a, b) => {
 			return a + (b.Size ?? 0);
 		}, 0);
-		await cleanItems({
+		await LambdaClientInternals.cleanItems({
 			list: files.map((f) => f.Key as string),
 			bucket: bucketName as string,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
@@ -88,6 +86,6 @@ export const deleteSite = (
 		...props,
 		onAfterItemDeleted: props.onAfterItemDeleted ?? null,
 		forcePathStyle: props.forcePathStyle ?? false,
-		providerSpecifics: awsImplementation,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
 	});
 };

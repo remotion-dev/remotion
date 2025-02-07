@@ -1,18 +1,44 @@
 import type {
-	EnhancedErrorInfo,
-	FunctionInfo,
-	LambdaErrorInfo,
-} from '@remotion/serverless';
-import type {
+	AwsRegion,
 	CustomCredentials,
+	deleteFunction,
+	DeleteFunctionInput,
+	DeleteRenderInput,
+	EnhancedErrorInfo,
+	estimatePrice,
+	EstimatePriceInput,
+	FunctionInfo,
+	getAwsClient,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+	getCompositionsOnLambda,
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+	getFunctions,
+	GetFunctionsInput,
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
-} from '@remotion/serverless/client';
+	GetRenderProgressInput,
+	GetSitesInput,
+	GetSitesOutput,
+	LambdaErrorInfo,
+	RenderMediaOnLambdaInput,
+	RenderMediaOnLambdaOutput,
+	RenderProgress,
+	RenderStillOnLambdaInput,
+	RenderStillOnLambdaOutput,
+} from '@remotion/lambda-client';
+import {
+	deleteRender,
+	getRenderProgress as deprecatedGetRenderProgress,
+	getSites as deprecatedGetSites,
+	presignUrl as deprecatedPresignUrl,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
+	renderStillOnLambda as deprecatedRenderStillOnLambda,
+	renderVideoOnLambda,
+	validateWebhookSignature,
+} from '@remotion/lambda-client';
 import {NoReactInternals} from 'remotion/no-react';
-import type {DeleteFunctionInput} from './api/delete-function';
-import {deleteFunction} from './api/delete-function';
-import type {DeleteRenderInput} from './api/delete-render';
-import {deleteRender} from './api/delete-render';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
 import type {
@@ -27,25 +53,10 @@ import type {
 	DownloadMediaOutput,
 } from './api/download-media';
 import {downloadMedia} from './api/download-media';
-import type {EstimatePriceInput} from './api/estimate-price';
-import {estimatePrice} from './api/estimate-price';
-import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
-import {getAwsClient} from './api/get-aws-client';
-import type {
-	GetCompositionsOnLambdaInput,
-	GetCompositionsOnLambdaOutput,
-} from './api/get-compositions-on-lambda';
-import {getCompositionsOnLambda} from './api/get-compositions-on-lambda';
 import type {GetFunctionInfoInput} from './api/get-function-info';
 import {getFunctionInfo} from './api/get-function-info';
-import type {GetFunctionsInput} from './api/get-functions';
-import {getFunctions} from './api/get-functions';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
-import type {GetRenderProgressInput} from './api/get-render-progress';
-import {getRenderProgress as deprecatedGetRenderProgress} from './api/get-render-progress';
-import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
@@ -55,82 +66,64 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl as deprecatedPresignUrl} from './api/presign-url';
-import type {
-	RenderMediaOnLambdaInput,
-	RenderMediaOnLambdaOutput,
-} from './api/render-media-on-lambda';
-import {
-	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
-	renderVideoOnLambda,
-} from './api/render-media-on-lambda';
-import type {
-	RenderStillOnLambdaInput,
-	RenderStillOnLambdaOutput,
-} from './api/render-still-on-lambda';
-import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
-import {validateWebhookSignature} from './api/validate-webhook-signature';
 import {
 	LambdaInternals,
-	type _InternalAwsProvider,
 	type _InternalOverallRenderProgress,
 } from './internals';
-import type {AwsRegion} from './regions';
-import type {RenderProgress} from './shared/constants';
 
-export type {WebhookPayload} from '@remotion/serverless';
+export type {WebhookPayload} from '@remotion/lambda-client';
 
 /**
- * @deprecated Import this from `@remotion/lambda/client` instead
+ * @deprecated Import this from `@remotion/lambda-client` instead
  */
 const renderMediaOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? () => {
 			throw new Error(
-				'renderMediaOnLambda() has moved to `@remotion/lambda/client`. Please import it from there.',
+				'renderMediaOnLambda() has moved to `@remotion/lambda-client`. Please import it from there.',
 			);
 		}
 	: deprecatedRenderMediaOnLambda;
 
 /**
- * @deprecated Import this from `@remotion/lambda/client` instead
+ * @deprecated Import this from `@remotion/lambda-client` instead
  */
 const getRenderProgress = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? () => {
 			throw new Error(
-				'getRenderProgress() has moved to `@remotion/lambda/client`. Please import it from there.',
+				'getRenderProgress() has moved to `@remotion/lambda-client`. Please import it from there.',
 			);
 		}
 	: deprecatedGetRenderProgress;
 
 /**
- * @deprecated Import this from `@remotion/lambda/client` instead
+ * @deprecated Import this from `@remotion/lambda-client` instead
  */
 const renderStillOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? () => {
 			throw new Error(
-				'renderStillOnLambda() has moved to `@remotion/lambda/client`. Please import it from there.',
+				'renderStillOnLambda() has moved to `@remotion/lambda-client`. Please import it from there.',
 			);
 		}
 	: deprecatedRenderStillOnLambda;
 
 /**
- * @deprecated Import this from `@remotion/lambda/client` instead
+ * @deprecated Import this from `@remotion/lambda-client` instead
  */
 const presignUrl = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? () => {
 			throw new Error(
-				'presignUrl() has moved to `@remotion/lambda/client`. Please import it from there.',
+				'presignUrl() has moved to `@remotion/lambda-client`. Please import it from there.',
 			);
 		}
 	: deprecatedPresignUrl;
 
 /**
- * @deprecated Import this from `@remotion/lambda/client` instead
+ * @deprecated Import this from `@remotion/lambda-client` instead
  */
 const getSites = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 	? () => {
 			throw new Error(
-				'getSites() has moved to `@remotion/lambda/client`. Please import it from there.',
+				'getSites() has moved to `@remotion/lambda-client`. Please import it from there.',
 			);
 		}
 	: deprecatedGetSites;
@@ -198,4 +191,4 @@ export type {
 	SimulatePermissionsOutput,
 };
 
-export {_InternalAwsProvider, _InternalOverallRenderProgress};
+export {_InternalOverallRenderProgress};

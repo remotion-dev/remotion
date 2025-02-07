@@ -1,6 +1,6 @@
 import {ServerlessRoutines} from '@remotion/serverless/client';
 import {expect, test} from 'bun:test';
-import {mockImplementation} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 
 test('Info handler should return version', async () => {
 	const response = await mockImplementation.callFunctionSync({

@@ -62,7 +62,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -81,7 +81,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
@@ -204,7 +204,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
@@ -214,11 +214,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	});
 
 	registerCleanupTask(() => {
-		return cleanupProps({
+		return cleanupProps<Provider>({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			insideFunctionSpecifics,
 		});
 	});
 
@@ -310,7 +311,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
@@ -350,14 +351,14 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			bucketName: params.bucketName,
 			customCredentials,
 			renderMetadata,
-			region: providerSpecifics.getCurrentRegionInFunction(),
-			currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 		});
 		if (output) {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${providerSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
 
@@ -386,7 +387,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			return {alreadyExisted: true};
 		}
 
-		const region = providerSpecifics.getCurrentRegionInFunction();
+		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		const start = Date.now();
@@ -413,7 +414,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				);
 
 				overallProgress.addReceivedArtifact(
-					providerSpecifics.makeArtifactWithDetails({
+					insideFunctionSpecifics.makeArtifactWithDetails({
 						region,
 						renderBucketName,
 						storageKey,
@@ -456,6 +457,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				logLevel: params.logLevel,
 				onArtifact,
 				providerSpecifics,
+				insideFunctionSpecifics,
 			});
 		}),
 	);
@@ -508,7 +510,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	client: WebhookClient;
 }): Promise<{
 	type: 'success';
@@ -661,7 +663,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
 		providerSpecifics,
@@ -764,7 +766,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			isFatal: true,
 			tmpDir: getTmpDirStateIfENoSp(
 				(err as Error).stack as string,
-				providerSpecifics,
+				insideFunctionSpecifics,
 			),
 			attempt: 1,
 			totalAttempts: 1,

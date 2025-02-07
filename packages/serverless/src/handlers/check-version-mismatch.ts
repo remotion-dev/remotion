@@ -9,7 +9,7 @@ export const checkVersionMismatch = <Provider extends CloudProvider>({
 	apiName,
 }: {
 	params: ServerlessPayload<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	apiName: string;
 }) => {
 	if (params.type === ServerlessRoutines.info) {

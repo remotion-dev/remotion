@@ -52,7 +52,7 @@ export const mergeChunksAndFinishRender = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	forcePathStyle: boolean;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
@@ -101,7 +101,7 @@ export const mergeChunksAndFinishRender = async <
 		bucketName: options.renderBucketName,
 		key: options.key,
 		body: fs.readFileSync(outfile),
-		region: options.providerSpecifics.getCurrentRegionInFunction(),
+		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: options.downloadBehavior,
@@ -120,17 +120,18 @@ export const mergeChunksAndFinishRender = async <
 		serializedResolvedProps: options.serializedResolvedProps,
 		providerSpecifics: options.providerSpecifics,
 		forcePathStyle: options.forcePathStyle,
+		insideFunctionSpecifics: options.insideFunctionSpecifics,
 	});
 
 	const {url: outputUrl} = options.providerSpecifics.getOutputUrl({
 		bucketName: options.renderBucketName,
-		currentRegion: options.providerSpecifics.getCurrentRegionInFunction(),
+		currentRegion: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		customCredentials: options.customCredentials,
 		renderMetadata: options.renderMetadata,
 	});
 
 	const postRenderData = createPostRenderData({
-		region: options.providerSpecifics.getCurrentRegionInFunction(),
+		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		memorySizeInMb: options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,

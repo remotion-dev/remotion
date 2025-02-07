@@ -54,7 +54,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	logs: BrowserLog[];
 	onStream: OnStream<Provider>;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -69,7 +69,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
@@ -79,7 +79,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const resolvedPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
 		providerSpecifics,
@@ -424,7 +424,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream: OnStream<Provider>;
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<{
 	type: 'success';
 }> => {
@@ -492,7 +492,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 					isFatal: !shouldRetry,
 					tmpDir: getTmpDirStateIfENoSp(
 						(err as Error).stack as string,
-						providerSpecifics,
+						insideFunctionSpecifics,
 					),
 					attempt: params.attempt,
 					totalAttempts: params.retriesLeft + params.attempt,

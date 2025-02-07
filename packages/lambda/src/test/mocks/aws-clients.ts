@@ -1,3 +1,4 @@
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {
 	CallFunctionAsync,
 	CallFunctionOptions,
@@ -16,13 +17,9 @@ import {
 	messageTypeIdToMessageType,
 } from '@remotion/serverless/client';
 import {makeStreamer} from '@remotion/streaming';
-import type {AwsProvider} from '../../functions/aws-implementation';
 import {getWebhookClient} from '../../functions/http-client';
-import {parseJsonOrThrowSource} from '../../shared/call-lambda-streaming';
-import {
-	mockImplementation,
-	mockServerImplementation,
-} from '../mock-implementation';
+import {mockServerImplementation} from '../mock-implementation';
+import {mockImplementation} from './mock-implementation';
 
 export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	AwsProvider
@@ -40,7 +37,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		);
 		const innerPayload =
 			formatMap[messageType] === 'json'
-				? parseJsonOrThrowSource(data, messageType)
+				? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
 				: data;
 
 		const message: StreamingMessage<AwsProvider> = {

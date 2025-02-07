@@ -1,4 +1,4 @@
-import type {AwsRegion} from '../regions';
+import type {AwsRegion} from '@remotion/lambda-client';
 
 export const REMOTION_HOSTED_LAYER_ARN = `arn:aws:lambda:*:678892195805:layer:remotion-binaries-*`;
 

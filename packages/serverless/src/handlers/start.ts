@@ -24,7 +24,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -36,12 +36,12 @@ export const startHandler = async <Provider extends CloudProvider>({
 		params,
 	});
 
-	const region = providerSpecifics.getCurrentRegionInFunction();
+	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 	const bucketName =
 		params.bucketName ??
 		(
 			await internalGetOrCreateBucket({
-				region: providerSpecifics.getCurrentRegionInFunction(),
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
 				customCredentials: null,
 				providerSpecifics,

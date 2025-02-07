@@ -1,4 +1,6 @@
 import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
@@ -9,14 +11,9 @@ import type {
 } from '@remotion/serverless';
 import {validateBucketName, validatePrivacy} from '@remotion/serverless/client';
 import fs from 'node:fs';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
+import {getSitesKey} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
-import type {AwsRegion} from '../regions';
-import {getSitesKey} from '../shared/constants';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
-import {makeS3ServeUrl} from '../shared/make-s3-url';
-import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateSiteName} from '../shared/validate-site-name';
 
 type MandatoryParameters = {
@@ -73,7 +70,7 @@ const mandatoryDeploySite = async ({
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
 		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 	}): DeploySiteOutput => {
-	validateAwsRegion(region);
+	LambdaClientInternals.validateAwsRegion(region);
 	validateBucketName(bucketName, {
 		mustStartWithRemotion: !options?.bypassBucketNameValidation,
 	});
@@ -181,7 +178,11 @@ const mandatoryDeploySite = async ({
 	}
 
 	return {
-		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),
+		serveUrl: LambdaClientInternals.makeS3ServeUrl({
+			bucketName,
+			subFolder,
+			region,
+		}),
 		siteName,
 		stats: {
 			uploadedFiles: toUpload.length,
@@ -205,11 +206,12 @@ export const deploySite = (args: DeploySiteInput) => {
 		gitSource: args.gitSource ?? null,
 		options: args.options ?? {},
 		privacy: args.privacy ?? 'public',
-		siteName: args.siteName ?? awsImplementation.randomHash(),
+		siteName:
+			args.siteName ?? LambdaClientInternals.awsImplementation.randomHash(),
 		indent: false,
 		logLevel: 'info',
 		throwIfSiteExists: args.throwIfSiteExists ?? false,
-		providerSpecifics: awsImplementation,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: args.forcePathStyle ?? false,
 		fullClientSpecifics: awsFullClientSpecifics,
 	});

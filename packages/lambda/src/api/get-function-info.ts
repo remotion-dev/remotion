@@ -1,11 +1,12 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
+import type {AwsRegion} from '@remotion/lambda-client';
+import {
+	getFunctionVersion,
+	LambdaClientInternals,
+} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import type {FunctionInfo} from '@remotion/serverless';
-import type {AwsRegion} from '../regions';
-import {getLambdaClient} from '../shared/aws-clients';
-import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../shared/constants';
-import {getFunctionVersion} from '../shared/get-function-version';
-import {validateAwsRegion} from '../shared/validate-aws-region';
+import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 
 export type GetFunctionInfoInput = {
 	region: AwsRegion;
@@ -22,10 +23,10 @@ export const getFunctionInfo = async ({
 	functionName,
 	logLevel,
 }: GetFunctionInfoInput): Promise<FunctionInfo> => {
-	validateAwsRegion(region);
+	LambdaClientInternals.validateAwsRegion(region);
 
 	const [functionInfo, version] = await Promise.all([
-		getLambdaClient(region).send(
+		LambdaClientInternals.getLambdaClient(region).send(
 			new GetFunctionCommand({
 				FunctionName: functionName,
 			}),

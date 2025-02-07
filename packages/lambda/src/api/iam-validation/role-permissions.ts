@@ -3,7 +3,7 @@ import {
 	LAMBDA_INSIGHTS_PREFIX,
 	LOG_GROUP_PREFIX,
 	RENDER_FN_PREFIX,
-} from '../../shared/constants';
+} from '../../defaults';
 
 export const rolePermissions: {
 	actions: string[];

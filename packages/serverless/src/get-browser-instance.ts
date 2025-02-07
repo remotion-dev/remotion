@@ -71,7 +71,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

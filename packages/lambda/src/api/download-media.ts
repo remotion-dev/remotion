@@ -1,3 +1,5 @@
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
@@ -7,11 +9,8 @@ import {
 	type CustomCredentials,
 } from '@remotion/serverless/client';
 import path from 'node:path';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
-import type {AwsRegion} from '../regions';
 
 export type DownloadMediaInput = {
 	region: AwsRegion;
@@ -88,7 +87,7 @@ export const downloadMedia = (
 ): Promise<DownloadMediaOutput> => {
 	return internalDownloadMedia({
 		...input,
-		providerSpecifics: awsImplementation,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: false,
 	});
 };

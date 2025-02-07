@@ -1,0 +1,70 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
+	},
+	"name": "@remotion/lambda-client",
+	"version": "4.0.260",
+	"description": "Render Remotion videos on AWS Lambda",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "MIT",
+	"dependencies": {
+		"@aws-sdk/client-cloudwatch-logs": "3.738.0",
+		"@aws-sdk/client-iam": "3.738.0",
+		"@aws-sdk/client-lambda": "3.738.0",
+		"@aws-sdk/s3-request-presigner": "3.738.0",
+		"@aws-sdk/client-s3": "3.738.0",
+		"@aws-sdk/client-service-quotas": "3.738.0",
+		"@aws-sdk/client-sts": "3.738.0",
+		"@remotion/serverless": "workspace:*",
+		"@remotion/streaming": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.0",
+		"express": "4.21.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0",
+		"next": "15.1.6"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.mjs",
+			"module": "./dist/esm/index.mjs",
+			"types": "./dist/index.d.ts"
+		},
+		"./constants": {
+			"types": "./dist/constants.d.ts",
+			"require": "./dist/cjs/constants.js",
+			"import": "./dist/esm/constants.mjs",
+			"module": "./dist/esm/constants.mjs"
+		},
+		"./regions": {
+			"types": "./dist/regions.d.ts",
+			"require": "./dist/cjs/regions.js",
+			"import": "./dist/esm/regions.mjs",
+			"module": "./dist/esm/regions.mjs"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"constants": [
+				"dist/constants.d.ts"
+			],
+			"regions": [
+				"dist/regions.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/lambda"
+}

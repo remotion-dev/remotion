@@ -24,7 +24,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	if (params.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
@@ -37,7 +37,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 	});
 
 	try {
-		const region = providerSpecifics.getCurrentRegionInFunction();
+		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 
 		const browserInstancePromise = insideFunctionSpecifics.getBrowserInstance({
 			logLevel: params.logLevel,
@@ -61,7 +61,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
 			bucketName: await bucketNamePromise,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			serialized: params.inputProps,
 			propsType: 'input-props',
 			providerSpecifics,

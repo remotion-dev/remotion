@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
+import {AwsProvider} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import type {AwsProvider} from '../../../functions/aws-implementation';
-import {BINARY_NAME} from '../../../shared/constants';
+import {BINARY_NAME} from '../../../defaults';
 import {quit} from '../../helpers/quit';
 import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
 import {SITES_LS_SUBCOMMAND, sitesLsSubcommand} from './ls';

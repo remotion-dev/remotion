@@ -227,7 +227,7 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => Promise<LaunchedBrowser>;
 
 export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
@@ -348,7 +348,7 @@ export type InvokeWebhookParams = {
 
 export type InvokeWebhook = (params: InvokeWebhookParams) => Promise<void>;
 
-export type InsideFunctionSpecifics = {
+export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
 	timer: DebuggingTimer;
@@ -357,6 +357,9 @@ export type InsideFunctionSpecifics = {
 	getCurrentFunctionName: () => string;
 	getCurrentMemorySizeInMb: () => number;
 	invokeWebhook: InvokeWebhook;
+	getCurrentRegionInFunction: () => Provider['region'];
+	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
+	getFolderFiles: GetFolderFiles;
 };
 
 export type FullClientSpecifics<Provider extends CloudProvider> = {
@@ -365,12 +368,10 @@ export type FullClientSpecifics<Provider extends CloudProvider> = {
 	readDirectory: ReadDir;
 	uploadDir: UploadDir<Provider>;
 	createFunction: CreateFunction<Provider>;
-	checkCredentials: () => void;
 };
 
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
-	getCurrentRegionInFunction: () => Provider['region'];
 	getBuckets: GetBuckets<Provider>;
 	createBucket: CreateBucket<Provider>;
 	applyLifeCycle: ApplyLifeCycle<Provider>;
@@ -383,8 +384,6 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	headFile: HeadFile<Provider>;
 	convertToServeUrl: ConvertToServeUrl<Provider>;
 	printLoggingHelper: boolean;
-	getFolderFiles: GetFolderFiles;
-	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
 	validateDeleteAfter: (lifeCycleValue: unknown) => void;
 	callFunctionAsync: CallFunctionAsync<Provider>;
 	callFunctionStreaming: CallFunctionStreaming<Provider>;
@@ -402,4 +401,5 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	deleteFunction: DeleteFunction<Provider>;
 	getFunctions: GetFunctions<Provider>;
 	parseFunctionName: ParseFunctionName;
+	checkCredentials: () => void;
 };

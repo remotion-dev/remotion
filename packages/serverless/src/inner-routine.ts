@@ -35,7 +35,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	webhookClient: WebhookClient;
 }): Promise<void> => {
 	setCurrentRequestId(context.awsRequestId);
@@ -362,7 +362,7 @@ export const innerRoutine = async <Provider extends CloudProvider>({
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	webhookClient: WebhookClient;
 }): Promise<void> => {
 	try {

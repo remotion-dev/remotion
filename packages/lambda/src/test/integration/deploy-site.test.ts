@@ -1,12 +1,10 @@
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {internalGetOrCreateBucket} from '@remotion/serverless/client';
 import {expect, test} from 'bun:test';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {awsImplementation} from '../../functions/aws-implementation';
-import {
-	mockFullClientSpecifics,
-	mockImplementation,
-} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 import {getDirFiles} from '../mocks/upload-dir';
 
 test('Should throw on wrong prefix', async () => {
@@ -38,12 +36,14 @@ test('Should throw if invalid region was passed', () => {
 			region: 'ap-northeast-9',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: awsImplementation,
+			providerSpecifics: LambdaClientInternals.awsImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: true,
+			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).rejects.toThrow(/ap-northeast-9 is not a supported AWS region/);
 });

@@ -33,6 +33,7 @@ const validateExports = (
 				entry !== 'module' &&
 				entry !== 'types'
 			) {
+				console.log(exports);
 				throw new Error(`Invalid export: ${entry}`);
 			}
 			const pathToCheck = path.join(process.cwd(), value[entry]);
@@ -44,6 +45,16 @@ const validateExports = (
 	}
 };
 
+const getExternal = (deps: string[] | 'dependencies'): string[] => {
+	if (deps === 'dependencies') {
+		return Object.keys(
+			require(path.join(process.cwd(), 'package.json')).dependencies,
+		);
+	}
+
+	return deps;
+};
+
 export const buildPackage = async ({
 	formats,
 	external,
@@ -51,7 +62,7 @@ export const buildPackage = async ({
 	entrypoints,
 }: {
 	formats: Format[];
-	external: string[];
+	external: 'dependencies' | string[];
 	target: 'node' | 'browser';
 	entrypoints: string[];
 }) => {
@@ -65,24 +76,32 @@ export const buildPackage = async ({
 		const output = await build({
 			entrypoints: entrypoints.map((e) => path.join(process.cwd(), e)),
 			naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
-			external,
+			external: getExternal(external),
 			target,
 			format,
 		});
 
 		for (const file of output.outputs) {
 			const text = await file.text();
-			if (text.includes('jonathanburger')) {
-				throw new Error('Absolute path was included');
-			}
 
 			const outputPath = './' + path.join('./dist', format, file.path);
+			const typesOutputPath =
+				'./' +
+				path.join(
+					'./dist',
+					file.path.replace('.mjs', '.d.ts').replace('.js', '.d.ts'),
+				);
 			await Bun.write(path.join(process.cwd(), outputPath), text);
 
+			if (text.includes('jonathanburger')) {
+				throw new Error('Absolute path was included, see ' + outputPath);
+			}
+
 			const firstName = file.path.split('.')[1].slice(1);
-			const exportName = firstName === 'index' ? '.' : firstName;
+			const exportName = firstName === 'index' ? '.' : './' + firstName;
 			newExports[exportName] = {
 				...(newExports[exportName] ?? {}),
+				types: typesOutputPath,
 				...(format === 'esm'
 					? {
 							import: outputPath,

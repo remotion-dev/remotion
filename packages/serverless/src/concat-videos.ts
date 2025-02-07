@@ -13,8 +13,9 @@ import {
 	type ServerlessCodec,
 } from './constants';
 import type {InsideFunctionSpecifics} from './provider-implementation';
+import type {CloudProvider} from './types';
 
-export const concatVideos = async ({
+export const concatVideos = async <Provider extends CloudProvider>({
 	onProgress,
 	numberOfFrames,
 	codec,
@@ -49,7 +50,7 @@ export const concatVideos = async ({
 	preferLossless: boolean;
 	muted: boolean;
 	metadata: Record<string, string> | null;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN),

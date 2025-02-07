@@ -3,7 +3,10 @@ import {
 	cleanupSerializedResolvedProps,
 } from './cleanup-serialized-input-props';
 import type {SerializedInputProps} from './constants';
-import type {ProviderSpecifics} from './provider-implementation';
+import type {
+	InsideFunctionSpecifics,
+	ProviderSpecifics,
+} from './provider-implementation';
 import type {CloudProvider} from './types';
 
 export const cleanupProps = <Provider extends CloudProvider>({
@@ -11,20 +14,22 @@ export const cleanupProps = <Provider extends CloudProvider>({
 	inputProps,
 	providerSpecifics,
 	forcePathStyle,
+	insideFunctionSpecifics,
 }: {
 	serializedResolvedProps: SerializedInputProps;
 	inputProps: SerializedInputProps;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<[number, number]> => {
 	const cleanupSerializedInputPropsProm = cleanupSerializedInputProps({
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		serialized: inputProps,
 		providerSpecifics,
 		forcePathStyle,
 	});
 	const cleanupResolvedInputPropsProm = cleanupSerializedResolvedProps({
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		serialized: serializedResolvedProps,
 		providerSpecifics,
 		forcePathStyle,

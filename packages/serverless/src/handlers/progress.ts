@@ -14,7 +14,7 @@ type Options<Provider extends CloudProvider> = {
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 };
 
 export const progressHandler = async <Provider extends CloudProvider>({
@@ -39,7 +39,7 @@ export const progressHandler = async <Provider extends CloudProvider>({
 			bucketName: params.bucketName,
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: options.providerSpecifics.getCurrentRegionInFunction(),
+			region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 			memorySizeInMb:
 				options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,
