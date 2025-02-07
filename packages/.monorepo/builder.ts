@@ -33,7 +33,6 @@ const validateExports = (
 				entry !== 'module' &&
 				entry !== 'types'
 			) {
-				console.log(exports);
 				throw new Error(`Invalid export: ${entry}`);
 			}
 			const pathToCheck = path.join(process.cwd(), value[entry]);
