@@ -18,15 +18,15 @@ import {
 	getExpectedOutName,
 	internalGetOrCreateBucket,
 	overallProgressKey,
+	serializeJSONWithDate,
 	ServerlessRoutines,
 	validateDownloadBehavior,
 	validateOutname,
 	validatePrivacy,
+	VERSION,
 } from '@remotion/serverless-client';
 import fs from 'node:fs';
 import path from 'node:path';
-import {NoReactInternals} from 'remotion/no-react';
-import {VERSION} from 'remotion/version';
 import {cleanupSerializedInputProps} from '../cleanup-serialized-input-props';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {onDownloadsHelper} from '../on-downloads-helpers';
@@ -294,12 +294,11 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		port: null,
 		server,
 		logLevel: params.logLevel,
-		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
-				indent: undefined,
-				staticBase: null,
-				data: composition.props,
-			}).serializedString,
+		serializedResolvedPropsWithCustomSchema: serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,

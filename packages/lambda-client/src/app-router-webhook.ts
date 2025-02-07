@@ -3,7 +3,7 @@ import type {
 	WebhookPayload,
 	WebhookSuccessPayload,
 	WebhookTimeoutPayload,
-} from '@remotion/serverless';
+} from '@remotion/serverless-client';
 import {validateWebhookSignature} from './validate-webhook-signature';
 
 export type NextWebhookArgs = {

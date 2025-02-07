@@ -1,5 +1,5 @@
-export type {EnhancedErrorInfo} from '@remotion/serverless';
 export type {
+	EnhancedErrorInfo,
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
 } from '@remotion/serverless-client';
@@ -56,12 +56,13 @@ import {validateMemorySize} from './validate-memory-size';
 import {validateServeUrl} from './validate-serveurl';
 
 export type {
+	CustomCredentials,
+	DeleteAfter,
 	WebhookErrorPayload,
 	WebhookPayload,
 	WebhookSuccessPayload,
 	WebhookTimeoutPayload,
-} from '@remotion/serverless';
-export type {CustomCredentials, DeleteAfter} from '@remotion/serverless-client';
+} from '@remotion/serverless-client';
 export {appRouterWebhook, NextWebhookArgs} from './app-router-webhook';
 export {AwsProvider} from './aws-provider';
 export type {RenderProgress} from './constants';

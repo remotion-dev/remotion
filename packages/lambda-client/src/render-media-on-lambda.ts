@@ -1,22 +1,22 @@
 import type {
 	AudioCodec,
+	BrowserSafeApis,
 	ChromiumOptions,
+	DownloadBehavior,
 	FrameRange,
+	OutNameInput,
 	PixelFormat,
+	Privacy,
 	ProResProfile,
+	ServerlessCodec,
 	ToOptions,
 	VideoImageFormat,
-} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {
-	DownloadBehavior,
-	OutNameInput,
-	Privacy,
-	ServerlessCodec,
 	WebhookOption,
 } from '@remotion/serverless-client';
-import {ServerlessRoutines} from '@remotion/serverless-client';
+import {
+	ServerlessRoutines,
+	wrapWithErrorHandling,
+} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import {
 	getCloudwatchMethodUrl,

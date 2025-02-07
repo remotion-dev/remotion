@@ -1,5 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
-import type {CustomCredentials} from '@remotion/serverless-client';
+import type {CustomCredentials, LogLevel} from '@remotion/serverless-client';
 import {getProgress, ServerlessRoutines} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import type {RenderProgress} from './constants';

@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/serverless-client';
 import {
 	COMMAND_NOT_FOUND,
 	ServerlessRoutines,

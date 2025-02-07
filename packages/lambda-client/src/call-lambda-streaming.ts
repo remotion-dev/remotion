@@ -7,18 +7,16 @@ import {
 import type {
 	CallFunctionOptions,
 	CloudProvider,
-	OnMessage,
-	StreamingMessage,
-} from '@remotion/serverless';
-import type {
 	MessageTypeId,
+	OnMessage,
 	ServerlessRoutines,
+	StreamingMessage,
 } from '@remotion/serverless-client';
 import {
 	formatMap,
+	makeStreamer,
 	messageTypeIdToMessageType,
 } from '@remotion/serverless-client';
-import {makeStreamer} from '@remotion/streaming';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';
 

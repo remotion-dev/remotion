@@ -20,7 +20,7 @@ export type AwsProvider = {
 	};
 };
 
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {ProviderSpecifics} from '@remotion/serverless-client';
 import {expiryDays} from '@remotion/serverless-client';
 import {EventEmitter} from 'node:events';
 import {bucketExistsInRegionImplementation} from './bucket-exists';

@@ -1,4 +1,4 @@
-import {VERSION} from 'remotion/version';
+import {VERSION} from '@remotion/serverless-client';
 
 export const LAMBDA_VERSION_STRING = VERSION.replace(/\./g, '-')
 	.replace(/\+/g, '-')

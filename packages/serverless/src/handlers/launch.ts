@@ -2,10 +2,10 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
+import {VERSION} from '@remotion/serverless-client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
-import {VERSION} from 'remotion/version';
 import type {
 	InsideFunctionSpecifics,
 	WebhookClient,

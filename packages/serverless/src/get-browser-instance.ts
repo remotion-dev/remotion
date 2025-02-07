@@ -5,7 +5,7 @@ import type {
 	CloudProvider,
 	ProviderSpecifics,
 } from '@remotion/serverless-client';
-import {VERSION} from 'remotion/version';
+import {VERSION} from '@remotion/serverless-client';
 import type {
 	GetBrowserInstance,
 	InsideFunctionSpecifics,

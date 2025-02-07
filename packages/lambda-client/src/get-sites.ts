@@ -1,4 +1,4 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {ProviderSpecifics} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {getSitesKey} from './constants';

@@ -11,13 +11,7 @@ export {startHandler} from './handlers/start';
 export {stillHandler} from './handlers/still';
 export {infoHandler} from './info';
 export {innerHandler} from './inner-routine';
-export {
-	WebhookErrorPayload,
-	WebhookPayload,
-	WebhookSuccessPayload,
-	WebhookTimeoutPayload,
-	invokeWebhook,
-} from './invoke-webhook';
+export {invokeWebhook} from './invoke-webhook';
 export {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 export * from './provider-implementation';
 export {ResponseStream} from './streaming/response-stream';

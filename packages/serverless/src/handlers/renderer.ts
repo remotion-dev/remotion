@@ -20,10 +20,10 @@ import {
 	serializeArtifact,
 	ServerlessRoutines,
 	truthy,
+	VERSION,
 } from '@remotion/serverless-client';
 import fs from 'node:fs';
 import path from 'node:path';
-import {VERSION} from 'remotion/version';
 import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,

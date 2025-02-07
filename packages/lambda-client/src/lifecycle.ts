@@ -1,6 +1,9 @@
 import type {LifecycleRule} from '@aws-sdk/client-s3';
-import type {CloudProvider, ProviderSpecifics} from '@remotion/serverless';
-import type {DeleteAfter} from '@remotion/serverless-client';
+import type {
+	CloudProvider,
+	DeleteAfter,
+	ProviderSpecifics,
+} from '@remotion/serverless-client';
 import {expiryDays, truthy} from '@remotion/serverless-client';
 
 const getEnabledLifeCycleRule = ({

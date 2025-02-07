@@ -1,4 +1,4 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
+import type {ProviderSpecifics} from '@remotion/serverless-client';
 import {
 	getExpectedOutName,
 	getOverallProgressFromStorage,

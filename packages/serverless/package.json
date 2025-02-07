@@ -25,6 +25,7 @@
 	"dependencies": {
 		"@remotion/renderer": "workspace:*",
 		"@remotion/bundler": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/serverless-client": "workspace:*"
 	},
 	"devDependencies": {

@@ -36,8 +36,8 @@ import {
 	renderVideoOnLambda,
 	validateWebhookSignature,
 } from '@remotion/lambda-client';
+import type {FunctionInfo} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
-import type {FunctionInfo} from '../../serverless-client/src/provider-implementation';
 import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
 import type {

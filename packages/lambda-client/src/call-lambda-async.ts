@@ -1,6 +1,9 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
-import type {CallFunctionOptions, CloudProvider} from '@remotion/serverless';
-import type {ServerlessRoutines} from '@remotion/serverless-client';
+import type {
+	CallFunctionOptions,
+	CloudProvider,
+	ServerlessRoutines,
+} from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';
 

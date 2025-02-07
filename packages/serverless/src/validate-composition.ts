@@ -10,8 +10,8 @@ import type {
 	Await,
 	CloudProvider,
 	ProviderSpecifics,
+	VideoConfig,
 } from '@remotion/serverless-client';
-import type {VideoConfig} from 'remotion/no-react';
 import {
 	validateDimension,
 	validateDurationInFrames,

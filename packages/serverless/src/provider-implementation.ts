@@ -11,11 +11,11 @@ import type {
 	Privacy,
 	ProviderSpecifics,
 	ReceivedArtifact,
+	WebhookPayload,
 } from '@remotion/serverless-client';
 import type https from 'https';
 import type http from 'node:http';
 import type {LaunchedBrowser} from './get-browser-instance';
-import type {WebhookPayload} from './invoke-webhook';
 
 export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];

@@ -3,8 +3,6 @@ import type {
 	CallFunctionOptions,
 	CloudProvider,
 	OrError,
-} from '@remotion/serverless';
-import type {
 	ServerlessReturnValues,
 	ServerlessRoutines,
 } from '@remotion/serverless-client';

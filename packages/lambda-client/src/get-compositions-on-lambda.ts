@@ -1,13 +1,16 @@
-import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {
+	BrowserSafeApis,
+	ChromiumOptions,
+	ToOptions,
+	VideoConfig,
+} from '@remotion/serverless-client';
 import {
 	ServerlessRoutines,
+	VERSION,
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
 } from '@remotion/serverless-client';
-import type {VideoConfig} from 'remotion/no-react';
-import {VERSION} from 'remotion/version';
 import {awsImplementation} from './aws-provider';
 import type {AwsRegion} from './regions';
 

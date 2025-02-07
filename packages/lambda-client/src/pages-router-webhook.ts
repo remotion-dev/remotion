@@ -1,4 +1,4 @@
-import type {WebhookPayload} from '@remotion/serverless';
+import type {WebhookPayload} from '@remotion/serverless-client';
 import type {Response} from 'express';
 import type {NextApiRequest, NextApiResponse} from 'next';
 import type {NextWebhookArgs} from './app-router-webhook';

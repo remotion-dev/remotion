@@ -1,41 +1,39 @@
 import type {
 	AudioCodec,
+	BrowserSafeApis,
 	ChromiumOptions,
 	ColorSpace,
-	FrameRange,
-	LogLevel,
-	PixelFormat,
-	ProResProfile,
-	ToOptions,
-	VideoImageFormat,
-	X264Preset,
-} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {
 	DeleteAfter,
 	DownloadBehavior,
+	FrameRange,
+	LogLevel,
 	OutNameInput,
+	PixelFormat,
 	Privacy,
+	ProResProfile,
 	ServerlessCodec,
 	ServerlessPayloads,
 	ServerlessStartPayload,
 	ServerlessStatusPayload,
+	ToOptions,
+	VideoImageFormat,
 	WebhookOption,
+	X264Preset,
 } from '@remotion/serverless-client';
 import {
+	ENABLE_V5_BREAKING_CHANGES,
 	ServerlessRoutines,
+	VERSION,
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
 	validateDownloadBehavior,
 	validateFramesPerFunction,
 } from '@remotion/serverless-client';
-import {VERSION} from 'remotion/version';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 
 import {validateWebhook} from '@remotion/serverless-client';
-import {NoReactInternals} from 'remotion/no-react';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
@@ -195,7 +193,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		downloadBehavior,
 		muted,
 		version: VERSION,
-		overwrite: overwrite ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+		overwrite: overwrite ?? ENABLE_V5_BREAKING_CHANGES,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,

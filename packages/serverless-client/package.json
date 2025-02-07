@@ -27,7 +27,6 @@
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/licensing": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0"
 	},

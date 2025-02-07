@@ -1,19 +1,20 @@
 import type {
+	BrowserSafeApis,
 	ChromiumOptions,
+	DownloadBehavior,
 	StillImageFormat,
 	ToOptions,
-} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {DownloadBehavior} from '@remotion/serverless-client';
+} from '@remotion/serverless-client';
 import {ServerlessRoutines} from '@remotion/serverless-client';
 
-import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
 	CostsInfo,
+	OutNameInput,
+	Privacy,
 	ReceivedArtifact,
 	RenderStillFunctionResponsePayload,
-} from '@remotion/serverless';
-import type {OutNameInput, Privacy} from '@remotion/serverless-client';
+} from '@remotion/serverless-client';
+import {wrapWithErrorHandling} from '@remotion/serverless-client';
 import {awsImplementation, type AwsProvider} from './aws-provider';
 import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';

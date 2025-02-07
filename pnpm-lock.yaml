@@ -1380,9 +1380,6 @@ importers:
       '@smithy/abort-controller':
         specifier: 4.0.1
         version: 4.0.1
-      mime-types:
-        specifier: 2.1.34
-        version: 2.1.34
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -1444,9 +1441,15 @@ importers:
       '@aws-sdk/client-sts':
         specifier: 3.738.0
         version: 3.738.0
+      '@aws-sdk/credential-providers':
+        specifier: 3.738.0
+        version: 3.738.0
       '@aws-sdk/s3-request-presigner':
         specifier: 3.738.0
         version: 3.738.0
+      mime-types:
+        specifier: 2.1.34
+        version: 2.1.34
     devDependencies:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
@@ -1457,6 +1460,9 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      '@types/mime-types':
+        specifier: 2.1.1
+        version: 2.1.1
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -1900,6 +1906,9 @@ importers:
       '@remotion/bundler':
         specifier: workspace:*
         version: link:../bundler
+      '@remotion/licensing':
+        specifier: workspace:*
+        version: link:../licensing
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
@@ -1919,9 +1928,6 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
-      '@remotion/licensing':
-        specifier: workspace:*
-        version: link:../licensing
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
