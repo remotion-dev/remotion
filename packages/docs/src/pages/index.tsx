@@ -1,5 +1,6 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import '@remotion/promo-pages/dist/Homepage.css';
+// @ts-expect-error
 import {NewLanding} from '@remotion/promo-pages/dist/Homepage.js';
 import '@remotion/promo-pages/dist/tailwind.css';
 import Layout from '@theme/Layout';

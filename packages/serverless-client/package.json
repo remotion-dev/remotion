@@ -25,6 +25,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@remotion/streaming": "workspace:*",
+		"@remotion/renderer": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0"
@@ -32,9 +33,9 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
+			"require": "./dist/cjs/index.js",
 			"module": "./dist/esm/index.mjs",
-			"import": "./dist/esm/index.mjs",
-			"require": "./dist/cjs/index.js"
+			"import": "./dist/esm/index.mjs"
 		}
 	}
 }

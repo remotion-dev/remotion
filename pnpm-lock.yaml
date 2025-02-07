@@ -1922,6 +1922,9 @@ importers:
       '@remotion/licensing':
         specifier: workspace:*
         version: link:../licensing
+      '@remotion/renderer':
+        specifier: workspace:*
+        version: link:../renderer
       '@remotion/streaming':
         specifier: workspace:*
         version: link:../streaming

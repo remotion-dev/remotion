@@ -1,15 +1,11 @@
 {
+	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"target": "ES2021",
+		"rootDir": "src",
+		"outDir": "dist",
 		"module": "Preserve",
-		"moduleResolution": "Bundler",
-		"jsx": "react-jsx",
-		"strict": true,
-		"noEmit": true,
 		"lib": ["ES2021", "DOM"],
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"noUnusedLocals": true
-	}
+		"moduleResolution": "Bundler"
+	},
+	"include": ["src"]
 }
