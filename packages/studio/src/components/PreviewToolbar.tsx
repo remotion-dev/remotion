@@ -6,6 +6,7 @@ import {
 	useIsStill,
 	useIsVideoComposition,
 } from '../helpers/is-current-selected-still';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
@@ -32,6 +33,12 @@ const container: React.CSSProperties = {
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
+};
+
+const mobileContainer: React.CSSProperties = {
+	...container,
+	overflow: 'auto',
+	justifyContent: 'flex-start',
 };
 
 const sideContainer: React.CSSProperties = {
@@ -63,20 +70,30 @@ export const PreviewToolbar: React.FC<{
 
 	const isFullscreenSupported = checkFullscreenSupport();
 
+	const isMobileLayout = useMobileLayout();
+
 	return (
-		<div style={container} className="css-reset">
-			<div style={sideContainer}>
-				<div style={padding} />
-				<TimelineZoomControls />
-			</div>
-			<Flex />
-			<SizeSelector />
-			{isStill || isVideoComposition ? (
-				<PlaybackRateSelector
-					setPlaybackRate={setPlaybackRate}
-					playbackRate={playbackRate}
-				/>
-			) : null}
+		<div
+			style={isMobileLayout ? mobileContainer : container}
+			className="css-reset"
+		>
+			{isMobileLayout ? null : (
+				<>
+					<div style={sideContainer}>
+						<div style={padding} />
+						<TimelineZoomControls />
+					</div>
+					<Flex />
+					<SizeSelector />
+					{isStill || isVideoComposition ? (
+						<PlaybackRateSelector
+							setPlaybackRate={setPlaybackRate}
+							playbackRate={playbackRate}
+						/>
+					) : null}
+				</>
+			)}
+
 			{isVideoComposition ? (
 				<>
 					<Spacing x={2} />
@@ -85,7 +102,7 @@ export const PreviewToolbar: React.FC<{
 						loop={loop}
 						playbackRate={playbackRate}
 					/>
-					<Spacing x={2} />
+					<Spacing x={isMobileLayout ? 12 : 2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />
 					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
 					<Spacing x={2} />
@@ -93,10 +110,23 @@ export const PreviewToolbar: React.FC<{
 					<Spacing x={2} />
 				</>
 			) : null}
+
 			<CheckboardToggle />
 			<Spacing x={1} />
 			{isFullscreenSupported && <FullScreenToggle />}
 			<Flex />
+			{isMobileLayout && (
+				<>
+					<Flex />
+					<SizeSelector />
+					{isStill || isVideoComposition ? (
+						<PlaybackRateSelector
+							setPlaybackRate={setPlaybackRate}
+							playbackRate={playbackRate}
+						/>
+					) : null}
+				</>
+			)}
 			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
