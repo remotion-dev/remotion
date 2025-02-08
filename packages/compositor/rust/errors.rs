@@ -2,13 +2,15 @@ use crate::frame_cache::FrameCache;
 use crate::opened_stream::OpenedStream;
 use crate::opened_video::OpenedVideo;
 use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::ErrorPayload;
+use crate::payloads::payloads::{CliInputCommand, ErrorPayload};
 use ffmpeg_next as remotionffmpeg;
 use png::EncodingError;
 use std::any::Any;
 use std::backtrace::Backtrace;
 use std::collections::HashMap;
-use std::sync::{Mutex, MutexGuard, PoisonError, RwLockReadGuard, RwLockWriteGuard, TryLockError};
+use std::sync::{
+    mpsc, Mutex, MutexGuard, PoisonError, RwLockReadGuard, RwLockWriteGuard, TryLockError,
+};
 
 pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
     match &err.error {
@@ -20,6 +22,7 @@ pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
         PossibleErrors::WorkerError(err) => format!("{:?}", err),
         PossibleErrors::EncodingError(err) => err.to_string(),
         PossibleErrors::ThreadPoolBuilderError(err) => err.to_string(),
+        PossibleErrors::SendError(err) => format!("{:?}", err),
     }
 }
 
@@ -46,6 +49,7 @@ enum PossibleErrors {
     WorkerError(Box<dyn Any + Send>),
     EncodingError(EncodingError),
     ThreadPoolBuilderError(rayon_core::ThreadPoolBuildError),
+    SendError(mpsc::SendError<CliInputCommand>),
 }
 
 pub struct ErrorWithBacktrace {
@@ -120,6 +124,15 @@ impl From<rayon_core::ThreadPoolBuildError> for ErrorWithBacktrace {
     fn from(err: rayon_core::ThreadPoolBuildError) -> ErrorWithBacktrace {
         ErrorWithBacktrace {
             error: PossibleErrors::ThreadPoolBuilderError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+impl From<mpsc::SendError<CliInputCommand>> for ErrorWithBacktrace {
+    fn from(err: mpsc::SendError<CliInputCommand>) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::SendError(err),
             backtrace: Backtrace::force_capture().to_string(),
         }
     }
@@ -232,6 +245,7 @@ impl std::fmt::Debug for ErrorWithBacktrace {
             PossibleErrors::ThreadPoolBuilderError(err) => {
                 write!(f, "ThreadPoolBuilderError: {:?}", err)
             }
+            PossibleErrors::SendError(err) => write!(f, "SendError: {:?}", err),
         }
     }
 }

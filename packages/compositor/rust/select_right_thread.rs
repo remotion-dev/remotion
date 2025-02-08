@@ -3,6 +3,7 @@ use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose};
 struct OpenStream {
     src: String,
     last_time: f64,
+    transparent: bool,
 }
 
 struct ThreadStreams {
@@ -30,6 +31,7 @@ impl ThreadMap {
         &mut self,
         src: &String,
         time: f64,
+        transparent: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         for thread_id in 0..self.map.len() {
             let thread_streams = self.map[thread_id].as_mut();
@@ -37,8 +39,8 @@ impl ThreadMap {
                 continue;
             }
             for stream in &mut thread_streams.unwrap().streams {
-                if &stream.src == src {
-                    if (stream.last_time - time).abs() <= 10.0 {
+                if &stream.src == src && stream.transparent && transparent {
+                    if (stream.last_time - time).abs() < 5.0 {
                         stream.last_time = time;
                         _print_verbose(&format!(
                             "Reusing thread {} for stream {} at time {}",
@@ -88,6 +90,7 @@ impl ThreadMap {
         new_thread_streams.streams.push(OpenStream {
             src: src.clone(),
             last_time: time,
+            transparent,
         });
 
         _print_verbose(&format!(

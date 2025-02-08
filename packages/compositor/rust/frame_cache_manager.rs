@@ -164,6 +164,10 @@ impl FrameCacheManager {
                 .lock()
                 .unwrap()
                 .get_current_cache_size();
+            _print_verbose(&format!(
+                "cache size {} {}",
+                current_cache_size_in_bytes, maximum_frame_cache_size_in_bytes
+            ))?;
             if current_cache_size_in_bytes < maximum_frame_cache_size_in_bytes {
                 break;
             }
@@ -183,10 +187,10 @@ impl FrameCacheManager {
 
         if pruned > 0 {
             _print_verbose(&format!(
-                "Pruned {} to save memory, keeping {}. Cache size on thread {}: {}MB, total cache: {}MB",
+                "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
                 pruned,
-                self.get_frames_in_cache()?,
                 thread_index,
+                self.get_frames_in_cache()?,
                 self.get_total_size()? / 1024 / 1024,
                 max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
             ))?;

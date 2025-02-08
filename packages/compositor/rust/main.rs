@@ -18,17 +18,17 @@ mod scalable_frame;
 mod select_right_thread;
 mod tone_map;
 
-use commands::execute_command;
-use errors::{error_to_json, ErrorWithBacktrace};
+use commands::execute_command_and_print;
+use errors::ErrorWithBacktrace;
 use frame_cache_manager::make_frame_cache_manager;
 use global_printer::{_print_verbose, set_verbose_logging};
-use memory::get_ideal_maximum_frame_cache_size;
+use memory::{get_ideal_maximum_frame_cache_size, is_about_to_run_out_of_memory};
 use opened_video_manager::make_opened_stream_manager;
 use std::env;
 use std::sync::mpsc;
 use std::thread;
 
-use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, Eof};
+use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, Eof, OpenVideoStats};
 
 extern crate png;
 
@@ -44,9 +44,6 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             )))?;
 
     let opts: CliInputCommand = parse_init_command(&first_arg)?;
-
-    let mut frame_cache_manager = make_frame_cache_manager().unwrap();
-    let mut open_video_manager = make_opened_stream_manager().unwrap();
 
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
@@ -65,13 +62,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
-            let data = execute_command(
-                opts.payload,
-                0,
-                &mut frame_cache_manager,
-                &mut open_video_manager,
-            )?;
-            global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
+            execute_command_and_print(opts)?;
         }
     }
 
@@ -88,45 +79,111 @@ fn start_long_running_process(
     threads: usize,
     maximum_frame_cache_size_in_bytes: u64,
 ) -> Result<(), ErrorWithBacktrace> {
-    let mut thread_handles = vec![];
-    let mut send_handles = vec![];
+    let mut finish_thread_handles = vec![];
+    let mut send_to_thread_handles = vec![];
+    let mut receive_video_stats_in_main_thread_handles: Vec<mpsc::Receiver<OpenVideoStats>> =
+        vec![];
+    let mut receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>> = vec![];
+    let mut receive_free_in_main_thread_handles: Vec<mpsc::Receiver<()>> = vec![];
     let mut thread_map = select_right_thread::ThreadMap::new(threads);
-    for thread_index in 0..threads {
-        let (tx, rx) = mpsc::channel::<CliInputCommand>();
 
-        let handle = thread::spawn(move || {
+    for thread_index in 0..threads {
+        let (send_to_thread, receive_in_thread) = mpsc::channel::<CliInputCommand>();
+        let (send_video_stats_to_main_thread, receive_video_stats_in_main_thread) =
+            mpsc::channel::<OpenVideoStats>();
+        let (send_free_to_main_thread, receive_free_in_main_thread) = mpsc::channel::<()>();
+        let (send_close_video_to_main_thread, receive_close_video_in_main_thread) =
+            mpsc::channel::<()>();
+
+        let wait_for_thread_finish = thread::spawn(move || {
             let mut frame_cache_manager = make_frame_cache_manager().unwrap();
             let mut opened_video_manager = make_opened_stream_manager().unwrap();
 
-            while let Ok(message) = rx.recv() {
+            while let Ok(message) = receive_in_thread.recv() {
+                let current_maximum_cache_size =
+                    max_cache_size::get_instance().lock().unwrap().get_value();
+
+                if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
+                    ffmpeg::emergency_memory_free_up(&mut frame_cache_manager, thread_index)
+                        .unwrap();
+                    max_cache_size::get_instance()
+                        .lock()
+                        .unwrap()
+                        .set_value(Some(current_maximum_cache_size.unwrap() / 2));
+                }
+
                 match message.payload {
                     CliInputCommandPayload::Eof(_) => {
                         break;
                     }
+                    CliInputCommandPayload::CloseAllVideos(_) => {
+                        opened_video_manager
+                            .close_all_videos(&mut frame_cache_manager)
+                            .unwrap(); // TODO: UNWRAP
+                        send_close_video_to_main_thread.send(()).unwrap();
+                        continue;
+                    }
+                    CliInputCommandPayload::ExtractFrame(command) => {
+                        let res = ffmpeg::extract_frame(
+                            command.src,
+                            command.original_src,
+                            command.time,
+                            command.transparent,
+                            command.tone_mapped,
+                            current_maximum_cache_size,
+                            thread_index,
+                            &mut opened_video_manager,
+                            &mut frame_cache_manager,
+                        )
+                        .unwrap(); // TODO: Unwrpa
+                        global_printer::synchronized_write_buf(0, &message.nonce, &res).unwrap();
+                        if current_maximum_cache_size.is_some() {
+                            ffmpeg::keep_only_latest_frames_and_close_videos(
+                                current_maximum_cache_size.unwrap(),
+                                &mut opened_video_manager,
+                                &mut frame_cache_manager,
+                                thread_index,
+                            )
+                            .unwrap(); // TODO: Unwrap
+                        }
+
+                        continue;
+                    }
+                    CliInputCommandPayload::FreeUpMemory(payload) => {
+                        _print_verbose(&format!("remaining {}", payload.remaining_bytes)).unwrap();
+                        ffmpeg::keep_only_latest_frames_and_close_videos(
+                            payload.remaining_bytes,
+                            &mut opened_video_manager,
+                            &mut frame_cache_manager,
+                            thread_index,
+                        )
+                        .unwrap(); // TODO: Unwrap
+
+                        send_free_to_main_thread.send(()).unwrap();
+                        continue;
+                    }
+                    CliInputCommandPayload::GetOpenVideoStats(_) => {
+                        let res = ffmpeg::get_open_video_stats(
+                            &mut frame_cache_manager,
+                            &mut opened_video_manager,
+                        )
+                        .unwrap();
+                        send_video_stats_to_main_thread.send(res.clone()).unwrap(); // TODO: unwrao
+                        continue;
+                    }
                     _ => (),
                 }
-                match execute_command(
-                    message.payload,
-                    thread_index,
-                    &mut frame_cache_manager,
-                    &mut opened_video_manager,
-                ) {
-                    Ok(res) => {
-                        global_printer::synchronized_write_buf(0, &message.nonce, &res).unwrap()
-                    }
-                    Err(err) => global_printer::synchronized_write_buf(
-                        1,
-                        &message.nonce,
-                        &error_to_json(err).unwrap().as_bytes(),
-                    )
-                    .unwrap(),
-                };
+
+                execute_command_and_print(message).unwrap();
             }
 
             // Thread work here
         });
-        send_handles.push(tx);
-        thread_handles.push(handle);
+        send_to_thread_handles.push(send_to_thread);
+        receive_video_stats_in_main_thread_handles.push(receive_video_stats_in_main_thread);
+        receive_close_video_in_main_thread_handles.push(receive_close_video_in_main_thread);
+        receive_free_in_main_thread_handles.push(receive_free_in_main_thread);
+        finish_thread_handles.push(wait_for_thread_finish);
     }
 
     max_cache_size::get_instance()
@@ -145,8 +202,8 @@ fn start_long_running_process(
 
         input = matched.trim().to_string();
         if input == "EOF" {
-            for handle in send_handles {
-                handle
+            for send_handle in send_to_thread_handles {
+                send_handle
                     .send(CliInputCommand {
                         payload: CliInputCommandPayload::Eof(Eof {}),
                         nonce: "".to_string(),
@@ -157,17 +214,70 @@ fn start_long_running_process(
         }
 
         let opts: CliInputCommand = parse_cli(&input)?;
-        let opts_again: CliInputCommand = parse_cli(&input)?;
-        let thread_id = match opts.payload {
-            CliInputCommandPayload::ExtractFrame(command) => thread_map
-                .select_right_thread(&command.src, command.time)
-                .unwrap(),
-            _ => 0,
+        let nonce = opts.nonce.clone();
+        let _result: Result<(), ErrorWithBacktrace> = match opts.payload {
+            CliInputCommandPayload::ExtractFrame(command) => {
+                let thread_id = thread_map.select_right_thread(
+                    &command.src,
+                    command.time,
+                    command.transparent,
+                )?;
+                let input_to_send = parse_cli(&input)?;
+                _print_verbose(&format!("sending {:?} {:?}", input, thread_id))?;
+                send_to_thread_handles[thread_id].send(input_to_send)?;
+                Ok(())
+            }
+            CliInputCommandPayload::GetOpenVideoStats(_) => {
+                for handle in &send_to_thread_handles {
+                    handle.send(opts.clone()).unwrap();
+                }
+
+                let mut open_video_stats_all: Vec<OpenVideoStats> = vec![];
+                for handle in &receive_video_stats_in_main_thread_handles {
+                    let data = handle.recv().unwrap();
+                    open_video_stats_all.push(data.clone());
+                }
+                let concated: OpenVideoStats = OpenVideoStats {
+                    frames_in_cache: open_video_stats_all.iter().map(|x| x.frames_in_cache).sum(),
+                    open_streams: open_video_stats_all.iter().map(|x| x.open_streams).sum(),
+                    open_videos: open_video_stats_all.iter().map(|x| x.open_videos).sum(),
+                };
+                let str = serde_json::to_string(&concated)?;
+                global_printer::synchronized_write_buf(0, &nonce, &str.as_bytes())?;
+                Ok(())
+            }
+            CliInputCommandPayload::FreeUpMemory(_) => {
+                for handle in &send_to_thread_handles {
+                    handle.send(opts.clone()).unwrap();
+                }
+
+                for handle in &receive_free_in_main_thread_handles {
+                    handle.recv().unwrap();
+                }
+                // TODO: Is "Hi" right?
+                global_printer::synchronized_write_buf(0, &nonce, &format!("hi").as_bytes())?;
+                Ok(())
+            }
+            CliInputCommandPayload::CloseAllVideos(_) => {
+                for handle in &send_to_thread_handles {
+                    handle.send(opts.clone()).unwrap();
+                }
+
+                for handle in &receive_close_video_in_main_thread_handles {
+                    handle.recv().unwrap();
+                }
+                // TODO: Is "Hi" right?
+                global_printer::synchronized_write_buf(0, &nonce, &format!("hi").as_bytes())?;
+                Ok(())
+            }
+            _ => {
+                execute_command_and_print(opts).unwrap();
+                Ok(())
+            }
         };
-        send_handles[thread_id].send(opts_again).unwrap();
     }
 
-    for handle in thread_handles {
+    for handle in finish_thread_handles {
         handle.join().unwrap();
     }
 
