@@ -1,6 +1,7 @@
 import {GetObjectCommand, HeadObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import {validateBucketName} from '@remotion/serverless-client';
+import {REMOTION_BUCKET_PREFIX} from './constants';
 import {getS3Client} from './get-s3-client';
 import type {AwsRegion} from './regions';
 import {validatePresignExpiration} from './validate-presign-expiration';
@@ -32,7 +33,11 @@ const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 }: PresignUrlInputInternal<CheckIfObjectExists>): Promise<
 	CheckIfObjectExists extends true ? string | null : string
 > => {
-	validateBucketName(bucketName, {mustStartWithRemotion: false});
+	validateBucketName({
+		bucketName,
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+		options: {mustStartWithRemotion: false},
+	});
 	validatePresignExpiration(expiresInSeconds);
 
 	const s3Client = getS3Client({

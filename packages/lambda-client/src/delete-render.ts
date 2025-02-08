@@ -8,6 +8,7 @@ import {
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';
+import {REMOTION_BUCKET_PREFIX} from './constants';
 import type {AwsRegion} from './regions';
 
 export type DeleteRenderInput = {
@@ -41,11 +42,12 @@ export const internalDeleteRender = async (
 		return {freedBytes: 0};
 	}
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		progress.renderMetadata,
-		input.bucketName,
-		input.customCredentials ?? null,
-	);
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		renderMetadata: progress.renderMetadata,
+		bucketName: input.bucketName,
+		customCredentials: input.customCredentials ?? null,
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+	});
 
 	await input.providerSpecifics.deleteFile({
 		bucketName: renderBucketName,

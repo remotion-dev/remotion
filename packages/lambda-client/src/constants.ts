@@ -41,3 +41,5 @@ export type RenderProgress = GenericRenderProgress<AwsProvider>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
 export const MINIMUM_FRAMES_PER_LAMBDA = MINIMUM_FRAMES_PER_FUNCTIONS;
+
+export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';

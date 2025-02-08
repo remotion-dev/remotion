@@ -4,6 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {createReadStream, writeFileSync} from 'fs';
 import path from 'path';
+import {REMOTION_BUCKET_PREFIX} from '../../defaults';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
@@ -140,4 +141,5 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	getFunctions: getAllMockFunctions,
 	parseFunctionName: LambdaClientInternals.parseFunctionName,
 	checkCredentials: () => Promise.resolve(),
+	getBucketPrefix: () => REMOTION_BUCKET_PREFIX,
 };

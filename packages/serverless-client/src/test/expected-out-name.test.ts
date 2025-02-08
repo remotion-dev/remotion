@@ -53,7 +53,14 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 };
 
 test('Should get a custom outname', () => {
-	expect(getExpectedOutName(testRenderMetadata, bucketName, null)).toEqual({
+	expect(
+		getExpectedOutName({
+			renderMetadata: testRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
 		customCredentials: null,
 		renderBucketName: 'remotionlambda-98fsduf',
 		key: 'renders/9n8dsfafs/out.mp4',
@@ -68,7 +75,14 @@ test('Should save to a different outname', () => {
 			key: 'my-key',
 		},
 	};
-	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
+	expect(
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
 		customCredentials: null,
 		renderBucketName: 'my-bucket',
 		key: 'my-key',
@@ -82,7 +96,14 @@ test('For stills', () => {
 		type: 'still',
 		imageFormat: 'png',
 	};
-	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
+	expect(
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
 		customCredentials: null,
 		renderBucketName: 'remotionlambda-98fsduf',
 		key: 'renders/9n8dsfafs/out.png',
@@ -97,7 +118,14 @@ test('Just a custom name', () => {
 		codec: null,
 		outName: 'justaname.jpeg',
 	};
-	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
+	expect(
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
 		customCredentials: null,
 		renderBucketName: 'remotionlambda-98fsduf',
 		key: 'renders/9n8dsfafs/justaname.jpeg',
@@ -113,7 +141,12 @@ test('Should throw on invalid names', () => {
 		outName: '👺.jpeg',
 	};
 	expect(() => {
-		getExpectedOutName(newRenderMetadata, bucketName, null);
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		});
 	}).toThrow(/The S3 Key must match the RegExp/);
 });
 
@@ -126,7 +159,14 @@ test('Should allow outName an outname with a slash', () => {
 		imageFormat: 'jpeg',
 		outName: 'justa/name.jpeg',
 	};
-	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
+	expect(
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
 		customCredentials: null,
 		key: 'renders/9n8dsfafs/justa/name.jpeg',
 		renderBucketName: 'remotionlambda-98fsduf',
@@ -142,7 +182,14 @@ test('Should allow outName an outname with colon', () => {
 		imageFormat: 'jpeg',
 		outName: 'ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
 	};
-	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
+	expect(
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
 		customCredentials: null,
 		key: 'renders/9n8dsfafs/ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
 		renderBucketName: 'remotionlambda-98fsduf',

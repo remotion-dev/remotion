@@ -228,6 +228,7 @@ export type GetFunctions<Provider extends CloudProvider> = (
 export type ProviderSpecifics<Provider extends CloudProvider> = {
 	getChromiumPath: () => string | null;
 	getBuckets: GetBuckets<Provider>;
+	getBucketPrefix: () => string;
 	createBucket: CreateBucket<Provider>;
 	applyLifeCycle: ApplyLifeCycle<Provider>;
 	listObjects: ListObjects<Provider>;

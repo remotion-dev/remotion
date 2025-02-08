@@ -31,11 +31,17 @@ export const getCredentialsFromOutName = <Provider extends CloudProvider>(
 	return name.s3OutputProvider ?? null;
 };
 
-export const getExpectedOutName = <Provider extends CloudProvider>(
-	renderMetadata: RenderMetadata<Provider>,
-	bucketName: string,
-	customCredentials: CustomCredentials<Provider> | null,
-): OutNameOutput<Provider> => {
+export const getExpectedOutName = <Provider extends CloudProvider>({
+	renderMetadata,
+	bucketName,
+	customCredentials,
+	bucketNamePrefix,
+}: {
+	renderMetadata: RenderMetadata<Provider>;
+	bucketName: string;
+	customCredentials: CustomCredentials<Provider> | null;
+	bucketNamePrefix: string;
+}): OutNameOutput<Provider> => {
 	const outNameValue = getCustomOutName({
 		customCredentials,
 		renderMetadata,
@@ -46,6 +52,7 @@ export const getExpectedOutName = <Provider extends CloudProvider>(
 			codec: renderMetadata.codec,
 			audioCodecSetting: renderMetadata.audioCodec,
 			separateAudioTo: null,
+			bucketNamePrefix,
 		});
 		return customOutName(renderMetadata.renderId, bucketName, outNameValue);
 	}

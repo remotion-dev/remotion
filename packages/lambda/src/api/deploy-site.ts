@@ -11,7 +11,7 @@ import type {
 } from '@remotion/serverless';
 import {validateBucketName, validatePrivacy} from '@remotion/serverless';
 import fs from 'node:fs';
-import {getSitesKey} from '../defaults';
+import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {validateSiteName} from '../shared/validate-site-name';
@@ -71,8 +71,12 @@ const mandatoryDeploySite = async ({
 		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 	}): DeploySiteOutput => {
 	LambdaClientInternals.validateAwsRegion(region);
-	validateBucketName(bucketName, {
-		mustStartWithRemotion: !options?.bypassBucketNameValidation,
+	validateBucketName({
+		bucketName,
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+		options: {
+			mustStartWithRemotion: !options?.bypassBucketNameValidation,
+		},
 	});
 
 	validateSiteName(siteName);

@@ -25,11 +25,13 @@ export const validateOutname = ({
 	codec,
 	audioCodecSetting,
 	separateAudioTo,
+	bucketNamePrefix,
 }: {
 	outName: OutNameInputWithoutCredentials | undefined | null;
 	codec: Codec | null;
 	audioCodecSetting: AudioCodec | null;
 	separateAudioTo: string | null;
+	bucketNamePrefix: string;
 }) => {
 	if (typeof outName === 'undefined' || outName === null) {
 		return;
@@ -37,7 +39,13 @@ export const validateOutname = ({
 
 	if (typeof outName !== 'string') {
 		validateS3Key(outName.key);
-		validateBucketName(outName.bucketName, {mustStartWithRemotion: false});
+		validateBucketName({
+			bucketName: outName.bucketName,
+			bucketNamePrefix,
+			options: {
+				mustStartWithRemotion: false,
+			},
+		});
 		return;
 	}
 

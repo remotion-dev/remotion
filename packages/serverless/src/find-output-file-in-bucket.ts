@@ -31,11 +31,12 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 		throw new Error('unexpectedly did not get renderMetadata');
 	}
 
-	const {renderBucketName, key} = getExpectedOutName(
+	const {renderBucketName, key} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
 		customCredentials,
-	);
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+	});
 
 	try {
 		await providerSpecifics.headFile({

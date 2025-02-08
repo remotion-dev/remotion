@@ -1,5 +1,4 @@
 import type {CustomCredentials} from './constants';
-import {REMOTION_BUCKET_PREFIX} from './constants';
 import {makeBucketName} from './make-bucket-name';
 import type {ProviderSpecifics} from './provider-implementation';
 import type {CloudProvider} from './types';
@@ -39,7 +38,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 				(b) => b.name,
 			)}) in your S3 region (${
 				params.region
-			}) starting with "${REMOTION_BUCKET_PREFIX}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`,
+			}) starting with "${params.providerSpecifics.getBucketPrefix()}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`,
 		);
 	}
 

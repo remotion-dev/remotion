@@ -316,8 +316,6 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 export type ServerlessPayload<Provider extends CloudProvider> =
 	ServerlessPayloads<Provider>[ServerlessRoutines];
 
-export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
-
 export type OutNameOutput<Provider extends CloudProvider> = {
 	renderBucketName: string;
 	key: string;

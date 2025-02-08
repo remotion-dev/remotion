@@ -1,11 +1,14 @@
-import {REMOTION_BUCKET_PREFIX} from './constants';
-
-export const validateBucketName = (
-	bucketName: unknown,
+export const validateBucketName = ({
+	bucketName,
+	bucketNamePrefix,
+	options,
+}: {
+	bucketName: unknown;
+	bucketNamePrefix: string;
 	options: {
 		mustStartWithRemotion: boolean;
-	},
-) => {
+	};
+}) => {
 	if (typeof bucketName !== 'string') {
 		throw new TypeError(
 			`'bucketName' must be a string, but is ${JSON.stringify(bucketName)}`,
@@ -14,10 +17,10 @@ export const validateBucketName = (
 
 	if (
 		options.mustStartWithRemotion &&
-		!bucketName.startsWith(REMOTION_BUCKET_PREFIX)
+		!bucketName.startsWith(bucketNamePrefix)
 	) {
 		throw new Error(
-			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`,
+			`The bucketName parameter must start with ${bucketNamePrefix}.`,
 		);
 	}
 

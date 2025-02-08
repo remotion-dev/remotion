@@ -61,11 +61,12 @@ export const getProgress = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const outData = getExpectedOutName(
-			overallProgress.renderMetadata,
+		const outData = getExpectedOutName({
+			renderMetadata: overallProgress.renderMetadata,
 			bucketName,
 			customCredentials,
-		);
+			bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+		});
 
 		const totalFrameCount = NoReactAPIs.getFramesToRender(
 			overallProgress.renderMetadata.frameRange,

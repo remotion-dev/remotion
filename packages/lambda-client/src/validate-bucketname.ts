@@ -1,4 +1,4 @@
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless-client';
+import {REMOTION_BUCKET_PREFIX} from './constants';
 import type {AwsRegion} from './regions';
 import {AWS_REGIONS} from './regions';
 

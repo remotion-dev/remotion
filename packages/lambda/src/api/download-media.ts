@@ -9,6 +9,7 @@ import {
 	type CustomCredentials,
 } from '@remotion/serverless';
 import path from 'node:path';
+import {REMOTION_BUCKET_PREFIX} from '../defaults';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 
@@ -53,11 +54,12 @@ export const internalDownloadMedia = async (
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 	RenderInternals.ensureOutputDirectory(outputPath);
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		overallProgress.renderMetadata,
-		input.bucketName,
-		input.customCredentials ?? null,
-	);
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		renderMetadata: overallProgress.renderMetadata,
+		bucketName: input.bucketName,
+		customCredentials: input.customCredentials ?? null,
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+	});
 
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,

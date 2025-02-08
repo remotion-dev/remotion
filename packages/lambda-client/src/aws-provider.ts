@@ -28,7 +28,7 @@ import {callFunctionAsyncImplementation} from './call-lambda-async';
 import {callFunctionWithStreamingImplementation} from './call-lambda-streaming';
 import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {checkCredentials} from './check-credentials';
-import {MAX_EPHEMERAL_STORAGE_IN_MB} from './constants';
+import {MAX_EPHEMERAL_STORAGE_IN_MB, REMOTION_BUCKET_PREFIX} from './constants';
 import {convertToServeUrlImplementation} from './convert-to-serve-url';
 import {createBucket} from './create-bucket';
 import {lambdaDeleteFileImplementation} from './delete-file';
@@ -131,4 +131,5 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 	getFunctions,
 	parseFunctionName,
 	checkCredentials,
+	getBucketPrefix: () => REMOTION_BUCKET_PREFIX,
 };

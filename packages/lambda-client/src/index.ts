@@ -4,7 +4,6 @@ export type {
 	GetOrCreateBucketOutput,
 } from '@remotion/serverless-client';
 export type {RuntimePreference} from './runtime-preference';
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless-client';
 import {
 	getCloudWatchLogsClient,
 	getIamClient,
@@ -145,5 +144,4 @@ export const LambdaClientInternals = {
 	cleanItems,
 	makeLambdaRenderStillPayload,
 	getRenderProgressPayload,
-	REMOTION_BUCKET_PREFIX,
 };

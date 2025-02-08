@@ -1,7 +1,7 @@
 import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
+import {REMOTION_BUCKET_PREFIX} from './constants';
 import {getS3Client} from './get-s3-client';
 import type {AwsRegion} from './regions';
 import {parseBucketName} from './validate-bucketname';

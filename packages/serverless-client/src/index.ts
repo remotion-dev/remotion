@@ -8,7 +8,6 @@ export {
 	outName,
 	outStillName,
 	overallProgressKey,
-	REMOTION_BUCKET_PREFIX,
 	rendersPrefix,
 	ServerlessCodec,
 	serverlessCodecs,

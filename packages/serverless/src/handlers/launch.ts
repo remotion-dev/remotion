@@ -169,6 +169,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		codec: params.codec,
 		audioCodecSetting: params.audioCodec,
 		separateAudioTo: null,
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
@@ -335,13 +336,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			insideFunctionSpecifics.getCurrentFunctionName(),
 	};
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
 		renderMetadata,
-		params.bucketName,
-		typeof params.outName === 'string' || typeof params.outName === 'undefined'
-			? null
-			: (params.outName?.s3OutputProvider ?? null),
-	);
+		bucketName: params.bucketName,
+		customCredentials:
+			typeof params.outName === 'string' ||
+			typeof params.outName === 'undefined'
+				? null
+				: (params.outName?.s3OutputProvider ?? null),
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+	});
 
 	if (!params.overwrite) {
 		const findOutputFile = insideFunctionSpecifics.timer(

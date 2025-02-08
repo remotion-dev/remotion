@@ -75,6 +75,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		codec: null,
 		audioCodecSetting: null,
 		separateAudioTo: null,
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
 
 	const start = Date.now();
@@ -214,11 +215,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
-		getCredentialsFromOutName(params.outName),
-	);
+		customCredentials: getCredentialsFromOutName(params.outName),
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+	});
 
 	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
 		if (receivedArtifact.find((a) => a.filename === artifact.filename)) {
