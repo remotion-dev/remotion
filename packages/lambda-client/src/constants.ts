@@ -1,9 +1,4 @@
-import type {GenericRenderProgress} from '@remotion/serverless-client';
-import {
-	type Privacy,
-	ENABLE_V5_BREAKING_CHANGES,
-	MINIMUM_FRAMES_PER_FUNCTIONS,
-} from '@remotion/serverless-client';
+import type {GenericRenderProgress, Privacy} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import type {AwsRegion} from './regions';
 
@@ -22,9 +17,8 @@ export const DEFAULT_REGION: AwsRegion = 'us-east-1';
 export const DEFAULT_MAX_RETRIES = 1;
 
 export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
-export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = ENABLE_V5_BREAKING_CHANGES
-	? MAX_EPHEMERAL_STORAGE_IN_MB
-	: 2048;
+// TODO: In V5, Enable set this to 10240
+export const DEFAULT_EPHEMERAL_STORAGE_IN_MB = 2048;
 export const MIN_EPHEMERAL_STORAGE_IN_MB = 512;
 
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
@@ -40,6 +34,5 @@ export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export type RenderProgress = GenericRenderProgress<AwsProvider>;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
-export const MINIMUM_FRAMES_PER_LAMBDA = MINIMUM_FRAMES_PER_FUNCTIONS;
 
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
