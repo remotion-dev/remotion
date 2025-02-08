@@ -6,6 +6,10 @@ await buildPackage({
 		esm: 'build',
 	},
 	external: [],
-	target: 'node',
-	entrypoints: ['src/index.ts'],
+	entrypoints: [
+		{
+			path: 'src/index.ts',
+			target: 'node',
+		},
+	],
 });

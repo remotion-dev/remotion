@@ -29,10 +29,14 @@ const sortObject = (obj: Record<string, string>) => {
 
 type FormatAction = 'do-nothing' | 'build' | 'use-tsc';
 
+type EntryPoint = {
+	target: 'node' | 'browser';
+	path: string;
+};
+
 export const buildPackage = async ({
 	formats,
 	external,
-	target,
 	entrypoints,
 }: {
 	formats: {
@@ -40,16 +44,15 @@ export const buildPackage = async ({
 		cjs: FormatAction;
 	};
 	external: 'dependencies' | string[];
-	target: 'node' | 'browser';
-	entrypoints: string[];
+	entrypoints: EntryPoint[];
 }) => {
 	console.time(`Generated.`);
 	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
 	const newExports = {};
 	const versions = {};
 
-	const firstNames = entrypoints.map((e) => {
-		const splittedBySlash = e.split('/');
+	const firstNames = entrypoints.map(({path, target}) => {
+		const splittedBySlash = path.split('/');
 		const last = splittedBySlash[splittedBySlash.length - 1];
 		return last.split('.')[0];
 	});
@@ -60,23 +63,25 @@ export const buildPackage = async ({
 			continue;
 		} else if (action === 'use-tsc') {
 		} else if (action === 'build') {
-			const output = await build({
-				entrypoints: entrypoints.map((e) => path.join(process.cwd(), e)),
-				naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
-				external: getExternal(external),
-				target,
-				format,
-			});
+			for (const {path: p, target} of entrypoints) {
+				const output = await build({
+					entrypoints: [p],
+					naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
+					external: getExternal(external),
+					target,
+					format,
+				});
 
-			for (const file of output.outputs) {
-				const text = await file.text();
+				for (const file of output.outputs) {
+					const text = await file.text();
 
-				const outputPath = `./${path.join('./dist', format, file.path)}`;
+					const outputPath = `./${path.join('./dist', format, file.path)}`;
 
-				await Bun.write(path.join(process.cwd(), outputPath), text);
+					await Bun.write(path.join(process.cwd(), outputPath), text);
 
-				if (text.includes('jonathanburger')) {
-					throw new Error('Absolute path was included, see ' + outputPath);
+					if (text.includes('jonathanburger')) {
+						throw new Error('Absolute path was included, see ' + outputPath);
+					}
 				}
 			}
 		}

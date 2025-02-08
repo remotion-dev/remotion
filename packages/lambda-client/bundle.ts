@@ -6,6 +6,15 @@ await buildPackage({
 		esm: 'build',
 	},
 	external: 'dependencies',
-	target: 'node',
-	entrypoints: ['src/index.ts', 'src/constants.ts', 'src/regions.ts'],
+	entrypoints: [
+		{
+			path: 'src/index.ts',
+			target: 'node',
+		},
+		{
+			path: 'src/constants.ts',
+			target: 'browser',
+		},
+		{path: 'src/regions.ts', target: 'browser'},
+	],
 });
