@@ -41,19 +41,19 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"require": "./dist/cjs/index.js",
+			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
 		"./constants": {
 			"types": "./dist/constants.d.ts",
-			"require": "./dist/cjs/constants.js",
+			"require": "./dist/constants.js",
 			"module": "./dist/esm/constants.mjs",
 			"import": "./dist/esm/constants.mjs"
 		},
 		"./regions": {
 			"types": "./dist/regions.d.ts",
-			"require": "./dist/cjs/regions.js",
+			"require": "./dist/regions.js",
 			"module": "./dist/esm/regions.mjs",
 			"import": "./dist/esm/regions.mjs"
 		}

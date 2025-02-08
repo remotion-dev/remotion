@@ -27,59 +27,82 @@ const sortObject = (obj: Record<string, string>) => {
 	};
 };
 
+type FormatAction = 'do-nothing' | 'build' | 'use-tsc';
+
 export const buildPackage = async ({
 	formats,
 	external,
 	target,
 	entrypoints,
 }: {
-	formats: Format[];
+	formats: {
+		esm: FormatAction;
+		cjs: FormatAction;
+	};
 	external: 'dependencies' | string[];
 	target: 'node' | 'browser';
 	entrypoints: string[];
 }) => {
-	console.time(`Generated ${formats.join(', ')}.`);
+	console.time(`Generated.`);
 	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
 	const newExports = {};
 	const versions = {};
 
-	for (const format of formats) {
-		const output = await build({
-			entrypoints: entrypoints.map((e) => path.join(process.cwd(), e)),
-			naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
-			external: getExternal(external),
-			target,
-			format,
-		});
+	const firstNames = entrypoints.map((e) => {
+		const splittedBySlash = e.split('/');
+		const last = splittedBySlash[splittedBySlash.length - 1];
+		return last.split('.')[0];
+	});
 
-		for (const file of output.outputs) {
-			const text = await file.text();
+	for (const format of ['cjs', 'esm'] as Format[]) {
+		const action = formats[format];
+		if (action === 'do-nothing') {
+			continue;
+		} else if (action === 'use-tsc') {
+		} else if (action === 'build') {
+			const output = await build({
+				entrypoints: entrypoints.map((e) => path.join(process.cwd(), e)),
+				naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
+				external: getExternal(external),
+				target,
+				format,
+			});
 
-			const outputPath = `./${path.join('./dist', format, file.path)}`;
+			for (const file of output.outputs) {
+				const text = await file.text();
 
-			await Bun.write(path.join(process.cwd(), outputPath), text);
+				const outputPath = `./${path.join('./dist', format, file.path)}`;
 
-			if (text.includes('jonathanburger')) {
-				throw new Error('Absolute path was included, see ' + outputPath);
+				await Bun.write(path.join(process.cwd(), outputPath), text);
+
+				if (text.includes('jonathanburger')) {
+					throw new Error('Absolute path was included, see ' + outputPath);
+				}
 			}
+		}
 
-			const firstName = file.path.split('.')[1].slice(1);
+		for (const firstName of firstNames) {
 			const exportName = firstName === 'index' ? '.' : './' + firstName;
+			const outputName =
+				action === 'use-tsc'
+					? `./dist/${firstName}.js`
+					: `./dist/${format}/${firstName}.${format === 'cjs' ? 'js' : 'mjs'}`;
 			newExports[exportName] = sortObject({
 				types: `./dist/${firstName}.d.ts`,
 				...(format === 'cjs'
 					? {
-							require: outputPath,
+							require: outputName,
 						}
 					: {}),
 				...(format === 'esm'
 					? {
-							import: outputPath,
-							module: outputPath,
+							import: outputName,
+							module: outputName,
 						}
 					: {}),
 				...(newExports[exportName] ?? {}),
 			});
+
 			if (firstName !== 'index') {
 				versions[firstName] = [`dist/${firstName}.d.ts`];
 			}
@@ -100,5 +123,5 @@ export const buildPackage = async ({
 			'\t',
 		) + '\n',
 	);
-	console.timeEnd(`Generated ${formats.join(', ')}.`);
+	console.timeEnd(`Generated.`);
 };
