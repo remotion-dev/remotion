@@ -144,37 +144,48 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	}
 
 	if (params.type === ServerlessRoutines.start) {
-		const renderId = insideFunctionSpecifics.generateRandomId({
-			deleteAfter: params.deleteAfter,
-			randomHashFn: providerSpecifics.randomHash,
-		});
+		try {
+			const renderId = insideFunctionSpecifics.generateRandomId({
+				deleteAfter: params.deleteAfter,
+				randomHashFn: providerSpecifics.randomHash,
+			});
 
-		if (providerSpecifics.printLoggingHelper) {
-			printLoggingGrepHelper(
-				ServerlessRoutines.start,
-				{
+			if (providerSpecifics.printLoggingHelper) {
+				printLoggingGrepHelper(
+					ServerlessRoutines.start,
+					{
+						renderId,
+						inputProps: JSON.stringify(params.inputProps),
+						isWarm,
+					},
+					params.logLevel,
+				);
+			}
+
+			const response = await startHandler({
+				params,
+				options: {
+					expectedBucketOwner: currentUserId,
+					timeoutInMilliseconds,
 					renderId,
-					inputProps: JSON.stringify(params.inputProps),
-					isWarm,
 				},
-				params.logLevel,
+				providerSpecifics,
+				insideFunctionSpecifics,
+			});
+
+			await responseWriter.write(Buffer.from(JSON.stringify(response)));
+			await responseWriter.end();
+			return;
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.log({err});
+			await responseWriter.write(
+				Buffer.from(
+					JSON.stringify({type: 'error', message: (err as Error).message}),
+				),
 			);
+			return;
 		}
-
-		const response = await startHandler({
-			params,
-			options: {
-				expectedBucketOwner: currentUserId,
-				timeoutInMilliseconds,
-				renderId,
-			},
-			providerSpecifics,
-			insideFunctionSpecifics,
-		});
-
-		await responseWriter.write(Buffer.from(JSON.stringify(response)));
-		await responseWriter.end();
-		return;
 	}
 
 	if (params.type === ServerlessRoutines.launch) {
@@ -336,7 +347,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		return;
 	}
 
-	throw new Error(COMMAND_NOT_FOUND);
+	throw new Error(`${COMMAND_NOT_FOUND}: ${JSON.stringify(params)}`);
 };
 
 export const innerRoutine = async <Provider extends CloudProvider>({

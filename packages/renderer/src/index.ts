@@ -134,7 +134,6 @@ export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
-import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
@@ -167,7 +166,6 @@ export const RenderInternals = {
 	getRealFrameRange,
 	validatePuppeteerTimeout,
 	downloadFile,
-	killAllBrowsers,
 	parseStack,
 	symbolicateError,
 	SymbolicateableError,

@@ -78,6 +78,7 @@ export const exampleVideos = {
 	),
 	unknown: __filename,
 	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
+	syncsafe: path.join(__dirname, '..', 'videos', 'syncsafe-id3.mp3'),
 };
 
 export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';

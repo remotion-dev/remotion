@@ -143,7 +143,11 @@ export const sitesCreateSubcommand = async (
 			commandLine: CliInternals.parsedCli,
 		}).value;
 
-	const gitSource = CliInternals.getGitSource({remotionRoot, disableGitSource});
+	const gitSource = CliInternals.getGitSource({
+		remotionRoot,
+		disableGitSource,
+		logLevel,
+	});
 
 	const {serveUrl, siteName, stats} = await internalDeploySiteRaw({
 		entryPoint: file,

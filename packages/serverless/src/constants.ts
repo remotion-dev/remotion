@@ -45,6 +45,7 @@ export type CustomCredentials<Provider extends CloudProvider> =
 		accessKeyId: string | null;
 		secretAccessKey: string | null;
 		region?: Provider['region'];
+		forcePathStyle?: boolean;
 	};
 
 export type OutNameInput<Provider extends CloudProvider> =

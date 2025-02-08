@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cloudrun"
 	},
 	"name": "@remotion/cloudrun",
-	"version": "4.0.257",
+	"version": "4.0.260",
 	"description": "Render Remotion videos on Google Cloud Run",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -33,7 +33,7 @@
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

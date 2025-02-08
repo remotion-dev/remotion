@@ -1,6 +1,6 @@
 import {ensureBrowser, RenderInternals} from '@remotion/renderer';
 import {rendersPrefix} from '@remotion/serverless/client';
-import {afterAll, beforeAll, expect, test} from 'bun:test';
+import {beforeAll, expect, test} from 'bun:test';
 import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -10,10 +10,6 @@ import {simulateLambdaRender} from '../simulate-lambda-render';
 
 beforeAll(async () => {
 	await ensureBrowser();
-});
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
 });
 
 test(

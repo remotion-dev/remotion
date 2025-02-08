@@ -135,7 +135,10 @@ export const Composition = <
 		useContext(CompositionManager);
 	const video = useVideo();
 
-	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
+	const lazy = useLazyComponent<Props>({
+		compProps: compProps as CompProps<Props>,
+		componentName: 'Composition',
+	});
 	const nonce = useNonce();
 	const isPlayer = useIsPlayer();
 	const environment = getRemotionEnvironment();

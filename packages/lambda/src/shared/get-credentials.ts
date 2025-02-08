@@ -1,4 +1,5 @@
 import {fromIni} from '@aws-sdk/credential-providers';
+import {getEnvVariable} from './get-env-variable';
 import {isInsideLambda} from './is-in-lambda';
 
 type CredentialPair = {
@@ -16,56 +17,63 @@ export const getCredentials = ():
 		return undefined;
 	}
 
-	if (process.env.REMOTION_AWS_PROFILE) {
+	if (getEnvVariable('REMOTION_AWS_PROFILE')) {
 		return fromIni({
-			profile: process.env.REMOTION_AWS_PROFILE,
+			profile: getEnvVariable('REMOTION_AWS_PROFILE'),
 		});
 	}
 
 	if (
-		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
-		process.env.REMOTION_AWS_SECRET_ACCESS_KEY &&
-		process.env.REMOTION_AWS_SESSION_TOKEN
+		getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') &&
+		getEnvVariable('REMOTION_AWS_SECRET_ACCESS_KEY') &&
+		getEnvVariable('REMOTION_AWS_SESSION_TOKEN')
 	) {
 		return {
-			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
-			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
-			sessionToken: process.env.REMOTION_AWS_SESSION_TOKEN,
+			accessKeyId: getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') as string,
+			secretAccessKey: getEnvVariable(
+				'REMOTION_AWS_SECRET_ACCESS_KEY',
+			) as string,
+			sessionToken: getEnvVariable('REMOTION_AWS_SESSION_TOKEN') as string,
 		};
 	}
 
 	if (
-		process.env.REMOTION_AWS_ACCESS_KEY_ID &&
-		process.env.REMOTION_AWS_SECRET_ACCESS_KEY
+		getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') &&
+		getEnvVariable('REMOTION_AWS_SECRET_ACCESS_KEY')
 	) {
 		return {
-			accessKeyId: process.env.REMOTION_AWS_ACCESS_KEY_ID,
-			secretAccessKey: process.env.REMOTION_AWS_SECRET_ACCESS_KEY,
+			accessKeyId: getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') as string,
+			secretAccessKey: getEnvVariable(
+				'REMOTION_AWS_SECRET_ACCESS_KEY',
+			) as string,
 		};
 	}
 
-	if (process.env.AWS_PROFILE) {
+	if (getEnvVariable('AWS_PROFILE')) {
 		return fromIni({
-			profile: process.env.AWS_PROFILE,
+			profile: getEnvVariable('AWS_PROFILE'),
 		});
 	}
 
 	if (
-		process.env.AWS_ACCESS_KEY_ID &&
-		process.env.AWS_SECRET_ACCESS_KEY &&
-		process.env.AWS_SESSION_TOKEN
+		getEnvVariable('AWS_ACCESS_KEY_ID') &&
+		getEnvVariable('AWS_SECRET_ACCESS_KEY') &&
+		getEnvVariable('AWS_SESSION_TOKEN')
 	) {
 		return {
-			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-			sessionToken: process.env.AWS_SESSION_TOKEN as string,
+			accessKeyId: getEnvVariable('AWS_ACCESS_KEY_ID') as string,
+			secretAccessKey: getEnvVariable('AWS_SECRET_ACCESS_KEY') as string,
+			sessionToken: getEnvVariable('AWS_SESSION_TOKEN') as string,
 		};
 	}
 
-	if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+	if (
+		getEnvVariable('AWS_ACCESS_KEY_ID') &&
+		getEnvVariable('AWS_SECRET_ACCESS_KEY')
+	) {
 		return {
-			accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-			secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+			accessKeyId: getEnvVariable('AWS_ACCESS_KEY_ID') as string,
+			secretAccessKey: getEnvVariable('AWS_SECRET_ACCESS_KEY') as string,
 		};
 	}
 

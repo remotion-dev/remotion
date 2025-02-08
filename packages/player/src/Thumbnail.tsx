@@ -99,9 +99,10 @@ const ThumbnailFn = <
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
-	const Component = Internals.useLazyComponent(
-		componentProps,
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	const Component = Internals.useLazyComponent({
+		compProps: componentProps,
+		componentName: 'Thumbnail',
+	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
 
