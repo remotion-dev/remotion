@@ -5,7 +5,6 @@ import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
-import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
@@ -14,6 +13,7 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
+import {serializeCommand} from './serialize-command';
 
 export type Compositor = {
 	finishCommands: () => Promise<void>;

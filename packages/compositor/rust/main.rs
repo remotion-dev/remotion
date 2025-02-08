@@ -62,7 +62,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
             start_long_running_process(payload.concurrency, max_video_cache_size)?;
         }
         _ => {
-            execute_command_and_print(opts)?;
+            panic!("only supports long running compositor")
         }
     }
 
@@ -116,12 +116,17 @@ fn start_long_running_process(
                     CliInputCommandPayload::Eof(_) => {
                         break;
                     }
+                    _ => {}
+                };
+
+                let res: Result<(), ErrorWithBacktrace> = match message.payload {
                     CliInputCommandPayload::CloseAllVideos(_) => {
                         opened_video_manager
                             .close_all_videos(&mut frame_cache_manager)
-                            .unwrap(); // TODO: UNWRAP
+                            .unwrap();
+                        // TODO: Unwrap x2
                         send_close_video_to_main_thread.send(()).unwrap();
-                        continue;
+                        Ok(())
                     }
                     CliInputCommandPayload::ExtractFrame(command) => {
                         let res = ffmpeg::extract_frame(
@@ -135,7 +140,8 @@ fn start_long_running_process(
                             &mut opened_video_manager,
                             &mut frame_cache_manager,
                         )
-                        .unwrap(); // TODO: Unwrpa
+                        .unwrap();
+                        // TODO: Unwrap
                         global_printer::synchronized_write_buf(0, &message.nonce, &res).unwrap();
                         if current_maximum_cache_size.is_some() {
                             ffmpeg::keep_only_latest_frames_and_close_videos(
@@ -144,10 +150,10 @@ fn start_long_running_process(
                                 &mut frame_cache_manager,
                                 thread_index,
                             )
-                            .unwrap(); // TODO: Unwrap
+                            .unwrap();
                         }
 
-                        continue;
+                        Ok(())
                     }
                     CliInputCommandPayload::FreeUpMemory(payload) => {
                         _print_verbose(&format!("remaining {}", payload.remaining_bytes)).unwrap();
@@ -160,7 +166,7 @@ fn start_long_running_process(
                         .unwrap(); // TODO: Unwrap
 
                         send_free_to_main_thread.send(()).unwrap();
-                        continue;
+                        Ok(())
                     }
                     CliInputCommandPayload::GetOpenVideoStats(_) => {
                         let res = ffmpeg::get_open_video_stats(
@@ -169,12 +175,10 @@ fn start_long_running_process(
                         )
                         .unwrap();
                         send_video_stats_to_main_thread.send(res.clone()).unwrap(); // TODO: unwrao
-                        continue;
+                        Ok(())
                     }
-                    _ => (),
-                }
-
-                execute_command_and_print(message).unwrap();
+                    _ => panic!("Command cannot be executed on thread"),
+                };
             }
 
             // Thread work here
