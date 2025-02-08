@@ -37,7 +37,7 @@ const container: React.CSSProperties = {
 
 const mobileContainer: React.CSSProperties = {
 	...container,
-	overflow: 'auto',
+	overflowY: 'auto',
 	justifyContent: 'flex-start',
 };
 
@@ -102,7 +102,7 @@ export const PreviewToolbar: React.FC<{
 						loop={loop}
 						playbackRate={playbackRate}
 					/>
-					<Spacing x={isMobileLayout ? 12 : 2} />
+					<Spacing x={2} />
 					<LoopToggle loop={loop} setLoop={setLoop} />
 					<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
 					<Spacing x={2} />
@@ -129,7 +129,7 @@ export const PreviewToolbar: React.FC<{
 			)}
 			<div style={sideContainer}>
 				<Flex />
-				<FpsCounter playbackSpeed={playbackRate} />
+				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
 				{readOnlyStudio ? null : <RenderButton />}
 				<Spacing x={1.5} />
