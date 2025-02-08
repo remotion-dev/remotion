@@ -31,6 +31,7 @@
 		"eslint": "9.19.0"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
 			"require": "./dist/index.js",

@@ -29,6 +29,7 @@
 		"vitest": "0.31.1"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
 			"require": "./dist/cjs/index.js",
