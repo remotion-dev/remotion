@@ -1,11 +1,11 @@
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {ensureBrowser, RenderInternals} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
+import {rendersPrefix} from '@remotion/serverless';
 import {beforeAll, expect, test} from 'bun:test';
 import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {internalDeleteRender} from '../../../api/delete-render';
-import {mockImplementation} from '../../mock-implementation';
+import {mockImplementation} from '../../mocks/mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
 beforeAll(async () => {
@@ -61,7 +61,7 @@ test(
 
 		expect(files.length).toBe(2);
 
-		await internalDeleteRender({
+		await LambdaClientInternals.internalDeleteRender({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			renderId,

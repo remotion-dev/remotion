@@ -1,6 +1,6 @@
 import {build} from 'bun';
-import {existsSync} from 'node:fs';
 import path from 'path';
+import {Exports, validateExports} from './validate-exports';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
@@ -8,93 +8,113 @@ if (process.env.NODE_ENV !== 'production') {
 
 type Format = 'esm' | 'cjs';
 
-const validateExports = (
-	exports: Record<string, './package.json' | Record<string, string>>,
-) => {
-	const keys = Object.keys(exports);
-	for (const key of keys) {
-		const value = exports[key];
-		if (key === './package.json' && value === './package.json') {
-			continue;
-		}
-
-		if (typeof value === 'string') {
-			throw new Error(`Invalid export for ${key}`);
-		}
-
-		if (!value.import || !value.require || !value.module || !value) {
-			throw new Error(`Missing import or require for ${key}`);
-		}
-		const paths = Object.keys(value);
-		for (const entry of paths) {
-			if (
-				entry !== 'import' &&
-				entry !== 'require' &&
-				entry !== 'module' &&
-				entry !== 'types'
-			) {
-				throw new Error(`Invalid export: ${entry}`);
-			}
-			const pathToCheck = path.join(process.cwd(), value[entry]);
-			const exists = existsSync(pathToCheck);
-			if (!exists) {
-				throw new Error(`Path does not exist: ${pathToCheck}`);
-			}
-		}
+const getExternal = (deps: string[] | 'dependencies'): string[] => {
+	if (deps === 'dependencies') {
+		return Object.keys(
+			require(path.join(process.cwd(), 'package.json')).dependencies,
+		);
 	}
+
+	return deps;
+};
+
+const sortObject = (obj: Record<string, string>) => {
+	return {
+		...(obj.types !== undefined && {types: obj.types}),
+		...(obj.require !== undefined && {require: obj.require}),
+		...(obj.module !== undefined && {module: obj.module}),
+		...(obj.import !== undefined && {import: obj.import}),
+	};
+};
+
+type FormatAction = 'do-nothing' | 'build' | 'use-tsc';
+
+type EntryPoint = {
+	target: 'node' | 'browser';
+	path: string;
 };
 
 export const buildPackage = async ({
 	formats,
 	external,
-	target,
 	entrypoints,
 }: {
-	formats: Format[];
-	external: string[];
-	target: 'node' | 'browser';
-	entrypoints: string[];
-}) => {
-	console.time(`Generated ${formats.join(', ')}.`);
-	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
-	const newExports = {
-		...pkg.exports,
+	formats: {
+		esm: FormatAction;
+		cjs: FormatAction;
 	};
+	external: 'dependencies' | string[];
+	entrypoints: EntryPoint[];
+}) => {
+	console.time(`Generated.`);
+	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
+	const newExports: Exports = {
+		'./package.json': './package.json',
+	};
+	const versions = {};
 
-	for (const format of formats) {
-		const output = await build({
-			entrypoints: entrypoints.map((e) => path.join(process.cwd(), e)),
-			naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
-			external,
-			target,
-			format,
-		});
+	const firstNames = entrypoints.map(({path, target}) => {
+		const splittedBySlash = path.split('/');
+		const last = splittedBySlash[splittedBySlash.length - 1];
+		return last.split('.')[0];
+	});
 
-		for (const file of output.outputs) {
-			const text = await file.text();
-			if (text.includes('jonathanburger')) {
-				throw new Error('Absolute path was included');
+	for (const format of ['cjs', 'esm'] as Format[]) {
+		const action = formats[format];
+		if (action === 'do-nothing') {
+			continue;
+		} else if (action === 'use-tsc') {
+		} else if (action === 'build') {
+			for (const {path: p, target} of entrypoints) {
+				const output = await build({
+					entrypoints: [p],
+					naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
+					external: getExternal(external),
+					target,
+					format,
+				});
+
+				for (const file of output.outputs) {
+					const text = await file.text();
+
+					const outputPath = `./${path.join('./dist', format, file.path)}`;
+
+					await Bun.write(path.join(process.cwd(), outputPath), text);
+
+					if (text.includes('jonathanburger')) {
+						throw new Error('Absolute path was included, see ' + outputPath);
+					}
+				}
 			}
+		}
 
-			const outputPath = './' + path.join('./dist', format, file.path);
-			await Bun.write(path.join(process.cwd(), outputPath), text);
-
-			const firstName = file.path.split('.')[1].slice(1);
-			const exportName = firstName === 'index' ? '.' : firstName;
-			newExports[exportName] = {
-				...(newExports[exportName] ?? {}),
-				...(format === 'esm'
-					? {
-							import: outputPath,
-							module: outputPath,
-						}
-					: {}),
+		for (const firstName of firstNames) {
+			const exportName = firstName === 'index' ? '.' : './' + firstName;
+			const outputName =
+				action === 'use-tsc'
+					? `./dist/${firstName}.js`
+					: `./dist/${format}/${firstName}.${format === 'cjs' ? 'js' : 'mjs'}`;
+			newExports[exportName] = sortObject({
+				types: `./dist/${firstName}.d.ts`,
 				...(format === 'cjs'
 					? {
-							require: outputPath,
+							require: outputName,
 						}
 					: {}),
-			};
+				...(format === 'esm'
+					? {
+							import: outputName,
+							module: outputName,
+						}
+					: {}),
+				...(newExports[exportName] && typeof newExports[exportName] === 'object'
+					? newExports[exportName]
+					: {}),
+			});
+
+			if (firstName !== 'index') {
+				versions[firstName] = [`dist/${firstName}.d.ts`];
+			}
 		}
 	}
 	validateExports(newExports);
@@ -104,10 +124,13 @@ export const buildPackage = async ({
 			{
 				...pkg,
 				exports: newExports,
+				...(Object.keys(versions).length > 0
+					? {typesVersions: {'>=1.0': versions}}
+					: {}),
 			},
 			null,
 			'\t',
 		) + '\n',
 	);
-	console.timeEnd(`Generated ${formats.join(', ')}.`);
+	console.timeEnd(`Generated.`);
 };

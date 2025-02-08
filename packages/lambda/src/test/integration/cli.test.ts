@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -7,11 +8,8 @@ import {
 	DEFAULT_TIMEOUT,
 } from '../../defaults';
 import {LambdaInternals} from '../../internals';
-import {LAMBDA_VERSION_STRING} from '../../shared/lambda-version-string';
-import {
-	mockFullClientSpecifics,
-	mockImplementation,
-} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
 
 const remotionRoot = process.cwd();
@@ -33,7 +31,7 @@ test('Deploy function', async () => {
 		mockFullClientSpecifics,
 	);
 	expect(getProcessWriteOutput()).toContain(
-		`Deployed as remotion-render-${LAMBDA_VERSION_STRING}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`,
+		`Deployed as remotion-render-${LambdaClientInternals.LAMBDA_VERSION_STRING}-mem${DEFAULT_MEMORY_SIZE}mb-disk${DEFAULT_EPHEMERAL_STORAGE_IN_MB}mb-${DEFAULT_TIMEOUT}sec\n`,
 	);
 });
 

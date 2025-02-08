@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
-import {BINARY_NAME} from '../shared/constants';
+import {BINARY_NAME} from '../defaults';
 import {COMPOSITIONS_COMMAND} from './commands/compositions';
 import {FUNCTIONS_COMMAND} from './commands/functions';
 import {POLICIES_COMMAND} from './commands/policies/policies';

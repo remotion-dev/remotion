@@ -1,8 +1,15 @@
 import {buildPackage} from '../.monorepo/builder';
 
 await buildPackage({
-	formats: ['cjs', 'esm'],
+	formats: {
+		cjs: 'build',
+		esm: 'build',
+	},
 	external: ['@typescript-eslint/utils'],
-	target: 'node',
-	entrypoints: ['src/index.ts'],
+	entrypoints: [
+		{
+			path: 'src/index.ts',
+			target: 'node',
+		},
+	],
 });

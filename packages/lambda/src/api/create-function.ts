@@ -10,14 +10,16 @@ import {
 	PutRuntimeManagementConfigCommand,
 	TagResourceCommand,
 } from '@aws-sdk/client-lambda';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type RuntimePreference,
+} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {readFileSync} from 'node:fs';
 import {VERSION} from 'remotion/version';
 import {LOG_GROUP_PREFIX} from '../defaults';
-import type {AwsRegion} from '../regions';
-import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
-import type {RuntimePreference} from '../shared/get-layers';
 import {getLayers} from '../shared/get-layers';
 import {lambdaInsightsExtensions} from '../shared/lambda-insights-extensions';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
@@ -63,7 +65,7 @@ export const createFunction = async ({
 			'Creating CloudWatch group',
 		);
 		try {
-			await getCloudWatchLogsClient(region).send(
+			await LambdaClientInternals.getCloudWatchLogsClient(region).send(
 				new CreateLogGroupCommand({
 					logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				}),
@@ -88,7 +90,7 @@ export const createFunction = async ({
 			{indent: false, logLevel},
 			'Adding retention policy to the CloudWatch group',
 		);
-		await getCloudWatchLogsClient(region).send(
+		await LambdaClientInternals.getCloudWatchLogsClient(region).send(
 			new PutRetentionPolicyCommand({
 				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				retentionInDays,
@@ -137,28 +139,29 @@ export const createFunction = async ({
 		);
 	}
 
-	const {FunctionName, FunctionArn} = await getLambdaClient(region).send(
-		new CreateFunctionCommand({
-			Code: {
-				ZipFile: readFileSync(zipFile),
-			},
-			FunctionName: functionName,
-			Handler: 'index.handler',
-			Role: customRoleArn ?? defaultRoleName,
-			Runtime: 'nodejs20.x',
-			Description: 'Renders a Remotion video.',
-			MemorySize: memorySizeInMb,
-			Timeout: timeoutInSeconds,
-			Layers: layers
-				.map(({layerArn, version}) => `${layerArn}:${version}`)
-				.concat(insightsLayer ? [insightsLayer] : []),
-			Architectures: ['arm64'],
-			EphemeralStorage: {
-				Size: ephemerealStorageInMb,
-			},
-			VpcConfig: vpcConfig,
-		}),
-	);
+	const {FunctionName, FunctionArn} =
+		await LambdaClientInternals.getLambdaClient(region).send(
+			new CreateFunctionCommand({
+				Code: {
+					ZipFile: readFileSync(zipFile),
+				},
+				FunctionName: functionName,
+				Handler: 'index.handler',
+				Role: customRoleArn ?? defaultRoleName,
+				Runtime: 'nodejs20.x',
+				Description: 'Renders a Remotion video.',
+				MemorySize: memorySizeInMb,
+				Timeout: timeoutInSeconds,
+				Layers: layers
+					.map(({layerArn, version}) => `${layerArn}:${version}`)
+					.concat(insightsLayer ? [insightsLayer] : []),
+				Architectures: ['arm64'],
+				EphemeralStorage: {
+					Size: ephemerealStorageInMb,
+				},
+				VpcConfig: vpcConfig,
+			}),
+		);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel},
@@ -166,7 +169,7 @@ export const createFunction = async ({
 	);
 
 	try {
-		await getLambdaClient(region).send(
+		await LambdaClientInternals.getLambdaClient(region).send(
 			new TagResourceCommand({
 				Resource: FunctionArn,
 				Tags: {
@@ -194,7 +197,7 @@ export const createFunction = async ({
 		{indent: false, logLevel},
 		'Disabling function retries (Remotion handles retries itself)...',
 	);
-	await getLambdaClient(region).send(
+	await LambdaClientInternals.getLambdaClient(region).send(
 		new PutFunctionEventInvokeConfigCommand({
 			MaximumRetryAttempts: 0,
 			FunctionName,
@@ -212,7 +215,7 @@ export const createFunction = async ({
 	let state = 'Pending';
 
 	while (state === 'Pending') {
-		const getFn = await getLambdaClient(region).send(
+		const getFn = await LambdaClientInternals.getLambdaClient(region).send(
 			new GetFunctionCommand({
 				FunctionName,
 			}),
@@ -235,7 +238,7 @@ export const createFunction = async ({
 
 	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
 	try {
-		await getLambdaClient(region).send(
+		await LambdaClientInternals.getLambdaClient(region).send(
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
