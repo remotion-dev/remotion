@@ -1,6 +1,6 @@
 import {build} from 'bun';
 import path from 'path';
-import {validateExports} from './validate-exports';
+import {Exports, validateExports} from './validate-exports';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
@@ -48,7 +48,9 @@ export const buildPackage = async ({
 }) => {
 	console.time(`Generated.`);
 	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
-	const newExports = {};
+	const newExports: Exports = {
+		'./package.json': './package.json',
+	};
 	const versions = {};
 
 	const firstNames = entrypoints.map(({path, target}) => {
@@ -105,7 +107,9 @@ export const buildPackage = async ({
 							module: outputName,
 						}
 					: {}),
-				...(newExports[exportName] ?? {}),
+				...(newExports[exportName] && typeof newExports[exportName] === 'object'
+					? newExports[exportName]
+					: {}),
 			});
 
 			if (firstName !== 'index') {

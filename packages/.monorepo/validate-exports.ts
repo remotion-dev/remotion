@@ -1,9 +1,9 @@
 import {existsSync} from 'node:fs';
 import path from 'path';
 
-export const validateExports = (
-	exports: Record<string, './package.json' | Record<string, string>>,
-) => {
+export type Exports = Record<string, './package.json' | Record<string, string>>;
+
+export const validateExports = (exports: Exports) => {
 	const keys = Object.keys(exports);
 	for (const key of keys) {
 		const value = exports[key];
