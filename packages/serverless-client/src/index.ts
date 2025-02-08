@@ -50,7 +50,7 @@ export type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-export {BrowserSafeApis} from '@remotion/renderer/client';
+export type {BrowserSafeApis} from '@remotion/renderer/client';
 export {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 export {makeStreamer, makeStreamPayloadMessage} from '@remotion/streaming';
 export type {VideoConfig} from 'remotion/no-react';

@@ -35,6 +35,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/serverless": "workspace:*",
+		"@remotion/serverless-client": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/transitions": "workspace:*",

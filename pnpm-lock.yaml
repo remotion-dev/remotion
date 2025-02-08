@@ -1317,6 +1317,9 @@ importers:
       '@remotion/serverless':
         specifier: workspace:*
         version: link:../serverless
+      '@remotion/serverless-client':
+        specifier: workspace:*
+        version: link:../serverless-client
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
