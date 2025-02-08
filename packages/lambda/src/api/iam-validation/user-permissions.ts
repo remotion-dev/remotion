@@ -1,4 +1,4 @@
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {LOG_GROUP_PREFIX, RENDER_FN_PREFIX} from '../../defaults';
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 
@@ -43,7 +43,7 @@ export const requiredPermissions: {
 			's3:PutBucketPublicAccessBlock',
 			's3:PutLifecycleConfiguration',
 		],
-		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
+		resource: [`arn:aws:s3:::${LambdaClientInternals.REMOTION_BUCKET_PREFIX}*`],
 	},
 	{
 		id: 'BucketListing',

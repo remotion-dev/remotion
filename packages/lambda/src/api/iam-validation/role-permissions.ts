@@ -1,4 +1,4 @@
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	LAMBDA_INSIGHTS_PREFIX,
 	LOG_GROUP_PREFIX,
@@ -24,7 +24,7 @@ export const rolePermissions: {
 			's3:PutObject',
 			's3:GetBucketLocation',
 		],
-		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
+		resource: [`arn:aws:s3:::${LambdaClientInternals.REMOTION_BUCKET_PREFIX}*`],
 	},
 	{
 		actions: ['lambda:InvokeFunction'],
