@@ -105,6 +105,7 @@ class Semantic
 				muted: false,
 				numberOfGifLoops: 0,
 				offthreadVideoCacheSizeInBytes: null,
+				offthreadVideoThreads: null,
 				outName: null,
 				overwrite: false,
 				pixelFormat: undefined,

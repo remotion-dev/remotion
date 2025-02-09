@@ -22,7 +22,7 @@ test('Should call webhook upon completion', async () => {
 
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
 		logLevel: 'error',
@@ -85,6 +85,7 @@ test('Should call webhook upon completion', async () => {
 			bucketName: null,
 			audioCodec: null,
 			offthreadVideoCacheSizeInBytes: null,
+			offthreadVideoThreads: null,
 			deleteAfter: null,
 			colorSpace: null,
 			preferLossless: false,
@@ -132,7 +133,7 @@ test('Should call webhook upon timeout', async () => {
 	// Maybe this can use simulateLambdaRender instead
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
 		logLevel: 'error',
@@ -151,6 +152,7 @@ test('Should call webhook upon timeout', async () => {
 		payload: {
 			type: ServerlessRoutines.launch,
 			offthreadVideoCacheSizeInBytes: null,
+			offthreadVideoThreads: null,
 			serveUrl: `http://localhost:${port}`,
 			chromiumOptions: {},
 			codec: 'h264',

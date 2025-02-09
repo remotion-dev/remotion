@@ -34,7 +34,7 @@ export const startLongRunningCompositor = ({
 	logLevel,
 	indent,
 	binariesDirectory,
-	extraThreads: concurrency,
+	extraThreads,
 }: {
 	maximumFrameCacheItemsInBytes: number | null;
 	logLevel: LogLevel;
@@ -45,7 +45,7 @@ export const startLongRunningCompositor = ({
 	return startCompositor({
 		type: 'StartLongRunningProcess',
 		payload: {
-			concurrency,
+			concurrency: extraThreads,
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},

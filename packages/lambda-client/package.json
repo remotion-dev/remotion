@@ -1,10 +1,9 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
 	},
 	"name": "@remotion/lambda-client",
 	"version": "4.0.260",
-	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -68,6 +67,5 @@
 				"dist/regions.d.ts"
 			]
 		}
-	},
-	"homepage": "https://www.remotion.dev/docs/lambda"
+	}
 }

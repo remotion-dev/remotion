@@ -51,6 +51,7 @@ test('Should fail when using an incompatible version', async () => {
 				audioCodec: null,
 				renderId: 'test',
 				offthreadVideoCacheSizeInBytes: null,
+				offthreadVideoThreads: null,
 				deleteAfter: null,
 				colorSpace: null,
 				preferLossless: false,

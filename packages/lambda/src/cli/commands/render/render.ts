@@ -39,6 +39,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
@@ -116,6 +117,9 @@ export const renderCommand = async ({
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -201,7 +205,7 @@ export const renderCommand = async ({
 		}
 
 		const server = await RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -237,6 +241,7 @@ export const renderCommand = async ({
 				width,
 				server,
 				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
 				binariesDirectory,
 				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 					indent,
@@ -333,6 +338,7 @@ export const renderCommand = async ({
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
 		indent: false,

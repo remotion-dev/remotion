@@ -19,7 +19,7 @@ export const simulateLambdaRender = async (
 
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
 		logLevel: 'error',

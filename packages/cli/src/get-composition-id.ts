@@ -60,6 +60,7 @@ export const getCompositionId = async ({
 	indent,
 	server,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
@@ -78,6 +79,7 @@ export const getCompositionId = async ({
 	indent: boolean;
 	server: RemotionServer;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
@@ -109,6 +111,7 @@ export const getCompositionId = async ({
 				indent,
 				onBrowserLog: null,
 				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
 				binariesDirectory,
 				onBrowserDownload,
 				onServeUrlVisited: () => undefined,
@@ -156,6 +159,7 @@ export const getCompositionId = async ({
 			onBrowserLog: null,
 			serializedInputPropsWithCustomSchema,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,

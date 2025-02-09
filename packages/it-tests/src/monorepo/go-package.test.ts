@@ -57,6 +57,7 @@ test('Go package should create the same payload as normal Lambda package', async
 			muted: false,
 			numberOfGifLoops: 0,
 			offthreadVideoCacheSizeInBytes: null,
+			offthreadVideoThreads: null,
 			outName: null,
 			overwrite: false,
 			pixelFormat: undefined,

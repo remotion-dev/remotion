@@ -16,6 +16,7 @@ import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import {preferLosslessAudioOption} from './prefer-lossless';
 import {reproOption} from './repro';
@@ -30,6 +31,7 @@ import {x264Option} from './x264-preset';
 export const optionsMap = {
 	renderMedia: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		videoBitrate: videoBitrateOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		repro: reproOption,
@@ -57,6 +59,7 @@ export const optionsMap = {
 	},
 	renderStill: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
@@ -66,6 +69,7 @@ export const optionsMap = {
 	},
 	getCompositions: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
@@ -74,6 +78,7 @@ export const optionsMap = {
 	},
 	selectComposition: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 		binariesDirectory: binariesDirectoryOption,
@@ -83,6 +88,7 @@ export const optionsMap = {
 	renderFrames: {
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
@@ -92,6 +98,7 @@ export const optionsMap = {
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		videoBitrate: videoBitrateOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		preferLossless: preferLosslessAudioOption,
@@ -108,6 +115,7 @@ export const optionsMap = {
 	},
 	renderStillOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
 		logLevel: logLevelOption,
 		deleteAfter: deleteAfterOption,
@@ -117,11 +125,13 @@ export const optionsMap = {
 	},
 	getCompositionsOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 	},
 	renderMediaOnCloudRun: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
 		preferLossless: preferLosslessAudioOption,
 		colorSpace: colorSpaceOption,
@@ -140,6 +150,7 @@ export const optionsMap = {
 	},
 	renderStillOnCloudRun: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
+		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
 		scale: scaleOption,
 		jpegQuality: jpegQualityOption,

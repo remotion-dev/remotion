@@ -66,6 +66,7 @@ export const processStill = async ({
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads: job.offthreadVideoThreads,
 		binariesDirectory: job.binariesDirectory,
 		publicPath: null,
 		chromeMode: job.chromeMode,

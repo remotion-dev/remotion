@@ -67,6 +67,10 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
 	>;
+	readonly offthreadVideoThreads: number | null;
+	readonly setOffthreadVideoThreads: React.Dispatch<
+		React.SetStateAction<number | null>
+	>;
 	readonly codec: Codec;
 	readonly enableMultiProcessOnLinux: boolean;
 	readonly setChromiumMultiProcessOnLinux: React.Dispatch<
@@ -103,6 +107,8 @@ export const RenderModalAdvanced: React.FC<{
 	codec,
 	offthreadVideoCacheSizeInBytes,
 	setOffthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
+	setOffthreadVideoThreads,
 	enableMultiProcessOnLinux,
 	setChromiumMultiProcessOnLinux,
 	setUserAgent,
@@ -137,6 +143,16 @@ export const RenderModalAdvanced: React.FC<{
 			return null;
 		});
 	}, [setOffthreadVideoCacheSizeInBytes]);
+
+	const toggleCustomOffthreadVideoThreads = useCallback(() => {
+		setOffthreadVideoThreads((previous) => {
+			if (previous === null) {
+				return 2;
+			}
+
+			return null;
+		});
+	}, [setOffthreadVideoThreads]);
 
 	const toggleCustomUserAgent = useCallback(() => {
 		setUserAgent((previous) => {
@@ -293,6 +309,25 @@ export const RenderModalAdvanced: React.FC<{
 		[setOffthreadVideoCacheSizeInBytes],
 	);
 
+	const changeOffthreadVideoThreads: React.Dispatch<
+		React.SetStateAction<number>
+	> = useCallback(
+		(cb) => {
+			setOffthreadVideoThreads((prev) => {
+				if (prev === null) {
+					throw new TypeError('Expected previous value');
+				}
+
+				if (typeof cb === 'function') {
+					return cb(prev);
+				}
+
+				return cb;
+			});
+		},
+		[setOffthreadVideoThreads],
+	);
+
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			{renderMode === 'still' ? null : (
@@ -377,13 +412,38 @@ export const RenderModalAdvanced: React.FC<{
 			{renderMode === 'audio' ||
 			offthreadVideoCacheSizeInBytes === null ? null : (
 				<NumberSetting
-					min={minConcurrency}
+					min={0}
 					max={2000 * 1024 * 1024}
 					step={1024}
 					name="OffthreadVideo cache size"
 					formatter={(w) => `${w} bytes`}
 					onValueChanged={changeOffthreadVideoCacheSizeInBytes}
 					value={offthreadVideoCacheSizeInBytes}
+				/>
+			)}
+			{renderMode === 'audio' ? null : (
+				<div style={optionRow}>
+					<div style={label}>OffthreadVideo threads</div>
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="offthreadVideoThreadsOption" />
+					<div style={rightRow}>
+						<Checkbox
+							checked={offthreadVideoThreads !== null}
+							onChange={toggleCustomOffthreadVideoThreads}
+							name="offthread-video-threads"
+						/>
+					</div>
+				</div>
+			)}
+			{renderMode === 'audio' || offthreadVideoThreads === null ? null : (
+				<NumberSetting
+					min={0}
+					max={16}
+					step={1}
+					name="OffthreadVideo threads"
+					formatter={(w) => `${w}x`}
+					onValueChanged={changeOffthreadVideoThreads}
+					value={offthreadVideoThreads}
 				/>
 			)}
 			<RenderModalHr />
