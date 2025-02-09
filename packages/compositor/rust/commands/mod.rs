@@ -50,16 +50,12 @@ pub fn execute_command_on_thread(
 
 pub fn execute_command_and_print(message: CliInputCommand) -> Result<(), ErrorWithBacktrace> {
     match execute_command_on_thread(message.payload.clone()) {
-        Ok(res) => {
-            global_printer::synchronized_write_buf(0, &message.nonce, &res).unwrap()
-            // TODO: Unwrap
-        }
+        Ok(res) => global_printer::synchronized_write_buf(0, &message.nonce, &res)?,
         Err(err) => global_printer::synchronized_write_buf(
             1,
             &message.nonce,
             &error_to_json(err).unwrap().as_bytes(),
-        )
-        .unwrap(), // TODO: Unwrap
+        )?,
     };
     Ok(())
 }

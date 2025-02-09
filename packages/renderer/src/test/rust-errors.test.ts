@@ -25,6 +25,9 @@ test('Should get Rust errors in a good way', async () => {
 			'remotion::opened_stream::open_stream',
 		);
 	}
+
+	await compositor.finishCommands();
+	await compositor.waitForDone();
 });
 
 test('Handle panics', async () => {
@@ -38,7 +41,7 @@ test('Handle panics', async () => {
 	try {
 		await compositor.executeCommand('DeliberatePanic', {});
 	} catch (err) {
-		expect((err as Error).message).toContain('Compositor panicked');
+		expect((err as Error).message).toContain('Compositor exited with code 101');
 		expect(
 			(err as Error).message.includes(['rust', 'commands', 'mod'].join('/')) ||
 				(err as Error).message.includes(['rust', 'commands', 'mod'].join('\\')),
@@ -114,6 +117,9 @@ test(
 				'remotion::opened_stream::open_stream',
 			);
 		}
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
 	},
 	{retry: 2},
 );
@@ -134,7 +140,7 @@ test('Invalid payloads will be handled', async () => {
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Compositor error: missing field `time`',
+			'Compositor exited with code 1: {"error":"missing field `time`',
 		);
 	}
 });

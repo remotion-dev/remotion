@@ -180,7 +180,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			const error =
 				code === null
 					? new Error(`Compositor exited with signal ${signal}`)
-					: new Error(`Compositor panicked with code ${code}: ${errorMessage}`);
+					: new Error(`Compositor exited with code ${code}: ${errorMessage}`);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}

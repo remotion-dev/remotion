@@ -23,6 +23,7 @@ pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
         PossibleErrors::EncodingError(err) => err.to_string(),
         PossibleErrors::ThreadPoolBuilderError(err) => err.to_string(),
         PossibleErrors::SendError(err) => format!("{:?}", err),
+        PossibleErrors::RecvError(err) => format!("{:?}", err),
     }
 }
 
@@ -50,6 +51,7 @@ enum PossibleErrors {
     EncodingError(EncodingError),
     ThreadPoolBuilderError(rayon_core::ThreadPoolBuildError),
     SendError(mpsc::SendError<CliInputCommand>),
+    RecvError(mpsc::RecvError),
 }
 
 pub struct ErrorWithBacktrace {
@@ -133,6 +135,15 @@ impl From<mpsc::SendError<CliInputCommand>> for ErrorWithBacktrace {
     fn from(err: mpsc::SendError<CliInputCommand>) -> ErrorWithBacktrace {
         ErrorWithBacktrace {
             error: PossibleErrors::SendError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+impl From<mpsc::RecvError> for ErrorWithBacktrace {
+    fn from(err: mpsc::RecvError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::RecvError(err),
             backtrace: Backtrace::force_capture().to_string(),
         }
     }
@@ -246,6 +257,7 @@ impl std::fmt::Debug for ErrorWithBacktrace {
                 write!(f, "ThreadPoolBuilderError: {:?}", err)
             }
             PossibleErrors::SendError(err) => write!(f, "SendError: {:?}", err),
+            PossibleErrors::RecvError(err) => write!(f, "RecvError: {:?}", err),
         }
     }
 }
