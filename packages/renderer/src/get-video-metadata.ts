@@ -17,6 +17,7 @@ export const getVideoMetadata = async (
 		logLevel: options?.logLevel ?? 'info',
 		indent: false,
 		binariesDirectory: options?.binariesDirectory ?? null,
+		extraThreads: 0,
 	});
 	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
 		src: resolve(process.cwd(), videoSource),

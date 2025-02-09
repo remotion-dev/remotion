@@ -7,6 +7,7 @@ test('Should get Rust errors in a good way', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	try {
@@ -36,6 +37,7 @@ test('Handle panics', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	try {
@@ -78,6 +80,7 @@ test(
 			indent: false,
 			binariesDirectory: null,
 			maximumFrameCacheItemsInBytes: null,
+			extraThreads: 2,
 		});
 
 		try {
@@ -98,6 +101,7 @@ test(
 			logLevel: 'info',
 			indent: false,
 			binariesDirectory: null,
+			extraThreads: 2,
 		});
 
 		try {
@@ -130,6 +134,7 @@ test('Invalid payloads will be handled', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 	try {
 		// @ts-expect-error

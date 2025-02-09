@@ -1,7 +1,6 @@
 import {makeStreamer} from '@remotion/streaming';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
-import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -35,16 +34,18 @@ export const startLongRunningCompositor = ({
 	logLevel,
 	indent,
 	binariesDirectory,
+	extraThreads: concurrency,
 }: {
 	maximumFrameCacheItemsInBytes: number | null;
 	logLevel: LogLevel;
 	indent: boolean;
 	binariesDirectory: string | null;
+	extraThreads: number;
 }) => {
 	return startCompositor({
 		type: 'StartLongRunningProcess',
 		payload: {
-			concurrency: resolveConcurrency(null),
+			concurrency,
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},

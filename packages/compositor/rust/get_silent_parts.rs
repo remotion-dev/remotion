@@ -1,7 +1,6 @@
 extern crate ffmpeg_next as ffmpeg;
 
 use std::os::raw::{c_char, c_int, c_void};
-use std::sync::Arc;
 use std::{io::ErrorKind, sync::Mutex};
 
 use ffmpeg::log::VaListLoggerArg;
@@ -9,6 +8,7 @@ use ffmpeg::{codec, filter, format, frame, media};
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_verbose;
 use crate::logger::print_message;
 use crate::payloads::payloads::{GetSilentPartsResponse, SilentParts};
 
@@ -136,8 +136,7 @@ impl Transcoder {
 }
 
 lazy_static! {
-    static ref LOCK: Mutex<()> = Mutex::new(());
-    pub static ref FFMPEG_SILENCES: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    pub static ref FFMPEG_SILENCES: Mutex<Vec<String>> = Mutex::new(Vec::new());
 }
 
 #[derive(PartialEq)]
@@ -155,7 +154,6 @@ pub fn get_silent_parts(
     filter: String,
 ) -> Result<GetSilentPartsResponse, ErrorWithBacktrace> {
     // This function is not thread-safe, the FFmpeg messages are stored in a global array.
-    let _guard = LOCK.lock().unwrap();
 
     ffmpeg::init()?;
     FFMPEG_SILENCES.lock().unwrap().clear();

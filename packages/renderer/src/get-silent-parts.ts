@@ -31,6 +31,7 @@ export const getSilentParts = async ({
 		logLevel: logLevel ?? 'info',
 		indent: false,
 		binariesDirectory: binariesDirectory ?? null,
+		extraThreads: 0,
 	});
 
 	const minDurationInSeconds = passedMinDuration ?? 1;

@@ -34,6 +34,7 @@ test('Memory usage should be determined ', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	expect(
@@ -125,6 +126,7 @@ test('Should respect the maximum frame cache limit', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
@@ -154,6 +156,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	expect(
