@@ -1,3 +1,5 @@
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
@@ -5,13 +7,11 @@ import {
 	getExpectedOutName,
 	getOverallProgressFromStorage,
 	type CustomCredentials,
-} from '@remotion/serverless/client';
+} from '@remotion/serverless';
 import path from 'node:path';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
+import {REMOTION_BUCKET_PREFIX} from '../defaults';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
-import type {AwsRegion} from '../regions';
 
 export type DownloadMediaInput = {
 	region: AwsRegion;
@@ -54,11 +54,12 @@ export const internalDownloadMedia = async (
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 	RenderInternals.ensureOutputDirectory(outputPath);
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
-		overallProgress.renderMetadata,
-		input.bucketName,
-		input.customCredentials ?? null,
-	);
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		renderMetadata: overallProgress.renderMetadata,
+		bucketName: input.bucketName,
+		customCredentials: input.customCredentials ?? null,
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+	});
 
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,
@@ -88,7 +89,7 @@ export const downloadMedia = (
 ): Promise<DownloadMediaOutput> => {
 	return internalDownloadMedia({
 		...input,
-		providerSpecifics: awsImplementation,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: false,
 	});
 };

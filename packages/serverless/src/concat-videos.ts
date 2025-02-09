@@ -7,14 +7,15 @@ import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
 } from './can-concat-seamlessly';
+
+import type {CloudProvider, ServerlessCodec} from '@remotion/serverless-client';
 import {
 	REMOTION_CONCATENATED_TOKEN,
 	REMOTION_FILELIST_TOKEN,
-	type ServerlessCodec,
-} from './constants';
+} from '@remotion/serverless-client';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
-export const concatVideos = async ({
+export const concatVideos = async <Provider extends CloudProvider>({
 	onProgress,
 	numberOfFrames,
 	codec,
@@ -49,7 +50,7 @@ export const concatVideos = async ({
 	preferLossless: boolean;
 	muted: boolean;
 	metadata: Record<string, string> | null;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN),

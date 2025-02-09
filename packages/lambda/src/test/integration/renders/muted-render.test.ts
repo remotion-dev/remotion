@@ -1,11 +1,11 @@
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
+import {rendersPrefix} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
-import {internalDeleteRender} from '../../../api/delete-render';
-import {mockImplementation} from '../../mock-implementation';
+import {mockImplementation} from '../../mocks/mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
 test('Should make muted render audio', async () => {
@@ -53,7 +53,7 @@ test('Should make muted render audio', async () => {
 
 	expect(files.length).toBe(2);
 
-	await internalDeleteRender({
+	await LambdaClientInternals.internalDeleteRender({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		renderId,

@@ -18,22 +18,22 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"dependencies": {
-		"@aws-sdk/client-cloudwatch-logs": "3.738.0",
-		"@aws-sdk/client-iam": "3.738.0",
+		"@aws-sdk/s3-request-presigner": "3.738.0",
+		"@aws-sdk/credential-providers": "3.738.0",
 		"@aws-sdk/client-lambda": "3.738.0",
 		"@aws-sdk/client-s3": "3.738.0",
-		"@aws-sdk/client-service-quotas": "3.738.0",
 		"@aws-sdk/client-sts": "3.738.0",
-		"@aws-sdk/credential-providers": "3.738.0",
+		"@aws-sdk/client-iam": "3.738.0",
+		"@aws-sdk/client-cloudwatch-logs": "3.738.0",
+		"@aws-sdk/client-service-quotas": "3.738.0",
 		"@aws-sdk/lib-storage": "3.738.0",
-		"@aws-sdk/s3-request-presigner": "3.738.0",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
+		"@remotion/lambda-client": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/serverless": "workspace:*",
 		"@remotion/streaming": "workspace:*",
-		"@smithy/abort-controller": "3.1.1",
-		"mime-types": "2.1.34",
+		"@smithy/abort-controller": "4.0.1",
 		"remotion": "workspace:*",
 		"zod": "3.22.3"
 	},
@@ -43,6 +43,7 @@
 		"express": "4.21.0",
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"mime-types": "2.1.34",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
 		"@types/prompt": "^1.1.0",
@@ -60,20 +61,11 @@
 	"exports": {
 		"./package.json": "./package.json",
 		".": "./dist/index.js",
-		"./defaults": "./dist/defaults.js",
-		"./regions": "./dist/regions.js",
 		"./policies": "./dist/api/iam-validation/suggested-policy.js",
-		"./client": "./dist/client.js",
-		"./layers": "./dist/shared/hosted-layers.js"
+		"./client": "./dist/client.js"
 	},
 	"typesVersions": {
 		">=1.0": {
-			"defaults": [
-				"dist/defaults.d.ts"
-			],
-			"regions": [
-				"dist/regions.d.ts"
-			],
 			"policies": [
 				"dist/api/iam-validation/suggested-policy.d.ts"
 			],

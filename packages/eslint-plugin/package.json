@@ -29,13 +29,13 @@
 		"vitest": "0.31.1"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		".": {
-			"import": "./dist/esm/index.mjs",
-			"module": "./dist/esm/index.mjs",
+			"types": "./dist/index.d.ts",
 			"require": "./dist/cjs/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./package.json": "./package.json"
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
 	},
 	"private": false,
 	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"

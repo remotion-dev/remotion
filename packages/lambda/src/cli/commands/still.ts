@@ -1,23 +1,24 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import {
+	AwsProvider,
+	LambdaClientInternals,
+	renderStillOnLambda,
+} from '@remotion/lambda-client';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {validatePrivacy} from '@remotion/serverless/client';
+import {validatePrivacy} from '@remotion/serverless';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
-import {renderStillOnLambda} from '../../api/render-still-on-lambda';
-import type {AwsProvider} from '../../functions/aws-implementation';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
-} from '../../shared/constants';
-import {getS3RenderUrl} from '../../shared/get-aws-urls';
+} from '../../defaults';
 import {validateMaxRetries} from '../../shared/validate-retries';
-import {validateServeUrl} from '../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -129,7 +130,7 @@ export const stillCommand = async ({
 			'No compositions passed. Fetching compositions...',
 		);
 
-		validateServeUrl(serveUrl);
+		LambdaClientInternals.validateServeUrl(serveUrl);
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
@@ -270,7 +271,7 @@ export const stillCommand = async ({
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: LambdaClientInternals.getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
 		),
 	);
 	Log.info(

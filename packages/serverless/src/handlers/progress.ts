@@ -1,12 +1,11 @@
-import type {ServerlessPayload} from '../constants';
-import {ServerlessRoutines} from '../constants';
-import {getProgress} from '../progress';
 import type {
-	InsideFunctionSpecifics,
+	CloudProvider,
+	GenericRenderProgress,
 	ProviderSpecifics,
-} from '../provider-implementation';
-import type {GenericRenderProgress} from '../render-progress';
-import type {CloudProvider} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {ServerlessRoutines, getProgress} from '@remotion/serverless-client';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {
@@ -14,7 +13,7 @@ type Options<Provider extends CloudProvider> = {
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 };
 
 export const progressHandler = async <Provider extends CloudProvider>({
@@ -39,7 +38,7 @@ export const progressHandler = async <Provider extends CloudProvider>({
 			bucketName: params.bucketName,
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: options.providerSpecifics.getCurrentRegionInFunction(),
+			region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 			memorySizeInMb:
 				options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 			timeoutInMilliseconds: options.timeoutInMilliseconds,

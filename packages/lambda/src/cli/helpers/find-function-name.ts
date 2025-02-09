@@ -1,9 +1,8 @@
+import {AwsProvider, speculateFunctionName} from '@remotion/lambda-client';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {speculateFunctionName} from '../../api/speculate-function-name';
-import {AwsProvider} from '../../functions/aws-implementation';
-import {BINARY_NAME} from '../../shared/constants';
+import {BINARY_NAME} from '../../defaults';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from '../commands/functions/deploy';

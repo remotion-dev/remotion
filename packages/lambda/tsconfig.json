@@ -8,6 +8,7 @@
 	"references": [
 		{"path": "../core"},
 		{"path": "../bundler"},
+		{"path": "../lambda-client"},
 		{"path": "../cli"},
 		{"path": "../streaming"},
 		{"path": "../serverless"},
