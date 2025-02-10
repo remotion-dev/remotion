@@ -226,7 +226,6 @@ impl LongRunningProcess {
     }
 
     fn start(&mut self) -> Result<(), ErrorWithBacktrace> {
-        let mut finish_thread_handles = vec![];
         let mut thread_map = select_right_thread::ThreadMap::new(self.threads);
 
         for thread_index in 0..self.threads {
@@ -250,8 +249,8 @@ impl LongRunningProcess {
 
             input = matched.trim().to_string();
             if input == "EOF" {
-                for send_handle in self.send_to_thread_handles {
-                    send_handle.send(CliInputCommand {
+                for i in 0..self.send_to_thread_handles.len() {
+                    self.send_to_thread_handles[i].send(CliInputCommand {
                         payload: CliInputCommandPayload::Eof(Eof {}),
                         nonce: "".to_string(),
                     })?;
