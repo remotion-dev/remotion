@@ -1,7 +1,7 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
-import {BACKGROUND} from '../helpers/colors';
+import {BACKGROUND, BACKGROUND__TRANSPARENT} from '../helpers/colors';
 import {
 	useIsStill,
 	useIsVideoComposition,
@@ -37,8 +37,30 @@ const container: React.CSSProperties = {
 
 const mobileContainer: React.CSSProperties = {
 	...container,
+	position: 'relative',
 	overflowY: 'auto',
 	justifyContent: 'flex-start',
+};
+const scrollIndicatorLeft: React.CSSProperties = {
+	position: 'fixed',
+	display: 'none',
+	top: 0,
+	left: 0,
+	width: 40,
+	height: '100%',
+	pointerEvents: 'none',
+	background: `linear-gradient(to right, ${BACKGROUND}, ${BACKGROUND__TRANSPARENT})`,
+};
+
+const scrollIndicatorRight: React.CSSProperties = {
+	position: 'fixed',
+	display: 'none',
+	top: 0,
+	right: 0,
+	width: 40,
+	height: '100%',
+	pointerEvents: 'none',
+	background: `linear-gradient(to left, ${BACKGROUND}, ${BACKGROUND__TRANSPARENT})`,
 };
 
 const sideContainer: React.CSSProperties = {
@@ -64,6 +86,10 @@ export const PreviewToolbar: React.FC<{
 	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
 	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);
 	const isVideoComposition = useIsVideoComposition();
+	const previewToolbarRef = useRef<HTMLDivElement | null>(null);
+	const leftScrollIndicatorRef = useRef<HTMLDivElement | null>(null);
+	const rightScrollIndicatorRef = useRef<HTMLDivElement | null>(null);
+
 	const isStill = useIsStill();
 
 	const [loop, setLoop] = useState(loadLoopOption());
@@ -72,11 +98,67 @@ export const PreviewToolbar: React.FC<{
 
 	const isMobileLayout = useMobileLayout();
 
+	useEffect(() => {
+		if (isMobileLayout && previewToolbarRef.current) {
+			const updateScrollableIndicatorProps = (target: HTMLDivElement) => {
+				const boundingBox = target.getBoundingClientRect();
+				const {scrollLeft, scrollWidth, clientWidth} = target;
+				const scrollRight = scrollWidth - clientWidth - scrollLeft;
+				if (
+					!leftScrollIndicatorRef.current ||
+					!rightScrollIndicatorRef.current
+				) {
+					return;
+				}
+
+				if (scrollLeft !== 0) {
+					Object.assign(leftScrollIndicatorRef.current.style, {
+						display: 'block',
+						height: `${boundingBox.height}px`,
+						top: `${boundingBox.top}px`,
+						left: `${boundingBox.left}px`,
+					});
+				} else {
+					Object.assign(leftScrollIndicatorRef.current.style, {
+						display: 'none',
+					});
+				}
+
+				if (scrollRight !== 0) {
+					const itemWidth = rightScrollIndicatorRef.current?.clientWidth || 0;
+					Object.assign(rightScrollIndicatorRef.current.style, {
+						display: 'block',
+						height: `${boundingBox.height}px`,
+						top: `${boundingBox.top}px`,
+						left: `${boundingBox.left + boundingBox.width - itemWidth}px`,
+					});
+				} else {
+					Object.assign(rightScrollIndicatorRef.current.style, {
+						display: 'none',
+					});
+				}
+			};
+
+			const previewToolbar = previewToolbarRef.current;
+			const scrollHandler = () => {
+				updateScrollableIndicatorProps(previewToolbar);
+			};
+
+			previewToolbar.addEventListener('scroll', scrollHandler);
+			scrollHandler();
+			return () => {
+				previewToolbar.removeEventListener('scroll', scrollHandler);
+			};
+		}
+	});
+
 	return (
 		<div
+			ref={previewToolbarRef}
 			style={isMobileLayout ? mobileContainer : container}
 			className="css-reset"
 		>
+			<div ref={leftScrollIndicatorRef} style={scrollIndicatorLeft} />
 			{isMobileLayout ? null : (
 				<>
 					<div style={sideContainer}>
@@ -136,6 +218,7 @@ export const PreviewToolbar: React.FC<{
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 			<PlaybackRatePersistor />
+			<div ref={rightScrollIndicatorRef} style={scrollIndicatorRight} />
 		</div>
 	);
 };
