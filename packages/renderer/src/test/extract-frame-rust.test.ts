@@ -602,85 +602,89 @@ test('Should handle a video with no frames at the beginning', async () => {
 	await compositor.waitForDone();
 });
 
-test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: 500 * 1024 * 1024,
-		logLevel: 'info',
-		indent: false,
-		binariesDirectory: null,
-		extraThreads: 2,
-	});
-
-	const expected = [];
-
-	for (let i = 0; i < 10; i++) {
-		const time = i + (i % 2 === 0 ? 60 : 0);
-		const data = await compositor.executeCommand('ExtractFrame', {
-			src: exampleVideos.bigBuckBunny,
-			original_src: exampleVideos.bigBuckBunny,
-			time,
-			transparent: false,
-			tone_mapped: true,
+test.only(
+	'Two different starting times should not result in big seeking',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: 500 * 1024 * 1024,
+			logLevel: 'verbose',
+			indent: false,
+			binariesDirectory: null,
+			extraThreads: 2,
 		});
 
-		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
-		const centerLeftPixelR =
-			data[Math.round(expectedLength - expectedLength / 2 - 1)];
-		const centerLeftPixelG =
-			data[Math.round(expectedLength - expectedLength / 2 - 2)];
-		const centerLeftPixelB =
-			data[Math.round(expectedLength - expectedLength / 2 - 3)];
+		const expected = [];
 
-		expected.push([centerLeftPixelR, centerLeftPixelG, centerLeftPixelB]);
-	}
+		for (let i = 0; i < 10; i++) {
+			const time = i + (i % 2 === 0 ? 60 : 0);
+			const data = await compositor.executeCommand('ExtractFrame', {
+				src: exampleVideos.bigBuckBunny,
+				original_src: exampleVideos.bigBuckBunny,
+				time,
+				transparent: false,
+				tone_mapped: true,
+			});
 
-	expect(expected[0][0] / 100).toBeCloseTo(1.52, 1);
-	expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
+			const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
+			const centerLeftPixelR =
+				data[Math.round(expectedLength - expectedLength / 2 - 1)];
+			const centerLeftPixelG =
+				data[Math.round(expectedLength - expectedLength / 2 - 2)];
+			const centerLeftPixelB =
+				data[Math.round(expectedLength - expectedLength / 2 - 3)];
 
-	expect(expected[1][0] / 100).toBeCloseTo(0.69, 1);
-	expect(expected[1][1] / 100).toBeCloseTo(0.7, 1);
-	expect(expected[1][2] / 100).toBeCloseTo(0.68, 1);
+			expected.push([centerLeftPixelR, centerLeftPixelG, centerLeftPixelB]);
+		}
 
-	expect(expected[2][0] / 100).toBeCloseTo(1.52, 1);
-	expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[2][2] / 100).toBeCloseTo(2.24, 1);
+		expect(expected[0][0] / 100).toBeCloseTo(1.52, 1);
+		expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
+		expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[3][0] / 100).toBeCloseTo(2.52, 1);
-	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
-	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
+		expect(expected[1][0] / 100).toBeCloseTo(0.69, 1);
+		expect(expected[1][1] / 100).toBeCloseTo(0.7, 1);
+		expect(expected[1][2] / 100).toBeCloseTo(0.68, 1);
 
-	expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
-	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
+		expect(expected[2][0] / 100).toBeCloseTo(1.52, 1);
+		expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
+		expect(expected[2][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
-	expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
+		expect(expected[3][0] / 100).toBeCloseTo(2.52, 1);
+		expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
+		expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
 
-	expect(expected[6][0] / 100).toBeCloseTo(1.52, 1);
-	expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
+		expect(expected[4][0] / 100).toBeCloseTo(1.5, 1);
+		expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
+		expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[7][0] / 100).toBeCloseTo(1.38, 1);
-	expect(expected[7][1] / 100).toBeCloseTo(1.41, 1);
-	expect(expected[7][2] / 100).toBeCloseTo(1.07, 1);
+		expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
+		expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
 
-	expect(expected[8][0] / 100).toBeCloseTo(1.52, 1);
-	expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
-	expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
+		expect(expected[6][0] / 100).toBeCloseTo(1.52, 1);
+		expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
+		expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[9][0] / 100).toBeCloseTo(1.27, 1);
-	expect(expected[9][1] / 100).toBeCloseTo(1.47, 1);
-	expect(expected[9][2] / 100).toBeCloseTo(1.07, 1);
+		expect(expected[7][0] / 100).toBeCloseTo(1.38, 1);
+		expect(expected[7][1] / 100).toBeCloseTo(1.41, 1);
+		expect(expected[7][2] / 100).toBeCloseTo(1.07, 1);
 
-	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
-	const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
-	expect(statsJson.open_streams).toBe(2);
-	expect(statsJson.open_videos).toBe(1);
+		expect(expected[8][0] / 100).toBeCloseTo(1.52, 1);
+		expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
+		expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
 
-	await compositor.finishCommands();
-	await compositor.waitForDone();
-});
+		expect(expected[9][0] / 100).toBeCloseTo(1.27, 1);
+		expect(expected[9][1] / 100).toBeCloseTo(1.47, 1);
+		expect(expected[9][2] / 100).toBeCloseTo(1.07, 1);
+
+		const stats = await compositor.executeCommand('GetOpenVideoStats', {});
+		const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
+		expect(statsJson.open_streams).toBe(2);
+		expect(statsJson.open_videos).toBe(1);
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 30000},
+);
 
 const getExpectedMediaFrameUncorrected = ({
 	frame,

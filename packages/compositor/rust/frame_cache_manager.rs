@@ -164,10 +164,6 @@ impl FrameCacheManager {
                 .lock()
                 .unwrap()
                 .get_current_cache_size();
-            _print_verbose(&format!(
-                "cache size {} {}",
-                current_cache_size_in_bytes, maximum_frame_cache_size_in_bytes
-            ))?;
             if current_cache_size_in_bytes < maximum_frame_cache_size_in_bytes {
                 break;
             }

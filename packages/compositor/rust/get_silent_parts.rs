@@ -8,7 +8,6 @@ use ffmpeg::{codec, filter, format, frame, media};
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_verbose;
 use crate::logger::print_message;
 use crate::payloads::payloads::{GetSilentPartsResponse, SilentParts};
 
