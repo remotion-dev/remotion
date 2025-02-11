@@ -42,6 +42,7 @@
 		"@remotion/eslint-plugin": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/gif": "workspace:*",
+		"@remotion/captions": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
