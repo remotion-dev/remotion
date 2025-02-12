@@ -6,10 +6,7 @@ import {VERSION} from '@remotion/serverless-client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
-import type {
-	InsideFunctionSpecifics,
-	WebhookClient,
-} from '../provider-implementation';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 
 import type {
 	CloudProvider,
@@ -509,14 +506,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	params,
 	options,
 	providerSpecifics,
-	client,
 	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	client: WebhookClient;
 }): Promise<{
 	type: 'success';
 }> => {
@@ -605,8 +600,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						bucketName: params.bucketName,
 						customData: params.webhook.customData ?? null,
 					},
-					redirectsSoFar: 0,
-					client,
 				},
 				logLevel: params.logLevel,
 			});
@@ -711,8 +704,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						timeToFinish: postRenderData.timeToFinish,
 						costs: postRenderData.cost,
 					},
-					redirectsSoFar: 0,
-					client,
 				},
 				logLevel: params.logLevel,
 			});
@@ -806,8 +797,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 								stack: e.stack as string,
 							})),
 						},
-						redirectsSoFar: 0,
-						client,
 					},
 					logLevel: params.logLevel,
 				});

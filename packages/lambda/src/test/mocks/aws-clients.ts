@@ -19,7 +19,6 @@ import {
 	streamWriter,
 } from '@remotion/serverless';
 import {makeStreamer} from '@remotion/streaming';
-import {getWebhookClient} from '../../functions/http-client';
 import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from './mock-implementation';
 
@@ -72,7 +71,6 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		},
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
-		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
@@ -95,7 +93,6 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 		insideFunctionSpecifics: mockServerImplementation,
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
-		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
@@ -118,7 +115,6 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 		responseWriter: streamWriter(responseStream),
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
-		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
