@@ -13,8 +13,6 @@ import type {
 	ReceivedArtifact,
 	WebhookPayload,
 } from '@remotion/serverless-client';
-import type https from 'https';
-import type http from 'node:http';
 import type {LaunchedBrowser} from './get-browser-instance';
 
 export type MakeArtifactWithDetails<Provider extends CloudProvider> = (params: {
@@ -100,20 +98,10 @@ export type CreateFunction<Provider extends CloudProvider> = (
 	options: CreateFunctionOptions<Provider>,
 ) => Promise<{FunctionName: string}>;
 
-export type WebhookClient = (
-	url: string,
-) => (
-	url: string | URL,
-	options: https.RequestOptions,
-	callback?: (res: http.IncomingMessage) => void,
-) => http.ClientRequest;
-
 export type InvokeWebhookOptions = {
 	payload: WebhookPayload;
 	url: string;
 	secret: string | null;
-	redirectsSoFar: number;
-	client: WebhookClient;
 };
 
 export type InvokeWebhookParams = {

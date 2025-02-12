@@ -8,7 +8,6 @@ import type {
 import {innerHandler, streamWriter} from '@remotion/serverless';
 import {serverAwsImplementation} from './aws-server-implementation';
 import {streamifyResponse} from './helpers/streamify-response';
-import {getWebhookClient} from './http-client';
 
 export const routine = (
 	params: ServerlessPayload<AwsProvider>,
@@ -23,7 +22,6 @@ export const routine = (
 		context,
 		providerSpecifics: LambdaClientInternals.awsImplementation,
 		insideFunctionSpecifics: serverAwsImplementation,
-		webhookClient: getWebhookClient,
 	});
 };
 
