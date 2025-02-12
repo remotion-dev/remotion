@@ -1,10 +1,9 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless-client"
 	},
 	"name": "@remotion/serverless-client",
-	"version": "4.0.260",
-	"description": "A runtime for distributed rendering",
+	"version": "4.0.261",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
