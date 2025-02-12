@@ -602,12 +602,12 @@ test('Should handle a video with no frames at the beginning', async () => {
 	await compositor.waitForDone();
 });
 
-test.only(
+test(
 	'Two different starting times should not result in big seeking',
 	async () => {
 		const compositor = startLongRunningCompositor({
 			maximumFrameCacheItemsInBytes: 500 * 1024 * 1024,
-			logLevel: 'verbose',
+			logLevel: 'info',
 			indent: false,
 			binariesDirectory: null,
 			extraThreads: 2,
