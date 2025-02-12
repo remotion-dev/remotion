@@ -9,6 +9,7 @@ use crate::{
     logger::log_callback,
     opened_stream::{self, calc_position, OpenedStream},
     opened_video::is_frame_cache_empty,
+    select_right_thread::{OpenStream, THREAD_MAP},
 };
 
 pub struct OpenedVideoManager {
@@ -140,6 +141,18 @@ impl OpenedVideoManager {
             frame_cache_manager,
             thread_index,
         )?;
+        THREAD_MAP.lock().unwrap().update_stream(
+            thread_index,
+            stream_index,
+            OpenStream {
+                src: video.src.clone(),
+                last_time: video.last_position.unwrap() as f64
+                    / (video.time_base.1 as f64 / video.time_base.0 as f64),
+                id: stream_index,
+                transparent: video.transparent,
+            },
+        );
+
         Ok(frame)
     }
 

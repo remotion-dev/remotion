@@ -1,9 +1,13 @@
-use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose};
+use std::sync::Mutex;
 
-struct OpenStream {
-    src: String,
-    last_time: f64,
-    transparent: bool,
+use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose};
+use lazy_static::lazy_static;
+
+pub struct OpenStream {
+    pub src: String,
+    pub last_time: f64,
+    pub transparent: bool,
+    pub id: usize,
 }
 
 struct ThreadStreams {
@@ -11,20 +15,52 @@ struct ThreadStreams {
 }
 
 pub struct ThreadMap {
-    map: Vec<Option<ThreadStreams>>,
-    threads: usize,
+    map: Vec<ThreadStreams>,
+    max_threads: Option<usize>,
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub struct UseThisThread {
+    pub thread_id: usize,
+    pub stream_id: Option<usize>,
 }
 
 impl ThreadMap {
-    pub fn new(t: usize) -> Self {
-        let mut map = ThreadMap {
+    pub fn new() -> Self {
+        let map = ThreadMap {
             map: Vec::new(),
-            threads: t,
+            max_threads: None,
         };
-        for _ in 0..t {
-            map.map.push(None);
-        }
         map
+    }
+
+    pub fn set_max_thread_count(&mut self, max_threads: usize) {
+        self.max_threads = Some(max_threads);
+    }
+
+    pub fn update_stream(
+        &mut self,
+        thread_index: usize,
+        stream_index: usize,
+        stream_to_set: OpenStream,
+    ) {
+        // Ensure we keep track of enough threads
+        while self.map.len() <= thread_index {
+            self.map.push(ThreadStreams {
+                streams: Vec::new(),
+            });
+        }
+
+        // Update stream if it exists
+        for stream in self.map[thread_index].streams.iter_mut() {
+            if stream.id == stream_index {
+                self.map[thread_index].streams[stream_index] = stream_to_set;
+                return;
+            }
+        }
+
+        // Otherwise add it
+        self.map[thread_index].streams.push(stream_to_set);
     }
 
     pub fn select_right_thread(
@@ -32,72 +68,55 @@ impl ThreadMap {
         src: &String,
         time: f64,
         transparent: bool,
-    ) -> Result<usize, ErrorWithBacktrace> {
+    ) -> Result<UseThisThread, ErrorWithBacktrace> {
+        // Map to an existing stream
         for thread_id in 0..self.map.len() {
-            let thread_streams = self.map[thread_id].as_mut();
-            if thread_streams.is_none() {
-                continue;
-            }
-            for stream in &mut thread_streams.unwrap().streams {
-                if &stream.src == src && stream.transparent && transparent {
-                    if (stream.last_time - time).abs() < 5.0 {
-                        stream.last_time = time;
-                        _print_verbose(&format!(
-                            "Reusing thread {} for stream {} at time {}",
-                            thread_id, src, time
-                        ))?;
-                        return Ok(thread_id);
-                    }
+            for stream in self.map[thread_id].streams.iter_mut() {
+                if &stream.src != src {
+                    continue;
                 }
+                if stream.transparent != transparent {
+                    continue;
+                }
+                if (stream.last_time - time).abs() >= 5.0 {
+                    continue;
+                }
+                _print_verbose(&format!(
+                    "Reusing thread {} for stream {} at time {}",
+                    thread_id, src, time
+                ))?;
+                return Ok(UseThisThread {
+                    thread_id,
+                    stream_id: Some(stream.id),
+                });
             }
         }
 
-        let mut min_streams = usize::MAX;
-        let mut selected_thread = None;
-
-        for thread_id in 0..self.map.len() {
-            let thread_streams = self.map[thread_id].as_mut();
-            if thread_streams.is_none() {
-                continue;
-            }
-            let unwrapped = thread_streams.unwrap();
-
-            if unwrapped.streams.is_empty() {
-                selected_thread = Some(thread_id);
-                break;
-            } else if unwrapped.streams.len() < min_streams {
-                min_streams = unwrapped.streams.len();
-                selected_thread = Some(thread_id);
-            }
-        }
-
-        let new_thread_id = match self.map.iter().position(|x| x.is_none()) {
-            Some(thread_id) => thread_id,
-            None => match selected_thread {
-                Some(x) => x,
-                None => self.map.len() % self.threads,
-            },
-        };
-
-        if self.map[new_thread_id].is_none() {
-            self.map[new_thread_id] = Some(ThreadStreams {
-                streams: Vec::new(),
+        // Create new thread if allowed
+        let max_thread = self.max_threads.unwrap();
+        if self.map.len() < max_thread {
+            return Ok(UseThisThread {
+                thread_id: self.map.len(),
+                stream_id: None,
             });
         }
 
-        let new_thread_streams = self.map[new_thread_id].as_mut().unwrap();
+        // Assign to the thread with the least amount of streams
+        let least_amount_of_threads = self
+            .map
+            .iter()
+            .enumerate()
+            .min_by_key(|(_, streams)| streams.streams.len())
+            .unwrap()
+            .0;
 
-        new_thread_streams.streams.push(OpenStream {
-            src: src.clone(),
-            last_time: time,
-            transparent,
+        return Ok(UseThisThread {
+            thread_id: least_amount_of_threads,
+            stream_id: None,
         });
-
-        _print_verbose(&format!(
-            "Adding stream {} to thread {}",
-            src, new_thread_id
-        ))?;
-
-        Ok(new_thread_id)
     }
+}
+
+lazy_static! {
+    pub static ref THREAD_MAP: Mutex<ThreadMap> = Mutex::new(ThreadMap::new());
 }

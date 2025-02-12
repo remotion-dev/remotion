@@ -25,6 +25,7 @@ use commands::execute_command_and_print;
 use errors::ErrorWithBacktrace;
 use global_printer::{_print_verbose, print_error, set_verbose_logging};
 use memory::get_ideal_maximum_frame_cache_size;
+use select_right_thread::THREAD_MAP;
 use std::sync::mpsc::{self, Sender};
 use std::sync::Mutex;
 use std::{env, thread::JoinHandle};
@@ -83,7 +84,6 @@ pub struct LongRunningProcess {
     receive_video_stats_in_main_thread_handles: Vec<mpsc::Receiver<OpenVideoStats>>,
     receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>>,
     receive_free_in_main_thread_handles: Vec<mpsc::Receiver<()>>,
-    thread_map: select_right_thread::ThreadMap,
     finish_thread_handles: Mutex<Vec<JoinHandle<()>>>,
 }
 
@@ -94,7 +94,7 @@ impl LongRunningProcess {
             vec![];
         let receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>> = vec![];
         let receive_free_in_main_thread_handles: Vec<mpsc::Receiver<()>> = vec![];
-        let thread_map = select_right_thread::ThreadMap::new(threads);
+        THREAD_MAP.lock().unwrap().set_max_thread_count(threads);
         let finish_thread_handles = Mutex::new(vec![]);
 
         let map = LongRunningProcess {
@@ -103,7 +103,6 @@ impl LongRunningProcess {
             receive_video_stats_in_main_thread_handles,
             receive_close_video_in_main_thread_handles,
             receive_free_in_main_thread_handles,
-            thread_map,
             finish_thread_handles,
         };
         map
@@ -192,17 +191,17 @@ impl LongRunningProcess {
     ) -> Result<(), ErrorWithBacktrace> {
         let _result: Result<(), ErrorWithBacktrace> = match opts.payload {
             CliInputCommandPayload::ExtractFrame(command) => {
-                let thread_id = self.thread_map.select_right_thread(
+                let thread_to_use = THREAD_MAP.lock().unwrap().select_right_thread(
                     &command.src,
                     command.time,
                     command.transparent,
                 )?;
-                if thread_id == self.send_to_thread_handles.len() {
-                    self.start_new_thread(thread_id)?;
+                if thread_to_use.thread_id == self.send_to_thread_handles.len() {
+                    self.start_new_thread(thread_to_use.thread_id)?;
                 }
 
                 let input_to_send = parse_cli(&input)?;
-                self.send_to_thread_handles[thread_id].send(input_to_send)?;
+                self.send_to_thread_handles[thread_to_use.thread_id].send(input_to_send)?;
                 Ok(())
             }
             CliInputCommandPayload::GetOpenVideoStats(_) => {

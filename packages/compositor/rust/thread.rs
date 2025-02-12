@@ -68,6 +68,7 @@ pub fn run_on_thread(
                         &mut opened_video_manager,
                         &mut frame_cache_manager,
                     )?;
+
                     global_printer::synchronized_write_buf(0, &message.nonce, &res)?;
                     if let Some(cache_size) = current_maximum_cache_size {
                         ffmpeg::keep_only_latest_frames_and_close_videos(
