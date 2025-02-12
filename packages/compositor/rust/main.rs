@@ -24,6 +24,7 @@ use errors::ErrorWithBacktrace;
 use global_printer::{_print_verbose, print_error, set_verbose_logging};
 use memory::get_ideal_maximum_frame_cache_size;
 use std::sync::mpsc::{self, Sender};
+use std::sync::Mutex;
 use std::{env, thread::JoinHandle};
 use thread::run_on_thread;
 
@@ -75,13 +76,13 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 }
 
 pub struct LongRunningProcess {
-    threads: usize,
     maximum_frame_cache_size_in_bytes: u64,
     send_to_thread_handles: Vec<Sender<CliInputCommand>>,
     receive_video_stats_in_main_thread_handles: Vec<mpsc::Receiver<OpenVideoStats>>,
     receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>>,
     receive_free_in_main_thread_handles: Vec<mpsc::Receiver<()>>,
     thread_map: select_right_thread::ThreadMap,
+    finish_thread_handles: Mutex<Vec<JoinHandle<()>>>,
 }
 
 impl LongRunningProcess {
@@ -92,15 +93,16 @@ impl LongRunningProcess {
         let receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>> = vec![];
         let receive_free_in_main_thread_handles: Vec<mpsc::Receiver<()>> = vec![];
         let thread_map = select_right_thread::ThreadMap::new(threads);
+        let finish_thread_handles = Mutex::new(vec![]);
 
         let map = LongRunningProcess {
             maximum_frame_cache_size_in_bytes: max_cache_size,
-            threads,
             send_to_thread_handles,
             receive_video_stats_in_main_thread_handles,
             receive_close_video_in_main_thread_handles,
             receive_free_in_main_thread_handles,
             thread_map,
+            finish_thread_handles,
         };
         map
     }
@@ -132,14 +134,16 @@ impl LongRunningProcess {
         })
     }
 
+    fn start_new_thread(&mut self, thread_index: usize) -> Result<(), ErrorWithBacktrace> {
+        let wait_for_thread_finish = self.start_thread(thread_index);
+        self.finish_thread_handles
+            .lock()
+            .unwrap()
+            .push(wait_for_thread_finish);
+        Ok(())
+    }
+
     fn start(&mut self) -> Result<(), ErrorWithBacktrace> {
-        let mut finish_thread_handles = vec![];
-
-        for thread_index in 0..self.threads {
-            let wait_for_thread_finish = self.start_thread(thread_index);
-            finish_thread_handles.push(wait_for_thread_finish)
-        }
-
         max_cache_size::get_instance()
             .lock()
             .unwrap()
@@ -170,8 +174,9 @@ impl LongRunningProcess {
             self.run_main_thread_command(opts, input, nonce)?;
         }
 
-        for handle in finish_thread_handles {
-            handle.join()?;
+        let mut handles = self.finish_thread_handles.lock().unwrap();
+        while let Some(handle) = handles.pop() {
+            handle.join().unwrap();
         }
 
         Ok(())
@@ -190,6 +195,10 @@ impl LongRunningProcess {
                     command.time,
                     command.transparent,
                 )?;
+                if thread_id == self.send_to_thread_handles.len() {
+                    self.start_new_thread(thread_id)?;
+                }
+
                 let input_to_send = parse_cli(&input)?;
                 self.send_to_thread_handles[thread_id].send(input_to_send)?;
                 Ok(())
