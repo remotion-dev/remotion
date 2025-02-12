@@ -1,9 +1,11 @@
 mod commands;
 mod errors;
+mod extract_audio;
 mod ffmpeg;
 mod frame_cache;
 mod frame_cache_manager;
 mod get_silent_parts;
+mod get_video_metadata;
 mod global_printer;
 mod image;
 mod logger;
@@ -230,7 +232,6 @@ impl LongRunningProcess {
                 for handle in &self.receive_free_in_main_thread_handles {
                     handle.recv()?;
                 }
-                // TODO: Is "Hi" right?
                 global_printer::synchronized_write_buf(0, &nonce, &format!("hi").as_bytes())?;
                 Ok(())
             }
@@ -242,7 +243,6 @@ impl LongRunningProcess {
                 for handle in &self.receive_close_video_in_main_thread_handles {
                     handle.recv()?;
                 }
-                // TODO: Is "Hi" right?
                 global_printer::synchronized_write_buf(0, &nonce, &format!("hi").as_bytes())?;
                 Ok(())
             }

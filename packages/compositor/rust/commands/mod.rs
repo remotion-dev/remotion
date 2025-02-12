@@ -1,6 +1,6 @@
 use crate::errors::{error_to_json, ErrorWithBacktrace};
 use crate::payloads::payloads::{CliInputCommand, CliInputCommandPayload};
-use crate::{ffmpeg, get_silent_parts, global_printer};
+use crate::{extract_audio, get_silent_parts, get_video_metadata, global_printer};
 use std::io::ErrorKind;
 
 pub fn execute_command_on_thread(
@@ -22,7 +22,7 @@ pub fn execute_command_on_thread(
             Ok(format!("Echo {}", _command.message).as_bytes().to_vec())
         }
         CliInputCommandPayload::GetVideoMetadata(_command) => {
-            let res = ffmpeg::get_video_metadata(&_command.src)?;
+            let res = get_video_metadata::get_video_metadata(&_command.src)?;
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
         }
@@ -37,7 +37,7 @@ pub fn execute_command_on_thread(
         }
 
         CliInputCommandPayload::ExtractAudio(_command) => {
-            ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
+            extract_audio::extract_audio(&_command.input_path, &_command.output_path)?;
             Ok(vec![])
         }
         _ => {
