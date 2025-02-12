@@ -374,6 +374,8 @@ export const renderVideoFlow = async ({
 		codec,
 		scale,
 		wantsImageSequence: shouldOutputImageSequence,
+		indent,
+		logLevel,
 	});
 
 	const relativeOutputLocation = getOutputFilename({

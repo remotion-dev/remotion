@@ -431,6 +431,8 @@ const internalRenderMediaRaw = ({
 		scale,
 		width: composition.width,
 		wantsImageSequence: false,
+		indent,
+		logLevel,
 	});
 
 	const realFrameRange = getRealFrameRange(
