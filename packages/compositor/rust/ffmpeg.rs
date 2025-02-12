@@ -11,12 +11,10 @@ pub fn get_open_video_stats(
     frame_cache_manager: &mut FrameCacheManager,
     manager: &OpenedVideoManager,
 ) -> Result<OpenVideoStats, ErrorWithBacktrace> {
-    let open_videos = manager.get_open_videos()?;
     let open_streams = manager.get_open_video_streams()?;
     let frames_in_cache = frame_cache_manager.get_frames_in_cache()?;
 
     Ok(OpenVideoStats {
-        open_videos,
         open_streams,
         frames_in_cache,
     })
@@ -69,8 +67,32 @@ pub fn extract_frame(
     manager: &mut OpenedVideoManager,
     frame_cache_manager: &mut FrameCacheManager,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    let video_locked = manager.get_video(&src, &original_src, transparent)?;
-    let mut vid = video_locked.lock()?;
+    // Don't allow previous frame, but allow for some flexibility
+    let cache_item = match manager.get_position_and_threshold_of_video(time, &src) {
+        Ok(Some((position, threshold))) => frame_cache_manager.get_cache_item_id(
+            &src,
+            &original_src,
+            transparent,
+            tone_mapped,
+            position,
+            threshold - 1,
+        ),
+        Ok(None) => Ok(None),
+        Err(err) => return Err(err),
+    }?;
+
+    if cache_item.is_some() {
+        return Ok(frame_cache_manager.get_cache_item_from_id(
+            &src,
+            &original_src,
+            transparent,
+            tone_mapped,
+            cache_item.unwrap(),
+        )?);
+    }
+
+    let vid_index = manager.get_video_index(&src, &original_src, transparent, time)?;
+    let vid = manager.get_video(vid_index)?;
     // The requested position in the video.
     let position = calc_position(time, vid.time_base);
 
@@ -87,75 +109,10 @@ pub fn extract_frame(
         false => one_frame_in_time_base,
     };
 
-    // Don't allow previous frame, but allow for some flexibility
-    let cache_item = frame_cache_manager.get_cache_item_id(
-        &src,
-        &original_src,
-        transparent,
-        tone_mapped,
-        position,
-        threshold - 1,
-    );
-
-    match cache_item {
-        Ok(Some(item)) => {
-            return Ok(frame_cache_manager.get_cache_item_from_id(
-                &src,
-                &original_src,
-                transparent,
-                tone_mapped,
-                item,
-            )?);
-        }
-        Ok(None) => {}
-        Err(err) => {
-            return Err(err);
-        }
-    }
-
-    let open_stream_count = vid.opened_streams.len();
-    let mut suitable_open_stream: Option<usize> = None;
-
-    // Seeking too far back in a stream is not efficient, rather open a new stream
-    // 15 seconds was chosen arbitrarily
-    let max_stream_position = calc_position(time + 5.0, vid.time_base);
-    let min_stream_position = calc_position(time - 5.0, vid.time_base);
-    for i in 0..open_stream_count {
-        let stream = vid.opened_streams[i].lock()?;
-        if stream.reached_eof {
-            continue;
-        }
-        if transparent != stream.transparent {
-            continue;
-        }
-        if stream.last_position.unwrap_or(0) > max_stream_position {
-            continue;
-        }
-        if stream.last_position.unwrap_or(0) < min_stream_position {
-            continue;
-        }
-        suitable_open_stream = Some(i);
-        break;
-    }
-
-    let stream_index = match suitable_open_stream {
-        Some(index) => Ok(index),
-        None => vid.open_new_stream(transparent, thread_index),
-    };
-
-    let opened_stream = match vid.opened_streams.get(stream_index?) {
-        Some(stream) => stream,
-        None => Err(std::io::Error::new(
-            ErrorKind::Other,
-            "Stream index out of bounds",
-        ))?,
-    };
-
-    let mut first_opened_stream = opened_stream.lock()?;
-
     let time_base = vid.time_base;
 
-    let frame_id = first_opened_stream.get_frame(
+    let frame_id = manager.get_frame_id(
+        vid_index,
         time,
         position,
         time_base,

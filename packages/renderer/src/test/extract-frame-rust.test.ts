@@ -678,7 +678,6 @@ test.only(
 		const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 		const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
 		expect(statsJson.open_streams).toBe(2);
-		expect(statsJson.open_videos).toBe(1);
 
 		await compositor.finishCommands();
 		await compositor.waitForDone();

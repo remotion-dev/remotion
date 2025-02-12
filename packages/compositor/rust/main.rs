@@ -218,7 +218,6 @@ impl LongRunningProcess {
                 let concated: OpenVideoStats = OpenVideoStats {
                     frames_in_cache: open_video_stats_all.iter().map(|x| x.frames_in_cache).sum(),
                     open_streams: open_video_stats_all.iter().map(|x| x.open_streams).sum(),
-                    open_videos: open_video_stats_all.iter().map(|x| x.open_videos).sum(),
                 };
                 let str = serde_json::to_string(&concated)?;
                 global_printer::synchronized_write_buf(0, &nonce, &str.as_bytes())?;

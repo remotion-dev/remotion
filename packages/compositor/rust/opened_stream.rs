@@ -25,6 +25,8 @@ pub struct OpenedStream {
     pub transparent: bool,
     pub rotation: Rotate,
     pub filter_graph: FilterGraph,
+    pub time_base: Rational,
+    pub fps: Rational
 }
 
 #[derive(Clone, Copy)]
@@ -151,6 +153,7 @@ impl OpenedStream {
 
     pub fn get_frame(
         &mut self,
+        stream_index: usize,
         time: f64,
         target_position: i64,
         time_base: Rational,
@@ -322,7 +325,7 @@ impl OpenedStream {
 
                 match result {
                     Ok(Some(unfiltered)) => {
-                        _print_verbose(&format!("Thread {} - received frame, tone_mapped ={}", thread_index, tone_mapped))?;
+                        _print_verbose(&format!("Thread {}, stream {} - received frame, tone_mapped = {}", thread_index, stream_index, tone_mapped))?;
 
                         let frame_cache_id = get_frame_cache_id();
 
@@ -469,7 +472,7 @@ pub fn open_stream(
     src: &str,
     original_src: &str,
     transparent: bool,
-) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
+) -> Result<OpenedStream, ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
@@ -600,7 +603,9 @@ pub fn open_stream(
         rotation: rotate,
         original_src: original_src.to_string(),
         filter_graph,
+        fps,
+        time_base
     };
 
-    Ok((opened_stream, fps, time_base))
+    Ok(opened_stream)
 }

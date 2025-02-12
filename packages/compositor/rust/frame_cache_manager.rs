@@ -28,6 +28,10 @@ impl FrameCacheManager {
         self.cache.remove(src);
     }
 
+    pub fn remove_all(&mut self) {
+        self.cache.clear();
+    }
+
     fn add_frame_cache(&mut self, src: &str, original_src: &str) {
         let frame_cache_and_original_src = FrameCacheAndOriginalSource {
             transparent_original: Mutex::new(FrameCache::new()),

@@ -1,6 +1,5 @@
 use crate::frame_cache::FrameCache;
 use crate::opened_stream::OpenedStream;
-use crate::opened_video::OpenedVideo;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::{CliInputCommand, ErrorPayload};
 use ffmpeg_next as remotionffmpeg;
@@ -8,9 +7,7 @@ use png::EncodingError;
 use std::any::Any;
 use std::backtrace::Backtrace;
 use std::collections::HashMap;
-use std::sync::{
-    mpsc, Mutex, MutexGuard, PoisonError, RwLockReadGuard, RwLockWriteGuard, TryLockError,
-};
+use std::sync::{mpsc, Mutex, MutexGuard, PoisonError, RwLockReadGuard};
 
 pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
     match &err.error {
@@ -186,12 +183,6 @@ impl From<PoisonError<MutexGuard<'_, FrameCache>>> for ErrorWithBacktrace {
     }
 }
 
-impl From<PoisonError<MutexGuard<'_, OpenedVideo>>> for ErrorWithBacktrace {
-    fn from(err: PoisonError<MutexGuard<'_, OpenedVideo>>) -> ErrorWithBacktrace {
-        create_error_with_backtrace(err)
-    }
-}
-
 impl From<PoisonError<MutexGuard<'_, OpenedStream>>> for ErrorWithBacktrace {
     fn from(err: PoisonError<MutexGuard<'_, OpenedStream>>) -> ErrorWithBacktrace {
         create_error_with_backtrace(err)
@@ -200,36 +191,6 @@ impl From<PoisonError<MutexGuard<'_, OpenedStream>>> for ErrorWithBacktrace {
 impl From<PoisonError<MutexGuard<'_, OpenedVideoManager>>> for ErrorWithBacktrace {
     fn from(err: PoisonError<MutexGuard<'_, OpenedVideoManager>>) -> ErrorWithBacktrace {
         create_error_with_backtrace(err)
-    }
-}
-
-impl From<PoisonError<RwLockReadGuard<'_, HashMap<std::string::String, Mutex<OpenedVideo>>>>>
-    for ErrorWithBacktrace
-{
-    fn from(
-        err: PoisonError<RwLockReadGuard<'_, HashMap<std::string::String, Mutex<OpenedVideo>>>>,
-    ) -> ErrorWithBacktrace {
-        ErrorWithBacktrace::from(err.to_string())
-    }
-}
-
-impl From<PoisonError<RwLockWriteGuard<'_, HashMap<std::string::String, Mutex<OpenedVideo>>>>>
-    for ErrorWithBacktrace
-{
-    fn from(
-        err: PoisonError<RwLockWriteGuard<'_, HashMap<std::string::String, Mutex<OpenedVideo>>>>,
-    ) -> ErrorWithBacktrace {
-        ErrorWithBacktrace::from(err.to_string())
-    }
-}
-
-impl From<TryLockError<RwLockReadGuard<'_, HashMap<std::string::String, Mutex<OpenedVideo>>>>>
-    for ErrorWithBacktrace
-{
-    fn from(
-        err: TryLockError<RwLockReadGuard<'_, HashMap<std::string::String, Mutex<OpenedVideo>>>>,
-    ) -> ErrorWithBacktrace {
-        ErrorWithBacktrace::from(err.to_string())
     }
 }
 

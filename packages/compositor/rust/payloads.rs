@@ -72,7 +72,6 @@ pub mod payloads {
 
     #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct OpenVideoStats {
-        pub open_videos: usize,
         pub open_streams: usize,
         pub frames_in_cache: usize,
     }
