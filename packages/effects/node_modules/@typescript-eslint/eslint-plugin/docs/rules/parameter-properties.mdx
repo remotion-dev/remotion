@@ -1,0 +1,522 @@
+---
+description: 'Require or disallow parameter properties in class constructors.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/parameter-properties** for documentation.
+
+TypeScript includes a "parameter properties" shorthand for declaring a class constructor parameter and class property in one location.
+Parameter properties can be confusing to those new to TypeScript as they are less explicit than other ways of declaring and initializing class members.
+
+This rule can be configured to always disallow the use of parameter properties or enforce their usage when possible.
+
+## Options
+
+This rule, in its default state, does not require any argument and would completely disallow the use of parameter properties.
+It may take an options object containing either or both of:
+
+- `"allow"`: allowing certain kinds of properties to be ignored
+- `"prefer"`: either `"class-property"` _(default)_ or `"parameter-property"`
+
+### `allow`
+
+{/* insert option description */}
+
+If you would like to ignore certain kinds of properties then you may pass an object containing `"allow"` as an array of any of the following options:
+
+- `allow`, an array containing one or more of the allowed modifiers. Valid values are:
+  - `readonly`, allows **readonly** parameter properties.
+  - `private`, allows **private** parameter properties.
+  - `protected`, allows **protected** parameter properties.
+  - `public`, allows **public** parameter properties.
+  - `private readonly`, allows **private readonly** parameter properties.
+  - `protected readonly`, allows **protected readonly** parameter properties.
+  - `public readonly`, allows **public readonly** parameter properties.
+
+For example, to ignore `public` properties:
+
+```json
+{
+  "@typescript-eslint/parameter-properties": [
+    true,
+    {
+      "allow": ["public"]
+    }
+  ]
+}
+```
+
+### `prefer`
+
+{/* insert option description */}
+
+By default, the rule prefers class properties.
+You can switch it to instead preferring parameter properties with (`"parameter-property"`).
+
+In `"parameter-property"` mode, the rule will issue a report when:
+
+- A class property and constructor parameter have the same name and type
+- The constructor parameter is assigned to the class property at the beginning of the constructor
+
+### default
+
+Examples of code for this rule with no options at all:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+class Foo {
+  constructor(name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### readonly
+
+Examples of code for the `{ "allow": ["readonly"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["readonly"] }'
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["readonly"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(readonly name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### private
+
+Examples of code for the `{ "allow": ["private"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["private"] }'
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["private"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### protected
+
+Examples of code for the `{ "allow": ["protected"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["protected"] }'
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["protected"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### public
+
+Examples of code for the `{ "allow": ["public"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["public"] }'
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["public"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### private readonly
+
+Examples of code for the `{ "allow": ["private readonly"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["private readonly"] }'
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["private readonly"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### protected readonly
+
+Examples of code for the `{ "allow": ["protected readonly"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["protected readonly"] }'
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["protected readonly"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### public readonly
+
+Examples of code for the `{ "allow": ["public readonly"] }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allow": ["public readonly"] }'
+class Foo {
+  constructor(readonly name: string) {}
+}
+
+class Foo {
+  constructor(private name: string) {}
+}
+
+class Foo {
+  constructor(protected name: string) {}
+}
+
+class Foo {
+  constructor(public name: string) {}
+}
+
+class Foo {
+  constructor(private readonly name: string) {}
+}
+
+class Foo {
+  constructor(protected readonly name: string) {}
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allow": ["public readonly"] }'
+class Foo {
+  constructor(name: string) {}
+}
+
+class Foo {
+  constructor(public readonly name: string) {}
+}
+```
+
+</TabItem>
+</Tabs>
+
+### `"parameter-property"`
+
+Examples of code for the `{ "prefer": "parameter-property" }` option:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "prefer": "parameter-property" }'
+class Foo {
+  private name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+class Foo {
+  public readonly name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+class Foo {
+  constructor(name: string) {
+    this.name = name;
+  }
+  name: string;
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "prefer": "parameter-property" }'
+class Foo {
+  private differentName: string;
+  constructor(name: string) {
+    this.differentName = name;
+  }
+}
+
+class Foo {
+  private differentType: number | undefined;
+  constructor(differentType: number) {
+    this.differentType = differentType;
+  }
+}
+
+class Foo {
+  protected logicInConstructor: string;
+  constructor(logicInConstructor: string) {
+    console.log('Hello, world!');
+    this.logicInConstructor = logicInConstructor;
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## When Not To Use It
+
+If you don't care about which style of parameter properties in constructors is used in your classes, then you will not need this rule.
+
+However, keep in mind that inconsistent style can harm readability in a project.
+We recommend picking a single option for this rule that works best for your project.

@@ -1,0 +1,150 @@
+---
+description: 'Disallow accidentally using the "empty object" type.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/no-empty-object-type** for documentation.
+
+The `{}`, or "empty object" type in TypeScript is a common source of confusion for developers unfamiliar with TypeScript's structural typing.
+`{}` represents any _non-nullish value_, including literals like `0` and `""`:
+
+```ts
+let anyNonNullishValue: {} = 'Intentionally allowed by TypeScript.';
+```
+
+Often, developers writing `{}` actually mean either:
+
+- `object`: representing any _object_ value
+- `unknown`: representing any value at all, including `null` and `undefined`
+
+In other words, the "empty object" type `{}` really means _"any value that is defined"_.
+That includes arrays, class instances, functions, and primitives such as `string` and `symbol`.
+
+To avoid confusion around the `{}` type allowing any _non-nullish value_, this rule bans usage of the `{}` type.
+That includes interfaces and object type aliases with no fields.
+
+:::tip
+If you do have a use case for an API allowing `{}`, you can always configure the [rule's options](#options), use an [ESLint disable comment](https://eslint.org/docs/latest/use/configure/rules#using-configuration-comments-1), or [disable the rule in your ESLint config](https://eslint.org/docs/latest/use/configure/rules#using-configuration-files-1).
+:::
+
+Note that this rule does not report on:
+
+- `{}` as a type constituent in an intersection type (e.g. types like TypeScript's built-in `type NonNullable<T> = T & {}`), as this can be useful in type system operations.
+- Interfaces that extend from multiple other interfaces.
+
+## Examples
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+let anyObject: {};
+let anyValue: {};
+
+interface AnyObjectA {}
+interface AnyValueA {}
+
+type AnyObjectB = {};
+type AnyValueB = {};
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+let anyObject: object;
+let anyValue: unknown;
+
+type AnyObjectA = object;
+type AnyValueA = unknown;
+
+type AnyObjectB = object;
+type AnyValueB = unknown;
+
+let objectWith: { property: boolean };
+
+interface InterfaceWith {
+  property: boolean;
+}
+
+type TypeWith = { property: boolean };
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+By default, this rule flags both interfaces and object types.
+
+### `allowInterfaces`
+
+{/* insert option description */}
+
+Allowed values are:
+
+- `'always'`: to always allow interfaces with no fields
+- `'never'` _(default)_: to never allow interfaces with no fields
+- `'with-single-extends'`: to allow empty interfaces that `extend` from a single base interface
+
+Examples of **correct** code for this rule with `{ allowInterfaces: 'with-single-extends' }`:
+
+```ts option='{ "allowInterfaces": "with-single-extends" }' showPlaygroundButton
+interface Base {
+  value: boolean;
+}
+
+interface Derived extends Base {}
+```
+
+### `allowObjectTypes`
+
+{/* insert option description */}
+
+Allowed values are:
+
+- `'always'`: to always allow object type literals with no fields
+- `'never'` _(default)_: to never allow object type literals with no fields
+
+### `allowWithName`
+
+{/* insert option description */}
+
+This can be useful if your existing code style includes a pattern of declaring empty types with `{}` instead of `object`.
+
+Examples of code for this rule with `{ allowWithName: 'Props$' }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allowWithName": "Props$" }' showPlaygroundButton
+interface InterfaceValue {}
+
+type TypeValue = {};
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allowWithName": "Props$" }' showPlaygroundButton
+interface InterfaceProps {}
+
+type TypeProps = {};
+```
+
+</TabItem>
+</Tabs>
+
+## When Not To Use It
+
+If your code commonly needs to represent the _"any non-nullish value"_ type, this rule may not be for you.
+Projects that extensively use type operations such as conditional types and mapped types oftentimes benefit from disabling this rule.
+
+## Further Reading
+
+- [Enhancement: [ban-types] Split the {} ban into a separate, better-phrased rule](https://github.com/typescript-eslint/typescript-eslint/issues/8700)
+- [The Empty Object Type in TypeScript](https://www.totaltypescript.com/the-empty-object-type-in-typescript)

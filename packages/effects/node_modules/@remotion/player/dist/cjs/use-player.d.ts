@@ -1,0 +1,21 @@
+import type { SyntheticEvent } from 'react';
+import type { PlayerEmitter } from './event-emitter.js';
+type UsePlayerMethods = {
+    frameBack: (frames: number) => void;
+    frameForward: (frames: number) => void;
+    isLastFrame: boolean;
+    isFirstFrame: boolean;
+    emitter: PlayerEmitter;
+    playing: boolean;
+    play: (e?: SyntheticEvent | PointerEvent) => void;
+    pause: () => void;
+    pauseAndReturnToPlayStart: () => void;
+    seek: (newFrame: number) => void;
+    getCurrentFrame: () => number;
+    isPlaying: () => boolean;
+    hasPlayed: boolean;
+    isBuffering: () => boolean;
+    toggle: (e?: SyntheticEvent | PointerEvent) => void;
+};
+export declare const usePlayer: () => UsePlayerMethods;
+export {};

@@ -1,0 +1,120 @@
+---
+description: 'Disallow calling a value with type `any`.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/no-unsafe-call** for documentation.
+
+The `any` type in TypeScript is a dangerous "escape hatch" from the type system.
+Using `any` disables many type checking rules and is generally best used only as a last resort or when prototyping code.
+
+Despite your best intentions, the `any` type can sometimes leak into your codebase.
+Calling an `any`-typed value as a function creates a potential type safety hole and source of bugs in your codebase.
+
+This rule disallows calling any value that is typed as `any`.
+
+## Examples
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+declare const anyVar: any;
+declare const nestedAny: { prop: any };
+
+anyVar();
+anyVar.a.b();
+
+nestedAny.prop();
+nestedAny.prop['a']();
+
+new anyVar();
+new nestedAny.prop();
+
+anyVar`foo`;
+nestedAny.prop`foo`;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+declare const typedVar: () => void;
+declare const typedNested: { prop: { a: () => void } };
+
+typedVar();
+typedNested.prop.a();
+
+(() => {})();
+
+new Map();
+
+String.raw`foo`;
+```
+
+</TabItem>
+</Tabs>
+
+## The Unsafe `Function` Type
+
+The `Function` type is behaves almost identically to `any` when called, so this rule also disallows calling values of type `Function`.
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+const f: Function = () => {};
+f();
+```
+
+</TabItem>
+</Tabs>
+
+Note that whereas [no-unsafe-function-type](./no-unsafe-function-type.mdx) helps prevent the _creation_ of `Function` types, this rule helps prevent the unsafe _use_ of `Function` types, which may creep into your codebase without explicitly referencing the `Function` type at all.
+See, for example, the following code:
+
+```ts
+function callUnsafe(maybeFunction: unknown): string {
+  if (typeof maybeFunction === 'function') {
+    // TypeScript allows this, but it's completely unsound.
+    return maybeFunction('call', 'with', 'any', 'args');
+  }
+  // etc
+}
+```
+
+In this sort of situation, beware that there is no way to guarantee with runtime checks that a value is safe to call.
+If you _really_ want to call a value whose type you don't know, your best best is to use a `try`/`catch` and suppress any TypeScript or linter errors that get in your way.
+
+```ts
+function callSafe(maybeFunction: unknown): void {
+  try {
+    // intentionally unsound type assertion
+    (maybeFunction as () => unknown)();
+  } catch (e) {
+    console.error(
+      'Function either could not be called or threw an error when called: ',
+      e,
+    );
+  }
+}
+```
+
+## When Not To Use It
+
+If your codebase has many existing `any`s or areas of unsafe code, it may be difficult to enable this rule.
+It may be easier to skip the `no-unsafe-*` rules pending increasing type safety in unsafe areas of your project.
+You might consider using [ESLint disable comments](https://eslint.org/docs/latest/use/configure/rules#using-configuration-comments-1) for those specific situations instead of completely disabling this rule.
+
+## Related To
+
+- [Avoiding `any`s with Linting and TypeScript](/blog/avoiding-anys)
+- [`no-explicit-any`](./no-explicit-any.mdx)
+- [`no-unsafe-argument`](./no-unsafe-argument.mdx)
+- [`no-unsafe-assignment`](./no-unsafe-assignment.mdx)
+- [`no-unsafe-member-access`](./no-unsafe-member-access.mdx)
+- [`no-unsafe-return`](./no-unsafe-return.mdx)

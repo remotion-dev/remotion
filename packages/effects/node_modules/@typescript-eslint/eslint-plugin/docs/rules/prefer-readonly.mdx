@@ -1,0 +1,111 @@
+---
+description: "Require private members to be marked as `readonly` if they're never modified outside of the constructor."
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/prefer-readonly** for documentation.
+
+Private member variables (whether using the `private` modifier or private `#` fields) are never permitted to be modified outside of their declaring class.
+If that class never modifies their value, they may safely be marked as `readonly`.
+
+This rule reports on private members are marked as `readonly` if they're never modified outside of the constructor.
+
+## Examples
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+class Container {
+  // These member variables could be marked as readonly
+  private neverModifiedMember = true;
+  private onlyModifiedInConstructor: number;
+  #neverModifiedPrivateField = 3;
+
+  public constructor(
+    onlyModifiedInConstructor: number,
+    // Private parameter properties can also be marked as readonly
+    private neverModifiedParameter: string,
+  ) {
+    this.onlyModifiedInConstructor = onlyModifiedInConstructor;
+  }
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+class Container {
+  // Public members might be modified externally
+  public publicMember: boolean;
+
+  // Protected members might be modified by child classes
+  protected protectedMember: number;
+
+  // This is modified later on by the class
+  private modifiedLater = 'unchanged';
+
+  public mutate() {
+    this.modifiedLater = 'mutated';
+  }
+
+  // This is modified later on by the class
+  #modifiedLaterPrivateField = 'unchanged';
+
+  public mutatePrivateField() {
+    this.#modifiedLaterPrivateField = 'mutated';
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+### `onlyInlineLambdas`
+
+{/* insert option description */}
+
+```jsonc
+{
+  "@typescript-eslint/prefer-readonly": [
+    "error",
+    { "onlyInlineLambdas": true },
+  ],
+}
+```
+
+Example of code for the `{ "onlyInlineLambdas": true }` options:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "onlyInlineLambdas": true }'
+class Container {
+  private onClick = () => {
+    /* ... */
+  };
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "onlyInlineLambdas": true }'
+class Container {
+  private neverModifiedPrivate = 'unchanged';
+}
+```
+
+</TabItem>
+</Tabs>
+
+## When Not To Use It
+
+If you aren't trying to enforce strong immutability guarantees, this rule may be too restrictive for your project.

@@ -1,0 +1,108 @@
+{
+  "name": "@typescript-eslint/eslint-plugin",
+  "version": "8.22.0",
+  "description": "TypeScript plugin for ESLint",
+  "files": [
+    "dist",
+    "docs",
+    "eslint-recommended-raw.d.ts",
+    "index.d.ts",
+    "rules.d.ts",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./use-at-your-own-risk/rules": {
+      "types": "./rules.d.ts",
+      "default": "./dist/rules/index.js"
+    },
+    "./use-at-your-own-risk/eslint-recommended-raw": {
+      "types": "./eslint-recommended-raw.d.ts",
+      "default": "./dist/configs/eslint-recommended-raw.js"
+    }
+  },
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/typescript-eslint/typescript-eslint.git",
+    "directory": "packages/eslint-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/typescript-eslint/typescript-eslint/issues"
+  },
+  "homepage": "https://typescript-eslint.io/packages/eslint-plugin",
+  "license": "MIT",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "typescript"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rimraf dist && rimraf coverage",
+    "format": "prettier --write \"./**/*.{ts,mts,cts,tsx,js,mjs,cjs,jsx,json,md,css}\" --ignore-path ../../.prettierignore",
+    "generate:breaking-changes": "tsx tools/generate-breaking-changes.mts",
+    "generate:configs": "npx nx generate-configs repo",
+    "lint": "npx nx lint",
+    "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage --logHeapUsage",
+    "test-single": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --no-coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@eslint-community/regexpp": "^4.10.0",
+    "@typescript-eslint/scope-manager": "8.22.0",
+    "@typescript-eslint/type-utils": "8.22.0",
+    "@typescript-eslint/utils": "8.22.0",
+    "@typescript-eslint/visitor-keys": "8.22.0",
+    "graphemer": "^1.4.0",
+    "ignore": "^5.3.1",
+    "natural-compare": "^1.4.0",
+    "ts-api-utils": "^2.0.0"
+  },
+  "devDependencies": {
+    "@jest/types": "29.6.3",
+    "@types/marked": "^5.0.2",
+    "@types/mdast": "^4.0.3",
+    "@types/natural-compare": "*",
+    "@typescript-eslint/rule-schema-to-typescript-types": "8.22.0",
+    "@typescript-eslint/rule-tester": "8.22.0",
+    "ajv": "^6.12.6",
+    "cross-env": "^7.0.3",
+    "cross-fetch": "*",
+    "eslint": "*",
+    "jest": "29.7.0",
+    "jest-specific-snapshot": "^8.0.0",
+    "json-schema": "*",
+    "markdown-table": "^3.0.3",
+    "marked": "^5.1.2",
+    "mdast-util-from-markdown": "^2.0.0",
+    "mdast-util-mdx": "^3.0.0",
+    "micromark-extension-mdxjs": "^3.0.0",
+    "prettier": "^3.2.5",
+    "rimraf": "*",
+    "title-case": "^3.0.3",
+    "tsx": "*",
+    "typescript": "*",
+    "unist-util-visit": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@typescript-eslint/parser": "^8.0.0 || ^8.0.0-alpha.0",
+    "eslint": "^8.57.0 || ^9.0.0",
+    "typescript": ">=4.8.4 <5.8.0"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/typescript-eslint"
+  }
+}

@@ -1,0 +1,244 @@
+---
+description: 'Require both operands of addition to be the same type and be `bigint`, `number`, or `string`.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/restrict-plus-operands** for documentation.
+
+TypeScript allows `+` adding together two values of any type(s).
+However, adding values that are not the same type and/or are not the same primitive type is often a sign of programmer error.
+
+This rule reports when a `+` operation combines two values of different types, or a type that is not `bigint`, `number`, or `string`.
+
+## Examples
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+let foo = 1n + 1;
+let fn = (a: string, b: never) => a + b;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+let foo = 1n + 1n;
+let fn = (a: string, b: string) => a + b;
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+:::caution
+We generally recommend against using these options, as they limit which varieties of incorrect `+` usage can be checked.
+This in turn severely limits the validation that the rule can do to ensure that resulting strings and numbers are correct.
+
+Safer alternatives to using the `allow*` options include:
+
+- Using variadic forms of logging APIs to avoid needing to `+` values.
+  ```ts
+  // Remove this line
+  console.log('The result is ' + true);
+  // Add this line
+  console.log('The result is', true);
+  ```
+- Using `.toFixed()` to coerce numbers to well-formed string representations:
+  ```ts
+  const number = 1.123456789;
+  const result = 'The number is ' + number.toFixed(2);
+  // result === 'The number is 1.12'
+  ```
+- Calling `.toString()` on other types to mark explicit and intentional string coercion:
+  ```ts
+  const arg = '11';
+  const regex = /[0-9]/;
+  const result =
+    'The result of ' +
+    regex.toString() +
+    '.test("' +
+    arg +
+    '") is ' +
+    regex.test(arg).toString();
+  // result === 'The result of /[0-9]/.test("11") is true'
+  ```
+
+:::
+
+### `allowAny`
+
+{/* insert option description */}
+
+Examples of code for this rule with `{ allowAny: true }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allowAny": true }'
+let fn = (a: number, b: []) => a + b;
+let fn = (a: string, b: []) => a + b;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allowAny": true }'
+let fn = (a: number, b: any) => a + b;
+let fn = (a: string, b: any) => a + b;
+```
+
+</TabItem>
+</Tabs>
+
+### `allowBoolean`
+
+{/* insert option description */}
+
+Examples of code for this rule with `{ allowBoolean: true }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allowBoolean": true }'
+let fn = (a: number, b: unknown) => a + b;
+let fn = (a: string, b: unknown) => a + b;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allowBoolean": true }'
+let fn = (a: number, b: boolean) => a + b;
+let fn = (a: string, b: boolean) => a + b;
+```
+
+</TabItem>
+</Tabs>
+
+### `allowNullish`
+
+{/* insert option description */}
+
+Examples of code for this rule with `{ allowNullish: true }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allowNullish": true }'
+let fn = (a: number, b: unknown) => a + b;
+let fn = (a: number, b: never) => a + b;
+let fn = (a: string, b: unknown) => a + b;
+let fn = (a: string, b: never) => a + b;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allowNullish": true }'
+let fn = (a: number, b: undefined) => a + b;
+let fn = (a: number, b: null) => a + b;
+let fn = (a: string, b: undefined) => a + b;
+let fn = (a: string, b: null) => a + b;
+```
+
+</TabItem>
+</Tabs>
+
+### `allowNumberAndString`
+
+{/* insert option description */}
+
+Examples of code for this rule with `{ allowNumberAndString: true }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allowNumberAndString": true }'
+let fn = (a: number, b: unknown) => a + b;
+let fn = (a: number, b: never) => a + b;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allowNumberAndString": true }'
+let fn = (a: number, b: string) => a + b;
+let fn = (a: number, b: number | string) => a + b;
+```
+
+</TabItem>
+</Tabs>
+
+### `allowRegExp`
+
+{/* insert option description */}
+
+Examples of code for this rule with `{ allowRegExp: true }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "allowRegExp": true }'
+let fn = (a: number, b: RegExp) => a + b;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "allowRegExp": true }'
+let fn = (a: string, b: RegExp) => a + b;
+```
+
+</TabItem>
+</Tabs>
+
+### `skipCompoundAssignments`
+
+{/* insert option description */}
+
+Examples of code for this rule with `{ skipCompoundAssignments: false }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "skipCompoundAssignments": false }'
+let foo: bigint = 0n;
+foo += 1;
+
+let bar: number[] = [1];
+bar += 1;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "skipCompoundAssignments": false }'
+let foo: bigint = 0n;
+foo += 1n;
+
+let bar: number = 1;
+bar += 1;
+```
+
+</TabItem>
+</Tabs>
+
+## When Not To Use It
+
+If you don't mind a risk of `"[object Object]"` or incorrect type coercions in your values, then you will not need this rule.
+
+## Related To
+
+- [`no-base-to-string`](./no-base-to-string.mdx)
+- [`restrict-template-expressions`](./restrict-template-expressions.mdx)
+
+## Further Reading
+
+- [`Object.prototype.toString()` MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString)

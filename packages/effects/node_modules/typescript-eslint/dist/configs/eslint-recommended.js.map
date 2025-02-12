@@ -1,0 +1,1 @@
+{"version":3,"file":"eslint-recommended.js","sourceRoot":"","sources":["../../src/configs/eslint-recommended.ts"],"names":[],"mappings":";;;;;AAEA,0IAAkG;AAElG;;;;;GAKG;AACH,kBAAe,CACb,OAA0B,EAC1B,OAA0B,EACP,EAAE,CAAC,CAAC;IACvB,GAAG,IAAA,gCAAM,EAAC,WAAW,CAAC;IACtB,IAAI,EAAE,sCAAsC;CAC7C,CAAC,CAAC"}

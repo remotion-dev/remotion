@@ -1,0 +1,7 @@
+export declare const PlayerSeekBar: React.FC<{
+    durationInFrames: number;
+    onSeekStart: () => void;
+    onSeekEnd: () => void;
+    inFrame: number | null;
+    outFrame: number | null;
+}>;

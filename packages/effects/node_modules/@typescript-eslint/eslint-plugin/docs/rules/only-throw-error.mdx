@@ -1,0 +1,144 @@
+---
+description: 'Disallow throwing non-`Error` values as exceptions.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/only-throw-error** for documentation.
+
+It is considered good practice to only `throw` the `Error` object itself or an object using the `Error` object as base objects for user-defined exceptions.
+The fundamental benefit of `Error` objects is that they automatically keep track of where they were built and originated.
+
+This rule restricts what can be thrown as an exception.
+
+:::info[Migration from `no-throw-literal`]
+
+This rule was formerly known as `no-throw-literal`.
+The new name is a drop-in replacement with identical functionality.
+
+:::
+
+## Examples
+
+This rule is aimed at maintaining consistency when throwing exception by disallowing to throw literals and other expressions which cannot possibly be an `Error` object.
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+throw 'error';
+
+throw 0;
+
+throw undefined;
+
+throw null;
+
+const err = new Error();
+throw 'an ' + err;
+
+const err = new Error();
+throw `${err}`;
+
+const err = '';
+throw err;
+
+function getError() {
+  return '';
+}
+throw getError();
+
+const foo = {
+  bar: '',
+};
+throw foo.bar;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+throw new Error();
+
+throw new Error('error');
+
+const e = new Error('error');
+throw e;
+
+try {
+  throw new Error('error');
+} catch (e) {
+  throw e;
+}
+
+const err = new Error();
+throw err;
+
+function getError() {
+  return new Error();
+}
+throw getError();
+
+const foo = {
+  bar: new Error(),
+};
+throw foo.bar;
+
+class CustomError extends Error {
+  // ...
+}
+throw new CustomError();
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+This rule adds the following options:
+
+```ts
+interface Options {
+  /**
+   * Type specifiers that can be thrown.
+   */
+  allow?: (
+    | {
+        from: 'file';
+        name: [string, ...string[]] | string;
+        path?: string;
+      }
+    | {
+        from: 'lib';
+        name: [string, ...string[]] | string;
+      }
+    | {
+        from: 'package';
+        name: [string, ...string[]] | string;
+        package: string;
+      }
+    | string
+  )[];
+
+  /**
+   * Whether to always allow throwing values typed as `any`.
+   */
+  allowThrowingAny?: boolean;
+
+  /**
+   * Whether to always allow throwing values typed as `unknown`.
+   */
+  allowThrowingUnknown?: boolean;
+}
+
+const defaultOptions: Options = {
+  allow: [],
+  allowThrowingAny: true,
+  allowThrowingUnknown: true,
+};
+```
+
+{/* Intentionally Omitted: When Not To Use It */}

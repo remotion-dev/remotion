@@ -1,0 +1,55 @@
+---
+description: 'Enforce a maximum number of parameters in function definitions.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/max-params** for documentation.
+
+This rule extends the base [`eslint/max-params`](https://eslint.org/docs/rules/max-params) rule.
+This version adds support for TypeScript `this` parameters so they won't be counted as a parameter.
+
+## Options
+
+This rule adds the following options:
+
+```ts
+interface Options extends BaseMaxParamsOptions {
+  countVoidThis?: boolean;
+}
+
+const defaultOptions: Options = {
+  ...baseMaxParamsOptions,
+  countVoidThis: false,
+};
+```
+
+### `countVoidThis`
+
+{/* insert option description */}
+
+Example of a code when `countVoidThis` is set to `false` and `max` is `1`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "countVoidThis": false, "max": 1 }'
+function hasNoThis(this: void, first: string, second: string) {
+  // ...
+}
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "countVoidThis": false, "max": 1 }'
+function hasNoThis(this: void, first: string) {
+  // ...
+}
+```
+
+</TabItem>
+</Tabs>

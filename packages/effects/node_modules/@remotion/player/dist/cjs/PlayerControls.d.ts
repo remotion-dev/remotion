@@ -1,0 +1,41 @@
+import type { MouseEventHandler, ReactNode, SyntheticEvent } from 'react';
+import React from 'react';
+import type { RenderMuteButton } from './MediaVolumeSlider.js';
+import type { RenderVolumeSlider } from './render-volume-slider.js';
+import type { Size } from './utils/use-element-size.js';
+export type RenderPlayPauseButton = (props: {
+    playing: boolean;
+    isBuffering: boolean;
+}) => ReactNode | null;
+export type RenderFullscreenButton = (props: {
+    isFullscreen: boolean;
+}) => ReactNode;
+export declare const Controls: React.FC<{
+    readonly fps: number;
+    readonly durationInFrames: number;
+    readonly showVolumeControls: boolean;
+    readonly onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
+    readonly isFullscreen: boolean;
+    readonly allowFullscreen: boolean;
+    readonly onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement>;
+    readonly spaceKeyToPlayOrPause: boolean;
+    readonly onSeekEnd: () => void;
+    readonly onSeekStart: () => void;
+    readonly inFrame: number | null;
+    readonly outFrame: number | null;
+    readonly initiallyShowControls: number | boolean;
+    readonly canvasSize: Size | null;
+    readonly renderPlayPauseButton: RenderPlayPauseButton | null;
+    readonly renderFullscreenButton: RenderFullscreenButton | null;
+    readonly alwaysShowControls: boolean;
+    readonly showPlaybackRateControl: boolean | number[];
+    readonly containerRef: React.RefObject<HTMLDivElement | null>;
+    readonly buffering: boolean;
+    readonly hideControlsWhenPointerDoesntMove: boolean | number;
+    readonly onPointerDown: ((ev: PointerEvent | SyntheticEvent) => void) | undefined;
+    readonly onDoubleClick: MouseEventHandler<HTMLDivElement> | undefined;
+    readonly renderMuteButton: RenderMuteButton | null;
+    readonly renderVolumeSlider: RenderVolumeSlider | null;
+    readonly playing: boolean;
+    readonly toggle: (e?: SyntheticEvent | PointerEvent) => void;
+}>;

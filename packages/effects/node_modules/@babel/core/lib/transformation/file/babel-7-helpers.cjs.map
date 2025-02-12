@@ -1,0 +1,1 @@
+{"version":3,"names":["exports","getModuleName","require"],"sources":["../../../src/transformation/file/babel-7-helpers.cjs"],"sourcesContent":["// TODO(Babel 8): Remove this file\n\nexports.getModuleName = () =>\n  require(\"@babel/helper-module-transforms\").getModuleName;\n"],"mappings":"AAEAA,OAAO,CAACC,aAAa,GAAG,MACtBC,OAAO,CAAC,iCAAiC,CAAC,CAACD,aAAa;AAAC","ignoreList":[]}

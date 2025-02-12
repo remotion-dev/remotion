@@ -1,0 +1,24 @@
+"use strict";
+// THIS CODE WAS AUTOMATICALLY GENERATED
+// DO NOT EDIT THIS CODE BY HAND
+// RUN THE FOLLOWING COMMAND FROM THE WORKSPACE ROOT TO REGENERATE:
+// npx nx generate-lib repo
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.scripthost = void 0;
+const base_config_1 = require("./base-config");
+exports.scripthost = {
+    ActiveXObject: base_config_1.TYPE_VALUE,
+    Date: base_config_1.TYPE,
+    DateConstructor: base_config_1.TYPE,
+    Enumerator: base_config_1.TYPE_VALUE,
+    EnumeratorConstructor: base_config_1.TYPE,
+    ITextWriter: base_config_1.TYPE,
+    SafeArray: base_config_1.TYPE_VALUE,
+    TextStreamBase: base_config_1.TYPE,
+    TextStreamReader: base_config_1.TYPE,
+    TextStreamWriter: base_config_1.TYPE,
+    VarDate: base_config_1.TYPE_VALUE,
+    VBArray: base_config_1.TYPE_VALUE,
+    VBArrayConstructor: base_config_1.TYPE,
+};
+//# sourceMappingURL=scripthost.js.map

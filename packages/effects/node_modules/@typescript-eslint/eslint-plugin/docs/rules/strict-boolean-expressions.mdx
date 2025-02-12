@@ -1,0 +1,184 @@
+---
+description: 'Disallow certain types in boolean expressions.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/strict-boolean-expressions** for documentation.
+
+Forbids usage of non-boolean types in expressions where a boolean is expected.
+`boolean` and `never` types are always allowed.
+Additional types which are considered safe in a boolean context can be configured via options.
+
+The following nodes are considered boolean expressions and their type is checked:
+
+- Argument to the logical negation operator (`!arg`).
+- The condition in a conditional expression (`cond ? x : y`).
+- Conditions for `if`, `for`, `while`, and `do-while` statements.
+- Operands of logical binary operators (`lhs || rhs` and `lhs && rhs`).
+  - Right-hand side operand is ignored when it's not a descendant of another boolean expression.
+    This is to allow usage of boolean operators for their short-circuiting behavior.
+- Asserted argument of an assertion function (`assert(arg)`).
+- Return type of array predicate functions such as `filter()`, `some()`, etc.
+
+## Examples
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+// nullable numbers are considered unsafe by default
+declare const num: number | undefined;
+if (num) {
+  console.log('num is defined');
+}
+
+// nullable strings are considered unsafe by default
+declare const str: string | null;
+if (!str) {
+  console.log('str is empty');
+}
+
+// nullable booleans are considered unsafe by default
+function foo(bool?: boolean) {
+  if (bool) {
+    bar();
+  }
+}
+
+// `any`, unconstrained generics and unions of more than one primitive type are disallowed
+const foo = <T>(arg: T) => (arg ? 1 : 0);
+
+// always-truthy and always-falsy types are disallowed
+let obj = {};
+while (obj) {
+  obj = getObj();
+}
+
+// assertion functions without an `is` are boolean contexts.
+declare function assert(value: unknown): asserts value;
+let maybeString = Math.random() > 0.5 ? '' : undefined;
+assert(maybeString);
+
+// array predicates' return types are boolean contexts.
+['one', null].filter(x => x);
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```tsx
+// nullable values should be checked explicitly against null or undefined
+let num: number | undefined = 0;
+if (num != null) {
+  console.log('num is defined');
+}
+
+let str: string | null = null;
+if (str != null && !str) {
+  console.log('str is empty');
+}
+
+function foo(bool?: boolean) {
+  if (bool ?? false) {
+    bar();
+  }
+}
+
+// `any` types should be converted to boolean explicitly
+const foo = (arg: any) => (Boolean(arg) ? 1 : 0);
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+### `allowString`
+
+{/* insert option description */}
+
+This can be safe because strings have only one falsy value (`""`).
+Set this to `false` if you prefer the explicit `str != ""` or `str.length > 0` style.
+
+### `allowNumber`
+
+{/* insert option description */}
+
+This can be safe because numbers have only two falsy values (`0` and `NaN`).
+Set this to `false` if you prefer the explicit `num != 0` and `!Number.isNaN(num)` style.
+
+### `allowNullableObject`
+
+{/* insert option description */}
+
+This can be safe because objects, functions, and symbols don't have falsy values.
+Set this to `false` if you prefer the explicit `obj != null` style.
+
+### `allowNullableBoolean`
+
+{/* insert option description */}
+
+This is unsafe because nullable booleans can be either `false` or nullish.
+Set this to `false` if you want to enforce explicit `bool ?? false` or `bool ?? true` style.
+Set this to `true` if you don't mind implicitly treating false the same as a nullish value.
+
+### `allowNullableString`
+
+{/* insert option description */}
+
+This is unsafe because nullable strings can be either an empty string or nullish.
+Set this to `true` if you don't mind implicitly treating an empty string the same as a nullish value.
+
+### `allowNullableNumber`
+
+{/* insert option description */}
+
+This is unsafe because nullable numbers can be either a falsy number or nullish.
+Set this to `true` if you don't mind implicitly treating zero or NaN the same as a nullish value.
+
+### `allowNullableEnum`
+
+{/* insert option description */}
+
+This is unsafe because nullable enums can be either a falsy number or nullish.
+Set this to `true` if you don't mind implicitly treating an enum whose value is zero the same as a nullish value.
+
+### `allowAny`
+
+{/* insert option description */}
+
+This is unsafe for because `any` allows any values and disables many type checking checks.
+Set this to `true` at your own risk.
+
+### `allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing`
+
+{/* insert option description */}
+
+:::danger Deprecated
+
+This option will be removed in the next major version of typescript-eslint.
+
+:::
+
+If this is set to `false`, then the rule will error on every file whose `tsconfig.json` does _not_ have the `strictNullChecks` compiler option (or `strict`) set to `true`.
+
+Without `strictNullChecks`, TypeScript essentially erases `undefined` and `null` from the types. This means when this rule inspects the types from a variable, **it will not be able to tell that the variable might be `null` or `undefined`**, which essentially makes this rule a lot less useful.
+
+You should be using `strictNullChecks` to ensure complete type-safety in your codebase.
+
+If for some reason you cannot turn on `strictNullChecks`, but still want to use this rule - you can use this option to allow it - but know that the behavior of this rule is _undefined_ with the compiler option turned off. We will not accept bug reports if you are using this option.
+
+## When Not To Use It
+
+If your project isn't likely to experience bugs from falsy non-boolean values being used in logical conditions, you can skip enabling this rule.
+
+Otherwise, this rule can be quite strict around requiring exact comparisons in logical checks.
+If you prefer more succinct checks over more precise boolean logic, this rule might not be for you.
+
+## Related To
+
+- [no-unnecessary-condition](./no-unnecessary-condition.mdx) - Similar rule which reports always-truthy and always-falsy values in conditions

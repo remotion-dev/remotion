@@ -1,0 +1,1 @@
+{"version":3,"file":"esnext.weakref.js","sourceRoot":"","sources":["../../src/lib/esnext.weakref.ts"],"names":[],"mappings":";AAAA,wCAAwC;AACxC,gCAAgC;AAChC,mEAAmE;AACnE,2BAA2B;;;AAI3B,+CAAiD;AACjD,uEAAoE;AAEvD,QAAA,cAAc,GAAG;IAC5B,GAAG,iDAAuB;IAC1B,oBAAoB,EAAE,wBAAU;IAChC,+BAA+B,EAAE,kBAAI;IACrC,OAAO,EAAE,wBAAU;IACnB,kBAAkB,EAAE,kBAAI;CACqB,CAAC"}

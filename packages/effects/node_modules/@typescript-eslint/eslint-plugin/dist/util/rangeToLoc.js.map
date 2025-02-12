@@ -1,0 +1,1 @@
+{"version":3,"file":"rangeToLoc.js","sourceRoot":"","sources":["../../src/util/rangeToLoc.ts"],"names":[],"mappings":";;AAEA,gCAQC;AARD,SAAgB,UAAU,CACxB,UAA+B,EAC/B,KAAyB;IAEzB,OAAO;QACL,GAAG,EAAE,UAAU,CAAC,eAAe,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC;QACzC,KAAK,EAAE,UAAU,CAAC,eAAe,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC;KAC5C,CAAC;AACJ,CAAC"}

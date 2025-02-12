@@ -1,0 +1,1 @@
+{"version":3,"file":"dom.asynciterable.js","sourceRoot":"","sources":["../../src/lib/dom.asynciterable.ts"],"names":[],"mappings":";AAAA,wCAAwC;AACxC,gCAAgC;AAChC,mEAAmE;AACnE,2BAA2B;;;AAI3B,+CAAqC;AAExB,QAAA,iBAAiB,GAAG;IAC/B,yBAAyB,EAAE,kBAAI;IAC/B,sCAAsC,EAAE,kBAAI;IAC5C,cAAc,EAAE,kBAAI;IACpB,2BAA2B,EAAE,kBAAI;CACY,CAAC"}

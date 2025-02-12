@@ -1,0 +1,50 @@
+{
+  "name": "mlly",
+  "version": "1.7.4",
+  "description": "Missing ECMAScript module utils for Node.js",
+  "repository": "unjs/mlly",
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "vitest",
+    "lint": "eslint src test && prettier -c src test",
+    "lint:fix": "eslint src test --fix && prettier -w src test",
+    "release": "pnpm test && pnpm build && changelogen --release && npm publish && git push --follow-tags",
+    "test": "pnpm lint && pnpm test:types && vitest run",
+    "test:types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "acorn": "^8.14.0",
+    "pathe": "^2.0.1",
+    "pkg-types": "^1.3.0",
+    "ufo": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "^2.1.8",
+    "changelogen": "^0.5.7",
+    "eslint": "^9.17.0",
+    "eslint-config-unjs": "^0.4.2",
+    "import-meta-resolve": "^4.1.0",
+    "jiti": "^2.4.2",
+    "prettier": "^3.4.2",
+    "std-env": "^3.8.0",
+    "typescript": "^5.7.2",
+    "unbuild": "^3.2.0",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@9.15.3"
+}

@@ -1,0 +1,53 @@
+{
+  "name": "@vitejs/plugin-react",
+  "version": "4.3.4",
+  "license": "MIT",
+  "author": "Evan You",
+  "contributors": [
+    "Alec Larson",
+    "Arnaud Barré"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild && pnpm run patch-cjs && tsx scripts/copyRefreshUtils.ts",
+    "patch-cjs": "tsx ../../scripts/patchCJS.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitejs/vite-plugin-react.git",
+    "directory": "packages/plugin-react"
+  },
+  "bugs": {
+    "url": "https://github.com/vitejs/vite-plugin-react/issues"
+  },
+  "homepage": "https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#readme",
+  "dependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-transform-react-jsx-self": "^7.25.9",
+    "@babel/plugin-transform-react-jsx-source": "^7.25.9",
+    "@types/babel__core": "^7.20.5",
+    "react-refresh": "^0.14.2"
+  },
+  "peerDependencies": {
+    "vite": "^4.2.0 || ^5.0.0 || ^6.0.0"
+  },
+  "devDependencies": {
+    "unbuild": "^2.0.0"
+  }
+}

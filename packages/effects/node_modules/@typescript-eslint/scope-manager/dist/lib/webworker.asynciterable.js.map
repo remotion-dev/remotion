@@ -1,0 +1,1 @@
+{"version":3,"file":"webworker.asynciterable.js","sourceRoot":"","sources":["../../src/lib/webworker.asynciterable.ts"],"names":[],"mappings":";AAAA,wCAAwC;AACxC,gCAAgC;AAChC,mEAAmE;AACnE,2BAA2B;;;AAI3B,+CAAqC;AAExB,QAAA,uBAAuB,GAAG;IACrC,yBAAyB,EAAE,kBAAI;IAC/B,sCAAsC,EAAE,kBAAI;IAC5C,cAAc,EAAE,kBAAI;IACpB,2BAA2B,EAAE,kBAAI;CACY,CAAC"}

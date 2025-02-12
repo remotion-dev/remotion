@@ -1,0 +1,1 @@
+export { AnimatedImage } from './AnimatedImage';

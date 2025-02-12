@@ -1,0 +1,209 @@
+---
+description: 'Enforce constituents of a type union/intersection to be sorted alphabetically.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/sort-type-constituents** for documentation.
+
+:::danger Deprecated
+This rule has been deprecated in favor of the [`perfectionist/sort-intersection-types`](https://perfectionist.dev/rules/sort-intersection-types) and [`perfectionist/sort-union-types`](https://perfectionist.dev/rules/sort-union-types) rules.
+
+See [Docs: Deprecate sort-type-constituents in favor of eslint-plugin-perfectionist](https://github.com/typescript-eslint/typescript-eslint/issues/8915) and [eslint-plugin: Feature freeze naming and sorting stylistic rules](https://github.com/typescript-eslint/typescript-eslint/issues/8792) for more information.
+:::
+
+Sorting union (`|`) and intersection (`&`) types can help:
+
+- keep your codebase standardized
+- find repeated types
+- reduce diff churn
+
+This rule reports on any types that aren't sorted alphabetically.
+
+> Types are sorted case-insensitively and treating numbers like a human would, falling back to character code sorting in case of ties.
+
+## Examples
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+type T1 = B | A;
+
+type T2 = { b: string } & { a: string };
+
+type T3 = [1, 2, 4] & [1, 2, 3];
+
+type T4 =
+  | [1, 2, 4]
+  | [1, 2, 3]
+  | { b: string }
+  | { a: string }
+  | (() => void)
+  | (() => string)
+  | 'b'
+  | 'a'
+  | 'b'
+  | 'a'
+  | readonly string[]
+  | readonly number[]
+  | string[]
+  | number[]
+  | B
+  | A
+  | string
+  | any;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+type T1 = A | B;
+
+type T2 = { a: string } & { b: string };
+
+type T3 = [1, 2, 3] & [1, 2, 4];
+
+type T4 =
+  | A
+  | B
+  | number[]
+  | string[]
+  | any
+  | string
+  | readonly number[]
+  | readonly string[]
+  | 'a'
+  | 'a'
+  | 'b'
+  | 'b'
+  | (() => string)
+  | (() => void)
+  | { a: string }
+  | { b: string }
+  | [1, 2, 3]
+  | [1, 2, 4];
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+### `caseSensitive`
+
+{/* insert option description */}
+
+Examples of code with `{ "caseSensitive": true }`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "caseSensitive": true }'
+type T = 'DeletedAt' | 'DeleteForever';
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "caseSensitive": true }'
+type T = 'DeleteForever' | 'DeletedAt';
+```
+
+</TabItem>
+</Tabs>
+
+### `checkIntersections`
+
+{/* insert option description */}
+
+Examples of code with `{ "checkIntersections": true }` (the default):
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "checkIntersections": true }'
+type ExampleIntersection = B & A;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "checkIntersections": true }'
+type ExampleIntersection = A & B;
+```
+
+</TabItem>
+</Tabs>
+
+### `checkUnions`
+
+{/* insert option description */}
+
+Examples of code with `{ "checkUnions": true }` (the default):
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "checkUnions": true }'
+type ExampleUnion = B | A;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "checkUnions": true }'
+type ExampleUnion = A | B;
+```
+
+</TabItem>
+</Tabs>
+
+### `groupOrder`
+
+{/* insert option description */}
+
+Each constituent of the type is placed into a group, and then the rule sorts alphabetically within each group.
+The ordering of groups is determined by this option.
+
+- `conditional` - Conditional types (`A extends B ? C : D`)
+- `function` - Function and constructor types (`() => void`, `new () => type`)
+- `import` - Import types (`import('path')`)
+- `intersection` - Intersection types (`A & B`)
+- `keyword` - Keyword types (`any`, `string`, etc)
+- `literal` - Literal types (`1`, `'b'`, `true`, etc)
+- `named` - Named types (`A`, `A['prop']`, `B[]`, `Array<C>`)
+- `object` - Object types (`{ a: string }`, `{ [key: string]: number }`)
+- `operator` - Operator types (`keyof A`, `typeof B`, `readonly C[]`)
+- `tuple` - Tuple types (`[A, B, C]`)
+- `union` - Union types (`A | B`)
+- `nullish` - `null` and `undefined`
+
+For example, configuring the rule with `{ "groupOrder": ["literal", "nullish" ]}`:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{ "groupOrder": ["literal", "nullish" ]}'
+type ExampleGroup = null | 123;
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{ "groupOrder": ["literal", "nullish" ]}'
+type ExampleGroup = 123 | null;
+```
+
+</TabItem>
+</Tabs>
+
+## When Not To Use It
+
+This rule is purely a stylistic rule for maintaining consistency in your project.
+You can turn it off if you don't want to keep a consistent, predictable order for intersection and union types.
+However, keep in mind that inconsistent style can harm readability in a project.

@@ -1,0 +1,1 @@
+{"version":3,"file":"FunctionTypeScope.js","sourceRoot":"","sources":["../../src/scope/FunctionTypeScope.ts"],"names":[],"mappings":";;;AAKA,2CAAwC;AACxC,2CAAwC;AAExC,MAAa,iBAAkB,SAAQ,qBAQtC;IACC,YACE,YAA0B,EAC1B,UAAsC,EACtC,KAAiC;QAEjC,KAAK,CAAC,YAAY,EAAE,qBAAS,CAAC,YAAY,EAAE,UAAU,EAAE,KAAK,EAAE,KAAK,CAAC,CAAC;IACxE,CAAC;CACF;AAhBD,8CAgBC"}

@@ -1,0 +1,80 @@
+---
+description: 'Disallow specified modules when loaded by `import`.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/no-restricted-imports** for documentation.
+
+This rule extends the base [`eslint/no-restricted-imports`](https://eslint.org/docs/rules/no-restricted-imports) rule. It adds support for the type import (`import type X from "..."`, `import { type X } from "..."`) and `import x = require("...")` syntaxes.
+
+## Options
+
+This rule adds the following options:
+
+### `allowTypeImports`
+
+{/* insert option description */}
+
+Whether to allow type-only imports for a path.
+Default: `false`.
+
+You can specify this option for a specific path or pattern as follows:
+
+```jsonc
+{
+  "rules": {
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "import-foo",
+            "message": "Please use import-bar instead.",
+            "allowTypeImports": true,
+          },
+          {
+            "name": "import-baz",
+            "message": "Please use import-quux instead.",
+            "allowTypeImports": true,
+          },
+        ],
+      },
+    ],
+  },
+}
+```
+
+Whether to allow [Type-Only Imports](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export).
+
+Examples of code with the above config:
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts option='{"paths":[{"name":"import-foo","message":"Please use import-bar instead.","allowTypeImports":true},{"name":"import-baz","message":"Please use import-quux instead.","allowTypeImports":true}]}'
+import foo from 'import-foo';
+export { Foo } from 'import-foo';
+
+import baz from 'import-baz';
+export { Baz } from 'import-baz';
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts option='{"paths":[{"name":"import-foo","message":"Please use import-bar instead.","allowTypeImports":true},{"name":"import-baz","message":"Please use import-quux instead.","allowTypeImports":true}]}'
+import { foo } from 'other-module';
+
+import type foo from 'import-foo';
+export type { Foo } from 'import-foo';
+
+import type baz from 'import-baz';
+export type { Baz } from 'import-baz';
+```
+
+</TabItem>
+</Tabs>

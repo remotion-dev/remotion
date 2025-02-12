@@ -1,0 +1,74 @@
+{
+  "name": "@typescript-eslint/scope-manager",
+  "version": "8.22.0",
+  "description": "TypeScript scope analyser for ESLint",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/typescript-eslint/typescript-eslint.git",
+    "directory": "packages/scope-manager"
+  },
+  "bugs": {
+    "url": "https://github.com/typescript-eslint/typescript-eslint/issues"
+  },
+  "homepage": "https://typescript-eslint.io/packages/scope-manager",
+  "license": "MIT",
+  "keywords": [
+    "eslint",
+    "typescript",
+    "estree"
+  ],
+  "scripts": {
+    "build": "npx nx build",
+    "clean": "npx nx clean",
+    "clean-fixtures": "npx nx clean-fixtures",
+    "format": "prettier --write \"./**/*.{ts,mts,cts,tsx,js,mjs,cjs,jsx,json,md,css}\" --ignore-path ../../.prettierignore",
+    "generate-lib": "npx nx generate-lib repo",
+    "lint": "npx nx lint",
+    "test": "npx nx test --code-coverage",
+    "typecheck": "npx nx typecheck"
+  },
+  "dependencies": {
+    "@typescript-eslint/types": "8.22.0",
+    "@typescript-eslint/visitor-keys": "8.22.0"
+  },
+  "devDependencies": {
+    "@jest/types": "29.6.3",
+    "@types/glob": "*",
+    "@typescript-eslint/typescript-estree": "8.22.0",
+    "glob": "*",
+    "jest-specific-snapshot": "*",
+    "make-dir": "*",
+    "prettier": "^3.2.5",
+    "pretty-format": "*",
+    "typescript": "*"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/typescript-eslint"
+  },
+  "typesVersions": {
+    "<4.7": {
+      "*": [
+        "_ts4.3/*"
+      ]
+    }
+  }
+}

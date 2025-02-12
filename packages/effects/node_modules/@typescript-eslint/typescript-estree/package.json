@@ -1,0 +1,89 @@
+{
+  "name": "@typescript-eslint/typescript-estree",
+  "version": "8.22.0",
+  "description": "A parser that converts TypeScript source code into an ESTree compatible form",
+  "files": [
+    "dist",
+    "_ts4.3",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./use-at-your-own-risk": {
+      "types": "./dist/use-at-your-own-risk.d.ts",
+      "default": "./dist/use-at-your-own-risk.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/typescript-eslint/typescript-eslint.git",
+    "directory": "packages/typescript-estree"
+  },
+  "bugs": {
+    "url": "https://github.com/typescript-eslint/typescript-eslint/issues"
+  },
+  "homepage": "https://typescript-eslint.io/packages/typescript-estree",
+  "license": "MIT",
+  "keywords": [
+    "ast",
+    "estree",
+    "ecmascript",
+    "javascript",
+    "typescript",
+    "parser",
+    "syntax"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "postbuild": "downlevel-dts dist _ts4.3/dist --to=4.3",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rimraf dist && rimraf _ts4.3 && rimraf coverage",
+    "format": "prettier --write \"./**/*.{ts,mts,cts,tsx,js,mjs,cjs,jsx,json,md,css}\" --ignore-path ../../.prettierignore",
+    "lint": "npx nx lint",
+    "test": "jest --coverage --runInBand --verbose",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@typescript-eslint/types": "8.22.0",
+    "@typescript-eslint/visitor-keys": "8.22.0",
+    "debug": "^4.3.4",
+    "fast-glob": "^3.3.2",
+    "is-glob": "^4.0.3",
+    "minimatch": "^9.0.4",
+    "semver": "^7.6.0",
+    "ts-api-utils": "^2.0.0"
+  },
+  "devDependencies": {
+    "@jest/types": "29.6.3",
+    "glob": "*",
+    "jest": "29.7.0",
+    "prettier": "^3.2.5",
+    "rimraf": "*",
+    "tmp": "*",
+    "typescript": "*"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.8.4 <5.8.0"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/typescript-eslint"
+  },
+  "typesVersions": {
+    "<4.7": {
+      "*": [
+        "_ts4.3/*"
+      ]
+    }
+  }
+}

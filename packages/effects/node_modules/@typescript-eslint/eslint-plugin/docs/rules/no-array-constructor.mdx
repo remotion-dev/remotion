@@ -1,0 +1,35 @@
+---
+description: 'Disallow generic `Array` constructors.'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+> 🛑 This file is source code, not the primary documentation location! 🛑
+>
+> See **https://typescript-eslint.io/rules/no-array-constructor** for documentation.
+
+This rule extends the base [`eslint/no-array-constructor`](https://eslint.org/docs/rules/no-array-constructor) rule.
+It adds support for the generically typed `Array` constructor (`new Array<Foo>()`).
+
+<Tabs>
+<TabItem value="❌ Incorrect">
+
+```ts
+Array(0, 1, 2);
+new Array(0, 1, 2);
+```
+
+</TabItem>
+<TabItem value="✅ Correct">
+
+```ts
+Array<number>(0, 1, 2);
+new Array<Foo>(x, y, z);
+
+Array(500);
+new Array(someOtherArray.length);
+```
+
+</TabItem>
+</Tabs>
