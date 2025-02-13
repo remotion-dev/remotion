@@ -101,10 +101,10 @@ export const uploadDir = async ({
 					? 'private'
 					: 'public-read';
 
-		const paralellUploads3 = new Upload({
+		const parallelUploadsS3 = new Upload({
 			client,
-			queueSize: 4,
-			partSize: 5 * 1024 * 1024,
+			queueSize: 2,
+			partSize: 40 * 1024 * 1024,
 			params: {
 				Key,
 				Bucket: bucket,
@@ -113,10 +113,10 @@ export const uploadDir = async ({
 				ContentType,
 			},
 		});
-		paralellUploads3.on('httpUploadProgress', (progress) => {
+		parallelUploadsS3.on('httpUploadProgress', (progress) => {
 			progresses[filePath.name] = progress.loaded ?? 0;
 		});
-		const prom = await paralellUploads3.done();
+		const prom = await parallelUploadsS3.done();
 		return prom;
 	};
 
