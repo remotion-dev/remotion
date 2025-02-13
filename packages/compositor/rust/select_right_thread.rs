@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 pub struct OpenStream {
     pub src: String,
     pub last_time: f64,
+    pub duration_in_seconds: Option<f64>,
     pub transparent: bool,
     pub id: usize,
 }
@@ -78,7 +79,11 @@ impl ThreadMap {
                 if stream.transparent != transparent {
                     continue;
                 }
-                if (stream.last_time - time).abs() >= 5.0 {
+                let max_time = match stream.duration_in_seconds {
+                    Some(duration) => duration.min(time),
+                    None => time,
+                };
+                if (stream.last_time - max_time).abs() >= 5.0 {
                     continue;
                 }
                 _print_verbose(&format!(

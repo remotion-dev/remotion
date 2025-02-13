@@ -23,7 +23,7 @@ test('Should get Rust errors in a good way', async () => {
 			'Compositor error: No such file or directory',
 		);
 		expect((err as Error).message).toContain(
-			'remotion::opened_stream::open_stream',
+			'remotion::thread::WorkerThread::run_on_thread',
 		);
 	}
 
@@ -118,7 +118,7 @@ test(
 				'Compositor error: No such file or directory',
 			);
 			expect((err as Error).stack).toContain(
-				'remotion::opened_stream::open_stream',
+				'remotion::thread::WorkerThread::run_on_thread',
 			);
 		}
 

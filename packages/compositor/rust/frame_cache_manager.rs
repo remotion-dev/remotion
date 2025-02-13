@@ -1,5 +1,7 @@
 use std::{collections::HashMap, sync::Mutex};
 
+use ffmpeg_next::Rational;
+
 use crate::{
     cache_references::FRAME_CACHE_REFERENCES,
     errors::ErrorWithBacktrace,
@@ -130,6 +132,19 @@ impl FrameCacheManager {
             .lock()
             .unwrap()
             .set_last_frame(last_frame);
+    }
+    pub fn get_last_timestamp_in_sec(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        time_base: Rational,
+    ) -> Option<f64> {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .get_last_frame_in_second(time_base)
     }
     pub fn set_biggest_frame_as_last_frame(
         &mut self,

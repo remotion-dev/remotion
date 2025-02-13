@@ -150,6 +150,13 @@ impl OpenedVideoManager {
                     / (video.time_base.1 as f64 / video.time_base.0 as f64),
                 id: stream_index,
                 transparent: video.transparent,
+                duration_in_seconds: frame_cache_manager.get_last_timestamp_in_sec(
+                    &video.src,
+                    &video.original_src,
+                    video.transparent,
+                    tone_mapped,
+                    video.time_base,
+                ),
             },
         );
 

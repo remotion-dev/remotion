@@ -43,7 +43,6 @@ pub fn extract_frame(
         Ok(None) => Ok(None),
         Err(err) => return Err(err),
     }?;
-
     if cache_item.is_some() {
         return Ok(frame_cache_manager.get_cache_item_from_id(
             &src,

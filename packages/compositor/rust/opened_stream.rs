@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::Rational;
+use ffmpeg_next:: Rational;
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
@@ -21,6 +21,7 @@ pub struct OpenedStream {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: Option<i64>,
     pub duration_or_zero: i64,
+    pub duration_in_seconds: Option<f64>,
     pub reached_eof: bool,
     pub transparent: bool,
     pub rotation: Rotate,
@@ -485,8 +486,12 @@ pub fn open_stream(
     let stream_index = mut_stream.index();
 
     let duration_or_zero = mut_stream.duration().max(0);
-
+    
     let time_base = mut_stream.time_base();
+    let duration_in_seconds = match duration_or_zero {
+        0 => None,
+        _ => Some(duration_or_zero as f64 * time_base.1 as f64 / time_base.0 as f64)
+    };
     let parameters = mut_stream.parameters();
     let side_data = mut_stream.side_data();
 
@@ -590,6 +595,7 @@ pub fn open_stream(
         input,
         last_position: None,
         duration_or_zero,
+        duration_in_seconds,
         reached_eof: false,
         transparent,
         rotation: rotate,

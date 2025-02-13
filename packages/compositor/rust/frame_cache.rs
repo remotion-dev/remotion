@@ -2,6 +2,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use ffmpeg_next::Rational;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -91,6 +92,22 @@ impl FrameCache {
 
     pub fn set_last_frame(&mut self, id: usize) {
         self.last_frame = Some(id);
+    }
+
+    pub fn get_last_frame_in_second(&mut self, time_base: Rational) -> Option<f64> {
+        match self.last_frame {
+            Some(last_frame_id) => {
+                for i in 0..self.items.len() {
+                    if self.items[i].id == last_frame_id {
+                        let pts = self.items[i].resolved_pts as f64;
+                        let in_seconds = pts / (time_base.1 as f64 / time_base.0 as f64);
+                        return Some(in_seconds);
+                    }
+                }
+                None
+            }
+            None => None,
+        }
     }
 
     pub fn set_biggest_frame_as_last_frame(&mut self) {
