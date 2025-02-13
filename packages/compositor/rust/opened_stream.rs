@@ -276,7 +276,9 @@ impl OpenedStream {
             }
 
             _print_verbose(&format!(
-                "Got packet dts = {:?} pts = {:?} key = {}",
+                "Thread {}, stream {} - got packet, dts = {:?} pts = {:?} key = {}",
+                thread_index,
+                stream_index,
                 packet.dts(),
                 packet.pts(),
                 packet.is_key()

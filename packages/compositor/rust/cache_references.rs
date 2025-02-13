@@ -1,6 +1,9 @@
 use std::sync::Mutex;
 
-use crate::{errors::ErrorWithBacktrace, frame_cache::FrameCacheReference, max_cache_size};
+use crate::{
+    errors::ErrorWithBacktrace, frame_cache::FrameCacheReference, global_printer::_print_verbose,
+    max_cache_size,
+};
 use lazy_static::lazy_static;
 
 pub struct CacheReferences {
@@ -47,9 +50,15 @@ impl CacheReferences {
             .lock()
             .unwrap()
             .get_current_cache_size();
-        let bytes_to_free =
-            (current_cache_size_in_bytes - maximum_frame_cache_size_in_bytes).max(0);
+        let bytes_to_free = match current_cache_size_in_bytes > maximum_frame_cache_size_in_bytes {
+            true => current_cache_size_in_bytes - maximum_frame_cache_size_in_bytes,
+            false => {
+                return Ok(Vec::new());
+            }
+        };
+
         let mut removed = 0;
+        let mut removed_count = 0;
 
         let mut to_remove: Vec<Vec<FrameCacheReference>> = vec![Vec::new(); self.map.len()];
 
@@ -60,11 +69,19 @@ impl CacheReferences {
                 continue;
             }
             removed += removal.size;
+            removed_count += 1;
             to_remove[removal.thread_index].push(removal.clone());
             if removed >= bytes_to_free {
                 break;
             }
         }
+
+        _print_verbose(&format!(
+            "Need to free {}MB, Selected {} frames ({}MB) for removal",
+            bytes_to_free / 1024 / 1024,
+            removed_count,
+            removed / 1024 / 1024
+        ))?;
 
         Ok(to_remove)
     }

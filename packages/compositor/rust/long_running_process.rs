@@ -162,8 +162,14 @@ impl LongRunningProcess {
         Ok(())
     }
 
-    fn free_up_memory_command(&mut self, opts: FreeUpMemory) -> Result<(), ErrorWithBacktrace> {
+    fn free_up_memory_command(
+        &mut self,
+        opts: FreeUpMemory,
+        nonce: String,
+    ) -> Result<(), ErrorWithBacktrace> {
         self.prune(opts.remaining_bytes)?;
+        global_printer::synchronized_write_buf(0, &nonce, format!("Done").as_bytes())?;
+
         Ok(())
     }
 
@@ -232,7 +238,9 @@ impl LongRunningProcess {
             CliInputCommandPayload::GetOpenVideoStats(_) => {
                 self.get_open_video_stats_command(opts, nonce.clone())
             }
-            CliInputCommandPayload::FreeUpMemory(payload) => self.free_up_memory_command(payload),
+            CliInputCommandPayload::FreeUpMemory(payload) => {
+                self.free_up_memory_command(payload, nonce.clone())
+            }
             CliInputCommandPayload::CloseAllVideos(_) => {
                 self.close_all_videos_command(opts, nonce.clone())
             }
