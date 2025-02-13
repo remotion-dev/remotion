@@ -11,6 +11,7 @@ use crate::{
     errors::ErrorWithBacktrace,
     global_printer::_print_verbose,
     image::get_png_data,
+    max_cache_size,
     tone_map::{make_tone_map_filtergraph, FilterGraph},
 };
 
@@ -30,7 +31,7 @@ pub struct NotRgbFrame {
     pub rotate: Rotate,
     pub original_src: String,
     pub unscaled_frame: Video,
-    pub size: u128,
+    pub size: u64,
     pub tone_mapped: bool,
     pub filter_graph: FilterGraph,
     pub colorspace: color::Space,
@@ -70,6 +71,8 @@ impl ScalableFrame {
         if self.rgb_frame.is_some() {
             return Ok(());
         }
+
+        let size_before = self.get_size();
 
         match &self.native_frame {
             None => Err(ErrorWithBacktrace::from(std::io::Error::new(
@@ -124,6 +127,18 @@ impl ScalableFrame {
                     scale_and_make_bitmap(&frame, planes, format, linesize, self.transparent)?;
                 self.rgb_frame = Some(RgbFrame { data: bitmap });
                 self.native_frame = None;
+                let size_after = self.get_size();
+                if size_after > size_before {
+                    max_cache_size::get_instance()
+                        .lock()
+                        .unwrap()
+                        .add_to_current_cache_size((size_after - size_before) as i128);
+                } else {
+                    max_cache_size::get_instance()
+                        .lock()
+                        .unwrap()
+                        .remove_from_cache_size((size_before - size_after) as i128);
+                }
                 Ok(())
             }
         }
@@ -139,12 +154,12 @@ impl ScalableFrame {
         }
     }
 
-    pub fn get_size(&self) -> u128 {
-        let mut size: u128 = 0;
+    pub fn get_size(&self) -> u64 {
+        let mut size: u64 = 0;
         match self.rgb_frame {
             None => {}
             Some(ref frame) => {
-                size += frame.data.len() as u128;
+                size += frame.data.len() as u64;
             }
         }
         match self.native_frame {

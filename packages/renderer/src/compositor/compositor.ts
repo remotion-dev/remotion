@@ -1,11 +1,9 @@
 import {makeStreamer} from '@remotion/streaming';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
-import {resolveConcurrency} from '../get-concurrency';
 import type {LogLevel} from '../log-level';
 import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
-import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeFileExecutableIfItIsNot} from './make-file-executable';
 import {makeNonce} from './make-nonce';
@@ -14,6 +12,7 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
+import {serializeCommand} from './serialize-command';
 
 export type Compositor = {
 	finishCommands: () => Promise<void>;
@@ -35,16 +34,18 @@ export const startLongRunningCompositor = ({
 	logLevel,
 	indent,
 	binariesDirectory,
+	extraThreads,
 }: {
 	maximumFrameCacheItemsInBytes: number | null;
 	logLevel: LogLevel;
 	indent: boolean;
 	binariesDirectory: string | null;
+	extraThreads: number;
 }) => {
 	return startCompositor({
 		type: 'StartLongRunningProcess',
 		payload: {
-			concurrency: resolveConcurrency(null),
+			concurrency: extraThreads,
 			maximum_frame_cache_size_in_bytes: maximumFrameCacheItemsInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
@@ -180,7 +181,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 			const error =
 				code === null
 					? new Error(`Compositor exited with signal ${signal}`)
-					: new Error(`Compositor panicked with code ${code}: ${errorMessage}`);
+					: new Error(`Compositor exited with code ${code}: ${errorMessage}`);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}

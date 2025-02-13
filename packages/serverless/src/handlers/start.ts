@@ -122,6 +122,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 		metadata: params.metadata,
 		apiKey: params.apiKey,
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	};
 
 	await providerSpecifics.callFunctionAsync({

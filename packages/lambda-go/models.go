@@ -37,6 +37,7 @@ type RemotionOptions struct {
 	Webhook                        interface{}            `json:"webhook"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
 	ApiKey                         interface{}            `json:"apiKey"`
 	BucketName                     interface{}            `json:"bucketName"`
@@ -86,6 +87,7 @@ type renderInternalOptions struct {
 	EncodingMaxRate                interface{}            `json:"encodingMaxRate"`
 	Webhook                        interface{}            `json:"webhook"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
 	ApiKey                         interface{}            `json:"apiKey"`

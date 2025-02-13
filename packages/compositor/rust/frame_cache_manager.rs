@@ -1,111 +1,166 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex, RwLock},
-};
+use std::{collections::HashMap, sync::Mutex};
+
+use ffmpeg_next::Rational;
 
 use crate::{
+    cache_references::FRAME_CACHE_REFERENCES,
     errors::ErrorWithBacktrace,
-    frame_cache::{FrameCache, FrameCacheReference},
+    frame_cache::{FrameCache, FrameCacheItem, FrameCacheReference},
     global_printer::_print_verbose,
+    max_cache_size,
 };
-use lazy_static::lazy_static;
 
 pub struct FrameCacheAndOriginalSource {
-    transparent_tone_mapped: Arc<Mutex<FrameCache>>,
-    opaque_tone_mapped: Arc<Mutex<FrameCache>>,
-    transparent_original: Arc<Mutex<FrameCache>>,
-    opaque_original: Arc<Mutex<FrameCache>>,
+    transparent_tone_mapped: Mutex<FrameCache>,
+    opaque_tone_mapped: Mutex<FrameCache>,
+    transparent_original: Mutex<FrameCache>,
+    opaque_original: Mutex<FrameCache>,
     original_src: String,
 }
 
 pub struct FrameCacheManager {
-    cache: RwLock<HashMap<String, FrameCacheAndOriginalSource>>,
+    cache: HashMap<String, FrameCacheAndOriginalSource>,
+    thread_index: usize,
 }
 
 impl FrameCacheManager {
-    pub fn get_instance() -> &'static FrameCacheManager {
-        lazy_static! {
-            static ref INSTANCE: FrameCacheManager = make_frame_cache_manager().unwrap();
-        }
-        &INSTANCE
-    }
-
     fn frame_cache_exists(&self, src: &str) -> bool {
-        self.cache.read().unwrap().contains_key(src)
+        self.cache.contains_key(src)
     }
 
-    pub fn remove_frame_cache(&self, src: &str) {
-        self.cache.write().unwrap().remove(src);
+    pub fn remove_frame_cache(&mut self, src: &str) {
+        self.cache.remove(src);
     }
 
-    fn add_frame_cache(&self, src: &str, original_src: &str) {
+    pub fn remove_all(&mut self) {
+        self.cache.clear();
+    }
+
+    pub fn get_to_prune_local(
+        &mut self,
+        max_cache_size: u64,
+    ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let to_prune = {
+            FRAME_CACHE_REFERENCES
+                .lock()
+                .unwrap()
+                .get_frames_to_prune(max_cache_size, Some(self.thread_index))?
+        };
+        let of_thread: Vec<FrameCacheReference> = to_prune[self.thread_index].clone();
+        Ok(of_thread)
+    }
+
+    pub fn prune_on_thread(&mut self, max_cache_size: u64) -> Result<(), ErrorWithBacktrace> {
+        let of_thread = self.get_to_prune_local(max_cache_size)?;
+        self.execute_prune(of_thread, self.thread_index)?;
+        Ok(())
+    }
+
+    fn add_frame_cache(&mut self, src: &str, original_src: &str) {
         let frame_cache_and_original_src = FrameCacheAndOriginalSource {
-            transparent_original: Arc::new(Mutex::new(FrameCache::new())),
-            transparent_tone_mapped: Arc::new(Mutex::new(FrameCache::new())),
-            opaque_original: Arc::new(Mutex::new(FrameCache::new())),
-            opaque_tone_mapped: Arc::new(Mutex::new(FrameCache::new())),
+            transparent_original: Mutex::new(FrameCache::new()),
+            transparent_tone_mapped: Mutex::new(FrameCache::new()),
+            opaque_original: Mutex::new(FrameCache::new()),
+            opaque_tone_mapped: Mutex::new(FrameCache::new()),
             original_src: original_src.to_string(),
         };
 
         self.cache
-            .write()
-            .unwrap()
             .insert(src.to_string(), frame_cache_and_original_src);
     }
 
     pub fn get_frame_cache(
-        &self,
+        &mut self,
         src: &str,
         original_src: &str,
         transparent: bool,
         tone_mapped: bool,
-    ) -> Arc<Mutex<FrameCache>> {
+    ) -> &Mutex<FrameCache> {
         if !self.frame_cache_exists(src) {
             self.add_frame_cache(src, original_src);
         }
 
         match transparent {
             true => match tone_mapped {
-                true => self
-                    .cache
-                    .read()
-                    .unwrap()
-                    .get(src)
-                    .unwrap()
-                    .transparent_tone_mapped
-                    .clone(),
-                false => self
-                    .cache
-                    .read()
-                    .unwrap()
-                    .get(src)
-                    .unwrap()
-                    .transparent_original
-                    .clone(),
+                true => &self.cache.get(src).unwrap().transparent_tone_mapped,
+                false => &self.cache.get(src).unwrap().transparent_original,
             },
             false => match tone_mapped {
-                true => self
-                    .cache
-                    .read()
-                    .unwrap()
-                    .get(src)
-                    .unwrap()
-                    .opaque_tone_mapped
-                    .clone(),
-                false => self
-                    .cache
-                    .read()
-                    .unwrap()
-                    .get(src)
-                    .unwrap()
-                    .opaque_original
-                    .clone(),
+                true => &self.cache.get(src).unwrap().opaque_tone_mapped,
+                false => &self.cache.get(src).unwrap().opaque_original,
             },
         }
     }
 
+    pub fn add_to_cache(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        item: FrameCacheItem,
+    ) {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .add_item(item)
+    }
+
+    pub fn get_item_from_id(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        frame_id: usize,
+    ) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .get_item_from_id(frame_id)
+    }
+
+    pub fn set_last_frame(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        last_frame: usize,
+    ) {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .set_last_frame(last_frame);
+    }
+    pub fn get_last_timestamp_in_sec(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        time_base: Rational,
+    ) -> Option<f64> {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .get_last_frame_in_second(time_base)
+    }
+    pub fn set_biggest_frame_as_last_frame(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+    ) {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .set_biggest_frame_as_last_frame();
+    }
+
     pub fn get_cache_item_id(
-        &self,
+        &mut self,
         src: &str,
         original_src: &str,
         transparent: bool,
@@ -120,7 +175,7 @@ impl FrameCacheManager {
     }
 
     pub fn get_cache_item_from_id(
-        &self,
+        &mut self,
         src: &str,
         original_src: &str,
         transparent: bool,
@@ -137,31 +192,34 @@ impl FrameCacheManager {
         }
     }
 
-    pub fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
-        let mut vec: Vec<FrameCacheReference> = Vec::new();
-        // 0..2 loops twice, not 0..1
-        let keys = self
-            .cache
-            .read()
-            .unwrap()
-            .keys()
-            .cloned()
-            .collect::<Vec<String>>();
+    pub fn is_empty(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+    ) -> Result<bool, ErrorWithBacktrace> {
+        let res = self
+            .get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()?
+            .is_empty();
+        Ok(res)
+    }
 
+    pub fn get_frame_references(&mut self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let mut vec: Vec<FrameCacheReference> = Vec::new();
+        let keys = self.cache.keys().cloned().collect::<Vec<String>>();
+
+        let thread_index = self.thread_index;
+
+        // 0..2 loops twice, not 0..1
         for i in 0..4 {
             let transparent = i == 0 || i == 2;
             let tone_mapped = i == 0 || i == 1;
 
             for key in keys.clone() {
                 let src = key.clone();
-                let original_src = self
-                    .cache
-                    .read()
-                    .unwrap()
-                    .get(&src)
-                    .unwrap()
-                    .original_src
-                    .clone();
+                let original_src = self.cache.get(&src).unwrap().original_src.clone();
                 let lock = self.get_frame_cache(&src, &original_src, transparent, tone_mapped);
                 let frame_cache = lock.lock()?;
 
@@ -170,6 +228,7 @@ impl FrameCacheManager {
                     original_src.to_string(),
                     transparent,
                     tone_mapped,
+                    thread_index,
                 )?;
                 for reference in references {
                     vec.push(reference);
@@ -180,16 +239,10 @@ impl FrameCacheManager {
         return Ok(vec);
     }
 
-    fn get_total_size(&self) -> Result<u128, ErrorWithBacktrace> {
+    fn get_total_size(&mut self) -> Result<u64, ErrorWithBacktrace> {
         let mut total_size = 0;
 
-        let keys = self
-            .cache
-            .read()
-            .unwrap()
-            .keys()
-            .cloned()
-            .collect::<Vec<String>>();
+        let keys = self.cache.keys().cloned().collect::<Vec<String>>();
 
         for i in 0..4 {
             let transparent = i == 0 || i == 2;
@@ -198,82 +251,74 @@ impl FrameCacheManager {
             for key in keys.clone() {
                 let src = key.clone();
 
-                let original_src = self
-                    .cache
-                    .read()
-                    .unwrap()
-                    .get(&src)
-                    .unwrap()
-                    .original_src
-                    .clone();
+                let original_src = self.cache.get(&src).unwrap().original_src.clone();
                 let lock = self.get_frame_cache(&src, &original_src, transparent, tone_mapped);
                 let frame_cache = lock.lock()?;
-                total_size += frame_cache.get_size_in_bytes();
+                total_size += frame_cache.get_local_size_in_bytes();
             }
         }
 
         return Ok(total_size);
     }
 
-    pub fn prune(&self, maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
-        let references = FrameCacheManager::get_instance().get_frame_references()?;
-        let mut sorted = references.clone();
-        sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
-
-        let mut pruned = 0;
-        for removal in sorted {
-            let current_cache_size_in_bytes = self.get_total_size()?;
-            if current_cache_size_in_bytes < maximum_frame_cache_size_in_bytes {
-                break;
-            }
-            {
-                self.get_frame_cache(
-                    &removal.src,
-                    &removal.original_src,
-                    removal.transparent,
-                    removal.tone_mapped,
-                )
-                .lock()?
-                .remove_item_by_id(removal.id)?;
-
-                pruned += 1;
-            }
-        }
-
-        if pruned > 0 {
-            _print_verbose(&format!(
-                "Pruned {} to save memory, keeping {}. Total cache size: {}MB",
-                pruned,
-                self.get_frames_in_cache()?,
-                self.get_total_size()? / 1024 / 1024
-            ))?;
-        }
-
+    pub fn copy_to_global(&mut self) -> Result<(), ErrorWithBacktrace> {
+        FRAME_CACHE_REFERENCES
+            .lock()
+            .unwrap()
+            .set_cache_references(self.thread_index, self.get_frame_references()?);
         Ok(())
     }
 
-    pub fn prune_oldest(
-        &self,
-        maximum_frame_cache_size_in_bytes: u128,
+    fn remove_item_by_id(
+        &mut self,
+        removal: FrameCacheReference,
     ) -> Result<(), ErrorWithBacktrace> {
-        self.prune(maximum_frame_cache_size_in_bytes)
+        self.get_frame_cache(
+            &removal.src,
+            &removal.original_src,
+            removal.transparent,
+            removal.tone_mapped,
+        )
+        .lock()?
+        .remove_item_by_id(removal.id)?;
+        Ok(())
     }
 
-    // Should be called if system is about to run out of memory
-    pub fn halfen_cache_size(&self) -> Result<(), ErrorWithBacktrace> {
-        let current_cache_size = self.get_total_size()?;
-        self.prune(current_cache_size / 2)
+    pub fn execute_prune(
+        &mut self,
+        to_prune: Vec<FrameCacheReference>,
+        thread_index: usize,
+    ) -> Result<(), ErrorWithBacktrace> {
+        let mut pruned = 0;
+        for removal in to_prune {
+            self.remove_item_by_id(removal)?;
+            pruned += 1;
+        }
+        if pruned > 0 {
+            _print_verbose(&format!(
+                "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
+                pruned,
+                thread_index,
+                self.get_frames_in_cache()?,
+                self.get_total_size()? / 1024 / 1024,
+                max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
+            ))?;
+        }
+        Ok(())
     }
 
-    pub fn get_frames_in_cache(&self) -> Result<usize, ErrorWithBacktrace> {
+    pub fn get_frames_in_cache(&mut self) -> Result<usize, ErrorWithBacktrace> {
         let references = self.get_frame_references()?;
 
         return Ok(references.len());
     }
 }
 
-pub fn make_frame_cache_manager() -> Result<FrameCacheManager, ErrorWithBacktrace> {
+pub fn make_frame_cache_manager(
+    thread_index: usize,
+) -> Result<FrameCacheManager, ErrorWithBacktrace> {
     Ok(FrameCacheManager {
-        cache: RwLock::new(HashMap::new()),
+        cache: HashMap::new(),
+        thread_index,
     })
 }

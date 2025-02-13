@@ -10,6 +10,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import type {RemotionServer} from './prepare-server';
@@ -164,6 +165,7 @@ const internalGetCompositionsRaw = async ({
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
+	offthreadVideoThreads,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -196,7 +198,9 @@ const internalGetCompositionsRaw = async ({
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads:
+					offthreadVideoThreads ??
+					DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
@@ -228,6 +232,7 @@ const internalGetCompositionsRaw = async ({
 					binariesDirectory,
 					onBrowserDownload,
 					chromeMode,
+					offthreadVideoThreads,
 				});
 			})
 
@@ -277,6 +282,7 @@ export const getCompositions = (
 		binariesDirectory,
 		offthreadVideoCacheSizeInBytes,
 		chromeMode,
+		offthreadVideoThreads,
 	} = config ?? {};
 
 	const indent = false;
@@ -310,5 +316,6 @@ export const getCompositions = (
 				api: 'getCompositions()',
 			}),
 		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

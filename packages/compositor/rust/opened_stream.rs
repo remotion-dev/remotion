@@ -1,19 +1,12 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::Rational;
+use ffmpeg_next:: Rational;
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
 use crate::{
-    errors::ErrorWithBacktrace,
-    ffmpeg,
-    frame_cache::{get_frame_cache_id, FrameCacheItem},
-    frame_cache_manager::FrameCacheManager,
-    global_printer::_print_verbose,
-    rotation,
-    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
-    tone_map::FilterGraph,
+    errors::ErrorWithBacktrace, frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose, rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
 };
 
 pub struct OpenedStream {
@@ -28,10 +21,13 @@ pub struct OpenedStream {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: Option<i64>,
     pub duration_or_zero: i64,
+    pub duration_in_seconds: Option<f64>,
     pub reached_eof: bool,
     pub transparent: bool,
     pub rotation: Rotate,
     pub filter_graph: FilterGraph,
+    pub time_base: Rational,
+    pub fps: Rational
 }
 
 #[derive(Clone, Copy)]
@@ -80,6 +76,7 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
         tone_mapped: bool,
+        frame_cache_manager: &mut FrameCacheManager,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -94,11 +91,11 @@ impl OpenedStream {
                 Ok(Some(video)) => {
                     let frame_cache_id = get_frame_cache_id();
 
-                    let mut size: u128 = 0;
+                    let mut size: u64 = 0;
 
                     let amount_of_planes = video.planes();
                     for i in 0..amount_of_planes {
-                        size += video.data(i).len() as u128;
+                        size += video.data(i).len() as u64;
                     }
 
                     let frame = NotRgbFrame {
@@ -128,19 +125,20 @@ impl OpenedStream {
                     };
 
                     looped_pts = video.pts();
-                    FrameCacheManager::get_instance()
-                        .get_frame_cache(
+                    frame_cache_manager
+                        .add_to_cache(
                             &self.src,
                             &self.original_src,
                             self.transparent,
                             tone_mapped,
-                        )
-                        .lock()?
-                        .add_item(item);
+                            item
+                        );
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
                     });
+                    frame_cache_manager.copy_to_global().unwrap();
+
                 }
                 Ok(None) => {
                     if self.reached_eof {
@@ -157,13 +155,16 @@ impl OpenedStream {
 
     pub fn get_frame(
         &mut self,
+        stream_index: usize,
         time: f64,
         target_position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
-        maximum_frame_cache_size_in_bytes: Option<u128>,
         tone_mapped: bool,
+        frame_cache_manager: &mut FrameCacheManager,
+        thread_index: usize,
+        max_cache_size: u64
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let position_to_seek_to = match self.duration_or_zero {
@@ -241,28 +242,26 @@ impl OpenedStream {
                             false => Some(self.last_position.unwrap()),
                         },
                         tone_mapped,
+                        frame_cache_manager
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
-                        FrameCacheManager::get_instance()
-                            .get_frame_cache(
+                     frame_cache_manager
+                            .set_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .set_last_frame(last_frame_received.unwrap().index);
+                                last_frame_received.unwrap().index
+                            );
                     } else {
-                        FrameCacheManager::get_instance()
-                            .get_frame_cache(
+                        frame_cache_manager
+                            .set_biggest_frame_as_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .set_biggest_frame_as_last_frame();
+                            );
                     }
 
                     break;
@@ -279,7 +278,9 @@ impl OpenedStream {
             }
 
             _print_verbose(&format!(
-                "Got packet dts = {:?} pts = {:?} key = {}",
+                "Thread {}, stream {} - got packet, dts = {:?} pts = {:?} key = {}",
+                thread_index,
+                stream_index,
                 packet.dts(),
                 packet.pts(),
                 packet.is_key()
@@ -325,15 +326,15 @@ impl OpenedStream {
 
                 match result {
                     Ok(Some(unfiltered)) => {
-                        _print_verbose(&format!("received frame {}", tone_mapped))?;
+                        _print_verbose(&format!("Thread {}, stream {} - received frame, tone_mapped = {}", thread_index, stream_index, tone_mapped))?;
 
                         let frame_cache_id = get_frame_cache_id();
 
-                        let mut size: u128 = 0;
+                        let mut size: u64 = 0;
 
                         let amount_of_planes = unfiltered.planes();
                         for i in 0..amount_of_planes {
-                            size += unfiltered.data(i).len() as u128;
+                            size += unfiltered.data(i).len() as u64;
                         }
 
                         let frame = NotRgbFrame {
@@ -366,27 +367,21 @@ impl OpenedStream {
 
                         self.last_position = Some(unfiltered.pts().expect("expected pts"));
                         freshly_seeked = false;
-                        FrameCacheManager::get_instance()
-                            .get_frame_cache(
+                       frame_cache_manager
+                            .add_to_cache(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .add_item(item);
+                                item
+                            );
+
+                        frame_cache_manager.copy_to_global().unwrap();
 
                         items_in_loop += 1;
-
-
                         
                         if items_in_loop % 10 == 0 {
-                            match maximum_frame_cache_size_in_bytes {
-                                Some(cache_size) => {
-                                    ffmpeg::keep_only_latest_frames(cache_size)?;
-                                }
-                                None => {}
-                            }
+                            frame_cache_manager.prune_on_thread(max_cache_size)?;                            
                         }
 
                         match stop_after_n_diverging_pts {
@@ -424,10 +419,8 @@ impl OpenedStream {
             }
         }
 
-        let final_frame = FrameCacheManager::get_instance()
-            .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
-            .lock()?
-            .get_item_id(target_position, threshold)?;
+        let final_frame = frame_cache_manager
+            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, threshold)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(
@@ -472,7 +465,7 @@ pub fn open_stream(
     src: &str,
     original_src: &str,
     transparent: bool,
-) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
+) -> Result<OpenedStream, ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
@@ -493,8 +486,12 @@ pub fn open_stream(
     let stream_index = mut_stream.index();
 
     let duration_or_zero = mut_stream.duration().max(0);
-
+    
     let time_base = mut_stream.time_base();
+    let duration_in_seconds = match duration_or_zero {
+        0 => None,
+        _ => Some(duration_or_zero as f64 * time_base.1 as f64 / time_base.0 as f64)
+    };
     let parameters = mut_stream.parameters();
     let side_data = mut_stream.side_data();
 
@@ -598,12 +595,15 @@ pub fn open_stream(
         input,
         last_position: None,
         duration_or_zero,
+        duration_in_seconds,
         reached_eof: false,
         transparent,
         rotation: rotate,
         original_src: original_src.to_string(),
         filter_graph,
+        fps,
+        time_base
     };
 
-    Ok((opened_stream, fps, time_base))
+    Ok(opened_stream)
 }

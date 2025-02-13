@@ -106,6 +106,7 @@ test('Render Media payload', async () => {
 			muted: false,
 			numberOfGifLoops: 0,
 			offthreadVideoCacheSizeInBytes: null,
+			offthreadVideoThreads: null,
 			outName: null,
 			overwrite: false,
 			pixelFormat: undefined,
@@ -176,6 +177,7 @@ test('Render Still payload', async () => {
 			quality: undefined,
 			forcePathStyle: false,
 			apiKey: null,
+			offthreadVideoThreads: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});

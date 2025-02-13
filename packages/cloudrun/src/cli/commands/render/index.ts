@@ -19,6 +19,7 @@ const {
 	audioBitrateOption,
 	x264Option,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
@@ -93,6 +94,9 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -132,7 +136,7 @@ export const renderCommand = async (
 		}
 
 		const server = RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -168,6 +172,7 @@ export const renderCommand = async (
 						staticBase: null,
 					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
 				binariesDirectory,
 				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 					indent,

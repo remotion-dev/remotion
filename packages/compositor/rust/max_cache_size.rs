@@ -2,23 +2,25 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 
 pub struct MaxCacheSize {
-    value: Option<u128>,
+    current_cache_size: u64,
 }
 
 impl MaxCacheSize {
     // Private constructor
     fn new() -> Self {
-        MaxCacheSize { value: None }
+        MaxCacheSize {
+            current_cache_size: 0,
+        }
     }
 
-    // Getter for the value
-    pub fn get_value(&self) -> Option<u128> {
-        self.value
+    pub fn add_to_current_cache_size(&mut self, value: i128) {
+        self.current_cache_size += value as u64;
     }
-
-    // Setter for the value
-    pub fn set_value(&mut self, value: Option<u128>) {
-        self.value = value;
+    pub fn remove_from_cache_size(&mut self, value: i128) {
+        self.current_cache_size -= value as u64;
+    }
+    pub fn get_current_cache_size(&self) -> u64 {
+        self.current_cache_size
     }
 }
 

@@ -186,6 +186,7 @@ export const renderMediaSingleThread = async (
 			puppeteerInstance: undefined,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads: body.offthreadVideoThreads,
 			colorSpace: body.colorSpace,
 			repro: false,
 			binariesDirectory: null,
