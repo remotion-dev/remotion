@@ -78,6 +78,8 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		codec,
 		scale: 1,
 		wantsImageSequence: false,
+		indent: options.indent,
+		logLevel: options.logLevel,
 	});
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 

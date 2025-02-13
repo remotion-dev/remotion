@@ -1,4 +1,14 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import type {LogLevel} from './log';
+import {LogLevelContext} from './log-level-context';
+import {playbackLogging} from './playback-logging';
 
 type Block = {
 	id: string;
@@ -26,7 +36,10 @@ type BufferManager = {
 	buffering: React.MutableRefObject<boolean>;
 };
 
-const useBufferManager = (): BufferManager => {
+const useBufferManager = (
+	logLevel: LogLevel,
+	mountTime: number | null,
+): BufferManager => {
 	const [blocks, setBlocks] = useState<Block[]>([]);
 	const [onBufferingCallbacks, setOnBufferingCallbacks] = useState<
 		OnBufferingCallback[]
@@ -82,6 +95,12 @@ const useBufferManager = (): BufferManager => {
 	useEffect(() => {
 		if (blocks.length > 0) {
 			onBufferingCallbacks.forEach((c) => c());
+			playbackLogging({
+				logLevel,
+				message: 'Player is entering buffer state',
+				mountTime,
+				tag: 'player',
+			});
 		}
 
 		// Intentionally only firing when blocks change, not the callbacks
@@ -94,6 +113,12 @@ const useBufferManager = (): BufferManager => {
 	useEffect(() => {
 		if (blocks.length === 0) {
 			onResumeCallbacks.forEach((c) => c());
+			playbackLogging({
+				logLevel,
+				message: 'Player is exiting buffer state',
+				mountTime,
+				tag: 'player',
+			});
 		}
 		// Intentionally only firing when blocks change, not the callbacks
 		// otherwise a resume callback might remove itself after being called
@@ -113,7 +138,8 @@ export const BufferingContextReact = React.createContext<BufferManager | null>(
 export const BufferingProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const bufferManager = useBufferManager();
+	const {logLevel, mountTime} = useContext(LogLevelContext);
+	const bufferManager = useBufferManager(logLevel ?? 'info', mountTime);
 
 	return (
 		<BufferingContextReact.Provider value={bufferManager}>

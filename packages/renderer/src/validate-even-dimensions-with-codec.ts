@@ -1,4 +1,6 @@
 import type {Codec} from './codec';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {truthy} from './truthy';
 
 export const validateEvenDimensionsWithCodec = ({
@@ -7,12 +9,16 @@ export const validateEvenDimensionsWithCodec = ({
 	codec,
 	scale,
 	wantsImageSequence,
+	indent,
+	logLevel,
 }: {
 	width: number;
 	height: number;
 	scale: number;
 	codec: Codec;
 	wantsImageSequence: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
 }) => {
 	if (wantsImageSequence) {
 		return;
@@ -27,8 +33,29 @@ export const validateEvenDimensionsWithCodec = ({
 		return;
 	}
 
-	const actualWidth = width * scale;
-	const actualHeight = height * scale;
+	let actualWidth = width * scale;
+	let actualHeight = height * scale;
+	if (
+		actualWidth % 1 !== 0 &&
+		(actualWidth % 1 < 0.005 || actualWidth % 1 > 0.005)
+	) {
+		Log.verbose(
+			{indent, logLevel},
+			`Rounding width to an even number from ${actualWidth} to ${Math.round(actualWidth)}`,
+		);
+		actualWidth = Math.round(actualWidth);
+	}
+
+	if (
+		actualHeight % 1 !== 0 &&
+		(actualHeight % 1 < 0.005 || actualHeight % 1 > 0.005)
+	) {
+		Log.verbose(
+			{indent, logLevel},
+			`Rounding height to an even number from ${actualHeight} to ${Math.round(actualHeight)}`,
+		);
+		actualHeight = Math.round(actualHeight);
+	}
 
 	const displayName = codec === 'h265' ? 'H265' : 'H264';
 

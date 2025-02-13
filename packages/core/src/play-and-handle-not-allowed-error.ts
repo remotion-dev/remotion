@@ -9,12 +9,14 @@ export const playAndHandleNotAllowedError = ({
 	onAutoPlayError,
 	logLevel,
 	mountTime,
+	reason,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'audio' | 'video';
 	onAutoPlayError: null | (() => void);
 	logLevel: LogLevel;
 	mountTime: number;
+	reason: string;
 }) => {
 	const {current} = mediaRef;
 	if (!current) {
@@ -24,7 +26,7 @@ export const playAndHandleNotAllowedError = ({
 	playbackLogging({
 		logLevel,
 		tag: 'play',
-		message: `Attempting to play ${current.src}`,
+		message: `Attempting to play ${current.src}. Reason: ${reason}`,
 		mountTime,
 	});
 	const prom = current.play();
