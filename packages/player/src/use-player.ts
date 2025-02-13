@@ -94,7 +94,9 @@ export const usePlayer = (): UsePlayerMethods => {
 			 * Play audios and videos directly here so they can benefit from
 			 * being triggered by a click
 			 */
-			audioAndVideoTags.current.forEach((a) => a.play());
+			audioAndVideoTags.current.forEach((a) =>
+				a.play('player play() was called and playing audio from a click'),
+			);
 
 			imperativePlaying.current = true;
 			setPlaying(true);
