@@ -1,7 +1,7 @@
 use crate::frame_cache::FrameCache;
 use crate::opened_stream::OpenedStream;
 use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::{CliInputCommand, ErrorPayload};
+use crate::payloads::payloads::{CliInputAndMaxCacheSize, ErrorPayload};
 use ffmpeg_next as remotionffmpeg;
 use png::EncodingError;
 use std::any::Any;
@@ -47,7 +47,7 @@ enum PossibleErrors {
     WorkerError(Box<dyn Any + Send>),
     EncodingError(EncodingError),
     ThreadPoolBuilderError(rayon_core::ThreadPoolBuildError),
-    SendError(mpsc::SendError<CliInputCommand>),
+    SendError(mpsc::SendError<CliInputAndMaxCacheSize>),
     RecvError(mpsc::RecvError),
 }
 
@@ -128,8 +128,8 @@ impl From<rayon_core::ThreadPoolBuildError> for ErrorWithBacktrace {
     }
 }
 
-impl From<mpsc::SendError<CliInputCommand>> for ErrorWithBacktrace {
-    fn from(err: mpsc::SendError<CliInputCommand>) -> ErrorWithBacktrace {
+impl From<mpsc::SendError<CliInputAndMaxCacheSize>> for ErrorWithBacktrace {
+    fn from(err: mpsc::SendError<CliInputAndMaxCacheSize>) -> ErrorWithBacktrace {
         ErrorWithBacktrace {
             error: PossibleErrors::SendError(err),
             backtrace: Backtrace::force_capture().to_string(),

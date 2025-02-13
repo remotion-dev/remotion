@@ -34,16 +34,22 @@ impl FrameCacheManager {
         self.cache.clear();
     }
 
-    pub fn prune_on_thread(&mut self) -> Result<(), ErrorWithBacktrace> {
-        let to_prune = FRAME_CACHE_REFERENCES.lock().unwrap().get_frames_to_prune(
-            max_cache_size::get_instance()
+    pub fn get_to_prune_local(
+        &mut self,
+        max_cache_size: u64,
+    ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let to_prune = {
+            FRAME_CACHE_REFERENCES
                 .lock()
                 .unwrap()
-                .get_value()
-                .unwrap(),
-            Some(self.thread_index),
-        )?;
-        let of_thread: Vec<FrameCacheReference> = to_prune.get(self.thread_index).unwrap().to_vec();
+                .get_frames_to_prune(max_cache_size, Some(self.thread_index))?
+        };
+        let of_thread: Vec<FrameCacheReference> = to_prune[self.thread_index].clone();
+        Ok(of_thread)
+    }
+
+    pub fn prune_on_thread(&mut self, max_cache_size: u64) -> Result<(), ErrorWithBacktrace> {
+        let of_thread = self.get_to_prune_local(max_cache_size)?;
         self.execute_prune(of_thread, self.thread_index)?;
         Ok(())
     }
@@ -273,14 +279,16 @@ impl FrameCacheManager {
             self.remove_item_by_id(removal)?;
             pruned += 1;
         }
-        _print_verbose(&format!(
-              "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
-              pruned,
-              thread_index,
-              self.get_frames_in_cache()?,
-              self.get_total_size()? / 1024 / 1024,
-              max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
-          ))?;
+        if pruned > 0 {
+            _print_verbose(&format!(
+                "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
+                pruned,
+                thread_index,
+                self.get_frames_in_cache()?,
+                self.get_total_size()? / 1024 / 1024,
+                max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
+            ))?;
+        }
         Ok(())
     }
 

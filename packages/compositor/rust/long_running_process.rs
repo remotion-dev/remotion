@@ -11,11 +11,10 @@ use crate::{
     commands::execute_command_and_print,
     errors::ErrorWithBacktrace,
     global_printer::{self, print_error},
-    max_cache_size,
     memory::is_about_to_run_out_of_memory,
     payloads::payloads::{
-        parse_cli, CliInputCommand, CliInputCommandPayload, DeleteFramesFromCache, Eof,
-        ExtractFrameCommand, FreeUpMemory, OpenVideoStats,
+        parse_cli, CliInputAndMaxCacheSize, CliInputCommand, CliInputCommandPayload,
+        DeleteFramesFromCache, Eof, ExtractFrameCommand, FreeUpMemory, OpenVideoStats,
     },
     select_right_thread::THREAD_MAP,
     thread::WorkerThread,
@@ -23,7 +22,7 @@ use crate::{
 
 pub struct LongRunningProcess {
     maximum_frame_cache_size_in_bytes: u64,
-    send_to_thread_handles: Vec<Sender<CliInputCommand>>,
+    send_to_thread_handles: Vec<Sender<CliInputAndMaxCacheSize>>,
     receive_video_stats_in_main_thread_handles: Vec<mpsc::Receiver<OpenVideoStats>>,
     receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>>,
     finish_thread_handles: Mutex<Vec<JoinHandle<()>>>,
@@ -49,7 +48,7 @@ impl LongRunningProcess {
     }
 
     fn start_thread(&mut self, thread_index: usize) -> JoinHandle<()> {
-        let (send_to_thread, receive_in_thread) = mpsc::channel::<CliInputCommand>();
+        let (send_to_thread, receive_in_thread) = mpsc::channel::<CliInputAndMaxCacheSize>();
         let (send_video_stats_to_main_thread, receive_video_stats_in_main_thread) =
             mpsc::channel::<OpenVideoStats>();
         let (send_close_video_to_main_thread, receive_close_video_in_main_thread) =
@@ -82,11 +81,6 @@ impl LongRunningProcess {
     }
 
     pub fn start(&mut self) -> Result<(), ErrorWithBacktrace> {
-        max_cache_size::get_instance()
-            .lock()
-            .unwrap()
-            .set_value(Some(self.maximum_frame_cache_size_in_bytes));
-
         loop {
             let mut input = String::new();
             let matched = match std::io::stdin().read_line(&mut input) {
@@ -99,9 +93,12 @@ impl LongRunningProcess {
             input = matched.trim().to_string();
             if input == "EOF" {
                 for i in 0..self.send_to_thread_handles.len() {
-                    self.send_to_thread_handles[i].send(CliInputCommand {
-                        payload: CliInputCommandPayload::Eof(Eof {}),
-                        nonce: "".to_string(),
+                    self.send_to_thread_handles[i].send(CliInputAndMaxCacheSize {
+                        cli_input: CliInputCommand {
+                            payload: CliInputCommandPayload::Eof(Eof {}),
+                            nonce: "".to_string(),
+                        },
+                        max_cache_size: self.maximum_frame_cache_size_in_bytes,
                     })?;
                 }
                 break;
@@ -135,7 +132,10 @@ impl LongRunningProcess {
         }
 
         let input_to_send = parse_cli(&input)?;
-        self.send_to_thread_handles[thread_to_use.thread_id].send(input_to_send)?;
+        self.send_to_thread_handles[thread_to_use.thread_id].send(CliInputAndMaxCacheSize {
+            cli_input: input_to_send,
+            max_cache_size: self.maximum_frame_cache_size_in_bytes,
+        })?;
         Ok(())
     }
 
@@ -145,7 +145,10 @@ impl LongRunningProcess {
         nonce: String,
     ) -> Result<(), ErrorWithBacktrace> {
         for handle in &self.send_to_thread_handles {
-            handle.send(opts.clone())?;
+            handle.send(CliInputAndMaxCacheSize {
+                cli_input: opts.clone(),
+                max_cache_size: self.maximum_frame_cache_size_in_bytes,
+            })?;
         }
 
         let mut open_video_stats_all: Vec<OpenVideoStats> = vec![];
@@ -179,7 +182,10 @@ impl LongRunningProcess {
         nonce: String,
     ) -> Result<(), ErrorWithBacktrace> {
         for handle in &self.send_to_thread_handles {
-            handle.send(opts.clone())?;
+            handle.send(CliInputAndMaxCacheSize {
+                cli_input: opts.clone(),
+                max_cache_size: self.maximum_frame_cache_size_in_bytes,
+            })?;
         }
 
         for handle in &self.receive_close_video_in_main_thread_handles {
@@ -200,11 +206,14 @@ impl LongRunningProcess {
                 continue;
             }
             let first_item = thread.get(0).unwrap();
-            self.send_to_thread_handles[first_item.thread_index].send(CliInputCommand {
-                payload: CliInputCommandPayload::DeleteFramesFromCache(DeleteFramesFromCache {
-                    cache_references: thread,
-                }),
-                nonce: "".to_string(),
+            self.send_to_thread_handles[first_item.thread_index].send(CliInputAndMaxCacheSize {
+                cli_input: CliInputCommand {
+                    payload: CliInputCommandPayload::DeleteFramesFromCache(DeleteFramesFromCache {
+                        cache_references: thread,
+                    }),
+                    nonce: "".to_string(),
+                },
+                max_cache_size: self.maximum_frame_cache_size_in_bytes,
             })?;
         }
         Ok(())
@@ -212,10 +221,7 @@ impl LongRunningProcess {
 
     fn emergency_memory_free_up(&mut self) -> Result<(), ErrorWithBacktrace> {
         self.prune(self.maximum_frame_cache_size_in_bytes / 2)?;
-        max_cache_size::get_instance()
-            .lock()
-            .unwrap()
-            .set_value(Some(self.maximum_frame_cache_size_in_bytes / 2));
+        self.maximum_frame_cache_size_in_bytes /= 2;
         Ok(())
     }
     fn keep_only_latest_frames(&mut self) -> Result<(), ErrorWithBacktrace> {
@@ -253,9 +259,7 @@ impl LongRunningProcess {
             print_error(&nonce, _result.err().unwrap())
         }
 
-        let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
-
-        if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
+        if is_about_to_run_out_of_memory() {
             self.emergency_memory_free_up()?;
         }
 

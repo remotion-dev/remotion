@@ -28,6 +28,7 @@ pub fn extract_frame(
     thread_index: usize,
     manager: &mut OpenedVideoManager,
     frame_cache_manager: &mut FrameCacheManager,
+    max_cache_size: u64,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     // Don't allow previous frame, but allow for some flexibility
     let cache_item = match manager.get_position_and_threshold_of_video(time, &src) {
@@ -83,6 +84,7 @@ pub fn extract_frame(
         tone_mapped,
         frame_cache_manager,
         thread_index,
+        max_cache_size,
     )?;
 
     let from_cache = frame_cache_manager.get_item_from_id(

@@ -126,6 +126,7 @@ impl OpenedVideoManager {
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
         thread_index: usize,
+        max_cache_size: u64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let video = self.streams.get_mut(stream_index).unwrap();
         let frame = video.get_frame(
@@ -138,6 +139,7 @@ impl OpenedVideoManager {
             tone_mapped,
             frame_cache_manager,
             thread_index,
+            max_cache_size,
         )?;
         THREAD_MAP.lock().unwrap().update_stream(
             thread_index,

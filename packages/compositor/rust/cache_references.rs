@@ -50,17 +50,17 @@ impl CacheReferences {
             .lock()
             .unwrap()
             .get_current_cache_size();
+        let mut to_remove: Vec<Vec<FrameCacheReference>> = vec![Vec::new(); self.map.len()];
+
         let bytes_to_free = match current_cache_size_in_bytes > maximum_frame_cache_size_in_bytes {
             true => current_cache_size_in_bytes - maximum_frame_cache_size_in_bytes,
             false => {
-                return Ok(Vec::new());
+                return Ok(to_remove);
             }
         };
 
         let mut removed = 0;
         let mut removed_count = 0;
-
-        let mut to_remove: Vec<Vec<FrameCacheReference>> = vec![Vec::new(); self.map.len()];
 
         for removal in sorted {
             if scope_to_thread_index.is_some()

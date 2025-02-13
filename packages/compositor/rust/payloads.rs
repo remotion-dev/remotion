@@ -274,6 +274,12 @@ pub mod payloads {
         pub nonce: String,
     }
 
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct CliInputAndMaxCacheSize {
+        pub cli_input: CliInputCommand,
+        pub max_cache_size: u64,
+    }
+
     pub fn parse_cli(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {
         let cli_input: CliInputCommand = serde_json::from_str(json)?;
 

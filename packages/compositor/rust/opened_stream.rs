@@ -6,7 +6,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
 use crate::{
-    errors::ErrorWithBacktrace,  frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose, rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
+    errors::ErrorWithBacktrace, frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose, rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
 };
 
 pub struct OpenedStream {
@@ -163,6 +163,7 @@ impl OpenedStream {
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
         thread_index: usize,
+        max_cache_size: u64
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let position_to_seek_to = match self.duration_or_zero {
@@ -379,7 +380,7 @@ impl OpenedStream {
                         items_in_loop += 1;
                         
                         if items_in_loop % 10 == 0 {
-                            frame_cache_manager.prune_on_thread()?;                            
+                            frame_cache_manager.prune_on_thread(max_cache_size)?;                            
                         }
 
                         match stop_after_n_diverging_pts {

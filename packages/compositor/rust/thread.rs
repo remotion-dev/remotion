@@ -7,8 +7,8 @@ use crate::{
     global_printer::{self, print_error},
     opened_video_manager::{make_opened_stream_manager, OpenedVideoManager},
     payloads::payloads::{
-        CliInputCommand, CliInputCommandPayload, DeleteFramesFromCache, ExtractFrameCommand,
-        OpenVideoStats,
+        CliInputAndMaxCacheSize, CliInputCommandPayload, DeleteFramesFromCache,
+        ExtractFrameCommand, OpenVideoStats,
     },
 };
 
@@ -17,7 +17,7 @@ pub struct WorkerThread {
     frame_cache_manager: FrameCacheManager,
     opened_video_manager: OpenedVideoManager,
     send_close_video_to_main_thread: Sender<()>,
-    receive_in_thread: Receiver<CliInputCommand>,
+    receive_in_thread: Receiver<CliInputAndMaxCacheSize>,
     send_video_stats_to_main_thread: Sender<OpenVideoStats>,
 }
 
@@ -25,7 +25,7 @@ impl WorkerThread {
     pub fn new(
         thread_index: usize,
         send_close_video_to_main_thread: Sender<()>,
-        receive_in_thread: Receiver<CliInputCommand>,
+        receive_in_thread: Receiver<CliInputAndMaxCacheSize>,
         send_video_stats_to_main_thread: Sender<OpenVideoStats>,
     ) -> Self {
         let frame_cache_manager = make_frame_cache_manager(thread_index).unwrap();
@@ -57,6 +57,7 @@ impl WorkerThread {
         &mut self,
         command: ExtractFrameCommand,
         nonce: String,
+        max_cache_size: u64,
     ) -> Result<(), ErrorWithBacktrace> {
         let res = ffmpeg::extract_frame(
             command.src,
@@ -67,6 +68,7 @@ impl WorkerThread {
             self.thread_index,
             &mut self.opened_video_manager,
             &mut self.frame_cache_manager,
+            max_cache_size,
         )?;
 
         global_printer::synchronized_write_buf(0, &nonce, &res)?;
@@ -105,7 +107,8 @@ impl WorkerThread {
             if _message.is_err() {
                 break;
             }
-            let message = _message.unwrap();
+            let msg = _message.unwrap();
+            let message = msg.cli_input;
 
             match message.payload {
                 CliInputCommandPayload::Eof(_) => {
@@ -117,9 +120,11 @@ impl WorkerThread {
             let res = (|| -> Result<(), ErrorWithBacktrace> {
                 match message.payload {
                     CliInputCommandPayload::CloseAllVideos(_) => self.close_all_videos(),
-                    CliInputCommandPayload::ExtractFrame(command) => {
-                        self.handle_extract_frame(command, message.nonce.clone())
-                    }
+                    CliInputCommandPayload::ExtractFrame(command) => self.handle_extract_frame(
+                        command,
+                        message.nonce.clone(),
+                        msg.max_cache_size,
+                    ),
                     CliInputCommandPayload::GetOpenVideoStats(_) => {
                         self.handle_get_open_video_stats()
                     }
