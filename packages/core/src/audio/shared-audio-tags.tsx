@@ -249,6 +249,7 @@ export const SharedAudioContextProvider: React.FC<{
 				onAutoPlayError: null,
 				logLevel,
 				mountTime,
+				reason: 'playing all audios',
 			});
 		});
 	}, [logLevel, mountTime, refs]);

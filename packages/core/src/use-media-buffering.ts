@@ -59,16 +59,34 @@ export const useMediaBuffering = ({
 		}
 
 		const cleanup = (reason: string) => {
-			cleanupFns.forEach((fn) => fn(reason));
+			let didDoSomething = false;
+			cleanupFns.forEach((fn) => {
+				fn(reason);
+				didDoSomething = true;
+			});
 			cleanupFns = [];
-			setIsBuffering(false);
+			setIsBuffering((previous) => {
+				if (previous) {
+					didDoSomething = true;
+				}
+
+				return false;
+			});
+			if (didDoSomething) {
+				playbackLogging({
+					logLevel,
+					message: `Unmarking as buffering: ${current.src}. Reason: ${reason}`,
+					tag: 'buffer',
+					mountTime,
+				});
+			}
 		};
 
 		const blockMedia = (reason: string) => {
 			setIsBuffering(true);
 			playbackLogging({
 				logLevel,
-				message: `Buffering ${current.src}. Reason: ${reason}`,
+				message: `Marking as buffering: ${current.src}. Reason: ${reason}`,
 				tag: 'buffer',
 				mountTime,
 			});

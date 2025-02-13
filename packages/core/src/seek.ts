@@ -21,7 +21,7 @@ export const seek = ({
 	playbackLogging({
 		logLevel,
 		tag: 'seek',
-		message: `Seeking from ${mediaRef.currentTime} to ${timeToSet}. Reason: ${why}`,
+		message: `Seeking from ${mediaRef.currentTime} to ${timeToSet}. src= ${mediaRef.src} Reason: ${why}`,
 		mountTime,
 	});
 

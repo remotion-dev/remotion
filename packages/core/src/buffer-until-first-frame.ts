@@ -1,4 +1,6 @@
 import {useCallback, useMemo, useRef} from 'react';
+import type {LogLevel} from './log';
+import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
 
 export const useBufferUntilFirstFrame = ({
@@ -6,11 +8,15 @@ export const useBufferUntilFirstFrame = ({
 	mediaType,
 	onVariableFpsVideoDetected,
 	pauseWhenBuffering,
+	logLevel,
+	mountTime,
 }: {
 	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
 	pauseWhenBuffering: boolean;
+	logLevel: LogLevel;
+	mountTime: number | null;
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
@@ -31,11 +37,22 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
+			if (current.readyState >= current.HAVE_ENOUGH_DATA) {
+				return;
+			}
+
 			if (!current.requestVideoFrameCallback) {
 				return;
 			}
 
 			bufferingRef.current = true;
+
+			playbackLogging({
+				logLevel,
+				message: `Buffering ${mediaRef.current?.src} until the first frame is received`,
+				mountTime,
+				tag: 'buffer',
+			});
 
 			const playback = delayPlayback();
 
@@ -75,8 +92,10 @@ export const useBufferUntilFirstFrame = ({
 		},
 		[
 			delayPlayback,
+			logLevel,
 			mediaRef,
 			mediaType,
+			mountTime,
 			onVariableFpsVideoDetected,
 			pauseWhenBuffering,
 		],
