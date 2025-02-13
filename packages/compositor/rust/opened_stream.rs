@@ -125,14 +125,13 @@ impl OpenedStream {
 
                     looped_pts = video.pts();
                     frame_cache_manager
-                        .get_frame_cache(
+                        .add_to_cache(
                             &self.src,
                             &self.original_src,
                             self.transparent,
                             tone_mapped,
-                        )
-                        .lock()?
-                        .add_item(item);
+                            item
+                        );
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
@@ -368,14 +367,13 @@ impl OpenedStream {
                         self.last_position = Some(unfiltered.pts().expect("expected pts"));
                         freshly_seeked = false;
                        frame_cache_manager
-                            .get_frame_cache(
+                            .add_to_cache(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .add_item(item);
+                                item
+                            );
 
                         frame_cache_manager.copy_to_global().unwrap();
 

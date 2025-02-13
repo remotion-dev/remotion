@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Mutex};
 use crate::{
     cache_references::FRAME_CACHE_REFERENCES,
     errors::ErrorWithBacktrace,
-    frame_cache::{FrameCache, FrameCacheReference},
+    frame_cache::{FrameCache, FrameCacheItem, FrameCacheReference},
     global_printer::_print_verbose,
     max_cache_size,
 };
@@ -82,6 +82,20 @@ impl FrameCacheManager {
                 false => &self.cache.get(src).unwrap().opaque_original,
             },
         }
+    }
+
+    pub fn add_to_cache(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        item: FrameCacheItem,
+    ) {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .add_item(item)
     }
 
     pub fn get_cache_item_id(
