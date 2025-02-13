@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Mutex};
 
 use crate::{
+    cache_references::FRAME_CACHE_REFERENCES,
     errors::ErrorWithBacktrace,
     frame_cache::{FrameCache, FrameCacheReference},
     global_printer::_print_verbose,
@@ -17,6 +18,7 @@ pub struct FrameCacheAndOriginalSource {
 
 pub struct FrameCacheManager {
     cache: HashMap<String, FrameCacheAndOriginalSource>,
+    thread_index: usize,
 }
 
 impl FrameCacheManager {
@@ -103,9 +105,11 @@ impl FrameCacheManager {
 
     pub fn get_frame_references(&mut self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut vec: Vec<FrameCacheReference> = Vec::new();
-        // 0..2 loops twice, not 0..1
         let keys = self.cache.keys().cloned().collect::<Vec<String>>();
 
+        let thread_index = self.thread_index;
+
+        // 0..2 loops twice, not 0..1
         for i in 0..4 {
             let transparent = i == 0 || i == 2;
             let tone_mapped = i == 0 || i == 1;
@@ -121,6 +125,7 @@ impl FrameCacheManager {
                     original_src.to_string(),
                     transparent,
                     tone_mapped,
+                    thread_index,
                 )?;
                 for reference in references {
                     vec.push(reference);
@@ -153,56 +158,49 @@ impl FrameCacheManager {
         return Ok(total_size);
     }
 
-    pub fn prune(
-        &mut self,
-        maximum_frame_cache_size_in_bytes: u64,
-        thread_index: usize,
-    ) -> Result<(), ErrorWithBacktrace> {
-        let references = self.get_frame_references()?;
-        let mut sorted = references.clone();
-        sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
-
-        let mut pruned = 0;
-        for removal in sorted {
-            let current_cache_size_in_bytes = max_cache_size::get_instance()
-                .lock()
-                .unwrap()
-                .get_current_cache_size();
-            if current_cache_size_in_bytes < maximum_frame_cache_size_in_bytes {
-                break;
-            }
-            {
-                self.get_frame_cache(
-                    &removal.src,
-                    &removal.original_src,
-                    removal.transparent,
-                    removal.tone_mapped,
-                )
-                .lock()?
-                .remove_item_by_id(removal.id)?;
-
-                pruned += 1;
-            }
-        }
-
-        if pruned > 0 {
-            _print_verbose(&format!(
-                "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
-                pruned,
-                thread_index,
-                self.get_frames_in_cache()?,
-                self.get_total_size()? / 1024 / 1024,
-                max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
-            ))?;
-        }
-
+    // TODO: Should call this somewhere
+    pub fn copy_to_global(&mut self) -> Result<(), ErrorWithBacktrace> {
+        FRAME_CACHE_REFERENCES
+            .lock()
+            .unwrap()
+            .set_cache_references(self.thread_index, self.get_frame_references()?);
         Ok(())
     }
 
-    // Should be called if system is about to run out of memory
-    pub fn halfen_cache_size(&mut self, thread_index: usize) -> Result<(), ErrorWithBacktrace> {
-        let current_cache_size = self.get_total_size()?;
-        self.prune(current_cache_size / 2, thread_index)
+    fn remove_item_by_id(
+        &mut self,
+        removal: FrameCacheReference,
+    ) -> Result<(), ErrorWithBacktrace> {
+        self.get_frame_cache(
+            &removal.src,
+            &removal.original_src,
+            removal.transparent,
+            removal.tone_mapped,
+        )
+        .lock()?
+        .remove_item_by_id(removal.id)?;
+        Ok(())
+    }
+
+    pub fn execute_prune(
+        &mut self,
+        to_prune: Vec<FrameCacheReference>,
+        thread_index: usize,
+    ) -> Result<(), ErrorWithBacktrace> {
+        let mut pruned = 0;
+        for removal in to_prune {
+            self.remove_item_by_id(removal)?;
+            pruned += 1;
+        }
+        _print_verbose(&format!(
+              "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
+              pruned,
+              thread_index,
+              self.get_frames_in_cache()?,
+              self.get_total_size()? / 1024 / 1024,
+              max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
+          ))?;
+        Ok(())
     }
 
     pub fn get_frames_in_cache(&mut self) -> Result<usize, ErrorWithBacktrace> {
@@ -212,8 +210,11 @@ impl FrameCacheManager {
     }
 }
 
-pub fn make_frame_cache_manager() -> Result<FrameCacheManager, ErrorWithBacktrace> {
+pub fn make_frame_cache_manager(
+    thread_index: usize,
+) -> Result<FrameCacheManager, ErrorWithBacktrace> {
     Ok(FrameCacheManager {
         cache: HashMap::new(),
+        thread_index,
     })
 }

@@ -1,3 +1,4 @@
+mod cache_references;
 mod commands;
 mod errors;
 mod extract_audio;

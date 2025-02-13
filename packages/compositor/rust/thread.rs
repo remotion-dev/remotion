@@ -18,7 +18,7 @@ pub fn run_on_thread(
     send_video_stats_to_main_thread: Sender<OpenVideoStats>,
     send_free_to_main_thread: Sender<()>,
 ) -> () {
-    let mut frame_cache_manager = make_frame_cache_manager().unwrap();
+    let mut frame_cache_manager = make_frame_cache_manager(thread_index).unwrap();
     let mut opened_video_manager = make_opened_stream_manager().unwrap();
 
     loop {
