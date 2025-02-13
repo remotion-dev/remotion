@@ -17,29 +17,24 @@ The `ChromaKeyEffect` component allows you to overlay videos with chroma key eff
 ```jsx
 import {ChromaKeyEffect} from '@anksji/remotion-chroma-key-effects';
 
-function MyComposition() {
-  return <ChromaKeyEffect src="your-video-url.mp4" isPlaying={true} isChromaKeyEnabled={true} />;
+function MyImageSequenceComponent() {
+  return (
+    <ChromaKeyEffect
+      src="http://videourl.xyz" //green screen source video url
+      startTimeInSeconds={0} //video start time
+      durationInSeconds={5} //for how much time it should play
+      isChromaKeyEnabled={true} //is needed to use chroma key
+      isPlaying={isPlaying} //for state management play/pause
+      scale={0.8} // Video scale value
+      chromaKeyConfig={{
+        keyColor: [0.0, 1.0, 0.0], // RGB values [0-1]
+        similarity: 0.72, // Color match threshold
+        smoothness: 0.7, // Edge smoothing
+        spill: 0.3, // Color spill reduction
+      }}
+    />
+  );
 }
-```
-
-### Advanced Usage
-
-```jsx
-<ChromaKeyEffect
-  src="http://videourl.xyz"
-  startTimeInSeconds={20}
-  durationInSeconds={5}
-  isPlaying={isPlaying}
-  isChromaKeyEnabled={true}
-  chromaKeyConfig={{
-    keyColor: [0.0, 1.0, 0.0],
-    similarity: 0.72,
-    smoothness: 0.7,
-    spill: 0.3,
-  }}
-  scale={1.2}
-  position={{x: 10, y: 20}}
-/>
 ```
 
 ### Props
