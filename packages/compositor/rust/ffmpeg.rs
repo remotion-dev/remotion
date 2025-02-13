@@ -1,6 +1,5 @@
 use crate::errors::ErrorWithBacktrace;
 use crate::frame_cache_manager::FrameCacheManager;
-use crate::global_printer::_print_verbose;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::OpenVideoStats;
@@ -20,49 +19,12 @@ pub fn get_open_video_stats(
     })
 }
 
-pub fn keep_only_latest_frames(
-    maximum_frame_cache_size_in_bytes: u64,
-    frame_cache_manager: &mut FrameCacheManager,
-    thread_index: usize,
-) -> Result<(), ErrorWithBacktrace> {
-    frame_cache_manager.prune(maximum_frame_cache_size_in_bytes, thread_index)?;
-
-    Ok(())
-}
-pub fn keep_only_latest_frames_and_close_videos(
-    maximum_frame_cache_size_in_bytes: u64,
-    opened_video_manager: &mut OpenedVideoManager,
-    frame_cache_manager: &mut FrameCacheManager,
-    thread_index: usize,
-) -> Result<(), ErrorWithBacktrace> {
-    keep_only_latest_frames(
-        maximum_frame_cache_size_in_bytes,
-        frame_cache_manager,
-        thread_index,
-    )?;
-
-    opened_video_manager.close_videos_if_cache_empty(frame_cache_manager)?;
-
-    Ok(())
-}
-
-pub fn emergency_memory_free_up(
-    frame_cache_manager: &mut FrameCacheManager,
-    thread_index: usize,
-) -> Result<(), ErrorWithBacktrace> {
-    _print_verbose("System is about to run out of memory, freeing up memory.")?;
-    frame_cache_manager.halfen_cache_size(thread_index)?;
-
-    Ok(())
-}
-
 pub fn extract_frame(
     src: String,
     original_src: String,
     time: f64,
     transparent: bool,
     tone_mapped: bool,
-    maximum_frame_cache_size_in_bytes: Option<u64>,
     thread_index: usize,
     manager: &mut OpenedVideoManager,
     frame_cache_manager: &mut FrameCacheManager,
@@ -118,7 +80,6 @@ pub fn extract_frame(
         time_base,
         one_frame_in_time_base,
         threshold,
-        maximum_frame_cache_size_in_bytes,
         tone_mapped,
         frame_cache_manager,
         thread_index,

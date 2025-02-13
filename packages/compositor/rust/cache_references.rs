@@ -37,6 +37,7 @@ impl CacheReferences {
     pub fn get_frames_to_prune(
         &mut self,
         maximum_frame_cache_size_in_bytes: u64,
+        scope_to_thread_index: Option<usize>,
     ) -> Result<Vec<Vec<FrameCacheReference>>, ErrorWithBacktrace> {
         let references = self.get_all_cache_references();
         let mut sorted = references.clone();
@@ -53,6 +54,11 @@ impl CacheReferences {
         let mut to_remove: Vec<Vec<FrameCacheReference>> = vec![Vec::new(); self.map.len()];
 
         for removal in sorted {
+            if scope_to_thread_index.is_some()
+                && removal.thread_index != scope_to_thread_index.unwrap()
+            {
+                continue;
+            }
             removed += removal.size;
             to_remove[removal.thread_index].push(removal.clone());
             if removed >= bytes_to_free {

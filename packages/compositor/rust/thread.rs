@@ -3,118 +3,135 @@ use std::sync::mpsc::{Receiver, Sender};
 use crate::{
     errors::ErrorWithBacktrace,
     ffmpeg,
-    frame_cache_manager::make_frame_cache_manager,
+    frame_cache_manager::{make_frame_cache_manager, FrameCacheManager},
     global_printer::{self, print_error},
-    max_cache_size,
-    memory::is_about_to_run_out_of_memory,
-    opened_video_manager::make_opened_stream_manager,
-    payloads::payloads::{CliInputCommand, CliInputCommandPayload, OpenVideoStats},
+    opened_video_manager::{make_opened_stream_manager, OpenedVideoManager},
+    payloads::payloads::{
+        CliInputCommand, CliInputCommandPayload, DeleteFramesFromCache, ExtractFrameCommand,
+        OpenVideoStats,
+    },
 };
 
-pub fn run_on_thread(
+pub struct WorkerThread {
     thread_index: usize,
+    frame_cache_manager: FrameCacheManager,
+    opened_video_manager: OpenedVideoManager,
     send_close_video_to_main_thread: Sender<()>,
     receive_in_thread: Receiver<CliInputCommand>,
     send_video_stats_to_main_thread: Sender<OpenVideoStats>,
-    send_free_to_main_thread: Sender<()>,
-) -> () {
-    let mut frame_cache_manager = make_frame_cache_manager(thread_index).unwrap();
-    let mut opened_video_manager = make_opened_stream_manager().unwrap();
+}
 
-    loop {
-        let _message = receive_in_thread.recv();
-        if _message.is_err() {
-            break;
+impl WorkerThread {
+    pub fn new(
+        thread_index: usize,
+        send_close_video_to_main_thread: Sender<()>,
+        receive_in_thread: Receiver<CliInputCommand>,
+        send_video_stats_to_main_thread: Sender<OpenVideoStats>,
+    ) -> Self {
+        let frame_cache_manager = make_frame_cache_manager(thread_index).unwrap();
+        let opened_video_manager = make_opened_stream_manager().unwrap();
+
+        WorkerThread {
+            thread_index,
+            frame_cache_manager,
+            opened_video_manager,
+            receive_in_thread,
+            send_close_video_to_main_thread,
+            send_video_stats_to_main_thread,
         }
-        let message = _message.unwrap();
-        let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
+    }
 
-        if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
-            ffmpeg::emergency_memory_free_up(&mut frame_cache_manager, thread_index).unwrap();
-            max_cache_size::get_instance()
-                .lock()
-                .unwrap()
-                .set_value(Some(current_maximum_cache_size.unwrap() / 2));
-        }
+    fn close_all_videos(&mut self) -> Result<(), ErrorWithBacktrace> {
+        self.opened_video_manager
+            .close_all_videos(&mut self.frame_cache_manager)?;
+        self.send_close_video_to_main_thread.send(()).map_err(|e| {
+            ErrorWithBacktrace::from(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("Failed to send close video message: {}", e),
+            ))
+        })?;
+        Ok(())
+    }
 
-        match message.payload {
-            CliInputCommandPayload::Eof(_) => {
+    fn handle_extract_frame(
+        &mut self,
+        command: ExtractFrameCommand,
+        nonce: String,
+    ) -> Result<(), ErrorWithBacktrace> {
+        let res = ffmpeg::extract_frame(
+            command.src,
+            command.original_src,
+            command.time,
+            command.transparent,
+            command.tone_mapped,
+            self.thread_index,
+            &mut self.opened_video_manager,
+            &mut self.frame_cache_manager,
+        )?;
+
+        global_printer::synchronized_write_buf(0, &nonce, &res)?;
+        Ok(())
+    }
+
+    fn handle_get_open_video_stats(&mut self) -> Result<(), ErrorWithBacktrace> {
+        let res = ffmpeg::get_open_video_stats(
+            &mut self.frame_cache_manager,
+            &mut self.opened_video_manager,
+        )?;
+        self.send_video_stats_to_main_thread
+            .send(res.clone())
+            .map_err(|e| {
+                ErrorWithBacktrace::from(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    format!("Failed to send video stats message: {}", e),
+                ))
+            })?;
+        Ok(())
+    }
+
+    fn delete_frames_from_cache(
+        &mut self,
+        cache_references: DeleteFramesFromCache,
+    ) -> Result<(), ErrorWithBacktrace> {
+        self.frame_cache_manager
+            .execute_prune(cache_references.cache_references, self.thread_index)?;
+        self.opened_video_manager
+            .close_videos_if_cache_empty(&mut self.frame_cache_manager)
+    }
+
+    pub fn run_on_thread(&mut self) -> () {
+        loop {
+            let _message = self.receive_in_thread.recv();
+            if _message.is_err() {
                 break;
             }
-            _ => {}
-        };
+            let message = _message.unwrap();
 
-        let res = (|| -> Result<(), ErrorWithBacktrace> {
             match message.payload {
-                CliInputCommandPayload::CloseAllVideos(_) => {
-                    opened_video_manager.close_all_videos(&mut frame_cache_manager)?;
-                    send_close_video_to_main_thread.send(()).map_err(|e| {
-                        ErrorWithBacktrace::from(std::io::Error::new(
-                            std::io::ErrorKind::Other,
-                            format!("Failed to send close video message: {}", e),
-                        ))
-                    })?;
-                    Ok(())
+                CliInputCommandPayload::Eof(_) => {
+                    break;
                 }
-                CliInputCommandPayload::ExtractFrame(command) => {
-                    let res = ffmpeg::extract_frame(
-                        command.src,
-                        command.original_src,
-                        command.time,
-                        command.transparent,
-                        command.tone_mapped,
-                        current_maximum_cache_size,
-                        thread_index,
-                        &mut opened_video_manager,
-                        &mut frame_cache_manager,
-                    )?;
+                _ => {}
+            };
 
-                    global_printer::synchronized_write_buf(0, &message.nonce, &res)?;
-                    if let Some(cache_size) = current_maximum_cache_size {
-                        ffmpeg::keep_only_latest_frames_and_close_videos(
-                            cache_size,
-                            &mut opened_video_manager,
-                            &mut frame_cache_manager,
-                            thread_index,
-                        )?;
+            let res = (|| -> Result<(), ErrorWithBacktrace> {
+                match message.payload {
+                    CliInputCommandPayload::CloseAllVideos(_) => self.close_all_videos(),
+                    CliInputCommandPayload::ExtractFrame(command) => {
+                        self.handle_extract_frame(command, message.nonce.clone())
                     }
-                    Ok(())
+                    CliInputCommandPayload::GetOpenVideoStats(_) => {
+                        self.handle_get_open_video_stats()
+                    }
+                    CliInputCommandPayload::DeleteFramesFromCache(payload) => {
+                        self.delete_frames_from_cache(payload)
+                    }
+                    _ => panic!("Command cannot be executed on thread"),
                 }
-                CliInputCommandPayload::FreeUpMemory(payload) => {
-                    ffmpeg::keep_only_latest_frames_and_close_videos(
-                        payload.remaining_bytes,
-                        &mut opened_video_manager,
-                        &mut frame_cache_manager,
-                        thread_index,
-                    )?;
-                    send_free_to_main_thread.send(()).map_err(|e| {
-                        ErrorWithBacktrace::from(std::io::Error::new(
-                            std::io::ErrorKind::Other,
-                            format!("Failed to send free memory message: {}", e),
-                        ))
-                    })?;
-                    Ok(())
-                }
-                CliInputCommandPayload::GetOpenVideoStats(_) => {
-                    let res = ffmpeg::get_open_video_stats(
-                        &mut frame_cache_manager,
-                        &mut opened_video_manager,
-                    )?;
-                    send_video_stats_to_main_thread
-                        .send(res.clone())
-                        .map_err(|e| {
-                            ErrorWithBacktrace::from(std::io::Error::new(
-                                std::io::ErrorKind::Other,
-                                format!("Failed to send video stats message: {}", e),
-                            ))
-                        })?;
-                    Ok(())
-                }
-                _ => panic!("Command cannot be executed on thread"),
+            })();
+            if res.is_err() {
+                print_error(&message.nonce, res.err().unwrap())
             }
-        })();
-        if res.is_err() {
-            print_error(&message.nonce, res.err().unwrap())
         }
     }
 }

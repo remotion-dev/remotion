@@ -6,7 +6,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
 use crate::{
-    errors::ErrorWithBacktrace, ffmpeg, frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose, rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
+    errors::ErrorWithBacktrace,  frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose, rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
 };
 
 pub struct OpenedStream {
@@ -137,6 +137,8 @@ impl OpenedStream {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
                     });
+                    frame_cache_manager.copy_to_global().unwrap();
+
                 }
                 Ok(None) => {
                     if self.reached_eof {
@@ -159,7 +161,6 @@ impl OpenedStream {
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
-        maximum_frame_cache_size_in_bytes: Option<u64>,
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
         thread_index: usize,
@@ -376,17 +377,12 @@ impl OpenedStream {
                             .lock()?
                             .add_item(item);
 
+                        frame_cache_manager.copy_to_global().unwrap();
+
                         items_in_loop += 1;
-
-
                         
                         if items_in_loop % 10 == 0 {
-                            match maximum_frame_cache_size_in_bytes {
-                                Some(cache_size) => {
-                                    ffmpeg::keep_only_latest_frames(cache_size, frame_cache_manager, thread_index)?;
-                                }
-                                None => {}
-                            }
+                            frame_cache_manager.prune_on_thread()?;                            
                         }
 
                         match stop_after_n_diverging_pts {

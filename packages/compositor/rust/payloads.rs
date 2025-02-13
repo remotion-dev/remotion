@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
-    use crate::errors::ErrorWithBacktrace;
+    use crate::{errors::ErrorWithBacktrace, frame_cache::FrameCacheReference};
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -243,6 +243,11 @@ pub mod payloads {
         pub output_path: String,
     }
 
+    #[derive(Clone, Serialize, Deserialize, Debug)]
+    pub struct DeleteFramesFromCache {
+        pub cache_references: Vec<FrameCacheReference>,
+    }
+
     #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct Eof {}
 
@@ -260,6 +265,7 @@ pub mod payloads {
         GetSilences(GetSilences),
         ExtractAudio(ExtractAudio),
         Eof(Eof),
+        DeleteFramesFromCache(DeleteFramesFromCache),
     }
 
     #[derive(Serialize, Deserialize, Debug, Clone)]

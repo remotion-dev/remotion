@@ -34,6 +34,20 @@ impl FrameCacheManager {
         self.cache.clear();
     }
 
+    pub fn prune_on_thread(&mut self) -> Result<(), ErrorWithBacktrace> {
+        let to_prune = FRAME_CACHE_REFERENCES.lock().unwrap().get_frames_to_prune(
+            max_cache_size::get_instance()
+                .lock()
+                .unwrap()
+                .get_value()
+                .unwrap(),
+            Some(self.thread_index),
+        )?;
+        let of_thread: Vec<FrameCacheReference> = to_prune.get(self.thread_index).unwrap().to_vec();
+        self.execute_prune(of_thread, self.thread_index)?;
+        Ok(())
+    }
+
     fn add_frame_cache(&mut self, src: &str, original_src: &str) {
         let frame_cache_and_original_src = FrameCacheAndOriginalSource {
             transparent_original: Mutex::new(FrameCache::new()),

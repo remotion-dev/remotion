@@ -2,6 +2,8 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     errors::ErrorWithBacktrace,
     global_printer::{_print_debug, _print_verbose},
@@ -29,7 +31,7 @@ pub struct FrameCache {
     pub last_frame: Option<usize>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct FrameCacheReference {
     pub id: usize,
     pub last_used: u128,
