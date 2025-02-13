@@ -1,11 +1,6 @@
-import {RenderInternals} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'bun:test';
-import {mockImplementation} from '../../mock-implementation';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
+import {ServerlessRoutines} from '@remotion/serverless';
+import {expect, test} from 'bun:test';
+import {mockImplementation} from '../../mocks/mock-implementation';
 
 test('Should fail when using an incompatible version', async () => {
 	try {

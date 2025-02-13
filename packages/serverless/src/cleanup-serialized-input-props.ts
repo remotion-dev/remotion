@@ -1,7 +1,9 @@
-import type {SerializedInputProps} from './constants';
-import {inputPropsKey, resolvedPropsKey} from './input-props-keys';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
+import type {
+	CloudProvider,
+	ProviderSpecifics,
+	SerializedInputProps,
+} from '@remotion/serverless-client';
+import {inputPropsKey, resolvedPropsKey} from '@remotion/serverless-client';
 
 export const cleanupSerializedInputProps = async <
 	Provider extends CloudProvider,

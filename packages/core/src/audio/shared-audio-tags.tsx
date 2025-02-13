@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import type {RemotionAudioProps} from './props.js';
 
@@ -237,11 +238,21 @@ export const SharedAudioContextProvider: React.FC<{
 		[rerenderAudios],
 	);
 
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
+
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
-			playAndHandleNotAllowedError(ref.ref, 'audio', null);
+			playAndHandleNotAllowedError({
+				mediaRef: ref.ref,
+				mediaType: 'audio',
+				onAutoPlayError: null,
+				logLevel,
+				mountTime,
+				reason: 'playing all audios',
+			});
 		});
-	}, [refs]);
+	}, [logLevel, mountTime, refs]);
 
 	const value: SharedContext = useMemo(() => {
 		return {

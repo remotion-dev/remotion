@@ -10,10 +10,12 @@ export const seekToTime = ({
 	element,
 	desiredTime,
 	logLevel,
+	mountTime,
 }: {
 	element: HTMLVideoElement;
 	desiredTime: number;
 	logLevel: LogLevel;
+	mountTime: number;
 }) => {
 	if (isApproximatelyTheSame(element.currentTime, desiredTime)) {
 		return {
@@ -27,6 +29,7 @@ export const seekToTime = ({
 		mediaRef: element,
 		time: desiredTime,
 		why: 'Seeking during rendering',
+		mountTime,
 	});
 
 	let cancel: number;
@@ -75,11 +78,13 @@ export const seekToTimeMultipleUntilRight = ({
 	desiredTime,
 	fps,
 	logLevel,
+	mountTime,
 }: {
 	element: HTMLVideoElement;
 	desiredTime: number;
 	fps: number;
 	logLevel: LogLevel;
+	mountTime: number;
 }) => {
 	const threshold = 1 / fps / 2;
 	let currentCancel: () => void = () => undefined;
@@ -100,6 +105,7 @@ export const seekToTimeMultipleUntilRight = ({
 			element,
 			desiredTime: desiredTime + threshold,
 			logLevel,
+			mountTime,
 		});
 		firstSeek.wait.then((seekedTo) => {
 			const difference = Math.abs(desiredTime - seekedTo);
@@ -114,6 +120,7 @@ export const seekToTimeMultipleUntilRight = ({
 				element,
 				desiredTime: seekedTo + threshold * sign,
 				logLevel,
+				mountTime,
 			});
 			currentCancel = newSeek.cancel;
 			newSeek.wait
@@ -128,6 +135,7 @@ export const seekToTimeMultipleUntilRight = ({
 						element,
 						desiredTime: desiredTime + threshold,
 						logLevel,
+						mountTime,
 					});
 					currentCancel = thirdSeek.cancel;
 					return thirdSeek.wait

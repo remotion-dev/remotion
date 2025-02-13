@@ -1,37 +1,15 @@
-import type {LogLevel} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
-import type {PostRenderData} from './constants';
-import {overallProgressKey} from './constants';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {RenderMetadata} from './render-metadata';
+import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import type {
 	ChunkRetry,
 	CloudProvider,
-	ParsedTiming,
+	FunctionErrorInfo,
+	OverallRenderProgress,
+	PostRenderData,
+	ProviderSpecifics,
 	ReceivedArtifact,
-} from './types';
-import type {FunctionErrorInfo} from './write-error-to-storage';
-
-export type OverallRenderProgress<Provider extends CloudProvider> = {
-	chunks: number[];
-	framesRendered: number;
-	framesEncoded: number;
-	combinedFrames: number;
-	timeToCombine: number | null;
-	timeToEncode: number | null;
-	timeToRenderFrames: number | null;
-	lambdasInvoked: number;
-	retries: ChunkRetry[];
-	postRenderData: PostRenderData<Provider> | null;
-	timings: ParsedTiming[];
-	renderMetadata: RenderMetadata<Provider> | null;
-	errors: FunctionErrorInfo[];
-	timeoutTimestamp: number;
-	functionLaunched: number;
-	serveUrlOpened: number | null;
-	compositionValidated: number | null;
-	receivedArtifact: ReceivedArtifact<Provider>[];
-};
+	RenderMetadata,
+} from '@remotion/serverless-client';
+import {overallProgressKey} from '@remotion/serverless-client';
 
 export type OverallProgressHelper<Provider extends CloudProvider> = {
 	upload: () => Promise<void>;

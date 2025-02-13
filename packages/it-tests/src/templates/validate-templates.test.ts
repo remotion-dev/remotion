@@ -87,6 +87,7 @@ describe('Templates should be valid', () => {
 				false,
 			);
 			expect(existsSync(getFileForTemplate(template, 'bun.lockb'))).toBe(false);
+			expect(existsSync(getFileForTemplate(template, 'bun.lock'))).toBe(false);
 		});
 
 		it(`${template.shortName} should have a standard entry point`, async () => {
@@ -95,6 +96,7 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/index.js'),
 				getFileForTemplate(template, 'remotion/index.ts'),
 				getFileForTemplate(template, 'app/remotion/index.ts'),
+				getFileForTemplate(template, 'src/remotion/index.ts'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/RemotionRoot/);
@@ -106,6 +108,8 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/Root.jsx'),
 				getFileForTemplate(template, 'remotion/Root.tsx'),
 				getFileForTemplate(template, 'app/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/export const RemotionRoot/);
@@ -142,7 +146,10 @@ describe('Templates should be valid', () => {
 				expect(contents).not.toInclude('outDir');
 			}
 			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
-			expect(contents).not.toInclude('"incremental": true');
+
+			if (!template.shortName.includes('Next')) {
+				expect(contents).not.toInclude('"incremental": true');
+			}
 		});
 
 		it(`${template.shortName} should use correct prettier`, async () => {

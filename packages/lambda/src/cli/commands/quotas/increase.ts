@@ -4,12 +4,11 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 	RequestServiceQuotaIncreaseCommand,
 } from '@aws-sdk/client-service-quotas';
+import {AwsRegion, LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {exit} from 'node:process';
 import {QUOTAS_COMMAND} from '.';
 import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';
-import {AwsRegion} from '../../../regions';
-import {getServiceQuotasClient} from '../../../shared/aws-clients';
 import {forceFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
@@ -33,19 +32,19 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 
 	const [concurrencyLimit, defaultConcurrencyLimit, changes] =
 		await Promise.all([
-			getServiceQuotasClient(region).send(
+			LambdaClientInternals.getServiceQuotasClient(region).send(
 				new GetServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				}),
 			),
-			getServiceQuotasClient(region).send(
+			LambdaClientInternals.getServiceQuotasClient(region).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				}),
 			),
-			getServiceQuotasClient(region).send(
+			LambdaClientInternals.getServiceQuotasClient(region).send(
 				new ListRequestedServiceQuotaChangeHistoryByQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
@@ -110,7 +109,7 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	}
 
 	try {
-		await getServiceQuotasClient(region).send(
+		await LambdaClientInternals.getServiceQuotasClient(region).send(
 			new RequestServiceQuotaIncreaseCommand({
 				QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 				DesiredValue: newLimit,

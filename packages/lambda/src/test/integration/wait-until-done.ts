@@ -1,6 +1,6 @@
 import {ServerlessRoutines} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {mockImplementation} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 
 export const waitUntilDone = async (bucketName: string, renderId: string) => {
 	while (true) {

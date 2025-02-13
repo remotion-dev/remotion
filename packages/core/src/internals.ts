@@ -23,6 +23,7 @@ import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	editorPropsProviderRef,
+	timeValueRef,
 } from './EditorProps.js';
 import {
 	addSequenceStackTraces,
@@ -36,9 +37,11 @@ import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
 import {NonceContext} from './nonce.js';
+import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -165,11 +168,14 @@ export const Internals = {
 	Log,
 	LogLevelContext,
 	useLogLevel,
+	playbackLogging,
+	timeValueRef,
 } as const;
 
 export type {
 	CompositionManagerContext,
 	CompProps,
+	LoggingContextValue,
 	MediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,

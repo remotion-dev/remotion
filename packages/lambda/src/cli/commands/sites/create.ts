@@ -3,16 +3,13 @@ import {ConfigInternals} from '@remotion/cli/config';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
+import {AwsProvider} from '@remotion/lambda-client';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {
-	internalGetOrCreateBucket,
-	type Privacy,
-} from '@remotion/serverless/client';
+import {internalGetOrCreateBucket, type Privacy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
-import type {AwsProvider} from '../../../functions/aws-implementation';
+import {BINARY_NAME} from '../../../defaults';
 import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
-import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -163,7 +160,11 @@ export const sitesCreateSubcommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
-	const gitSource = CliInternals.getGitSource({remotionRoot, disableGitSource});
+	const gitSource = CliInternals.getGitSource({
+		remotionRoot,
+		disableGitSource,
+		logLevel,
+	});
 
 	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
 		entryPoint: file,

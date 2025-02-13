@@ -3,11 +3,10 @@ import {
 	AddLayerVersionPermissionCommand,
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
+import {LambdaClientInternals, type AwsRegion} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import {getRegions} from '../api/get-regions';
 import {quit} from '../cli/helpers/quit';
-import type {AwsRegion} from '../regions';
-import {getLambdaClient} from '../shared/aws-clients';
 import type {HostedLayers} from '../shared/hosted-layers';
 
 const layerInfo: HostedLayers = {
@@ -54,7 +53,9 @@ const makeLayerPublic = async () => {
 	for (const region of getRegions()) {
 		for (const layer of layers) {
 			const layerName = `remotion-binaries-${layer}-arm64`;
-			const {Version, LayerArn} = await getLambdaClient(region).send(
+			const {Version, LayerArn} = await LambdaClientInternals.getLambdaClient(
+				region,
+			).send(
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: getBucketName(region),
@@ -75,7 +76,7 @@ const makeLayerPublic = async () => {
 					Description: VERSION,
 				}),
 			);
-			await getLambdaClient(region).send(
+			await LambdaClientInternals.getLambdaClient(region).send(
 				new AddLayerVersionPermissionCommand({
 					Action: 'lambda:GetLayerVersion',
 					LayerName: layerName,
@@ -84,8 +85,8 @@ const makeLayerPublic = async () => {
 					StatementId: 'public-layer',
 				}),
 			);
-			if (!layerInfo[region]) {
-				layerInfo[region] = [];
+			if (!layerInfo[region as AwsRegion]) {
+				layerInfo[region as AwsRegion] = [];
 			}
 
 			if (!LayerArn) {

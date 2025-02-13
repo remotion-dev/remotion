@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.257",
+	"version": "4.0.262",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
@@ -42,7 +42,7 @@
 		"@remix-run/dev": "^2.15.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"autoprefixer": "10.4.20",
-		"eslint": "8.57.1",
+		"eslint": "9.19.0",
 		"postcss": "8.4.47",
 		"tailwindcss": "3.4.13",
 		"vite": "^5.4.12",

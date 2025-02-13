@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-internal"
 	},
 	"name": "@remotion/eslint-config-internal",
-	"version": "4.0.257",
+	"version": "4.0.262",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"main": "dist/index.js",
 	"scripts": {
@@ -19,7 +19,7 @@
 	},
 	"private": true,
 	"devDependencies": {
-		"eslint": "9.14.0",
+		"eslint": "9.19.0",
 		"@types/eslint__eslintrc": "2.1.2"
 	},
 	"dependencies": {
@@ -30,7 +30,7 @@
 		"eslint-plugin-react-hooks": "5.0.0",
 		"@eslint/compat": "1.2.2",
 		"@eslint/eslintrc": "3.1.0",
-		"@eslint/js": "9.14.0"
+		"@eslint/js": "9.19.0"
 	},
 	"type": "module",
 	"description": "ESLint condig for Remotion's internal packages"

@@ -5,6 +5,7 @@ import {SequenceManager} from './SequenceManager.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useLogLevel, useMountTime} from './log-level-context.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
@@ -63,6 +64,8 @@ export const useMediaInTimeline = ({
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 
 	const nonce = useNonce();
 
@@ -165,7 +168,7 @@ export const useMediaInTimeline = ({
 	useEffect(() => {
 		const tag: PlayableMediaTag = {
 			id,
-			play: () => {
+			play: (reason) => {
 				if (!imperativePlaying.current) {
 					// Don't play if for example in a <Freeze> state.
 					return;
@@ -175,11 +178,14 @@ export const useMediaInTimeline = ({
 					return;
 				}
 
-				return playAndHandleNotAllowedError(
+				return playAndHandleNotAllowedError({
 					mediaRef,
 					mediaType,
 					onAutoPlayError,
-				);
+					logLevel,
+					mountTime,
+					reason,
+				});
 			},
 		};
 		audioAndVideoTags.current.push(tag);
@@ -197,5 +203,7 @@ export const useMediaInTimeline = ({
 		onAutoPlayError,
 		imperativePlaying,
 		isPremounting,
+		logLevel,
+		mountTime,
 	]);
 };

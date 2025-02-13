@@ -1,11 +1,9 @@
 import {RenderInternals} from '@remotion/renderer';
 import * as Crypto from 'node:crypto';
-import type {AfterRenderCost} from './constants';
 import type {
 	InvokeWebhook,
 	InvokeWebhookOptions,
 } from './provider-implementation';
-import type {EnhancedErrorInfo} from './write-error-to-storage';
 
 export function calculateSignature(payload: string, secret: string | null) {
 	if (!secret) {
@@ -17,120 +15,32 @@ export function calculateSignature(payload: string, secret: string | null) {
 	return signature;
 }
 
-type StaticWebhookPayload = {
-	renderId: string;
-	expectedBucketOwner: string;
-	bucketName: string;
-	customData: Record<string, unknown> | null;
-};
-
-export type WebhookErrorPayload = StaticWebhookPayload & {
-	type: 'error';
-	errors: {
-		message: string;
-		name: string;
-		stack: string;
-	}[];
-};
-
-export type WebhookSuccessPayload = StaticWebhookPayload & {
-	type: 'success';
-	lambdaErrors: EnhancedErrorInfo[];
-	outputUrl: string | undefined;
-	outputFile: string | undefined;
-	timeToFinish: number | undefined;
-	costs: AfterRenderCost;
-};
-
-export type WebhookTimeoutPayload = StaticWebhookPayload & {
-	type: 'timeout';
-};
-
-export type WebhookPayload =
-	| WebhookErrorPayload
-	| WebhookSuccessPayload
-	| WebhookTimeoutPayload;
-
-// Don't handle 304 status code (Not Modified) as a redirect,
-// since the browser will display the right page.
-const redirectStatusCodes = [301, 302, 303, 307, 308];
-
-function invokeWebhookRaw({
+async function invokeWebhookRaw({
 	payload,
 	secret,
 	url,
-	redirectsSoFar,
-	client,
 }: InvokeWebhookOptions): Promise<void> {
 	const jsonPayload = JSON.stringify(payload);
 
-	return new Promise<void>((resolve, reject) => {
-		const req = client(url)(
-			url,
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Content-Length': jsonPayload.length,
-					'X-Remotion-Mode': 'production',
-					'X-Remotion-Signature': calculateSignature(jsonPayload, secret),
-					'X-Remotion-Status': payload.type,
-				},
-				timeout: 5000,
-			},
-			(res) => {
-				if (res.statusCode && res.statusCode > 299) {
-					if (redirectStatusCodes.includes(res.statusCode)) {
-						if (!res.headers.location) {
-							reject(
-								new Error(
-									`Received a status code ${res.statusCode} but no "Location" header while calling ${res.headers.location}`,
-								),
-							);
-							return;
-						}
-
-						if (redirectsSoFar > 10) {
-							reject(new Error(`Too many redirects while downloading ${url}`));
-							return;
-						}
-
-						invokeWebhookRaw({
-							payload,
-							secret,
-							url: res.headers.location,
-							redirectsSoFar: redirectsSoFar + 1,
-							client,
-						})
-							.then(resolve)
-							.catch(reject);
-						return;
-					}
-
-					reject(
-						new Error(
-							`Sent a webhook to ${url} but got a status code of ${res.statusCode} with message '${res.statusMessage}'`,
-						),
-					);
-					return;
-				}
-
-				resolve();
-			},
-		);
-
-		req.write(jsonPayload, (err) => {
-			if (err) {
-				reject(err);
-			} else {
-				req.end();
-			}
-		});
-
-		req.on('error', (err) => {
-			reject(err);
-		});
+	const res = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Content-Length': String(jsonPayload.length),
+			'X-Remotion-Mode': 'production',
+			'X-Remotion-Signature': calculateSignature(jsonPayload, secret),
+			'X-Remotion-Status': payload.type,
+		},
+		body: jsonPayload,
+		signal: AbortSignal.timeout(10_000),
+		redirect: 'follow',
 	});
+
+	if (!res.ok) {
+		throw new Error(
+			`Failed to send webhook to ${url}, got status code ${res.status}`,
+		);
+	}
 }
 
 function exponentialBackoff(errorCount: number): number {

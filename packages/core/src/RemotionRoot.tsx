@@ -9,6 +9,7 @@ import {CompositionManagerProvider} from './CompositionManager.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import {BufferingProvider} from './buffering.js';
 import {continueRender, delayRender} from './delay-render.js';
+import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext} from './log-level-context.js';
 import type {LogLevel} from './log.js';
 import type {TNonceContext} from './nonce.js';
@@ -122,8 +123,12 @@ export const RemotionRoot: React.FC<{
 		}
 	}, []);
 
+	const logging: LoggingContextValue = useMemo(() => {
+		return {logLevel, mountTime: Date.now()};
+	}, [logLevel]);
+
 	return (
-		<LogLevelContext.Provider value={logLevel}>
+		<LogLevelContext.Provider value={logging}>
 			<NonceContext.Provider value={nonceContext}>
 				<TimelineContext.Provider value={timelineContextValue}>
 					<SetTimelineContext.Provider value={setTimelineContextValue}>
