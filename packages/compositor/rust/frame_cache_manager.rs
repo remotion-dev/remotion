@@ -172,7 +172,6 @@ impl FrameCacheManager {
         return Ok(total_size);
     }
 
-    // TODO: Should call this somewhere
     pub fn copy_to_global(&mut self) -> Result<(), ErrorWithBacktrace> {
         FRAME_CACHE_REFERENCES
             .lock()
