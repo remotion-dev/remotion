@@ -85,10 +85,13 @@ pub fn extract_frame(
         thread_index,
     )?;
 
-    let from_cache = frame_cache_manager
-        .get_frame_cache(&src, &original_src, transparent, tone_mapped)
-        .lock()?
-        .get_item_from_id(frame_id);
+    let from_cache = frame_cache_manager.get_item_from_id(
+        &src,
+        &original_src,
+        transparent,
+        tone_mapped,
+        frame_id,
+    );
 
     match from_cache {
         Ok(Some(data)) => Ok(data),

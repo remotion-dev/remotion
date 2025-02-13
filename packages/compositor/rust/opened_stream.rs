@@ -245,24 +245,21 @@ impl OpenedStream {
                     if data.is_some() {
                         last_frame_received = data;
                      frame_cache_manager
-                            .get_frame_cache(
+                            .set_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .set_last_frame(last_frame_received.unwrap().index);
+                                last_frame_received.unwrap().index
+                            );
                     } else {
                         frame_cache_manager
-                            .get_frame_cache(
+                            .set_biggest_frame_as_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .set_biggest_frame_as_last_frame();
+                            );
                     }
 
                     break;
@@ -419,9 +416,7 @@ impl OpenedStream {
         }
 
         let final_frame = frame_cache_manager
-            .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
-            .lock()?
-            .get_item_id(target_position, threshold)?;
+            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, threshold)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(

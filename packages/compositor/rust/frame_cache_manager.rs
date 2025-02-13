@@ -98,6 +98,46 @@ impl FrameCacheManager {
             .add_item(item)
     }
 
+    pub fn get_item_from_id(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        frame_id: usize,
+    ) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .get_item_from_id(frame_id)
+    }
+
+    pub fn set_last_frame(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+        last_frame: usize,
+    ) {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .set_last_frame(last_frame);
+    }
+    pub fn set_biggest_frame_as_last_frame(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+    ) {
+        self.get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()
+            .unwrap()
+            .set_biggest_frame_as_last_frame();
+    }
+
     pub fn get_cache_item_id(
         &mut self,
         src: &str,
@@ -129,6 +169,20 @@ impl FrameCacheManager {
             Some(item) => Ok(item),
             None => Err(ErrorWithBacktrace::from("No item found in cache")),
         }
+    }
+
+    pub fn is_empty(
+        &mut self,
+        src: &str,
+        original_src: &str,
+        transparent: bool,
+        tone_mapped: bool,
+    ) -> Result<bool, ErrorWithBacktrace> {
+        let res = self
+            .get_frame_cache(src, original_src, transparent, tone_mapped)
+            .lock()?
+            .is_empty();
+        Ok(res)
     }
 
     pub fn get_frame_references(&mut self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
