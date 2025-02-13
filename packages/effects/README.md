@@ -8,30 +8,24 @@ A React component library for adding video effects in Remotion, featuring green 
 npm install @anksji/remotion-chroma-key-effects
 ```
 
-## GreenScreenOverlay Component
+## ChromaKeyEffect Component
 
-The `GreenScreenOverlay` component allows you to overlay videos with chroma key effects in your Remotion compositions.
+The `ChromaKeyEffect` component allows you to overlay videos with chroma key effects in your Remotion compositions.
 
 ### Basic Usage
 
 ```jsx
-import { GreenScreenOverlay } from "@anksji/remotion-chroma-key-effects";
+import {ChromaKeyEffect} from '@anksji/remotion-chroma-key-effects';
 
 function MyComposition() {
-  return (
-    <GreenScreenOverlay
-      src="your-video-url.mp4"
-      isPlaying={true}
-      isChromaKeyEnabled={true}
-    />
-  );
+  return <ChromaKeyEffect src="your-video-url.mp4" isPlaying={true} isChromaKeyEnabled={true} />;
 }
 ```
 
 ### Advanced Usage
 
 ```jsx
-<GreenScreenOverlay
+<ChromaKeyEffect
   src="http://videourl.xyz"
   startTimeInSeconds={20}
   durationInSeconds={5}
@@ -44,7 +38,7 @@ function MyComposition() {
     spill: 0.3,
   }}
   scale={1.2}
-  position={{ x: 10, y: 20 }}
+  position={{x: 10, y: 20}}
 />
 ```
 
@@ -103,13 +97,13 @@ The component requires WebGL2 support in the browser. Make sure your target brow
 #### Basic Green Screen Effect
 
 ```jsx
-import { GreenScreenOverlay } from "@anksji/remotion-chroma-key-effects";
+import {ChromaKeyEffect} from '@anksji/remotion-chroma-key-effects';
 
 export const MyComposition = () => {
   const [isPlaying, setIsPlaying] = useState(true);
 
   return (
-    <GreenScreenOverlay
+    <ChromaKeyEffect
       src="green-screen-video.mp4"
       isPlaying={isPlaying}
       isChromaKeyEnabled={true}
@@ -127,14 +121,7 @@ export const MyComposition = () => {
 #### Timed Video Segment
 
 ```jsx
-<GreenScreenOverlay
-  src="green-screen-video.mp4"
-  startTimeInSeconds={30}
-  durationInSeconds={10}
-  isPlaying={true}
-  scale={1.5}
-  position={{ x: 20, y: -10 }}
-/>
+<ChromaKeyEffect src="green-screen-video.mp4" startTimeInSeconds={30} durationInSeconds={10} isPlaying={true} scale={1.5} position={{x: 20, y: -10}} />
 ```
 
 ### Troubleshooting
