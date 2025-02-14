@@ -111,12 +111,14 @@ type RemotionRenderResponse struct {
 }
 
 type RenderConfig struct {
-	RenderId     string  `json:"renderId" validate:"required"`
-	BucketName   string  `json:"bucketName" validate:"required"`
-	LogLevel     string  `json:"logLevel"`
-	FunctionName string  `json:"functionName" validate:"required"`
-	Region       string  `json:"region" validate:"required"`
-	DeleteAfter  *string `json:"deleteAfter"`
+	RenderId         string      `json:"renderId" validate:"required"`
+	BucketName       string      `json:"bucketName" validate:"required"`
+	LogLevel         string      `json:"logLevel"`
+	FunctionName     string      `json:"functionName" validate:"required"`
+	Region           string      `json:"region" validate:"required"`
+	DeleteAfter      *string     `json:"deleteAfter"`
+	S3OutputProvider interface{} `json:"s3OutputProvider"`
+	ForcePathStyle   bool        `json:"forcePathStyle"`
 }
 
 type renderProgressInternalConfig struct {
