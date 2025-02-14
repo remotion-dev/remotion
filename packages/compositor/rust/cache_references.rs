@@ -56,10 +56,6 @@ impl CacheReferences {
             Some(_) => maximum_frame_cache_size_in_bytes / max_cache_size.thread_count() as u64,
             None => maximum_frame_cache_size_in_bytes,
         };
-        _print_verbose(&format!(
-            "max allowed cache size {}, thread {:?}",
-            max_allowed_cache_size, scope_to_thread_index
-        ));
 
         let mut to_remove: Vec<Vec<FrameCacheReference>> = vec![Vec::new(); self.map.len()];
 
