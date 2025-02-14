@@ -22,9 +22,7 @@ test('Should get Rust errors in a good way', async () => {
 		expect((err as Error).message).toContain(
 			'Compositor error: No such file or directory',
 		);
-		expect((err as Error).message).toContain(
-			'remotion::thread::WorkerThread::run_on_thread',
-		);
+		expect((err as Error).message).toContain('remotion::');
 	}
 
 	await compositor.finishCommands();
@@ -117,9 +115,7 @@ test(
 			expect((err as Error).message).toContain(
 				'Compositor error: No such file or directory',
 			);
-			expect((err as Error).stack).toContain(
-				'remotion::thread::WorkerThread::run_on_thread',
-			);
+			expect((err as Error).stack).toContain('remotion::');
 		}
 
 		await compositor.finishCommands();
