@@ -1,4 +1,3 @@
-mod cache_references;
 mod commands;
 mod errors;
 mod extract_audio;
@@ -55,7 +54,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
                 .unwrap_or(get_ideal_maximum_frame_cache_size());
 
             _print_verbose(&format!(
-                "Starting Rust process. Max video cache size: {}MB, max concurrency = {}",
+                "Starting Rust process. Max video cache size: {}MB, max threads = {}",
                 max_video_cache_size / 1024 / 1024,
                 payload.concurrency
             ))?;

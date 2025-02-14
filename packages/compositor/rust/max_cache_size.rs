@@ -34,10 +34,6 @@ impl MaxCacheSize {
             None => 0,
         }
     }
-
-    pub fn thread_count(&self) -> usize {
-        self.thread_cache_sizes.len()
-    }
 }
 
 // Global static instance of MaxCacheSize
