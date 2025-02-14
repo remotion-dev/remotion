@@ -124,9 +124,18 @@ impl LongRunningProcess {
     ) -> Result<(), ErrorWithBacktrace> {
         let thread_to_use = THREAD_MAP.lock().unwrap().select_right_thread(
             &command.src,
+            &command.original_src,
             command.time,
             command.transparent,
         )?;
+        THREAD_MAP.lock().unwrap().update_thread_map(
+            thread_to_use.thread_id,
+            thread_to_use.stream_id,
+            command.src,
+            command.time,
+            command.transparent,
+        );
+
         if thread_to_use.thread_id == self.send_to_thread_handles.len() {
             self.start_new_thread(thread_to_use.thread_id)?;
         }

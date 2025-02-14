@@ -23,7 +23,7 @@ pub struct ThreadMap {
 #[derive(PartialEq, Debug, Clone)]
 pub struct UseThisThread {
     pub thread_id: usize,
-    pub stream_id: Option<usize>,
+    pub stream_id: usize,
 }
 
 impl ThreadMap {
@@ -55,7 +55,12 @@ impl ThreadMap {
         // Update stream if it exists
         for stream in self.map[thread_index].streams.iter_mut() {
             if stream.id == stream_index {
+                let duration_before = stream.duration_in_seconds;
                 self.map[thread_index].streams[stream_index] = stream_to_set;
+                if duration_before.is_some() {
+                    self.map[thread_index].streams[stream_index].duration_in_seconds =
+                        duration_before;
+                }
                 return;
             }
         }
@@ -64,9 +69,31 @@ impl ThreadMap {
         self.map[thread_index].streams.push(stream_to_set);
     }
 
+    pub fn update_thread_map(
+        &mut self,
+        thread_index: usize,
+        stream_index: usize,
+        src: String,
+        last_time: f64,
+        transparent: bool,
+    ) {
+        self.update_stream(
+            thread_index,
+            stream_index,
+            OpenStream {
+                src,
+                last_time,
+                id: stream_index,
+                transparent,
+                duration_in_seconds: None,
+            },
+        );
+    }
+
     pub fn select_right_thread(
         &mut self,
         src: &String,
+        original_src: &String,
         time: f64,
         transparent: bool,
     ) -> Result<UseThisThread, ErrorWithBacktrace> {
@@ -88,11 +115,11 @@ impl ThreadMap {
                 }
                 _print_verbose(&format!(
                     "Reusing thread {} for stream {} at time {}",
-                    thread_id, src, time
+                    thread_id, original_src, time
                 ))?;
                 return Ok(UseThisThread {
                     thread_id,
-                    stream_id: Some(stream.id),
+                    stream_id: stream.id,
                 });
             }
         }
@@ -102,7 +129,7 @@ impl ThreadMap {
         if self.map.len() < max_thread {
             return Ok(UseThisThread {
                 thread_id: self.map.len(),
-                stream_id: None,
+                stream_id: 0,
             });
         }
 
@@ -117,7 +144,7 @@ impl ThreadMap {
 
         return Ok(UseThisThread {
             thread_id: least_amount_of_threads,
-            stream_id: None,
+            stream_id: self.map[least_amount_of_threads].streams.len(),
         });
     }
 }

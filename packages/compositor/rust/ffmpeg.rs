@@ -53,7 +53,8 @@ pub fn extract_frame(
         )?);
     }
 
-    let vid_index = manager.get_video_index(&src, &original_src, transparent, time)?;
+    let vid_index =
+        manager.get_video_index(&src, &original_src, transparent, time, thread_index)?;
     let vid = manager.get_video(vid_index)?;
     // The requested position in the video.
     let position = calc_position(time, vid.time_base);

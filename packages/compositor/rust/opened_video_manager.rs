@@ -76,6 +76,7 @@ impl OpenedVideoManager {
         original_src: &str,
         transparent: bool,
         time: f64,
+        thread_index: usize,
     ) -> Result<usize, ErrorWithBacktrace> {
         for i in 0..self.streams.len() {
             let stream = self.streams.get(i).unwrap();
@@ -104,8 +105,8 @@ impl OpenedVideoManager {
         self.streams.push(stream);
         let stream_index = self.streams.len() - 1;
         _print_debug(&format!(
-            "Opening new stream, src = {}, index = {}, desired time = {}",
-            src, stream_index, time
+            "Opening new stream on thread {}, src = {}, index = {}, desired time = {}",
+            thread_index, original_src, stream_index, time
         ))?;
 
         Ok(stream_index)

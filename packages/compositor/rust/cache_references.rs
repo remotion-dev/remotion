@@ -46,14 +46,21 @@ impl CacheReferences {
         let mut sorted = references.clone();
         sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
 
-        let current_cache_size_in_bytes = max_cache_size::get_instance()
-            .lock()
-            .unwrap()
-            .get_current_cache_size();
+        let max_cache_size = max_cache_size::get_instance().lock().unwrap();
+
+        let current_cache_size_in_bytes = match scope_to_thread_index {
+            Some(index) => max_cache_size.get_cache_size_for_thread(index),
+            None => max_cache_size.get_current_cache_size(),
+        };
+        let max_allowed_cache_size = match scope_to_thread_index {
+            Some(_) => maximum_frame_cache_size_in_bytes / max_cache_size.thread_count() as u64,
+            None => maximum_frame_cache_size_in_bytes,
+        };
+
         let mut to_remove: Vec<Vec<FrameCacheReference>> = vec![Vec::new(); self.map.len()];
 
-        let bytes_to_free = match current_cache_size_in_bytes > maximum_frame_cache_size_in_bytes {
-            true => current_cache_size_in_bytes - maximum_frame_cache_size_in_bytes,
+        let bytes_to_free = match current_cache_size_in_bytes > max_allowed_cache_size {
+            true => current_cache_size_in_bytes - max_allowed_cache_size,
             false => {
                 return Ok(to_remove);
             }
