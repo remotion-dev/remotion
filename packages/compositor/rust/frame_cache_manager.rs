@@ -3,7 +3,6 @@ use std::{collections::HashMap, sync::Mutex};
 use ffmpeg_next::Rational;
 
 use crate::{
-    cache_references::FRAME_CACHE_REFERENCES,
     errors::ErrorWithBacktrace,
     frame_cache::{FrameCache, FrameCacheItem, FrameCacheReference},
     global_printer::_print_verbose,
@@ -36,17 +35,56 @@ impl FrameCacheManager {
         self.cache.clear();
     }
 
+    fn get_frames_to_prune(
+        &mut self,
+        maximum_frame_cache_size_in_bytes: u64,
+    ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
+        let mut sorted = references.clone();
+        sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
+
+        let max_cache_size = max_cache_size::get_instance().lock().unwrap();
+
+        let current_cache_size_in_bytes =
+            max_cache_size.get_cache_size_for_thread(self.thread_index);
+
+        let mut to_remove: Vec<FrameCacheReference> = vec![];
+
+        let bytes_to_free = match current_cache_size_in_bytes > maximum_frame_cache_size_in_bytes {
+            true => current_cache_size_in_bytes - maximum_frame_cache_size_in_bytes,
+            false => {
+                return Ok(to_remove);
+            }
+        };
+
+        let mut removed = 0;
+        let mut removed_count = 0;
+
+        for removal in sorted {
+            removed += removal.size;
+            removed_count += 1;
+            to_remove.push(removal.clone());
+            if removed >= bytes_to_free {
+                break;
+            }
+        }
+
+        _print_verbose(&format!(
+            "Need to free {}MB, Selected {} frames ({}MB) for removal",
+            bytes_to_free / 1024 / 1024,
+            removed_count,
+            removed / 1024 / 1024
+        ))?;
+
+        Ok(to_remove)
+    }
+
     pub fn get_to_prune_local(
         &mut self,
         max_cache_size: u64,
     ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
-        let to_prune = {
-            FRAME_CACHE_REFERENCES
-                .lock()
-                .unwrap()
-                .get_frames_to_prune(max_cache_size, Some(self.thread_index))?
-        };
-        let of_thread: Vec<FrameCacheReference> = to_prune[self.thread_index].clone();
+        let to_prune = { self.get_frames_to_prune(max_cache_size)? };
+        let of_thread: Vec<FrameCacheReference> = to_prune.clone();
         Ok(of_thread)
     }
 
@@ -263,14 +301,6 @@ impl FrameCacheManager {
         }
 
         return Ok(total_size);
-    }
-
-    pub fn copy_to_global(&mut self) -> Result<(), ErrorWithBacktrace> {
-        FRAME_CACHE_REFERENCES
-            .lock()
-            .unwrap()
-            .set_cache_references(self.thread_index, self.get_frame_references()?);
-        Ok(())
     }
 
     fn remove_item_by_id(
