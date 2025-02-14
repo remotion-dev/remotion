@@ -49,6 +49,7 @@ import {
 	renderMediaOnLambdaOptionalToRequired,
 } from './render-media-on-lambda';
 import {runtimePreferenceOptions} from './runtime-preference';
+import {innerSpeculateFunctionName} from './speculate-function-name';
 import {validateAwsRegion} from './validate-aws-region';
 import {parseBucketName} from './validate-bucketname';
 import {validateDiskSizeInMb} from './validate-disk-size-in-mb';
@@ -144,4 +145,5 @@ export const LambdaClientInternals = {
 	cleanItems,
 	makeLambdaRenderStillPayload,
 	getRenderProgressPayload,
+	innerSpeculateFunctionName,
 };
