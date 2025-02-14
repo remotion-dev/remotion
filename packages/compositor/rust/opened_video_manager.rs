@@ -147,7 +147,7 @@ impl OpenedVideoManager {
             stream_index,
             OpenStream {
                 src: video.src.clone(),
-                last_time: video.last_position.unwrap() as f64
+                last_time: video.last_position.unwrap_or(0) as f64
                     / (video.time_base.1 as f64 / video.time_base.0 as f64),
                 id: stream_index,
                 transparent: video.transparent,
