@@ -139,7 +139,6 @@ impl OpenedStream {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
                     });
-                    frame_cache_manager.copy_to_global().unwrap();
 
                 }
                 Ok(None) => {
@@ -380,7 +379,6 @@ impl OpenedStream {
                                 thread_index
                             );
 
-                        frame_cache_manager.copy_to_global().unwrap();
 
                         items_in_loop += 1;
                         

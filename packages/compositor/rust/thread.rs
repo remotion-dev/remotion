@@ -96,7 +96,7 @@ impl WorkerThread {
         cache_references: DeleteFramesFromCache,
     ) -> Result<(), ErrorWithBacktrace> {
         self.frame_cache_manager
-            .execute_prune(cache_references.cache_references, self.thread_index)?;
+            .prune_on_thread(cache_references.maximum_frame_cache_size_in_bytes)?;
         self.opened_video_manager
             .close_videos_if_cache_empty(&mut self.frame_cache_manager)
     }

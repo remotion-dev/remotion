@@ -7,7 +7,6 @@ use std::{
 };
 
 use crate::{
-    cache_references::FRAME_CACHE_REFERENCES,
     commands::execute_command_and_print,
     errors::ErrorWithBacktrace,
     global_printer::{self, print_error},
@@ -205,26 +204,20 @@ impl LongRunningProcess {
     }
 
     fn prune(&mut self, maximum_frame_cache_size_in_bytes: u64) -> Result<(), ErrorWithBacktrace> {
-        let frames_to_prune = FRAME_CACHE_REFERENCES
-            .lock()
-            .unwrap()
-            .get_frames_to_prune(maximum_frame_cache_size_in_bytes, None)?;
-
-        for thread in frames_to_prune {
-            if thread.is_empty() {
-                continue;
-            }
-            let first_item = thread.get(0).unwrap();
-            self.send_to_thread_handles[first_item.thread_index].send(CliInputAndMaxCacheSize {
+        let threads = self.send_to_thread_handles.len();
+        for i in 0..threads {
+            self.send_to_thread_handles[i].send(CliInputAndMaxCacheSize {
                 cli_input: CliInputCommand {
                     payload: CliInputCommandPayload::DeleteFramesFromCache(DeleteFramesFromCache {
-                        cache_references: thread,
+                        maximum_frame_cache_size_in_bytes: maximum_frame_cache_size_in_bytes
+                            / threads as u64,
                     }),
                     nonce: "".to_string(),
                 },
                 max_cache_size: self.maximum_frame_cache_size_in_bytes,
             })?;
         }
+
         Ok(())
     }
 
