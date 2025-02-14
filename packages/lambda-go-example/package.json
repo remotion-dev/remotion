@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/lambda-go-example",
 	"private": true,
-	"version": "4.0.262",
+	"version": "4.0.263",
 	"scripts": {
 		"lint": "node build.mjs"
 	}
