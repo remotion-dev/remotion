@@ -99,11 +99,12 @@ impl FrameCacheManager {
         transparent: bool,
         tone_mapped: bool,
         item: FrameCacheItem,
+        thread_index: usize,
     ) {
         self.get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()
             .unwrap()
-            .add_item(item)
+            .add_item(item, thread_index)
     }
 
     pub fn get_item_from_id(
@@ -114,10 +115,11 @@ impl FrameCacheManager {
         tone_mapped: bool,
         frame_id: usize,
     ) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
+        let thread_index = self.thread_index.clone();
         self.get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()
             .unwrap()
-            .get_item_from_id(frame_id)
+            .get_item_from_id(frame_id, thread_index)
     }
 
     pub fn set_last_frame(
@@ -168,10 +170,11 @@ impl FrameCacheManager {
         time: i64,
         threshold: i64,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
+        let thread_index = self.thread_index.clone();
         Ok(self
             .get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()?
-            .get_item_id(time, threshold)?)
+            .get_item_id(time, threshold, thread_index)?)
     }
 
     pub fn get_cache_item_from_id(
@@ -182,10 +185,11 @@ impl FrameCacheManager {
         tone_mapped: bool,
         frame_id: usize,
     ) -> Result<Vec<u8>, ErrorWithBacktrace> {
+        let thread_index = self.thread_index.clone();
         match self
             .get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()?
-            .get_item_from_id(frame_id)?
+            .get_item_from_id(frame_id, thread_index)?
         {
             Some(item) => Ok(item),
             None => Err(ErrorWithBacktrace::from("No item found in cache")),
@@ -280,7 +284,7 @@ impl FrameCacheManager {
             removal.tone_mapped,
         )
         .lock()?
-        .remove_item_by_id(removal.id)?;
+        .remove_item_by_id(removal.id, removal.thread_index)?;
         Ok(())
     }
 

@@ -82,11 +82,11 @@ impl FrameCache {
         Ok(references)
     }
 
-    pub fn add_item(&mut self, item: FrameCacheItem) {
+    pub fn add_item(&mut self, item: FrameCacheItem, thread_index: usize) {
         max_cache_size::get_instance()
             .lock()
             .unwrap()
-            .add_to_current_cache_size(item.frame.get_size().into());
+            .add_to_current_cache_size(thread_index, item.frame.get_size().into());
         self.items.push(item);
     }
 
@@ -138,11 +138,15 @@ impl FrameCache {
         }
     }
 
-    pub fn get_item_from_id(&mut self, id: usize) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
+    pub fn get_item_from_id(
+        &mut self,
+        id: usize,
+        thread_index: usize,
+    ) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
         let mut data: Option<Vec<u8>> = None;
         for i in 0..self.items.len() {
             if self.items[i].id == id {
-                self.items[i].frame.ensure_data()?;
+                self.items[i].frame.ensure_data(thread_index)?;
                 self.items[i].last_used = get_time();
                 data = Some(self.items[i].frame.get_data()?);
                 break;
@@ -151,7 +155,11 @@ impl FrameCache {
         Ok(data)
     }
 
-    pub fn remove_item_by_id(&mut self, id: usize) -> Result<(), ErrorWithBacktrace> {
+    pub fn remove_item_by_id(
+        &mut self,
+        id: usize,
+        thread_index: usize,
+    ) -> Result<(), ErrorWithBacktrace> {
         for i in 0..self.items.len() {
             if self.items[i].id == id {
                 if self.last_frame.is_some() && id == self.last_frame.expect("last_frame") {
@@ -161,7 +169,7 @@ impl FrameCache {
                 max_cache_size::get_instance()
                     .lock()
                     .unwrap()
-                    .remove_from_cache_size(self.items[i].frame.get_size().into());
+                    .remove_from_cache_size(thread_index, self.items[i].frame.get_size().into());
 
                 self.items.remove(i);
                 break;
@@ -190,6 +198,7 @@ impl FrameCache {
         &mut self,
         time: i64,
         threshold: i64,
+        thread_index: usize,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
@@ -199,7 +208,7 @@ impl FrameCache {
             match self.last_frame {
                 Some(last_frame_id) => {
                     if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
-                        self.items[i].frame.ensure_data()?;
+                        self.items[i].frame.ensure_data(thread_index)?;
 
                         return Ok(Some(self.items[i].id));
                     }
@@ -211,7 +220,7 @@ impl FrameCache {
         // Exact same time as requested
         for i in 0..self.items.len() {
             if self.items[i].resolved_pts == time {
-                self.items[i].frame.ensure_data()?;
+                self.items[i].frame.ensure_data(thread_index)?;
                 return Ok(Some(self.items[i].id));
             }
         }
@@ -298,7 +307,7 @@ impl FrameCache {
 
         match best_item {
             Some(best_item) => {
-                self.items[best_item].frame.ensure_data()?;
+                self.items[best_item].frame.ensure_data(thread_index)?;
                 Ok(Some(self.items[best_item].id))
             }
             None => Ok(None),

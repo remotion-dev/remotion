@@ -77,6 +77,7 @@ impl OpenedStream {
         previous_pts: Option<i64>,
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
+        thread_index: usize
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -131,7 +132,8 @@ impl OpenedStream {
                             &self.original_src,
                             self.transparent,
                             tone_mapped,
-                            item
+                            item,
+                            thread_index
                         );
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
@@ -242,7 +244,8 @@ impl OpenedStream {
                             false => Some(self.last_position.unwrap()),
                         },
                         tone_mapped,
-                        frame_cache_manager
+                        frame_cache_manager,
+                        thread_index
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
@@ -373,7 +376,8 @@ impl OpenedStream {
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                                item
+                                item,
+                                thread_index
                             );
 
                         frame_cache_manager.copy_to_global().unwrap();

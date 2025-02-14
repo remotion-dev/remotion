@@ -17,8 +17,9 @@ export const offthreadVideoThreadsOption = {
 			<a href="https://remotion.dev/docs/offthreadvideo">
 				<code>&lt;OffthreadVideo&gt;</code>
 			</a>{' '}
-			can start to extract frames. frames. The default is 2. Increase carefully,
-			as too much threads may cause instability.
+			can start to extract frames. frames. The default is{' '}
+			{DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS}. Increase carefully, as
+			too much threads may cause instability.
 		</>
 	),
 	ssrName: 'offthreadVideoThreads' as const,
@@ -49,4 +50,4 @@ export const offthreadVideoThreadsOption = {
 	},
 } satisfies AnyRemotionOption<number | null>;
 
-export const DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS = 2;
+export const DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS = 3;

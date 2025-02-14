@@ -67,7 +67,7 @@ impl ScalableFrame {
         }
     }
 
-    pub fn ensure_data(&mut self) -> Result<(), ErrorWithBacktrace> {
+    pub fn ensure_data(&mut self, thread_index: usize) -> Result<(), ErrorWithBacktrace> {
         if self.rgb_frame.is_some() {
             return Ok(());
         }
@@ -132,12 +132,15 @@ impl ScalableFrame {
                     max_cache_size::get_instance()
                         .lock()
                         .unwrap()
-                        .add_to_current_cache_size((size_after - size_before) as i128);
+                        .add_to_current_cache_size(
+                            thread_index,
+                            (size_after - size_before) as i128,
+                        );
                 } else {
                     max_cache_size::get_instance()
                         .lock()
                         .unwrap()
-                        .remove_from_cache_size((size_before - size_after) as i128);
+                        .remove_from_cache_size(thread_index, (size_before - size_after) as i128);
                 }
                 Ok(())
             }
