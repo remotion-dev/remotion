@@ -241,7 +241,7 @@ impl OpenedStream {
                         one_frame_in_time_base,
                         match freshly_seeked || self.last_position.is_none() {
                             true => None,
-                            false => Some(self.last_position.unwrap()),
+                            false => Some(self.last_position.unwrap_or(0)),
                         },
                         tone_mapped,
                         frame_cache_manager,
@@ -357,7 +357,7 @@ impl OpenedStream {
 
                         let previous_pts = match freshly_seeked || self.last_position.is_none() {
                             true => None,
-                            false => Some(self.last_position.unwrap()),
+                            false => Some(self.last_position.unwrap_or(0)),
                         };
                         let item = FrameCacheItem {
                             resolved_pts: unfiltered.pts().expect("expected pts"),
