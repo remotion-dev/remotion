@@ -26,7 +26,7 @@ export const parseTrun = ({
 	size: number;
 }): TrunBox => {
 	const version = iterator.getUint8();
-	if (version !== 0) {
+	if (version !== 0 && version !== 1) {
 		throw new Error(`Unsupported TRUN version ${version}`);
 	}
 
