@@ -7,6 +7,7 @@ import React from 'react';
 import {IconForTemplate} from '../../components/IconForTemplate';
 import {Seo} from '../../components/Seo';
 import {SkiaIcon} from '../../components/icons/skia';
+import {TimelineIcon} from '../../components/icons/timeline';
 import styles from './styles.module.css';
 
 const content: React.CSSProperties = {
@@ -154,6 +155,25 @@ export default () => {
 							description={'A beautiful 2D map for travel videos'}
 						>
 							<SkiaIcon
+								style={{
+									height: 0.7 * 32,
+								}}
+							/>
+						</Item>
+					</Link>
+					<Link
+						key={'map'}
+						className={styles.item}
+						style={outer}
+						to={`https://www.remotion.pro/timeline`}
+					>
+						<Item
+							label={'<Timeline />'}
+							description={
+								'A copy pasteable component for timeline-based editing'
+							}
+						>
+							<TimelineIcon
 								style={{
 									height: 0.7 * 32,
 								}}
