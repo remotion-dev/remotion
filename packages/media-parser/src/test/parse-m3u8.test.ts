@@ -87,8 +87,21 @@ test('parse m3u8', async () => {
 			width: 1008,
 		},
 	]);
-	expect(tracks.audioTracks).toEqual([]);
-	expect(audioCodec).toBe(null);
+	expect(tracks.audioTracks).toEqual([
+		{
+			codec: 'mp4a.40.2',
+			codecPrivate: new Uint8Array([9, 144]),
+			codecWithoutConfig: 'aac',
+			description: undefined,
+			numberOfChannels: 2,
+			sampleRate: 48000,
+			timescale: 90000,
+			trackId: 257,
+			trakBox: null,
+			type: 'audio',
+		},
+	]);
+	expect(audioCodec).toBe('aac');
 	expect(container).toBe('m3u8');
 	expect(fps).toBe(null);
 	expect(images).toEqual([]);

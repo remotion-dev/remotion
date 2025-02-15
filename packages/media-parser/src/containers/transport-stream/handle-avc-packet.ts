@@ -1,6 +1,6 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {Track} from '../../get-tracks';
-import {registerTrack} from '../../register-track';
+import {registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
@@ -64,7 +64,7 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerTrack({track, state, container: 'transport-stream'});
+		await registerVideoTrack({track, state, container: 'transport-stream'});
 	}
 
 	// sample for webcodecs needs to be in nano seconds

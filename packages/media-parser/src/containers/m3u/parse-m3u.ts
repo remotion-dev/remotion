@@ -1,29 +1,30 @@
-import type {BufferIterator} from '../../buffer-iterator';
-import type {ParseResult} from '../../parse-result';
-import {parseM3u8Text} from './parse-m3u8-text';
-import type {M3uStructure} from './types';
+import type {ParserState} from '../../state/parser-state';
+import {afterManifestFetch, runOverM3u} from './after-manifest-fetch';
+import {parseM3uManifest} from './parse-m3u-manifest';
 
-export const parseM3u = ({
-	iterator,
-	structure,
-	contentLength,
-}: {
-	iterator: BufferIterator;
-	structure: M3uStructure;
-	contentLength: number;
-}): Promise<ParseResult> => {
-	const start = iterator.startCheckpoint();
-	const line = iterator.readUntilLineEnd();
-	if (iterator.counter.getOffset() > contentLength) {
-		throw new Error('Unexpected end of file');
+export const parseM3u = async ({state}: {state: ParserState}) => {
+	const structure = state.getM3uStructure();
+	if (state.m3u.isReadyToIterateOverM3u()) {
+		await runOverM3u({
+			state,
+			structure,
+		});
+		return null;
 	}
 
-	if (line === null) {
-		start.returnToCheckpoint();
-		return Promise.resolve(null);
+	const box = await parseM3uManifest({
+		iterator: state.iterator,
+		structure,
+		contentLength: state.contentLength,
+	});
+	const isDoneNow = state.iterator.counter.getOffset() === state.contentLength;
+	if (isDoneNow) {
+		await afterManifestFetch({
+			structure,
+			m3uState: state.m3u,
+			src: typeof state.src === 'string' ? state.src : null,
+		});
 	}
 
-	parseM3u8Text(line, structure.boxes);
-
-	return Promise.resolve(null);
+	return box;
 };

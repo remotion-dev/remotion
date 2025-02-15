@@ -1,7 +1,6 @@
 import {parseAac} from './containers/aac/parse-aac';
 import {parseFlac} from './containers/flac/parse-flac';
 import {parseIsoBaseMedia} from './containers/iso-base-media/parse-boxes';
-import {afterManifestFetch} from './containers/m3u/after-manifest-fetch';
 import {parseM3u} from './containers/m3u/parse-m3u';
 import {parseMp3} from './containers/mp3/parse-mp3';
 import {parseRiff} from './containers/riff/parse-riff';
@@ -23,11 +22,15 @@ export const runParseIteration = async ({
 	contentLength: number;
 	name: string | null;
 }): Promise<ParseResult> => {
+	const structure = state.getStructureOrNull();
+	// m3u8 is busy parsing the chunks once the manifest has been read
+	if (structure && structure.type === 'm3u') {
+		return parseM3u({state});
+	}
+
 	if (state.iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
 	}
-
-	const structure = state.getStructureOrNull();
 
 	if (structure === null) {
 		await initVideo({state, mimeType, name, contentLength});
@@ -64,25 +67,6 @@ export const runParseIteration = async ({
 
 	if (structure.type === 'flac') {
 		return parseFlac({state, iterator: state.iterator});
-	}
-
-	if (structure.type === 'm3u') {
-		const box = await parseM3u({
-			iterator: state.iterator,
-			structure,
-			contentLength: state.contentLength,
-		});
-		const isDoneNow = state.iterator.counter.getOffset() === contentLength;
-		if (isDoneNow) {
-			await afterManifestFetch({
-				structure,
-				m3uState: state.m3u,
-				state,
-				src: typeof state.src === 'string' ? state.src : null,
-			});
-		}
-
-		return box;
 	}
 
 	return Promise.reject(

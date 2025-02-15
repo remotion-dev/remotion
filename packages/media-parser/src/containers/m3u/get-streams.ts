@@ -20,7 +20,10 @@ export const getStreams = (
 			}
 
 			boxes.push({
-				url: originalSrc ? new URL(next.value, originalSrc).href : next.value,
+				url:
+					originalSrc && originalSrc.startsWith('http')
+						? new URL(next.value, originalSrc).href
+						: next.value,
 				box: str,
 			});
 		}

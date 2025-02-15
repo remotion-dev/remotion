@@ -1,4 +1,4 @@
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {M3uState} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
@@ -10,12 +10,10 @@ import type {M3uStructure} from './types';
 export const afterManifestFetch = async ({
 	structure,
 	m3uState,
-	state,
 	src,
 }: {
 	structure: M3uStructure;
 	m3uState: M3uState;
-	state: ParserState;
 	src: string | null;
 }) => {
 	const streams = getStreams(structure, src);
@@ -29,6 +27,21 @@ export const afterManifestFetch = async ({
 
 	const boxes = await fetchM3u8Stream(selectedStream);
 	structure.boxes.push({type: 'm3u-playlist', boxes});
+	m3uState.setReadyToIterateOverM3u();
+};
+
+export const runOverM3u = async ({
+	state,
+	structure,
+}: {
+	state: ParserState;
+	structure: M3uStructure;
+}) => {
+	const selectedStream = state.m3u.getSelectedStream();
+	if (!selectedStream) {
+		throw new Error('No stream selected');
+	}
+
 	await iteratorOverTsFiles({
 		playlistUrl: selectedStream.url,
 		structure,
@@ -37,19 +50,19 @@ export const afterManifestFetch = async ({
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		},
 		onAudioTrack: async (track) => {
-			await registerTrack({
+			return registerAudioTrack({
 				container: 'm3u8',
 				state,
 				track,
 			});
 		},
-		onVideoTrack: async (track) => {
-			await registerTrack({
+		onVideoTrack: (track) => {
+			return registerVideoTrack({
 				container: 'm3u8',
 				state,
 				track,
 			});
 		},
-		m3uState,
+		m3uState: state.m3u,
 	});
 };
