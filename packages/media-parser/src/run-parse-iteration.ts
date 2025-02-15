@@ -1,8 +1,7 @@
 import {parseAac} from './containers/aac/parse-aac';
 import {parseFlac} from './containers/flac/parse-flac';
 import {parseIsoBaseMedia} from './containers/iso-base-media/parse-boxes';
-import {fetchM3u8Stream} from './containers/m3u/fetch-m3u8-stream';
-import {getStreams} from './containers/m3u/get-streams';
+import {afterManifestFetch} from './containers/m3u/after-manifest-fetch';
 import {parseM3u} from './containers/m3u/parse-m3u';
 import {parseMp3} from './containers/mp3/parse-mp3';
 import {parseRiff} from './containers/riff/parse-riff';
@@ -68,18 +67,19 @@ export const runParseIteration = async ({
 	}
 
 	if (structure.type === 'm3u') {
-		const box = parseM3u({
+		const box = await parseM3u({
 			iterator: state.iterator,
 			structure,
 			contentLength: state.contentLength,
 		});
 		const isDoneNow = state.iterator.counter.getOffset() === contentLength;
 		if (isDoneNow) {
-			const streams = getStreams(structure);
-
-			// TODO: Select the first stream for now
-			const selectedStream = streams[0];
-			await fetchM3u8Stream(selectedStream);
+			await afterManifestFetch({
+				structure,
+				m3uState: state.m3u,
+				state,
+				src: typeof state.src === 'string' ? state.src : null,
+			});
 		}
 
 		return box;

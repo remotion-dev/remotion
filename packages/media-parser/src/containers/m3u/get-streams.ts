@@ -5,7 +5,10 @@ export type M3uStream = {
 	box: M3uStreamInfo;
 };
 
-export const getStreams = (structure: M3uStructure): M3uStream[] => {
+export const getStreams = (
+	structure: M3uStructure,
+	originalSrc: string | null,
+): M3uStream[] => {
 	const boxes: M3uStream[] = [];
 
 	for (let i = 0; i < structure.boxes.length; i++) {
@@ -17,7 +20,7 @@ export const getStreams = (structure: M3uStructure): M3uStream[] => {
 			}
 
 			boxes.push({
-				url: next.value,
+				url: originalSrc ? new URL(next.value, originalSrc).href : next.value,
 				box: str,
 			});
 		}

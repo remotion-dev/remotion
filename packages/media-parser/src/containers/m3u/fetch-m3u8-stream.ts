@@ -2,7 +2,7 @@ import type {M3uStream} from './get-streams';
 import {parseM3u8Text} from './parse-m3u8-text';
 import type {M3uBox} from './types';
 
-export const fetchM3u8Stream = async (stream: M3uStream) => {
+export const fetchM3u8Stream = async (stream: M3uStream): Promise<M3uBox[]> => {
 	const res = await fetch(stream.url);
 	const text = await res.text();
 	const lines = text.split('\n');
@@ -11,5 +11,5 @@ export const fetchM3u8Stream = async (stream: M3uStream) => {
 		parseM3u8Text(line, boxes);
 	}
 
-	console.log({boxes});
+	return boxes;
 };

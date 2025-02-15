@@ -243,7 +243,7 @@ export const defaultGetTracks = (parserState: ParserState): AllTracks => {
 	return {
 		audioTracks: tracks.filter((t) => t.type === 'audio'),
 		otherTracks: [],
-		videoTracks: [],
+		videoTracks: tracks.filter((t) => t.type === 'video'),
 	};
 };
 
@@ -278,12 +278,9 @@ export const getTracks = (state: ParserState): AllTracks => {
 		structure.type === 'mp3' ||
 		structure.type === 'wav' ||
 		structure.type === 'flac' ||
-		structure.type === 'aac'
+		structure.type === 'aac' ||
+		structure.type === 'm3u'
 	) {
-		return defaultGetTracks(state);
-	}
-
-	if (structure.type === 'm3u') {
 		return defaultGetTracks(state);
 	}
 

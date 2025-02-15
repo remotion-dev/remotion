@@ -21,6 +21,11 @@ export type M3uPlaylistType = {
 	playlistType: string;
 };
 
+export type M3uPlaylist = {
+	type: 'm3u-playlist';
+	boxes: M3uBox[];
+};
+
 export type M3uExtInf = {
 	type: 'm3u-extinf';
 	value: number;
@@ -48,6 +53,7 @@ export type M3uTextValue = {
 
 export type M3uBox =
 	| M3uHeader
+	| M3uPlaylist
 	| M3uVersion
 	| M3uIndependentSegments
 	| M3uStreamInfo

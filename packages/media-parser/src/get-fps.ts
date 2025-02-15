@@ -155,8 +155,9 @@ export const getFps = (state: ParserState) => {
 		return null;
 	}
 
+	// Same as
 	if (segments.type === 'm3u') {
-		throw new Error('Cannot get fps from m3u');
+		return null;
 	}
 
 	if (

@@ -34,7 +34,7 @@ export const isAudioStructure = (structure: Structure) => {
 	}
 
 	if (structure.type === 'm3u') {
-		return true;
+		return false;
 	}
 
 	throw new Error(`Unhandled structure type: ${structure satisfies never}`);
