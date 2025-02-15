@@ -12,4 +12,5 @@ test('parse m3u8', async () => {
 		},
 		acknowledgeRemotionLicense: true,
 	});
+	console.log(fields);
 });

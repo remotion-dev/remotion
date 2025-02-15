@@ -11,6 +11,25 @@ export type M3uIndependentSegments = {
 	type: 'm3u-independent-segments';
 };
 
+export type M3uTargetDuration = {
+	type: 'm3u-target-duration';
+	duration: number;
+};
+
+export type M3uPlaylistType = {
+	type: 'm3u-playlist-type';
+	playlistType: string;
+};
+
+export type M3uExtInf = {
+	type: 'm3u-extinf';
+	value: number;
+};
+
+export type M3uEndList = {
+	type: 'm3u-endlist';
+};
+
 export type M3uStreamInfo = {
 	type: 'm3u-stream-info';
 	bandwidth: number | null;
@@ -32,6 +51,10 @@ export type M3uBox =
 	| M3uVersion
 	| M3uIndependentSegments
 	| M3uStreamInfo
+	| M3uTargetDuration
+	| M3uPlaylistType
+	| M3uExtInf
+	| M3uEndList
 	| M3uTextValue;
 
 export type M3uStructure = {

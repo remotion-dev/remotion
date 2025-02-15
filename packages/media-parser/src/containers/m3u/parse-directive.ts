@@ -23,6 +23,45 @@ export const parseM3uDirective = (str: string): M3uBox => {
 		};
 	}
 
+	if (directive === '#EXT-X-TARGETDURATION') {
+		if (!value) {
+			throw new Error('EXT-X-TARGETDURATION directive must have a value');
+		}
+
+		return {
+			type: 'm3u-target-duration',
+			duration: parseFloat(value),
+		};
+	}
+
+	if (directive === '#EXTINF') {
+		if (!value) {
+			throw new Error('EXTINF has no value');
+		}
+
+		return {
+			type: 'm3u-extinf',
+			value: parseFloat(value),
+		};
+	}
+
+	if (directive === '#EXT-X-ENDLIST') {
+		return {
+			type: 'm3u-endlist',
+		};
+	}
+
+	if (directive === '#EXT-X-PLAYLIST-TYPE') {
+		if (!value) {
+			throw new Error('#EXT-X-PLAYLIST-TYPE. directive must have a value');
+		}
+
+		return {
+			type: 'm3u-playlist-type',
+			playlistType: value,
+		};
+	}
+
 	if (directive === '#EXT-X-STREAM-INF') {
 		if (!value) {
 			throw new Error('EXT-X-STREAM-INF directive must have a value');

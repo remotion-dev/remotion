@@ -80,7 +80,6 @@ export const runParseIteration = async ({
 			// TODO: Select the first stream for now
 			const selectedStream = streams[0];
 			await fetchM3u8Stream(selectedStream);
-			console.log(selectedStream);
 		}
 
 		return box;
