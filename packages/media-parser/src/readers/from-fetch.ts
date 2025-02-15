@@ -105,9 +105,11 @@ export const fetchReader: ReaderInterface = {
 		const res = await fetch(resolvedUrl, {
 			headers:
 				typeof actualRange === 'number'
-					? {
-							Range: `bytes=${actualRange}-`,
-						}
+					? actualRange === 0
+						? {}
+						: {
+								Range: `bytes=${actualRange}-`,
+							}
 					: {
 							Range: `bytes=${`${actualRange[0]}-${actualRange[1]}`}`,
 						},
