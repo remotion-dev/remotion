@@ -1,9 +1,8 @@
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {speculateFunctionName} from '../../api/speculate-function-name';
-import {AwsProvider} from '../../functions/aws-implementation';
-import {BINARY_NAME} from '../../shared/constants';
+import {BINARY_NAME} from '../../defaults';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from '../commands/functions/deploy';
@@ -41,7 +40,7 @@ export const findFunctionName = async ({
 		if (!compatibleFunctionExists) {
 			Log.warn(
 				{indent: false, logLevel},
-				`Function "${cliFlag}" does not match naming convention ${speculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
+				`Function "${cliFlag}" does not match naming convention ${LambdaClientInternals.innerSpeculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
 			);
 			Log.warn(
 				{indent: false, logLevel},

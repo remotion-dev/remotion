@@ -4,7 +4,7 @@
 // Note: When using the Node.JS APIs, the config file doesn't apply. Instead, pass options directly to the APIs
 
 import { Config } from "@remotion/cli/config";
-import { webpackOverride } from "./remotion/webpack-override.mjs";
+import { webpackOverride } from "./src/remotion/webpack-override.mjs";
 
 Config.setVideoImageFormat("jpeg");
 

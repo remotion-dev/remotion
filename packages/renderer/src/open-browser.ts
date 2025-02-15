@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
-import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {launchChrome} from './browser/Launcher';
@@ -255,7 +254,6 @@ export const internalOpenBrowser = async ({
 	const pages = await browserInstance.pages();
 	await pages[0]?.close();
 
-	addHeadlessBrowser(browserInstance);
 	return browserInstance;
 };
 

@@ -1,10 +1,11 @@
+import {
+	LambdaClientInternals,
+	type RenderMediaOnLambdaInput,
+} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless';
 import path from 'path';
-import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
-import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
-import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
-import {mockImplementation} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 import {waitUntilDone} from './wait-until-done';
 
 const functionName = 'remotion-dev-render';
@@ -18,7 +19,7 @@ export const simulateLambdaRender = async (
 
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
 		logLevel: 'error',
@@ -28,8 +29,8 @@ export const simulateLambdaRender = async (
 		forceIPv4: false,
 	});
 
-	const payload = await makeLambdaRenderMediaPayload(
-		renderMediaOnLambdaOptionalToRequired({
+	const payload = await LambdaClientInternals.makeLambdaRenderMediaPayload(
+		LambdaClientInternals.renderMediaOnLambdaOptionalToRequired({
 			...input,
 			serveUrl: `http://localhost:${port}`,
 			functionName,

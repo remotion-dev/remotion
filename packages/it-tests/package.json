@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.258",
+	"version": "4.0.265",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": "bun test src/rendering --run",
@@ -17,6 +17,7 @@
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda": "workspace:*",
+		"@remotion/lambda-client": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
@@ -34,6 +35,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/serverless": "workspace:*",
+		"@remotion/serverless-client": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/transitions": "workspace:*",

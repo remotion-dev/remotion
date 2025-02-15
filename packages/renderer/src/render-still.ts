@@ -68,7 +68,6 @@ type InternalRenderStillOptions = {
 	server: RemotionServer | undefined;
 	serveUrl: string;
 	port: number | null;
-	offthreadVideoCacheSizeInBytes: number | null;
 	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderStill>;
 
@@ -372,7 +371,7 @@ const internalRenderStillRaw = (
 				webpackConfigOrServeUrl: options.serveUrl,
 				port: options.port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads: options.offthreadVideoThreads ?? 2,
 				logLevel: options.logLevel,
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
@@ -456,6 +455,7 @@ export const renderStill = (
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		offthreadVideoThreads,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -520,5 +520,6 @@ export const renderStill = (
 			}),
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

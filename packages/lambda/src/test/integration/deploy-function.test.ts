@@ -1,16 +1,18 @@
+import {
+	LambdaClientInternals,
+	speculateFunctionName,
+} from '@remotion/lambda-client';
 import {expect, test} from 'bun:test';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../api/deploy-function';
-import {speculateFunctionName} from '../../api/speculate-function-name';
-import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../../shared/constants';
-import {
-	mockFullClientSpecifics,
-	mockImplementation,
-} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
 import {
 	cleanFnStore,
 	markFunctionAsIncompatible,
 } from '../mocks/mock-functions';
+import {mockImplementation} from '../mocks/mock-implementation';
+
+const {DEFAULT_EPHEMERAL_STORAGE_IN_MB} = LambdaClientInternals;
 
 test('Should be able to deploy function', async () => {
 	const {functionName} = await internalDeployFunction({
@@ -34,7 +36,7 @@ test('Should be able to deploy function', async () => {
 		speculateFunctionName({
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
-			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+			diskSizeInMb: LambdaClientInternals.DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		}),
 	);
 });

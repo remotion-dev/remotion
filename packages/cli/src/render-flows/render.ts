@@ -105,6 +105,7 @@ export const renderVideoFlow = async ({
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	repro,
 	binariesDirectory,
@@ -161,6 +162,7 @@ export const renderVideoFlow = async ({
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace | null;
 	repro: boolean;
 	binariesDirectory: string | null;
@@ -306,7 +308,9 @@ export const renderVideoFlow = async ({
 
 	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);
 	const server = await RenderInternals.prepareServer({
-		concurrency: resolvedConcurrency,
+		offthreadVideoThreads:
+			offthreadVideoThreads ??
+			RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 		indent,
 		port,
 		remotionRoot,
@@ -337,6 +341,7 @@ export const renderVideoFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
@@ -374,6 +379,8 @@ export const renderVideoFlow = async ({
 		codec,
 		scale,
 		wantsImageSequence: shouldOutputImageSequence,
+		indent,
+		logLevel,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
@@ -516,6 +523,7 @@ export const renderVideoFlow = async ({
 					data: config.props,
 				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
 			compositionStart: 0,
@@ -605,6 +613,7 @@ export const renderVideoFlow = async ({
 				staticBase: null,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		repro: repro ?? false,
 		binariesDirectory,

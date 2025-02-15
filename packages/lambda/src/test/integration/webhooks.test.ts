@@ -1,20 +1,14 @@
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless';
 import {beforeAll, expect, test} from 'bun:test';
 import path from 'path';
 import {VERSION} from 'remotion/version';
-import {
-	getWebhookCalls,
-	mockImplementation,
-	resetWebhookCalls,
-} from '../mock-implementation';
+import {getWebhookCalls, resetWebhookCalls} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 import {waitUntilDone} from './wait-until-done';
 
 beforeAll(async () => {
 	await ensureBrowser();
-	return async () => {
-		await RenderInternals.killAllBrowsers();
-	};
 });
 
 const TEST_URL = 'http://localhost:8000';
@@ -28,7 +22,7 @@ test('Should call webhook upon completion', async () => {
 
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
 		logLevel: 'error',
@@ -91,6 +85,7 @@ test('Should call webhook upon completion', async () => {
 			bucketName: null,
 			audioCodec: null,
 			offthreadVideoCacheSizeInBytes: null,
+			offthreadVideoThreads: null,
 			deleteAfter: null,
 			colorSpace: null,
 			preferLossless: false,
@@ -138,7 +133,7 @@ test('Should call webhook upon timeout', async () => {
 	// Maybe this can use simulateLambdaRender instead
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
 		logLevel: 'error',
@@ -157,6 +152,7 @@ test('Should call webhook upon timeout', async () => {
 		payload: {
 			type: ServerlessRoutines.launch,
 			offthreadVideoCacheSizeInBytes: null,
+			offthreadVideoThreads: null,
 			serveUrl: `http://localhost:${port}`,
 			chromiumOptions: {},
 			codec: 'h264',

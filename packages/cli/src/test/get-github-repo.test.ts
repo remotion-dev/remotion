@@ -49,13 +49,14 @@ test('Should normalize HTTPS URLs without .git', () => {
 });
 
 test('Should get Gif Ref', () => {
-	expect(typeof getGifRef() === 'string').toBe(true);
+	expect(typeof getGifRef('info') === 'string').toBe(true);
 });
 
 test('Should get Git Source', () => {
 	const git = getGitSource({
 		remotionRoot: process.cwd(),
 		disableGitSource: false,
+		logLevel: 'info',
 	});
 	expect(git).not.toBeNull();
 	expect(git?.relativeFromGitRoot).toBe(`packages${path.sep}cli`);
@@ -70,6 +71,7 @@ test('Should recognize VERCEL', () => {
 	const source = getGitSource({
 		remotionRoot: 'dontmatter',
 		disableGitSource: false,
+		logLevel: 'info',
 	});
 	expect(source).not.toBeNull();
 	expect(source?.name).toBe('remotion');

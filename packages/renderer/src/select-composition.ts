@@ -56,7 +56,7 @@ type CleanupFn = () => Promise<unknown>;
 
 type InnerSelectCompositionConfig = Omit<
 	InternalSelectCompositionsConfig,
-	'port'
+	'port' | 'offthreadVideoThreads'
 > & {
 	page: Page;
 	port: number;
@@ -222,7 +222,7 @@ export const internalSelectCompositionRaw = async (
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads: 0,
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
@@ -318,6 +318,7 @@ export const selectComposition = async (
 		binariesDirectory,
 		onBrowserDownload,
 		chromeMode,
+		offthreadVideoThreads,
 	} = options;
 
 	const indent = false;
@@ -353,6 +354,7 @@ export const selectComposition = async (
 			}),
 		onServeUrlVisited: () => undefined,
 		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 	return data.metadata;
 };

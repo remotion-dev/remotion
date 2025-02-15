@@ -225,7 +225,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 			if (iterationWithThisOffset > 300) {
 				throw new Error(
-					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
+					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
 				);
 			}
 

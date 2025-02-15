@@ -6,31 +6,23 @@ title: Debugging failed Lambda renders
 crumb: 'Lambda'
 ---
 
-<YouTube
-  minutes={11}
-  href="https://youtu.be/pwVEzTQ6VYE"
-  thumb="https://i.ytimg.com/vi/pwVEzTQ6VYE/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDGudSHhI9u7kkShN_awBk3hbQ9mA"
-  title="How to troubleshoot and debug for Remotion Lambda"
-/>
+<YouTube minutes={11} href="https://youtu.be/pwVEzTQ6VYE" thumb="https://i.ytimg.com/vi/pwVEzTQ6VYE/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDGudSHhI9u7kkShN_awBk3hbQ9mA" title="How to troubleshoot and debug for Remotion Lambda" />
 
 ## General debugging strategy
 
-<Step>1</Step> Reproduce a render via the [`npx remotion lambda
-render`](/docs/lambda/cli/render) command.
-- Use `--props` to pass in a JSON file with the same input props as the render
-you want to debug. - Use `--log=verbose` to get detailed debugging information.<br />
+<Step>1</Step> Reproduce a render via the [`npx remotion lambda render`](/docs/lambda/cli/render) command. - Use `--props` to pass in a JSON file with the same input props as the render you want to debug. - Use `--log=verbose` to get detailed debugging information.
+<br />
 
-<Step>2</Step> Wait for the render to fully time out or throw an error.<br/>
-<Step>3</Step> Read the error message carefully and use the log links that were
-printed.
+<Step>2</Step> Wait for the render to fully time out or throw an error.
+<br />
+<Step>3</Step> Read the error message carefully and use the log links that were printed.
 
 ## Reasons a render may fail
 
 There are four reasons renders may fail:
 
 - <Step>1</Step> An error occurs in your React code.
-- <Step>2</Step> A timeout occurs after calling
-  [`delayRender()`](/docs/delay-render).
+- <Step>2</Step> A timeout occurs after calling [`delayRender()`](/docs/delay-render).
 - <Step>3</Step> The Lambda function rendering one of the chunks times out.
 - <Step>4</Step> The main Lambda function times out.{' '}
 
@@ -50,9 +42,7 @@ You can increase the timeout by passing `timeoutInMilliseconds` to [`renderMedia
 :::
 
 <br />
-If your error message reads that the main Lambda function has timed out, it
-means that the render was still ongoing, but the maximum execution duration of
-the Lambda function has been hit. This is caused by either: <br /> <br />
+If your error message reads that the main Lambda function has timed out, it means that the render was still ongoing, but the maximum execution duration of the Lambda function has been hit. This is caused by either: <br /> <br />
 
 - A render that takes too long to complete within the specified duration. In that case, you should increase the function timeout by passing `--timeout` to the CLI [when deploying a function](/docs/lambda/cli/functions).
 - A render that has a bottleneck and completes slowly on Lambda. In that case, you should identify the bottleneck by measuring and optimizing the render. See [Optimizing for speed](/docs/lambda/optimizing-speed) for more tips.
@@ -92,7 +82,7 @@ In the logstream, you will see debug logging from Remotion as well as any `conso
 
 ### Find the logs of the main function
 
-Tweakt the query to find the logs of the main function:
+Tweak the query to find the logs of the main function:
 
 ```
 method=launch,renderId=[render-id]

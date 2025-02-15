@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/captions"
 	},
 	"name": "@remotion/captions",
-	"version": "4.0.258",
+	"version": "4.0.265",
 	"description": "Primitives for dealing with captions",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -25,7 +25,7 @@
 	"peerDependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion"

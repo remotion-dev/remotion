@@ -168,7 +168,7 @@ export const useMediaInTimeline = ({
 	useEffect(() => {
 		const tag: PlayableMediaTag = {
 			id,
-			play: () => {
+			play: (reason) => {
 				if (!imperativePlaying.current) {
 					// Don't play if for example in a <Freeze> state.
 					return;
@@ -184,6 +184,7 @@ export const useMediaInTimeline = ({
 					onAutoPlayError,
 					logLevel,
 					mountTime,
+					reason,
 				});
 			},
 		};

@@ -1,13 +1,15 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {VERSION} from 'remotion/version';
-import type {Await} from './await';
+import type {
+	Await,
+	CloudProvider,
+	ProviderSpecifics,
+} from '@remotion/serverless-client';
+import {VERSION} from '@remotion/serverless-client';
 import type {
 	GetBrowserInstance,
 	InsideFunctionSpecifics,
-	ProviderSpecifics,
 } from './provider-implementation';
-import type {CloudProvider} from './types';
 
 export type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
@@ -71,7 +73,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,

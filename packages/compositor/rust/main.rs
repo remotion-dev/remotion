@@ -1,12 +1,15 @@
 mod commands;
 mod errors;
+mod extract_audio;
 mod ffmpeg;
 mod frame_cache;
 mod frame_cache_manager;
 mod get_silent_parts;
+mod get_video_metadata;
 mod global_printer;
 mod image;
 mod logger;
+mod long_running_process;
 mod max_cache_size;
 mod memory;
 mod opened_stream;
@@ -15,15 +18,17 @@ mod opened_video_manager;
 mod payloads;
 mod rotation;
 mod scalable_frame;
+mod select_right_thread;
+mod thread;
 mod tone_map;
 
-use commands::execute_command;
-use errors::{error_to_json, ErrorWithBacktrace};
+use errors::ErrorWithBacktrace;
 use global_printer::{_print_verbose, set_verbose_logging};
+use long_running_process::LongRunningProcess;
 use memory::get_ideal_maximum_frame_cache_size;
-use std::{env, thread};
+use std::env;
 
-use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
+use payloads::payloads::{CliInputCommand, CliInputCommandPayload};
 
 extern crate png;
 
@@ -49,88 +54,25 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
                 .unwrap_or(get_ideal_maximum_frame_cache_size());
 
             _print_verbose(&format!(
-                "Starting Rust process. Max video cache size: {}MB, max concurrency = {}",
+                "Starting Rust process. Max video cache size: {}MB, max threads = {}",
                 max_video_cache_size / 1024 / 1024,
                 payload.concurrency
             ))?;
 
-            start_long_running_process(payload.concurrency, max_video_cache_size)?;
+            let mut long_running_process =
+                LongRunningProcess::new(payload.concurrency, max_video_cache_size);
+            long_running_process.start()
         }
         _ => {
-            let data = execute_command(opts.payload)?;
-            global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
+            panic!("only supports long running compositor")
         }
     }
-
-    Ok(())
 }
 
 pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {
     let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
     Ok(cli_input)
-}
-
-fn start_long_running_process(
-    threads: usize,
-    maximum_frame_cache_size_in_bytes: u128,
-) -> Result<(), ErrorWithBacktrace> {
-    let pool = rayon_core::ThreadPoolBuilder::new()
-        .num_threads(threads)
-        .build()?;
-
-    max_cache_size::get_instance()
-        .lock()
-        .unwrap()
-        .set_value(Some(maximum_frame_cache_size_in_bytes));
-
-    loop {
-        let mut input = String::new();
-        let matched = match std::io::stdin().read_line(&mut input) {
-            Ok(_) => input,
-            Err(_) => {
-                break;
-            }
-        };
-
-        input = matched.trim().to_string();
-        if input == "EOF" {
-            break;
-        }
-        let opts: CliInputCommand = parse_cli(&input)?;
-
-        if threads > 1 {
-            pool.install(move || {
-                let handle = thread::spawn(move || {
-                    match execute_command(opts.payload) {
-                        Ok(res) => {
-                            global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap()
-                        }
-                        Err(err) => global_printer::synchronized_write_buf(
-                            1,
-                            &opts.nonce,
-                            &error_to_json(err).unwrap().as_bytes(),
-                        )
-                        .unwrap(),
-                    };
-                });
-
-                handle.join().unwrap();
-            });
-        } else {
-            match execute_command(opts.payload) {
-                Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
-                Err(err) => global_printer::synchronized_write_buf(
-                    1,
-                    &opts.nonce,
-                    &error_to_json(err).unwrap().as_bytes(),
-                )
-                .unwrap(),
-            };
-        }
-    }
-
-    Ok(())
 }
 
 fn main() {

@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
-import {AwsProvider} from '../../../functions/aws-implementation';
-import {BINARY_NAME} from '../../../shared/constants';
+import {AwsProvider} from '../../../client';
+import {BINARY_NAME} from '../../../defaults';
 import {quit} from '../../helpers/quit';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND, functionsDeploySubcommand} from './deploy';
 import {FUNCTIONS_LS_SUBCOMMAND, functionsLsCommand} from './ls';

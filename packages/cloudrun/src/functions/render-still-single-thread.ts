@@ -94,6 +94,7 @@ export const renderStillSingleThread = async (
 			puppeteerInstance: null,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads: body.offthreadVideoThreads,
 			binariesDirectory: null,
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Cloud Run');

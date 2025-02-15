@@ -11,6 +11,7 @@ const label: React.CSSProperties = {
 	color: 'white',
 	fontSize: 15,
 	fontFamily: 'Arial, Helvetica, sans-serif',
+	whiteSpace: 'nowrap',
 };
 
 const pushWithMaxSize = (

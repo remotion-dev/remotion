@@ -1,6 +1,5 @@
 import type {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
 
-/* eslint-disable complexity */
 export const renderMetadataLabel = (key: string) => {
 	if (key === 'com.apple.quicktime.location.accuracy.horizontal') {
 		return 'Location Accuracy (Horizontal)';

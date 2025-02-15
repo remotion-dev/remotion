@@ -16,6 +16,7 @@ export const extractAudio = async (options: {
 		logLevel: options?.logLevel ?? 'info',
 		indent: false,
 		binariesDirectory: options.binariesDirectory ?? null,
+		extraThreads: 0,
 	});
 	await compositor.executeCommand('ExtractAudio', {
 		input_path: options.videoSource,

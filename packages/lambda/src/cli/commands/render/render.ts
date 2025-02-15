@@ -6,25 +6,25 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
-import {getRenderProgress} from '../../../api/get-render-progress';
-import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 
+import {
+	AwsProvider,
+	getRenderProgress,
+	LambdaClientInternals,
+} from '@remotion/lambda-client';
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import {
 	validateFramesPerFunction,
 	validatePrivacy,
 	type ServerlessCodec,
-} from '@remotion/serverless/client';
-import type {AwsProvider} from '../../../functions/aws-implementation';
-import {parseFunctionName} from '../../../functions/helpers/parse-function-name';
+} from '@remotion/serverless';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
-} from '../../../shared/constants';
+} from '../../../defaults';
 import {sleep} from '../../../shared/sleep';
 import {validateMaxRetries} from '../../../shared/validate-retries';
-import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -39,6 +39,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
@@ -116,6 +117,9 @@ export const renderCommand = async ({
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -192,7 +196,7 @@ export const renderCommand = async ({
 			'No compositions passed. Fetching compositions...',
 		);
 
-		validateServeUrl(serveUrl);
+		LambdaClientInternals.validateServeUrl(serveUrl);
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
@@ -201,7 +205,7 @@ export const renderCommand = async ({
 		}
 
 		const server = await RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -237,6 +241,7 @@ export const renderCommand = async ({
 				width,
 				server,
 				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
 				binariesDirectory,
 				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 					indent,
@@ -285,7 +290,7 @@ export const renderCommand = async ({
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
-	const res = await internalRenderMediaOnLambdaRaw({
+	const res = await LambdaClientInternals.internalRenderMediaOnLambdaRaw({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -333,6 +338,7 @@ export const renderCommand = async ({
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
 		indent: false,
@@ -429,7 +435,8 @@ export const renderCommand = async ({
 		);
 	}
 
-	const adheresToFunctionNameConvention = parseFunctionName(functionName);
+	const adheresToFunctionNameConvention =
+		LambdaClientInternals.parseFunctionName(functionName);
 
 	const status = await getRenderProgress({
 		functionName,

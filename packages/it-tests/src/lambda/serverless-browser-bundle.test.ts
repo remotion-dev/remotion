@@ -1,10 +1,10 @@
 import {expect, test} from 'bun:test';
 
 test('Serverless client should not contain certain things', async () => {
-	const resolve = Bun.resolveSync('@remotion/serverless/client', __dirname);
+	const resolve = Bun.resolveSync('@remotion/serverless-client', __dirname);
 	const out = await Bun.build({
 		entrypoints: [resolve],
-		external: ['remotion'],
+		external: [],
 	});
 	if (!out.success) {
 		throw new Error(out.logs.join('\n'));

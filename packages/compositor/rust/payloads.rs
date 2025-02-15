@@ -37,7 +37,7 @@ pub mod payloads {
         Jpeg,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct ExtractFrameCommand {
         pub src: String,
         pub original_src: String,
@@ -46,7 +46,7 @@ pub mod payloads {
         pub tone_mapped: bool,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     #[allow(non_snake_case)]
     pub struct GetSilences {
         pub src: String,
@@ -54,25 +54,24 @@ pub mod payloads {
         pub minDurationInSeconds: f64,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct StartPayLoad {
         pub concurrency: usize,
-        pub maximum_frame_cache_size_in_bytes: Option<u128>,
+        pub maximum_frame_cache_size_in_bytes: Option<u64>,
         pub verbose: bool,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct GetOpenVideoStats {}
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct DeliberatePanic {}
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct CloseAllVideos {}
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct OpenVideoStats {
-        pub open_videos: usize,
         pub open_streams: usize,
         pub frames_in_cache: usize,
     }
@@ -223,28 +222,36 @@ pub mod payloads {
         pub durationInSeconds: f64,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct FreeUpMemory {
-        pub remaining_bytes: u128,
+        pub remaining_bytes: u64,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct EchoPayload {
         pub message: String,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct GetVideoMetadata {
         pub src: String,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct ExtractAudio {
         pub input_path: String,
         pub output_path: String,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Clone, Serialize, Deserialize, Debug)]
+    pub struct DeleteFramesFromCache {
+        pub maximum_frame_cache_size_in_bytes: u64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct Eof {}
+
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     #[serde(tag = "type", content = "params")]
     pub enum CliInputCommandPayload {
         ExtractFrame(ExtractFrameCommand),
@@ -257,12 +264,20 @@ pub mod payloads {
         GetVideoMetadata(GetVideoMetadata),
         GetSilences(GetSilences),
         ExtractAudio(ExtractAudio),
+        Eof(Eof),
+        DeleteFramesFromCache(DeleteFramesFromCache),
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct CliInputCommand {
         pub payload: CliInputCommandPayload,
         pub nonce: String,
+    }
+
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct CliInputAndMaxCacheSize {
+        pub cli_input: CliInputCommand,
+        pub max_cache_size: u64,
     }
 
     pub fn parse_cli(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {

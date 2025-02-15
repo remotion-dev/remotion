@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.258",
+	"version": "4.0.265",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -30,7 +30,7 @@
 		"@mdx-js/loader": "^2.3.0",
 		"@mdx-js/react": "^2.3.0",
 		"@react-three/drei": "9.120.0",
-		"@react-three/fiber": "9.0.0-rc.1",
+		"@react-three/fiber": "9.0.0-rc.6",
 		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
@@ -44,6 +44,7 @@
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/lambda": "workspace:*",
+		"@remotion/lambda-client": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
@@ -96,7 +97,7 @@
 		"prettier-plugin-organize-imports": "3.2.4",
 		"sharp": "0.32.6",
 		"@types/dom-webcodecs": "0.1.11",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"
