@@ -1,4 +1,5 @@
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import {parseMedia} from '../../parse-media';
 import type {M3uState} from '../../state/m3u-state';
 import {getChunks} from './get-chunks';
@@ -12,6 +13,7 @@ export const iteratorOverTsFiles = async ({
 	onAudioTrack,
 	onDoneWithTracks,
 	playlistUrl,
+	logLevel,
 }: {
 	structure: M3uStructure;
 	onVideoTrack: (track: VideoTrack) => Promise<void>;
@@ -19,6 +21,7 @@ export const iteratorOverTsFiles = async ({
 	onDoneWithTracks: () => void;
 	m3uState: M3uState;
 	playlistUrl: string;
+	logLevel: LogLevel;
 }) => {
 	const playlist = getPlaylist(structure);
 	const chunks = getChunks(playlist);
@@ -29,6 +32,7 @@ export const iteratorOverTsFiles = async ({
 		await parseMedia({
 			src,
 			acknowledgeRemotionLicense: true,
+			logLevel,
 			onTracks: () => {
 				if (!m3uState.hasEmittedDoneWithTracks()) {
 					m3uState.setHasEmittedDoneWithTracks();

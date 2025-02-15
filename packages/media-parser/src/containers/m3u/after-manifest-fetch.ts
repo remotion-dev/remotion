@@ -32,6 +32,7 @@ export const afterManifestFetch = async ({
 	await iteratorOverTsFiles({
 		playlistUrl: selectedStream.url,
 		structure,
+		logLevel: state.logLevel,
 		onDoneWithTracks() {
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		},
@@ -39,45 +40,14 @@ export const afterManifestFetch = async ({
 			await registerTrack({
 				container: 'm3u8',
 				state,
-				track: {
-					type: 'audio',
-					codec: track.codec,
-					codecPrivate: track.codecPrivate,
-					codecWithoutConfig: track.codecWithoutConfig,
-					description: track.description,
-					numberOfChannels: track.numberOfChannels,
-					sampleRate: track.sampleRate,
-					timescale: track.timescale,
-					trackId: track.trackId,
-					trakBox: track.trakBox,
-				},
+				track,
 			});
 		},
 		onVideoTrack: async (track) => {
 			await registerTrack({
 				container: 'm3u8',
 				state,
-				track: {
-					type: 'video',
-					// Explicitly copying everything over so we don't forget to change anything if necessary
-					codec: track.codec,
-					codecPrivate: track.codecPrivate,
-					codecWithoutConfig: track.codecWithoutConfig,
-					codedHeight: track.codedHeight,
-					codedWidth: track.codedWidth,
-					color: track.color,
-					description: track.description,
-					displayAspectHeight: track.displayAspectHeight,
-					displayAspectWidth: track.displayAspectWidth,
-					fps: track.fps,
-					height: track.height,
-					rotation: track.rotation,
-					sampleAspectRatio: track.sampleAspectRatio,
-					timescale: track.timescale,
-					trackId: track.trackId,
-					trakBox: track.trakBox,
-					width: track.width,
-				},
+				track,
 			});
 		},
 		m3uState,

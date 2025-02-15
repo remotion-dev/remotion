@@ -8,6 +8,7 @@ test('parse m3u8', async () => {
 		fields: {
 			audioCodec: true,
 		},
+		logLevel: 'trace',
 	});
 
 	expect(audioCodec).toBe('mp4a.40.2');

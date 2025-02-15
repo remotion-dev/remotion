@@ -49,6 +49,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 		callbacks: more,
 	});
 
+	Log.trace(logLevel, `Reading ${typeof src === 'string' ? src : src.name}`);
+
 	const {
 		reader: readerInstance,
 		contentLength,
