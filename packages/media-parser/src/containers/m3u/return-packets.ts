@@ -45,21 +45,41 @@ export const iteratorOverTsFiles = async ({
 				return null;
 			}
 		},
-		onAudioTrack: ({track}) => {
-			if (!m3uState.hasEmittedAudioTrack()) {
-				m3uState.setHasEmittedAudioTrack();
-				return onAudioTrack(track);
+		onAudioTrack: async ({track}) => {
+			const callbackOrFalse = m3uState.hasEmittedAudioTrack();
+			if (callbackOrFalse === false) {
+				const callback = await onAudioTrack(track);
+
+				if (!callback) {
+					m3uState.setHasEmittedAudioTrack(null);
+					return null;
+				}
+
+				m3uState.setHasEmittedAudioTrack(callback);
+				return (sample) => {
+					return callback(sample);
+				};
 			}
 
-			return null;
+			return callbackOrFalse;
 		},
-		onVideoTrack: ({track}) => {
-			if (!m3uState.hasEmittedVideoTrack()) {
-				m3uState.setHasEmittedVideoTrack();
-				return onVideoTrack(track);
+		onVideoTrack: async ({track}) => {
+			const callbackOrFalse = m3uState.hasEmittedVideoTrack();
+			if (callbackOrFalse === false) {
+				const callback = await onVideoTrack(track);
+
+				if (!callback) {
+					m3uState.setHasEmittedVideoTrack(null);
+					return null;
+				}
+
+				m3uState.setHasEmittedVideoTrack(callback);
+				return (sample) => {
+					return callback(sample);
+				};
 			}
 
-			return null;
+			return callbackOrFalse;
 		},
 	});
 

@@ -4,6 +4,9 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('parse m3u8', async () => {
+	let audioSamples = 0;
+	let videoSamples = 0;
+
 	const {
 		dimensions,
 		durationInSeconds,
@@ -22,6 +25,16 @@ test('parse m3u8', async () => {
 	} = await parseMedia({
 		src: exampleVideos.m3u8,
 		reader: nodeReader,
+		onAudioTrack: () => {
+			return () => {
+				audioSamples++;
+			};
+		},
+		onVideoTrack: () => {
+			return () => {
+				videoSamples++;
+			};
+		},
 		fields: {
 			structure: true,
 			durationInSeconds: true,
@@ -115,4 +128,6 @@ test('parse m3u8', async () => {
 	expect(metadata).toEqual([]);
 	expect(mimeType).toBe(null);
 	expect(name).toBe('video.m3u8');
+	expect(audioSamples).toBe(240);
+	expect(videoSamples).toBe(151);
 });

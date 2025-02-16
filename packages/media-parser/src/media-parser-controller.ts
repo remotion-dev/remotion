@@ -1,4 +1,5 @@
 import {MediaParserEmitter} from './emitter';
+import {MediaParserAbortError} from './errors';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
 
@@ -25,7 +26,7 @@ export const mediaParserController = (): MediaParserController => {
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
-			throw new Error('Aborted');
+			throw new MediaParserAbortError('Aborted');
 		}
 
 		await pauseSignal.waitUntilResume();

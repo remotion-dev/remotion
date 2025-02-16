@@ -1,9 +1,10 @@
 import type {M3uStream} from '../containers/m3u/get-streams';
+import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
 
 export const m3uState = () => {
 	let selectedStream: M3uStream | null = null;
-	let hasEmittedVideoTrack = false;
-	let hasEmittedAudioTrack = false;
+	let hasEmittedVideoTrack: null | OnVideoSample | false = false;
+	let hasEmittedAudioTrack: null | OnAudioSample | false = false;
 	let hasEmittedDoneWithTracks = false;
 
 	let readyToIterateOverM3u = false;
@@ -15,12 +16,12 @@ export const m3uState = () => {
 			selectedStream = stream;
 		},
 		getSelectedStream: () => selectedStream,
-		setHasEmittedVideoTrack: () => {
-			hasEmittedVideoTrack = true;
+		setHasEmittedVideoTrack: (callback: OnVideoSample | null) => {
+			hasEmittedVideoTrack = callback;
 		},
 		hasEmittedVideoTrack: () => hasEmittedVideoTrack,
-		setHasEmittedAudioTrack: () => {
-			hasEmittedAudioTrack = true;
+		setHasEmittedAudioTrack: (callback: OnAudioSample | null) => {
+			hasEmittedAudioTrack = callback;
 		},
 		hasEmittedAudioTrack: () => hasEmittedAudioTrack,
 		setHasEmittedDoneWithTracks: () => {
