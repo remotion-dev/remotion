@@ -38,7 +38,7 @@ export const getM3uStreams = (
 				bandwidth: str.bandwidth,
 				codecs: str.codecs,
 				resolution: str.resolution,
-				id: i,
+				id: boxes.length,
 			});
 		}
 	}

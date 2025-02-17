@@ -95,9 +95,9 @@ export type {
 export type {LogLevel};
 
 export {
-	defaultStreamSelectionFn,
-	StreamSelectionFn,
-	StreamSelectionFnOptions,
+	defaultSelectM3uStreamFn,
+	SelectM3uStreamFn,
+	SelectM3uStreamFnOptions,
 } from './containers/m3u/select-stream';
 export {
 	mediaParserController,

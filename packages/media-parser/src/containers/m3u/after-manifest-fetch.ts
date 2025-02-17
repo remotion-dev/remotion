@@ -4,7 +4,7 @@ import type {ParserState} from '../../state/parser-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
 import {getM3uStreams} from './get-streams';
 import {iteratorOverTsFiles} from './return-packets';
-import type {StreamSelectionFn} from './select-stream';
+import type {SelectM3uStreamFn} from './select-stream';
 import {selectStream} from './select-stream';
 import type {M3uStructure} from './types';
 
@@ -12,19 +12,19 @@ export const afterManifestFetch = async ({
 	structure,
 	m3uState,
 	src,
-	streamSelectionFn,
+	selectM3uStreamFn,
 }: {
 	structure: M3uStructure;
 	m3uState: M3uState;
 	src: string | null;
-	streamSelectionFn: StreamSelectionFn;
+	selectM3uStreamFn: SelectM3uStreamFn;
 }) => {
 	const streams = getM3uStreams(structure, src);
 	if (streams === null) {
 		throw new Error('No streams found');
 	}
 
-	const selectedStream = await selectStream({streams, fn: streamSelectionFn});
+	const selectedStream = await selectStream({streams, fn: selectM3uStreamFn});
 	m3uState.setSelectedStream(selectedStream);
 
 	if (!selectedStream.resolution) {

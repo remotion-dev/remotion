@@ -46,7 +46,7 @@ export const getMoovAtom = async ({
 		readerInterface: state.readerInterface,
 		src: state.src,
 		onDiscardedData: null,
-		streamSelectionFn: state.streamSelectionFn,
+		selectM3uStreamFn: state.selectM3uStreamFn,
 	});
 
 	while (true) {
