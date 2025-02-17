@@ -131,6 +131,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	forcePathStyle,
 	metadata,
 	apiKey,
+	offthreadVideoThreads,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -211,6 +212,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		forcePathStyle: forcePathStyle ?? false,
 		metadata: metadata ?? null,
 		apiKey: apiKey ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	};
 };
 
@@ -313,5 +315,6 @@ export const makeLambdaRenderStillPayload = async ({
 		streamed: true,
 		forcePathStyle,
 		apiKey: apiKey ?? null,
+		offthreadVideoThreads: null,
 	};
 };

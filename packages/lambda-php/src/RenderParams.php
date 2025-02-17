@@ -47,6 +47,7 @@ class RenderParams
     protected $forceWidth = null;
     protected $apiKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
+    protected $offthreadVideoThreads = null;
     protected $audioCodec = null;
     protected $rendererFunctionName = null;
     protected $proResProfile = null;
@@ -86,6 +87,7 @@ class RenderParams
         ?int    $forceWidth = null,
         ?int    $apiKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
+        ?int    $offthreadVideoThreads = null,
         ?string $audioCodec = null,
         ?int    $framesPerLambda = null,
         ?string $rendererFunctionName = null,
@@ -137,6 +139,7 @@ class RenderParams
         $this->forceWidth = $forceWidth;
         $this->apiKey = $apiKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+        $this->offthreadVideoThreads = $offthreadVideoThreads;
         $this->audioCodec = $audioCodec;
         $this->framesPerLambda = $framesPerLambda;
         $this->rendererFunctionName = $rendererFunctionName;
@@ -187,6 +190,7 @@ class RenderParams
             'forceWidth' => $this->getForceWidth(),
             'apiKey' => $this->getApiKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
+            'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
@@ -715,6 +719,10 @@ class RenderParams
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
     }
+    public function setOffthreadVideoThreads($offthreadVideoThreads)
+    {
+        $this->offthreadVideoThreads = $offthreadVideoThreads;
+    }
 
     // Getter methods
     public function getMuted()
@@ -775,6 +783,10 @@ class RenderParams
     public function getOffthreadVideoCacheSizeInBytes()
     {
         return $this->offthreadVideoCacheSizeInBytes;
+    }
+    public function getOffthreadVideoThreads()
+    {
+        return $this->offthreadVideoThreads;
     }
 
     /**

@@ -28,6 +28,7 @@ import {makeArtifactProgress} from './render/progress';
 
 const {
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	deleteAfterOption,
 	jpegQualityOption,
@@ -120,6 +121,9 @@ export const stillCommand = async ({
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -139,7 +143,7 @@ export const stillCommand = async ({
 		}
 
 		const server = await RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -174,6 +178,7 @@ export const stillCommand = async ({
 			width,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 				indent,

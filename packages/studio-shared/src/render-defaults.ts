@@ -43,6 +43,7 @@ export type RenderDefaults = {
 	openGlRenderer: OpenGlRenderer | null;
 	ignoreCertificateErrors: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	headless: boolean;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;

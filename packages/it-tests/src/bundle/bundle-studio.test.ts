@@ -24,7 +24,7 @@ test('Bundle studio', async () => {
 		path.join(process.cwd(), '..', 'example', 'build'),
 		{
 			port: null,
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			downloadMap: RenderInternals.makeDownloadMap(),
 			indent: false,
 			logLevel: 'info',

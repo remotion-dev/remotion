@@ -37,6 +37,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {validateSelectedCodecAndPresetCombination} from './options/x264-preset';
@@ -250,6 +251,7 @@ const internalRenderMediaRaw = ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	offthreadVideoThreads,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -569,7 +571,9 @@ const internalRenderMediaRaw = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: resolvedConcurrency,
+						offthreadVideoThreads:
+							offthreadVideoThreads ??
+							DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
@@ -665,6 +669,7 @@ const internalRenderMediaRaw = ({
 					server,
 					serializedResolvedPropsWithCustomSchema,
 					offthreadVideoCacheSizeInBytes,
+					offthreadVideoThreads,
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
 					compositionStart,
@@ -897,6 +902,7 @@ export const renderMedia = ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	offthreadVideoThreads,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -964,6 +970,7 @@ export const renderMedia = ({
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
 		binariesDirectory: binariesDirectory ?? null,

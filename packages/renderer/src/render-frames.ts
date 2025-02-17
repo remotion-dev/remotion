@@ -37,6 +37,7 @@ import {
 } from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
@@ -457,6 +458,7 @@ const internalRenderFramesRaw = ({
 	onBrowserDownload,
 	onArtifact,
 	chromeMode,
+	offthreadVideoThreads,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -520,7 +522,9 @@ const internalRenderFramesRaw = ({
 						webpackConfigOrServeUrl: webpackBundleOrServeUrl,
 						port,
 						remotionRoot: findRemotionRoot(),
-						concurrency: resolvedConcurrency,
+						offthreadVideoThreads:
+							offthreadVideoThreads ??
+							DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 						logLevel,
 						indent,
 						offthreadVideoCacheSizeInBytes,
@@ -586,6 +590,7 @@ const internalRenderFramesRaw = ({
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,
+					offthreadVideoThreads,
 				});
 			}),
 		])
@@ -683,6 +688,7 @@ export const renderFrames = (
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		offthreadVideoThreads,
 	} = options;
 
 	if (!composition) {
@@ -756,5 +762,6 @@ export const renderFrames = (
 			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

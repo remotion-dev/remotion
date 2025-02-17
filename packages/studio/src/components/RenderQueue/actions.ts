@@ -36,6 +36,7 @@ export const addStillRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	multiProcessOnLinux,
 	beepOnFinish,
 	metadata,
@@ -53,6 +54,7 @@ export const addStillRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
@@ -77,6 +79,7 @@ export const addStillRenderJob = ({
 				indent: undefined,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		multiProcessOnLinux,
 		beepOnFinish,
 		metadata,
@@ -98,6 +101,7 @@ export const addSequenceRenderJob = ({
 	inputProps,
 	concurrency,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	jpegQuality,
 	disallowParallelEncoding,
 	multiProcessOnLinux,
@@ -120,6 +124,7 @@ export const addSequenceRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	disallowParallelEncoding: boolean;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
@@ -148,6 +153,7 @@ export const addSequenceRenderJob = ({
 				indent: undefined,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		disallowParallelEncoding,
 		multiProcessOnLinux,
 		beepOnFinish,
@@ -185,6 +191,7 @@ export const addVideoRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	multiProcessOnLinux,
 	encodingMaxRate,
@@ -224,6 +231,7 @@ export const addVideoRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
 	encodingMaxRate: string | null;
@@ -270,6 +278,7 @@ export const addVideoRenderJob = ({
 				indent: undefined,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		multiProcessOnLinux,
 		encodingBufferSize,

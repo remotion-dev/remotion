@@ -4,8 +4,13 @@ import {
   speculateFunctionName,
 } from "@remotion/lambda/client";
 import { executeApi } from "../../../../helpers/api-response";
-import { TIMEOUT } from "dns";
-import { DISK, RAM, REGION, SITE_NAME } from "../../../../../config.mjs";
+import {
+  DISK,
+  RAM,
+  REGION,
+  SITE_NAME,
+  TIMEOUT,
+} from "../../../../../config.mjs";
 import { RenderRequest } from "../../../../types/schema";
 
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(

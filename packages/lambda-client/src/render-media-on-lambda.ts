@@ -142,6 +142,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 	options: RenderMediaOnLambdaInput,
 ): InnerRenderMediaOnLambdaInput => {
 	return {
+		offthreadVideoThreads: options.offthreadVideoThreads ?? null,
 		audioBitrate: options.audioBitrate ?? null,
 		audioCodec: options.audioCodec ?? null,
 		chromiumOptions: options.chromiumOptions ?? {},

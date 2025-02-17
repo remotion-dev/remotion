@@ -15,6 +15,7 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 const {
 	enableMultiprocessOnLinuxOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	glOption,
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
@@ -97,6 +98,9 @@ export const listCompositionsCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
@@ -146,6 +150,7 @@ export const listCompositionsCommand = async (
 		logLevel,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		binariesDirectory,
 		onBrowserDownload: defaultBrowserDownloadProgress({
 			indent: false,

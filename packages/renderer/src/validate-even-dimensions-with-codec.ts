@@ -72,12 +72,12 @@ export const validateEvenDimensionsWithCodec = ({
 		throw new Error(message);
 	}
 
-	if (height % 2 !== 0) {
+	if (actualHeight % 2 !== 0) {
 		const message = [
 			`Codec error: You are trying to render a video with a ${displayName} codec that has a height of ${actualHeight}px, which is an uneven number.`,
 			`The ${displayName} codec does only support dimensions that are evenly divisible by two. `,
 			scale === 1
-				? `Change the height to ${Math.floor(height - 1)}px to fix this issue.`
+				? `Change the height to ${Math.floor(actualHeight - 1)}px to fix this issue.`
 				: `You have used the "scale" option which might be the reason for the problem: The original height is ${height} and the scale is ${scale}x, which was multiplied to get the actual height.`,
 		].join(' ');
 		throw new Error(message);

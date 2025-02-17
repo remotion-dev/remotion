@@ -191,5 +191,6 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		dumpBrowserLogs: false,
 		forcePathStyle: input.forcePathStyle ?? false,
 		apiKey: input.apiKey ?? null,
+		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 	});
 };

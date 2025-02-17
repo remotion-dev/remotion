@@ -98,6 +98,7 @@ export const RenderButton: React.FC = () => {
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 			initialOffthreadVideoCacheSizeInBytes:
 				defaults.offthreadVideoCacheSizeInBytes,
+			initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
 			defaultProps: props[video.id] ?? video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,

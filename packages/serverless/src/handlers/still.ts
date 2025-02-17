@@ -123,7 +123,9 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const {server, cleanupServer} = await RenderInternals.makeOrReuseServer(
 		undefined,
 		{
-			concurrency: 1,
+			offthreadVideoThreads:
+				params.offthreadVideoThreads ??
+				RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 			indent: false,
 			port: null,
 			remotionRoot: process.cwd(),
@@ -160,6 +162,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		},
 		onServeUrlVisited: () => undefined,
 		providerSpecifics,
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
@@ -306,6 +309,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onBrowserDownload,
 		onArtifact,
 		chromeMode: 'headless-shell',
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);

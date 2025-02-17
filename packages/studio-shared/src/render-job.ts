@@ -104,6 +104,7 @@ type RenderJobDynamicFields =
 			frame: number;
 			scale: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'sequence';
@@ -114,6 +115,7 @@ type RenderJobDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'video';
@@ -139,6 +141,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			offthreadVideoThreads: number | null;
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
