@@ -60,11 +60,10 @@ test('parse m3u8', async () => {
 		acknowledgeRemotionLicense: true,
 	});
 
-	expect(durationInSeconds).toBe(6);
+	expect(durationInSeconds).toBe(5.06667);
 	expect(dimensions).toEqual({
-		// TODO: Why not 1000x1000?
-		width: 1008,
-		height: 1008,
+		width: 1000,
+		height: 1000,
 	});
 	expect(tracks.videoTracks).toEqual([
 		{
@@ -76,8 +75,8 @@ test('parse m3u8', async () => {
 				227, 6, 50, 192, 1, 0, 4, 104, 234, 239, 44,
 			]),
 			codecWithoutConfig: 'h264',
-			codedHeight: 1008,
-			codedWidth: 1008,
+			codedHeight: 1000,
+			codedWidth: 1000,
 			color: {
 				matrixCoefficients: 'bt470bg',
 				transferCharacteristics: null,
@@ -85,10 +84,10 @@ test('parse m3u8', async () => {
 				fullRange: true,
 			},
 			description: undefined,
-			displayAspectHeight: 1008,
-			displayAspectWidth: 1008,
+			displayAspectHeight: 1000,
+			displayAspectWidth: 1000,
 			fps: null,
-			height: 1008,
+			height: 1000,
 			rotation: 0,
 			sampleAspectRatio: {
 				denominator: 1,
@@ -97,7 +96,7 @@ test('parse m3u8', async () => {
 			timescale: 90000,
 			trackId: 256,
 			trakBox: null,
-			width: 1008,
+			width: 1000,
 		},
 	]);
 	expect(tracks.audioTracks).toEqual([
