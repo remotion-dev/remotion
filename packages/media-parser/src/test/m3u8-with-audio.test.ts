@@ -24,6 +24,9 @@ test(
 				},
 				logLevel: 'info',
 				controller,
+				onDurationInSeconds: (durationInSeconds) => {
+					expect(durationInSeconds).toBe(634.584);
+				},
 				onAudioTrack: () => {
 					return (s) => {
 						if (s.dts < lastAudioTimestamp) {
@@ -51,7 +54,10 @@ test(
 			});
 			throw new Error('Should have thrown');
 		} catch (e) {
-			expect(hasBeenAborted(e)).toBe(true);
+			if (!hasBeenAborted(e)) {
+				throw e;
+			}
+
 			expect(audioSamples).toBe(861);
 			expect(videoSamples).toBe(1200);
 		}

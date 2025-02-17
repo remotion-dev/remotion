@@ -12,12 +12,10 @@ export const getPlaylist = (structure: M3uStructure) => {
 };
 
 export const getDurationFromPlaylist = (playlist: M3uPlaylist): number => {
-	const duration = playlist.boxes.find(
-		(box) => box.type === 'm3u-target-duration',
-	);
-	if (!duration) {
+	const duration = playlist.boxes.filter((box) => box.type === 'm3u-extinf');
+	if (duration.length === 0) {
 		throw new Error('Expected duration in m3u playlist');
 	}
 
-	return duration.duration;
+	return duration.reduce((acc, d) => acc + d.value, 0);
 };
