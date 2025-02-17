@@ -17,6 +17,7 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 			structure,
 			m3uState: state.m3u,
 			src: typeof state.src === 'string' ? state.src : null,
+			streamSelectionFn: state.streamSelectionFn,
 		});
 		return null;
 	}

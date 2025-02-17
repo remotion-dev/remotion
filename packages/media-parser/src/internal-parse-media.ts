@@ -35,6 +35,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	onError,
 	acknowledgeRemotionLicense,
 	apiName,
+	streamSelectionFn,
 	...more
 }: InternalParseMediaOptions<F>) {
 	warnIfRemotionLicenseNotAcknowledged({
@@ -108,6 +109,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		readerInterface,
 		src,
 		onDiscardedData,
+		streamSelectionFn,
 	});
 	const {iterator} = state;
 

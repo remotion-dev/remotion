@@ -1,5 +1,6 @@
 import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
+import type {StreamSelectionFn} from '../containers/m3u/select-stream';
 import {Log, type LogLevel} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
 import type {
@@ -51,6 +52,7 @@ export const makeParserState = ({
 	src,
 	readerInterface,
 	onDiscardedData,
+	streamSelectionFn,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -64,6 +66,7 @@ export const makeParserState = ({
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;
 	onDiscardedData: OnDiscardedData | null;
+	streamSelectionFn: StreamSelectionFn;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -137,6 +140,7 @@ export const makeParserState = ({
 		src,
 		readerInterface,
 		discardReadBytes,
+		streamSelectionFn,
 	};
 };
 

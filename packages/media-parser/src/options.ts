@@ -1,4 +1,5 @@
 import type {M3uStream} from './containers/m3u/get-streams';
+import type {StreamSelectionFn} from './containers/m3u/select-stream';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
@@ -275,6 +276,7 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
+	streamSelectionFn: StreamSelectionFn;
 } & MandatoryParseMediaCallbacks;
 
 type ParseMediaSampleCallbacks = {

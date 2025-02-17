@@ -1,3 +1,4 @@
+import {defaultStreamSelectionFn} from './containers/m3u/select-stream';
 import {internalParseMedia} from './internal-parse-media';
 import type {ParseMedia} from './options';
 import {fetchReader} from './readers/from-fetch';
@@ -40,6 +41,7 @@ export const parseMedia: ParseMedia = (options) => {
 		progressIntervalInMs: options.progressIntervalInMs ?? null,
 		reader: options.reader ?? fetchReader,
 		controller: options.controller ?? undefined,
+		streamSelectionFn: options.streamSelectionFn ?? defaultStreamSelectionFn,
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,
