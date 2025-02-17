@@ -1,6 +1,7 @@
 import type {AacStructure} from './containers/aac/types';
 import type {FlacStructure} from './containers/flac/types';
 import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
+import type {M3uStructure} from './containers/m3u/types';
 import type {RiffBox, RiffStructure} from './containers/riff/riff-box';
 import type {TransportStreamBox} from './containers/transport-stream/boxes';
 import type {WavStructure} from './containers/wav/types';
@@ -53,6 +54,7 @@ export type Structure =
 	| Mp3Structure
 	| AacStructure
 	| WavStructure
+	| M3uStructure
 	| FlacStructure;
 
 export type ParseResult = Skip | null;

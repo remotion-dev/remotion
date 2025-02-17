@@ -43,6 +43,7 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		onSlowNumberOfFrames: options.onSlowNumberOfFrames ?? null,
 		onSlowVideoBitrate: options.onSlowVideoBitrate ?? null,
 		onStructure: options.onStructure ?? null,
+		onM3uStreams: options.onM3uStreams ?? null,
 		onTracks: options.onTracks ?? null,
 		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
 		onVideoCodec: options.onVideoCodec ?? null,

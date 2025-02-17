@@ -43,6 +43,14 @@ export const structureState = () => {
 
 			return struc;
 		},
+		getM3uStructure: () => {
+			const struc = getStructure();
+			if (struc.type !== 'm3u') {
+				throw new Error('Invalid structure type');
+			}
+
+			return struc;
+		},
 		getRiffStructure: () => {
 			const struc = getStructure();
 			if (struc.type !== 'riff') {

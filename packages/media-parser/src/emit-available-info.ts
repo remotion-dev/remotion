@@ -1,3 +1,4 @@
+import {getM3uStreams} from './containers/m3u/get-streams';
 import {getAudioCodec} from './get-audio-codec';
 import {getContainer} from './get-container';
 import type {Dimensions} from './get-dimensions';
@@ -457,6 +458,23 @@ export const emitAvailableInfo = async ({
 				}
 
 				emittedFields.numberOfAudioChannels = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'm3uStreams') {
+			if (!emittedFields.m3uStreams && hasInfo.m3uStreams) {
+				const streams = getM3uStreams(
+					state.getStructureOrNull(),
+					typeof state.src === 'string' ? state.src : null,
+				);
+				await callbacks.onM3uStreams?.(streams);
+				if (fieldsInReturnValue.m3uStreams) {
+					returnValue.m3uStreams = streams;
+				}
+
+				emittedFields.m3uStreams = true;
 			}
 
 			continue;

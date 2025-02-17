@@ -155,6 +155,11 @@ export const getFps = (state: ParserState) => {
 		return null;
 	}
 
+	// Same as m3u8
+	if (segments.type === 'm3u') {
+		return null;
+	}
+
 	if (
 		segments.type === 'mp3' ||
 		segments.type === 'wav' ||
@@ -194,6 +199,10 @@ export const hasFps = (state: ParserState): boolean => {
 	}
 
 	if (structure.type === 'transport-stream') {
+		return true;
+	}
+
+	if (structure.type === 'm3u') {
 		return true;
 	}
 

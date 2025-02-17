@@ -1,3 +1,4 @@
+import {m3uHasStreams} from './containers/m3u/get-streams';
 import {hasAudioCodec} from './get-audio-codec';
 import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
@@ -118,6 +119,10 @@ export const getAvailableInfo = ({
 
 		if (key === 'sampleRate') {
 			return hasSampleRate(state);
+		}
+
+		if (key === 'm3uStreams') {
+			return m3uHasStreams(state);
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

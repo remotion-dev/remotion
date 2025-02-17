@@ -98,6 +98,15 @@ export const initVideo = ({
 		return;
 	}
 
+	if (fileType.type === 'm3u') {
+		Log.verbose(state.logLevel, 'Detected M3U');
+		state.setStructure({
+			type: 'm3u',
+			boxes: [],
+		});
+		return;
+	}
+
 	if (fileType.type === 'gif') {
 		return Promise.reject(
 			new IsAGifError({

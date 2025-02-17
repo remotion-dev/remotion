@@ -23,7 +23,7 @@ export const getMetadata = (state: ParserState): MetadataEntry[] => {
 		return getMetadataFromRiff(structure);
 	}
 
-	if (structure.type === 'transport-stream') {
+	if (structure.type === 'transport-stream' || structure.type === 'm3u') {
 		return [];
 	}
 
@@ -48,7 +48,11 @@ export const getMetadata = (state: ParserState): MetadataEntry[] => {
 		return getMetadataFromFlac(structure) ?? [];
 	}
 
-	return getMetadataFromIsoBase(state);
+	if (structure.type === 'iso-base-media') {
+		return getMetadataFromIsoBase(state);
+	}
+
+	throw new Error('Unknown container ' + (structure as never));
 };
 
 export const hasMetadata = (structure: Structure): boolean => {

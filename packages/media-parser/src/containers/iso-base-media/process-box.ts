@@ -1,5 +1,5 @@
 import {Log} from '../../log';
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {BoxAndNext} from './base-media-box';
 import {parseEsds} from './esds/esds';
@@ -215,8 +215,16 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 			state,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
-		if (transformedTrack) {
-			await registerTrack({
+		if (transformedTrack && transformedTrack.type === 'video') {
+			await registerVideoTrack({
+				state,
+				track: transformedTrack,
+				container: 'mp4',
+			});
+		}
+
+		if (transformedTrack && transformedTrack.type === 'audio') {
+			await registerAudioTrack({
 				state,
 				track: transformedTrack,
 				container: 'mp4',

@@ -12,7 +12,7 @@ import {createMeta} from './udta/create-meta';
 import {createHdlr} from './udta/meta/create-hdlr';
 
 // TODO: Creates a header that is way too large
-const HEADER_LENGTH = 1024_000;
+const HEADER_LENGTH = 2048_000;
 
 export const createPaddedMoovAtom = ({
 	durationInUnits,

@@ -1,6 +1,6 @@
 import type {ParserState} from '../../state/parser-state';
 import type {TransportStreamBox} from './boxes';
-import {parsePat} from './parse-pat';
+import {parsePat, parseSdt} from './parse-pat';
 import {parsePes} from './parse-pes';
 import {parsePmt} from './parse-pmt';
 import {parseStream} from './parse-stream-packet';
@@ -74,7 +74,15 @@ export const parsePacket = async ({
 		return Promise.resolve(parsePat(iterator));
 	}
 
-	const program = getProgramForId(structure, programId);
+	if (programId === 17) {
+		return Promise.resolve(parseSdt(iterator));
+	}
+
+	// PID 17 is SDT
+	// https://de.wikipedia.org/wiki/MPEG-Transportstrom
+	// Die Service Description Table nennt den Programmnamen (z. B. „ZDF“) und gibt weitere Informationen der einzelnen Programme (Services); sie wird auf PID 17 übertragen.
+	const program =
+		programId === 17 ? null : getProgramForId(structure, programId);
 	if (program) {
 		const pmt = parsePmt(iterator);
 		return Promise.resolve(pmt);

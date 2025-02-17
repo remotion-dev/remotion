@@ -5,6 +5,7 @@ import {
 	isFlac,
 	isGif,
 	isIsoBaseMedia,
+	isM3u,
 	isMp3,
 	isRiffAvi,
 	isRiffWave,
@@ -31,6 +32,10 @@ export const detectFileType = (data: Uint8Array): FileType => {
 
 	if (isFlac(data)) {
 		return {type: 'flac'};
+	}
+
+	if (isM3u(data)) {
+		return {type: 'm3u'};
 	}
 
 	const webp = isWebp(data);

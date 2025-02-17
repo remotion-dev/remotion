@@ -5,7 +5,7 @@ import {
 } from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {ParseResult} from '../../parse-result';
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 
 export const parseAac = async (state: ParserState): Promise<ParseResult> => {
@@ -59,7 +59,7 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const data = iterator.getSlice(frameLength);
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
-		await registerTrack({
+		await registerAudioTrack({
 			state,
 			container: 'aac',
 			track: {

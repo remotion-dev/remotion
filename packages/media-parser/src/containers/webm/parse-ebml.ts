@@ -1,4 +1,4 @@
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
@@ -168,8 +168,16 @@ export const postprocessEbml = async ({
 			timescale: state.webm.getTimescale(),
 		});
 
-		if (track) {
-			await registerTrack({
+		if (track && track.type === 'audio') {
+			await registerAudioTrack({
+				state,
+				track,
+				container: 'webm',
+			});
+		}
+
+		if (track && track.type === 'video') {
+			await registerVideoTrack({
 				state,
 				track,
 				container: 'webm',
