@@ -148,12 +148,11 @@ export const fetchReader: ReaderInterface = {
 		}
 
 		const length = res.headers.get('content-length');
-
 		const contentLength = length === null ? null : parseInt(length, 10);
 		const contentDisposition = res.headers.get('content-disposition');
 		const name = contentDisposition?.match(/filename="([^"]+)"/)?.[1];
 
-		const fallbackName = src.split('/').pop();
+		const fallbackName = src.split('/').pop() as string;
 
 		const reader = res.body.getReader();
 
@@ -178,27 +177,8 @@ export const fetchReader: ReaderInterface = {
 			},
 			contentLength,
 			contentType: res.headers.get('content-type'),
-			name: name ?? (fallbackName as string),
+			name: name ?? fallbackName,
 			supportsContentRange,
 		};
-	},
-	getLength: async (src) => {
-		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `fetchReader`');
-		}
-
-		const res = await fetch(src, {
-			method: 'HEAD',
-		});
-		if (!res.body) {
-			throw new Error('No body');
-		}
-
-		const length = res.headers.get('content-length');
-		if (!length) {
-			throw new Error('No content-length');
-		}
-
-		return parseInt(length, 10);
 	},
 };
