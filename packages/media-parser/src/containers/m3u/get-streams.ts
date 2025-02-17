@@ -1,14 +1,24 @@
-import type {M3uStreamInfo, M3uStructure} from './types';
+import type {Dimensions} from '../../get-dimensions';
+import type {Structure} from '../../parse-result';
+import type {ParserState} from '../../state/parser-state';
 
 export type M3uStream = {
 	url: string;
-	box: M3uStreamInfo;
+	bandwidth: number | null;
+	averageBandwidth: number | null;
+	resolution: Dimensions | null;
+	codecs: string[] | null;
+	id: number;
 };
 
-export const getStreams = (
-	structure: M3uStructure,
+export const getM3uStreams = (
+	structure: Structure | null,
 	originalSrc: string | null,
-): M3uStream[] => {
+): M3uStream[] | null => {
+	if (structure === null || structure.type !== 'm3u') {
+		return null;
+	}
+
 	const boxes: M3uStream[] = [];
 
 	for (let i = 0; i < structure.boxes.length; i++) {
@@ -24,10 +34,28 @@ export const getStreams = (
 					originalSrc && originalSrc.startsWith('http')
 						? new URL(next.value, originalSrc).href
 						: next.value,
-				box: str,
+				averageBandwidth: str.averageBandwidth,
+				bandwidth: str.bandwidth,
+				codecs: str.codecs,
+				resolution: str.resolution,
+				id: i,
 			});
 		}
 	}
 
 	return boxes;
+};
+
+export const m3uHasStreams = (state: ParserState): boolean => {
+	const structure = state.getStructureOrNull();
+
+	if (!structure) {
+		return false;
+	}
+
+	if (structure.type !== 'm3u') {
+		return true;
+	}
+
+	return state.m3u.hasFinishedManifest();
 };

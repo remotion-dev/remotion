@@ -12,6 +12,15 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 		return null;
 	}
 
+	if (state.m3u.hasFinishedManifest()) {
+		await afterManifestFetch({
+			structure,
+			m3uState: state.m3u,
+			src: typeof state.src === 'string' ? state.src : null,
+		});
+		return null;
+	}
+
 	const box = await parseM3uManifest({
 		iterator: state.iterator,
 		structure,
@@ -19,11 +28,7 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 	});
 	const isDoneNow = state.iterator.counter.getOffset() === state.contentLength;
 	if (isDoneNow) {
-		await afterManifestFetch({
-			structure,
-			m3uState: state.m3u,
-			src: typeof state.src === 'string' ? state.src : null,
-		});
+		state.m3u.setHasFinishedManifest();
 	}
 
 	return box;

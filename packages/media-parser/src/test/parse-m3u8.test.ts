@@ -22,6 +22,7 @@ test('parse m3u8', async () => {
 		metadata,
 		mimeType,
 		name,
+		m3uStreams,
 	} = await parseMedia({
 		src: exampleVideos.m3u8,
 		reader: nodeReader,
@@ -56,6 +57,7 @@ test('parse m3u8', async () => {
 			videoCodec: true,
 			size: true,
 			numberOfAudioChannels: true,
+			m3uStreams: true,
 		},
 		acknowledgeRemotionLicense: true,
 	});
@@ -129,4 +131,38 @@ test('parse m3u8', async () => {
 	expect(name).toBe('video.m3u8');
 	expect(audioSamples).toBe(240);
 	expect(videoSamples).toBe(151);
+	expect(m3uStreams).toEqual([
+		{
+			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/UqxOz1B6t4myu5KZe7MDjWu016z5VlzgCUBS1rtL01urP02qlsm01e4EsjTX9VvmK1kGrbfLfM7LUAUitI004Rxhmy3y8WPtYN6mW/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfZDc5OGQzZTI3ZGZiOTE5NGJhZTQwZjdhN2I0NTJkMWQ1NjY4ZmFhYWIyNGE5OGRjYTA3ZjE4MDE3ZjQ1NWJhZA==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
+			averageBandwidth: 1057100,
+			bandwidth: 1057100,
+			codecs: ['mp4a.40.2', 'avc1.640028'],
+			resolution: {width: 1000, height: 1000},
+			id: 3,
+		},
+		{
+			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/YGMjPlHfWgy7lDqN01VVW8zCR200O4o0200R7hnLOO7bV14fLg5ThBx24M3y7fB6eMXudfbnE7THbepACAsY026ZxQ5DVbH6HObW01CMm6HiwEUBI/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfNjdiMWE2YTYzZDMyYzYxMTA3OTk5NjU5MjY0MzEwYTY3ZjQ0NGRmNWQ0OTVhMjhjNWNmYzhlOTMyOGRhMmJhZg==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
+			averageBandwidth: 618200,
+			bandwidth: 618200,
+			codecs: ['mp4a.40.2', 'avc1.640020'],
+			resolution: {width: 720, height: 720},
+			id: 5,
+		},
+		{
+			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/HK00VP300bJL5NOhaDdV5OE0200XUPTm02ImLVdoI00kxgnKdXSX00xH00Mn01oBtR63oAGS7XJGDcrxMVDfatXAcZSit9VOil1PdqLkywEZvDVZTM7s/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfYTVlYTQyYzM3OGY2ZjUwODE3MGFiYWY2YTBlNzgwMjk0YzQ0MWIzMmRjODBmNTJjZWMxMzIzNzRlYjMwOWEzNA==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
+			averageBandwidth: 358600,
+			bandwidth: 358600,
+			codecs: ['mp4a.40.2', 'avc1.64001f'],
+			resolution: {width: 480, height: 480},
+			id: 7,
+		},
+		{
+			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/e35901tOcxBHspMKcoo9ENOGGMIuUjvk7VVcD7JI0200imKZWYk4l6VuLZB9QwZvARhktihhC8Gk4RhtVUNDhKpveiFo5AwnxRn/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfNGUzMTljZmEzNDI1ZWNiYmY4YmNmZWI5MTI0NzkzZDUwZmQ5YTYzZDI5ZWIwOThlY2EyM2JiODg0NmQxMmRkZA==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
+			averageBandwidth: 214500,
+			bandwidth: 214500,
+			codecs: ['mp4a.40.2', 'avc1.640015'],
+			resolution: {width: 270, height: 270},
+			id: 9,
+		},
+	]);
 });

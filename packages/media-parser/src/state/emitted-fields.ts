@@ -29,6 +29,7 @@ export const emittedState = () => {
 		sampleRate: false,
 		slowAudioBitrate: false,
 		slowVideoBitrate: false,
+		m3uStreams: false,
 	};
 
 	return emittedFields;

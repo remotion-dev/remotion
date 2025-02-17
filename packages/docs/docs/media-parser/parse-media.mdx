@@ -341,6 +341,19 @@ The video bitrate in bits per second. `null` if there is no video track.
 1 byte is 8 bits.
 :::
 
+### `m3uStreams`
+
+Only for .m3u8, this will return a non-`null` value if the file is a playlist.
+
+An array of objects with the following fields:
+
+- `bandwidth`: The bandwidth of the stream. May be `null`.
+- `averageBandwidth`: The average bandwidth of the stream. May be `null`.
+- `resolution`: The resolution of the stream. May be `null`.
+- `codecs`: The codec strings of the stream as an array May be `null`.
+- `url`: The URI of the stream
+- `id`: A unique identifier that Remotion gives the stream
+
 ## Callbacks
 
 Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.

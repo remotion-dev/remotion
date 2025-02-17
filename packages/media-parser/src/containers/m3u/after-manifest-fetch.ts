@@ -2,7 +2,7 @@ import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {M3uState} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
-import {getStreams} from './get-streams';
+import {getM3uStreams} from './get-streams';
 import {iteratorOverTsFiles} from './return-packets';
 import {selectStream} from './select-stream';
 import type {M3uStructure} from './types';
@@ -16,12 +16,15 @@ export const afterManifestFetch = async ({
 	m3uState: M3uState;
 	src: string | null;
 }) => {
-	const streams = getStreams(structure, src);
+	const streams = getM3uStreams(structure, src);
+	if (streams === null) {
+		throw new Error('No streams found');
+	}
 
 	const selectedStream = await selectStream(streams);
 	m3uState.setSelectedStream(selectedStream);
 
-	if (!selectedStream.box.resolution) {
+	if (!selectedStream.resolution) {
 		throw new Error('Stream does not have a resolution');
 	}
 
@@ -49,7 +52,7 @@ export const runOverM3u = async ({
 		onDoneWithTracks() {
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		},
-		onAudioTrack: async (track) => {
+		onAudioTrack: (track) => {
 			return registerAudioTrack({
 				container: 'm3u8',
 				state,

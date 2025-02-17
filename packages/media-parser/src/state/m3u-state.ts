@@ -6,6 +6,7 @@ export const m3uState = () => {
 	let hasEmittedVideoTrack: null | OnVideoSample | false = false;
 	let hasEmittedAudioTrack: null | OnAudioSample | false = false;
 	let hasEmittedDoneWithTracks = false;
+	let hasFinishedManifest = false;
 
 	let readyToIterateOverM3u = false;
 	let lastChunkProcessed = -1;
@@ -40,6 +41,10 @@ export const m3uState = () => {
 		setAllChunksProcessed: () => {
 			allChunksProcessed = true;
 		},
+		setHasFinishedManifest: () => {
+			hasFinishedManifest = true;
+		},
+		hasFinishedManifest: () => hasFinishedManifest,
 	};
 };
 
