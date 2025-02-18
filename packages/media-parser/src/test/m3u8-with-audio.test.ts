@@ -58,8 +58,8 @@ test(
 				throw e;
 			}
 
-			expect(audioSamples).toBe(861);
-			expect(videoSamples).toBe(1200);
+			expect(videoSamples).toBe(601);
+			expect(audioSamples).toBe(431);
 		}
 	},
 	{

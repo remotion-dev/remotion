@@ -5,6 +5,7 @@ import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import {findNextSeparator} from './find-separator';
 import type {TransportStreamEntry} from './parse-pmt';
+import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 import {processStreamBuffer} from './process-stream-buffers';
 
 const parseAdtsStream = async ({
@@ -59,79 +60,43 @@ const parseAdtsStream = async ({
 };
 
 const parseAvcStream = async ({
-	restOfPacket,
 	transportStreamEntry,
 	programId,
 	state,
 	structure,
-	offset,
+	streamBuffer,
 }: {
-	restOfPacket: Uint8Array;
 	transportStreamEntry: TransportStreamEntry;
 	programId: number;
 	state: ParserState;
 	structure: TransportStreamStructure;
-	offset: number;
-}) => {
-	const indexOfSeparator = findNextSeparator(
-		restOfPacket,
+	streamBuffer: TransportStreamPacketBuffer;
+}): Promise<Uint8Array | null> => {
+	const indexOfSeparator = findNextSeparator({
+		restOfPacket: streamBuffer.buffer,
 		transportStreamEntry,
-	);
-	const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
-		state.transportStream;
-
-	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
-
-	if (indexOfSeparator === -1) {
-		if (streamBuffer) {
-			streamBuffer.buffer = combineUint8Arrays([
-				streamBuffer.buffer,
-				restOfPacket,
-			]);
-			return;
-		}
-
-		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader.getNextPesHeader(),
-			buffer: restOfPacket,
-			offset,
-		});
-
-		return;
-	}
-
-	if (streamBuffer) {
-		const packet = restOfPacket.slice(0, indexOfSeparator);
-		streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, packet]);
-		await processStreamBuffer({
-			state,
-			streamBuffer,
-			programId,
-			structure,
-		});
-		const rest = restOfPacket.slice(indexOfSeparator);
-		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader.getNextPesHeader(),
-			buffer: rest,
-			offset,
-		});
-		return;
-	}
-
-	if (indexOfSeparator !== 0) {
-		throw new Error(
-			'No stream buffer found but new separator is not at the beginning',
-		);
-	}
-
-	streamBuffers.set(programId, {
-		pesHeader: nextPesHeader.getNextPesHeader(),
-		buffer: restOfPacket.slice(indexOfSeparator),
-		offset,
 	});
+	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
+		return null;
+	}
+
+	const packet = streamBuffer.buffer.slice(0, indexOfSeparator);
+	const rest = streamBuffer.buffer.slice(indexOfSeparator);
+
+	await processStreamBuffer({
+		state,
+		streamBuffer: {
+			offset: streamBuffer.offset,
+			pesHeader: streamBuffer.pesHeader,
+			buffer: packet,
+		},
+		programId,
+		structure,
+	});
+	return rest;
 };
 
-export const parseStream = ({
+export const parseStream = async ({
 	transportStreamEntry,
 	state,
 	programId,
@@ -143,18 +108,49 @@ export const parseStream = ({
 	structure: TransportStreamStructure;
 }): Promise<void> => {
 	const {iterator} = state;
-	const restOfPacket = getRestOfPacket(iterator);
+	let restOfPacket = getRestOfPacket(iterator);
 	const offset = iterator.counter.getOffset();
 
 	if (transportStreamEntry.streamType === 27) {
-		return parseAvcStream({
-			restOfPacket,
-			transportStreamEntry,
-			state,
-			programId,
-			structure,
-			offset,
-		});
+		const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
+			state.transportStream;
+
+		while (true) {
+			if (!streamBuffers.has(transportStreamEntry.pid)) {
+				streamBuffers.set(programId, {
+					pesHeader: nextPesHeader.getNextPesHeader(),
+					buffer: new Uint8Array([]),
+					offset,
+				});
+			}
+
+			const streamBuffer = streamBuffers.get(transportStreamEntry.pid)!;
+			streamBuffer.buffer = combineUint8Arrays([
+				streamBuffer.buffer,
+				restOfPacket,
+			]);
+
+			const rest = await parseAvcStream({
+				transportStreamEntry,
+				state,
+				programId,
+				structure,
+				streamBuffer: streamBuffers.get(transportStreamEntry.pid)!,
+			});
+
+			if (rest !== null) {
+				streamBuffers.delete(transportStreamEntry.pid);
+				if (rest.length === 0) {
+					break;
+				}
+
+				restOfPacket = rest;
+			} else {
+				break;
+			}
+		}
+
+		return;
 	}
 
 	if (transportStreamEntry.streamType === 15) {
