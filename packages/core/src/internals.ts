@@ -181,11 +181,10 @@ export type {
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TRenderAsset as TAsset,
 	TCompMetadata,
 	TComposition,
-	TimelinePosition as Timeline,
 	TimelineContextValue,
+	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
 };
