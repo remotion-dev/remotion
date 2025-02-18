@@ -105,7 +105,9 @@ export const useThumbnailAndWaveform = ({
 
 				let frames = 0;
 				const onlyKeyframes =
-					container !== 'transport-stream' && container !== 'webm';
+					container !== 'transport-stream' &&
+					container !== 'webm' &&
+					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
 				const decoder = new VideoDecoder({
