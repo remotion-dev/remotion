@@ -1,0 +1,75 @@
+---
+image: /generated/articles-docs-media-parser-selecting-streams.png
+id: stream-selection
+title: Stream selection
+slug: /media-parser/stream-selection
+crumb: '@remotion/media-parser'
+---
+
+Some containers such as `.m3u8` (and in the future `.mpd`) support multiple equivalent streams, of which you are supposed to select one.  
+For example, a `.m3u8` file might contain multiple video streams with different resolutions.
+
+By default, the stream with the highest resolution is selected (sorted by width multiplied by height).
+
+## Selecting a stream
+
+Use the [`selectM3uStream`](/docs/media-parser/parse-media#selectm3ustream) option to select a stream.
+
+```tsx twoslash Selecting the first stream
+import {parseMedia} from '@remotion/media-parser';
+
+const media = await parseMedia({
+  src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+  selectM3uStream: ({streams}) => {
+    for (const stream of streams) {
+      console.log(stream.resolution); // {width: 1920, height: 1080}
+      console.log(stream.bandwidth); // 4400000
+      console.log(stream.url); // "https://test-streams.mux.dev/x36xhzz/193039199_mp4_h264_aac_hd_7.m3u8"
+      console.log(stream.averageBandwidth); // null
+      console.log(stream.codecs); // ["avc1.640028", "mp4a.40.2"]
+    }
+
+    return streams[0].id;
+  },
+});
+```
+
+## Show a stream selection interface
+
+If you want an end user to pick the quality, it is recommended that you use two passes.  
+You can extract the streams in the first pass and then show a UI to the user to pick the quality.
+
+```tsx twoslash Getting the available streams
+import {parseMedia} from '@remotion/media-parser';
+
+const {m3uStreams} = await parseMedia({
+  src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+  fields: {
+    m3uStreams: true,
+  },
+});
+```
+
+## Resorting to default behavior
+
+If you want to resort to the default behavior (selecting the stream with the highest resolution), use the `defaultSelectM3uStreamFn` function.
+
+```tsx twoslash Resorting to default behavior
+import {parseMedia, defaultSelectM3uStreamFn} from '@remotion/media-parser';
+
+const media = await parseMedia({
+  src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+  selectM3uStream: (params) => {
+    // Add custom logic
+
+    // ...
+
+    // Resort to default behavior
+    return defaultSelectM3uStreamFn(params);
+  },
+});
+```
+
+## See also
+
+- [`parseMedia()`](/docs/media-parser/parse-media)

@@ -934,6 +934,7 @@ module.exports = {
 				'media-parser/pause-resume-abort',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
+				'media-parser/stream-selection',
 			],
 		},
 		{

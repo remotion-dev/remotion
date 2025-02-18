@@ -2529,6 +2529,15 @@ export const articles = [
 		slug: 'media-parser/runtime-support',
 	},
 	{
+		id: 'stream-selection',
+		title: 'Stream selection',
+		relativePath: 'docs/media-parser/selecting-streams.mdx',
+		compId: 'articles-docs-media-parser-selecting-streams',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/stream-selection',
+	},
+	{
 		id: 'tags',
 		title: 'Extract ID3 tags and EXIF data',
 		relativePath: 'docs/media-parser/tags.mdx',
