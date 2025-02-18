@@ -2,6 +2,7 @@
 /* eslint-disable no-eq-null */
 import {MediaParserAbortError} from '../errors';
 import {getLengthAndReader} from './fetch/get-body-and-reader';
+import {resolveUrl} from './fetch/resolve-url';
 import type {ReaderInterface} from './reader';
 
 interface ParsedContentRange {
@@ -74,10 +75,8 @@ export const fetchReader: ReaderInterface = {
 			throw new Error('src must be a string when using `fetchReader`');
 		}
 
-		const resolvedUrl =
-			typeof window !== 'undefined' && typeof window.location !== 'undefined'
-				? new URL(src, window.location.origin)
-				: src;
+		const resolvedUrl = resolveUrl(src);
+
 		const resolvedUrlString = resolvedUrl.toString();
 
 		if (
@@ -103,10 +102,9 @@ export const fetchReader: ReaderInterface = {
 
 		const actualRange = range === null ? 0 : range;
 
-		const endsWithM3u8 =
-			typeof resolvedUrl === 'string'
-				? resolvedUrl.endsWith('.m3u8')
-				: resolvedUrl.pathname.endsWith('.m3u8');
+		const endsWithM3u8 = (
+			typeof resolvedUrl === 'string' ? resolvedUrl : resolvedUrl.pathname
+		).endsWith('.m3u8');
 
 		const headers: {
 			Range?: string;

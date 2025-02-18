@@ -1,6 +1,15 @@
+import {isIndependentSegments} from './get-streams';
 import type {M3uPlaylist, M3uStructure} from './types';
 
-export const getPlaylist = (structure: M3uStructure) => {
+export const getPlaylist = (structure: M3uStructure): M3uPlaylist => {
+	const isIndependent = isIndependentSegments(structure);
+	if (!isIndependent) {
+		return {
+			type: 'm3u-playlist',
+			boxes: structure.boxes,
+		};
+	}
+
 	const playlists = structure.boxes.filter(
 		(box) => box.type === 'm3u-playlist',
 	);

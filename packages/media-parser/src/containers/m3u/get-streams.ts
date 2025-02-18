@@ -11,6 +11,17 @@ export type M3uStream = {
 	id: number;
 };
 
+export const isIndependentSegments = (structure: Structure | null): boolean => {
+	if (structure === null || structure.type !== 'm3u') {
+		return false;
+	}
+
+	return structure.boxes.some(
+		(box) =>
+			box.type === 'm3u-independent-segments' || box.type === 'm3u-stream-info',
+	);
+};
+
 export const getM3uStreams = (
 	structure: Structure | null,
 	originalSrc: string | null,

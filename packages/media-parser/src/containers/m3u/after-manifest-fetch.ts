@@ -2,7 +2,7 @@ import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {M3uState} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
-import {getM3uStreams} from './get-streams';
+import {getM3uStreams, isIndependentSegments} from './get-streams';
 import {iteratorOverTsFiles} from './return-packets';
 import type {SelectM3uStreamFn} from './select-stream';
 import {selectStream} from './select-stream';
@@ -19,13 +19,27 @@ export const afterManifestFetch = async ({
 	src: string | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
 }) => {
+	const independentSegments = isIndependentSegments(structure);
+	if (!independentSegments) {
+		if (!src) {
+			throw new Error('No src');
+		}
+
+		m3uState.setSelectedStream({
+			type: 'initial-url',
+			url: src,
+		});
+
+		return m3uState.setReadyToIterateOverM3u();
+	}
+
 	const streams = getM3uStreams(structure, src);
 	if (streams === null) {
 		throw new Error('No streams found');
 	}
 
 	const selectedStream = await selectStream({streams, fn: selectM3uStreamFn});
-	m3uState.setSelectedStream(selectedStream);
+	m3uState.setSelectedStream({type: 'selected-stream', stream: selectedStream});
 
 	if (!selectedStream.resolution) {
 		throw new Error('Stream does not have a resolution');
@@ -49,7 +63,10 @@ export const runOverM3u = async ({
 	}
 
 	await iteratorOverTsFiles({
-		playlistUrl: selectedStream.url,
+		playlistUrl:
+			selectedStream.type === 'initial-url'
+				? selectedStream.url
+				: selectedStream.stream.url,
 		structure,
 		logLevel: state.logLevel,
 		onDoneWithTracks() {
