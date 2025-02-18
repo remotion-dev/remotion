@@ -228,6 +228,9 @@ export const renderFrameAndRetryTargetClose = async ({
 				pool.release(newPage);
 			}
 		});
+
+		nextFrameToRender.returnFrame(frame);
+
 		await renderFrameAndRetryTargetClose({
 			retriesLeft: retriesLeft - 1,
 			attempt: attempt + 1,
