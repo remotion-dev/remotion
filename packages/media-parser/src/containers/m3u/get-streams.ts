@@ -53,6 +53,11 @@ export const getM3uStreams = (
 		}
 	}
 
+	// Maybe this is already a playlist
+	if (boxes.length === 0) {
+		return null;
+	}
+
 	const sorted = boxes.slice().sort((a, b) => {
 		const aResolution = a.resolution
 			? a.resolution.width * a.resolution.height

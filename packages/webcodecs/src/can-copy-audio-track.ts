@@ -20,9 +20,7 @@ export const canCopyAudioTrack = ({
 	if (outputContainer === 'mp4') {
 		return (
 			inputCodec === 'aac' &&
-			(inputContainer === 'mp4' ||
-				inputContainer === 'avi' ||
-				inputContainer === 'm3u8')
+			(inputContainer === 'mp4' || inputContainer === 'avi')
 		);
 	}
 

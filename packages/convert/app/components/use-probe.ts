@@ -73,7 +73,6 @@ export const useProbe = ({
 				setMetadata(newMetadata);
 			},
 			onM3uStreams: (m) => {
-				console.log(m);
 				setM3u(m);
 			},
 			onContainer(c) {
@@ -175,6 +174,7 @@ export const useProbe = ({
 			keyframes,
 			unrotatedDimensions,
 			images,
+			m3u,
 		};
 	}, [
 		tracks,
@@ -195,5 +195,6 @@ export const useProbe = ({
 		keyframes,
 		unrotatedDimensions,
 		images,
+		m3u,
 	]);
 };
