@@ -124,5 +124,9 @@ export const getDefaultContainerForConversion = (
 		return 'wav';
 	}
 
+	if (guessed === 'm3u8') {
+		return 'mp4';
+	}
+
 	throw new Error('Unhandled container ' + (guessed satisfies never));
 };

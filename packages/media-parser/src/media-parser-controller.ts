@@ -36,6 +36,7 @@ export const mediaParserController = (): MediaParserController => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		abort: (reason?: any) => {
 			abortController.abort(reason);
+			emitter.dispatchAbort(reason);
 		},
 		pause: pauseSignal.pause,
 		resume: pauseSignal.resume,
