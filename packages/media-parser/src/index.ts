@@ -94,6 +94,7 @@ export type {
 } from './containers/webm/segments/all-segments';
 export type {LogLevel};
 
+export {M3uStream} from './containers/m3u/get-streams';
 export {
 	defaultSelectM3uStreamFn,
 	SelectM3uStreamFn,

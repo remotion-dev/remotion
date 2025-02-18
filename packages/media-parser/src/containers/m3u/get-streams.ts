@@ -30,7 +30,7 @@ export const getM3uStreams = (
 		return null;
 	}
 
-	const boxes: M3uStream[] = [];
+	const boxes: Omit<M3uStream, 'id'>[] = [];
 
 	for (let i = 0; i < structure.boxes.length; i++) {
 		const str = structure.boxes[i];
@@ -49,12 +49,21 @@ export const getM3uStreams = (
 				bandwidth: str.bandwidth,
 				codecs: str.codecs,
 				resolution: str.resolution,
-				id: boxes.length,
 			});
 		}
 	}
 
-	return boxes;
+	const sorted = boxes.slice().sort((a, b) => {
+		const aResolution = a.resolution
+			? a.resolution.width * a.resolution.height
+			: 0;
+		const bResolution = b.resolution
+			? b.resolution.width * b.resolution.height
+			: 0;
+		return bResolution - aResolution;
+	});
+
+	return sorted.map((box, index) => ({...box, id: index}));
 };
 
 export const m3uHasStreams = (state: ParserState): boolean => {

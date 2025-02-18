@@ -1,6 +1,7 @@
 import type {
 	Dimensions,
 	LogLevel,
+	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserEmbeddedImage,
@@ -55,6 +56,7 @@ export const useProbe = ({
 		null,
 	);
 	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
+	const [m3u, setM3u] = useState<M3uStream[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
@@ -69,6 +71,10 @@ export const useProbe = ({
 			controller,
 			onMetadata: (newMetadata) => {
 				setMetadata(newMetadata);
+			},
+			onM3uStreams: (m) => {
+				console.log(m);
+				setM3u(m);
 			},
 			onContainer(c) {
 				setContainer(c);
