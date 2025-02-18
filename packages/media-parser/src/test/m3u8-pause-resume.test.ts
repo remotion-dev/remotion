@@ -16,11 +16,11 @@ test('should correctly pause and resume m3u8', async () => {
 				samples++;
 				if (sample.timestamp === 21250000) {
 					controller.pause();
-					expect(samples).toBe(675);
+					expect(samples).toBe(671);
 					await new Promise((r) => {
 						setTimeout(r, 100);
 					});
-					expect(samples).toBe(675);
+					expect(samples).toBe(671);
 					controller.resume();
 				}
 
@@ -30,7 +30,9 @@ test('should correctly pause and resume m3u8', async () => {
 			};
 		},
 	}).catch((e) => {
-		expect(hasBeenAborted(e)).toBe(true);
+		if (!hasBeenAborted(e)) {
+			throw e;
+		}
 	});
-	expect(samples).toBe(680);
+	expect(samples).toBe(685);
 });

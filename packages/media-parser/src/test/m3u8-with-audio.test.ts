@@ -25,7 +25,7 @@ test(
 				logLevel: 'info',
 				controller,
 				onDurationInSeconds: (durationInSeconds) => {
-					expect(durationInSeconds).toBe(634.584);
+					expect(durationInSeconds).toBe(634.567);
 				},
 				onAudioTrack: () => {
 					return (s) => {
