@@ -11,7 +11,7 @@ test('should correctly pause and resume m3u8', async () => {
 		src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
 		controller,
 		acknowledgeRemotionLicense: true,
-		onVideoTrack: (track) => {
+		onVideoTrack: () => {
 			return async (sample) => {
 				samples++;
 				if (sample.timestamp === 21250000) {

@@ -151,24 +151,28 @@ export const useThumbnailAndWaveform = ({
 					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
-		}).catch((err2) => {
-			if ((err2 as Error).stack?.includes('Cancelled')) {
-				return;
-			}
+		})
+			.catch((err2) => {
+				if ((err2 as Error).stack?.includes('Cancelled')) {
+					return;
+				}
 
-			if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+				if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			// firefox
-			if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+				// firefox
+				if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			// eslint-disable-next-line no-console
-			console.log(err2);
-			setError(err2 as Error);
-		});
+				// eslint-disable-next-line no-console
+				console.log(err2);
+				setError(err2 as Error);
+			})
+			.then(() => {
+				hasEnoughData();
+			});
 
 		return controller;
 	}, [logLevel, onDone, onVideoThumbnail, src, waveform]);
