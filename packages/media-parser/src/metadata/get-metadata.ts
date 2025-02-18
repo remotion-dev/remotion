@@ -55,6 +55,8 @@ export const getMetadata = (state: ParserState): MetadataEntry[] => {
 	throw new Error('Unknown container ' + (structure as never));
 };
 
+// TODO: This forces some containers to check the whole file
+// we can do this better! skip over video data
 export const hasMetadata = (structure: Structure): boolean => {
 	if (structure.type === 'mp3') {
 		return getMetadataFromMp3(structure) !== null;
@@ -64,5 +66,29 @@ export const hasMetadata = (structure: Structure): boolean => {
 		return getMetadataFromWav(structure) !== null;
 	}
 
-	return false;
+	if (structure.type === 'm3u' || structure.type === 'transport-stream') {
+		return true;
+	}
+
+	if (structure.type === 'flac') {
+		return getMetadataFromFlac(structure) !== null;
+	}
+
+	if (structure.type === 'iso-base-media') {
+		return false;
+	}
+
+	if (structure.type === 'matroska') {
+		return false;
+	}
+
+	if (structure.type === 'riff') {
+		return false;
+	}
+
+	if (structure.type === 'aac') {
+		return true;
+	}
+
+	throw new Error('Unknown container ' + (structure as never));
 };
