@@ -1,6 +1,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-eq-null */
 import {MediaParserAbortError} from '../errors';
+import {getLengthAndReader} from './fetch/get-body-and-reader';
 import type {ReaderInterface} from './reader';
 
 interface ParsedContentRange {
@@ -75,18 +76,18 @@ export const fetchReader: ReaderInterface = {
 
 		const resolvedUrl =
 			typeof window !== 'undefined' && typeof window.location !== 'undefined'
-				? new URL(src, window.location.origin).toString()
+				? new URL(src, window.location.origin)
 				: src;
+		const resolvedUrlString = resolvedUrl.toString();
 
 		if (
-			!resolvedUrl.startsWith('https://') &&
-			!resolvedUrl.startsWith('blob:') &&
-			!resolvedUrl.startsWith('http://')
+			!resolvedUrlString.startsWith('https://') &&
+			!resolvedUrlString.startsWith('blob:') &&
+			!resolvedUrlString.startsWith('http://')
 		) {
 			return Promise.reject(
 				new Error(
-					resolvedUrl +
-						' is not a URL - needs to start with http:// or https:// or blob:. If you want to read a local file, pass `reader: nodeReader` to parseMedia().',
+					`${resolvedUrlString} is not a URL - needs to start with http:// or https:// or blob:. If you want to read a local file, pass \`reader: nodeReader\` to parseMedia().`,
 				),
 			);
 		}
@@ -102,15 +103,26 @@ export const fetchReader: ReaderInterface = {
 
 		const actualRange = range === null ? 0 : range;
 
-		const res = await fetch(resolvedUrl, {
-			headers:
-				typeof actualRange === 'number'
+		const endsWithM3u8 =
+			typeof resolvedUrl === 'string'
+				? resolvedUrl.endsWith('.m3u8')
+				: resolvedUrl.pathname.endsWith('.m3u8');
+
+		const headers: {
+			Range?: string;
+		} =
+			actualRange === 0 && endsWithM3u8
+				? {}
+				: typeof actualRange === 'number'
 					? {
 							Range: `bytes=${actualRange}-`,
 						}
 					: {
 							Range: `bytes=${`${actualRange[0]}-${actualRange[1]}`}`,
-						},
+						};
+
+		const res = await fetch(resolvedUrl, {
+			headers,
 			signal: ownController.signal,
 			cache,
 		});
@@ -143,24 +155,21 @@ export const fetchReader: ReaderInterface = {
 			);
 		}
 
-		if (!res.body) {
-			throw new Error('No body');
-		}
-
-		const length = res.headers.get('content-length');
-		const contentLength = length === null ? null : parseInt(length, 10);
 		const contentDisposition = res.headers.get('content-disposition');
 		const name = contentDisposition?.match(/filename="([^"]+)"/)?.[1];
-
 		const fallbackName = src.split('/').pop() as string;
 
-		const reader = res.body.getReader();
+		const {contentLength, needsContentRange, reader} = await getLengthAndReader(
+			endsWithM3u8,
+			res,
+			ownController,
+		);
 
 		if (controller) {
 			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
-					reader.cancel().catch(() => {
+					reader.reader.cancel().catch(() => {
 						// Prevent unhandled rejection in Firefox
 					});
 				},
@@ -169,16 +178,12 @@ export const fetchReader: ReaderInterface = {
 		}
 
 		return {
-			reader: {
-				reader,
-				abort: () => {
-					ownController.abort();
-				},
-			},
+			reader,
 			contentLength,
 			contentType: res.headers.get('content-type'),
 			name: name ?? fallbackName,
 			supportsContentRange,
+			needsContentRange,
 		};
 	},
 };

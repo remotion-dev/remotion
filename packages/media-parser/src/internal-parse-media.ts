@@ -58,6 +58,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		name,
 		contentType,
 		supportsContentRange,
+		needsContentRange,
 	} = await readerInterface.read({src, range: null, controller});
 
 	if (contentLength === null) {
@@ -66,7 +67,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		);
 	}
 
-	if (!supportsContentRange) {
+	if (!supportsContentRange && needsContentRange) {
 		throw new Error(
 			'Cannot read media without it supporting the "Content-Range" header. This is currently not supported. Ensure the media supports the "Content-Range" HTTP header.',
 		);

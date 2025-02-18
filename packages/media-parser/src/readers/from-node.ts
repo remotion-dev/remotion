@@ -57,6 +57,7 @@ export const nodeReader: ReaderInterface = {
 			contentType: null,
 			name: src.split(sep).pop() as string,
 			supportsContentRange: true,
+			needsContentRange: true,
 		});
 	},
 };

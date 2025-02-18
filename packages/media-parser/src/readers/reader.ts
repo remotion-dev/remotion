@@ -12,6 +12,7 @@ type ReadResult = {
 	contentType: string | null;
 	name: string;
 	supportsContentRange: boolean;
+	needsContentRange: boolean;
 };
 type ReadContent = (options: {
 	src: ParseMediaSrc;
