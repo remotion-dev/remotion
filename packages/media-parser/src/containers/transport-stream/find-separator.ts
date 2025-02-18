@@ -1,6 +1,4 @@
-import type {TransportStreamEntry} from './parse-pmt';
-
-function findNthSubarrayIndex(
+export function findNthSubarrayIndex(
 	array: Uint8Array,
 	subarray: Uint8Array,
 	n: number,
@@ -28,17 +26,3 @@ function findNthSubarrayIndex(
 
 	return -1; // Return -1 if nth subarray is not found
 }
-
-export const findNextSeparator = ({
-	restOfPacket,
-	transportStreamEntry,
-}: {
-	restOfPacket: Uint8Array;
-	transportStreamEntry: TransportStreamEntry;
-}) => {
-	if (transportStreamEntry.streamType === 27) {
-		return findNthSubarrayIndex(restOfPacket, new Uint8Array([0, 0, 1, 9]), 2);
-	}
-
-	throw new Error(`Unsupported stream ID ${transportStreamEntry.streamType}`);
-};

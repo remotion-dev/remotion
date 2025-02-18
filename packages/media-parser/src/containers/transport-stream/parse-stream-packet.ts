@@ -3,7 +3,7 @@ import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
-import {findNextSeparator} from './find-separator';
+import {findNthSubarrayIndex} from './find-separator';
 import type {TransportStreamEntry} from './parse-pmt';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 import {processStreamBuffer} from './process-stream-buffers';
@@ -60,22 +60,21 @@ const parseAdtsStream = async ({
 };
 
 const parseAvcStream = async ({
-	transportStreamEntry,
 	programId,
 	state,
 	structure,
 	streamBuffer,
 }: {
-	transportStreamEntry: TransportStreamEntry;
 	programId: number;
 	state: ParserState;
 	structure: TransportStreamStructure;
 	streamBuffer: TransportStreamPacketBuffer;
 }): Promise<Uint8Array | null> => {
-	const indexOfSeparator = findNextSeparator({
-		restOfPacket: streamBuffer.buffer,
-		transportStreamEntry,
-	});
+	const indexOfSeparator = findNthSubarrayIndex(
+		streamBuffer.buffer,
+		new Uint8Array([0, 0, 1, 9]),
+		2,
+	);
 	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
 		return null;
 	}
@@ -88,6 +87,7 @@ const parseAvcStream = async ({
 		streamBuffer: {
 			offset: streamBuffer.offset,
 			pesHeader: streamBuffer.pesHeader,
+			// Replace the regular 0x00000001 with 0x00000002 to avoid confusion with other 0x00000001 (?)
 			buffer: packet,
 		},
 		programId,
@@ -131,7 +131,6 @@ export const parseStream = async ({
 			]);
 
 			const rest = await parseAvcStream({
-				transportStreamEntry,
 				state,
 				programId,
 				structure,

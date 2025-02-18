@@ -22,6 +22,7 @@ test('should take a direct stream', async () => {
 		acknowledgeRemotionLicense: true,
 		fields: {
 			dimensions: true,
+			tracks: true,
 		},
 	});
 
