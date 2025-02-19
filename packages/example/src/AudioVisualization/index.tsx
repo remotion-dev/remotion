@@ -10,13 +10,13 @@ import {
 	Audio,
 	Img,
 	interpolate,
+	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 import styled from 'styled-components';
 import DropDots from '../DropDots/DropDots';
 import music from '../resources/sound1.mp3';
-import voice from '../resources/voice-short.mp3';
 
 const Background = styled(Img)`
 	height: 100%;
@@ -92,7 +92,7 @@ const AudioVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
-	const audioDataVoice = useAudioData(voice);
+	const audioDataVoice = useAudioData(staticFile('podcast.wav'));
 	if (!audioData || !audioDataVoice) {
 		return null;
 	}

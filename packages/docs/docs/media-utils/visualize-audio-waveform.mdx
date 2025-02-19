@@ -19,7 +19,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
-const audioData = useAudioData(staticFile('voice-short.mp3')) as AudioData;
+const audioData = useAudioData(staticFile('podcast.wav')) as AudioData;
 const {fps} = useVideoConfig();
 
 // ---cut---
@@ -90,7 +90,7 @@ const height = 300;
 
 const BaseExample: React.FC = () => {
   const frame = useCurrentFrame();
-  const audioDataVoice = useAudioData(staticFile('voice-short.mp3'));
+  const audioDataVoice = useAudioData(staticFile('podcast.wav'));
   const {width, fps} = useVideoConfig();
 
   if (!audioDataVoice) {
@@ -116,7 +116,7 @@ const BaseExample: React.FC = () => {
 
   return (
     <div style={{flex: 1}}>
-      <Audio src={staticFile('voice-short.mp3')} />
+      <Audio src={staticFile('podcast.wav')} />
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
         <svg style={{backgroundColor: ' #0B84F3'}} viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
           <path stroke="white" fill="none" strokeWidth={10} d={p as string} />
@@ -140,7 +140,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
-const audioDataVoice = useAudioData(staticFile('voice-short.mp3')) as AudioData;
+const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
 const {fps} = useVideoConfig();
 
 // ---cut---
@@ -166,7 +166,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
-const audioDataVoice = useAudioData(staticFile('voice-short.mp3')) as AudioData;
+const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
 const {fps} = useVideoConfig();
 
 // ---cut---

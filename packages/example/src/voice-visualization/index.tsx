@@ -1,13 +1,12 @@
 import {useAudioData} from '@remotion/media-utils';
 import React from 'react';
-import {Audio} from 'remotion';
-import voice from '../resources/voice-short.mp3';
+import {Audio, staticFile} from 'remotion';
 import {VoiceVis} from './VoiceVisualization';
 
 const padding = 80;
 
 export const VoiceVisualization: React.FC = () => {
-	const audioDataVoice = useAudioData(voice);
+	const audioDataVoice = useAudioData(staticFile('podcast.wav'));
 
 	if (!audioDataVoice) {
 		return null;
@@ -18,7 +17,7 @@ export const VoiceVisualization: React.FC = () => {
 			style={{flex: 1, padding}}
 			className="flex-1 bg-white items-center justify-center flex flex-col"
 		>
-			<Audio src={voice} />
+			<Audio src={staticFile('podcast.wav')} />
 			<VoiceVis
 				padding={padding}
 				audioDataVoice={audioDataVoice}

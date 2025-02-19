@@ -13,7 +13,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-const src = staticFile('voice-short.mp3');
+const src = staticFile('podcast.wav');
 
 const BaseExample: React.FC = () => {
 	const frame = useCurrentFrame();
