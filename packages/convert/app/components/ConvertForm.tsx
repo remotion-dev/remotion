@@ -5,6 +5,10 @@ import type {
 import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import {getAvailableContainers} from '@remotion/webcodecs';
 import React from 'react';
+import {
+	getActualAudioConfigIndex,
+	getActualVideoOperation,
+} from '~/lib/get-audio-video-config-index';
 import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
 import {AudioCodecSelection} from './AudioCodecSelection';
@@ -79,11 +83,12 @@ export const ConvertForm: React.FC<{
 							/>
 							<VideoCodecSelection
 								index={getVideoOperationId(
-									track.operations.find(
-										(o) =>
-											getVideoOperationId(o) ===
-											videoConfigIndexSelection[track.trackId],
-									) ?? track.operations[0],
+									getActualVideoOperation({
+										videoConfigIndexSelection,
+										enableConvert: true,
+										operations: track.operations,
+										trackNumber: track.trackId,
+									}),
 								)}
 								setIndex={(i) => {
 									setVideoConfigIndex(track.trackId, i);
@@ -108,11 +113,12 @@ export const ConvertForm: React.FC<{
 							/>
 							<AudioCodecSelection
 								index={getAudioOperationId(
-									track.operations.find(
-										(o) =>
-											getAudioOperationId(o) ===
-											audioConfigIndexSelection[track.trackId],
-									) ?? track.operations[0],
+									getActualAudioConfigIndex({
+										audioConfigIndexSelection,
+										enableConvert: true,
+										operations: track.operations,
+										trackNumber: track.trackId,
+									}),
 								)}
 								setIndex={(i) => {
 									setAudioConfigIndex(track.trackId, i);

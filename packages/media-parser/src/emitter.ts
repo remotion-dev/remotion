@@ -1,6 +1,7 @@
 type MediaParserEventMap = {
 	pause: undefined;
 	resume: undefined;
+	abort: {reason?: unknown};
 };
 
 export type MediaParserEventTypes = keyof MediaParserEventMap;
@@ -17,6 +18,7 @@ export class MediaParserEmitter {
 	listeners: MediaParserListeners = {
 		pause: [],
 		resume: [],
+		abort: [],
 	};
 
 	addEventListener = <Q extends MediaParserEventTypes>(
@@ -52,5 +54,9 @@ export class MediaParserEmitter {
 
 	dispatchResume = () => {
 		this.dispatchEvent('resume', undefined);
+	};
+
+	dispatchAbort = (reason?: unknown) => {
+		this.dispatchEvent('abort', {reason});
 	};
 }

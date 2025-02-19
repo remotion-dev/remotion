@@ -1,5 +1,5 @@
 import {Log} from '../../log';
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {makeParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox} from './base-media-box';
@@ -30,13 +30,13 @@ export const getMoovAtom = async ({
 		},
 		onAudioTrack: state.onAudioTrack
 			? async ({track, container}) => {
-					await registerTrack({state, track, container});
+					await registerAudioTrack({state, track, container});
 					return null;
 				}
 			: null,
 		onVideoTrack: state.onVideoTrack
 			? async ({track, container}) => {
-					await registerTrack({state, track, container});
+					await registerVideoTrack({state, track, container});
 					return null;
 				}
 			: null,
@@ -46,6 +46,7 @@ export const getMoovAtom = async ({
 		readerInterface: state.readerInterface,
 		src: state.src,
 		onDiscardedData: null,
+		selectM3uStreamFn: state.selectM3uStreamFn,
 	});
 
 	while (true) {

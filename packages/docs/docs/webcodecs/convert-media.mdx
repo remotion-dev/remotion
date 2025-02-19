@@ -233,6 +233,13 @@ _Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webc
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
 See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
 
+### `selectM3uStream?`
+
+_Function_ <TsType type="SelectM3uStreamFn" source="@remotion/media-parser"/>
+
+A callback that is called when a `.m3u8` file is detected which has multiple streams.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
+
 ### `progressIntervalInMs?`
 
 _number_

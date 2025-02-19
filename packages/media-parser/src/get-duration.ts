@@ -6,6 +6,7 @@ import {
 	getMoovBox,
 	getMvhdBox,
 } from './containers/iso-base-media/traversal';
+import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
 import {getDurationFromAvi} from './containers/riff/get-duration';
 import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
@@ -163,6 +164,10 @@ export const getDuration = (parserState: ParserState): number | null => {
 
 	if (structure.type === 'flac') {
 		return getDurationFromFlac(parserState);
+	}
+
+	if (structure.type === 'm3u') {
+		return getDurationFromM3u(parserState.getM3uStructure());
 	}
 
 	throw new Error('Has no duration ' + (structure satisfies never));

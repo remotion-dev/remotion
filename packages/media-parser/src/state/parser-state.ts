@@ -1,5 +1,6 @@
 import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
+import type {SelectM3uStreamFn} from '../containers/m3u/select-stream';
 import {Log, type LogLevel} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
 import type {
@@ -18,6 +19,7 @@ import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
 import {eventLoopState} from './last-eventloop-break';
+import {m3uState} from './m3u-state';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
@@ -50,6 +52,7 @@ export const makeParserState = ({
 	src,
 	readerInterface,
 	onDiscardedData,
+	selectM3uStreamFn,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -63,6 +66,7 @@ export const makeParserState = ({
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;
 	onDiscardedData: OnDiscardedData | null;
+	selectM3uStreamFn: SelectM3uStreamFn;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -101,6 +105,7 @@ export const makeParserState = ({
 		mp3Info,
 		aac: aacState(),
 		flac: flacState(),
+		m3u: m3uState(),
 		callbacks: sampleCallback({
 			controller,
 			hasAudioTrackHandlers,
@@ -135,6 +140,7 @@ export const makeParserState = ({
 		src,
 		readerInterface,
 		discardReadBytes,
+		selectM3uStreamFn,
 	};
 };
 

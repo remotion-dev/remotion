@@ -54,6 +54,7 @@ export const webFileReader: ReaderInterface = {
 					name: src.name,
 					supportsContentRange: true,
 					contentType: src.type,
+					needsContentRange: true,
 				});
 			};
 
@@ -61,12 +62,5 @@ export const webFileReader: ReaderInterface = {
 				reject(error);
 			};
 		});
-	},
-	getLength: (src) => {
-		if (typeof src === 'string') {
-			throw new Error('`inputTypeFileReader` only supports `File` objects');
-		}
-
-		return Promise.resolve(src.size);
 	},
 };

@@ -19,6 +19,6 @@ test('should be able to remux server side', async () => {
 	});
 
 	const data = await save();
-	expect(data.size).toBe(15306323);
+	expect(data.size).toBe(16330323);
 	unlinkSync('outputbun.mp4');
 });

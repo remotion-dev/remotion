@@ -1,6 +1,6 @@
 // spec: http://www.mp3-tech.org/programmer/frame_header.html
 
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {
 	getAverageMpegFrameLength,
@@ -281,7 +281,7 @@ export const parseMpegHeader = async ({
 			bitrateKbit,
 			startOfMpegStream: initialOffset,
 		});
-		await registerTrack({
+		await registerAudioTrack({
 			container: 'mp3',
 			state,
 			track: {

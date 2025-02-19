@@ -1,3 +1,5 @@
+import type {M3uStream} from './containers/m3u/get-streams';
+import type {SelectM3uStreamFn} from './containers/m3u/select-stream';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
@@ -53,6 +55,7 @@ export type ParseMediaFields = {
 	images: boolean;
 	sampleRate: boolean;
 	numberOfAudioChannels: boolean;
+	m3uStreams: boolean;
 };
 
 export type AllParseMediaFields = {
@@ -83,6 +86,7 @@ export type AllParseMediaFields = {
 	numberOfAudioChannels: true;
 	slowVideoBitrate: true;
 	slowAudioBitrate: true;
+	m3uStreams: true;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -113,6 +117,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	numberOfAudioChannels: Fields['numberOfAudioChannels'];
 	slowVideoBitrate: Fields['slowVideoBitrate'];
 	slowAudioBitrate: Fields['slowAudioBitrate'];
+	m3uStreams: Fields['m3uStreams'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
@@ -132,6 +137,7 @@ export type MediaParserContainer =
 	| 'mp3'
 	| 'aac'
 	| 'flac'
+	| 'm3u8'
 	| 'wav';
 
 export type MediaParserKeyframe = {
@@ -206,6 +212,9 @@ export type MandatoryParseMediaCallbacks = {
 	onSlowAudioBitrate:
 		| null
 		| ((audioBitrate: number | null) => unknown | Promise<unknown>);
+	onM3uStreams:
+		| null
+		| ((streams: M3uStream[] | null) => unknown | Promise<unknown>);
 };
 
 export type ParseMediaCallbacks = Partial<MandatoryParseMediaCallbacks>;
@@ -238,6 +247,7 @@ export interface ParseMediaData {
 	numberOfAudioChannels: number | null;
 	slowVideoBitrate: number | null;
 	slowAudioBitrate: number | null;
+	m3uStreams: M3uStream[] | null;
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {
@@ -266,6 +276,7 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
+	selectM3uStream: SelectM3uStreamFn;
 } & MandatoryParseMediaCallbacks;
 
 type ParseMediaSampleCallbacks = {

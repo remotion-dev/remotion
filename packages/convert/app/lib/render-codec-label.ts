@@ -129,5 +129,9 @@ export const renderHumanReadableContainer = (
 		return '.flac';
 	}
 
+	if (container === 'm3u8') {
+		return '.m3u8';
+	}
+
 	throw new Error(`Unknown container ${container satisfies never}`);
 };

@@ -1,4 +1,5 @@
 import {MediaParserEmitter} from './emitter';
+import {MediaParserAbortError} from './errors';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
 
@@ -25,7 +26,7 @@ export const mediaParserController = (): MediaParserController => {
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
-			throw new Error('Aborted');
+			throw new MediaParserAbortError('Aborted');
 		}
 
 		await pauseSignal.waitUntilResume();
@@ -35,6 +36,7 @@ export const mediaParserController = (): MediaParserController => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		abort: (reason?: any) => {
 			abortController.abort(reason);
+			emitter.dispatchAbort(reason);
 		},
 		pause: pauseSignal.pause,
 		resume: pauseSignal.resume,

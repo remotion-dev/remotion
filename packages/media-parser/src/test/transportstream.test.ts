@@ -118,6 +118,10 @@ test('Transport stream', async () => {
 					236,
 					178,
 					44,
+					253,
+					248,
+					248,
+					0,
 				]),
 				fps: null,
 				codedWidth: 720,
@@ -185,11 +189,11 @@ test('Transport stream', async () => {
 	expect(audioSamples).toBe(234);
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
-	expect(slowFps).toBe(59.19191919191918);
-	expect(slowDurationInSeconds).toBe(4.966894197952219);
+	expect(slowFps).toBe(59.999999999999986);
+	expect(slowDurationInSeconds).toBe(4.966666666666668);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
-	expect(videoSamples).toBe(294);
+	expect(videoSamples).toBe(298);
 	expect(structure.boxes[0]).toEqual({
 		type: 'transport-stream-pat-box',
 		tableId: '0',
@@ -215,7 +219,7 @@ test('Transport stream', async () => {
 			},
 		],
 	});
-	expect(slowNumberOfFrames).toBe(294);
+	expect(slowNumberOfFrames).toBe(298);
 	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 10,

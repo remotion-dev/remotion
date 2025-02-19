@@ -57,14 +57,7 @@ export const nodeReader: ReaderInterface = {
 			contentType: null,
 			name: src.split(sep).pop() as string,
 			supportsContentRange: true,
+			needsContentRange: true,
 		});
-	},
-	getLength: (src) => {
-		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `nodeReader`');
-		}
-
-		const stats = statSync(src);
-		return Promise.resolve(stats.size);
 	},
 };

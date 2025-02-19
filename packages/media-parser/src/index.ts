@@ -94,6 +94,14 @@ export type {
 } from './containers/webm/segments/all-segments';
 export type {LogLevel};
 
-export {mediaParserController} from './media-parser-controller';
-export type {MediaParserController} from './media-parser-controller';
+export {M3uStream} from './containers/m3u/get-streams';
+export {
+	defaultSelectM3uStreamFn,
+	SelectM3uStreamFn,
+	SelectM3uStreamFnOptions,
+} from './containers/m3u/select-stream';
+export {
+	mediaParserController,
+	MediaParserController,
+} from './media-parser-controller';
 export {VERSION} from './version';

@@ -926,6 +926,7 @@ module.exports = {
 					href: '/docs/media-parser/parse-media',
 					label: 'API Reference',
 				},
+				'media-parser/fields',
 				'media-parser/metadata',
 				'media-parser/fast-and-slow',
 				'media-parser/tags',
@@ -934,6 +935,7 @@ module.exports = {
 				'media-parser/pause-resume-abort',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
+				'media-parser/stream-selection',
 			],
 		},
 		{
