@@ -45,6 +45,10 @@ test('hasBeenAborted() should still work', async () => {
 		});
 		throw new Error('Should not resolve');
 	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+
 		expect(hasBeenAborted(err)).toBe(true);
 	}
 });
