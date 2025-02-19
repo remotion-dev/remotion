@@ -35,7 +35,7 @@ export type RemotionVideoProps = Omit<
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
-	onAutoPlayError?: () => void;
+	onAutoPlayError?: null | (() => void);
 };
 
 type DeprecatedOffthreadVideoProps = {
