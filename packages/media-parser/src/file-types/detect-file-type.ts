@@ -82,7 +82,7 @@ export const isFlac = (data: Uint8Array) => {
 };
 
 export const isM3u = (data: Uint8Array) => {
-	return new TextDecoder('utf-8').decode(data).substring(0, 7) === '#EXTM3U';
+	return new TextDecoder('utf-8').decode(data.slice(0, 7)) === '#EXTM3U';
 };
 
 export type RiffType = {
