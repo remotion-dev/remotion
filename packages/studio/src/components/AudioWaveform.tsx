@@ -136,8 +136,6 @@ export const AudioWaveform: React.FC<{
 			startTimeInSeconds: startFrom / vidConf.fps,
 			durationInSeconds: (durationInFrames / vidConf.fps) * playbackRate,
 			numberOfSamples,
-			channel: 0,
-			outputRange: 'zero-to-one',
 		});
 	}, [
 		durationInFrames,
