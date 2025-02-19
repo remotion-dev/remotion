@@ -1,5 +1,5 @@
 export {audioBufferToDataUrl} from './audio-buffer/audio-url-helpers';
-export {createSmoothSvgPath as smoothenSvgPath} from './create-smooth-svg-path';
+export {createSmoothSvgPath} from './create-smooth-svg-path';
 export {getAudioData} from './get-audio-data';
 export {
 	getAudioDuration,

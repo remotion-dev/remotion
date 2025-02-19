@@ -1,18 +1,26 @@
 import {
-	smoothenSvgPath,
+	createSmoothSvgPath,
 	useAudioData,
 	visualizeAudioWaveform,
 } from '@remotion/media-utils';
 import {Player} from '@remotion/player';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
-import voice from './voice-short.mp3';
+import {
+	AbsoluteFill,
+	Audio,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+
+const src = staticFile('voice-short.mp3');
 
 const BaseExample: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const audioDataVoice = useAudioData(voice);
-	const {width, height} = useVideoConfig();
+	const audioDataVoice = useAudioData(src);
+	const {width} = useVideoConfig();
+	const height = 300;
 
 	if (!audioDataVoice) {
 		return null;
@@ -27,18 +35,18 @@ const BaseExample: React.FC = () => {
 		channel: 0,
 	});
 
-	const p = smoothenSvgPath({
+	const p = createSmoothSvgPath({
 		points: waveform.map((x, i) => {
 			return {
 				x: (i / (waveform.length - 1)) * width,
-				y: (x - 0.5) * 300 + height / 2,
+				y: x * height + height / 2,
 			};
 		}),
 	});
 
 	return (
 		<div style={{flex: 1}}>
-			<Audio src={voice} />
+			<Audio src={src} />
 			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
 				<svg
 					style={{backgroundColor: '#0B84F3'}}
@@ -56,8 +64,9 @@ const BaseExample: React.FC = () => {
 const MovingExample: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const audioDataVoice = useAudioData(voice);
-	const {width, height} = useVideoConfig();
+	const audioDataVoice = useAudioData(src);
+	const {width} = useVideoConfig();
+	const height = 300;
 
 	if (!audioDataVoice) {
 		return null;
@@ -72,18 +81,18 @@ const MovingExample: React.FC = () => {
 		channel: 0,
 	});
 
-	const p = smoothenSvgPath({
+	const p = createSmoothSvgPath({
 		points: waveform.map((x, i) => {
 			return {
 				x: (i / (waveform.length - 1)) * width,
-				y: (x - 0.5) * 300 + height / 2,
+				y: x * height + height / 2,
 			};
 		}),
 	});
 
 	return (
 		<div style={{flex: 1}}>
-			<Audio src={voice} />
+			<Audio src={src} />
 			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
 				<svg
 					style={{backgroundColor: '#0B84F3'}}
@@ -101,8 +110,9 @@ const MovingExample: React.FC = () => {
 const PosterizedExample: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const audioDataVoice = useAudioData(voice);
-	const {width, height} = useVideoConfig();
+	const audioDataVoice = useAudioData(src);
+	const {width} = useVideoConfig();
+	const height = 300;
 
 	if (!audioDataVoice) {
 		return null;
@@ -117,18 +127,18 @@ const PosterizedExample: React.FC = () => {
 		channel: 0,
 	});
 
-	const p = smoothenSvgPath({
+	const p = createSmoothSvgPath({
 		points: waveform.map((x, i) => {
 			return {
 				x: (i / (waveform.length - 1)) * width,
-				y: (x - 0.5) * 300 + height / 2,
+				y: x * height + height / 2,
 			};
 		}),
 	});
 
 	return (
 		<div style={{flex: 1}}>
-			<Audio src={voice} />
+			<Audio src={src} />
 			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
 				<svg
 					style={{backgroundColor: ' #0B84F3'}}
@@ -165,8 +175,8 @@ export const AudioWaveFormExample: React.FC<{
 		<div>
 			<Player
 				component={component}
-				compositionWidth={2160}
-				compositionHeight={1080}
+				compositionWidth={1080}
+				compositionHeight={300}
 				controls
 				durationInFrames={300}
 				fps={30}

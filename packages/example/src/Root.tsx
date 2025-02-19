@@ -122,7 +122,6 @@ import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {VoiceVisualization} from './voice-visualization';
-import {TwoChannelVoiceVisualization} from './voice-visualization/two-channel';
 
 class Vector2 {
 	readonly x: number;
@@ -1540,14 +1539,6 @@ export const Index: React.FC = () => {
 				<Composition
 					id="voice-visualization"
 					component={VoiceVisualization}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-				/>
-				<Composition
-					id="two-tone"
-					component={TwoChannelVoiceVisualization}
 					width={1080}
 					height={1080}
 					fps={30}

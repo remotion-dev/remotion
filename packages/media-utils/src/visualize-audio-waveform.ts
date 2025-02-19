@@ -10,7 +10,7 @@ export type VisualizeAudioWaveformOptions = {
 	fps: number;
 	windowInSeconds: number;
 	numberOfSamples: number;
-	channel: number;
+	channel?: number;
 };
 
 const visualizeAudioWaveformFrame = ({
