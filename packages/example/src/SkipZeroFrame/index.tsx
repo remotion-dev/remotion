@@ -1,13 +1,13 @@
 import React from 'react';
-import {useCurrentFrame} from 'remotion';
+import {getRemotionEnvironment, useCurrentFrame} from 'remotion';
 
 // Try to render using:
-// npx remotion render src/index.tsx skip-zero-frame --frames=10-20 skip.mp4
+// npx remotion render src/index.ts skip-zero-frame --frames=10-20 skip.mp4
 
 export const SkipZeroFrame: React.FC = () => {
 	const frame = useCurrentFrame();
 
-	if (frame === 0 && process.env.NODE_ENV === 'production') {
+	if (frame === 0 && getRemotionEnvironment().isRendering) {
 		throw new Error('should not render frame 0');
 	}
 

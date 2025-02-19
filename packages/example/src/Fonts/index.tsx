@@ -1,28 +1,23 @@
+import {loadFont} from '@remotion/fonts';
 import React from 'react';
-import {AbsoluteFill, continueRender, delayRender, staticFile} from 'remotion';
+import {AbsoluteFill, staticFile} from 'remotion';
 
-const waitForFont = delayRender();
-const font = new FontFace(
-	`Bangers`,
-	`url(${staticFile('bangers.woff2')}) format('woff2')`
-);
-
-font
-	.load()
-	.then(() => {
-		document.fonts.add(font);
-		continueRender(waitForFont);
-	})
-	.catch((err) => console.log('Error loading font', err));
+loadFont({
+	family: 'Bangers',
+	url: staticFile('bangers.woff2'),
+	weight: '500',
+	format: 'opentype',
+}).then(() => console.log('Font loaded!'));
 
 export const FontDemo: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{
+				fontFamily: 'Bangers',
 				justifyContent: 'center',
 				alignItems: 'center',
-				fontFamily: 'Bangers',
-				fontSize: 300,
+				fontSize: 100,
+				backgroundColor: 'whitesmoke',
 			}}
 		>
 			<h1>Font Demo</h1>

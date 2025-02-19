@@ -1,0 +1,34 @@
+{
+  "name": "template-skia",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src",
+    "typecheck": "tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/skia": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "@shopify/react-native-skia": "1.6.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/dom-webcodecs": "0.1.11",
+    "@types/react": "19.0.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "private": true
+}

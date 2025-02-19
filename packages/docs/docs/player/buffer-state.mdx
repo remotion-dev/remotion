@@ -1,0 +1,362 @@
+---
+image: /generated/articles-docs-player-buffer-state.png
+title: 'The Player buffer state'
+sidebar_label: Buffer state
+id: buffer-state
+crumb: Best practices
+---
+
+_available from 4.0.111_
+
+Just like regular video players, it is possible that the content being displayed in the Player is not yet fully loaded.  
+In this case, the best practice is to briefly pause the video, let the content load and then resume playback.
+
+Remotion has a native buffer state, which can be used to pause the video when the buffer is empty.
+
+## TL;DR
+
+You can add a `pauseWhenBuffering` prop to your [`<Video>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) tags.  
+The prop is called `pauseWhenLoading` for [`<Img>`](/docs/img/#pausewhenloading) tags.  
+By doing so, the Player will briefly pause until your media is loaded.
+
+## Mechanism
+
+### Activating the buffer state
+
+A component can tell the player to switch into a buffer state by first using the [`useBufferState()`](/docs/use-buffer-state) hook and then calling `buffer.delayPlayback()`:
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {useBufferState} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const buffer = useBufferState();
+
+  React.useEffect(() => {
+    const delayHandle = buffer.delayPlayback();
+
+    setTimeout(() => {
+      delayHandle.unblock();
+    }, 5000);
+
+    return () => {
+      delayHandle.unblock();
+    };
+  }, []);
+
+  return null;
+};
+```
+
+To clear the handle, call `.unblock()` on the return value of `delayPlayback()`.
+
+When activating the buffer state, pay attention to the following:
+
+<details>
+<summary>Clear the handle when the component unmounts</summary>
+
+The user might seek to a different portion of the video which is immediately available.
+Use the cleanup function of <code>useEffect()</code> to clear the handle when your component is unmounted.
+
+```tsx twoslash title="❌ Causes problems with React strict mode"
+import React, {useState} from 'react';
+import {useBufferState} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const buffer = useBufferState();
+  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      delayHandle.unblock();
+    }, 5000);
+  }, []);
+
+  return <></>;
+};
+```
+
+</details>
+<details>
+<summary>Don't use <code>delayPlayback()</code> inside a <code>useState()</code></summary>
+
+While the following implementation works in production, it fails in React Strict mode, because the `useState()` hook is called twice, which causes the first invocation of the buffer to never be cleared.
+
+```tsx twoslash title="❌ Doesn't clear the buffer handle when seeking to a different portion of a video"
+import React, {useState} from 'react';
+import {useBufferState} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const buffer = useBufferState();
+  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      delayHandle.unblock();
+    }, 5000);
+
+    return () => {
+      delayHandle.unblock();
+    };
+  }, []);
+
+  return <></>;
+};
+```
+
+</details>
+<details>
+<summary>It doesn't replace <code>delayRender()</code></summary>
+<a href="/docs/delay-render">delayRender()</a> is a different API which controls when a screenshot is taken during rendering.<br/><br/>
+
+If you are loading data, you might want to delay the screenshotting of your component during rendering and delay the playback of the video in preview, in which case you need to use both APIs together.
+
+```tsx twoslash title="Using delayRender() and delayPlayback() together"
+import React from 'react';
+import {useBufferState, delayRender, continueRender} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const buffer = useBufferState();
+  const [handle] = React.useState(() => delayRender());
+
+  React.useEffect(() => {
+    const delayHandle = buffer.delayPlayback();
+
+    setTimeout(() => {
+      delayHandle.unblock();
+      continueRender(handle);
+    }, 5000);
+
+    return () => {
+      delayHandle.unblock();
+    };
+  }, []);
+
+  return <></>;
+};
+```
+
+</details>
+
+### Possible states
+
+Whether a player is buffering does not internally change the `playing` / `paused` state.  
+Therefore, a player can be in four playback states:
+
+<Step>1</Step> <code>playing && !buffering</code> <br />
+<Step>2</Step> <code>playing && buffering</code> <br />
+<Step>3</Step> <code>paused && !buffering</code> <br />
+<Step>4</Step> <code>paused && buffering</code> <br />
+<br />
+
+Only in state <InlineStep>1</InlineStep> the time moves forward.
+
+---
+
+By default, Remotion will display the following UI based on the state of the player:
+
+<p>
+  When in State <InlineStep>1</InlineStep> a Pause button is shown. <br />
+</p>
+<p>
+  When in State <InlineStep>2</InlineStep> at first a Pause button, then after{' '}
+  <a href="#indicating-buffering-in-the-ui">a delay</a>, a{' '}
+  <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a>{' '}
+  is shown.
+</p>
+
+<p>Otherwise, the Play button is shown.</p>
+
+You may add additional UI to this, for example by overlaying the Player with a spinner when the Player is buffering.
+
+### Listening to buffer events
+
+If the `<Player />` is entering a buffer state, it will emit the `waiting` event.  
+Once it resumes, it emits the `resume` event.
+
+```tsx twoslash title="Listening to waiting and resume events"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef, useState} from 'react';
+import {MyVideo} from './remotion/MyVideo';
+
+export const App: React.FC = () => {
+  const playerRef = useRef<PlayerRef>(null);
+  const [buffering, setBuffering] = useState(false);
+
+  useEffect(() => {
+    const {current} = playerRef;
+    if (!current) {
+      return;
+    }
+
+    const onBuffering = () => {
+      setBuffering(true);
+    };
+    const onResume = () => {
+      setBuffering(false);
+    };
+
+    current.addEventListener('waiting', onBuffering);
+    current.addEventListener('resume', onResume);
+    return () => {
+      current.removeEventListener('waiting', onBuffering);
+      current.removeEventListener('resume', onResume);
+    };
+  }, [setBuffering]);
+
+  return (
+    <Player
+      ref={playerRef}
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+    />
+  );
+};
+```
+
+## Components with built-in buffering
+
+You can enable buffering on the following components:
+
+- [`<Audio>`](/docs/audio#pausewhenbuffering) - add the `pauseWhenBuffering` prop
+- [`<Video>`](/docs/video#pausewhenbuffering) - add the `pauseWhenBuffering` prop
+- [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) - add the `pauseWhenBuffering` prop
+- [`<Img>`](/docs/img#pausewhenloading) - add the `pauseWhenLoading` prop
+
+## Indicating buffering in the UI
+
+When the Player is buffering, by default the Play button will be replaced with a spinner.  
+To prevent a janky UI, this spinner will only be shown after the Player has been in a buffering state for 300ms.
+
+You may customize the timeout of `300` milliseconds by passing the [`bufferStateDelayInMilliseconds`](/docs/player/player#bufferstatedelayinmilliseconds) prop to the `<Player />` component.
+
+```tsx twoslash title="Setting the delay until the spinner is shown"
+// @allowUmdGlobalAccess
+// @filename: ./remotion/MyVideo.tsx
+export const MyVideo = () => <></>;
+
+// @filename: index.tsx
+// ---cut---
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef, useState} from 'react';
+import {MyVideo} from './remotion/MyVideo';
+
+export const App: React.FC = () => {
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      bufferStateDelayInMilliseconds={1000} // Or set to `0` to immediately show the spinner
+    />
+  );
+};
+```
+
+In the Studio, you can change the delay in the [config file](/docs/config#setbufferstatedelayinmilliseconds):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setBufferStateDelayInMilliseconds(0);
+```
+
+To customize the spinner that is shown in place of the Play button, you can pass a [`renderPlayPauseButton()`](/docs/player/player#renderplaypausebutton) prop:
+
+```tsx twoslash title="Rendering a custom spinner inside the Play button"
+const MyPlayButton: React.FC = () => null;
+const MyPauseButton: React.FC = () => null;
+const MySpinner: React.FC = () => null;
+const MyVideo: React.FC = () => null;
+// ---cut---
+import {Player, RenderPlayPauseButton} from '@remotion/player';
+import {useCallback} from 'react';
+
+export const App: React.FC = () => {
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+    ({playing, isBuffering}) => {
+      if (playing && isBuffering) {
+        return <MySpinner />;
+      }
+
+      return null;
+    },
+    [],
+  );
+
+  return (
+    <Player
+      component={MyVideo}
+      durationInFrames={120}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      fps={30}
+      renderPlayPauseButton={renderPlayPauseButton}
+    />
+  );
+};
+```
+
+To display a loading UI layered on top of the Player (e.g. a spinner), you can set [`showPosterWhenBuffering`](/docs/player/player#showposterwhenbuffering) to `true` and pass a [`renderPoster()`](/docs/player/player#renderposter) prop:
+
+```tsx twoslash title="Rendering a custom spinner on top of the Player"
+import {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
+
+const Component: React.FC = () => null;
+const Spinner: React.FC = () => null;
+
+// ---cut---
+
+import type {RenderPoster} from '@remotion/player';
+import {Player} from '@remotion/player';
+
+const MyApp: React.FC = () => {
+  const renderPoster: RenderPoster = useCallback(({isBuffering}) => {
+    if (isBuffering) {
+      return (
+        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Spinner />
+        </AbsoluteFill>
+      );
+    }
+
+    return null;
+  }, []);
+
+  return (
+    <Player
+      fps={30}
+      component={Component}
+      durationInFrames={100}
+      compositionWidth={1080}
+      compositionHeight={1080}
+      renderPoster={renderPoster}
+      showPosterWhenBuffering
+    />
+  );
+};
+```
+
+## Upcoming changes in Remotion 5.0
+
+In Remotion 4.0, media tags such as `<Audio>`, `<OffthreadVideo>` tags will need to opt-in to use the buffer state.
+
+In Remotion 5.0, it is planned that `<Audio>`, `<Video>` and `<OffthreadVideo>` will automatically use the buffer state, but they can opt out of it.
+
+## See also
+
+- [`useBufferState()`](/docs/use-buffer-state)
+- [`<Player>`](/docs/player/player)
+- [Avoiding flickering in `<Player>`](/docs/troubleshooting/player-flicker)

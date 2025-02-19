@@ -1,0 +1,89 @@
+---
+image: /generated/articles-docs-flickering.png
+id: flickering
+title: Flickering
+crumb: "How to avoid"
+---
+
+<YouTube
+  minutes={6}
+  href="https://www.youtube.com/watch?v=M7BOPECeqV8"
+  thumb="https://i.ytimg.com/vi/M7BOPECeqV8/hq720.jpg"
+  title="Avoid this common mistake in Remotion"
+/>
+
+If your video flickers or suffers from choppiness during rendering, it is an indication that:
+
+<Step>1</Step> there is a <strong>multi-threading issue</strong> or <br />
+<Step>2</Step> the renderer does not <strong>wait for data or assets to be loaded</strong>
+.
+
+## Multi-threading issue
+
+The rendering process of Remotion works as follows:
+
+<img src="/img/parallel-rendering.png" />
+
+We open multiple tabs to render the video to speed up the process dramatically.  
+Tabs don't share state and animations that run independent of [`useCurrentFrame()`](/docs/use-current-frame) will break.
+
+### Solution
+
+Code your video in a way that animations run purely off the value of [`useCurrentFrame()`](/docs/use-current-frame).  
+Think of your component as a function that transforms a frame number into an image.
+
+Does your component satisfy the following criteria?
+
+<Step>1</Step> A component should always display the same visual when called multiple
+times.<br />
+<Step>2</Step> A component should not rely on frames being rendered in order.<br />
+<Step>3</Step> A component should not animate when the video is paused.<br />
+<Step>4</Step> A component should not rely on randomness - Exception: <a href="/docs/random"><code>random()</code></a>
+
+### Bypass multithreading
+
+If your animation will not break if the frames are rendered in order, users often use the [`--concurrency=1`](/docs/cli/render#--concurrency) flag. This will fix flickering / choppiness in many cases and is a viable path if the effort of refactoring is too big.
+
+The drawback of this technique is that it is way slower and that the correct timing of the animations is still not guaranteed. It will also block rendering via [Remotion Lambda](/lambda).
+
+## Asset loading issue
+
+Remotion needs to know that an asset is not loaded yet so it can block rendering.  
+Otherwise, it will take a screenshot of a loading state.
+
+### Solution
+
+<Step>1</Step> Use the <a><code>&lt;Img&gt;</code></a>
+, <a><code>&lt;Video&gt;</code></a>
+, <a><code>&lt;OffthreadVideo&gt;</code></a>
+, <a><code>&lt;Audio&gt;</code></a>
+, <a><code>&lt;Iframe&gt;</code></a> and <a><code>&lt;Gif&gt;</code></a> as they wait for the assets to be loaded. <br />
+<Step>2</Step> When loading data, use the <a href="/docs/delay-render">
+  <code>delayRender()</code>
+</a> function.<br />
+<Step>3</Step> Ensure you correctly wait <a href="/docs/fonts">for fonts to load</a>.<br />
+<Step>4</Step> Only call <a href="/docs/layout-utils/fit-text"><code>fitText()</code></a>, <a href="/docs/layout-utils/fill-text-box"><code>fillTextBox()</code></a> and <a href="/docs/layout-utils/measure-text"><code>measureText()</code></a> once fonts are loaded.<br />
+<Step>5</Step> Avoid using the <a href="/docs/troubleshooting/background-image"><code>background-image</code> and <code>mask-image</code> CSS properties</a>.
+
+## Flickering `<Video>` tag
+
+Adding many [`<Video>`](/docs/video) tags can lead to stutters.  
+If you are experiencing the problem, consider using the [`<OffthreadVideo>`](/docs/offthreadvideo) component for frame-perfect rendering.
+
+## Integrations
+
+See the list of [third-party integrations](/docs/third-party) to see if there is a solution for synchronizing your animation with [`useCurrentFrame()`](/docs/use-current-frame).
+
+## Why Remotion works this way
+
+- Rendering speed is important, especially with server-side rendering.  
+  Rendering each frame sequentially would be detrimental for speed, a sacrifice that is not worth it when it's possible to write concurrency-safe videos.
+
+- Setting `--concurrency=1` on a video that would be choppy otherwise does not fully fix the problem.  
+  Often the result looks okay only because of coincidence, because the rendering speed is approximately the same as the animation speed. There is no real timing synchronization and results will differ across machines.
+
+- Deterministic videos enable distributed video renders like [Remotion Lambda](/docs/lambda), which can render a video much faster than real-time.
+
+## See Also
+
+- [Avoiding flickering in `<Player>`](/docs/troubleshooting/player-flicker)

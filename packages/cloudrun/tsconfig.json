@@ -1,0 +1,13 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src"
+	},
+	"include": ["src"],
+	"references": [
+		{"path": "../core"},
+		{"path": "../cli"},
+		{"path": "../renderer"}
+	]
+}

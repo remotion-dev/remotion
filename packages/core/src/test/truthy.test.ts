@@ -1,4 +1,5 @@
-import {truthy} from '../truthy';
+import {expect, test} from 'bun:test';
+import {truthy} from '../truthy.js';
 
 test.each<[unknown, boolean]>([
 	['true', true],

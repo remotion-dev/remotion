@@ -1,0 +1,395 @@
+---
+image: /generated/articles-docs-cloudrun-setup.png
+id: setup
+title: Setup
+slug: /cloudrun/setup
+crumb: 'Cloud Run'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
+</ExperimentalBadge>
+
+## 1. Install `@remotion/cloudrun`
+
+<Installation pkg="@remotion/cloudrun" />
+
+## 2. Create a GCP project
+
+Navigate to the [Manage Resources](https://console.cloud.google.com/cloud-resource-manager?walkthrough_id=resource-manager--create-project&start_index=1#step_index=1) screen in Google Cloud Console.
+
+- On the Select organization drop-down list at the top of the page, select the organization resource in which you want to create a project. If you are a free trial user, skip this step, as this list does not appear.
+- Click Create Project.
+- In the New Project window that appears, enter a project name and select a billing account as applicable. A project name can contain only letters, numbers, single quotes, hyphens, spaces, or exclamation points, and must be between 4 and 30 characters.
+- Enter the parent organization or folder resource in the Location box. That resource will be the hierarchical parent of the new project. If No organization is an option, you can select it to create your new project as the top level of its own resource hierarchy.
+- When you're finished entering new project details, click Create.
+
+## 3. Enable billing in the GCP Project
+
+In order to enable the Cloud Run API, billing must be enabled in this project. Navigate to the [Billing](https://console.cloud.google.com/billing) screen in Google Cloud Console. Follow the on-screen prompts to create a billing account, and then link the new project to this billing account.
+
+## 4. Setup Permissions / APIs / Service Account in GCP
+
+:::info
+[Google Cloud Shell](https://cloud.google.com/shell) is a browser-based command-line interface (CLI) for managing resources and applications hosted on GCP. It provides a virtual machine with pre-installed command-line tools and utilities, including the Google Cloud SDK and Terraform. Through this shell you can access your projects, resources, and services directly in the browser. The following steps pull in a script to enable necessary APIs, resources and permissions in your project.
+:::
+
+1. Navigate to the [Dashboard](https://console.cloud.google.com/home/dashboard) and ensure your new project selected in the top drop-down. Then, in the top right hand corner of the screen, click the Activate Cloud Shell icon
+
+   <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
+
+2. Within the Cloud Shell, type the following command and follow the prompts.
+
+   ```bash
+   curl -L https://github.com/remotion-dev/remotion/raw/main/packages/cloudrun/src/gcpInstaller/gcpInstaller.tar | tar -x -C . && node install.mjs
+   ```
+
+- Select <Step>1</Step>to setup this project for Remotion Cloud Run, or to run the setup again for an update.
+- Select <Step>2</Step>to generate a new .env file, or manage keys already created, and [follow these steps instead](/docs/cloudrun/generate-env).
+
+3. When prompted to apply the plan, type `yes`. When prompted to generate the .env files, type `yes`.
+
+4. Run the following command to view the environment variables. Copy them into your local `.env` file (create it if it doesn't exist):
+
+   ```bash
+   cat .env
+   ```
+
+5. Remove the .env file from the virtual machine:
+
+   ```bash
+   rm .env
+   ```
+
+## 5. Optional: Validate the permission setup
+
+From within your code base, run the following command to validate the permissions are setup correctly in GCP. As long as your GCP project was setup with a matching Remotion version, this should pass.
+
+```
+npx remotion cloudrun permissions
+```
+
+<hr />
+
+For the following steps, you may execute them on the CLI, or programmatically using the Node.JS APIs.
+
+## 6. Deploy a service
+
+<Tabs
+defaultValue="cli"
+values={[
+{ label: 'CLI', value: 'cli', },
+{ label: 'Node.JS', value: 'node', },
+]
+}>
+<TabItem value="cli">
+
+Deploy a service that can render videos into your GCP project by executing the following command:
+
+```bash
+npx remotion cloudrun services deploy
+```
+
+</TabItem>
+<TabItem value="node">
+
+You can deploy a service that can render videos into your GCP project using [`deployService()`](/docs/cloudrun/deployservice).
+
+```ts twoslash
+import {deployService} from '@remotion/cloudrun';
+
+// ---cut---
+const deployResult = await deployService({
+  projectID: 'my-remotion-project',
+  region: 'us-east1',
+});
+```
+
+The object that is returned contains a name field, which you'll need for rendering.
+
+</TabItem>
+</Tabs>
+
+The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology/serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
+
+A [`Cloud Run URL`](/docs/terminology/cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render. Alternatively you can use the [`Service Name`](/docs/terminology/service-name), that is also printed, for accessing the deployed service and performing a render.
+
+## 7. Deploy a site
+
+<Tabs
+defaultValue="cli"
+values={[
+{ label: 'CLI', value: 'cli', },
+{ label: 'Node.JS', value: 'node', },
+]
+}>
+<TabItem value="cli">
+
+Run the following command to deploy your Remotion project to a Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology/entry-point) of the project.
+
+```bash
+npx remotion cloudrun sites create src/index.ts --site-name=my-video
+```
+
+A [`serveUrl`](/docs/terminology/serve-url) will be printed pointing to the deployed project.
+
+When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
+
+</TabItem>
+<TabItem value="node">
+
+First, you need to create a Cloud Storage bucket in your preferred region. If one already exists, it will be used instead:
+
+```ts twoslash
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/cloudrun';
+
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east1',
+});
+```
+
+Next, upload your Remotion project to a Cloud Storage bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
+
+```ts twoslash
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/cloudrun';
+
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east1',
+});
+// ---cut---
+const {serveUrl} = await deploySite({
+  bucketName,
+  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+  siteName: 'my-video',
+});
+```
+
+When you update your Remotion code in the future, redeploy your site. Pass the same [`siteName`](/docs/cloudrun/deploysite#sitename) to overwrite the previous deploy. If you don't pass [`siteName`](/docs/cloudrun/deploysite#sitename), a unique URL will be generated on every deploy.
+
+</TabItem>
+</Tabs>
+
+## 8. Render a video or still
+
+<Tabs
+groupId="access"
+defaultValue="cli"
+values={[
+{ label: 'CLI', value: 'cli', },
+{ label: 'Node.JS', value: 'node', },
+]
+}>
+<TabItem value="cli">
+
+<Tabs
+groupId="renderType"
+defaultValue="media"
+values={[
+{ label: 'Render Media', value: 'media', },
+{ label: 'Render Still', value: 'still', },
+]
+}>
+<TabItem value="media">
+
+- `<serve-url | site-name>` The serve URL was returned during step 7, site deployment. If using a serve url from a Cloud Storage bucket, you can pass the site-name instead.
+- `<composition-id>` Pass in the [ID of the composition](/docs/composition) you'd like to render.
+
+<Tabs
+groupId="cliRender"
+defaultValue="cloudRunUrl"
+values={[
+{ label: 'Render using Cloud Run Url', value: 'cloudRunUrl', },
+{ label: 'Render using Service Name', value: 'serviceName', },
+]
+}>
+
+<TabItem value="cloudRunUrl">
+
+- `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
+
+```bash
+npx remotion cloudrun render <serve-url | site-name> <composition-id> --cloud-run-url=<cloud-run-url>
+```
+
+</TabItem>
+<TabItem value="serviceName">
+
+- `<service-name>` The Service Name was returned during step 6, service deployment.
+- `<region>` The region the Service is in, which was returned during step 6, service deployment. This is only required if using the service name.
+
+```bash
+npx remotion cloudrun render <serve-url | site-name> <composition-id> --service-name=<service-name> --region=<region>
+```
+
+</TabItem>
+</Tabs>
+
+Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
+
+</TabItem>
+<TabItem value="still">
+
+- `<serve-url | site-name>` The serve URL was returned during step 7, site deployment. If using a serve url from a Cloud Storage bucket, you can pass the site-name instead.
+- `<still-id>` Pass in the [ID of the still](/docs/still) you'd like to render.
+
+<Tabs
+groupId="cliRender"
+defaultValue="cloudRunUrl"
+values={[
+{ label: 'Render using Cloud Run Url', value: 'cloudRunUrl', },
+{ label: 'Render using Service Name', value: 'serviceName', },
+]
+}>
+
+<TabItem value="cloudRunUrl">
+
+- `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
+
+```bash
+npx remotion cloudrun still <serve-url | site-name> <still-id> --cloud-run-url=<cloud-run-url>
+```
+
+</TabItem>
+<TabItem value="serviceName">
+
+- `<service-name>` The Service Name was returned during step 6, service deployment.
+- `<region>` The region the Service is in, which was returned during step 6, service deployment. This is only required if using the service name.
+
+```bash
+npx remotion cloudrun still <serve-url | site-name> <still-id> --service-name=<service-name> --region=<region>
+```
+
+</TabItem>
+</Tabs>
+
+Congrats! You rendered your first still using Remotion Cloudrun 🚀
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+<TabItem value="node">
+
+<Tabs
+groupId="renderType"
+defaultValue="media"
+values={[
+{ label: 'Render Media', value: 'media', },
+{ label: 'Render Still', value: 'still', },
+]
+}>
+<TabItem value="media">
+
+You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed service programmatically before rendering a video in case your Node.JS program restarts. We can call [`getServices()`](/docs/cloudrun/getservices) with the `compatibleOnly` flag to get only services with a matching version.
+
+```ts twoslash
+import {getServices, renderMediaOnCloudrun} from '@remotion/cloudrun/client';
+
+const services = await getServices({
+  region: 'us-east1',
+  compatibleOnly: true,
+});
+
+const serviceName = services[0].serviceName;
+```
+
+We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) function.
+
+```ts twoslash
+import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
+const url = 'string';
+const serviceName = 'string';
+const updateRenderProgress = (progress: number) => {};
+// ---cut---
+
+const result = await renderMediaOnCloudrun({
+  serviceName,
+  region: 'us-east1',
+  serveUrl: url,
+  composition: 'HelloWorld',
+  inputProps: {},
+  codec: 'h264',
+  updateRenderProgress,
+});
+
+if (result.type === 'success') {
+  console.log(result.bucketName);
+  console.log(result.renderId);
+}
+```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
+
+The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
+
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first video using Remotion Cloud Run 🚀
+
+</TabItem>
+<TabItem value="still">
+
+You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed service programmatically before rendering a video in case your Node.JS program restarts. We can call [`getServices()`](/docs/cloudrun/getservices) with the `compatibleOnly` flag to get only services with a matching version.
+
+```ts twoslash
+import {getServices, renderStillOnCloudrun} from '@remotion/cloudrun';
+
+const services = await getServices({
+  region: 'us-east1',
+  compatibleOnly: true,
+});
+
+const serviceName = services[0].serviceName;
+```
+
+We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) function.
+
+```ts twoslash
+import {renderStillOnCloudrun} from '@remotion/cloudrun/client';
+
+const url = 'string';
+const serviceName = 'string';
+// ---cut---
+
+const result = await renderStillOnCloudrun({
+  serviceName,
+  region: 'us-east1',
+  serveUrl: url,
+  composition: 'HelloWorld',
+  inputProps: {},
+  imageFormat: 'jpeg',
+});
+
+if (result.type === 'success') {
+  console.log(result.bucketName);
+  console.log(result.renderId);
+}
+```
+
+:::note
+Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not import the whole renderer, which cannot be bundled.
+:::
+
+The render will now run and after a while the image will be available in your cloud storage bucket.
+
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion Cloud Run 🚀
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+</Tabs>
+
+## Next steps
+
+- Select [which region(s)](/docs/cloudrun/region-selection) you want to run Remotion Cloud Run in.
+- Familiarize yourself with the CLI and the Node.JS APIs (list in sidebar).
+- Learn how to [upgrade Remotion Cloud Run](/docs/cloudrun/upgrading).
+- Before going live, go through the [Production checklist](/docs/cloudrun/checklist).

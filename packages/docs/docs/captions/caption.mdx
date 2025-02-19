@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-captions-caption.png
+title: Caption
+crumb: '@remotion/captions'
+no_ai: true
+---
+
+# Caption<AvailableFrom v="4.0.216"/>
+
+This is a simple data structure for a caption.
+
+```tsx twoslash
+import type {Caption} from '@remotion/captions';
+//            ^?
+```
+
+By establishing a standard data structure, we allow many operations that involve captions to be interoperable:
+
+- **Transcribing**: Using the [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) or [`@remotion/openai-whisper`](/docs/openai-whisper) packages
+- **Formatting**: For example, creating pages using [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions)
+- **Parsing**: Using the [`parseSrt()`](/docs/captions/parse-srt) function
+- **Serializing**: For example to a `.srt` file using [`serializeSrt()`](/docs/captions/serialize-srt)
+
+## Fields
+
+### `text`
+
+The text of the caption.
+
+### `startMs`
+
+The start time of the caption in milliseconds.
+
+### `endMs`
+
+The end time of the caption in milliseconds.
+
+### `timestampMs`
+
+The timestamp of the caption as a singular timestamp in milliseconds.  
+When using [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp), this the `t_dtw` value.  
+Otherwise, it is not defined, but may be the average of the start and end timestamps.
+
+### `confidence`
+
+A number between 0 and 1 that indicates how confident the transcription is.
+
+## Whitespace sensitivity
+
+The `text` field is white-space sensitive. You should include spaces in it, as none are added automatically.  
+While rendering, apply the `white-space: pre` CSS property to the container of the caption to ensure that the spaces are preserved.
+
+## See also
+
+- [Source code for this type](https://github.com/remotion-dev/remotion/blob/main/packages/captions/src/caption.ts)
+- [`@remotion/captions`](/docs/captions)

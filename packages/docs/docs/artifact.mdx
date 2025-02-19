@@ -1,0 +1,63 @@
+---
+image: /generated/articles-docs-artifact.png
+title: '<Artifact>'
+crumb: API
+---
+
+# `<Artifact>`<AvailableFrom v="4.0.176"/>
+
+By rendering an `<Artifact>` tag in your Remotion markup, [an extra file will get emitted during rendering](/docs/artifacts).
+
+```tsx twoslash title="MyComp.tsx"
+import {Artifact, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return frame === 0 ? (
+    <Artifact filename="my-file.txt" content="Hello World!" />
+  ) : null;
+};
+```
+
+If rendered on the CLI or via the Studio, this will emit an additional file:
+
+```
+$ npx remotion render MyComp
++ out/MyComp.mp4
++ my-file.txt (12B)
+```
+
+It is allowed for a composition to emit multiple files.  
+However, the file names must be unique.
+
+The component will get evaluated on every frame, which means if you want to emit just one file, only render it on one frame.
+
+```tsx twoslash title="❌ Will generate an asset on every frame and throw an error because the file name is not unique"
+import {Artifact, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return frame === 0 ? (
+    <Artifact filename="my-file.txt" content="Hello World!" />
+  ) : null;
+};
+```
+
+## API
+
+### `filename`
+
+A string that is the name of the file that will be emitted.  
+Use forward slashes only, even on Windows.  
+Must match the regex `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
+
+### `content`
+
+A `string` or `Uint8Array` that is the content of the file that will be emitted. Don't consider an `Uint8Array` to be faster, because it needs to be serialized.
+
+## See also
+
+- [Emitting Artifacts](/docs/artifacts)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Artifact.tsx)

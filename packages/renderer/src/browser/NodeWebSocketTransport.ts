@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {promises as dns} from 'dns';
-import {URL} from 'url';
+import {promises as dns} from 'node:dns';
+import {URL} from 'node:url';
 import type {WS} from '../ws/ws-types';
 import {ws as NodeWebSocket} from '../ws/ws-types';
 
@@ -44,7 +44,7 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 			const ws = new NodeWebSocket(url, [], {
 				followRedirects: true,
 				perMessageDeflate: false,
-				maxPayload: 256 * 1024 * 1024, // 256Mb
+				maxPayload: 1024 * 1024 * 1024, // 1024Mb
 				headers: {
 					'User-Agent': `Remotion CLI`,
 				},
@@ -57,31 +57,41 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 		});
 	}
 
-	#ws: WS;
+	websocket: WS;
 	onmessage?: (message: string) => void;
 	onclose?: () => void;
 
 	constructor(ws: WS) {
-		this.#ws = ws;
-		this.#ws.addEventListener('message', (event) => {
+		this.websocket = ws;
+		this.websocket.addEventListener('message', (event) => {
 			if (this.onmessage) {
 				this.onmessage.call(null, event.data as string);
 			}
 		});
-		this.#ws.addEventListener('close', () => {
+		this.websocket.addEventListener('close', () => {
 			if (this.onclose) {
 				this.onclose.call(null);
 			}
 		});
 		// Silently ignore all errors - we don't know what to do with them.
-		this.#ws.addEventListener('error', () => undefined);
+		this.websocket.addEventListener('error', () => undefined);
 	}
 
 	send(message: string): void {
-		this.#ws.send(message);
+		this.websocket.send(message);
 	}
 
 	close(): void {
-		this.#ws.close();
+		this.websocket.close();
+	}
+
+	forgetEventLoop(): void {
+		// @ts-expect-error
+		this.websocket._socket.unref();
+	}
+
+	rememberEventLoop(): void {
+		// @ts-expect-error
+		this.websocket._socket.ref();
 	}
 }

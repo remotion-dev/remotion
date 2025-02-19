@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useRef} from 'react';
-import type {CancellablePromise} from './cancellable-promise';
+import type {CancellablePromise} from './cancellable-promise.js';
 
 const useCancellablePromises = () => {
 	const pendingPromises = useRef<CancellablePromise[]>([]);
@@ -10,13 +10,13 @@ const useCancellablePromises = () => {
 
 	const removePendingPromise = useCallback((promise: CancellablePromise) => {
 		pendingPromises.current = pendingPromises.current.filter(
-			(p) => p !== promise
+			(p) => p !== promise,
 		);
 	}, []);
 
 	const clearPendingPromises = useCallback(
 		() => pendingPromises.current.map((p) => p.cancel()),
-		[]
+		[],
 	);
 
 	const api = useMemo(
@@ -25,7 +25,7 @@ const useCancellablePromises = () => {
 			removePendingPromise,
 			clearPendingPromises,
 		}),
-		[appendPendingPromise, clearPendingPromises, removePendingPromise]
+		[appendPendingPromise, clearPendingPromises, removePendingPromise],
 	);
 
 	return api;

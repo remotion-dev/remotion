@@ -1,0 +1,4 @@
+/**
+ * @description Watches for changes in the public directory and calls a callback function when a file is added, removed, or modified.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/watch-public-folder)
+ */

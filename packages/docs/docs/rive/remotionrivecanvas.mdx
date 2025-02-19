@@ -1,0 +1,193 @@
+---
+image: /generated/articles-docs-rive-remotionrivecanvas.png
+crumb: '@remotion/rive'
+sidebar_label: '<RemotionRiveCanvas>'
+title: '<RemotionRiveCanvas>'
+---
+
+# &lt;RemotionRiveCanvas&gt;<AvailableFrom v="3.3.75"/>
+
+This component can render a [Rive](https://rive.app/) animation so it synchronizes with Remotion's time.
+
+## Example
+
+```tsx twoslash
+import {RemotionRiveCanvas} from '@remotion/rive';
+
+function App() {
+  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
+}
+```
+
+## Props
+
+### `src`
+
+a valid URL of the rive file to load. Can be a local file loaded using [`staticFile()`](/docs/staticfile) or a remote URL like `"https://cdn.rive.app/animations/vehicles.riv"`.
+
+### `fit?`
+
+One of: `"contain" | "cover" | "fill" | "fit-height" | "none" | "scale-down" | "fit-width"`. Default is `"contain"`.
+
+### `alignment?`
+
+One of: `"center" | "bottom-center" | "bottom-left" | "bottom-right" | "center-left" | "center-right" | "top-center" | "top-left" | "top-right"`. Default is `"center"`.
+
+### `artboard?`
+
+Either a `string` specifying the artboard name, a `number` specifying the artboard index, otherwise the default artboard is being used.
+
+### `animation?`
+
+Either a `string` specifying the animation name, a `number` specifying the animation index, otherwise the default animation is being used.
+
+### `onLoad?`<AvailableFrom v="4.0.58" />
+
+A callback function that will be executed when the Rive Runtime is loaded. The argument callback is an object of type Rive `File`
+
+### `enableRiveAssetCdn?`<AvailableFrom v="4.0.181" />
+
+Whether to enable the Rive Asset CDN. Default is `true`.
+
+### `assetLoader?`<AvailableFrom v="4.0.181" />
+
+A custom asset loader. See [here](https://rive.app/community/doc/loading-assets/doct4wVHGPgC#handling-assets) for more information.
+
+:::note
+Memoize the assetLoader function using `useCallback`.
+:::
+
+```tsx
+import {useCallback} from 'react';
+import {RemotionRiveCanvas} from '@remotion/rive';
+import {FileAsset, ImageAsset} from '@rive-app/canvas-advanced';
+import {decodeImage} from '@rive-app/react-canvas';
+
+export const MyComp: React.FC = () => {
+  const assetLoader = useCallback((asset: FileAsset, bytes: Uint8Array) => {
+    console.log('Asset properties to query', {
+      name: asset.name,
+      fileExtension: asset.fileExtension,
+      cdnUuid: asset.cdnUuid,
+      isFont: asset.isFont,
+      isImage: asset.isImage,
+      isAudio: asset.isAudio,
+      bytes,
+    });
+
+    // If the asset has a `cdnUuid`, return false to let the runtime handle
+    // loading it in from a CDN. Or if there are bytes found for the asset
+    // (aka, it was embedded), return false as there's no work needed here
+    if (asset.cdnUuid.length > 0 || bytes.length > 0) {
+      return false;
+    }
+
+    if (asset.isImage) {
+      fetch('https://picsum.photos/300/500').then(async (res) => {
+        console.log('doing this');
+        const image = await decodeImage(
+          new Uint8Array(await res.arrayBuffer()),
+        );
+
+        (asset as ImageAsset).setRenderImage(image);
+
+        // You could maintain a reference and update the image dynamically at any time.
+        // But be sure to call unref to release any references when no longer needed.
+        // This allows the engine to clean it up when it is not used by any more animations.
+        image.unref();
+      });
+
+      return true;
+    }
+
+    return false;
+  }, []);
+
+  return (
+    <RemotionRiveCanvas
+      src="https://example.com/myAnimation.riv"
+      assetLoader={assetLoader}
+    />
+  );
+};
+```
+
+## Ref<AvailableFrom v="4.0.180" />
+
+You can attach a ref to the component to access the Rive Canvas instance.
+
+```tsx twoslash title="MyComp.tsx"
+import {RemotionRiveCanvas, RiveCanvasRef} from '@remotion/rive';
+import {useEffect} from 'react';
+
+const MyComp: React.FC = () => {
+  const canvasRef = React.useRef<RiveCanvasRef>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
+    canvasRef.current.getAnimationInstance(); // import("@rive-app/canvas-advanced").LinearAnimationInstance
+    canvasRef.current.getArtboard(); // import("@rive-app/canvas-advanced").Artboard
+    canvasRef.current.getRenderer(); // import("@rive-app/canvas-advanced").CanvasRenderer
+    canvasRef.current.getCanvas(); // import("@rive-app/canvas-advanced").RiveCanvas
+  }, [canvasRef]);
+
+  return (
+    <RemotionRiveCanvas
+      src="https://example.com/myAnimation.riv"
+      ref={canvasRef}
+    />
+  );
+};
+```
+
+The ref exposes the following methods:
+
+### `getAnimationInstance()`
+
+Returns a [`LinearAnimationInstance`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts#L513) from the Rive Runtime.
+
+### `getArtboard()`
+
+Returns a [`Artboard`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts) from the Rive Runtime.
+
+### `getRenderer()`
+
+Returns a [`CanvasRenderer`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts#L221) from the Rive Runtime.
+
+### `getCanvas()`
+
+Returns a [`RiveCanvas`](https://github.com/rive-app/rive-wasm/blob/caacb99a5b503d3fa56e8e921af2a7015478851c/js/src/rive_advanced.mjs.d.ts#L14) from the Rive Runtime.
+
+## Set Text Run at Runtime Example
+
+This example assumes that your Rive animation has a text run named "city". See [here](https://help.rive.app/runtimes/text#low-level-api-usage) for
+more information about Text Runs on Rive.
+
+```tsx twoslash
+import {RemotionRiveCanvas} from '@remotion/rive';
+import {File} from '@rive-app/canvas-advanced';
+import {useCallback} from 'react';
+
+// Make sure to wrap your onLoad handler on `useCallback` to avoid re-rendering this component every single time
+const onLoadHandler = useCallback((file: File) => {
+  const artboard = file.defaultArtboard();
+  const textRun = artboard.textRun('city');
+  textRun.text = 'Tokyo';
+}, []);
+
+function App() {
+  return (
+    <RemotionRiveCanvas
+      src="https://example.com/myAnimation.riv"
+      onLoad={onLoadHandler}
+    />
+  );
+}
+```
+
+## See also
+
+- [`@remotion/lottie`](/docs/lottie)

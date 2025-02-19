@@ -1,0 +1,13 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/ai-improvements"
+	},
+	"name": "ai-improvements",
+	"dependencies": {
+		"openai": "4.67.1",
+		"recast": "0.23.9",
+		"@babel/types": "7.24.0"
+	},
+	"private": true,
+	"version": "4.0.266"
+}

@@ -1,0 +1,112 @@
+---
+image: /generated/articles-docs-visual-editing.png
+id: visual-editing
+title: Edit default props visually
+sidebar_label: Visual editing
+crumb: 'How To'
+---
+
+<YouTube
+  minutes={6}
+  href="https://www.youtube.com/watch?v=NX9YTOsLGpQ"
+  thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg"
+  title="Visual editing"
+/>
+
+You can edit the default props of a component visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
+
+## Opening the default props editor
+
+To open the default props editor, press the <svg style={{width: 20, verticalAlign:"middle", marginLeft: 4, marginRight: 4}} viewBox="0 0 100 100" fill="transparent"><rect x="3" y="3" width="94" height="94" rx="7" stroke="var(--ifm-font-color-base)" strokeWidth="6"/><path d="M59 91.5V8.5C59 4.63401 62.134 1.5 66 1.5H92C95.866 1.5 99 4.63401 99 8.5V91.5C99 95.366 95.866 98.5 92 98.5H66C62.134 98.5 59 95.366 59 91.5Z" fill="var(--ifm-font-color-base)" stroke="var(--ifm-font-color-base)"/></svg>
+icon in the top right corner of the Remotion Studio to open the right sidebar. Alternatively, press <kbd>Cmd/Ctrl</kbd> + <kbd>J</kbd> to toggle the sidebar. Select the <code>Props</code> tab.
+
+## Editing default props
+
+Use the controls in the props editor to live-update the default props of your composition. If you have changes, an undo ↩️ button will appear which you can use to revert to your changes in the code.
+
+## Supported controls
+
+Controls are implemented for:
+
+- `z.object()`
+- `z.string()`
+- `z.date()`
+- `z.number()`
+- `z.boolean()`
+- `z.array()`
+- `z.union()` (only unions of two types, one of them being `z.null()` or `z.undefined()`)
+- `z.optional()`
+- `z.nullable()`
+- `z.enum()`
+- [`zColor()`](/docs/zod-types/z-color) (from `@remotion/zod-types`)
+- [`zTextarea()`](/docs/zod-types/z-textarea) (from `@remotion/zod-types`)
+- [`staticFile()`](/docs/staticfile) assets by typing as `z.string()` and using `staticFile()` in your code
+- `.min()`
+- `.max()`
+- `.step()`
+
+## Editing JSON
+
+Alternatively, you can edit the JSON schema directly by pressing `JSON` in the props editor. Changes will not apply if the schema is invalid.
+
+## Saving default props to your code
+
+Remotion can statically analyze your root file and allow you to save props back to the code via the 💾 button. For this to work, your default props must be inlined into your [`<Composition>`](/docs/composition):
+
+```tsx twoslash title="Inlined defaultProps" {15-18}
+// @filename: MyComponent.tsx
+import React from 'react';
+import {z} from 'zod';
+
+export const myCompSchema = z.object({
+  propOne: z.string(),
+  propTwo: z.string(),
+});
+
+export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
+  propOne,
+  propTwo,
+}) => {
+  return (
+    <div>
+      <h1>{propOne}</h1>
+      <h2>{propTwo}</h2>
+    </div>
+  );
+};
+
+// @filename: Root.tsx
+// organize-imports-ignore
+// ---cut---
+import React from 'react';
+import {Composition} from 'remotion';
+import {MyComponent, myCompSchema} from './MyComponent';
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition
+      id="my-video"
+      component={MyComponent}
+      durationInFrames={100}
+      fps={30}
+      width={1920}
+      height={1080}
+      schema={myCompSchema}
+      defaultProps={{
+        propOne: 'Hello World',
+        propTwo: 'Welcome to Remotion',
+      }}
+    />
+  );
+};
+```
+
+## Rendering videos from your input
+
+If you would like to render a video based on your input in the controls, then you don't need to save the props back to the code. Use the `Render` button to open a render dialog where your modified [default props are filled in as input props](/docs/props-resolution).
+
+## Changing input props visually
+
+In the Props editor, you can only edit the [default props](/docs/props-resolution) visually. You then have the chance to override them using the [`calculateMetadata()`](/docs/calculate-metadata) function.  
+In the [Render dialog](/docs/studio), you have the chance to change the input props.\_\_
+They can also be overridden using [`calculateMetadata()`](/docs/calculate-metadata).

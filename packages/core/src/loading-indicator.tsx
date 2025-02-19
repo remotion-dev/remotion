@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from './AbsoluteFill';
+import {AbsoluteFill} from './AbsoluteFill.js';
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
@@ -7,7 +7,7 @@ const rotate: React.CSSProperties = {
 const ICON_SIZE = 40;
 
 const label: React.CSSProperties = {
-	color: '#555',
+	color: 'white',
 	fontSize: 14,
 	fontFamily: 'sans-serif',
 };
@@ -48,7 +48,7 @@ export const Loading: React.FC = () => {
 					d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
 				/>
 			</svg>
-			<p style={label}>Loading...</p>
+			<p style={label}>Resolving {'<Suspense>'}...</p>
 		</AbsoluteFill>
 	);
 };

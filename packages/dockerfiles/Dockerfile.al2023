@@ -1,0 +1,27 @@
+FROM amazonlinux:2023
+
+WORKDIR /usr/app
+RUN yum install git -y
+RUN git clone https://github.com/remotion-dev/template-helloworld /usr/app
+RUN cd /usr/app
+RUN yum install nodejs -y
+RUN npm i
+RUN yum install -y \
+  mesa-libgbm	\
+  libX11 \
+  libXrandr \ 
+  libdrm \ 
+  libXdamage \ 
+  libXfixes \ 
+  dbus-libs \ 
+  libXcomposite \ 
+  alsa-lib \ 
+  nss \ 
+  dbus \
+  at-spi2-core \
+  atk \
+  at-spi2-atk
+COPY ensure-browser.mjs .
+COPY ensure.mjs .
+RUN node ensure.mjs
+RUN npx remotion compositions

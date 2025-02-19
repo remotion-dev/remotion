@@ -1,133 +1,192 @@
-import type { DeleteFunctionInput} from './api/delete-function';
-import {deleteFunction} from './api/delete-function';
-import type { DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
+import type {
+	AwsRegion,
+	CustomCredentials,
+	DeleteFunctionInput,
+	DeleteRenderInput,
+	EnhancedErrorInfo,
+	EstimatePriceInput,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+	GetFunctionsInput,
+	GetOrCreateBucketInput,
+	GetOrCreateBucketOutput,
+	GetRenderProgressInput,
+	GetSitesInput,
+	GetSitesOutput,
+	RenderMediaOnLambdaInput,
+	RenderMediaOnLambdaOutput,
+	RenderProgress,
+	RenderStillOnLambdaInput,
+	RenderStillOnLambdaOutput,
+} from '@remotion/lambda-client';
+import {
+	deleteFunction,
+	deleteRender,
+	getRenderProgress as deprecatedGetRenderProgress,
+	getSites as deprecatedGetSites,
+	presignUrl as deprecatedPresignUrl,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
+	renderStillOnLambda as deprecatedRenderStillOnLambda,
+	estimatePrice,
+	getAwsClient,
+	getCompositionsOnLambda,
+	getFunctions,
+	renderVideoOnLambda,
+	validateWebhookSignature,
+} from '@remotion/lambda-client';
+import type {FunctionInfo} from '@remotion/serverless';
+import {NoReactInternals} from 'remotion/no-react';
+import type {DeleteSiteInput, DeleteSiteOutput} from './api/delete-site';
 import {deleteSite} from './api/delete-site';
 import type {
 	DeployFunctionInput,
-	DeployFunctionOutput} from './api/deploy-function';
-import {
-	deployFunction
+	DeployFunctionOutput,
 } from './api/deploy-function';
-import type { DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
+import {deployFunction} from './api/deploy-function';
+import type {DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
 import {deploySite} from './api/deploy-site';
 import type {
 	DownloadMediaInput,
-	DownloadMediaOutput} from './api/download-media';
-import {
-	downloadMedia,
-	downloadVideo,
+	DownloadMediaOutput,
 } from './api/download-media';
-import type { EstimatePriceInput} from './api/estimate-price';
-import {estimatePrice} from './api/estimate-price';
-import type {
-	GetAwsClientInput,
-	GetAwsClientOutput} from './api/get-aws-client';
-import {
-	getAwsClient
-} from './api/get-aws-client';
-import type {
-	FunctionInfo,
-	GetFunctionInfoInput} from './api/get-function-info';
-import {
-	getFunctionInfo
-} from './api/get-function-info';
-import type { GetFunctionsInput} from './api/get-functions';
-import {getFunctions} from './api/get-functions';
-import type {
-	GetOrCreateBucketInput,
-	GetOrCreateBucketOutput} from './api/get-or-create-bucket';
-import {
-	getOrCreateBucket
-} from './api/get-or-create-bucket';
+import {downloadMedia} from './api/download-media';
+import type {GetFunctionInfoInput} from './api/get-function-info';
+import {getFunctionInfo} from './api/get-function-info';
+import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
-import type {GetRenderInput} from './api/get-render-progress';
-import { getRenderProgress} from './api/get-render-progress';
-import type { GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {getSites} from './api/get-sites';
 import type {
 	SimulatePermissionsInput,
-	SimulatePermissionsOutput} from './api/iam-validation/simulate';
-import {
-	simulatePermissions
+	SimulatePermissionsOutput,
 } from './api/iam-validation/simulate';
+import {simulatePermissions} from './api/iam-validation/simulate';
 import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl} from './api/presign-url';
-import type {
-	RenderMediaOnLambdaInput,
-	RenderMediaOnLambdaOutput} from './api/render-media-on-lambda';
 import {
-	renderMediaOnLambda,
-	renderVideoOnLambda,
-} from './api/render-media-on-lambda';
-import type {
-	RenderStillOnLambdaInput,
-	RenderStillOnLambdaOutput} from './api/render-still-on-lambda';
-import {
-	renderStillOnLambda
-} from './api/render-still-on-lambda';
-import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
-import {LambdaInternals} from './internals';
-import type {AwsRegion} from './pricing/aws-regions';
-import type {RenderProgress} from './shared/constants';
-import type {LambdaArchitecture} from './shared/validate-architecture';
+	LambdaInternals,
+	type _InternalOverallRenderProgress,
+} from './internals';
+
+export type {WebhookPayload} from '@remotion/lambda-client';
+
+/**
+ * @deprecated Import this from `@remotion/lambda-client` instead
+ */
+const renderMediaOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'renderMediaOnLambda() has moved to `@remotion/lambda-client`. Please import it from there.',
+			);
+		}
+	: deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda-client` instead
+ */
+const getRenderProgress = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'getRenderProgress() has moved to `@remotion/lambda-client`. Please import it from there.',
+			);
+		}
+	: deprecatedGetRenderProgress;
+
+/**
+ * @deprecated Import this from `@remotion/lambda-client` instead
+ */
+const renderStillOnLambda = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'renderStillOnLambda() has moved to `@remotion/lambda-client`. Please import it from there.',
+			);
+		}
+	: deprecatedRenderStillOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda-client` instead
+ */
+const presignUrl = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'presignUrl() has moved to `@remotion/lambda-client`. Please import it from there.',
+			);
+		}
+	: deprecatedPresignUrl;
+
+/**
+ * @deprecated Import this from `@remotion/lambda-client` instead
+ */
+const getSites = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? () => {
+			throw new Error(
+				'getSites() has moved to `@remotion/lambda-client`. Please import it from there.',
+			);
+		}
+	: deprecatedGetSites;
 
 export {
+	deleteFunction,
+	deleteRender,
 	deleteSite,
 	deployFunction,
 	deploySite,
 	downloadMedia,
-	downloadVideo,
+	estimatePrice,
+	getAwsClient,
+	getCompositionsOnLambda,
+	getFunctionInfo,
 	getFunctions,
-	getUserPolicy,
+	getOrCreateBucket,
+	getRegions,
+	getRenderProgress,
 	getRolePolicy,
 	getSites,
-	getOrCreateBucket,
-	getRenderProgress,
-	renderVideoOnLambda,
-	renderMediaOnLambda,
-	simulatePermissions,
-	deleteFunction,
-	getFunctionInfo,
-	estimatePrice,
+	getUserPolicy,
 	LambdaInternals,
-	renderStillOnLambda,
-	getRegions,
-	getAwsClient,
 	presignUrl,
+	renderMediaOnLambda,
+	renderStillOnLambda,
+	renderVideoOnLambda,
+	simulatePermissions,
+	validateWebhookSignature,
 };
 export type {
 	AwsRegion,
-	RenderProgress,
-	DeploySiteInput,
-	DeploySiteOutput,
-	LambdaLsReturnType,
-	LambdaLSInput,
+	CustomCredentials,
+	DeleteFunctionInput,
+	DeleteRenderInput,
 	DeleteSiteInput,
 	DeleteSiteOutput,
-	EstimatePriceInput,
 	DeployFunctionInput,
 	DeployFunctionOutput,
-	DeleteFunctionInput,
-	GetFunctionInfoInput,
-	FunctionInfo,
-	GetFunctionsInput,
-	GetSitesInput,
-	GetSitesOutput,
+	DeploySiteInput,
+	DeploySiteOutput,
 	DownloadMediaInput,
 	DownloadMediaOutput,
+	EnhancedErrorInfo,
+	EstimatePriceInput,
+	FunctionInfo,
+	GetAwsClientInput,
+	GetAwsClientOutput,
+	GetCompositionsOnLambdaInput,
+	GetCompositionsOnLambdaOutput,
+	GetFunctionInfoInput,
+	GetFunctionsInput,
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
-	GetRenderInput,
+	GetRenderProgressInput,
+	GetSitesInput,
+	GetSitesOutput,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
+	RenderProgress,
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
-	GetAwsClientInput,
-	GetAwsClientOutput,
-	LambdaArchitecture,
 };
+
+export {_InternalOverallRenderProgress};

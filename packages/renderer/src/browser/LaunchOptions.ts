@@ -14,30 +14,14 @@
  * limitations under the License.
  */
 
-import type {BrowserConnectOptions} from './BrowserConnector';
-import type {Product} from './Product';
-
-export interface BrowserLaunchArgumentOptions {
-	headless?: boolean | 'chrome';
-	userDataDir?: string;
-	devtools?: boolean;
-	debuggingPort?: number;
-	args: string[];
-}
+import type {LogLevel} from '../log-level';
+import type {Viewport} from './PuppeteerViewport';
 
 export interface LaunchOptions {
-	executablePath?: string;
-	handleSIGINT?: boolean;
-	handleSIGTERM?: boolean;
-	handleSIGHUP?: boolean;
-	timeout?: number;
-	dumpio?: boolean;
-	env?: Record<string, string | undefined>;
-	pipe?: boolean;
-	product?: Product;
-	extraPrefsFirefox?: Record<string, unknown>;
+	args: string[];
+	executablePath: string;
+	logLevel: LogLevel;
+	indent: boolean;
+	defaultViewport: Viewport;
+	userDataDir: string;
 }
-
-export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &
-	LaunchOptions &
-	BrowserConnectOptions;

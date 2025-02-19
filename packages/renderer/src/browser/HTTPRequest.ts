@@ -20,6 +20,7 @@ import type {HTTPResponse} from './HTTPResponse';
 export class HTTPRequest {
 	_requestId: string;
 	_response: HTTPResponse | null = null;
+	_url: string | null = null;
 	_fromMemoryCache = false;
 
 	#isNavigationRequest: boolean;
@@ -30,6 +31,7 @@ export class HTTPRequest {
 		this.#isNavigationRequest =
 			event.requestId === event.loaderId && event.type === 'Document';
 		this.#frame = frame;
+		this._url = event.request.url;
 	}
 
 	response(): HTTPResponse | null {

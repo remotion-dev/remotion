@@ -1,0 +1,34 @@
+---
+image: /generated/articles-docs-cli-browser-ensure.png
+title: npx remotion browser ensure
+crumb: '@remotion/cli'
+sidebar_label: 'ensure'
+---
+
+# npx remotion browser ensure<AvailableFrom v="4.0.137" />
+
+Ensures that Remotion has a browser it can use for rendering.
+
+```
+npx remotion browser ensure
+```
+
+## Arguments
+
+### `--browser-executable`
+
+[Path to a custom Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, one will be downloaded by this command.
+
+### `--log`
+
+<Options id="log" cli />
+
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+## See also
+
+- [Source code for this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/browser/ensure.ts)
+- [Chrome Headless Shell](/docs/miscellaneous/chrome-headless-shell)
+- [`ensureBrowser()`](/docs/renderer/ensure-browser)

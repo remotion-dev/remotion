@@ -22,7 +22,7 @@ import {releaseObject, valueFromRemoteObject} from './util';
 
 export function _createJSHandle(
 	context: ExecutionContext,
-	remoteObject: DevtoolsRemoteObject
+	remoteObject: DevtoolsRemoteObject,
 ): JSHandle {
 	const frame = context.frame();
 	if (remoteObject.subtype === 'node' && frame) {
@@ -53,7 +53,7 @@ export class JSHandle {
 	constructor(
 		context: ExecutionContext,
 		client: CDPSession,
-		remoteObject: DevtoolsRemoteObject
+		remoteObject: DevtoolsRemoteObject,
 	) {
 		this.#context = context;
 		this.#client = client;
@@ -90,12 +90,12 @@ export class JSHandle {
 			return 'JSHandle@' + type;
 		}
 
-		return 'JSHandle:' + valueFromRemoteObject(this.#remoteObject);
+		return valueFromRemoteObject(this.#remoteObject);
 	}
 }
 
 export class ElementHandle<
-	ElementType extends Element = Element
+	ElementType extends Element = Element,
 > extends JSHandle {
 	override asElement(): ElementHandle<ElementType> | null {
 		return this;

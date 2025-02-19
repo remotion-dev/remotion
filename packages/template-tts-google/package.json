@@ -1,0 +1,43 @@
+{
+  "name": "template-tts-google",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "ts-node src/studio.ts",
+    "build": "ts-node src/render.ts",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/md5": "2.3.0",
+    "@types/node": "20.12.14",
+    "@types/react": "19.0.0",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "ts-node": "10.9.1",
+    "typescript": "5.5.4"
+  },
+  "dependencies": {
+    "@google-cloud/text-to-speech": "4.2.1",
+    "@remotion/bundler": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/renderer": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@types/cors": "2.8.13",
+    "@types/express": "4.17.13",
+    "cors": "2.8.5",
+    "dotenv": "16.0.3",
+    "express": "4.21.0",
+    "firebase": "9.19.1",
+    "md5": "2.3.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "private": true
+}

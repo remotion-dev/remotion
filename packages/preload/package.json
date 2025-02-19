@@ -1,30 +1,23 @@
 {
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/preload"
+	},
 	"name": "@remotion/preload",
-	"version": "3.0.30",
-	"description": "Utility functions for preloading assets in HTML5",
+	"version": "4.0.266",
+	"description": "Preloads assets for use in Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
+		"formatting": "prettier src --check",
+		"lint": "eslint src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
 	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
-	},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
-		"eslint": "8.13.0",
-		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^2.3.4",
-		"typescript": "^4.5.5"
 	},
 	"keywords": [
 		"remotion",
@@ -34,5 +27,10 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"homepage": "https://www.remotion.dev/docs/preload"
 }

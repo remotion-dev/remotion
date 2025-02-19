@@ -1,0 +1,281 @@
+---
+image: /generated/articles-docs-recorder-index.png
+title: Remotion Recorder
+sidebar_label: Introduction
+crumb: Templates
+hide_title: true
+---
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/recorder/recorder-logo-dark.gif" />
+    <img alt="Animated Remotion Recorder Logo" src="/recorder/recorder-logo-light.gif" />
+  </picture>
+</p>
+
+The Remotion Recorder is a video production tool <strong>built entirely in JavaScript</strong>.
+
+## Recording
+
+Record your facecam and screen in sync but independently. This allows you to create a dynamic layout later.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950, marginBottom: 0 }}>
+
+<tr>
+    <td valign="top" style={{width: 950/ 2}}>
+      <img src="/recorder/individual.png"></img>
+      </td>
+    <td valign="top" style={{width: 950/ 2}}>
+      <video src="/recorder/volume.mp4" autoPlay muted playsInline loop></video>
+    </td>
+
+  </tr>
+  <tr>
+    <td valign="top" style={{width: 950/ 2}}>
+      Record webcam and display as separate streams. Up to 4 sources can be recorded at the same time!   
+         </td>
+    <td valign="top" style={{width: 950/ 2}}>
+   Ensure you are in the center of the video and you are not too close to the microphone.
+    </td>
+</tr>
+</table>
+</div>
+
+## Different platforms require different formats
+
+Each platform has its own conventions for how videos should look.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950 }}>
+  <tr>
+    <td valign="top">
+      <img
+        style={{ height: 230,  border: "3px solid black", borderRadius: 5, aspectRatio: '1 / 1' }}
+        src="/recorder/vps-square.png"
+      />
+    </td>
+    <td valign="top">
+      <img
+        style={{
+          height: 230,
+          border: "3px solid black",
+          borderRadius: 5,
+          overflow: "hidden",
+        }}
+        src="/recorder/vps-landscape.png"
+      />
+  
+    </td>
+    <td valign="top">
+     <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            height: 230,
+            border: "3px solid black",
+            borderRadius: 5,
+            overflow: "hidden",
+            aspectRatio: "9 / 16",
+            backgroundColor: "#FAFAFA",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#ccc",
+            display: "flex",
+            fontWeight: "bold",
+          }}
+        >
+          WIP
+        </div>
+      </div>
+    </td>
+
+  </tr>
+  <tr>
+  <td valign="top">      
+     <strong>Twitter, LinkedIn</strong>
+      <div>1:1</div>
+      <div>Muted by default</div>
+      <div>Captions burned in</div>
+  </td>
+  <td valign="top">   
+   <strong>YouTube</strong>
+      <div>16:9</div>
+      <div>Audio by default</div>
+      <div>
+        Captions as .srt file{" "}
+      </div>
+      <div>Endcard with related videos</div>
+      </td>
+  <td valign="top">
+   
+      <strong>
+        TikTok, Reels, Shorts{" "}
+        <sup>
+          <a href="#tiktok-format">planned</a>
+        </sup>
+      </strong>
+      <div>9:16</div>
+      <div>Safe space at bottom required</div>
+      <div>Word-by-word captions</div>
+  </td>
+  </tr>
+</table>
+</div>
+
+The goal of the Recorder: Edit once <strong>and feel native on each platform</strong>.
+
+This has a measurable impact on the performance of your post: For example, a 1:1 video on X [results in 30-35% higher video views and a 80-100% higher engagement rate](https://buffer.com/resources/square-video-vs-landscape-video/).
+
+## Captions are essential
+
+Generate captions locally using [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). The Recorder will automatically install it for you.  
+AI will make mistakes - so we make it easy to correct them.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+<table style={{  tableLayout: "fixed", width: 950, marginBottom: 0 }}>  <tr>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video src="/recorder/wordlevel.webm" autoPlay muted playsInline loop></video>
+      Captions have word-level timings
+      </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video src="/recorder/noorphans.webm" autoPlay muted playsInline loop></video>
+     Orphan words are avoided by balancing the text layout
+    </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video src="/recorder/monospace.webm" autoPlay muted playsInline loop></video>
+      Use `backticks` to highlight technical terms
+    </td>
+
+  </tr>
+</table>
+<table style={{ tableLayout: "fixed", width: 950}}>
+  <tr style={{borderTop: 0}}>
+    <td valign="top" style={{width: 950/ 3}}>
+      <video  style={{height: 300}} src="/recorder/subseditor.webm" autoPlay muted playsInline loop></video>
+      Fix captions quickly by clicking on a word
+    </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <img style={{ borderRadius: 5}} src="/recorder/autocorrect.png" autoPlay muted playsInline loop></img><br/>
+      Write a JavaScript function to fix common misspellings
+    </td>
+    <td valign="top" style={{width: 950/ 3}}>
+      <img style={{width: '100%', borderRadius: 5}} src="/recorder/asjson.png" autoPlay muted playsInline loop></img><br/>
+      Captions are stored as editable JSON
+    </td>
+  </tr>
+</table>
+</div>
+
+## Agnostic endcards
+
+Your viewer watched the entire video! Now don't make them forget about you.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', }}>
+
+<table style={{ width: 950, tableLayout: "fixed" }}>
+  <tr>
+    <td valign="top" style={{ width: 950 / 2 }}>
+      <p align="center" style={{ marginTop: 0, marginBottom: 0 }}>
+        <img
+          style={{ borderRadius: 5, height: 250 }}
+          src="/recorder/endcard-square.png"
+          autoPlay
+          muted
+          playsInline
+          loop
+        ></img>
+      </p>
+      If you post on Twitter, the call-to-action is "Follow" and your other platforms
+      are linked.
+    </td>
+    <td valign="top" style={{ width: 950 / 2 }}>
+      <img
+        style={{ width: 950 / 2, borderRadius: 5 }}
+        src="/recorder/endcard-youtube.png"
+        autoPlay
+        muted
+        playsInline
+        loop
+      ></img>
+      <br />
+      If you post on YouTube, the call to action is "Subscribe" and cutouts for related
+      videos are made.
+    </td>
+  </tr>
+</table>
+</div>
+
+The endcard is written with React and CSS, so can be easily customized.
+
+## Customization
+
+Having access to the entire source code, you can use CSS to customize the look of the Recorder.
+
+<div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+  <table style={{tableLayout: 'fixed', width: 950}}>
+    <tr style={{borderTop: 0}}>
+      <td valign="top" style={{width: 950 / 3}}>
+        <img style={{borderRadius: 5}} src="/recorder/theme-light.png"></img>
+        Look of the built-in light theme
+      </td>
+      <td valign="top" style={{width: 950 / 3}}>
+        <img style={{borderRadius: 5}} src="/recorder/theme-dark.png"></img>
+        <br />
+        Look of the built-in dark theme
+      </td>
+      <td valign="top" style={{width: 950 / 3}}>
+        <img style={{borderRadius: 5}} src="/recorder/theme-fancy.png"></img>
+        <br />
+        Use CSS to make it your own!
+      </td>
+    </tr>
+  </table>
+</div>
+
+The Recorder is built with TypeScript and React, and you can fully customize it's behavior.
+It's a hackable video editor.
+
+## Silence removal
+
+Automatically remove the silence at the start and end of your take.
+
+## Music
+
+Add background music to your video and automatically fade between the different sections.  
+Three exclusive tracks are included that you may use for your video.
+
+## Layouting
+
+Whether you only record your facecam, or also your display, the Recorder always finds the ideal layout - even if you mix landscape and portrait videos.
+
+## Transitions
+
+Enable clean transitions between scenes - no matter if you change the layout during the video.
+
+## Chapters
+
+Mark a scene as the beginning of a new chapter and automatically generate animated chapters.
+
+## B-Roll
+
+Add images and videos on top of your facecam or display while your voiceover is playing to give the video more depth.
+
+## Exporting
+
+Export your video with much control over the encoding options.  
+Render a video with a single click on a button, the CLI, Node.JS APIs, GitHub Actions, or even on AWS Lambda!
+
+## Customization
+
+The Remotion Recorder ships source code.  
+You can customize it to your liking if you have TypeScript and React knowledge.
+
+---
+
+<sup id="tiktok-format">1)</sup> 9:16 format is not yet implemented.

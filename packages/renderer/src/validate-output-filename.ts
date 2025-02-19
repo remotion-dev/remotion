@@ -1,76 +1,67 @@
-import type {Codec} from 'remotion';
+import type {Codec} from './codec';
+import type {FileExtension} from './file-extensions';
+import {defaultFileExtensionMap} from './file-extensions';
+import type {AudioCodec, supportedAudioCodecs} from './options/audio-codec';
+import {resolveAudioCodec} from './options/audio-codec';
 
-export const validateOutputFilename = (
-	codec: Codec,
-	extension: string | null
-) => {
-	if (codec === 'h264') {
-		if (extension !== 'mp4' && extension !== 'mkv') {
-			throw new TypeError(
-				'When using the H264 codec, the output filename must end in .mp4 or .mkv.'
-			);
-		}
+export const validateOutputFilename = <T extends Codec>({
+	codec,
+	audioCodecSetting,
+	extension,
+	preferLossless,
+	separateAudioTo,
+}: {
+	codec: T;
+	audioCodecSetting: AudioCodec | null;
+	extension: string;
+	preferLossless: boolean;
+	separateAudioTo: string | null;
+}) => {
+	if (!defaultFileExtensionMap[codec]) {
+		throw new TypeError(
+			`The codec "${codec}" is not supported. Supported codecs are: ${Object.keys(
+				defaultFileExtensionMap,
+			).join(', ')}`,
+		);
 	}
 
-	if (codec === 'h264-mkv') {
-		if (extension !== 'mkv') {
+	const map = defaultFileExtensionMap[codec];
+	const resolvedAudioCodec = resolveAudioCodec({
+		codec,
+		preferLossless,
+		setting: audioCodecSetting,
+		separateAudioTo,
+	});
+
+	if (resolvedAudioCodec === null) {
+		if (extension !== map.default) {
 			throw new TypeError(
-				'When using the "h264-mkv" codec, the output filename must end in ".mkv".'
+				`When using the ${codec} codec, the output filename must end in .${map.default}.`,
 			);
 		}
+
+		return;
 	}
 
-	if (codec === 'h265') {
-		if (extension !== 'mp4' && extension !== 'hevc') {
-			throw new TypeError(
-				'When using H265 codec, the output filename must end in .mp4 or .hevc.'
-			);
-		}
+	if (!(resolvedAudioCodec in map.forAudioCodec)) {
+		throw new Error(
+			`Audio codec ${resolvedAudioCodec} is not supported for codec ${codec}`,
+		);
 	}
 
-	if (codec === 'vp8' || codec === 'vp9') {
-		if (extension !== 'webm') {
-			throw new TypeError(
-				`When using the ${codec.toUpperCase()} codec, the output filename must end in .webm.`
-			);
-		}
-	}
+	const acceptableExtensions =
+		map.forAudioCodec[
+			resolvedAudioCodec as (typeof supportedAudioCodecs)[T][number]
+		].possible;
 
-	if (codec === 'prores') {
-		const allowedProResExtensions = ['mov', 'mkv', 'mxf'];
-		if (!extension || !allowedProResExtensions.includes(extension)) {
-			throw new TypeError(
-				`When using the 'prores' codec, the output must end in one of those extensions: ${allowedProResExtensions
-					.map((a) => `.${a}`)
-					.join(', ')}`
-			);
-		}
-	}
-
-	if (codec === 'mp3') {
-		if (extension !== 'mp3') {
-			throw new TypeError(
-				"When using the 'mp3' codec, the output must end in .mp3"
-			);
-		}
-	}
-
-	if (codec === 'aac') {
-		const allowedAacExtensions = ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'];
-		if (!extension || !allowedAacExtensions.includes(extension)) {
-			throw new TypeError(
-				`When using the 'aac' codec, the output must end in one of those extensions: ${allowedAacExtensions
-					.map((a) => `.${a}`)
-					.join(', ')}`
-			);
-		}
-	}
-
-	if (codec === 'wav') {
-		if (extension !== 'wav') {
-			throw new TypeError(
-				"When using the 'wav' codec, the output location must end in .wav."
-			);
-		}
+	if (
+		!acceptableExtensions.includes(extension as FileExtension) &&
+		!separateAudioTo
+	) {
+		throw new TypeError(
+			`When using the ${codec} codec with the ${resolvedAudioCodec} audio codec, the output filename must end in one of the following: ${acceptableExtensions.join(
+				', ',
+			)}.`,
+		);
 	}
 };

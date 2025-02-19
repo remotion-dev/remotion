@@ -1,8 +1,5 @@
-import fs from 'fs';
-import {join} from 'path';
-
-export let deletedFiles: string[] = [];
-export let deletedFilesSize = 0;
+import fs from 'node:fs';
+import {join} from 'node:path';
 
 const deleteAllFilesInAFolderRecursively = (path: string) => {
 	const files = fs.readdirSync(path);
@@ -14,14 +11,11 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 				deleteAllFilesInAFolderRecursively(filePath);
 			} else {
 				fs.unlinkSync(filePath);
-				deletedFilesSize += stat.size;
 			}
-		} catch (err) {
+		} catch {
 			// Can fail if file was already deleted by cleanup. In that case
 			// let's ignore it
 		}
-
-		deletedFiles.push(filePath);
 	});
 	if (path !== '/tmp') {
 		fs.rmSync(path, {recursive: true, force: true});
@@ -29,9 +23,5 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 };
 
 export const deleteTmpDir = () => {
-	deletedFiles = [];
-	deletedFilesSize = 0;
-	if (typeof jest === 'undefined') {
-		deleteAllFilesInAFolderRecursively('/tmp');
-	}
+	deleteAllFilesInAFolderRecursively('/tmp');
 };

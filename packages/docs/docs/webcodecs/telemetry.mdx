@@ -1,0 +1,60 @@
+---
+image: /generated/articles-docs-webcodecs-telemetry.png
+sidebar_label: Telemetry
+id: telemetry
+title: Telemetry in @remotion/webcodecs
+slug: /webcodecs/telemetry
+crumb: '@remotion/webcodecs'
+---
+
+Upon finishing a conversion with [`convertMedia()`](/docs/webcodecs/convert-media), a HTTP request is sent to an endpoint on [`remotion.pro`](https://remotion.pro), registering the domain and whether the conversion was successful.
+
+Telemetry will never cause any conversions to fail.
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+## Data collection
+
+No user data is collected, however the IP address may be used to reject invalid telemetry.
+
+## Use of data
+
+Telemetry data helps Remotion understand which sites use the [`@remotion/webcodecs`](/docs/webcodecs) package.
+
+Historically, it's been difficult to understand which sites use Remotion and various sizable companies have been using it without getting the appropriate license.
+
+Hence we have decided to add telemetry to this new package.
+
+Remotion will not share any telemetry data with others.
+
+## Track conversions with an API key
+
+You may add an API key that you obtained from [`remotion.pro`](https://remotion.pro) to the [`convertMedia()`](/docs/webcodecs/convert-media) function.
+
+```tsx twoslash title="Adding an API key"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  apiKey: 'rm_pub_abcdefghijklo',
+});
+```
+
+You will then be able to see the amount of conversions you did on your dashboard.  
+For now, you still need to adjust the license manually to cover your WebCodecs conversions.
+
+## Disabling telemetry
+
+A version of [`@remotion/webcodecs`](/docs/webcodecs) without telemetry can be obtained with an Remotion Enterprise License.  
+Contact hi@remotion.dev to request an Enterprise License.
+
+## See also
+
+- [`@remotion/licensing`](/docs/licensing)
+- [`convertMedia()`](/docs/webcodecs/convert-media)

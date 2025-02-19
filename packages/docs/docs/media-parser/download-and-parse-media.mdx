@@ -1,0 +1,105 @@
+---
+image: /generated/articles-docs-media-parser-download-and-parse-media.png
+id: download-and-parse-media
+title: downloadAndParseMedia()
+slug: /media-parser/download-and-parse-media
+crumb: '@remotion/media-parser'
+---
+
+Same as [`parseMedia()`](/docs/media-parser/parse-media), but also downloads the media file to disk.
+
+Meant to be used in Node.js and Bun.
+
+```tsx twoslash title="Download a file"
+import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
+
+await downloadAndParseMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  writer: nodeWriter('output.mp4'),
+});
+```
+
+You can obtain [fields](/docs/media-parser/parse-media#fields) like `tracks` and `duration` by passing them to the `fields` object.
+
+```tsx twoslash title="Download a file and get metadata"
+import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
+
+const {durationInSeconds, tracks} = await downloadAndParseMedia({
+  src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
+  writer: nodeWriter('output.mp4'),
+  fields: {
+    durationInSeconds: true,
+    tracks: true,
+  },
+});
+// If here was reached, file is downloaded!
+console.log(durationInSeconds);
+console.log(tracks);
+```
+
+You can use callback functions to listen when new fields are available.  
+Throw an error to stop the download.
+
+```tsx twoslash title="Stop the download if the video is too long"
+import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
+
+const {durationInSeconds} = await downloadAndParseMedia({
+  src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
+  writer: nodeWriter('output.mp4'),
+  onDurationInSeconds: (duration) => {
+    if (duration && duration > 600) {
+      throw new Error('Video is too long');
+    }
+  },
+});
+```
+
+If an error occurs (including one you've thrown yourself), you can decide what to do using [`onError`](#onerror).
+
+```tsx twoslash title="Continue download despite error"
+import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
+
+await downloadAndParseMedia({
+  src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
+  writer: nodeWriter('output.mp4'),
+  onError: (error) => {
+    // Force the file to be downloaded despite parsing error.
+    // Note: At the end, the error will be thrown nonetheless.
+    return {action: 'download'};
+
+    // Default behavior:
+    // Abort the download, delete the file and throw the error immediately.
+    // return {action: 'fail'};
+  },
+});
+```
+
+## API
+
+All of the same parameters for [`parseMedia()`](/docs/media-parser/parse-media) are available, plus:
+
+### `writer`
+
+The writer to use to write the downloaded file to disk. Currently available:
+
+- `nodeWriter` from `@remotion/media-parser/node-writer`: Writes to disk using Node.js's `fs` module.
+
+### `onError`
+
+A function that is called when an error occurs. It receives the error as an argument.  
+You must return one of the following:
+
+- `{action: 'download'}`: Continue downloading the file despite the error.
+- `{action: 'fail'}`: Abort the download, delete the file and throw the error immediately.
+
+See also the example above.  
+The function may be async, parsing is paused until it resolves.
+
+## See also
+
+- [`parseMedia()`](/docs/media-parser/parse-media)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/download-and-parse-media.ts)

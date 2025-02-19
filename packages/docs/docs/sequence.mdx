@@ -1,0 +1,309 @@
+---
+image: /generated/articles-docs-sequence.png
+id: sequence
+title: <Sequence>
+crumb: 'API'
+---
+
+import {SequenceForwardExample} from '../components/SequenceExamples/SequenceForward';
+
+```twoslash include example
+const BlueSquare: React.FC = () => <div></div>
+// - BlueSquare
+```
+
+By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
+
+```tsx twoslash title="MyTrailer.tsx"
+import {Sequence} from 'remotion';
+
+export const Intro = () => <></>;
+export const Clip = () => <></>;
+export const Outro = () => <></>;
+
+// ---cut---
+
+const MyTrailer = () => {
+  return (
+    <>
+      <Sequence durationInFrames={30}>
+        <Intro />
+      </Sequence>
+      <Sequence from={30} durationInFrames={30}>
+        <Clip />
+      </Sequence>
+      <Sequence from={60}>
+        <Outro />
+      </Sequence>
+    </>
+  );
+};
+```
+
+<sub>
+  <em>
+    <code>&lt;Intro&gt;</code>
+  </em>{' '}
+  will show from frame 0-29.
+</sub>
+<br />
+<sub>
+  <em>
+    <code>&lt;Clip&gt;</code>
+  </em>{' '}
+  will show from frame 30 on until frame 59.
+</sub>
+<br />
+<sub>
+  <em>
+    <code>&lt;Outro&gt;</code>
+  </em>{' '}
+  will show from frame 60 on until the end of the composition.
+</sub>
+<br />
+<br />
+
+All children of a `<Sequence>` that call [`useCurrentFrame()`](/docs/use-current-frame) will receive a value that is shifted by [`from`](#from).
+
+```tsx twoslash title="MyTrailer.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Intro = () => <div>{useCurrentFrame()}</div>;
+
+const MyTrailer = () => {
+  return (
+    <>
+      <Intro />
+      <Sequence from={30}>
+        <Intro />
+      </Sequence>
+    </>
+  );
+};
+```
+
+<sub>
+  At frame <code>0</code>, this would render <code>&lt;div&gt;0&lt;/div&gt;</code>.
+</sub>
+<br />
+<sub>
+  At frame <code>30</code>, this would render <code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
+</sub>
+<br />
+<br />
+
+Using the [`durationInFrames`](#durationinframes) prop, you can define for how long the children of a `<Sequence>` should be mounted.
+
+By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add [`layout="none"`](#layout) as a prop.
+
+## Cascading
+
+You can nest sequences within each other and they will cascade.  
+For example, a sequence that starts at frame 60 which is inside a sequence that starts at frame 30 will have it's children start at frame 90.
+
+## Examples
+
+All the examples below are based on the following animation of a blue square:
+
+<SequenceForwardExample type="base" />
+
+<br />
+
+```tsx twoslash title="MyVideo.tsx"
+// @include: example-BlueSquare
+// ---cut---
+const MyVideo = () => {
+  return <BlueSquare />;
+};
+```
+
+### Delay
+
+If you would like to delay the content by say 30 frames, you can wrap it in <br/> `<Sequence from={30}>`.
+
+<SequenceForwardExample type="delay" />
+<br />
+
+```tsx twoslash title="delay.tsx"
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const MyVideo = () => {
+  return (
+    <Sequence from={30}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
+
+### Trim end
+
+Wrap your component in a `<Sequence>` with a finite `durationInFrames` prop to make it unmount after the duration has passed.
+
+<SequenceForwardExample type="clip" />
+<br />
+
+```tsx twoslash title="trim-end.tsx"
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const ClipExample: React.FC = () => {
+  return (
+    <Sequence durationInFrames={45}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
+
+### Trim start
+
+Wrap the square in `<Sequence>` with a negative `from` value to trim the beginning of the content.  
+By shifting the time backwards, the animation has already progressed by 15 frames when the content appears.
+
+<SequenceForwardExample type="trim-start" />
+<br />
+
+```tsx title="trim-start.tsx"
+const TrimStartExample: React.FC = () => {
+  return (
+    <Sequence from={-15}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
+
+### Trim and delay
+
+Wrap the content in two `<Sequence>`'s.  
+To the inner one, pass a negative start value `from={-15}` to trim away the first 15 frames of the content.  
+To the outer one we pass a positive value `from={30}` to then shift it forwards by 30 frames.
+
+<SequenceForwardExample type="trim-and-delay" />
+<br />
+
+```tsx twoslash title="trim-and-delay.tsx"
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const TrimAndDelayExample: React.FC = () => {
+  return (
+    <Sequence from={30}>
+      <Sequence from={-15}>
+        <BlueSquare />
+      </Sequence>
+    </Sequence>
+  );
+};
+```
+
+## Play Sequences sequentially
+
+See the [`<Series />`](/docs/series) helper component, which helps you calculate markup that makes sequences play after each other.
+
+## Props
+
+The Sequence component is a high order component and accepts, besides children, the following props:
+
+### `from`
+
+_optional_ (From v3.2.36, _required_ in previous versions)
+
+At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
+
+### `durationInFrames`
+
+_optional_
+
+For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
+
+### `height`<AvailableFrom v="4.0.80"/>
+
+_optional_
+
+Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
+
+### `width`<AvailableFrom v="4.0.80"/>
+
+_optional_
+
+Gives the sequence a specific `style={{width: width}}` style and overrides `width` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific width.
+
+### `name`
+
+_optional_
+
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
+
+### `layout`
+
+_optional_
+
+Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
+
+### `style`<AvailableFrom v="3.0.27"/>
+
+_optional_
+
+CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `className`<AvailableFrom v="3.3.45"/>
+
+_optional_
+
+A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `premountFor`<AvailableFrom v="4.0.140" />
+
+_optional_
+
+[Premount](/docs/player/premounting) the sequence for a set number of frames.
+
+### `styleWhilePremounted`<AvailableFrom v="4.0.252" />
+
+_optional_
+
+CSS styles to be applied to the container while the sequence is premounted.  
+The `style` is still applied, but `styleWhilePremounted` can override properties.
+
+### `showInTimeline`<AvailableFrom v="4.0.110" />
+
+_optional_
+
+If set to `false`, the track will not be shown in the Studio's timeline.  
+Child `<Sequence>`'s will show by default, unless `showInTimeline` is also set to false.  
+This behavior is stable as of v4.0.110, previously the behavior was different, but this prop not documented.
+
+## Adding a ref
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+
+```tsx twoslash
+import {useRef} from 'react';
+import {Sequence} from 'remotion';
+
+const content = <div>Hello, World</div>;
+// ---cut---
+const MyComp = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <Sequence from={10} ref={ref}>
+      {content}
+    </Sequence>
+  );
+};
+```
+
+## Note for `@remotion/three`
+
+A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas). Avoid an error by passing `layout="none"` to `<Sequence>`. Example: `<Sequence layout="none">`.
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Sequence.tsx)
+- [Reuse components using Sequences](/docs/reusability)
+- [`<Composition />`](/docs/composition)
+- [`<Series />`](/docs/series)

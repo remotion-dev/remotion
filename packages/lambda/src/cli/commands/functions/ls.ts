@@ -1,6 +1,8 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
-import {getFunctions} from '../../../api/get-functions';
+import {AwsProvider} from '@remotion/lambda-client';
+import type {LogLevel} from '@remotion/renderer';
+import {ProviderSpecifics} from '@remotion/serverless';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
 const NAME_COLS = 70;
@@ -11,36 +13,54 @@ const VERSION_COLS = 15;
 
 export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
-export const functionsLsCommand = async () => {
+export const functionsLsCommand = async ({
+	logLevel,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const region = getAwsRegion();
-	const fetchingOutput = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
-	fetchingOutput.update('Getting functions...');
+	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+			logLevel,
+		}),
+		indent: false,
+	});
+	fetchingOutput.update('Getting functions...', false);
 
-	const functions = await getFunctions({
+	const compatibleOnly = parsedLambdaCli['compatible-only'] || false;
+
+	const functions = await providerSpecifics.getFunctions({
 		region,
-		compatibleOnly: false,
+		compatibleOnly,
 	});
 
 	if (CliInternals.quietFlagProvided()) {
 		if (functions.length === 0) {
-			Log.info('()');
+			CliInternals.Log.info({indent: false, logLevel}, '()');
 			return;
 		}
 
-		Log.info(functions.map((f) => f.functionName).join(' '));
+		CliInternals.Log.info(
+			{indent: false, logLevel},
+			functions.map((f) => f.functionName).join(' '),
+		);
 		return;
 	}
 
-	fetchingOutput.update('Getting function info...');
+	fetchingOutput.update('Getting function info...', false);
 
 	const pluralized = functions.length === 1 ? 'function' : 'functions';
 	fetchingOutput.update(
-		`${functions.length} ${pluralized} in the ${region} region`
+		`${functions.length} ${pluralized} in the ${region} region`,
+		true,
 	);
-	Log.info();
-	Log.info(
+	CliInternals.Log.info({indent: false, logLevel});
+	CliInternals.Log.info(
+		{indent: false, logLevel},
 		CliInternals.chalk.gray(
 			[
 				'Name'.padEnd(NAME_COLS, ' '),
@@ -48,12 +68,13 @@ export const functionsLsCommand = async () => {
 				'Disk (MB)'.padEnd(MEMORY_COLS, ' '),
 				'Memory (MB)'.padEnd(MEMORY_COLS, ' '),
 				'Timeout (sec)'.padEnd(TIMEOUT_COLS, ' '),
-			].join('')
-		)
+			].join(''),
+		),
 	);
 
 	for (const datapoint of functions) {
-		Log.info(
+		CliInternals.Log.info(
+			{indent: false, logLevel},
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
 				datapoint.version
@@ -62,7 +83,7 @@ export const functionsLsCommand = async () => {
 				String(datapoint.diskSizeInMb).padEnd(DISK_COLS, ' '),
 				String(datapoint.memorySizeInMb).padEnd(MEMORY_COLS, ' '),
 				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
-			].join('')
+			].join(''),
 		);
 	}
 };

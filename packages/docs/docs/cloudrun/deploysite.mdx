@@ -1,0 +1,144 @@
+---
+image: /generated/articles-docs-cloudrun-deploysite.png
+id: deploysite
+title: deploySite()
+slug: /cloudrun/deploysite
+crumb: 'Cloud Run API'
+---
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
+</ExperimentalBadge>
+
+Takes a Remotion project, bundles it and uploads it to an Cloud Storage bucket. Once uploaded, a Cloud Run service can render any composition in the Remotion project by specifying the URL.
+
+- If you make changes locally, you need to redeploy the site. You can use [`siteName`](#sitename) to overwrite the previous site.
+- Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.
+- Before calling this function, you should create a bucket, see [`getOrCreateBucket()`](/docs/cloudrun/getorcreatebucket).
+
+## Example
+
+```ts twoslash
+import {deploySite} from '@remotion/cloudrun';
+import path from 'path';
+
+const {serveUrl} = await deploySite({
+  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+  bucketName: 'remotioncloudrun-c7fsl3d',
+  options: {
+    onBundleProgress: (progress) => {
+      // Progress is between 0 and 100
+      console.log(`Bundle progress: ${progress}%`);
+    },
+    onUploadProgress: ({totalFiles, filesUploaded, totalSize, sizeUploaded}) => {
+      console.log(`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`);
+    },
+  },
+});
+console.log(serveUrl);
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `entryPoint`
+
+An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology/entry-point).
+
+### `bucketName`
+
+The bucket to where the website will be deployed. The bucket must have been created by Remotion Cloud Run.
+
+### `siteName?`
+
+_optional_
+
+Specify the subfolder in your Cloud Storage bucket that you want the site to deploy to. If you omit this property, a new subfolder with a random name will be created. If a site already exists with the name you passed, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
+
+### `options?`
+
+_optional_
+
+An object with the following properties:
+
+#### `onBundleProgress`
+
+Callback from Webpack when the bundling has progressed. Passes a number between 0 and 100 to the callback, see example at the top of the page.
+
+#### `onUploadProgress`
+
+Callback function that gets called when uploading of the assets has progressed. Passes an object with the following properties to the callback:
+
+- `totalFiles` (_number_): Total number of files in the bundle.
+- `filesUploaded` (_number_): Number of files that have been fully uploaded so far.
+- `totalSize` (_number_): Total size in bytes of all the files in the bundle.
+- `sizeUploaded` (_number_): Amount of bytes uploaded so far.
+
+#### `webpackOverride`
+
+Allows to pass a custom webpack override. See [`bundle()` -> webpackOverride](/docs/bundle#webpackoverride) for more information.
+
+#### `enableCaching`
+
+Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/docs/bundle#enablecaching) for more information.
+
+#### `publicDir`
+
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
+
+#### `rootDir`
+
+The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
+
+:::note
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+:::
+
+#### `ignoreRegisterRootWarning`
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+
+## Return value
+
+An object with the following values:
+
+### `serveUrl`
+
+string\_
+
+An URL such as `https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html`.
+
+You can use this "Serve URL" to render a video on Remotion Cloud Run using:
+
+- The [`npx remotion cloudrun render`](/docs/cloudrun/cli/render) command
+- The [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) functions.
+- Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
+- Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
+
+If you are rendering on Cloud Run, you can also pass the site name (in this case `abcdefgh`) as an abbreviation.
+
+### `siteName`
+
+_string_
+
+The identifier of the site that was given. Is either the site name that you have passed into this function, or a random string that was generated if you didn't pass a site name.
+
+### `stats`
+
+An object with 3 entries:
+
+- `uploadedFiles`
+- `deletedFiles`
+- `untouchedFiles`
+
+Each one is a `number`.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/deploy-site.ts)
+- [CLI equivalent: `npx remotion cloudrun sites create`](/docs/cloudrun/cli/sites#create)
+- [getSites()](/docs/cloudrun/getsites)
+- [deleteSite()](/docs/cloudrun/deletesite)

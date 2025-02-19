@@ -1,0 +1,198 @@
+---
+slug: 2-2
+title: Remotion 2.2
+author: Jonny Burger
+author_title: Remotion Creator
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/2-2-card.png
+---
+
+import {ThreeDPlayer} from '../components/3DPhonePlayer.tsx';
+
+Welcome to the release notes of Remotion 2.2! It's been a while since v2.1, but in the meanwhile we had a dozen smaller releases inbetween. This post summarizes the highlights of the past 2 months 🎉.
+
+## Environment variable support
+
+We developers use environment variables extensively to manage configuration, secrets and other stuff you don't want to commit to a GitHub repo. If you write videos with code, environment variables are useful too!
+
+We added support for environment variables from the CLI, using a `.env` file, and allowing you to pass environment variables via our Node.JS APIs too. [Click here to learn more.](/docs/env-variables)
+
+## `<Freeze />` component
+
+This new core component will freeze all of it's children and make them think that the video is paused at a certain time.
+
+You can use it for example to display a still frame from a video:
+
+```tsx twoslash title="MyVideo.tsx"
+import {Freeze, Video} from 'remotion';
+import myVid from './vid.mp4';
+
+export const MyVideo = () => {
+  return (
+    <Freeze frame={30}>
+      <Video src={myVid} />
+    </Freeze>
+  );
+};
+```
+
+However, it works for any content. As you can see the API is dead simple! You can combine it with the [`<Sequence>`](/docs/sequence) API to make any content play, pause and then continue again.
+
+[Read the docs for the `<Freeze />` component here.](/docs/freeze)
+
+## Video + Audio `playbackRate`
+
+This prop allows you to slow down or speed up video and audio elements! Now you can import a video in normal speed and play it in slow motion or timelapse without re-rendering the video.
+
+```tsx twoslash title="LightningSpeed.tsx"
+import {Video} from 'remotion';
+import myVid from './vid.mp4';
+
+export const MyVideo = () => {
+  return <Video src={myVid} playbackRate={4} />;
+};
+```
+
+While previewing, we are using the HTML5 `playbackRate` API, and when rendering, we will calculate the correct FFMPEG command for any tempo.
+
+Learn more about the `playbackRate` props for [`<Audio />`](/docs/audio/#playbackrate) and [`<Video />`](/docs/video/#playbackrate).
+
+## `@remotion/three` package
+
+In case you missed it, we released a new helper package for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)!
+
+<ThreeDPlayer />
+<br />
+
+Three.JS is admittedly not easy, but with the work that [Poimandres](https://github.com/pmndrs) is doing to make it more approachable and more integrated with React, this is changing rapidly. Creating 3D videos in React and rendering them to real MP4 videos, we are making it possible!
+
+Learn more about [`@remotion/three`](/docs/three) and get started using our [template](https://github.com/remotion-dev/template-three).
+
+## ProRes support and MKV support
+
+Creating MP4 videos with React, that's just our marketing tagline. We support a lot of other codecs too, [like H265, WebM, and even transparent WebM!](/docs/encoding)
+
+We are adding two more codecs:
+
+- ProRes is a codec suitable for video editors using Final Cut Pro, Adobe Premiere or Davinci Resolve. Say you want to create an overlay animation using Remotion and use it in a traditional video cutting program, you can now use ProRes to export the video with an alpha channel and import it to many other programs losslessly.
+
+- The Matroska container format (which can be recognized using the `.mkv` extension) is a format that commonly also just contains the H.264 videos, the same codec used for MP4s. However it has more flexibility for audio and allows lossless audio streams to be contained by the format. MKV support will come in handy for an upcoming Remotion feature, and is the first step in allowing us to go to the moon.
+
+Read the [Encoding guide](/docs/encoding) to see an overview of all options.
+
+## `<Player />` updates
+
+The [`@remotion/player`](/docs/player), currently still experimental, allows Remotion videos to be played on the web without having to encode them. We've made the following progress towards getting it stable:
+
+### Audio controls
+
+A player now has a volume slider, and a mute button to allow the user to control the video. You can decide whether you want to display these controls using the [`showVolumeControls`](/docs/player/player#showvolumecontrols) prop.
+
+Audio can also be controlled programmatically. We added the methods [`getVolume()`](/docs/player/player#getvolume), [`setVolume()`](/docs/player/player#setvolume), [`mute()`](/docs/player/player/#mute), [`unmute()`](/docs/player/player/#unmute) and [`isMuted()`](/docs/player/player/#ismuted) to allow you to implement your own solutions.
+
+### `timeupdate` event
+
+Inspired by the HTML5 event with the same name, we added a [`timeupdate`](/docs/player/player/#timeupdate) event to the Player. Unlike the [`seeked`](/docs/player/player/#seeked) event, it does not fire on every frame, so if you want only periodic updates about the time being updated, you can use this event without having to throttle it.
+
+### [`clickToPlay`](/docs/player/player/#clicktoplay) prop
+
+This prop allows you to control whether the user is allowed to click on the video to make it pause or play. It is true by default if the controls of the player are enabled.
+
+### [`doubleClickToFullscreen`](/docs/player/player/#doubleclicktofullscreen) prop
+
+This prop allows you to control whether the user is allowed to double click on the video to make it go fullscreen. If enabled, single-clicking to pause the video will have a short delay in order to wait for a potential second click.
+
+## Timeline scroll position gets persisted
+
+When coding a video, and refreshing the preview, the video would jump back to the first frame which was annoying. Not anymore - if you refresh you are back where you left off!
+
+## Remotion waits for fonts to be loaded
+
+If a Webfont gets loaded via Google Fonts, it would be loaded using `font-display: swap`, which means Remotion would sometimes render a frame before the font is loaded. Now we use the `document.fonts.ready` browser API to make loading webfonts completely seamless for you.
+
+## Specify a custom `--port`
+
+By default the Remotion Preview starts a server on port 3000. Should you want to have it start on a different port for any reason, you can now pass a CLI flag.
+
+## More helpful error handling
+
+We want to help you out whenever you are facing a tricky issue. Here are some examples of scenarios where we now give you a helpful warning and linking to the documentation:
+
+- Multiple versions of Remotion are imported on a page (for example when using the `<Player />` in your app)
+- A video is loaded that does not support seeking (for example when serving from Google Cloud Storage)
+- A video with an unsupported codec is loaded (for example an MP4 in the Chromium browser)
+- A `delayRender()` handle has been created but never cleared
+
+## Documentation upgrades
+
+### Search
+
+We now have a search at the top right of the docs! Thanks to Algolia for hosting the widget and indexing the documentation.
+
+### Type hints
+
+Did you notice it in the snippets above? You can now hover over any symbol and see it's type. It's powered by Typescript + Twoslash. A really nice side effect is that it's now impossible for us to make typos in the documentation since all snippets are type checked.
+
+### Troubleshooting guides
+
+We now have [help articles on various issues](/docs/timeout) that you may face. Currently we have written about 6 common problems, and put them in a new section of the docs called Troubleshooting.
+
+### Page about third party integrations
+
+[A new page](/docs/third-party) has been created listing some popular libraries and describing how well they work together with Remotion - or don't.
+
+### New landing page
+
+Finally, the [homepage of Remotion](https://remotion.dev) got a makeover! We hope to better communicate what Remotion is and why it's awesome.
+
+## Various Bugfixes
+
+- Fixed a memory leak while calling getCompositions() [#480](https://github.com/remotion-dev/remotion/pull/480)
+- Add emoji support to Dockerfile [#476](https://github.com/remotion-dev/remotion/pull/476)
+- The preview now shows the current time within a sequence in a timeline [#468](https://github.com/remotion-dev/remotion/pull/468)
+- TTF fonts can now be loaded locally [#462](https://github.com/remotion-dev/remotion/pull/462)
+- Fix Remotion Player assuming it's in a rendering environment [#460](https://github.com/remotion-dev/remotion/pull/460)
+- Fix getAudioMetadata() and getAudioDuration() not returning an error in the `onError` event [#459](https://github.com/remotion-dev/remotion/pull/459)
+- Added documentation on how to use TailwindCSS [`69b079e`](https://github.com/remotion-dev/remotion/commit/69b079e)
+- Fixed documentation about how to use SASS/SCSS [`e92c917`](https://github.com/remotion-dev/remotion/commit/e92c917)
+- If you are using a plain JS entry file, you can also use a remotion.config.js config file [#475](https://github.com/remotion-dev/remotion/pull/475)
+- You can customize how many timeline tracks should be shown at most using `Config.Preview.setMaxTimelineTracks()` [#439](https://github.com/remotion-dev/remotion/pull/439)
+- Fixed a bug where environment variables would not be immediately accessible [#432](https://github.com/remotion-dev/remotion/pull/432)
+- Input props flag can now also be passed for preview [#430](https://github.com/remotion-dev/remotion/pull/430)
+- Better input validation of the most common functions
+- Improve rendering of very long videos, using less memory and avoiding a maximum callstack exceeded error message. [#398](https://github.com/remotion-dev/remotion/pull/398)
+- Setting `crf` to 0 is not allowed anymore for H264 videos as it will lead to a video that does not play on all platforms. [#379](https://github.com/remotion-dev/remotion/pull/379)
+- The docs for `<Sequence />` now have interactive examples. [#378](https://github.com/remotion-dev/remotion/pull/378)
+- A lot of tests have been added to the core functions. [#376](https://github.com/remotion-dev/remotion/pull/376) etc.
+- The Typescript types have been improved to allow for more types of components to be passed to `component`. [#372](https://github.com/remotion-dev/remotion/pull/372)
+
+## Thank you to all the contributors
+
+Most of these features were brought up and implemented by the community which is super awesome. Time for some shoutouts!
+
+- Thanks to [Björn Zeutzheim](https://github.com/olee) for implementing the `@remotion/three` package!
+- Thanks to [Frenco](https://github.com/frencojobs) for making all documentation code snippets typesafe and adding hover preview. You even fixed a bug in Twoslash, the library powering this feature and executed this with so much care!
+- Thanks to [cnnr](https://github.com/cnnrhill) for implementing environment variables support!
+- Thanks to [Arthur Denner](https://github.com/arthurdenner) for discovering the `document.fonts.ready` feature!
+- Thanks to [Ashik Meerankutty](https://github.com/ashikmeerankutty) for implementing the `timeupdate` event for the Player!
+- Thanks to [Soham Shah](https://github.comsohamsshah) for adding GitHub Issue Templates and working on a Next.JS template!
+- Thanks to [William Candillon](https://github.com/wcandillon) for implementing ProRes support!
+- Thanks to [Salvatore](https://github.com/dested) for implementing `playbackRate` support for Video and Audio components!
+- Thanks to [ahgsql](https://github.com/ahgsql) for improving how Sequences are displayed in the timeline!
+- Thanks to [Mika Andrianarijaona](https://github.com/mikaoelitiana) for implementing the `--port` parameter!
+- Thanks to [Jonas Brunner](https://github.com/j0nezz), [Tobias Boner](https://github.com/dydent) and [Calvin Falter](https://github.com/calvin-f) for vastly improving the test coverage!
+- Thanks to [Tamás Sallai](https://github.com/sashee) for filing and commenting many important issues and drafting accessibility features.
+
+As well as many other contributing bugfixes and documentation improvements.
+
+## Business update
+
+We start seeing people launching products and startups using Remotion, which is awesome. Stay tuned for posts that highlight how people are using Remotion for their business case! At the time of writing, five customers are currently in possession of a [Company license](https://companies.remotion.dev).
+
+In addition to [Shankhadeep Dey](https://github.com/iamshankhadeep), we are also welcoming [Mehmet Ademi](https://github.com/MehmetAdemi) to the team as a project manager and business developer.
+
+We are increasingly putting [bounties on non-urgent issues](https://github.com/remotion-dev/remotion/issues?q=+label%3A%22%3Adollar%3A+Funded+on+Issuehunt%22+) and have rewarded
+$657 to Remotion contributors to far, in addition to multiple thousands of dollars being paid out to top contributors that were approached by us.
+
+We are working on multiple fronts to make Remotion even better for businesses and Indie Hackers that want to integrate programmatic video into their product - stay tuned!

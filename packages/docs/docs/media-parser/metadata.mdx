@@ -1,0 +1,106 @@
+---
+image: /generated/articles-docs-media-parser-metadata.png
+id: metadata
+title: Getting metadata from videos using @remotion/media-parser
+slug: /media-parser/metadata
+sidebar_label: Getting video metadata
+crumb: '@remotion/media-parser'
+---
+
+Using [`@remotion/media-parser`](/docs/media-parser), you can get metadata from a [variety of media formats](/docs/media-parser/format-support).
+
+## Getting metadata from a URL
+
+Specify the [`fields`](/docs/media-parser/parse-media#fields) you would like to read and the URl as [`src`](/docs/media-parser/parse-media#src).  
+This works in the browser as well as in Node.js and Bun.
+
+```tsx twoslash title="Parsing a hosted video"
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+## Getting metadata from a local path
+
+Use [`nodeReader`](/docs/media-parser/node-reader) to read a file from a filesystem.  
+This can be used in Node.js and Bun.
+
+```tsx twoslash title="Parsing a video from a file path"
+import {parseMedia} from '@remotion/media-parser';
+import {nodeReader} from '@remotion/media-parser/node';
+
+const result = await parseMedia({
+  src: '/tmp/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  reader: nodeReader,
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+## Getting metadata from a `File`
+
+If you take user uploads in the browser, they will be in the form of a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).  
+Use [`webFileReader`](/docs/media-parser/web-file-reader) to read a video from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).
+
+```tsx twoslash title="Parsing a video from a file path"
+import {parseMedia} from '@remotion/media-parser';
+import {webFileReader} from '@remotion/media-parser/web-file';
+
+// You would get this from a `<input type="file">`
+const file = new File([], 'video.mp4');
+
+const result = await parseMedia({
+  src: file,
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  reader: webFileReader,
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+## Available fields
+
+You can read the duration, the dimensions, the framerate, the container format, the codecs, the ID3 tags and more information from a video file.
+
+See [Available Fields](/docs/media-parser/fields) for a complete list.
+
+## Getting metadata as soon as possible
+
+```tsx twoslash title="Parsing a video from a File"
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  onDurationInSeconds: (durationInSeconds) => {
+    console.log(durationInSeconds); // 10
+  },
+});
+
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+## See also
+
+- [`parseMedia()`](/docs/media-parser/parse-media)

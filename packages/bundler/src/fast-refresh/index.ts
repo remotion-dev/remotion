@@ -32,6 +32,7 @@
 // https://github.com/vercel/next.js/blob/canary/packages/react-refresh-utils/ReactRefreshWebpackPlugin.ts
 
 import type webpack from 'webpack';
+import type {Compilation} from 'webpack';
 import {RuntimeGlobals, RuntimeModule, Template, version} from 'webpack';
 
 class ReactRefreshRuntimeModule extends RuntimeModule {
@@ -40,7 +41,7 @@ class ReactRefreshRuntimeModule extends RuntimeModule {
 	}
 
 	generate() {
-		const {runtimeTemplate} = this.compilation;
+		const {runtimeTemplate} = this.compilation as Compilation;
 		return Template.asString([
 			`${
 				RuntimeGlobals.interceptModuleExecution
@@ -56,12 +57,12 @@ class ReactRefreshRuntimeModule extends RuntimeModule {
 						`const cleanup = hasRefresh ? self.$RefreshInterceptModuleExecution$(moduleObject.id) : () => {};`,
 						'try {',
 						Template.indent(
-							'originalFactory.call(this, moduleObject, moduleExports, webpackRequire);'
+							'originalFactory.call(this, moduleObject, moduleExports, webpackRequire);',
 						),
 						'} finally {',
 						Template.indent(`cleanup();`),
 						'}',
-					]
+					],
 				)}`,
 			])})`,
 		]);
@@ -74,7 +75,7 @@ export class ReactFreshWebpackPlugin {
 
 		if (webpackMajorVersion < 5) {
 			throw new Error(
-				`ReactFreshWebpackPlugin does not support webpack v${webpackMajorVersion}.`
+				`ReactFreshWebpackPlugin does not support webpack v${webpackMajorVersion}.`,
 			);
 		}
 
@@ -94,14 +95,14 @@ export class ReactFreshWebpackPlugin {
 						Template.indent(Template.indent('};')),
 						Template.indent('};'),
 						'}',
-					])
+					]),
 			);
 
 			compilation.hooks.additionalTreeRuntimeRequirements.tap(
 				this.constructor.name,
 				(chunk) => {
 					compilation.addRuntimeModule(chunk, new ReactRefreshRuntimeModule());
-				}
+				},
 			);
 		});
 	}

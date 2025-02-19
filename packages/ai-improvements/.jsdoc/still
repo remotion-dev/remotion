@@ -1,0 +1,4 @@
+/**
+ * @description A `<Still />` is a `<Composition />` that is only 1 frame long.
+ * @see [Documentation](https://www.remotion.dev/docs/still)
+ */

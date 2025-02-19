@@ -1,0 +1,37 @@
+{
+  "name": "template-code-hike",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "repository": {},
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "@code-hike/lighter": "0.9.4",
+    "@remotion/cli": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/studio": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "codehike": "1.0.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "twoslash-cdn": "0.2.9",
+    "polished": "4.3.1",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.0.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "tsc && eslint src"
+  },
+  "private": true
+}

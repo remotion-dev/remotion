@@ -1,0 +1,81 @@
+---
+image: /generated/articles-docs-contributing-presentation.png
+title: Contribute your own presentation
+sidebar_label: Adding new presentations
+crumb: Contributing
+---
+
+Make your custom presentation accessible for others in the `@remotion/transitions` package.
+
+## Setup the remotion project
+
+If this is your first contribution, see the <a href="https://github.com/remotion-dev/remotion/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> file for information on how to contribute and instructions to set up the remotion project.
+
+## How to proceed
+
+<Step>1</Step> Create a custom transition. Loook at the <a href="/docs/transitions/presentations/custom">custom presentation</a> docs to see how it's done.<br/>
+<Step>2</Step>Add your presentation to the remotion monorepository under <code>packages/transitions/src/presentations</code>.<br/>
+<Step>3</Step> In the <code>bundle.ts</code>, add your presentation to the <code>presentations array</code>.
+<br/>
+
+```tsx
+  const presentations = ['slide', 'flip', 'wipe', 'fade', ..., 'yourPresentation'];
+```
+
+<Step>4</Step> Add your presentation to the <code>exports</code> of the <code>package.json</code> at <code>packages/transition/package.json</code> as well as to the <code>typesVersions</code>, so it can be correctly imported in other remotion projects.
+
+```json
+"exports": {
+  "./yourPresentation": {
+    "types": "./dist/presentations/yourPresentation.d.ts",
+    "module": "./dist/presentations/yourPresentation.js",
+    "import": "./dist/presentations/yourPresentation.js",
+    "require": "./dist/cjs/presentations/yourPresentation.js"
+    },
+  },
+"typesVersions": {
+  ">=1.0": {
+    "yourPresentation": [
+      "dist/presentations/yourPresentation.d.ts"
+      ],
+    },
+  }
+```
+
+Make sure to `pnpm build` in `remotion/packages/transitions` so your transition gets usable in your remotion repository.
+
+<Step>5</Step> Write a documentation for your presentation. Have a look at the presentations linked in the <a href="/docs/transitions/presentations">presentation</a> docs for reference. The documentation should consist of the following parts:
+
+- A `short description` of what your presentation does.
+- A `demo` of your presentation. For instructions, have a look at the `demo` paragraph in the [contributing to the documentation](/docs/contributing/docs#demos) page, or have a look at the source code of other presentation documentations ([presentationType].mdx files).
+- An `example code snippet` showing how to use your presentation . See the [type safe snippets](/docs/contributing/docs#type-safe-snippets) docs for instructions on typesafe code snippets.
+- The API of your presentation
+
+&nbsp;&nbsp;&nbsp;&nbsp; For more help on how to write a documentation, see the [contributing to the documentation](/docs/contributing/docs) page.
+
+<Step>6</Step> Add your presentation to the table of contents at <a href="/docs/transitions/presentations">docs/transitions/presentations</a> by creating a <code>&lt;TOCItem&gt;</code> containing a link to your documentation, a <code>&lt;PresentationPreview</code> displaying your presentation and a one-liner describing what your presentation does.
+
+```tsx title="Example TOCItem"
+<TOCItem link="/docs/transitions/presentations/yourPresentation">
+  <div style={row}>
+    <PresentationPreview
+      durationRestThreshold={0.001}
+      effect={yourPresentation()}
+    />
+    <div style={{ flex: 1, marginLeft: 10 }}>
+      <strong>
+        <code>{"yourPresentation()"}</code>
+      </strong>
+      <div>Insert one-liner describing your presentation</div>
+    </div>
+  </div>
+</TOCItem>
+```
+
+An pull request for reference containing all required steps and filechanges can be found <a href="https://github.com/remotion-dev/remotion/pull/3199/files">here</a>.
+
+## See also
+
+- [Implementing a new feature](/docs/contributing/feature)
+- [Writing documentation](/docs/contributing/docs)
+- [How to take a bounty issue](/docs/contributing/bounty)

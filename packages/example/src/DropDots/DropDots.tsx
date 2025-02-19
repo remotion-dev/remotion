@@ -25,45 +25,43 @@ const DropDots: React.FC<{
 	const cycle = 15;
 	const iteration = Math.floor(frame / cycle);
 	const {height, width} = useVideoConfig();
-	const dots = new Array(process.env.NODE_ENV === 'development' ? 45 : 45)
-		.fill(true)
-		.map((_x, i) => {
-			const startX = random(`x-${i}-${iteration}`) * width;
-			const startY = random(`y-${i}-${iteration}`) * height;
-			const startRotation = random(`rotation-${i}-${iteration}`) * 360;
-			return {
-				startX,
-				endX:
-					startX +
-					interpolate(random(`x-end-${i}-${iteration}`), [0, 1], [-600, 600]),
-				startY,
-				endY:
-					startY +
-					interpolate(random(`y-end-${i}-${iteration}`), [0, 1], [-600, 600]),
-				startRotation,
-				endRotation:
-					startRotation +
-					interpolate(random(`rotatad-${i}`), [0, 1], [-180, 180]),
-				size: interpolate(
-					random(`size-${i}-${iteration}`),
-					[0, 0.9, 0.901, 1],
-					[40, 40, 160, 160]
-				),
+	const dots = new Array(45).fill(true).map((_x, i) => {
+		const startX = random(`x-${i}-${iteration}`) * width;
+		const startY = random(`y-${i}-${iteration}`) * height;
+		const startRotation = random(`rotation-${i}-${iteration}`) * 360;
+		return {
+			startX,
+			endX:
+				startX +
+				interpolate(random(`x-end-${i}-${iteration}`), [0, 1], [-600, 600]),
+			startY,
+			endY:
+				startY +
+				interpolate(random(`y-end-${i}-${iteration}`), [0, 1], [-600, 600]),
+			startRotation,
+			endRotation:
+				startRotation +
+				interpolate(random(`rotatad-${i}`), [0, 1], [-180, 180]),
+			size: interpolate(
+				random(`size-${i}-${iteration}`),
+				[0, 0.9, 0.901, 1],
+				[40, 40, 160, 160],
+			),
 
-				background:
-					gradients[
-						Math.floor(random(`color-${i}-${iteration}`) * gradients.length)
-					],
-				opacity: interpolate(
-					random(`opacity-${i}-${iteration}`),
-					[0, 1],
-					[0.83, 0.95]
-				),
-				gradId: random(`gradient-${i}-${iteration}`),
-				hasShine: random(`shine-${i}`) > 0.6,
-				shineOpacity: random(`shine-opacity-${i}-${iteration}`) * 0.7,
-			};
-		});
+			background:
+				gradients[
+					Math.floor(random(`color-${i}-${iteration}`) * gradients.length)
+				],
+			opacity: interpolate(
+				random(`opacity-${i}-${iteration}`),
+				[0, 1],
+				[0.83, 0.95],
+			),
+			gradId: random(`gradient-${i}-${iteration}`),
+			hasShine: random(`shine-${i}`) > 0.6,
+			shineOpacity: random(`shine-opacity-${i}-${iteration}`) * 0.7,
+		};
+	});
 	const progress = interpolate(frame % cycle, [0, cycle], [0, 1]);
 	return (
 		<div style={{width, height, opacity}}>
@@ -73,7 +71,7 @@ const DropDots: React.FC<{
 				const rotate = interpolate(
 					progress,
 					[0, 1],
-					[d.startRotation, d.endRotation]
+					[d.startRotation, d.endRotation],
 				);
 				return (
 					<div
@@ -146,7 +144,7 @@ const DropDots: React.FC<{
 									marginLeft: d.size * 0.05,
 									opacity: 0.55,
 								}}
-								src="https://github.com/remotion-dev/logo/blob/main/monochromatic/element-0.png?raw=true"
+								src="https://github.com/remotion-dev/brand/blob/main/withouttitle/element-0.png?raw=true"
 							/>
 						</div>
 					</div>

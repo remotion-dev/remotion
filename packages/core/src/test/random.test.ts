@@ -1,4 +1,5 @@
-import {random} from '../random';
+import {describe, expect, test} from 'bun:test';
+import {random} from '../random.js';
 
 describe('Should support negative random numbers', () => {
 	test('test with -1', () => expect(random(-1)).toBe(random(-1)));
@@ -32,7 +33,7 @@ describe('Random should be uniform', () => {
 	let currentStep = 0;
 	while (currentStep < 0.999999) {
 		const items = mapped.filter(
-			(m) => m >= currentStep && m <= currentStep + stepInterval
+			(m) => m >= currentStep && m <= currentStep + stepInterval,
 		);
 		tenPercentSections.push(items);
 		currentStep += stepInterval;
@@ -44,12 +45,12 @@ describe('Random should be uniform', () => {
 			ITEM_COUNT * stepInterval
 		} entries`, () => {
 			expect(entries.length).toBeLessThan(
-				ITEM_COUNT * (stepInterval + ACCURACY)
+				ITEM_COUNT * (stepInterval + ACCURACY),
 			);
 			expect(entries.length).toBeGreaterThan(
-				ITEM_COUNT * (stepInterval - ACCURACY)
+				ITEM_COUNT * (stepInterval - ACCURACY),
 			);
-		})
+		}),
 	);
 
 	test('test for average distance', () => {

@@ -3,21 +3,21 @@
 
 export const complexAdd = function (
 	a: [number, number],
-	b: [number, number]
+	b: [number, number],
 ): [number, number] {
 	return [a[0] + b[0], a[1] + b[1]];
 };
 
 export const complexSubtract = function (
 	a: [number, number],
-	b: [number, number]
+	b: [number, number],
 ): [number, number] {
 	return [a[0] - b[0], a[1] - b[1]];
 };
 
 export const complexMultiply = function (
 	a: [number, number],
-	b: [number, number]
+	b: [number, number],
 ): [number, number] {
 	return [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
 };

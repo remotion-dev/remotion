@@ -1,31 +1,25 @@
-import {validateSpringDuration} from '../validation/validation-spring-duration';
-import {measureSpring} from './measure-spring';
+import {interpolate} from '../interpolate.js';
+import {validateFrame} from '../validate-frame.js';
+import {validateFps} from '../validation/validate-fps.js';
+import {validateSpringDuration} from '../validation/validation-spring-duration.js';
+import {measureSpring} from './measure-spring.js';
 import type {SpringConfig} from './spring-utils';
-import {springCalculation} from './spring-utils';
+import {springCalculation} from './spring-utils.js';
 
-/**
- * Calculates a position based on physical parameters, start and end value, and time.
- * @link https://www.remotion.dev/docs/spring
- * @param {number} frame The current time value. Most of the time you want to pass in the return value of useCurrentFrame.
- * @param {number} fps The framerate at which the animation runs. Pass in the value obtained by `useVideoConfig()`.
- * @param {?Object} config optional object that allows you to customize the physical properties of the animation.
- * @param {number} [config.mass=1] The weight of the spring. If you reduce the mass, the animation becomes faster!
- * @param {number} [config.damping=10] How hard the animation decelerates.
- * @param {number} [config.stiffness=100] Affects bounciness of the animation.
- * @param {boolean} [config.overshootClamping=false] Whether to prevent the animation going beyond the target value.
- * @param {?number} [config.from] The initial value of the animation. Default `0`
- * @param {?number} [config.to] The end value of the animation. Default `1`
- * @param {?number} [config.durationInFrames] Stretch the duration of an animation to  a set value.. Default `undefined`
- * @param {?number} [config.durationThreshold] How close to the end the animation is considered to be done. Default `0.005`
+/*
+ * @description Calculates a position based on physical parameters, start and end value, and time.
+ * @see [Documentation](https://www.remotion.dev/docs/spring)
  */
 export function spring({
-	frame,
+	frame: passedFrame,
 	fps,
 	config = {},
 	from = 0,
 	to = 1,
-	durationInFrames,
+	durationInFrames: passedDurationInFrames,
 	durationRestThreshold,
+	delay = 0,
+	reverse = false,
 }: {
 	frame: number;
 	fps: number;
@@ -34,39 +28,72 @@ export function spring({
 	to?: number;
 	durationInFrames?: number;
 	durationRestThreshold?: number;
+	delay?: number;
+	reverse?: boolean;
 }): number {
-	validateSpringDuration(durationInFrames);
+	validateSpringDuration(passedDurationInFrames);
+	validateFrame({
+		frame: passedFrame,
+		durationInFrames: Infinity,
+		allowFloats: true,
+	});
+	validateFps(fps, 'to spring()', false);
 
-	const durationRatio =
-		durationInFrames === undefined
-			? 1
-			: durationInFrames /
-			  measureSpring({
-					fps,
-					config,
-					from,
-					to,
-					threshold: durationRestThreshold,
-			  });
+	const needsToCalculateNaturalDuration =
+		reverse || typeof passedDurationInFrames !== 'undefined';
+
+	const naturalDuration = needsToCalculateNaturalDuration
+		? measureSpring({
+				fps,
+				config,
+				threshold: durationRestThreshold,
+			})
+		: undefined;
+
+	const naturalDurationGetter = needsToCalculateNaturalDuration
+		? {
+				get: () => naturalDuration as number,
+			}
+		: {
+				get: () => {
+					throw new Error(
+						'did not calculate natural duration, this is an error with Remotion. Please report',
+					);
+				},
+			};
+
+	const reverseProcessed = reverse
+		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+		: passedFrame;
+
+	const delayProcessed = reverseProcessed + (reverse ? delay : -delay);
+
+	const durationProcessed =
+		passedDurationInFrames === undefined
+			? delayProcessed
+			: delayProcessed / (passedDurationInFrames / naturalDurationGetter.get());
+
+	if (passedDurationInFrames && delayProcessed > passedDurationInFrames) {
+		return to;
+	}
 
 	const spr = springCalculation({
 		fps,
-		frame: frame / durationRatio,
+		frame: durationProcessed,
 		config,
-		from,
-		to,
 	});
 
-	if (!config.overshootClamping) {
-		return spr.current;
-	}
+	const inner = config.overshootClamping
+		? to >= from
+			? Math.min(spr.current, to)
+			: Math.max(spr.current, to)
+		: spr.current;
 
-	if (to >= from) {
-		return Math.min(spr.current, to);
-	}
+	const interpolated =
+		from === 0 && to === 1 ? inner : interpolate(inner, [0, 1], [from, to]);
 
-	return Math.max(spr.current, to);
+	return interpolated;
 }
 
-export {measureSpring} from './measure-spring';
-export {SpringConfig} from './spring-utils';
+export {measureSpring} from './measure-spring.js';
+export type {SpringConfig} from './spring-utils';

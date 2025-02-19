@@ -1,0 +1,29 @@
+{
+  "name": "template-overlay",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.0.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*"
+  },
+  "private": true
+}

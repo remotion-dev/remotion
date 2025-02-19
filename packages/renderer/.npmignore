@@ -3,6 +3,14 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-jest.config.js
 *.tgz
 .turbo
+target
+rust
+install_platforms.sh
+build.mjs
+.prettierrc.js
+tsconfig.json
+install-toolchain.mjs
+toolchains
+toolchains.mjs

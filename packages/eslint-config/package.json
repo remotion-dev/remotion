@@ -1,45 +1,46 @@
 {
-  "name": "@remotion/eslint-config",
-  "version": "3.0.30",
-  "description": "",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc -d",
-    "watch": "tsc -w"
-  },
-  "files": [
-    "dist"
-  ],
-  "bugs": {
-    "url": "https://github.com/remotion-dev/remotion/issues"
-  },
-  "author": "Jonny Burger <jonny@remotion.dev>",
-  "license": "ISC",
-  "dependencies": {
-    "@remotion/eslint-plugin": "3.0.30",
-    "@typescript-eslint/eslint-plugin": "5.19.0",
-    "@typescript-eslint/parser": "5.19.0",
-    "eslint-plugin-10x": "1.5.2",
-    "eslint-plugin-react": "7.29.4",
-    "eslint-plugin-react-hooks": "4.4.0"
-  },
-  "peerDependencies": {
-    "eslint": ">=7.15.0"
-  },
-  "devDependencies": {
-    "@types/node": "17.0.17",
-    "eslint": "8.13.0",
-    "typescript": "^4.7.0"
-  },
-  "keywords": [
-    "remotion",
-    "ffmpeg",
-    "video",
-    "react",
-    "puppeteer",
-    "player"
-  ],
-  "publishConfig": {
-    "access": "public"
-  }
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
+	},
+	"name": "@remotion/eslint-config",
+	"version": "4.0.266",
+	"description": "Default configuration for Remotion templates (ESLint <= 8)",
+	"main": "dist/index.js",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"lint": "eslint src",
+		"formatting": "prettier src --check",
+		"make": "tsc -d"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "ISC",
+	"dependencies": {},
+	"peerDependencies": {
+		"eslint": ">=7.15.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-plugin": "workspace:*",
+		"@typescript-eslint/eslint-plugin": "6.21.0",
+		"@typescript-eslint/parser": "6.21.0",
+		"eslint-plugin-react": "7.37.4",
+		"eslint-plugin-react-hooks": "4.6.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

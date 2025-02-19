@@ -35,6 +35,12 @@ function advance({
 
 	const deltaTime = Math.min(now - lastTimestamp, 64);
 
+	if (config.damping <= 0) {
+		throw new Error(
+			'Spring damping must be greater than 0, otherwise the spring() animation will never end, causing an infinite loop.',
+		);
+	}
+
 	const c = config.damping;
 	const m = config.mass;
 	const k = config.stiffness;
@@ -101,21 +107,17 @@ function advance({
 const calculationCache: {[key: string]: AnimationNode} = {};
 
 export function springCalculation({
-	from = 0,
-	to = 1,
 	frame,
 	fps,
 	config = {},
 }: {
-	from?: number;
-	to?: number;
 	frame: number;
 	fps: number;
 	config?: Partial<SpringConfig>;
 }): AnimationNode {
+	const from = 0;
+	const to = 1;
 	const cacheKey = [
-		from,
-		to,
 		frame,
 		fps,
 		config.damping,

@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {assert} from './assert';
-import type {Browser} from './Browser';
+import {NoReactInternals} from 'remotion/no-react';
+import {formatRemoteObject} from '../format-logs';
+import type {LogLevel} from '../log-level';
+import {Log} from '../logger';
+import {truthy} from '../truthy';
+import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
-import type {
-	AttachedToTargetEvent,
-	BindingCalledEvent,
-	ConsoleAPICalledEvent,
-	EntryAddedEvent,
-	StackTrace,
-} from './devtools-types';
 import type {
 	EvaluateFn,
 	EvaluateFnReturnType,
@@ -43,6 +39,16 @@ import type {Viewport} from './PuppeteerViewport';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
+import {assert} from './assert';
+import type {
+	AttachedToTargetEvent,
+	BindingCalledEvent,
+	ConsoleAPICalledEvent,
+	EntryAddedEvent,
+	SetDeviceMetricsOverrideRequest,
+	StackTrace,
+} from './devtools-types';
+import type {SourceMapGetter} from './source-map-getter';
 import {
 	evaluationString,
 	isErrorLike,
@@ -57,46 +63,105 @@ interface WaitForOptions {
 	timeout?: number;
 }
 
-const enum PageEmittedEvents {
+const shouldHideWarning = (log: ConsoleMessage) => {
+	// Mixed Content warnings caused by localhost should not be displayed
+	if (
+		log.text.includes('Mixed Content:') &&
+		log.text.includes('http://localhost:')
+	) {
+		return true;
+	}
+
+	return false;
+};
+
+export const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
+	Disposed = 'disposed',
 }
 
 interface PageEventObject {
 	console: ConsoleMessage;
 	error: Error;
+	disposed: undefined;
 }
 
 export class Page extends EventEmitter {
-	static async _create(
-		client: CDPSession,
-		target: Target,
-		defaultViewport: Viewport,
-		browser: Browser
-	): Promise<Page> {
-		const page = new Page(client, target, browser);
+	id: string;
+	static async _create({
+		client,
+		target,
+		defaultViewport,
+		browser,
+		sourceMapGetter,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		client: CDPSession;
+		target: Target;
+		defaultViewport: Viewport;
+		browser: HeadlessBrowser;
+		sourceMapGetter: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
+		const page = new Page({
+			client,
+			target,
+			browser,
+			sourceMapGetter,
+			logLevel,
+			indent,
+			pageIndex,
+		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
 		return page;
 	}
 
-	#closed = false;
+	closed = false;
 	#client: CDPSession;
 	#target: Target;
 	#timeoutSettings = new TimeoutSettings();
 	#frameManager: FrameManager;
 	#pageBindings = new Map<string, Function>();
-	browser: Browser;
+	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
+	sourceMapGetter: SourceMapGetter;
+	logLevel: LogLevel;
+	pageIndex: number;
 
-	constructor(client: CDPSession, target: Target, browser: Browser) {
+	constructor({
+		client,
+		target,
+		browser,
+		sourceMapGetter,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		client: CDPSession;
+		target: Target;
+		browser: HeadlessBrowser;
+		sourceMapGetter: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}) {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
+		this.#frameManager = new FrameManager(client, this, indent, logLevel);
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
+		this.id = String(Math.random());
+		this.sourceMapGetter = sourceMapGetter;
+		this.logLevel = logLevel;
+		this.pageIndex = pageIndex;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -115,7 +180,7 @@ export class Page extends EventEmitter {
 						.send('Target.detachFromTarget', {
 							sessionId: event.sessionId,
 						})
-						.catch((err) => console.log(err));
+						.catch((err) => Log.error({indent, logLevel}, err));
 			}
 		});
 
@@ -130,6 +195,62 @@ export class Page extends EventEmitter {
 		});
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
+		});
+
+		this.on('console', (log) => {
+			const {url, columnNumber, lineNumber} = log.location();
+
+			if (shouldHideWarning(log)) {
+				return;
+			}
+
+			if (
+				url?.endsWith(NoReactInternals.bundleName) &&
+				lineNumber &&
+				this.sourceMapGetter()
+			) {
+				const origPosition = this.sourceMapGetter()?.originalPositionFor({
+					column: columnNumber ?? 0,
+					line: lineNumber,
+				});
+				const file = [
+					origPosition?.source,
+					origPosition?.line,
+					origPosition?.column,
+				]
+					.filter(truthy)
+					.join(':');
+
+				const tag = [origPosition?.name, file].filter(truthy).join('@');
+
+				if (log.type === 'error') {
+					Log.error(
+						{
+							logLevel,
+							tag,
+							indent,
+						},
+						log.previewString,
+					);
+				} else {
+					Log.verbose(
+						{
+							logLevel,
+							tag,
+							indent,
+						},
+						log.previewString,
+					);
+				}
+			} else if (log.type === 'error') {
+				if (log.text.includes('Failed to load resource:')) {
+					Log.error({logLevel, tag: url, indent}, log.text);
+				} else {
+					Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
+				}
+			} else {
+				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
+			}
 		});
 	}
 
@@ -154,14 +275,14 @@ export class Page extends EventEmitter {
 	// dispatching is delegated to EventEmitter.
 	public override on<K extends keyof PageEventObject>(
 		eventName: K,
-		handler: (event: PageEventObject[K]) => void
+		handler: (event: PageEventObject[K]) => void,
 	): EventEmitter {
 		return super.on(eventName, handler);
 	}
 
 	public override once<K extends keyof PageEventObject>(
 		eventName: K,
-		handler: (event: PageEventObject[K]) => void
+		handler: (event: PageEventObject[K]) => void,
 	): EventEmitter {
 		// Note: this method only exists to define the types; we delegate the impl
 		// to EventEmitter.
@@ -170,7 +291,7 @@ export class Page extends EventEmitter {
 
 	override off<K extends keyof PageEventObject>(
 		eventName: K,
-		handler: (event: PageEventObject[K]) => void
+		handler: (event: PageEventObject[K]) => void,
 	): EventEmitter {
 		return super.off(eventName, handler);
 	}
@@ -198,10 +319,24 @@ export class Page extends EventEmitter {
 			});
 		}
 
+		const previewString = args
+			? args
+					.map((arg) => {
+						return formatRemoteObject(arg);
+					})
+					.join(', ')
+			: '';
+
 		if (source !== 'worker') {
 			this.emit(
 				PageEmittedEvents.Console,
-				new ConsoleMessage(level, text, [], [{url, lineNumber}])
+				new ConsoleMessage({
+					type: level,
+					text,
+					args: [],
+					stackTraceLocations: [{url, lineNumber}],
+					previewString,
+				}),
 			);
 		}
 	}
@@ -215,17 +350,42 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame();
 	}
 
-	setViewport(viewport: Viewport): Promise<void> {
-		return this.#client.send('Emulation.setDeviceMetricsOverride', {
-			mobile: false,
-			width: viewport.width,
-			height: viewport.height,
-			deviceScaleFactor: viewport.deviceScaleFactor,
-			screenOrientation: {
-				angle: 0,
-				type: 'portraitPrimary',
-			},
-		});
+	async setViewport(viewport: Viewport): Promise<void> {
+		const fromSurface = !process.env.DISABLE_FROM_SURFACE;
+
+		const request: SetDeviceMetricsOverrideRequest = fromSurface
+			? {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: viewport.deviceScaleFactor,
+					screenOrientation: {
+						angle: 0,
+						type: 'portraitPrimary',
+					},
+				}
+			: {
+					mobile: false,
+					width: viewport.width,
+					height: viewport.height,
+					deviceScaleFactor: 1,
+					screenHeight: viewport.height,
+					screenWidth: viewport.width,
+					scale: viewport.deviceScaleFactor,
+					viewport: {
+						height: viewport.height * viewport.deviceScaleFactor,
+						width: viewport.width * viewport.deviceScaleFactor,
+						scale: 1,
+						x: 0,
+						y: 0,
+					},
+				};
+
+		const {value} = await this.#client.send(
+			'Emulation.setDeviceMetricsOverride',
+			request,
+		);
+		return value;
 	}
 
 	setDefaultNavigationTimeout(timeout: number): void {
@@ -251,7 +411,7 @@ export class Page extends EventEmitter {
 
 		const context = this.#frameManager.executionContextById(
 			event.executionContextId,
-			this.#client
+			this.#client,
 		);
 		const values = event.args.map((arg) => {
 			return _createJSHandle(context, arg);
@@ -286,14 +446,14 @@ export class Page extends EventEmitter {
 					name,
 					seq,
 					_error.message,
-					_error.stack
+					_error.stack,
 				);
 			} else {
 				expression = pageBindingDeliverErrorValueString(name, seq, _error);
 			}
 		}
 
-		this.#client.send('Runtime.evaluate', {
+		await this.#client.send('Runtime.evaluate', {
 			expression,
 			contextId: event.executionContextId,
 		});
@@ -302,7 +462,7 @@ export class Page extends EventEmitter {
 	#addConsoleMessage(
 		eventType: ConsoleMessageType,
 		args: JSHandle[],
-		stackTrace?: StackTrace
+		stackTrace?: StackTrace,
 	): void {
 		if (!this.listenerCount(PageEmittedEvents.Console)) {
 			args.forEach((arg) => {
@@ -332,12 +492,18 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		const message = new ConsoleMessage(
-			eventType,
-			textTokens.join(' '),
+		const previewString = args
+			.map((a) => formatRemoteObject(a._remoteObject))
+			.filter(Boolean)
+			.join(' ');
+
+		const message = new ConsoleMessage({
+			type: eventType,
+			text: textTokens.join(' '),
 			args,
-			stackTraceLocations
-		);
+			stackTraceLocations,
+			previewString,
+		});
 		this.emit(PageEmittedEvents.Console, message);
 	}
 
@@ -345,11 +511,16 @@ export class Page extends EventEmitter {
 		return this.mainFrame().url();
 	}
 
-	goto(
-		url: string,
-		options: WaitForOptions & {referer?: string} = {}
-	): Promise<HTTPResponse | null> {
-		return this.#frameManager.mainFrame().goto(url, options);
+	goto({
+		url,
+		timeout,
+		options = {},
+	}: {
+		url: string;
+		timeout: number;
+		options?: WaitForOptions & {referer?: string};
+	}): Promise<HTTPResponse | null> {
+		return this.#frameManager.mainFrame().goto(url, timeout, options);
 	}
 
 	async bringToFront(): Promise<void> {
@@ -374,13 +545,13 @@ export class Page extends EventEmitter {
 	}
 
 	async close(
-		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined}
+		options: {runBeforeUnload?: boolean} = {runBeforeUnload: undefined},
 	): Promise<void> {
 		const connection = this.#client.connection();
-		assert(
-			connection,
-			'Protocol error: Connection closed. Most likely the page has been closed.'
-		);
+		if (!connection) {
+			return;
+		}
+
 		const runBeforeUnload = Boolean(options.runBeforeUnload);
 		if (runBeforeUnload) {
 			await this.#client.send('Page.close');
@@ -392,15 +563,7 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	isClosed(): boolean {
-		return this.#closed;
-	}
-
-	waitForFunction(
-		browser: Browser,
-		pageFunction: Function | string,
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle> {
-		return this.mainFrame().waitForFunction(browser, pageFunction, ...args);
+	setBrowserSourceMapGetter(context: SourceMapGetter) {
+		this.sourceMapGetter = context;
 	}
 }

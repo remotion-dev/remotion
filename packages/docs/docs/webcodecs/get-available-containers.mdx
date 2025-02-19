@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-webcodecs-get-available-containers.png
+id: get-available-containers
+title: getAvailableContainers()
+slug: /webcodecs/get-available-containers
+crumb: '@remotion/webcodecs'
+---
+
+Returns an array of available containers that can be used with the `convertMedia` function.
+
+```tsx twoslash title="Getting available containers"
+import {getAvailableContainers} from '@remotion/webcodecs';
+
+const containers = getAvailableContainers();
+console.log(containers);
+```
+
+:::note
+New containers may be added to this function and it will not be considered a breaking change.
+:::
+
+## As a type
+
+If you need a TypeScript type that covers the available output containers, you can import the type definition:
+
+```tsx twoslash title="Type definition"
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
+//                 ^?
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/get-available-containers.ts)

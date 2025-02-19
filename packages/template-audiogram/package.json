@@ -1,0 +1,34 @@
+{
+  "name": "template-audiogram",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "author": "Marcus Stenbeck, Jonny Burger, Alex Fernandez",
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@remotion/captions": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.0.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "private": true
+}

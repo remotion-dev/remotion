@@ -1,0 +1,6 @@
+build.mjs
+dist/tsconfig.tsbuildinfo
+src
+tsconfig.json
+.eslintrc
+.prettierrc.js

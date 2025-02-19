@@ -1,0 +1,147 @@
+---
+image: /generated/articles-docs-bundle.png
+id: bundle
+title: bundle()
+crumb: '@remotion/bundler'
+---
+
+_Part of the `@remotion/bundler` package._
+
+Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media). [See a full server-side rendering example.](/docs/ssr-node)
+
+You only need to call this function when the source code changes. You can render multiple videos from the same bundle and parametrize them using [input props](/docs/passing-props).
+
+Calling `bundle()` for every video that you render is an anti-pattern.  
+`bundle()` cannot be called in a serverless function, see: [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle).
+
+## Example
+
+```tsx twoslash title="render.mjs"
+import path from 'path';
+import {bundle} from '@remotion/bundler';
+
+const serveUrl = await bundle({
+  entryPoint: path.join(process.cwd(), './src/index.ts'),
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
+  webpackOverride: (config) => config,
+});
+```
+
+## Arguments
+
+### `entryPoint`
+
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology/entry-point).
+
+### `onProgress?`
+
+A callback function that notifies about the progress of the Webpack bundling. Passes a number between `0` and `100`. Example function:
+
+```ts twoslash
+const onProgress = (progress: number) => {
+  console.log(`Webpack bundling progress: ${progress}%`);
+};
+```
+
+### `webpackOverride?`
+
+_optional_
+
+A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
+
+```ts twoslash
+import {WebpackOverrideFn} from '@remotion/bundler';
+// ---cut---
+const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
+  return {
+    ...webpackConfig,
+    // Override properties
+  };
+};
+```
+
+### `outDir?`
+
+_optional_
+
+Specify a desired output directory. If no passed, the webpack bundle will be created in a temp dir.
+
+### `enableCaching?`
+
+_optional_
+
+A `boolean` specifying whether Webpack caching should be enabled. Default `true`, it is recommended to leave caching enabled at all times since file changes should be recognized by Webpack nonetheless.
+
+### `publicPath?`
+
+_optional_
+
+<Options id="public-path" />
+
+### `rootDir?`<AvailableFrom v="3.1.6" />
+
+_optional_
+
+The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
+
+:::note
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+:::
+
+### `publicDir?`<AvailableFrom v="3.2.13" />
+
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology/remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology/remotion-root).
+
+### `onPublicDirCopyProgress?`<AvailableFrom v="3.3.3" />
+
+Reports progress of how many bytes have been written while copying the `public/` directoy. Useful to warn the user if the directory is large that this operation is slow.
+
+### `onSymlinkDetected?`<AvailableFrom v="3.3.3" />
+
+Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
+
+### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.46" />
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+
+## Legacy function signature
+
+Remotion versions earlier than v3.2.17 had the following function signature instead:
+
+```ts
+const bundle: (
+  entryPoint: string,
+  onProgress?: (progress: number) => void,
+  options?: {
+    webpackOverride?: WebpackOverrideFn;
+    outDir?: string;
+    enableCaching?: boolean;
+    publicPath?: string;
+    rootDir?: string;
+    publicDir?: string | null;
+  },
+) => Promise<string>;
+```
+
+Example:
+
+```ts
+await bundle('src/index.ts', () => console.log(progress * 100 + '% done'), {
+  webpackOverride,
+});
+```
+
+It is still supported in Remotion v3, but we encourage to migrate to the new function signature.
+
+## Return value
+
+A promise which will resolve into a `string` specifying the output directory.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/bundle.ts)
+- [Server-Side rendering](/docs/ssr)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
+- [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle)

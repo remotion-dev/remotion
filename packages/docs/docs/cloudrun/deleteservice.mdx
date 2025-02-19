@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-cloudrun-deleteservice.png
+id: deleteservice
+title: deleteService()
+slug: /cloudrun/deleteservice
+crumb: 'Cloud Run API'
+---
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
+</ExperimentalBadge>
+
+Deletes a deployed Cloud Run service based on its name.
+
+To retrieve a list of services, call [`getServices()`](/docs/cloudrun/getservices) first.
+
+## Example
+
+```ts twoslash
+import {deleteService, getServices} from '@remotion/cloudrun';
+
+const services = await getServices({
+  region: 'us-east1',
+  compatibleOnly: false,
+});
+for (const service of services) {
+  await deleteService({
+    region: 'us-east1',
+    serviceName: service.serviceName,
+  });
+}
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `region`
+
+The [GCP region](/docs/cloudrun/region-selection) to which the service was deployed to.
+
+### `serviceName`
+
+The name of the service to be deleted.
+
+## Return value
+
+Nothing. If the deletion failed, the service rejects with an error.
+
+## See also
+
+- [Source code for this service](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/delete-service.ts)
+- [deployService()](/docs/cloudrun/deployservice)
+- [getServices()](/docs/cloudrun/getservices)

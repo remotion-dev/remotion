@@ -1,10 +1,10 @@
-import { getUserPolicy } from "@remotion/lambda/dist/api/iam-validation/suggested-policy";
-import React from "react";
+import {getUserPolicy} from '@remotion/lambda/policies';
+import React from 'react';
 
 export const UserPolicy: React.FC = () => {
-  return (
-    <div>
-      <pre>{getUserPolicy()}</pre>
-    </div>
-  );
+	return (
+		<div>
+			<pre>{getUserPolicy()}</pre>
+		</div>
+	);
 };

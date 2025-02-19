@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-player-playback-issues.png
+title: 'Playback issues in the <Player>'
+sidebar_label: Playback issues
+id: playback-issues
+crumb: Playback issues
+---
+
+Read this page if you encounter issues with media playback in the Player such as:
+
+- Black frames inbetween scenes
+- Audio choppiness
+- Unexpected pausing
+- Jumping around
+
+## Ensure best practices
+
+<div>
+<Step>1</Step> <span>Add <a href="/docs/player/buffer-state">`pauseWhenBuffering`</a> to `<Audio>`, `<Video>`, `<OffthreadVideo>` and `<Img>` components.</span>
+</div>
+<div>
+<Step>2</Step> <span>For seamless transitions, use the <a href="/docs/player/premounting">`premountFor`</a> prop for `<Sequence>`'s.</span>
+</div>
+<div>
+<Step>3</Step> <span>Don't use <a href="/docs/prefetch">`prefetch()`</a> if the Player is already mounted.</span>
+</div>
+<div>
+<Step>4</Step> <span>Avoid over-aggressive `prefetch()`-ing and premounting - it will use up resources faster.</span>
+</div>
+
+## Enable logging<AvailableFrom v="4.0.250"/>
+
+You can observe mounting, loading, seeking and buffering events of media by adding `logLevel="trace"` to the `<Player>` component.
+
+```tsx twoslash title='Adding logLevel="trace" to the Player'
+const otherProps = {
+  compositionHeight: 1080,
+  compositionWidth: 1920,
+  inputProps: {},
+  component: () => null,
+  fps: 30,
+  durationInFrames: 100,
+};
+
+// ---cut---
+import React from 'react';
+import {Player} from '@remotion/player';
+
+export const MyApp: React.FC = () => {
+  return <Player {...otherProps} logLevel="trace" />;
+};
+```
+
+:::note
+Don't enable this prop for production as it may lead to slowdown.
+:::
+
+To observe prefetching events, add [`logLevel: "trace"`](/docs/prefetch#options) to your [`prefetch()`](/docs/prefetch) calls, if there are any:
+
+```tsx twoslash title='Adding logLevel: "trace" to prefetch()'
+const src = 'https://example.com';
+// ---cut---
+import {prefetch} from 'remotion';
+
+prefetch(src, {
+  logLevel: 'trace',
+});
+```
+
+## Reporting issues
+
+We have implemented exact logging of relevant events so in order to improve how Remotion handles media playback.  
+We are encouraging you to file feedback. If you would like to report feedback, please:
+
+<div>
+  <Step>1</Step> <span>Ensure you are at least on v4.0.262 of Remotion. Previous versions had known bugs.</span>
+</div>
+<div>
+  <Step>2</Step>{' '}
+  <span>
+    <a href="#enable-logging">ensure you are using the best practices described above.</a>
+  </span>
+</div>
+<div>
+  <Step>3</Step>
+  <a href="#enable-logging">enable logging</a> and send all logs during playback alongside your report.
+</div>
+
+## See also
+
+- [Avoiding flickers](/docs/troubleshooting/player-flicker)
+- [Buffer state](/docs/player/buffer-state)

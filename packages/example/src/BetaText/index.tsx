@@ -1,7 +1,9 @@
+import {zColor} from '@remotion/zod-types';
 import {mix} from 'polished';
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import {z} from 'zod';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
 const solidBrand = mix(0.5, BRAND_GRADIENT[0], BRAND_GRADIENT[1]);
@@ -19,13 +21,13 @@ const Label = styled.span<{
 	display: inline-block;
 `;
 
-const lines = 7;
 const Row: React.FC<{
-	videoWidth: number;
-	i: number;
-	text: string;
-	zoom: number;
-}> = ({videoWidth, i, text, zoom}) => {
+	readonly videoWidth: number;
+	readonly i: number;
+	readonly text: string;
+	readonly zoom: number;
+	readonly color: string;
+}> = ({videoWidth, i, text, zoom, color}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
 	const progress = spring({
@@ -43,11 +45,7 @@ const Row: React.FC<{
 	const posX = interpolate(progress, [0, 1], [1, 0]);
 
 	const dir = i % 2 === 0 ? -1 : 1;
-	const color = mix(
-		Math.min(1, (lines - i - 1) / lines),
-		BRAND_GRADIENT[0],
-		BRAND_GRADIENT[1]
-	);
+
 	return (
 		<div
 			style={{
@@ -90,11 +88,15 @@ const Row: React.FC<{
 	);
 };
 
-type Props = {
-	word1: string;
-};
+export const betaTextSchema = z.object({
+	word1: z.string(),
+	color: z.array(zColor()),
+});
 
-const BetaText = ({word1}: Props): React.ReactNode => {
+const BetaText = ({
+	word1,
+	color,
+}: z.infer<typeof betaTextSchema>): React.ReactNode => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();
 
@@ -120,6 +122,7 @@ const BetaText = ({word1}: Props): React.ReactNode => {
 				height: videoConfig.height,
 				display: 'flex',
 				transform: `scale(${scale})`,
+				fontFamily: 'sans-serif',
 			}}
 		>
 			<div
@@ -131,21 +134,22 @@ const BetaText = ({word1}: Props): React.ReactNode => {
 				{new Array(17)
 					.fill(true)
 					.map((_, i) => i)
-					.map((key) => {
+					.map((key, i) => {
 						return (
 							<Row
 								key={key}
+								color={color[i]}
 								zoom={progress}
 								text={
 									key === 7
-										? 'CET'
+										? 'ONE'
 										: key === 5
-										? '5pm'
-										: key === 3
-										? word1 ?? 'TOMORROW'
-										: key === 1
-										? 'ANYSTICKER'
-										: 'BETA'
+											? 'REMOTION'
+											: key === 3
+												? (word1 ?? 'COOL')
+												: key === 1
+													? 'LIT'
+													: 'BETA'
 								}
 								i={key}
 								videoWidth={videoConfig.width}

@@ -1,0 +1,32 @@
+---
+image: /generated/articles-docs-media-parser-node-writer.png
+id: node-writer
+title: nodeWriter
+slug: /media-parser/node-writer
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+**Unstable API**: This package is experimental. The API may change in the future.  
+The API for getting video metadata is stable and may be used in production.
+:::
+
+A writer for `@remotion/media-parser` that writes to the local file system using Node.js `fs` module.
+
+Can be used for [`downloadAndParseMedia()`](/docs/media-parser/download-and-parse-media) and [`convertMedia()`](/docs/webcodecs/convert-media) (for remuxing only, since Node.js does not implement WebCodecs).
+
+## Example
+
+```tsx twoslash title="Writing to a local file"
+import {downloadAndParseMedia} from '@remotion/media-parser';
+import {nodeWriter} from '@remotion/media-parser/node-writer';
+
+await downloadAndParseMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  writer: nodeWriter('output.mp4'),
+});
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/writers/node.ts)

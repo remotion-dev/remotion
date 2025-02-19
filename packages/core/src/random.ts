@@ -19,12 +19,13 @@ function hashCode(str: string) {
 	return hash;
 }
 
-/**
- * A deterministic pseudo-random number generator.
- * Pass in the same seed and get the same pseudorandom number.
- * See: https://remotion.dev/docs/random
+export type RandomSeed = number | string | null;
+
+/*
+ * @description A deterministic pseudo-random number generator. Pass in the same seed and get the same pseudorandom number.
+ * @see [Documentation](https://www.remotion.dev/docs/random)
  */
-export const random = (seed: number | string | null, dummy?: unknown) => {
+export const random = (seed: RandomSeed, dummy?: unknown) => {
 	if (dummy !== undefined) {
 		throw new TypeError('random() takes only one argument');
 	}

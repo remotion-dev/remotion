@@ -1,0 +1,113 @@
+---
+image: /generated/articles-docs-webcodecs-convert-a-video.png
+id: convert-a-video
+title: Convert a video
+slug: /webcodecs/convert-a-video
+crumb: '@remotion/webcodecs'
+---
+
+You can convert a video in the browser from one format to another using the [`convertMedia()`](/docs/webcodecs/convert-media) function from [`@remotion/webcodecs`](/docs/webcodecs).
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+The following input formats are supported:
+
+- ISO Base Media (`.mp4`, `.mov`)
+- Matroska (`.mkv`, `.webm`)
+- `.avi`
+- MPEG Transport Stream (`.ts`)
+- `.wav`,
+- `.mp3`
+- `.flac`
+- `.aac`
+- HLS (`.m3u8`)
+
+The following output formats are supported:
+
+- MP4
+- WebM
+- WAV
+
+The following output video codecs are supported:
+
+- VP8 (WebM only)
+- VP9 (WebM only)
+- H.264 (MP4 only)
+
+The following output audio codecs are supported:
+
+- Opus (WebM only)
+- AAC (MP4 only)
+- PCM (WAV only)
+
+## Installation
+
+Install the `@remotion/webcodecs` and `@remotion/media-parser` packages:
+
+<Installation pkg="@remotion/webcodecs @remotion/media-parser" />
+<br />
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+## Basic conversions
+
+### Converting from an URL
+
+(needs to be CORS-enabled)
+
+```tsx twoslash title="Converting an MP4 to a WebM"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+});
+```
+
+### Converting from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File):
+
+```tsx twoslash title="Converting a file"
+import {convertMedia} from '@remotion/webcodecs';
+import {webFileReader} from '@remotion/media-parser/web-file';
+
+// Get an actual file from an <input type="file"> element
+const file = new File([], 'video.mp4');
+
+await convertMedia({
+  src: file,
+  container: 'webm',
+  reader: webFileReader,
+});
+```
+
+## Specifying the output codec
+
+You can specify the output codec by passing the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options:
+
+```tsx twoslash title="Converting to VP9"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  videoCodec: 'vp9',
+  audioCodec: 'opus',
+});
+```
+
+## Advanced conversions
+
+See [Track Transformation](/docs/webcodecs/track-transformation) for how you can get more control over the conversion.
+
+## See also
+
+- [`convertMedia()`](/docs/webcodecs/convert-media)
+- [Rotate a video](/docs/webcodecs/rotate-a-video)

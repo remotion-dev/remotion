@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {Freeze, Series, staticFile, Video} from 'remotion';
 
 export const FreezeExample: React.FC = () => {
-	const video = staticFile('./framermp4withoutfileextension');
+	const video = staticFile('framermp4withoutfileextension');
+	const ref = useRef<HTMLDivElement>(null);
 
 	return (
 		<Series>
@@ -11,11 +12,11 @@ export const FreezeExample: React.FC = () => {
 					<Video src={video} />
 				</Freeze>
 			</Series.Sequence>
-			<Series.Sequence durationInFrames={50}>
+			<Series.Sequence ref={ref} durationInFrames={50}>
 				<Video src={video} />
 			</Series.Sequence>
 			<Series.Sequence durationInFrames={50}>
-				<Freeze frame={126}>
+				<Freeze active={(f) => f >= 30} frame={30}>
 					<Video src={video} />
 				</Freeze>
 			</Series.Sequence>

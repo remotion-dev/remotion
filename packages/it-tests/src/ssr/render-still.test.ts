@@ -1,66 +1,69 @@
-import os from "os";
 import {
-  getCompositions,
-  openBrowser,
-  RenderInternals,
-  renderStill,
-} from "@remotion/renderer";
-import path from "path";
-import { existsSync } from "fs";
+	ensureBrowser,
+	getCompositions,
+	openBrowser,
+	renderStill,
+} from '@remotion/renderer';
+import {beforeAll, expect, test} from 'bun:test';
+import {existsSync} from 'fs';
+import os from 'os';
+import path from 'path';
 
-afterEach(async () => {
-  await RenderInternals.killAllBrowsers();
+beforeAll(async () => {
+	await ensureBrowser();
 });
 
-test("Render video with browser instance open", async () => {
-  const puppeteerInstance = await openBrowser("chrome");
-  const compositions = await getCompositions(
-    "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",
-    {
-      puppeteerInstance,
-    }
-  );
+test('Render video with browser instance open', async () => {
+	const puppeteerInstance = await openBrowser('chrome');
+	const compositions = await getCompositions(
+		'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+		{
+			puppeteerInstance,
+			inputProps: {},
+		},
+	);
 
-  const reactSvg = compositions.find((c) => c.id === "react-svg");
+	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
-  if (!reactSvg) {
-    throw new Error("not found");
-  }
+	if (!reactSvg) {
+		throw new Error('not found');
+	}
 
-  const tmpDir = os.tmpdir();
+	const tmpDir = os.tmpdir();
 
-  const outPath = path.join(tmpDir, "out.mp4");
+	const outPath = path.join(tmpDir, 'out.mp4');
 
-  await renderStill({
-    output: outPath,
-    serveUrl:
-      "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",
-    composition: reactSvg,
-    puppeteerInstance,
-  });
-  await puppeteerInstance.close();
+	const {buffer} = await renderStill({
+		output: outPath,
+		serveUrl:
+			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+		composition: reactSvg,
+		puppeteerInstance,
+	});
+	expect(buffer).toBe(null);
+	await puppeteerInstance.close({silent: false});
 });
 
-test("Render still with browser instance not open and legacy webpack config", async () => {
-  const compositions = await getCompositions(
-    "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/"
-  );
+test('Render still with browser instance not open and legacy webpack config', async () => {
+	const compositions = await getCompositions(
+		'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+	);
 
-  const reactSvg = compositions.find((c) => c.id === "react-svg");
+	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
-  if (!reactSvg) {
-    throw new Error("not found");
-  }
+	if (!reactSvg) {
+		throw new Error('not found');
+	}
 
-  const tmpDir = os.tmpdir();
+	const tmpDir = os.tmpdir();
 
-  const outPath = path.join(tmpDir, "subdir", "out.jpg");
+	const outPath = path.join(tmpDir, 'subdir', 'out.jpg');
 
-  await renderStill({
-    output: outPath,
-    webpackBundle:
-      "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",
-    composition: reactSvg,
-  });
-  expect(existsSync(outPath)).toBe(true);
+	await renderStill({
+		output: outPath,
+		serveUrl:
+			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+		composition: reactSvg,
+	});
+	expect(existsSync(outPath)).toBe(true);
 });

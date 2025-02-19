@@ -1,15 +1,16 @@
-import type {TAsset} from 'remotion';
+import type {AudioOrVideoAsset, TRenderAsset} from 'remotion/no-react';
+import {onlyAudioAndVideoAssets} from '../filter-asset-types';
 import {resolveAssetSrc} from '../resolve-asset-src';
 import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import type {Assets, MediaAsset, UnsafeAsset} from './types';
 import {uncompressMediaAsset} from './types';
 
-const areEqual = (a: TAsset | UnsafeAsset, b: TAsset) => {
+const areEqual = (a: TRenderAsset | UnsafeAsset, b: TRenderAsset) => {
 	return a.id === b.id;
 };
 
-const findFrom = (target: TAsset[], asset: TAsset) => {
-	const index = target.findIndex((a) => areEqual(a, asset));
+const findFrom = (target: TRenderAsset[], renderAsset: TRenderAsset) => {
+	const index = target.findIndex((a) => areEqual(a, renderAsset));
 	if (index === -1) {
 		return false;
 	}
@@ -18,20 +19,27 @@ const findFrom = (target: TAsset[], asset: TAsset) => {
 	return true;
 };
 
-const copyAndDeduplicateAssets = (assets: TAsset[]) => {
-	const deduplicated: TAsset[] = [];
-	for (const asset of assets) {
-		if (!deduplicated.find((d) => d.id === asset.id)) {
-			deduplicated.push(asset);
+const copyAndDeduplicateAssets = (
+	renderAssets: TRenderAsset[],
+): AudioOrVideoAsset[] => {
+	const onlyAudioAndVideo = onlyAudioAndVideoAssets(renderAssets);
+	const deduplicated: AudioOrVideoAsset[] = [];
+
+	for (const renderAsset of onlyAudioAndVideo) {
+		if (!deduplicated.find((d) => d.id === renderAsset.id)) {
+			deduplicated.push(renderAsset);
 		}
 	}
 
 	return deduplicated;
 };
 
-export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
+export const calculateAssetPositions = (
+	frames: AudioOrVideoAsset[][],
+): Assets => {
 	const assets: UnsafeAsset[] = [];
 
+	const flattened = frames.flat(1);
 	for (let frame = 0; frame < frames.length; frame++) {
 		const prev = copyAndDeduplicateAssets(frames[frame - 1] ?? []);
 		const current = copyAndDeduplicateAssets(frames[frame]);
@@ -40,7 +48,7 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 		for (const asset of current) {
 			if (!findFrom(prev, asset)) {
 				assets.push({
-					src: resolveAssetSrc(uncompressMediaAsset(frames.flat(1), asset).src),
+					src: resolveAssetSrc(uncompressMediaAsset(flattened, asset).src),
 					type: asset.type,
 					duration: null,
 					id: asset.id,
@@ -48,11 +56,14 @@ export const calculateAssetPositions = (frames: TAsset[][]): Assets => {
 					trimLeft: asset.mediaFrame,
 					volume: [],
 					playbackRate: asset.playbackRate,
+					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
+					toneFrequency: asset.toneFrequency,
+					audioStartFrame: asset.audioStartFrame,
 				});
 			}
 
 			const found = assets.find(
-				(a) => a.duration === null && areEqual(a, asset)
+				(a) => a.duration === null && areEqual(a, asset),
 			);
 			if (!found) throw new Error('something wrong');
 			if (!findFrom(next, asset)) {

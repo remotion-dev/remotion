@@ -43,7 +43,7 @@ function isSafeExport(key: string) {
 
 function registerExportsForReactRefresh(
 	moduleExports: unknown,
-	moduleID: unknown
+	moduleID: unknown,
 ) {
 	RefreshRuntime.register(moduleExports, moduleID + ' %exports%');
 	if (
@@ -100,25 +100,6 @@ function isReactRefreshBoundary(moduleExports: unknown) {
 	return hasExports && areAllExportsComponents;
 }
 
-function shouldInvalidateReactRefreshBoundary(
-	prevExports: unknown,
-	nextExports: unknown
-) {
-	const prevSignature = getRefreshBoundarySignature(prevExports);
-	const nextSignature = getRefreshBoundarySignature(nextExports);
-	if (prevSignature.length !== nextSignature.length) {
-		return true;
-	}
-
-	for (let i = 0; i < nextSignature.length; i++) {
-		if (prevSignature[i] !== nextSignature[i]) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function getRefreshBoundarySignature(moduleExports: unknown) {
 	const signature = [];
 	signature.push(RefreshRuntime.getFamilyByType(moduleExports));
@@ -146,24 +127,44 @@ function getRefreshBoundarySignature(moduleExports: unknown) {
 	return signature;
 }
 
+function shouldInvalidateReactRefreshBoundary(
+	prevExports: unknown,
+	nextExports: unknown,
+) {
+	const prevSignature = getRefreshBoundarySignature(prevExports);
+	const nextSignature = getRefreshBoundarySignature(nextExports);
+	if (prevSignature.length !== nextSignature.length) {
+		return true;
+	}
+
+	for (let i = 0; i < nextSignature.length; i++) {
+		if (prevSignature[i] !== nextSignature[i]) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function scheduleUpdate() {
 	const execute = () => {
 		try {
 			RefreshRuntime.performReactRefresh();
 		} catch (err) {
+			// eslint-disable-next-line no-console
 			console.warn(
 				'Warning: Failed to re-render. We will retry on the next Fast Refresh event.\n' +
-					err
+					err,
 			);
 		}
 	};
 
 	// Only trigger refresh if the webpack HMR state is idle
-	if (module.hot?.status() === 'idle') {
+	if (__webpack_module__.hot?.status() === 'idle') {
 		return;
 	}
 
-	module.hot?.addStatusHandler((status) => {
+	__webpack_module__.hot?.addStatusHandler((status) => {
 		if (status === 'idle') {
 			execute();
 		}

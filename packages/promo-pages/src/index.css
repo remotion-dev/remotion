@@ -1,0 +1,74 @@
+@layer theme, base, components, utilities;
+
+html {
+	font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+body {
+	margin: 0;
+}
+
+@keyframes click {
+	0% {
+		transform: translateY(-18px);
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0.7;
+	}
+	70% {
+		opacity: 0.7;
+	}
+	100% {
+		transform: translateY(-23px);
+		opacity: 0;
+	}
+}
+
+@keyframes jump {
+	from {
+		transform: scale(0);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@layer base {
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
+
+@theme {
+	--color-brand: #0b84f3;
+	--font-brand: 'GTPlanar', sans-serif;
+	--color-pane: var(--ifm-background-surface-color);
+	--color-muted: var(--subtitle);
+}
+
+@utility border-effect {
+	border: 2px solid var(--box-stroke);
+	border-bottom: 4px solid var(--box-stroke);
+	border-radius: var(--radius-lg);
+}
+
+@utility bluelink {
+	@apply text-brand no-underline hover:underline underline-offset-2;
+}
+
+@utility card {
+	@apply border-effect bg-pane p-5;
+}
+
+@utility fontbrand {
+	@apply font-brand;
+	font-feature-settings: 'ss03' on;
+}
+
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+@import './fonts.css';

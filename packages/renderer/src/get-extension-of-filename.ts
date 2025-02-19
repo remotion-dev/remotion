@@ -1,5 +1,13 @@
-export const getExtensionOfFilename = (filename: string) => {
-	const filenameArr = filename.split('.');
+import {pathNormalize} from './path-normalize';
+
+export const getExtensionOfFilename = (
+	filename: string | null,
+): string | null => {
+	if (filename === null) {
+		return null;
+	}
+
+	const filenameArr = pathNormalize(filename).split('.');
 
 	const hasExtension = filenameArr.length >= 2;
 	const filenameArrLength = filenameArr.length;

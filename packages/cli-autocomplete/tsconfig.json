@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"skipLibCheck": true,
+		"jsx": "react-jsx",
+		"types": ["@withfig/autocomplete-types"]
+	},
+	"include": ["./src"],
+	"references": [{ "path": "../core" }, { "path": "../renderer" }]
+}

@@ -1,9 +1,9 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "src",
 		"outDir": "dist"
 	},
-	"references": [{"path": "../core"}, {"path": "../bundler"}]
+	"include": ["src"],
+	"references": [{"path": "../core"}, {"path": "../streaming"}]
 }

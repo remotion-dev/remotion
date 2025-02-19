@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-cli-cli.png
+title: Command line reference
+sidebar_label: CLI reference
+id: cli
+---
+
+import {TableOfContents} from '../../components/TableOfContents/cli';
+
+## How to use
+
+You can run the CLI by installing `@remotion/cli` and running:
+
+- `npx remotion` inside a npm project
+- `yarn remotion` inside a Yarn project
+- `pnpm exec remotion` inside a pnpm project.
+- `bunx remotion` inside a Bun project
+
+For brevity, in the documentation we always say `npx remotion`.
+
+Inside an npm script, you don't need the `npx` prefix:
+
+```json title="package.json"
+{
+  "scripts": {
+    "render": "remotion render"
+  }
+}
+```
+
+### Using Bun<AvailableFrom v="4.0.118" />
+
+By default, the `npx remotion` command is being executed using Node.  
+Even `bunx remotion` is using Node, unless you add the `--bun` flag.  
+To use Bun, replace `remotion` with `remotionb`.
+
+```json title="package.json"
+{
+  "scripts": {
+    "render": "remotionb render"
+  }
+}
+```
+
+### Using Deno<AvailableFrom v="4.0.227" />
+
+Deno is not supported by Remotion.  
+If you like to experiment nonetheless, use `npx remotiond` to run the Deno version of the CLI.
+
+```json title="package.json"
+{
+  "scripts": {
+    "render": "remotiond render"
+  }
+}
+```
+
+## Commands
+
+The following commands are available - you can always run them using `npx remotion` or even without the `npx` prefix if you put the command inside an npm script.
+
+<TableOfContents />
+
+## Example command
+
+```
+npx remotion render --codec=vp8 HelloWorld out/video.webm
+```
+
+## Fig.io autocompletion
+
+Install [Fig](https://fig.io) (macOS only) to add Remotion autocomplete to your terminal.  
+Type `npx remotion` to start getting suggestions.
+
+## See also
+
+- [Render your video](/docs/render)
+- [Configuration file](/docs/config)

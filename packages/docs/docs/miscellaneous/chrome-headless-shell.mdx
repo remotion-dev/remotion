@@ -1,0 +1,155 @@
+---
+image: /generated/articles-docs-miscellaneous-chrome-headless-shell.png
+sidebar_label: Chrome Headless Shell
+title: Chrome Headless Shell
+crumb: 'FAQ'
+---
+
+# Installing Chrome <AvailableFrom v="4.0.247"/>
+
+Remotion is automatically installing "Chrome Headless Shell" into your `node_modules` in order to render videos.
+
+## Supported platforms
+
+The following platforms are supported:
+
+- macOS (x64 and arm64)
+- Windows (x64)
+- Linux x64 - [install the Linux dependencies](/docs/miscellaneous/linux-dependencies)
+- Linux arm64 - only for "Chrome Headless Shell"
+
+## Ensure Chrome is installed
+
+There are two ways to ensure Chrome Headless Shell is installed:
+
+- [`npx remotion browser ensure`](/docs/cli/browser/ensure) on the command line
+- [`ensureBrowser()`](/docs/renderer/ensure-browser) as a Node.js / Bun API
+
+It is recommended use call these functions if you do server-side rendering.  
+That way, if a request comes in wanting to render a video, the browser is already downloaded and ready to go.
+
+## Using Chrome for Testing instead
+
+There are two flavors ("modes") that Remotion can use to render videos:
+
+- **Chrome Headless Shell**: Is faster for CPU-bound video rendering, and requires less dependencies and setup.
+- **Chrome for Testing**: Is faster for GPU-bound video rendering. Emulates a display surface and therefore requires more dependencies and resources.
+
+You should use Chrome for Testing **only** if you want to set up a [GPU-accelerated rendering environment on Linux](/docs/miscellaneous/cloud-gpu).
+
+In order to use Chrome for testing instead:
+
+**In the CLI**: Pass `--chrome-mode="chrome-for-testing"` to `npx remotion render`, `npx remotion benchmark`, `npx remotion compositions`, `npx remotion still`, `npx remotion gpu` and `npx remotion browser ensure`.
+
+**With the API**: Pass `chromeMode: 'chrome-for-testing'` to your `renderFrames()`, `renderMedia()`, `renderStill()`, `selectComposition()`, `getComposition()` and `ensureBrowser()` calls.
+
+**In the Studio**: Select "Chrome for Testing" in the "Chrome Mode" dropdown in the "Advanced" tab.
+
+**In the config file (only applies to the CLI and Studio)**: Set `Config.setChromeMode('chrome-for-testing')` in your `remotion.config.ts` file.
+
+**In Lambda and Cloud Run**: Not applicable, as Chrome for Testing is not supported.
+
+## Download location
+
+Chrome Headless Shell will download to this folder:
+
+```
+node_modules/.remotion/chrome-headless-shell/[platform]/chrome-headless-shell-[platform]
+```
+
+An executable `./chrome-headless-shell` (`.\chrome-headless-shell.exe` on Windows) will be created.
+
+<hr />
+
+Chrome for Testing will download to this folder:
+
+```
+node_modules/.remotion/chrome-for-testing/[platform]
+```
+
+The file structure inside this folder varies by OS.
+
+<hr />
+
+`platform` can be one of `mac-arm64`, `mac-x64`, `linux64`, `linux-arm64` or `win64`.
+
+## Bring your own binary
+
+If you don't want Chrome Headless Shell or Chrome for Testing to get installed or your platform is not supported, you need to specify your own Chromium-based browser:
+
+- Using the [`setBrowserExecutable()`](/docs/config#setbrowserexecutable) option in the config file (for the CLI)
+- Using the [`browserExecutable`](/docs/renderer/render-media) option in [`renderMedia()`](/docs/renderer/render-media) and other SSR APIs
+
+In [Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun), a version of Chrome is already installed, so you don't need to do anything.
+
+:::note
+In a future version of Chrome, headless mode in the desktop browser will stop being supported and you will need to use the Chrome Headless Shell.
+:::
+
+## Why does Remotion manage Chrome?
+
+Remotion previously used the desktop version of Chrome that many users had already installed.  
+This workflow broke at some point, because Chrome removed the headless mode and extracted it to "Chrome Headless Shell".
+
+## Best practices
+
+To ensure your project does not get disrupted by an upcoming Chrome change, you should use the Remotion mechanisms which uses and pins the version of Chrome Headless Shell.
+
+- Use Remotion v4.0.208 or later to not pick up an externally installed browser.
+- Use [`npx remotion browser ensure`](/docs/cli/browser/ensure) to ensure Chrome Headless Shell is available.
+- Do not download Chrome in your Dockerfile, but do install [Linux dependencies](/docs/miscellaneous/linux-dependencies) if you use Linux.
+- Do not use `--browser-executable`, `browserExecutable` or `setBrowserExecutable()` options to override the Headless Shell with an incompatible Chrome version.
+
+:::warning
+Note: Most Linux distros do not allow you to pin a Chrome package.  
+If you use a Remotion version below v4.0.208, you are at risk of Chrome automatically being upgraded to a version that does not ship with a headless mode.  
+:::
+
+## What is Chrome Headless Shell?
+
+Chrome used to ship with a `--headless` flag, which Remotion would use.
+
+As of Chrome 123, the headless mode is split up into:
+
+- `--headless=old`, which is ideal for screenshotting (and therefore Remotion)
+- `--headless=new`, which is ideal for browser testing
+
+`--headless=old` will stop working in a future version of Chrome.  
+The old headless mode is being extracted into "Chrome Headless Shell".
+
+Hence we encourage you to use Chrome Headless Shell to future-proof your Remotion application.
+
+## Version
+
+Remotion will download a well-tested Chrome version from the `123.0.6312` release line.  
+Upgrades may happen in a patch release and will be listed here.
+
+## On Lambda and Cloud Run
+
+If you are using [Remotion Lambda](/docs/lambda) or [Cloud Run](/docs/cloudrun), you don't need to worry about installing a browser - it is included in the runtime already.
+
+## Previous changes
+
+### Added option to install Chrome for Testing (v4.0.247)
+
+In order to enable GPU-accelerated workloads on Linux, Remotion now allows you to install Chrome for Testing.
+
+### Migrated to Chrome Headless Shell
+
+Because Chrome removed the headless mode from the desktop browser, Remotion now uses Chrome Headless Shell.
+
+### Thorium (v4.0.18 - v4.0.135)
+
+In these versions, if no local browser can be found, an instance of [Thorium](https://thorium.rocks/) is downloaded.
+
+Thorium is a free and open-source browser forked off Chromium, which includes the codecs needed to render videos.
+
+### Chromium (before v4.0.18)
+
+In previous versions, Remotion would download the free version of Chromium, which would not include codecs for the proprietary H.264 and H.265 codecs.
+This would often lead to problems when using the [`<Video>`](/docs/video) tag.
+
+## See also
+
+- [`ensureBrowser()`](/docs/renderer/ensure-browser)
+- [Media playback error](/docs/media-playback-error)

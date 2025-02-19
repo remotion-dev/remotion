@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-licensing-register-usage-point.png
+id: register-usage-point
+title: registerUsagePoint()
+slug: /licensing/register-usage-point
+crumb: '@remotion/licensing'
+---
+
+Registers a usage point for your Remotion license.  
+Allows for accurate and up to date reporting and to track your usage on the Remotion dashboard.
+
+:::note
+[`@remotion/webcodecs` automatically calls this function for you.](/docs/webcodecs/telemetry)  
+You do not need to call this function if you are using `@remotion/webcodecs`.
+:::
+
+```tsx twoslash title="Register a usage point"
+import {registerUsageEvent} from '@remotion/licensing';
+
+await registerUsageEvent({
+  apiKey: 'rm_pub_xxxxx',
+  event: 'webcodec-conversion',
+  host: 'https://myapp.com',
+  succeeded: true,
+});
+```
+
+## API
+
+An object with the following properties:
+
+### `apiKey`
+
+Type: `string`
+
+Your Remotion public API key. You can get it from your Remotion.pro dashboard.
+
+### `event`
+
+Type: `string`
+
+The event you want to register. This can be one of the following:
+
+- `webcodec-conversion`
+- `cloud-render`
+
+### `host`
+
+The domain at here you host your app.  
+This should be the value of what `window.location.origin` evaluates to on your frontend.  
+If the host is `localhost` or similar, it will be registered as non-billable.
+
+### `succeeded`
+
+Whether the event was successful or not.  
+If the event was not successful, it will be registered as a non-billable event.
+
+## Return value
+
+A promise that resolves when the event was successfully registered.
+
+The resolved object contains two properties:
+
+### `billable`
+
+Whether this was an event that should be billed.
+
+### `classification`
+
+Either, `"billable"`, `"development"` or `"failed"`.  
+You do not have to pay for failed renders or renders doing development.
+
+## See also
+
+- [`@remotion/licensing`](/docs/licensing)
+- [`getUsage()`](/docs/licensing/get-usage)

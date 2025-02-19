@@ -1,4 +1,5 @@
-import type {VolumeProp} from '../volume-prop';
+import type {VolumeProp} from '../volume-prop.js';
+import type {LoopVolumeCurveBehavior} from './use-audio-frame.js';
 
 export type RemotionMainAudioProps = {
 	startFrom?: number;
@@ -10,8 +11,19 @@ export type RemotionAudioProps = Omit<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement
 	>,
-	'autoPlay' | 'controls' | 'loop' | 'onEnded'
+	'autoPlay' | 'controls' | 'onEnded' | 'nonce' | 'onResize' | 'onResizeCapture'
 > & {
+	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;
+	acceptableTimeShiftInSeconds?: number;
+	allowAmplificationDuringRender?: boolean;
+	_remotionInternalNeedsDurationCalculation?: boolean;
+	_remotionInternalNativeLoopPassed?: boolean;
+	toneFrequency?: number;
+	pauseWhenBuffering?: boolean;
+	showInTimeline?: boolean;
+	delayRenderTimeoutInMilliseconds?: number;
+	delayRenderRetries?: number;
+	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 };

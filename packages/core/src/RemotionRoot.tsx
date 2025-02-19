@@ -5,43 +5,84 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {SharedAudioContextProvider} from './audio/shared-audio-tags';
-import {CompositionManagerProvider} from './CompositionManager';
-import {continueRender, delayRender} from './delay-render';
-import type { TNonceContext} from './nonce';
-import {NonceContext} from './nonce';
-import {random} from './random';
+import {CompositionManagerProvider} from './CompositionManager.js';
+import {EditorPropsProvider} from './EditorProps.js';
+import {BufferingProvider} from './buffering.js';
+import {continueRender, delayRender} from './delay-render.js';
+import type {LoggingContextValue} from './log-level-context.js';
+import {LogLevelContext} from './log-level-context.js';
+import type {LogLevel} from './log.js';
+import type {TNonceContext} from './nonce.js';
+import {NonceContext} from './nonce.js';
+import {PrefetchProvider} from './prefetch-state.js';
+import {random} from './random.js';
 import type {
 	PlayableMediaTag,
 	SetTimelineContextValue,
-	TimelineContextValue} from './timeline-position-state';
+	TimelineContextValue,
+} from './timeline-position-state.js';
 import {
 	SetTimelineContext,
-	TimelineContext
-} from './timeline-position-state';
+	TimelineContext,
+	getInitialFrameState,
+} from './timeline-position-state.js';
+import {DurationsContextProvider} from './video/duration-state.js';
+
+declare const __webpack_module__: {
+	hot: {
+		addStatusHandler(callback: (status: string) => void): void;
+	};
+};
 
 export const RemotionRoot: React.FC<{
-	children: React.ReactNode;
-}> = ({children}) => {
+	readonly children: React.ReactNode;
+	readonly numberOfAudioTags: number;
+	readonly logLevel: LogLevel;
+}> = ({children, numberOfAudioTags, logLevel}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
-	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
+	const [frame, setFrame] = useState<Record<string, number>>(() =>
+		getInitialFrameState(),
+	);
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
-			window.remotion_setFrame = (f: number) => {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			window.remotion_setFrame = (f: number, composition: string, attempt) => {
+				window.remotion_attempt = attempt;
 				const id = delayRender(`Setting the current frame to ${f}`);
-				setFrame(f);
-				requestAnimationFrame(() => continueRender(id));
+
+				let asyncUpdate = true;
+
+				setFrame((s) => {
+					const currentFrame = s[composition] ?? window.remotion_initialFrame;
+					// Avoid cloning the object
+					if (currentFrame === f) {
+						asyncUpdate = false;
+						return s;
+					}
+
+					return {
+						...s,
+						[composition]: f,
+					};
+				});
+
+				// After setting the state, need to wait until it is applied in the next cycle
+				if (asyncUpdate) {
+					requestAnimationFrame(() => continueRender(id));
+				} else {
+					continueRender(id);
+				}
 			};
 
 			window.remotion_isPlayer = false;
-		}
-	}, []);
+		}, []);
+	}
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
@@ -71,29 +112,40 @@ export const RemotionRoot: React.FC<{
 	}, [fastRefreshes]);
 
 	useEffect(() => {
-		if (module.hot) {
-			module.hot.addStatusHandler((status) => {
-				if (status === 'idle') {
-					setFastRefreshes((i) => i + 1);
-				}
-			});
+		if (typeof __webpack_module__ !== 'undefined') {
+			if (__webpack_module__.hot) {
+				__webpack_module__.hot.addStatusHandler((status) => {
+					if (status === 'idle') {
+						setFastRefreshes((i) => i + 1);
+					}
+				});
+			}
 		}
 	}, []);
 
+	const logging: LoggingContextValue = useMemo(() => {
+		return {logLevel, mountTime: Date.now()};
+	}, [logLevel]);
+
 	return (
-		<NonceContext.Provider value={nonceContext}>
-			<TimelineContext.Provider value={timelineContextValue}>
-				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<CompositionManagerProvider>
-						<SharedAudioContextProvider
-							// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
-							numberOfAudioTags={0}
-						>
-							{children}
-						</SharedAudioContextProvider>
-					</CompositionManagerProvider>
-				</SetTimelineContext.Provider>
-			</TimelineContext.Provider>
-		</NonceContext.Provider>
+		<LogLevelContext.Provider value={logging}>
+			<NonceContext.Provider value={nonceContext}>
+				<TimelineContext.Provider value={timelineContextValue}>
+					<SetTimelineContext.Provider value={setTimelineContextValue}>
+						<EditorPropsProvider>
+							<PrefetchProvider>
+								<CompositionManagerProvider
+									numberOfAudioTags={numberOfAudioTags}
+								>
+									<DurationsContextProvider>
+										<BufferingProvider>{children}</BufferingProvider>
+									</DurationsContextProvider>
+								</CompositionManagerProvider>
+							</PrefetchProvider>
+						</EditorPropsProvider>
+					</SetTimelineContext.Provider>
+				</TimelineContext.Provider>
+			</NonceContext.Provider>
+		</LogLevelContext.Provider>
 	);
 };

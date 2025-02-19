@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-absolute-fill.png
+id: absolute-fill
+title: <AbsoluteFill>
+crumb: 'API'
+---
+
+A helper component - it is an absolutely positioned `<div>` with the following styles:
+
+```ts twoslash title="Styles of AbsoluteFill"
+import React from 'react';
+// ---cut---
+const style: React.CSSProperties = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+};
+```
+
+This component is useful for layering content on top of each other. For example, you can use it to create a full-screen video background:
+
+```tsx twoslash title="Layer example"
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
+
+const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <OffthreadVideo src="https://example.com/video.mp4" />
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <h1>This text is written on top!</h1>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+The layers that get rendered last appear on top - this is because of how HTML works.
+
+## Adding a ref
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<AbsoluteFill>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+
+```tsx twoslash
+import {useRef} from 'react';
+import {AbsoluteFill} from 'remotion';
+
+const content = <div>Hello, World</div>;
+// ---cut---
+const MyComp = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  return <AbsoluteFill ref={ref}>{content}</AbsoluteFill>;
+};
+```
+
+## TailwindCSS class detection<AvailableFrom v="4.0.249" />
+
+This component has a `style` object, which has higher importance than `className`'s.
+
+In order to make this behave like you expect (row layout):
+
+```tsx
+<AbsoluteFill className="flex flex-row" />
+```
+
+We detect conflicting Tailwind classes and disable the corresponding inline styles if they are present from Remotion v4.0.249.  
+Review the source code below to see how we detect Tailwind classes.
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/AbsoluteFill.tsx)

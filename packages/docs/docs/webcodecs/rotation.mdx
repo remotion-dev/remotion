@@ -1,0 +1,85 @@
+---
+image: /generated/articles-docs-webcodecs-rotation.png
+id: rotate-a-video
+title: Rotate a video
+slug: /webcodecs/rotate-a-video
+crumb: '@remotion/webcodecs'
+---
+
+You can rotate a video in the browser using the [`@remotion/webcodecs`](/docs/webcodecs) package to fix a video that has a bad orientation.
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+## Simple Example
+
+```tsx twoslash title="Rotate 90 degrees clockwise"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  rotate: 90,
+});
+```
+
+All rotation values that are multiples of 90 are supported. The video will be rotated clockwise.
+
+## Videos with rotation
+
+Videos that have rotation metadata embedded will by default be rotated when re-encoded in order to produce a video with the correct orientation.  
+This means you should not try to detect rotation metadata and apply the correction yourself, because it will be done automatically.
+
+If you supply a rotation, it will be in addition to the automatic rotation correction that [`convertMedia()`](/docs/webcodecs/convert-media) applies by default.
+
+## Disabling automatic rotation
+
+If you want the video to not automatically be rotated, you need to re-apply the rotation that is the same as the rotation metadata in the video.  
+The rotations will negate each other, and [`convertMedia()`](/docs/webcodecs/convert-media) will not execute any code to apply rotation.
+
+```tsx twoslash title="Prevent automatic video rotation"
+import {convertMedia, defaultOnVideoTrackHandler} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  onVideoTrack: async (params) => {
+    const action = await defaultOnVideoTrackHandler(params);
+
+    if (action.type !== 'reencode') {
+      return action;
+    }
+
+    return {
+      ...action,
+      rotate: params.track.rotation,
+    };
+  },
+});
+```
+
+See [Track Transformation](/docs/webcodecs/track-transformation) for more information on how to customize the video track transformation.
+
+## Order of operations
+
+If you apply both a `rotate` and a [`resize`](/docs/webcodecs/resize-a-video) operation, the `rotate` operation will be applied first.
+
+## Reference implementation
+
+Use [remotion.dev/rotate](https://remotion.dev/rotate) to rotate a video online using WebCodecs.  
+See the [source code](https://github.com/remotion-dev/remotion/tree/main/packages/convert) for a reference on how to implement it.
+
+## See also
+
+- [`convertMedia()`](/docs/webcodecs/convert-media)
+- [Resize a video](/docs/webcodecs/resize-a-video)

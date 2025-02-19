@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {isRemoteAsset} from './is-remote-asset';
+import {onMediaError} from './media-tag-error-handling';
 import {pLimit} from './p-limit';
 import type {VideoMetadata} from './types';
 
@@ -19,15 +21,29 @@ const fn = (src: string): Promise<VideoMetadata> => {
 	video.src = src;
 	return new Promise<VideoMetadata>((resolve, reject) => {
 		const onError = () => {
-			reject(video.error);
-			cleanup();
+			onMediaError({
+				error: video.error!,
+				src,
+				cleanup,
+				reject,
+				api: 'getVideoMetadata()',
+			});
 		};
 
 		const onLoadedMetadata = () => {
 			const pixels = video.videoHeight * video.videoWidth;
 
 			if (pixels === 0) {
-				reject(new Error('Unable to determine video metadata'));
+				reject(new Error(`Unable to determine video metadata for ${src}`));
+				return;
+			}
+
+			if (!Number.isFinite(video.duration)) {
+				reject(
+					new Error(
+						`Unable to determine video duration for ${src} - got Infinity. Re-encoding this video may fix this issue.`,
+					),
+				);
 				return;
 			}
 
@@ -55,6 +71,11 @@ const fn = (src: string): Promise<VideoMetadata> => {
 	});
 };
 
+/**
+ * @description Takes a src to a video, loads it and returns metadata for the specified source.
+ * @see [Documentation](https://remotion.dev/docs/get-video-metadata)
+ * @deprecated Use `parseMedia()` instead: https://www.remotion.dev/docs/miscellaneous/parse-media-vs-get-video-metadata
+ */
 export const getVideoMetadata = (src: string) => {
 	return limit(fn, src);
 };

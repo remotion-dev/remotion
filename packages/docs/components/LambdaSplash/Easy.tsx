@@ -1,5 +1,6 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import React from "react";
+import { Spacer } from "../layout/Spacer";
 import styles from "./easy.module.css";
 
 export const LambdaEasy: React.FC = () => {
@@ -20,6 +21,9 @@ export const LambdaEasy: React.FC = () => {
           autoPlay
         />
       </div>
+      <Spacer />
+      <Spacer />
+      <Spacer />
       <div className={styles.tile}>
         <h2 className={styles.title}>
           <span className={styles.realgradient}>Easy</span> to setup.

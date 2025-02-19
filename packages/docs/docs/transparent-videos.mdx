@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-transparent-videos.png
 id: transparent-videos
 title: Transparent videos
+crumb: "Techniques"
 ---
 
 import { TransparentVideoDemo } from "../components/TransparentVideoDemo";
@@ -35,11 +37,11 @@ In order to create a transparent video, you need at least version 1.4 of Remotio
 If you want to set these options and persist them, add this to your `remotion.config.ts` file (create it if you don't yet have one);
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.Rendering.setImageFormat("png");
-Config.Output.setPixelFormat("yuva420p");
-Config.Output.setCodec("vp8");
+Config.setVideoImageFormat("png");
+Config.setPixelFormat("yuva420p");
+Config.setCodec("vp8");
 ```
 
 You can also set the settings on the command line:
@@ -53,15 +55,15 @@ You can also set the settings on the command line:
 If you want to export a transparent video for use in another video editing program, Apple ProRes is a more suitable option.
 ProRes is supported by Final Cut Pro, Adobe Premiere and Davinci Resolve.
 
-Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `4444-hq`. The pixel format must be `yuva444p10le`.
+Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `hq`. The pixel format must be `yuva444p10le`.
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.Rendering.setImageFormat("png");
-Config.Output.setPixelFormat("yuva444p10le");
-Config.Output.setCodec("prores");
-Config.Output.setProResProfile("4444");
+Config.setVideoImageFormat("png");
+Config.setPixelFormat("yuva444p10le");
+Config.setCodec("prores");
+Config.setProResProfile("4444");
 ```
 
 You can also set the settings on the command line:
@@ -70,11 +72,17 @@ You can also set the settings on the command line:
 --image-format=png --pixel-format=yuva444p10le --codec=prores --prores-profile=4444
 ```
 
+## Enabling transparency when using `<OffthreadVideo>`
+
+By default, the [`<OffthreadVideo>`](/docs/offthreadvideo) does not add an alpha layer during export.  
+Add the [`transparent`](/docs/offthreadvideo#transparent) prop to flag that the video has an alpha channel.  
+This slightly reduces the performance of the render.
+
 ## Creating a fallback version
 
 Given the poor browser support, consider making two versions of a video, one with alpha channel, and an opaque video as a fallback. You can achieve this in Remotion using standard React props:
 
-```tsx twoslash {1}
+```tsx twoslash
 // @include: example-MyVideo
 ```
 
@@ -101,8 +109,8 @@ You can then have separate render commands in your package.json:
 
 ```json
 "scripts": {
-  "render": "remotion render src/index.tsx my-video video.mp4",
-  "render-transparent": "remotion render src/index.tsx --image-format=png --pixel-format=yuva420p --codec=vp8 my-video video-transparent.webm"
+  "render": "remotion render my-video video.mp4",
+  "render-transparent": "remotion render --image-format=png --pixel-format=yuva420p --codec=vp8 my-video video-transparent.webm"
 }
 ```
 

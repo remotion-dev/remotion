@@ -1,11 +1,12 @@
-import type {TAsset} from 'remotion';
+/* eslint-disable no-console */
+import type {AudioOrVideoAsset} from 'remotion/no-react';
 
 // An unsafe asset is an asset with looser types, which occurs
 // during construction of the asset list. Prefer the MediaAsset
 // type instead.
 export type UnsafeAsset = Omit<
-	TAsset,
-	'frame' | 'id' | 'volume' | 'mediaFrame'
+	AudioOrVideoAsset,
+	'frame' | 'id' | 'volume' | 'mediaFrame' | 'audioStartFrom'
 > & {
 	startInVideo: number;
 	duration: number | null;
@@ -13,6 +14,8 @@ export type UnsafeAsset = Omit<
 	volume: number[];
 	id: string;
 	playbackRate: number;
+	allowAmplificationDuringRender: boolean;
+	toneFrequency: number | null;
 };
 
 // Volume can either be static, for all frames the same,
@@ -25,9 +28,9 @@ export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 };
 
 export const uncompressMediaAsset = (
-	allAssets: TAsset[],
-	assetToUncompress: TAsset
-): TAsset => {
+	allRenderAssets: AudioOrVideoAsset[],
+	assetToUncompress: AudioOrVideoAsset,
+): AudioOrVideoAsset => {
 	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
 	if (!isCompressed) {
 		return assetToUncompress;
@@ -35,14 +38,14 @@ export const uncompressMediaAsset = (
 
 	const [, id, frame] = isCompressed;
 
-	const assetToFill = allAssets.find(
-		(a) => a.id === id && String(a.frame) === frame
+	const assetToFill = allRenderAssets.find(
+		(a) => a.id === id && String(a.frame) === frame,
 	);
 	if (!assetToFill) {
 		console.log('List of assets:');
-		console.log(allAssets);
+		console.log(allRenderAssets);
 		throw new TypeError(
-			`Cannot uncompress asset, asset list seems corrupt. Please file a bug in the Remotion repo with the debug information above.`
+			`Cannot uncompress asset, asset list seems corrupt. Please file a bug in the Remotion repo with the debug information above.`,
 		);
 	}
 

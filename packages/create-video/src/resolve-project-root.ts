@@ -1,9 +1,11 @@
 import chalk from 'chalk';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {Log} from './log';
 import {mkdirp} from './mkdirp';
 import prompts from './prompts';
+import {isTmpFlagSelected} from './select-template';
 import {validateName} from './validate-name';
 
 function assertValidName(folderName: string) {
@@ -11,8 +13,8 @@ function assertValidName(folderName: string) {
 	if (typeof validation === 'string') {
 		throw new Error(
 			`Cannot create an app named ${chalk.red(
-				`"${folderName}"`
-			)}. ${validation}`
+				`"${folderName}"`,
+			)}. ${validation}`,
 		);
 	}
 }
@@ -33,8 +35,21 @@ function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
 	return {exists: false};
 }
 
-export const resolveProjectRoot = async (): Promise<[string, string]> => {
+export const resolveProjectRoot = async (): Promise<{
+	projectRoot: string;
+	folderName: string;
+}> => {
+	if (isTmpFlagSelected()) {
+		Log.info('Creating the video in a temporary directory.');
+		const randomName = `remotion-video-${Math.random().toString(36).slice(2)}`;
+		const randomRoot = path.join(tmpdir(), randomName);
+		mkdirp(randomRoot);
+
+		return {projectRoot: randomRoot, folderName: randomName};
+	}
+
 	let projectName = '';
+
 	try {
 		const {answer} = await prompts({
 			type: 'text',
@@ -72,5 +87,5 @@ export const resolveProjectRoot = async (): Promise<[string, string]> => {
 		return resolveProjectRoot();
 	}
 
-	return [projectRoot, folderName];
+	return {projectRoot, folderName};
 };

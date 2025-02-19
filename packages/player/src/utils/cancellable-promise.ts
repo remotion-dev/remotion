@@ -4,7 +4,7 @@ export type CancellablePromise = {
 	cancel: () => void;
 };
 export const cancellablePromise = (
-	promise: Promise<unknown>
+	promise: Promise<unknown>,
 ): CancellablePromise => {
 	let isCanceled = false;
 

@@ -1,18 +1,18 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
 	Img,
+	Sequence,
+	Video,
 	interpolate,
+	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
-	Video,
-	staticFile,
-	Sequence,
 } from 'remotion';
 
 type Props = {
-	title: string;
-	bgColor: string;
-	color: string;
+	readonly title: string;
+	readonly bgColor: string;
+	readonly color: string;
 };
 
 export const playerExampleComp = createRef<{
@@ -33,17 +33,13 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 		return '';
 	}, [shouldThrowError]);
 
-	useImperativeHandle(
-		playerExampleComp,
-		() => {
-			return {
-				triggerError: () => {
-					setThrowError(true);
-				},
-			};
-		},
-		[]
-	);
+	useImperativeHandle(playerExampleComp, () => {
+		return {
+			triggerError: () => {
+				setThrowError(true);
+			},
+		};
+	}, []);
 
 	return (
 		<div
@@ -56,19 +52,21 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				top: 0,
 			}}
 		>
-			<h1
-				style={{
-					fontSize: '5em',
-					fontWeight: 'bold',
-					position: 'absolute',
-					top: height / 2 - 100,
-					left,
-					color,
-					whiteSpace: 'nowrap',
-				}}
-			>
-				{title} {dummyText()}
-			</h1>
+			<Sequence>
+				<h1
+					style={{
+						fontSize: '5em',
+						fontWeight: 'bold',
+						position: 'absolute',
+						top: height / 2 - 100,
+						left,
+						color,
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{title} {dummyText()}
+				</h1>
+			</Sequence>
 			<Img
 				src={staticFile('/logo.png')}
 				style={{

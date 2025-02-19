@@ -1,0 +1,18 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../media-parser"
+		},
+		{
+			"path": "../licensing"
+		}
+	]
+}

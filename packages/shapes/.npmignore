@@ -1,0 +1,8 @@
+dist/test/**
+src
+.eslintrc
+tsconfig.tsbuildinfo
+*.tgz
+.turbo
+.prettierrc.js
+tsconfig.json

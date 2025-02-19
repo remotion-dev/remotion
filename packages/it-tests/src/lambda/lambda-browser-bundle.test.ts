@@ -1,47 +1,73 @@
-import path from "path";
-import { tmpdir } from "os";
-import fs from "fs";
-import { BundlerInternals } from "@remotion/bundler";
+import {BundlerInternals} from '@remotion/bundler';
+import {describe, expect, test} from 'bun:test';
+import fs from 'fs';
+import {tmpdir} from 'os';
+import path from 'path';
 
-test("Should not be able to bundle @remotion/lambda directly", async () => {
-  expect(() =>
-    BundlerInternals.esbuild.build({
-      platform: "node",
-      target: "node14",
-      bundle: true,
-      entryPoints: [require.resolve("@remotion/lambda")],
-      logLevel: "silent",
-    })
-  ).rejects.toThrow(/Could not resolve "pnpapi"/);
+test('Should not be able to bundle @remotion/lambda directly', async () => {
+	expect(() =>
+		BundlerInternals.esbuild.build({
+			platform: 'node',
+			target: 'node16',
+			bundle: true,
+			entryPoints: [require.resolve('@remotion/lambda')],
+			logLevel: 'silent',
+		}),
+	).toThrow(/Could not resolve "@swc\/wasm"/);
 });
 
-describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => {
-  const outfile = path.join(tmpdir(), "esbuild-test.js");
+describe('Should be able to bundle @remotion/lambda/client with ESBuild', () => {
+	const outfile = path.join(tmpdir(), 'esbuild-test.js');
 
-  test("Should build without errors", async () => {
-    const { errors } = await BundlerInternals.esbuild.build({
-      platform: "node",
-      target: "node14",
-      bundle: true,
-      logLevel: "silent",
-      outfile,
-      entryPoints: [require.resolve("@remotion/lambda/client")],
-    });
-    expect(errors.length).toBe(0);
-  });
+	test('Should build without errors', async () => {
+		const {errors, warnings} = await BundlerInternals.esbuild.build({
+			platform: 'node',
+			target: 'node16',
+			bundle: true,
+			outfile,
+			entryPoints: [require.resolve('@remotion/lambda/client')],
+		});
+		expect(errors.length).toBe(0);
+		expect(warnings.length).toBe(0);
 
-  test("Bundle should be below 6MB", async () => {
-    const file = await fs.promises.readFile(outfile, "utf-8");
-    expect(file.length).toBeGreaterThan(10000);
-    expect(file.length).toBeLessThanOrEqual(6000000);
-  });
+		// Should not include remotion or react
+		const contents = fs.readFileSync(outfile, 'utf-8');
+		expect(contents.includes('jsx-runtime')).toBe(false);
+	});
 
-  test("Bundle should not include Renderer", async () => {
-    const file = await fs.promises.readFile(outfile, "utf-8");
-    expect(file).not.toContain("@remotion/renderer");
-  });
+	test('Bundle should be below 6MB', async () => {
+		const file = await fs.promises.readFile(outfile, 'utf-8');
+		expect(file.length).toBeGreaterThan(10000);
+		expect(file.length).toBeLessThanOrEqual(6000000);
+	});
 
-  test("Should be able to delete it", () => {
-    fs.unlinkSync(outfile);
-  });
+	test('Bundle should not include Renderer', async () => {
+		const file = await fs.promises.readFile(outfile, 'utf-8');
+		expect(file.includes('"@remotion/renderer"')).toBe(false);
+		expect(file.includes("'@remotion/renderer'")).toBe(false);
+	});
+
+	test('Should be able to delete it', () => {
+		fs.unlinkSync(outfile);
+	});
+});
+
+describe('Should be able to bundle @remotion/renderer/pure without React', () => {
+	const outfile = path.join(tmpdir(), 'esbuild-test.js');
+
+	test('Should build without errors', async () => {
+		const {errors, warnings} = await BundlerInternals.esbuild.build({
+			platform: 'node',
+			target: 'node16',
+			bundle: true,
+			outfile,
+			entryPoints: [require.resolve('@remotion/renderer/pure')],
+		});
+		expect(errors.length).toBe(0);
+		expect(warnings.length).toBe(0);
+
+		// Should not include react
+		const contents = fs.readFileSync(outfile, 'utf-8');
+		expect(contents.includes('jsx-runtime')).toBe(false);
+	});
 });

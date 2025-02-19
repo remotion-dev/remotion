@@ -7,7 +7,7 @@ export const validateScale = (scale: unknown) => {
 		throw new Error(
 			'Scale should be a number or undefined, but is "' +
 				JSON.stringify(scale) +
-				'"'
+				'"',
 		);
 	}
 
@@ -25,7 +25,7 @@ export const validateScale = (scale: unknown) => {
 
 	if (scale > 16) {
 		throw new Error(
-			`"scale" must be smaller or equal than 16, but is ${scale}`
+			`"scale" must be smaller or equal than 16, but is ${scale}`,
 		);
 	}
 };

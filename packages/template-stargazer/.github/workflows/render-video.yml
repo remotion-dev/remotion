@@ -1,0 +1,51 @@
+on:
+  workflow_dispatch:
+    inputs:
+      repoOrg:
+        description: "Repo Org"
+        required: true
+        default: "pomber"
+      repoName:
+        description: "Repo Name"
+        required: true
+        default: "didact"
+      starCount:
+        description: "Star Count"
+        required: true
+        default: "100"
+      duration:
+        description: "Duration (seconds)"
+        required: false
+        default: "15"
+name: Render video
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Fallback fonts (fonts)
+        run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yq --no-install-recommends \
+            fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji fonts-noto-mono
+      - name: Install dependencies (node modules)
+        run: npm i
+      - name: Define input props
+        run: echo $WORKFLOW_INPUT | tee input-props.json | jq -C '.' # Inject to file, inspect to logs
+        env:
+          WORKFLOW_INPUT: ${{ toJson(github.event.inputs) }}
+      - name: Render video
+        run: npx remotion render --props="./input-props.json"
+        env:
+          REMOTION_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload video
+        uses: actions/upload-artifact@v3
+        with:
+          name: out.mp4
+          path: out/Main.mp4

@@ -1,0 +1,149 @@
+---
+image: /generated/articles-docs-cli-still.png
+title: npx remotion still
+sidebar_label: still
+crumb: CLI Reference
+---
+
+_Available from v2.3._
+
+Render a still frame based on the entry point, the composition ID and save it to the output location.
+
+```bash
+npx remotion still <serve-url|entry-point>? [<composition-id>] [<output-location>]
+```
+
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+If `output-location` is not passed, the still will be rendered into the `out` folder.  
+If `composition-id` is also not passed, Remotion will let you select a composition.
+
+## Flags
+
+### `--props`
+
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
+Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
+
+### `--image-format`
+
+`jpeg`, `png`, `webp` or `pdf`. The default is `png`.
+
+### `--config`
+
+Specify a location for the Remotion config file.
+
+### `--env-file`
+
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
+
+### `--jpeg-quality` <AvailableFrom v="4.0.0" />
+
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~ <AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
+
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
+
+### `--overwrite`
+
+[Write to output even if file already exists.](/docs/config#setoverwriteoutput). This flag is enabled by default, use `--overwrite=false` to disable it.
+
+### `--browser-executable`
+
+[Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering.
+
+### `--scale`
+
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. `scale` must be greater than 0 and less than equal to 16. Default: `1`.
+
+### `--frame`
+
+Which frame should be rendered. Example `--frame=10`. Default `0`.  
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
+
+### `--bundle-cache`
+
+[Enable or disable Webpack caching](/docs/config#setcachingenabled). This flag is enabled by default, use `--bundle-cache=false` to disable caching.
+
+### `--log`
+
+[Set the log level](/docs/config#setlevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
+
+### `--port`
+
+[Set a custom HTTP server port to serve the Webpack bundle](/docs/config#setport). If not defined, Remotion will try to find a free port.
+
+### `--public-dir`<AvailableFrom v="3.2.13" />
+
+<Options id="public-path" />
+
+### `--timeout`
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
+
+:::info
+Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
+:::
+
+### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
+
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
+
+### `--disable-web-security`<AvailableFrom v="2.6.5" />
+
+This will most notably disable CORS in Chrome among other security features.
+
+### ~`--disable-headless`~<AvailableFrom v="2.6.5" />
+
+<Options id="disable-headless" />
+
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+### `--gl`
+
+<Options id="gl" cli />
+
+### `--user-agent`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setffmpegexecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setffprobeexecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.

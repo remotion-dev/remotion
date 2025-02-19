@@ -1,0 +1,282 @@
+---
+image: /generated/articles-docs-webcodecs-convert-media.png
+id: convert-media
+title: convertMedia()
+slug: /webcodecs/convert-media
+crumb: '@remotion/webcodecs'
+---
+
+# convertMedia()<AvailableFrom v="4.0.229"/>
+
+_Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
+
+```tsx twoslash title="Converting a video"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+});
+```
+
+## API
+
+### `src`
+
+A `string` or `File` or `Blob`.  
+If it is a `string`, it must be a URL.  
+If it is a `File`, the `reader` field must be set to [`webFileReader`](/docs/media-parser/web-file-reader).
+
+### `reader`
+
+A reader interface.  
+Default value: [`fetchReader`](/docs/media-parser/fetch-reader), which uses `fetch()` to read the video.  
+If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+
+### `container`
+
+_string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
+
+The container format to convert to. Currently, `"mp4"`, `"webm"` and `"wav"` is supported.
+
+### `videoCodec?`
+
+_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
+
+The video codec to convert to. Currently, `"h264"`, `"h265"`, `"vp8"` and `"vp9"` are supported.  
+The default is defined by [`getDefaultVideoCodec()`](/docs/webcodecs/get-default-video-codec).  
+If a [`onVideoTrack`](#onvideotrack) handler is provided, it will override this setting.
+
+### `audioCodec?`
+
+_string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
+
+The audio codec to convert to. Currently, only `"opus"` is supported.  
+The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
+If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
+
+### `controller?`
+
+A [controller](/docs/webcodecs/webcodecs-controller) object that allows you to pause, resume and abort the conversion process.
+
+### `rotate?`
+
+_number_
+
+The number of degrees to rotate the video. See [Rotate a video](/docs/webcodecs/rotate-a-video) for more information.
+
+### `resize?`
+
+_object_ <TsType type="ResizeOperation" source="@remotion/webcodecs"/>
+
+Resize the video. See [Resize a video](/docs/webcodecs/resize-a-video) for more information.
+
+### `apiKey?`
+
+If you are a customer of a [Remotion Company License](https://remotion.pro/license), you can provide an API key from your dashboard to track your conversions.
+
+:::note
+[Telemetry is enabled](/docs/webcodecs/telemetry) even if you don't provide an API key.
+:::
+
+### `logLevel?`
+
+_string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
+
+### `onProgress?`
+
+_Function_ <TsType type="ConvertMediaOnProgress" source="@remotion/media-parser"/>
+
+Allows receiving progress updates. The following fields are available:
+
+```tsx twoslash
+import type {ConvertMediaOnProgress, ConvertMediaProgress} from '@remotion/webcodecs';
+
+export const onProgress: ConvertMediaOnProgress = ({decodedVideoFrames, decodedAudioFrames, encodedVideoFrames, encodedAudioFrames, bytesWritten, millisecondsWritten, expectedOutputDurationInMs, overallProgress}: ConvertMediaProgress) => {
+  console.log(decodedVideoFrames);
+  //                   ^?
+  console.log(decodedAudioFrames);
+  //                   ^?
+  console.log(encodedVideoFrames);
+  //                   ^?
+  console.log(encodedAudioFrames);
+  //                   ^?
+  console.log(bytesWritten);
+  //                   ^?
+  console.log(millisecondsWritten);
+  //                   ^?
+  console.log(expectedOutputDurationInMs);
+  //                   ^?
+  console.log(overallProgress);
+  //                   ^?
+};
+```
+
+### `onVideoFrame?`
+
+_Function_ <TsType type="ConvertMediaOnVideoFrame" source="@remotion/media-parser"/>
+
+Allows you to hook into the video frames. The frames are [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) objects.
+
+```tsx twoslash
+import type {ConvertMediaOnVideoFrame} from '@remotion/webcodecs';
+
+export const onVideoFrame: ConvertMediaOnVideoFrame = ({frame}) => {
+  console.log(frame);
+  //           ^?
+
+  // Do something with the frame, for example:
+  // - Draw to a canvas
+  // - Modify the frame
+
+  // Then return the frame to be used for encoding.
+  return frame;
+};
+```
+
+The callback function may be async.
+
+When the function returns, the returned frame is used for video encoding.  
+You may return the same frame or replace it with a new `VideoFrame` object.
+
+After the function returns, `convertMedia()` will call [`.close()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/close) on the input and output frames.  
+This will destroy the frame and free up memory.
+If you need a reference to the frame that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/clone) on it.
+
+If you return a different frame than the one you received, it must have the same values for `codedWidth`, `codedHeight`, `displayWidth` and `displayHeight`, `timestamp` and `duration` as the input frame.
+
+### `onAudioData?`
+
+_Function_ <TsType type="ConvertMediaOnAudioData" source="@remotion/media-parser"/>
+
+Allows you to hook into the audio data. The items are native [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) objects.
+
+```tsx twoslash
+import type {ConvertMediaOnAudioData} from '@remotion/webcodecs';
+
+export const onAudioData: ConvertMediaOnAudioData = ({audioData}) => {
+  console.log(audioData);
+  //           ^?
+
+  // Do something with the audiodata, for example:
+  // - Change the pitch
+  // - Lower the volume
+
+  // Then return the frame to be used for encoding.
+  return audioData;
+};
+```
+
+The callback function may be async.
+
+When the function returns, the returned audio data is used for audio encoding.  
+You may return the same audio data or replace it with a new [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object.
+
+After the function returns, `convertMedia()` will call [`.close()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/close) on the input and output audio data.  
+This will destroy the audio data and free up memory.
+If you need a reference to the audio data that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/clone) on it.
+
+If you return a different audio data than the one you received, it should have the same [`duration`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/duration), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels), [`sampleRate`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/sampleRate), [`timestamp`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/timestamp), [`format`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format) and [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels) as the input audio data.
+
+### `writer?`
+
+_object_ <TsType type="WriterInterface" source="@remotion/webcodecs" />
+
+A writer interface. The following interfaces are available:
+
+```tsx twoslash title="Buffer writer"
+import {bufferWriter} from '@remotion/webcodecs/buffer';
+//               ^?
+```
+
+Write to a resizable Array Buffer.
+
+```tsx twoslash title="Web File System writer"
+import {canUseWebFsWriter, webFsWriter} from '@remotion/webcodecs/web-fs';
+//                          ^?
+
+await canUseWebFsWriter(); // boolean
+```
+
+Use the Web File System API to write to a file.
+
+By default the writer is `webFsWriter`.
+
+### `onAudioTrack?`
+
+_Function_ <TsType type="ConvertMediaOnAudioTrackHandler" source="@remotion/webcodecs"/>
+
+Take control of what to do for each audio track in the file: Re-encoding, copying, or dropping.  
+See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
+
+### `onVideoTrack?`
+
+_Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webcodecs"/>
+
+Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
+See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
+
+### `selectM3uStream?`
+
+_Function_ <TsType type="SelectM3uStreamFn" source="@remotion/media-parser"/>
+
+A callback that is called when a `.m3u8` file is detected which has multiple streams.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
+
+### `progressIntervalInMs?`
+
+_number_
+
+The interval in milliseconds at which the `onProgress` callback is called.  
+Default `100`. Set to `0` for unthrottled updates.  
+Note that updates are fired very often and updating the DOM often may slow down the conversion process.
+
+### `fields?` and Callbacks
+
+You can obtain information about the video file while you are converting it.  
+This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media), but only the callback-style API is available.
+
+```tsx twoslash title="Converting a video"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  videoCodec: 'vp8',
+  audioCodec: 'opus',
+  fields: {
+    size: true,
+  },
+  onSize: (size) => {
+    console.log(size);
+    //           ^?
+  },
+});
+```
+
+## License
+
+[See notes about `@remotion/webcodecs`](/docs/webcodecs#-license-disclaimer).
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/convert-media.ts)
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [`parseMedia()`](/docs/media-parser/parse-media)

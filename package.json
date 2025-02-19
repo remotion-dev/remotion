@@ -1,28 +1,45 @@
 {
-  "name": "remotion-monorepo",
-  "version": "0.0.0",
-  "private": true,
-  "license": "SEE LICENSE IN LICENSE.md",
-  "scripts": {
-    "test": "turbo run lint test",
-    "lint": "turbo run lint",
-    "build": "turbo run build",
-    "ci": "turbo run build lint test",
-    "watch": "pnpm run --recursive --stream --parallel watch",
-    "release": "lerna publish --force-publish",
-    "clean": "lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo"
-  },
-  "engines": {
-    "node": ">=12",
-    "pnpm": ">=3"
-  },
-  "devDependencies": {},
-  "dependencies": {
-    "lerna": "^4.0.0",
-    "turbo": "^1.2.6"
-  },
-  "workspaces": [
-    "packages/*"
-  ],
-  "packageManager": "pnpm@7.2.1"
+	"name": "remotion-monorepo",
+	"version": "0.0.0",
+	"private": true,
+	"license": "SEE LICENSE IN LICENSE.md",
+	"scripts": {
+		"test": "turbo run lint test --no-update-notifier",
+		"ts-build": "tsc -b --verbose --watch",
+		"stylecheck": "turbo run lint formatting --no-update-notifier",
+		"build": "turbo run make --no-update-notifier",
+		"build-docs": "turbo run build-docs --no-update-notifier",
+		"testssr": "turbo run testssr --no-update-notifier",
+		"testlambda": "turbo run testlambda --concurrency=1 --no-update-notifier",
+		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
+		"watch": "turbo watch make --experimental-write-cache --concurrency=2",
+		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
+		"watchserverless": "turbo watch make --experimental-write-cache --filter='@remotion/lambda' --filter='@remotion/serverless' --filter='@remotion/streaming'",
+		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
+		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
+		"cleanall": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo",
+		"clean": "turbo run clean && rm -rf packages/**/dist && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
+	},
+	"engines": {
+		"node": ">=16",
+		"pnpm": ">=3"
+	},
+	"pnpm": {
+		"overrides": {
+			"caniuse-lite": "1.0.30001690"
+		}
+	},
+	"devDependencies": {
+		"@types/bun": "1.2.0",
+		"@types/deno": "2.0.0",
+		"@types/react": "19.0.0",
+		"@types/react-dom": "19.0.0",
+		"prettier": "3.3.3",
+		"prettier-plugin-organize-imports": "3.2.4"
+	},
+	"dependencies": {
+		"turbo": "2.4.0",
+		"typescript": "5.5.4"
+	},
+	"packageManager": "pnpm@8.10.2"
 }

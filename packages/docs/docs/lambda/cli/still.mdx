@@ -1,0 +1,131 @@
+---
+image: /generated/articles-docs-lambda-cli-still.png
+id: still
+sidebar_label: still
+title: 'npx remotion lambda still'
+slug: /lambda/cli/still
+crumb: 'Lambda CLI Reference'
+---
+
+Using the `npx remotion lambda still` command, you can render a still frame in the cloud.
+
+The command has the following structure:
+
+```
+npx remotion lambda still <serve-url>? [<composition-id>] [<output-location>]
+```
+
+- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites#create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
+- The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
+- The `output-location` parameter is optional. If you don't specify it, the still is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
+
+## Example commands
+
+Rendering a still:
+
+```
+npx remotion lambda still https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html my-comp
+```
+
+Rendering using the serve URL shorthand:
+
+```
+npx remotion lambda still testbed my-comp
+```
+
+:::info
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
+:::
+
+Rendering the 10th frame of a composition:
+
+```
+npx remotion lambda still --frame=10 testbed my-comp
+```
+
+Downloading the result to a `out.png` file:
+
+```
+npx remotion lambda still testbed my-comp out.png
+```
+
+## Flags
+
+### `--frame`
+
+Render a specific frame of a composition. Default `0`
+
+### `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
+### `--props`
+
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
+Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
+
+### `--scale`
+
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
+
+### `--log`
+
+Log level to be used inside the Lambda function. Also, if you set it to `verbose`, a link to CloudWatch will be printed where you can inspect logs.
+
+### `--privacy`
+
+Defines if the output media is accessible for everyone or not. Either `public` or `private`, default `public`.
+
+### `--max-retries`
+
+How many times a single chunk is being retried if it fails to render. Default `1`.
+
+### `--out-name`
+
+The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
+
+### `--jpeg-quality`
+
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when rendering an image format other than JPEG.
+
+### ~~`--quality`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### `--ignore-certificate-errors`
+
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
+
+### `--disable-web-security`
+
+This will most notably disable CORS in Chrome among other security features.
+
+### `--user-agent`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
+### `--delete-after`<AvailableFrom v="4.0.32"/>
+
+<Options id="delete-after" cli />
+
+### `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
+### `apiKey?`<AvailableFrom v="4.0.253"/>
+
+<Options id="api-key" />

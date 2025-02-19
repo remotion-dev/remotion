@@ -3,8 +3,7 @@
  * https://github.com/software-mansion/react-native-reanimated/blob/master/src/reanimated2/Colors.ts
  */
 
-/* eslint no-bitwise: 0 */
-import {interpolate} from './interpolate';
+import {interpolate} from './interpolate.js';
 
 type MatcherType = RegExp | undefined;
 
@@ -45,13 +44,13 @@ function getMatchers(): Matchers {
 	if (cachedMatchers.rgb === undefined) {
 		cachedMatchers.rgb = new RegExp('rgb' + call(NUMBER, NUMBER, NUMBER));
 		cachedMatchers.rgba = new RegExp(
-			'rgba' + call(NUMBER, NUMBER, NUMBER, NUMBER)
+			'rgba' + call(NUMBER, NUMBER, NUMBER, NUMBER),
 		);
 		cachedMatchers.hsl = new RegExp(
-			'hsl' + call(NUMBER, PERCENTAGE, PERCENTAGE)
+			'hsl' + call(NUMBER, PERCENTAGE, PERCENTAGE),
 		);
 		cachedMatchers.hsla = new RegExp(
-			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER)
+			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER),
 		);
 		cachedMatchers.hex3 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
 		cachedMatchers.hex4 =
@@ -146,7 +145,7 @@ function parsePercentage(str: string): number {
 	return int / 100;
 }
 
-const names: {[key: string]: number} = {
+export const colorNames: {[key: string]: number} = {
 	transparent: 0x00000000,
 
 	// http://www.w3.org/TR/css3-color/#svg-color
@@ -313,18 +312,19 @@ function normalizeColor(color: string): number {
 		}
 	}
 
-	if (names[color] !== undefined) {
-		return names[color];
+	if (colorNames[color] !== undefined) {
+		return colorNames[color];
 	}
 
 	if (matchers.rgb) {
 		if ((match = matchers.rgb.exec(color))) {
 			return (
 				// b
+				// a
 				((parse255(match[1]) << 24) | // r
 					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
-					0x000000ff) >>> // a
+					0x000000ff) >>>
 				0
 			);
 		}
@@ -334,10 +334,11 @@ function normalizeColor(color: string): number {
 		if ((match = matchers.rgba.exec(color))) {
 			return (
 				// b
+				// a
 				((parse255(match[1]) << 24) | // r
 					(parse255(match[2]) << 16) | // g
 					(parse255(match[3]) << 8) |
-					parse1(match[4])) >>> // a
+					parse1(match[4])) >>>
 				0
 			);
 		}
@@ -354,7 +355,7 @@ function normalizeColor(color: string): number {
 						match[3] +
 						match[3] + // b
 						'ff', // a
-					16
+					16,
 				) >>> 0
 			);
 		}
@@ -379,7 +380,7 @@ function normalizeColor(color: string): number {
 						match[3] + // b
 						match[4] +
 						match[4], // a
-					16
+					16,
 				) >>> 0
 			);
 		}
@@ -391,7 +392,7 @@ function normalizeColor(color: string): number {
 				(hslToRgb(
 					parse360(match[1]), // h
 					parsePercentage(match[2]), // s
-					parsePercentage(match[3]) // l
+					parsePercentage(match[3]), // l
 				) |
 					0x000000ff) >>> // a
 				0
@@ -405,7 +406,7 @@ function normalizeColor(color: string): number {
 				(hslToRgb(
 					parse360(match[1]), // h
 					parsePercentage(match[2]), // s
-					parsePercentage(match[3]) // l
+					parsePercentage(match[3]), // l
 				) |
 					parse1(match[4])) >>> // a
 				0
@@ -436,22 +437,16 @@ const rgbaColor = (r: number, g: number, b: number, alpha: number): string => {
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-function processColorInitially(color: string): number {
-	let normalizedColor = normalizeColor(color);
+export function processColor(color: string): number {
+	const normalizedColor = normalizeColor(color);
 
-	normalizedColor = ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
-	return normalizedColor;
-}
-
-function processColor(color: string): number {
-	const normalizedColor = processColorInitially(color);
-	return normalizedColor;
+	return ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
 }
 
 const interpolateColorsRGB = (
 	value: number,
 	inputRange: readonly number[],
-	colors: readonly number[]
+	colors: readonly number[],
 ) => {
 	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
@@ -461,7 +456,7 @@ const interpolateColorsRGB = (
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
-			}
+			},
 		);
 		if (f === opacity) {
 			return Number(unrounded.toFixed(3));
@@ -472,10 +467,14 @@ const interpolateColorsRGB = (
 	return rgbaColor(r, g, b, a);
 };
 
+/*
+ * @description Allows you to map a range of values to colors using a concise syntax.
+ * @see [Documentation](https://remotion.dev/docs/interpolate-colors)
+ */
 export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly string[]
+	outputRange: readonly string[],
 ): string => {
 	if (typeof input === 'undefined') {
 		throw new TypeError('input can not be undefined');
@@ -495,7 +494,7 @@ export const interpolateColors = (
 				inputRange.length +
 				' values provided) and outputRange (' +
 				outputRange.length +
-				' values provided) must have the same length'
+				' values provided) must have the same length',
 		);
 	}
 

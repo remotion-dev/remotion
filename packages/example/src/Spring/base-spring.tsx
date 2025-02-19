@@ -4,6 +4,7 @@ import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 export const BaseSpring: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+
 	return (
 		<AbsoluteFill
 			style={{

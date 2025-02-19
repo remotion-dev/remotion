@@ -1,0 +1,243 @@
+---
+image: /generated/articles-docs-tailwind.png
+id: tailwind
+title: TailwindCSS
+crumb: 'text-lg font-bold'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {TailwindSupport} from '../components/TailwindSupport';
+
+## Using the CLI
+
+The easiest way to get started with Tailwind is by scaffolding a new video using the CLI and selecting a template that supports adding Tailwind automatically.
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'bun', value: 'bun', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npx create-video@latest
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video
+```
+
+  </TabItem>
+  <TabItem value="bun">
+
+```bash
+bun create video
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn create video
+```
+
+  </TabItem>
+
+</Tabs>
+
+The following templates support scaffolding with TailwindCSS: <TailwindSupport />
+
+## Installing Tailwind v4 in existing project
+
+_from v4.0.256_
+
+1. Install [`@remotion/tailwind-v4`](/docs/tailwind-v4/overview) package and TailwindCSS dependencies.
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i -D @remotion/tailwind-v4
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add -D @remotion/tailwind-v4
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i -D @remotion/tailwind-v4
+```
+
+  </TabItem>
+</Tabs>
+
+2. Add the Webpack override from `@remotion/tailwind-v4` to your config file:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+import {enableTailwind} from '@remotion/tailwind-v4';
+
+Config.overrideWebpackConfig((currentConfiguration) => {
+  return enableTailwind(currentConfiguration);
+});
+```
+
+3. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
+
+4. Create a file `postcss.config.mjs` with the following content:
+
+```css title="postcss.config.mjs"
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+```
+
+5. Create a file `src/index.css` with the following content:
+
+```css title="src/index.css"
+@import 'tailwindcss';
+```
+
+5. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
+
+```js title="src/Root.tsx"
+import './index.css';
+```
+
+7. Ensure your `package.json` does not have `"sideEffects": false` set. If it has, declare that CSS files have a side effect:
+
+```diff title="package.json"
+{
+// Only if `"sideEffects": false` exists in your package.json.
+-  "sideEffects": false
++  "sideEffects": ["*.css"]
+}
+```
+
+8. Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+
+## Installing Tailwind v3 in existing project
+
+_from v3.3.95, see [instructions for older versions](https://github.com/remotion-dev/remotion/blob/88a5d8d17f50d6ab2b8a408556118d15a3686343/packages/docs/docs/tailwind.md)_
+
+1. Install [`@remotion/tailwind`](/docs/tailwind/tailwind) package and TailwindCSS dependencies.
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i -D @remotion/tailwind
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add -D @remotion/tailwind
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i -D @remotion/tailwind
+```
+
+  </TabItem>
+</Tabs>
+
+2. Add the Webpack override from `@remotion/tailwind` to your config file:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+import {enableTailwind} from '@remotion/tailwind';
+
+Config.overrideWebpackConfig((currentConfiguration) => {
+  return enableTailwind(currentConfiguration);
+});
+```
+
+:::note
+Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
+:::
+
+3. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
+
+4. Create a file `src/style.css` with the following content:
+
+```css title="src/style.css"
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+5. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
+
+```js title="src/Root.tsx"
+import './style.css';
+```
+
+6. Add a `tailwind.config.js` file to the root of your project:
+
+```js title="tailwind.config.js"
+/* eslint-env node */
+module.exports = {
+  content: ['./src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
+7. Ensure your `package.json` does not have `"sideEffects": false` set. If it has, declare that CSS files have a side effect:
+
+```diff title="package.json"
+{
+// Only if `"sideEffects": false` exists in your package.json.
+-  "sideEffects": false
++  "sideEffects": ["*.css"]
+}
+```
+
+8. Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+
+:::note
+Your package manager might show a peer dependency warning. You can safely ignore it or add `strict-peer-dependencies=false` to your `.npmrc` to suppress it.
+:::
+
+## See also
+
+- [TailwindCSS v2 (legacy)](/docs/tailwind-legacy)

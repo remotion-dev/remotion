@@ -1,84 +1,41 @@
-import {RenderInternals} from '@remotion/renderer';
-import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
-import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {LambdaReturnValues} from '../../../shared/return-values';
-import {disableLogs, enableLogs} from '../../disable-logs';
+import {$} from 'bun';
+import {expect, test} from 'bun:test';
+import path from 'path';
+import {streamToUint8Array} from '../../mocks/mock-store';
+import {simulateLambdaRender} from '../simulate-lambda-render';
 
-jest.setTimeout(90000);
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
-
-beforeAll(() => {
-	disableLogs();
-});
-
-afterAll(async () => {
-	enableLogs();
-
-	await RenderInternals.killAllBrowsers();
-});
-
-test('Should be able to render to another bucket', async () => {
-	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
-	const res = await handler(
-		{
-			type: LambdaRoutines.start,
-			serveUrl:
-				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
-			chromiumOptions: {},
+test(
+	'Should be able to render to another bucket, and silent audio should be added',
+	async () => {
+		const {close, file} = await simulateLambdaRender({
 			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,
-			envVariables: {},
 			frameRange: [0, 12],
 			framesPerLambda: 8,
-			imageFormat: 'png',
-			inputProps: {},
-			logLevel: 'warn',
-			maxRetries: 3,
+			logLevel: 'error',
 			outName: {
 				bucketName: 'my-other-bucket',
 				key: 'my-key',
 			},
-			pixelFormat: 'yuv420p',
-			privacy: 'public',
-			proResProfile: undefined,
-			quality: undefined,
-			scale: 1,
-			timeoutInMilliseconds: 12000,
-			concurrencyPerLambda: 1,
-		},
-		extraContext
-	);
-	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+			region: 'eu-central-1',
+		});
 
-	const progress = (await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
-		},
-		extraContext
-	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+		const stream = await streamToUint8Array(file);
 
-	const file = await lambdaReadFile({
-		bucketName: progress.outBucket as string,
-		key: progress.outKey as string,
-		expectedBucketOwner: 'abc',
-		region: 'eu-central-1',
-	});
-	const probe = await RenderInternals.execa('ffprobe', ['-'], {
-		stdin: file,
-	});
-	expect(probe.stderr).toMatch(/Stream #0:0/);
-	expect(probe.stderr).toMatch(/Video: h264/);
-	expect(probe.stderr).toMatch(/Stream #0:1/);
-	expect(probe.stderr).toMatch(/Audio: aac/);
-});
+		const probe = await $`bunx remotion ffprobe - < ${stream}`
+			.cwd(path.join(__dirname, '..', '..', '..', '..', '..', 'example'))
+			.nothrow()
+			.quiet();
+
+		const stderr = new TextDecoder().decode(probe.stderr);
+
+		expect(stderr).toMatch(/Stream #0:0/);
+		expect(stderr).toMatch(/Video: h264/);
+		expect(stderr).toMatch(/Stream #0:1/);
+		expect(stderr).toMatch(/Audio: aac/);
+
+		await close();
+	},
+	{timeout: 30000},
+);

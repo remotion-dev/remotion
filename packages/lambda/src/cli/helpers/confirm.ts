@@ -1,5 +1,4 @@
 import {forceFlagProvided} from '../args';
-import {quit} from './quit';
 import {yesOrNo} from './yes-or-no';
 
 export const confirmCli = async ({
@@ -8,14 +7,12 @@ export const confirmCli = async ({
 }: {
 	delMessage: string;
 	allowForceFlag: boolean;
-}) => {
+}): Promise<boolean> => {
 	if (allowForceFlag && forceFlagProvided) {
-		return;
+		return true;
 	}
 
 	const result = await yesOrNo({question: delMessage, defaultValue: true});
 
-	if (result === false) {
-		quit(1);
-	}
+	return result;
 };

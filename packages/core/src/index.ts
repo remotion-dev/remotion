@@ -1,28 +1,75 @@
-import './asset-types';
-import type {TAsset, TCompMetadata} from './CompositionManager';
-import {checkMultipleRemotionVersions} from './multiple-versions-warning';
+import './_check-rsc.js';
+import './asset-types.js';
+import {Clipper} from './Clipper.js';
+import type {Codec} from './codec.js';
+import type {TRenderAsset} from './CompositionManager.js';
+import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import type {StaticFile} from './get-static-files.js';
+import {useIsPlayer} from './is-player.js';
+import type {LogLevel} from './log.js';
+import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
+import {Null} from './Null.js';
+import {Sequence} from './Sequence.js';
+import type {VideoConfig} from './video-config.js';
+
+export type VideoConfigWithSerializedProps = Omit<
+	VideoConfig,
+	'defaultProps' | 'props'
+> & {
+	serializedDefaultPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
+};
 
 declare global {
 	interface Window {
-		ready: boolean;
-		getStaticCompositions: () => TCompMetadata[];
-		setBundleMode: (bundleMode: BundleState) => void;
+		remotion_renderReady: boolean;
+		remotion_delayRenderTimeouts: {
+			[key: string]: {
+				label: string | null;
+				timeout: number | Timer;
+			};
+		};
+		remotion_cancelledError: string | undefined;
+		remotion_getCompositionNames: () => string[];
+		getStaticCompositions: () => Promise<VideoConfigWithSerializedProps[]>;
+		remotion_calculateComposition: (
+			compId: string,
+		) => Promise<VideoConfigWithSerializedProps>;
+		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
+		remotion_staticFiles: StaticFile[];
+		remotion_publicPath: string;
+		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
+		remotion_ignoreFastRefreshUpdate: number | null;
+		remotion_numberOfAudioTags: number;
+		remotion_logLevel: LogLevel;
 		remotion_projectName: string;
 		remotion_cwd: string;
-		remotion_setFrame: (frame: number) => void;
+		remotion_studioServerCommand: string;
+		remotion_setFrame: (
+			frame: number,
+			composition: string,
+			attempt: number,
+		) => void;
+		remotion_attempt: number;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
+		remotion_audioEnabled: boolean;
+		remotion_videoEnabled: boolean;
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
-		remotion_collectAssets: () => TAsset[];
+		remotion_collectAssets: () => TRenderAsset[];
 		remotion_isPlayer: boolean;
-		remotion_imported: boolean;
+		remotion_isStudio: boolean;
+		remotion_isReadOnlyStudio: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '3';
+		siteVersion: '11';
+		remotion_version: string;
+		remotion_imported: string | boolean;
+		remotion_unsavedProps: boolean | undefined;
 	}
 }
 
@@ -36,35 +83,134 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
+			serializedResolvedPropsWithSchema: string;
+			compositionHeight: number;
+			compositionDurationInFrames: number;
+			compositionWidth: number;
+			compositionFps: number;
+			compositionDefaultCodec: Codec;
 	  };
 
 checkMultipleRemotionVersions();
+export * from './AbsoluteFill.js';
+export * from './animated-image/index.js';
+export {Artifact} from './Artifact.js';
+export * from './audio/index.js';
+export {cancelRender} from './cancel-render.js';
+export {
+	CalculateMetadataFunction,
+	Composition,
+	CompositionProps,
+	CompProps,
+	StillProps,
+} from './Composition.js';
+export {
+	AnyCompMetadata,
+	AnyComposition,
+	AudioOrVideoAsset,
+	SmallTCompMetadata,
+	TCompMetadata,
+	TRenderAsset,
+} from './CompositionManager.js';
+export type {CanvasContent} from './CompositionManagerContext.js';
+export {getInputProps} from './config/input-props.js';
+export {continueRender, delayRender} from './delay-render.js';
+export * from './easing.js';
+export * from './Folder.js';
+export * from './freeze.js';
+export {getRemotionEnvironment} from './get-remotion-environment.js';
+export {getStaticFiles, StaticFile} from './get-static-files.js';
+export * from './IFrame.js';
+export {Img, ImgProps} from './Img.js';
+export * from './internals.js';
+export {interpolateColors} from './interpolate-colors.js';
+export {LogLevel} from './log.js';
+export {Loop} from './loop/index.js';
+export {
+	EasingFunction,
+	ExtrapolateType,
+	interpolate,
+	InterpolateOptions,
+	random,
+	RandomSeed,
+} from './no-react';
+export {prefetch, PrefetchOnProgress} from './prefetch.js';
+export {registerRoot} from './register-root.js';
+export {
+	AbsoluteFillLayout,
+	LayoutAndStyle,
+	Sequence,
+	SequenceProps,
+	SequencePropsWithoutDuration,
+} from './Sequence.js';
+export {Series} from './series/index.js';
+export * from './spring/index.js';
+export {staticFile} from './static-file.js';
+export * from './Still.js';
+export type {PlayableMediaTag} from './timeline-position-state.js';
+export {useBufferState} from './use-buffer-state';
+export {useCurrentFrame} from './use-current-frame.js';
+export {
+	CurrentScaleContextType,
+	PreviewSize,
+	PreviewSizeCtx,
+	Translation,
+	useCurrentScale,
+} from './use-current-scale';
+export * from './use-video-config.js';
+export * from './version.js';
+export * from './video-config.js';
+export * from './video/index.js';
+export {watchStaticFile} from './watch-static-file.js';
 
-export * from './AbsoluteFill';
-export * from './audio';
-export * from './Composition';
-export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
-export * from './config';
-export {getInputProps} from './config/input-props';
-export * from './delay-render';
-export * from './easing';
-export * from './Folder';
-export * from './freeze';
-export * from './IFrame';
-export * from './Img';
-export * from './internals';
-export * from './interpolate';
-export {interpolateColors} from './interpolate-colors';
-export {Loop} from './loop';
-export * from './random';
-export {registerRoot} from './register-root';
-export {Sequence} from './Sequence';
-export {Series} from './series';
-export * from './spring';
-export {staticFile} from './static-file';
-export * from './Still';
-export type {PlayableMediaTag} from './timeline-position-state';
-export {useCurrentFrame} from './use-current-frame';
-export * from './use-video-config';
-export * from './video';
-export * from './video-config';
+export const Experimental = {
+	/**
+	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video.
+	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
+	 */
+	Clipper,
+	/**
+	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
+	 * @see [Documentation](https://www.remotion.dev/docs/null)
+	 */
+	Null,
+	useIsPlayer,
+};
+
+const proxyObj = {};
+
+export const Config = new Proxy(proxyObj, {
+	get(_, prop): unknown {
+		if (
+			prop === 'Bundling' ||
+			prop === 'Rendering' ||
+			prop === 'Log' ||
+			prop === 'Puppeteer' ||
+			prop === 'Output'
+		) {
+			return Config;
+		}
+
+		return () => {
+			/* eslint-disable no-console */
+			console.warn(
+				'⚠️  The CLI configuration has been extracted from Remotion Core.',
+			);
+			console.warn('Update the import from the config file:');
+			console.warn();
+			console.warn('- Delete:');
+			console.warn('import {Config} from "remotion";');
+			console.warn('+ Replace:');
+			console.warn('import {Config} from "@remotion/cli/config";');
+			console.warn();
+			console.warn(
+				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
+			);
+			/* eslint-enable no-console */
+
+			process.exit(1);
+		};
+	},
+});
+
+addSequenceStackTraces(Sequence);

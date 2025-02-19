@@ -6,7 +6,7 @@ import {Black} from './Black';
 import {DotGrid} from './DotGrid';
 
 const ReactSvg: React.FC<{
-	transparent: boolean;
+	readonly transparent: boolean;
 }> = ({transparent}) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -20,7 +20,7 @@ const ReactSvg: React.FC<{
 			easing: Easing.bezier(0.12, 1, 1, 1),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const rotateStart = developDuration + 5;
@@ -33,7 +33,7 @@ const ReactSvg: React.FC<{
 			easing: Easing.bezier(0.12, 1, 1, 1),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const electronStart = 0;
@@ -41,7 +41,7 @@ const ReactSvg: React.FC<{
 	const electronDevelopment = interpolate(
 		frame,
 		[electronStart, electronStart + electronDuration],
-		[0, 10]
+		[0, 10],
 	);
 
 	const electronOpacity = interpolate(
@@ -51,7 +51,7 @@ const ReactSvg: React.FC<{
 		{
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const scaleOutStart = 220;
@@ -77,47 +77,51 @@ const ReactSvg: React.FC<{
 			easing: Easing.bezier(0.8, 0.22, 0.96, 0.65),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		}
+		},
 	);
 
 	const scale = frame < 70 ? scaleIn : scaleOut;
 
 	return (
-		<div style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}>
+		<>
 			<div
-				style={{
-					position: 'absolute',
-					width: videoConfig.width,
-					height: videoConfig.height,
-					transform: `scale(${scale})`,
-				}}
+				style={{flex: 1, backgroundColor: transparent ? undefined : 'white'}}
 			>
-				{transparent ? null : <DotGrid />}
-				<Arc
-					rotateProgress={rotationDevelopment}
-					progress={development}
-					rotation={30}
-					electronProgress={electronDevelopment}
-					electronOpacity={electronOpacity}
-				/>
-				<Arc
-					rotateProgress={rotationDevelopment}
-					rotation={90}
-					progress={frame < rotateStart ? 0 : 1}
-					electronProgress={electronDevelopment * 1.2 + 0.33}
-					electronOpacity={electronOpacity}
-				/>
-				<Arc
-					rotateProgress={rotationDevelopment}
-					rotation={-30}
-					progress={frame < rotateStart ? 0 : 1}
-					electronProgress={electronDevelopment + 0.66}
-					electronOpacity={electronOpacity}
-				/>
-				<Atom scale={rotationDevelopment} />
-				{transparent ? null : <Black scale={scaleOutBlackDot} />}
+				<div
+					style={{
+						position: 'absolute',
+						width: videoConfig.width,
+						height: videoConfig.height,
+						transform: `scale(${scale})`,
+					}}
+				>
+					{transparent ? null : <DotGrid />}
+					<Arc
+						rotateProgress={rotationDevelopment}
+						progress={development}
+						rotation={30}
+						electronProgress={electronDevelopment}
+						electronOpacity={electronOpacity}
+					/>
+					<Arc
+						rotateProgress={rotationDevelopment}
+						rotation={90}
+						progress={frame < rotateStart ? 0 : 1}
+						electronProgress={electronDevelopment * 1.2 + 0.33}
+						electronOpacity={electronOpacity}
+					/>
+					<Arc
+						rotateProgress={rotationDevelopment}
+						rotation={-30}
+						progress={frame < rotateStart ? 0 : 1}
+						electronProgress={electronDevelopment + 0.66}
+						electronOpacity={electronOpacity}
+					/>
+					<Atom scale={rotationDevelopment} />
+					{transparent ? null : <Black scale={scaleOutBlackDot} />}
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

@@ -7,123 +7,160 @@ name: Install and Test
 
 env:
   FORCE_COLOR: 1
+  TURBO_TELEMETRY_DISABLED: 1
+  TURBO_NO_UPDATE_NOTIFIER: 1
 jobs:
   lambda-tests:
     runs-on: ubuntu-latest
     name: Lambda integration
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
         with:
-          node-version: ${{ matrix.node_version }}
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+          version: "8.10.2"
+      - uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ matrix.versionffmpeg_version }}
-
-      - name: Cache .pnpm-store
-        uses: actions/cache@v1
+          node-version: 20
+          cache: "pnpm"
+      - uses: oven-sh/setup-bun@v1
         with:
-          path: ~/.pnpm-store
-          key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-
-      - uses: pnpm/action-setup@v2.2.2
+          bun-version: 1.2.2
       - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        run: |
-          pnpm build
+        run: pnpm i --frozen-lockfile
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - name: Test Lambda IT
         run: |
-          cd packages/it-tests && pnpm run testlambda
-      - name: Test Lambda E2E
+          pnpm run testlambda
+      - name: IT tests
+        timeout-minutes: 10
         run: |
-          cd packages/lambda && pnpm run testintegration
+          cd packages/it-tests && bun test src/lambda src/cloudrun --run
+      - name: Lambda tests
+        timeout-minutes: 10
+        run: |
+          cd packages/lambda && bun test src/test/integration --run
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
         with:
-          node-version: ${{ matrix.node_version }}
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+          version: "8.10.2"
+      - name: Cache turbo build setup
+        uses: actions/cache/restore@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ matrix.versionffmpeg_version }}
-
-      - name: Cache .pnpm-store
-        uses: actions/cache@v1
+          path: .turbo
+          key: |
+            ${{ runner.os }}-turbo-
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
-
-      - uses: pnpm/action-setup@v2.2.2
+          node-version: 16
+          cache: "pnpm"
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.2
       - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: build
-        run: |
-          pnpm build
+        run: pnpm i --frozen-lockfile
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - uses: ruby/setup-ruby@master
+        with:
+          ruby-version: "3.1"
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+      - run: pip install pylint boto3 pytest
+      - name: Turbo Cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            node_modules/.cache/turbo
+          key: ts-${{ runner.os }}-node16-v3
       - name: Test SSR
+        timeout-minutes: 8
         run: |
-          cd packages/it-tests && pnpm run testssr
+          pnpm run testssr
+  lint:
+    runs-on: ubuntu-latest
+    name: Linting + Formatting
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: "8.10.2"
+      - name: Cache turbo build setup
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo
+          key: |
+            ${{ runner.os }}-turbo-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.2
+      - name: Install
+        run: pnpm i --frozen-lockfile
+        env:
+          CI: true
+      - name: Perform stylecheck
+        timeout-minutes: 10
+        run: |
+          pnpm run stylecheck
   build:
-    name: Build Node ${{ matrix.node_version }} - ffmpeg ${{ matrix.ffmpeg_version }} on ${{ matrix.os }}
+    name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
-            node_version: 14
-            ffmpeg_version: 4.4
+            node_version: 16
           - os: windows-latest
-            node_version: 14
-            ffmpeg_version: 4.4
+            node_version: 16
           - os: macos-latest
-            node_version: 14
-            ffmpeg_version: 4.4
+            node_version: 16
+          - os: macos-14
+            node_version: 16
           - os: ubuntu-latest
-            node_version: 18
-            ffmpeg_version: 4.4
-          - os: ubuntu-latest
-            node_version: 14
-            ffmpeg_version: 5.0
-          - os: ubuntu-latest
-            node_version: 14
-            ffmpeg_version: 4.1
+            node_version: 20.5
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        if: matrix.os == 'macos-14'
+        with:
+          go-version: "1.20"
+      - uses: pnpm/action-setup@v3
+        with:
+          version: "8.10.2"
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
-      - uses: Iamshankhadeep/setup-ffmpeg@v1.1
+          cache: "pnpm"
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ matrix.ffmpeg_version }}
-
-      - name: Cache .pnpm-store
-        uses: actions/cache@v2
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - uses: oven-sh/setup-bun@v1
         with:
-          path: ~/.pnpm-store
-          key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
-
-      - uses: pnpm/action-setup@v2.2.2
-      - name: Cache node_modules/.cache
-        uses: actions/cache@v2
-        with:
-          path: node_modules/.cache
-          key: v2-deps-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2
+          bun-version: 1.2.2
       - name: Install
-        run: pnpm install --frozen-lockfile
-      - name: Cache dist/ folders
-        uses: actions/cache@v2
-        if: runner.os != 'windows'
-        with:
-          path: packages/**/dist
-          key: dist-${{ runner.os }}-${{ matrix.ffmpeg_version }}-node${{ matrix.node_version }}-v2-bust
-
+        run: pnpm i --frozen-lockfile
       - name: Build & Test
         run: |
           pnpm run ci

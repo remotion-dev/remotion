@@ -1,0 +1,5 @@
+go 1.21
+
+use packages/lambda-go
+
+use packages/lambda-go-example

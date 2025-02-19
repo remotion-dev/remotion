@@ -1,20 +1,17 @@
-import React, {useState} from 'react';
-import {continueRender, delayRender, Img, staticFile} from 'remotion';
+import React from 'react';
+import {Img, staticFile} from 'remotion';
 
-export const StaticDemo: React.FC = () => {
-	const [handle1] = useState(() => delayRender('handle1'));
-	const [handle2] = useState(() => delayRender('handle2'));
+export const StaticDemo: React.FC<{
+	readonly flag: boolean;
+}> = ({flag}) => {
+	if (!flag) {
+		throw new Error('`flag` must be true (this only works during rendering)');
+	}
 
 	return (
 		<>
-			<Img
-				src={staticFile('logo.png')}
-				onLoad={() => continueRender(handle1)}
-			/>
-			<Img
-				src={staticFile('/nested/mp4.png')}
-				onLoad={() => continueRender(handle2)}
-			/>
+			<Img src={staticFile('nested/logö.png')} />
+			<Img src={staticFile('/nested/mp4.png')} />
 		</>
 	);
 };

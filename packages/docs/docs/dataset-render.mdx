@@ -1,0 +1,347 @@
+---
+image: /generated/articles-docs-dataset-render.png
+id: dataset-render
+sidebar_label: Render a dataset
+title: Render videos programmatically from a dataset
+crumb: 'Tutorials'
+---
+
+import {Player} from '@remotion/player';
+import {DatasetDemo} from '../components/Dataset/DatasetDemo';
+
+You can use Remotion to do a batch render to create many videos based on a dataset. In the following example, we are going to turn a JSON dataset into a series of videos.
+
+We'll start by creating a blank Remotion project:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'bun', value: 'bun', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm init video --blank
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --blank
+```
+
+  </TabItem>
+  <TabItem value="bun">
+
+```bash
+bun create video --blank
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn create video --blank
+```
+
+  </TabItem>
+
+</Tabs>
+
+## Sample dataset
+
+JSON is the most convenient format to import in Remotion. If your dataset is in a different format, you can convert it using one of many available libraries on NPM.
+
+```ts title="my-data.ts"
+export const data = [
+  {
+    name: 'React',
+    repo: 'facebook/react',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
+  },
+  {
+    name: 'Remotion',
+    repo: 'remotion-dev/remotion',
+    logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
+  },
+];
+```
+
+## Sample component
+
+This component will animate a title, subtitle and image using Remotion. Replace the contents of the `src/Composition.tsx` file with the following:
+
+```tsx title="Composition.tsx"
+import React from 'react';
+import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+
+type Props = {
+  name: string;
+  logo: string;
+  repo: string;
+};
+
+export const MyComposition: React.FC<Props> = ({name, repo, logo}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  const scale = spring({
+    fps,
+    frame: frame - 10,
+    config: {
+      damping: 100,
+    },
+  });
+
+  const opacity = interpolate(frame, [30, 40], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const moveY = interpolate(frame, [20, 30], [10, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill
+      style={{
+        scale: String(scale),
+        backgroundColor: 'white',
+        fontWeight: 'bold',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 20,
+        }}
+      >
+        <Img
+          src={logo}
+          style={{
+            height: 80,
+          }}
+        />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 40,
+              transform: `translateY(${moveY}px)`,
+              lineHeight: 1,
+            }}
+          >
+            {name}
+          </div>
+          <div
+            style={{
+              fontSize: 20,
+              opacity,
+              lineHeight: 1.25,
+            }}
+          >
+            {repo}
+          </div>
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+```
+
+<DatasetDemo />
+
+## Writing the script
+
+In order to render our videos, we'll first need to bundle our project using Webpack and prepare it for rendering.
+This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package. Make sure to include the webpack override in the bundle if you have one.
+
+```ts twoslash
+// @filename: webpack-override.ts
+import type {WebpackOverrideFn} from '@remotion/bundler';
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+// @filename: script.ts
+// ---cut---
+import {bundle} from '@remotion/bundler';
+import {webpackOverride} from './webpack-override';
+
+const bundleLocation = await bundle({
+  entryPoint: './src/index.ts',
+  // If you have a webpack override, don't forget to add it
+  webpackOverride: webpackOverride,
+});
+```
+
+## Rendering videos
+
+Import the dataset and loop over each entry.
+
+Fetch the composition metadata for each render using [`selectComposition()`](/docs/renderer/select-composition). You have the opportunity to parametrize the duration, width and height of the composition based on the data entry with the [`calculateMetadata()`](/docs/dynamic-metadata) function.
+
+Trigger a render using [`renderMedia()`](/docs/renderer/render-media) and pass the data entry as [`inputProps`](/docs/renderer/render-media#inputprops). This will pass the object as React props to the component above.
+
+```ts twoslash
+// @filename: dataset.ts
+export const data = [
+  {
+    name: 'React',
+    repo: 'facebook/react',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
+  },
+  {
+    name: 'Remotion',
+    repo: 'remotion-dev/remotion',
+    logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
+  },
+];
+
+// @filename: render.ts
+const compositionId = 'MyComp';
+const bundleLocation = 'xxx';
+// ---cut---
+import {renderMedia, selectComposition} from '@remotion/renderer';
+import {data} from './dataset';
+
+for (const entry of data) {
+  const composition = await selectComposition({
+    serveUrl: bundleLocation,
+    id: compositionId,
+    inputProps: entry,
+  });
+
+  await renderMedia({
+    composition,
+    serveUrl: bundleLocation,
+    codec: 'h264',
+    outputLocation: `out/${entry.name}.mp4`,
+    inputProps: entry,
+  });
+}
+```
+
+:::note
+It is not recommended to render more than one video at once.
+:::
+
+## Full script
+
+```ts twoslash title="render.mjs"
+// @filename: dataset.ts
+export const data = [
+  {
+    name: 'React',
+    repo: 'facebook/react',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
+  },
+  {
+    name: 'Remotion',
+    repo: 'remotion-dev/remotion',
+    logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
+  },
+];
+
+// @filename: webpack-override.ts
+import type {WebpackOverrideFn} from '@remotion/bundler';
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+
+// @filename: render.ts
+// ---cut---
+import {selectComposition, renderMedia} from '@remotion/renderer';
+import {webpackOverride} from './webpack-override';
+import {bundle} from '@remotion/bundler';
+import {data} from './dataset';
+
+const compositionId = 'MyComp';
+
+const bundleLocation = await bundle({
+  entryPoint: './src/index.ts',
+  // If you have a webpack override in remotion.config.ts, pass it here as well.
+  webpackOverride: webpackOverride,
+});
+
+for (const entry of data) {
+  const composition = await selectComposition({
+    serveUrl: bundleLocation,
+    id: compositionId,
+    inputProps: entry,
+  });
+
+  await renderMedia({
+    composition,
+    serveUrl: bundleLocation,
+    codec: 'h264',
+    outputLocation: `out/${entry.name}.mp4`,
+    inputProps: entry,
+  });
+}
+```
+
+## Running the script
+
+<Tabs
+defaultValue="Node"
+values={[
+{ label: 'Node', value: 'Node', },
+{ label: 'Bun', value: 'Bun', },
+]
+}>
+<TabItem value="Node">
+
+```bash
+node render.mjs
+```
+
+To use TypeScript, rename the file to `render.ts`, install `ts-node` from npm and run `ts-node render.ts`. If you get errors, wrap the asynchronous code in an async function and call it.
+
+  </TabItem>
+  <TabItem value="Bun">
+
+```bash
+bun render.mjs
+```
+
+TypeScript should work out of the box if you rename your file to `render.ts`.
+
+  </TabItem>
+</Tabs>
+
+## Rendering videos from a CSV dataset
+
+Use a package like [`csv2json`](https://www.npmjs.com/package/csv2json) to convert your dataset into a JSON.
+
+## See also
+
+- [Example repository using a dataset](https://github.com/alexfernandez803/remotion-dataset)
+
+<Credits
+  contributors={[
+    {
+      username: 'alexfernandez803',
+      contribution: 'Author',
+    },
+    {
+      username: 'ThePerfectSystem',
+      contribution: 'Author',
+    },
+    {
+      username: 'JonnyBurger',
+      contribution: 'Editor',
+    },
+  ]}
+/>

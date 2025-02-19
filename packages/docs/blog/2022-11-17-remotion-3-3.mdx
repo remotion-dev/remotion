@@ -1,0 +1,431 @@
+---
+slug: 3-3
+title: Remotion 3.3
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/remotion-3-3.png
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {NewMuxVideo} from '../src/components/MuxVideo';
+import {TableOfContents} from '../components/TableOfContents/paths';
+import {FfmpegVideo} from '../components/FFmpegVideo'
+
+## No more FFmpeg installation!
+
+Now, when you are rendering a video and don't have FFmpeg installed, Remotion will download a copy for you.
+Previously, installing FFmpeg required 7 steps on Windows and took several minutes when using Homebrew on macOS.
+
+<FfmpegVideo />
+
+When deploying Remotion on a server, you can now also let Remotion install FFmpeg for you using the [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) API or the [`npx remotion install ffmpeg`](/docs/cli/install) command. Learn more about [FFmpeg auto-install](/docs/ffmpeg) here.
+
+## New `@remotion/google-fonts` package
+
+It is now easy to import Google Fonts into Remotion! [`@remotion/google-fonts`](/docs/google-fonts) takes care of correct loading, and is fully type-safe!
+
+<video src="/img/google-fonts.mp4" autoPlay loop muted playsInline/>
+
+## New `@remotion/motion-blur` package
+
+This package contains two components: [`<Trail>`](/docs/motion-blur/trail) and [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur), assisting you with achieving awesome motion blur effects!
+
+A quick demo of what is now called [`<Trail>`](/docs/motion-blur/trail):
+
+<NewMuxVideo muxId="XPgKwILbTR4jZPxuR2ewfKjRF9cnThudkXPIkSSvQBM" style={{
+  width: '100%'
+}} controls />
+
+## New `@remotion/noise` package
+
+This package offers easy, type-safe, pure functions for getting creative with noise. Check out [our playground](/docs/noise-visualization) to see what you can do with it!
+
+A video demo of how you can create interesting effects with noise:
+
+<NewMuxVideo muxId="5o013raWoyw1Jv01MJo02INMEQ5scAt01PveIQ800yYkEhQk" style={{
+  width: '100%'
+}} controls />
+
+## New `@remotion/paths` package
+
+This package offers utilities for animating and manipulating SVG paths! With 9 pure, type-safe functions, we cover many common needs while working with SVG paths:
+
+<TableOfContents />
+
+## Quick Switcher
+
+By pressing <kbd>Cmd+K</kbd>, you can trigger a new Quick Switcher. It has three functions:
+
+- Fuzzy-search for a composition to jump to that composition.
+- Type `> ` followed by an item in the menu bar to trigger that action.
+- Type `? ` followed by a search term to query the docs.
+
+<NewMuxVideo muxId="t00Mj7y1CLLGjaMvQyoBqcjdy4PIzVrFaT4317fKbzx00" style={{
+  width: '100%'
+}} controls />
+
+## Remotion Core
+
+### `<Sequence>` makes `from` optional, accepts style and ref
+
+[`<Sequence from={0}>`](/docs/sequence) can now be shortened to [`<Sequence>`](/docs/sequence). Our ESLint plugin was updated to suggest this refactor automatically.
+
+<video src="/img/eslint-from-0.mp4" autoPlay loop muted playsInline/>
+
+You can now also `style` a sequence if you did not pass `layout="none"`.
+
+A `ref` can be attached to `<Sequence>` and [`<AbsoluteFill>`](/docs/absolute-fill).
+
+### Video and Audio support `loop` prop
+
+The [`<Video>`](/docs/video) and [`<Audio>`](/docs/audio) components now support the [`loop`](/docs/video#loop) property.
+
+## Preview
+
+### New CLI output
+
+When starting the Remotion Preview, it now shows on which URL the preview is running. The Webpack output is now also cleaner.
+
+<img src="/img/cli-output.png" />
+
+### Pinch to Zoom
+
+If your device supports multitouch, you can now pinch to zoom the composition. Alternatively, you can hold <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> and use your scrollwheel to zoom.
+
+Using two fingers, you can move the canvas around and pressing <kbd>0</kbd> will reset the canvas. For the latter, there is also a button in the top-right corner that you can click.
+
+<NewMuxVideo muxId="5I01hwK6hs7w0200Ho1KNho7rfU700UVKYDnd7FItANR32U" style={{
+  width: '100%'
+}} controls />
+
+### Search the docs from the Remotion Preview
+
+Pressing <kbd>?</kbd> to reveal the keyboard shortcuts now has a secondary function: You can type in any term to search the Remotion documentation!
+
+### Shorter commands
+
+Previously, a Remotion CLI command looked like this:
+
+```bash
+npx remotion render src/index.tsx my-comp output.mp4
+```
+
+We now allow you to skip the output name, in this case the render would land in `out/my-comp.mp4` by default:
+
+```bash
+npx remotion render src/index.tsx my-comp
+```
+
+You can also omit the composition name and Remotion will ask which composition to render:
+
+```bash
+npx remotion render src/index.tsx
+```
+
+:::note
+Experimental: We might change the behavior to rendering all compositions in the future.
+:::
+
+Finally, you can also omit the entry point and Remotion will take an educated guess!
+
+```bash
+npx remotion render
+```
+
+If you deviate from the defaults of our templates, you can set an [entry point](/docs/config#setentrypoint) in your config file and leave it out from Remotion commands.
+
+### Auto-reload environment variables
+
+If you change values in your `.env` file, the Remotion Preview will reload and pick them up without having to restart.
+
+### Signal that Remotion Preview disconnected
+
+When quitting the Remotion Preview using `Ctrl+C`, for example to render a video, A new popup will signalize that Fast Refresh will not work anymore.
+
+<img src="/img/disconnected.png" style={{borderRadius: 5}}/>
+
+## Rendering
+
+### `--muted` render
+
+This new flag can be passed to a render to ignore the audio. If you know that your video has no audio, this can make your render faster.
+
+### `--enforce-audio-track`
+
+When no audio was detected in your video, the audio will now be dropped (except on Lambda). With this new flag, you can enforce that a silent audio track is added.
+
+### `--audio-bitrate` and `--video-bitrate`
+
+These flags allow you to set a target bitrate for audio or video. Those flags are not recommended though, use `--crf` instead.
+
+### `--height` and `--width` flags
+
+Using these flags, you can ignore the width and height you have defined for your output, and override it. The difference to `--scale` is that the viewport and therefore the layout may actually change.
+
+### Obtain slowest frames
+
+If you add `--log=verbose`, the slowest frames are shown in order, so you can optimize them. Slowest frames are also available for [`renderMedia()`](/docs/renderer/render-media) using the [`onSlowestFrames`](/docs/renderer/render-media#onslowestframes) callback.
+
+### Negative numbers when rendering a still
+
+When rendering a still, you may now pass a negative frame number to refer to frames from the back of the video. `-1` is the last frame of a video, `-2` the second last, and so on.
+
+### Override FFmpeg command
+
+The FFmpeg command that Remotion executes under the hood can [now be overriden reducer-style](/docs/config#overrideffmpegcommand).
+
+## Server-side rendering
+
+### Resuming renders if they crash
+
+If a render crashes due to being resource-intensive (see: [Target closed](/docs/target-closed)), Remotion will now retry each failed frame once, to prevent long renders from failing on low-resource machines.
+
+### Getting the overall progress from `renderMedia()`
+
+Previously, the progress for rendering and encoding was reported individually. There is a new field, simply named `progress`, in the [`onProgress`](/docs/renderer/render-media#onprogress) callback that you can use to display progress without calculating it yourself.
+
+### Easier function signature for bundle()
+
+Previously, [`bundle()`](/docs/bundle) accepted three arguments: `entryPoint`, `onProgress` and `options`.
+
+```ts twoslash title="Old bundle() signature"
+import { bundle } from "@remotion/bundler";
+
+bundle("./src/index.ts", (progress) => console.log(progress), {
+  publicDir: process.cwd() + "/public",
+});
+```
+
+Since getting the progress was less important than some of the options, `bundle()` now accepts an object with options, progress callback and entryPoint altogether:
+
+```ts twoslash title="New bundle() signature"
+import { bundle } from "@remotion/bundler";
+
+bundle({
+  entryPoint: "./src/index.ts",
+  onProgress: (progress) => console.log(progress),
+  publicDir: process.cwd() + "/public",
+});
+```
+
+The previous signature is still supported.
+
+## Player
+
+### `<Thumbnail>` component
+
+The new [`<Thumbnail>`](/docs/player/thumbnail) component is like the [`<Player>`](/docs/player/player), but for rendering a preview of a still. You can use it to display a specific frame of a video without having to render it.
+
+```tsx twoslash
+import React from "react";
+const MyComp: React.FC = () => null;
+
+// ---cut---
+import { Thumbnail } from "@remotion/player";
+
+const MyApp: React.FC = () => {
+  return (
+    <Thumbnail
+      component={MyComp}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      frameToDisplay={30}
+      durationInFrames={120}
+      fps={30}
+      style={{
+        width: 200,
+      }}
+    />
+  );
+};
+```
+
+### Player `frameupdate` event
+
+In addition to `timeupdate`, you can subscribe to [`frameupdate`](/docs/player/player#frameupdate), which fires whenever the current frame changes. You can use it for example to render a custom frame-accurate time display.
+
+### Player volume slider is responsive
+
+If the Player is displayed in a narrow container, the volume control now goes upwards instead of to the right, in order to save some space.
+
+<video src="https://remotion-assets.s3.eu-central-1.amazonaws.com/responsivevolume.mov" autoPlay loop muted playsInline/>
+
+### Get the scale of the Player
+
+Using the imperative [`getScale()`](/docs/player/player#getscale) method, you can now see how big the displayed size is in comparison to the canvas width of the component.
+
+### Controls are initially shown
+
+On YouTube, the video always starts with controls shown and then they fade out after a few seconds. We have made this the default behavior in Remotion as well, because users would often not realize that the Player is interactive otherwise. You can control the behavior using [`initiallyShowControls`](/docs/player/player#initiallyshowcontrols).
+
+<video src="/img/controlsinitiallyshown.mov" style={{maxWidth: 400, width: "100%"}} autoPlay loop muted playsInline/>
+
+### Play a section of a video
+
+Using the [`inFrame`](/docs/player/player#inframe) and [`outFrame`](/docs/player/player#outframe) props, you can force the Remotion Player to only play a certain section of a video. The rest of the seek bar will be greyed out.
+
+<img src="/img/inout.png" />
+
+### Customize Play button and Fullscreen button
+
+Using [`renderPlayPauseButton`](/docs/player/player#renderplaypausebutton) and [`renderFullscreenButton`](/docs/player/player#renderfullscreenbutton), you can customize the appearance of the Player more granularly.
+
+### Start player from an offset
+
+You can define the [`initialFrame`](/docs/player/player#initialframe) on which your component gets mounted on. This will be the default position of the video, however, it will not clamp the playback range like the `inFrame` prop.
+
+## New `prefetch()` API
+
+In addition to the [`Preload APIs`](/docs/preload), [`prefetch()`](/docs/prefetch) presents another way of preloading an asset so it is ready to display when it is supposed to appear in the Remotion Player.
+
+```tsx twoslash title="Prefetching API"
+import { prefetch } from "remotion";
+
+const { free, waitUntilDone } = prefetch("https://example.com/video.mp4");
+
+waitUntilDone().then(() => {
+  console.log("Video has finished loading");
+  free(); // Free up memory
+});
+```
+
+Video and audio tags will automatically use the prefetched asset if it is available. See [`@remotion/preload` vs. `prefetch()`](/docs/player/player#renderfullscreenbutton) for a comparison.
+
+## Remix template
+
+The Remix template is our first SaaS template! It includes the Remotion Preview, the Player and Remotion Lambda out of the box to jumpstart you with everything you need to create your app that offers customized video generation.
+
+<img src="/img/remix-template.png"></img>
+<br />
+<br />
+Get started by running:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npx create-video --remix
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn create video --remix
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --remix
+```
+
+  </TabItem>
+</Tabs>
+
+## Lambda improvements
+
+### Webhook support
+
+You can now [send and receive a webhook](/docs/lambda/webhooks) when a Lambda render is done or has failed. Examples for Next.js and Express apps have been added and our documentation page features a way to send a test webhook.
+
+### Payload limit lifted
+
+Previously, the input props passed to a Lambda render could not be bigger than 256KB when serialized. Now, this limit is lifted, since if the payload is big, it will be stored to S3 instead being passed directly to the Lambda function.
+
+### Lambda artifact can be saved to another cloud
+
+The output videos generated by Lambda can [now be saved to other S3-compatible protocols](/docs/lambda/custom-destination#saving-to-another-cloud) such as DigitalOcean Spaces or Cloudflare R2.
+
+### Deleting a render from Lambda
+
+The new [`deleteRender()`](/docs/lambda/deleterender) API will delete the output video from the S3 bucket, which you previously had to do through the console or with the AWS SDK.
+
+### Make `renderMediaOnLambda()` params optional
+
+The following options are now optional:
+
+- [`imageFormat`](/docs/lambda/rendermediaonlambda#imageformat): (defaulting to `jpeg`)
+- [`privacy`](/docs/lambda/rendermediaonlambda#privacy) (defaulting to `public`)
+- [`maxRetries`](/docs/lambda/rendermediaonlambda#maxretries) (defaulting to 1)
+
+## Benchmark command
+
+The new [`npx remotion benchmark`](/docs/cli/benchmark) helps you compare different render configurations and find out which one is the fastest. Currently, you can compare different codecs, compositions and concurrency values. Each configuration is run multiple times in order to increase confidence in the results.
+
+<img src="/img/benchmark.png" style={{borderRadius: 5, maxWidth: 600, width: "100%"}}/>
+
+## New guides
+
+We have added new guides that document interesting workflows for Remotion:
+
+- [Import designs from Figma](/docs/figma)
+- [Import designs from Spline](/docs/spline)
+- [Noise visualizations](/docs/noise-visualization#noise-dot-grid-demo)
+- [Customizing Lambda output destinations](/docs/lambda/custom-destination)
+- [Adding and subtracting animations](/docs/animation-math)
+- [Change the speed of a video over time](/docs/miscellaneous/snippets/accelerated-video)
+
+We try to avoid jargon, but we have also created a [Remotion Terminology](/docs/terminology) page to define some commonly used terms. When using these terms, we will from now link to the terminology page for you to read about it.
+
+## Better structure and naming in templates
+
+The file that was previously called `src/Video.tsx` in templates is now called `src/Root.tsx`, because it did not contain a video, but a list of compositions. That component was also renamed from `RemotionVideo` to `RemotionRoot`. The new naming makes more sense, because that component is passed into [`registerRoot()`](/docs/register-root).
+
+## Notable improvements
+
+### Get the duration of a GIF
+
+The new function [`getGifDurationInSeconds()`](/docs/gif/get-gif-duration-in-seconds) allows you to get the duration of a GIF.
+
+### Lottie animation direction
+
+Using the new [`direction`](/docs/lottie/lottie#direction) prop, you can play a Lottie animation backwards.
+
+### Lottie embedded images
+
+Should a Lottie animation contain an embedded image, it will now be properly awaited.
+
+### Temporary directory Cleanup
+
+The temporary directory that Remotion creates is now completely cleaned up after every render.
+
+### Parallel encoding turned off if memory is low
+
+[Parallel encoding](/blog/3-0#parallel-rendering-and-encoding) will not be used when a machine has little free RAM. You can also force-disable it using [`disallowParallelEncoding`](/docs/renderer/render-media#disallowparallelencoding).
+
+## Thank you
+
+Thank you to these contributors that implemented these awesome features:
+
+- [ayatko](https://github.com/ayatko) for implementing the `@remotion/google-fonts` package
+- [Antoine Caron](https://twitter.com/Slashgear_) for implementing the `<Thumbnail>` component, for reloading the page when the environment variables change and implementing negative frame indices
+- [Apoorv Kansal](https://github.com/uragirii) for implementing the documentation search in the Quick Switcher, the benchmark command and the option to customize Play button and fullscreen button in the Player
+- [Akshit Tyagi](https://github.com/exitflynn) for implementing the `--height` and `--width` CLI flags
+- [Ilija Boshkov](https://github.com/iboshkov), [Marcus Stenbeck](https://github.com/marcusstenbeck) and [UmungoBongo](https://github.com/umungobungo) for implementing the Motion Blur package
+- [Ravi Jain](https://github.com/JRavi2) for removing the need to pass the entry point to the CLI
+- [Dhroov Makwana](https://github.com/pabloescoder) for writing a tutorial on how to import assets from Spline
+- [Stefan Uzunov](https://github.com/Uzunov-Stefan) for implementing a composition selector if no composition is passed
+- [Florent Pergoud](https://github.com/florentpergoud) for implementing the Remix template
+- [Derryk Boyd](https://github.com/DerrykBoyd) for implementing the `loop` prop for Video and Audio
+- [Paul Kuhle](https://github.com/paulkuhle) for implementing Lambda Webhooks
+- [Dan Manastireau](https://github.com/danmana) for implementing a warning when using an Intel version of Node.JS under Rosetta
+- [Pompette](https://github.com/Pompette) for making the volume slider responsive
+- [Logan Arnett](https://github.com/LoganArnett) for making the composition ID optional in the render command
+- [Patric Salvisberg](https://github.com/patsalv) for making the FFmpeg auto-install feature
+- [Arthur Denner](https://github.com/arthurdenner) for implementing the `direction` property for the Lottie component
+
+Many of these contributions came during Hacktoberfest where we put bounties on GitHub issues. We also want to thank [CodeChem](https://codechem.com/) for sponsoring a part of those bounties!

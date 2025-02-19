@@ -1,6 +1,6 @@
-import { DEFAULT_MEMORY_SIZE } from "@remotion/lambda/dist/defaults";
-import React from "react";
+import {DEFAULT_MEMORY_SIZE} from '@remotion/lambda-client/constants';
+import React from 'react';
 
 export const DefaultMemorySize: React.FC = () => {
-  return <span>{DEFAULT_MEMORY_SIZE}</span>;
+	return <span>{DEFAULT_MEMORY_SIZE}</span>;
 };

@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-video-vs-offthreadvideo.png
+id: video-vs-offthreadvideo
+title: '<OffthreadVideo> vs. <Video>'
+crumb: 'Comparison'
+---
+
+We offer two components for including other videos in your video: [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo).  
+This page offers a comparison to help you decide which tag to use.
+
+## [`<OffthreadVideo />`](/docs/offthreadvideo)
+
+:::info
+Prefer [`<OffthreadVideo />`](/docs/offthreadvideo) whenever possible.
+:::
+
+A more sophisticated way of embedding a video, which:
+
+- **During preview:** renders a HTML5 `<video>` tag.
+- **While rendering:** Extracts the exact frame outside the browser and displays it in an [`<Img>`](/docs/img) tag.
+
+**Pros**
+
+✅ &nbsp; More videos can be displayed simulatenously as Chrome will not apply throttling.  
+✅ &nbsp; No flickers or duplicate frames in the output video can occur.  
+✅ &nbsp; Supports more codecs such as ProRes (only during render-time).  
+✅ &nbsp; Is usually faster to render.
+
+**Cons**
+
+⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
+⛔ &nbsp; Supports transparent videos only if the [`transparent`](/docs/offthreadvideo#transparent) prop is set which is a bit slower.
+
+## [`<Video />`](/docs/video)
+
+Is based on the native HTML5 `<video>` element and therefore behaves similar to it.
+
+**Pros**
+
+✅ &nbsp; Can render a video without having it to be downloaded fully (if you don't pass the [`muted`](/docs/video/#muted) prop, the video will still be downloaded fully to extract its audio).  
+✅ &nbsp; You can attach a ref to the `<video>` element.
+
+**Cons**
+
+⛔ &nbsp; Fewer codecs are supported.  
+⛔ &nbsp; Chrome may throttle video tags if the page is heavy.  
+⛔ &nbsp; If too many video tags get rendered simultaneously, a timeout may occur.  
+⛔ &nbsp; If the input video framerate does not match with the output framerate, some duplicate frames may occur in the output.

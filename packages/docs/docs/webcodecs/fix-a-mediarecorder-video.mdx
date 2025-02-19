@@ -1,0 +1,116 @@
+---
+image: /generated/articles-docs-webcodecs-fix-a-mediarecorder-video.png
+id: fix-mediarecorder-video
+title: Fixing a MediaRecorder video
+slug: /webcodecs/fix-mediarecorder-video
+crumb: '@remotion/webcodecs'
+---
+
+When recording a video with the [`MediaRecorder`](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder) and [`getUserMedia()`](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) API, a WebM file gets created that may have some playback and compatibility issues.
+
+Namely, it:
+
+- does not show the video duration in the browser
+- can be slow to seek around
+- does not play in all browsers (Safari)
+
+To fix these issues, you should either re-encode or re-mux the video.
+
+- **Re-encoding** will decode and re-encode the frames (if you want to a different codec).  
+  It will be slower, but allows to use a more compatible format like MP4.
+- **Re-muxing** will leave the frames, but disassemble and reassemble the file to allow for seeking points and duration metadata to be inserted.  
+  It is very fast, but does not allow for codec changes.
+
+## Why does this happen?
+
+The reason is that while recording, browsers open a file and append video chunks to the end.  
+However, the important metadata such as duration and seeking points should be at the beginning of the file for them to be useful.
+
+By placing the metadata at the beginning, the video player has the information it needs to seek around the video and display the duration.
+
+## Re-encoding on the server
+
+The traditional way is to use a server and run [FFmpeg](https://ffmpeg.org) on it:
+
+```sh
+ffmpeg -i input.webm -c:v libx264 -c:a aac output.mp4
+```
+
+or for re-muxing:
+
+```sh
+ffmpeg -i input.webm -c copy output.webm
+```
+
+## Re-encoding using `@remotion/webcodecs`
+
+You can also re-encode the video in the browser using the new and experimental [`@remotion/webcodecs`](/docs/webcodecs) package.
+
+```tsx twoslash title="Re-encoding a video"
+import {convertMedia} from '@remotion/webcodecs';
+import {webFileReader} from '@remotion/media-parser/web-file';
+
+// The video get from the MediaRecorder as a Blob
+const blob = new Blob([], {type: 'video/webm'});
+
+await convertMedia({
+  src: blob,
+  container: 'mp4',
+  videoCodec: 'h264',
+  audioCodec: 'aac',
+  reader: webFileReader,
+});
+```
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer about `@remotion/webcodecs`</summary>
+  <LicenseDisclaimer />
+</details>
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+## Re-muxing using `@remotion/webcodecs`
+
+Instead of re-encoding to an MP4, you can also re-mux the video to a new WebM file:
+
+```tsx twoslash title="Re-muxing a video"
+import {convertMedia} from '@remotion/webcodecs';
+import {webFileReader} from '@remotion/media-parser/web-file';
+
+// The video get from the MediaRecorder as a Blob
+const blob = new Blob([], {type: 'video/webm'});
+
+await convertMedia({
+  src: blob,
+  container: 'webm',
+  reader: webFileReader,
+});
+```
+
+[`convertMedia()`](/docs/webcodecs/convert-media) will move the metadata and seek information to the beginning of the video.
+
+<details>
+  <summary>💼 Important License Disclaimer about `@remotion/webcodecs`</summary>
+  <LicenseDisclaimer />
+</details>
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+## Sample application
+
+Use [remotion.dev/convert](https://remotion.dev/convert) to fix a MediaRecorder video online using WebCodecs.  
+See the [source code](https://github.com/remotion-dev/remotion/tree/main/packages/convert) for a reference on how to implement it.
+
+## See also
+
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [Convert a video](/docs/webcodecs/convert-a-video)
+- [`convertMedia()`](/docs/webcodecs/convert-media)
+- [`@remotion/media-parser`](/docs/media-parser)

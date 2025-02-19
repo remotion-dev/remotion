@@ -1,103 +1,108 @@
-import {getFunctions} from '../api/get-functions';
-import type {AwsRegion} from '../pricing/aws-regions';
+import type {RuntimePreference} from '@remotion/lambda-client';
 import {
-	CURRENT_VERSION,
-	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-	RENDER_FN_PREFIX,
-} from '../shared/constants';
-import {FUNCTION_ZIP} from '../shared/function-zip-path';
-import {getAccountId} from '../shared/get-account-id';
+	LambdaClientInternals,
+	speculateFunctionName,
+	type AwsRegion,
+} from '@remotion/lambda-client';
+import type {LogLevel} from '@remotion/renderer';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
-	LambdaArchitecture} from '../shared/validate-architecture';
-import {
-	validateArchitecture,
-} from '../shared/validate-architecture';
-import {validateAwsRegion} from '../shared/validate-aws-region';
+	CloudProvider,
+	FullClientSpecifics,
+	ProviderSpecifics,
+} from '@remotion/serverless';
+import {VERSION} from 'remotion/version';
+import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
+import {validateRuntimePreference} from '../shared/get-layers';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
-import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
-import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
-import {createFunction} from './create-function';
 
-export type DeployFunctionInput = {
+type MandatoryParameters = {
 	createCloudWatchLogGroup: boolean;
 	cloudWatchLogRetentionPeriodInDays?: number;
 	region: AwsRegion;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
-	architecture: LambdaArchitecture;
-	diskSizeInMb?: number;
-	customRoleArn?: string;
 };
+
+type OptionalParameters = {
+	diskSizeInMb: number;
+	customRoleArn: string | undefined;
+	enableLambdaInsights: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
+	vpcSubnetIds: string | undefined;
+	vpcSecurityGroupIds: string | undefined;
+	runtimePreference: RuntimePreference;
+};
+
+export type DeployFunctionInput = MandatoryParameters &
+	Partial<OptionalParameters>;
 
 export type DeployFunctionOutput = {
 	functionName: string;
 	alreadyExisted: boolean;
 };
 
-/**
- * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
- * @link https://remotion.dev/docs/lambda/deployfunction
- * @param options.createCloudWatchLogGroup Whether you'd like to create a CloudWatch Log Group to store the logs for this function.
- * @param options.cloudWatchLogRetentionPeriodInDays (optional) The number of days to retain the CloudWatch logs for this function. Default is 14 days.
- * @param options.region The region you want to deploy your function to.
- * @param options.timeoutInSeconds After how many seconds the lambda function should be killed if it does not end itself.
- * @param options.memorySizeInMb How much memory should be allocated to the Lambda function.
- * @param options.architecture The architecture Lambda should run on. One of x86_64 and x64
- * @param options.diskSizeInMb The amount of storage the function should be allocated. The higher, the longer videos you can render. Default 512.
- * @returns {Promise<DeployFunctionOutput>} An object that contains the `functionName` property
- */
-export const deployFunction = async (
-	options: DeployFunctionInput
+export const internalDeployFunction = async <Provider extends CloudProvider>(
+	params: MandatoryParameters &
+		OptionalParameters & {
+			providerSpecifics: ProviderSpecifics<Provider>;
+			fullClientSpecifics: FullClientSpecifics<Provider>;
+		},
 ): Promise<DeployFunctionOutput> => {
-	const diskSizeInMb = options.diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
+	LambdaClientInternals.validateMemorySize(params.memorySizeInMb);
+	validateTimeout(params.timeoutInSeconds);
+	LambdaClientInternals.validateAwsRegion(params.region);
+	validateCloudWatchRetentionPeriod(params.cloudWatchLogRetentionPeriodInDays);
+	LambdaClientInternals.validateDiskSizeInMb(params.diskSizeInMb);
+	validateCustomRoleArn(params.customRoleArn);
+	validateRuntimePreference(params.runtimePreference);
 
-	validateMemorySize(options.memorySizeInMb);
-	validateTimeout(options.timeoutInSeconds);
-	validateAwsRegion(options.region);
-	validateCloudWatchRetentionPeriod(options.cloudWatchLogRetentionPeriodInDays);
-	validateArchitecture(options.architecture);
-	validateDiskSizeInMb(diskSizeInMb);
-	validateCustomRoleArn(options.customRoleArn);
+	const functionName = speculateFunctionName({
+		diskSizeInMb: params.diskSizeInMb,
+		memorySizeInMb: params.memorySizeInMb,
+		timeoutInSeconds: params.timeoutInSeconds,
+	});
+	const accountId = await params.providerSpecifics.getAccountId({
+		region: params.region,
+	});
 
-	const fnNameRender = [
-		`${RENDER_FN_PREFIX}${CURRENT_VERSION}`,
-		`mem${options.memorySizeInMb}mb`,
-		`disk${diskSizeInMb}mb`,
-		`${options.timeoutInSeconds}sec`,
-	].join('-');
-	const accountId = await getAccountId({region: options.region});
-
-	const fns = await getFunctions({
+	const fns = await params.providerSpecifics.getFunctions({
 		compatibleOnly: true,
-		region: options.region,
+		region: params.region,
 	});
 
 	const alreadyDeployed = fns.find(
 		(f) =>
-			f.version === CURRENT_VERSION &&
-			f.memorySizeInMb === options.memorySizeInMb &&
-			f.timeoutInSeconds === options.timeoutInSeconds &&
-			f.diskSizeInMb === diskSizeInMb
+			f.version === VERSION &&
+			f.memorySizeInMb === params.memorySizeInMb &&
+			f.timeoutInSeconds === params.timeoutInSeconds &&
+			f.diskSizeInMb === params.diskSizeInMb,
 	);
 
-	const created = await createFunction({
-		createCloudWatchLogGroup: options.createCloudWatchLogGroup,
-		region: options.region,
-		zipFile: FUNCTION_ZIP,
-		functionName: fnNameRender,
+	const created = await params.fullClientSpecifics.createFunction({
+		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
+		region: params.region,
+		zipFile: FUNCTION_ZIP_ARM64,
+		functionName,
 		accountId,
-		memorySizeInMb: options.memorySizeInMb,
-		timeoutInSeconds: options.timeoutInSeconds,
+		memorySizeInMb: params.memorySizeInMb,
+		timeoutInSeconds: params.timeoutInSeconds,
 		retentionInDays:
-			options.cloudWatchLogRetentionPeriodInDays ??
-			DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+			params.cloudWatchLogRetentionPeriodInDays ??
+			LambdaClientInternals.DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 		alreadyCreated: Boolean(alreadyDeployed),
-		architecture: options.architecture,
-		ephemerealStorageInMb: diskSizeInMb,
-		customRoleArn: options.customRoleArn as string,
+		ephemerealStorageInMb: params.diskSizeInMb,
+		customRoleArn: params.customRoleArn as string,
+		enableLambdaInsights: params.enableLambdaInsights ?? false,
+		logLevel: params.logLevel,
+		vpcSubnetIds: params.vpcSubnetIds as string,
+		vpcSecurityGroupIds: params.vpcSecurityGroupIds as string,
+		runtimePreference: params.runtimePreference,
 	});
 
 	if (!created.FunctionName) {
@@ -108,4 +113,54 @@ export const deployFunction = async (
 		functionName: created.FunctionName,
 		alreadyExisted: Boolean(alreadyDeployed),
 	};
+};
+
+const errorHandled = wrapWithErrorHandling(internalDeployFunction);
+
+/*
+ * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
+ * @see [Documentation](https://remotion.dev/docs/lambda/deployfunction)
+ */
+export const deployFunction = ({
+	createCloudWatchLogGroup,
+	memorySizeInMb,
+	region,
+	timeoutInSeconds,
+	cloudWatchLogRetentionPeriodInDays,
+	customRoleArn,
+	enableLambdaInsights,
+	indent,
+	logLevel,
+	enableV5Runtime,
+	vpcSubnetIds,
+	vpcSecurityGroupIds,
+	runtimePreference,
+	diskSizeInMb,
+}: DeployFunctionInput & {
+	// @deprecated This option is now on by default
+	enableV5Runtime?: boolean;
+}) => {
+	if (enableV5Runtime) {
+		console.warn(
+			'The `enableV5Runtime` option is now on by default. No need to specify it anymore.',
+		);
+	}
+
+	return errorHandled({
+		indent: indent ?? false,
+		logLevel: logLevel ?? 'info',
+		createCloudWatchLogGroup,
+		customRoleArn: customRoleArn ?? undefined,
+		diskSizeInMb: diskSizeInMb ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+		enableLambdaInsights: enableLambdaInsights ?? false,
+		memorySizeInMb,
+		region,
+		timeoutInSeconds,
+		cloudWatchLogRetentionPeriodInDays,
+		vpcSubnetIds,
+		vpcSecurityGroupIds,
+		runtimePreference: runtimePreference ?? 'default',
+		providerSpecifics: LambdaClientInternals.awsImplementation,
+		fullClientSpecifics: awsFullClientSpecifics,
+	});
 };

@@ -1,50 +1,49 @@
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import type {ProviderSpecifics} from '@remotion/serverless';
 import {getSitesKey} from '../defaults';
-import {lambdaLs} from '../functions/helpers/io';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {getAccountId} from '../shared/get-account-id';
-import {cleanItems} from './clean-items';
 
-export type DeleteSiteInput = {
+type MandatoryParameters = {
 	bucketName: string;
 	siteName: string;
 	region: AwsRegion;
-	onAfterItemDeleted?: (data: {bucketName: string; itemName: string}) => void;
 };
+
+type OptionalParameters = {
+	onAfterItemDeleted:
+		| ((data: {bucketName: string; itemName: string}) => void)
+		| null;
+	forcePathStyle: boolean;
+};
+
+export type DeleteSiteInput = MandatoryParameters & OptionalParameters;
+export type DeleteSiteOptionalInput = MandatoryParameters &
+	Partial<OptionalParameters>;
 
 export type DeleteSiteOutput = {
 	totalSizeInBytes: number;
 };
 
-/**
- *
- * @description Deletes a deployed site from your S3 bucket. The opposite of deploySite().
- * @link https://remotion.dev/docs/lambda/deletesite
- * @param options.bucketName The S3 bucket name where the site resides in.
- * @param options.siteName The ID of the site that you want to delete.
- * @param {AwsRegion} options.region The region in where the S3 bucket resides in.
- * @param options.onAfterItemDeleted Function that gets called after each file that gets deleted, useful for showing progress.
- * @returns {Promise<DeleteSiteOutput>} Object containing info about how much space was freed.
- */
-export const deleteSite = async ({
+export const internalDeleteSite = async ({
 	bucketName,
 	siteName,
 	region,
 	onAfterItemDeleted,
-}: DeleteSiteInput): Promise<DeleteSiteOutput> => {
-	const accountId = await getAccountId({region});
+	providerSpecifics,
+	forcePathStyle,
+}: DeleteSiteInput & {
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}): Promise<DeleteSiteOutput> => {
+	const accountId = await providerSpecifics.getAccountId({region});
 
-	let files = await lambdaLs({
+	let files = await providerSpecifics.listObjects({
 		bucketName,
-		prefix: getSitesKey(siteName),
+		// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+		prefix: `${getSitesKey(siteName)}/`,
 		region,
 		expectedBucketOwner: accountId,
+		forcePathStyle,
 	});
-
-	if (files.length === 0) {
-		return {
-			totalSizeInBytes: 0,
-		};
-	}
 
 	let totalSize = 0;
 
@@ -52,22 +51,41 @@ export const deleteSite = async ({
 		totalSize += files.reduce((a, b) => {
 			return a + (b.Size ?? 0);
 		}, 0);
-		await cleanItems({
+		await LambdaClientInternals.cleanItems({
 			list: files.map((f) => f.Key as string),
 			bucket: bucketName as string,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: () => undefined,
 			region,
+			providerSpecifics,
+			forcePathStyle,
 		});
-		files = await lambdaLs({
+		files = await providerSpecifics.listObjects({
 			bucketName,
-			prefix: getSitesKey(siteName),
+			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+			prefix: `${getSitesKey(siteName)}/`,
 			region,
 			expectedBucketOwner: accountId,
+			forcePathStyle,
 		});
 	}
 
 	return {
 		totalSizeInBytes: totalSize,
 	};
+};
+
+/*
+ * @description Removes a Remotion project from your Cloud Storage bucket.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deletesite)
+ */
+export const deleteSite = (
+	props: DeleteSiteOptionalInput,
+): Promise<DeleteSiteOutput> => {
+	return internalDeleteSite({
+		...props,
+		onAfterItemDeleted: props.onAfterItemDeleted ?? null,
+		forcePathStyle: props.forcePathStyle ?? false,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
+	});
 };

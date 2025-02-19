@@ -1,11 +1,18 @@
 import net from 'net';
-import {pLimit} from './p-limit';
+import {createLock} from './locks';
 
-const getAvailablePort = (portToTry: number) =>
-	new Promise<'available' | 'unavailable'>((resolve) => {
-		let status: 'available' | 'unavailable' = 'unavailable';
+type PortStatus = 'available' | 'unavailable';
 
-		const host = '127.0.0.1';
+const isPortAvailableOnHost = ({
+	portToTry,
+	host,
+}: {
+	portToTry: number;
+	host: string;
+}): Promise<PortStatus> => {
+	return new Promise<PortStatus>((resolve) => {
+		let status: PortStatus = 'unavailable';
+
 		const socket = new net.Socket();
 
 		socket.on('connect', () => {
@@ -28,12 +35,42 @@ const getAvailablePort = (portToTry: number) =>
 
 		socket.connect(portToTry, host);
 	});
+};
 
-const getPort = async (from: number, to: number) => {
+export const testPortAvailableOnMultipleHosts = async ({
+	hosts,
+	port,
+}: {
+	port: number;
+	hosts: string[];
+}): Promise<PortStatus> => {
+	const results = await Promise.all(
+		hosts.map((host) => {
+			return isPortAvailableOnHost({portToTry: port, host});
+		}),
+	);
+
+	return results.every((r) => r === 'available') ? 'available' : 'unavailable';
+};
+
+const getPort = async ({
+	from,
+	to,
+	hostsToTest,
+}: {
+	from: number;
+	to: number;
+	hostsToTest: string[];
+}) => {
 	const ports = makeRange(from, to);
 
 	for (const port of ports) {
-		if ((await getAvailablePort(port)) === 'available') {
+		if (
+			(await testPortAvailableOnMultipleHosts({
+				port,
+				hosts: hostsToTest,
+			})) === 'available'
+		) {
 			return port;
 		}
 	}
@@ -41,37 +78,44 @@ const getPort = async (from: number, to: number) => {
 	throw new Error('No available ports found');
 };
 
-const getDesiredPortUnlimited = async (
-	desiredPort: number | undefined,
-	from: number,
-	to: number
-) => {
+const portLocks = createLock({timeout: 10000});
+
+export const getDesiredPort = async ({
+	desiredPort,
+	from,
+	hostsToTry,
+	to,
+}: {
+	desiredPort: number | undefined;
+	from: number;
+	to: number;
+	hostsToTry: string[];
+}) => {
+	await portLocks.waitForAllToBeDone();
+	const lockPortSelection = portLocks.lock();
+	const unlockPort = () => portLocks.unlock(lockPortSelection);
+
 	if (
 		typeof desiredPort !== 'undefined' &&
-		(await getAvailablePort(desiredPort)) === 'available'
+		(await testPortAvailableOnMultipleHosts({
+			port: desiredPort,
+			hosts: hostsToTry,
+		})) === 'available'
 	) {
-		return desiredPort;
+		return {port: desiredPort, unlockPort};
 	}
 
-	const actualPort = await getPort(from, to);
+	const actualPort = await getPort({from, to, hostsToTest: hostsToTry});
 
 	// If did specify a port but did not get that one, fail hard.
 	if (desiredPort && desiredPort !== actualPort) {
+		unlockPort();
 		throw new Error(
-			`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`
+			`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
 		);
 	}
 
-	return actualPort;
-};
-
-const limit = pLimit(1);
-export const getDesiredPort = (
-	desiredPort: number | undefined,
-	from: number,
-	to: number
-) => {
-	return limit(() => getDesiredPortUnlimited(desiredPort, from, to));
+	return {port: actualPort, unlockPort};
 };
 
 const makeRange = (from: number, to: number): number[] => {

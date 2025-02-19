@@ -1,23 +1,33 @@
-import {validateFps} from '../validation/validate-fps';
+import type {ENABLE_V5_BREAKING_CHANGES} from '../v5-flag.js';
+import {validateFps} from '../validation/validate-fps.js';
 import type {SpringConfig} from './spring-utils';
-import {springCalculation} from './spring-utils';
+import {springCalculation} from './spring-utils.js';
 
+const cache = new Map<string, number>();
+
+type V4Props = {
+	from?: number;
+	to?: number;
+};
+
+type MeasureSpringProps = {
+	fps: number;
+	config?: Partial<SpringConfig>;
+	threshold?: number;
+} & (false extends typeof ENABLE_V5_BREAKING_CHANGES ? V4Props : {});
+
+/*
+ * @description Based on a spring() configuration and the frame rate, return how long it takes for a spring animation to settle.
+ * @see [Documentation](https://remotion.dev/docs/measure-spring)
+ */
 export function measureSpring({
 	fps,
 	config = {},
 	threshold = 0.005,
-	from = 0,
-	to = 1,
-}: {
-	fps: number;
-	config?: Partial<SpringConfig>;
-	threshold?: number;
-	from?: number;
-	to?: number;
-}): number {
+}: MeasureSpringProps): number {
 	if (typeof threshold !== 'number') {
 		throw new TypeError(
-			`threshold must be a number, got ${threshold} of type ${typeof threshold}`
+			`threshold must be a number, got ${threshold} of type ${typeof threshold}`,
 		);
 	}
 
@@ -41,9 +51,20 @@ export function measureSpring({
 		throw new TypeError('Threshold is below 0');
 	}
 
-	validateFps(fps, 'to the measureSpring() function');
+	const cacheKey = [
+		fps,
+		config.damping,
+		config.mass,
+		config.overshootClamping,
+		config.stiffness,
+		threshold,
+	].join('-');
+	if (cache.has(cacheKey)) {
+		return cache.get(cacheKey)!;
+	}
 
-	const range = Math.abs(from - to);
+	validateFps(fps, 'to the measureSpring() function', false);
+
 	let frame = 0;
 	let finishedFrame = 0;
 	const calc = () => {
@@ -51,17 +72,12 @@ export function measureSpring({
 			fps,
 			frame,
 			config,
-			from,
-			to,
 		});
 	};
 
 	let animation = calc();
 	const calcDifference = () => {
-		return (
-			Math.abs(animation.current - animation.toValue) /
-			(range === 0 ? 1 : range)
-		);
+		return Math.abs(animation.current - animation.toValue);
 	};
 
 	let difference = calcDifference();
@@ -84,6 +100,8 @@ export function measureSpring({
 			finishedFrame = frame + 1;
 		}
 	}
+
+	cache.set(cacheKey, finishedFrame);
 
 	return finishedFrame;
 }

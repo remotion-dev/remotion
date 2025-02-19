@@ -1,3 +1,4 @@
+import {fetchWithCorsCatch} from './fetch-with-cors-catch';
 import {isRemoteAsset} from './is-remote-asset';
 import {pLimit} from './p-limit';
 import type {AudioData} from './types';
@@ -6,30 +7,11 @@ const metadataCache: {[key: string]: AudioData} = {};
 
 const limit = pLimit(3);
 
-const fetchWithCorsCatch = async (src: string) => {
-	try {
-		const response = await fetch(src);
-		return response;
-	} catch (err) {
-		const error = err as Error;
-		if (
-			// Chrome
-			error.message.includes('Failed to fetch') ||
-			// Safari
-			error.message.includes('Load failed') ||
-			// Firefox
-			error.message.includes('NetworkError when attempting to fetch resource')
-		) {
-			throw new TypeError(
-				`Failed to read from ${src}: ${error.message}. Does the resource support CORS?`
-			);
-		}
-
-		throw err;
-	}
+type Options = {
+	sampleRate?: number;
 };
 
-const fn = async (src: string): Promise<AudioData> => {
+const fn = async (src: string, options?: Options): Promise<AudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
@@ -38,7 +20,9 @@ const fn = async (src: string): Promise<AudioData> => {
 		throw new Error('getAudioData() is only available in the browser.');
 	}
 
-	const audioContext = new AudioContext();
+	const audioContext = new AudioContext({
+		sampleRate: options?.sampleRate ?? 48000,
+	});
 
 	const response = await fetchWithCorsCatch(src);
 	const arrayBuffer = await response.arrayBuffer();
@@ -53,7 +37,7 @@ const fn = async (src: string): Promise<AudioData> => {
 
 	const metadata: AudioData = {
 		channelWaveforms,
-		sampleRate: audioContext.sampleRate,
+		sampleRate: wave.sampleRate,
 		durationInSeconds: wave.duration,
 		numberOfChannels: wave.numberOfChannels,
 		resultId: String(Math.random()),
@@ -63,6 +47,10 @@ const fn = async (src: string): Promise<AudioData> => {
 	return metadata;
 };
 
-export const getAudioData = (src: string) => {
-	return limit(fn, src);
+/*
+ * @description Takes an audio src, loads it and returns data and metadata for the specified source.
+ * @see [Documentation](https://remotion.dev/docs/get-audio-data)
+ */
+export const getAudioData = (src: string, options?: Options) => {
+	return limit(fn, src, options);
 };

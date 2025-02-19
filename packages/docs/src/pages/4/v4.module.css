@@ -1,0 +1,137 @@
+.container {
+	position: relative;
+	z-index: 1;
+	margin-top: -5vw;
+}
+
+.wrapper {
+	max-width: 1000px;
+	margin: auto;
+	padding-left: 20px;
+	padding-right: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.panel {
+	border: 2px solid var(--ifm-font-color-base);
+	border-bottom-width: 4px;
+	padding: 14px;
+	border-radius: 8px;
+	flex: 1;
+	padding-bottom: 10px;
+	display: flex;
+	flex-direction: column;
+	min-height: 100px;
+	position: relative;
+}
+
+.title {
+	font-size: 1.2rem;
+	margin-bottom: 0;
+	font-weight: 500;
+	margin-top: -5px;
+	font-weight: 600;
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+.eventtitle {
+	font-size: 1.2rem;
+	margin-bottom: 0;
+	font-weight: 500;
+	margin-top: -5px;
+	font-weight: 600;
+	margin-bottom: 10px;
+	margin-left: 70px;
+}
+
+.pagetitle {
+	font-size: 5em;
+	text-align: center;
+	font-weight: 900;
+}
+
+@media screen and (max-width: 900px) {
+	.pagetitle {
+		font-size: 3em;
+	}
+}
+
+.button {
+	background-color: var(--ifm-color-primary);
+	border: none;
+	border-radius: 8px;
+	padding: 3px 12px;
+	font-size: 1.1rem;
+	font-weight: 500;
+	cursor: pointer;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	display: inline-block;
+	text-align: center;
+	border: 2px solid black;
+	border-bottom-width: 4px;
+}
+
+.button:focus {
+	border-bottom-width: 2px;
+}
+
+.calendarbutton {
+	margin-top: -20px;
+	position: relative;
+	color: white;
+}
+
+.button a {
+	color: white;
+	font-family: 'GTPlanar';
+	text-decoration: none;
+}
+
+.date {
+	background-color: var(--ifm-color-primary);
+	border: 2px solid black;
+	border-bottom: 3px solid black;
+	color: white;
+	border-radius: 8px;
+	font-family: 'GTPlanar';
+	padding: 3px 8px;
+	display: inline;
+	font-weight: bold;
+	position: absolute;
+	margin-left: -20px;
+	margin-top: -8px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-gap: 20px;
+	margin-top: 20px;
+	grid-auto-rows: 1fr;
+}
+
+@media screen and (max-width: 900px) {
+	.grid {
+		grid-template-columns: repeat(1, 1fr);
+	}
+}
+
+.submitbutton {
+	background-color: var(--ifm-color-primary);
+	color: white;
+	font-family: GTPlanar;
+	border: none;
+	border-radius: 8px;
+	padding: 3px 12px;
+	font-size: 1rem;
+	font-weight: 500;
+	cursor: pointer;
+	display: inline;
+	position: absolute;
+	right: 20px;
+	border: 2px solid black;
+	margin-top: -30px;
+}

@@ -1,0 +1,7 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  },
+  "references": [{ "path": "../player" }, { "path": "../core" }]
+}

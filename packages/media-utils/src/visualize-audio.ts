@@ -1,47 +1,75 @@
+import {NoReactInternals} from 'remotion/no-react';
+import type {OptimizeFor} from './fft/get-visualization';
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
 import type {AudioData} from './types';
 
 const cache: {[key: string]: number[]} = {};
 
-type FnParameters = {
+type MandatoryVisualizeAudioOptions = {
 	audioData: AudioData;
 	frame: number;
 	fps: number;
 	numberOfSamples: number;
 };
 
+type OptionalVisualizeAudioOptions = {
+	optimizeFor: OptimizeFor;
+	dataOffsetInSeconds: number;
+	smoothing: boolean;
+};
+
+export type VisualizeAudioOptions = MandatoryVisualizeAudioOptions &
+	Partial<OptionalVisualizeAudioOptions>;
+
+/**
+ * @description Takes in AudioData (preferably fetched by the useAudioData() hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+ * @description part of @remotion/media-utils
+ * @see [Documentation](https://www.remotion.dev/docs/visualize-audio)
+ */
 const visualizeAudioFrame = ({
-	audioData: metadata,
+	audioData,
 	frame,
 	fps,
 	numberOfSamples,
-}: FnParameters) => {
-	const cacheKey = metadata.resultId + frame + fps + numberOfSamples;
+	optimizeFor,
+	dataOffsetInSeconds,
+}: MandatoryVisualizeAudioOptions & OptionalVisualizeAudioOptions) => {
+	const cacheKey = audioData.resultId + frame + fps + numberOfSamples;
 	if (cache[cacheKey]) {
 		return cache[cacheKey];
 	}
 
-	const maxInt = getMaxPossibleMagnitude(metadata);
+	const maxInt = getMaxPossibleMagnitude(audioData);
 
 	return getVisualization({
 		sampleSize: numberOfSamples * 2,
-		data: metadata.channelWaveforms[0],
+		data: audioData.channelWaveforms[0],
 		frame,
 		fps,
-		sampleRate: metadata.sampleRate,
+		sampleRate: audioData.sampleRate,
 		maxInt,
+		optimizeFor,
+		dataOffsetInSeconds,
 	});
 };
 
 export const visualizeAudio = ({
 	smoothing = true,
+	optimizeFor = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? 'speed'
+		: 'accuracy',
+	dataOffsetInSeconds = 0,
 	...parameters
-}: FnParameters & {
-	smoothing?: boolean;
-}) => {
+}: MandatoryVisualizeAudioOptions &
+	Partial<OptionalVisualizeAudioOptions> & {}) => {
 	if (!smoothing) {
-		return visualizeAudioFrame(parameters);
+		return visualizeAudioFrame({
+			...parameters,
+			optimizeFor,
+			dataOffsetInSeconds,
+			smoothing,
+		});
 	}
 
 	const toSmooth = [
@@ -50,7 +78,13 @@ export const visualizeAudio = ({
 		parameters.frame + 1,
 	];
 	const all = toSmooth.map((s) => {
-		return visualizeAudioFrame({...parameters, frame: s});
+		return visualizeAudioFrame({
+			...parameters,
+			frame: s,
+			dataOffsetInSeconds,
+			optimizeFor,
+			smoothing,
+		});
 	});
 	return new Array(parameters.numberOfSamples).fill(true).map((_x, i) => {
 		return (

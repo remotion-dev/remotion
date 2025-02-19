@@ -1,0 +1,94 @@
+---
+image: /generated/articles-docs-cloudrun.png
+id: cloudrun
+sidebar_label: Overview
+title: '@remotion/cloudrun'
+---
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
+</ExperimentalBadge>
+
+Render Remotion videos on [GCP Cloud Run](https://cloud.google.com/run).
+
+import {GcpRegionList} from '../components/cloudrun/regions.tsx';
+
+## When should I use it?
+
+- You are fine with using Google Cloud Platform in one of the [supported regions](/docs/cloudrun/region-selection).
+
+If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
+
+## How it works
+
+### Deployment
+
+- Any time a new version of Remotion is published by the Remotion team, a new image will be uploaded to a publicly readable artifact registry in GCP.
+- When you deploy a new Cloud Run service to your GCP Project, it will by default download the latest image from the repository. If you require a specific version, you can specify that in the command.
+
+### Rendering
+
+- A Cloud Run service and a Cloud Storage bucket are created in GCP.
+- A Remotion project gets deployed to a Cloud Storage bucket as a website.
+- The Cloud Run service gets invoked and opens the Remotion project.
+- The Cloud Run service renders the video or still, and the final file gets uploaded to Cloud Storage and is available for download.
+
+## Architecture
+
+- **Cloud Run service**: Contains the required libraries and binaries for rendering Remotion projects, and is available for invoking behind a URL.
+- **Cloud Storage bucket**: Stores the projects, the renders, and render metadata.
+- **CLI**: Allows control of the overall architecture from the command line. Is installed by adding `@remotion/cloudrun` to a project.
+- **Node.JS API**: Has the same features as the CLI but is easier to use programmatically.
+
+## Setup / Installation
+
+[**See here**](/docs/cloudrun/setup)
+
+## Region selection
+
+The following regions are available for Remotion Cloud Run:
+
+<GcpRegionList />
+
+[**See here for configurations and considerations.**](/docs/cloudrun/region-selection)
+
+## Quotas and Limits
+
+For all up-to-date values, check the [official Cloud Run docs](https://cloud.google.com/run/quotas).
+
+- The maximum memory size is 32gb.
+- The maximum number of vCPUs is 8.
+- The maximum writeable, in-memory filesystem, limited by instance memory, is 32gb.
+- The maximum timeout is 60 minutes.
+
+## Cost
+
+Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, assigned memory, type of video and other parameters. You might also need a Remotion license (see below).
+
+## GCP permissions
+
+Remotion Cloud Run requires you to create a GCP project and create a Service Account with some permissions attached to it. We require only the minimal amount of permissions required for operating Remotion Cloud Run. [Service Account permission list and reasons](/docs/cloudrun/permissions).
+
+## CLI
+
+You can control Remotion Cloud Run using the `npx remotion cloudrun` command.
+
+[**Read more about the CLI**](/docs/cloudrun/cli)
+
+## Node.JS API
+
+Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/cloudrun/api).
+
+## License
+
+The standard Remotion license applies. https://github.com/remotion-dev/remotion/blob/main/LICENSE.md
+
+Companies need to buy 1 cloud rendering seat per 2000 renders per month - see https://remotion.pro
+
+## Uninstalling
+
+We make it easy to remove all Remotion resources from your GCP project without leaving any traces or causing further costs.
+
+[How to uninstall Remotion Cloud Run](/docs/cloudrun/uninstall).

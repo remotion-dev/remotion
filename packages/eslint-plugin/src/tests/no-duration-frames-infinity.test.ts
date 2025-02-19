@@ -1,18 +1,18 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
-import rule from "../rules//no-duration-frames-infinity";
+import {ESLintUtils} from '@typescript-eslint/utils';
+import rule from '../rules/no-duration-frames-infinity';
 
 const ruleTester = new ESLintUtils.RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
 });
 
-ruleTester.run("no-duration-frames-infinity", rule, {
-  valid: [
-    `
+ruleTester.run('no-duration-frames-infinity', rule, {
+	valid: [
+		`
       import {Sequence} from 'remotion';
 
       export const Re = () => {
@@ -23,10 +23,10 @@ ruleTester.run("no-duration-frames-infinity", rule, {
         );
       }
     `,
-  ],
-  invalid: [
-    {
-      code: `
+	],
+	invalid: [
+		{
+			code: `
         import {Composition} from 'remotion';
 
         export const Re = () => {
@@ -37,7 +37,7 @@ ruleTester.run("no-duration-frames-infinity", rule, {
           );
         }
       `,
-      output: `
+			output: `
         import {Composition} from 'remotion';
 
         export const Re = () => {
@@ -48,11 +48,11 @@ ruleTester.run("no-duration-frames-infinity", rule, {
           );
         }
       `,
-      errors: [
-        {
-          messageId: "DurationInFrames",
-        },
-      ],
-    },
-  ],
+			errors: [
+				{
+					messageId: 'DurationInFrames',
+				},
+			],
+		},
+	],
 });

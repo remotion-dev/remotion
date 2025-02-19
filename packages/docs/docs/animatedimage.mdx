@@ -1,0 +1,92 @@
+---
+image: /generated/articles-docs-animatedimage.png
+id: animatedimage
+title: '<AnimatedImage>'
+crumb: 'API'
+---
+
+# `<AnimatedImage>`<AvailableFrom v="4.0.246" />
+
+Renders an animated GIF, PNG, AVIF or WebP image and syncs it with Remotion's timeline.  
+Relies on the [`ImageDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder) Web API, meaning it only works in Google Chrome and Firefox as of writing.
+
+```tsx twoslash title="Loading a remote animated image"
+import {AnimatedImage} from 'remotion';
+
+export const WebpAnimatedImage = () => {
+  return <AnimatedImage src="https://mathiasbynens.be/demo/animated-webp-supported.webp" />;
+};
+```
+
+```tsx twoslash title="Loading a local animated image"
+import {AnimatedImage, staticFile} from 'remotion';
+
+export const GifAnimatedImage = () => {
+  return <AnimatedImage src={staticFile('giphy.gif')} />;
+};
+```
+
+## Props
+
+### `src`
+
+The URL of the animated image. Can be a remote URL or a local file path.
+
+:::note
+Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+  <summary>More info</summary>
+  <ul>
+    <li>
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+    </li>
+    <li>
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+    </li>
+  </ul>
+</details>
+:::
+
+### `width?`
+
+The display width.
+
+### `height?`
+
+The display height.
+
+### `fit?`
+
+Must be one of these values:
+
+- `'fill'`: The image will completely fill the container, and will be stretched if necessary. (_default_)
+- `'contain'`: The image is scaled to fit the box, while aspect ratio is maintained.
+- `'cover'`: The image completely fills the container and maintains it's aspect ratio. It will be cropped if necessary.
+
+### `style?`
+
+Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the image.
+
+### `loopBehavior?`
+
+The looping behavior of the animated image. Can be one of these values:
+
+- `'loop'`: The animated image will loop infinitely. (_default_)
+- `'pause-after-finish'`: The animated image will play once and then show the last frame.
+- `'clear-after-finish'`: The animated image will play once and then clear the canvas.
+
+### `ref?`<AvailableFrom v="3.3.88" />
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<AnimatedImage />`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
+
+## Differences to `<Gif>`
+
+- `<AnimatedImage>` also supports AVIF, APNG and WebP images.
+- `<AnimatedImage>` uses the [`ImageDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder) Web API, which has limited browser support.
+- `<AnimatedImage>` does not support the `onLoad` prop.
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/animated-image/AnimatedImage.tsx)
+- [`<Gif>`](/docs/gif)

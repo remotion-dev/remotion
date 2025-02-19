@@ -1,64 +1,179 @@
-import fs from 'fs';
-import path from 'path';
-import type {
-	BrowserExecutable,
-	FfmpegExecutable,
-	FrameRange,
-	ImageFormat,
-	SmallTCompMetadata,
-	TAsset,
-} from 'remotion';
-import {Internals} from 'remotion';
+import fs from 'node:fs';
+import path from 'node:path';
+
+import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {DEFAULT_BROWSER} from './browser';
+import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
+import {isTargetClosedErr} from './browser/flaky-errors';
+import type {SourceMapGetter} from './browser/source-map-getter';
+import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
-import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {getActualConcurrency} from './get-concurrency';
-import {getDurationFromFrameRange} from './get-duration-from-frame-range';
+import {findRemotionRoot} from './find-closest-package-json';
+import type {FrameRange} from './frame-range';
+import {resolveConcurrency} from './get-concurrency';
+import {getFramesToRender} from './get-duration-from-frame-range';
+import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
+import type {CountType} from './get-frame-padded-index';
+import {getFilePadLength} from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
-import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
-import {makeAssetsDownloadTmpDir} from './make-assets-download-dir';
+import type {VideoImageFormat} from './image-format';
+import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import {cancelErrorMessages} from './make-cancel-signal';
+import {makePage} from './make-page';
+import {
+	nextFrameToRenderState,
+	partitionedNextFrameToRenderState,
+} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
-import {openBrowser} from './open-browser';
+import {internalOpenBrowser} from './open-browser';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
-import {prepareServer} from './prepare-server';
-import {provideScreenshot} from './provide-screenshot';
-import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {seekToFrame} from './seek-to-frame';
-import {setPropsAndEnv} from './set-props-and-env';
+import type {RemotionServer} from './prepare-server';
+import {makeOrReuseServer} from './prepare-server';
+import {renderFrameAndRetryTargetClose} from './render-frame-and-retry-target-close';
+import type {BrowserReplacer} from './replace-browser';
+import {handleBrowserCrash} from './replace-browser';
+import type {EmittedArtifact} from './serialize-artifact';
 import type {OnStartData, RenderFramesOutput} from './types';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from './validate';
 import {validateScale} from './validate-scale';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
-type ConfigOrComposition =
-	| {
-			/**
-			 * @deprecated This field has been renamed to `composition`
-			 */
-			config: SmallTCompMetadata;
-	  }
-	| {
-			composition: SmallTCompMetadata;
-	  };
+const MAX_RETRIES_PER_FRAME = 1;
 
-type RenderFramesOptions = {
-	onStart: (data: OnStartData) => void;
-	onFrameUpdate: (framesRendered: number, frameIndex: number) => void;
+export type OnArtifact = (asset: EmittedArtifact) => void;
+
+type InternalRenderFramesOptions = {
+	onStart: null | ((data: OnStartData) => void);
+	onFrameUpdate:
+		| null
+		| ((
+				framesRendered: number,
+				frameIndex: number,
+				timeToRenderInMilliseconds: number,
+		  ) => void);
 	outputDir: string | null;
-	inputProps: unknown;
+	envVariables: Record<string, string>;
+	imageFormat: VideoImageFormat;
+	jpegQuality: number;
+	frameRange: FrameRange | null;
+	everyNthFrame: number;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	browserExecutable: BrowserExecutable | null;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onDownload: RenderMediaOnDownload | null;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	port: number | null;
+	cancelSignal: CancelSignal | undefined;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
+	indent: boolean;
+	server: RemotionServer | undefined;
+	muted: boolean;
+	concurrency: number | string | null;
+	webpackBundleOrServeUrl: string;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
+	compositionStart: number;
+	onArtifact: OnArtifact | null;
+} & ToOptions<typeof optionsMap.renderFrames>;
+
+type InnerRenderFramesOptions = {
+	onStart: null | ((data: OnStartData) => void);
+	onFrameUpdate:
+		| null
+		| ((
+				framesRendered: number,
+				frameIndex: number,
+				timeToRenderInMilliseconds: number,
+		  ) => void);
+	outputDir: string | null;
+	envVariables: Record<string, string>;
+	imageFormat: VideoImageFormat;
+	frameRange: FrameRange | null;
+	everyNthFrame: number;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onArtifact: OnArtifact | null;
+	onDownload: RenderMediaOnDownload | null;
+	timeoutInMilliseconds: number;
+	scale: number;
+	cancelSignal: CancelSignal | undefined;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
+	muted: boolean;
+	onError: (err: Error) => void;
+	pagesArray: Page[];
+	resolvedConcurrency: number;
+	proxyPort: number;
+	downloadMap: DownloadMap;
+	makeBrowser: () => Promise<HeadlessBrowser>;
+	browserReplacer: BrowserReplacer;
+	sourceMapGetter: SourceMapGetter;
+	serveUrl: string;
+	indent: boolean;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
+	parallelEncodingEnabled: boolean;
+	compositionStart: number;
+	binariesDirectory: string | null;
+} & ToOptions<typeof optionsMap.renderFrames>;
+
+type ArtifactWithoutContent = {
+	frame: number;
+	filename: string;
+};
+
+export type FrameAndAssets = {
+	frame: number;
+	audioAndVideoAssets: AudioOrVideoAsset[];
+	artifactAssets: ArtifactWithoutContent[];
+};
+
+export type RenderFramesOptions = {
+	onStart: (data: OnStartData) => void;
+	onFrameUpdate: (
+		framesRendered: number,
+		frameIndex: number,
+		timeToRenderInMilliseconds: number,
+	) => void;
+	outputDir: string | null;
+	inputProps: Record<string, unknown>;
 	envVariables?: Record<string, string>;
-	imageFormat: ImageFormat;
-	parallelism?: number | null;
-	quality?: number;
+	imageFormat?: VideoImageFormat;
+	/**
+	 * @deprecated Renamed to "jpegQuality"
+	 */
+	quality?: never;
 	frameRange?: FrameRange | null;
+	everyNthFrame?: number;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: Browser;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
+	verbose?: boolean;
+	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
@@ -66,40 +181,24 @@ type RenderFramesOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
-} & ConfigOrComposition &
-	ServeUrlOrWebpackBundle;
+	composition: VideoConfig;
+	muted?: boolean;
+	concurrency?: number | string | null;
+	onArtifact?: OnArtifact | null;
+	serveUrl: string;
+} & Partial<ToOptions<typeof optionsMap.renderFrames>>;
 
-const getComposition = (others: ConfigOrComposition) => {
-	if ('composition' in others) {
-		return others.composition;
-	}
-
-	if ('config' in others) {
-		return others.config;
-	}
-
-	return undefined;
-};
-
-const getPool = async (pages: Promise<Page>[]) => {
-	const puppeteerPages = await Promise.all(pages);
-	const pool = new Pool(puppeteerPages);
-	return pool;
-};
-
-const innerRenderFrames = ({
+const innerRenderFrames = async ({
 	onFrameUpdate,
 	outputDir,
 	onStart,
-	inputProps,
-	quality,
-	imageFormat = DEFAULT_IMAGE_FORMAT,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
+	jpegQuality,
+	imageFormat,
 	frameRange,
-	puppeteerInstance,
 	onError,
 	envVariables,
 	onBrowserLog,
@@ -110,26 +209,26 @@ const innerRenderFrames = ({
 	composition,
 	timeoutInMilliseconds,
 	scale,
-	actualParallelism,
-	downloadDir,
+	resolvedConcurrency,
+	everyNthFrame,
 	proxyPort,
 	cancelSignal,
-}: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
-	onError: (err: Error) => void;
-	pagesArray: Page[];
-	serveUrl: string;
-	composition: SmallTCompMetadata;
-	actualParallelism: number;
-	downloadDir: string;
-	onDownload: RenderMediaOnDownload;
-	proxyPort: number;
-}): Promise<RenderFramesOutput> => {
-	if (!puppeteerInstance) {
-		throw new Error(
-			'no puppeteer instance passed to innerRenderFrames - internal error'
-		);
-	}
-
+	downloadMap,
+	muted,
+	makeBrowser,
+	browserReplacer,
+	sourceMapGetter,
+	logLevel,
+	indent,
+	parallelEncodingEnabled,
+	compositionStart,
+	forSeamlessAacConcatenation,
+	onArtifact,
+	binariesDirectory,
+}: Omit<
+	InnerRenderFramesOptions,
+	'offthreadVideoCacheSizeInBytes'
+>): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {
@@ -142,314 +241,371 @@ const innerRenderFrames = ({
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange ?? null
+		frameRange,
 	);
 
-	const frameCount = getDurationFromFrameRange(
+	const {
+		extraFramesToCaptureAssetsBackend,
+		extraFramesToCaptureAssetsFrontend,
+		chunkLengthInSeconds,
+		trimLeftOffset,
+		trimRightOffset,
+	} = getExtraFramesToCapture({
+		fps: composition.fps,
+		compositionStart,
 		realFrameRange,
-		composition.durationInFrames
+		forSeamlessAacConcatenation,
+	});
+
+	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
+	const lastFrame = framesToRender[framesToRender.length - 1];
+
+	const concurrencyOrFramesToRender = Math.min(
+		framesToRender.length,
+		resolvedConcurrency,
 	);
 
-	const pages = new Array(actualParallelism).fill(true).map(async () => {
-		const page = await puppeteerInstance.newPage();
-		pagesArray.push(page);
-		await page.setViewport({
-			width: composition.width,
-			height: composition.height,
-			deviceScaleFactor: scale ?? 1,
-		});
-
-		const logCallback = (log: ConsoleMessage) => {
-			onBrowserLog?.({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		};
-
-		if (onBrowserLog) {
-			page.on('console', logCallback);
-		}
-
-		const initialFrame =
-			typeof frameRange === 'number'
-				? frameRange
-				: frameRange === null || frameRange === undefined
-				? 0
-				: frameRange[0];
-
-		await setPropsAndEnv({
-			inputProps,
+	const makeNewPage = (frame: number, pageIndex: number) => {
+		return makePage({
+			context: sourceMapGetter,
+			initialFrame: frame,
+			browserReplacer,
+			indent,
+			logLevel,
+			onBrowserLog,
+			pagesArray,
+			scale,
+			composition,
 			envVariables,
-			page,
-			serveUrl,
-			initialFrame,
-			timeoutInMilliseconds,
+			imageFormat,
+			muted,
 			proxyPort,
-			retriesRemaining: 2,
+			serializedInputPropsWithCustomSchema,
+			serializedResolvedPropsWithCustomSchema,
+			serveUrl,
+			timeoutInMilliseconds,
+			pageIndex,
 		});
+	};
 
-		await puppeteerEvaluateWithCatch({
-			pageFunction: (id: string) => {
-				window.setBundleMode({
-					type: 'composition',
-					compositionName: id,
-				});
-			},
-			args: [composition.id],
-			frame: null,
-			page,
-		});
+	const getPool = async () => {
+		const pages = new Array(concurrencyOrFramesToRender)
+			.fill(true)
+			// TODO: Change different initial frame
+			.map((_, i) => makeNewPage(framesToRender[i], i));
+		const puppeteerPages = await Promise.all(pages);
+		const pool = new Pool(puppeteerPages);
+		return pool;
+	};
 
-		page.off('console', logCallback);
-		return page;
+	// If rendering a GIF and skipping frames, we must ensure it starts from 0
+	// and then is consecutive so FFMPEG recognizes the sequence
+	const countType: CountType =
+		everyNthFrame === 1 ? 'actual-frames' : 'from-zero';
+
+	const filePadLength = getFilePadLength({
+		lastFrame,
+		totalFrames: framesToRender.length,
+		countType,
+	});
+	const framesRenderedObj = {
+		count: 0,
+	};
+
+	const poolPromise = getPool();
+
+	onStart?.({
+		frameCount: framesToRender.length,
+		parallelEncoding: parallelEncodingEnabled,
+		resolvedConcurrency,
 	});
 
-	const [firstFrameIndex, lastFrameIndex] = realFrameRange;
-	// Substract one because 100 frames will be 00-99
-	// --> 2 digits
-	const filePadLength = String(lastFrameIndex).length;
-	let framesRendered = 0;
-
-	const poolPromise = getPool(pages);
-
-	onStart({
-		frameCount,
-	});
-	const assets: TAsset[][] = new Array(frameCount).fill(undefined);
-	let stopped = false;
+	const assets: FrameAndAssets[] = [];
+	const stoppedSignal = {stopped: false};
 	cancelSignal?.(() => {
-		stopped = true;
+		stoppedSignal.stopped = true;
 	});
-	const progress = Promise.all(
-		new Array(frameCount)
-			.fill(Boolean)
-			.map((_x, i) => i)
-			.map(async (index) => {
-				const frame = realFrameRange[0] + index;
-				const pool = await poolPromise;
-				const freePage = await pool.acquire();
-				if (stopped) {
-					throw new Error('Render was stopped');
-				}
 
-				const paddedIndex = String(frame).padStart(filePadLength, '0');
+	const frameDir = outputDir ?? downloadMap.compositingDir;
 
-				const errorCallbackOnFrame = (err: Error) => {
-					onError(err);
-				};
+	// Render the extra frames at the beginning of the video first,
+	// then the regular frames, then the extra frames at the end of the video.
+	// While the order technically doesn't matter, components such as <Video> are
+	// not always frame perfect and give a flicker.
+	// We reduce the chance of flicker by rendering the frames in order.
 
-				const cleanupPageError = handleJavascriptException({
-					page: freePage,
-					onError: errorCallbackOnFrame,
-					frame,
-				});
-				freePage.on('error', errorCallbackOnFrame);
-				await seekToFrame({frame, page: freePage});
+	const allFramesAndExtraFrames = [
+		...extraFramesToCaptureAssetsFrontend,
+		...framesToRender,
+		...extraFramesToCaptureAssetsBackend,
+	];
 
-				if (imageFormat !== 'none') {
-					if (onFrameBuffer) {
-						const id = Internals.perf.startPerfMeasure('save');
-						const buffer = await provideScreenshot({
-							page: freePage,
-							imageFormat,
-							quality,
-							options: {
-								frame,
-								output: null,
-							},
-						});
-						Internals.perf.stopPerfMeasure(id);
+	const shouldUsePartitionedRendering = getShouldUsePartitionedRendering();
 
-						onFrameBuffer(buffer, frame);
-					} else {
-						if (!outputDir) {
-							throw new Error(
-								'Called renderFrames() without specifying either `outputDir` or `onFrameBuffer`'
-							);
-						}
+	if (shouldUsePartitionedRendering) {
+		Log.info(
+			{indent, logLevel},
+			'Experimental: Using partitioned rendering (https://github.com/remotion-dev/remotion/pull/4830)',
+		);
+	}
 
-						const output = path.join(
-							outputDir,
-							`element-${paddedIndex}.${imageFormat}`
-						);
-						await provideScreenshot({
-							page: freePage,
-							imageFormat,
-							quality,
-							options: {
-								frame,
-								output,
-							},
-						});
-					}
-				}
-
-				const collectedAssets = await puppeteerEvaluateWithCatch<TAsset[]>({
-					pageFunction: () => {
-						return window.remotion_collectAssets();
-					},
-					args: [],
-					frame,
-					page: freePage,
-				});
-				const compressedAssets = collectedAssets.map((asset) =>
-					Internals.AssetCompression.compressAsset(
-						assets.filter(Internals.truthy).flat(1),
-						asset
-					)
-				);
-				assets[index] = compressedAssets;
-				compressedAssets.forEach((asset) => {
-					downloadPromises.push(
-						downloadAndMapAssetsToFileUrl({
-							asset,
-							downloadDir,
-							onDownload,
-						}).catch((err) => {
-							onError(
-								new Error(
-									`Error while downloading asset: ${(err as Error).stack}`
-								)
-							);
-						})
-					);
-				});
-				pool.release(freePage);
-				framesRendered++;
-				onFrameUpdate(framesRendered, frame);
-				cleanupPageError();
-				freePage.off('error', errorCallbackOnFrame);
-				return compressedAssets;
+	const nextFrameToRender = shouldUsePartitionedRendering
+		? partitionedNextFrameToRenderState({
+				allFramesAndExtraFrames,
+				concurrencyOrFramesToRender,
 			})
+		: nextFrameToRenderState({
+				allFramesAndExtraFrames,
+				concurrencyOrFramesToRender,
+			});
+
+	await Promise.all(
+		allFramesAndExtraFrames.map(() => {
+			return renderFrameAndRetryTargetClose({
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+				assets,
+				binariesDirectory,
+				cancelSignal,
+				composition,
+				countType,
+				downloadMap,
+				frameDir,
+				framesToRender,
+				imageFormat,
+				indent,
+				jpegQuality,
+				logLevel,
+				onArtifact,
+				onDownload,
+				onError,
+				outputDir,
+				poolPromise,
+				scale,
+				stoppedSignal,
+				timeoutInMilliseconds,
+				makeBrowser,
+				browserReplacer,
+				concurrencyOrFramesToRender,
+				framesRenderedObj,
+				lastFrame,
+				makeNewPage,
+				onFrameBuffer,
+				onFrameUpdate,
+				nextFrameToRender,
+			});
+		}),
 	);
 
-	const happyPath = progress.then(() => {
-		const returnValue: RenderFramesOutput = {
-			assetsInfo: {
-				assets,
-				downloadDir,
-				firstFrameIndex,
-				imageSequenceName: `element-%0${filePadLength}d.${imageFormat}`,
-			},
-			frameCount,
-		};
-		return returnValue;
-	});
+	const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 
-	return happyPath
-		.then(() => {
-			return Promise.all(downloadPromises);
-		})
-		.then(() => happyPath);
+	await Promise.all(downloadPromises);
+	return {
+		assetsInfo: {
+			assets: assets.sort((a, b) => {
+				return a.frame - b.frame;
+			}),
+			imageSequenceName: path.join(
+				frameDir,
+				`element-%0${filePadLength}d.${imageFormat}`,
+			),
+			firstFrameIndex,
+			downloadMap,
+			trimLeftOffset,
+			trimRightOffset,
+			chunkLengthInSeconds,
+			forSeamlessAacConcatenation,
+		},
+		frameCount: framesToRender.length,
+	};
 };
 
-type CleanupFn = () => void;
+type CleanupFn = () => Promise<unknown>;
 
-export const renderFrames = (
-	options: RenderFramesOptions
-): Promise<RenderFramesOutput> => {
-	const composition = getComposition(options);
-
-	if (!composition) {
-		throw new Error(
-			'No `composition` option has been specified for renderFrames()'
-		);
-	}
-
-	Internals.validateDimension(
+const internalRenderFramesRaw = ({
+	browserExecutable,
+	cancelSignal,
+	chromiumOptions,
+	composition,
+	concurrency,
+	envVariables,
+	everyNthFrame,
+	frameRange,
+	imageFormat,
+	indent,
+	jpegQuality,
+	muted,
+	onBrowserLog,
+	onDownload,
+	onFrameBuffer,
+	onFrameUpdate,
+	onStart,
+	outputDir,
+	port,
+	puppeteerInstance,
+	scale,
+	server,
+	timeoutInMilliseconds,
+	logLevel,
+	webpackBundleOrServeUrl,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
+	offthreadVideoCacheSizeInBytes,
+	parallelEncodingEnabled,
+	binariesDirectory,
+	forSeamlessAacConcatenation,
+	compositionStart,
+	onBrowserDownload,
+	onArtifact,
+	chromeMode,
+	offthreadVideoThreads,
+}: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
+	validateDimension(
 		composition.height,
 		'height',
-		'in the `config` object passed to `renderFrames()`'
+		'in the `config` object passed to `renderFrames()`',
 	);
-	Internals.validateDimension(
+	validateDimension(
 		composition.width,
 		'width',
-		'in the `config` object passed to `renderFrames()`'
+		'in the `config` object passed to `renderFrames()`',
 	);
-	Internals.validateFps(
+	validateFps(
 		composition.fps,
-		'in the `config` object of `renderFrames()`'
+		'in the `config` object of `renderFrames()`',
+		false,
 	);
-	Internals.validateDurationInFrames(
-		composition.durationInFrames,
-		'in the `config` object passed to `renderFrames()`'
-	);
-	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
-		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
-		);
-	}
+	validateDurationInFrames(composition.durationInFrames, {
+		component: 'in the `config` object passed to `renderFrames()`',
+		allowFloats: false,
+	});
 
-	const selectedServeUrl = getServeUrlWithFallback(options);
+	validateJpegQuality(jpegQuality);
+	validateScale(scale);
 
-	Internals.validateQuality(options.quality);
-	validateScale(options.scale);
-
-	const browserInstance =
-		options.puppeteerInstance ??
-		openBrowser(Internals.DEFAULT_BROWSER, {
-			shouldDumpIo: options.dumpBrowserLogs,
-			browserExecutable: options.browserExecutable,
-			chromiumOptions: options.chromiumOptions,
-			forceDeviceScaleFactor: options.scale ?? 1,
+	const makeBrowser = () =>
+		internalOpenBrowser({
+			browser: DEFAULT_BROWSER,
+			browserExecutable,
+			chromiumOptions,
+			forceDeviceScaleFactor: scale,
+			indent,
+			viewport: null,
+			logLevel,
+			onBrowserDownload,
+			chromeMode,
 		});
 
-	const downloadDir = makeAssetsDownloadTmpDir();
+	const browserInstance = puppeteerInstance ?? makeBrowser();
 
-	const onDownload = options.onDownload ?? (() => () => undefined);
-
-	const actualParallelism = getActualConcurrency(options.parallelism ?? null);
+	const resolvedConcurrency = resolveConcurrency(concurrency);
 
 	const openedPages: Page[] = [];
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
+
 		const onError = (err: Error) => {
 			reject(err);
 		};
 
 		Promise.race([
 			new Promise<RenderFramesOutput>((_, rej) => {
-				options.cancelSignal?.(() => {
-					rej(new Error('renderFrames() got cancelled'));
+				cancelSignal?.(() => {
+					rej(new Error(cancelErrorMessages.renderFrames));
 				});
 			}),
 			Promise.all([
-				prepareServer({
-					webpackConfigOrServeUrl: selectedServeUrl,
-					downloadDir,
-					onDownload,
-					onError,
-					ffmpegExecutable: options.ffmpegExecutable ?? null,
-					ffprobeExecutable: options.ffprobeExecutable ?? null,
-					port: options.port ?? null,
-				}),
+				makeOrReuseServer(
+					server,
+					{
+						webpackConfigOrServeUrl: webpackBundleOrServeUrl,
+						port,
+						remotionRoot: findRemotionRoot(),
+						offthreadVideoThreads:
+							offthreadVideoThreads ??
+							DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
+						logLevel,
+						indent,
+						offthreadVideoCacheSizeInBytes,
+						binariesDirectory,
+						forceIPv4: false,
+					},
+					{
+						onDownload,
+					},
+				),
 				browserInstance,
-			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
-				const {stopCycling} = cycleBrowserTabs(
-					puppeteerInstance,
-					actualParallelism
-				);
+			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
+				const {serveUrl, offthreadPort, sourceMap, downloadMap} = openedServer;
 
-				cleanup.push(stopCycling);
-				cleanup.push(closeServer);
+				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
+
+				const cycle = cycleBrowserTabs({
+					puppeteerInstance: browserReplacer,
+					concurrency: resolvedConcurrency,
+					logLevel,
+					indent,
+				});
+				cleanup.push(() => {
+					cycle.stopCycling();
+					return Promise.resolve();
+				});
+				cleanup.push(() => cleanupServer(false));
 
 				return innerRenderFrames({
-					...options,
-					puppeteerInstance,
 					onError,
 					pagesArray: openedPages,
 					serveUrl,
 					composition,
-					actualParallelism,
+					resolvedConcurrency,
 					onDownload,
-					downloadDir,
 					proxyPort: offthreadPort,
+					makeBrowser,
+					browserReplacer,
+					sourceMapGetter: sourceMap,
+					downloadMap,
+					cancelSignal,
+					envVariables,
+					everyNthFrame,
+					frameRange,
+					imageFormat,
+					jpegQuality,
+					muted,
+					onBrowserLog,
+					onFrameBuffer,
+					onFrameUpdate,
+					onStart,
+					outputDir,
+					scale,
+					timeoutInMilliseconds,
+					logLevel,
+					indent,
+					serializedInputPropsWithCustomSchema,
+					serializedResolvedPropsWithCustomSchema,
+					parallelEncodingEnabled,
+					binariesDirectory,
+					forSeamlessAacConcatenation,
+					compositionStart,
+					onBrowserDownload,
+					onArtifact,
+					chromeMode,
+					offthreadVideoThreads,
 				});
 			}),
 		])
 			.then((res) => {
+				server?.compositor
+					.executeCommand('CloseAllVideos', {})
+					.then(() => {
+						Log.verbose(
+							{indent, logLevel, tag: 'compositor'},
+							'Freed memory from compositor',
+						);
+					})
+					.catch((err) => {
+						Log.verbose({indent, logLevel}, 'Could not close compositor', err);
+					});
 				return resolve(res);
 			})
 			.catch((err) => reject(err))
@@ -458,23 +614,154 @@ export const renderFrames = (
 				// we opened.
 				// If new browser was opened, then closing the browser as a cleanup.
 
-				if (options.puppeteerInstance) {
+				if (puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						console.log('Unable to close browser tab', err);
+						if (isTargetClosedErr(err)) {
+							return;
+						}
+
+						Log.error({indent, logLevel}, 'Unable to close browser tab', err);
 					});
 				} else {
 					Promise.resolve(browserInstance)
-						.then((puppeteerInstance) => {
-							return puppeteerInstance.close();
+						.then((instance) => {
+							return instance.close({silent: true});
 						})
 						.catch((err) => {
-							console.log('Unable to close browser', err);
+							if (
+								!(err as Error | undefined)?.message.includes('Target closed')
+							) {
+								Log.error({indent, logLevel}, 'Unable to close browser', err);
+							}
 						});
 				}
 
 				cleanup.forEach((c) => {
 					c();
 				});
+				// Don't clear download dir because it might be used by stitchFramesToVideo
 			});
+	});
+};
+
+export const internalRenderFrames = wrapWithErrorHandling(
+	internalRenderFramesRaw,
+);
+
+/*
+ * @description Renders a series of images using Puppeteer and computes information for mixing audio.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
+ */
+export const renderFrames = (
+	options: RenderFramesOptions,
+): Promise<RenderFramesOutput> => {
+	const {
+		composition,
+		inputProps,
+		onFrameUpdate,
+		onStart,
+		outputDir,
+		serveUrl,
+		browserExecutable,
+		cancelSignal,
+		chromiumOptions,
+		concurrency,
+		dumpBrowserLogs,
+		envVariables,
+		everyNthFrame,
+		frameRange,
+		imageFormat,
+		jpegQuality,
+		muted,
+		onBrowserLog,
+		onDownload,
+		onFrameBuffer,
+		port,
+		puppeteerInstance,
+		scale,
+		timeoutInMilliseconds,
+		verbose,
+		quality,
+		logLevel: passedLogLevel,
+		offthreadVideoCacheSizeInBytes,
+		binariesDirectory,
+		onBrowserDownload,
+		onArtifact,
+		chromeMode,
+		offthreadVideoThreads,
+	} = options;
+
+	if (!composition) {
+		throw new Error(
+			'No `composition` option has been specified for renderFrames()',
+		);
+	}
+
+	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
+		throw new Error(
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'.",
+		);
+	}
+
+	const logLevel: LogLevel =
+		verbose || dumpBrowserLogs ? 'verbose' : (passedLogLevel ?? 'info');
+	const indent = false;
+
+	if (quality) {
+		Log.warn(
+			{indent, logLevel},
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
+		);
+	}
+
+	return internalRenderFrames({
+		browserExecutable: browserExecutable ?? null,
+		cancelSignal,
+		chromiumOptions: chromiumOptions ?? {},
+		composition,
+		concurrency: concurrency ?? null,
+		envVariables: envVariables ?? {},
+		everyNthFrame: everyNthFrame ?? 1,
+		frameRange: frameRange ?? null,
+		imageFormat: imageFormat ?? 'jpeg',
+		indent,
+		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
+		onDownload: onDownload ?? null,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps ?? {},
+			}).serializedString,
+		serializedResolvedPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: composition.props,
+			}).serializedString,
+		puppeteerInstance,
+		muted: muted ?? false,
+		onBrowserLog: onBrowserLog ?? null,
+		onFrameBuffer: onFrameBuffer ?? null,
+		onFrameUpdate,
+		onStart,
+		outputDir,
+		port: port ?? null,
+		scale: scale ?? 1,
+		logLevel,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		webpackBundleOrServeUrl: serveUrl,
+		server: undefined,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		parallelEncodingEnabled: false,
+		binariesDirectory: binariesDirectory ?? null,
+		compositionStart: 0,
+		forSeamlessAacConcatenation: false,
+		onBrowserDownload:
+			onBrowserDownload ??
+			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
+		onArtifact: onArtifact ?? null,
+		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

@@ -24,11 +24,11 @@ const AudioTestingMute: React.FC = () => {
 				{start: 4 * fps, end: 5 * fps},
 			];
 			const toMute = muteParts.some(
-				(mp) => frame >= mp.start && frame <= mp.end
+				(mp) => frame >= mp.start && frame <= mp.end,
 			);
 			return type === 'movie' ? toMute : !toMute;
 		},
-		[fps, frame]
+		[fps, frame],
 	);
 
 	return (

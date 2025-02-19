@@ -17,6 +17,8 @@ import type {
 	GetFrameTreeResponse,
 	NavigateRequest,
 	NavigateResponse,
+	PrintPDFRequest,
+	PrintPDFResponse,
 	ReleaseObjectRequest,
 	SetAutoAttachRequest,
 	SetDefaultBackgroundColorOverrideRequest,
@@ -39,7 +41,7 @@ export interface Commands {
 				 * Whether to discover available targets.
 				 */
 				discover: boolean;
-			}
+			},
 		];
 		returnType: void;
 	};
@@ -76,7 +78,7 @@ export interface Commands {
 				 * false by default).
 				 */
 				background?: boolean;
-			}
+			},
 		];
 		returnType: {
 			targetId: string;
@@ -96,7 +98,7 @@ export interface Commands {
 				 * and eventually retire it. See crbug.com/991325.
 				 */
 				flatten?: boolean;
-			}
+			},
 		];
 		returnType: {
 			/**
@@ -192,7 +194,7 @@ export interface Commands {
 				 * Whether the result should be serialized according to https://w3c.github.io/webdriver-bidi.
 				 */
 				generateWebDriverValue?: boolean;
-			}
+			},
 		];
 		returnType: {
 			/**
@@ -240,6 +242,10 @@ export interface Commands {
 	'Page.captureScreenshot': {
 		paramsType: [CaptureScreenshotRequest?];
 		returnType: CaptureScreenshotResponse;
+	};
+	'Page.printToPDF': {
+		paramsType: [PrintPDFRequest];
+		returnType: PrintPDFResponse;
 	};
 	'Target.activateTarget': {
 		paramsType: [ActivateTargetRequest];

@@ -1,4 +1,4 @@
-import url from 'url';
+import url from 'node:url';
 
 export const resolveAssetSrc = (src: string) => {
 	if (!src.startsWith('file:')) {

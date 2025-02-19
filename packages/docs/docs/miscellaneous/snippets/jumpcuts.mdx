@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-miscellaneous-snippets-jumpcuts.png
+title: 'Jump Cutting'
+sidebar_label: Jump Cuts
+crumb: 'Snippets'
+---
+
+You might wanna use a "jump cut" to skip parts of a video.  
+Use the following snippet to skip certain sections of a video, without re-mounting it.
+
+```tsx twoslash
+import React, {useMemo} from 'react';
+import {
+  CalculateMetadataFunction,
+  OffthreadVideo,
+  staticFile,
+  useCurrentFrame,
+} from 'remotion';
+
+const fps = 30;
+
+type Section = {
+  startFrom: number;
+  endAt: number;
+};
+
+export const SAMPLE_SECTIONS: Section[] = [
+  {startFrom: 0, endAt: 5 * fps},
+  {
+    startFrom: 7 * fps,
+    endAt: 10 * fps,
+  },
+  {
+    startFrom: 13 * fps,
+    endAt: 18 * fps,
+  },
+];
+
+type Props = {
+  sections: Section[];
+};
+
+export const calculateMetadata: CalculateMetadataFunction<Props> = ({
+  props,
+}) => {
+  const durationInFrames = props.sections.reduce((acc, section) => {
+    return acc + section.endAt - section.startFrom;
+  }, 0);
+
+  return {
+    fps,
+    durationInFrames,
+  };
+};
+
+export const JumpCuts: React.FC<Props> = ({sections}) => {
+  const frame = useCurrentFrame();
+
+  const startFrom = useMemo(() => {
+    let summedUpDurations = 0;
+    for (const section of sections) {
+      summedUpDurations += section.endAt - section.startFrom;
+      if (summedUpDurations > frame) {
+        return section.endAt - summedUpDurations;
+      }
+    }
+
+    return null;
+  }, [frame, sections]);
+
+  if (startFrom === null) {
+    return null;
+  }
+
+  return (
+    <OffthreadVideo
+      pauseWhenBuffering
+      startFrom={startFrom}
+      // Remotion will automatically add a time fragment to the end of the video URL
+      // based on `startFrom` and `endAt`. Opt out of this by adding one yourself.
+      // https://www.remotion.dev/docs/media-fragments
+      src={`${staticFile('time.mp4')}#t=0,`}
+    />
+  );
+};
+```
+
+## See also
+
+- [Different segments at different speeds](/docs/miscellaneous/snippets/different-segments-at-different-speeds)
+- [Change the speed of a video over time](/docs/miscellaneous/snippets/accelerated-video)

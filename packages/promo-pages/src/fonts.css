@@ -1,0 +1,30 @@
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/img/gt-planar-regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}
+
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/img/gt-planar-medium.woff2') format('woff2');
+	font-weight: 500;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/img/gt-planar-bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}
+
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('/img/gt-planar-black.woff2') format('woff2');
+	font-weight: 900;
+	font-style: normal;
+	font-feature-settings: 'ss03' on;
+}

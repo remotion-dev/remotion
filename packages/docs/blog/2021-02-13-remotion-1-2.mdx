@@ -1,0 +1,42 @@
+---
+slug: 1-2
+title: Remotion 1.2
+author: Jonny Burger
+author_title: Indie Hacker
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+---
+
+You have tested Remotion and provided an enormous amount of feedback! Thanks to it, this version of Remotion is vastly improved 🎉
+
+## Rendering time cut in half!
+
+It turns out rendering each frame as JPEG is much faster than rendering them in PNG and results in no visible quality difference. Using this trick, the time of the 'Rendering Frames...' of an example video went down from 14 seconds to 6.5 seconds! That's more than twice as fast.
+
+Now that the rendering process is JPEG-based, [a new flag `--quality`](/docs/cli/render#--jpeg-quality) was added to command line. [For server-side rendering, you may pass in a new `imageFormat`](/docs/ssr) option.
+If you [render a PNG sequence](/docs/cli/render#--jpeg-quality), Remotion will of course still deliver PNGs.
+
+The goal is to make rendering even faster, finding further optimizations is going to be a very interesting task!
+
+## Windows support
+
+Windows support is very important ([_just like PHP_](https://www.youtube.com/watch?t=74&v=jo_B4LTHi3I&feature=youtu.be)). All the bugs that prevented proper Windows installation have now been fixed. Plus I now have a proper Windows setup so from now on Remotion will be tested on Windows as well!
+
+## Discord community
+
+We now have a Discord! [Join now and chat about Remotion!](https://remotion.dev/discord)
+
+## Licensing now available
+
+The terms of [the company license](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md#company-license) have now been worked out and a billing system with Stripe has been set up. Contact me for pricing!
+
+## Roadmap
+
+A GitHub Project board has been setup with the goal [of indicating the next priorities](https://github.com/remotion-dev/remotion/projects/3). Check it out!
+
+## Miscellaneous
+
+- [Add .dockerignore](https://github.com/remotion-dev/remotion/pull/54)
+- [Use `npm init video` instead of `npx create-video`](https://github.com/remotion-dev/remotion/pull/49)
+- [Fix refs of `<Image/>` component](https://github.com/remotion-dev/remotion/pull/66)
+- [Improve page management pool](https://github.com/remotion-dev/remotion/pull/48)

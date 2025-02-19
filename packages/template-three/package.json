@@ -1,0 +1,35 @@
+{
+  "name": "template-three",
+  "version": "1.0.0",
+  "description": "A React Three Fiber Project",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@react-three/fiber": "9.0.0-rc.6",
+    "@remotion/cli": "workspace:*",
+    "@remotion/media-utils": "workspace:*",
+    "@remotion/three": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "three": "0.171.0",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.0.0",
+    "@types/three": "0.170.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "typescript": "5.5.4"
+  },
+  "private": true
+}

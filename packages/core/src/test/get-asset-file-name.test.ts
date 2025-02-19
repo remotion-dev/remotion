@@ -1,4 +1,5 @@
-import {getAssetDisplayName} from '../get-asset-file-name';
+import {describe, expect, test} from 'bun:test';
+import {getAssetDisplayName} from '../get-asset-file-name.js';
 
 describe('get asset file name test', () => {
 	const testStrings: [string, string][] = [
@@ -10,6 +11,6 @@ describe('get asset file name test', () => {
 	testStrings.forEach((entry) =>
 		test(`test for ${entry[0]}`, () => {
 			expect(getAssetDisplayName(entry[0])).toEqual(entry[1]);
-		})
+		}),
 	);
 });

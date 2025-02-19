@@ -28,7 +28,7 @@ const BlueSquare: React.FC = () => {
           transform: `translateY(${interpolate(
             animation,
             [0, 1],
-            [600, 0]
+            [600, 0],
           )}px)`,
           justifyContent: "center",
           alignItems: "center",
@@ -45,15 +45,15 @@ const BlueSquare: React.FC = () => {
 
 const DelayExample: React.FC = () => {
   return (
-    <Sequence from={30} >
-      <BlueSquare/>
+    <Sequence from={30}>
+      <BlueSquare />
     </Sequence>
   );
 };
 
 const TrimStartExample: React.FC = () => {
   return (
-    <Sequence from={-15} >
+    <Sequence from={-15}>
       <BlueSquare />
     </Sequence>
   );
@@ -61,8 +61,8 @@ const TrimStartExample: React.FC = () => {
 
 const TrimAndDelayExample: React.FC = () => {
   return (
-    <Sequence from={30} >
-      <Sequence from={-15} >
+    <Sequence from={30}>
+      <Sequence from={-15}>
         <BlueSquare />
       </Sequence>
     </Sequence>
@@ -82,7 +82,7 @@ const BaseExample: React.FC = () => {
 };
 
 export const SequenceForwardExample: React.FC<{
-  type: "base" | "delay" | "clip" | "trim-start" | "trim-and-delay";
+  readonly type: "base" | "delay" | "clip" | "trim-start" | "trim-and-delay";
 }> = ({ type }) => {
   const component = (() => {
     if (type === "base") {
@@ -117,10 +117,10 @@ export const SequenceForwardExample: React.FC<{
         durationInFrames={150}
         fps={30}
         style={{
-          width: "100%",
+          height: 200,
         }}
         loop
-       />
+      />
     </div>
   );
 };

@@ -1,0 +1,125 @@
+---
+slug: 2-3
+title: Remotion 2.3
+author: Jonny Burger
+author_title: Remotion Creator
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/remotion-2-3.png
+---
+
+Remotion 2.3 is out and features [first-class support for still images](/docs/stills)!
+
+So far we focused on streamlining the workflow for making videos. While it was always possible to render out a single image instead of an encoded video, we have optimized this use-case in this release.
+
+## New `<Still />` component
+
+[This new component](/docs/still) is the same as [`<Composition />`](/docs/composition) but is meant for defining a compositions that output a still image. Since it's already implied, you don't have to define the `fps` and `durationInFrames` properties.
+
+```tsx twoslash
+import {Still} from 'remotion';
+const Thumbnail: React.FC = () => null;
+// ---cut---
+<Still
+  id="Thumbnail"
+  component={Thumbnail}
+  width={1200}
+  height={627}
+  defaultProps={{
+    title: 'Welcome to Remotion',
+    description: 'Edit Video.tsx to change template',
+    slogan: 'Write videos\nin React',
+  }}
+/>;
+```
+
+## Optimized editor for stills
+
+There are now icons in the sidebar for compositions, and those who are stills have an image icon.
+
+<p align="center">
+  <img style={{maxWidth: 300}} src="/img/still-thumbnail.png" /> <br />
+  <em>
+    <sub>Now still images (compositions with a duration of 1 frame) are marked with a special icon.</sub>
+  </em>
+</p>
+
+For still images, you don't need the timeline, so it will hide itself and give you a bigger canvas.
+
+<p align="center">
+  <img style={{maxWidth: 600}} src="/img/notimeline.png" /> <br />
+</p>
+
+## New `remotion still` command
+
+Rendering stills has become easier as well. The new `remotion still` command allows you to quickly generate a PNG or JPEG on the command line.
+
+```
+npx remotion still --props='{"custom": "data"}'  my-comp out.png
+```
+
+## New `renderStill()` API
+
+If you render using the Node.JS APIs, we have a new equivalent API for rendering stills as well.
+
+```ts twoslash
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderStill} from '@remotion/renderer';
+
+// The composition you want to render
+const compositionId = 'HelloWorld';
+
+const bundleLocation = await bundle({
+  entryPoint: require.resolve('./src/index.ts'),
+});
+
+const comps = await getCompositions(bundleLocation, {
+  inputProps: {
+    custom: 'data',
+  },
+});
+const composition = comps.find((c) => c.id === compositionId);
+
+if (!composition) {
+  throw new Error(`No composition with the ID ${compositionId} found`);
+}
+
+// ---cut---
+
+await renderStill({
+  composition,
+  serveUrl: bundleLocation,
+  output: '/tmp/still.png',
+  inputProps: {
+    custom: 'data',
+  },
+});
+```
+
+## New Stills template with server rendering
+
+[We have made a new template](https://github.com/remotion-dev/template-still) that includes a social media preview card and a server that you can customize and easily deploy to the cloud. We have tested it on DigitalOcean and Heroku and have added instructions on how to deploy it.
+
+We use this service to generate the social preview card for the blog post you are reading right now. Feel free to go to this URL and play around with the parameters:
+
+https://remotion-still.herokuapp.com/PreviewCard.jpeg?title=Remotion%202.3&description=%3CStill%20/%3E%20component,%20renderStill()%20API,%20optimized%20editor%20and%20CLI,%20Server%20rendering%20template
+
+The server includes different caching options, rate limiting and limits to 1 render at a time, so hopefully it's ready for production. We put the URL out there for you play around with it, should there be any unexpected problems, we'll fix the template.
+
+## 🔜 Serverless in the works
+
+We are also working on getting still image rendering working in a serverless environment and providing a framework for it. We aim to launch it this fall - if you are interested in testing an early version, [write us a message in our Discord](https://remotion.dev/discord).
+
+## `yarn create video` now has multiple templates
+
+When creating a new video, you now get to choose between different templates, that give you a great starting point for your usecase.
+
+<p align="center">
+  <img style={{maxWidth: 600}} src="/img/yarncreatetemplate.png" /> <br />
+</p>
+
+In addition to the default template and the previously announced Three.JS template, there now is also a plain-JS template, a text-to-speech template and the above mentioned Stills template.
+
+## Player now supports space key to play/pause
+
+The `<Player />` component now supports the new [`spaceKeyToPlayOrPause`](https://www.remotion.dev/docs/player/#spacekeytoplayorpause) prop to toggle the video playback. We designed it with focus management in mind so it behaves well when multiple players are on the same page. This prop is by default `true`.

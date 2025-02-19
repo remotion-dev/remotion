@@ -12,9 +12,31 @@
 	},
 	"include": ["src"],
 	"references": [
+		{"path": "../animated-emoji"},
+		{"path": "../animation-utils"},
 		{"path": "../core"},
-		{"path": "../media-utils"},
 		{"path": "../babel-loader"},
-		{"path": "../three"}
+		{"path": "../bundler"},
+		{"path": "../cli"},
+		{"path": "../eslint-config"},
+		{"path": "../eslint-plugin"},
+		{"path": "../gif"},
+		{"path": "../fonts"},
+		{"path": "../lambda"},
+		{"path": "../lottie"},
+		{"path": "../media-utils"},
+		{"path": "../motion-blur"},
+		{"path": "../paths"},
+		{"path": "../renderer"},
+		{"path": "../rive"},
+		{"path": "../shapes"},
+		{"path": "../skia"},
+		{"path": "../three"},
+		{"path": "../transitions"},
+		{"path": "../zod-types"},
+		{"path": "../svg-3d-engine"},
+		{"path": "../media-parser"},
+		{"path": "../webcodecs"},
+		{"path": "../layout-utils"}
 	]
 }

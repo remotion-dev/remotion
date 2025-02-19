@@ -1,86 +1,173 @@
-import http from 'http';
-import type {FfmpegExecutable} from 'remotion';
-import {Internals} from 'remotion';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {Socket} from 'net';
+import http from 'node:http';
+import type {DownloadMap} from './assets/download-map';
+import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
+import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
+import {getPortConfig} from './port-config';
 import {serveHandler} from './serve-handler';
 
 export const serveStatic = async (
 	path: string | null,
 	options: {
 		port: number | null;
-		ffmpegExecutable: FfmpegExecutable;
-		ffprobeExecutable: FfmpegExecutable;
-		downloadDir: string;
-		onDownload: RenderMediaOnDownload;
-		onError: (err: Error) => void;
-	}
+		downloadMap: DownloadMap;
+		remotionRoot: string;
+		offthreadVideoThreads: number;
+		logLevel: LogLevel;
+		indent: boolean;
+		offthreadVideoCacheSizeInBytes: number | null;
+		binariesDirectory: string | null;
+		forceIPv4: boolean;
+	},
 ): Promise<{
 	port: number;
 	close: () => Promise<void>;
+	compositor: Compositor;
 }> => {
-	const port = await getDesiredPort(
-		options?.port ?? Internals.getServerPort() ?? undefined,
-		3000,
-		3100
-	);
-
-	const offthreadRequest = startOffthreadVideoServer({
-		ffmpegExecutable: options.ffmpegExecutable,
-		ffprobeExecutable: options.ffprobeExecutable,
-		downloadDir: options.downloadDir,
-		onDownload: options.onDownload,
-		onError: options.onError,
+	const {
+		listener: offthreadRequest,
+		close: closeCompositor,
+		compositor,
+	} = startOffthreadVideoServer({
+		downloadMap: options.downloadMap,
+		offthreadVideoThreads: options.offthreadVideoThreads,
+		logLevel: options.logLevel,
+		indent: options.indent,
+		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
+		binariesDirectory: options.binariesDirectory,
 	});
 
-	try {
-		const server = http
-			.createServer((request, response) => {
-				if (request.url?.startsWith('/proxy')) {
-					return offthreadRequest(request, response);
-				}
+	const connections: Record<string, Socket> = {};
 
-				if (path === null) {
-					response.writeHead(404);
-					response.end('Server only supports /proxy');
-					return;
-				}
-
-				serveHandler(request, response, {
-					public: path,
-				}).catch(() => {
-					response.statusCode = 500;
-					response.end('Error serving file');
-				});
-			})
-			.listen(port);
-
-		const close = () => {
-			return new Promise<void>((resolve, reject) => {
-				server.close((err) => {
-					if (err) {
-						if (
-							(err as Error & {code: string}).code === 'ERR_SERVER_NOT_RUNNING'
-						) {
-							return resolve();
-						}
-
-						reject(err);
-					} else {
-						resolve();
-					}
-				});
-			});
-		};
-
-		return {port, close};
-	} catch (err) {
-		console.log({err, msg: (err as Error).message});
-		if ((err as Error).message.includes('EADDRINUSE')) {
-			return serveStatic(path, options);
+	const server = http.createServer((request, response) => {
+		if (request.url?.startsWith('/proxy')) {
+			return offthreadRequest(request, response);
 		}
 
-		throw err;
+		if (path === null) {
+			response.writeHead(404);
+			response.end('Server only supports /proxy');
+			return;
+		}
+
+		serveHandler(request, response, {
+			public: path,
+		}).catch(() => {
+			if (!response.headersSent) {
+				response.writeHead(500);
+			}
+
+			response.end('Error serving file');
+		});
+	});
+
+	server.on('connection', (conn) => {
+		let key;
+		// Bun 1.0.43 fails on this
+		try {
+			key = conn.remoteAddress + ':' + conn.remotePort;
+		} catch {
+			key = ':';
+		}
+
+		connections[key] = conn;
+		conn.on('close', () => {
+			delete connections[key];
+		});
+	});
+
+	let selectedPort: number | null = null;
+
+	const maxTries = 10;
+
+	const portConfig = getPortConfig(options.forceIPv4);
+
+	for (let i = 0; i < maxTries; i++) {
+		let unlock = () => {};
+		try {
+			selectedPort = await new Promise<number>((resolve, reject) => {
+				getDesiredPort({
+					desiredPort: options?.port ?? undefined,
+					from: 3000,
+					to: 3100,
+					hostsToTry: portConfig.hostsToTry,
+				})
+					.then(({port, unlockPort}) => {
+						unlock = unlockPort;
+						server.listen({port, host: portConfig.host});
+						server.on('listening', () => {
+							resolve(port);
+							return unlock();
+						});
+						server.on('error', (err) => {
+							unlock();
+							reject(err);
+						});
+					})
+					.catch((err) => {
+						unlock();
+						return reject(err);
+					});
+			});
+			const destroyConnections = function () {
+				for (const key in connections) connections[key].destroy();
+			};
+
+			const close = async () => {
+				await Promise.all([
+					new Promise<void>((resolve, reject) => {
+						// compositor may have already quit before,
+						// this is okay as we are in cleanup phase
+						closeCompositor()
+							.catch((err) => {
+								if ((err as Error).message.includes('Compositor quit')) {
+									resolve();
+									return;
+								}
+
+								reject(err);
+							})
+							.finally(() => {
+								resolve();
+							});
+					}),
+					new Promise<void>((resolve, reject) => {
+						destroyConnections();
+						server.close((err) => {
+							if (err) {
+								if (
+									(err as Error & {code: string}).code ===
+									'ERR_SERVER_NOT_RUNNING'
+								) {
+									return resolve();
+								}
+
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+					}),
+				]);
+			};
+
+			return {port: selectedPort, close, compositor};
+		} catch (err) {
+			if (!(err instanceof Error)) {
+				throw err;
+			}
+
+			const codedError = err as Error & {code: string; port: number};
+
+			if (codedError.code === 'EADDRINUSE') {
+				// Already in use, try another port
+			} else {
+				throw err;
+			}
+		}
 	}
+
+	throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
 };

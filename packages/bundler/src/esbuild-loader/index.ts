@@ -1,9 +1,7 @@
 import {transform as defaultEsbuildTransform} from 'esbuild';
-import path from 'path';
+import path from 'node:path';
 import type webpack from 'webpack';
 import type {LoaderOptions} from './interfaces';
-
-const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
 
 const isTsExtensionPtrn = /\.ts$/i;
 
@@ -11,25 +9,26 @@ const isTypescriptInstalled = () => {
 	try {
 		require.resolve('typescript');
 		return true;
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };
 
 async function ESBuildLoader(
 	this: webpack.LoaderContext<LoaderOptions>,
-	source: string
+	source: string,
 ): Promise<void> {
 	const done = this.async();
-	this.getOptions();
 	const options: LoaderOptions = this.getOptions();
-	const {implementation, ...esbuildTransformOptions} = options;
+	const {implementation, remotionRoot, ...esbuildTransformOptions} = options;
+
+	const tsConfigPath = path.join(remotionRoot, 'tsconfig.json');
 
 	if (implementation && typeof implementation.transform !== 'function') {
 		done(
 			new TypeError(
-				`esbuild-loader: options.implementation.transform must be an ESBuild transform function. Received ${typeof implementation.transform}`
-			)
+				`esbuild-loader: options.implementation.transform must be an ESBuild transform function. Received ${typeof implementation.transform}`,
+			),
 		);
 		return;
 	}
@@ -49,7 +48,7 @@ async function ESBuildLoader(
 		const typescript = require('typescript') as typeof import('typescript');
 		const tsConfig = typescript.readConfigFile(
 			tsConfigPath,
-			typescript.sys.readFile
+			typescript.sys.readFile,
 		);
 
 		transformOptions.tsconfigRaw = tsConfig.config;

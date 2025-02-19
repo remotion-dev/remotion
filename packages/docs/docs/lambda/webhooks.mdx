@@ -1,0 +1,295 @@
+---
+image: /generated/articles-docs-lambda-webhooks.png
+sidebar_label: Webhooks
+title: Webhooks
+slug: /lambda/webhooks
+crumb: 'Lambda'
+---
+
+import {WebhookTest} from '../../components/lambda/webhook-test';
+
+When rendering on AWS Lambda, Remotion can send webhooks to notify you when the render ends, successfully or with failures. This page describes the webhook payloads and how to set up a webhook API endpoint.
+
+Refer to the `renderMediaOnLambda()` documentation to [learn how to trigger a render with webhooks enabled](/docs/lambda/rendermediaonlambda#webhook).
+
+## Setup
+
+You will need to set up an API endpoint with a POST request handler. Make sure that the endpoint is reachable and accepts requests from AWS.
+
+:::info
+If you run the webhook endpoint on your local machine (i.e. on `localhost`), you will need to set up a public reverse proxy using a tool like [tunnelmole](https://tunnelmole.com/docs), an open source tunneling tool or [ngrok](https://ngrok.com/), a popular closed source tunneling tool. Running either tool will generate a Public URL that will forward to your service on localhost.
+:::
+
+## Response
+
+Every webhook has the following headers:
+
+```json
+{
+  "Content-Type": "application/json",
+  "X-Remotion-Mode": "production" | "demo",
+  "X-Remotion-Signature": "sha512=HASHED_SIGNATURE" | "NO_SECRET_PROVIDED",
+  "X-Remotion-Status": "success" | "timeout" | "error",
+}
+```
+
+You can use these headers to verify the authenticity of the request, to check the status of your rendering process and to check whether the webhook was called from production code deployed to AWS or a demo application such the tool below or your own test suite.
+
+The request body has the following structure:
+
+```ts
+type StaticWebhookPayload = {
+  renderId: string;
+  expectedBucketOwner: string;
+  bucketName: string;
+  customData: Record<string, unknown> | null;
+};
+
+export type WebhookErrorPayload = StaticWebhookPayload & {
+  type: 'error';
+  errors: {
+    message: string;
+    name: string;
+    stack: string;
+  }[];
+};
+
+export type WebhookSuccessPayload = StaticWebhookPayload & {
+  type: 'success';
+  lambdaErrors: EnhancedErrorInfo[];
+  outputUrl: string | undefined;
+  outputFile: string | undefined;
+  timeToFinish: number | undefined;
+  costs: AfterRenderCost;
+};
+
+export type WebhookTimeoutPayload = StaticWebhookPayload & {
+  type: 'timeout';
+};
+
+export type WebhookPayload = WebhookErrorPayload | WebhookSuccessPayload | WebhookTimeoutPayload;
+```
+
+The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
+
+You can use the field `customData` to set a JSON-serializable object, which is useful to pass on custom data to the webhook endpoint. **The `customData` field must be less than 1KB (1024 bytes) when serialized, otherwise an error is thrown**. Store larger data in `inputProps` and retrieve it back by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress) and reading `progress.renderMetadata.inputProps`.
+
+If the render process times out, the reponse body will not contain any other fields.
+
+The `outputUrl`, `outputFile` and `timeToFinish` keys are only returned if the render was successful. Note that a successful render process may still have non-fatal `lambdaErrors`:
+
+```json
+{
+  "s3Location": "string",
+  "explanation": "string" | null,
+  "type": "renderer" | "browser" | "stitcher",
+  "message": "string",
+  "name": "string",
+  "stack": "string",
+  "frame": "number"| null,
+  "chunk": "number"| null,
+  "isFatal": "boolean",
+  "attempt": "number",
+  "willRetry": "boolean",
+  "totalAttempts": "number",
+  "tmpDir": {
+    "files": [{
+      "filename": "string",
+      "size": "number",
+    }],
+    "total": "number"
+  } | null,
+}
+```
+
+The `errors` array will contain the error message and stack trace of any _fatal_ error that occurs during the render process.
+
+## Validate Webhooks
+
+Remotion will sign all webhook requests if you provide a webhook secret in the CLI arguments.
+
+:::warning
+If you don't provide a secret, the `X-Remotion-Signature` will be set to `NO_SECRET_PROVIDED`. It is not possible to verify the authenticity and data integrity of a webhook request that is sent with a `NO_SECRET_PROVIDED` signature. If you want to verify incoming webhooks, you must provide a webhook secret.
+:::
+
+Remotion uses [HMAC](https://en.wikipedia.org/wiki/HMAC) with the [SHA-512 algorithm](https://en.wikipedia.org/wiki/SHA-2) to cryptographically sign the webhook requests it sends. This allows you to verify the authenticity and data integrity of incoming webhook requests.
+
+In order to verify a webhook request, you will need to create a hex digest of a SHA-512 HMAC signature using your provided webhook key and the request body. If it matches the `X-Remotion-Signature` header, the request was indeed sent by Remotion and its request body is complete.
+
+If it does not match, either the data integrity is compromised and the request body is incomplete or the request was not sent by Remotion.
+
+This is how Remotion calculates the signature:
+
+```javascript
+import * as Crypto from "crypto";
+
+function calculateSignature(payload: string, secret?: string) {
+  if (!secret) {
+    return "NO_SECRET_PROVIDED";
+  }
+  const hmac = Crypto.createHmac("sha512", secret);
+  const signature = "sha512=" + hmac.update(payload).digest("hex");
+  return signature;
+}
+```
+
+In your webhook endpoint, the `payload` parameter is the request body and the `secret` parameter is your webhook secret.
+
+Instead of validating the signature yourself, you can use the [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) function to throw an error if the signature is invalid.
+
+## Example webhook endpoint (Express)
+
+You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework, we are using [expressWebhook()](/docs/lambda/expresswebhook) to simplify the process.
+
+```javascript twoslash title="server.js"
+const ENABLE_TESTING = false;
+
+// ---cut---
+import express from 'express';
+import bodyParser from 'body-parser';
+import {expressWebhook} from '@remotion/lambda/client';
+
+const router = express();
+const jsonParser = bodyParser.json();
+
+const handler = expressWebhook({
+  secret: 'mysecret',
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
+
+router.post('/webhook', jsonParser, handler);
+
+router.options('/webhook', jsonParser, handler);
+
+router.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+This can also be done manually, to have the maximum control over the endpoint's logic:
+
+```javascript twoslash title="server.js"
+import express from 'express';
+import bodyParser from 'body-parser';
+import {validateWebhookSignature} from '@remotion/lambda/client';
+
+const router = express();
+const jsonParser = bodyParser.json();
+
+const handler = (req, res) => {
+  //  add headers to enable  testing
+  const ENABLE_TESTING = true;
+
+  if (ENABLE_TESTING) {
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode');
+  }
+
+  // dont go forward if just testing
+  if (req.method === 'OPTIONS') {
+    // custom code to handle OPTIONS request
+    // logger(req).info('OPTIONS request received');
+    res.status(200).end();
+    return;
+  }
+
+  // validate the webhook signature
+  validateWebhookSignature({
+    signatureHeader: req.header('X-Remotion-Signature'),
+    body: req.body,
+    secret: 'mysecret',
+  });
+
+  //  custom logic
+  const payload = req.body;
+  if (payload.type === 'success') {
+    //success logic here
+  } else if (payload.type === 'error') {
+    //error logic here
+  } else if (payload.type === 'timeout') {
+    //timeout logic here
+  }
+
+  // send response
+  res.status(200).json({success: true});
+};
+
+router.post('/webhook', jsonParser, handler);
+
+router.options('/webhook', jsonParser, handler);
+
+router.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+## Example webhook endpoint (Next.JS App Router)
+
+Similarly, here is an example endpoint in Next.JS for the App Router using [`appRouterWebhook()`](/docs/lambda/approuterwebhook). Available from v4.0.246.
+
+```tsx twoslash title="app/api/webhook.ts"
+const ENABLE_TESTING = false;
+
+// ---cut---
+import {appRouterWebhook} from '@remotion/lambda/client';
+
+export const POST = appRouterWebhook({
+  secret: 'mysecret',
+  // Enable testing through the tool below
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
+
+export const OPTIONS = POST;
+```
+
+## Example webhook endpoint (Next.JS Pages Router)
+
+The same endpoint as above, but using the Pages Router with the help of [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook). Available from v4.0.246.
+
+```tsx twoslash title="pages/api/webhook.ts"
+const ENABLE_TESTING = false;
+
+// ---cut---
+
+import {pagesRouterWebhook} from '@remotion/lambda/client';
+
+const handler = pagesRouterWebhook({
+  secret: 'mysecret',
+  // Enable testing through the tool below
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
+export default handler;
+```
+
+## Test your webhook endpoint
+
+You can use this tool to verify that your webhook endpoint is working properly. The tool will send an appropriate demo payload and log the response to the screen. All requests sent by this tool will have the `"X-Remotion-Mode"` header set to `"demo"`.
+
+:::info
+This tool sends the demo webhook requests directly from your browser, which has the following implications:
+
+- **CORS requirements**:
+  - Make sure your API endpoint is configured to accept requests from `remotion.dev` by setting `"Access-Control-Allow-Origin": "https://www.remotion.dev"`. This is necessary for this tool to work, but **not** for your production webhook endpoint.
+  - You must set `"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"`
+  - You must set `"Access-Control-Allow-Methods": "OPTIONS,POST"`.
+  - Read the error messages in the DevTools to debug potential CORS issues.
+- You can use a server listening on `localhost` and don't need to use a reverse proxy.
+
+:::info
+
+<WebhookTest />
+
+## See also
+
+- [validateWebhookSignature()](/docs/lambda/validatewebhooksignature)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)

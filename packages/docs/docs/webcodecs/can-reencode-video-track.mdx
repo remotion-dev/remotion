@@ -1,0 +1,95 @@
+---
+image: /generated/articles-docs-webcodecs-can-reencode-video-track.png
+id: can-reencode-video-track
+title: canReencodeVideoTrack()
+slug: /webcodecs/can-reencode-video-track
+crumb: '@remotion/webcodecs'
+---
+
+_Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
+
+:::warning
+**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+:::
+
+Given a `VideoTrack`, determine if it can be re-encoded to another track.
+
+You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-media) or during the conversion process using the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) callback of [`convertMedia()`](/docs/webcodecs/convert-media).
+
+## Examples
+
+```tsx twoslash title="Check if video tracks can be re-encoded to VP8"
+import {parseMedia} from '@remotion/media-parser';
+import {canReencodeVideoTrack} from '@remotion/webcodecs';
+
+const {tracks} = await parseMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  fields: {
+    tracks: true,
+  },
+});
+
+for (const track of tracks.videoTracks) {
+  await canReencodeVideoTrack({
+    track,
+    videoCodec: 'vp8',
+    resizeOperation: null,
+    rotate: null,
+  });
+}
+```
+
+```tsx twoslash title="Convert a video track to VP8, otherwise drop it"
+import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+  videoCodec: 'vp8',
+  audioCodec: 'opus',
+  onVideoTrack: async ({track, resizeOperation, rotate}) => {
+    const canReencode = await canReencodeVideoTrack({
+      track,
+      videoCodec: 'vp8',
+      resizeOperation,
+      rotate,
+    });
+
+    if (canReencode) {
+      return {type: 'reencode', videoCodec: 'vp8'};
+    }
+
+    return {type: 'drop'};
+  },
+});
+```
+
+## API
+
+### `track`
+
+A `VideoTrack` object.
+
+### `videoCodec`
+
+_string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
+
+One of the supported video codecs: `"vp8"`, `"vp9"`.
+
+### `resizeOperation`
+
+The [resize operation](/docs/webcodecs/resize-a-video) you would like to apply.
+
+### `rotate`
+
+The [rotate operation](/docs/webcodecs/rotate-a-video) you would like to apply.
+
+## Return value
+
+Returns a `Promise<boolean>`.
+
+## See also
+
+- [Source code for this function on GitHub](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/can-reencode-video-track.ts)
+- [`convertMedia()`](/docs/webcodecs/convert-media)
+- [`parseMedia()`](/docs/media-parser/parse-media)

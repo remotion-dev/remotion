@@ -65,7 +65,7 @@ const makeStackFrame = ({
 export const parseStack = (stack: string[]): UnsymbolicatedStackFrame[] => {
 	const frames = stack
 		.filter(
-			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e)
+			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e),
 		)
 		.map((e) => {
 			if (regexValidFrame_FireFox.test(e)) {
@@ -74,7 +74,7 @@ export const parseStack = (stack: string[]): UnsymbolicatedStackFrame[] => {
 				if (/ > (eval|Function)/.test(e)) {
 					e = e.replace(
 						/ line (\d+)(?: > eval line \d+)* > (eval|Function):\d+:\d+/g,
-						':$1'
+						':$1',
 					);
 					isEval = true;
 				}

@@ -1,0 +1,20 @@
+# Ignore cache files
+/var/cache/*
+
+# Ignore log files
+/var/log/*
+
+# Ignore configuration files
+/config/*.ini
+/config/*.yml
+/config/*.xml
+
+# Ignore vendor directory
+/vendor/*
+
+# Ignore compiled files
+/compiled/*
+
+# Ignore temporary files
+*.tmp
+*.temp

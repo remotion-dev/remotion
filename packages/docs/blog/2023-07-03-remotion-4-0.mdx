@@ -1,0 +1,169 @@
+---
+slug: 4-0
+title: Remotion 4.0
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/4-0.png
+description: Introducing visual editing, Rust-powered architecture, and the Render Button.
+---
+
+Welcome to the biggest Remotion update ever!  
+With Remotion 4.0, we offer significant improvements to every workflow.
+
+<iframe
+  style={{
+    width: '100%',
+    aspectRatio: '16 / 9',
+  }}
+  src="https://www.youtube.com/embed/S3C9wlPNhkQ"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+<br />
+<br />
+
+## Introducing the Remotion Studio
+
+We added handy features to the Remotion Preview - as a result, it's more than just a preview! Therefore, we renamed it: Say hello to the Remotion Studio.
+
+### Interactive editing of props
+
+The props of a composition can now be defined as a [Zod](https://zod.dev) schema.  
+Doing this will not only make your `defaultProps` typesafe, but also allow you to edit them in the Remotion Studio.
+
+Edit numbers, strings, arrays, objects, enums and dates directly using a graphical interface. Even nested data structures can be visualized and edited.
+
+Once you are happy with the changes you've made, you can even save the props back to your project. This works with arbitrary JSON data.
+
+**Read more**: [Visual editing](/docs/visual-editing)
+
+### Render Button
+
+Instead of typing in a CLI command, you can now simply press a button to render an asset.
+
+A graphical interface allows you to discover and tweak all options of a render. You can follow the progress of a render in the Remotion Studio, queue multiple renders, and reveal the output in the file explorer.
+
+Every render triggered through the UI is also trackable in the CLI as usual and synchronizes to other instances of the Remotion Studio.  
+Failed renders show the stack trace and allow for retries with the same configuration.
+
+Edited props in the Remotion Studio can be used to render a video using the Render Button as well - which means you can now render a parameterized video by filling out a form and not having to touch any code.
+
+## Rust-powered architecture
+
+Remotion 4.0 ships with a Rust binary that speeds up current and future features.
+
+### FFmpeg is baked in
+
+Installing FFmpeg is now superfluous, as each Remotion project comes with a tiny version of FFmpeg baked into it.
+
+We eliminate the our burden of having to support multiple versions of FFmpeg, and you don't have to worry about installing it anymore.
+
+We ship a custom build of FFmpeg 6.0, which is much smaller than a version that you would download. On Lambda, it decreases the cold start time of your functions.
+
+We also get access to the low-level C API that allows us to do things that were not possible before.
+
+### Faster `<OffthreadVideo>`
+
+The [`<OffthreadVideo>`](/docs/offthreadvideo) component is the preferred way to embed an existing video into a Remotion project.
+
+While previously, frames were extracted using the FFmpeg CLI, we now use the FFmpeg C API to extract frames. Because we can keep the video open between extractions, this is much faster than before
+
+Unnecessary redundant decoding work can now be skipped, which makes the component up to [twice as fast](https://github.com/remotion-dev/4-0-benchmark) during rendering!
+
+## Support for WebP and PDF generation
+
+Previously you could generate PNGs and JPEGs using Remotion - now we support WebP and PDF as well!
+
+There are plenty of ways you can render stills: the new [Render button](/docs/render), the [`npx remotion still`](/docs/cli/still) command, the [`renderStill()`](/docs/renderer/render-still) Node.JS API, render on Lambda with [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) or on Google Cloud Run using [`renderStillOnCloudrun()`](https://cloudrun.remotion.dev/docs/cloudrun/renderstilloncloudrun)!
+
+## Easier data-driven videos
+
+We are introducing a new [`calculateMetadata()`](/docs/composition#calculatemetadata) API for the `<Composition>` component. It helps if you want to:
+
+<Step>1</Step> Adjust the duration or resolution based on the props of the React component <br />
+<Step>2</Step> Perform data fetching before the video renders <br />
+<Step>3</Step> Precalculate props before mounting the React component <br />
+<br />
+
+To demonstrate the possibilities of the new API, we made a new section in the docs entirely dedicated to data-driven videos. See: [Parameterized rendering](/docs/parameterized-rendering).
+
+## Upgraded templates
+
+All of our [templates](/templates) have been upgraded to use Remotion 4.0. Many of them make use of the new features, for example the popular [Text-to-speech](/templates/tts) template allows you to customize the text and voice, and the template will automatically adjust the duration of the video to match.
+
+We also introduce two new templates: [Text-to-speech (Google)](/templates/google-tts) which is an alternative to the Azure TTS template, as well as [https://www.remotion.dev/templates/stargazer] which is a popular template for celebrating GitHub star milestones and can now be initialized using `npm init video`.
+
+## More features
+
+These features added inbetween v3.3 and v4.0 are worth highlighting:
+
+### `@remotion/rive` package
+
+[Rive](https://rive.app) is a faster and smaller alternative to Lottie.  
+With the new [`@remotion/rive`](/docs/rive) package, you can include Rive animations in your project.
+
+### `@remotion/shapes` package
+
+[`@remotion/shapes`](/docs/shapes) is a handy package for including geometric shapes like [`<Triangle>`](/docs/shapes/triangle), [`<Star>`](/docs/shapes/star) or [`<Pie>`](/docs/shapes/pie) in your components!
+
+Those components are easy to animate, pure, dependency-free and work well with [`@remotion/paths`](/docs/paths).
+
+Each shape can be used as a React component [`<Star>`](/docs/shapes/star) or as a pure function that returns an SVG path [`makeStar()`](/docs/shapes/make-star).
+
+### `@remotion/tailwind` package
+
+The new [Tailwind](/docs/tailwind/tailwind) package allows you to install Tailwind more easily in any Remotion project.
+
+### Finetuned Audio codec
+
+Instead of the audio codec being tied to the video codec, you can now [choose the audio codec independently](/docs/encoding#audio-codec).
+
+### Lambda improvements
+
+- Support for [more regions](/docs/lambda/region-selection) has been added, 20 regions are now supported.
+- The [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) API allows for faster launches of a render.
+- VP9 videos are now supported.
+- [`npx remotion lambda compositions`](/docs/lambda/cli/compositions) and [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda) APIs have now been added.
+- New [PHP](/docs/lambda/php) and [Go](/docs/lambda/go) SDKs
+- New examples for [Serverless](/docs/lambda/serverless-framework-integration) and [SQS](/docs/lambda/sqs) integration.
+
+### Player improvements
+
+- The Player UI now has an optional [Playback rate control](/docs/player/player#showplaybackratecontrol).
+- The Player now is marked as `"use client"` to support import in React Server Components.
+- New [`mutechange`](/docs/player/player#mutechange), [`scalechange`](/docs/player/player#scalechange), [`volumechange`](/docs/player/player#volumechange) events
+
+### ES Module support
+
+All APIs that can be imported in the browser now have an ES Module version.
+
+### Font Picker
+
+In your apps, you can now display a [font picker](/docs/font-picker) and load fonts dynamically only when they are needed.
+
+### New Core APIs
+
+The [`remotion`](/docs/remotion) package has had the following improvements:
+
+- [`getStaticFiles()`](/docs/getstaticfiles) allows you get get a list of files in the `public/` folder.
+- [`cancelRender()`](/docs/cancel-render) allows you to abort a render should you run into an error.
+- New Rust-accelerated components: [`<Experimental.Clipper>`](/docs/clipper) and [`<Experimental.Null>`](/docs/null)
+- [`<Series.Sequence>`](/docs/series) and [`<Loop>`](/docs/loop) now support `style` and `ref`.
+
+## Join the Cloud Run Alpha
+
+As a counterpart for Lambda, we are developing a Google Cloud Run package.  
+The alpha is now available, [help us test it by becoming an early adopter](https://cloudrun.remotion.dev/docs).
+
+## Full Changelog
+
+See the GitHub release to see the [full changelog](https://github.com/remotion-dev/remotion/releases/tag/v4.0.0).
+
+## Breaking changes
+
+See the [Migration Guide](/docs/4-0-migration) for a full list of breaking changes.

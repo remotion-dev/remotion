@@ -1,0 +1,25 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-darwin-arm64"
+	},
+	"version": "4.0.266",
+	"name": "@remotion/compositor-darwin-arm64",
+	"os": [
+		"darwin"
+	],
+	"cpu": [
+		"arm64"
+	],
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"require": "./index.js",
+			"import": "./index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"description": "MacOS Apple Silicon binary for the Remotion Rust code"
+}

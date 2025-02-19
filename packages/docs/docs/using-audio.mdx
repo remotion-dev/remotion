@@ -1,0 +1,300 @@
+---
+image: /generated/articles-docs-using-audio.png
+title: Using audio
+sidebar_label: Audio
+id: using-audio
+crumb: 'Techniques'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Import audio
+
+[Put an audio file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.  
+Add an [`<Audio/>`](/docs/audio) tag to your component to add sound to it.
+
+```tsx twoslash
+import {AbsoluteFill, Audio, staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+You can also add remote audio by passing a URL:
+
+```tsx twoslash
+import {AbsoluteFill, Audio} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src="https://example.com/audio.mp3" />
+    </AbsoluteFill>
+  );
+};
+```
+
+By default, the audio will play from the start, at full volume and full length.
+You can mix multiple tracks together by adding more audio tags.
+
+## Cutting or trimming the audio
+
+The `<Audio />` tag supports the `startFrom` and `endAt` props. In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+```tsx twoslash {6}
+import {AbsoluteFill, Audio, staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} startFrom={60} endAt={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `endAt={120}`, any audio after the 4 second mark in the file will be trimmed away.
+
+The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+
+## Delaying audio
+
+Use a `<Sequence>` with a positive `from` value to delay the audio from playing.
+In the following example, the audio will start playing (from the beginning) after 100 frames.
+
+```tsx twoslash {6-8}
+import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Sequence from={100}>
+        <Audio src={staticFile('audio.mp3')} />
+      </Sequence>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Controlling volume
+
+You can use the [`volume`](/docs/audio#volume) prop to control the volume.
+
+The simplest way is to pass a number between 0 and 1. `1` is the maximum volume and `0` mutes the audio.
+
+```tsx twoslash {8}
+import {Audio} from 'remotion';
+import audio from './audio.mp3';
+
+export const MyComposition = () => {
+  return (
+    <div>
+      <div>Hello World!</div>
+      <Audio src={audio} volume={0.5} />
+    </div>
+  );
+};
+```
+
+You can also change volume over time by passing in a function that takes a frame number and returns the volume.
+
+```tsx twoslash {8-10}
+import {AbsoluteFill, Audio, interpolate, staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} />
+    </AbsoluteFill>
+  );
+};
+```
+
+In this example we are using the [interpolate()](/docs/interpolate) function to fade the audio in over 30 frames. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
+
+Inside the callback function, the first frame at which audio is being played is numbered `0`, regardless of the value of `useCurrentFrame()`.
+
+Prefer using a callback function if the volume is changing. This will enable Remotion to draw a volume curve in the timeline and is more performant.
+
+:::note
+When using the [`<Player>`](/docs/player), note that Mobile Safari [does not support the `volume` property](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW11). The audio mix may not play as intended.
+:::
+
+## `muted` property
+
+You may pass in the `muted` and it may change over time. When `muted` is true, audio will be omitted at that time. In the following example, we are muting the track between frame 40 and 60.
+
+```tsx twoslash {8}
+import {AbsoluteFill, Audio, staticFile, useCurrentFrame} from 'remotion';
+
+export const MyComposition = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} muted={frame >= 40 && frame <= 60} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Use audio from `<Video />` tags
+
+Audio from [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo) tags are also included in the output. You may use the [`startFrom`, `endAt`](/docs/video/#startfrom), [`volume`](/docs/video/#volume) and [`muted`](/docs/video/#muted) props in the same way.
+
+## Controlling playback speed
+
+<AvailableFrom v="2.2" />
+
+You can use the `playbackRate` prop to control the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
+
+While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
+
+## Audio visualization
+
+You can obtain audio data and create visualizations based on it. See the page [Audio visualization](/docs/audio-visualization) for more info.
+
+## Rendering audio only
+
+Exporting as `mp3`, `aac` and `wav` is supported:
+
+<Tabs
+defaultValue="cli"
+values={[
+{ label: 'CLI', value: 'cli', },
+{ label: 'renderMedia()', value: 'node', },
+{ label: 'Lambda', value: 'lambda', },
+]
+}>
+<TabItem value="cli">
+
+To render only the audio via CLI, specify an extension when exporting via CLI:
+
+```
+npx remotion render src/index.ts my-comp out/audio.mp3
+```
+
+or use the `--codec` flag to automatically choose a good output file name:
+
+```
+npx remotion render src/index.ts my-comp --codec=mp3
+```
+
+  </TabItem>
+
+  <TabItem value="node">
+
+To render only the audio via Node.JS, use [`renderMedia()`](/docs/renderer/render-media) and set the [`codec`](/docs/renderer/render-media#codec) to an audio codec.
+
+```tsx twoslash
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderMedia} from '@remotion/renderer'; // The composition you want to render
+import path from 'path';
+const compositionId = 'HelloWorld';
+
+// You only have to do this once, you can reuse the bundle.
+const entry = './src/index';
+console.log('Creating a Webpack bundle of the video');
+const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
+  // If you have a Webpack override, make sure to add it here
+  webpackOverride: (config) => config,
+});
+
+// Parametrize the video by passing arbitrary props to your component.
+const inputProps = {
+  foo: 'bar',
+};
+
+// Extract all the compositions you have defined in your project
+// from the webpack bundle.
+const comps = await getCompositions(bundleLocation, {
+  // You can pass custom input props that you can retrieve using getInputProps()
+  // in the composition list. Use this if you want to dynamically set the duration or
+  // dimensions of the video.
+  inputProps,
+});
+
+// Select the composition you want to render.
+const composition = comps.find((c) => c.id === compositionId);
+
+// Ensure the composition exists
+if (!composition) {
+  throw new Error(`No composition with the ID ${compositionId} found.
+  Review "${entry}" for the correct ID.`);
+}
+const outputLocation = `out/${compositionId}.mp4`;
+
+// ---cut---
+await renderMedia({
+  composition,
+  serveUrl: bundleLocation,
+  codec: 'mp3',
+  outputLocation,
+  inputProps,
+});
+```
+
+  </TabItem>
+    <TabItem value="lambda">
+
+To render only the audio via Lambda, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and set the [`codec`](/docs/lambda/rendermediaonlambda#codec) to an audio codec and [`imageFormat`](/docs/lambda/rendermediaonlambda#imageformat) to `none`.
+
+```tsx twoslash
+import {renderMediaOnLambda} from '@remotion/lambda';
+// ---cut---
+
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  framesPerLambda: 20,
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  inputProps: {},
+  codec: 'mp3',
+  imageFormat: 'none',
+  maxRetries: 1,
+  privacy: 'public',
+});
+```
+
+To render via the Lambda CLI, use the [`npx remotion lambda render`](/docs/lambda/cli/render) command and pass the [`--codec`](/docs/lambda/cli/render#--codec) flag:
+
+```
+npx remotion lambda render --codec=mp3 https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw my-comp
+```
+
+  </TabItem>
+</Tabs>
+
+## Order of operations<AvailableFrom v="4.0.141"/>
+
+Before Remotion v4.0.141, it was not defined in which order audio operations would be applied and behavior in preview and render could deviate.
+
+Since Remotion v4.0.141, the order of operations is guaranteed to be the following:
+
+1. Trim audio (using [`startFrom`](/docs/audio#startfrom--endat)).
+2. Offset audio (by putting it in a [sequence](/docs/terminology/sequence)).
+3. Stretch audio (by adding a [`playbackRate`](/docs/audio#playbackrate)).
+
+Example for a 30 FPS composition which is 60 frames long:
+
+1. An [`<Audio>`](/docs/audio) tag has a [`startFrom`](/docs/audio#startfrom--endat) value of 45. The first 1.5 seconds of the audio get trimmed off.
+2. The [`<Audio>`](/docs/audio) tag is in a [`<Sequence>`](/docs/sequence) which starts at `30`. The audio only begins playing at the 1.0 second timeline mark at the 1.5 second audio position.
+3. The [`<Audio>`](/docs/audio) has a [`playbackRate`](/docs/audio#playbackrate) of `2`. The audio gets sped up by 2x, but the starting position and start offset is not affected.
+4. The composition is 60 frames long, so the audio must stop at the 3.5 second mark:
+   > (comp_duration - offset) \* playback_rate + start_from  
+   > (60 - 30) \* 2 + 45 => frame 105 or the 3.5 second mark
+5. Result: The section of 1.5sec - 3.5sec gets cut out of the audio and is played in the Remotion timeline between frames 30 and 59 at 2x speed.
+
+## See also
+
+- [Importing assets](/docs/assets)
+- [Audio visualization](/docs/audio-visualization)
+- [`<Audio />`](/docs/audio) tag

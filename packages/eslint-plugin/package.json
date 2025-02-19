@@ -1,26 +1,42 @@
 {
-  "name": "@remotion/eslint-plugin",
-  "version": "3.0.30",
-  "description": "A set of rules helping you avoid common pitfalls in Remotion.",
-  "scripts": {
-    "build": "tsc -d",
-    "test": "jest",
-    "watch": "tsc -w"
-  },
-  "main": "dist/index.js",
-  "bugs": {
-    "url": "https://github.com/remotion-dev/remotion/issues"
-  },
-  "author": "Jonny Burger <jonny@remotion.dev>",
-  "license": "ISC",
-  "dependencies": {
-    "@typescript-eslint/utils": "5.19.0"
-  },
-  "devDependencies": {
-    "eslint": "8.13.0",
-    "jest": "^27.2.4",
-    "ts-jest": "^27.0.5",
-    "typescript": "^4.7.0"
-  },
-  "private": false
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
+	},
+	"name": "@remotion/eslint-plugin",
+	"version": "4.0.266",
+	"description": "Rules for writing Remotion code",
+	"scripts": {
+		"test": "vitest --run",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"main": "dist/index.js",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "ISC",
+	"dependencies": {
+		"@typescript-eslint/utils": "5.19.0"
+	},
+	"keywords": [
+		"eslint",
+		"eslintplugin"
+	],
+	"peerDependencies": {
+		"eslint": ">=7.0.0"
+	},
+	"devDependencies": {
+		"vitest": "0.31.1"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
+	},
+	"private": false,
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
 }

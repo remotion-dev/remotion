@@ -1,0 +1,4 @@
+/**
+ * @description Calculates the font size needed to fit text into a specified width container.
+ * @see [Documentation](https://remotion.dev/docs/layout-utils/fit-text)
+ */

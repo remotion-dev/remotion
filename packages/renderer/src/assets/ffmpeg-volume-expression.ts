@@ -45,17 +45,21 @@ const ffmpegIsOneOfFrames = ({
 			const before = (firstFrame - 0.5) / fps;
 			const after = (lastFrame + 0.5) / fps;
 			return `between(${FFMPEG_TIME_VARIABLE},${(before + trimLeft).toFixed(
-				4
+				4,
 			)},${(after + trimLeft).toFixed(4)})`;
 		})
 		.join('+');
 };
 
-const ffmpegBuildVolumeExpression = (
-	arr: VolumeArray,
-	delay: number,
-	fps: number
-): string => {
+const ffmpegBuildVolumeExpression = ({
+	arr,
+	delay,
+	fps,
+}: {
+	arr: VolumeArray;
+	delay: number;
+	fps: number;
+}): string => {
 	if (arr.length === 0) {
 		throw new Error('Volume array expression should never have length 0');
 	}
@@ -66,10 +70,11 @@ const ffmpegBuildVolumeExpression = (
 
 	const [first, ...rest] = arr;
 	const [volume, frames] = first;
+
 	return ffmpegIfOrElse(
 		ffmpegIsOneOfFrames({frames, trimLeft: delay, fps}),
 		String(volume),
-		ffmpegBuildVolumeExpression(rest, delay, fps)
+		ffmpegBuildVolumeExpression({arr: rest, delay, fps}),
 	);
 };
 
@@ -82,17 +87,20 @@ export const ffmpegVolumeExpression = ({
 	volume,
 	fps,
 	trimLeft,
+	allowAmplificationDuringRender,
 }: {
 	volume: AssetVolume;
 	trimLeft: number;
 	fps: number;
+	allowAmplificationDuringRender: boolean;
 }): FfmpegVolumeExpression => {
+	const maxVolume = allowAmplificationDuringRender ? Infinity : 1;
 	// If it's a static volume, we return it and tell
 	// FFMPEG it only has to evaluate it once
 	if (typeof volume === 'number') {
 		return {
 			eval: 'once',
-			value: String(Math.min(1, volume)),
+			value: String(Math.min(maxVolume, volume)),
 		};
 	}
 
@@ -101,6 +109,7 @@ export const ffmpegVolumeExpression = ({
 			volume: volume[0],
 			fps,
 			trimLeft,
+			allowAmplificationDuringRender,
 		});
 	}
 
@@ -118,7 +127,7 @@ export const ffmpegVolumeExpression = ({
 	paddedVolume.forEach((baseVolume, frame) => {
 		// Adjust volume based on how many other tracks have not yet finished
 		const actualVolume = roundVolumeToAvoidStackOverflow(
-			Math.min(1, baseVolume)
+			Math.min(maxVolume, baseVolume),
 		);
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];
@@ -134,7 +143,11 @@ export const ffmpegVolumeExpression = ({
 		.sort((a, b) => a[1].length - b[1].length);
 
 	// Construct and tell FFMPEG it has to evaluate expression on each frame
-	const expression = ffmpegBuildVolumeExpression(volumeArray, trimLeft, fps);
+	const expression = ffmpegBuildVolumeExpression({
+		arr: volumeArray,
+		delay: trimLeft,
+		fps,
+	});
 
 	return {
 		eval: 'frame',

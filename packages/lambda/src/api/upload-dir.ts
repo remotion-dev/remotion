@@ -1,11 +1,11 @@
-import {PutObjectCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import {createReadStream, promises as fs} from 'fs';
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import type {Privacy, UploadDirProgress} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
-import path from 'path';
-import type {Privacy} from '../defaults';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {getS3Client} from '../shared/aws-clients';
+import type {Dirent} from 'node:fs';
+import {createReadStream, promises as fs} from 'node:fs';
+import path from 'node:path';
 import {makeS3Key} from '../shared/make-s3-key';
 
 type FileInfo = {
@@ -13,102 +13,136 @@ type FileInfo = {
 	size: number;
 };
 
-export type UploadDirProgress = {
-	totalFiles: number;
-	filesUploaded: number;
-	totalSize: number;
-	sizeUploaded: number;
-};
-
 export type MockFile = {
 	name: string;
 	content: string;
 };
 
-export const getDirFiles = (entry: string): MockFile[] => {
-	throw new TypeError(
-		'should only be executed in test ' + JSON.stringify(entry)
-	);
-};
-
-export const uploadDir = async ({
-	bucket,
-	region,
-	dir,
-	onProgress,
-	folder,
-	privacy,
-}: {
-	bucket: string;
-	region: AwsRegion;
-	dir: string;
-	folder: string;
-	onProgress: (progress: UploadDirProgress) => void;
-	privacy: Privacy;
-}) => {
-	async function getFiles(directory: string): Promise<FileInfo[]> {
-		const dirents = await fs.readdir(directory, {withFileTypes: true});
-		const _files = await Promise.all(
-			dirents.map(async (dirent) => {
+async function getFiles(
+	directory: string,
+	originalDirectory: string,
+	toUpload: string[],
+): Promise<FileInfo[]> {
+	const dirents = await fs.readdir(directory, {withFileTypes: true});
+	const _files = await Promise.all(
+		dirents
+			.map((dirent): [Dirent, string] => {
 				const res = path.resolve(directory, dirent.name);
+				return [dirent, res];
+			})
+			.filter(([dirent, res]) => {
+				const relative = path.relative(originalDirectory, res);
+				if (dirent.isDirectory()) {
+					return true;
+				}
+
+				if (!toUpload.includes(relative)) {
+					return false;
+				}
+
+				return true;
+			})
+			.map(async ([dirent, res]) => {
 				const {size} = await fs.stat(res);
 				return dirent.isDirectory()
-					? getFiles(res)
+					? getFiles(res, originalDirectory, toUpload)
 					: [
 							{
 								name: res,
 								size,
 							},
-					  ];
-			})
-		);
-		return _files.flat(1);
-	}
+						];
+			}),
+	);
+	return _files.flat(1);
+}
 
-	const files = await getFiles(dir);
+const limit = LambdaClientInternals.pLimit(15);
+
+export const uploadDir = async ({
+	bucket,
+	region,
+	localDir,
+	onProgress,
+	keyPrefix,
+	privacy,
+	toUpload,
+	forcePathStyle,
+}: {
+	bucket: string;
+	region: AwsRegion;
+	localDir: string;
+	keyPrefix: string;
+	onProgress: (progress: UploadDirProgress) => void;
+	privacy: Privacy;
+	toUpload: string[];
+	forcePathStyle: boolean;
+}) => {
+	const files = await getFiles(localDir, localDir, toUpload);
 	const progresses: {[key: string]: number} = {};
 	for (const file of files) {
 		progresses[file.name] = 0;
 	}
 
-	const client = getS3Client(region);
+	const client = LambdaClientInternals.getS3Client({
+		region,
+		customCredentials: null,
+		forcePathStyle,
+	});
 
-	const uploads = files.map(async (filePath) => {
-		const Key = makeS3Key(folder, dir, filePath.name);
+	const uploadWithoutRetry = async (filePath: FileInfo) => {
+		const Key = makeS3Key(keyPrefix, localDir, filePath.name);
 		const Body = createReadStream(filePath.name);
 		const ContentType = mimeTypes.lookup(Key) || 'application/octet-stream';
-		const ACL = privacy === 'private' ? 'private' : 'public-read';
-		if (filePath.size > 5 * 1024 * 1024) {
-			const paralellUploads3 = new Upload({
-				client,
-				queueSize: 4,
-				partSize: 5 * 1024 * 1024,
-				params: {
-					Key,
-					Bucket: bucket,
-					Body,
-					ACL,
-					ContentType,
-				},
-			});
-			paralellUploads3.on('httpUploadProgress', (progress) => {
-				progresses[filePath.name] = progress.loaded ?? 0;
-			});
-			return paralellUploads3.done();
-		}
+		const ACL =
+			privacy === 'no-acl'
+				? undefined
+				: privacy === 'private'
+					? 'private'
+					: 'public-read';
 
-		await client.send(
-			new PutObjectCommand({
+		const parallelUploadsS3 = new Upload({
+			client,
+			queueSize: 2,
+			partSize: 40 * 1024 * 1024,
+			params: {
 				Key,
 				Bucket: bucket,
 				Body,
 				ACL,
 				ContentType,
-			})
+			},
+		});
+		parallelUploadsS3.on('httpUploadProgress', (progress) => {
+			progresses[filePath.name] = progress.loaded ?? 0;
+		});
+		const prom = await parallelUploadsS3.done();
+		return prom;
+	};
+
+	const uploadWithRetry = async (filePath: FileInfo) => {
+		let error: Error | null = null;
+		for (let i = 0; i < 3; i++) {
+			try {
+				return await uploadWithoutRetry(filePath);
+			} catch (err) {
+				error = err as Error;
+			}
+		}
+
+		if (error) {
+			throw error;
+		}
+	};
+
+	const uploadAll = (async () => {
+		const uploads = files.map((filePath) =>
+			limit(async () => {
+				await uploadWithRetry(filePath);
+			}),
 		);
-		progresses[filePath.name] = filePath.size;
-	});
-	const promise = Promise.all(uploads);
+		await Promise.all(uploads);
+	})();
 
 	const interval = setInterval(() => {
 		onProgress({
@@ -118,6 +152,6 @@ export const uploadDir = async ({
 			filesUploaded: files.filter((f) => progresses[f.name] === f.size).length,
 		});
 	}, 1000);
-	await promise;
+	await uploadAll;
 	clearInterval(interval);
 };

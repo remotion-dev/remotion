@@ -1,0 +1,4 @@
+/**
+ * @description Re-encodes a video using WebCodecs and @remotion/media-parser.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/convert-media)
+ */

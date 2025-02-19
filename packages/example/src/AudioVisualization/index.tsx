@@ -50,9 +50,9 @@ const Orb = styled.div`
 `;
 
 const Text: React.FC<{
-	color: string;
-	transform: string;
-	blur: number;
+	readonly color: string;
+	readonly transform: string;
+	readonly blur: number;
 }> = ({color, transform, blur}) => {
 	const frame = useCurrentFrame();
 	const cool = (offset: number) => Math.sin((frame + offset) / 10);
@@ -127,7 +127,7 @@ const AudioVisualization: React.FC = () => {
 	const rgbEffect = interpolate(
 		visualization[Math.floor(visualization.length / 3)],
 		[0, 0.5],
-		[0, 30]
+		[0, 30],
 	);
 
 	const dropStart = 1989;
@@ -196,8 +196,8 @@ const AudioVisualization: React.FC = () => {
 									[0, 1],
 									{
 										extrapolateLeft: 'clamp',
-									}
-								) * 600
+									},
+								) * 600,
 							) *
 								6) *
 						day;

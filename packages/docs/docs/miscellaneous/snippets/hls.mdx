@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-miscellaneous-snippets-hls.png
+title: 'HLS support (HTTP Live Streaming)'
+sidebar_label: 'HTTP Live Streaming'
+id: hls
+crumb: 'Video'
+---
+
+## No native support
+
+Remotion does not currently support HLS / HTTP Live streaming / `.m3u8` files natively.  
+It is a technically difficult feature to add because:
+
+- There is no native support for it in the browser.
+- FFmpeg does not treat it like other video formats when extracting frames using the low-level API.
+
+For Remotion to support HLS and take full advantage of only taking the relevant portion of the video while rendering, we'd need to implement our custom parser which takes a lot of time given the long specification.
+
+## Using hls.js to play HLS videos during Preview
+
+You can play HLS videos during preview in the [`<Player>`](/docs/player) and in the Remotion Studio.
+
+Note the following caveats:
+
+<Step>1</Step> This code only shows how to connect the video tag to the HLS
+stream, it has not been tested on a real project. <br />
+<Step>2</Step> Audio will not work when rendering a video to an MP4 using this
+code. Use an alternative source during rendering. See <a href="/docs/miscellaneous/snippets/offthread-video-while-rendering">
+  &lt;OffthreadVideo&gt; while rendering
+</a> and <a href="/docs/get-remotion-environment">
+  <code>getRemotionEnvironment()</code>
+</a> for how to use different components based on whether you are rendering or
+previewing.
+<br />
+<br />
+
+```tsx twoslash title="HlsDemo.tsx"
+import Hls from 'hls.js';
+import React, {useEffect, useRef} from 'react';
+import {AbsoluteFill, RemotionVideoProps, Video} from 'remotion';
+
+const HlsVideo: React.FC<RemotionVideoProps> = ({src}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!src) {
+      throw new Error('src is required');
+    }
+
+    const startFrom = 0;
+
+    const hls = new Hls({
+      startLevel: 4,
+      maxBufferLength: 5,
+      maxMaxBufferLength: 5,
+    });
+
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      hls.startLoad(startFrom);
+    });
+
+    hls.loadSource(src);
+    hls.attachMedia(videoRef.current!);
+
+    return () => {
+      hls.destroy();
+    };
+  }, [src]);
+
+  return <Video ref={videoRef} src={src} />;
+};
+
+export const HlsDemo: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <HlsVideo src="https://stream.mux.com/nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU.m3u8" />
+    </AbsoluteFill>
+  );
+};
+```
+
+## See also
+
+- [GitHub issue for this feature request](https://github.com/remotion-dev/remotion/issues/2930)

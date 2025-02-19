@@ -1,0 +1,182 @@
+---
+image: /generated/articles-docs-lambda-getrenderprogress.png
+id: getrenderprogress
+title: getRenderProgress()
+slug: /lambda/getrenderprogress
+crumb: 'Lambda API'
+---
+
+Gets the current status of a render initiated via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).  
+Calling this function results in a Lambda invocation.
+
+For renders initiated via [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), do not use this function. Instead, the result is returned immediately.
+
+## Example
+
+```tsx twoslash
+import {getRenderProgress} from '@remotion/lambda/client';
+
+const progress = await getRenderProgress({
+  renderId: 'd7nlc2y',
+  bucketName: 'remotionlambda-d9mafgx',
+  functionName: 'remotion-render-la8ffw',
+  region: 'us-east-1',
+});
+```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
+
+:::note
+You don't need to call this function while rendering a [still](/docs/still). Once you have obtained the [`renderId`](/docs/lambda/renderstillonlambda#renderid) from [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), the render should already be done!
+:::
+
+## API
+
+Call the function by passing an object with the following properties:
+
+### `renderId`
+
+The unique identifier for the render that you want to get the progress for. You can get the renderId from the return value of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+### `bucketName`
+
+The bucket in which information about the render is saved. You can get the bucket name from the return value of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+### `region`
+
+The region in which the Lambda function is located in.
+
+### `functionName`
+
+The name of the function that triggered the render.
+
+### `customCredentials?`<AvailableFrom v="3.2.23" />
+
+If the render is going to be saved to a [different cloud](/docs/lambda/custom-destination#saving-to-another-cloud), pass an object with the same `endpoint`, `accessKeyId` and `secretAccessKey` as you passed to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#outname) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#outname).
+
+### `forcePathStyle?`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
+### `skipLambdaInvocation?`<AvailableFrom v="4.0.218" />
+
+Instead of calling a Lambda function which will get the progress from S3, make the S3 call directly.  
+This is cheaper and faster, but the function name must follow [the function name convention](/docs/lambda/naming-convention#see-also).
+
+## Response
+
+Returns a promise resolving to an object with the following properties:
+
+### `overallProgress`
+
+A number between 0 and 1 indicating the approximate progress of the render.
+
+### `chunks`
+
+How many chunks have been fully rendered so far.
+
+### `done`
+
+`true` if video has been successfully rendered and all processes are done. `false` otherwise.
+
+### `encodingStatus`
+
+Either `null` if not all chunks have been rendered yet or an object with the signature `{framesEncoded: number}` that tells how many frames have been stitched together so far in the concatenation process.
+
+### `renderId`
+
+Mirrors the `renderId` that has been passed as an input
+
+### `renderMetadata`
+
+Contains the following information about the render:
+
+- `frameRange`: The first and last frame that is being rendered (Use `frameRange[1] - frameRange[0] + 1` to get number of total frames rendered).
+- `startedDate`: Timestamp of when the rendering process started.
+- `totalChunks`: Into how many pieces the rendering is divided.
+- `estimatedTotalLambdaInvokations`: The estimated amount of total Lambda function calls in total, excluding calls to `getRenderProgress()`.
+- `estimatedRenderLambdaInvokations`: The estimated amount of Lambdas that will render chunks of the video.
+- `compositionId`: The ID of the composition that is being rendered.
+- `codec`: The selected codec into which the video gets encoded.
+- `dimensions`: The dimensions, with any `scale` applied, of the output video. (Available from v4.0.222)
+
+### `bucket`
+
+In which bucket the render and other artifacts get saved.
+
+### `outputFile`
+
+`null` if the video is not yet rendered, a `string` containing a URL pointing to the final artifact if the video finished rendering.
+
+### `outKey`
+
+`null` if the video is not yet rendered, a `string` containing the S3 key where the final artifact is stored.
+
+### `timeToFinish`
+
+`null` is the video is not yet rendered, a `number` describing how long the render took to finish in milliseconds.
+
+### `errors`
+
+An array which contains errors that occurred.
+
+### `fatalErrorEncountered`
+
+`true` if an error occurred and the video cannot be rendered. You should stop polling for progress and check the `errors` array.
+
+### `currentTime`
+
+The current time at which the Lambda function responded to the progress request.
+
+### `renderSize`
+
+How many bytes have been saved to the S3 bucket as a result of this render.  
+From v4.0.165, this might be slightly underreported as the `progress.json` file is not factored in.
+
+### `outputSizeInBytes`
+
+_available from v.3.3.9_
+
+The size of the output artifact in bytes.
+
+### `lambdasInvoked`
+
+How many lambdas that render a chunk have been invoked yet and have started rendering.
+
+### `framesRendered`
+
+_available from v3.3.8_
+
+How many frames have been rendered so far, approximated to a number divisible by `5`.
+
+### `costs`
+
+An object describing the costs of the render so far. The cost may increase if the render has not finished yet. Only costs for AWS Lambda are estimated, not for S3 storage. It is a best-effort estimation, but without any guarantees. The object has the following properties:
+
+- `accruedSoFar`: The cost as a floating number.
+- `currency`: The currency of the cost.
+- `displayCost`: The cost formatted as a string.
+- `disclaimer`: Textual disclaimer removing any doubt that there is no guarantee.
+
+### `estimatedBillingDurationInMilliseconds`<AvailableFrom v="4.0.74"/>
+
+The estimated total runtime of all invoked Lambda functions combined, in milliseconds. As the render goes on, this number increases.
+
+### `mostExpensiveFrameRanges`
+
+If the render is in progress, this is `null`. If the render is done, it is an array of the 5 most expensive chunks in the following shape:
+
+- `chunk`: The index of the chunk (starting from 0)
+- `timeInMilliseconds`: The time it took the render that chunk
+- `frameRange`: A tuple containing the first and last frame that was rendered in that chunk.
+
+### `artifacts`<AvailableFrom v="4.0.176"/>
+
+Artifacts that were created so far during the render. [See here for an example of dealing with field.](/docs/artifacts#using-rendermedia-renderstill-or-renderframes)
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-render-progress.ts)
+- [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda)

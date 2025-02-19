@@ -1,92 +1,86 @@
-import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'fs';
-import os from 'os';
-import path from 'path';
-import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
-import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {LambdaReturnValues} from '../../../shared/return-values';
-import {disableLogs, enableLogs} from '../../disable-logs';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {ensureBrowser, RenderInternals} from '@remotion/renderer';
+import {rendersPrefix} from '@remotion/serverless';
+import {beforeAll, expect, test} from 'bun:test';
+import fs, {createWriteStream} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {mockImplementation} from '../../mocks/mock-implementation';
+import {simulateLambdaRender} from '../simulate-lambda-render';
 
-jest.setTimeout(90000);
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
-
-beforeAll(() => {
-	disableLogs();
+beforeAll(async () => {
+	await ensureBrowser();
 });
 
-afterAll(async () => {
-	enableLogs();
-	await RenderInternals.killAllBrowsers();
-});
-
-test('Should make a transparent video', async () => {
-	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
-
-	const res = await handler(
-		{
-			type: LambdaRoutines.start,
-			serveUrl:
-				'https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/',
-			chromiumOptions: {},
+test(
+	'Should make a transparent video',
+	async () => {
+		const {close, file, progress, renderId} = await simulateLambdaRender({
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
-			crf: 9,
-			envVariables: {},
 			frameRange: [0, 9],
-			framesPerLambda: 5,
 			imageFormat: 'png',
-			inputProps: {},
-			logLevel: 'warn',
-			maxRetries: 3,
-			outName: 'out.mp4',
+			framesPerLambda: 5,
+			logLevel: 'error',
+			region: 'eu-central-1',
+			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
-			privacy: 'public',
-			proResProfile: undefined,
-			quality: undefined,
-			scale: 1,
-			timeoutInMilliseconds: 12000,
-			concurrencyPerLambda: 1,
-		},
-		extraContext
-	);
-	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+			scale: 0.25,
+		});
 
-	const progress = (await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
-		},
-		extraContext
-	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+		// We create a temporary directory for storing the frames
+		const tmpdir = await fs.promises.mkdtemp(
+			path.join(os.tmpdir(), 'remotion-'),
+		);
+		const out = path.join(tmpdir, 'hithere.webm');
+		file.pipe(createWriteStream(out));
 
-	const file = await lambdaReadFile({
-		bucketName: startRes.bucketName,
-		key: progress.outKey as string,
-		expectedBucketOwner: 'abc',
-		region: 'eu-central-1',
-	});
+		await new Promise<void>((resolve) => {
+			file.on('close', () => resolve());
+		});
+		const probe = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [out],
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
+		expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
+		expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
+		fs.unlinkSync(out);
 
-	// We create a temporary directory for storing the frames
-	const out = path.join(
-		await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-')),
-		'hithere.webm'
-	);
-	file.pipe(createWriteStream(out));
+		const files = await mockImplementation.listObjects({
+			bucketName: progress.outBucket as string,
+			region: 'eu-central-1',
+			expectedBucketOwner: 'abc',
+			prefix: rendersPrefix(renderId),
+			forcePathStyle: false,
+		});
 
-	await new Promise<void>((resolve) => {
-		file.on('close', () => resolve());
-	});
-	const probe = await RenderInternals.execa('ffprobe', [out]);
-	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
-	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
-	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
-	fs.unlinkSync(out);
-});
+		expect(files.length).toBe(2);
+
+		await LambdaClientInternals.internalDeleteRender({
+			bucketName: progress.outBucket as string,
+			region: 'eu-central-1',
+			renderId,
+			providerSpecifics: mockImplementation,
+			forcePathStyle: false,
+		});
+
+		const expectFiles = await mockImplementation.listObjects({
+			bucketName: progress.outBucket as string,
+			region: 'eu-central-1',
+			expectedBucketOwner: 'abc',
+			prefix: rendersPrefix(renderId),
+			forcePathStyle: false,
+		});
+
+		RenderInternals.deleteDirectory(tmpdir);
+		expect(expectFiles.length).toBe(0);
+
+		await close();
+	},
+	{timeout: 60000},
+);

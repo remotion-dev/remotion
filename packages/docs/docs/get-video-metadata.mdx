@@ -1,0 +1,75 @@
+---
+image: /generated/articles-docs-get-video-metadata.png
+title: getVideoMetadata()
+id: get-video-metadata
+crumb: '@remotion/media-utils'
+---
+
+_Part of the `@remotion/media-utils` package of helper functions._
+
+:::note
+Does not support H.265 videos on Linux and also fails on some other formats. Soon to be deprecated.  
+Suggestion: Use [`parseMedia()`](/docs/media-parser/parse-media) to get video metadata instead.
+:::
+
+:::note
+Only works in the browser.
+:::
+
+Takes a `src` to a video, loads it and returns metadata for the specified source.
+
+## Arguments
+
+### `src`
+
+A string pointing to an asset.
+
+## Return value
+
+`Promise<VideoMetadata>` - object with information about the video data:
+
+- `durationInSeconds`: `number` The duration of the video in seconds.
+- `width`: `number` The width of the video in pixels.
+- `height`: `number` The height of the video in pixels.
+- `aspectRatio`: `number` Video width divided by video height.
+- `isRemote`: `boolean` Whether the video was imported locally or from a different origin.
+
+:::warning
+`durationInSeconds` may return `Infinity`. This happens if the duration of the video is not stored in the beginning of the file.  
+This is for example the case for videos that are recorded with a webcam and being encoded while the recording is still in progress.  
+Ensure handling for `Infinity` for user-provided videos and re-encode videos with FFmpeg to move the duration to the beginning of the file.
+:::
+
+## Example
+
+```tsx twoslash
+import {staticFile} from 'remotion';
+// ---cut---
+import {getVideoMetadata} from '@remotion/media-utils';
+
+await getVideoMetadata(staticFile('video.mp4')); /* {
+  durationInSeconds: 100.00,
+  width: 1280,
+  height: 720,
+  aspectRatio: 1.77777778,
+  isRemote: false
+} */
+await getVideoMetadata('https://example.com/remote-audio.webm'); /* {
+  durationInSeconds: 40.213,
+  width: 1920,
+  height: 1080,
+  aspectRatio: 1.77777778,
+  isRemote: true
+} */
+```
+
+## Caching behavior
+
+This function is memoizing the results it returns.
+If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed. To clear the cache, you have to reload the page.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-video-metadata.ts)
+- [Using videos](/docs/assets#using-videos)
+- [`<Video/>`](/docs/video)

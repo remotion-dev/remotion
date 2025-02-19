@@ -1,0 +1,48 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/layout-utils"
+	},
+	"name": "@remotion/layout-utils",
+	"version": "4.0.266",
+	"description": "Utilities for working with layouts",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		}
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"author": "Yehor Misiats (https://github.com/satelllte)",
+	"maintainers": [
+		"Jonny Burger <jonny@remotion.dev>",
+		"Yehor Misiats (https://github.com/satelllte)"
+	],
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"keywords": [
+		"remotion",
+		"layout-utils"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/layout-utils"
+}

@@ -1,32 +1,45 @@
-import { makeCancelSignal, renderFrames } from "@remotion/renderer";
+import {
+	ensureBrowser,
+	makeCancelSignal,
+	renderFrames,
+} from '@remotion/renderer';
+import {beforeAll, expect, test} from 'bun:test';
 
-test("Should be able to cancel render", async () => {
-  try {
-    const { cancel, cancelSignal } = makeCancelSignal();
-    const val = renderFrames({
-      serveUrl: "https://silly-crostata-c4c336.netlify.app/",
-      composition: {
-        durationInFrames: 1000000,
-        fps: 30,
-        height: 720,
-        id: "react-svg",
-        width: 1280,
-      },
-      cancelSignal,
-      imageFormat: "jpeg",
-      inputProps: {},
-      onFrameUpdate: () => undefined,
-      onStart: () => undefined,
-      outputDir: null,
-    });
+beforeAll(async () => {
+	await ensureBrowser();
+});
 
-    setTimeout(() => {
-      cancel();
-    }, 1000);
-    await val;
+test('Should be able to cancel render', async () => {
+	try {
+		const {cancel, cancelSignal} = makeCancelSignal();
+		const val = renderFrames({
+			serveUrl:
+				'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+			composition: {
+				durationInFrames: 1000000,
+				fps: 30,
+				height: 720,
+				id: 'react-svg',
+				width: 1280,
+				defaultProps: {},
+				props: {},
+				defaultCodec: null,
+			},
+			cancelSignal,
+			imageFormat: 'jpeg',
+			inputProps: {},
+			onFrameUpdate: () => undefined,
+			onStart: () => undefined,
+			outputDir: null,
+		});
 
-    throw new Error("Render should not succeed");
-  } catch (err) {
-    expect((err as Error).message).toContain("renderFrames() got cancelled");
-  }
+		setTimeout(() => {
+			cancel();
+		}, 1000);
+		await val;
+
+		throw new Error('Render should not succeed');
+	} catch (err) {
+		expect((err as Error).message).toContain('renderFrames() got cancelled');
+	}
 });

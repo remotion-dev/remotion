@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// @ts-expect-error
+// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+// @ts-ignore
+import type {URL} from 'node:url';
 import NodeWebSocket from 'ws';
 
 export declare class WS {
-	// eslint-disable-next-line no-useless-constructor
 	constructor(
 		_url: URL,
 		_anything: unknown[],
@@ -12,12 +12,12 @@ export declare class WS {
 			perMessageDeflate: false;
 			maxPayload: number;
 			headers: Record<string, string>;
-		}
+		},
 	);
 
 	addEventListener(
 		_type: 'open' | 'error' | 'message' | 'close',
-		_cb: (evt: {data: string}) => void
+		_cb: (evt: {data: string}) => void,
 	): void;
 
 	send(msg: string): void;

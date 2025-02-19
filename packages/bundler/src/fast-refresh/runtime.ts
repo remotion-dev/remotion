@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
 /**
  * Source code is adapted from https://github.com/WebHotelier/webpack-fast-refresh#readme and rewritten in Typescript. This file is MIT licensed.
  */
@@ -64,7 +66,6 @@ self.$RefreshInterceptModuleExecution$ = function (webpackModuleId: unknown) {
 	self.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
 
 	// Modeled after `useEffect` cleanup pattern:
-	// https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
 	return () => {
 		self.$RefreshReg$ = prevRefreshReg;
 		self.$RefreshSig$ = prevRefreshSig;

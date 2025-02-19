@@ -3,6 +3,10 @@ src
 .eslintrc
 tsconfig.tsbuildinfo
 .prettierrc
-jest.config.js
 *.tgz
 .turbo
+dist/tsconfig.tsbuildinfo
+tsconfig.json
+ensure-correct-version.ts
+.prettierrc.js
+happydom.ts

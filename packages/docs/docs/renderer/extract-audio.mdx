@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-renderer-extract-audio.png
+id: extract-audio
+title: extractAudio()
+crumb: '@remotion/renderer'
+---
+
+# extractAudio()<AvailableFrom v="4.0.49" />
+
+:::note
+This function is meant to be used **in Node.js applications**. It cannot run in the browser.
+:::
+
+Extracts the audio from a video source and saves it to the specified output path. It does not convert the audio to a different format.
+
+## Example
+
+```ts twoslash
+import {resolve} from 'node:path';
+import {extractAudio, getVideoMetadata} from '@remotion/renderer';
+
+const videoSource = resolve(process.cwd(), '/Users/john/path-to-video.mp4');
+
+const videoMetadata = await getVideoMetadata(videoSource);
+const audioOutput = resolve(process.cwd(), `./output-audio-path.${videoMetadata.audioFileExtension}`);
+
+await extractAudio({
+  videoSource,
+  audioOutput,
+});
+```
+
+:::info
+Pass an absolute path to `extractAudio()`. URLs are not supported.
+:::
+
+## Arguments
+
+An object containing the following properties:
+
+### `videoSource`
+
+_string_
+
+The path to the video source from which the audio will be extracted.
+
+### `outputPath`
+
+_string_
+
+The path where the extracted audio will be saved. The file extension must match the audio codec. To find the appropriate file extension, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) to read the field `audioFileExtension`.
+
+### `logLevel?`
+
+<Options id="log" />
+
+### `binariesDirectory?`<AvailableFrom v="4.0.120" />
+
+<Options id="binaries-directory" />
+
+## Return Value
+
+The function returns a `Promise<void>`, which resolves once the audio extraction is complete.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/extract-audio.ts)
+- [getVideoMetadata()](/docs/renderer/get-video-metadata)

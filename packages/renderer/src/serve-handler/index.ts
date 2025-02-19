@@ -1,9 +1,8 @@
 // Native
-import type {Stats} from 'fs';
-import {createReadStream, promises} from 'fs';
-import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
-import url from 'url';
+import type {Stats} from 'node:fs';
+import {createReadStream, promises} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import path from 'node:path';
 import {mimeContentType} from '../mime-types';
 // Packages
 import {isPathInside} from './is-path-inside';
@@ -78,16 +77,16 @@ const sendError = (
 		statusCode: number;
 		code: string;
 		message: string;
-	}
+	},
 ) => {
 	const {message, statusCode} = spec;
 
-	response.statusCode = statusCode;
-
 	const headers = getHeaders(absolutePath, null);
 
-	response.writeHead(statusCode, headers);
-	response.setHeader('content-type', 'application/json');
+	response.writeHead(statusCode, {
+		...headers,
+		'Content-Type': 'application/json',
+	});
 	response.end(JSON.stringify({statusCode, message}));
 };
 
@@ -104,7 +103,7 @@ export const serveHandler = async (
 	response: ServerResponse,
 	config: {
 		public: string;
-	}
+	},
 ) => {
 	const cwd = process.cwd();
 	const current = path.resolve(cwd, config.public);
@@ -112,10 +111,12 @@ export const serveHandler = async (
 	let relativePath = null;
 
 	try {
-		relativePath = decodeURIComponent(
-			url.parse(request.url as string).pathname as string
+		const parsedUrl = new URL(
+			request.url as string,
+			`http://${request.headers.host}`,
 		);
-	} catch (err) {
+		relativePath = decodeURIComponent(parsedUrl.pathname);
+	} catch {
 		return sendError('/', response, {
 			statusCode: 400,
 			code: 'bad_request',
@@ -167,7 +168,8 @@ export const serveHandler = async (
 			const related = await findRelated(current, relativePath);
 
 			if (related) {
-				({stats, absolutePath} = related);
+				stats = related.stats;
+				absolutePath = related.absolutePath;
 			}
 		} catch (err) {
 			if (
@@ -221,7 +223,7 @@ export const serveHandler = async (
 		return sendError(absolutePath, response, {
 			statusCode: 404,
 			code: 'not_found',
-			message: 'The requested path could not be found',
+			message: 'The requested path (' + absolutePath + ') could not be found',
 		});
 	}
 
@@ -252,18 +254,19 @@ export const serveHandler = async (
 
 	try {
 		stream = createReadStream(absolutePath, streamOpts ?? {});
-	} catch (err) {
+	} catch {
 		return internalError(absolutePath, response);
 	}
 
 	const headers = getHeaders(absolutePath, stats);
 
 	if (streamOpts !== null) {
-		headers[
-			'Content-Range'
-		] = `bytes ${streamOpts.start}-${streamOpts.end}/${stats.size}`;
+		headers['Content-Range'] =
+			`bytes ${streamOpts.start}-${streamOpts.end}/${stats.size}`;
 		headers['Content-Length'] = String(streamOpts.end - streamOpts.start + 1);
 	}
+
+	headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
 
 	response.writeHead(response.statusCode || 200, headers);
 	stream.pipe(response);

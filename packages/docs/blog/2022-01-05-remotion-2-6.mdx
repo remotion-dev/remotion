@@ -1,0 +1,68 @@
+---
+slug: 2-6
+title: Remotion 2.6
+author: Jonny Burger
+author_title: Remotion Creator
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/remotion-2-6.png
+---
+
+The biggest announcement of this release is that the [`@remotion/player`](/player) package is now generally available - but not just that, we have some other sweet new features too!
+
+## `<Player/>` is now stable
+
+<img src="/img/player-demo.jpg" /><br/>
+<br/>
+
+With the `<Player/>` component, you can embed a Remotion Video inside a React app without rendering the video. The API is modeled after the native HTML `<video>` tag that many developers are already familiar with.
+
+The API allows you to use our predefined controls, or build your own. Familiar UI patterns like volume slider, fullscreen button, as well as gesture mechanics such as click to play/pause are supported.
+
+You can dynamically update the props of the video at runtime, which creates an experience that stuns user: videos that react to their user input!
+
+On mobile, restrictive policies prevent auto-play of audio content. [We help you](/docs/player/autoplay) architect your player so it can play audio in as many cases as possible while still respecting the browser policies. This includes the option to mount silent audio tags, activate them while the user interacts with the page and use them later to play audio.
+
+In this release, we added a new [`renderLoading`](/docs/player/player#renderloading) prop and wrote docs for how to [scale your player](/docs/player/scaling), [code-sharing between Remotion and Create React App/Next.JS](/docs/player/integration) and [preloading assets](/docs/player/preloading).
+
+[See the landing page for `@remotion/player`](/player)  
+[Demo and Documentation](/docs/player)
+
+## New error overlay
+
+Recently, we broke the error overlay that pops up when your code contains an error. This is now fixed and we went deeper than ever before!
+
+<img src="/img/error-overlay.png" />
+<br/>
+<br/>
+The Fast Refresh and error overlay is now inlined in our codebase and allows for customization that makes sense for Remotion. The overlay now matches the dark theme of the Remotion Preview and includes handy links such as opening a file in the editor, looking for the error in our GitHub issues and our Discord community.
+
+## Support for `/public` folder
+
+You can now put static files inside a `/public` folder in your Remotion project and load it using the new [`staticFile()`](/docs/staticfile) API.
+If you include the new `<Player />` component in a Create React App or Next.JS project, the folder can be shared across Remotion and the framework you are using.
+
+## `<Audio />` or `<Video />` now support `data:` URLs
+
+Data URLs are now valid sources for [`<Audio />`](/docs/audio) and [`<Video />`](/docs/video) tags. This is useful for example for tones that are programmatically generated. To help with development of such projects, a new API was added to the `@remotion/media-utils` project: [`audioBufferToDataUrl()`](/docs/audio-buffer-to-data-url). See our festive [Tone.js](https://github.com/remotion-dev/tone-js-example) sample project for an example!
+
+## New audiogram template
+
+<img src="/img/audiogram.png" />
+
+When running `npm init video`, there's a new template to choose from: "Audiogram"! This one allows you to convert podcast clips to clean visualizations that you can post on social media.
+
+## `getCompositions()` now returns `defaultProps`
+
+The [`getCompositions()`](/docs/renderer/get-compositions) API has been updated to return a new field for each composition: The `defaultProps` that you have specified for that composition.
+
+## Miscellaneous
+
+- Fixed videos playing in the `<Player />` after they should have ended.
+- Fixed `ended` event in the `<Player />` not firing correctly.
+- Fixed certain vulnerability messages that would show up during installation.
+- Updated `@remotion/three` to use React Three Fiber v7.
+
+## What's next
+
+The next release is finally going to be our new major new release containing a refactor of our rendering pipeline and serverless rendering support. Look out as we release the missing puzzle piece in our vision of programmatic video!

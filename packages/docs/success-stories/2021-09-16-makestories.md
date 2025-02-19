@@ -4,17 +4,19 @@ title: How MakeStories uses Remotion to render Web Stories
 image: /img/makestories.png
 ---
 
-import {MuxVideo} from '../src/components/MuxVideo';
+import {NewMuxVideo} from '../src/components/MuxVideo';
 
-_This is the first article in our new series: Success Stories. We interview companies and creators that we find inspiring and which have successfully implemented Remotion in their stack. Let us know what you think!_
+:::note
+This is the first article in our new series: Success Stories. We interview companies and creators that we find inspiring and which have successfully implemented Remotion in their stack. Let us know what you think!
+:::
 
 MakeStories is in the business of [Web Stories](https://stories.google/) - a format by Google to bring stories to the web. Appearing directly in Google Search, they are an opportunity for publishers to increase their audience massively.
 
-<MuxVideo muxId="eB9pPF17zyOrmEas4kwsa3OvTeQV3cDlLQ5U01CHrfcg" style={{
+<NewMuxVideo muxId="eB9pPF17zyOrmEas4kwsa3OvTeQV3cDlLQ5U01CHrfcg" style={{
   width: '100%'
 }} controls poster="/img/makestories.png"/>
 
-<p align="center"><em>MakeStories founder Pratik Ghela explains how they built a Remotion rendering service to export Web Stories to MP4s.</em></p>
+<p align="center"><em style={{fontSize: "0.9em"}}>MakeStories founder Pratik Ghela explains how they built a Remotion rendering service to export Web Stories to MP4s.</em></p>
 
 These stories are powered using web technology, meaning they are built using HTML and CSS. One of the most popular tools for publishers to quickly create Web Stories is [MakeStories.io](https://makestories.io/). We are talking to founder Pratik Ghela
 about how they are using Remotion to allow publishers to export their videos as real MP4 videos.

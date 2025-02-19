@@ -1,0 +1,96 @@
+---
+image: /generated/articles-docs-cli-studio.png
+title: npx remotion studio
+sidebar_label: studio
+crumb: CLI Reference
+---
+
+_Alias: npx remotion preview_
+
+Start the [Remotion Studio](/docs/studio).
+
+```bash
+npx remotion studio <entry-point>?
+```
+
+You may pass an [entry point](/docs/terminology/entry-point) as an argument, otherwise it will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+## Flags
+
+### `--props`
+
+[Input Props to pass to the selected composition of your video.](/docs/passing-props#passing-input-props-in-the-cli).  
+We don't recommend passing this flag when using the Studio - use [`defaultProps`](/docs/composition#defaultprops) instead.
+
+Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).  
+From the root component the props can be read using [`getInputProps()`](/docs/get-input-props).  
+You may transform input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
+
+### `--config`<AvailableFrom v="1.2.0" />
+
+Specify a location for the Remotion config file.
+
+### `--env-file`<AvailableFrom v="2.2.0" />
+
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
+
+### `--log`
+
+[Set the log level](/docs/config#setlevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
+
+### `--port`
+
+[Set a custom HTTP server port to start the server on](/docs/config#setstudioport). If not defined, Remotion will try to find a free port.
+
+### `--public-dir`<AvailableFrom v="3.2.13" />
+
+<Options id="public-path" />
+
+### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
+
+[Disables all keyboard shortcuts in the Studio](/docs/config#setkeyboardshortcutsenabled).
+
+### `--webpack-poll`<AvailableFrom v="3.3.11" />
+
+[Enables Webpack polling](/docs/config#setwebpackpollinginmilliseconds) instead of the file system event listeners for hot reloading. This is useful if you are inside a virtual machine or have a remote file system.
+Pass a value in milliseconds, for example `--webpack-poll=1000`.
+
+### `--no-open`<AvailableFrom v="3.3.19" />
+
+[Prevents Remotion from trying to open a browser](/docs/config#setshouldopenbrowser). This is useful if you use a different browser for Remotion than the operating system default.
+
+### `--browser`<AvailableFrom v="3.3.79" />
+
+Specify the browser which should be used for opening tab - using the default browser by default.  
+Pass an absolute string or `"chrome"` to use Chrome.
+If Chrome is selected as the browser and you are on macOS, Remotion will try to reuse an existing tab
+
+For backwards compatibility, the `BROWSER` environment variable is also supported.
+
+### `--browser-args`<AvailableFrom v="3.3.79" />
+
+A set of command line flags that should be passed to the browser. Pass them like this:
+
+```sh
+npx remotion studio --browser-args="--disable-web-security"
+```
+
+### `--beep-on-finish`<AvailableFrom v="4.0.84" />
+
+[Plays a beep sound when the video is finished rendering](/docs/config#setbeeponfinish). This is useful if you are rendering a video in the background and want to be notified when it is finished.
+
+```sh
+npx remotion studio --beep-on-finish
+```
+
+### `--ipv4`<AvailableFrom v="4.0.125" />
+
+Forces the Studio to be bound to an IPv4 interface, even if a IPv6 interface is available.
+
+```sh
+npx remotion studio --ipv4
+```

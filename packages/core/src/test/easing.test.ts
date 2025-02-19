@@ -1,4 +1,5 @@
-import {Easing} from '../easing';
+import {describe, expect, test} from 'bun:test';
+import {Easing} from '../easing.js';
 
 const numbersToTest = [-0.5, 0, 0.4, 0.5, 0.7, 1, 1.5];
 

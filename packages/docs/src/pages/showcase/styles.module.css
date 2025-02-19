@@ -6,17 +6,25 @@
  */
 
 .heroBanner {
-  padding-top: 4rem;
-  padding-bottom: 0;
-  position: relative;
-  overflow: hidden;
+	padding-top: 4rem;
+	padding-bottom: 0;
+	position: relative;
+	overflow: hidden;
 }
 
 .videos {
-  display: flex;
-  align-items: center;
-  width: 100%;
+	display: flex;
+	align-items: center;
+	width: 100%;
 }
 
-.container * {
+.container {
+	column-count: 3;
+	column-gap: 20px;
+}
+
+@media (max-width: 900px) {
+	.container {
+		column-count: 1;
+	}
 }

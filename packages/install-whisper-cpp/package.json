@@ -1,0 +1,41 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/install-whisper-cpp"
+	},
+	"name": "@remotion/install-whisper-cpp",
+	"version": "4.0.266",
+	"description": "Helpers for installing and using Whisper.cpp",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {
+		"@remotion/captions": "workspace:*"
+	},
+	"peerDependencies": {},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"keywords": [
+		"remotion",
+		"openai",
+		"whisper"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/install-whisper-cpp"
+}

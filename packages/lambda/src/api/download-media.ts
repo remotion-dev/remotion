@@ -1,11 +1,17 @@
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
-import {getExpectedOutName} from '../functions/helpers/expected-out-name';
-import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {
+	getExpectedOutName,
+	getOverallProgressFromStorage,
+	type CustomCredentials,
+} from '@remotion/serverless';
+import path from 'node:path';
+import {REMOTION_BUCKET_PREFIX} from '../defaults';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
-import type {AwsRegion} from '../pricing/aws-regions';
-import {getAccountId} from '../shared/get-account-id';
 
 export type DownloadMediaInput = {
 	region: AwsRegion;
@@ -13,6 +19,9 @@ export type DownloadMediaInput = {
 	renderId: string;
 	outPath: string;
 	onProgress?: LambdaReadFileProgress;
+	customCredentials?: CustomCredentials<AwsProvider>;
+	logLevel?: LogLevel;
+	forcePathStyle?: boolean;
 };
 
 export type DownloadMediaOutput = {
@@ -20,25 +29,38 @@ export type DownloadMediaOutput = {
 	sizeInBytes: number;
 };
 
-export const downloadMedia = async (
-	input: DownloadMediaInput
+export const internalDownloadMedia = async (
+	input: DownloadMediaInput & {
+		providerSpecifics: ProviderSpecifics<AwsProvider>;
+		forcePathStyle: boolean;
+	},
 ): Promise<DownloadMediaOutput> => {
-	const expectedBucketOwner = await getAccountId({
+	const expectedBucketOwner = await input.providerSpecifics.getAccountId({
 		region: input.region,
 	});
-	const renderMetadata = await getRenderMetadata({
+	const overallProgress = await getOverallProgressFromStorage({
 		bucketName: input.bucketName,
 		expectedBucketOwner,
 		region: input.region,
 		renderId: input.renderId,
+		providerSpecifics: input.providerSpecifics,
+		forcePathStyle: input.forcePathStyle,
 	});
+
+	if (!overallProgress.renderMetadata) {
+		throw new Error('Render did not finish yet');
+	}
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);
 	RenderInternals.ensureOutputDirectory(outputPath);
-	const {key, renderBucketName} = getExpectedOutName(
-		renderMetadata,
-		input.bucketName
-	);
+
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
+		renderMetadata: overallProgress.renderMetadata,
+		bucketName: input.bucketName,
+		customCredentials: input.customCredentials ?? null,
+		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
+	});
+
 	const {sizeInBytes} = await lambdaDownloadFileWithProgress({
 		bucketName: renderBucketName,
 		expectedBucketOwner,
@@ -46,6 +68,9 @@ export const downloadMedia = async (
 		region: input.region,
 		onProgress: input.onProgress ?? (() => undefined),
 		outputPath,
+		customCredentials,
+		logLevel: input.logLevel ?? 'info',
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 
 	return {
@@ -54,7 +79,17 @@ export const downloadMedia = async (
 	};
 };
 
-/**
- * @deprecated Renamed to downloadMedia()
+/*
+ * @description Downloads a rendered video, audio or still to the disk of the machine this API is called from.
+ * @see [Documentation](https://remotion.dev/docs/lambda/downloadmedia)
  */
-export const downloadVideo = downloadMedia;
+
+export const downloadMedia = (
+	input: DownloadMediaInput,
+): Promise<DownloadMediaOutput> => {
+	return internalDownloadMedia({
+		...input,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
+		forcePathStyle: false,
+	});
+};

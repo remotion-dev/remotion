@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-media-parser-index.png
+sidebar_label: Overview
+title: '@remotion/media-parser'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {TableOfContents, MediaParserGuideTableOfContents} from './TableOfContents';
+
+_available from v4.0.190_
+
+This is a package that parses video and audio files to extract metadata and samples.
+
+:::warning
+**Unstable API**: This package is experimental. The API may change in the future.  
+The API for getting video metadata is stable and may be used in production.
+:::
+
+Design goals:
+
+- [Support all relevant multimedia containers](/docs/media-parser/format-support): `.mp4`, `.mov`, `.webm`, `.mkv`, `.avi`, `.m3u8`, `.ts`, `.mp3`, `.wav`, `.aac` and `.flac`.
+- [Easily get various information](/docs/media-parser/fields) from multimedia files
+- [Work in the browser, and server runtimes (Node.js, Bun, Edge, etc.)](/docs/media-parser/runtime-support)
+- [Satisfy your query with minimal fetching](/docs/media-parser/fast-and-slow)
+- [Functional TypeScript API](/docs/media-parser/parse-media)
+- [Be useful when passing unsupported media](/docs/media-parser/foreign-file-types)
+- [Extract samples and enable WebCodecs use cases](/docs/media-parser/webcodecs)
+- [Pausable, resumable and cancellable](/docs/media-parser/pause-resume-abort)
+- Seeking - continue parsing in a different section of the file (not yet implemented)
+- No dependencies
+
+## Installation
+
+<Installation pkg="@remotion/media-parser" />
+
+## Guide
+
+<MediaParserGuideTableOfContents />
+
+## APIs
+
+The following APIs are available:
+
+<TableOfContents />
+
+## License
+
+[Remotion License](https://remotion.dev/license)

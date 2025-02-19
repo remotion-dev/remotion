@@ -1,6 +1,9 @@
-import type {TAsset} from 'remotion';
+import type {AudioOrVideoAsset} from 'remotion/no-react';
+import type {LogLevel} from '../log-level';
+import type {FrameAndAssets} from '../render-frames';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
+import type {DownloadMap} from './download-map';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {
@@ -12,30 +15,39 @@ const chunk = <T>(input: T[], size: number) => {
 
 export const convertAssetsToFileUrls = async ({
 	assets,
-	downloadDir,
 	onDownload,
+	downloadMap,
+	indent,
+	logLevel,
+	binariesDirectory,
 }: {
-	assets: TAsset[][];
-	downloadDir: string;
+	assets: FrameAndAssets[];
 	onDownload: RenderMediaOnDownload;
-}): Promise<TAsset[][]> => {
+	downloadMap: DownloadMap;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+}): Promise<AudioOrVideoAsset[][]> => {
 	const chunks = chunk(assets, 1000);
-	const results: TAsset[][][] = [];
+	const results: AudioOrVideoAsset[][][] = [];
 
 	for (const ch of chunks) {
-		const result = await Promise.all(
-			ch.map((assetsForFrame) => {
-				return Promise.all(
-					assetsForFrame.map((a) => {
-						return downloadAndMapAssetsToFileUrl({
-							asset: a,
-							downloadDir,
-							onDownload,
-						});
-					})
-				);
-			})
-		);
+		const assetPromises = ch.map((frame) => {
+			const frameAssetPromises = frame.audioAndVideoAssets.map((a) => {
+				return downloadAndMapAssetsToFileUrl({
+					renderAsset: a,
+					onDownload,
+					downloadMap,
+					indent,
+					logLevel,
+					binariesDirectory,
+					cancelSignalForAudioAnalysis: undefined,
+					shouldAnalyzeAudioImmediately: true,
+				});
+			});
+			return Promise.all(frameAssetPromises);
+		});
+		const result = await Promise.all(assetPromises);
 		results.push(result);
 	}
 

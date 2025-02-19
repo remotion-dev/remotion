@@ -1,10 +1,6 @@
-import {
-	GetUserCommand,
-	SimulatePrincipalPolicyCommand,
-} from '@aws-sdk/client-iam';
-import {iam} from 'aws-policies';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import {getIamClient} from '../../shared/aws-clients';
+import {SimulatePrincipalPolicyCommand} from '@aws-sdk/client-iam';
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 
 export type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';
 
@@ -21,33 +17,12 @@ export const simulateRule = async (options: {
 	retries: number;
 }): Promise<SimulationResult[]> => {
 	try {
-		if (options.actionNames.includes(iam.GetUser)) {
-			try {
-				await getIamClient(options.region).send(new GetUserCommand({}));
-				const result: SimulationResult[] = [
-					{
-						decision: 'allowed',
-						name: iam.GetUser,
-					},
-				];
-				return result;
-			} catch (err) {
-				const result: SimulationResult[] = [
-					{
-						decision: 'explicitDeny',
-						name: iam.GetUser,
-					},
-				];
-				return result;
-			}
-		}
-
-		const res = await getIamClient(options.region).send(
+		const res = await LambdaClientInternals.getIamClient(options.region).send(
 			new SimulatePrincipalPolicyCommand({
 				ActionNames: options.actionNames,
 				PolicySourceArn: options.arn,
 				ResourceArns: options.resource,
-			})
+			}),
 		);
 
 		return (res.EvaluationResults ?? []).map((pol): SimulationResult => {

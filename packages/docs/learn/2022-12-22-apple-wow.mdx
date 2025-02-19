@@ -1,0 +1,1184 @@
+---
+slug: apple-wow
+title: Recreating the Apple fireworks animation
+authors:
+  - name: Mehmet Ademi
+    title: Business Developer
+    url: https://github.com/MehmetAdemi
+    image_url: /img/team/mehmet.png
+  - name: Jonny Burger
+    title: Chief Hacker
+    url: https://github.com/JonnyBurger
+    image_url: /img/team/jonny.png
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {AppleFireworksTutorial} from '../src/components/tutorials';
+
+Learn how to create an animation that Apple has on its website during the holiday season with this beginner-friendly Remotion tutorial!
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Final.gif" />
+
+## Video version
+
+This tutorial is also available as a video version:
+
+<AppleFireworksTutorial />
+
+## Source code
+
+[GitHub](https://github.com/remotion-dev/apple-wow-tutorial)
+
+## Getting started
+
+Start a new Remotion project and select the blank template:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm init video --blank
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --blank
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn create video --blank
+```
+
+  </TabItem>
+</Tabs>
+
+## Composition setup
+
+A [`<Composition>`](https://www.remotion.dev/docs/terminology/composition) defines the dimensions and duration of the video. In the `src/Root.tsx` file, adjust the width and height to the following:
+
+```tsx twoslash title="src/Root.tsx"
+import {Composition} from 'remotion';
+export const MyComposition: React.FC = () => null;
+// ---cut---
+export const RemotionRoot: React.FC = () => {
+  return (
+    <>
+      <Composition
+        id="MyComp"
+        component={MyComposition}
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+    </>
+  );
+};
+```
+
+## Create a background
+
+Create a new file `src/Background.tsx` and return a background with linear gradient:
+
+```tsx twoslash title="src/Background.tsx"
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Background: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        background: 'linear-gradient(to bottom, #000021, #010024)',
+      }}
+    />
+  );
+};
+```
+
+Add the created background to the `<MyComposition/>` component, which can be found in the file `src/Composition.tsx`. This file will contain all the components that you create in this tutorial.
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Background.tsx
+export const Background: React.FC = () => null;
+
+// @filename: Composition.tsx
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+// ---cut---
+
+export const MyComposition: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+    </AbsoluteFill>
+  );
+};
+```
+
+This results in the following:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Background.png" />
+
+## Render a dot
+
+Render a white dot by creating a new file `src/Dot.tsx` and return a centered circle.
+
+```tsx twoslash title="src/Dot.tsx"
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Dot: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          height: 14,
+          width: 14,
+          borderRadius: 14 / 2,
+          backgroundColor: '#ccc',
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Add the `<Dot>` in your main composition `src/Composition.tsx`:
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Dot.tsx
+export const Dot: React.FC = () => null;
+// @filename: Background.tsx
+export const Background: React.FC = () => null;
+
+// @filename: Composition.tsx
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+// ---cut---
+
+export const MyComposition: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Dot />
+    </AbsoluteFill>
+  );
+};
+```
+
+Now we got a white dot on top of our background:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Dot.png" />
+
+## Animate the dot
+
+Let's apply some animation to the white dot we created above. We create another component called `<Shrinking>` in a new file `src/Shrinking.tsx`, which then wraps the dot in the main composition `src/Composition.tsx`.
+
+```tsx title="src/Shrinking.tsx"
+import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill
+      style={{
+        scale: String(
+          interpolate(frame, [60, 90], [1, 0], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        ),
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+```
+
+Add the `<Shrinking>` component in your main composition `src/Composition.tsx`:
+
+```tsx twoslash
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC = () => null;
+
+// @filename: Composition.tsx
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Shrinking} from './Shrinking';
+
+// ---cut---
+
+export const MyComposition: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Shrinking>
+        <Dot />
+      </Shrinking>
+    </AbsoluteFill>
+  );
+};
+```
+
+Now, you have some action to show. By using `<Shrinking>` in your main composition you have created a scale out effect:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Shrinking.gif" />
+
+## Move the dot
+
+Next, create a component called `<Move>`. This component has a spring animation, which by default goes from zero to one, and has a duration of four seconds (`durationInFrames: 120`) in the code snippet below:
+
+```tsx twoslash title="src/Move.tsx"
+import React from 'react';
+import {
+  AbsoluteFill,
+  interpolate,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
+
+export const Move: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => {
+  const {fps} = useVideoConfig();
+  const frame = useCurrentFrame();
+
+  const down = spring({
+    fps,
+    frame,
+    config: {
+      damping: 200,
+    },
+    durationInFrames: 120,
+  });
+
+  const y = interpolate(down, [0, 1], [0, -400]);
+
+  return (
+    <AbsoluteFill
+      style={{
+        translate: `0 ${y}px`,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+```
+
+Add the `<Move>` component to your composition `src/Composition.tsx`. You get a nice animation by combining the effect of moving and shrinking by surrounding the shrinking dot in the `<Move>` component:
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC = () => null;
+
+// @filename: Composition.tsx
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Move} from './Move';
+import {Shrinking} from './Shrinking';
+
+// ---cut---
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Move>
+        <Shrinking>
+          <Dot />
+        </Shrinking>
+      </Move>
+    </AbsoluteFill>
+  );
+};
+```
+
+And up goes the dot:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Move.gif" />
+
+## Duplicate the moving dot
+
+Here it gets a little bit trickier, but the following steps are going to make your animation a lot more entertaining. First, you add a `delay` prop into the `<Move>` component and then change the `frame` parameter of your `spring()` function.
+
+```tsx twoslash title="src/Move.tsx"
+import React from 'react';
+import {
+  AbsoluteFill,
+  interpolate,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
+
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = ({children, delay}) => {
+  const {fps} = useVideoConfig();
+  const frame = useCurrentFrame();
+
+  const down = spring({
+    fps,
+    frame: frame - delay,
+    config: {
+      damping: 200,
+    },
+    durationInFrames: 120,
+  });
+
+  const y = interpolate(down, [0, 1], [0, -400]);
+
+  return (
+    <AbsoluteFill
+      style={{
+        translate: `0 ${y}px`,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+```
+
+Now, let's create a `<Trail>` component. It takes some React children and duplicates them. The component adds a delay to each subsequent dot so they don't start all at once. Each dot will have a scale applied to it, so that each dot is smaller than the previous one.
+
+Put the previously created `<Move>` component within the `<Trail>` component.
+The order is crucial here. Things are done from inside out:
+
+1. Apply a scale so that the dots become smaller over time.
+2. Apply the move animation.
+3. Apply a delay between the animation start of each dot by using Remotion's `<Sequence>` component.
+
+```tsx twoslash title="src/Trail.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+
+// @filename: Trail.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {Move} from './Move';
+
+export const Trail: React.FC<{
+  amount: number;
+  children: React.ReactNode;
+}> = ({amount, children}) => {
+  return (
+    <AbsoluteFill>
+      {new Array(amount).fill(true).map((a, i) => {
+        return (
+          <Sequence from={i * 3}>
+            <AbsoluteFill>
+              <Move delay={0}>
+                <AbsoluteFill
+                  style={{
+                    scale: String(1 - i / amount),
+                  }}
+                >
+                  {children}
+                </AbsoluteFill>
+              </Move>
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+```
+
+In your main component, you now replace the `<Move>` component with the `<Trail>` component:
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC<{}> = () => null;
+// @filename: Trail.tsx
+export const Trail: React.FC<{
+  children: React.ReactNode;
+  amount: number;
+}> = () => null;
+
+// @filename: Composition.tsx
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Shrinking} from './Shrinking';
+import {Trail} from './Trail';
+// ---cut---
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Trail amount={4}>
+        <Shrinking>
+          <Dot />
+        </Shrinking>
+      </Trail>
+    </AbsoluteFill>
+  );
+};
+```
+
+And this is how your animation with the duplicated dots should look like:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Trail.gif" />
+
+## Duplicating markup and arranging it in a circle
+
+Now let's create a `<Explosion>` component. It takes children and renders them for example 10 times and applies a rotation to each instance. It's worth mentioning here that a full rotation amounts to 2π, while `(i/AMOUNT)` represents a factor between 0 and 1.
+
+```tsx twoslash title="src/Explosion.tsx"
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+const AMOUNT = 10;
+
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => {
+  return (
+    <AbsoluteFill>
+      {new Array(AMOUNT).fill(true).map((_, i) => {
+        return (
+          <AbsoluteFill
+            style={{
+              rotate: (i / AMOUNT) * (2 * Math.PI) + 'rad',
+            }}
+          >
+            {children}
+          </AbsoluteFill>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+```
+
+`<Trail>` gets put inside the `<Explosion>` component. Your main component (`src/Composition.tsx`) looks like this:
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Explosion.tsx
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC<{}> = () => null;
+// @filename: Trail.tsx
+export const Trail: React.FC<{
+  children: React.ReactNode;
+  amount: number;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Explosion} from './Explosion';
+import {Shrinking} from './Shrinking';
+import {Trail} from './Trail';
+// ---cut---
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Explosion>
+        <Trail amount={4}>
+          <Shrinking>
+            <Dot />
+          </Shrinking>
+        </Trail>
+      </Explosion>
+    </AbsoluteFill>
+  );
+};
+```
+
+The animated explosion should look like this:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Explosion.gif" />
+
+## Cleanup
+
+You have created a bunch of files until now, let's put most of them together in one file called `src/Dots.tsx`. Extract `<Explosion>` and it's children into a new separate component called Dots.
+
+```tsx twoslash title="src/Dots.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Explosion.tsx
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC<{}> = () => null;
+// @filename: Trail.tsx
+export const Trail: React.FC<{
+  children: React.ReactNode;
+  amount: number;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {Sequence} from 'remotion';
+import {Dot} from './Dot';
+import {Explosion} from './Explosion';
+import {Shrinking} from './Shrinking';
+import {Trail} from './Trail';
+
+export const Dots: React.FC = () => {
+  return (
+    <Explosion>
+      <Trail amount={4}>
+        <Shrinking>
+          <Sequence from={5}>
+            <Dot />
+          </Sequence>
+        </Shrinking>
+      </Trail>
+    </Explosion>
+  );
+};
+```
+
+Replace the `<Explosion>` with the new `<Dots>` component:
+
+```tsx twoslash
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dots.tsx
+export const Dots: React.FC<{}> = () => null;
+
+// @filename: MyComposition.tsx
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dots} from './Dots';
+// ---cut---
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Dots />
+    </AbsoluteFill>
+  );
+};
+```
+
+Nothing has changed on the animation itself:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Dots.gif" />
+
+## Adding hearts and stars
+
+To make the animation more exciting, let's add some stars and hearts in different colors. To do this, we need to basically repeat the previous steps. Besides the `<Dots>`component, we'll add three more components in the next few steps.
+
+Let's start with red hearts. First you render a red heart by creating a new file `src/RedHeart.tsx` and return a centered red heart emoji.
+
+```tsx twoslash title="src/RedHeart.tsx"
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const RedHeart: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      ❤️
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects like `<Shrinking>`, `<Move>` and `<Explosion>` need to be applied to that red heart. We do this in a new component called RedHearts.
+
+Consider s that we need to add an offset to `<RedHearts>`, otherwise they would be positioned the same as the `<Dots>`.
+
+We change the position by giving the red hearts a bigger radius than the dots, and apply a `100px` translation. Also, we add a short delay of 5 frames to the `<Move>` component:
+
+```tsx twoslash title="src/RedHearts.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Explosion.tsx
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC<{}> = () => null;
+// @filename: RedHeart.tsx
+export const RedHeart: React.FC<{}> = () => null;
+// @filename: Trail.tsx
+export const Trail: React.FC<{
+  children: React.ReactNode;
+  extraOffset: number;
+  amount: number;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Explosion} from './Explosion';
+import {Move} from './Move';
+import {RedHeart} from './RedHeart';
+import {Shrinking} from './Shrinking';
+
+export const RedHearts: React.FC = () => {
+  return (
+    <Explosion>
+      <Move delay={5}>
+        <AbsoluteFill style={{transform: `translateY(-100px)`}}>
+          <Shrinking>
+            <RedHeart />
+          </Shrinking>
+        </AbsoluteFill>
+      </Move>
+    </Explosion>
+  );
+};
+```
+
+We do the same to get some yellow hearts in our animation:
+
+```tsx twoslash title="src/YellowHeart.tsx"
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const YellowHeart: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      💛
+    </AbsoluteFill>
+  );
+};
+```
+
+For the yellow hearts we are going to change the position by applying a translation of `50px` and adding a delay of 20 frames to the `<Move>` component:
+
+```tsx twoslash title="src/YellowHearts.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Explosion.tsx
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: YellowHeart.tsx
+export const YellowHeart: React.FC<{}> = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC<{}> = () => null;
+// @filename: RedHeart.tsx
+export const RedHeart: React.FC<{}> = () => null;
+// @filename: Trail.tsx
+export const Trail: React.FC<{
+  children: React.ReactNode;
+  extraOffset: number;
+  amount: number;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Explosion} from './Explosion';
+import {Move} from './Move';
+import {Shrinking} from './Shrinking';
+import {YellowHeart} from './YellowHeart';
+
+export const YellowHearts: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        rotate: '0.3rad',
+      }}
+    >
+      <Explosion>
+        <Move delay={20}>
+          <AbsoluteFill
+            style={{
+              transform: `translateY(-50px)`,
+            }}
+          >
+            <Shrinking>
+              <YellowHeart />
+            </Shrinking>
+          </AbsoluteFill>
+        </Move>
+      </Explosion>
+    </AbsoluteFill>
+  );
+};
+```
+
+Your main composition should look like this:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/DotsAndHearts.gif" />
+
+<br />
+<br />
+
+In addition to the dots and hearts let's also add stars.
+
+Create a new file `src/Star.tsx` and return a centered star emoji.
+
+```tsx twoslash title="src/Star.tsx"
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Star: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 14,
+      }}
+    >
+      ⭐
+    </AbsoluteFill>
+  );
+};
+```
+
+Consider that we need to change the positioning of the stars, otherwise they would be on top of the `<Dots>`.
+
+Let's give `<Trail>` an `extraOffset` prop, so the stars can start more outwards than the dots.
+
+An `extraOffset` of 100 for the stars leads to the same circumference at the beginning and end as the red hearts have. Here is the adjusted `<Trail>`:
+
+```tsx twoslash title="src/Trail.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+
+// @filename: Trail.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {Move} from './Move';
+
+export const Trail: React.FC<{
+  amount: number;
+  extraOffset: number;
+  children: React.ReactNode;
+}> = ({amount, extraOffset, children}) => {
+  return (
+    <AbsoluteFill>
+      {new Array(amount).fill(true).map((a, i) => {
+        return (
+          <Sequence from={i * 3}>
+            <AbsoluteFill
+              style={{
+                translate: `0 ${-extraOffset}px`,
+              }}
+            >
+              <Move delay={0}>
+                <AbsoluteFill
+                  style={{
+                    scale: String(1 - i / amount),
+                  }}
+                >
+                  {children}
+                </AbsoluteFill>
+              </Move>
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects like `<Shrinking>`, the new `<Trail>` and `<Explosion>` need to be applied to the star we created above. Additionally we also add some rotation. We do all of this in a new component called Stars:
+
+```tsx twoslash title="src/Stars.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Explosion.tsx
+export const Explosion: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dot.tsx
+export const Dot: React.FC<{}> = () => null;
+// @filename: Star.tsx
+export const Star: React.FC<{}> = () => null;
+// @filename: Trail.tsx
+export const Trail: React.FC<{
+  children: React.ReactNode;
+  extraOffset: number;
+  amount: number;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Explosion} from './Explosion';
+import {Shrinking} from './Shrinking';
+import {Star} from './Star';
+import {Trail} from './Trail';
+
+export const Stars: React.FC = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        rotate: '0.3rad',
+      }}
+    >
+      <Explosion>
+        <Trail extraOffset={100} amount={4}>
+          <Shrinking>
+            <Star />
+          </Shrinking>
+        </Trail>
+      </Explosion>
+    </AbsoluteFill>
+  );
+};
+```
+
+Here is how the almost complete firework should look like:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/DotsAndHeartsAndStars.gif" />
+
+## Slow motion effect
+
+Lastly let's apply a slow motion effect to the firework. For this, create a new file `src/SlowedTrail.tsx`. It should contain a component called Slowed and a helper function `remapSpeed()` which will apply different speed levels to the firework. In the code snippet below a speed of 1.5 is applied until frame 20, afterwards the speed slows down to 0.5.
+
+```tsx twoslash title="src/SlowedTrail.tsx"
+import React from 'react';
+import {Freeze, interpolate, useCurrentFrame} from 'remotion';
+
+// remapSpeed() is a helper function for the component <Slowed> that takes a frame number and a speed
+const remapSpeed = ({
+  frame,
+  speed,
+}: {
+  frame: number;
+  speed: (fr: number) => number;
+}) => {
+  let framesPassed = 0;
+  for (let i = 0; i <= frame; i++) {
+    framesPassed += speed(i);
+  }
+
+  return framesPassed;
+};
+
+export const Slowed: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => {
+  const frame = useCurrentFrame();
+  const remappedFrame = remapSpeed({
+    frame,
+    speed: (f) =>
+      interpolate(f, [0, 20, 21], [1.5, 1.5, 0.5], {
+        extrapolateRight: 'clamp',
+      }),
+  });
+
+  return <Freeze frame={remappedFrame}>{children}</Freeze>;
+};
+```
+
+In the main component, wrap all moving dots, hearts and stars in the component `<Slowed>`. As you sure can tell by now, everything is very composable:
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Stars.tsx
+export const Stars: React.FC<{}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dots.tsx
+export const Dots: React.FC<{}> = () => null;
+// @filename: RedHearts.tsx
+export const RedHearts: React.FC<{}> = () => null;
+// @filename: YellowHearts.tsx
+export const YellowHearts: React.FC<{}> = () => null;
+// @filename: SlowedTrail.tsx
+export const Slowed: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dots} from './Dots';
+import {RedHearts} from './RedHearts';
+import {Slowed} from './SlowedTrail';
+import {Stars} from './Stars';
+import {YellowHearts} from './YellowHearts';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Slowed>
+        <Dots />
+        <RedHearts />
+        <YellowHearts />
+        <Stars />
+      </Slowed>
+    </AbsoluteFill>
+  );
+};
+```
+
+Your final firework should look like this:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Slowed.gif" />
+
+## Adding your animoji
+
+As the final step of this tutorial, we add your animoji on top of the firework. For the animoji you need to have an iPhone and a Mac. This is how you get it: On your iPhone in iMessage, record an animoji of yourself and send it to a friend. After you've done that, it will also appear in the Messages app on your Mac. Download your animoji there by right-clicking. Once you have done that, create a transparent version of your animoji. Just follow these points:
+
+1. Right-click your downloaded animoji
+2. Select "Services"
+3. Select "Encode Selected Video Files"
+4. Choose "Apple ProRes" in the settings dropdown
+5. Tick the box that says "Preserve Transparency".
+
+A new encoded file of your animoji will be created. Give it a simple name like animoji.mov.
+
+In addition to the `src` folder in your Remotion project, create a new one called `public`. Put your encoded video in this folder. You can then use FFmpeg to turn the encoded video into a series of frames:
+
+1. Change the current working directory to `public`: `cd public`
+2. Use this command: `ffmpeg -i animoji.mov -pix_fmt rgba -start_number 0 frame%03d.png`
+
+Only assets that are being used by Remotion need to be in the `public` folder. You don't need the encoded video, so you can delete it after the frames have been extracted.
+
+Here is a screenshot right before creating the series of frames:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/FFmpegCommand.png" />
+
+<br />
+<br />
+
+Alright, so far you've prepared the animoji to be used in a new component called Animoji. You can import this series of frames by using the [staticFile()](https://www.remotion.dev/docs/staticfile) API. The file name of each frame will help you to determine the current frame number.
+
+```tsx twoslash title="src/Animoji.tsx"
+import React from 'react';
+import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
+
+export const Animoji: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  const src = `frame${(frame * 2).toString().padStart(3, '0')}.png`;
+
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 80,
+      }}
+    >
+      <Img
+        style={{
+          height: 800,
+        }}
+        src={staticFile(src)}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Render the `<Animoji>` component in your main composition:
+
+```tsx twoslash title="src/Composition.tsx"
+// @filename: Move.tsx
+export const Move: React.FC<{
+  children: React.ReactNode;
+  delay: number;
+}> = () => null;
+// @filename: Shrinking.tsx
+export const Shrinking: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+// @filename: Stars.tsx
+export const Stars: React.FC<{}> = () => null;
+// @filename: Background.tsx
+export const Background: React.FC<{}> = () => null;
+// @filename: Dots.tsx
+export const Dots: React.FC<{}> = () => null;
+// @filename: RedHearts.tsx
+export const RedHearts: React.FC<{}> = () => null;
+// @filename: YellowHearts.tsx
+export const YellowHearts: React.FC<{}> = () => null;
+// @filename: Animoji.tsx
+export const Animoji: React.FC<{}> = () => null;
+// @filename: SlowedTrail.tsx
+export const Slowed: React.FC<{
+  children: React.ReactNode;
+}> = () => null;
+
+// @filename: MyComposition.tsx
+// ---cut---
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Animoji} from './Animoji';
+import {Background} from './Background';
+import {Dots} from './Dots';
+import {RedHearts} from './RedHearts';
+import {Slowed} from './SlowedTrail';
+import {Stars} from './Stars';
+import {YellowHearts} from './YellowHearts';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Background />
+      <Slowed>
+        <Dots />
+        <RedHearts />
+        <YellowHearts />
+        <Stars />
+      </Slowed>
+      <Animoji />
+    </AbsoluteFill>
+  );
+};
+```
+
+By doing all of this you have imported a transparent version of your animoji into your composition. You can run `npm run build` to export your video as MP4. Which should look like this:
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Final.gif" />
+
+Congrats on your programmatically generated video! 🎉

@@ -1,2 +1,2 @@
 export const isRemoteAsset = (asset: string) =>
-	!asset.startsWith(window.location.origin) && !asset.startsWith('data');
+	!asset.startsWith(window.origin) && !asset.startsWith('data');

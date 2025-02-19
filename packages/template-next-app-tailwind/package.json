@@ -1,0 +1,53 @@
+{
+  "name": "template-next-app-tailwind",
+  "version": "0.1.0",
+  "private": true,
+  "author": {
+    "name": "Mohit Yadav",
+    "email": "mohit@mohitya.dev",
+    "url": "https://mohitya.dev"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "remotion": "remotion studio",
+    "render": "remotion render",
+    "deploy": "node deploy.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/lambda": "workspace:*",
+    "@remotion/paths": "workspace:*",
+    "@remotion/player": "workspace:*",
+    "@remotion/shapes": "workspace:*",
+    "@remotion/tailwind-v4": "workspace:*",
+    "clsx": "2.1.1",
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "tailwind-merge": "3.0.1",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-plugin": "workspace:*",
+    "@eslint/eslintrc": "3.1.0",
+    "@types/node": "20.12.14",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "@types/web": "0.0.166",
+    "autoprefixer": "10.4.20",
+    "dotenv": "16.0.3",
+    "eslint": "9.19.0",
+    "@next/eslint-plugin-next": "15.1.6",
+    "eslint-config-next": "15.1.6",
+    "postcss": "8.4.47",
+    "prettier": "3.3.3",
+    "tailwindcss": "4.0.3",
+    "typescript": "5.5.4"
+  }
+}

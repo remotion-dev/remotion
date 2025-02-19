@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
+import {PageEmittedEvents} from './BrowserPage';
+import type {BrowserRunner} from './BrowserRunner';
+import {makeBrowserRunner} from './BrowserRunner';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
 import {EventEmitter} from './EventEmitter';
 import type {Viewport} from './PuppeteerViewport';
+import type {SourceMapGetter} from './source-map-getter';
 import {Target} from './Target';
 import {waitWithTimeout} from './util';
-
-type BrowserCloseCallback = () => Promise<void> | void;
 
 interface WaitForTargetOptions {
 	timeout?: number;
@@ -33,73 +36,84 @@ export const enum BrowserEmittedEvents {
 	TargetChanged = 'targetchanged',
 	TargetCreated = 'targetcreated',
 	Closed = 'closed',
+	ClosedSilent = 'closed-silent',
 }
 
-export class Browser extends EventEmitter {
-	static async _create({
-		connection,
-		contextIds,
+export class HeadlessBrowser extends EventEmitter {
+	static async create({
 		defaultViewport,
-		closeCallback,
+		timeout,
+		userDataDir,
+		args,
+		executablePath,
+		logLevel,
+		indent,
 	}: {
-		connection: Connection;
-		contextIds: string[];
 		defaultViewport: Viewport;
-		closeCallback?: BrowserCloseCallback;
-	}): Promise<Browser> {
-		const browser = new Browser(
-			connection,
-			contextIds,
+		timeout: number;
+		userDataDir: string;
+		args: string[];
+		executablePath: string;
+		logLevel: LogLevel;
+		indent: boolean;
+	}): Promise<HeadlessBrowser> {
+		const runner = await makeBrowserRunner({
+			executablePath,
+			processArguments: args,
+			userDataDir,
+			indent,
+			logLevel,
+			timeout,
+		});
+
+		const browser = new HeadlessBrowser({
+			connection: runner.connection,
 			defaultViewport,
-			closeCallback
-		);
-		await connection.send('Target.setDiscoverTargets', {discover: true});
+			runner,
+		});
+		await runner.connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
 	}
 
 	#defaultViewport: Viewport;
-	#connection: Connection;
-	#closeCallback: BrowserCloseCallback;
+	connection: Connection;
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
+
+	runner: BrowserRunner;
 
 	get _targets(): Map<string, Target> {
 		return this.#targets;
 	}
 
-	// eslint-disable-next-line max-params
-	constructor(
-		connection: Connection,
-		contextIds: string[],
-		defaultViewport: Viewport,
-		closeCallback?: BrowserCloseCallback
-	) {
+	constructor({
+		connection,
+		defaultViewport,
+		runner,
+	}: {
+		connection: Connection;
+		defaultViewport: Viewport;
+		runner: BrowserRunner;
+	}) {
 		super();
 		this.#defaultViewport = defaultViewport;
-		this.#connection = connection;
-		this.#closeCallback =
-			closeCallback ||
-			function () {
-				return undefined;
-			};
+		this.connection = connection;
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
-		for (const contextId of contextIds) {
-			this.#contexts.set(contextId, new BrowserContext(this, contextId));
-		}
 
 		this.#targets = new Map();
-		this.#connection.on('Target.targetCreated', this.#targetCreated.bind(this));
-		this.#connection.on(
+		this.connection.on('Target.targetCreated', this.#targetCreated.bind(this));
+		this.connection.on(
 			'Target.targetDestroyed',
-			this.#targetDestroyed.bind(this)
+			this.#targetDestroyed.bind(this),
 		);
-		this.#connection.on(
+		this.connection.on(
 			'Target.targetInfoChanged',
-			this.#targetInfoChanged.bind(this)
+			this.#targetInfoChanged.bind(this),
 		);
+		this.runner = runner;
 	}
 
 	browserContexts(): BrowserContext[] {
@@ -122,13 +136,13 @@ export class Browser extends EventEmitter {
 			targetInfo,
 			context,
 			() => {
-				return this.#connection.createSession(targetInfo);
+				return this.connection.createSession(targetInfo);
 			},
-			this.#defaultViewport ?? null
+			this.#defaultViewport ?? null,
 		);
 		assert(
 			!this.#targets.has(event.targetInfo.targetId),
-			'Target should not exist before targetCreated'
+			'Target should not exist before targetCreated',
 		);
 		this.#targets.set(event.targetInfo.targetId, target);
 
@@ -141,7 +155,7 @@ export class Browser extends EventEmitter {
 		const target = this.#targets.get(event.targetId);
 		if (!target) {
 			throw new Error(
-				`Missing target in _targetDestroyed (id = ${event.targetId})`
+				`Missing target in _targetDestroyed (id = ${event.targetId})`,
 			);
 		}
 
@@ -154,7 +168,7 @@ export class Browser extends EventEmitter {
 		const target = this.#targets.get(event.targetInfo.targetId);
 		if (!target) {
 			throw new Error(
-				`Missing target in targetInfoChanged (id = ${event.targetInfo.targetId})`
+				`Missing target in targetInfoChanged (id = ${event.targetInfo.targetId})`,
 			);
 		}
 
@@ -166,14 +180,36 @@ export class Browser extends EventEmitter {
 		}
 	}
 
-	newPage(): Promise<Page> {
-		return this.#defaultContext.newPage();
+	newPage({
+		context,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		context: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
+		return this.#defaultContext.newPage({context, logLevel, indent, pageIndex});
 	}
 
-	async _createPageInContext(contextId?: string): Promise<Page> {
-		const {targetId} = await this.#connection.send('Target.createTarget', {
+	async _createPageInContext({
+		context,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		context: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
+		const {
+			value: {targetId},
+		} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
-			browserContextId: contextId || undefined,
+			browserContextId: undefined,
 		});
 		const target = this.#targets.get(targetId);
 		if (!target) {
@@ -185,11 +221,14 @@ export class Browser extends EventEmitter {
 			throw new Error(`Failed to create target for page (id = ${targetId})`);
 		}
 
-		const page = await target.page();
+		const page = await target.page({
+			sourceMapGetter: context,
+			logLevel,
+			indent,
+			pageIndex,
+		});
 		if (!page) {
-			throw new Error(
-				`Failed to create a page for context (id = ${contextId})`
-			);
+			throw new Error(`Failed to create a page for context`);
 		}
 
 		return page;
@@ -203,7 +242,7 @@ export class Browser extends EventEmitter {
 
 	async waitForTarget(
 		predicate: (x: Target) => boolean | Promise<boolean>,
-		options: WaitForTargetOptions = {}
+		options: WaitForTargetOptions = {},
 	): Promise<Target> {
 		const {timeout = 30000} = options;
 		let resolve: (value: Target | PromiseLike<Target>) => void;
@@ -237,7 +276,7 @@ export class Browser extends EventEmitter {
 		const contextPages = await Promise.all(
 			this.browserContexts().map((context) => {
 				return context.pages();
-			})
+			}),
 		);
 		// Flatten array.
 		return contextPages.reduce((acc, x) => {
@@ -245,25 +284,29 @@ export class Browser extends EventEmitter {
 		}, []);
 	}
 
-	async close(): Promise<void> {
-		await this.#closeCallback.call(null);
+	async close({silent}: {silent: boolean}): Promise<void> {
+		await this.runner.closeProcess();
+		(await this.pages()).forEach((page) => {
+			page.emit(PageEmittedEvents.Disposed);
+			page.closed = true;
+		});
 		this.disconnect();
-		this.emit(BrowserEmittedEvents.Closed);
+		this.emit(
+			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed,
+		);
 	}
 
 	disconnect(): void {
-		this.#connection.dispose();
+		this.connection.dispose();
 	}
 }
 
 export class BrowserContext extends EventEmitter {
-	#browser: Browser;
-	#id?: string;
+	#browser: HeadlessBrowser;
 
-	constructor(browser: Browser, contextId?: string) {
+	constructor(browser: HeadlessBrowser) {
 		super();
 		this.#browser = browser;
-		this.#id = contextId;
 	}
 
 	targets(): Target[] {
@@ -274,7 +317,7 @@ export class BrowserContext extends EventEmitter {
 
 	waitForTarget(
 		predicate: (x: Target) => boolean | Promise<boolean>,
-		options: {timeout?: number} = {}
+		options: {timeout?: number} = {},
 	): Promise<Target> {
 		return this.#browser.waitForTarget((target) => {
 			return target.browserContext() === this && predicate(target);
@@ -285,18 +328,33 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page())
+				.map((target) => target.expectPage()),
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
 		});
 	}
 
-	newPage(): Promise<Page> {
-		return this.#browser._createPageInContext(this.#id);
+	newPage({
+		context,
+		logLevel,
+		indent,
+		pageIndex,
+	}: {
+		context: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+	}): Promise<Page> {
+		return this.#browser._createPageInContext({
+			context,
+			logLevel,
+			indent,
+			pageIndex,
+		});
 	}
 
-	browser(): Browser {
+	browser(): HeadlessBrowser {
 		return this.#browser;
 	}
 }

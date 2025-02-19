@@ -14,3 +14,5 @@ export type VideoMetadata = {
 	aspectRatio: number;
 	isRemote: boolean;
 };
+
+export type ImageDimensions = {width: number; height: number};

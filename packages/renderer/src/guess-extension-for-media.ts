@@ -1,9 +1,29 @@
-import execa from 'execa';
+import {callFf} from './call-ffmpeg';
+import type {LogLevel} from './log-level';
+import type {CancelSignal} from './make-cancel-signal';
 
-export const guessExtensionForVideo = async (src: string) => {
-	const {stderr} = await execa('ffprobe', [src]);
-
-	if (stderr.includes('mp3,')) {
+export const guessExtensionForVideo = async ({
+	src,
+	indent,
+	logLevel,
+	binariesDirectory,
+	cancelSignal,
+}: {
+	src: string;
+	indent: boolean;
+	logLevel: LogLevel;
+	binariesDirectory: string | null;
+	cancelSignal: CancelSignal | undefined;
+}) => {
+	const {stderr} = await callFf({
+		bin: 'ffprobe',
+		args: [src],
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
+	if (stderr.includes('Audio: mp3,')) {
 		return 'mp3';
 	}
 
@@ -24,6 +44,6 @@ export const guessExtensionForVideo = async (src: string) => {
 	}
 
 	throw new Error(
-		`A media file ${src} which has no file extension and whose format could not be guessed. Is this a valid media file?`
+		`The media file "${src}" has no file extension and the format could not be guessed. Tips: a) Ensure this is a valid video or audio file b) Add a file extension to the URL like ".mp4" c) Set a "Content-Type" or "Content-Disposition" header if possible.`,
 	);
 };

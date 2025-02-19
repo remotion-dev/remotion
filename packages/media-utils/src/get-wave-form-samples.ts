@@ -24,7 +24,7 @@ export const getWaveformSamples = ({
 
 		filteredData.push(
 			(sum / blockSize) *
-				(i % 2 === 0 && outputRange === 'minus-one-to-one' ? -1 : 1)
+				(i % 2 === 0 && outputRange === 'minus-one-to-one' ? -1 : 1),
 		); // divide the sum by the block size to get the average
 	}
 

@@ -1,10 +1,10 @@
-import type {RemotionAudioProps} from './audio';
-import type {RemotionVideoProps} from './video';
-import type {OffthreadVideoProps} from './video/props';
+import type {RemotionAudioProps} from './audio/index.js';
+import type {RemotionVideoProps} from './video/index.js';
+import type {OffthreadVideoProps} from './video/props.js';
 
 export const validateMediaProps = (
 	props: RemotionVideoProps | RemotionAudioProps | OffthreadVideoProps,
-	component: 'Video' | 'Audio'
+	component: 'Video' | 'Audio',
 ) => {
 	if (
 		typeof props.volume !== 'number' &&
@@ -12,13 +12,13 @@ export const validateMediaProps = (
 		typeof props.volume !== 'undefined'
 	) {
 		throw new TypeError(
-			`You have passed a volume of type ${typeof props.volume} to your <${component} /> component. Volume must be a number or a function with the signature '(frame: number) => number' undefined.`
+			`You have passed a volume of type ${typeof props.volume} to your <${component} /> component. Volume must be a number or a function with the signature '(frame: number) => number' undefined.`,
 		);
 	}
 
 	if (typeof props.volume === 'number' && props.volume < 0) {
 		throw new TypeError(
-			`You have passed a volume below 0 to your <${component} /> component. Volume must be between 0 and 1`
+			`You have passed a volume below 0 to your <${component} /> component. Volume must be between 0 and 1`,
 		);
 	}
 
@@ -27,7 +27,7 @@ export const validateMediaProps = (
 		typeof props.playbackRate !== 'undefined'
 	) {
 		throw new TypeError(
-			`You have passed a playbackRate of type ${typeof props.playbackRate} to your <${component} /> component. Playback rate must a real number or undefined.`
+			`You have passed a playbackRate of type ${typeof props.playbackRate} to your <${component} /> component. Playback rate must a real number or undefined.`,
 		);
 	}
 
@@ -38,7 +38,7 @@ export const validateMediaProps = (
 			props.playbackRate <= 0)
 	) {
 		throw new TypeError(
-			`You have passed a playbackRate of ${props.playbackRate} to your <${component} /> component. Playback rate must be a real number above 0.`
+			`You have passed a playbackRate of ${props.playbackRate} to your <${component} /> component. Playback rate must be a real number above 0.`,
 		);
 	}
 };

@@ -1,0 +1,151 @@
+---
+slug: 3-2
+title: Remotion 3.2
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/remotion-3-2.png
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<br/>
+Up in this release: More ways to create videos and better workflow!
+
+## Lottie support
+
+Announcing the official [`@remotion/lottie`](/docs/lottie) package, including a [typesafe component](/docs/lottie/lottie) and extensive [documentation](/docs/lottie).
+With Lottie, you can import thousands of premade animations from [LottieFiles](/docs/lottie/lottiefiles) and we even made a guide on [how to import animations created in After Effects](/docs/after-effects)!
+
+<p align="center"><sub>Animations from Lottiefiles embedded in Remotion: <a href="https://lottiefiles.com/106683-gold">1</a>, <a href="https://lottiefiles.com/112208-smiling-face-with-halo">2</a>, <a href="https://lottiefiles.com/111529-rocket">3</a></sub></p>
+
+To get started, install `@remotion/lottie` into your Remotion project and import the [`<Lottie>`](/docs/lottie) component:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i @remotion/lottie
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/lottie
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/lottie
+```
+
+  </TabItem>
+
+</Tabs>
+
+Thanks to [Arthur Denner](https://github.com/arthurdenner) for implementing this feature!
+
+## React Native Skia support
+
+Using the [`@remotion/skia`](/docs/skia) package, you can now use [React Native Skia](https://shopify.github.io/react-native-skia/) in Remotion! Thanks to our collaborators [William Candillon](https://youtube.com/wcandillon) and [Christian Falch](https://twitter.com/chrfalch), Remotion is now a first-class target for React Native Skia.
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/skia.gif" />
+
+Check out the [epic announcement video](https://www.youtube.com/watch?v=uvLQ5f3KDXk&t=24s), [read the docs](/docs/skia) and make your first video using:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npx create-video --skia
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --skia
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn create video --skia
+```
+
+  </TabItem>
+
+</Tabs>
+
+## Zoomable timeline
+
+Our timeline has some new features that make it behave more like traditional video editors. You can now zoom in and out of the timeline to better focus on a certain section of a video. When playing the video, the timeline moves along with the cursor. Scrubbing with the cursor or keyboard will also scroll the timeline so the cursor is always in the viewport.
+
+The other new timeline feature is that there are now ticks that appear every second, and when zoomed in, smaller ticks that denote the positions of a single frame. This should help you orient yourself when you are asking yourselves at which point of the video you are at.
+
+<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/scroll-timeline.gif"/>
+
+## Improvements to audio-only and video-only rendering
+
+You can now explicitly drop the audio of a video by passing [`--muted`](/docs/cli/render#--muted) in the render. Videos that include no audio are now faster because we don't include a silent audio track anymore (use [`--enforce-audio-track`](/docs/cli/render#--enforce-audio-track) to get the old behavior).
+
+Renders that are audio only are now faster because Remotion will not wait for the video tags to seek.
+
+Renders that are only video are now faster because no assets need to be downloaded to be included in the audio track.
+
+## Handy features
+
+- The back and forwards button now work in the preview.
+- Chrome 104 is now available on Remotion Lambda which means you can use the [handy transform shorthands](https://twitter.com/JNYBGR/status/1555055938008223744)!
+- You can now render ProRes on Remotion Lambda.
+- Remotion Lambda now has a [`privacy: "no-acl"`](/docs/lambda/rendermediaonlambda#privacy) option if you are rendering into a bucket that has the ACL feature disabled.
+- Remotion Lambda now supports a [`downloadBehavior`](/docs/lambda/rendermediaonlambda#downloadbehavior) prop which makes it that when a output file link gets clicked in the browser, it will download instead of play in the browser.
+- Adding an output filename to the [`npx remotion render`](/docs/cli/render) command is not necessary anymore, it will default to `out/{composition-id}.{extension}` now.
+- The `<Player>` has a new [`moveToBeginningWhenEnded`](/docs/player/player#movetobeginningwhenended) prop that determines if the player moves back to the beginning when the video has reached the end and is not looping.
+- The `<Player>` has a new [`fullscreenchange`](/docs/player/player#fullscreenchange) event that allows you to
+- You can now assign a `className` to the [`<Player>`](/docs/player/player).
+
+## Developer experience
+
+- New ESLint rule that warns you if you are passing a relative path or remote URL to staticFile: `staticFile("../my-file.png")` or `staticFile("https://example.com")`
+- Better error message on Remotion Lambda when the `s3:ListBucket` permission for the bucket you are rendering into is missing.
+- ESLint warning when passing a file ending in `.gif` to the `<Img>` component.
+- Better error message and [help page](/docs/lambda/troubleshooting/unrecognizedclientexception) when calling `renderMediaOnLambda()` inside another serverless function and AWS credentials are conflicting
+- Better error message and [help page](/docs/lambda/troubleshooting/bucket-disallows-acl) when rendering into a bucket that has ACL disabled but you are setting the privacy to `public` or `private`.
+
+## Notable bug fixes
+
+- The `<Player>` now works correctly in React 18 strict mode.
+- The preview server should not crash anymore in any scenario.
+- Remotion now cleans up any temporarily created files and does not pollute the hard drive.
+- Executing `npx remotion` commands outside of the project root now works.
+- `Open in VS Code` now works if the `code` command is not installed.
+- Remotion Lambda now uses less memory and is less prone to crashing when using `<Video>`'s.
+
+## Internals
+
+- The CLI configuration code has moved from `remotion` to `@remotion/cli`, which makes the `remotion` package 30% smaller.
+- We moved from `jest` to `vitest` for some packages.
+- `puppeteer-core` and `chalk` dependencies have been inlined.
+- We adopted Node.JS Corepack.

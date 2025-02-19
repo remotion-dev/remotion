@@ -31,7 +31,11 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-const getWaveformPortion = ({
+/*
+ * @description Takes bulky waveform data (for example fetched by getAudioData()) and returns a trimmed and simplified version of it, for simpler visualization
+ * @see [Documentation](https://remotion.dev/docs/get-waveform-portion)
+ */
+export const getWaveformPortion = ({
 	audioData,
 	startTimeInSeconds,
 	durationInSeconds,
@@ -51,11 +55,11 @@ const getWaveformPortion = ({
 	const waveform = audioData.channelWaveforms[channel];
 
 	const startSample = Math.floor(
-		(startTimeInSeconds / audioData.durationInSeconds) * waveform.length
+		(startTimeInSeconds / audioData.durationInSeconds) * waveform.length,
 	);
 	const endSample = Math.floor(
 		((startTimeInSeconds + durationInSeconds) / audioData.durationInSeconds) *
-			waveform.length
+			waveform.length,
 	);
 
 	const samplesBeforeStart = 0 - startSample;
@@ -89,4 +93,4 @@ const getWaveformPortion = ({
 	});
 };
 
-export {getWaveformPortion, Bar};
+export {Bar};

@@ -1,0 +1,55 @@
+---
+image: /generated/articles-docs-cli-gpu.png
+crumb: CLI Reference
+sidebar_label: gpu
+title: npx remotion gpu
+---
+
+_Available from Remotion v4.0.52_
+
+Prints out how the Chrome browser uses the GPUs.
+
+```bash
+npx remotion gpu --gl=angle
+```
+
+The command takes the same arguments for `--gl` as `npx remotion render` and also picks up the [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) option.  
+Try out different values to find which one is the best for your system.
+
+```bash title="Example output"
+Canvas: Hardware accelerated
+Canvas out-of-process rasterization: Enabled
+Direct Rendering Display Compositor: Disabled
+Compositing: Hardware accelerated
+Multiple Raster Threads: Enabled
+OpenGL: Enabled
+Rasterization: Hardware accelerated
+Raw Draw: Disabled
+Skia Graphite: Disabled
+Video Decode: Hardware accelerated
+Video Encode: Hardware accelerated
+WebGL: Hardware accelerated
+WebGL2: Hardware accelerated
+WebGPU: Hardware accelerated
+```
+
+The output should not be used for automated parsing, as it may change inbetween any Remotion and Chrome versions.
+
+## API
+
+### `--log`
+
+<Options id="log" />
+
+### `--gl`
+
+<Options id="gl" />
+
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/gpu.ts)
+- [Using the GPU](/docs/gpu)

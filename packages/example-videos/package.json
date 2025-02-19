@@ -1,0 +1,26 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/example-videos"
+	},
+	"name": "@remotion/example-videos",
+	"version": "4.0.266",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src",
+		"make": "tsc -d"
+	},
+	"author": "Jonny Burger",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"private": true
+}

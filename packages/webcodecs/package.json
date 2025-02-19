@@ -1,0 +1,83 @@
+{
+	"name": "@remotion/webcodecs",
+	"version": "4.0.266",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"sideEffects": false,
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/webcodecs"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"scripts": {
+		"formatting": "prettier src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"watch": "tsc -w",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
+	"dependencies": {
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/licensing": "workspace:*"
+	},
+	"peerDependencies": {},
+	"devDependencies": {
+		"@types/dom-webcodecs": "0.1.11",
+		"@remotion/example-videos": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"keywords": [],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./web-fs": {
+			"types": "./dist/writers/web-fs.d.ts",
+			"require": "./dist/writers/web-fs.js",
+			"module": "./dist/esm/web-fs.mjs",
+			"import": "./dist/esm/web-fs.mjs"
+		},
+		"./buffer": {
+			"types": "./dist/writers/buffer.d.ts",
+			"require": "./dist/writers/buffer.js",
+			"module": "./dist/esm/buffer.mjs",
+			"import": "./dist/esm/buffer.mjs"
+		},
+		"./node": {
+			"types": "./dist/writers/node.d.ts",
+			"require": "./dist/writers/node.js",
+			"module": "./dist/esm/node.mjs",
+			"import": "./dist/esm/node.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"web-fs": [
+				"dist/writers/web-fs.d.ts"
+			],
+			"node": [
+				"dist/writers/node.d.ts"
+			],
+			"buffer": [
+				"dist/writers/buffer.d.ts"
+			]
+		}
+	},
+	"description": "Media conversion in the browser",
+	"homepage": "https://remotion.dev/webcodecs"
+}

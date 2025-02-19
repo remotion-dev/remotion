@@ -12,6 +12,6 @@ export const calculateATempo = (playbackRate: number): string | null => {
 	}
 
 	return `${calculateATempo(Math.sqrt(playbackRate))},${calculateATempo(
-		Math.sqrt(playbackRate)
+		Math.sqrt(playbackRate),
 	)}`;
 };

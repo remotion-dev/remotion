@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "outDir": "./dist/cjs"
+  },
+  "include": ["./src"],
+  "references": [{ "path": "../core" }]
+}

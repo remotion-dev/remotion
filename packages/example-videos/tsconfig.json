@@ -1,0 +1,11 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable"],
+		"rootDir": "src",
+		"outDir": "dist",
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": []
+}

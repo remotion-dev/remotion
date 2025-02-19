@@ -1,12 +1,11 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}]
+	"references": [{"path": "../core"}, {"path": "../studio"}]
 }

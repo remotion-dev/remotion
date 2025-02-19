@@ -1,0 +1,140 @@
+---
+image: /generated/articles-docs-miscellaneous-cloud-gpu.png
+sidebar_label: GPU in the cloud (bare)
+title: Using the GPU in the cloud
+crumb: 'FAQ'
+---
+
+Here is an example workflow for how to use the GPU in the cloud to render your videos using EC2 instances.
+
+## Update Remotion
+
+Ensure you are using Remotion v4.0.248 or later for this guide to work.
+
+## Launch an EC2 instance
+
+<Step>1</Step> <strong>Ensure you are allowed to use a GPU</strong>
+
+You might need to ask AWS for a limit increase for the number of GPUs you can use.  
+You can do this in the AWS console.  
+Go to "Service Quotas" -> "AWS Services" -> "Amazon Elastic Compute Cloud (Amazon EC2)" -> "Running On-Demand G and VT instances" -> "Request increase at account-level".  
+You may also click [here](https://us-east-1.console.aws.amazon.com/servicequotas/home/services/ec2/quotas/L-DB2E81BA) to go to the page directly for the `us-east-1` region.
+
+<Step>2</Step> <strong>Launch an EC2 instance</strong>
+
+[Click here to launch an EC2 instance on `us-east-1`](https://us-east-1.console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstances:).
+
+Select "Browse more AMIs", search for `ami-053b0d53c279acc90`, select the "Community AMIs" tab and select the image with the right AMI (`ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20230516`).
+
+:::note
+It might take up to 30 seconds until the search finds the AMI and it is **not the first result.**
+:::
+
+We recommend the `g4dn.xlarge` size - note that this instance costs $375 per month with the default configuration.  
+If you get a message "Subscribing to AMI is taking longer than expected", it is normal. You may need to wait a few minutes.
+
+<Step>3</Step> <strong>Configure instance:</strong>
+
+Once you connected to the instance, run the following commands:
+
+```bash title="Upgrade the Linux Kernel to v6"
+sudo bash -c "apt update && export DEBIAN_FRONTEND=noninteractive && export NEEDRESTART_MODE=a && apt upgrade -y && reboot"
+```
+
+The instance will restart and therefore disconnect. Wait a few moments and then reconnect.
+
+Install the [Linux Dependencies](/docs/miscellaneous/linux-dependencies) for Remotion:
+
+```bash title="Install Linux Dependencies"
+sudo apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libcups2 \
+  libgbm-dev \
+  libpangocairo-1.0-0 \
+  libatk-bridge2.0-0
+```
+
+Set up GPU drivers:
+
+```bash title="Install libvulkan"
+sudo apt install -y build-essential libvulkan1
+```
+
+```bash title="Install GPU drivers"
+DRIVER_URL="https://us.download.nvidia.com/tesla/535.104.12/NVIDIA-Linux-x86_64-535.104.12.run"
+DRIVER_NAME="NVIDIA-Linux-driver.run"
+wget -O "$DRIVER_NAME" "$DRIVER_URL"
+sudo sh "$DRIVER_NAME" --disable-nouveau --silent
+rm "$DRIVER_NAME"
+```
+
+```bash title="Configure startup service"
+echo '[Unit]
+Description=Run nvidia-smi at system startup
+
+[Service]
+ExecStart=/usr/bin/nvidia-smi
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target' | sudo tee /etc/systemd/system/nvidia-smi.service
+sudo systemctl enable nvidia-smi.service
+sudo systemctl start nvidia-smi.service
+```
+
+```bash title="Install Node.js"
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+
+NODE_MAJOR=20
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+sudo apt-get update
+sudo apt-get install nodejs -y
+```
+
+<p>
+  <Step>4</Step> <strong>Render a video with the GPU</strong>
+</p>
+
+```bash title="Clone a Remotion GPU demo"
+git clone https://github.com/remotion-dev/gpu-scene
+cd gpu-scene
+npm i
+npx remotion gpu --chrome-mode="chrome-for-testing" --gl=vulkan # Verify content is hardware accelerated
+npx remotion render --chrome-mode="chrome-for-testing" --gl=vulkan # Render a test video
+```
+
+With `--chrome-mode="chrome-for-testing"`, a flavor of Chrome is used that emulates a display, which can make use of the GPU.  
+With `--gl=vulkan`, Chrome uses the right OpenGL renderer.
+
+:::note
+Warnings such as ` vkCreateInstance() failed: -7` and `Failed to create and initialize Vulkan implementation.` may show up, however, the render should be significantly faster.
+:::
+
+## See also
+
+- [Run this in a Docker container](/docs/miscellaneous/cloud-gpu-docker)
+- [How To Enable Hardware Acceleration on Chrome, Chromium & Puppeteer on AWS in Headless mode](https://mirzabilal.com/how-to-enable-hardware-acceleration-on-chrome-chromium-puppeteer-on-aws-in-headless-mode), on which this document is based on.
+
+<Credits
+  contributors={[
+    {
+      username: 'bilalmughal',
+      contribution: 'Research and writing',
+    },
+    {
+      username: 'UmungoBungo',
+      contribution: 'Research',
+    },
+  ]}
+/>

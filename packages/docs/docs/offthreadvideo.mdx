@@ -1,0 +1,367 @@
+---
+image: /generated/articles-docs-offthreadvideo.png
+id: offthreadvideo
+title: '<OffthreadVideo>'
+crumb: 'API'
+---
+
+_Available from Remotion 3.0.11_
+
+This component imports and displays a video, similar to [`<Video/>`](/docs/video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
+
+This component was designed to combat limitations of the default `<Video>` element. See: [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo).
+
+## Example
+
+```tsx twoslash
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+You can load a video from an URL as well:
+
+```tsx twoslash
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Props
+
+### `src`
+
+The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
+
+### `startFrom?`
+
+Will remove a portion of the video at the beginning.
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
+By passing `endAt={120}`, any video after the 4 second mark in the file will be trimmed away.
+
+The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
+
+```tsx twoslash
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo src={staticFile('video.webm')} startFrom={60} endAt={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `endAt?`
+
+Removes a portion of the video at the end. See [`startAt`](/docs/video#startfrom) for an explanation.
+
+### `transparent?`<AvailableFrom v="4.0.0" />
+
+If set to `true`, frames will be extracted as PNG, enabling transparency but also slowing down your render.
+
+If set to `false` (_default_), frames will be extracted as bitmap (BMP), which is faster.
+
+### `volume?`
+
+Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
+
+```tsx twoslash title="Example using static volume"
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo volume={0.5} src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Example of a ramp up over 100 frames"
+import {AbsoluteFill, interpolate, staticFile, OffthreadVideo} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+On iOS Safari, it's not possible to granularly change the volume of a media tag.  
+Only values `0` and `1` will be respected by the browser.
+:::
+
+### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
+
+Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
+
+Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+
+### `style?`
+
+You can pass any style you can pass to a native HTML element. Keep in mind that during rendering, `<OffthreadVideo>` renders an [`<Img>`](/docs/img) tag, but a `<video>` tag is used during preview.
+
+```tsx twoslash
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
+
+Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `name?`<AvailableFrom v="4.0.71"/>
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
+### `toneFrequency?`<AvailableFrom v="4.0.47"/>
+
+Adjust the pitch of the audio - will only be applied during rendering.
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+### `onError?`
+
+Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
+
+### `playbackRate?`<AvailableFrom v="2.2.0" />
+
+Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
+
+While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
+
+```tsx twoslash title="Example of a video playing twice as fast"
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo playbackRate={2} src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `muted?`
+
+You can drop the audio of the video by adding a `muted` prop:
+
+```tsx twoslash title="Example of a muted video"
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `acceptableTimeShiftInSeconds?`<AvailableFrom v="3.2.42" />
+
+In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+
+### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
+
+Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
+During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `toneFrequency?`<AvailableFrom v="4.0.47"/>
+
+Adjust the pitch of the audio - will only be applied during rendering.
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+### `pauseWhenBuffering?`<AvailableFrom v="4.0.111"/>
+
+If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+
+### `toneMapped?`<AvailableFrom v="4.0.117" />
+
+Since Remotion 4.0.117, Remotion will adjust the colors of videos in different color spaces (such as HDR) when converting to RGB, to counteract color shifts.  
+Since the browser is painting in sRGB, this is necessary to ensure that the colors are displayed correctly.  
+This behavior is by default `true` and can be disabled by setting `toneMapped` to `false`.  
+Disabling tone mapping will speed up rendering, but may result in less vibrant colors.
+
+Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
+
+### `showInTimeline?`<AvailableFrom v="4.0.122"/>
+
+If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
+
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.150" />
+
+Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `delayRenderRetries?`<AvailableFrom v="4.0.178" />
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `onAutoPlayError?`<AvailableFrom v="4.0.187" />
+
+A callback function that gets called when the video fails to play due to autoplay restrictions.  
+If you don't pass a callback, the video will be muted and be retried once.  
+This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
+Read more here about [autoplay restrictions](/docs/player/autoplay).
+
+### `onVideoFrame?`<AvailableFrom v="4.0.190" />
+
+A callback function that gets called when a frame is extracted from the video.  
+Useful for [video manipulation](/docs/video-manipulation).  
+The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object.  
+During preview, this is a `HTMLVideoElement` object, during rendering, it is an `HTMLImageElement`.
+
+### `crossOrigin?`<AvailableFrom v="4.0.190" />
+
+Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
+One of `"anonymous"`, `"use-credentials"` or `undefined`.  
+Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
+
+### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
+
+_removed in v4.0.0_
+
+Either `jpeg` or `png`. Default `jpeg`.  
+With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
+
+### Other props
+
+The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during Preview, this is a `<video>` element.
+
+## Performance tips
+
+Only set `transparent` to `true` if you need transparency. It is slower than non-transparent frame extraction.  
+If you don't care about color accuracy, you can set `toneMapped` to `false` as well to save time on color conversion.
+
+## Looping a OffthreadVideo
+
+Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
+
+You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
+
+```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
+import React, {useEffect, useState} from 'react';
+import {
+  cancelRender,
+  continueRender,
+  delayRender,
+  getRemotionEnvironment,
+  Loop,
+  OffthreadVideo,
+  RemotionOffthreadVideoProps,
+  useVideoConfig,
+  Video
+} from 'remotion';
+
+const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
+  const [duration, setDuration] = useState<number | null>(null);
+  const [handle] = useState(() => delayRender());
+  const {fps} = useVideoConfig();
+
+  useEffect(() => {
+    const controller = mediaParserController();
+
+    parseMedia({
+      src: props.src,
+      acknowledgeRemotionLicense: true,
+      controller,
+      fields: {
+        slowDurationInSeconds: true,
+      },
+    })
+      .then(({slowDurationInSeconds}) => {
+        setDuration(slowDurationInSeconds);
+        continueRender(handle);
+      })
+      .catch((err) => {
+        cancelRender(err);
+      });
+
+    return () => {
+      continueRender(handle);
+      controller.abort();
+    };
+  }, [handle, props.src]);
+
+  if (duration === null) {
+    return null;
+  }
+
+  return (
+    <Loop durationInFrames={Math.floor(duration * fps)}>
+      <OffthreadVideo {...props} />;
+    </Loop>
+  );
+};
+
+export const LoopableOffthreadVideo: React.FC<
+  RemotionOffthreadVideoProps & {
+    loop?: boolean;
+  }
+> = ({loop, ...props}) => {
+  if (getRemotionEnvironment().isRendering) {
+    if (loop) {
+      return <LoopedOffthreadVideo {...props} />;
+    }
+
+    return <OffthreadVideo {...props} />;
+  }
+
+  return <Video loop={loop} {...props}></Video>;
+};
+```
+
+## Supported codecs by `<OffthreadVideo>`
+
+The following codecs can be read by `<OffthreadVideo>`:
+
+- H.264 ("MP4")
+- H.265 ("HEVC")
+- VP8 and VP9 ("WebM")
+- AV1 (from _v4.0.6_)
+- ProRes
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/OffthreadVideo.tsx)
+- [`<Video />`](/docs/video)
+- [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)

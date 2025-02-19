@@ -1,9 +1,14 @@
-import {getRemotionEnvironment} from './get-environment';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 
-export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
+// https://github.com/remotion-dev/remotion/issues/3412#issuecomment-1910120552
+
+function getEnvVar() {
+	const parts = ['proc', 'ess', '.', 'en', 'v', '.', 'NOD', 'E_EN', 'V'];
+	return parts.join('');
+}
 
 const getEnvVariables = (): Record<string, string> => {
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		const param = window.remotion_envVariables;
 		if (!param) {
 			return {};
@@ -12,18 +17,15 @@ const getEnvVariables = (): Record<string, string> => {
 		return {...JSON.parse(param), NODE_ENV: process.env.NODE_ENV};
 	}
 
-	if (getRemotionEnvironment() === 'preview') {
-		// Webpack will convert this to an object at compile time.
-		// Don't convert this syntax to a computed property.
-		return {
-			...(process.env.ENV_VARIABLES as unknown as Record<string, string>),
-			NODE_ENV: process.env.NODE_ENV as string,
-		};
+	// For the Studio, we already set the environment variables in index-html.ts.
+	// We just add NODE_ENV here.
+	if (!process.env.NODE_ENV) {
+		throw new Error(`${getEnvVar()} is not set`);
 	}
 
-	throw new Error(
-		'Can only call getEnvVariables() if environment is `rendering` or `preview`'
-	);
+	return {
+		NODE_ENV: process.env.NODE_ENV,
+	};
 };
 
 export const setupEnvVariables = () => {

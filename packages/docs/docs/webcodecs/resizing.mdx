@@ -1,0 +1,130 @@
+---
+image: /generated/articles-docs-webcodecs-resizing.png
+id: resize-a-video
+title: Resize a video
+slug: /webcodecs/resize-a-video
+crumb: '@remotion/webcodecs'
+---
+
+You can resize a video in the browser using [`convertMedia()`](/docs/webcodecs/convert-media) function from the [`@remotion/webcodecs`](/docs/webcodecs) package.
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+<details>
+  <summary>🚧 Unstable API</summary>
+  <UnstableDisclaimer />
+</details>
+
+## Simple Example
+
+```tsx twoslash title="Scale a video down to 480p"
+import {convertMedia} from '@remotion/webcodecs';
+
+await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'mp4',
+  resize: {
+    mode: 'max-height',
+    maxHeight: 480,
+  },
+});
+```
+
+## Resize modes
+
+For the [`resize`](/docs/webcodecs/convert-media#resize) value, you can specify the following modes:
+
+### `max-height`
+
+```tsx twoslash title="Scale a video down to 480p"
+import {ResizeOperation} from '@remotion/webcodecs';
+
+const resize: ResizeOperation = {
+  mode: 'max-height',
+  maxHeight: 480,
+};
+```
+
+Scales a video down so it is at most `maxHeight` pixels tall.
+
+### `max-width`
+
+```tsx twoslash title="Scale a video down to 640 pixels wide"
+import {ResizeOperation} from '@remotion/webcodecs';
+
+const resize: ResizeOperation = {
+  mode: 'max-width',
+  maxWidth: 640,
+};
+```
+
+Scales a video down so it is at most `maxWidth` pixels wide.
+
+### `width`
+
+```tsx twoslash title="Scale a video to 640 pixels wide"
+import {ResizeOperation} from '@remotion/webcodecs';
+
+const resize: ResizeOperation = {
+  mode: 'width',
+  width: 640,
+};
+```
+
+Scales a video to exactly `width` pixels wide.
+
+### `height`
+
+```tsx twoslash title="Scale a video to 480 pixels tall"
+import {ResizeOperation} from '@remotion/webcodecs';
+
+const resize: ResizeOperation = {
+  mode: 'height',
+  height: 480,
+};
+```
+
+Scales a video to exactly `height` pixels tall.
+
+### `max-height-width`
+
+```tsx twoslash title="Scale a video down to 480px height or 640 pixels width"
+import {ResizeOperation} from '@remotion/webcodecs';
+
+const resize: ResizeOperation = {
+  mode: 'max-height-width',
+  maxHeight: 480,
+  maxWidth: 640,
+};
+```
+
+Scales a video down so it is at most `maxHeight` pixels tall or `maxWidth` pixels wide.  
+The video will be scaled down to the biggest size that fits both constraints.
+
+### `scale`
+
+```tsx twoslash title="Scale a video to 50%"
+import {ResizeOperation} from '@remotion/webcodecs';
+
+const resize: ResizeOperation = {
+  mode: 'scale',
+  scale: 0.5,
+};
+```
+
+Scales a video by a factor of `scale`. Factor must be greater than `0`.
+
+## Order of operations
+
+If you apply both a [`rotate`](/docs/webcodecs/rotate-a-video) and a `resize` operation, the `rotate` operation will be applied first.
+
+## See also
+
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [Rotate a video](/docs/webcodecs/rotate-a-video)

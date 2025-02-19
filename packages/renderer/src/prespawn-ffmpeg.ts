@@ -1,20 +1,41 @@
-import execa from 'execa';
-import type {
-	Codec,
-	FfmpegExecutable,
-	ImageFormat,
-	PixelFormat,
-	ProResProfile,
-} from 'remotion';
-import {Internals} from 'remotion';
-import {getCodecName} from './get-codec-name';
+import {callFf} from './call-ffmpeg';
+import type {HardwareAccelerationOption} from './client';
+import type {Codec} from './codec';
+import {DEFAULT_CODEC} from './codec';
+import {generateFfmpegArgs} from './ffmpeg-args';
+import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getProResProfileName} from './get-prores-profile-name';
+import type {VideoImageFormat} from './image-format';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import type {ColorSpace} from './options/color-space';
+import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
+import type {PixelFormat} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './pixel-format';
+import type {ProResProfile} from './prores-profile';
+import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpeg} from './validate-ffmpeg';
 
-type PreSticherOptions = {
+type RunningStatus =
+	| {
+			type: 'running';
+	  }
+	| {
+			type: 'quit-successfully';
+			stderr: string;
+	  }
+	| {
+			type: 'quit-with-error';
+			exitCode: number;
+			stderr: string;
+	  };
+
+type PreStitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
@@ -22,66 +43,52 @@ type PreSticherOptions = {
 	pixelFormat: PixelFormat | undefined;
 	codec: Codec | undefined;
 	crf: number | null | undefined;
+	x264Preset: X264Preset | null;
 	onProgress: (progress: number) => void;
 	proResProfile: ProResProfile | undefined;
-	verbose: boolean;
-	ffmpegExecutable: FfmpegExecutable | undefined;
-	imageFormat: ImageFormat;
+	logLevel: LogLevel;
+	imageFormat: VideoImageFormat;
+	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
+	videoBitrate: string | null;
+	encodingMaxRate: string | null;
+	encodingBufferSize: string | null;
+	indent: boolean;
+	colorSpace: ColorSpace | null;
+	binariesDirectory: string | null;
+	hardwareAcceleration: HardwareAccelerationOption;
 };
 
-export const prespawnFfmpeg = async (options: PreSticherOptions) => {
-	Internals.validateDimension(
+export const prespawnFfmpeg = (options: PreStitcherOptions) => {
+	validateDimension(
 		options.height,
 		'height',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
-	Internals.validateDimension(
+	validateDimension(
 		options.width,
 		'width',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
-	Internals.validateFps(options.fps, 'passed to `stitchFramesToVideo()`');
-	const codec = options.codec ?? Internals.DEFAULT_CODEC;
+	const codec = options.codec ?? DEFAULT_CODEC;
+	validateFps(options.fps, 'in `stitchFramesToVideo()`', codec === 'gif');
 	validateEvenDimensionsWithCodec({
 		width: options.width,
 		height: options.height,
 		codec,
 		scale: 1,
+		wantsImageSequence: false,
+		indent: options.indent,
+		logLevel: options.logLevel,
 	});
-	const crf = options.crf ?? Internals.getDefaultCrfForCodec(codec);
-	const pixelFormat = options.pixelFormat ?? Internals.DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(options.ffmpegExecutable ?? null);
+	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
 
-	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
 
-	if (encoderName === null) {
-		throw new TypeError('encoderName is null: ' + JSON.stringify(options));
-	}
-
-	const supportsCrf = codec !== 'prores';
-
-	if (options.verbose) {
-		console.log(
-			'[verbose] ffmpeg',
-			options.ffmpegExecutable ?? 'ffmpeg in PATH'
-		);
-		console.log('[verbose] encoder', encoderName);
-		console.log('[verbose] pixelFormat', pixelFormat);
-		if (supportsCrf) {
-			console.log('[verbose] crf', crf);
-		}
-
-		console.log('[verbose] codec', codec);
-		console.log('[verbose] proResProfileName', proResProfileName);
-	}
-
-	Internals.validateSelectedCrfAndCodecCombination(crf, codec);
-	Internals.validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const ffmpegArgs = [
-		['-r', String(options.fps)],
+		['-r', options.fps],
 		...[
 			['-f', 'image2pipe'],
 			['-s', `${options.width}x${options.height}`],
@@ -90,32 +97,55 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 			['-vcodec', options.imageFormat === 'jpeg' ? 'mjpeg' : 'png'],
 			['-i', '-'],
 		],
-		// -c:v is the same as -vcodec as -codec:video
-		// and specified the video codec.
-		['-c:v', encoderName],
-		proResProfileName ? ['-profile:v', proResProfileName] : null,
-		supportsCrf ? ['-crf', String(crf)] : null,
-		['-pix_fmt', pixelFormat],
+		...generateFfmpegArgs({
+			hasPreencoded: false,
+			proResProfileName,
+			pixelFormat,
+			x264Preset: options.x264Preset,
+			codec,
+			crf: options.crf,
+			videoBitrate: options.videoBitrate,
+			encodingMaxRate: options.encodingMaxRate,
+			encodingBufferSize: options.encodingBufferSize,
+			colorSpace: options.colorSpace,
+			hardwareAcceleration: options.hardwareAcceleration,
+			indent: options.indent,
+			logLevel: options.logLevel,
+		}),
 
-		// Without explicitly disabling auto-alt-ref,
-		// transparent WebM generation doesn't work
-		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
-		['-b:v', '1M'],
 		'-y',
 		options.outputLocation,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
+	Log.verbose(
+		{
+			indent: options.indent,
+			logLevel: options.logLevel,
+			tag: 'prespawnFfmpeg()',
+		},
+		'Generated FFMPEG command:',
+	);
+	Log.verbose(
+		{
+			indent: options.indent,
+			logLevel: options.logLevel,
+			tag: 'prespawnFfmpeg()',
+		},
+		ffmpegArgs.join(' '),
+	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
+	const finalFfmpegString = options.ffmpegOverride
+		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
+		: ffmpegString;
 
-	const task = execa(options.ffmpegExecutable ?? 'ffmpeg', ffmpegString);
-
-	options.signal(() => {
-		task.kill();
+	const task = callFf({
+		bin: 'ffmpeg',
+		args: finalFfmpegString,
+		indent: options.indent,
+		logLevel: options.logLevel,
+		binariesDirectory: options.binariesDirectory,
+		cancelSignal: options.signal,
 	});
 
 	let ffmpegOutput = '';
@@ -123,11 +153,31 @@ export const prespawnFfmpeg = async (options: PreSticherOptions) => {
 		const str = data.toString();
 		ffmpegOutput += str;
 		if (options.onProgress) {
-			const parsed = parseFfmpegProgress(str);
+			const parsed = parseFfmpegProgress(str, options.fps);
 			if (parsed !== undefined) {
 				options.onProgress(parsed);
 			}
 		}
 	});
-	return {task, getLogs: () => ffmpegOutput};
+
+	let exitCode: RunningStatus = {
+		type: 'running',
+	};
+
+	task.on('exit', (code) => {
+		if (typeof code === 'number' && code > 0) {
+			exitCode = {
+				type: 'quit-with-error',
+				exitCode: code,
+				stderr: ffmpegOutput,
+			};
+		} else {
+			exitCode = {
+				type: 'quit-successfully',
+				stderr: ffmpegOutput,
+			};
+		}
+	});
+
+	return {task, getLogs: () => ffmpegOutput, getExitStatus: () => exitCode};
 };

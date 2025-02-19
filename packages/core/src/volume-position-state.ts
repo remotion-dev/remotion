@@ -36,7 +36,7 @@ export const useMediaVolumeState = (): MediaVolumeReturnType => {
 
 type MediaMutedReturnType = readonly [
 	boolean,
-	(u: React.SetStateAction<boolean>) => void
+	(u: React.SetStateAction<boolean>) => void,
 ];
 
 export const useMediaMutedState = (): MediaMutedReturnType => {

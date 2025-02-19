@@ -1,0 +1,80 @@
+---
+image: /generated/articles-docs-licensing-get-usage.png
+id: get-usage
+title: getUsage()
+slug: /licensing/get-usage
+crumb: '@remotion/licensing'
+---
+
+Allows you to get the current usage of your Remotion license.  
+This requires your secret key that you can obtain from the remotion.pro dashboard.
+
+You should only call this API from the backend to avoid exposing your secret key to the client.
+
+```tsx twoslash title="Get the current usage of your license"
+import {getUsage} from '@remotion/licensing';
+
+const usage = await getUsage({
+  apiKey: 'rm_sec_xxxxx',
+  since: Date.now() - 1000 * 60 * 60 * 24 * 30, // 30 days ago
+});
+
+console.log(usage);
+/*
+{
+  "webcodecConversions": {
+    "billable": 10,
+    "development": 5,
+    "failed": 2
+  },
+  "cloudRenders": {
+    "billable": 10,
+    "development": 5,
+    "failed": 2
+  },
+}
+*/
+```
+
+## API
+
+An object with the following properties:
+
+### `apiKey`
+
+Type: `string`
+
+Your Remotion secret API key. You can get it from your Remotion.pro dashboard.
+
+### `since`
+
+Type: `number`
+
+The timestamp since when you want to get the usage.  
+The default is since the beginning of the current month in UTC.  
+The lowest timestamp you can use is 90 days ago (`Date.now() - 90 * 24 * 60 * 60 * 1000`).
+
+## Return value
+
+An object with the following properties:
+
+### `webcodecConversions`
+
+An object with the following properties:
+
+- `billable`: The number of billable webcodec conversions.
+- `development`: The number of development webcodec conversions (on `localhost` or other local environments).
+- `failed`: The number of failed webcodec conversions (you don't need to pay for them).
+
+### `cloudRenders`
+
+An object with the following properties:
+
+- `billable`: The number of billable cloud renders.
+- `development`: The number of development cloud renders.
+- `failed`: The number of failed cloud renders.
+
+## See also
+
+- [`@remotion/licensing`](/docs/licensing)
+- [`registerUsagePoint()`](/docs/licensing/register-usage-point)

@@ -1,0 +1,88 @@
+---
+image: /generated/articles-docs-renderer-ensure-browser.png
+title: ensureBrowser()
+id: ensure-browser
+crumb: '@remotion/renderer'
+---
+
+# ensureBrowser()<AvailableFrom v="4.0.137" />
+
+Ensures a browser is locally installed so a Remotion render can be executed.
+
+```tsx twoslash title="Simple usage"
+import {ensureBrowser} from '@remotion/renderer';
+
+await ensureBrowser();
+```
+
+```tsx twoslash title="Setting a specific Chrome version and listening to progress"
+import {ensureBrowser} from '@remotion/renderer';
+
+await ensureBrowser({
+  onBrowserDownload: () => {
+    console.log('Downloading browser');
+
+    return {
+      version: '123.0.6312.86',
+      onProgress: ({percent}) => {
+        console.log(`${Math.round(percent * 100)}% downloaded`);
+      },
+    };
+  },
+});
+```
+
+## API
+
+An object with the following properties, all of which are optional:
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+### `browserExecutable?`
+
+Pass a path to a browser executable that you want to use instead of downloading.  
+If the path does not exist, this function will throw.  
+Pass the same path to any other API that supports the `browserExecutable` option.
+
+### `logLevel?`
+
+<Options id="log" />
+
+### `onBrowserDownload`
+
+Specify a specific version of Chrome that should be used and hook into the download progress.  
+See the example below for the function signature.
+
+```tsx twoslash title="init.ts"
+import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
+
+const onProgress: DownloadBrowserProgressFn = ({percent, downloadedBytes, totalSizeInBytes}) => {
+  console.log(`${Math.round(percent * 100)}% downloaded`);
+};
+
+const onBrowserDownload: OnBrowserDownload = () => {
+  console.log('Downloading browser');
+
+  return {
+    // Pass `null` to use Remotion's recommendation.
+    version: '123.0.6312.86',
+    onProgress,
+  };
+};
+
+await ensureBrowser({
+  onBrowserDownload,
+});
+```
+
+## Return value
+
+A promise with no value.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/ensure-browser.ts)
+- [Chrome Headless Shell](/docs/miscellaneous/chrome-headless-shell)
+- [Server-Side rendering](/docs/ssr)

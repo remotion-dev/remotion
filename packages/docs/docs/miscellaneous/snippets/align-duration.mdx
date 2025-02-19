@@ -1,0 +1,132 @@
+---
+image: /generated/articles-docs-miscellaneous-snippets-align-duration.png
+title: How do I make the composition the same duration as my video?
+sidebar_label: Make timeline duration the same
+crumb: 'FAQ'
+---
+
+If you have a component rendering a video:
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {OffthreadVideo, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return <OffthreadVideo src={staticFile('video.mp4')} />;
+};
+```
+
+and you want to make the composition the same duration as the video, first make the video source a React prop:
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {OffthreadVideo, staticFile} from 'remotion';
+
+type MyCompProps = {
+  src: string;
+};
+
+export const MyComp: React.FC<MyCompProps> = ({src}) => {
+  return <OffthreadVideo src={src} />;
+};
+```
+
+Then, define a [`calculateMetadata()`](/docs/calculate-metadata) function that calculates the duration of the composition based on the video.  
+[Install `@remotion/media-parser`](/docs/media-parser) if necessary.
+
+```tsx twoslash title="MyComp.tsx"
+type MyCompProps = {
+  src: string;
+};
+
+// ---cut---
+
+import {CalculateMetadataFunction} from 'remotion';
+import {parseMedia} from '@remotion/media-parser';
+
+export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
+  const {slowDurationInSeconds, dimensions} = await parseMedia({
+    src: props.src,
+    fields: {
+      slowDurationInSeconds: true,
+      dimensions: true,
+    },
+  });
+
+  if (dimensions === null) {
+    // For example when passing an MP3 file:
+    throw new Error('Not a video file');
+  }
+
+  const fps = 30;
+
+  return {
+    durationInFrames: Math.floor(slowDurationInSeconds * fps),
+    fps,
+    width: dimensions.width,
+    height: dimensions.height,
+  };
+};
+```
+
+:::note
+If your asset is not CORS-enabled, you can use the [`getVideoMetadata`](/docs/get-video-metadata) function from [`@remotion/media-utils`](/docs/media-utils) instead of `parseMedia()`.
+:::
+
+Finally, pass the `calculateMetadata` function to the `Composition` component and define the previously hardcoded `src` as a default prop:
+
+```tsx twoslash title="Root.tsx"
+// @filename: MyComp.tsx
+import React from 'react';
+import {CalculateMetadataFunction} from 'remotion';
+import {getVideoMetadata} from '@remotion/media-utils';
+
+export const MyComp: React.FC<MyCompProps> = () => {
+  return null;
+};
+type MyCompProps = {
+  src: string;
+};
+
+export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
+  const data = await getVideoMetadata(props.src);
+  const fps = 30;
+
+  return {
+    durationInFrames: Math.floor(data.durationInSeconds * fps),
+    fps,
+  };
+};
+
+// @filename: Root.tsx
+// ---cut---
+
+import React from 'react';
+import {Composition} from 'remotion';
+import {MyComp, calculateMetadata} from './MyComp';
+
+export const Root: React.FC = () => {
+  return (
+    <Composition
+      id="MyComp"
+      component={MyComp}
+      durationInFrames={300}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{
+        src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      }}
+      calculateMetadata={calculateMetadata}
+    />
+  );
+};
+```
+
+## How do I make the composition the same duration as my audio?
+
+Follow the same steps, but instead of [`parseMedia()`](/docs/media-parser), use [`getAudioDurationInSeconds()`](/docs/get-audio-duration-in-seconds) from `@remotion/media-utils` to calculate the duration of the composition based on the audio file.
+
+## See Also
+
+- [Variable duration](/docs/dynamic-metadata)

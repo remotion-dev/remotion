@@ -1,5 +1,4 @@
-import {Audio, Sequence} from 'remotion';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
 
 export const TwentyTwoKHzAudio = () => {
 	const twenty = staticFile('22khz.wav');

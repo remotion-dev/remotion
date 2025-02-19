@@ -1,0 +1,166 @@
+---
+slug: 3-1
+title: Remotion 3.1
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/remotion-3-1.png
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {SpringsWithDurationDemo} from '../components/SpringsWithDurationDemo';
+
+This release brings support for GIF as an output format, official support for Tailwind and makes springs and sequences easier! Plus we recap the best features from v3.0.1 until v3.0.31! 🎉
+
+## Render as GIF
+
+[To render a GIF instead of a video](/docs/render-as-gif), pass the `--codec=gif` flag during a render. We tweaked Remotion's rendering process to adapt for the speciality that are GIFs:
+
+- Commonly, a GIF has a framerate in the range of 10-15, and so that you don't have to refactor your video, you can use the [`--every-nth-frame`](/docs/cli/render#--every-nth-frame) flag.
+
+- GIFs are loopable - using the [`--number-of-gif-loops`](/docs/cli/render#--number-of-gif-loops) flag you have control over the GIFs looping behavior!
+
+- You can even render your GIF distributed across many small VMs using Remotion Lambda!
+
+<img style={{width: "100%"}} src="https://remotion-assets.s3.eu-central-1.amazonaws.com/render-as-gif.gif" />
+
+<p style={{textAlign: "center"}}><em>You can put <a href="/docs/gif">{"<Gif>"}</a>'s in your GIF!</em></p>
+
+## TailwindCSS support
+
+After being broken for a while, [TailwindCSS support](/docs/tailwind) is now stable, and we even made a starter template for it! To get started, [visit our homepage](https://remotion.dev), generate a [GitHub repo from a template](https://github.com/remotion-dev/template-tailwind), try it out [online via StackBlitz](https://stackblitz.com/github/remotion-dev/template-tailwind), or type the following into your terminal:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npx create-video --tailwind
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm create video --tailwind
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn create video --tailwind
+```
+
+  </TabItem>
+
+</Tabs>
+
+<img style={{width: "100%"}} src="/img/tailwind.gif" />
+
+<p style={{textAlign: "center"}}><em>Yes, you can write a GIF in Tailwind now.</em></p>
+
+## Springs with durations
+
+You can now do this:
+
+```tsx twoslash
+import { spring } from "remotion";
+const frame = 10;
+// ---cut---
+const fps = 30;
+
+const value = spring({
+  fps,
+  frame,
+  config: {
+    damping: 200,
+  },
+  durationInFrames: 300,
+});
+```
+
+The result will be a spring animation that will take 10 seconds!
+
+Why is this such a game changer? Normally, a spring animation curve is not defined by timing, but by physical parameters. It complicates planning quite a bit, as the duration of a spring is not well-defined. Theoretically, a spring animation is never finished, it keeps on going forever (even though after some time the movement is barely noticeable).
+
+We introduced [measureSpring()](/docs/measure-spring) a while ago which allows you to calculate the duration of a spring by allowing you to set a threshold.
+
+But to change the duration of a spring, you had to change the physics parameters which then in turn change the animation curve!
+
+Until now - if you pass a duration to a spring, we will detect the trajectory of the curve and stretch it so it fits your duration.
+
+<SpringsWithDurationDemo />
+
+## `<OffthreadVideo>` component
+
+[This component](/docs/offthreadvideo) is an alternative to the [`<Video>`](/docs/video) component that extracts frames using FFMPEG and renders them inside an [`<Img>`](/docs/img) tag.
+
+We made the `<OffthreadVideo>` component in order to counteract problems with seeking and throttling that users were reporting with the `<Video>` tag. The new way improves reliability but has it's tradeoffs - read [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo) or check out our [visual explanation on Instagram](https://www.instagram.com/p/CftaiHpMM-L/)!
+
+<a href="https://www.instagram.com/p/CftaiHpMM-L/">
+  <img src="/img/offthreadvideo-all.png" />
+  <p style={{textAlign: "center"}}><em>Follow us on Instagram where we explain concepts visually!</em></p>
+</a>
+
+## `renderMedia()` returns a buffer
+
+Previously you could only save your video to a file when using the [`renderMedia()`](/docs/renderer/render-media) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) APIs. Now it can also return a Node.JS [`Buffer`](https://nodejs.org/api/buffer.html)!
+
+## `@remotion/preload` package
+
+This [new package](/docs/preload) offers three APIs that are handy for preloading assets
+before they appear in the [`<Player>`](/docs/player): [`resolveRedirect()`](/docs/preload/resolve-redirect), [`preloadAudio()`](/docs/preload/preload-audio) and [`preloadVideo()`](/docs/preload/preload-video).
+
+<a href="https://twitter.com/remotion/status/1538809909965357056">
+  <img src="/img/preload-all.png" />
+  <p style={{textAlign: "center"}}><em>We first announce and explain new features on Twitter!</em></p>
+</a>
+
+## Sidebar improvements
+
+If your screen real estate is tight, you may also hide the left sidebar now!
+
+<video playsInline src="/img/sidebar.mp4" autoPlay muted loop />
+
+## Built-in color picker
+
+In the preview, go to `Tools` -> `Color picker` to trigger an eye dropper that allows you to pick any color from the screen! Only Chrome has this feature enabled for now.
+
+<video playsInline src="/img/colorpicker.mp4" autoPlay muted loop />
+
+## For power users
+
+- Previously you could not wrap your `<Composition>`'s in a React context (e.g. Redux), but this is supported now!
+- If you add `--log=verbose` to a Lambda render, you'll see which frames took the longest to render.
+- If you provide a file for `--props` during the preview, it will now reload the preview if the props have changed.
+- Pressing <kbd>A</kbd> in the preview goes to the beginning of the video, pressing <kbd>E</kbd> goes to the end.
+- Pressing play in the preview, then pressing <kbd>Enter</kbd> pauses the video and goes back to the point where the video started playing.
+- `<Sequence>`'s can now have a `style` prop if the `layout="none"` is not set!
+- You can [customize the binaries for Remotion Lambda renders](/docs/lambda/custom-layers), for example to switch out the Emoji font used.
+- The `registerRoot()` call can now be deferred using `delayRender()`, so asynchronous loading tasks can be completed first.
+
+## Behind the scenes
+
+We welcome Patric as our intern! As you can see on our [new team page](/about), we are now a team of three and are in the preparations of our first fundraising round.
+
+<video playsInline src="/img/patric.mp4" autoPlay muted loop />
+
+<p style={{textAlign: "center"}}><em>Patric's first Remotion video!</em></p>
+
+Remotion won the "Most Exciting use of Technology Award" at React Summit - we owe it all to you!
+
+<img src="/img/award.jpeg" />
+
+Going forward, we want to make Remotion even easier to use through new tools, templates and tips!
+
+And wouldn't it be nice if Remotion was faster - I'm exploring multiple options from an alternative concurrency model to a C++ based rendering solution - stay tuned for what's about to come 🚀

@@ -1,0 +1,181 @@
+---
+image: /generated/articles-docs-media-parser-parse-media.png
+id: parse-media
+title: parseMedia()
+slug: /media-parser/parse-media
+crumb: '@remotion/media-parser'
+---
+
+_Part of the [`@remotion/media-parser`](/docs/media-parser) package._
+_available from v4.0.190_
+
+:::warning
+**Unstable API**: This package is experimental. The API may change in the future.  
+The API for getting video metadata is stable and may be used in production.
+:::
+
+## Examples
+
+```tsx twoslash title="Parsing a hosted video"
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+```tsx twoslash title="Parsing a local file"
+import {parseMedia} from '@remotion/media-parser';
+import {nodeReader} from '@remotion/media-parser/node';
+
+const result = await parseMedia({
+  src: '/Users/jonnyburger/Downloads/my-video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+  reader: nodeReader,
+});
+```
+
+## API
+
+:::warning
+**Unstable API**: This package is experimental. The API may change in the future.  
+The API for getting video metadata is stable and may be used in production.
+:::
+
+### `src`
+
+Either a local file path, or a URL, or a `File` or `Blob` object.  
+If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.  
+If you pass a `File` object, you must also pass [`webFileReader`](/docs/media-parser/web-file-reader) as the `reader` argument.
+
+### `fields?`
+
+An object specifying which fields you'd like to receive.  
+If you like to receive the field, pass `true` as the value.
+
+See [Available Fields](/docs/media-parser/fields) for a list of available fields.
+
+### `reader?`
+
+A reader interface.  
+Default value: `fetchReader`, which uses `fetch()` to read the video.  
+If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
+If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+
+### `controller?`
+
+A [controller](/docs/media-parser/media-parser-controller) object that allows you to pause, resume and abort the parsing process.
+
+### `onVideoTrack?`
+
+A callback that is called when a video track is detected.  
+It receives an object with `track` and `container` (API not yet stable).  
+You must return either `null` or a callback that is called for each sample that corresponds to the video track.
+
+The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
+
+```tsx twoslash title="Reading video frames"
+import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: OnVideoTrack = ({track}) => {
+  console.log(track);
+
+  return (sample) => {
+    console.log(new EncodedVideoChunk(sample));
+  };
+};
+```
+
+### `onAudioTrack?`
+
+A callback that is called when an audio track is detected.  
+It receives an object with `track` and `container` (API not yet stable).  
+You must return either `null` or a callback that is called for each sample that corresponds to the audio track.
+
+The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
+
+```tsx twoslash title="Reading audio frames"
+// @noErrors
+import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
+
+const onAudioTrack: OnAudioTrack = ({track}) => {
+  console.log(track);
+
+  return (sample) => {
+    console.log(new EncodedAudioChunk(sample));
+  };
+};
+```
+
+### `selectM3uStream?`
+
+A callback that is called when a `.m3u8` file is detected which has multiple streams.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
+
+### `onParseProgress?`
+
+A callback that is called from time to time when bytes have been read from the media.  
+It includes the following data:
+
+```tsx twoslash
+import {ParseMediaProgress} from '@remotion/media-parser';
+//          ^?
+```
+
+:::note
+You may make this an async function, and while it is not resolved, **the parsing process will be paused**.  
+This is useful if you want to add a small delay inbetween progress steps to keep the UI interactive.
+:::
+
+### `progressIntervalInMs?`
+
+_number_
+
+The interval in milliseconds at which the [`onParseProgress`](#onparseprogress) callback is called.  
+Default `100`. Set to `0` for unthrottled updates.  
+Note that updates are fired very often and updating the DOM often may slow down the conversion process.
+
+### `logLevel?`
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
+
+### `acknowledgeRemotionLicense?`
+
+Acknowledge the [Remotion License](https://remotion.dev/license) to make the console message disappear.
+
+## Callbacks
+
+Each field also has a callback that allows you to retrieve the value as soon as it is obtained without waiting for the function to resolve.
+
+You do not have to add the field to the [`fields`](#fields) object if you use the callback.  
+However, just like with [`fields`](#fields), adding a callback for a [slow field](/docs/media-parser/fast-and-slow) may require reading more of the file.
+
+```tsx twoslash title="Using a callback"
+import {parseMedia} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://example.com/my-video.mp4',
+  onDurationInSeconds: (durationInSeconds) => {
+    console.log(durationInSeconds);
+  },
+  onDimensions: (dimensions) => {
+    console.log(dimensions);
+  },
+});
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/parse-media.ts)
+- [`@remotion/media-parser`](/docs/media-parser)

@@ -15,7 +15,7 @@
  */
 
 import {assert} from './assert';
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import {BrowserEmittedEvents} from './Browser';
 import type {CDPSession} from './Connection';
 import type {DevtoolsRemoteObject, ExceptionDetails} from './devtools-types';
@@ -23,7 +23,7 @@ import {TimeoutError} from './Errors';
 import type {CommonEventEmitter} from './EventEmitter';
 
 export function getExceptionMessage(
-	exceptionDetails: ExceptionDetails
+	exceptionDetails: ExceptionDetails,
 ): string {
 	if (exceptionDetails.exception) {
 		return (
@@ -67,7 +67,7 @@ export function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 			default:
 				throw new Error(
 					'Unsupported unserializable value: ' +
-						remoteObject.unserializableValue
+						remoteObject.unserializableValue,
 				);
 		}
 	}
@@ -77,7 +77,7 @@ export function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 
 export async function releaseObject(
 	client: CDPSession,
-	remoteObject: DevtoolsRemoteObject
+	remoteObject: DevtoolsRemoteObject,
 ): Promise<void> {
 	if (!remoteObject.objectId) {
 		return;
@@ -91,30 +91,18 @@ export async function releaseObject(
 		});
 }
 
-export interface PuppeteerEventListener {
-	emitter: CommonEventEmitter;
-	eventName: string | symbol;
-	handler: (...args: any[]) => void;
-}
-
 export function addEventListener(
 	emitter: CommonEventEmitter,
 	eventName: string | symbol,
-	handler: (...args: any[]) => void
-): PuppeteerEventListener {
+	handler: (...args: any[]) => void,
+) {
 	emitter.on(eventName, handler);
-	return {emitter, eventName, handler};
+	return () => emitter.off(eventName, handler);
 }
 
-export function removeEventListeners(
-	listeners: Array<{
-		emitter: CommonEventEmitter;
-		eventName: string | symbol;
-		handler: (...args: any[]) => void;
-	}>
-): void {
+export function removeEventListeners(listeners: Array<() => void>): void {
 	for (const listener of listeners) {
-		listener.emitter.off(listener.eventName, listener.handler);
+		listener();
 	}
 
 	listeners.length = 0;
@@ -147,7 +135,7 @@ export function evaluationString(
 export function pageBindingDeliverResultString(
 	name: string,
 	seq: number,
-	result: unknown
+	result: unknown,
 ): string {
 	function deliverResult(_name: string, _seq: number, _result: unknown): void {
 		(window as any)[_name].callbacks.get(_seq).resolve(_result);
@@ -161,13 +149,13 @@ export function pageBindingDeliverErrorString(
 	name: string,
 	seq: number,
 	message: string,
-	stack?: string
+	stack?: string,
 ): string {
 	function deliverError(
 		_name: string,
 		_seq: number,
 		_message: string,
-		_stack?: string
+		_stack?: string,
 	): void {
 		const error = new Error(_message);
 		error.stack = _stack;
@@ -181,12 +169,12 @@ export function pageBindingDeliverErrorString(
 export function pageBindingDeliverErrorValueString(
 	name: string,
 	seq: number,
-	value: unknown
+	value: unknown,
 ): string {
 	function deliverErrorValue(
 		_name: string,
 		_seq: number,
-		_value: unknown
+		_value: unknown,
 	): void {
 		(window as any)[_name].callbacks.get(_seq).reject(_value);
 		(window as any)[_name].callbacks.delete(_seq);
@@ -199,11 +187,11 @@ export async function waitWithTimeout<T>(
 	promise: Promise<T>,
 	taskName: string,
 	timeout: number,
-	browser: Browser
+	browser: HeadlessBrowser,
 ): Promise<T> {
 	let reject: (reason?: Error) => void;
 	const timeoutError = new TimeoutError(
-		`waiting for ${taskName} failed: timeout ${timeout}ms exceeded`
+		`waiting for ${taskName} failed: timeout ${timeout}ms exceeded`,
 	);
 	const timeoutPromise = new Promise<T>((_res, rej) => {
 		reject = rej;

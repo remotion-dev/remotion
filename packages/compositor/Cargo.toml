@@ -1,0 +1,23 @@
+# Putting this file into packages/ because VSCode Rust extension
+# only searches 1 level for Cargofiles
+
+[package]
+name = "remotion-renderer"
+version = "0.1.0"
+authors = ["Jonny Burger <jonny@remotion.dev>"]
+edition = "2021"
+
+[dependencies]
+png = "0.17.13"
+serde = {version =  "1.0.151", features = ["derive"]}
+serde_json = "1.0.89"
+lazy_static = "1.4"
+rayon-core = "1.12.1"
+sysinfo = "0.30.7"
+mp4 = {git = "https://github.com/jonnyburger/mp4-rust", rev = "92ba375738cc2f05a4d754e1f968cf2e97d06641"}
+ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="0ba3b5db585f4edbdac39d5edf71ff1495384dbe"}
+
+[[bin]]
+name = "remotion"
+path = "rust/main.rs"
+

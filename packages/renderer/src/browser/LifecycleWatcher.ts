@@ -22,7 +22,6 @@ import {FrameManagerEmittedEvents} from './FrameManager';
 import type {HTTPRequest} from './HTTPRequest';
 import type {HTTPResponse} from './HTTPResponse';
 import {NetworkManagerEmittedEvents} from './NetworkManager';
-import type {PuppeteerEventListener} from './util';
 import {addEventListener, removeEventListeners} from './util';
 export type PuppeteerLifeCycleEvent = 'load';
 
@@ -41,7 +40,7 @@ export class LifecycleWatcher {
 	#frame: Frame;
 	#timeout: number;
 	#navigationRequest: HTTPRequest | null = null;
-	#eventListeners: PuppeteerEventListener[];
+	#eventListeners: (() => void)[];
 
 	#sameDocumentNavigationCompleteCallback: (x?: Error) => void = noop;
 	#sameDocumentNavigationPromise = new Promise<Error | undefined>((fulfill) => {
@@ -57,7 +56,7 @@ export class LifecycleWatcher {
 	#newDocumentNavigationPromise: Promise<Error | undefined> = new Promise(
 		(fulfill) => {
 			this.#newDocumentNavigationCompleteCallback = fulfill;
-		}
+		},
 	);
 
 	#terminationCallback: (x?: Error) => void = noop;
@@ -67,7 +66,7 @@ export class LifecycleWatcher {
 
 	#timeoutPromise: Promise<TimeoutError | undefined>;
 
-	#maximumTimer?: NodeJS.Timeout;
+	#maximumTimer?: Timer;
 	#hasSameDocumentNavigation?: boolean;
 	#newDocumentNavigation?: boolean;
 	#swapped?: boolean;
@@ -76,7 +75,7 @@ export class LifecycleWatcher {
 		frameManager: FrameManager,
 		frame: Frame,
 		waitUntil: PuppeteerLifeCycleEvent,
-		timeout: number
+		timeout: number,
 	) {
 		const protocolEvent = puppeteerToProtocolLifecycle.get(waitUntil);
 		assert(protocolEvent, 'Unknown value for options.waitUntil: ' + waitUntil);
@@ -92,38 +91,38 @@ export class LifecycleWatcher {
 				CDPSessionEmittedEvents.Disconnected,
 				this.#terminate.bind(
 					this,
-					new Error('Navigation failed because browser has disconnected!')
-				)
+					new Error('Navigation failed because browser has disconnected!'),
+				),
 			),
 			addEventListener(
 				this.#frameManager,
 				FrameManagerEmittedEvents.LifecycleEvent,
-				this.#checkLifecycleComplete.bind(this)
+				this.#checkLifecycleComplete.bind(this),
 			),
 			addEventListener(
 				this.#frameManager,
 				FrameManagerEmittedEvents.FrameNavigatedWithinDocument,
-				this.#navigatedWithinDocument.bind(this)
+				this.#navigatedWithinDocument.bind(this),
 			),
 			addEventListener(
 				this.#frameManager,
 				FrameManagerEmittedEvents.FrameNavigated,
-				this.#navigated.bind(this)
+				this.#navigated.bind(this),
 			),
 			addEventListener(
 				this.#frameManager,
 				FrameManagerEmittedEvents.FrameSwapped,
-				this.#frameSwapped.bind(this)
+				this.#frameSwapped.bind(this),
 			),
 			addEventListener(
 				this.#frameManager,
 				FrameManagerEmittedEvents.FrameDetached,
-				this.#onFrameDetached.bind(this)
+				this.#onFrameDetached.bind(this),
 			),
 			addEventListener(
 				this.#frameManager.networkManager(),
 				NetworkManagerEmittedEvents.Request,
-				this.#onRequest.bind(this)
+				this.#onRequest.bind(this),
 			),
 		];
 
@@ -143,7 +142,7 @@ export class LifecycleWatcher {
 		if (this.#frame === frame) {
 			this.#terminationCallback.call(
 				null,
-				new Error('Navigating frame was detached')
+				new Error('Navigating frame was detached'),
 			);
 			return;
 		}
@@ -237,7 +236,7 @@ export class LifecycleWatcher {
 
 		function checkLifecycle(
 			frame: Frame,
-			expectedLifecycle: ProtocolLifeCycleEvent[]
+			expectedLifecycle: ProtocolLifeCycleEvent[],
 		): boolean {
 			for (const event of expectedLifecycle) {
 				if (!frame._lifecycleEvents.has(event)) {

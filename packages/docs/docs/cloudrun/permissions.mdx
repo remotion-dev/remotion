@@ -1,0 +1,60 @@
+---
+image: /generated/articles-docs-cloudrun-permissions.png
+sidebar_label: Permissions
+title: Permissions
+crumb: 'Cloud Run'
+---
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the{' '}<a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
+</ExperimentalBadge>
+
+import {
+  SAPermissionList,
+  SAPermissionTable,
+} from '../../components/cloudrun/sa-permissions.tsx';
+
+This document describes the necessary permissions for Remotion Cloud Run and explains to those interested why the permissions are necessary.
+
+For a step by step guide on how to set up permissions, [follow the setup guide](/docs/cloudrun/setup).
+
+## Service Account permissions
+
+This policy should be assigned to the **Remotion Service Account**. Following the automated setup, this is achieved by creating a custom role with the title _Remotion API Service Account_, and assigning that role to the Remotion Service Account.
+
+To view and manually edit roles in your GCP project, go to the [Roles page within IAM admin](https://console.cloud.google.com/iam-admin/roles).
+
+To view and manually edit permissions/roles assigned to Users or Service Accounts in your GCP project, go to the [IAM page within IAM Admin](https://console.cloud.google.com/iam-admin/iam).
+
+<details>
+  <summary>
+    Show full Remotion API Service Account permissions list for the latest
+    Remotion Cloud Run version.
+  </summary>
+  <SAPermissionList />
+</details>
+
+:::info
+You can always get the suitable permission file for your Remotion Cloud Run version by typing `npx remotion cloudrun permissions`.
+:::
+
+The following table is a breakdown of why Remotion Cloud Run requires the permissions it does.
+
+<SAPermissionTable />
+
+## Validation
+
+There are two ways in which you can test if the permissions for the service account have been correctly set up. Either you execute the following command:
+
+```bash
+npx remotion cloudrun permissions
+```
+
+or if you want to validate it programmatically, using the [`testPermissions()`](/docs/cloudrun/testpermissions) function.
+
+## See also
+
+- [Set up guide](/docs/cloudrun/setup)
+- [`testPermissions()`](/docs/cloudrun/testpermissions)

@@ -1,37 +1,40 @@
-import React from "react";
-
-const outer: React.CSSProperties = {
-  width: 110,
-  textAlign: "center",
-  display: "flex",
-  alignItems: "center",
-  flexDirection: "column",
-  color: "var(--light-text-color)",
-  cursor: "pointer",
-};
+import React from 'react';
+import {useMobileLayout} from '../helpers/mobile-layout';
 
 const icon: React.CSSProperties = {
-  display: "flex",
-  width: 50,
-  height: 50,
-  justifyContent: "center",
-  alignItems: "center",
-  margin: 10,
+	display: 'flex',
+	width: 36,
+	height: 36,
+	justifyContent: 'center',
+	alignItems: 'center',
+	margin: 0,
+};
+
+const outer: React.CSSProperties = {
+	textAlign: 'center',
+	display: 'flex',
+	alignItems: 'center',
+	flexDirection: 'column',
+	color: 'var(--ifm-font-color-base)',
+	cursor: 'pointer',
+	filter: 'drop-shadow(0px 0px 4px var(--background))',
+	textDecoration: 'none',
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 12,
+	fontSize: 12,
 };
 
 export const TemplateIcon: React.FC<{
-  label: string;
-  children: React.ReactNode;
-  onClick: () => void;
-}> = ({ children, label, onClick }) => {
-  return (
-    <a style={outer} onClick={onClick}>
-      <div style={icon}>{children}</div>
-      <div style={labelStyle}>{label}</div>
-    </a>
-  );
+	readonly label: string;
+	readonly children: React.ReactNode;
+}> = ({children, label}) => {
+	const mobileLayout = useMobileLayout();
+
+	return (
+		<span style={outer}>
+			<div style={icon}>{children}</div>
+			{mobileLayout ? null : <div style={labelStyle}>{label}</div>}
+		</span>
+	);
 };

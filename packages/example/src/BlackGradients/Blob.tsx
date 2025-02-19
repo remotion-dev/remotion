@@ -2,9 +2,9 @@ import React, {useState} from 'react';
 import {random} from 'remotion';
 
 export const SvgBlob: React.FC<{
-	style?: React.SVGProps<HTMLOrSVGElement>['style'];
-	gradient: [string, string];
-	d: string;
+	readonly style?: React.SVGProps<HTMLOrSVGElement>['style'];
+	readonly gradient: [string, string];
+	readonly d: string;
 }> = ({style, gradient, d}) => {
 	const [id] = useState(() => random(null));
 	return (

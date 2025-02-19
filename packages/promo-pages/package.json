@@ -1,0 +1,49 @@
+{
+	"name": "@remotion/promo-pages",
+	"version": "4.0.266",
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"make": "bun --env-file=../.env.bundle bundle.ts",
+		"lint": "tsc && eslint src",
+		"dev": "vite"
+	},
+	"type": "module",
+	"dependencies": {
+		"@remotion/animated-emoji": "workspace:*",
+		"@remotion/lambda": "workspace:*",
+		"@remotion/lottie": "workspace:*",
+		"@remotion/paths": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"create-video": "workspace:*",
+		"hls.js": "1.5.19",
+		"polished": "4.3.1",
+		"remotion": "workspace:*",
+		"vite": "^5.4.12",
+		"zod": "3.22.3"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@eslint/eslintrc": "3.1.0",
+		"@types/react": "19.0.0",
+		"@types/react-dom": "19.0.0",
+		"eslint": "9.19.0",
+		"eslint-config-next": "15.1.6",
+		"plyr": "^3.7.3",
+		"postcss": "8.4.47",
+		"tailwindcss": "4.0.0",
+		"@tailwindcss/cli": "4.0.0",
+		"@tailwindcss/vite": "4.0.0",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"@vitejs/plugin-react-swc": "^3.5.0",
+		"tailwind-merge": "2.5.2",
+		"bun-plugin-tailwind": "0.0.13",
+		"clsx": "2.1.1"
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/promo-pages"
+	}
+}

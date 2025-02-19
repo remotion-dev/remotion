@@ -1,0 +1,7 @@
+/node_modules
+.cache-css
+/*.js
+/*.d.ts
+!ensure-generation.js
+!src/index.ts
+!src/base.ts

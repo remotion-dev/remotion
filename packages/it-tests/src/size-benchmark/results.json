@@ -1,0 +1,6834 @@
+[
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 444365459,
+    "timeToEncodeInMs": 151786
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 398444341,
+    "timeToEncodeInMs": 167196
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 357021513,
+    "timeToEncodeInMs": 175792
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 0,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 246604324,
+    "timeToEncodeInMs": 11777
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 98887629,
+    "timeToEncodeInMs": 11928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 90903539,
+    "timeToEncodeInMs": 12362
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 3,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 83081856,
+    "timeToEncodeInMs": 13876
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 4,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 75594990,
+    "timeToEncodeInMs": 13975
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 5,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 68409627,
+    "timeToEncodeInMs": 13241
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 6,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 61812641,
+    "timeToEncodeInMs": 12394
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 7,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 55540797,
+    "timeToEncodeInMs": 12004
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 8,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 49413975,
+    "timeToEncodeInMs": 11783
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 9,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43612594,
+    "timeToEncodeInMs": 12132
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 10,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 38383797,
+    "timeToEncodeInMs": 13105
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 11,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 33651997,
+    "timeToEncodeInMs": 12172
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 12,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29730600,
+    "timeToEncodeInMs": 17480
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 13,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 26389569,
+    "timeToEncodeInMs": 19595
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 14,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 23645605,
+    "timeToEncodeInMs": 43297
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 15,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 21327699,
+    "timeToEncodeInMs": 22315
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 16,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 19435573,
+    "timeToEncodeInMs": 22603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 17,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 18007002,
+    "timeToEncodeInMs": 20885
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 18,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 17126255,
+    "timeToEncodeInMs": 18942
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 19,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 16249972,
+    "timeToEncodeInMs": 29963
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 20,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 15200205,
+    "timeToEncodeInMs": 22438
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 21,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14111418,
+    "timeToEncodeInMs": 19990
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 22,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 13066738,
+    "timeToEncodeInMs": 16022
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 23,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 12037412,
+    "timeToEncodeInMs": 14112
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 24,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 10868134,
+    "timeToEncodeInMs": 12423
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 25,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 9672964,
+    "timeToEncodeInMs": 11603
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 26,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 8527982,
+    "timeToEncodeInMs": 11265
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 27,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7478470,
+    "timeToEncodeInMs": 10576
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 28,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 6532610,
+    "timeToEncodeInMs": 9697
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 29,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5724305,
+    "timeToEncodeInMs": 9413
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 30,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 5022907,
+    "timeToEncodeInMs": 9078
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 31,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 4424114,
+    "timeToEncodeInMs": 13898
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 32,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3894945,
+    "timeToEncodeInMs": 16242
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 33,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3426716,
+    "timeToEncodeInMs": 13754
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 34,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3022185,
+    "timeToEncodeInMs": 8995
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 35,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2671958,
+    "timeToEncodeInMs": 8494
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 36,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2378150,
+    "timeToEncodeInMs": 8317
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 37,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 2122997,
+    "timeToEncodeInMs": 8017
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 38,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1897971,
+    "timeToEncodeInMs": 9509
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 39,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1701013,
+    "timeToEncodeInMs": 9254
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 40,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1529536,
+    "timeToEncodeInMs": 7442
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 41,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1378689,
+    "timeToEncodeInMs": 7429
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 42,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1240261,
+    "timeToEncodeInMs": 7425
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 43,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1117290,
+    "timeToEncodeInMs": 7071
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 44,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 1013609,
+    "timeToEncodeInMs": 6839
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 45,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 920255,
+    "timeToEncodeInMs": 6763
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 46,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 830023,
+    "timeToEncodeInMs": 7080
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 47,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 741358,
+    "timeToEncodeInMs": 7128
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 48,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 666054,
+    "timeToEncodeInMs": 6947
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 49,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 581346,
+    "timeToEncodeInMs": 7428
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 50,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 517246,
+    "timeToEncodeInMs": 7959
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 51,
+      "type": "crf"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 454983,
+    "timeToEncodeInMs": 7757
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 1,
+      "type": "crf"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 398444341,
+    "timeToEncodeInMs": 167196
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "crf": 2,
+      "type": "crf"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 357021513,
+    "timeToEncodeInMs": 175792
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "500000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 3778859,
+    "timeToEncodeInMs": 3798
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "1000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 7542953,
+    "timeToEncodeInMs": 3803
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "2000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 14869133,
+    "timeToEncodeInMs": 3792
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "3000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 22058520,
+    "timeToEncodeInMs": 3835
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "4000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 29263288,
+    "timeToEncodeInMs": 3869
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "5000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 36335336,
+    "timeToEncodeInMs": 3928
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "6000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 43446418,
+    "timeToEncodeInMs": 3970
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "7000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 50573128,
+    "timeToEncodeInMs": 3985
+  },
+  {
+    "filename": "bigbuckbunny.mp4",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "8000000"
+    },
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationInSeconds": 60,
+    "size": 57469676,
+    "timeToEncodeInMs": 4008
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 3
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 320193887,
+    "timeToEncodeInMs": 206649
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 4
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 287365266,
+    "timeToEncodeInMs": 244951
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 5
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 258048513,
+    "timeToEncodeInMs": 279582
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 6
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 232030802,
+    "timeToEncodeInMs": 309354
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 7
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 208775556,
+    "timeToEncodeInMs": 299031
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 8
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 187671654,
+    "timeToEncodeInMs": 260517
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 9
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 168542921,
+    "timeToEncodeInMs": 207770
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 10
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 150963889,
+    "timeToEncodeInMs": 212364
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 11
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 134773325,
+    "timeToEncodeInMs": 223136
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 12
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 119903697,
+    "timeToEncodeInMs": 205683
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 13
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 106117969,
+    "timeToEncodeInMs": 184638
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 14
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 93354172,
+    "timeToEncodeInMs": 180160
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 15
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 81503450,
+    "timeToEncodeInMs": 178905
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 16
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 70527992,
+    "timeToEncodeInMs": 156085
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 17
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 60482314,
+    "timeToEncodeInMs": 143540
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 18
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 51468476,
+    "timeToEncodeInMs": 140512
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 19
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 43499253,
+    "timeToEncodeInMs": 132588
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 20
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 36499378,
+    "timeToEncodeInMs": 127633
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 21
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 30534133,
+    "timeToEncodeInMs": 118942
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 22
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 25541713,
+    "timeToEncodeInMs": 115276
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 23
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 21475560,
+    "timeToEncodeInMs": 109353
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 24
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 18242168,
+    "timeToEncodeInMs": 104462
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 25
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 15643919,
+    "timeToEncodeInMs": 102861
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 26
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 13542768,
+    "timeToEncodeInMs": 97372
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 27
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 11800382,
+    "timeToEncodeInMs": 96759
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 28
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 10349169,
+    "timeToEncodeInMs": 93897
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 29
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 9146009,
+    "timeToEncodeInMs": 91426
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 30
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 8119224,
+    "timeToEncodeInMs": 89986
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 31
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 7266917,
+    "timeToEncodeInMs": 86744
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 32
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 6540337,
+    "timeToEncodeInMs": 87596
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 33
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 5938219,
+    "timeToEncodeInMs": 84750
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 34
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 5406400,
+    "timeToEncodeInMs": 78658
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 35
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4957195,
+    "timeToEncodeInMs": 67139
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 36
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4553306,
+    "timeToEncodeInMs": 68876
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 37
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4213039,
+    "timeToEncodeInMs": 69359
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 38
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3892723,
+    "timeToEncodeInMs": 68564
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 39
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3622088,
+    "timeToEncodeInMs": 68043
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 40
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3377395,
+    "timeToEncodeInMs": 65807
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 41
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 3143006,
+    "timeToEncodeInMs": 63255
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 42
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2948517,
+    "timeToEncodeInMs": 63229
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 43
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2771683,
+    "timeToEncodeInMs": 62379
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 44
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2607742,
+    "timeToEncodeInMs": 61932
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 45
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2460915,
+    "timeToEncodeInMs": 60120
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 46
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2275453,
+    "timeToEncodeInMs": 64899
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 47
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 2133352,
+    "timeToEncodeInMs": 69417
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 48
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1993645,
+    "timeToEncodeInMs": 65603
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 49
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1875386,
+    "timeToEncodeInMs": 60261
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 50
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1765278,
+    "timeToEncodeInMs": 55183
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "libx264",
+    "quality": {
+      "type": "crf",
+      "crf": 51
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 1654051,
+    "timeToEncodeInMs": 53485
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "500000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4586903,
+    "timeToEncodeInMs": 10275
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "1000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4597140,
+    "timeToEncodeInMs": 10975
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "2000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 4704589,
+    "timeToEncodeInMs": 11032
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "3000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 5005355,
+    "timeToEncodeInMs": 11023
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "4000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 6311372,
+    "timeToEncodeInMs": 11111
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "5000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 7877722,
+    "timeToEncodeInMs": 11152
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "6000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 9447452,
+    "timeToEncodeInMs": 11124
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "7000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 10974363,
+    "timeToEncodeInMs": 11216
+  },
+  {
+    "filename": "iphonevideo.mov",
+    "encoder": "h264_videotoolbox",
+    "quality": {
+      "type": "bitrate",
+      "value": "8000000"
+    },
+    "width": 2160,
+    "height": 3840,
+    "fps": 29.99602174777881,
+    "durationInSeconds": 12.568333333333333,
+    "size": 12553090,
+    "timeToEncodeInMs": 10837
+  }
+]

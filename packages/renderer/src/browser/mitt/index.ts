@@ -48,7 +48,7 @@ export default function mitt(all?: EventHandlerMap): Emitter {
 		 * @param {Function} handler Function to call in response to given event
 		 * @memberOf mitt
 		 */
-		on<T = any>(type: EventType, handler: Handler<T>) {
+		on: <T = any>(type: EventType, handler: Handler<T>) => {
 			const handlers = all?.get(type);
 			const added = handlers?.push(handler);
 			if (!added) {
@@ -56,7 +56,7 @@ export default function mitt(all?: EventHandlerMap): Emitter {
 			}
 		},
 
-		off<T = any>(type: EventType, handler: Handler<T>) {
+		off: <T = any>(type: EventType, handler: Handler<T>) => {
 			const handlers = all?.get(type);
 			if (handlers) {
 				// eslint-disable-next-line no-bitwise
@@ -64,7 +64,7 @@ export default function mitt(all?: EventHandlerMap): Emitter {
 			}
 		},
 
-		emit<T = any>(type: EventType, evt: T) {
+		emit: <T = any>(type: EventType, evt: T) => {
 			((all?.get(type) || []) as EventHandlerList)
 				.slice()
 				.forEach((handler) => {

@@ -1,7 +1,11 @@
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/Easing.js
 
-import {bezier} from './bezier';
+import {bezier} from './bezier.js';
 
+/**
+ * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
+ * @see [Documentation](https://www.remotion.dev/docs/easing)
+ */
 export class Easing {
 	static step0(n: number): number {
 		return n > 0 ? 1 : 0;
@@ -76,7 +80,7 @@ export class Easing {
 		x1: number,
 		y1: number,
 		x2: number,
-		y2: number
+		y2: number,
 	): (t: number) => number {
 		return bezier(x1, y1, x2, y2);
 	}

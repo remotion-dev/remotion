@@ -1,0 +1,63 @@
+---
+image: /generated/articles-docs-cloudrun-deletesite.png
+id: deletesite
+title: deleteSite()
+slug: /cloudrun/deletesite
+crumb: 'Cloud Run API'
+---
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+  </p>
+</ExperimentalBadge>
+
+Removes a Remotion project from your Cloud Storage bucket.
+
+Each project is located in the `sites/` subdirectory of your Cloud Storage bucket. Calling this function is equivalent of deleting all files inside a subfolder of your `sites/` subdirectory.
+
+## Example
+
+Gets all sites and deletes them.
+
+```ts twoslash
+import {GcpRegion, deleteSite, getSites} from '@remotion/cloudrun';
+
+const region: GcpRegion = 'australia-southeast1';
+
+const {sites} = await getSites(region);
+
+for (const site of sites) {
+  await deleteSite({
+    bucketName: site.bucketName,
+    siteName: site.id,
+  });
+  console.log(`Site ${site.id} deleted.`);
+}
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `bucketName`
+
+_string_
+
+The name of the Cloud Storage bucket in which your site resides in.
+
+### `siteName`
+
+_string_
+
+The unique ID of the project you want to delete.
+
+## Return value
+
+A promise resolving nothing.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/delete-site.ts)
+- [getSites()](/docs/cloudrun/getsites)
+- [deploySite()](/docs/cloudrun/deploysite)

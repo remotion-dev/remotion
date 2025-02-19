@@ -1,58 +1,82 @@
 {
-	"name": "remotion",
-	"version": "3.0.30",
-	"description": "Render videos in React",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"sideEffects": false,
-	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"test": "jest --coverage && node generate-badges.js",
-		"build": "tsc -d",
-		"watch": "tsc -w",
-		"prerelease": "cp ../../README.md ."
-	},
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
+	},
+	"name": "remotion",
+	"version": "4.0.266",
+	"description": "Make videos programmatically",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"scripts": {
+		"formatting": "prettier src --check",
+		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
+		"lint": "eslint src",
+		"test": "bun test src/test",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
-		"@testing-library/react": "13.1.1",
-		"@types/jest": "^27.4.0",
-		"@types/node": "^16.7.5",
-		"@types/react": "18.0.1",
-		"@types/react-dom": "18.0.0",
-		"@types/webpack-env": "^1.16.0",
-		"eslint": "8.13.0",
-		"jest": "^27.2.4",
-		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^2.3.4",
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0",
-		"react-test-renderer": "^18.0.0",
-		"rimraf": "^3.0.2",
-		"ts-jest": "^27.0.5",
-		"typescript": "^4.7.0",
-		"webpack": "5.72.0"
+		"@testing-library/react": "16.1.0",
+		"@testing-library/dom": "10.4.0",
+		"@happy-dom/global-registrator": "14.5.1",
+		"@types/dom-webcodecs": "0.1.11",
+		"happy-dom": "15.10.2",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"webpack": "5.96.1",
+		"zod": "3.22.3",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",
 		"ffmpeg",
 		"video",
 		"react",
-		"puppeteer",
 		"player"
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		},
+		"./version": {
+			"types": "./dist/cjs/version.d.ts",
+			"module": "./dist/esm/version.mjs",
+			"import": "./dist/esm/version.mjs",
+			"require": "./dist/cjs/version.js"
+		},
+		"./no-react": {
+			"types": "./dist/cjs/no-react.d.ts",
+			"module": "./dist/esm/no-react.mjs",
+			"import": "./dist/esm/no-react.mjs",
+			"require": "./dist/cjs/no-react.js"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"version": [
+				"dist/cjs/version.d.ts"
+			],
+			"no-react": [
+				"dist/cjs/no-react.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/remotion"
 }

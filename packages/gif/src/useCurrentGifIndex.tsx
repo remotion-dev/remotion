@@ -1,33 +1,56 @@
 import {useMemo} from 'react';
-import {Internals, useCurrentFrame} from 'remotion';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+import type {GifLoopBehavior} from './props';
 
-function useCurrentGifIndex(delays: number[]): number {
+export function useCurrentGifIndex({
+	delays,
+	loopBehavior,
+	playbackRate,
+}: {
+	delays: number[];
+	loopBehavior: GifLoopBehavior;
+	playbackRate: number;
+}): number {
 	const currentFrame = useCurrentFrame();
-	const videoConfig = Internals.useUnsafeVideoConfig();
+	const videoConfig = useVideoConfig();
 
 	const duration = useMemo(() => {
 		if (delays.length !== 0) {
-			return delays.reduce((sum: number, delay: number) => sum + delay, 0);
+			return delays.reduce(
+				(sum: number, delay: number) => sum + (delay ?? 0),
+				0,
+			);
 		}
 
 		return 1;
 	}, [delays]);
 
-	const index = useMemo(() => {
-		if (videoConfig && delays.length !== 0) {
-			let currentTime = ((currentFrame / videoConfig.fps) * 1000) % duration;
+	if (delays.length === 0) {
+		return 0;
+	}
 
-			for (const [i, delay] of delays.entries()) {
-				if (currentTime < delay) return i;
+	const updatedFrame = currentFrame / (1 / playbackRate);
 
-				currentTime -= delay;
-			}
+	const time = (updatedFrame / videoConfig.fps) * 1000;
+
+	if (loopBehavior === 'pause-after-finish' && time >= duration) {
+		return delays.length - 1;
+	}
+
+	if (loopBehavior === 'unmount-after-finish' && time >= duration) {
+		return -1;
+	}
+
+	let currentTime = time % duration;
+
+	for (let i = 0; i < delays.length; i++) {
+		const delay = delays[i];
+		if (currentTime < delay) {
+			return i;
 		}
 
-		return 0;
-	}, [delays, duration, currentFrame, videoConfig]);
+		currentTime -= delay;
+	}
 
-	return index;
+	return 0;
 }
-
-export {useCurrentGifIndex};

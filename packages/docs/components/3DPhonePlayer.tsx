@@ -12,7 +12,6 @@ export const ThreeDPlayer: React.FC = () => {
       durationInFrames={300}
       controls
       loop
-      autoPlay
       style={{
         width: "100%",
       }}
@@ -21,6 +20,6 @@ export const ThreeDPlayer: React.FC = () => {
         videoSrc: phone,
         baseScale: 1,
       }}
-    ></Player>
+    />
   );
 };

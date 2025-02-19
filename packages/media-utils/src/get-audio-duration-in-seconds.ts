@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import {onMediaError} from './media-tag-error-handling';
 import {pLimit} from './p-limit';
 
 const limit = pLimit(3);
@@ -17,8 +19,13 @@ const fn = (src: string): Promise<number> => {
 	audio.src = src;
 	return new Promise<number>((resolve, reject) => {
 		const onError = () => {
-			reject(audio.error);
-			cleanup();
+			onMediaError({
+				error: audio.error!,
+				src,
+				cleanup,
+				reject,
+				api: 'getAudioDurationInSeconds()',
+			});
 		};
 
 		const onLoadedMetadata = () => {
@@ -38,11 +45,9 @@ const fn = (src: string): Promise<number> => {
 	});
 };
 
-/**
- * Get the audio file passed in parameter duration in seconds
- * @async
- * @param src path to the audio file
- * @return {number} duration of the audio file in seconds
+/*
+ * @description Gets the duration in seconds of an audio source by creating an invisible `<audio>` tag, loading the audio, and returning the duration.
+ * @see [Documentation](https://remotion.dev/docs/get-audio-duration-in-seconds)
  */
 export const getAudioDurationInSeconds = (src: string) => {
 	return limit(fn, src);

@@ -1,0 +1,38 @@
+---
+image: /generated/articles-docs-openai-whisper-openai-whisper-api-to-captions.png
+title: openAiWhisperApiToCaptions()
+crumb: '@remotion/openai-whisper'
+---
+
+# openAiWhisperApiToCaptions()<AvailableFrom v="4.0.217"/>
+
+Turns the output from [`openai.audio.transcriptions.create`](https://platform.openai.com/docs/guides/speech-to-text/transcriptions) from the [openai](https://npm.im/openai) package into an array of [`Caption`](/docs/captions/caption) objects.
+
+This package performs processing on the captions in order to retain the punctuation in the words, which is not by default included in the OpenAI response.
+
+This function can be used in any JavaScript environment, but you should not use the OpenAI API in the browser because your API key will be exposed to the browser.
+
+```tsx twoslash title="Example usage"
+import fs from 'fs';
+import {OpenAI} from 'openai';
+import {openAiWhisperApiToCaptions} from '@remotion/openai-whisper';
+
+const openai = new OpenAI();
+
+const transcription = await openai.audio.transcriptions.create({
+  file: fs.createReadStream('audio.mp3'),
+  model: 'whisper-1',
+  response_format: 'verbose_json',
+  prompt: 'Hello, welcome to my lecture.',
+  timestamp_granularities: ['word'],
+});
+
+const {captions} = openAiWhisperApiToCaptions({transcription});
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/openai-whisper/src/openai-whisper-api-to-captions.ts)
+- [`@remotion/openai-whisper`](/docs/openai-whisper)
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`@remotion/captions`](/docs/captions)

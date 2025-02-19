@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {assert} from './assert';
+import {Log} from '../logger';
 import type {Commands} from './devtools-commands';
 import type {TargetInfo} from './devtools-types';
 
@@ -22,10 +22,12 @@ import {EventEmitter} from './EventEmitter';
 import type {NodeWebSocketTransport} from './NodeWebSocketTransport';
 
 interface ConnectionCallback {
-	resolve: Function;
+	resolve: (value: {value: any; size: number}) => void;
 	reject: Function;
-	error: ProtocolError;
 	method: string;
+	returnSize: boolean;
+	stack: string;
+	fn: string;
 }
 
 const ConnectionEmittedEvents = {
@@ -33,7 +35,7 @@ const ConnectionEmittedEvents = {
 } as const;
 
 export class Connection extends EventEmitter {
-	#transport: NodeWebSocketTransport;
+	transport: NodeWebSocketTransport;
 	#lastId = 0;
 	#sessions: Map<string, CDPSession> = new Map();
 	#closed = false;
@@ -42,9 +44,9 @@ export class Connection extends EventEmitter {
 	constructor(transport: NodeWebSocketTransport) {
 		super();
 
-		this.#transport = transport;
-		this.#transport.onmessage = this.#onMessage.bind(this);
-		this.#transport.onclose = this.#onClose.bind(this);
+		this.transport = transport;
+		this.transport.onmessage = this.#onMessage.bind(this);
+		this.transport.onclose = this.#onClose.bind(this);
 	}
 
 	static fromSession(session: CDPSession): Connection | undefined {
@@ -58,7 +60,7 @@ export class Connection extends EventEmitter {
 	send<T extends keyof Commands>(
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
-	): Promise<Commands[T]['returnType']> {
+	): Promise<{value: Commands[T]['returnType']; size: number}> {
 		// There is only ever 1 param arg passed, but the Protocol defines it as an
 		// array of 0 or 1 items See this comment:
 		// https://github.com/ChromeDevTools/devtools-protocol/pull/113#issuecomment-412603285
@@ -67,20 +69,24 @@ export class Connection extends EventEmitter {
 		// So now we check if there are any params or not and deal with them accordingly.
 		const params = paramArgs.length ? paramArgs[0] : undefined;
 		const id = this._rawSend({method, params});
-		return new Promise((resolve, reject) => {
-			this.#callbacks.set(id, {
-				resolve,
-				reject,
-				error: new ProtocolError(),
-				method,
-			});
-		});
+		return new Promise<{value: Commands[T]['returnType']; size: number}>(
+			(resolve, reject) => {
+				this.#callbacks.set(id, {
+					resolve,
+					reject,
+					method,
+					returnSize: true,
+					stack: new Error().stack ?? '',
+					fn: method + JSON.stringify(params),
+				});
+			},
+		);
 	}
 
 	_rawSend(message: Record<string, unknown>): number {
 		const id = ++this.#lastId;
 		const stringifiedMessage = JSON.stringify({...message, id});
-		this.#transport.send(stringifiedMessage);
+		this.transport.send(stringifiedMessage);
 		return id;
 	}
 
@@ -91,7 +97,7 @@ export class Connection extends EventEmitter {
 			const session = new CDPSession(
 				this,
 				object.params.targetInfo.type,
-				sessionId
+				sessionId,
 			);
 			this.#sessions.set(sessionId, session);
 			this.emit('sessionattached', session);
@@ -115,17 +121,18 @@ export class Connection extends EventEmitter {
 		if (object.sessionId) {
 			const session = this.#sessions.get(object.sessionId);
 			if (session) {
-				session._onMessage(object);
+				session._onMessage(object, message.length);
 			}
 		} else if (object.id) {
 			const callback = this.#callbacks.get(object.id);
 			// Callbacks could be all rejected if someone has called `.dispose()`.
 			if (callback) {
 				this.#callbacks.delete(object.id);
+
 				if (object.error) {
-					callback.reject(
-						createProtocolError(callback.error, callback.method, object)
-					);
+					callback.reject(createProtocolError(callback.method, object));
+				} else if (callback.returnSize) {
+					callback.resolve({value: object.result, size: message.length});
 				} else {
 					callback.resolve(object.result);
 				}
@@ -140,14 +147,14 @@ export class Connection extends EventEmitter {
 			return;
 		}
 
-		this.#transport.onmessage = undefined;
-		this.#transport.onclose = undefined;
+		this.transport.onmessage = undefined;
+		this.transport.onclose = undefined;
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
 				rewriteError(
-					callback.error,
-					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`
-				)
+					new ProtocolError(),
+					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`,
+				),
 			);
 		}
 
@@ -162,7 +169,7 @@ export class Connection extends EventEmitter {
 
 	dispose(): void {
 		this.#onClose();
-		this.#transport.close();
+		this.transport.close();
 	}
 
 	/**
@@ -170,7 +177,9 @@ export class Connection extends EventEmitter {
 	 * @returns The CDP session that is created
 	 */
 	async createSession(targetInfo: TargetInfo): Promise<CDPSession> {
-		const {sessionId} = await this.send('Target.attachToTarget', {
+		const {
+			value: {sessionId},
+		} = await this.send('Target.attachToTarget', {
 			targetId: targetInfo.targetId,
 			flatten: true,
 		});
@@ -215,14 +224,12 @@ export class CDPSession extends EventEmitter {
 	send<T extends keyof Commands>(
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
-	): Promise<Commands[T]['returnType']> {
+	): Promise<{value: Commands[T]['returnType']; size: number}> {
 		if (!this.#connection) {
 			return Promise.reject(
 				new Error(
-					`Protocol error (${method}): Session closed. Most likely the ${
-						this.#targetType
-					} has been closed.`
-				)
+					`Protocol error (${method}): Session closed. Most likely the ${this.#targetType} has been closed.`,
+				),
 			);
 		}
 
@@ -235,45 +242,56 @@ export class CDPSession extends EventEmitter {
 			params,
 		});
 
-		return new Promise((resolve, reject) => {
-			this.#callbacks.set(id, {
-				resolve,
-				reject,
-				error: new ProtocolError(),
-				method,
-			});
-		});
+		return new Promise<{value: Commands[T]['returnType']; size: number}>(
+			(resolve, reject) => {
+				if (this.#callbacks.size > 100) {
+					for (const callback of this.#callbacks.values()) {
+						Log.info({indent: false, logLevel: 'info'}, callback.fn);
+					}
+
+					throw new Error('Leak detected: Too many callbacks');
+				}
+
+				this.#callbacks.set(id, {
+					resolve,
+					reject,
+					method,
+					returnSize: true,
+					stack: new Error().stack ?? '',
+					fn: method + JSON.stringify(params),
+				});
+			},
+		);
 	}
 
-	_onMessage(object: CDPSessionOnMessageObject): void {
+	_onMessage(object: CDPSessionOnMessageObject, size: number): void {
 		const callback = object.id ? this.#callbacks.get(object.id) : undefined;
 		if (object.id && callback) {
 			this.#callbacks.delete(object.id);
 			if (object.error) {
-				callback.reject(
-					createProtocolError(callback.error, callback.method, object)
-				);
+				callback.reject(createProtocolError(callback.method, object));
+			} else if (callback.returnSize) {
+				callback.resolve({value: object.result, size});
 			} else {
 				callback.resolve(object.result);
 			}
 		} else {
-			assert(!object.id);
 			this.emit(object.method, object.params);
 		}
 	}
 
 	_onClosed(): void {
+		this.#connection = undefined;
 		for (const callback of this.#callbacks.values()) {
 			callback.reject(
 				rewriteError(
-					callback.error,
-					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`
-				)
+					new ProtocolError(),
+					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`,
+				),
 			);
 		}
 
 		this.#callbacks.clear();
-		this.#connection = undefined;
 		this.emit(CDPSessionEmittedEvents.Disconnected);
 	}
 
@@ -283,22 +301,21 @@ export class CDPSession extends EventEmitter {
 }
 
 function createProtocolError(
-	error: ProtocolError,
 	method: string,
-	object: {error: {message: string; data: any; code: number}}
+	object: {error: {message: string; data: any; code: number}},
 ): Error {
 	let message = `Protocol error (${method}): ${object.error.message}`;
 	if ('data' in object.error) {
 		message += ` ${object.error.data}`;
 	}
 
-	return rewriteError(error, message, object.error.message);
+	return rewriteError(new ProtocolError(), message, object.error.message);
 }
 
 function rewriteError(
 	error: ProtocolError,
 	message: string,
-	originalMessage?: string
+	originalMessage?: string,
 ): Error {
 	error.message = message;
 	error.originalMessage = originalMessage ?? error.originalMessage;

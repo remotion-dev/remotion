@@ -1,0 +1,242 @@
+---
+image: /generated/articles-docs-layout-utils-best-practices.png
+title: Best practices for @remotion/layout-utils
+sidebar_label: Best practices
+crumb: '@remotion/layout-utils'
+---
+
+Take note of the following points to ensure correct measurements when using the [`@remotion/layout-utils`](/docs/layout-utils) package.
+
+These tips apply to all of [`measureText()`](/docs/layout-utils/measure-text), [`fitText()`](/docs/layout-utils/fit-text), and [`fillTextBox()`](/docs/layout-utils/fill-text-box).
+
+## Wait until the font is loaded
+
+Only call [`measureText()`](/docs/layout-utils/measure-text) after the font is loaded. This applies to Google Fonts (example below) or any other font loading mechanism.
+
+### Example with `useEffect`
+
+```tsx twoslash title="MyComp.tsx"
+import {useState, useEffect} from 'react';
+import {Dimensions, measureText} from '@remotion/layout-utils';
+import {loadFont, fontFamily} from '@remotion/google-fonts/Inter';
+
+const {waitUntilDone} = loadFont('normal');
+
+const MyComp: React.FC = () => {
+  const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+
+  useEffect(() => {
+    // Wait until the font is loaded before measuring text
+    waitUntilDone().then(() => {
+      const measurement = measureText({
+        fontFamily: fontFamily,
+        fontSize: 14,
+        fontWeight: '400',
+        text: 'Hello world',
+      });
+
+      // We don't need to use delayRender() here, because
+      // font loading from @remotion/google-fonts is already wrapped in it
+      setDimensions(measurement);
+    });
+  }, []);
+
+  return null;
+};
+```
+
+### Example with high-order component
+
+This following logic is borrowed from the [Remotion Recorder](/docs/recorder).  
+It keeps the code clean by exposing a high-order component which only mounts its children when the font is loaded.
+
+A file is defined which loads some fonts:
+
+```tsx twoslash title="fonts.ts"
+import {
+  fontFamily as regularFont,
+  loadFont as loadRegular,
+} from '@remotion/google-fonts/Inter';
+
+import {
+  fontFamily as monospaceFont,
+  loadFont as loadMonospace,
+} from '@remotion/google-fonts/RobotoMono';
+
+import {cancelRender, continueRender, delayRender} from 'remotion';
+
+const regular = loadRegular();
+const monospace = loadMonospace();
+
+export const waitForFonts = async () => {
+  await regular.waitUntilDone();
+  await monospace.waitUntilDone();
+};
+
+const delay = delayRender('Loading fonts');
+
+waitForFonts()
+  .then(() => continueRender(delay))
+  .catch((err) => cancelRender(err));
+```
+
+Then a higher order component is defined which only renders it's children when the font is loaded:
+
+```tsx twoslash title="WaitForFonts.tsx"
+// @filename: fonts.ts
+import {
+  fontFamily as regularFont,
+  loadFont as loadRegular,
+} from '@remotion/google-fonts/Inter';
+
+import {
+  fontFamily as monospaceFont,
+  loadFont as loadMonospace,
+} from '@remotion/google-fonts/RobotoMono';
+
+import {cancelRender, continueRender, delayRender} from 'remotion';
+
+export const regular = loadRegular();
+const monospace = loadMonospace();
+
+export const waitForFonts = async () => {
+  await regular.waitUntilDone();
+  await monospace.waitUntilDone();
+};
+
+const delay = delayRender('Loading fonts');
+
+waitForFonts()
+  .then(() => continueRender(delay))
+  .catch((err) => cancelRender(err));
+
+// @filename: WaitForFonts.tsx
+// ---cut---
+import React, {useEffect, useState} from 'react';
+import {cancelRender, continueRender, delayRender} from 'remotion';
+import {waitForFonts} from './fonts';
+
+export const WaitForFonts: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [handle] = useState(() => delayRender());
+
+  useEffect(() => {
+    const delay = delayRender('Waiting for fonts to be loaded');
+
+    waitForFonts()
+      .then(() => {
+        continueRender(handle);
+        continueRender(delay);
+        setFontsLoaded(true);
+      })
+      .catch((err) => {
+        cancelRender(err);
+      });
+  }, [fontsLoaded, handle]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  return <>{children}</>;
+};
+```
+
+Then the component can be wrap any other component that calls text measurement APIs:
+
+```tsx twoslash title="MyComp.tsx"
+// @filename: fonts.ts
+export const regular = 'Inter';
+
+// @filename: WaitForFonts.tsx
+export const WaitForFonts: React.FC<{
+  children: React.ReactNode;
+}> = ({children}) => {
+  // ...
+  return children;
+};
+
+// @filename: MyComp.tsx
+// ---cut---
+import React from 'react';
+import {regular} from './fonts';
+import {WaitForFonts} from './WaitForFonts';
+import {measureText} from '@remotion/layout-utils';
+
+const MyCompInner: React.FC = () => {
+  // Safe to call measureText() here
+  const measurement = measureText({
+    fontFamily: regular,
+    fontSize: 14,
+    fontWeight: '400',
+    text: 'Hello world',
+  });
+
+  return null;
+};
+
+export const MyComp: React.FC = () => {
+  return (
+    <WaitForFonts>
+      <MyCompInner />
+    </WaitForFonts>
+  );
+};
+```
+
+### Use the `validateFontIsLoaded` option<AvailableFrom v="4.0.136"/>
+
+Pass `validateFontIsLoaded: true` to any of [`measureText()`](/docs/layout-utils/measure-text), [`fitText()`](/docs/layout-utils/fit-text), and [`fillTextBox()`](/docs/layout-utils/fill-text-box) to validate that the font family you passed is actually loaded.
+
+This will take a second measurement with the fallback font and if it produces the same measurements, it assumes the fallback font was used and will throw an error.
+
+:::note
+In Remotion v5, this will become the default.
+:::
+
+## Match all font properties
+
+When measuring text, ensure that all font properties match the ones you are going to use in your video.  
+This includes `fontFamily`, `fontSize`, and `fontWeight`, `letterSpacing` and `fontVariantNumeric`.
+
+You could make reusable variables that you reference in both the measuring function and the actual component.
+
+```tsx twoslash title="Using variables for font properties"
+import {measureText} from '@remotion/layout-utils';
+
+const text = 'Hello world';
+const fontFamily = 'Inter';
+const fontWeight = 'bold';
+const fontSize = 16;
+
+// Use the variable in the measurement function:
+measureText({
+  text,
+  fontFamily,
+  fontWeight,
+  fontSize,
+});
+
+// As well as in markup
+<div style={{fontFamily, fontWeight, fontSize}}>{text}</div>;
+```
+
+## Be aware of borders and padding
+
+Adding a `padding` or a `border` to a word will skew the measurements.  
+Avoid using `padding` altogether and use the natural spacing between words.  
+Instead of `border`, use an `outline` to add a line outside the text without affecting its layout.
+
+## Whitespace
+
+When measuring, the Layout utils will wrap the text in a `<span>` with `display: inline-block` and `white-space: pre` applied.  
+This will also measure the width of the whitespace characters.
+
+Add those two CSS properties to your markup as well to match it with the measurements.
+
+## Server-side rendering
+
+The layout utilities need to be run in a browser.  
+If you are using them in a component that will be server-side rendered, then we recommend you call the functions in a `useEffect`, like on the first example on this page.

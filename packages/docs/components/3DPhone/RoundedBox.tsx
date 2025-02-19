@@ -1,26 +1,30 @@
+/* eslint-disable react/no-unknown-property */
+import type {Vector3} from '@react-three/fiber';
+import type {JSX} from 'react';
 import React, {useMemo} from 'react';
 import {roundedRect} from './helpers/rounded-rectangle';
 
 type Props = {
-	width: number;
-	height: number;
-	radius: number;
-	curveSegments: number;
-	depth: number;
-} & Omit<JSX.IntrinsicElements['mesh'], 'args'>;
+	readonly width: number;
+	readonly height: number;
+	readonly radius: number;
+	readonly curveSegments: number;
+	readonly depth: number;
+	readonly position: Vector3;
+} & Omit<JSX.IntrinsicElements['mesh'], 'args' | 'position'>;
 
 export const RoundedBox: React.FC<Props> = ({
 	width,
 	height,
 	radius,
-	curveSegments: curveSegments,
+	curveSegments,
 	children,
 	depth,
 	...otherProps
 }) => {
 	const shape = useMemo(
 		() => roundedRect({width, height, radius}),
-		[height, radius, width]
+		[height, radius, width],
 	);
 
 	const params = useMemo(
@@ -31,12 +35,12 @@ export const RoundedBox: React.FC<Props> = ({
 			bevelThickness: 0,
 			curveSegments,
 		}),
-		[curveSegments, depth]
+		[curveSegments, depth],
 	);
 
 	return (
 		<mesh {...otherProps}>
-			<extrudeBufferGeometry attach="geometry" args={[shape, params]} />
+			<extrudeGeometry attach="geometry" args={[shape, params]} />
 			{children}
 		</mesh>
 	);

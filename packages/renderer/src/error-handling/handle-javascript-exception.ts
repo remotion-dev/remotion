@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Page} from '../browser/BrowserPage';
 import type {CallFrame, ExceptionThrownEvent} from '../browser/devtools-types';
 import type {UnsymbolicatedStackFrame} from '../parse-browser-error-stack';
@@ -8,6 +8,7 @@ import {SymbolicateableError} from './symbolicateable-error';
 export class ErrorWithStackFrame extends Error {
 	symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 	frame: number | null;
+	chunk: number | null;
 	name: string;
 	delayRenderCall: SymbolicatedStackFrame[] | null;
 
@@ -17,24 +18,34 @@ export class ErrorWithStackFrame extends Error {
 		frame,
 		name,
 		delayRenderCall,
+		stack,
+		chunk,
 	}: {
 		message: string;
 		symbolicatedStackFrames: SymbolicatedStackFrame[] | null;
 		frame: number | null;
+		chunk: number | null;
 		name: string;
 		delayRenderCall: SymbolicatedStackFrame[] | null;
+		stack: string | undefined;
 	}) {
 		super(message);
 		this.symbolicatedStackFrames = symbolicatedStackFrames;
 		this.frame = frame;
+		this.chunk = chunk;
 		this.name = name;
 		this.delayRenderCall = delayRenderCall;
+		// If error symbolication did not yield any stack frames, we print the original stack
+		this.stack = stack;
 	}
 }
 
 const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
-	let errorMessage = exception.exceptionDetails.exception
-		?.description as string;
+	let errorMessage = exception.exceptionDetails.exception?.description;
+	if (!errorMessage) {
+		return null;
+	}
+
 	const errorType = exception.exceptionDetails.exception?.className as string;
 	const prefix = `${errorType}: `;
 
@@ -48,7 +59,7 @@ const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
 };
 
 const removeDelayRenderStack = (message: string) => {
-	const index = message.indexOf(Internals.DELAY_RENDER_CALLSTACK_TOKEN);
+	const index = message.indexOf(NoReactInternals.DELAY_RENDER_CALLSTACK_TOKEN);
 	if (index === -1) {
 		return message;
 	}
@@ -57,7 +68,7 @@ const removeDelayRenderStack = (message: string) => {
 };
 
 const callFrameToStackFrame = (
-	callFrame: CallFrame
+	callFrame: CallFrame,
 ): UnsymbolicatedStackFrame => {
 	return {
 		columnNumber: callFrame.columnNumber,
@@ -79,9 +90,18 @@ export const handleJavascriptException = ({
 	const client = page._client();
 
 	const handler = (exception: ExceptionThrownEvent) => {
-		const rawErrorMessage = exception.exceptionDetails.exception
-			?.description as string;
+		const rawErrorMessage = exception.exceptionDetails.exception?.description;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);
+
+		if (!cleanErrorMessage) {
+			// eslint-disable-next-line no-console
+			console.error(exception);
+			const err = new Error(rawErrorMessage);
+			err.stack = rawErrorMessage;
+			onError(err);
+			return;
+		}
+
 		if (!exception.exceptionDetails.stackTrace) {
 			const err = new Error(removeDelayRenderStack(cleanErrorMessage));
 			err.stack = rawErrorMessage;
@@ -99,6 +119,7 @@ export const handleJavascriptException = ({
 			frame,
 			name: errorType,
 			stack: exception.exceptionDetails.exception?.description,
+			chunk: null,
 		});
 		onError(symbolicatedErr);
 	};
@@ -107,5 +128,6 @@ export const handleJavascriptException = ({
 
 	return () => {
 		client.off('Runtime.exceptionThrown', handler);
+		return Promise.resolve();
 	};
 };
