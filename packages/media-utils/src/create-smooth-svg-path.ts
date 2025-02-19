@@ -1,18 +1,23 @@
-const line = (pointA: [number, number], pointB: [number, number]) => {
-	const lengthX = pointB[0] - pointA[0];
-	const lengthY = pointB[1] - pointA[1];
+const line = (pointA: Point, pointB: Point) => {
+	const lengthX = pointB.x - pointA.x;
+	const lengthY = pointB.y - pointA.y;
 	return {
 		length: Math.sqrt(lengthX ** 2 + lengthY ** 2),
 		angle: Math.atan2(lengthY, lengthX),
 	};
 };
 
-const controlPoint = (
-	current: [number, number],
-	previous: [number, number],
-	next: [number, number],
-	reverse: boolean,
-): [number, number] => {
+const controlPoint = ({
+	current,
+	previous,
+	next,
+	reverse,
+}: {
+	current: Point;
+	previous: Point;
+	next: Point;
+	reverse: boolean;
+}): Point => {
 	const p = previous || current;
 	const n = next || current;
 	// The smoothing ratio
@@ -23,30 +28,42 @@ const controlPoint = (
 	const angle = o.angle + (reverse ? Math.PI : 0);
 	const length = o.length * smoothing;
 
-	const x = current[0] + Math.cos(angle) * length;
-	const y = current[1] + Math.sin(angle) * length;
+	const x = current.x + Math.cos(angle) * length;
+	const y = current.y + Math.sin(angle) * length;
 
-	return [x, y];
+	return {x, y};
 };
 
-export const createSmoothSvgPath = ({points}: {points: [number, number][]}) => {
-	return points.reduce(
-		(acc: string, current: [number, number], i: number, a) => {
-			if (i === 0) {
-				return `M ${current[0]},${current[1]}`;
-			}
+export type Point = {
+	x: number;
+	y: number;
+};
 
-			const [x, y] = current;
+export const createSmoothSvgPath = ({points}: {points: Point[]}) => {
+	return points.reduce((acc: string, current: Point, i: number, a) => {
+		if (i === 0) {
+			return `M ${current.x},${current.y}`;
+		}
 
-			const previous = a[i - 1];
-			const twoPrevious = a[i - 2];
-			const next = a[i + 1];
+		const {x, y} = current;
 
-			const [cp1x, cp1y] = controlPoint(previous, twoPrevious, current, false);
-			const [cp2x, cp2y] = controlPoint(current, previous, next, true);
+		const previous = a[i - 1];
+		const twoPrevious = a[i - 2];
+		const next = a[i + 1];
 
-			return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y}`;
-		},
-		'',
-	);
+		const {x: cp1x, y: cp1y} = controlPoint({
+			current: previous,
+			previous: twoPrevious,
+			next: current,
+			reverse: false,
+		});
+		const {x: cp2x, y: cp2y} = controlPoint({
+			current,
+			previous,
+			next,
+			reverse: true,
+		});
+
+		return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y}`;
+	}, '');
 };

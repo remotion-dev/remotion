@@ -4,61 +4,64 @@ import {
 	visualizeAudioWaveform,
 } from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
-import styled from 'styled-components';
+import {Audio, useCurrentFrame, useVideoConfig} from 'remotion';
 import voice from '../resources/voice-short.mp3';
 
-const FullSize = styled(AbsoluteFill)`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-`;
+const padding = 80;
 
-const VoiceVisualization: React.FC = () => {
+export const VoiceVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const audioDataVoice = useAudioData(voice);
-	const {width, height} = useVideoConfig();
+	const {width} = useVideoConfig();
+
+	const height = 600;
 
 	if (!audioDataVoice) {
 		return null;
 	}
 
-	const posterized = Math.round(frame / 3) * 3;
+	const posterized = Math.round(frame / 1) * 1;
 
 	const waveform = visualizeAudioWaveform({
 		fps,
 		frame: posterized,
 		audioData: audioDataVoice,
-		numberOfSamples: 16,
-		windowInSeconds: 1 / fps,
+		numberOfSamples: 40,
+		windowInSeconds: 1,
 		channel: 0,
 	});
 
-	const p = smoothenSvgPath(
-		waveform.map((y, i) => {
-			return [
-				(i / (waveform.length - 1)) * width,
-				height / 2 + (y * height) / 2,
-			];
-		})
-	);
+	const p = smoothenSvgPath({
+		points: waveform.map((y, i) => {
+			return {
+				x: (i / (waveform.length - 1)) * width,
+				y: height / 2 + (y * height) / 2,
+			};
+		}),
+	});
 
 	return (
-		<div style={{flex: 1}}>
+		<div style={{flex: 1, padding}} className="flex-1 bg-white">
 			<Audio src={voice} />
-			<FullSize>
+			<div className="flex justify-center items-center">
 				<svg
-					style={{backgroundColor: 'white'}}
 					viewBox={`0 0 ${width} ${height}`}
-					width={width}
+					style={{
+						overflow: 'visible',
+					}}
+					width={width - padding * 2}
 					height={height}
 				>
-					<path fill="none" stroke="#0b84f3" strokeWidth={10} d={p} />
+					<path
+						strokeLinecap="round"
+						fill="none"
+						stroke="#222"
+						strokeWidth={10}
+						d={p}
+					/>
 				</svg>
-			</FullSize>
+			</div>
 		</div>
 	);
 };
-
-export default VoiceVisualization;

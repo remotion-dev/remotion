@@ -29,10 +29,10 @@ const BaseExample: React.FC = () => {
 
 	const p = smoothenSvgPath({
 		points: waveform.map((x, i) => {
-			return [
-				(i / (waveform.length - 1)) * width,
-				(x - 0.5) * 300 + height / 2,
-			];
+			return {
+				x: (i / (waveform.length - 1)) * width,
+				y: (x - 0.5) * 300 + height / 2,
+			};
 		}),
 	});
 
@@ -74,10 +74,10 @@ const MovingExample: React.FC = () => {
 
 	const p = smoothenSvgPath({
 		points: waveform.map((x, i) => {
-			return [
-				(i / (waveform.length - 1)) * width,
-				(x - 0.5) * 300 + height / 2,
-			];
+			return {
+				x: (i / (waveform.length - 1)) * width,
+				y: (x - 0.5) * 300 + height / 2,
+			};
 		}),
 	});
 
@@ -119,10 +119,10 @@ const PosterizedExample: React.FC = () => {
 
 	const p = smoothenSvgPath({
 		points: waveform.map((x, i) => {
-			return [
-				(i / (waveform.length - 1)) * width,
-				(x - 0.5) * 300 + height / 2,
-			];
+			return {
+				x: (i / (waveform.length - 1)) * width,
+				y: (x - 0.5) * 300 + height / 2,
+			};
 		}),
 	});
 
