@@ -2430,6 +2430,15 @@ export const articles = [
 		slug: 'media-parser/fetch-reader',
 	},
 	{
+		id: 'fields',
+		title: 'Available Fields',
+		relativePath: 'docs/media-parser/fields.mdx',
+		compId: 'articles-docs-media-parser-fields',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/fields',
+	},
+	{
 		id: 'foreign-file-types',
 		title: 'Foreign file types',
 		relativePath: 'docs/media-parser/foreign-file-types.mdx',

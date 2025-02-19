@@ -10,6 +10,10 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<strong>Getting video metadata</strong>
 					<div>Simple examples of extracting video metadata</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/fields">
+					<strong>Available fields</strong>
+					<div>Information you can get using the media parser</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/fast-and-slow">
 					<strong>Fast and slow operations</strong>
 					<div>Efficently use parseMedia()</div>
@@ -29,6 +33,12 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 				<TOCItem link="/docs/media-parser/runtime-support">
 					<strong>Runtime support</strong>
 					<div>Where you can run Media Parser</div>
+				</TOCItem>
+				<TOCItem link="/docs/media-parser/foreign-file-types">
+					<strong>Foreign file types</strong>
+					<div>
+						Get information from the errors when passing unsupported file types
+					</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/webcodecs">
 					<strong>WebCodecs</strong>
