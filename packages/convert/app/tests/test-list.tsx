@@ -281,6 +281,25 @@ const remuxToughTimestamps = (): TestStructure => {
 	});
 };
 
+const tsWithSmallAudioOnEend = (): TestStructure => {
+	const src =
+		'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts';
+
+	return addTestWatcher({
+		name: '.ts with 16 byte audio sample at the end',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'mp4',
+				onVideoTrack: () => ({type: 'drop'}),
+				onAudioTrack: allowSafariAudioDrop,
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
@@ -296,4 +315,5 @@ export const testList: TestStructure[] = [
 	transportStream(),
 	remuxUnevenDim(),
 	remuxToughTimestamps(),
+	tsWithSmallAudioOnEend(),
 ];
