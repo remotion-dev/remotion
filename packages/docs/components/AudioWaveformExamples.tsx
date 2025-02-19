@@ -39,7 +39,7 @@ const BaseExample: React.FC = () => {
 		points: waveform.map((x, i) => {
 			return {
 				x: (i / (waveform.length - 1)) * width,
-				y: x * height + height / 2,
+				y: x * height * 2 + height / 2,
 			};
 		}),
 	});
@@ -85,7 +85,7 @@ const MovingExample: React.FC = () => {
 		points: waveform.map((x, i) => {
 			return {
 				x: (i / (waveform.length - 1)) * width,
-				y: x * height + height / 2,
+				y: x * height * 2 + height / 2,
 			};
 		}),
 	});
@@ -131,7 +131,7 @@ const PosterizedExample: React.FC = () => {
 		points: waveform.map((x, i) => {
 			return {
 				x: (i / (waveform.length - 1)) * width,
-				y: x * height + height / 2,
+				y: x * height * 2 + height / 2,
 			};
 		}),
 	});

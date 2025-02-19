@@ -24,7 +24,7 @@ export const VoiceVisualization: React.FC = () => {
 				numberOfSamples={10}
 				windowInSeconds={1}
 				posterization={3}
-				amplitude={3}
+				amplitude={4}
 			/>
 			<VoiceVis
 				padding={padding}
