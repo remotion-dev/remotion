@@ -120,7 +120,8 @@ test('parse m3u8', async () => {
 	expect(fps).toBe(null);
 	expect(images).toEqual([]);
 	expect(internalStats).toEqual({
-		finalCursorOffset: 2223,
+		// I assume this is because of the newlines on Windows vs Unix
+		finalCursorOffset: 2223 + (process.platform === 'win32' ? 12 : 0),
 		skippedBytes: 0,
 	});
 	expect(isHdr).toBe(false);
