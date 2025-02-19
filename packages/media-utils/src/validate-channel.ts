@@ -19,7 +19,7 @@ export const validateChannel = (channel: unknown, numberOfChannels: number) => {
 		throw new TypeError(
 			`"channel" must be ${
 				numberOfChannels - 1
-			} or lower. The audio has ${numberOfChannels} channels`
+			} or lower. The audio has ${numberOfChannels} channels`,
 		);
 	}
 };
