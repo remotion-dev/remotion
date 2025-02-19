@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {SampleOutputRange} from './get-wave-form-samples';
 import {getWaveformSamples} from './get-wave-form-samples';
 import type {AudioData} from './types';
@@ -25,11 +26,14 @@ const concatArrays = (arrays: Float32Array[]): Float32Array => {
 	return result;
 };
 
-type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
-
-function truthy<T>(value: T): value is Truthy<T> {
-	return Boolean(value);
-}
+export type GetWaveformPortion = {
+	audioData: AudioData;
+	startTimeInSeconds: number;
+	durationInSeconds: number;
+	numberOfSamples: number;
+	channel?: number;
+	outputRange?: SampleOutputRange;
+};
 
 /*
  * @description Takes bulky waveform data (for example fetched by getAudioData()) and returns a trimmed and simplified version of it, for simpler visualization
@@ -40,16 +44,9 @@ export const getWaveformPortion = ({
 	startTimeInSeconds,
 	durationInSeconds,
 	numberOfSamples,
-	channel,
+	channel = 0,
 	outputRange = 'zero-to-one',
-}: {
-	audioData: AudioData;
-	startTimeInSeconds: number;
-	durationInSeconds: number;
-	numberOfSamples: number;
-	channel: number;
-	outputRange?: SampleOutputRange;
-}): Bar[] => {
+}: GetWaveformPortion): Bar[] => {
 	validateChannel(channel, audioData.numberOfChannels);
 
 	const waveform = audioData.channelWaveforms[channel];
@@ -78,7 +75,7 @@ export const getWaveformPortion = ({
 		padStart,
 		waveform.slice(clampedStart, clampedEnd),
 		padEnd,
-	].filter(truthy);
+	].filter(NoReactInternals.truthy);
 	const audioBuffer = arrs.length === 1 ? arrs[0] : concatArrays(arrs);
 
 	return getWaveformSamples({

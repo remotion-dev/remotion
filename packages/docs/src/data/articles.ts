@@ -5337,6 +5337,15 @@ export const articles = [
 		slug: 'visual-editing',
 	},
 	{
+		id: 'visualize-audio-waveform',
+		title: 'visualizeAudioWaveform()',
+		relativePath: 'docs/visualize-audio-waveform.mdx',
+		compId: 'articles-docs-visualize-audio-waveform',
+		crumb: '@remotion/media-utils',
+		noAi: false,
+		slug: 'visualize-audio-waveform',
+	},
+	{
 		id: 'visualize-audio',
 		title: 'visualizeAudio()',
 		relativePath: 'docs/visualize-audio.mdx',

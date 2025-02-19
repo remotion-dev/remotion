@@ -1,28 +1,25 @@
 ---
+image: /generated/articles-docs-visualize-audio-waveform.png
 title: visualizeAudioWaveform()
 id: visualize-audio-waveform
+crumb: '@remotion/media-utils'
 ---
 
-import { AudioWaveFormExample } from "../components/AudioWaveformExamples.tsx";
+import {AudioWaveFormExample} from '../components/AudioWaveformExamples.tsx';
 
 _Part of the `@remotion/media-utils`_ package of helper functions.
 
 This function takes in `AudioData` (preferrably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio waveform that is playing at the current frame easy.
 
 ```tsx twoslash
-import {
-  createSmoothSvgPath,
-  useAudioData,
-  visualizeAudioWaveform,
-  AudioData,
-} from "@remotion/media-utils";
-import React from "react";
-import { AbsoluteFill, Audio, useCurrentFrame, useVideoConfig } from "remotion";
-import voice from "./voice-short.mp3";
+import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
+import React from 'react';
+import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
+import voice from './voice-short.mp3';
 
 const frame = useCurrentFrame();
 const audioData = useAudioData(voice) as AudioData;
-const { fps } = useVideoConfig();
+const {fps} = useVideoConfig();
 
 // ---cut---
 const waveform = visualizeAudioWaveform({
@@ -85,19 +82,15 @@ An array of values describing the amplitude of each frequency range. Each value 
 ### Basic example
 
 ```tsx twoslash
-import {
-  createSmoothSvgPath,
-  useAudioData,
-  visualizeAudioWaveform,
-} from "@remotion/media-utils";
-import React from "react";
-import { AbsoluteFill, Audio, useCurrentFrame, useVideoConfig } from "remotion";
-import voice from "./voice-short.mp3";
+import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform} from '@remotion/media-utils';
+import React from 'react';
+import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
+import voice from './voice-short.mp3';
 
 const BaseExample: React.FC = () => {
   const frame = useCurrentFrame();
   const audioDataVoice = useAudioData(voice);
-  const { width, height, fps } = useVideoConfig();
+  const {width, height, fps} = useVideoConfig();
 
   if (!audioDataVoice) {
     return null;
@@ -113,23 +106,15 @@ const BaseExample: React.FC = () => {
 
   const p = createSmoothSvgPath(
     waveform.map((x, i) => {
-      return [
-        (i / (waveform.length - 1)) * width,
-        (x - 0.5) * 300 + height / 2,
-      ];
-    })
+      return [(i / (waveform.length - 1)) * width, (x - 0.5) * 300 + height / 2];
+    }),
   );
 
   return (
-    <div style={{ flex: 1 }}>
+    <div style={{flex: 1}}>
       <Audio src={voice} />
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-        <svg
-          style={{ backgroundColor: " #0B84F3" }}
-          viewBox={`0 0 ${width} ${height}`}
-          width={width}
-          height={height}
-        >
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+        <svg style={{backgroundColor: ' #0B84F3'}} viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
           <path stroke="white" fill="none" strokeWidth={10} d={p as string} />
         </svg>
       </AbsoluteFill>
@@ -139,26 +124,21 @@ const BaseExample: React.FC = () => {
 ```
 
 <AudioWaveFormExample type="base" />
-<br/>
+<br />
 
 ### Sliding effect
 
 By increasing the `windowInSeconds` by tenfold, the audiogram starts moving to the right:
 
 ```tsx twoslash {6}
-import {
-  createSmoothSvgPath,
-  useAudioData,
-  visualizeAudioWaveform,
-  AudioData,
-} from "@remotion/media-utils";
-import React from "react";
-import { AbsoluteFill, Audio, useCurrentFrame, useVideoConfig } from "remotion";
-import voice from "./voice-short.mp3";
+import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
+import React from 'react';
+import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
+import voice from './voice-short.mp3';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(voice) as AudioData;
-const { fps } = useVideoConfig();
+const {fps} = useVideoConfig();
 
 // ---cut---
 const waveform = visualizeAudioWaveform({
@@ -171,26 +151,21 @@ const waveform = visualizeAudioWaveform({
 ```
 
 <AudioWaveFormExample type="moving" />
-<br/>
+<br />
 
 ### Posterizing
 
 By only calculating the waveform every third frame, we make the waveform calmer and generate a cool effect:
 
 ```tsx twoslash {3}
-import {
-  createSmoothSvgPath,
-  useAudioData,
-  visualizeAudioWaveform,
-  AudioData,
-} from "@remotion/media-utils";
-import React from "react";
-import { AbsoluteFill, Audio, useCurrentFrame, useVideoConfig } from "remotion";
-import voice from "./voice-short.mp3";
+import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
+import React from 'react';
+import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig} from 'remotion';
+import voice from './voice-short.mp3';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(voice) as AudioData;
-const { fps } = useVideoConfig();
+const {fps} = useVideoConfig();
 
 // ---cut---
 const waveform = visualizeAudioWaveform({

@@ -1,9 +1,10 @@
-import {Bar, getWaveformPortion} from './get-waveform-portion';
-import {AudioData} from './types';
+import type {Bar} from './get-waveform-portion';
+import {getWaveformPortion} from './get-waveform-portion';
+import type {AudioData} from './types';
 
 const cache: {[key: string]: Bar[]} = {};
 
-type FnParameters = {
+export type VisualizeAudioWaveformOptions = {
 	audioData: AudioData;
 	frame: number;
 	fps: number;
@@ -19,13 +20,13 @@ const visualizeAudioWaveformFrame = ({
 	numberOfSamples,
 	windowInSeconds,
 	channel,
-}: FnParameters) => {
+}: VisualizeAudioWaveformOptions) => {
 	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(
 			windowInSeconds +
 				's audiodata does not have ' +
 				numberOfSamples +
-				' bars. Increase windowInSeconds or decrease numberOfSamples'
+				' bars. Increase windowInSeconds or decrease numberOfSamples',
 		);
 	}
 
@@ -49,7 +50,9 @@ const visualizeAudioWaveformFrame = ({
 	});
 };
 
-export const visualizeAudioWaveform = ({...parameters}: FnParameters) => {
+export const visualizeAudioWaveform = ({
+	...parameters
+}: VisualizeAudioWaveformOptions) => {
 	const data = visualizeAudioWaveformFrame(parameters);
 	return data.map((value) => value.amplitude);
 };

@@ -11,7 +11,7 @@ const controlPoint = (
 	current: [number, number],
 	previous: [number, number],
 	next: [number, number],
-	reverse: boolean
+	reverse: boolean,
 ): [number, number] => {
 	const p = previous || current;
 	const n = next || current;
@@ -29,7 +29,7 @@ const controlPoint = (
 	return [x, y];
 };
 
-export const smoothenSvgPath = (points: [number, number][]) => {
+export const createSmoothSvgPath = ({points}: {points: [number, number][]}) => {
 	return points.reduce(
 		(acc: string, current: [number, number], i: number, a) => {
 			if (i === 0) {
@@ -47,6 +47,6 @@ export const smoothenSvgPath = (points: [number, number][]) => {
 
 			return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x},${y}`;
 		},
-		''
+		'',
 	);
 };
