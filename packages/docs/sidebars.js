@@ -198,6 +198,8 @@ module.exports = {
 				'use-audio-data',
 				'use-windowed-audio-data',
 				'visualize-audio',
+				'media-utils/visualize-audio-waveform',
+				'media-utils/create-smooth-svg-path',
 				'get-image-dimensions',
 			],
 		},

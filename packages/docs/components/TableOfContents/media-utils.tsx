@@ -41,7 +41,15 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/visualize-audio">
 					<strong>visualizeAudio()</strong>
-					<div>Processes a waveform for visualization</div>
+					<div>Process a music waveform for visualization</div>
+				</TOCItem>
+				<TOCItem link="/docs/media-utils/visualize-audio-waveform">
+					<strong>visualizeAudioWaveform()</strong>
+					<div>Process a voice waveform for visualization</div>
+				</TOCItem>
+				<TOCItem link="/docs/media-utils/create-smooth-svg-path">
+					<strong>createSmoothSvgPath()</strong>
+					<div>Turn waveform points into a smooth SVG path</div>
 				</TOCItem>
 			</Grid>
 		</div>

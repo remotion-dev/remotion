@@ -121,6 +121,7 @@ import {AnimatedImages} from './AnimatedImage/Avif';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
+import {VoiceVisualization} from './voice-visualization';
 
 class Vector2 {
 	readonly x: number;
@@ -1534,6 +1535,16 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<SmoothTextTransition />
+			<Folder name="voice-visualization">
+				<Composition
+					id="voice-visualization"
+					component={VoiceVisualization}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={900}
+				/>
+			</Folder>
 		</>
 	);
 };
