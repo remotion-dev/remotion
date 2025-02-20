@@ -3,7 +3,7 @@ import {expect, test} from 'bun:test';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
 
-test('multiple audio streams', async () => {
+test('separate video and  audio streams', async () => {
 	const audio = await parseMedia({
 		src: exampleVideos.separatedAudio,
 		fields: {
@@ -41,7 +41,7 @@ test('multiple audio streams', async () => {
 	});
 });
 
-test('audio', async () => {
+test('multiple audio streams', async () => {
 	const {m3uStreams} = await parseMedia({
 		src: exampleVideos.multipleAudio,
 		acknowledgeRemotionLicense: true,

@@ -67,7 +67,10 @@ export const getM3uStreams = (
 						groupId: audioTrack.groupId,
 						language: audioTrack.language,
 						name: audioTrack.name,
-						uri: audioTrack.uri,
+						uri:
+							originalSrc && originalSrc.startsWith('http')
+								? new URL(audioTrack.uri, originalSrc).href
+								: audioTrack.uri,
 					});
 				}
 			}
