@@ -11,6 +11,10 @@ export type M3uIndependentSegments = {
 	type: 'm3u-independent-segments';
 };
 
+export type M3uMedia = {
+	type: 'm3u-media';
+};
+
 export type M3uTargetDuration = {
 	type: 'm3u-target-duration';
 	duration: number;
@@ -44,6 +48,18 @@ export type M3uStreamInfo = {
 		width: number;
 		height: number;
 	} | null;
+	audio: string | null;
+};
+
+export type M3uMediaInfo = {
+	type: 'm3u-media-info';
+	groupId: string;
+	language: string | null;
+	name: string | null;
+	autoselect: boolean;
+	default: boolean;
+	channels: number | null;
+	uri: string;
 };
 
 export type M3uTextValue = {
@@ -60,6 +76,8 @@ export type M3uBox =
 	| M3uTargetDuration
 	| M3uPlaylistType
 	| M3uExtInf
+	| M3uMedia
+	| M3uMediaInfo
 	| M3uEndList
 	| M3uTextValue;
 

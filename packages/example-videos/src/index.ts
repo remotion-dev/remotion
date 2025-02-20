@@ -80,6 +80,13 @@ export const exampleVideos = {
 	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
 	m3u8: path.join(__dirname, '..', 'videos', 'video.m3u8'),
 	syncsafe: path.join(__dirname, '..', 'videos', 'syncsafe-id3.mp3'),
+	separatedAudio: path.join(__dirname, '..', 'videos', 'separated-audio.m3u8'),
+	multipleAudio: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'multiple-audio-streams.m3u8',
+	),
 };
 
 export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';

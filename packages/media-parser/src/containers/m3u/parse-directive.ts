@@ -1,3 +1,4 @@
+import {parseM3uMediaDirective} from './parse-m3u-media-directive';
 import {parseStreamInf} from './parse-stream-inf';
 import type {M3uBox} from './types';
 
@@ -21,6 +22,16 @@ export const parseM3uDirective = (str: string): M3uBox => {
 		return {
 			type: 'm3u-independent-segments',
 		};
+	}
+
+	if (directive === '#EXT-X-MEDIA') {
+		if (!value) {
+			throw new Error('EXT-X-MEDIA directive must have a value');
+		}
+
+		const parsed = parseM3uMediaDirective(value);
+
+		return parsed;
 	}
 
 	if (directive === '#EXT-X-TARGETDURATION') {
