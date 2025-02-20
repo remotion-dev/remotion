@@ -718,7 +718,7 @@ test(
 			}) / 30;
 
 		const compositor = startLongRunningCompositor({
-			maximumFrameCacheItemsInBytes: 500,
+			maximumFrameCacheItemsInBytes: 500_000_000,
 			logLevel: 'info',
 			indent: false,
 			binariesDirectory: null,
