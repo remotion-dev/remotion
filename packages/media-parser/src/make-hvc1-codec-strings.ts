@@ -13,8 +13,8 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 	//	unsigned int(5) general_profile_idc;
 
 	const generalProfileSpace = generalProfileSpaceTierFlagAndIdc >> 6;
-	const generalTierFlag = generalProfileSpaceTierFlagAndIdc >> 5;
-	const generalProfileIdc = generalProfileSpaceTierFlagAndIdc >> 0;
+	const generalTierFlag = (generalProfileSpaceTierFlagAndIdc & 0x20) >> 5;
+	const generalProfileIdc = generalProfileSpaceTierFlagAndIdc & 0x1f;
 
 	// general_constraint_indicator_flags(48)
 	const generalConstraintIndicator = data.getSlice(6);
@@ -51,5 +51,5 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 		}
 	}
 
-	return `${profileSpaceChar}${generalProfileIdc.toString(16)}.${profileId.toString(16)}.${generalTierChar}${generalLevelIdc}.${generalConstraintString}`;
+	return `${profileSpaceChar}${generalProfileIdc.toString(16)}.${profileId.toString(16)}.${generalTierChar}${generalLevelIdc}${generalConstraintString ? '.' : ''}${generalConstraintString}`;
 };
