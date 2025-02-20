@@ -517,9 +517,16 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
-				'Quitting Function forcefully now to force not keeping the Function warm.',
+				'Waiting 2 seconds to allow for response to be sent',
 			);
-			process.exit(0);
+
+			setTimeout(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Quitting Function forcefully now to force not keeping the Function warm.',
+				);
+				process.exit(0);
+			}, 2000);
 		}
 
 		if (ENABLE_SLOW_LEAK_DETECTION) {
