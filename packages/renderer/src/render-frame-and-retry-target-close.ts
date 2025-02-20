@@ -177,6 +177,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
 			);
 			const actualRetriesLeft = getRetriesLeftFromError(err as Error);
+			nextFrameToRender.returnFrame(frame);
 
 			return renderFrameAndRetryTargetClose({
 				retriesLeft: actualRetriesLeft,
