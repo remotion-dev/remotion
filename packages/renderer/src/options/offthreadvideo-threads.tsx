@@ -50,4 +50,4 @@ export const offthreadVideoThreadsOption = {
 	},
 } satisfies AnyRemotionOption<number | null>;
 
-export const DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS = 3;
+export const DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS = 2;
