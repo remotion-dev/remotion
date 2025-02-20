@@ -14,15 +14,17 @@ export const getLengthAndReader = async (
 	if (endsWithM3u8) {
 		const text = await res.text();
 
+		const encoded = new TextEncoder().encode(text);
+
 		const stream = new ReadableStream({
 			start(controller) {
-				controller.enqueue(new TextEncoder().encode(text));
+				controller.enqueue(encoded);
 				controller.close();
 			},
 		});
 
 		return {
-			contentLength: text.length,
+			contentLength: encoded.byteLength,
 			reader: {
 				reader: stream.getReader(),
 				abort() {
