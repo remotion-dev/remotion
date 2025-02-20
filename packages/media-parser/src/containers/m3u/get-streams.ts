@@ -10,7 +10,7 @@ export type M3uStreamAudioTrack = {
 	autoselect: boolean;
 	default: boolean;
 	channels: number | null;
-	uri: string;
+	url: string;
 };
 
 export type M3uStream = {
@@ -67,7 +67,7 @@ export const getM3uStreams = (
 						groupId: audioTrack.groupId,
 						language: audioTrack.language,
 						name: audioTrack.name,
-						uri:
+						url:
 							originalSrc && originalSrc.startsWith('http')
 								? new URL(audioTrack.uri, originalSrc).href
 								: audioTrack.uri,
