@@ -25,6 +25,7 @@ pub struct LongRunningProcess {
     receive_video_stats_in_main_thread_handles: Vec<mpsc::Receiver<OpenVideoStats>>,
     receive_close_video_in_main_thread_handles: Vec<mpsc::Receiver<()>>,
     finish_thread_handles: Mutex<Vec<JoinHandle<()>>>,
+    max_thread: usize,
 }
 
 impl LongRunningProcess {
@@ -42,6 +43,7 @@ impl LongRunningProcess {
             receive_video_stats_in_main_thread_handles,
             receive_close_video_in_main_thread_handles,
             finish_thread_handles,
+            max_thread: threads,
         };
         map
     }
@@ -142,7 +144,7 @@ impl LongRunningProcess {
         let input_to_send = parse_cli(&input)?;
         self.send_to_thread_handles[thread_to_use.thread_id].send(CliInputAndMaxCacheSize {
             cli_input: input_to_send,
-            max_cache_size: self.maximum_frame_cache_size_in_bytes,
+            max_cache_size: self.maximum_frame_cache_size_in_bytes / self.max_thread as u64,
         })?;
         Ok(())
     }
@@ -214,7 +216,7 @@ impl LongRunningProcess {
                     }),
                     nonce: "".to_string(),
                 },
-                max_cache_size: self.maximum_frame_cache_size_in_bytes,
+                max_cache_size: maximum_frame_cache_size_in_bytes / threads as u64,
             })?;
         }
 
