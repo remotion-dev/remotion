@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.266",
+	"version": "4.0.267",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": "bun test src/rendering --run",
