@@ -8,12 +8,11 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"make": "tsc -d && bun build.ts",
-		"buildContainer": "bun src/admin/bundle-renderLogic.ts",
-		"tarInstaller": "bun src/admin/bundle-installer.ts",
+		"make": "tsc -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
+		"makeruntime": "bun build.ts",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"publish": "cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
+		"publish": "bun build.ts cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
 	},
 	"dependencies": {
 		"@google-cloud/artifact-registry": "^3.4.0",

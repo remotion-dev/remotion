@@ -5,6 +5,11 @@ import {
 	LambdaClientInternals,
 	renderStillOnLambda,
 } from '@remotion/lambda-client';
+import {
+	BINARY_NAME,
+	DEFAULT_MAX_RETRIES,
+	DEFAULT_OUTPUT_PRIVACY,
+} from '@remotion/lambda-client/constants';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -13,11 +18,6 @@ import {validatePrivacy} from '@remotion/serverless';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
-import {
-	BINARY_NAME,
-	DEFAULT_MAX_RETRIES,
-	DEFAULT_OUTPUT_PRIVACY,
-} from '../../defaults';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';

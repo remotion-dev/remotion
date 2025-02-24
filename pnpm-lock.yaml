@@ -1272,6 +1272,15 @@ importers:
       '@remotion/cloudrun':
         specifier: workspace:*
         version: link:../cloudrun
+      '@remotion/compositor-darwin-arm64':
+        specifier: workspace:*
+        version: link:../compositor-darwin-arm64
+      '@remotion/compositor-linux-x64-gnu':
+        specifier: workspace:*
+        version: link:../compositor-linux-x64-gnu
+      '@remotion/compositor-win32-x64-msvc':
+        specifier: workspace:*
+        version: link:../compositor-win32-x64-msvc
       '@remotion/example-videos':
         specifier: workspace:*
         version: link:../example-videos

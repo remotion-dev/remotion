@@ -4,6 +4,7 @@ import {
 	speculateFunctionName,
 	type AwsRegion,
 } from '@remotion/lambda-client';
+import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
@@ -12,7 +13,6 @@ import type {
 	ProviderSpecifics,
 } from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {validateRuntimePreference} from '../shared/get-layers';

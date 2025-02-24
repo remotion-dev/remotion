@@ -12,17 +12,17 @@ import {
 	getRenderProgress,
 	LambdaClientInternals,
 } from '@remotion/lambda-client';
+import {
+	BINARY_NAME,
+	DEFAULT_MAX_RETRIES,
+	DEFAULT_OUTPUT_PRIVACY,
+} from '@remotion/lambda-client/constants';
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import {
 	validateFramesPerFunction,
 	validatePrivacy,
 	type ServerlessCodec,
 } from '@remotion/serverless';
-import {
-	BINARY_NAME,
-	DEFAULT_MAX_RETRIES,
-	DEFAULT_OUTPUT_PRIVACY,
-} from '../../../defaults';
 import {sleep} from '../../../shared/sleep';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';

@@ -4,10 +4,10 @@ import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 
 import {AwsProvider} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {internalGetOrCreateBucket, type Privacy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
-import {BINARY_NAME} from '../../../defaults';
 import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
 import {validateSiteName} from '../../../shared/validate-site-name';
