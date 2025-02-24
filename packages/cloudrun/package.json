@@ -8,8 +8,8 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"make": "tsc -d",
-		"makeruntime": "bun build.ts && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
+		"make": "tsc -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
+		"makeruntime": "bun build.ts",
 		"lint": "eslint src",
 		"test": "bun test src",
 		"publish": "bun build.ts cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
