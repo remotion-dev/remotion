@@ -9,7 +9,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"make": "tsc -d",
-		"makeruntime": "bun build.ts",
+		"makeruntime": "bun build.ts && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
 		"lint": "eslint src",
 		"test": "bun test src",
 		"publish": "bun build.ts cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
