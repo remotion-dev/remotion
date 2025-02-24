@@ -5,7 +5,7 @@ import {nodeReader} from '../readers/from-node';
 
 // bun crash
 if (process.platform !== 'win32') {
-	test.only('Should stream ISO base media', async () => {
+	test('Should stream ISO base media', async () => {
 		let videoTracks = 0;
 		let audioTracks = 0;
 		let videoSamples = 0;
