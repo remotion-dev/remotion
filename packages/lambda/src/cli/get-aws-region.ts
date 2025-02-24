@@ -1,5 +1,5 @@
 import {AwsRegion, LambdaClientInternals} from '@remotion/lambda-client';
-import {DEFAULT_REGION} from '../defaults';
+import {DEFAULT_REGION} from '@remotion/lambda-client/constants';
 import {parsedLambdaCli} from './args';
 
 export const getAwsRegion = (): AwsRegion => {

@@ -1,12 +1,12 @@
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
-} from '../../defaults';
+} from '@remotion/lambda-client/constants';
+import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {LambdaInternals} from '../../internals';
 import {mockFullClientSpecifics} from '../mock-implementation';
 import {mockImplementation} from '../mocks/mock-implementation';

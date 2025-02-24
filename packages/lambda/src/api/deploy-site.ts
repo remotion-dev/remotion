@@ -1,6 +1,10 @@
 import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {AwsRegion} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	getSitesKey,
+	REMOTION_BUCKET_PREFIX,
+} from '@remotion/lambda-client/constants';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
@@ -11,7 +15,6 @@ import type {
 } from '@remotion/serverless';
 import {validateBucketName, validatePrivacy} from '@remotion/serverless';
 import fs from 'node:fs';
-import {getSitesKey, REMOTION_BUCKET_PREFIX} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {getS3DiffOperations} from '../shared/get-s3-operations';
 import {validateSiteName} from '../shared/validate-site-name';

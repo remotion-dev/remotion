@@ -62,7 +62,8 @@ const makeAndReturn = (dir: string, name: string) => {
 	return p;
 };
 
-const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+const dontInlineThis = 'package.json';
+const packageJsonPath = require.resolve('../../' + dontInlineThis);
 
 const packageJson = fs.existsSync(packageJsonPath)
 	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
