@@ -54,6 +54,7 @@ fs.cpSync(
 	),
 	`${outdir}/mappings.wasm`,
 );
+
 await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
 fs.rmSync(outdir, {recursive: true});
