@@ -19,6 +19,8 @@
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",
 		"@remotion/compositor-darwin-arm64": "workspace:*",
+		"@remotion/compositor-win32-x64-msvc": "workspace:*",
+		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
