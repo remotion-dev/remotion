@@ -79,7 +79,7 @@ if (process.platform !== 'win32') {
 		});
 		expect(internalStats).toEqual({
 			finalCursorOffset: 39062928,
-			skippedBytes: -12030,
+			skippedBytes: 2070,
 		});
 		expect(slowKeyframes).toEqual([
 			{
