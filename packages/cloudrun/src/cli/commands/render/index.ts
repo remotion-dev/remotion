@@ -340,6 +340,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 					webhookProgressInterval: null,
 				}
 			: null,
+		offthreadVideoThreads,
 	});
 
 	if (res.type === 'crash') {
