@@ -157,9 +157,13 @@ export const hasAllInfo = ({
 		return false;
 	}
 
-	const canSkipSamples =
-		maySkipVideoData({state}) ||
-		state.callbacks.canSkipTracksState.canSkipTracks();
+	if (maySkipVideoData({state})) {
+		return true;
+	}
 
-	return canSkipSamples;
+	if (state.callbacks.canSkipTracksState.canSkipTracks()) {
+		return true;
+	}
+
+	return false;
 };

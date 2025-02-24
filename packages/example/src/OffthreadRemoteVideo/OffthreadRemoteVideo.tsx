@@ -9,7 +9,7 @@ import {
 } from 'remotion';
 
 const fps = 30;
-const src = staticFile('bigbuckbunny.mp4');
+const src = staticFile('broken.webm');
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
