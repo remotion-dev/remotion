@@ -33,11 +33,15 @@ export function parseContentRange(input: string): ParsedContentRange | null {
 	return range;
 }
 
-const validateContentRangeAndDetectIfSupported = (
-	actualRange: number | [number, number],
-	parsedContentRange: ParsedContentRange | null,
-	statusCode: number,
-): {supportsContentRange: boolean} => {
+const validateContentRangeAndDetectIfSupported = ({
+	actualRange,
+	parsedContentRange,
+	statusCode,
+}: {
+	actualRange: number | [number, number];
+	parsedContentRange: ParsedContentRange | null;
+	statusCode: number;
+}): {supportsContentRange: boolean} => {
 	if (statusCode === 206) {
 		return {supportsContentRange: true};
 	}
@@ -102,14 +106,18 @@ export const fetchReader: ReaderInterface = {
 
 		const actualRange = range === null ? 0 : range;
 
-		const endsWithM3u8 = (
-			typeof resolvedUrl === 'string' ? resolvedUrl : resolvedUrl.pathname
-		).endsWith('.m3u8');
+		const asString =
+			typeof resolvedUrl === 'string' ? resolvedUrl : resolvedUrl.pathname;
+
+		const requestWithoutRange = asString.endsWith('.m3u8');
+
+		const canLiveWithoutContentLength =
+			asString.endsWith('.m3u8') || asString.endsWith('.ts');
 
 		const headers: {
 			Range?: string;
 		} =
-			actualRange === 0 && endsWithM3u8
+			actualRange === 0 && requestWithoutRange
 				? {}
 				: typeof actualRange === 'number'
 					? {
@@ -130,11 +138,11 @@ export const fetchReader: ReaderInterface = {
 			? parseContentRange(contentRange)
 			: null;
 
-		const {supportsContentRange} = validateContentRangeAndDetectIfSupported(
+		const {supportsContentRange} = validateContentRangeAndDetectIfSupported({
 			actualRange,
 			parsedContentRange,
-			res.status,
-		);
+			statusCode: res.status,
+		});
 
 		controller._internals.signal.addEventListener(
 			'abort',
@@ -158,9 +166,12 @@ export const fetchReader: ReaderInterface = {
 		const fallbackName = src.split('/').pop() as string;
 
 		const {contentLength, needsContentRange, reader} = await getLengthAndReader(
-			endsWithM3u8,
-			res,
-			ownController,
+			{
+				canLiveWithoutContentLength,
+				res,
+				ownController,
+				requestedWithoutRange: requestWithoutRange,
+			},
 		);
 
 		if (controller) {
