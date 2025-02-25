@@ -69,6 +69,10 @@ Must be a power of two, such as `32`, `64`, `128`, etc. This parameter controls 
 Time in seconds (can be float) which represents the duration for which you want to see the audio waveform.  
 Example: Your video has an `fps` of 30, and you pass 15 as the `frame` on `visualizeAudioWaveform` and 0.25 as `windowInSeconds` then output will have audio waveform data from (15/30) - .125 = 0.375 sec to (15/30) +0.125 = 0.625 sec.
 
+### `dataOffsetInSeconds`<AvailableFrom v="4.0.268" />
+
+The amount of seconds the audio is offset, pass this parameter if you are using [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
+
 ## Return value
 
 `number[]`

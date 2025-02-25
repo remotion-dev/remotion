@@ -11,6 +11,7 @@ export type VisualizeAudioWaveformOptions = {
 	windowInSeconds: number;
 	numberOfSamples: number;
 	channel?: number;
+	dataOffsetInSeconds?: number;
 };
 
 const visualizeAudioWaveformFrame = ({
@@ -20,6 +21,7 @@ const visualizeAudioWaveformFrame = ({
 	numberOfSamples,
 	windowInSeconds,
 	channel,
+	dataOffsetInSeconds,
 }: VisualizeAudioWaveformOptions) => {
 	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(
@@ -31,7 +33,12 @@ const visualizeAudioWaveformFrame = ({
 	}
 
 	const cacheKey =
-		audioData.resultId + frame + fps + numberOfSamples + 'waveform';
+		audioData.resultId +
+		frame +
+		fps +
+		numberOfSamples +
+		'waveform' +
+		dataOffsetInSeconds;
 	if (cache[cacheKey]) {
 		return cache[cacheKey];
 	}
@@ -47,12 +54,13 @@ const visualizeAudioWaveformFrame = ({
 		numberOfSamples,
 		outputRange: 'minus-one-to-one',
 		channel,
+		dataOffsetInSeconds,
 	});
 };
 
-export const visualizeAudioWaveform = ({
-	...parameters
-}: VisualizeAudioWaveformOptions) => {
+export const visualizeAudioWaveform = (
+	parameters: VisualizeAudioWaveformOptions,
+) => {
 	const data = visualizeAudioWaveformFrame(parameters);
 	return data.map((value) => value.amplitude);
 };
