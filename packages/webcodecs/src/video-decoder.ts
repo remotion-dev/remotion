@@ -124,9 +124,12 @@ export const createVideoDecoder = ({
 			minimumProgress: sample.timestamp - 10_000_000,
 			controller,
 		});
-		if (sample.type === 'key') {
-			await videoDecoder.flush();
-		}
+
+		// Don't flush here.
+		// We manually keep track of the memory with the IO synchornizer.
+
+		// Example of flushing breaking things:
+		// IMG_2310.MOV has B-frames, and if we flush on a keyframe, we discard some frames that are yet to come.
 
 		videoDecoder.decode(new EncodedVideoChunk(sample));
 
