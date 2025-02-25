@@ -23,7 +23,8 @@ export const getInt16AsFloat = (bytes: Uint8Array, offset: number) => {
 
 	const val1 = bytes[offset + 1];
 	const val2 = bytes[offset];
-	return ((val1 << 8) | val2) / 32768;
+	const int16 = (val1 << 8) | val2;
+	return ((int16 << 16) >> 16) / 32768;
 };
 
 export const getInt8AsFloat = (bytes: Uint8Array, offset: number) => {
@@ -33,7 +34,7 @@ export const getInt8AsFloat = (bytes: Uint8Array, offset: number) => {
 		);
 	}
 
-	return (bytes[offset] - 128) / 128;
+	return bytes[offset] / 128;
 };
 
 export type WaveProbe = {
