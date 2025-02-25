@@ -2,6 +2,7 @@ import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
+import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
@@ -60,17 +61,21 @@ export const createVideoDecoder = ({
 				controller._internals.signal.removeEventListener('abort', cleanup);
 				cleanup();
 			});
+
+		return outputQueue;
 	};
 
-	const onVideoFrame = (frame: VideoFrame) => {
-		ioSynchronizer.onOutput(frame.timestamp);
-
-		addToQueue(frame);
-	};
+	const frameSorter = videoFrameSorter({
+		controller,
+		onRelease: async (frame) => {
+			await addToQueue(frame);
+		},
+	});
 
 	const videoDecoder = new VideoDecoder({
 		output(frame) {
-			onVideoFrame(frame);
+			ioSynchronizer.onOutput(frame.timestamp);
+			frameSorter.inputFrame(frame);
 		},
 		error(error) {
 			onError(error);
@@ -115,7 +120,7 @@ export const createVideoDecoder = ({
 
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
-			unprocessed: 2,
+			unprocessed: 10,
 			minimumProgress: sample.timestamp - 10_000_000,
 			controller,
 		});
@@ -138,6 +143,8 @@ export const createVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
+			await frameSorter.flush();
+			Log.verbose(logLevel, 'Frame sorter flushed');
 			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;
