@@ -40,6 +40,7 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	height?: number;
 	props?: T;
 	defaultCodec?: Codec;
+	defaultOutName?: string;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =

@@ -35,5 +35,8 @@
 	"rust-analyzer.linkedProjects": ["packages/compositor/Cargo.toml"],
 	"search.exclude": {
 		"packages/**/dist": true
+	},
+	"files.associations": {
+		"*.mdx": "markdown"
 	}
 }

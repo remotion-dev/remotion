@@ -97,6 +97,7 @@ export const makePage = async ({
 			height: number,
 			width: number,
 			defaultCodec: Codec,
+			defaultOutName: string | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -107,6 +108,7 @@ export const makePage = async ({
 				compositionHeight: height,
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
+				compositionDefaultOutName: defaultOutName,
 			});
 		},
 		args: [
@@ -117,6 +119,7 @@ export const makePage = async ({
 			composition.height,
 			composition.width,
 			composition.defaultCodec,
+			composition.defaultOutName,
 		],
 		frame: null,
 		page,

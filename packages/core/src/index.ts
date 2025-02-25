@@ -89,6 +89,7 @@ export type BundleState =
 			compositionWidth: number;
 			compositionFps: number;
 			compositionDefaultCodec: Codec;
+			compositionDefaultOutName: string | null;
 	  };
 
 checkMultipleRemotionVersions();
