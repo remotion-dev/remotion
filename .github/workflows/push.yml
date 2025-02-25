@@ -142,7 +142,7 @@ jobs:
         with:
           bun-version: 1.2.3
       - name: Install
-        run: bun i
+        run: bun i --verbose
       - name: Build & Test
         run: |
           bun run ci
