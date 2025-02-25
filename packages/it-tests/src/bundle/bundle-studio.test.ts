@@ -13,6 +13,7 @@ test('Bundle studio', async () => {
 		logLevel: 'info',
 		indent: false,
 		pageIndex: 0,
+		onBrowserLog: null,
 	});
 	const folder = path.join(process.cwd(), '..', 'example', 'build');
 	const indexHtmlExists = existsSync(path.join(folder, 'index.html'));
