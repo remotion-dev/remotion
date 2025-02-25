@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {BrowserLog} from '../browser-log';
 import type {LogLevel} from '../log-level';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
@@ -185,13 +186,21 @@ export class HeadlessBrowser extends EventEmitter {
 		logLevel,
 		indent,
 		pageIndex,
+		onBrowserLog,
 	}: {
 		context: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
 	}): Promise<Page> {
-		return this.#defaultContext.newPage({context, logLevel, indent, pageIndex});
+		return this.#defaultContext.newPage({
+			context,
+			logLevel,
+			indent,
+			pageIndex,
+			onBrowserLog,
+		});
 	}
 
 	async _createPageInContext({
@@ -199,11 +208,13 @@ export class HeadlessBrowser extends EventEmitter {
 		logLevel,
 		indent,
 		pageIndex,
+		onBrowserLog,
 	}: {
 		context: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
 	}): Promise<Page> {
 		const {
 			value: {targetId},
@@ -226,6 +237,7 @@ export class HeadlessBrowser extends EventEmitter {
 			logLevel,
 			indent,
 			pageIndex,
+			onBrowserLog,
 		});
 		if (!page) {
 			throw new Error(`Failed to create a page for context`);
@@ -340,17 +352,20 @@ export class BrowserContext extends EventEmitter {
 		logLevel,
 		indent,
 		pageIndex,
+		onBrowserLog,
 	}: {
 		context: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
 	}): Promise<Page> {
 		return this.#browser._createPageInContext({
 			context,
 			logLevel,
 			indent,
 			pageIndex,
+			onBrowserLog,
 		});
 	}
 

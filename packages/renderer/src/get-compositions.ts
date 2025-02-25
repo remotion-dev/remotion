@@ -47,7 +47,6 @@ export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
-	onBrowserLog: null | ((log: BrowserLog) => void);
 	serveUrl: string;
 	page: Page;
 	proxyPort: number;
@@ -57,7 +56,6 @@ type InnerGetCompositionsParams = {
 const innerGetCompositions = async ({
 	envVariables,
 	serializedInputPropsWithCustomSchema,
-	onBrowserLog,
 	page,
 	proxyPort,
 	serveUrl,
@@ -65,16 +63,6 @@ const innerGetCompositions = async ({
 	indent,
 	logLevel,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
-	if (onBrowserLog) {
-		page.on('console', (log) => {
-			onBrowserLog({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		});
-	}
-
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
@@ -186,6 +174,7 @@ const internalGetCompositionsRaw = async ({
 		onBrowserDownload,
 		chromeMode,
 		pageIndex: 0,
+		onBrowserLog,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -230,7 +219,6 @@ const internalGetCompositionsRaw = async ({
 				return innerGetCompositions({
 					envVariables,
 					serializedInputPropsWithCustomSchema,
-					onBrowserLog,
 					page,
 					proxyPort: offthreadPort,
 					serveUrl,

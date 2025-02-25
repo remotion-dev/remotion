@@ -7,7 +7,6 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
@@ -214,6 +213,7 @@ const innerRenderStill = async ({
 		logLevel,
 		indent,
 		pageIndex: 0,
+		onBrowserLog,
 	});
 	await page.setViewport({
 		width: composition.width,
@@ -232,17 +232,8 @@ const innerRenderStill = async ({
 		frame: null,
 	});
 
-	const logCallback = (log: ConsoleMessage) => {
-		onBrowserLog?.({
-			stackTrace: log.stackTrace(),
-			text: log.text,
-			type: log.type,
-		});
-	};
-
 	const cleanup = async () => {
 		cleanUpJSException();
-		page.off('console', logCallback);
 
 		if (puppeteerInstance) {
 			await page.close();
@@ -256,10 +247,6 @@ const innerRenderStill = async ({
 	cancelSignal?.(() => {
 		cleanup();
 	});
-
-	if (onBrowserLog) {
-		page.on('console', logCallback);
-	}
 
 	await setPropsAndEnv({
 		serializedInputPropsWithCustomSchema,
