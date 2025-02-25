@@ -63,7 +63,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	if (contentLength === null) {
 		throw new Error(
-			'Cannot read media without a content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
+			`Cannot read media ${src} without a content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.`,
 		);
 	}
 
