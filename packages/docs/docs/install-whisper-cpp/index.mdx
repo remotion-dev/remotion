@@ -33,6 +33,10 @@ await downloadWhisperModel({
   folder: to,
 });
 
+// Convert the audio to a 16KHz wav file first if needed:
+// import {execSync} from 'child_process';
+// execSync('ffmpeg -i /path/to/audio.mp4 -ar 16000 /path/to/audio.wav -y');
+
 const {transcription} = await transcribe({
   model: 'medium.en',
   whisperPath: to,
