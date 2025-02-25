@@ -1,7 +1,6 @@
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
 import type {Page} from './browser/BrowserPage';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {VideoImageFormat} from './image-format';
@@ -36,7 +35,7 @@ export const makePage = async ({
 	logLevel: LogLevel;
 	indent: boolean;
 	pagesArray: Page[];
-	onBrowserLog: ((log: BrowserLog) => void) | undefined | null;
+	onBrowserLog: ((log: BrowserLog) => void) | null;
 	scale: number;
 	timeoutInMilliseconds: number;
 	composition: Omit<VideoConfig, 'defaultProps' | 'props'>;
@@ -51,25 +50,13 @@ export const makePage = async ({
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
-		.newPage({context, logLevel, indent, pageIndex});
+		.newPage({context, logLevel, indent, pageIndex, onBrowserLog});
 	pagesArray.push(page);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
 		deviceScaleFactor: scale,
 	});
-
-	const logCallback = (log: ConsoleMessage) => {
-		onBrowserLog?.({
-			stackTrace: log.stackTrace(),
-			text: log.text,
-			type: log.type,
-		});
-	};
-
-	if (onBrowserLog) {
-		page.on('console', logCallback);
-	}
 
 	await setPropsAndEnv({
 		serializedInputPropsWithCustomSchema,
@@ -122,8 +109,6 @@ export const makePage = async ({
 		page,
 		timeoutInMilliseconds,
 	});
-
-	page.off('console', logCallback);
 
 	return page;
 };
