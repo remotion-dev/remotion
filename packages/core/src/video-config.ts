@@ -9,4 +9,5 @@ export type VideoConfig = {
 	defaultProps: Record<string, unknown>;
 	props: Record<string, unknown>;
 	defaultCodec: Codec | null;
+	defaultOutName: string | null;
 };

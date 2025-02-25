@@ -141,6 +141,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 				height: state.compositionHeight,
 				width: state.compositionWidth,
 				defaultCodec: state.compositionDefaultCodec,
+				defaultOutName: state.compositionDefaultOutName,
 			});
 		}
 	}, [compositions, compositions.compositions, state, video]);

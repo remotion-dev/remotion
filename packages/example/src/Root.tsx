@@ -813,6 +813,7 @@ export const Index: React.FC = () => {
 					calculateMetadata={() => {
 						return {
 							defaultCodec: 'aac',
+							defaultOutName: `out-${Date.now()}`,
 						};
 					}}
 					durationInFrames={100}
@@ -823,9 +824,6 @@ export const Index: React.FC = () => {
 					width={1000}
 					height={1000}
 					defaultProps={{flag: false}}
-					calculateMetadata={async () => {
-						return {};
-					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition

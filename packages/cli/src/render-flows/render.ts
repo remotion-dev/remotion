@@ -386,6 +386,7 @@ export const renderVideoFlow = async ({
 	const relativeOutputLocation = getOutputFilename({
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
+		compositionDefaultOutName: config.defaultOutName,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(
 			codec,
 			audioCodec,

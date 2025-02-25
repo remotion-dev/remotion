@@ -14,6 +14,7 @@ export const makeMockCompositionManagerContext =
 				width: 100,
 				props: {},
 				defaultCodec: null,
+				defaultOutName: null,
 			},
 			folders: [],
 			registerComposition: () => undefined,

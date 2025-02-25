@@ -454,6 +454,7 @@ export const useResolvedVideoConfig = (
 					props: currentCompositionMetadata.props,
 					defaultProps: composition.defaultProps ?? {},
 					defaultCodec: currentCompositionMetadata.defaultCodec,
+					defaultOutName: currentCompositionMetadata.defaultOutName,
 				},
 			};
 		}
@@ -496,6 +497,7 @@ export const useResolvedVideoConfig = (
 							: (getInputProps() ?? {})),
 					},
 					defaultCodec: null,
+					defaultOutName: null,
 				},
 			};
 		}

@@ -287,6 +287,7 @@ const innerRenderStill = async ({
 			height: number,
 			width: number,
 			defaultCodec: Codec,
+			defaultOutName: string | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -297,6 +298,7 @@ const innerRenderStill = async ({
 				compositionHeight: height,
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
+				compositionDefaultOutName: defaultOutName,
 			});
 		},
 		args: [
@@ -307,6 +309,7 @@ const innerRenderStill = async ({
 			composition.height,
 			composition.width,
 			composition.defaultCodec,
+			composition.defaultOutName,
 		],
 		frame: null,
 		page,

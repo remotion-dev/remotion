@@ -31,6 +31,7 @@ beforeAll(() => {
 		defaultProps: {},
 		props: {},
 		defaultCodec: null,
+		defaultOutName: null,
 	}));
 });
 afterAll(() => {
