@@ -33,38 +33,44 @@ export const createVideoDecoder = ({
 	});
 	let outputQueue = Promise.resolve();
 
-	const videoDecoder = new VideoDecoder({
-		output(inputFrame) {
-			ioSynchronizer.onOutput(inputFrame.timestamp);
+	const addToQueue = (frame: VideoFrame) => {
+		const cleanup = () => {
+			frame.close();
+		};
 
-			const abortHandler = () => {
-				inputFrame.close();
-			};
+		controller._internals.signal.addEventListener('abort', cleanup, {
+			once: true,
+		});
 
-			controller._internals.signal.addEventListener('abort', abortHandler, {
-				once: true,
+		outputQueue = outputQueue
+			.then(() => {
+				if (controller._internals.signal.aborted) {
+					return;
+				}
+
+				return onFrame(frame);
+			})
+			.then(() => {
+				ioSynchronizer.onProcessed();
+			})
+			.catch((err) => {
+				onError(err);
+			})
+			.finally(() => {
+				controller._internals.signal.removeEventListener('abort', cleanup);
+				cleanup();
 			});
+	};
 
-			outputQueue = outputQueue
-				.then(() => {
-					if (controller._internals.signal.aborted) {
-						return;
-					}
+	const onVideoFrame = (frame: VideoFrame) => {
+		ioSynchronizer.onOutput(frame.timestamp);
 
-					return onFrame(inputFrame);
-				})
-				.then(() => {
-					ioSynchronizer.onProcessed();
-					controller._internals.signal.removeEventListener(
-						'abort',
-						abortHandler,
-					);
-					return Promise.resolve();
-				})
-				.catch((err) => {
-					inputFrame.close();
-					onError(err);
-				});
+		addToQueue(frame);
+	};
+
+	const videoDecoder = new VideoDecoder({
+		output(frame) {
+			onVideoFrame(frame);
 		},
 		error(error) {
 			onError(error);
