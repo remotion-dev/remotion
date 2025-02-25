@@ -25,6 +25,7 @@ export async function selectAsync(
 	const {value} = await prompt({
 		limit: 11,
 		...questions,
+		// @ts-expect-error
 		onRender(this: {
 			cursor: number;
 			firstRender: boolean;
