@@ -1,14 +1,12 @@
 import {Upload} from '@aws-sdk/lib-storage';
-import type {UploadDirProgress} from '@remotion/serverless';
-import type {Privacy} from '@remotion/serverless/client';
+import type {AwsRegion} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import type {Privacy, UploadDirProgress} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
 import type {Dirent} from 'node:fs';
 import {createReadStream, promises as fs} from 'node:fs';
 import path from 'node:path';
-import type {AwsRegion} from '../regions';
-import {getS3Client} from '../shared/get-s3-client';
 import {makeS3Key} from '../shared/make-s3-key';
-import {pLimit} from '../shared/p-limit';
 
 type FileInfo = {
 	name: string;
@@ -59,7 +57,7 @@ async function getFiles(
 	return _files.flat(1);
 }
 
-const limit = pLimit(15);
+const limit = LambdaClientInternals.pLimit(15);
 
 export const uploadDir = async ({
 	bucket,
@@ -86,7 +84,11 @@ export const uploadDir = async ({
 		progresses[file.name] = 0;
 	}
 
-	const client = getS3Client({region, customCredentials: null, forcePathStyle});
+	const client = LambdaClientInternals.getS3Client({
+		region,
+		customCredentials: null,
+		forcePathStyle,
+	});
 
 	const uploadWithoutRetry = async (filePath: FileInfo) => {
 		const Key = makeS3Key(keyPrefix, localDir, filePath.name);
@@ -99,10 +101,10 @@ export const uploadDir = async ({
 					? 'private'
 					: 'public-read';
 
-		const paralellUploads3 = new Upload({
+		const parallelUploadsS3 = new Upload({
 			client,
-			queueSize: 4,
-			partSize: 5 * 1024 * 1024,
+			queueSize: 2,
+			partSize: 40 * 1024 * 1024,
 			params: {
 				Key,
 				Bucket: bucket,
@@ -111,10 +113,10 @@ export const uploadDir = async ({
 				ContentType,
 			},
 		});
-		paralellUploads3.on('httpUploadProgress', (progress) => {
+		parallelUploadsS3.on('httpUploadProgress', (progress) => {
 			progresses[filePath.name] = progress.loaded ?? 0;
 		});
-		const prom = await paralellUploads3.done();
+		const prom = await parallelUploadsS3.done();
 		return prom;
 	};
 

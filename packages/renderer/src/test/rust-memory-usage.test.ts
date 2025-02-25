@@ -36,6 +36,7 @@ test(
 			logLevel: 'info',
 			indent: false,
 			binariesDirectory: null,
+			extraThreads: 2,
 		});
 
 		expect(
@@ -54,7 +55,6 @@ test(
 		const statsJson = JSON.parse(new TextDecoder('utf-8').decode(stats));
 		expect(statsJson.frames_in_cache).toBe(84);
 		expect(statsJson.open_streams).toBe(1);
-		expect(statsJson.open_videos).toBe(1);
 
 		await compositor.executeCommand('ExtractFrame', {
 			src: exampleVideos.framerWithoutFileExtension,
@@ -71,7 +71,6 @@ test(
 			statsJson2.frames_in_cache === 185 || statsJson2.frames_in_cache === 184,
 		).toBe(true);
 		expect(statsJson2.open_streams).toBe(2);
-		expect(statsJson2.open_videos).toBe(2);
 
 		await compositor.executeCommand('FreeUpMemory', {
 			remaining_bytes: 100 * 24 * 1024 * 1024,
@@ -90,7 +89,6 @@ test(
 		expect(statsJson4).toEqual({
 			frames_in_cache: 184,
 			open_streams: 2,
-			open_videos: 2,
 		});
 
 		await compositor.executeCommand('FreeUpMemory', {
@@ -102,7 +100,6 @@ test(
 		expect(statsJson5).toEqual({
 			frames_in_cache: 0,
 			open_streams: 0,
-			open_videos: 0,
 		});
 
 		await new Promise((resolve) => {
@@ -129,6 +126,7 @@ test('Should respect the maximum frame cache limit', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
@@ -144,7 +142,6 @@ test('Should respect the maximum frame cache limit', async () => {
 	expect(statsJson).toEqual({
 		frames_in_cache: 84,
 		open_streams: 1,
-		open_videos: 1,
 	});
 });
 
@@ -158,6 +155,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 2,
 	});
 
 	expect(

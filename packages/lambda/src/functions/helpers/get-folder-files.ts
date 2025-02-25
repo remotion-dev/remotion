@@ -1,7 +1,4 @@
-import type {
-	FileNameAndSize,
-	GetFolderFiles,
-} from '@remotion/serverless/client';
+import type {FileNameAndSize, GetFolderFiles} from '@remotion/serverless';
 import fs from 'fs';
 import path from 'path';
 export const getFolderFiles: GetFolderFiles = (folder) => {

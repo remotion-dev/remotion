@@ -1,28 +1,26 @@
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {
 	CallFunctionAsync,
 	CallFunctionOptions,
 	CallFunctionStreaming,
 	CallFunctionSync,
+	MessageTypeId,
 	OnMessage,
 	OrError,
 	ServerlessReturnValues,
 	ServerlessRoutines,
 	StreamingMessage,
 } from '@remotion/serverless';
-import {innerHandler, ResponseStream, streamWriter} from '@remotion/serverless';
-import type {MessageTypeId} from '@remotion/serverless/client';
 import {
 	formatMap,
+	innerHandler,
 	messageTypeIdToMessageType,
-} from '@remotion/serverless/client';
+	ResponseStream,
+	streamWriter,
+} from '@remotion/serverless';
 import {makeStreamer} from '@remotion/streaming';
-import type {AwsProvider} from '../../functions/aws-implementation';
-import {getWebhookClient} from '../../functions/http-client';
-import {parseJsonOrThrowSource} from '../../shared/call-lambda-streaming';
-import {
-	mockImplementation,
-	mockServerImplementation,
-} from '../mock-implementation';
+import {mockServerImplementation} from '../mock-implementation';
+import {mockImplementation} from './mock-implementation';
 
 export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	AwsProvider
@@ -40,7 +38,7 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		);
 		const innerPayload =
 			formatMap[messageType] === 'json'
-				? parseJsonOrThrowSource(data, messageType)
+				? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
 				: data;
 
 		const message: StreamingMessage<AwsProvider> = {
@@ -73,7 +71,6 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		},
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
-		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
@@ -96,7 +93,6 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 		insideFunctionSpecifics: mockServerImplementation,
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
-		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();
@@ -119,7 +115,6 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 		responseWriter: streamWriter(responseStream),
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
-		webhookClient: getWebhookClient,
 	});
 
 	responseStream._finish();

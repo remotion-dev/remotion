@@ -3,17 +3,16 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cloudrun"
 	},
 	"name": "@remotion/cloudrun",
-	"version": "4.0.258",
+	"version": "4.0.267",
 	"description": "Render Remotion videos on Google Cloud Run",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"make": "tsc -d && bun build.ts",
-		"buildContainer": "bun src/admin/bundle-renderLogic.ts",
-		"tarInstaller": "bun src/admin/bundle-installer.ts",
+		"make": "tsc -d && cp src/shared/sa-permissions.json dist/shared/sa-permissions.json",
+		"makeruntime": "bun build.ts",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"publish": "cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
+		"publish": "bun build.ts cd container && ARTIFACT_REGISTRY_ENV=production node submit.mjs"
 	},
 	"dependencies": {
 		"@google-cloud/artifact-registry": "^3.4.0",
@@ -33,7 +32,7 @@
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

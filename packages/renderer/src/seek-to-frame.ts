@@ -123,7 +123,7 @@ export const waitForReady = ({
 										frame ? ' at frame ' + frame : ' initially'
 									}. ${
 										res.value ? `Open delayRender() handles: ${res.value}` : ''
-									}`,
+									}. You can increase the timeout using the "timeoutInMilliseconds" / "--timeout" option of the function or command you used to trigger this render.`,
 								),
 							);
 						})

@@ -2,10 +2,12 @@
 image: /generated/articles-docs-lambda-light-client.png
 sidebar_label: Light client
 title: Light client
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
-The following methods and types can be imported from `@remotion/lambda/client`:
+The following methods and types can be imported from `@remotion/lambda/client`.
+
+`@remotion/lambda/client` re-exports everything from the `@remotion/lambda-client` NPM package, which you can install if you only need these functions in your project, saving you some dependencies.
 
 ```tsx twoslash
 // organize-imports-ignore
@@ -28,7 +30,7 @@ import {
   getAwsClient, // available from v4.0.82
   deleteRender, // available from v4.0.84
   DeleteRenderInput, // available from v4.0.84
-} from "@remotion/lambda/client";
+} from '@remotion/lambda/client';
 ```
 
 :::info

@@ -115,6 +115,26 @@ export const getArrayBufferIterator = (
 		return new TextDecoder().decode(new Uint8Array(bytes));
 	};
 
+	const readUntilLineEnd = () => {
+		const bytes = [];
+		// 10 is "\n"
+		while (true) {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
+			const byte = getUint8();
+			bytes.push(byte);
+			if (byte === 10) {
+				break;
+			}
+		}
+
+		const str = new TextDecoder().decode(new Uint8Array(bytes)).trim();
+
+		return str;
+	};
+
 	const getUint8 = () => {
 		const val = view.getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
@@ -187,6 +207,18 @@ export const getArrayBufferIterator = (
 		const val = view.getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
+	};
+
+	const getSyncSafeInt32 = () => {
+		const val = view.getUint32(counter.getDiscardedOffset());
+		counter.increment(4);
+
+		return (
+			((val & 0x7f000000) >> 3) |
+			((val & 0x007f0000) >> 2) |
+			((val & 0x00007f00) >> 1) |
+			(val & 0x0000007f)
+		);
 	};
 
 	const getUint64 = (littleEndian = false) => {
@@ -683,6 +715,8 @@ export const getArrayBufferIterator = (
 		readExpGolomb,
 		startCheckpoint,
 		getFlacCodecNumber,
+		readUntilLineEnd,
+		getSyncSafeInt32,
 	};
 };
 

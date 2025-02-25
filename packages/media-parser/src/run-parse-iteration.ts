@@ -1,6 +1,7 @@
 import {parseAac} from './containers/aac/parse-aac';
 import {parseFlac} from './containers/flac/parse-flac';
 import {parseIsoBaseMedia} from './containers/iso-base-media/parse-boxes';
+import {parseM3u} from './containers/m3u/parse-m3u';
 import {parseMp3} from './containers/mp3/parse-mp3';
 import {parseRiff} from './containers/riff/parse-riff';
 import {parseTransportStream} from './containers/transport-stream/parse-transport-stream';
@@ -21,11 +22,15 @@ export const runParseIteration = async ({
 	contentLength: number;
 	name: string | null;
 }): Promise<ParseResult> => {
+	const structure = state.getStructureOrNull();
+	// m3u8 is busy parsing the chunks once the manifest has been read
+	if (structure && structure.type === 'm3u') {
+		return parseM3u({state});
+	}
+
 	if (state.iterator.bytesRemaining() === 0) {
 		return Promise.reject(new Error('no bytes'));
 	}
-
-	const structure = state.getStructureOrNull();
 
 	if (structure === null) {
 		await initVideo({state, mimeType, name, contentLength});

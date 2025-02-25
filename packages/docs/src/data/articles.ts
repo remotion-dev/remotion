@@ -2430,6 +2430,15 @@ export const articles = [
 		slug: 'media-parser/fetch-reader',
 	},
 	{
+		id: 'fields',
+		title: 'Available Fields',
+		relativePath: 'docs/media-parser/fields.mdx',
+		compId: 'articles-docs-media-parser-fields',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/fields',
+	},
+	{
 		id: 'foreign-file-types',
 		title: 'Foreign file types',
 		relativePath: 'docs/media-parser/foreign-file-types.mdx',
@@ -2527,6 +2536,15 @@ export const articles = [
 		crumb: '@remotion/media-parser',
 		noAi: false,
 		slug: 'media-parser/runtime-support',
+	},
+	{
+		id: 'stream-selection',
+		title: 'Stream selection',
+		relativePath: 'docs/media-parser/selecting-streams.mdx',
+		compId: 'articles-docs-media-parser-selecting-streams',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/stream-selection',
 	},
 	{
 		id: 'tags',
@@ -4454,6 +4472,15 @@ export const articles = [
 		slug: 'studio/save-default-props',
 	},
 	{
+		id: 'studio/seek',
+		title: 'seek()',
+		relativePath: 'docs/studio/seek.mdx',
+		compId: 'articles-docs-studio-seek',
+		crumb: '@remotion/studio',
+		noAi: false,
+		slug: 'studio/seek',
+	},
+	{
 		id: 'studio/shortcuts',
 		title: 'Keyboard navigation',
 		relativePath: 'docs/studio/shortcuts.mdx',
@@ -5308,6 +5335,15 @@ export const articles = [
 		crumb: 'How To',
 		noAi: false,
 		slug: 'visual-editing',
+	},
+	{
+		id: 'visualize-audio-waveform',
+		title: 'visualizeAudioWaveform()',
+		relativePath: 'docs/visualize-audio-waveform.mdx',
+		compId: 'articles-docs-visualize-audio-waveform',
+		crumb: '@remotion/media-utils',
+		noAi: false,
+		slug: 'visualize-audio-waveform',
 	},
 	{
 		id: 'visualize-audio',

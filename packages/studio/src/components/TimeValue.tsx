@@ -41,10 +41,6 @@ const frameStyle: React.CSSProperties = {
 	paddingRight: 10,
 };
 
-export const timeValueRef = React.createRef<{
-	goToFrame: () => void;
-}>();
-
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
@@ -67,13 +63,14 @@ export const TimeValue: React.FC = () => {
 	);
 
 	useImperativeHandle(
-		timeValueRef,
+		Internals.timeValueRef,
 		() => ({
 			goToFrame: () => {
 				ref.current?.click();
 			},
+			seek,
 		}),
-		[],
+		[seek],
 	);
 
 	useEffect(() => {

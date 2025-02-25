@@ -137,8 +137,8 @@ export const makeAudioTrackHandler =
 			audioOperation.audioCodec === 'aac'
 				? MediaParserInternals.createAacCodecPrivate({
 						audioObjectType: 2,
-						sampleRate: track.sampleRate,
-						channelConfiguration: track.numberOfChannels,
+						sampleRate: audioEncoderConfig.sampleRate,
+						channelConfiguration: audioEncoderConfig.numberOfChannels,
 						codecPrivate: null,
 					})
 				: null;
@@ -149,8 +149,8 @@ export const makeAudioTrackHandler =
 				audioOperation.audioCodec === 'wav'
 					? 'pcm-s16'
 					: audioOperation.audioCodec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
+			numberOfChannels: audioEncoderConfig.numberOfChannels,
+			sampleRate: audioEncoderConfig.sampleRate,
 			codecPrivate,
 			timescale: track.timescale,
 		});

@@ -91,7 +91,7 @@ export const Cards: React.FC<{
 						<TrendingRepos trending={trending} theme={theme} />
 					) : index === 1 ? (
 						<Temperature
-							city={location?.city ?? null}
+							city={location?.city ? decodeURIComponent(location?.city) : null}
 							theme={theme}
 							temperatureInCelsius={trending?.temperatureInCelsius ?? null}
 						/>

@@ -1,19 +1,18 @@
-import type {AwsRegion} from '../regions';
-import {DEFAULT_REGION} from '../shared/constants';
-import {getEnvVariable} from '../shared/get-env-variable';
-import {validateAwsRegion} from '../shared/validate-aws-region';
+import {AwsRegion, LambdaClientInternals} from '@remotion/lambda-client';
+import {DEFAULT_REGION} from '@remotion/lambda-client/constants';
 import {parsedLambdaCli} from './args';
 
 export const getAwsRegion = (): AwsRegion => {
 	if (parsedLambdaCli.region) {
-		validateAwsRegion(parsedLambdaCli.region);
+		LambdaClientInternals.validateAwsRegion(parsedLambdaCli.region);
 		return parsedLambdaCli.region;
 	}
 
 	const envVariable =
-		getEnvVariable('REMOTION_AWS_REGION') ?? getEnvVariable('AWS_REGION');
+		LambdaClientInternals.getEnvVariable('REMOTION_AWS_REGION') ??
+		LambdaClientInternals.getEnvVariable('AWS_REGION');
 	if (envVariable) {
-		validateAwsRegion(envVariable);
+		LambdaClientInternals.validateAwsRegion(envVariable);
 		return envVariable;
 	}
 

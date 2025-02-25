@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {BINARY_NAME} from '../shared/constants';
 import {COMPOSITIONS_COMMAND} from './commands/compositions';
 import {FUNCTIONS_COMMAND} from './commands/functions';
 import {POLICIES_COMMAND} from './commands/policies/policies';

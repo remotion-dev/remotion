@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.258",
+	"version": "4.0.267",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -17,7 +17,7 @@
 		"@remotion/example-videos": "workspace:*",
 		"@types/wicg-file-system-access": "2023.10.5",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -26,51 +26,51 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
 			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
-		"./node": {
-			"types": "./dist/readers/from-node.d.ts",
-			"require": "./dist/readers/from-node.js",
-			"module": "./dist/esm/from-node.mjs",
-			"import": "./dist/esm/from-node.mjs"
+		"./web-file": {
+			"types": "./dist/web-file.d.ts",
+			"require": "./dist/web-file.js",
+			"module": "./dist/esm/web-file.mjs",
+			"import": "./dist/esm/web-file.mjs"
 		},
-		"./node-writer": {
-			"types": "./dist/writers/node.d.ts",
-			"require": "./dist/writers/node.js",
+		"./fetch": {
+			"types": "./dist/fetch.d.ts",
+			"require": "./dist/fetch.js",
+			"module": "./dist/esm/fetch.mjs",
+			"import": "./dist/esm/fetch.mjs"
+		},
+		"./node": {
+			"types": "./dist/node.d.ts",
+			"require": "./dist/node.js",
 			"module": "./dist/esm/node.mjs",
 			"import": "./dist/esm/node.mjs"
 		},
-		"./fetch": {
-			"types": "./dist/readers/from-fetch.d.ts",
-			"require": "./dist/readers/from-fetch.js",
-			"module": "./dist/esm/from-fetch.mjs",
-			"import": "./dist/esm/from-fetch.mjs"
-		},
-		"./web-file": {
-			"types": "./dist/readers/from-web-file.d.ts",
-			"require": "./dist/readers/from-web-file.js",
-			"module": "./dist/esm/from-web-file.mjs",
-			"import": "./dist/esm/from-web-file.mjs"
-		},
-		"./package.json": "./package.json"
+		"./node-writer": {
+			"types": "./dist/node-writer.d.ts",
+			"require": "./dist/node-writer.js",
+			"module": "./dist/esm/node-writer.mjs",
+			"import": "./dist/esm/node-writer.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
-			"node": [
-				"dist/readers/from-node.d.ts"
-			],
-			"node-writer": [
-				"dist/writers/node.d.ts"
+			"web-file": [
+				"dist/web-file.d.ts"
 			],
 			"fetch": [
-				"dist/readers/from-fetch.d.ts"
+				"dist/fetch.d.ts"
 			],
-			"web-file": [
-				"dist/readers/from-web-file.d.ts"
+			"node": [
+				"dist/node.d.ts"
+			],
+			"node-writer": [
+				"dist/node-writer.d.ts"
 			]
 		}
 	},

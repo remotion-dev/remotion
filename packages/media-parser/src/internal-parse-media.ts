@@ -35,6 +35,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	onError,
 	acknowledgeRemotionLicense,
 	apiName,
+	selectM3uStream: selectM3uStreamFn,
 	...more
 }: InternalParseMediaOptions<F>) {
 	warnIfRemotionLicenseNotAcknowledged({
@@ -49,21 +50,24 @@ export const internalParseMedia: InternalParseMedia = async function <
 		callbacks: more,
 	});
 
+	Log.verbose(logLevel, `Reading ${typeof src === 'string' ? src : src.name}`);
+
 	const {
 		reader: readerInstance,
 		contentLength,
 		name,
 		contentType,
 		supportsContentRange,
+		needsContentRange,
 	} = await readerInterface.read({src, range: null, controller});
 
 	if (contentLength === null) {
 		throw new Error(
-			'Cannot read media without a content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.',
+			`Cannot read media ${src} without a content length. This is currently not supported. Ensure the media has a "Content-Length" HTTP header.`,
 		);
 	}
 
-	if (!supportsContentRange) {
+	if (!supportsContentRange && needsContentRange) {
 		throw new Error(
 			'Cannot read media without it supporting the "Content-Range" header. This is currently not supported. Ensure the media supports the "Content-Range" HTTP header.',
 		);
@@ -106,6 +110,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		readerInterface,
 		src,
 		onDiscardedData,
+		selectM3uStreamFn,
 	});
 	const {iterator} = state;
 
@@ -155,6 +160,13 @@ export const internalParseMedia: InternalParseMedia = async function <
 		}
 
 		if (state.iterator.counter.getOffset() === contentLength) {
+			if (
+				state.getStructure().type === 'm3u' &&
+				!state.m3u.getAllChunksProcessed()
+			) {
+				return false;
+			}
+
 			Log.verbose(logLevel, 'Reached end of file');
 			await state.discardReadBytes(true);
 
@@ -223,9 +235,12 @@ export const internalParseMedia: InternalParseMedia = async function <
 				`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
 			);
 
-			if (iterationWithThisOffset > 300) {
+			if (
+				iterationWithThisOffset > 300 &&
+				state.getStructure().type !== 'm3u'
+			) {
 				throw new Error(
-					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser.',
+					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
 				);
 			}
 

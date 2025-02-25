@@ -77,6 +77,7 @@ export const SidebarRenderButton: React.FC<{
 				initialHeadless: defaults.headless,
 				initialOffthreadVideoCacheSizeInBytes:
 					defaults.offthreadVideoCacheSizeInBytes,
+				initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 				defaultProps: props[composition.id] ?? composition.defaultProps,
 				inFrameMark: null,

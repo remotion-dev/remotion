@@ -12,6 +12,9 @@
 			"path": "../renderer"
 		},
 		{
+			"path": "../serverless-client"
+		},
+		{
 			"path": "../streaming"
 		}
 	]

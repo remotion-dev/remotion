@@ -23,6 +23,7 @@ import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	editorPropsProviderRef,
+	timeValueRef,
 } from './EditorProps.js';
 import {
 	addSequenceStackTraces,
@@ -168,6 +169,7 @@ export const Internals = {
 	LogLevelContext,
 	useLogLevel,
 	playbackLogging,
+	timeValueRef,
 } as const;
 
 export type {
@@ -179,11 +181,10 @@ export type {
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TRenderAsset as TAsset,
 	TCompMetadata,
 	TComposition,
-	TimelinePosition as Timeline,
 	TimelineContextValue,
+	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

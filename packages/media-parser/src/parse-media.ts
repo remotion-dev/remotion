@@ -1,3 +1,4 @@
+import {defaultSelectM3uStreamFn} from './containers/m3u/select-stream';
 import {internalParseMedia} from './internal-parse-media';
 import type {ParseMedia} from './options';
 import {fetchReader} from './readers/from-fetch';
@@ -32,6 +33,7 @@ export const parseMedia: ParseMedia = (options) => {
 		onSlowNumberOfFrames: options.onSlowNumberOfFrames ?? null,
 		onSlowVideoBitrate: options.onSlowVideoBitrate ?? null,
 		onStructure: options.onStructure ?? null,
+		onM3uStreams: options.onM3uStreams ?? null,
 		onTracks: options.onTracks ?? null,
 		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
 		onVideoCodec: options.onVideoCodec ?? null,
@@ -39,6 +41,7 @@ export const parseMedia: ParseMedia = (options) => {
 		progressIntervalInMs: options.progressIntervalInMs ?? null,
 		reader: options.reader ?? fetchReader,
 		controller: options.controller ?? undefined,
+		selectM3uStream: options.selectM3uStream ?? defaultSelectM3uStreamFn,
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,

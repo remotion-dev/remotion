@@ -34,7 +34,7 @@ type CompProps<T> =
 	  };
 
 const ControlsOnly: React.FC<{
-	readonly playerRef: React.RefObject<PlayerRef>;
+	readonly playerRef: React.RefObject<PlayerRef | null>;
 	readonly color: string;
 	readonly setColor: React.Dispatch<React.SetStateAction<string>>;
 	readonly title: string;
@@ -546,7 +546,7 @@ const ControlsOnly: React.FC<{
 
 const PlayerOnly: React.FC<
 	{
-		readonly playerRef: React.RefObject<PlayerRef>;
+		readonly playerRef: React.RefObject<PlayerRef | null>;
 		readonly inputProps: Record<string, unknown>;
 		readonly clickToPlay: boolean;
 		readonly loop: boolean;

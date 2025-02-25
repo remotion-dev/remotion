@@ -109,7 +109,7 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const gitSource = getGitSource({remotionRoot, disableGitSource});
+	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
 	await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/entry'),

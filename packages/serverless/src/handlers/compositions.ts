@@ -1,14 +1,16 @@
 import {RenderInternals} from '@remotion/renderer';
-import {decompressInputProps} from '../compress-props';
-import type {ServerlessPayload} from '../constants';
-import {ServerlessRoutines} from '../constants';
-import {} from '../get-browser-instance';
-import {internalGetOrCreateBucket} from '../get-or-create-bucket';
 import type {
-	InsideFunctionSpecifics,
+	CloudProvider,
 	ProviderSpecifics,
-} from '../provider-implementation';
-import type {CloudProvider} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {
+	ServerlessRoutines,
+	decompressInputProps,
+	internalGetOrCreateBucket,
+} from '@remotion/serverless-client';
+import {} from '../get-browser-instance';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
@@ -24,7 +26,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	if (params.type !== ServerlessRoutines.compositions) {
 		throw new TypeError('Expected info compositions');
@@ -37,7 +39,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 	});
 
 	try {
-		const region = providerSpecifics.getCurrentRegionInFunction();
+		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 
 		const browserInstancePromise = insideFunctionSpecifics.getBrowserInstance({
 			logLevel: params.logLevel,
@@ -61,7 +63,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
 			bucketName: await bucketNamePromise,
 			expectedBucketOwner: options.expectedBucketOwner,
-			region: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			serialized: params.inputProps,
 			propsType: 'input-props',
 			providerSpecifics,
@@ -93,6 +95,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 				throw new Error('Should not download a browser in a function');
 			},
 			chromeMode: 'headless-shell',
+			offthreadVideoThreads: 1,
 		});
 
 		return Promise.resolve({

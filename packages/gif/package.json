@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/gif"
 	},
 	"name": "@remotion/gif",
-	"version": "4.0.258",
+	"version": "4.0.267",
 	"description": "Embed GIFs in a Remotion video",
 	"sideEffects": false,
 	"bugs": {
@@ -32,12 +32,12 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"esbuild": "0.24.0",
+		"esbuild": "0.25.0",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"webpack": "5.96.1",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

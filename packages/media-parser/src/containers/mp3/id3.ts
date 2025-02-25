@@ -45,9 +45,11 @@ export const parseId3 = ({state}: {state: ParserState}) => {
 		}
 
 		const s =
-			versionMajor === 3 || versionMajor === 4
-				? iterator.getUint32()
-				: iterator.getUint24();
+			versionMajor === 4
+				? iterator.getSyncSafeInt32()
+				: versionMajor === 3
+					? iterator.getUint32()
+					: iterator.getUint24();
 		if (versionMajor === 3 || versionMajor === 4) {
 			iterator.getUint16(); // flags
 		}

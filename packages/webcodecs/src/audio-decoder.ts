@@ -129,7 +129,15 @@ export const createAudioDecoder = ({
 
 		const chunk = new EncodedAudioChunk(audioSample);
 		audioDecoder.decode(chunk);
-		ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
+
+		// https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts
+		// has a 16 byte audio sample at the end which chrome does not decode
+		// Might be empty audio
+		// For now only reporting chunks that are bigger than that
+		// 16 was chosen arbitrarily, can be improved
+		if (chunk.byteLength > 16) {
+			ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
+		}
 	};
 
 	let queue = Promise.resolve();

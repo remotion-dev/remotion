@@ -6,6 +6,7 @@ import {
 	getMoovBox,
 	getMvhdBox,
 } from './containers/iso-base-media/traversal';
+import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
 import {getDurationFromAvi} from './containers/riff/get-duration';
 import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
@@ -52,6 +53,37 @@ export const isMatroska = (boxes: AnySegment[]) => {
 	return matroskaBox;
 };
 
+const isoHasDuration = (parserState: ParserState) => {
+	const structure = parserState.getIsoStructure();
+
+	const moovBox = getMoovBox(parserState);
+	if (!moovBox) {
+		return false;
+	}
+
+	const mvhdBox = getMvhdBox(moovBox);
+
+	if (!mvhdBox) {
+		return false;
+	}
+
+	if (mvhdBox.type !== 'mvhd-box') {
+		throw new Error('Expected mvhd-box');
+	}
+
+	if (mvhdBox.durationInSeconds > 0) {
+		return true;
+	}
+
+	// Checking if this is a fragmented mp4
+	const moofBoxes = getMoofBoxes(structure.boxes);
+	const hasMvex = moovBox.children.some(
+		(b) => b.type === 'regular-box' && b.boxType === 'mvex',
+	);
+	const isFragmented = moofBoxes.length > 0 || hasMvex;
+	return !isFragmented;
+};
+
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const structure = parserState.getIsoStructure();
 
@@ -91,9 +123,12 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
+
 		return highest ?? 0;
 	});
+
 	const highestTimestamp = Math.max(...allSamples);
+
 	return highestTimestamp;
 };
 
@@ -131,20 +166,33 @@ export const getDuration = (parserState: ParserState): number | null => {
 		return getDurationFromFlac(parserState);
 	}
 
+	if (structure.type === 'm3u') {
+		return getDurationFromM3u(parserState.getM3uStructure());
+	}
+
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 
 // `duration` just grabs from metadata, and otherwise returns null
 // Therefore just checking if we have tracks
 export const hasDuration = (parserState: ParserState): boolean => {
+	const structure = parserState.getStructureOrNull();
+	if (structure === null) {
+		return false;
+	}
+
+	if (structure.type === 'iso-base-media') {
+		return isoHasDuration(parserState);
+	}
+
 	return getHasTracks(parserState);
 };
 
-// `slowDuration` does through everything, and therefore is false
+// `slowDuration` goes through everything, and therefore is false
 // Unless it it somewhere in the metadata and is non-null
 export const hasSlowDuration = (parserState: ParserState): boolean => {
 	try {
-		return getDuration(parserState) !== null;
+		return hasDuration(parserState) && getDuration(parserState) !== null;
 	} catch {
 		return false;
 	}

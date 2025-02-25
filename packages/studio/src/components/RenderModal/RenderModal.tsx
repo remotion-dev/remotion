@@ -239,6 +239,7 @@ type RenderModalProps = {
 	readonly initialHardwareAcceleration: HardwareAccelerationOption;
 	readonly renderTypeOfLastRender: RenderType | null;
 	readonly initialChromeMode: ChromeMode;
+	readonly initialOffthreadVideoThreads: number | null;
 	readonly defaultMetadata: Record<string, string> | null;
 };
 
@@ -274,6 +275,7 @@ const RenderModal: React.FC<
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
+	initialOffthreadVideoThreads,
 	initialUserAgent,
 	defaultProps,
 	inFrameMark,
@@ -487,6 +489,10 @@ const RenderModal: React.FC<
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
+
+	const [offthreadVideoThreads, setOffthreadVideoThreads] = useState<
+		number | null
+	>(() => initialOffthreadVideoThreads);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -754,6 +760,7 @@ const RenderModal: React.FC<
 			beepOnFinish,
 			metadata,
 			chromeMode,
+			offthreadVideoThreads,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -782,6 +789,7 @@ const RenderModal: React.FC<
 		setSelectedModal,
 		metadata,
 		chromeMode,
+		offthreadVideoThreads,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -856,6 +864,7 @@ const RenderModal: React.FC<
 			metadata,
 			hardwareAcceleration,
 			chromeMode,
+			offthreadVideoThreads,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -908,6 +917,7 @@ const RenderModal: React.FC<
 		metadata,
 		hardwareAcceleration,
 		chromeMode,
+		offthreadVideoThreads,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -936,6 +946,7 @@ const RenderModal: React.FC<
 			repro,
 			metadata,
 			chromeMode,
+			offthreadVideoThreads,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -968,6 +979,7 @@ const RenderModal: React.FC<
 		setSelectedModal,
 		metadata,
 		chromeMode,
+		offthreadVideoThreads,
 	]);
 
 	useEffect(() => {
@@ -1422,6 +1434,8 @@ const RenderModal: React.FC<
 							setOffthreadVideoCacheSizeInBytes={
 								setOffthreadVideoCacheSizeInBytes
 							}
+							offthreadVideoThreads={offthreadVideoThreads}
+							setOffthreadVideoThreads={setOffthreadVideoThreads}
 							enableMultiProcessOnLinux={multiProcessOnLinux}
 							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
 							codec={codec}

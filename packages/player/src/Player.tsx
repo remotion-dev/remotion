@@ -199,9 +199,10 @@ const PlayerFn = <
 		),
 	);
 
-	const component = Internals.useLazyComponent(
-		componentProps,
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	const component = Internals.useLazyComponent({
+		compProps: componentProps,
+		componentName: 'Player',
+	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	validateInitialFrame({initialFrame, durationInFrames});
 

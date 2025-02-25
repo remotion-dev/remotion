@@ -46,6 +46,7 @@ export type RenderModalState = {
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
+	initialOffthreadVideoThreads: number | null;
 	initialColorSpace: ColorSpace;
 	initialMultiProcessOnLinux: boolean;
 	initialUserAgent: string | null;

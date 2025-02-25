@@ -3,18 +3,17 @@ import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
-import {findNextSeparator} from './find-separator';
+import {findNthSubarrayIndex} from './find-separator';
 import type {TransportStreamEntry} from './parse-pmt';
+import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 import {processStreamBuffer} from './process-stream-buffers';
 
 const parseAdtsStream = async ({
-	restOfPacket,
 	transportStreamEntry,
 	state,
 	structure,
 	offset,
 }: {
-	restOfPacket: Uint8Array;
 	transportStreamEntry: TransportStreamEntry;
 	structure: TransportStreamStructure;
 	state: ParserState;
@@ -22,40 +21,36 @@ const parseAdtsStream = async ({
 }) => {
 	const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
 		state.transportStream;
-	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
-	if (!streamBuffer) {
-		streamBuffers.set(transportStreamEntry.pid, {
-			buffer: restOfPacket,
-			pesHeader: nextPesHeader.getNextPesHeader(),
-			offset,
-		});
 
-		return;
-	}
+	while (true) {
+		const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
+		if (!streamBuffer) {
+			throw new Error('Stream buffer not found');
+		}
 
-	const expectedLength =
-		readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
+		const expectedLength =
+			readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
 
-	const bytesToTake = expectedLength
-		? Math.min(
-				restOfPacket.length,
-				expectedLength - streamBuffer.buffer.byteLength,
-			)
-		: restOfPacket.length;
+		if (expectedLength === null) {
+			break;
+		}
 
-	streamBuffer.buffer = combineUint8Arrays([
-		streamBuffer.buffer,
-		restOfPacket.slice(0, bytesToTake),
-	]);
-	if (expectedLength === streamBuffer.buffer.byteLength) {
+		if (expectedLength > streamBuffer.buffer.length) {
+			break;
+		}
+
 		await processStreamBuffer({
-			streamBuffer,
+			streamBuffer: {
+				buffer: streamBuffer.buffer.slice(0, expectedLength),
+				offset,
+				pesHeader: streamBuffer.pesHeader,
+			},
 			programId: transportStreamEntry.pid,
 			state,
 			structure,
 		});
 
-		const rest = restOfPacket.slice(bytesToTake);
+		const rest = streamBuffer.buffer.slice(expectedLength);
 		streamBuffers.set(transportStreamEntry.pid, {
 			buffer: rest,
 			pesHeader: nextPesHeader.getNextPesHeader(),
@@ -65,79 +60,43 @@ const parseAdtsStream = async ({
 };
 
 const parseAvcStream = async ({
-	restOfPacket,
-	transportStreamEntry,
 	programId,
 	state,
 	structure,
-	offset,
+	streamBuffer,
 }: {
-	restOfPacket: Uint8Array;
-	transportStreamEntry: TransportStreamEntry;
 	programId: number;
 	state: ParserState;
 	structure: TransportStreamStructure;
-	offset: number;
-}) => {
-	const indexOfSeparator = findNextSeparator(
-		restOfPacket,
-		transportStreamEntry,
+	streamBuffer: TransportStreamPacketBuffer;
+}): Promise<Uint8Array | null> => {
+	const indexOfSeparator = findNthSubarrayIndex(
+		streamBuffer.buffer,
+		new Uint8Array([0, 0, 1, 9]),
+		2,
 	);
-	const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
-		state.transportStream;
-
-	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
-
-	if (indexOfSeparator === -1) {
-		if (streamBuffer) {
-			streamBuffer.buffer = combineUint8Arrays([
-				streamBuffer.buffer,
-				restOfPacket,
-			]);
-			return;
-		}
-
-		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader.getNextPesHeader(),
-			buffer: restOfPacket,
-			offset,
-		});
-
-		return;
+	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
+		return null;
 	}
 
-	if (streamBuffer) {
-		const packet = restOfPacket.slice(0, indexOfSeparator);
-		streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, packet]);
-		await processStreamBuffer({
-			state,
-			streamBuffer,
-			programId,
-			structure,
-		});
-		const rest = restOfPacket.slice(indexOfSeparator);
-		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader.getNextPesHeader(),
-			buffer: rest,
-			offset,
-		});
-		return;
-	}
+	const packet = streamBuffer.buffer.slice(0, indexOfSeparator);
+	const rest = streamBuffer.buffer.slice(indexOfSeparator);
 
-	if (indexOfSeparator !== 0) {
-		throw new Error(
-			'No stream buffer found but new separator is not at the beginning',
-		);
-	}
-
-	streamBuffers.set(programId, {
-		pesHeader: nextPesHeader.getNextPesHeader(),
-		buffer: restOfPacket.slice(indexOfSeparator),
-		offset,
+	await processStreamBuffer({
+		state,
+		streamBuffer: {
+			offset: streamBuffer.offset,
+			pesHeader: streamBuffer.pesHeader,
+			// Replace the regular 0x00000001 with 0x00000002 to avoid confusion with other 0x00000001 (?)
+			buffer: packet,
+		},
+		programId,
+		structure,
 	});
+	return rest;
 };
 
-export const parseStream = ({
+export const parseStream = async ({
 	transportStreamEntry,
 	state,
 	programId,
@@ -149,25 +108,72 @@ export const parseStream = ({
 	structure: TransportStreamStructure;
 }): Promise<void> => {
 	const {iterator} = state;
-	const restOfPacket = getRestOfPacket(iterator);
+	let restOfPacket = getRestOfPacket(iterator);
+	const offset = iterator.counter.getOffset();
+
 	if (transportStreamEntry.streamType === 27) {
-		return parseAvcStream({
-			restOfPacket,
-			transportStreamEntry,
-			state,
-			programId,
-			structure,
-			offset: iterator.counter.getOffset(),
-		});
+		const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
+			state.transportStream;
+
+		while (true) {
+			if (!streamBuffers.has(transportStreamEntry.pid)) {
+				streamBuffers.set(programId, {
+					pesHeader: nextPesHeader.getNextPesHeader(),
+					buffer: new Uint8Array([]),
+					offset,
+				});
+			}
+
+			const streamBuffer = streamBuffers.get(transportStreamEntry.pid)!;
+			streamBuffer.buffer = combineUint8Arrays([
+				streamBuffer.buffer,
+				restOfPacket,
+			]);
+
+			const rest = await parseAvcStream({
+				state,
+				programId,
+				structure,
+				streamBuffer: streamBuffers.get(transportStreamEntry.pid)!,
+			});
+
+			if (rest !== null) {
+				streamBuffers.delete(transportStreamEntry.pid);
+				if (rest.length === 0) {
+					break;
+				}
+
+				restOfPacket = rest;
+			} else {
+				break;
+			}
+		}
+
+		return;
 	}
 
 	if (transportStreamEntry.streamType === 15) {
+		const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
+			state.transportStream;
+		const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
+		if (!streamBuffer) {
+			streamBuffers.set(transportStreamEntry.pid, {
+				buffer: restOfPacket,
+				pesHeader: nextPesHeader.getNextPesHeader(),
+				offset,
+			});
+		} else {
+			streamBuffer.buffer = combineUint8Arrays([
+				streamBuffer.buffer,
+				restOfPacket,
+			]);
+		}
+
 		return parseAdtsStream({
-			restOfPacket,
 			transportStreamEntry,
 			state,
 			structure,
-			offset: iterator.counter.getOffset(),
+			offset,
 		});
 	}
 

@@ -51,7 +51,12 @@ export const LoopedOffthreadVideo: React.FC<{
 
 export const OffthreadRemoteVideo = StudioInternals.createComposition({
 	component: () => {
-		return <OffthreadVideo src={src} />;
+		return (
+			<>
+				<OffthreadVideo src={src} />
+				<OffthreadVideo src={staticFile('iphonevideo.mov')} />
+			</>
+		);
 	},
 	id: 'OffthreadRemoteVideo',
 	calculateMetadata: calculateMetadataFn,

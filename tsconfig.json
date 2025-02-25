@@ -106,6 +106,9 @@
 			"path": "./packages/player-example"
 		},
 		{
+			"path": "./packages/lambda-client"
+		},
+		{
 			"path": "./packages/licensing"
 		},
 		{
@@ -203,6 +206,9 @@
 		},
 		{
 			"path": "./packages/serverless"
+		},
+		{
+			"path": "./packages/serverless-client"
 		},
 		{
 			"path": "./packages/docusaurus-plugin"

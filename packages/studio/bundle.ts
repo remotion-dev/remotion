@@ -7,7 +7,13 @@ if (process.env.NODE_ENV !== 'production') {
 const mainModule = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
-	external: ['react', 'remotion', 'remotion/no-react', 'react/jsx-runtime'],
+	external: [
+		'react',
+		'remotion',
+		'remotion/no-react',
+		'react/jsx-runtime',
+		'zod',
+	],
 });
 
 const [file] = mainModule.outputs;
@@ -41,8 +47,6 @@ const internalsModule = await build({
 const [enableFile] = internalsModule.outputs;
 const internalsText = (await enableFile.text())
 	.replace(/jsxDEV/g, 'jsx')
-	.replace(/@remotion\/renderer\/client/g, '@remotion/renderer/client.js')
-	.replace(/@remotion\/renderer\/pure/g, '@remotion/renderer/pure.js')
 	.replace(/react\/jsx-dev-runtime/g, 'react/jsx-runtime');
 
 await Bun.write('dist/esm/internals.mjs', internalsText);

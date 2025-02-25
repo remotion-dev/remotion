@@ -1,3 +1,4 @@
+import {defaultSelectM3uStreamFn} from './containers/m3u/select-stream';
 import {internalParseMedia} from './internal-parse-media';
 import {Log} from './log';
 import type {DownloadAndParseMedia} from './options';
@@ -18,6 +19,7 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		onAudioTrack: null,
 		onContainer: options.onContainer ?? null,
 		onDimensions: options.onDimensions ?? null,
+		selectM3uStream: options.selectM3uStream ?? defaultSelectM3uStreamFn,
 		onDiscardedData: async (data) => {
 			await content.write(data);
 		},
@@ -43,6 +45,7 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		onSlowNumberOfFrames: options.onSlowNumberOfFrames ?? null,
 		onSlowVideoBitrate: options.onSlowVideoBitrate ?? null,
 		onStructure: options.onStructure ?? null,
+		onM3uStreams: options.onM3uStreams ?? null,
 		onTracks: options.onTracks ?? null,
 		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
 		onVideoCodec: options.onVideoCodec ?? null,

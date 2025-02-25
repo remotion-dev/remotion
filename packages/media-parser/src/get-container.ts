@@ -39,6 +39,10 @@ export const getContainer = (segments: Structure): MediaParserContainer => {
 		return 'aac';
 	}
 
+	if (segments.type === 'm3u') {
+		return 'm3u8';
+	}
+
 	throw new Error('Unknown container ' + (segments satisfies never));
 };
 

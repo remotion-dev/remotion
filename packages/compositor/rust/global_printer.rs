@@ -5,7 +5,7 @@ use std::{
 
 use lazy_static::lazy_static;
 
-use crate::errors::ErrorWithBacktrace;
+use crate::errors::{error_to_json, ErrorWithBacktrace};
 
 pub fn _print_debug(msg: &str) -> Result<(), ErrorWithBacktrace> {
     synchronized_write_buf(0, "0", &msg.as_bytes())
@@ -32,6 +32,10 @@ pub fn synchronized_write_buf(
     stdout_guard.write_all(&data)?;
     stdout_guard.flush()?;
     Ok(())
+}
+
+pub fn print_error(nonce: &str, err: ErrorWithBacktrace) {
+    synchronized_write_buf(1, nonce, &error_to_json(err).unwrap().as_bytes()).unwrap();
 }
 
 struct Logger {

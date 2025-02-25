@@ -19,6 +19,7 @@ test('CloudRunPayload should work with and without optional webhook fields', () 
 		downloadBehavior: {type: 'play-in-browser' as const},
 		outName: null,
 		offthreadVideoCacheSizeInBytes: null,
+		offthreadVideoThreads: null,
 		serializedInputPropsWithCustomSchema: JSON.stringify({}),
 	};
 

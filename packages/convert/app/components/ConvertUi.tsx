@@ -2,6 +2,7 @@ import {Button} from '@/components/ui/button';
 import type {
 	Dimensions,
 	LogLevel,
+	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserVideoCodec,
@@ -41,6 +42,7 @@ import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
+import {M3uStreamSelector} from './M3uStreamSelector';
 import {MirrorComponents} from './MirrorComponents';
 import {PauseResumeAndCancel} from './PauseResumeAndCancel';
 import {ResizeUi} from './ResizeUi';
@@ -48,7 +50,7 @@ import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
 
-export default function ConvertUI({
+const ConvertUI = ({
 	src,
 	currentAudioCodec,
 	currentVideoCodec,
@@ -70,6 +72,7 @@ export default function ConvertUI({
 	videoThumbnailRef,
 	rotation,
 	dimensions,
+	m3uStreams,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -83,6 +86,7 @@ export default function ConvertUI({
 	readonly rotation: number | null;
 	readonly inputContainer: MediaParserContainer | null;
 	readonly logLevel: LogLevel;
+	readonly m3uStreams: M3uStream[] | null;
 	readonly action: RouteAction;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
@@ -94,7 +98,7 @@ export default function ConvertUI({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+}) => {
 	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src, action),
 	);
@@ -106,6 +110,7 @@ export default function ConvertUI({
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
+	const [selectedM3uId, setSelectedM3uId] = useState<number | null>(null);
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
@@ -261,6 +266,9 @@ export default function ConvertUI({
 				);
 				return operation;
 			},
+			selectM3uStream: ({streams}) => {
+				return selectedM3uId ?? streams[0].id;
+			},
 			// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
 			apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
 		})
@@ -300,6 +308,7 @@ export default function ConvertUI({
 		enableConvert,
 		audioOperationSelection,
 		videoOperationSelection,
+		selectedM3uId,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -450,6 +459,13 @@ export default function ConvertUI({
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
+				{m3uStreams ? (
+					<M3uStreamSelector
+						streams={m3uStreams}
+						selectedId={selectedM3uId}
+						setSelectedM3uId={setSelectedM3uId}
+					/>
+				) : null}
 				{order.map((section) => {
 					if (section === 'convert') {
 						return (
@@ -583,4 +599,6 @@ export default function ConvertUI({
 			</Button>
 		</>
 	);
-}
+};
+
+export default ConvertUI;

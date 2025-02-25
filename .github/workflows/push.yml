@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
+          bun-version: 1.2.3
       - name: Install
         run: bun i
       - name: Cache turbo build setup
@@ -55,7 +55,7 @@ jobs:
           node-version: 16
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
+          bun-version: 1.2.3
       - name: Install
         run: bun i
       - name: Setup Python
@@ -96,7 +96,7 @@ jobs:
           node-version: 20
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
+          bun-version: 1.2.3
       - name: Install
         run: bun i
         env:
@@ -140,7 +140,7 @@ jobs:
             ${{ runner.os }}-turbo-
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
+          bun-version: 1.2.3
       - name: Install
         run: bun i
       - name: Build & Test

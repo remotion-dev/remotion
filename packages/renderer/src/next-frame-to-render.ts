@@ -23,6 +23,9 @@ export const nextFrameToRenderState = ({
 			rendered.set(nextFrame, true);
 			return nextFrame;
 		},
+		returnFrame: (frame: number) => {
+			rendered.delete(frame);
+		},
 	};
 };
 
@@ -41,6 +44,11 @@ export const partitionedNextFrameToRenderState: Fn = ({
 	return {
 		getNextFrame: (pageIndex) => {
 			return partitions.getNextFrame(pageIndex);
+		},
+		returnFrame: () => {
+			throw new Error(
+				'retrying failed frames for partitioned rendering is not supported. Disable partitioned rendering.',
+			);
 		},
 	};
 };

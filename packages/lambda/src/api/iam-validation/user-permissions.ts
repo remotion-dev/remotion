@@ -1,5 +1,8 @@
-import {REMOTION_BUCKET_PREFIX} from '@remotion/serverless/client';
-import {LOG_GROUP_PREFIX, RENDER_FN_PREFIX} from '../../shared/constants';
+import {
+	LOG_GROUP_PREFIX,
+	REMOTION_BUCKET_PREFIX,
+	RENDER_FN_PREFIX,
+} from '@remotion/lambda-client/constants';
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 
 export const requiredPermissions: {

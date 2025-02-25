@@ -24,6 +24,22 @@ const guessFromExtension = (src: string): MediaParserContainer => {
 		return 'transport-stream';
 	}
 
+	if (src.endsWith('.m3u8')) {
+		return 'm3u8';
+	}
+
+	if (src.endsWith('.wav') || src.endsWith('.wave')) {
+		return 'wav';
+	}
+
+	if (src.endsWith('.flac')) {
+		return 'flac';
+	}
+
+	if (src.endsWith('.mp3')) {
+		return 'mp3';
+	}
+
 	return 'mp4';
 };
 
@@ -35,7 +51,7 @@ export const guessContainerFromSource = (
 	}
 
 	if (source.type === 'url') {
-		return guessFromExtension(source.url);
+		return guessFromExtension(new URL(source.url).pathname);
 	}
 
 	throw new Error(`Unhandled source type: ${source satisfies never}`);
@@ -122,6 +138,10 @@ export const getDefaultContainerForConversion = (
 
 	if (guessed === 'flac') {
 		return 'wav';
+	}
+
+	if (guessed === 'm3u8') {
+		return 'mp4';
 	}
 
 	throw new Error('Unhandled container ' + (guessed satisfies never));

@@ -1,4 +1,8 @@
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
+import {
+	useAudioData,
+	visualizeAudio,
+	visualizeAudioWaveform,
+} from '@remotion/media-utils';
 import {transparentize} from 'polished';
 import React from 'react';
 import {
@@ -6,6 +10,7 @@ import {
 	Audio,
 	Img,
 	interpolate,
+	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -81,12 +86,14 @@ const Text: React.FC<{
 	);
 };
 
+const WAVEFORM_SAMPLES = 32;
+
 const AudioVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
-
-	if (!audioData) {
+	const audioDataVoice = useAudioData(staticFile('podcast.wav'));
+	if (!audioData || !audioDataVoice) {
 		return null;
 	}
 
@@ -96,6 +103,15 @@ const AudioVisualization: React.FC = () => {
 		audioData,
 		numberOfSamples: 32,
 	});
+	const waveform = visualizeAudioWaveform({
+		fps,
+		frame,
+		audioData: audioDataVoice,
+		numberOfSamples: WAVEFORM_SAMPLES,
+		windowInSeconds: 1 / fps,
+		channel: 0,
+	});
+	console.log({waveform});
 
 	const scale =
 		1 +

@@ -63,6 +63,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				metadata: input.metadata,
 				hardwareAcceleration: input.hardwareAcceleration,
 				chromeMode: input.chromeMode,
+				offthreadVideoThreads: input.offthreadVideoThreads,
 			},
 			logLevel,
 		});
@@ -101,6 +102,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				binariesDirectory,
 				metadata: input.metadata,
 				chromeMode: input.chromeMode,
+				offthreadVideoThreads: input.offthreadVideoThreads,
 			},
 			logLevel,
 		});
@@ -135,6 +137,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				binariesDirectory,
 				metadata: input.metadata,
 				chromeMode: input.chromeMode,
+				offthreadVideoThreads: input.offthreadVideoThreads,
 			},
 			entryPoint,
 			remotionRoot,
