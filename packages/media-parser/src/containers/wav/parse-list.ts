@@ -20,7 +20,17 @@ export const parseList = ({
 
 	const metadata: MetadataEntry[] = [];
 
-	while (iterator.counter.getOffset() < startOffset + ckSize) {
+	const remainingBytes = () =>
+		ckSize - (iterator.counter.getOffset() - startOffset);
+	while (remainingBytes() > 0) {
+		// Padding
+		// https://discord.com/channels/809501355504959528/1308803317480292482/1343979547246333983
+		// Indie_Hacker_Podcast (2).wav
+		if (remainingBytes() < 4) {
+			iterator.discard(remainingBytes());
+			break;
+		}
+
 		const key = iterator.getByteString(4, false);
 		const size = iterator.getUint32Le();
 		const value = iterator.getByteString(size, true);
