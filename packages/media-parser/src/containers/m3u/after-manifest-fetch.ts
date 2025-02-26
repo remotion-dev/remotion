@@ -57,36 +57,58 @@ export const runOverM3u = async ({
 	state: ParserState;
 	structure: M3uStructure;
 }) => {
-	const selectedStream = state.m3u.getSelectedStream();
-	if (!selectedStream) {
-		throw new Error('No stream selected');
+	const existingRun = state.m3u.getM3uStreamRun();
+
+	if (existingRun) {
+		const run = await existingRun.continue();
+		state.m3u.setM3uStreamRun(run);
+		if (!run) {
+			state.m3u.setAllChunksProcessed();
+		}
+
+		return;
 	}
 
-	await iteratorOverTsFiles({
-		playlistUrl:
-			selectedStream.type === 'initial-url'
-				? selectedStream.url
-				: selectedStream.stream.url,
-		structure,
-		logLevel: state.logLevel,
-		onDoneWithTracks() {
-			state.callbacks.tracks.setIsDone(state.logLevel);
-		},
-		onAudioTrack: (track) => {
-			return registerAudioTrack({
-				container: 'm3u8',
-				state,
-				track,
-			});
-		},
-		onVideoTrack: (track) => {
-			return registerVideoTrack({
-				container: 'm3u8',
-				state,
-				track,
-			});
-		},
-		m3uState: state.m3u,
-		parentController: state.controller,
+	return new Promise<void>((resolve, reject) => {
+		const selectedStream = state.m3u.getSelectedStream();
+		if (!selectedStream) {
+			throw new Error('No stream selected');
+		}
+
+		const run = iteratorOverTsFiles({
+			playlistUrl:
+				selectedStream.type === 'initial-url'
+					? selectedStream.url
+					: selectedStream.stream.url,
+			structure,
+			onInitialProgress: (newRun) => {
+				state.m3u.setM3uStreamRun(newRun);
+				resolve();
+			},
+			logLevel: state.logLevel,
+			onDoneWithTracks() {
+				state.callbacks.tracks.setIsDone(state.logLevel);
+			},
+			onAudioTrack: (track) => {
+				return registerAudioTrack({
+					container: 'm3u8',
+					state,
+					track,
+				});
+			},
+			onVideoTrack: (track) => {
+				return registerVideoTrack({
+					container: 'm3u8',
+					state,
+					track,
+				});
+			},
+			m3uState: state.m3u,
+			parentController: state.controller,
+		});
+
+		run.catch((err) => {
+			reject(err);
+		});
 	});
 };

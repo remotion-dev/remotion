@@ -11,6 +11,10 @@ type M3uStreamOrInitialUrl =
 			url: string;
 	  };
 
+export type ExistingM3uRun = {
+	continue: () => Promise<ExistingM3uRun | null>;
+};
+
 export const m3uState = () => {
 	let selectedStream: M3uStreamOrInitialUrl | null = null;
 	let hasEmittedVideoTrack: null | OnVideoSample | false = false;
@@ -19,8 +23,9 @@ export const m3uState = () => {
 	let hasFinishedManifest = false;
 
 	let readyToIterateOverM3u = false;
-	let lastChunkProcessed = -1;
 	let allChunksProcessed = false;
+
+	let m3uStreamRun: null | ExistingM3uRun = null;
 
 	return {
 		setSelectedStream: (stream: M3uStreamOrInitialUrl) => {
@@ -43,10 +48,7 @@ export const m3uState = () => {
 			readyToIterateOverM3u = true;
 		},
 		isReadyToIterateOverM3u: () => readyToIterateOverM3u,
-		setLastChunkProcessed: (chunk: number) => {
-			lastChunkProcessed = chunk;
-		},
-		getLastChunkProcessed: () => lastChunkProcessed,
+
 		getAllChunksProcessed: () => allChunksProcessed,
 		setAllChunksProcessed: () => {
 			allChunksProcessed = true;
@@ -55,6 +57,10 @@ export const m3uState = () => {
 			hasFinishedManifest = true;
 		},
 		hasFinishedManifest: () => hasFinishedManifest,
+		setM3uStreamRun: (run: ExistingM3uRun | null) => {
+			m3uStreamRun = run;
+		},
+		getM3uStreamRun: () => m3uStreamRun,
 	};
 };
 
