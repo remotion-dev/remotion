@@ -110,7 +110,7 @@ export const IconForTemplate: React.FC<{
 		);
 	}
 
-	if (template.cliId === 'remix') {
+	if (template.cliId === 'react-router') {
 		return (
 			<RemixIcon
 				style={{
