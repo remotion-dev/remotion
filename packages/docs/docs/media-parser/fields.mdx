@@ -208,7 +208,7 @@ An array of objects with the following fields:
 - `codecs`: The codec strings of the stream as an array May be `null`.
 - `url`: The URI of the stream
 - `id`: A unique identifier that Remotion gives the stream
-- `dedicatedAudioTracks`: Audio tracks that are connected to this stream but are in a separate file. Currently these need to be processed yourself. We plan a breaking change to allow you to select an audio stream and allowing you to get the samples in the usual interleaved manner. This value is an array with objects of the following shape:
+- `associatedPlaylists`: Audio tracks that are connected to this stream but live in a separate file.
   - `url`: The URL of the audio track
   - `autoselect`: Corresponds to the `AUTOSELECT` attribute in the HLS playlist
   - `default`: Corresponds to the `DEFAULT` attribute in the HLS playlist

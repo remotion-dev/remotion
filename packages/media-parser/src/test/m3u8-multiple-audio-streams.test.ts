@@ -19,7 +19,7 @@ test('separate video and  audio streams', async () => {
 				averageBandwidth: null,
 				bandwidth: 5000000,
 				codecs: ['avc1.42e00a', 'mp4a.40.2'],
-				dedicatedAudioTracks: [
+				associatedPlaylists: [
 					{
 						autoselect: true,
 						channels: 1,
@@ -58,7 +58,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 10285391,
 			codecs: ['avc1.4d4033', 'mp4a.40.2'],
 			resolution: {width: 4096, height: 1744},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -86,7 +86,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 4149264,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
 			resolution: {width: 1921, height: 818},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -114,7 +114,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 6214307,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
 			resolution: {width: 1921, height: 818},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -142,7 +142,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 1558322,
 			codecs: ['avc1.4d401f', 'mp4a.40.2'],
 			resolution: {width: 1277, height: 554},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -170,7 +170,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 1144430,
 			codecs: ['avc1.4d401f', 'mp4a.40.2'],
 			resolution: {width: 958, height: 408},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -198,7 +198,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 520929,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
 			resolution: {width: 638, height: 272},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -226,7 +226,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 831270,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
 			resolution: {width: 638, height: 272},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -254,7 +254,7 @@ test('multiple audio streams', async () => {
 			bandwidth: 258157,
 			codecs: ['avc1.4d400d', 'mp4a.40.2'],
 			resolution: {width: 422, height: 180},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
