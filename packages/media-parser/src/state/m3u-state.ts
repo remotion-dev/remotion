@@ -2,6 +2,7 @@ import type {
 	M3uAssociatedPlaylist,
 	M3uStream,
 } from '../containers/m3u/get-streams';
+import {sampleSorter} from '../containers/m3u/sample-sorter';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
@@ -30,7 +31,7 @@ export const m3uState = (logLevel: LogLevel) => {
 	let hasFinishedManifest = false;
 
 	let readyToIterateOverM3u = false;
-	let allChunksProcessed = false;
+	const allChunksProcessed: Record<string, boolean> = {};
 
 	const m3uStreamRuns: Record<string, ExistingM3uRun> = {};
 	const tracksDone: Record<string, boolean> = {};
@@ -53,6 +54,9 @@ export const m3uState = (logLevel: LogLevel) => {
 			...(associatedPlaylists ?? []).map((p) => p.url),
 		];
 	};
+
+	const getAllChunksProcessedForPlaylist = (src: string) =>
+		allChunksProcessed[src];
 
 	return {
 		setSelectedMainPlaylist: (stream: M3uStreamOrInitialUrl) => {
@@ -89,10 +93,17 @@ export const m3uState = (logLevel: LogLevel) => {
 			readyToIterateOverM3u = true;
 		},
 		isReadyToIterateOverM3u: () => readyToIterateOverM3u,
+		setAllChunksProcessed: (src: string) => {
+			allChunksProcessed[src] = true;
+		},
+		getAllChunksProcessedForPlaylist,
+		getAllChunksProcessedOverall: () => {
+			if (!selectedMainPlaylist) {
+				return false;
+			}
 
-		getAllChunksProcessed: () => allChunksProcessed,
-		setAllChunksProcessed: () => {
-			allChunksProcessed = true;
+			const selectedPlaylists = getSelectedPlaylists();
+			return selectedPlaylists.every((url) => allChunksProcessed[url]);
 		},
 		setHasFinishedManifest: () => {
 			hasFinishedManifest = true;
@@ -129,6 +140,7 @@ export const m3uState = (logLevel: LogLevel) => {
 		},
 		getAssociatedPlaylists: () => associatedPlaylists,
 		getSelectedPlaylists,
+		sampleSorter: sampleSorter({logLevel, getAllChunksProcessedForPlaylist}),
 	};
 };
 

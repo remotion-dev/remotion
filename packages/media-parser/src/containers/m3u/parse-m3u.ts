@@ -8,15 +8,15 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 	if (state.m3u.isReadyToIterateOverM3u()) {
 		const selectedPlaylists = state.m3u.getSelectedPlaylists();
 
-		// TODO: Should not run over all same playlists at once
-		for (const playlist of selectedPlaylists) {
-			await runOverM3u({
-				state,
-				structure,
-				playlistUrl: playlist,
-				logLevel: state.logLevel,
-			});
-		}
+		const whichPlaylistToRunOver =
+			state.m3u.sampleSorter.getNextStreamToRun(selectedPlaylists);
+
+		await runOverM3u({
+			state,
+			structure,
+			playlistUrl: whichPlaylistToRunOver,
+			logLevel: state.logLevel,
+		});
 
 		return null;
 	}

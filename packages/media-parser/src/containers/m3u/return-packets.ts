@@ -77,23 +77,23 @@ export const iteratorOverTsFiles = async ({
 					resolver(makeContinuationFn());
 				},
 				onTracks: () => {
-					if (!m3uState.hasEmittedDoneWithTracks(src)) {
-						m3uState.setHasEmittedDoneWithTracks(src);
+					if (!m3uState.hasEmittedDoneWithTracks(playlistUrl)) {
+						m3uState.setHasEmittedDoneWithTracks(playlistUrl);
 						onDoneWithTracks();
 						return null;
 					}
 				},
 				onAudioTrack: async ({track}) => {
-					const callbackOrFalse = m3uState.hasEmittedAudioTrack(src);
+					const callbackOrFalse = m3uState.hasEmittedAudioTrack(playlistUrl);
 					if (callbackOrFalse === false) {
 						const callback = await onAudioTrack(track);
 
 						if (!callback) {
-							m3uState.setHasEmittedAudioTrack(src, null);
+							m3uState.setHasEmittedAudioTrack(playlistUrl, null);
 							return null;
 						}
 
-						m3uState.setHasEmittedAudioTrack(src, callback);
+						m3uState.setHasEmittedAudioTrack(playlistUrl, callback);
 						return (sample) => {
 							return callback(sample);
 						};
@@ -102,16 +102,16 @@ export const iteratorOverTsFiles = async ({
 					return callbackOrFalse;
 				},
 				onVideoTrack: async ({track}) => {
-					const callbackOrFalse = m3uState.hasEmittedVideoTrack(src);
+					const callbackOrFalse = m3uState.hasEmittedVideoTrack(playlistUrl);
 					if (callbackOrFalse === false) {
 						const callback = await onVideoTrack(track);
 
 						if (!callback) {
-							m3uState.setHasEmittedVideoTrack(src, null);
+							m3uState.setHasEmittedVideoTrack(playlistUrl, null);
 							return null;
 						}
 
-						m3uState.setHasEmittedVideoTrack(src, callback);
+						m3uState.setHasEmittedVideoTrack(playlistUrl, callback);
 						return (sample) => {
 							return callback(sample);
 						};

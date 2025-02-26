@@ -23,7 +23,7 @@ export const runOverM3u = async ({
 		const run = await existingRun.continue();
 		state.m3u.setM3uStreamRun(playlistUrl, run);
 		if (!run) {
-			state.m3u.setAllChunksProcessed();
+			state.m3u.setAllChunksProcessed(playlistUrl);
 		}
 
 		return;
@@ -51,13 +51,16 @@ export const runOverM3u = async ({
 					state,
 					track,
 				});
+				state.m3u.sampleSorter.addToStreamWithTrack(playlistUrl);
+
 				if (onAudioSample === null) {
 					return null;
 				}
 
-				// TODO: Should undergo a sample sorting process instead
+				state.m3u.sampleSorter.addStreamToConsider(playlistUrl, onAudioSample);
+
 				return async (sample) => {
-					await onAudioSample(sample);
+					await state.m3u.sampleSorter.addSample(playlistUrl, sample);
 				};
 			},
 			onVideoTrack: async (track) => {
@@ -66,13 +69,16 @@ export const runOverM3u = async ({
 					state,
 					track,
 				});
+				state.m3u.sampleSorter.addToStreamWithTrack(playlistUrl);
+
 				if (onVideoSample === null) {
 					return null;
 				}
 
-				// TODO: Should undergo a sample sorting process instead
+				state.m3u.sampleSorter.addStreamToConsider(playlistUrl, onVideoSample);
+
 				return async (sample) => {
-					await onVideoSample(sample);
+					await state.m3u.sampleSorter.addSample(playlistUrl, sample);
 				};
 			},
 			m3uState: state.m3u,

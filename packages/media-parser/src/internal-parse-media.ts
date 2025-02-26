@@ -162,7 +162,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		if (state.iterator.counter.getOffset() === contentLength) {
 			if (
 				state.getStructure().type === 'm3u' &&
-				!state.m3u.getAllChunksProcessed()
+				!state.m3u.getAllChunksProcessedOverall()
 			) {
 				return false;
 			}
