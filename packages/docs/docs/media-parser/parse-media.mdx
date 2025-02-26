@@ -142,7 +142,7 @@ This is useful if you want to add a small delay inbetween progress steps to keep
 _number_
 
 The interval in milliseconds at which the [`onParseProgress`](#onparseprogress) callback is called.  
-Default `100`. Set to `0` for unthrottled updates.  
+Default `100`. Set to `0` for unthrottled and synchronous updates.  
 Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
 ### `logLevel?`
