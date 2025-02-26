@@ -1,3 +1,5 @@
+import type {LogLevel} from '../../log';
+import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {M3uState} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
@@ -53,15 +55,20 @@ export const afterManifestFetch = async ({
 export const runOverM3u = async ({
 	state,
 	structure,
+	playlistUrl,
+	logLevel,
 }: {
 	state: ParserState;
 	structure: M3uStructure;
+	playlistUrl: string;
+	logLevel: LogLevel;
 }) => {
-	const existingRun = state.m3u.getM3uStreamRun();
+	const existingRun = state.m3u.getM3uStreamRun(playlistUrl);
 
 	if (existingRun) {
+		Log.trace(logLevel, 'Existing M3U parsing process found for', playlistUrl);
 		const run = await existingRun.continue();
-		state.m3u.setM3uStreamRun(run);
+		state.m3u.setM3uStreamRun(playlistUrl, run);
 		if (!run) {
 			state.m3u.setAllChunksProcessed();
 		}
@@ -69,27 +76,22 @@ export const runOverM3u = async ({
 		return;
 	}
 
+	Log.trace(logLevel, 'Starting new M3U parsing process for', playlistUrl);
 	return new Promise<void>((resolve, reject) => {
-		const selectedStream = state.m3u.getSelectedStream();
-		if (!selectedStream) {
-			throw new Error('No stream selected');
-		}
-
 		const run = iteratorOverTsFiles({
-			playlistUrl:
-				selectedStream.type === 'initial-url'
-					? selectedStream.url
-					: selectedStream.stream.url,
+			playlistUrl,
 			structure,
 			onInitialProgress: (newRun) => {
-				state.m3u.setM3uStreamRun(newRun);
+				state.m3u.setM3uStreamRun(playlistUrl, newRun);
 				resolve();
 			},
 			logLevel: state.logLevel,
 			onDoneWithTracks() {
+				// TODO: Should only call this if done with BOTH tracks
 				state.callbacks.tracks.setIsDone(state.logLevel);
 			},
 			onAudioTrack: (track) => {
+				// TODO: Should undergo a sample sorting process instead
 				return registerAudioTrack({
 					container: 'm3u8',
 					state,
@@ -97,6 +99,7 @@ export const runOverM3u = async ({
 				});
 			},
 			onVideoTrack: (track) => {
+				// TODO: Should undergo a sample sorting process instead
 				return registerVideoTrack({
 					container: 'm3u8',
 					state,

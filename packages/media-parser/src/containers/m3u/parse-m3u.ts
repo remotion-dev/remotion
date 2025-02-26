@@ -5,9 +5,21 @@ import {parseM3uManifest} from './parse-m3u-manifest';
 export const parseM3u = async ({state}: {state: ParserState}) => {
 	const structure = state.getM3uStructure();
 	if (state.m3u.isReadyToIterateOverM3u()) {
+		const selectedStream = state.m3u.getSelectedStream();
+		if (!selectedStream) {
+			throw new Error('No stream selected');
+		}
+
+		const playlistUrl =
+			selectedStream.type === 'initial-url'
+				? selectedStream.url
+				: selectedStream.stream.url;
+
 		await runOverM3u({
 			state,
 			structure,
+			playlistUrl,
+			logLevel: state.logLevel,
 		});
 		return null;
 	}

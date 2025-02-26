@@ -105,7 +105,7 @@ export const makeParserState = ({
 		mp3Info,
 		aac: aacState(),
 		flac: flacState(),
-		m3u: m3uState(),
+		m3u: m3uState(logLevel),
 		callbacks: sampleCallback({
 			controller,
 			hasAudioTrackHandlers,

@@ -345,6 +345,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	iterator?.destroy();
 
 	state.callbacks.tracks.ensureHasTracksAtEnd(fields);
+	state.m3u.abortM3UStreamRuns();
 	if (errored) {
 		throw errored;
 	}

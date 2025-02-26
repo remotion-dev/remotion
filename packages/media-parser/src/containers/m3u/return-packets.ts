@@ -54,6 +54,9 @@ export const iteratorOverTsFiles = async ({
 				childController.resume();
 				return promise;
 			},
+			abort() {
+				childController.abort();
+			},
 		};
 	};
 
