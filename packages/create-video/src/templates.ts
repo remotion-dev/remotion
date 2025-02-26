@@ -30,7 +30,7 @@ export type Template = {
 		| 'next'
 		| 'next-tailwind'
 		| 'next-pages-dir'
-		| 'remix'
+		| 'react-router'
 		| 'three'
 		| 'still'
 		| 'tts'
@@ -184,24 +184,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: true,
 	},
 	{
-		homePageLabel: 'Remix',
-		shortName: 'Remix',
+		homePageLabel: 'React Router 7',
+		shortName: 'React Router',
 		org: 'remotion-dev',
-		repoName: 'template-remix',
-		description: 'Remotion + Remix Starter Kit',
+		repoName: 'template-react-router',
+		description: 'Remotion + React Router Starter Kit',
 		longerDescription:
-			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with remix.run.',
+			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with React Router 7.',
 		promoBanner: {
 			width: 1280,
 			height: 720,
 			src: '/img/remix-template.png',
 		},
-		cliId: 'remix' as const,
+		cliId: 'react-router' as const,
 		type: 'image' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: 'template-remix',
+		templateInMonorepo: 'template-react-router',
 		allowEnableTailwind: false,
 	},
 	{
