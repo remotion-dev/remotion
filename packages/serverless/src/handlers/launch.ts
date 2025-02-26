@@ -33,6 +33,7 @@ import {
 import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
+import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
 import type {OverallProgressHelper} from '../overall-render-progress';
@@ -54,6 +55,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	registerCleanupTask,
 	providerSpecifics,
 	insideFunctionSpecifics,
+	onBrowser,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -61,6 +63,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	onBrowser: (browser: LaunchedBrowser) => void;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -74,6 +77,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		chromiumOptions: params.chromiumOptions,
 		providerSpecifics,
 		insideFunctionSpecifics,
+	});
+
+	browserInstance.then((b) => {
+		onBrowser(b);
 	});
 
 	const inputPropsPromise = decompressInputProps({
@@ -527,6 +534,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	};
 
 	const cleanupTasks: CleanupTask[] = [];
+	let instance: LaunchedBrowser | null = null;
 
 	const registerCleanupTask = (task: CleanupTask) => {
 		cleanupTasks.push(task);
@@ -678,6 +686,9 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			registerCleanupTask,
 			providerSpecifics,
 			insideFunctionSpecifics,
+			onBrowser: (browser) => {
+				instance = browser;
+			},
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -836,6 +847,11 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
+		if (instance) {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel: params.logLevel,
+				launchedBrowser: instance,
+			});
+		}
 	}
 };
