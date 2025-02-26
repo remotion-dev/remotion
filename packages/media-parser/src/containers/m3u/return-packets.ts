@@ -31,7 +31,7 @@ export const iteratorOverTsFiles = async ({
 	parentController: MediaParserController;
 	onInitialProgress: (run: ExistingM3uRun | null) => void;
 }) => {
-	const playlist = getPlaylist(structure);
+	const playlist = getPlaylist(structure, playlistUrl);
 	const chunks = getChunks(playlist);
 
 	let resolver: (run: ExistingM3uRun | null) => void = onInitialProgress;
@@ -77,8 +77,8 @@ export const iteratorOverTsFiles = async ({
 					resolver(makeContinuationFn());
 				},
 				onTracks: () => {
-					if (!m3uState.hasEmittedDoneWithTracks()) {
-						m3uState.setHasEmittedDoneWithTracks();
+					if (!m3uState.hasEmittedDoneWithTracks(src)) {
+						m3uState.setHasEmittedDoneWithTracks(src);
 						onDoneWithTracks();
 						return null;
 					}

@@ -1,26 +1,24 @@
 import type {ParserState} from '../../state/parser-state';
-import {afterManifestFetch, runOverM3u} from './after-manifest-fetch';
+import {afterManifestFetch} from './after-manifest-fetch';
 import {parseM3uManifest} from './parse-m3u-manifest';
+import {runOverM3u} from './run-over-m3u';
 
 export const parseM3u = async ({state}: {state: ParserState}) => {
 	const structure = state.getM3uStructure();
 	if (state.m3u.isReadyToIterateOverM3u()) {
-		const selectedStream = state.m3u.getSelectedStream();
-		if (!selectedStream) {
-			throw new Error('No stream selected');
+		const selectedPlaylists = state.m3u.getSelectedPlaylists();
+
+		// TODO: Should not run over all same playlists at once
+
+		for (const playlist of selectedPlaylists) {
+			await runOverM3u({
+				state,
+				structure,
+				playlistUrl: playlist,
+				logLevel: state.logLevel,
+			});
 		}
 
-		const playlistUrl =
-			selectedStream.type === 'initial-url'
-				? selectedStream.url
-				: selectedStream.stream.url;
-
-		await runOverM3u({
-			state,
-			structure,
-			playlistUrl,
-			logLevel: state.logLevel,
-		});
 		return null;
 	}
 
@@ -30,6 +28,7 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 			m3uState: state.m3u,
 			src: typeof state.src === 'string' ? state.src : null,
 			selectM3uStreamFn: state.selectM3uStreamFn,
+			logLevel: state.logLevel,
 		});
 		return null;
 	}

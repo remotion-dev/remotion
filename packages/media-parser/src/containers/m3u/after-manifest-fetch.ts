@@ -1,25 +1,24 @@
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {M3uState} from '../../state/m3u-state';
-import type {ParserState} from '../../state/parser-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
 import {getM3uStreams, isIndependentSegments} from './get-streams';
-import {iteratorOverTsFiles} from './return-packets';
 import type {SelectM3uStreamFn} from './select-stream';
-import {selectStream} from './select-stream';
-import type {M3uStructure} from './types';
+import {selectAssociatedPlaylists, selectStream} from './select-stream';
+import type {M3uPlaylist, M3uStructure} from './types';
 
 export const afterManifestFetch = async ({
 	structure,
 	m3uState,
 	src,
 	selectM3uStreamFn,
+	logLevel,
 }: {
 	structure: M3uStructure;
 	m3uState: M3uState;
 	src: string | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
+	logLevel: LogLevel;
 }) => {
 	const independentSegments = isIndependentSegments(structure);
 	if (!independentSegments) {
@@ -27,7 +26,7 @@ export const afterManifestFetch = async ({
 			throw new Error('No src');
 		}
 
-		m3uState.setSelectedStream({
+		m3uState.setSelectedMainPlaylist({
 			type: 'initial-url',
 			url: src,
 		});
@@ -40,78 +39,40 @@ export const afterManifestFetch = async ({
 		throw new Error('No streams found');
 	}
 
-	const selectedStream = await selectStream({streams, fn: selectM3uStreamFn});
-	m3uState.setSelectedStream({type: 'selected-stream', stream: selectedStream});
+	const selectedPlaylist = await selectStream({streams, fn: selectM3uStreamFn});
 
-	if (!selectedStream.resolution) {
+	if (!selectedPlaylist.resolution) {
 		throw new Error('Stream does not have a resolution');
 	}
 
-	const boxes = await fetchM3u8Stream(selectedStream);
-	structure.boxes.push({type: 'm3u-playlist', boxes});
-	m3uState.setReadyToIterateOverM3u();
-};
-
-export const runOverM3u = async ({
-	state,
-	structure,
-	playlistUrl,
-	logLevel,
-}: {
-	state: ParserState;
-	structure: M3uStructure;
-	playlistUrl: string;
-	logLevel: LogLevel;
-}) => {
-	const existingRun = state.m3u.getM3uStreamRun(playlistUrl);
-
-	if (existingRun) {
-		Log.trace(logLevel, 'Existing M3U parsing process found for', playlistUrl);
-		const run = await existingRun.continue();
-		state.m3u.setM3uStreamRun(playlistUrl, run);
-		if (!run) {
-			state.m3u.setAllChunksProcessed();
-		}
-
-		return;
-	}
-
-	Log.trace(logLevel, 'Starting new M3U parsing process for', playlistUrl);
-	return new Promise<void>((resolve, reject) => {
-		const run = iteratorOverTsFiles({
-			playlistUrl,
-			structure,
-			onInitialProgress: (newRun) => {
-				state.m3u.setM3uStreamRun(playlistUrl, newRun);
-				resolve();
-			},
-			logLevel: state.logLevel,
-			onDoneWithTracks() {
-				// TODO: Should only call this if done with BOTH tracks
-				state.callbacks.tracks.setIsDone(state.logLevel);
-			},
-			onAudioTrack: (track) => {
-				// TODO: Should undergo a sample sorting process instead
-				return registerAudioTrack({
-					container: 'm3u8',
-					state,
-					track,
-				});
-			},
-			onVideoTrack: (track) => {
-				// TODO: Should undergo a sample sorting process instead
-				return registerVideoTrack({
-					container: 'm3u8',
-					state,
-					track,
-				});
-			},
-			m3uState: state.m3u,
-			parentController: state.controller,
-		});
-
-		run.catch((err) => {
-			reject(err);
-		});
+	m3uState.setSelectedMainPlaylist({
+		type: 'selected-stream',
+		stream: selectedPlaylist,
 	});
+
+	const associatedPlaylists = await selectAssociatedPlaylists(
+		selectedPlaylist.associatedPlaylists,
+	);
+	m3uState.setAssociatedPlaylists(associatedPlaylists);
+
+	const playlistUrls = [
+		selectedPlaylist.url,
+		...associatedPlaylists.map((p) => p.url),
+	];
+	const struc = await Promise.all(
+		playlistUrls.map(async (url): Promise<M3uPlaylist> => {
+			Log.verbose(logLevel, `Fetching playlist ${url}`);
+			const boxes = await fetchM3u8Stream(url);
+
+			return {
+				type: 'm3u-playlist',
+				boxes,
+				src: url,
+			};
+		}),
+	);
+
+	structure.boxes.push(...struc);
+
+	m3uState.setReadyToIterateOverM3u();
 };

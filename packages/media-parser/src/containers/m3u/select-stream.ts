@@ -1,4 +1,4 @@
-import type {M3uStream} from './get-streams';
+import type {M3uAssociatedPlaylist, M3uStream} from './get-streams';
 
 export type SelectM3uStreamFnOptions = {
 	streams: M3uStream[];
@@ -7,6 +7,13 @@ export type SelectM3uStreamFnOptions = {
 export type SelectM3uStreamFn = (
 	options: SelectM3uStreamFnOptions,
 ) => number | Promise<number>;
+
+export const selectAssociatedPlaylists = (
+	playlists: M3uAssociatedPlaylist[],
+): Promise<M3uAssociatedPlaylist[]> => {
+	// TODO: Allow customizing this
+	return Promise.resolve(playlists.filter((playlist) => playlist.default));
+};
 
 export const selectStream = async ({
 	streams,

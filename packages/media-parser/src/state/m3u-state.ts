@@ -1,4 +1,7 @@
-import type {M3uStream} from '../containers/m3u/get-streams';
+import type {
+	M3uAssociatedPlaylist,
+	M3uStream,
+} from '../containers/m3u/get-streams';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
@@ -19,22 +22,43 @@ export type ExistingM3uRun = {
 };
 
 export const m3uState = (logLevel: LogLevel) => {
-	let selectedStream: M3uStreamOrInitialUrl | null = null;
+	let selectedMainPlaylist: M3uStreamOrInitialUrl | null = null;
+	let associatedPlaylists: M3uAssociatedPlaylist[] | null = null;
 	let hasEmittedVideoTrack: null | OnVideoSample | false = false;
 	let hasEmittedAudioTrack: null | OnAudioSample | false = false;
-	let hasEmittedDoneWithTracks = false;
+	const hasEmittedDoneWithTracks: Record<string, boolean> = {};
 	let hasFinishedManifest = false;
 
 	let readyToIterateOverM3u = false;
 	let allChunksProcessed = false;
 
 	const m3uStreamRuns: Record<string, ExistingM3uRun> = {};
+	const tracksDone: Record<string, boolean> = {};
+
+	const getMainPlaylistUrl = () => {
+		if (!selectedMainPlaylist) {
+			throw new Error('No main playlist selected');
+		}
+
+		const playlistUrl =
+			selectedMainPlaylist.type === 'initial-url'
+				? selectedMainPlaylist.url
+				: selectedMainPlaylist.stream.url;
+		return playlistUrl;
+	};
+
+	const getSelectedPlaylists = () => {
+		return [
+			getMainPlaylistUrl(),
+			...(associatedPlaylists ?? []).map((p) => p.url),
+		];
+	};
 
 	return {
-		setSelectedStream: (stream: M3uStreamOrInitialUrl) => {
-			selectedStream = stream;
+		setSelectedMainPlaylist: (stream: M3uStreamOrInitialUrl) => {
+			selectedMainPlaylist = stream;
 		},
-		getSelectedStream: () => selectedStream,
+		getSelectedMainPlaylist: () => selectedMainPlaylist,
 		setHasEmittedVideoTrack: (callback: OnVideoSample | null) => {
 			hasEmittedVideoTrack = callback;
 		},
@@ -43,10 +67,10 @@ export const m3uState = (logLevel: LogLevel) => {
 			hasEmittedAudioTrack = callback;
 		},
 		hasEmittedAudioTrack: () => hasEmittedAudioTrack,
-		setHasEmittedDoneWithTracks: () => {
-			hasEmittedDoneWithTracks = true;
+		setHasEmittedDoneWithTracks: (src: string) => {
+			hasEmittedDoneWithTracks[src] = true;
 		},
-		hasEmittedDoneWithTracks: () => hasEmittedDoneWithTracks,
+		hasEmittedDoneWithTracks: (src: string) => hasEmittedDoneWithTracks[src],
 		setReadyToIterateOverM3u: () => {
 			readyToIterateOverM3u = true;
 		},
@@ -68,6 +92,11 @@ export const m3uState = (logLevel: LogLevel) => {
 
 			m3uStreamRuns[playlistUrl] = run;
 		},
+		setTracksDone: (playlistUrl: string) => {
+			tracksDone[playlistUrl] = true;
+			const selectedPlaylists = getSelectedPlaylists();
+			return selectedPlaylists.every((url) => tracksDone[url]);
+		},
 		getM3uStreamRun: (playlistUrl: string) =>
 			m3uStreamRuns[playlistUrl] ?? null,
 		abortM3UStreamRuns: () => {
@@ -81,6 +110,11 @@ export const m3uState = (logLevel: LogLevel) => {
 				run.abort();
 			});
 		},
+		setAssociatedPlaylists: (playlists: M3uAssociatedPlaylist[]) => {
+			associatedPlaylists = playlists;
+		},
+		getAssociatedPlaylists: () => associatedPlaylists,
+		getSelectedPlaylists,
 	};
 };
 
