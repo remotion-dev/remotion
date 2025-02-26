@@ -45,21 +45,35 @@ export const runOverM3u = async ({
 					state.callbacks.tracks.setIsDone(state.logLevel);
 				}
 			},
-			onAudioTrack: (track) => {
-				// TODO: Should undergo a sample sorting process instead
-				return registerAudioTrack({
+			onAudioTrack: async (track) => {
+				const onAudioSample = await registerAudioTrack({
 					container: 'm3u8',
 					state,
 					track,
 				});
+				if (onAudioSample === null) {
+					return null;
+				}
+
+				// TODO: Should undergo a sample sorting process instead
+				return async (sample) => {
+					await onAudioSample(sample);
+				};
 			},
-			onVideoTrack: (track) => {
-				// TODO: Should undergo a sample sorting process instead
-				return registerVideoTrack({
+			onVideoTrack: async (track) => {
+				const onVideoSample = await registerVideoTrack({
 					container: 'm3u8',
 					state,
 					track,
 				});
+				if (onVideoSample === null) {
+					return null;
+				}
+
+				// TODO: Should undergo a sample sorting process instead
+				return async (sample) => {
+					await onVideoSample(sample);
+				};
 			},
 			m3uState: state.m3u,
 			parentController: state.controller,

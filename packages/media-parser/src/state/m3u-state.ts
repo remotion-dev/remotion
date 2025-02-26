@@ -24,8 +24,8 @@ export type ExistingM3uRun = {
 export const m3uState = (logLevel: LogLevel) => {
 	let selectedMainPlaylist: M3uStreamOrInitialUrl | null = null;
 	let associatedPlaylists: M3uAssociatedPlaylist[] | null = null;
-	let hasEmittedVideoTrack: null | OnVideoSample | false = false;
-	let hasEmittedAudioTrack: null | OnAudioSample | false = false;
+	const hasEmittedVideoTrack: Record<string, null | OnVideoSample> = {};
+	const hasEmittedAudioTrack: Record<string, null | OnAudioSample> = {};
 	const hasEmittedDoneWithTracks: Record<string, boolean> = {};
 	let hasFinishedManifest = false;
 
@@ -59,14 +59,28 @@ export const m3uState = (logLevel: LogLevel) => {
 			selectedMainPlaylist = stream;
 		},
 		getSelectedMainPlaylist: () => selectedMainPlaylist,
-		setHasEmittedVideoTrack: (callback: OnVideoSample | null) => {
-			hasEmittedVideoTrack = callback;
+		setHasEmittedVideoTrack: (src: string, callback: OnVideoSample | null) => {
+			hasEmittedVideoTrack[src] = callback;
 		},
-		hasEmittedVideoTrack: () => hasEmittedVideoTrack,
-		setHasEmittedAudioTrack: (callback: OnAudioSample | null) => {
-			hasEmittedAudioTrack = callback;
+		hasEmittedVideoTrack: (src: string) => {
+			const value = hasEmittedVideoTrack[src];
+			if (value === undefined) {
+				return false;
+			}
+
+			return value;
 		},
-		hasEmittedAudioTrack: () => hasEmittedAudioTrack,
+		setHasEmittedAudioTrack: (src: string, callback: OnAudioSample | null) => {
+			hasEmittedAudioTrack[src] = callback;
+		},
+		hasEmittedAudioTrack: (src: string) => {
+			const value = hasEmittedAudioTrack[src];
+			if (value === undefined) {
+				return false;
+			}
+
+			return value;
+		},
 		setHasEmittedDoneWithTracks: (src: string) => {
 			hasEmittedDoneWithTracks[src] = true;
 		},
