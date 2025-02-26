@@ -1,5 +1,5 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "isolatedModules": true,
@@ -14,10 +14,15 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "baseUrl": ".",
+    "allowImportingTsExtensions": true,
     "paths": {
       "~/*": ["./app/*"]
     },
-    "noEmit": true
+    "noEmit": true,
+    "types": ["@react-router/node", "vite/client"],
+    "rootDirs": [".", "./.react-router/types"],
+    "module": "ESNext"
   },
   "exclude": ["remotion.config.ts"]
+  
 }

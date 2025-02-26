@@ -1,4 +1,4 @@
-# Remotion + Remix Starter Kit
+# Remotion + React Router 7 Starter Kit
 
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
@@ -9,8 +9,8 @@
   </a>
 </p>
 
-This is a [Remix starter kit](https://remix.run/docs) with [Remotion](https://remotion.dev), [`@remotion/player`](https://remotion.dev/player) and [`@remotion/lambda`](https://remotion.dev/lambda) built in.  
-It lets you render a video from a Remix app with AWS Lambda.
+This is a [React Router 7 starter kit](https://reactrouter.com/home) with [Remotion](https://remotion.dev), [`@remotion/player`](https://remotion.dev/player) and [`@remotion/lambda`](https://remotion.dev/lambda) built in.  
+It lets you render a video from a React Router app with AWS Lambda.
 
 Here is the output video:
 
@@ -26,7 +26,7 @@ Install dependencies using
 npm install
 ```
 
-## Run the Remix app
+## Run the React Router app
 
 Run the example app using:
 
@@ -59,7 +59,7 @@ npm run remotion:deploy
 
 > Rerun this command whenever you have upgraded to a new Remotion version.
 
-6. Restart the Remix server.
+6. Restart the server.
 
 ## Commands
 
@@ -119,7 +119,7 @@ If your functions or sites are already used in production, make sure to not over
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).  
-See the [Remix Docs](https://remix.run/docs) to read about the framework.
+See the [React Router Docs](https://reactrouter.com/) to read about the framework.
 
 ## Help
 

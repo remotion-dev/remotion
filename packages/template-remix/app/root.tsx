@@ -1,18 +1,18 @@
-import type { MetaFunction } from "@remix-run/node";
 import {
   Links,
-  LiveReload,
   Meta,
+  MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "@remix-run/react";
+} from "react-router";
+
 
 export const meta: MetaFunction = () => {
   return [
     { charset: "utf-8" },
     { name: "viewport", content: "width=device-width,initial-scale=1" },
-    { property: "og:title", content: "Remotion + Remix" },
+    { property: "og:title", content: "Remotion + React Router" },
   ];
 };
 export default function App() {
@@ -26,7 +26,6 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );

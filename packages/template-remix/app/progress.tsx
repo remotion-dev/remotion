@@ -1,12 +1,11 @@
-import type { ActionFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import type { AwsRegion } from "@remotion/lambda";
 import {
   getRenderProgress,
   speculateFunctionName,
 } from "@remotion/lambda/client";
-import type { StatusResponse } from "../lib/types";
+import type { StatusResponse } from "./lib/types";
 import { DISK, RAM, TIMEOUT } from "~/remotion/constants";
+import { ActionFunction } from "react-router";
 
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.formData();
@@ -48,5 +47,5 @@ export const action: ActionFunction = async ({ request }) => {
     outputFile,
   };
 
-  return json(status);
+  return status;
 };

@@ -6,6 +6,7 @@ node_modules
 .env
 /out
 .nvmrc
+.react-router/
 
 .DS_Store
 api

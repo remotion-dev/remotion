@@ -8,7 +8,7 @@ export const COMPOSITION_ID = "LogoAnimation";
 export const RAM = 2048;
 export const DISK = 10240;
 export const TIMEOUT = 240;
-export const SITE_NAME = "remotion-remix-example-" + VERSION;
+export const SITE_NAME = "remotion-react-router-example-" + VERSION;
 
 export type LogoAnimationProps = {
   personalizedName: string;

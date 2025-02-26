@@ -6,7 +6,7 @@ import {
 } from "@remotion/lambda";
 import dotenv from "dotenv";
 import path from "path";
-import { RAM, TIMEOUT, SITE_NAME, DISK } from "./remotion/constants";
+import { RAM, TIMEOUT, SITE_NAME, DISK } from "./remotion/constants.ts";
 
 dotenv.config();
 
