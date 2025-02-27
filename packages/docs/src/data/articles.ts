@@ -4778,6 +4778,15 @@ export const articles = [
 		slug: 'terminology/studio',
 	},
 	{
+		id: 'testing',
+		title: 'Testing Remotion components',
+		relativePath: 'docs/testing.mdx',
+		compId: 'articles-docs-testing',
+		crumb: 'Tooling',
+		noAi: false,
+		slug: 'testing',
+	},
+	{
 		id: 'the-fundamentals',
 		title: 'The fundamentals',
 		relativePath: 'docs/the-fundamentals.mdx',
