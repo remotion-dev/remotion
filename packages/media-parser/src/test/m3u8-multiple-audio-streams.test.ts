@@ -84,9 +84,9 @@ test('multiple audio streams', async () => {
 			id: 0,
 		},
 		{
-			url: 'video/4000kbit.m3u8',
+			url: 'video/6000kbit.m3u8',
 			averageBandwidth: null,
-			bandwidth: 4149264,
+			bandwidth: 6214307,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
 			resolution: {width: 1921, height: 818},
 			associatedPlaylists: [
@@ -114,9 +114,9 @@ test('multiple audio streams', async () => {
 			id: 1,
 		},
 		{
-			url: 'video/6000kbit.m3u8',
+			url: 'video/4000kbit.m3u8',
 			averageBandwidth: null,
-			bandwidth: 6214307,
+			bandwidth: 4149264,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
 			resolution: {width: 1921, height: 818},
 			associatedPlaylists: [
@@ -204,9 +204,9 @@ test('multiple audio streams', async () => {
 			id: 4,
 		},
 		{
-			url: 'video/500kbit.m3u8',
+			url: 'video/800kbit.m3u8',
 			averageBandwidth: null,
-			bandwidth: 520929,
+			bandwidth: 831270,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
 			resolution: {width: 638, height: 272},
 			associatedPlaylists: [
@@ -234,9 +234,9 @@ test('multiple audio streams', async () => {
 			id: 5,
 		},
 		{
-			url: 'video/800kbit.m3u8',
+			url: 'video/500kbit.m3u8',
 			averageBandwidth: null,
-			bandwidth: 831270,
+			bandwidth: 520929,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
 			resolution: {width: 638, height: 272},
 			associatedPlaylists: [
