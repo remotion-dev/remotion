@@ -13,7 +13,11 @@ import { Rings } from "./Rings";
 import { TextFade } from "./TextFade";
 import { CompositionProps } from "../schemata";
 
-loadFont();
+const weight = "600" as const;
+
+loadFont("normal", {
+  weights: [weight],
+});
 
 const container: React.CSSProperties = {
   backgroundColor: "white",
@@ -42,7 +46,7 @@ export const Main = ({ title }: z.infer<typeof CompositionProps>) => {
   });
 
   const titleStyle: React.CSSProperties = useMemo(() => {
-    return { fontFamily, fontSize: 70 };
+    return { fontFamily, fontSize: 70, fontWeight: weight };
   }, []);
 
   return (

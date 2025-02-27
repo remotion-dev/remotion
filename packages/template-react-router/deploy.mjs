@@ -67,7 +67,7 @@ const { serveUrl } = await deploySite({
   entryPoint: path.join(process.cwd(), "app/remotion/index.ts"),
   region: REGION,
 });
-console.log(siteName);
+console.log(serveUrl);
 
 console.log();
 console.log("You now have everything you need to render videos!");
