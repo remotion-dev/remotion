@@ -103,6 +103,12 @@ export const getM3uStreams = (
 		const bResolution = b.resolution
 			? b.resolution.width * b.resolution.height
 			: 0;
+		if (aResolution === bResolution) {
+			const bandwidthA = a.averageBandwidth ?? a.bandwidth ?? 0;
+			const bandwidthB = b.averageBandwidth ?? b.bandwidth ?? 0;
+			return bandwidthB - bandwidthA;
+		}
+
 		return bResolution - aResolution;
 	});
 
