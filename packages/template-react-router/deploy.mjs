@@ -9,11 +9,6 @@ import { RAM, TIMEOUT, SITE_NAME, DISK } from "./app/remotion/constants.mjs";
 
 dotenv.config();
 
-const region = process.env.REMOTION_AWS_REGION;
-if (!region) {
-  throw new Error("REMOTION_AWS_REGION is not set");
-}
-
 if (!process.env.AWS_ACCESS_KEY_ID && !process.env.REMOTION_AWS_ACCESS_KEY_ID) {
   console.log(
     'The environment variable "REMOTION_AWS_ACCESS_KEY_ID" is not set.',
@@ -38,24 +33,46 @@ if (
   process.exit(0);
 }
 
+const region = process.env.REMOTION_AWS_REGION;
+if (!region) {
+  throw new Error("REMOTION_AWS_REGION is not set");
+}
+
+console.log("Selected region:", region);
+
+process.stdout.write("Deploying Lambda function... ");
+
 const { alreadyExisted, functionName } = await deployFunction({
   createCloudWatchLogGroup: true,
   memorySizeInMb: RAM,
   region,
   diskSizeInMb: DISK,
   timeoutInSeconds: TIMEOUT,
-  logLevel: "verbose",
 });
 console.log(
-  `${alreadyExisted ? "Ensured" : "Deployed"} function "${functionName}"`,
+  functionName,
+  functionAlreadyExisted ? "(already existed)" : "(created)",
 );
 
+process.stdout.write("Ensuring bucket... ");
 const { bucketName } = await getOrCreateBucket({ region });
+console.log(
+  bucketName,
+  bucketAlreadyExisted ? "(already existed)" : "(created)",
+);
+
+process.stdout.write("Deploying site... ");
 const { serveUrl } = await deploySite({
   siteName: SITE_NAME,
   bucketName,
   entryPoint: path.join(process.cwd(), "app/remotion/index.ts"),
   region,
 });
+console.log(siteName);
 
-console.log(serveUrl);
+console.log();
+console.log("You now have everything you need to render videos!");
+console.log("Re-run this command when:");
+console.log("  1) you changed the video template");
+console.log("  2) you changed config.mjs");
+console.log("  3) you upgraded Remotion to a newer version");
