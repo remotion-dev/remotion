@@ -12,10 +12,6 @@
 This is a [React Router 7 starter kit](https://reactrouter.com/home) with [Remotion](https://remotion.dev), [`@remotion/player`](https://remotion.dev/player) and [`@remotion/lambda`](https://remotion.dev/lambda) built in.  
 It lets you render a video from a React Router app with AWS Lambda.
 
-Here is the output video:
-
-https://user-images.githubusercontent.com/11575645/195991193-f854448a-cdf1-4d61-acb8-ffae44d53b3b.mp4
-
 ## Getting started
 
 Install dependencies using
