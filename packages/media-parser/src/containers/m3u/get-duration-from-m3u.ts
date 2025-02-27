@@ -1,8 +1,15 @@
-import {getDurationFromPlaylist, getPlaylist} from './get-playlist';
-import type {M3uStructure} from './types';
+import type {ParserState} from '../../state/parser-state';
+import {getAllPlaylists, getDurationFromPlaylist} from './get-playlist';
 
-export const getDurationFromM3u = (structure: M3uStructure): number | null => {
-	const playlist = getPlaylist(structure);
+export const getDurationFromM3u = (state: ParserState): number | null => {
+	const playlists = getAllPlaylists({
+		structure: state.getM3uStructure(),
+		src: state.src,
+	});
 
-	return getDurationFromPlaylist(playlist);
+	return Math.max(
+		...playlists.map((p) => {
+			return getDurationFromPlaylist(p);
+		}),
+	);
 };

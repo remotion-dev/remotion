@@ -36,6 +36,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	acknowledgeRemotionLicense,
 	apiName,
 	selectM3uStream: selectM3uStreamFn,
+	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
 	...more
 }: InternalParseMediaOptions<F>) {
 	warnIfRemotionLicenseNotAcknowledged({
@@ -111,6 +112,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		src,
 		onDiscardedData,
 		selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn,
 	});
 	const {iterator} = state;
 
@@ -162,7 +164,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		if (state.iterator.counter.getOffset() === contentLength) {
 			if (
 				state.getStructure().type === 'm3u' &&
-				!state.m3u.getAllChunksProcessed()
+				!state.m3u.getAllChunksProcessedOverall()
 			) {
 				return false;
 			}
@@ -345,6 +347,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	iterator?.destroy();
 
 	state.callbacks.tracks.ensureHasTracksAtEnd(fields);
+	state.m3u.abortM3UStreamRuns();
 	if (errored) {
 		throw errored;
 	}

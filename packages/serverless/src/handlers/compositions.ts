@@ -9,7 +9,7 @@ import {
 	decompressInputProps,
 	internalGetOrCreateBucket,
 } from '@remotion/serverless-client';
-import {} from '../get-browser-instance';
+import type {LaunchedBrowser} from '../get-browser-instance';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
@@ -38,6 +38,8 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 		params,
 	});
 
+	let instance: LaunchedBrowser | undefined;
+
 	try {
 		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 
@@ -48,7 +50,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 			insideFunctionSpecifics,
 		});
-		const bucketNamePromise = params.bucketName
+		const bucketName = await (params.bucketName
 			? Promise.resolve(params.bucketName)
 			: internalGetOrCreateBucket({
 					region,
@@ -57,11 +59,10 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 					providerSpecifics,
 					forcePathStyle: params.forcePathStyle,
 					skipPutAcl: false,
-				}).then((b) => b.bucketName);
+				}).then((b) => b.bucketName));
 
-		const bucketName = await bucketNamePromise;
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
-			bucketName: await bucketNamePromise,
+			bucketName,
 			expectedBucketOwner: options.expectedBucketOwner,
 			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			serialized: params.inputProps,
@@ -76,9 +77,10 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			bucketName,
 		});
 
+		instance = await browserInstancePromise;
 		const compositions = await RenderInternals.internalGetCompositions({
 			serveUrlOrWebpackUrl: realServeUrl,
-			puppeteerInstance: (await browserInstancePromise).instance,
+			puppeteerInstance: instance?.instance,
 			serializedInputPropsWithCustomSchema,
 			envVariables: params.envVariables ?? {},
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
@@ -103,6 +105,11 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			type: 'success' as const,
 		});
 	} finally {
-		insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
+		if (instance) {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel: params.logLevel,
+				launchedBrowser: instance,
+			});
+		}
 	}
 };

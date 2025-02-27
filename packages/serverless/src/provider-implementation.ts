@@ -43,7 +43,10 @@ export type GetBrowserInstance = <Provider extends CloudProvider>({
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => Promise<LaunchedBrowser>;
 
-export type ForgetBrowserEventLoop = (logLevel: LogLevel) => void;
+export type ForgetBrowserEventLoop = (options: {
+	logLevel: LogLevel;
+	launchedBrowser: LaunchedBrowser;
+}) => void;
 
 export type GenerateRenderId = (options: {
 	deleteAfter: DeleteAfter | null;

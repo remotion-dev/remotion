@@ -47,6 +47,7 @@ export const getMoovAtom = async ({
 		src: state.src,
 		onDiscardedData: null,
 		selectM3uStreamFn: state.selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
 	});
 
 	while (true) {
