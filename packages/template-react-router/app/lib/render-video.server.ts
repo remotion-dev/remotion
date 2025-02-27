@@ -1,4 +1,3 @@
-import type { AwsRegion } from "@remotion/lambda";
 import {
   renderMediaOnLambda,
   speculateFunctionName,
@@ -6,8 +5,7 @@ import {
 import type { RenderResponse } from "./types";
 import { z } from "zod";
 import { CompositionProps } from "~/remotion/schemata";
-import { TIMEOUT } from "dns";
-import { DISK, RAM } from "~/remotion/constants.mjs";
+import { DISK, RAM, REGION, TIMEOUT } from "~/remotion/constants.mjs";
 
 export const renderVideo = async ({
   serveUrl,
@@ -39,13 +37,8 @@ export const renderVideo = async ({
     );
   }
 
-  const region = process.env.REMOTION_AWS_REGION as AwsRegion | undefined;
-  if (!region) {
-    throw new Error("REMOTION_AWS_REGION is not set");
-  }
-
   const { renderId, bucketName } = await renderMediaOnLambda({
-    region,
+    region: REGION,
     functionName: speculateFunctionName({
       diskSizeInMb: DISK,
       memorySizeInMb: RAM,
@@ -70,6 +63,6 @@ export const renderVideo = async ({
       memorySizeInMb: RAM,
       timeoutInSeconds: TIMEOUT,
     }),
-    region,
+    region: REGION,
   };
 };

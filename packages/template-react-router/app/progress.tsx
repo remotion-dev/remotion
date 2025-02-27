@@ -1,4 +1,3 @@
-import type { AwsRegion } from "@remotion/lambda";
 import {
   getRenderProgress,
   speculateFunctionName,
@@ -7,16 +6,11 @@ import type { StatusResponse } from "./lib/types";
 import { ActionFunction } from "react-router";
 import { errorAsJson } from "./lib/return-error-as-json";
 import { ProgressRequest } from "./remotion/schemata";
-import { DISK, RAM, TIMEOUT } from "./remotion/constants.mjs";
+import { DISK, RAM, REGION, TIMEOUT } from "./remotion/constants.mjs";
 
 export const action: ActionFunction = errorAsJson(async ({ request }) => {
   const body = await request.json();
   const { bucketName, id } = ProgressRequest.parse(body);
-
-  const region = process.env.REMOTION_AWS_REGION as AwsRegion | undefined;
-  if (!region) {
-    throw new Error("REMOTION_AWS_REGION is not set");
-  }
 
   const { done, overallProgress, errors, outputFile } = await getRenderProgress(
     {
@@ -27,7 +21,7 @@ export const action: ActionFunction = errorAsJson(async ({ request }) => {
         memorySizeInMb: RAM,
         timeoutInSeconds: TIMEOUT,
       }),
-      region,
+      region: REGION,
     },
   );
   const status: StatusResponse = {

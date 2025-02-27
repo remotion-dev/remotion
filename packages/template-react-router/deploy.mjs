@@ -5,7 +5,13 @@ import {
 } from "@remotion/lambda";
 import dotenv from "dotenv";
 import path from "path";
-import { RAM, TIMEOUT, SITE_NAME, DISK } from "./app/remotion/constants.mjs";
+import {
+  RAM,
+  TIMEOUT,
+  SITE_NAME,
+  DISK,
+  REGION,
+} from "./app/remotion/constants.mjs";
 
 dotenv.config();
 
@@ -33,29 +39,22 @@ if (
   process.exit(0);
 }
 
-const region = process.env.REMOTION_AWS_REGION;
-if (!region) {
-  throw new Error("REMOTION_AWS_REGION is not set");
-}
-
-console.log("Selected region:", region);
+console.log("Selected region:", REGION);
 
 process.stdout.write("Deploying Lambda function... ");
 
 const { alreadyExisted, functionName } = await deployFunction({
   createCloudWatchLogGroup: true,
   memorySizeInMb: RAM,
-  region,
+  region: REGION,
   diskSizeInMb: DISK,
   timeoutInSeconds: TIMEOUT,
 });
-console.log(
-  functionName,
-  functionAlreadyExisted ? "(already existed)" : "(created)",
-);
+console.log(functionName, alreadyExisted ? "(already existed)" : "(created)");
 
 process.stdout.write("Ensuring bucket... ");
-const { bucketName } = await getOrCreateBucket({ region });
+const { bucketName, alreadyExisted: bucketAlreadyExisted } =
+  await getOrCreateBucket({ region: REGION });
 console.log(
   bucketName,
   bucketAlreadyExisted ? "(already existed)" : "(created)",
@@ -66,7 +65,7 @@ const { serveUrl } = await deploySite({
   siteName: SITE_NAME,
   bucketName,
   entryPoint: path.join(process.cwd(), "app/remotion/index.ts"),
-  region,
+  region: REGION,
 });
 console.log(siteName);
 

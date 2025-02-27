@@ -39,7 +39,7 @@ export const Tips: React.FC = () => {
         description="Learn how to customize this video written in React."
       ></Tip>
       <Tip
-        href="https://github.com/remotion-dev/template-next-app-dir"
+        href="https://github.com/remotion-dev/template-react-router"
         title="See source"
         description="Visit the GitHub repository for this app."
       ></Tip>

@@ -48,10 +48,9 @@ Follow these steps to set up video rendering:
 
 1. Follow the steps in [Remotion Lambda setup guide](https://www.remotion.dev/docs/lambda/setup).
 2. Rename the `.env.example` file to `.env`.
-3. Fill in the `REMOTION_AWS_REGION` with the region that you would like to use, e.g. `us-east-1`.
-4. Fill in the `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` values that you got from the first step.
+3. Fill in the `REMOTION_AWS_ACCESS_KEY_ID` and `REMOTION_AWS_SECRET_ACCESS_KEY` values that you got from the first step.
 
-5. Run the following to deploy your Lambda function and Remotion site:
+4. Run the following to deploy your Lambda function and Remotion site:
 
 ```
 node deploy.mjs
@@ -59,7 +58,7 @@ node deploy.mjs
 
 > Rerun this command whenever you have upgraded to a new Remotion version.
 
-6. Restart the server.
+5. Restart the server.
 
 ## Commands
 
