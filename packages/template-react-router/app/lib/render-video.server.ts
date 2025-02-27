@@ -4,12 +4,8 @@ import {
   speculateFunctionName,
 } from "@remotion/lambda/client";
 import type { RenderResponse } from "./types";
-import {
-  DISK,
-  RAM,
-  TIMEOUT,
-  type LogoAnimationProps,
-} from "app/remotion/constants";
+import { CompositionProps, DISK, RAM, TIMEOUT } from "app/remotion/constants";
+import { z } from "zod";
 
 export const renderVideo = async ({
   serveUrl,
@@ -20,7 +16,7 @@ export const renderVideo = async ({
 }: {
   serveUrl: string;
   composition: string;
-  inputProps: LogoAnimationProps;
+  inputProps: z.infer<typeof CompositionProps>;
   outName: string;
   metadata: Record<string, string> | null;
 }): Promise<RenderResponse> => {

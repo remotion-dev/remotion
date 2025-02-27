@@ -1,4 +1,5 @@
 import { VERSION } from "remotion";
+import { z } from "zod";
 
 export const COMPOSITION_FPS = 30;
 export const COMPOSITION_DURATION_IN_FRAMES = 7 * COMPOSITION_FPS;
@@ -10,6 +11,10 @@ export const DISK = 10240;
 export const TIMEOUT = 240;
 export const SITE_NAME = "remotion-react-router-example-" + VERSION;
 
-export type LogoAnimationProps = {
-  personalizedName: string;
+export const CompositionProps = z.object({
+  title: z.string(),
+});
+
+export const defaultMyCompProps: z.infer<typeof CompositionProps> = {
+  title: "React Router and Remotion",
 };

@@ -6,19 +6,19 @@ import {
   COMPOSITION_ID,
   COMPOSITION_WIDTH,
 } from "./constants";
-import { LogoAnimation } from "./logo-animation";
+import { Main } from "./components/Main";
 
 export const RemotionRoot = () => {
   return (
     <>
       <Composition
         id={COMPOSITION_ID}
-        component={LogoAnimation}
+        component={Main}
         durationInFrames={COMPOSITION_DURATION_IN_FRAMES}
         fps={COMPOSITION_FPS}
         width={COMPOSITION_WIDTH}
         height={COMPOSITION_HEIGHT}
-        defaultProps={{ personalizedName: "stranger" }}
+        defaultProps={{ title: "stranger" }}
       />
     </>
   );

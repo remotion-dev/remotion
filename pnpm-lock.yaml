@@ -2755,6 +2755,9 @@ importers:
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
+      '@remotion/google-fonts':
+        specifier: workspace:*
+        version: link:../google-fonts
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
@@ -2785,6 +2788,9 @@ importers:
       vite-tsconfig-paths:
         specifier: ^4.2.1
         version: 4.3.2(typescript@5.5.4)(vite@5.4.14)
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@react-router/dev':
         specifier: 7.2.0

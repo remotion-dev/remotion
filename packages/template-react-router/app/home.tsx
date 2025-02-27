@@ -2,7 +2,6 @@ import { Player } from "@remotion/player";
 import React, { useCallback, useMemo, useState } from "react";
 import { RenderProgress } from "./components/render-progress";
 import { renderVideo } from "./lib/render-video.server";
-import type { LogoAnimationProps } from "./remotion/constants";
 import {
   SITE_NAME,
   COMPOSITION_DURATION_IN_FRAMES,
@@ -10,11 +9,13 @@ import {
   COMPOSITION_HEIGHT,
   COMPOSITION_ID,
   COMPOSITION_WIDTH,
+  CompositionProps,
 } from "./remotion/constants";
-import { LogoAnimation } from "./remotion/logo-animation";
 import stylesHref from "./styles/layout.css?url";
 import type { RenderResponse } from "./lib/types";
 import { ActionFunction, LinksFunction, useFetcher } from "react-router";
+import { z } from "zod";
+import { Main } from "./remotion/components/Main";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesHref }];
@@ -45,16 +46,16 @@ const playerStyle: React.CSSProperties = {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const personalizedName = formData.get("personalizedName") as string;
+  const title = formData.get("title") as string;
 
-  if (!personalizedName) {
+  if (!title) {
     throw new Response(JSON.stringify({ error: "No name entered" }), {
       status: 400,
     });
   }
 
-  const inputProps: LogoAnimationProps = {
-    personalizedName,
+  const inputProps: z.infer<typeof CompositionProps> = {
+    title: title,
   };
 
   const renderData = await renderVideo({
@@ -66,15 +67,13 @@ export const action: ActionFunction = async ({ request }) => {
   });
 
   return renderData;
-
-}
+};
 export default function Index() {
-  const [personalizedName, setPersonalizedName] = useState("you");
+  const [title, settitle] = useState("React Router + Remotion");
   const fetcher = useFetcher<RenderResponse>();
 
   const onNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setPersonalizedName(e.target.value),
+    (e: React.ChangeEvent<HTMLInputElement>) => settitle(e.target.value),
     [],
   );
 
@@ -82,21 +81,21 @@ export default function Index() {
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
       const data = new FormData();
-      data.append("personalizedName", personalizedName);
+      data.append("title", title);
       fetcher.submit(data, { method: "post" });
     },
-    [fetcher, personalizedName],
+    [fetcher, title],
   );
 
-  const inputProps: LogoAnimationProps = useMemo(() => {
-    return { personalizedName };
-  }, [personalizedName]);
+  const inputProps: z.infer<typeof CompositionProps> = useMemo(() => {
+    return { title };
+  }, [title]);
 
   return (
     <div style={container} className="container">
       <div style={playerContainer}>
         <Player
-          component={LogoAnimation}
+          component={Main}
           inputProps={inputProps}
           durationInFrames={COMPOSITION_DURATION_IN_FRAMES}
           fps={COMPOSITION_FPS}
@@ -120,11 +119,7 @@ export default function Index() {
             <div>
               <p>Enter your name for a custom video:</p>
               <fetcher.Form method="post">
-                <input
-                  type="text"
-                  onChange={onNameChange}
-                  value={personalizedName}
-                />
+                <input type="text" onChange={onNameChange} value={title} />
                 <br></br>
                 <button type="submit" onClick={onClick}>
                   Render a video
