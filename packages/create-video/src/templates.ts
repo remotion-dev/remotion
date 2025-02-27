@@ -192,7 +192,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with React Router 7.',
 		promoBanner: {
-			width: 1280,
+			width: 918,
 			height: 720,
 			src: '/img/remix-template.png',
 		},

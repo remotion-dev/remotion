@@ -4,8 +4,6 @@ import React from 'react';
 export const RemixIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
 		<svg
-			width="800px"
-			height="800px"
 			viewBox="0 -58 256 256"
 			version="1.1"
 			xmlns="http://www.w3.org/2000/svg"
