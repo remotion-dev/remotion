@@ -3,7 +3,10 @@ import {Log} from '../../log';
 import type {M3uState} from '../../state/m3u-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
 import {getM3uStreams, isIndependentSegments} from './get-streams';
-import type {SelectM3uStreamFn} from './select-stream';
+import type {
+	SelectM3uAssociatedPlaylistsFn,
+	SelectM3uStreamFn,
+} from './select-stream';
 import {selectAssociatedPlaylists, selectStream} from './select-stream';
 import type {M3uPlaylist, M3uStructure} from './types';
 
@@ -13,11 +16,13 @@ export const afterManifestFetch = async ({
 	src,
 	selectM3uStreamFn,
 	logLevel,
+	selectAssociatedPlaylists: selectAssociatedPlaylistsFn,
 }: {
 	structure: M3uStructure;
 	m3uState: M3uState;
 	src: string | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
+	selectAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn;
 	logLevel: LogLevel;
 }) => {
 	const independentSegments = isIndependentSegments(structure);
@@ -50,9 +55,10 @@ export const afterManifestFetch = async ({
 		stream: selectedPlaylist,
 	});
 
-	const associatedPlaylists = await selectAssociatedPlaylists(
-		selectedPlaylist.associatedPlaylists,
-	);
+	const associatedPlaylists = await selectAssociatedPlaylists({
+		playlists: selectedPlaylist.associatedPlaylists,
+		fn: selectAssociatedPlaylistsFn,
+	});
 	m3uState.setAssociatedPlaylists(associatedPlaylists);
 
 	const playlistUrls = [

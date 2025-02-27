@@ -14,6 +14,7 @@ import type {
 	WriterInterface,
 } from '@remotion/media-parser';
 import {
+	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
 	MediaParserAbortError,
 	MediaParserInternals,
@@ -127,6 +128,7 @@ export const convertMedia = async function <
 	onVideoCodec,
 	onM3uStreams,
 	selectM3uStream,
+	selectM3uAssociatedPlaylists,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -140,6 +142,7 @@ export const convertMedia = async function <
 	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	selectM3uStream?: ParseMediaOptions<F>['selectM3uStream'];
+	selectM3uAssociatedPlaylists?: ParseMediaOptions<F>['selectM3uAssociatedPlaylists'];
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
@@ -326,6 +329,8 @@ export const convertMedia = async function <
 		apiName: 'convertMedia()',
 		onM3uStreams: onM3uStreams ?? null,
 		selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
 	})
 		.then(() => {
 			return state.waitForFinish();

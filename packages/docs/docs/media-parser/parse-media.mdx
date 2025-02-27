@@ -122,6 +122,11 @@ const onAudioTrack: OnAudioTrack = ({track}) => {
 A callback that is called when a `.m3u8` file is detected which has multiple streams.  
 See [Stream selection](/docs/media-parser/stream-selection) for an example.
 
+### `selectM3uAssociatedPlaylists?`
+
+A callback that is called after a M3U stream has been selected, allowing you to pick which auxiliary playlists should be parsed. Usually this is used for selecting an audio track.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
+
 ### `onParseProgress?`
 
 A callback that is called from time to time when bytes have been read from the media.  

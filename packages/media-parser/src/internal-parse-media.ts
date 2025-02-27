@@ -36,6 +36,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	acknowledgeRemotionLicense,
 	apiName,
 	selectM3uStream: selectM3uStreamFn,
+	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
 	...more
 }: InternalParseMediaOptions<F>) {
 	warnIfRemotionLicenseNotAcknowledged({
@@ -111,6 +112,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		src,
 		onDiscardedData,
 		selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn,
 	});
 	const {iterator} = state;
 
