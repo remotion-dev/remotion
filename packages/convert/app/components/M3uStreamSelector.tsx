@@ -1,5 +1,6 @@
 import type {M3uStream} from '@remotion/media-parser';
 import React from 'react';
+import {M3uStreamPickerResolutionDisplay} from './M3uStreamPickerResolutionDisplay';
 import {Label} from './ui/label';
 import {
 	Select,
@@ -52,9 +53,10 @@ export const M3uStreamSelector: React.FC<{
 							<SelectGroup key={stream.id}>
 								<SelectItem value={String(stream.id)}>
 									{stream.resolution ? (
-										<div>
-											{stream.resolution?.width}x{stream.resolution?.height}
-										</div>
+										<M3uStreamPickerResolutionDisplay
+											stream={stream}
+											allStreams={streams}
+										/>
 									) : null}
 								</SelectItem>
 							</SelectGroup>
