@@ -122,6 +122,14 @@ Disabling tone mapping will speed up rendering, but may result in less vibrant c
 
 Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
+### `delayRenderTimeoutInMilliseconds`<AvailableFrom v="4.0.270" />
+
+Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
+
+### `delayRenderRetries`<AvailableFrom v="4.0.270" />
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
+
 ## Looping a texture
 
 Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs/offthreadvideo#looping-a-video) but can be achieved with the `<Loop>` component.
