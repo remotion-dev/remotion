@@ -12,16 +12,13 @@ test('should be able to select between audio tracks', async () => {
 	await parseMedia({
 		src: 'https://cdn.bitmovin.com/content/assets/sintel/hls/playlist.m3u8',
 		acknowledgeRemotionLicense: true,
-		logLevel: 'info',
 		controller,
 		onVideoTrack: () => {
 			return () => {
 				videoSamples++;
-				// TODO: Should have unique track IDs
 			};
 		},
 		onAudioTrack: () => {
-			// TODO: Should have unique track IDs
 			return (sample) => {
 				audioSamples++;
 				if (sample.dts === 896000) {
@@ -34,4 +31,20 @@ test('should be able to select between audio tracks', async () => {
 	});
 	expect(videoSamples).toBe(22);
 	expect(audioSamples).toBe(44);
+});
+
+test('should ensure unique track IDs', async () => {
+	const {tracks} = await parseMedia({
+		src: 'https://cdn.bitmovin.com/content/assets/sintel/hls/playlist.m3u8',
+		acknowledgeRemotionLicense: true,
+		fields: {
+			tracks: true,
+		},
+		selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
+			return associatedPlaylists;
+		},
+	});
+	expect(tracks.videoTracks[0].trackId).toBe(258);
+	expect(tracks.audioTracks[0].trackId).toBe(257);
+	expect(tracks.audioTracks[1].trackId).toBe(259);
 });

@@ -46,10 +46,19 @@ export const runOverM3u = async ({
 				}
 			},
 			onAudioTrack: async (track) => {
+				const existingTracks = state.callbacks.tracks.getTracks();
+				let {trackId} = track;
+				while (existingTracks.find((t) => t.trackId === trackId)) {
+					trackId++;
+				}
+
 				const onAudioSample = await registerAudioTrack({
 					container: 'm3u8',
 					state,
-					track,
+					track: {
+						...track,
+						trackId,
+					},
 				});
 				state.m3u.sampleSorter.addToStreamWithTrack(playlistUrl);
 
@@ -67,10 +76,19 @@ export const runOverM3u = async ({
 				};
 			},
 			onVideoTrack: async (track) => {
+				const existingTracks = state.callbacks.tracks.getTracks();
+				let {trackId} = track;
+				while (existingTracks.find((t) => t.trackId === trackId)) {
+					trackId++;
+				}
+
 				const onVideoSample = await registerVideoTrack({
 					container: 'm3u8',
 					state,
-					track,
+					track: {
+						...track,
+						trackId,
+					},
 				});
 				state.m3u.sampleSorter.addToStreamWithTrack(playlistUrl);
 
