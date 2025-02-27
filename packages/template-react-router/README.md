@@ -54,7 +54,7 @@ Follow these steps to set up video rendering:
 5. Run the following to deploy your Lambda function and Remotion site:
 
 ```
-npm run remotion:deploy
+node deploy.mjs
 ```
 
 > Rerun this command whenever you have upgraded to a new Remotion version.
@@ -81,10 +81,10 @@ Start the app in production mode (after build is done):
 npm run dev
 ```
 
-Start the Remotion preview:
+Start the Remotion Studio:
 
 ```
-npm run remotion:preview
+npm run remotion:studio
 ```
 
 Render the example video locally:
@@ -108,7 +108,7 @@ npm run remotion:renderlambda
 Deploy/Update the Remotion video on S3 and the Lambda function:
 
 ```
-npm run remotion:deploy
+node deploy.mjs
 ```
 
 ## Upgrading Remotion
