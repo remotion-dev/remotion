@@ -111,6 +111,8 @@ const ConvertUI = ({
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
 	const [selectedM3uId, setSelectedM3uId] = useState<number | null>(null);
+	const [selectAssociatedPlaylistId, setSelectedAssociatedPlaylistId] =
+		useState<number | null>(null);
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
@@ -269,6 +271,11 @@ const ConvertUI = ({
 			selectM3uStream: ({streams}) => {
 				return selectedM3uId ?? streams[0].id;
 			},
+			selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
+				return associatedPlaylists.filter(
+					(playlist) => selectAssociatedPlaylistId === playlist.id,
+				);
+			},
 			// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
 			apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
 		})
@@ -309,6 +316,7 @@ const ConvertUI = ({
 		audioOperationSelection,
 		videoOperationSelection,
 		selectedM3uId,
+		selectAssociatedPlaylistId,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -464,6 +472,8 @@ const ConvertUI = ({
 						streams={m3uStreams}
 						selectedId={selectedM3uId}
 						setSelectedM3uId={setSelectedM3uId}
+						selectedAssociatedPlaylistId={selectAssociatedPlaylistId}
+						setSelectedAssociatedPlaylistId={setSelectedAssociatedPlaylistId}
 					/>
 				) : null}
 				{order.map((section) => {

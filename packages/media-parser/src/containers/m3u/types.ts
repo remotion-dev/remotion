@@ -1,3 +1,5 @@
+import type {ParseMediaSrc} from '../../options';
+
 export type M3uHeader = {
 	type: 'm3u-header';
 };
@@ -28,6 +30,7 @@ export type M3uPlaylistType = {
 export type M3uPlaylist = {
 	type: 'm3u-playlist';
 	boxes: M3uBox[];
+	src: ParseMediaSrc;
 };
 
 export type M3uExtInf = {
@@ -37,6 +40,21 @@ export type M3uExtInf = {
 
 export type M3uEndList = {
 	type: 'm3u-endlist';
+};
+
+export type M3uMediaSequence = {
+	type: 'm3u-media-sequence';
+	value: number;
+};
+
+export type M3uDiscontinuitySequence = {
+	type: 'm3u-discontinuity-sequence';
+	value: number;
+};
+
+export type M3uMap = {
+	type: 'm3u-map';
+	value: number;
 };
 
 export type M3uStreamInfo = {
@@ -79,6 +97,9 @@ export type M3uBox =
 	| M3uMedia
 	| M3uMediaInfo
 	| M3uEndList
+	| M3uMediaSequence
+	| M3uDiscontinuitySequence
+	| M3uMap
 	| M3uTextValue;
 
 export type M3uStructure = {

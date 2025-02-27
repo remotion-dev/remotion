@@ -167,7 +167,7 @@ export const getDuration = (parserState: ParserState): number | null => {
 	}
 
 	if (structure.type === 'm3u') {
-		return getDurationFromM3u(parserState.getM3uStructure());
+		return getDurationFromM3u(parserState);
 	}
 
 	throw new Error('Has no duration ' + (structure satisfies never));

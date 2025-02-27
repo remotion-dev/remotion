@@ -96,7 +96,9 @@ export type {LogLevel};
 
 export {M3uStream} from './containers/m3u/get-streams';
 export {
+	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
+	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 	SelectM3uStreamFnOptions,
 } from './containers/m3u/select-stream';

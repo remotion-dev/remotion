@@ -3,7 +3,7 @@ import type {Structure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {M3uMediaInfo} from './types';
 
-export type M3uStreamAudioTrack = {
+export type M3uAssociatedPlaylist = {
 	groupId: string;
 	language: string | null;
 	name: string | null;
@@ -11,6 +11,7 @@ export type M3uStreamAudioTrack = {
 	default: boolean;
 	channels: number | null;
 	url: string;
+	id: number;
 };
 
 export type M3uStream = {
@@ -20,7 +21,7 @@ export type M3uStream = {
 	resolution: Dimensions | null;
 	codecs: string[] | null;
 	id: number;
-	dedicatedAudioTracks: M3uStreamAudioTrack[];
+	associatedPlaylists: M3uAssociatedPlaylist[];
 };
 
 export const isIndependentSegments = (structure: Structure | null): boolean => {
@@ -52,7 +53,7 @@ export const getM3uStreams = (
 				throw new Error('Expected m3u-text-value');
 			}
 
-			const dedicatedAudioTracks: M3uStreamAudioTrack[] = [];
+			const associatedPlaylists: M3uAssociatedPlaylist[] = [];
 
 			if (str.audio) {
 				const match = structure.boxes.filter((box) => {
@@ -60,7 +61,7 @@ export const getM3uStreams = (
 				}) as M3uMediaInfo[];
 
 				for (const audioTrack of match) {
-					dedicatedAudioTracks.push({
+					associatedPlaylists.push({
 						autoselect: audioTrack.autoselect,
 						channels: audioTrack.channels,
 						default: audioTrack.default,
@@ -71,6 +72,7 @@ export const getM3uStreams = (
 							originalSrc && originalSrc.startsWith('http')
 								? new URL(audioTrack.uri, originalSrc).href
 								: audioTrack.uri,
+						id: associatedPlaylists.length,
 					});
 				}
 			}
@@ -84,7 +86,7 @@ export const getM3uStreams = (
 				bandwidth: str.bandwidth,
 				codecs: str.codecs,
 				resolution: str.resolution,
-				dedicatedAudioTracks,
+				associatedPlaylists,
 			});
 		}
 	}
@@ -101,6 +103,12 @@ export const getM3uStreams = (
 		const bResolution = b.resolution
 			? b.resolution.width * b.resolution.height
 			: 0;
+		if (aResolution === bResolution) {
+			const bandwidthA = a.averageBandwidth ?? a.bandwidth ?? 0;
+			const bandwidthB = b.averageBandwidth ?? b.bandwidth ?? 0;
+			return bandwidthB - bandwidthA;
+		}
+
 		return bResolution - aResolution;
 	});
 
