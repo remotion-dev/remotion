@@ -2773,6 +2773,9 @@ importers:
       react-router:
         specifier: 7.2.0
         version: 7.2.0(react-dom@19.0.0)(react@19.0.0)
+      react-router-dom:
+        specifier: 7.2.0
+        version: 7.2.0(react-dom@19.0.0)(react@19.0.0)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -26982,6 +26985,18 @@ packages:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       react-router: 6.28.1(react@19.0.0)
+
+  /react-router-dom@7.2.0(react-dom@19.0.0)(react@19.0.0):
+    resolution: {integrity: sha512-cU7lTxETGtQRQbafJubvZKHEn5izNABxZhBY0Jlzdv0gqQhCPQt2J8aN5ZPjS6mQOXn5NnirWNh+FpE8TTYN0Q==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      react-router: 7.2.0(react-dom@19.0.0)(react@19.0.0)
+    dev: false
 
   /react-router@5.3.4(react@19.0.0):
     resolution: {integrity: sha512-Ys9K+ppnJah3QuaRiLxk+jDWOR1MekYQrlytiXxC1RyfbdsZkS5pvKAzCCr031xHixZwpnsYNT5xysdFHQaYsA==}
