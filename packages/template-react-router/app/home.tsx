@@ -4,14 +4,14 @@ import { RenderProgress } from "./components/render-progress";
 import { renderVideo } from "./lib/render-video.server";
 import {
   SITE_NAME,
-  COMPOSITION_DURATION_IN_FRAMES,
+  DURATION_IN_FRAMES,
   COMPOSITION_FPS,
   COMPOSITION_HEIGHT,
   COMPOSITION_ID,
   COMPOSITION_WIDTH,
   CompositionProps,
 } from "./remotion/constants";
-import stylesHref from "./styles/layout.css?url";
+import stylesHref from "./app.css";
 import type { RenderResponse } from "./lib/types";
 import { ActionFunction, LinksFunction, useFetcher } from "react-router";
 import { z } from "zod";
@@ -92,12 +92,12 @@ export default function Index() {
   }, [title]);
 
   return (
-    <div style={container} className="container">
+    <div style={container}>
       <div style={playerContainer}>
         <Player
           component={Main}
           inputProps={inputProps}
-          durationInFrames={COMPOSITION_DURATION_IN_FRAMES}
+          durationInFrames={DURATION_IN_FRAMES}
           fps={COMPOSITION_FPS}
           compositionWidth={COMPOSITION_WIDTH}
           compositionHeight={COMPOSITION_HEIGHT}

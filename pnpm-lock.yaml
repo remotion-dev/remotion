@@ -2764,6 +2764,12 @@ importers:
       '@remotion/player':
         specifier: workspace:*
         version: link:../player
+      '@tailwindcss/cli':
+        specifier: 4.0.0
+        version: 4.0.0
+      '@tailwindcss/vite':
+        specifier: 4.0.0
+        version: 4.0.0(vite@5.4.14)
       isbot:
         specifier: 4.1.0
         version: 4.1.0
@@ -2782,6 +2788,9 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+      tailwindcss:
+        specifier: 4.0.0
+        version: 4.0.0
       vite:
         specifier: ^5.4.12
         version: 5.4.14(@types/node@20.12.14)
@@ -11726,7 +11735,6 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-darwin-arm64@2.5.0:
@@ -11735,7 +11743,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-darwin-x64@2.5.0:
@@ -11744,7 +11751,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-freebsd-x64@2.5.0:
@@ -11753,7 +11759,6 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-linux-arm-glibc@2.5.0:
@@ -11762,7 +11767,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-linux-arm-musl@2.5.0:
@@ -11771,7 +11775,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-linux-arm64-glibc@2.5.0:
@@ -11780,7 +11783,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-linux-arm64-musl@2.5.0:
@@ -11789,7 +11791,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-linux-x64-glibc@2.5.0:
@@ -11798,7 +11799,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-linux-x64-musl@2.5.0:
@@ -11807,7 +11807,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-win32-arm64@2.5.0:
@@ -11816,7 +11815,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-win32-ia32@2.5.0:
@@ -11825,7 +11823,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher-win32-x64@2.5.0:
@@ -11834,7 +11831,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@parcel/watcher@2.5.0:
@@ -11860,7 +11856,6 @@ packages:
       '@parcel/watcher-win32-arm64': 2.5.0
       '@parcel/watcher-win32-ia32': 2.5.0
       '@parcel/watcher-win32-x64': 2.5.0
-    dev: true
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -14770,7 +14765,6 @@ packages:
       mri: 1.2.0
       picocolors: 1.1.1
       tailwindcss: 4.0.0
-    dev: true
 
   /@tailwindcss/node@4.0.0:
     resolution: {integrity: sha512-tfG2uBvo6j6kDIPmntxwXggCOZAt7SkpAXJ6pTIYirNdk5FBqh/CZZ9BZPpgcl/tNFLs6zc4yghM76sqiELG9g==}
@@ -14904,7 +14898,6 @@ packages:
       lightningcss: 1.29.1
       tailwindcss: 4.0.0
       vite: 5.4.14(@types/node@20.12.14)
-    dev: true
 
   /@testing-library/dom@10.4.0:
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -24346,7 +24339,6 @@ packages:
 
   /node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
-    dev: true
 
   /node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
