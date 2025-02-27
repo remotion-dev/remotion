@@ -188,7 +188,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		shortName: 'React Router',
 		org: 'remotion-dev',
 		repoName: 'template-react-router',
-		description: 'Remotion + React Router Starter Kit',
+		description: 'SaaS template for video generation apps',
 		longerDescription:
 			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with React Router 7.',
 		promoBanner: {

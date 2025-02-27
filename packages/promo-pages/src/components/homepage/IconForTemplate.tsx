@@ -6,7 +6,7 @@ import {Cubes} from '../icons/cubes';
 import {JSIcon} from '../icons/js';
 import {NextIcon} from '../icons/next';
 import {OverlayIcon} from '../icons/overlay';
-import {RemixIcon} from '../icons/remix';
+import {ReactRouterIcon} from '../icons/remix';
 import {SkiaIcon} from '../icons/skia';
 import {Stargazer} from '../icons/stargazer';
 import {StillIcon} from '../icons/still';
@@ -112,7 +112,7 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'react-router') {
 		return (
-			<RemixIcon
+			<ReactRouterIcon
 				style={{
 					height: scale * 32,
 				}}
