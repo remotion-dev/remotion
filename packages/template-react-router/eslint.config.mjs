@@ -4,4 +4,9 @@ const conf = makeConfig({
   remotionDir: ["app/remotion/**"],
 });
 
-export default conf;
+export default [
+  {
+    ignores: [".react-router", "deploy.mjs"],
+  },
+  ...conf,
+];

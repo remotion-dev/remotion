@@ -100,7 +100,7 @@ export const useRendering = (
         renderId: null,
       });
     }
-  }, [id, inputProps]);
+  }, [inputProps]);
 
   const undo = useCallback(() => {
     setState({ status: "init" });

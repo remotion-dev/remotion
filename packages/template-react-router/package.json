@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "lint": "eslint && tsc",
+    "lint": "eslint . && tsc",
     "start": "react-router-serve build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "remotion:studio": "remotion studio",

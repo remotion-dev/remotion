@@ -3,7 +3,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".react-router/types/**/*",
-    "app/remotion/constants.mjs"
+    "app/remotion/constants.mjs",
+    "deploy.mjs"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
