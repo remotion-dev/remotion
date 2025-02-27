@@ -14,23 +14,33 @@ export const sampleSorter = ({
 	getAllChunksProcessedForPlaylist: (src: string) => boolean;
 }) => {
 	const streamsWithTracks: string[] = [];
-	const callbacks: Record<string, OnVideoSample | OnAudioSample> = {};
+	const audioCallbacks: Record<string, OnAudioSample> = {};
+	const videoCallbacks: Record<string, OnVideoSample> = {};
 	const latestSample: Record<string, number> = {};
 
 	return {
 		addToStreamWithTrack: (src: string) => {
 			streamsWithTracks.push(src);
 		},
-		addStreamToConsider: (
-			src: string,
-			callback: OnVideoSample | OnAudioSample,
-		) => {
-			callbacks[src] = callback;
+		addVideoStreamToConsider: (src: string, callback: OnVideoSample) => {
+			videoCallbacks[src] = callback;
 		},
-		addSample: async (src: string, sample: AudioOrVideoSample) => {
-			const callback = callbacks[src];
+		addAudioStreamToConsider: (src: string, callback: OnAudioSample) => {
+			audioCallbacks[src] = callback;
+		},
+		addAudioSample: async (src: string, sample: AudioOrVideoSample) => {
+			const callback = audioCallbacks[src];
 			if (!callback) {
-				throw new Error('No callback found for video sample');
+				throw new Error('No callback found for audio sample');
+			}
+
+			latestSample[src] = sample.dts;
+			await callback(sample);
+		},
+		addVideoSample: async (src: string, sample: AudioOrVideoSample) => {
+			const callback = videoCallbacks[src];
+			if (!callback) {
+				throw new Error('No callback found for audio sample');
 			}
 
 			latestSample[src] = sample.dts;
@@ -54,13 +64,13 @@ export const sampleSorter = ({
 					continue;
 				}
 
-				if (latestSample[stream] < smallestDts) {
-					smallestDts = latestSample[stream];
+				if ((latestSample[stream] ?? 0) < smallestDts) {
+					smallestDts = latestSample[stream] ?? 0;
 				}
 			}
 
 			for (const stream of streams) {
-				if (latestSample[stream] === smallestDts) {
+				if ((latestSample[stream] ?? 0) === smallestDts) {
 					Log.trace(
 						logLevel,
 						`Working on ${stream} because it has the smallest DTS`,
