@@ -16,7 +16,7 @@ import { CompositionProps } from "../schemata";
 const weight = "600" as const;
 
 loadFont("normal", {
-  weights: [weight],
+  weights: ["400", weight],
 });
 
 const container: React.CSSProperties = {
