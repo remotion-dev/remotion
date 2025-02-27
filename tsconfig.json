@@ -163,7 +163,7 @@
 			"path": "./packages/template-overlay"
 		},
 		{
-			"path": "./packages/template-remix"
+			"path": "./packages/template-react-router"
 		},
 		{
 			"path": "./packages/template-tiktok"
