@@ -32,6 +32,7 @@
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"@remotion/test-utils": "workspace:*",
+		"@remotion/player": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0"
 	},

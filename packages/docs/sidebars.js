@@ -990,6 +990,7 @@ module.exports = {
 				'javascript',
 				'third-party',
 				'miscellaneous/typescript-aliases',
+				'testing',
 				'figma',
 				'spline',
 				'after-effects',

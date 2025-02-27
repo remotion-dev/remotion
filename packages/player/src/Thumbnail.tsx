@@ -40,6 +40,7 @@ export type ThumbnailProps<
 		readonly className?: string;
 		readonly overrideInternalClassName?: string;
 		readonly logLevel?: LogLevel;
+		readonly noSuspense?: boolean;
 	};
 
 export type ThumbnailPropsWithoutZod<Props extends Record<string, unknown>> =
@@ -63,6 +64,7 @@ const ThumbnailFn = <
 		overflowVisible = false,
 		overrideInternalClassName,
 		logLevel = 'info',
+		noSuspense,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>,
@@ -102,6 +104,7 @@ const ThumbnailFn = <
 	const Component = Internals.useLazyComponent({
 		compProps: componentProps,
 		componentName: 'Thumbnail',
+		noSuspense: Boolean(noSuspense),
 	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
@@ -133,6 +136,7 @@ const ThumbnailFn = <
 						style={style}
 						overflowVisible={overflowVisible}
 						overrideInternalClassName={overrideInternalClassName}
+						noSuspense={Boolean(noSuspense)}
 					/>
 				</ThumbnailEmitterContext.Provider>
 			</SharedPlayerContexts>
