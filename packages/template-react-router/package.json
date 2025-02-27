@@ -1,5 +1,5 @@
 {
-  "name": "template-remix",
+  "name": "template-react-router",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "start": "react-router-serve build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "remotion:studio": "remotion studio",
-    "remotion:renderlambda": "remotion lambda render remotion-remix-example LogoAnimation out/logo-animation-lambda-rendered.mp4",
+    "remotion:renderlambda": "remotion lambda render remotion-react-router-example LogoAnimation out/logo-animation-lambda-rendered.mp4",
     "remotion:deploy": "ts-node app/deploy.ts"
   },
   "sideEffects": [
