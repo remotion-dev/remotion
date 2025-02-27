@@ -4,23 +4,14 @@ import {
   speculateFunctionName,
 } from "@remotion/lambda/client";
 import type { StatusResponse } from "./lib/types";
-import { DISK, RAM, TIMEOUT } from "~/remotion/constants";
 import { ActionFunction } from "react-router";
+import { errorAsJson } from "./lib/return-error-as-json";
+import { ProgressRequest } from "./remotion/schemata";
+import { DISK, RAM, TIMEOUT } from "./remotion/constants.mjs";
 
-export const action: ActionFunction = async ({ request }) => {
-  const body = await request.formData();
-  const renderId = body.get("renderId") as string;
-  const bucketName = body.get("bucketName") as string;
-  if (!renderId) {
-    throw new Response(JSON.stringify({ error: "No renderId" }), {
-      status: 400,
-    });
-  }
-  if (!bucketName) {
-    throw new Response(JSON.stringify({ error: "No bucketName" }), {
-      status: 400,
-    });
-  }
+export const action: ActionFunction = errorAsJson(async ({ request }) => {
+  const body = await request.json();
+  const { bucketName, id } = ProgressRequest.parse(body);
 
   const region = process.env.REMOTION_AWS_REGION as AwsRegion | undefined;
   if (!region) {
@@ -29,7 +20,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const { done, overallProgress, errors, outputFile } = await getRenderProgress(
     {
-      renderId,
+      renderId: id,
       bucketName,
       functionName: speculateFunctionName({
         diskSizeInMb: DISK,
@@ -40,7 +31,7 @@ export const action: ActionFunction = async ({ request }) => {
     },
   );
   const status: StatusResponse = {
-    renderId,
+    renderId: id,
     done,
     overallProgress,
     errors,
@@ -48,4 +39,4 @@ export const action: ActionFunction = async ({ request }) => {
   };
 
   return status;
-};
+});

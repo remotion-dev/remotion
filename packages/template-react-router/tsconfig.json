@@ -1,5 +1,10 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".react-router/types/**/*",
+    "app/remotion/constants.mjs"
+  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "isolatedModules": true,
@@ -24,5 +29,4 @@
     "module": "ESNext"
   },
   "exclude": ["remotion.config.ts"]
-  
 }

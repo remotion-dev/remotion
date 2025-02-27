@@ -2761,15 +2761,24 @@ importers:
       '@remotion/lambda':
         specifier: workspace:*
         version: link:../lambda
+      '@remotion/paths':
+        specifier: workspace:*
+        version: link:../paths
       '@remotion/player':
         specifier: workspace:*
         version: link:../player
+      '@remotion/shapes':
+        specifier: workspace:*
+        version: link:../shapes
       '@tailwindcss/cli':
         specifier: 4.0.0
         version: 4.0.0
       '@tailwindcss/vite':
         specifier: 4.0.0
         version: 4.0.0(vite@5.4.14)
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       isbot:
         specifier: 4.1.0
         version: 4.1.0
@@ -2788,6 +2797,9 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+      tailwind-merge:
+        specifier: 3.0.1
+        version: 3.0.1
       tailwindcss:
         specifier: 4.0.0
         version: 4.0.0

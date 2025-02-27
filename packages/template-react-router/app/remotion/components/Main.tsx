@@ -11,7 +11,7 @@ import { loadFont, fontFamily } from "@remotion/google-fonts/Inter";
 import React, { useMemo } from "react";
 import { Rings } from "./Rings";
 import { TextFade } from "./TextFade";
-import { CompositionProps } from "../constants";
+import { CompositionProps } from "../schemata";
 
 loadFont();
 

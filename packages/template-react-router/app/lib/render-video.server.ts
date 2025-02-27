@@ -4,8 +4,10 @@ import {
   speculateFunctionName,
 } from "@remotion/lambda/client";
 import type { RenderResponse } from "./types";
-import { CompositionProps, DISK, RAM, TIMEOUT } from "app/remotion/constants";
 import { z } from "zod";
+import { CompositionProps } from "~/remotion/schemata";
+import { TIMEOUT } from "dns";
+import { DISK, RAM } from "~/remotion/constants.mjs";
 
 export const renderVideo = async ({
   serveUrl,

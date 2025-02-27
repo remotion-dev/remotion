@@ -5,7 +5,7 @@ import {
   COMPOSITION_HEIGHT,
   COMPOSITION_ID,
   COMPOSITION_WIDTH,
-} from "./constants";
+} from "./constants.mjs";
 import { Main } from "./components/Main";
 
 export const RemotionRoot = () => {
