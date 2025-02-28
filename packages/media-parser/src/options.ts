@@ -14,7 +14,7 @@ import type {
 import type {LogLevel} from './log';
 import type {MediaParserController} from './media-parser-controller';
 import type {MetadataEntry} from './metadata/get-metadata';
-import type {Structure} from './parse-result';
+import type {IsoBaseMediaStructure, Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
@@ -281,6 +281,7 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	acknowledgeRemotionLicense: boolean;
 	selectM3uStream: SelectM3uStreamFn;
 	selectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 } & MandatoryParseMediaCallbacks;
 
 type ParseMediaSampleCallbacks = {

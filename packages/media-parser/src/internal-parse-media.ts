@@ -37,6 +37,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	apiName,
 	selectM3uStream: selectM3uStreamFn,
 	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
+	mp4HeaderSegment,
 	...more
 }: InternalParseMediaOptions<F>) {
 	warnIfRemotionLicenseNotAcknowledged({
@@ -51,7 +52,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 		callbacks: more,
 	});
 
-	Log.verbose(logLevel, `Reading ${typeof src === 'string' ? src : src.name}`);
+	Log.verbose(
+		logLevel,
+		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src.name}`,
+	);
 
 	const {
 		reader: readerInstance,
@@ -113,6 +117,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		onDiscardedData,
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment,
 	});
 	const {iterator} = state;
 

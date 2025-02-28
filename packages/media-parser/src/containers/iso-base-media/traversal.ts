@@ -1,4 +1,4 @@
-import type {AnySegment} from '../../parse-result';
+import type {AnySegment, IsoBaseMediaStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
 import type {FtypBox} from './ftyp';
@@ -27,19 +27,32 @@ export const getFtypBox = (segments: AnySegment[]): FtypBox | null => {
 	return ftypBox;
 };
 
-export const getMoovBox = (state: ParserState): MoovBox | null => {
-	if (state.iso.moov.getMoovBox()) {
-		return state.iso.moov.getMoovBox();
-	}
-
-	const structure = state.getIsoStructure();
-
+export const getMoovFromFromIsoStructure = (
+	structure: IsoBaseMediaStructure,
+): MoovBox | null => {
 	const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
 	if (!moovBox || moovBox.type !== 'moov-box') {
 		return null;
 	}
 
 	return moovBox;
+};
+
+export const getMoovBoxFromState = (state: ParserState): MoovBox | null => {
+	const got = state.iso.moov.getMoovBox();
+
+	if (got) {
+		return got;
+	}
+
+	const a = state.mp4HeaderSegment;
+	if (a) {
+		return getMoovFromFromIsoStructure(a);
+	}
+
+	const structure = state.getIsoStructure();
+
+	return getMoovFromFromIsoStructure(structure);
 };
 
 export const getMoofBoxes = (main: AnySegment[]): IsoBaseMediaBox[] => {

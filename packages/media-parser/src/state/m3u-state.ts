@@ -5,6 +5,7 @@ import type {
 import {sampleSorter} from '../containers/m3u/sample-sorter';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {IsoBaseMediaStructure} from '../parse-result';
 import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
 
 export type M3uStreamOrInitialUrl =
@@ -57,6 +58,16 @@ export const m3uState = (logLevel: LogLevel) => {
 
 	const getAllChunksProcessedForPlaylist = (src: string) =>
 		allChunksProcessed[src];
+
+	let mp4HeaderSegment: IsoBaseMediaStructure | null = null;
+
+	const setMp4HeaderSegment = (structure: IsoBaseMediaStructure) => {
+		mp4HeaderSegment = structure;
+	};
+
+	const getMp4HeaderSegment = () => {
+		return mp4HeaderSegment;
+	};
 
 	return {
 		setSelectedMainPlaylist: (stream: M3uStreamOrInitialUrl) => {
@@ -141,6 +152,8 @@ export const m3uState = (logLevel: LogLevel) => {
 		getAssociatedPlaylists: () => associatedPlaylists,
 		getSelectedPlaylists,
 		sampleSorter: sampleSorter({logLevel, getAllChunksProcessedForPlaylist}),
+		setMp4HeaderSegment,
+		getMp4HeaderSegment,
 	};
 };
 

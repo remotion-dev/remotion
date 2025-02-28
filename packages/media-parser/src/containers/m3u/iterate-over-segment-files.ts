@@ -10,7 +10,7 @@ import {getChunks} from './get-chunks';
 import {getPlaylist} from './get-playlist';
 import type {M3uStructure} from './types';
 
-export const iteratorOverTsFiles = async ({
+export const iteratorOverSegmentFiles = async ({
 	structure,
 	onVideoTrack,
 	m3uState,
@@ -121,8 +121,15 @@ export const iteratorOverTsFiles = async ({
 
 					return callbackOrFalse;
 				},
+				mp4HeaderSegment: m3uState.getMp4HeaderSegment(),
 			});
-			console.log('struc', data.structure);
+			if (isMp4) {
+				if (data.structure.type !== 'iso-base-media') {
+					throw new Error('Expected an mp4 file');
+				}
+
+				m3uState.setMp4HeaderSegment(data.structure);
+			}
 		} catch (e) {
 			rejector(e as Error);
 			throw e;
