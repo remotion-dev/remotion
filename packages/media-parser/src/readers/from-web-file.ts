@@ -2,7 +2,7 @@ import type {ReaderInterface} from './reader';
 
 export const webFileReader: ReaderInterface = {
 	read: ({src, range, controller}) => {
-		if (typeof src === 'string') {
+		if (typeof src === 'string' || src instanceof URL) {
 			throw new Error('`inputTypeFileReader` only supports `File` objects');
 		}
 

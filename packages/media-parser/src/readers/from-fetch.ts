@@ -75,7 +75,7 @@ const validateContentRangeAndDetectIfSupported = ({
 
 export const fetchReader: ReaderInterface = {
 	read: async ({src, range, controller}) => {
-		if (typeof src !== 'string') {
+		if (typeof src !== 'string' && src instanceof URL === false) {
 			throw new Error('src must be a string when using `fetchReader`');
 		}
 
@@ -163,7 +163,7 @@ export const fetchReader: ReaderInterface = {
 
 		const contentDisposition = res.headers.get('content-disposition');
 		const name = contentDisposition?.match(/filename="([^"]+)"/)?.[1];
-		const fallbackName = src.split('/').pop() as string;
+		const fallbackName = src.toString().split('/').pop() as string;
 
 		const {contentLength, needsContentRange, reader} = await getLengthAndReader(
 			{

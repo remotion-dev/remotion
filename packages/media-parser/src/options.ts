@@ -290,7 +290,7 @@ type ParseMediaSampleCallbacks = {
 
 export type ParseMediaMode = 'query' | 'download';
 
-export type ParseMediaSrc = string | Blob;
+export type ParseMediaSrc = string | Blob | URL;
 
 export type OnDiscardedData = (data: Uint8Array) => Promise<void>;
 

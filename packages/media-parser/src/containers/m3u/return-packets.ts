@@ -63,10 +63,11 @@ export const iteratorOverTsFiles = async ({
 	for (const chunk of chunks) {
 		const isLastChunk = chunk === chunks[chunks.length - 1];
 		await childController._internals.checkForAbortAndPause();
-		const src = new URL(chunk.url, playlistUrl).toString();
+		const src = new URL(chunk.url, playlistUrl);
+		const isMp4 = src.pathname.endsWith('.mp4');
 
 		try {
-			await parseMedia({
+			const data = await parseMedia({
 				src,
 				acknowledgeRemotionLicense: true,
 				logLevel,
@@ -76,6 +77,7 @@ export const iteratorOverTsFiles = async ({
 					childController.pause();
 					resolver(makeContinuationFn());
 				},
+				fields: isMp4 ? {structure: true} : undefined,
 				onTracks: () => {
 					if (!m3uState.hasEmittedDoneWithTracks(playlistUrl)) {
 						m3uState.setHasEmittedDoneWithTracks(playlistUrl);
@@ -120,6 +122,7 @@ export const iteratorOverTsFiles = async ({
 					return callbackOrFalse;
 				},
 			});
+			console.log('struc', data.structure);
 		} catch (e) {
 			rejector(e as Error);
 			throw e;
