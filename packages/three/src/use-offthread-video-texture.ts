@@ -95,7 +95,12 @@ export const useInnerVideoTexture = ({
 			textureLoaded?.dispose();
 			continueRender(imageTextureHandle);
 		};
-	}, [offthreadVideoFrameSrc, textLoaderPromise, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
+	}, [
+		offthreadVideoFrameSrc,
+		textLoaderPromise,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	]);
 
 	useLayoutEffect(() => {
 		const cleanup = fetchTexture();
