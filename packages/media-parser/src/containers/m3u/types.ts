@@ -54,7 +54,7 @@ export type M3uDiscontinuitySequence = {
 
 export type M3uMap = {
 	type: 'm3u-map';
-	value: number;
+	value: string;
 };
 
 export type M3uStreamInfo = {

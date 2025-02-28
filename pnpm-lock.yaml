@@ -1590,6 +1590,9 @@ importers:
       '@remotion/example-videos':
         specifier: workspace:*
         version: link:../example-videos
+      '@types/bun':
+        specifier: 1.2.0
+        version: 1.2.0
       '@types/wicg-file-system-access':
         specifier: 2023.10.5
         version: 2023.10.5

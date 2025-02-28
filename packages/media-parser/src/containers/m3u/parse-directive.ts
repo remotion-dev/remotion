@@ -1,4 +1,7 @@
-import {parseM3uMediaDirective} from './parse-m3u-media-directive';
+import {
+	parseM3uKeyValue,
+	parseM3uMediaDirective,
+} from './parse-m3u-media-directive';
 import {parseStreamInf} from './parse-stream-inf';
 import type {M3uBox} from './types';
 
@@ -111,9 +114,14 @@ export const parseM3uDirective = (str: string): M3uBox => {
 			throw new Error('#EXT-X-MAP directive must have a value');
 		}
 
+		const p = parseM3uKeyValue(value);
+		if (!p.URI) {
+			throw new Error('EXT-X-MAP directive must have a URI');
+		}
+
 		return {
 			type: 'm3u-map',
-			value: Number(value),
+			value: p.URI,
 		};
 	}
 
