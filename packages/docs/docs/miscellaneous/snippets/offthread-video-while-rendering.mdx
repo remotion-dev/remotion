@@ -14,9 +14,9 @@ import {getRemotionEnvironment, OffthreadVideo, RemotionOffthreadVideoProps, Vid
 function OffthreadWhileRenderingRefForwardingFunction(props: RemotionOffthreadVideoProps, ref: React.Ref<HTMLVideoElement>) {
   const isPreview = !getRemotionEnvironment().isRendering;
 
-  const onAutoPlayErrorNotNull = onAutoPlayError ?? undefined;
   if (isPreview) {
-    return <Video ref={ref} {...props} />;
+    const {imageFormat, ...otherProps} = props;
+    return <Video ref={ref} {...otherProps} />;
   }
 
   return <OffthreadVideo {...props} />;
