@@ -31,34 +31,20 @@ const My3DVideo = () => {
 
   return (
     <ThreeCanvas width={width} height={height}>
-      <mesh>
-        {videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}
-      </mesh>
+      <mesh>{videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}</mesh>
     </ThreeCanvas>
   );
 };
 ```
 
 ```tsx twoslash title="Use useVideoTexture() only during rendering"
-import {
-  ThreeCanvas,
-  useOffthreadVideoTexture,
-  useVideoTexture,
-} from '@remotion/three';
+import {ThreeCanvas, useOffthreadVideoTexture, useVideoTexture} from '@remotion/three';
 import {useRef} from 'react';
-import {
-  getRemotionEnvironment,
-  staticFile,
-  useVideoConfig,
-  Video,
-} from 'remotion';
+import {getRemotionEnvironment, staticFile, useVideoConfig, Video} from 'remotion';
 
 const videoSrc = staticFile('/vid.mp4');
 
-const useVideoOrOffthreadVideoTexture = (
-  videoSrc: string,
-  videoRef: React.RefObject<HTMLVideoElement | null>,
-) => {
+const useVideoOrOffthreadVideoTexture = (videoSrc: string, videoRef: React.RefObject<HTMLVideoElement | null>) => {
   if (getRemotionEnvironment().isRendering) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useOffthreadVideoTexture({src: videoSrc});
@@ -76,17 +62,9 @@ const My3DVideo = () => {
 
   return (
     <>
-      {getRemotionEnvironment().isRendering ? null : (
-        <Video
-          ref={videoRef}
-          src={videoSrc}
-          style={{position: 'absolute', opacity: 0}}
-        />
-      )}
+      {getRemotionEnvironment().isRendering ? null : <Video ref={videoRef} src={videoSrc} style={{position: 'absolute', opacity: 0}} />}
       <ThreeCanvas width={width} height={height}>
-        <mesh>
-          {videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}
-        </mesh>
+        <mesh>{videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}</mesh>
       </ThreeCanvas>
     </>
   );
@@ -122,11 +100,11 @@ Disabling tone mapping will speed up rendering, but may result in less vibrant c
 
 Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
-### `delayRenderTimeoutInMilliseconds`<AvailableFrom v="4.0.270" />
+### `delayRenderTimeoutInMilliseconds`<AvailableFrom v="4.0.271" />
 
 Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
 
-### `delayRenderRetries`<AvailableFrom v="4.0.270" />
+### `delayRenderRetries`<AvailableFrom v="4.0.271" />
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
 
