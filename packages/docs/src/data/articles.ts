@@ -2583,6 +2583,15 @@ export const articles = [
 		slug: 'media-playback-error',
 	},
 	{
+		id: 'create-smooth-svg-path',
+		title: 'createSmoothSvgPath()',
+		relativePath: 'docs/media-utils/create-smooth-svg-path.mdx',
+		compId: 'articles-docs-media-utils-create-smooth-svg-path',
+		crumb: '@remotion/media-utils',
+		noAi: false,
+		slug: 'media-utils/create-smooth-svg-path',
+	},
+	{
 		id: 'media-utils/index',
 		title: '@remotion/media-utils',
 		relativePath: 'docs/media-utils/index.mdx',
@@ -2590,6 +2599,15 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'media-utils/index',
+	},
+	{
+		id: 'visualize-audio-waveform',
+		title: 'visualizeAudioWaveform()',
+		relativePath: 'docs/media-utils/visualize-audio-waveform.mdx',
+		compId: 'articles-docs-media-utils-visualize-audio-waveform',
+		crumb: '@remotion/media-utils',
+		noAi: false,
+		slug: 'media-utils/visualize-audio-waveform',
 	},
 	{
 		id: 'metadata',
@@ -4760,6 +4778,15 @@ export const articles = [
 		slug: 'terminology/studio',
 	},
 	{
+		id: 'testing',
+		title: 'Testing Remotion components',
+		relativePath: 'docs/testing.mdx',
+		compId: 'articles-docs-testing',
+		crumb: 'Tooling',
+		noAi: false,
+		slug: 'testing',
+	},
+	{
 		id: 'the-fundamentals',
 		title: 'The fundamentals',
 		relativePath: 'docs/the-fundamentals.mdx',
@@ -5335,15 +5362,6 @@ export const articles = [
 		crumb: 'How To',
 		noAi: false,
 		slug: 'visual-editing',
-	},
-	{
-		id: 'visualize-audio-waveform',
-		title: 'visualizeAudioWaveform()',
-		relativePath: 'docs/visualize-audio-waveform.mdx',
-		compId: 'articles-docs-visualize-audio-waveform',
-		crumb: '@remotion/media-utils',
-		noAi: false,
-		slug: 'visualize-audio-waveform',
 	},
 	{
 		id: 'visualize-audio',

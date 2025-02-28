@@ -139,6 +139,7 @@ export const Composition = <
 	const lazy = useLazyComponent<Props>({
 		compProps: compProps as CompProps<Props>,
 		componentName: 'Composition',
+		noSuspense: false,
 	});
 	const nonce = useNonce();
 	const isPlayer = useIsPlayer();

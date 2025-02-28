@@ -91,6 +91,7 @@ export type PlayerProps<
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
 	readonly overrideInternalClassName?: string;
 	readonly logLevel?: LogLevel;
+	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
@@ -156,6 +157,7 @@ const PlayerFn = <
 		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
 		overrideInternalClassName,
 		logLevel = 'info',
+		noSuspense,
 		acknowledgeRemotionLicense,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
@@ -202,6 +204,7 @@ const PlayerFn = <
 	const component = Internals.useLazyComponent({
 		compProps: componentProps,
 		componentName: 'Player',
+		noSuspense: Boolean(noSuspense),
 	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	validateInitialFrame({initialFrame, durationInFrames});
@@ -449,6 +452,7 @@ const PlayerFn = <
 							overflowVisible={overflowVisible}
 							browserMediaControlsBehavior={browserMediaControlsBehavior}
 							overrideInternalClassName={overrideInternalClassName ?? undefined}
+							noSuspense={Boolean(noSuspense)}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
