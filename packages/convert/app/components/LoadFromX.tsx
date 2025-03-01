@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
+import {extractTweetId} from '~/lib/extract-tweet-id';
 import {Button} from './ui/button';
 import {
 	Dialog,
@@ -12,16 +13,17 @@ import {Input} from './ui/input';
 export const LoadFromX: React.FC = () => {
 	const [open, setOpen] = React.useState(false);
 	const [value, setValue] = React.useState('');
+	const [loading, setLoading] = React.useState(false);
+	const [error, setError] = React.useState<string | null>(null);
 
 	const onOpenChange = React.useCallback(() => {
 		setOpen((prev) => !prev);
+		setError(null);
 	}, []);
 
 	const isValid = useMemo(() => {
 		try {
-			// eslint-disable-next-line no-new
-			new URL(value);
-			return true;
+			return extractTweetId(value) !== null;
 		} catch {
 			return false;
 		}
@@ -32,31 +34,40 @@ export const LoadFromX: React.FC = () => {
 	}, []);
 
 	const set = useCallback(async () => {
-		const res = await fetch(
-			'https://lzpqleuj7axkrgoxsa3h7ecynq0vveim.lambda-url.eu-central-1.on.aws/?id=1859650265021817143',
-		);
-		const json = await res.json();
-		if (json.type !== 'success') {
-			console.log(json.error); // TODO: Show error
-			return;
+		setLoading(true);
+		setError(null);
+		try {
+			const res = await fetch(
+				'https://lzpqleuj7axkrgoxsa3h7ecynq0vveim.lambda-url.eu-central-1.on.aws/?id=' +
+					extractTweetId(value),
+			);
+			const json = await res.json();
+			if (json.type !== 'success') {
+				setError(json.error || 'Failed to load from X');
+				return;
+			}
+
+			const urls = json.urls as string[];
+			if (!urls.length) {
+				setError('No videos found in this post');
+				return;
+			}
+
+			const [firstUrl] = urls;
+			const currentUrl = new URL(window.location.href);
+			currentUrl.searchParams.set('url', firstUrl);
+
+			window.location.href = currentUrl.toString();
+		} catch {
+			setError('An unexpected error occurred');
+		} finally {
+			setLoading(false);
 		}
-
-		const urls = json.urls as string[];
-		if (!urls.length) {
-			console.log('No URLs found'); // TODO: Show error
-			return;
-		}
-
-		const [firstUrl, ...moreUrls] = urls;
-		const currentUrl = new URL(window.location.href);
-		currentUrl.searchParams.set('url', firstUrl);
-
-		window.location.href = currentUrl.toString();
-	}, []);
+	}, [value]);
 
 	const onKeydown = useCallback(
 		(e: React.KeyboardEvent<HTMLInputElement>) => {
-			if (!isValid) {
+			if (!isValid || loading) {
 				return;
 			}
 
@@ -64,7 +75,7 @@ export const LoadFromX: React.FC = () => {
 				set();
 			}
 		},
-		[isValid, set],
+		[isValid, loading, set],
 	);
 
 	return (
@@ -90,9 +101,14 @@ export const LoadFromX: React.FC = () => {
 							onChange={(e) => setValue(e.target.value)}
 							placeholder="For example: https://x.com/JNYBGR/status/1859650265021817143"
 						/>
+						{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 						<div className="h-2" />
-						<Button disabled={!isValid} variant="brand" onClick={set}>
-							Load
+						<Button
+							disabled={!isValid || loading}
+							variant="brand"
+							onClick={set}
+						>
+							{loading ? 'Loading...' : 'Load'}
 						</Button>
 					</DialogHeader>
 				</DialogContent>
