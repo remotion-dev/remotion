@@ -41,6 +41,10 @@ export const selectAssociatedPlaylists = async ({
 
 export const defaultSelectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn =
 	({associatedPlaylists}) => {
+		if (associatedPlaylists.length === 1) {
+			return Promise.resolve(associatedPlaylists);
+		}
+
 		return Promise.resolve(
 			associatedPlaylists.filter((playlist) => playlist.default),
 		);

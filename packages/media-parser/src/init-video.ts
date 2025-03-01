@@ -1,5 +1,4 @@
 import type {FlacStructure} from './containers/flac/types';
-import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import {getMoovFromFromIsoStructure} from './containers/iso-base-media/traversal';
 import type {WavStructure} from './containers/wav/types';
 import {
@@ -11,9 +10,10 @@ import {
 import {getTracksFromMoovBox} from './get-tracks';
 import {Log} from './log';
 import type {Mp3Structure} from './parse-result';
+import {registerAudioTrack, registerVideoTrack} from './register-track';
 import type {ParserState} from './state/parser-state';
 
-export const initVideo = ({
+export const initVideo = async ({
 	state,
 	mimeType,
 	name,
@@ -37,15 +37,26 @@ export const initVideo = ({
 
 	if (state.mp4HeaderSegment) {
 		Log.verbose(state.logLevel, 'Detected ISO Base Media segment');
-		const tracks = getTracksFromMoovBox(
-			getMoovFromFromIsoStructure(state.mp4HeaderSegment) as MoovBox,
-		);
+		const moovAtom = getMoovFromFromIsoStructure(state.mp4HeaderSegment);
+		if (!moovAtom) {
+			throw new Error('No moov box found');
+		}
+
+		const tracks = getTracksFromMoovBox(moovAtom);
 		for (const track of tracks.videoTracks) {
-			state.callbacks.tracks.addTrack(track);
+			await registerVideoTrack({
+				state,
+				track,
+				container: 'mp4',
+			});
 		}
 
 		for (const track of tracks.audioTracks) {
-			state.callbacks.tracks.addTrack(track);
+			await registerAudioTrack({
+				state,
+				track,
+				container: 'mp4',
+			});
 		}
 
 		state.callbacks.tracks.setIsDone(state.logLevel);

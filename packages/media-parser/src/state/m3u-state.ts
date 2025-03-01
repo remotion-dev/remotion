@@ -59,14 +59,17 @@ export const m3uState = (logLevel: LogLevel) => {
 	const getAllChunksProcessedForPlaylist = (src: string) =>
 		allChunksProcessed[src];
 
-	let mp4HeaderSegment: IsoBaseMediaStructure | null = null;
+	const mp4HeaderSegments: Record<string, IsoBaseMediaStructure> = {};
 
-	const setMp4HeaderSegment = (structure: IsoBaseMediaStructure) => {
-		mp4HeaderSegment = structure;
+	const setMp4HeaderSegment = (
+		playlistUrl: string,
+		structure: IsoBaseMediaStructure,
+	) => {
+		mp4HeaderSegments[playlistUrl] = structure;
 	};
 
-	const getMp4HeaderSegment = () => {
-		return mp4HeaderSegment;
+	const getMp4HeaderSegment = (playlistUrl: string) => {
+		return mp4HeaderSegments[playlistUrl];
 	};
 
 	return {

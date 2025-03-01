@@ -67,6 +67,7 @@ export const iteratorOverSegmentFiles = async ({
 		const isMp4 = src.pathname.endsWith('.mp4');
 
 		try {
+			const mp4HeaderSegment = m3uState.getMp4HeaderSegment(playlistUrl);
 			const data = await parseMedia({
 				src,
 				acknowledgeRemotionLicense: true,
@@ -121,14 +122,14 @@ export const iteratorOverSegmentFiles = async ({
 
 					return callbackOrFalse;
 				},
-				mp4HeaderSegment: m3uState.getMp4HeaderSegment(),
+				mp4HeaderSegment,
 			});
 			if (isMp4) {
 				if (data.structure.type !== 'iso-base-media') {
 					throw new Error('Expected an mp4 file');
 				}
 
-				m3uState.setMp4HeaderSegment(data.structure);
+				m3uState.setMp4HeaderSegment(playlistUrl, data.structure);
 			}
 		} catch (e) {
 			rejector(e as Error);
