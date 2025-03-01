@@ -26,6 +26,7 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		selectM3uAssociatedPlaylists:
 			options.selectM3uAssociatedPlaylists ??
 			defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: options.mp4HeaderSegment ?? null,
 		onDiscardedData: async (data) => {
 			await content.write(data);
 		},

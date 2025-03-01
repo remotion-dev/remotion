@@ -5,6 +5,7 @@ import type {
 import {sampleSorter} from '../containers/m3u/sample-sorter';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {IsoBaseMediaStructure} from '../parse-result';
 import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
 
 export type M3uStreamOrInitialUrl =
@@ -44,19 +45,32 @@ export const m3uState = (logLevel: LogLevel) => {
 		const playlistUrl =
 			selectedMainPlaylist.type === 'initial-url'
 				? selectedMainPlaylist.url
-				: selectedMainPlaylist.stream.url;
+				: selectedMainPlaylist.stream.src;
 		return playlistUrl;
 	};
 
 	const getSelectedPlaylists = () => {
 		return [
 			getMainPlaylistUrl(),
-			...(associatedPlaylists ?? []).map((p) => p.url),
+			...(associatedPlaylists ?? []).map((p) => p.src),
 		];
 	};
 
 	const getAllChunksProcessedForPlaylist = (src: string) =>
 		allChunksProcessed[src];
+
+	const mp4HeaderSegments: Record<string, IsoBaseMediaStructure> = {};
+
+	const setMp4HeaderSegment = (
+		playlistUrl: string,
+		structure: IsoBaseMediaStructure,
+	) => {
+		mp4HeaderSegments[playlistUrl] = structure;
+	};
+
+	const getMp4HeaderSegment = (playlistUrl: string) => {
+		return mp4HeaderSegments[playlistUrl];
+	};
 
 	return {
 		setSelectedMainPlaylist: (stream: M3uStreamOrInitialUrl) => {
@@ -141,6 +155,8 @@ export const m3uState = (logLevel: LogLevel) => {
 		getAssociatedPlaylists: () => associatedPlaylists,
 		getSelectedPlaylists,
 		sampleSorter: sampleSorter({logLevel, getAllChunksProcessedForPlaylist}),
+		setMp4HeaderSegment,
+		getMp4HeaderSegment,
 	};
 };
 

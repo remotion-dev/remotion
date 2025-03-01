@@ -4,13 +4,14 @@ import type {LogLevel} from '../../log';
 import type {MediaParserController} from '../../media-parser-controller';
 import {mediaParserController} from '../../media-parser-controller';
 import {parseMedia} from '../../parse-media';
+import type {ReaderInterface} from '../../readers/reader';
 import type {ExistingM3uRun, M3uState} from '../../state/m3u-state';
 import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
 import {getChunks} from './get-chunks';
 import {getPlaylist} from './get-playlist';
 import type {M3uStructure} from './types';
 
-export const iteratorOverTsFiles = async ({
+export const iteratorOverSegmentFiles = async ({
 	structure,
 	onVideoTrack,
 	m3uState,
@@ -20,6 +21,7 @@ export const iteratorOverTsFiles = async ({
 	logLevel,
 	parentController,
 	onInitialProgress,
+	readerInterface,
 }: {
 	structure: M3uStructure;
 	onVideoTrack: (track: VideoTrack) => Promise<OnVideoSample | null>;
@@ -30,6 +32,7 @@ export const iteratorOverTsFiles = async ({
 	logLevel: LogLevel;
 	parentController: MediaParserController;
 	onInitialProgress: (run: ExistingM3uRun | null) => void;
+	readerInterface: ReaderInterface;
 }) => {
 	const playlist = getPlaylist(structure, playlistUrl);
 	const chunks = getChunks(playlist);
@@ -63,10 +66,15 @@ export const iteratorOverTsFiles = async ({
 	for (const chunk of chunks) {
 		const isLastChunk = chunk === chunks[chunks.length - 1];
 		await childController._internals.checkForAbortAndPause();
-		const src = new URL(chunk.url, playlistUrl).toString();
+		const src = readerInterface.createAdjacentFileSource(
+			chunk.url,
+			playlistUrl,
+		);
+		const isMp4 = src.includes('.mp4');
 
 		try {
-			await parseMedia({
+			const mp4HeaderSegment = m3uState.getMp4HeaderSegment(playlistUrl);
+			const data = await parseMedia({
 				src,
 				acknowledgeRemotionLicense: true,
 				logLevel,
@@ -76,6 +84,7 @@ export const iteratorOverTsFiles = async ({
 					childController.pause();
 					resolver(makeContinuationFn());
 				},
+				fields: isMp4 ? {structure: true} : undefined,
 				onTracks: () => {
 					if (!m3uState.hasEmittedDoneWithTracks(playlistUrl)) {
 						m3uState.setHasEmittedDoneWithTracks(playlistUrl);
@@ -119,7 +128,16 @@ export const iteratorOverTsFiles = async ({
 
 					return callbackOrFalse;
 				},
+				reader: readerInterface,
+				mp4HeaderSegment,
 			});
+			if (isMp4) {
+				if (data.structure.type !== 'iso-base-media') {
+					throw new Error('Expected an mp4 file');
+				}
+
+				m3uState.setMp4HeaderSegment(playlistUrl, data.structure);
+			}
 		} catch (e) {
 			rejector(e as Error);
 			throw e;

@@ -20,6 +20,7 @@ export const parseMdatSection = async (
 	}
 
 	const alreadyHas = getHasTracks(state);
+
 	if (!alreadyHas) {
 		const moov = await getMoovAtom({
 			endOfMdat,

@@ -5,6 +5,7 @@ import {makeParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
+import {getMoovFromFromIsoStructure} from './traversal';
 
 export const getMoovAtom = async ({
 	endOfMdat,
@@ -13,6 +14,16 @@ export const getMoovAtom = async ({
 	state: ParserState;
 	endOfMdat: number;
 }): Promise<MoovBox> => {
+	const headerSegment = state.mp4HeaderSegment;
+	if (headerSegment) {
+		const segment = getMoovFromFromIsoStructure(headerSegment);
+		if (!segment) {
+			throw new Error('No moov box found in header segment');
+		}
+
+		return segment;
+	}
+
 	const start = Date.now();
 	Log.verbose(state.logLevel, 'Starting second fetch to get moov atom');
 	const {reader} = await state.readerInterface.read({
@@ -48,6 +59,7 @@ export const getMoovAtom = async ({
 		onDiscardedData: null,
 		selectM3uStreamFn: state.selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment: state.mp4HeaderSegment,
 	});
 
 	while (true) {

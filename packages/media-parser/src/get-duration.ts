@@ -3,7 +3,7 @@ import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sampl
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMoofBoxes,
-	getMoovBox,
+	getMoovBoxFromState,
 	getMvhdBox,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
@@ -56,7 +56,7 @@ export const isMatroska = (boxes: AnySegment[]) => {
 const isoHasDuration = (parserState: ParserState) => {
 	const structure = parserState.getIsoStructure();
 
-	const moovBox = getMoovBox(parserState);
+	const moovBox = getMoovBoxFromState(parserState);
 	if (!moovBox) {
 		return false;
 	}
@@ -87,7 +87,7 @@ const isoHasDuration = (parserState: ParserState) => {
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const structure = parserState.getIsoStructure();
 
-	const moovBox = getMoovBox(parserState);
+	const moovBox = getMoovBoxFromState(parserState);
 	if (!moovBox) {
 		return null;
 	}

@@ -26,7 +26,7 @@ test('should take a direct stream', async () => {
 	});
 
 	const {dimensions} = await parseMedia({
-		src: m3uStreams?.[0]?.url as string,
+		src: m3uStreams?.[0]?.src as string,
 		acknowledgeRemotionLicense: true,
 		fields: {
 			dimensions: true,

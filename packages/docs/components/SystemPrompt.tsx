@@ -1,3 +1,4 @@
+// @ts-expect-error
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';
 import {SYSTEM_PROMPT} from '../src/helpers/system-prompt';

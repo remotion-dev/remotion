@@ -1,7 +1,7 @@
 import type {RegularBox} from '../containers/iso-base-media/base-media-box';
 import type {IlstBox} from '../containers/iso-base-media/meta/ilst';
 import {
-	getMoovBox,
+	getMoovBoxFromState,
 	getTkhdBox,
 	getTraks,
 } from '../containers/iso-base-media/traversal';
@@ -146,7 +146,7 @@ export const parseIsoMetaBox = (
 };
 
 export const getMetadataFromIsoBase = (state: ParserState): MetadataEntry[] => {
-	const moov = getMoovBox(state);
+	const moov = getMoovBoxFromState(state);
 	if (!moov) {
 		return [];
 	}

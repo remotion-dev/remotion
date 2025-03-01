@@ -1,5 +1,5 @@
-import {createReadStream, statSync} from 'fs';
-import {sep} from 'path';
+import {createReadStream, promises, statSync} from 'fs';
+import {dirname, join, relative, sep} from 'path';
 import {Readable} from 'stream';
 import type {ReaderInterface} from './reader';
 
@@ -59,5 +59,27 @@ export const nodeReader: ReaderInterface = {
 			supportsContentRange: true,
 			needsContentRange: true,
 		});
+	},
+	readWholeAsText: (src) => {
+		if (typeof src !== 'string') {
+			throw new Error('src must be a string when using `nodeReader`');
+		}
+
+		return promises.readFile(src, 'utf8');
+	},
+	createAdjacentFileSource: (relativePath, src) => {
+		if (typeof src !== 'string') {
+			throw new Error('src must be a string when using `nodeReader`');
+		}
+
+		const result = join(dirname(src), relativePath);
+		const rel = relative(dirname(src), result);
+		if (rel.startsWith('..')) {
+			throw new Error(
+				'Path is outside of the parent directory - not allowing reading of arbitrary files',
+			);
+		}
+
+		return result;
 	},
 };

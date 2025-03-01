@@ -9,6 +9,11 @@ export const getChunks = (playlist: M3uPlaylist) => {
 	const chunks: M3uChunk[] = [];
 	for (let i = 0; i < playlist.boxes.length; i++) {
 		const box = playlist.boxes[i];
+		if (box.type === 'm3u-map') {
+			chunks.push({duration: 0, url: box.value});
+			continue;
+		}
+
 		if (box.type === 'm3u-extinf') {
 			const nextBox = playlist.boxes[i + 1];
 			i++;

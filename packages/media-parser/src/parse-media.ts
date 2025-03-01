@@ -48,6 +48,7 @@ export const parseMedia: ParseMedia = (options) => {
 		selectM3uAssociatedPlaylists:
 			options.selectM3uAssociatedPlaylists ??
 			defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: options.mp4HeaderSegment ?? null,
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,

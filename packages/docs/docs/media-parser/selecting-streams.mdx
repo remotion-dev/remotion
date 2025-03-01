@@ -97,7 +97,7 @@ const media = await parseMedia({
 });
 ```
 
-The default behavior is to select all associated playlists with the `default: true` attribute, represented by the filter function `defaultSelectM3uAssociatedPlaylists`.
+The default behavior is to select the single associated playlist if there is only one, and otherwise select all associated playlists with the `default: true` attribute. The behavior is implemented by the filter function `defaultSelectM3uAssociatedPlaylists`.
 
 ```tsx twoslash Selecting the first stream
 import {parseMedia, defaultSelectM3uAssociatedPlaylists} from '@remotion/media-parser';

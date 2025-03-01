@@ -87,6 +87,13 @@ export const exampleVideos = {
 		'videos',
 		'multiple-audio-streams.m3u8',
 	),
+	localplaylist: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'local-playlist',
+		'output.m3u8',
+	),
 };
 
 export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';

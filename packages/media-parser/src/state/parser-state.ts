@@ -13,6 +13,7 @@ import type {
 	ParseMediaMode,
 	ParseMediaSrc,
 } from '../options';
+import type {IsoBaseMediaStructure} from '../parse-result';
 import type {ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
@@ -57,6 +58,7 @@ export const makeParserState = ({
 	onDiscardedData,
 	selectM3uStreamFn,
 	selectM3uAssociatedPlaylistsFn,
+	mp4HeaderSegment,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -72,6 +74,7 @@ export const makeParserState = ({
 	onDiscardedData: OnDiscardedData | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -147,6 +150,7 @@ export const makeParserState = ({
 		discardReadBytes,
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment,
 	};
 };
 

@@ -29,7 +29,7 @@ export const selectAssociatedPlaylists = async ({
 	}
 
 	for (const stream of streams) {
-		if (!playlists.find((playlist) => playlist.url === stream.url)) {
+		if (!playlists.find((playlist) => playlist.src === stream.src)) {
 			throw new Error(
 				`The associated playlist ${JSON.stringify(streams)} cannot be selected because it was not in the list of selectable playlists`,
 			);
@@ -41,6 +41,10 @@ export const selectAssociatedPlaylists = async ({
 
 export const defaultSelectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn =
 	({associatedPlaylists}) => {
+		if (associatedPlaylists.length === 1) {
+			return Promise.resolve(associatedPlaylists);
+		}
+
 		return Promise.resolve(
 			associatedPlaylists.filter((playlist) => playlist.default),
 		);

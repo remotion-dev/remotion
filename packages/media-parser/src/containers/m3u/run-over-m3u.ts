@@ -2,7 +2,7 @@ import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import {iteratorOverTsFiles} from './return-packets';
+import {iteratorOverSegmentFiles} from './iterate-over-segment-files';
 import type {M3uStructure} from './types';
 
 export const runOverM3u = async ({
@@ -31,7 +31,7 @@ export const runOverM3u = async ({
 
 	Log.trace(logLevel, 'Starting new M3U parsing process for', playlistUrl);
 	return new Promise<void>((resolve, reject) => {
-		const run = iteratorOverTsFiles({
+		const run = iteratorOverSegmentFiles({
 			playlistUrl,
 			structure,
 			onInitialProgress: (newRun) => {
@@ -107,6 +107,7 @@ export const runOverM3u = async ({
 			},
 			m3uState: state.m3u,
 			parentController: state.controller,
+			readerInterface: state.readerInterface,
 		});
 
 		run.catch((err) => {
