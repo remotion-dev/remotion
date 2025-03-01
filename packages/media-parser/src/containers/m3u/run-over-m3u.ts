@@ -107,6 +107,7 @@ export const runOverM3u = async ({
 			},
 			m3uState: state.m3u,
 			parentController: state.controller,
+			readerInterface: state.readerInterface,
 		});
 
 		run.catch((err) => {

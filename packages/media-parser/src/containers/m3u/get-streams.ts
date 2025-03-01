@@ -1,5 +1,7 @@
 import type {Dimensions} from '../../get-dimensions';
+import type {ParseMediaSrc} from '../../options';
 import type {Structure} from '../../parse-result';
+import type {ReaderInterface} from '../../readers/reader';
 import type {ParserState} from '../../state/parser-state';
 import type {M3uMediaInfo} from './types';
 
@@ -10,12 +12,12 @@ export type M3uAssociatedPlaylist = {
 	autoselect: boolean;
 	default: boolean;
 	channels: number | null;
-	url: string;
+	src: string;
 	id: number;
 };
 
 export type M3uStream = {
-	url: string;
+	src: string;
 	bandwidth: number | null;
 	averageBandwidth: number | null;
 	resolution: Dimensions | null;
@@ -35,10 +37,15 @@ export const isIndependentSegments = (structure: Structure | null): boolean => {
 	);
 };
 
-export const getM3uStreams = (
-	structure: Structure | null,
-	originalSrc: string | null,
-): M3uStream[] | null => {
+export const getM3uStreams = ({
+	structure,
+	originalSrc,
+	readerInterface,
+}: {
+	structure: Structure | null;
+	originalSrc: ParseMediaSrc;
+	readerInterface: ReaderInterface;
+}): M3uStream[] | null => {
 	if (structure === null || structure.type !== 'm3u') {
 		return null;
 	}
@@ -68,20 +75,17 @@ export const getM3uStreams = (
 						groupId: audioTrack.groupId,
 						language: audioTrack.language,
 						name: audioTrack.name,
-						url:
-							originalSrc && originalSrc.startsWith('http')
-								? new URL(audioTrack.uri, originalSrc).href
-								: audioTrack.uri,
+						src: readerInterface.createAdjacentFileSource(
+							audioTrack.uri,
+							originalSrc,
+						),
 						id: associatedPlaylists.length,
 					});
 				}
 			}
 
 			boxes.push({
-				url:
-					originalSrc && originalSrc.startsWith('http')
-						? new URL(next.value, originalSrc).href
-						: next.value,
+				src: readerInterface.createAdjacentFileSource(next.value, originalSrc),
 				averageBandwidth: str.averageBandwidth,
 				bandwidth: str.bandwidth,
 				codecs: str.codecs,

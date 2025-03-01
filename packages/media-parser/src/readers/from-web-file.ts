@@ -63,4 +63,10 @@ export const webFileReader: ReaderInterface = {
 			};
 		});
 	},
+	readWholeAsText() {
+		throw new Error('`webFileReader` cannot read auxiliary files.');
+	},
+	createAdjacentFileSource() {
+		throw new Error('`webFileReader` cannot create adjacent file sources.');
+	},
 };

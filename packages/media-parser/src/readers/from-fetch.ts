@@ -195,4 +195,23 @@ export const fetchReader: ReaderInterface = {
 			needsContentRange,
 		};
 	},
+	async readWholeAsText(src) {
+		if (typeof src !== 'string' && src instanceof URL === false) {
+			throw new Error('src must be a string when using `fetchReader`');
+		}
+
+		const res = await fetch(src);
+		if (!res.ok) {
+			throw new Error(`Failed to fetch ${src} (HTTP code: ${res.status})`);
+		}
+
+		return res.text();
+	},
+	createAdjacentFileSource(relativePath, src) {
+		if (typeof src !== 'string' && src instanceof URL === false) {
+			throw new Error('src must be a string or URL when using `fetchReader`');
+		}
+
+		return new URL(relativePath, src).toString();
+	},
 };

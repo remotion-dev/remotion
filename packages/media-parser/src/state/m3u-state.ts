@@ -45,14 +45,14 @@ export const m3uState = (logLevel: LogLevel) => {
 		const playlistUrl =
 			selectedMainPlaylist.type === 'initial-url'
 				? selectedMainPlaylist.url
-				: selectedMainPlaylist.stream.url;
+				: selectedMainPlaylist.stream.src;
 		return playlistUrl;
 	};
 
 	const getSelectedPlaylists = () => {
 		return [
 			getMainPlaylistUrl(),
-			...(associatedPlaylists ?? []).map((p) => p.url),
+			...(associatedPlaylists ?? []).map((p) => p.src),
 		];
 	};
 

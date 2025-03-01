@@ -22,13 +22,18 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 	}
 
 	if (state.m3u.hasFinishedManifest()) {
+		if (typeof state.src !== 'string' && !(state.src instanceof URL)) {
+			throw new Error('Expected src to be a string');
+		}
+
 		await afterManifestFetch({
 			structure,
 			m3uState: state.m3u,
-			src: typeof state.src === 'string' ? state.src : null,
+			src: state.src.toString(),
 			selectM3uStreamFn: state.selectM3uStreamFn,
 			logLevel: state.logLevel,
-			selectAssociatedPlaylists: state.selectM3uAssociatedPlaylistsFn,
+			selectAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
+			readerInterface: state.readerInterface,
 		});
 		return null;
 	}

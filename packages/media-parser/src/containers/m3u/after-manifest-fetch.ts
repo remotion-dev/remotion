@@ -1,5 +1,6 @@
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
+import type {ReaderInterface} from '../../readers/reader';
 import type {M3uState} from '../../state/m3u-state';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
 import {getM3uStreams, isIndependentSegments} from './get-streams';
@@ -16,14 +17,16 @@ export const afterManifestFetch = async ({
 	src,
 	selectM3uStreamFn,
 	logLevel,
-	selectAssociatedPlaylists: selectAssociatedPlaylistsFn,
+	selectAssociatedPlaylistsFn,
+	readerInterface,
 }: {
 	structure: M3uStructure;
 	m3uState: M3uState;
-	src: string | null;
+	src: string;
 	selectM3uStreamFn: SelectM3uStreamFn;
-	selectAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn;
+	selectAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
 	logLevel: LogLevel;
+	readerInterface: ReaderInterface;
 }) => {
 	const independentSegments = isIndependentSegments(structure);
 	if (!independentSegments) {
@@ -39,7 +42,7 @@ export const afterManifestFetch = async ({
 		return m3uState.setReadyToIterateOverM3u();
 	}
 
-	const streams = getM3uStreams(structure, src);
+	const streams = getM3uStreams({structure, originalSrc: src, readerInterface});
 	if (streams === null) {
 		throw new Error('No streams found');
 	}
@@ -62,13 +65,13 @@ export const afterManifestFetch = async ({
 	m3uState.setAssociatedPlaylists(associatedPlaylists);
 
 	const playlistUrls = [
-		selectedPlaylist.url,
-		...associatedPlaylists.map((p) => p.url),
+		selectedPlaylist.src,
+		...associatedPlaylists.map((p) => p.src),
 	];
 	const struc = await Promise.all(
 		playlistUrls.map(async (url): Promise<M3uPlaylist> => {
 			Log.verbose(logLevel, `Fetching playlist ${url}`);
-			const boxes = await fetchM3u8Stream(url);
+			const boxes = await fetchM3u8Stream({url, readerInterface});
 
 			return {
 				type: 'm3u-playlist',

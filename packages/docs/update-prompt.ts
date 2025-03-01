@@ -1,5 +1,6 @@
 import path from 'path';
 
+// @ts-expect-error
 const source = await Bun.file(
 	path.join(__dirname, 'static', 'llms.txt'),
 ).text();
@@ -17,4 +18,5 @@ const tsText =
 		'`.trimStart();',
 	].join('\n') + '\n';
 
+// @ts-expect-error
 await Bun.write(output, tsText);

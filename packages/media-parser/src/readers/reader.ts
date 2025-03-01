@@ -22,4 +22,9 @@ type ReadContent = (options: {
 
 export type ReaderInterface = {
 	read: ReadContent;
+	readWholeAsText: (src: ParseMediaSrc) => Promise<string>;
+	createAdjacentFileSource: (
+		relativePath: string,
+		src: ParseMediaSrc,
+	) => string;
 };
