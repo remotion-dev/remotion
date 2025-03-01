@@ -1,5 +1,6 @@
 import type {M3uStream} from '@remotion/media-parser';
 import React from 'react';
+import {M3uAudioStreamSelector} from './M3uAudioStreamSelector';
 import {M3uStreamPickerResolutionDisplay} from './M3uStreamPickerResolutionDisplay';
 import {Label} from './ui/label';
 import {
@@ -10,8 +11,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from './ui/select';
-
-const PLAYLIST_ID_FOR_NONE = 9999999999;
 
 export const M3uStreamSelector: React.FC<{
 	readonly streams: M3uStream[];
@@ -32,10 +31,6 @@ export const M3uStreamSelector: React.FC<{
 }) => {
 	const selectedStream =
 		streams.find((stream) => stream.id === selectedId) ?? streams[0];
-	const selectedAssociatedPlaylist =
-		selectedAssociatedPlaylistId ??
-		selectedStream?.associatedPlaylists?.find((stream) => stream.default)?.id ??
-		null;
 
 	return (
 		<div className="mb-4">
@@ -64,33 +59,16 @@ export const M3uStreamSelector: React.FC<{
 					})}
 				</SelectContent>
 			</Select>
-
-			<div className="h-3" />
-			<Label htmlFor="audio">Select audio stream</Label>
-			<Select
-				value={String(selectedAssociatedPlaylist)}
-				onValueChange={(v) => {
-					setSelectedAssociatedPlaylistId(Number(v));
-				}}
-			>
-				<SelectTrigger id="audio">
-					<SelectValue placeholder="Select audio stream" />
-				</SelectTrigger>
-				<SelectContent>
-					{selectedStream?.associatedPlaylists?.map((stream) => {
-						return (
-							<SelectGroup key={stream.id}>
-								<SelectItem value={String(stream.id)}>
-									{stream.name ? <div>{stream.name}</div> : null}
-								</SelectItem>
-							</SelectGroup>
-						);
-					})}
-					<SelectGroup key={String(PLAYLIST_ID_FOR_NONE)}>
-						<SelectItem value={String(PLAYLIST_ID_FOR_NONE)}>None</SelectItem>
-					</SelectGroup>
-				</SelectContent>
-			</Select>
+			{selectedStream.associatedPlaylists.length > 0 ? (
+				<>
+					<div className="h-3" />
+					<M3uAudioStreamSelector
+						selectedAssociatedPlaylistId={selectedAssociatedPlaylistId}
+						selectedStream={selectedStream}
+						setSelectedAssociatedPlaylistId={setSelectedAssociatedPlaylistId}
+					/>
+				</>
+			) : null}
 		</div>
 	);
 };
