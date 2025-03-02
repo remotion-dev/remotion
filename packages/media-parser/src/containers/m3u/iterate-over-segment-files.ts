@@ -70,7 +70,6 @@ export const iteratorOverSegmentFiles = async ({
 			chunk.url,
 			playlistUrl,
 		);
-		const isMp4 = src.includes('.mp4');
 
 		try {
 			const mp4HeaderSegment = m3uState.getMp4HeaderSegment(playlistUrl);
@@ -84,7 +83,7 @@ export const iteratorOverSegmentFiles = async ({
 					childController.pause();
 					resolver(makeContinuationFn());
 				},
-				fields: isMp4 ? {structure: true} : undefined,
+				fields: chunk.isHeader ? {structure: true} : undefined,
 				onTracks: () => {
 					if (!m3uState.hasEmittedDoneWithTracks(playlistUrl)) {
 						m3uState.setHasEmittedDoneWithTracks(playlistUrl);
@@ -131,7 +130,7 @@ export const iteratorOverSegmentFiles = async ({
 				reader: readerInterface,
 				mp4HeaderSegment,
 			});
-			if (isMp4) {
+			if (chunk.isHeader) {
 				if (data.structure.type !== 'iso-base-media') {
 					throw new Error('Expected an mp4 file');
 				}
