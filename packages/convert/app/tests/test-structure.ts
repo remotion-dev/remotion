@@ -1,10 +1,6 @@
 import type {
-	AudioOperation,
-	ConvertMediaOnAudioTrackHandler,
 	ConvertMediaOnProgress,
-	ConvertMediaProgress} from '@remotion/webcodecs';
-import {
-	canReencodeAudioTrack
+	ConvertMediaProgress,
 } from '@remotion/webcodecs';
 import React from 'react';
 
@@ -99,44 +95,6 @@ export const useTest = (test: TestStructure) => {
 	return {state, run};
 };
 
-const DEFAULT_BITRATE = 128_000;
-
 export const isSafari = () => {
 	return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-};
-
-export const allowSafariAudioDrop: ConvertMediaOnAudioTrackHandler = async ({
-	track,
-	defaultAudioCodec,
-	canCopyTrack,
-}): Promise<AudioOperation> => {
-	const bitrate = DEFAULT_BITRATE;
-
-	if (canCopyTrack) {
-		return Promise.resolve({type: 'copy'});
-	}
-
-	if (!defaultAudioCodec) {
-		return Promise.resolve({type: 'drop'});
-	}
-
-	const canReencode = await canReencodeAudioTrack({
-		audioCodec: defaultAudioCodec,
-		track,
-		bitrate,
-	});
-
-	if (canReencode) {
-		return Promise.resolve({
-			type: 'reencode',
-			bitrate,
-			audioCodec: defaultAudioCodec,
-		});
-	}
-
-	if (isSafari()) {
-		return Promise.resolve({type: 'drop'});
-	}
-
-	return Promise.resolve({type: 'fail'});
 };
