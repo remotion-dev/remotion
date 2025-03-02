@@ -12,6 +12,7 @@ export function compareVersions(version1: string, version2: string): number {
 		if (parts.some(isNaN)) {
 			throw new Error('Invalid version format. Expected x.x.x');
 		}
+
 		return parts;
 	};
 
