@@ -1,4 +1,8 @@
-import type {M3uStream} from '@remotion/media-parser';
+import type {M3uAssociatedPlaylist} from '@remotion/media-parser';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	type M3uStream,
+} from '@remotion/media-parser';
 import React from 'react';
 import {Label} from './ui/label';
 import {
@@ -25,7 +29,11 @@ export const M3uAudioStreamSelector: React.FC<{
 }) => {
 	const selectedAssociatedPlaylist =
 		selectedAssociatedPlaylistId ??
-		selectedStream?.associatedPlaylists?.find((stream) => stream.default)?.id ??
+		(
+			defaultSelectM3uAssociatedPlaylists({
+				associatedPlaylists: selectedStream.associatedPlaylists,
+			}) as M3uAssociatedPlaylist[]
+		)?.[0]?.id ??
 		null;
 	return (
 		<>
