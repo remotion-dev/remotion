@@ -465,10 +465,6 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'm3uStreams') {
 			if (!emittedFields.m3uStreams && hasInfo.m3uStreams) {
-				if (typeof state.src !== 'string' && !(state.src instanceof URL)) {
-					throw new Error('Expected src to be a string');
-				}
-
 				const streams = getM3uStreams({
 					structure: state.getStructureOrNull(),
 					originalSrc: state.src,
