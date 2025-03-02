@@ -40,6 +40,7 @@ await downloadWhisperModel({
 const {transcription} = await transcribe({
   model: 'medium.en',
   whisperPath: to,
+  whisperCppVersion: '1.5.5',
   inputPath: '/path/to/audio.wav',
   tokenLevelTimestamps: true,
 });
