@@ -1,5 +1,8 @@
 import type {M3uStream} from './containers/m3u/get-streams';
-import type {SelectM3uStreamFn} from './containers/m3u/select-stream';
+import type {
+	SelectM3uAssociatedPlaylistsFn,
+	SelectM3uStreamFn,
+} from './containers/m3u/select-stream';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
@@ -11,7 +14,7 @@ import type {
 import type {LogLevel} from './log';
 import type {MediaParserController} from './media-parser-controller';
 import type {MetadataEntry} from './metadata/get-metadata';
-import type {Structure} from './parse-result';
+import type {IsoBaseMediaStructure, Structure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
@@ -277,6 +280,8 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
 	selectM3uStream: SelectM3uStreamFn;
+	selectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 } & MandatoryParseMediaCallbacks;
 
 type ParseMediaSampleCallbacks = {
@@ -286,7 +291,7 @@ type ParseMediaSampleCallbacks = {
 
 export type ParseMediaMode = 'query' | 'download';
 
-export type ParseMediaSrc = string | Blob;
+export type ParseMediaSrc = string | Blob | URL;
 
 export type OnDiscardedData = (data: Uint8Array) => Promise<void>;
 

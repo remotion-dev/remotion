@@ -34,11 +34,11 @@ export function parseContentRange(input: string): ParsedContentRange | null {
 }
 
 const validateContentRangeAndDetectIfSupported = ({
-	actualRange,
+	requestedRange,
 	parsedContentRange,
 	statusCode,
 }: {
-	actualRange: number | [number, number];
+	requestedRange: number | [number, number];
 	parsedContentRange: ParsedContentRange | null;
 	statusCode: number;
 }): {supportsContentRange: boolean} => {
@@ -47,26 +47,26 @@ const validateContentRangeAndDetectIfSupported = ({
 	}
 
 	if (
-		typeof actualRange === 'number' &&
-		parsedContentRange?.start !== actualRange
+		typeof requestedRange === 'number' &&
+		parsedContentRange?.start !== requestedRange
 	) {
-		if (actualRange === 0) {
+		if (requestedRange === 0) {
 			return {supportsContentRange: false};
 		}
 
 		throw new Error(
-			`Range header (${actualRange}) does not match content-range header (${parsedContentRange?.start})`,
+			`Range header (${requestedRange}) does not match content-range header (${parsedContentRange?.start})`,
 		);
 	}
 
 	if (
-		actualRange !== null &&
-		typeof actualRange !== 'number' &&
-		(parsedContentRange?.start !== actualRange[0] ||
-			parsedContentRange?.end !== actualRange[1])
+		requestedRange !== null &&
+		typeof requestedRange !== 'number' &&
+		(parsedContentRange?.start !== requestedRange[0] ||
+			parsedContentRange?.end !== requestedRange[1])
 	) {
 		throw new Error(
-			`Range header (${actualRange}) does not match content-range header (${parsedContentRange?.start})`,
+			`Range header (${requestedRange}) does not match content-range header (${parsedContentRange?.start})`,
 		);
 	}
 
@@ -75,7 +75,7 @@ const validateContentRangeAndDetectIfSupported = ({
 
 export const fetchReader: ReaderInterface = {
 	read: async ({src, range, controller}) => {
-		if (typeof src !== 'string') {
+		if (typeof src !== 'string' && src instanceof URL === false) {
 			throw new Error('src must be a string when using `fetchReader`');
 		}
 
@@ -104,7 +104,7 @@ export const fetchReader: ReaderInterface = {
 				: // Disable Next.js caching
 					'no-store';
 
-		const actualRange = range === null ? 0 : range;
+		const requestedRange = range === null ? 0 : range;
 
 		const asString =
 			typeof resolvedUrl === 'string' ? resolvedUrl : resolvedUrl.pathname;
@@ -117,14 +117,14 @@ export const fetchReader: ReaderInterface = {
 		const headers: {
 			Range?: string;
 		} =
-			actualRange === 0 && requestWithoutRange
+			requestedRange === 0 && requestWithoutRange
 				? {}
-				: typeof actualRange === 'number'
+				: typeof requestedRange === 'number'
 					? {
-							Range: `bytes=${actualRange}-`,
+							Range: `bytes=${requestedRange}-`,
 						}
 					: {
-							Range: `bytes=${`${actualRange[0]}-${actualRange[1]}`}`,
+							Range: `bytes=${`${requestedRange[0]}-${requestedRange[1]}`}`,
 						};
 
 		const res = await fetch(resolvedUrl, {
@@ -139,7 +139,7 @@ export const fetchReader: ReaderInterface = {
 			: null;
 
 		const {supportsContentRange} = validateContentRangeAndDetectIfSupported({
-			actualRange,
+			requestedRange,
 			parsedContentRange,
 			statusCode: res.status,
 		});
@@ -157,13 +157,13 @@ export const fetchReader: ReaderInterface = {
 			res.status.toString().startsWith('5')
 		) {
 			throw new Error(
-				`Server returned status code ${res.status} for ${src} and range ${actualRange}`,
+				`Server returned status code ${res.status} for ${src} and range ${requestedRange}`,
 			);
 		}
 
 		const contentDisposition = res.headers.get('content-disposition');
 		const name = contentDisposition?.match(/filename="([^"]+)"/)?.[1];
-		const fallbackName = src.split('/').pop() as string;
+		const fallbackName = src.toString().split('/').pop() as string;
 
 		const {contentLength, needsContentRange, reader} = await getLengthAndReader(
 			{
@@ -194,5 +194,24 @@ export const fetchReader: ReaderInterface = {
 			supportsContentRange,
 			needsContentRange,
 		};
+	},
+	async readWholeAsText(src) {
+		if (typeof src !== 'string' && src instanceof URL === false) {
+			throw new Error('src must be a string when using `fetchReader`');
+		}
+
+		const res = await fetch(src);
+		if (!res.ok) {
+			throw new Error(`Failed to fetch ${src} (HTTP code: ${res.status})`);
+		}
+
+		return res.text();
+	},
+	createAdjacentFileSource(relativePath, src) {
+		if (typeof src !== 'string' && src instanceof URL === false) {
+			throw new Error('src must be a string or URL when using `fetchReader`');
+		}
+
+		return new URL(relativePath, src).toString();
 	},
 };

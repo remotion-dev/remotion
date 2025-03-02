@@ -15,18 +15,16 @@ import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';
 import {mockUploadDir} from './mocks/upload-dir';
 
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
-let _browserInstance: Await<ReturnType<typeof openBrowser>> | null;
-
 export const getBrowserInstance: GetBrowserInstance = async () => {
-	_browserInstance = await openBrowser('chrome');
-	return {instance: _browserInstance, configurationString: 'chrome'};
+	return {instance: await openBrowser('chrome'), configurationString: 'chrome'};
 };
 
 const paramsArray: InvokeWebhookParams[] = [];
 
 export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
-	forgetBrowserEventLoop: () => {},
+	forgetBrowserEventLoop: ({launchedBrowser}) => {
+		launchedBrowser.instance.close({silent: false});
+	},
 	getCurrentRegionInFunction: () => 'eu-central-1',
 	getBrowserInstance,
 	timer: () => ({

@@ -136,7 +136,7 @@ test('parse m3u8', async () => {
 			codecs: ['mp4a.40.2', 'avc1.640028'],
 			resolution: {width: 1000, height: 1000},
 			id: 0,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 		{
 			averageBandwidth: 618200,
@@ -144,7 +144,7 @@ test('parse m3u8', async () => {
 			codecs: ['mp4a.40.2', 'avc1.640020'],
 			resolution: {width: 720, height: 720},
 			id: 1,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 		{
 			averageBandwidth: 358600,
@@ -152,7 +152,7 @@ test('parse m3u8', async () => {
 			codecs: ['mp4a.40.2', 'avc1.64001f'],
 			resolution: {width: 480, height: 480},
 			id: 2,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 		{
 			averageBandwidth: 214500,
@@ -160,7 +160,7 @@ test('parse m3u8', async () => {
 			codecs: ['mp4a.40.2', 'avc1.640015'],
 			resolution: {width: 270, height: 270},
 			id: 3,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 	]);
 });

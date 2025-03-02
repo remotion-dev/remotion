@@ -7,6 +7,7 @@ import {Log} from './logger';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
+import {truthy} from './truthy';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type SetPropsAndEnv = {
@@ -294,7 +295,15 @@ export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
 				timeout = setTimeout(() => {
 					reject(
 						new Error(
-							`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
+							[
+								`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser.`,
+								'This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding.',
+								process.platform === 'linux'
+									? 'Make sure you have installed the Linux depdendencies: https://www.remotion.dev/docs/miscellaneous/linux-dependencies'
+									: null,
+							]
+								.filter(truthy)
+								.join('\n'),
 						),
 					);
 				}, params.timeoutInMilliseconds);

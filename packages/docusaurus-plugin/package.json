@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.267",
+	"version": "4.0.270",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,

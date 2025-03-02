@@ -283,6 +283,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/templates/remix",
+			"destination": "/templates/react-router",
+			"permanent": false
+		},
+		{
 			"source": "/studio",
 			"destination": "/docs/studio",
 			"permanent": false
