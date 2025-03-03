@@ -343,6 +343,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/docs/system-prompt",
+			"destination": "/docs/ai/system-prompt",
+			"permanent": false
+		},
+		{
 			"source": "/media-parser/",
 			"destination": "/docs/media-parser",
 			"permanent": false
