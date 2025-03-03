@@ -6,6 +6,7 @@ import type {
 	ParseMediaOptions,
 	ParseMediaResult,
 } from './options';
+import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -90,6 +91,8 @@ const convertToWorkerPayload = (
 		postParseProgress: Boolean(onParseProgress),
 		postM3uStreamSelection: Boolean(selectM3uStream),
 		postM3uAssociatedPlaylistsSelection: Boolean(selectM3uAssociatedPlaylists),
+		postOnAudioTrack: Boolean(onAudioTrack),
+		postOnVideoTrack: Boolean(onVideoTrack),
 	};
 };
 
@@ -127,6 +130,8 @@ export const parseMediaOnWorker: ParseMedia = async <
 	const onPause = () => {
 		post(worker, {type: 'request-pause'});
 	};
+
+	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
@@ -303,6 +308,48 @@ export const parseMediaOnWorker: ParseMedia = async <
 							payloadType: 'm3u-associated-playlists-selection',
 							value: selection,
 						};
+					}
+
+					if (data.payload.callbackType === 'on-audio-track') {
+						const possibleCallback = await params.onAudioTrack?.(
+							data.payload.value,
+						);
+						if (possibleCallback) {
+							callbacks[data.payload.value.track.trackId] = possibleCallback;
+						}
+
+						return {
+							payloadType: 'on-audio-track-response',
+							registeredCallback: Boolean(possibleCallback),
+						};
+					}
+
+					if (data.payload.callbackType === 'on-video-track') {
+						const possibleCallback = await params.onVideoTrack?.(
+							data.payload.value,
+						);
+
+						if (possibleCallback) {
+							callbacks[data.payload.value.track.trackId] = possibleCallback;
+						}
+
+						return {
+							payloadType: 'on-video-track-response',
+							registeredCallback: Boolean(possibleCallback),
+						};
+					}
+
+					if (data.payload.callbackType === 'on-audio-video-sample') {
+						const callback = callbacks[data.payload.trackId];
+						if (!callback) {
+							throw new Error(
+								`No callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						await callback(data.payload.value);
+
+						return {payloadType: 'void'};
 					}
 
 					throw new Error(

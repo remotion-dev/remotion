@@ -99,3 +99,53 @@ test('should do something smart when throwing inside a callback', async () => {
 		expect((err as Error).message).toBe('test');
 	}
 });
+
+test('should get samples and be able to select stuff', async () => {
+	let called = false;
+	let dimensionsCalled = false;
+	let samples = 0;
+
+	const controller = mediaParserController();
+
+	try {
+		await parseMediaOnWorker({
+			src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+			fields: {
+				dimensions: true,
+			},
+			selectM3uStream: ({streams}) => {
+				called = true;
+				expect(streams[1].resolution?.width).toBe(1280);
+				expect(streams[1].resolution?.height).toBe(720);
+				return streams[1].id;
+			},
+			onDimensions: (dimensions) => {
+				dimensionsCalled = true;
+				expect(dimensions).toEqual({width: 1280, height: 720});
+			},
+			acknowledgeRemotionLicense: true,
+			controller,
+			onAudioTrack: ({track}) => {
+				expect(track.trackId).toBe(257);
+				return () => {
+					samples++;
+					if (samples === 10) {
+						controller.abort();
+					}
+				};
+			},
+			onVideoTrack: ({track}) => {
+				expect(track.trackId).toBe(258);
+				return null;
+			},
+		});
+	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+	}
+
+	expect(dimensionsCalled).toBe(true);
+	expect(called).toBe(true);
+	expect(samples).toBe(10);
+});

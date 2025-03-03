@@ -23,6 +23,11 @@ import type {
 import type {MediaParserStructureUnstable} from '../parse-result';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
+import type {
+	AudioOrVideoSample,
+	OnAudioTrackParams,
+	OnVideoTrackParams,
+} from '../webcodec-sample-types';
 
 export type ParseMediaOnWorker = {
 	type: 'request-worker';
@@ -64,6 +69,8 @@ export type ParseMediaOnWorker = {
 	postParseProgress: boolean;
 	postM3uStreamSelection: boolean;
 	postM3uAssociatedPlaylistsSelection: boolean;
+	postOnAudioTrack: boolean;
+	postOnVideoTrack: boolean;
 };
 
 type RequestPause = {
@@ -268,6 +275,19 @@ export type ResponseCallbackPayload =
 			value: SelectM3uStreamFnOptions;
 	  }
 	| {
+			callbackType: 'on-audio-track';
+			value: OnAudioTrackParams;
+	  }
+	| {
+			callbackType: 'on-video-track';
+			value: OnVideoTrackParams;
+	  }
+	| {
+			callbackType: 'on-audio-video-sample';
+			value: AudioOrVideoSample;
+			trackId: number;
+	  }
+	| {
 			callbackType: 'm3u-associated-playlists-selection';
 			value: SelectM3uAssociatedPlaylistsFnOptions;
 	  };
@@ -289,6 +309,14 @@ export type AcknowledgePayload =
 	| {
 			payloadType: 'm3u-associated-playlists-selection';
 			value: M3uAssociatedPlaylist[];
+	  }
+	| {
+			payloadType: 'on-audio-track-response';
+			registeredCallback: boolean;
+	  }
+	| {
+			payloadType: 'on-video-track-response';
+			registeredCallback: boolean;
 	  };
 
 export type AcknowledgeCallback = {

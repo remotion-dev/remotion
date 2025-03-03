@@ -92,6 +92,8 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		postParseProgress,
 		postM3uStreamSelection,
 		postM3uAssociatedPlaylistsSelection,
+		postOnAudioTrack,
+		postOnVideoTrack,
 	} = message;
 
 	const logLevel = userLogLevel ?? 'info';
@@ -369,9 +371,54 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 						return res.value;
 					}
 				: defaultSelectM3uAssociatedPlaylists,
-			// TODO: Callback for onAudioTrack / onVideoTrack
-			onAudioTrack: null,
-			onVideoTrack: null,
+			onAudioTrack: postOnAudioTrack
+				? async (params) => {
+						const res = await executeCallback({
+							callbackType: 'on-audio-track',
+							value: params,
+						});
+
+						if (res.payloadType !== 'on-audio-track-response') {
+							throw new Error('Invalid response from callback');
+						}
+
+						if (!res.registeredCallback) {
+							return null;
+						}
+
+						return async (sample) => {
+							await executeCallback({
+								callbackType: 'on-audio-video-sample',
+								value: sample,
+								trackId: params.track.trackId,
+							});
+						};
+					}
+				: null,
+			onVideoTrack: postOnVideoTrack
+				? async (params) => {
+						const res = await executeCallback({
+							callbackType: 'on-video-track',
+							value: params,
+						});
+
+						if (res.payloadType !== 'on-video-track-response') {
+							throw new Error('Invalid response from callback');
+						}
+
+						if (!res.registeredCallback) {
+							return null;
+						}
+
+						return async (sample) => {
+							await executeCallback({
+								callbackType: 'on-audio-video-sample',
+								value: sample,
+								trackId: params.track.trackId,
+							});
+						};
+					}
+				: null,
 			onDiscardedData: null,
 		});
 		post({
