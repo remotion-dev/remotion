@@ -27,7 +27,9 @@ export const isVsCodeDerivative = (editor: Editor) => {
 		editor === 'Code.exe' ||
 		editor === 'vscodium' ||
 		editor === 'VSCodium.exe' ||
-		editor === 'Code - Insiders.exe'
+		editor === 'Code - Insiders.exe' ||
+		editor === 'cursor' ||
+		editor === 'Cursor.exe'
 	);
 };
 
@@ -53,6 +55,8 @@ const editorNames = [
 	'code',
 	'code-insiders',
 	'vscodium',
+	'cursor',
+	'Cursor.exe',
 	'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion',
 	'/Applications/IntelliJ IDEA.app/Contents/MacOS/idea',
@@ -123,12 +127,15 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	'Code - Insiders.exe': 'VS Code Insiders',
 	'Code.exe': 'VS Code',
 	'VSCodium.exe': 'VS Codium',
+	'Cursor.exe': 'Cursor',
 	'atom.exe': 'Atom',
 	'clion.exe': 'CLion',
 	'clion64.exe': 'CLion',
 	'code-insiders': 'VS Code Insiders',
+	cursor: 'Cursor',
 	'goland.exe': 'GoLand',
 	'goland64.exe': 'GoLand',
+	goland: 'GoLand',
 	'idea.exe': 'IDEA',
 	'idea64.exe': 'IDEA',
 	'notepad++.exe': 'Notepad++',
@@ -147,7 +154,6 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	brackets: 'Brackets',
 	code: 'VS Code',
 	emacs: 'emacs',
-	goland: 'GoLand',
 	gvim: 'GVim',
 	idea: 'IDEA',
 	mvim: 'mvim',
@@ -194,6 +200,7 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 	'/Applications/Visual Studio Code - Insiders.app/Contents/MacOS/Electron':
 		'code-insiders',
 	'/Applications/VSCodium.app/Contents/MacOS/Electron': 'vscodium',
+	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'cursor',
 	'/Applications/AppCode.app/Contents/MacOS/appcode':
 		'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion':
@@ -223,6 +230,7 @@ const COMMON_EDITORS_LINUX: Record<string, Editor> = {
 	code: 'code',
 	'code-insiders': 'code-insiders',
 	vscodium: 'vscodium',
+	cursor: 'cursor',
 	emacs: 'emacs',
 	gvim: 'gvim',
 	'idea.sh': 'idea',
@@ -241,6 +249,7 @@ const COMMON_EDITORS_WIN: Editor[] = [
 	'Code.exe',
 	'Code - Insiders.exe',
 	'VSCodium.exe',
+	'Cursor.exe',
 	'atom.exe',
 	'sublime_text.exe',
 	'notepad++.exe',
