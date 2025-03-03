@@ -140,14 +140,24 @@ export const getWhisperExecutablePath = (
 	whisperCppVersion: string,
 ) => {
 	// INFO: 'main.exe' is deprecated.
-	let cppBin = 'main';
+	let cppBin: string[] = ['main'];
+	let cppFolder: string[] = [];
 	if (compareVersions(whisperCppVersion, '1.7.4') >= 0) {
-		cppBin = 'whisper-cli';
+		cppBin = ['whisper-cli'];
+		cppFolder = ['build', 'bin'];
 	}
 
 	return os.platform() === 'win32'
-		? path.join(path.resolve(process.cwd(), whisperPath), `${cppBin}.exe`)
-		: path.join(path.resolve(process.cwd(), whisperPath), `./${cppBin}`);
+		? path.join(
+				path.resolve(process.cwd(), whisperPath),
+				...cppFolder,
+				`${cppBin}.exe`,
+			)
+		: path.join(
+				path.resolve(process.cwd(), whisperPath),
+				...cppFolder,
+				`./${cppBin}`,
+			);
 };
 
 export const installWhisperCpp = async ({
