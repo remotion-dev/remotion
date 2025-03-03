@@ -981,6 +981,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'AI',
+			link: {
+				type: 'doc',
+				id: 'ai/index',
+			},
+			items: ['ai/chatbot', 'ai/bolt', 'ai/system-prompt'],
+		},
+		{
+			type: 'category',
 			label: 'Tooling',
 			items: [
 				'tailwind',
@@ -1115,6 +1124,7 @@ module.exports = {
 				'support',
 			],
 		},
+
 		{
 			type: 'category',
 			label: 'Miscellaneous',
@@ -1130,7 +1140,6 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
-				'system-prompt',
 			],
 		},
 		{
