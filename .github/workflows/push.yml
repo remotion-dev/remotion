@@ -81,7 +81,7 @@ jobs:
           php-version: "8.4"
       - run: pip install pylint boto3 pytest
       - name: Turbo Cache
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: |
             node_modules/.cache/turbo
