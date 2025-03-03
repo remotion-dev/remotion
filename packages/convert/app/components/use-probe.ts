@@ -12,7 +12,10 @@ import type {
 	MetadataEntry,
 	ParseMediaOnProgress,
 } from '@remotion/media-parser';
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
+import {
+	mediaParserController,
+	parseMediaOnWorker,
+} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useState} from 'react';
@@ -62,10 +65,9 @@ export const useProbe = ({
 
 	const getStart = useCallback(() => {
 		const controller = mediaParserController();
-		parseMedia({
+		parseMediaOnWorker({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
-
 			onParseProgress: onProgress,
 			reader: src.type === 'file' ? webFileReader : fetchReader,
 			controller,
