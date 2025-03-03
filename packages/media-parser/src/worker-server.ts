@@ -1,4 +1,7 @@
-import {defaultSelectM3uStreamFn} from './containers/m3u/select-stream';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	defaultSelectM3uStreamFn,
+} from './containers/m3u/select-stream';
 import {fetchReader} from './fetch';
 import {internalParseMedia} from './internal-parse-media';
 import {mediaParserController} from './media-parser-controller';
@@ -51,6 +54,8 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		onVideoTrack,
 		progressIntervalInMs,
 		selectM3uStream,
+		mp4HeaderSegment,
+		selectM3uAssociatedPlaylists,
 	} = message.payload;
 
 	const logLevel = userLogLevel ?? 'info';
@@ -102,6 +107,9 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 			onVideoTrack: onVideoTrack ?? null,
 			progressIntervalInMs: progressIntervalInMs ?? null,
 			selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
+			mp4HeaderSegment: mp4HeaderSegment ?? null,
+			selectM3uAssociatedPlaylists:
+				selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
 		});
 		post({
 			type: 'response-done',
