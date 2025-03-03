@@ -1,4 +1,11 @@
-import type {M3uStream} from '../containers/m3u/get-streams';
+import type {
+	M3uAssociatedPlaylist,
+	M3uStream,
+} from '../containers/m3u/get-streams';
+import type {
+	SelectM3uAssociatedPlaylistsFnOptions,
+	SelectM3uStreamFnOptions,
+} from '../containers/m3u/select-stream';
 import type {Dimensions, ImageType} from '../errors';
 import type {MediaParserLocation} from '../get-location';
 import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
@@ -10,6 +17,7 @@ import type {
 	Options,
 	ParseMediaFields,
 	ParseMediaOptionsWithoutCallbacks,
+	ParseMediaProgress,
 	ParseMediaResult,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
@@ -20,7 +28,10 @@ export type ParseMediaOnWorker = {
 	type: 'request-worker';
 	payload: Omit<
 		ParseMediaOptionsWithoutCallbacks<Options<ParseMediaFields>>,
-		'worker'
+		| 'worker'
+		| 'onParseProgress'
+		| 'selectM3uStream'
+		| 'selectM3uAssociatedPlaylists'
 	>;
 	postAudioCodec: boolean;
 	postContainer: boolean;
@@ -50,6 +61,9 @@ export type ParseMediaOnWorker = {
 	postStructure: boolean;
 	postTracks: boolean;
 	postDurationInSeconds: boolean;
+	postParseProgress: boolean;
+	postM3uStreamSelection: boolean;
+	postM3uAssociatedPlaylistsSelection: boolean;
 };
 
 type RequestPause = {
@@ -244,6 +258,18 @@ export type ResponseCallbackPayload =
 	| {
 			callbackType: 'duration-in-seconds';
 			value: number | null;
+	  }
+	| {
+			callbackType: 'parse-progress';
+			value: ParseMediaProgress;
+	  }
+	| {
+			callbackType: 'm3u-stream-selection';
+			value: SelectM3uStreamFnOptions;
+	  }
+	| {
+			callbackType: 'm3u-associated-playlists-selection';
+			value: SelectM3uAssociatedPlaylistsFnOptions;
 	  };
 
 export type ResponseOnCallbackRequest = {
@@ -252,10 +278,23 @@ export type ResponseOnCallbackRequest = {
 	payload: ResponseCallbackPayload;
 };
 
+export type AcknowledgePayload =
+	| {
+			payloadType: 'void';
+	  }
+	| {
+			payloadType: 'm3u-stream-selection';
+			value: number;
+	  }
+	| {
+			payloadType: 'm3u-associated-playlists-selection';
+			value: M3uAssociatedPlaylist[];
+	  };
+
 export type AcknowledgeCallback = {
 	type: 'acknowledge-callback';
 	nonce: string;
-};
+} & AcknowledgePayload;
 
 export type SignalErrorInCallback = {
 	type: 'signal-error-in-callback';

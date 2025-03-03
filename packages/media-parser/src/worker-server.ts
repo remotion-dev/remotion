@@ -8,6 +8,7 @@ import {mediaParserController} from './media-parser-controller';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
 import {serializeError} from './worker/serialize-error';
 import type {
+	AcknowledgePayload,
 	ParseMediaOnWorker,
 	ResponseCallbackPayload,
 	WorkerRequestPayload,
@@ -22,12 +23,14 @@ const controller = mediaParserController();
 
 const executeCallback = async (payload: ResponseCallbackPayload) => {
 	const nonce = crypto.randomUUID();
-	const {promise, resolve, reject} = Promise.withResolvers<void>();
+	const {promise, resolve, reject} =
+		Promise.withResolvers<AcknowledgePayload>();
 
 	const cb = (msg: MessageEvent) => {
 		const data = msg.data as WorkerRequestPayload;
 		if (data.type === 'acknowledge-callback' && data.nonce === nonce) {
-			resolve();
+			const {nonce: _, ...pay} = data;
+			resolve(pay);
 			removeEventListener('message', cb);
 		}
 
@@ -44,7 +47,7 @@ const executeCallback = async (payload: ResponseCallbackPayload) => {
 		nonce,
 	});
 
-	await promise;
+	return promise;
 };
 
 const startParsing = async (message: ParseMediaOnWorker) => {
@@ -53,12 +56,8 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		fields,
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
-		// TODO: Cannot pass a function
-		onParseProgress,
 		progressIntervalInMs,
-		selectM3uStream,
 		mp4HeaderSegment,
-		selectM3uAssociatedPlaylists,
 	} = message.payload;
 
 	const {
@@ -90,6 +89,9 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		postSize,
 		postSlowKeyframes,
 		postDurationInSeconds,
+		postParseProgress,
+		postM3uStreamSelection,
+		postM3uAssociatedPlaylistsSelection,
 	} = message;
 
 	const logLevel = userLogLevel ?? 'info';
@@ -331,12 +333,42 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 						});
 					}
 				: null,
-			onParseProgress: onParseProgress ?? null,
+			onParseProgress: postParseProgress
+				? async (progress) => {
+						await executeCallback({
+							callbackType: 'parse-progress',
+							value: progress,
+						});
+					}
+				: null,
 			progressIntervalInMs: progressIntervalInMs ?? null,
-			selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
+			selectM3uStream: postM3uStreamSelection
+				? async (streamIndex) => {
+						const res = await executeCallback({
+							callbackType: 'm3u-stream-selection',
+							value: streamIndex,
+						});
+						if (res.payloadType !== 'm3u-stream-selection') {
+							throw new Error('Invalid response from callback');
+						}
+
+						return res.value;
+					}
+				: defaultSelectM3uStreamFn,
 			mp4HeaderSegment: mp4HeaderSegment ?? null,
-			selectM3uAssociatedPlaylists:
-				selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
+			selectM3uAssociatedPlaylists: postM3uAssociatedPlaylistsSelection
+				? async (playlists) => {
+						const res = await executeCallback({
+							callbackType: 'm3u-associated-playlists-selection',
+							value: playlists,
+						});
+						if (res.payloadType !== 'm3u-associated-playlists-selection') {
+							throw new Error('Invalid response from callback');
+						}
+
+						return res.value;
+					}
+				: defaultSelectM3uAssociatedPlaylists,
 			// TODO: Callback for onAudioTrack / onVideoTrack
 			onAudioTrack: null,
 			onVideoTrack: null,

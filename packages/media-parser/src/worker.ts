@@ -8,6 +8,7 @@ import type {
 } from './options';
 import {deserializeError} from './worker/serialize-error';
 import type {
+	AcknowledgePayload,
 	ParseMediaOnWorker,
 	WorkerRequestPayload,
 	WorkerResponsePayload,
@@ -50,6 +51,8 @@ const convertToWorkerPayload = (
 		onStructure,
 		onTracks,
 		onVideoTrack,
+		selectM3uStream,
+		selectM3uAssociatedPlaylists,
 		...others
 	} = payload;
 
@@ -84,6 +87,9 @@ const convertToWorkerPayload = (
 		postUnrotatedDimensions: Boolean(onUnrotatedDimensions),
 		postVideoCodec: Boolean(onVideoCodec),
 		postSize: Boolean(onSize),
+		postParseProgress: Boolean(onParseProgress),
+		postM3uStreamSelection: Boolean(selectM3uStream),
+		postM3uAssociatedPlaylistsSelection: Boolean(selectM3uAssociatedPlaylists),
 	};
 };
 
@@ -136,125 +142,179 @@ export const parseMediaOnWorker: ParseMedia = async <
 
 		if (data.type === 'response-on-callback-request') {
 			Promise.resolve()
-				.then(() => {
+				.then(async (): Promise<AcknowledgePayload> => {
 					if (data.payload.callbackType === 'audio-codec') {
-						return params.onAudioCodec?.(data.payload.value);
+						await params.onAudioCodec?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'container') {
-						return params.onContainer?.(data.payload.value);
+						await params.onContainer?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'dimensions') {
-						return params.onDimensions?.(data.payload.value);
+						await params.onDimensions?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'unrotated-dimensions') {
-						return params.onUnrotatedDimensions?.(data.payload.value);
+						await params.onUnrotatedDimensions?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'video-codec') {
-						return params.onVideoCodec?.(data.payload.value);
+						await params.onVideoCodec?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'tracks') {
-						return params.onTracks?.(data.payload.value);
+						await params.onTracks?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'rotation') {
-						return params.onRotation?.(data.payload.value);
+						await params.onRotation?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'sample-rate') {
-						return params.onSampleRate?.(data.payload.value);
+						await params.onSampleRate?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'slow-audio-bitrate') {
-						return params.onSlowAudioBitrate?.(data.payload.value);
+						await params.onSlowAudioBitrate?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'slow-duration-in-seconds') {
-						return params.onSlowDurationInSeconds?.(data.payload.value);
+						await params.onSlowDurationInSeconds?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'slow-fps') {
-						return params.onSlowFps?.(data.payload.value);
+						await params.onSlowFps?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'slow-keyframes') {
-						return params.onSlowKeyframes?.(data.payload.value);
+						await params.onSlowKeyframes?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'slow-number-of-frames') {
-						return params.onSlowNumberOfFrames?.(data.payload.value);
+						await params.onSlowNumberOfFrames?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'slow-video-bitrate') {
-						return params.onSlowVideoBitrate?.(data.payload.value);
+						await params.onSlowVideoBitrate?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'structure') {
-						return params.onStructure?.(data.payload.value);
+						await params.onStructure?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'fps') {
-						return params.onFps?.(data.payload.value);
+						await params.onFps?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'images') {
-						return params.onImages?.(data.payload.value);
+						await params.onImages?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'internal-stats') {
-						return params.onInternalStats?.(data.payload.value);
+						await params.onInternalStats?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'is-hdr') {
-						return params.onIsHdr?.(data.payload.value);
+						await params.onIsHdr?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'keyframes') {
-						return params.onKeyframes?.(data.payload.value);
+						await params.onKeyframes?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'location') {
-						return params.onLocation?.(data.payload.value);
+						await params.onLocation?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'm3u-streams') {
-						return params.onM3uStreams?.(data.payload.value);
+						await params.onM3uStreams?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'metadata') {
-						return params.onMetadata?.(data.payload.value);
+						await params.onMetadata?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'mime-type') {
-						return params.onMimeType?.(data.payload.value);
+						await params.onMimeType?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'name') {
-						return params.onName?.(data.payload.value);
+						await params.onName?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'number-of-audio-channels') {
-						return params.onNumberOfAudioChannels?.(data.payload.value);
+						await params.onNumberOfAudioChannels?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'size') {
-						return params.onSize?.(data.payload.value);
+						await params.onSize?.(data.payload.value);
+						return {payloadType: 'void'};
 					}
 
 					if (data.payload.callbackType === 'duration-in-seconds') {
-						return params.onDurationInSeconds?.(data.payload.value);
+						await params.onDurationInSeconds?.(data.payload.value);
+						return {payloadType: 'void'};
+					}
+
+					if (data.payload.callbackType === 'parse-progress') {
+						await params.onParseProgress?.(data.payload.value);
+						return {payloadType: 'void'};
+					}
+
+					if (data.payload.callbackType === 'm3u-stream-selection') {
+						const selection = await params.selectM3uStream!(data.payload.value);
+						return {payloadType: 'm3u-stream-selection', value: selection};
+					}
+
+					if (
+						data.payload.callbackType === 'm3u-associated-playlists-selection'
+					) {
+						const selection = await params.selectM3uAssociatedPlaylists!(
+							data.payload.value,
+						);
+						return {
+							payloadType: 'm3u-associated-playlists-selection',
+							value: selection,
+						};
 					}
 
 					throw new Error(
 						`Unknown callback type: ${data.payload satisfies never}`,
 					);
 				})
-				.then(() => {
-					post(worker, {type: 'acknowledge-callback', nonce: data.nonce});
+				.then((payload) => {
+					post(worker, {
+						type: 'acknowledge-callback',
+						nonce: data.nonce,
+						...payload,
+					});
 				})
 				.catch((err) => {
 					reject(err);
