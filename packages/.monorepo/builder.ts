@@ -10,9 +10,11 @@ type Format = 'esm' | 'cjs';
 
 const getExternal = (deps: string[] | 'dependencies'): string[] => {
 	if (deps === 'dependencies') {
-		return Object.keys(
-			require(path.join(process.cwd(), 'package.json')).dependencies,
-		);
+		const packageJson = require(path.join(process.cwd(), 'package.json'));
+		return Object.keys({
+			...(packageJson.dependencies ?? {}),
+			...(packageJson.optionalDependencies ?? {}),
+		});
 	}
 
 	return deps;

@@ -5,7 +5,7 @@ import {nodeReader} from '../readers/from-node';
 
 // bun crash
 if (process.platform !== 'win32') {
-	test.only('Should stream ISO base media', async () => {
+	test('Should stream ISO base media', async () => {
 		let videoTracks = 0;
 		let audioTracks = 0;
 		let videoSamples = 0;
@@ -79,7 +79,7 @@ if (process.platform !== 'win32') {
 		});
 		expect(internalStats).toEqual({
 			finalCursorOffset: 39062928,
-			skippedBytes: -12030,
+			skippedBytes: 2070,
 		});
 		expect(slowKeyframes).toEqual([
 			{

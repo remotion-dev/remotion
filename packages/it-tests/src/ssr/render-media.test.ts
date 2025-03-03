@@ -88,6 +88,7 @@ test('should fail on invalid CRF', async () => {
 				defaultProps: {},
 				props: {},
 				defaultCodec: null,
+				defaultOutName: null,
 			},
 			frameRange: [0, 2],
 			puppeteerInstance: browserInstance,
@@ -139,6 +140,7 @@ test('Should fail invalid serve URL', async () => {
 				width: 1080,
 				props: {},
 				defaultCodec: null,
+				defaultOutName: null,
 			},
 		});
 	} catch (err) {

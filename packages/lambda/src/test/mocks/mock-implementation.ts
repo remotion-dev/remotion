@@ -1,10 +1,10 @@
 import type {AwsProvider} from '@remotion/lambda-client';
 import {estimatePrice, LambdaClientInternals} from '@remotion/lambda-client';
+import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {createReadStream, writeFileSync} from 'fs';
 import path from 'path';
-import {REMOTION_BUCKET_PREFIX} from '../../defaults';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,

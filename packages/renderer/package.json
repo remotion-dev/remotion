@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
 	},
 	"name": "@remotion/renderer",
-	"version": "4.0.266",
+	"version": "4.0.270",
 	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -61,5 +61,45 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/renderer"
+	"homepage": "https://www.remotion.dev/docs/renderer",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./client": {
+			"types": "./dist/client.d.ts",
+			"require": "./dist/client.js",
+			"module": "./dist/esm/client.mjs",
+			"import": "./dist/esm/client.mjs"
+		},
+		"./pure": {
+			"types": "./dist/pure.d.ts",
+			"require": "./dist/pure.js",
+			"module": "./dist/esm/pure.mjs",
+			"import": "./dist/esm/pure.mjs"
+		},
+		"./error-handling": {
+			"types": "./dist/error-handling.d.ts",
+			"require": "./dist/error-handling.js",
+			"module": "./dist/esm/error-handling.mjs",
+			"import": "./dist/esm/error-handling.mjs"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"client": [
+				"dist/client.d.ts"
+			],
+			"pure": [
+				"dist/pure.d.ts"
+			],
+			"error-handling": [
+				"dist/error-handling.d.ts"
+			]
+		}
+	}
 }

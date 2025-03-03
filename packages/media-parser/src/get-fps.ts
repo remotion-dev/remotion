@@ -2,7 +2,7 @@ import type {SttsBox} from './containers/iso-base-media/stsd/stts';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMdhdBox,
-	getMoovBox,
+	getMoovBoxFromState,
 	getStsdBox,
 	getSttsBox,
 	getTraks,
@@ -100,7 +100,7 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 };
 
 const getFpsFromIsoMaseMedia = (state: ParserState) => {
-	const moovBox = getMoovBox(state);
+	const moovBox = getMoovBoxFromState(state);
 	if (!moovBox) {
 		return null;
 	}

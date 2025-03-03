@@ -121,6 +121,7 @@ import {AnimatedImages} from './AnimatedImage/Avif';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
+import {TransitionRounding} from './TransitionRounding';
 import {VoiceVisualization} from './voice-visualization';
 
 class Vector2 {
@@ -404,6 +405,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="missing-img"
 					component={MissingImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
+					id="transition-rounding"
+					component={TransitionRounding}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -804,6 +813,7 @@ export const Index: React.FC = () => {
 					calculateMetadata={() => {
 						return {
 							defaultCodec: 'aac',
+							defaultOutName: `out-${Date.now()}`,
 						};
 					}}
 					durationInFrames={100}
@@ -814,9 +824,6 @@ export const Index: React.FC = () => {
 					width={1000}
 					height={1000}
 					defaultProps={{flag: false}}
-					calculateMetadata={async () => {
-						return {};
-					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition

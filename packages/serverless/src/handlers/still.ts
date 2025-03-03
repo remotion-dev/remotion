@@ -87,6 +87,19 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
+
+	browserInstancePromise.then((instance) => {
+		cleanup.push(() => {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel:
+					params.type === ServerlessRoutines.still ? params.logLevel : 'error',
+				launchedBrowser: instance,
+			});
+
+			return Promise.resolve();
+		});
+	});
+
 	const bucketNamePromise =
 		params.bucketName ??
 		internalGetOrCreateBucket({
@@ -446,12 +459,6 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 	} finally {
-		options.insideFunctionSpecifics.forgetBrowserEventLoop(
-			options.params.type === ServerlessRoutines.still
-				? options.params.logLevel
-				: 'error',
-		);
-
 		cleanUpFn.forEach((c) => c());
 	}
 };

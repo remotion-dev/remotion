@@ -356,6 +356,45 @@ After restarting, you can import `.wasm` files using an import statement.
 
 Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
+### Change the `@jsxImportSource`
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    module: {
+      ...config.module,
+      rules: config.module?.rules?.map((rule) => {
+        // @ts-expect-error
+        if (!rule?.use) {
+          return rule;
+        }
+
+        return {
+          // @ts-expect-error
+          ...rule,
+          // @ts-expect-error
+          use: rule?.use.map((use) => {
+            if (!use?.loader?.includes('esbuild')) {
+              return use;
+            }
+            return {
+              ...use,
+              options: {
+                ...use.options,
+                jsxImportSource: 'react',
+              },
+            };
+          }),
+        };
+      }),
+    },
+  };
+});
+```
+
 ### Use legacy babel loader
 
 See [Using legacy Babel transpilation](/docs/legacy-babel).

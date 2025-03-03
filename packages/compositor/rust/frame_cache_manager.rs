@@ -90,7 +90,7 @@ impl FrameCacheManager {
 
     pub fn prune_on_thread(&mut self, max_cache_size: u64) -> Result<(), ErrorWithBacktrace> {
         let of_thread = self.get_to_prune_local(max_cache_size)?;
-        self.execute_prune(of_thread, self.thread_index)?;
+        self.execute_prune(of_thread, self.thread_index, max_cache_size)?;
         Ok(())
     }
 
@@ -322,20 +322,33 @@ impl FrameCacheManager {
         &mut self,
         to_prune: Vec<FrameCacheReference>,
         thread_index: usize,
+        max_cache_size: u64,
     ) -> Result<(), ErrorWithBacktrace> {
         let mut pruned = 0;
         for removal in to_prune {
             self.remove_item_by_id(removal)?;
             pruned += 1;
         }
+
+        let max_cache = max_cache_size::get_instance().lock().unwrap();
         if pruned > 0 {
             _print_verbose(&format!(
-                "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB",
+                "Pruned {} on thread {} to save memory, keeping {}. Cache size on thread: {}MB, total cache: {}MB, max cache on thread: {}MB",
                 pruned,
                 thread_index,
                 self.get_frames_in_cache()?,
                 self.get_total_size()? / 1024 / 1024,
-                max_cache_size::get_instance().lock().unwrap().get_current_cache_size() / 1024 / 1024
+                max_cache.get_current_cache_size() / 1024 / 1024,
+                max_cache_size / 1024 / 1024
+            ))?;
+        } else {
+            _print_verbose(&format!(
+                "Nothing to prune on thread {}, frames in cache: {}, cache on thread: {}MB, total cache size: {}MB, max cache on thread: {}MB",
+                thread_index,
+                self.get_frames_in_cache()?,
+                self.get_total_size()? / 1024 / 1024,
+                max_cache.get_current_cache_size() / 1024 / 1024,
+                max_cache_size / 1024 / 1024
             ))?;
         }
         Ok(())

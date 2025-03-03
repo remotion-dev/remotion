@@ -5,9 +5,12 @@ import {
 } from '@aws-sdk/client-service-quotas';
 import {CliInternals} from '@remotion/cli';
 import {LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	BINARY_NAME,
+	LAMBDA_CONCURRENCY_LIMIT_QUOTA,
+} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {QUOTAS_COMMAND} from '.';
-import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';
 import {getAwsRegion} from '../../get-aws-region';
 import {Log} from '../../log';
 import {INCREASE_SUBCOMMAND} from './increase';

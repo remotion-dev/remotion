@@ -2,6 +2,7 @@ import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
+import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
@@ -33,38 +34,48 @@ export const createVideoDecoder = ({
 	});
 	let outputQueue = Promise.resolve();
 
-	const videoDecoder = new VideoDecoder({
-		output(inputFrame) {
-			ioSynchronizer.onOutput(inputFrame.timestamp);
+	const addToQueue = (frame: VideoFrame) => {
+		const cleanup = () => {
+			frame.close();
+		};
 
-			const abortHandler = () => {
-				inputFrame.close();
-			};
+		controller._internals.signal.addEventListener('abort', cleanup, {
+			once: true,
+		});
 
-			controller._internals.signal.addEventListener('abort', abortHandler, {
-				once: true,
+		outputQueue = outputQueue
+			.then(() => {
+				if (controller._internals.signal.aborted) {
+					return;
+				}
+
+				return onFrame(frame);
+			})
+			.then(() => {
+				ioSynchronizer.onProcessed();
+			})
+			.catch((err) => {
+				onError(err);
+			})
+			.finally(() => {
+				controller._internals.signal.removeEventListener('abort', cleanup);
+				cleanup();
 			});
 
-			outputQueue = outputQueue
-				.then(() => {
-					if (controller._internals.signal.aborted) {
-						return;
-					}
+		return outputQueue;
+	};
 
-					return onFrame(inputFrame);
-				})
-				.then(() => {
-					ioSynchronizer.onProcessed();
-					controller._internals.signal.removeEventListener(
-						'abort',
-						abortHandler,
-					);
-					return Promise.resolve();
-				})
-				.catch((err) => {
-					inputFrame.close();
-					onError(err);
-				});
+	const frameSorter = videoFrameSorter({
+		controller,
+		onRelease: async (frame) => {
+			await addToQueue(frame);
+		},
+	});
+
+	const videoDecoder = new VideoDecoder({
+		output(frame) {
+			ioSynchronizer.onOutput(frame.timestamp);
+			frameSorter.inputFrame(frame);
 		},
 		error(error) {
 			onError(error);
@@ -109,13 +120,16 @@ export const createVideoDecoder = ({
 
 		await ioSynchronizer.waitFor({
 			unemitted: 20,
-			unprocessed: 2,
+			unprocessed: 10,
 			minimumProgress: sample.timestamp - 10_000_000,
 			controller,
 		});
-		if (sample.type === 'key') {
-			await videoDecoder.flush();
-		}
+
+		// Don't flush here.
+		// We manually keep track of the memory with the IO synchornizer.
+
+		// Example of flushing breaking things:
+		// IMG_2310.MOV has B-frames, and if we flush on a keyframe, we discard some frames that are yet to come.
 
 		videoDecoder.decode(new EncodedVideoChunk(sample));
 
@@ -132,6 +146,8 @@ export const createVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
+			await frameSorter.flush();
+			Log.verbose(logLevel, 'Frame sorter flushed');
 			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
 			await outputQueue;

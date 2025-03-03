@@ -28,6 +28,7 @@ import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
 } from '../can-concat-seamlessly';
+import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
@@ -52,6 +53,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	onStream,
 	providerSpecifics,
 	insideFunctionSpecifics,
+	onBrowserInstance,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -59,6 +61,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	onStream: OnStream<Provider>;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	onBrowserInstance: (browserInstance: LaunchedBrowser) => void;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -97,6 +100,8 @@ const renderHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
+
+	onBrowserInstance(browserInstance);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
 
@@ -233,6 +238,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				height: params.height,
 				width: params.width,
 				defaultCodec: null,
+				defaultOutName: null,
 			},
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,
@@ -441,6 +447,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
 	let shouldKeepBrowserOpen = true;
+	let instance: LaunchedBrowser | undefined;
 
 	try {
 		await renderHandler({
@@ -450,6 +457,9 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			onStream,
 			providerSpecifics,
 			insideFunctionSpecifics,
+			onBrowserInstance: (browserInstance) => {
+				instance = browserInstance;
+			},
 		});
 		return {
 			type: 'success',
@@ -508,8 +518,11 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		if (shouldKeepBrowserOpen) {
-			insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
+		if (shouldKeepBrowserOpen && instance) {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel: params.logLevel,
+				launchedBrowser: instance,
+			});
 		} else {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
@@ -517,9 +530,16 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
-				'Quitting Function forcefully now to force not keeping the Function warm.',
+				'Waiting 2 seconds to allow for response to be sent',
 			);
-			process.exit(0);
+
+			setTimeout(() => {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Quitting Function forcefully now to force not keeping the Function warm.',
+				);
+				process.exit(0);
+			}, 2000);
 		}
 
 		if (ENABLE_SLOW_LEAK_DETECTION) {

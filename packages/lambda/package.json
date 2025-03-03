@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.266",
+	"version": "4.0.270",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -12,7 +12,8 @@
 		"lint": "eslint src",
 		"testlambda": "exit 0",
 		"test": "bun test src/test/unit",
-		"make": "tsc -d && bun build.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"makeruntime": "bun build.ts",
 		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
@@ -60,17 +61,32 @@
 	},
 	"exports": {
 		"./package.json": "./package.json",
-		".": "./dist/index.js",
-		"./policies": "./dist/api/iam-validation/suggested-policy.js",
-		"./client": "./dist/client.js"
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./client": {
+			"types": "./dist/client.d.ts",
+			"require": "./dist/client.js",
+			"module": "./dist/esm/client.mjs",
+			"import": "./dist/esm/client.mjs"
+		},
+		"./policies": {
+			"types": "./dist/policies.d.ts",
+			"require": "./dist/policies.js",
+			"module": "./dist/esm/policies.mjs",
+			"import": "./dist/esm/policies.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
-			"policies": [
-				"dist/api/iam-validation/suggested-policy.d.ts"
-			],
 			"client": [
 				"dist/client.d.ts"
+			],
+			"policies": [
+				"dist/policies.d.ts"
 			]
 		}
 	},

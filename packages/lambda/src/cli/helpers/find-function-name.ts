@@ -1,8 +1,8 @@
 import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {BINARY_NAME} from '../../defaults';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from '../commands/functions/deploy';

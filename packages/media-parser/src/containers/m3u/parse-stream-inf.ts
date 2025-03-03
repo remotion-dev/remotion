@@ -63,5 +63,6 @@ export const parseStreamInf = (str: string): M3uStreamInfo => {
 					height: parseInt(map.RESOLUTION.split('x')[1], 10),
 				}
 			: null,
+		audio: map.AUDIO || null,
 	};
 };

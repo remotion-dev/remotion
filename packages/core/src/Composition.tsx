@@ -40,6 +40,7 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	height?: number;
 	props?: T;
 	defaultCodec?: Codec;
+	defaultOutName?: string;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =
@@ -138,6 +139,7 @@ export const Composition = <
 	const lazy = useLazyComponent<Props>({
 		compProps: compProps as CompProps<Props>,
 		componentName: 'Composition',
+		noSuspense: false,
 	});
 	const nonce = useNonce();
 	const isPlayer = useIsPlayer();

@@ -1,4 +1,7 @@
-import {defaultSelectM3uStreamFn} from './containers/m3u/select-stream';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	defaultSelectM3uStreamFn,
+} from './containers/m3u/select-stream';
 import {internalParseMedia} from './internal-parse-media';
 import type {ParseMedia} from './options';
 import {fetchReader} from './readers/from-fetch';
@@ -42,6 +45,10 @@ export const parseMedia: ParseMedia = (options) => {
 		reader: options.reader ?? fetchReader,
 		controller: options.controller ?? undefined,
 		selectM3uStream: options.selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			options.selectM3uAssociatedPlaylists ??
+			defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: options.mp4HeaderSegment ?? null,
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,

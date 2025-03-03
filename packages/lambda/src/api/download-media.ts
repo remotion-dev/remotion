@@ -1,5 +1,6 @@
 import type {AwsRegion} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
@@ -9,7 +10,6 @@ import {
 	type CustomCredentials,
 } from '@remotion/serverless';
 import path from 'node:path';
-import {REMOTION_BUCKET_PREFIX} from '../defaults';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
 

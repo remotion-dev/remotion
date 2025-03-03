@@ -1,15 +1,15 @@
 import {CliInternals} from '@remotion/cli';
 import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
-import type {LogLevel} from '@remotion/renderer';
-import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
-import {VERSION} from 'remotion/version';
-import {internalDeployFunction} from '../../../api/deploy-function';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
-} from '../../../defaults';
+} from '@remotion/lambda-client/constants';
+import type {LogLevel} from '@remotion/renderer';
+import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
+import {VERSION} from 'remotion/version';
+import {internalDeployFunction} from '../../../api/deploy-function';
 import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
 import {validateTimeout} from '../../../shared/validate-timeout';
 import {validateVpcSecurityGroupIds} from '../../../shared/validate-vpc-security-group-ids';

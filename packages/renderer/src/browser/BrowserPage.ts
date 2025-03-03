@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {NoReactInternals} from 'remotion/no-react';
+import {BrowserLog} from '../browser-log';
 import {formatRemoteObject} from '../format-logs';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
@@ -76,7 +77,6 @@ const shouldHideWarning = (log: ConsoleMessage) => {
 };
 
 export const enum PageEmittedEvents {
-	Console = 'console',
 	Error = 'error',
 	Disposed = 'disposed',
 }
@@ -98,6 +98,7 @@ export class Page extends EventEmitter {
 		logLevel,
 		indent,
 		pageIndex,
+		onBrowserLog,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -107,6 +108,7 @@ export class Page extends EventEmitter {
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
 	}): Promise<Page> {
 		const page = new Page({
 			client,
@@ -116,6 +118,7 @@ export class Page extends EventEmitter {
 			logLevel,
 			indent,
 			pageIndex,
+			onBrowserLog,
 		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
@@ -133,7 +136,9 @@ export class Page extends EventEmitter {
 	screenshotTaskQueue: TaskQueue;
 	sourceMapGetter: SourceMapGetter;
 	logLevel: LogLevel;
+	indent: boolean;
 	pageIndex: number;
+	onBrowserLog: null | ((log: BrowserLog) => void);
 
 	constructor({
 		client,
@@ -143,6 +148,7 @@ export class Page extends EventEmitter {
 		logLevel,
 		indent,
 		pageIndex,
+		onBrowserLog,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -151,6 +157,7 @@ export class Page extends EventEmitter {
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
 	}) {
 		super();
 		this.#client = client;
@@ -161,7 +168,9 @@ export class Page extends EventEmitter {
 		this.id = String(Math.random());
 		this.sourceMapGetter = sourceMapGetter;
 		this.logLevel = logLevel;
+		this.indent = indent;
 		this.pageIndex = pageIndex;
+		this.onBrowserLog = onBrowserLog;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -196,63 +205,71 @@ export class Page extends EventEmitter {
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
 		});
-
-		this.on('console', (log) => {
-			const {url, columnNumber, lineNumber} = log.location();
-
-			if (shouldHideWarning(log)) {
-				return;
-			}
-
-			if (
-				url?.endsWith(NoReactInternals.bundleName) &&
-				lineNumber &&
-				this.sourceMapGetter()
-			) {
-				const origPosition = this.sourceMapGetter()?.originalPositionFor({
-					column: columnNumber ?? 0,
-					line: lineNumber,
-				});
-				const file = [
-					origPosition?.source,
-					origPosition?.line,
-					origPosition?.column,
-				]
-					.filter(truthy)
-					.join(':');
-
-				const tag = [origPosition?.name, file].filter(truthy).join('@');
-
-				if (log.type === 'error') {
-					Log.error(
-						{
-							logLevel,
-							tag,
-							indent,
-						},
-						log.previewString,
-					);
-				} else {
-					Log.verbose(
-						{
-							logLevel,
-							tag,
-							indent,
-						},
-						log.previewString,
-					);
-				}
-			} else if (log.type === 'error') {
-				if (log.text.includes('Failed to load resource:')) {
-					Log.error({logLevel, tag: url, indent}, log.text);
-				} else {
-					Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
-				}
-			} else {
-				Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
-			}
-		});
 	}
+
+	#onConsole = (log: ConsoleMessage) => {
+		const {url, columnNumber, lineNumber} = log.location();
+		const logLevel = this.logLevel;
+		const indent = this.indent;
+
+		if (shouldHideWarning(log)) {
+			return;
+		}
+
+		this.onBrowserLog?.({
+			stackTrace: log.stackTrace(),
+			text: log.text,
+			type: log.type,
+		});
+
+		if (
+			url?.endsWith(NoReactInternals.bundleName) &&
+			lineNumber &&
+			this.sourceMapGetter()
+		) {
+			const origPosition = this.sourceMapGetter()?.originalPositionFor({
+				column: columnNumber ?? 0,
+				line: lineNumber,
+			});
+			const file = [
+				origPosition?.source,
+				origPosition?.line,
+				origPosition?.column,
+			]
+				.filter(truthy)
+				.join(':');
+
+			const tag = [origPosition?.name, file].filter(truthy).join('@');
+
+			if (log.type === 'error') {
+				Log.error(
+					{
+						logLevel,
+						tag,
+						indent,
+					},
+					log.previewString,
+				);
+			} else {
+				Log.verbose(
+					{
+						logLevel,
+						tag,
+						indent,
+					},
+					log.previewString,
+				);
+			}
+		} else if (log.type === 'error') {
+			if (log.text.includes('Failed to load resource:')) {
+				Log.error({logLevel, tag: url, indent}, log.text);
+			} else {
+				Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
+			}
+		} else {
+			Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
+		}
+	};
 
 	async #initialize(): Promise<void> {
 		await Promise.all([
@@ -328,16 +345,19 @@ export class Page extends EventEmitter {
 			: '';
 
 		if (source !== 'worker') {
-			this.emit(
-				PageEmittedEvents.Console,
-				new ConsoleMessage({
-					type: level,
-					text,
-					args: [],
-					stackTraceLocations: [{url, lineNumber}],
-					previewString,
-				}),
-			);
+			const message = new ConsoleMessage({
+				type: level,
+				text,
+				args: [],
+				stackTraceLocations: [{url, lineNumber}],
+				previewString,
+			});
+			this.onBrowserLog?.({
+				stackTrace: message.stackTrace(),
+				text: message.text,
+				type: message.type,
+			});
+			this.#onConsole(message);
 		}
 	}
 
@@ -464,13 +484,6 @@ export class Page extends EventEmitter {
 		args: JSHandle[],
 		stackTrace?: StackTrace,
 	): void {
-		if (!this.listenerCount(PageEmittedEvents.Console)) {
-			args.forEach((arg) => {
-				return arg.dispose();
-			});
-			return;
-		}
-
 		const textTokens = [];
 		for (const arg of args) {
 			const remoteObject = arg._remoteObject;
@@ -504,7 +517,7 @@ export class Page extends EventEmitter {
 			stackTraceLocations,
 			previewString,
 		});
-		this.emit(PageEmittedEvents.Console, message);
+		this.#onConsole(message);
 	}
 
 	url(): string {

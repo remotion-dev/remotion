@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {
@@ -8,7 +9,6 @@ import {
 	type ProviderSpecifics,
 } from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
-import {BINARY_NAME} from '../defaults';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {parsedLambdaCli} from './args';
 import {

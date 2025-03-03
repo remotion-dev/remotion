@@ -91,6 +91,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly overflowVisible: boolean;
 		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
 		readonly overrideInternalClassName: string | undefined;
+		readonly noSuspense: boolean;
 	}
 > = (
 	{
@@ -129,6 +130,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		overflowVisible,
 		browserMediaControlsBehavior,
 		overrideInternalClassName,
+		noSuspense,
 	},
 	ref,
 ) => {
@@ -705,7 +707,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			) : null}
 		</>
 	);
-	if (IS_NODE && !doesReactVersionSupportSuspense) {
+	if (noSuspense || (IS_NODE && !doesReactVersionSupportSuspense)) {
 		return (
 			<div ref={container} style={outerStyle} className={className}>
 				{content}

@@ -7,7 +7,7 @@ import {copyFileSync, cpSync, readdirSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 
-test('Should be able to bundle the renderer', () => {
+test('Should be able to bundle the renderer', async () => {
 	const outputdir = path.join(tmpdir(), `test-${Math.random()}`);
 	const outfile = path.join(outputdir, 'esbuild-test.js');
 
@@ -20,8 +20,22 @@ test('Should be able to bundle the renderer', () => {
 			`${__dirname}${path.sep}..${path.sep}..${path.sep}test-index.ts`,
 		],
 	});
+
 	expect(errors.length).toBe(0);
 	expect(warnings.length).toBe(0);
+
+	const outputs = await Bun.build({
+		target: 'node',
+		format: 'esm',
+		naming: '[name].mjs',
+		entrypoints: [
+			`${__dirname}${path.sep}..${path.sep}..${path.sep}test-index-esm.ts`,
+		],
+	});
+	for (const output of outputs.outputs) {
+		await Bun.write(output.path, await output.text());
+	}
+
 	const binaryPath = RenderInternals.getExecutablePath({
 		type: 'compositor',
 		indent: false,
@@ -51,7 +65,13 @@ test('Should be able to bundle the renderer', () => {
 	const out = execSync('node ' + outfile + ' ' + exampleVideos.bigBuckBunny);
 	expect(out.toString('utf8')).toBe('h264\n');
 
+	const out2 = execSync(
+		'node ' + 'test-index-esm.mjs' + ' ' + exampleVideos.bigBuckBunny,
+	);
+	expect(out2.toString('utf8')).toBe('h264\n');
+
 	rmSync(outputdir, {
 		recursive: true,
 	});
+	rmSync('test-index-esm.mjs');
 });

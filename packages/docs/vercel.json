@@ -283,6 +283,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/templates/remix",
+			"destination": "/templates/react-router",
+			"permanent": false
+		},
+		{
 			"source": "/studio",
 			"destination": "/docs/studio",
 			"permanent": false
@@ -335,6 +340,11 @@
 		{
 			"source": "/media-parser",
 			"destination": "/docs/media-parser",
+			"permanent": false
+		},
+		{
+			"source": "/docs/system-prompt",
+			"destination": "/docs/ai/system-prompt",
 			"permanent": false
 		},
 		{
