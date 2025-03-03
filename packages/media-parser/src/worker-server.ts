@@ -3,13 +3,13 @@ import {
 	defaultSelectM3uStreamFn,
 } from './containers/m3u/select-stream';
 import {fetchReader} from './fetch';
-import type {MediaParserAudioCodec} from './get-tracks';
 import {internalParseMedia} from './internal-parse-media';
 import {mediaParserController} from './media-parser-controller';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
 import {serializeError} from './worker/serialize-error';
 import type {
 	ParseMediaOnWorker,
+	ResponseCallbackPayload,
 	WorkerRequestPayload,
 	WorkerResponsePayload,
 } from './worker/worker-types';
@@ -20,7 +20,7 @@ const post = (message: WorkerResponsePayload) => {
 
 const controller = mediaParserController();
 
-const executeCallback = async (codec: MediaParserAudioCodec | null) => {
+const executeCallback = async (payload: ResponseCallbackPayload) => {
 	const nonce = crypto.randomUUID();
 	const {promise, resolve, reject} = Promise.withResolvers<void>();
 
@@ -40,7 +40,7 @@ const executeCallback = async (codec: MediaParserAudioCodec | null) => {
 
 	post({
 		type: 'response-on-callback-request',
-		value: codec,
+		payload,
 		nonce,
 	});
 
@@ -54,7 +54,6 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
 		onAudioTrack,
-		onContainer,
 		onDimensions,
 		onDurationInSeconds,
 		onFps,
@@ -89,7 +88,7 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		selectM3uAssociatedPlaylists,
 	} = message.payload;
 
-	const {postAudioCodec} = message;
+	const {postAudioCodec, postContainer} = message;
 
 	const logLevel = userLogLevel ?? 'info';
 
@@ -105,13 +104,25 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 			apiName: 'parseMediaInWorker()',
 			controller,
 			mode: 'query',
+			// TODO: Callback for on Audio track
+			onAudioTrack: onAudioTrack ?? null,
+
 			onAudioCodec: postAudioCodec
 				? async (codec) => {
-						await executeCallback(codec);
+						await executeCallback({
+							callbackType: 'audio-codec',
+							value: codec,
+						});
 					}
 				: null,
-			onAudioTrack: onAudioTrack ?? null,
-			onContainer: onContainer ?? null,
+			onContainer: postContainer
+				? async (container) => {
+						await executeCallback({
+							callbackType: 'container',
+							value: container,
+						});
+					}
+				: null,
 			onDimensions: onDimensions ?? null,
 			onDiscardedData: null,
 			onDurationInSeconds: onDurationInSeconds ?? null,

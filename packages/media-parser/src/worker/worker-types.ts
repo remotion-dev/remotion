@@ -1,6 +1,7 @@
 import type {Dimensions, ImageType} from '../errors';
 import type {MediaParserAudioCodec} from '../get-tracks';
 import type {
+	MediaParserContainer,
 	Options,
 	ParseMediaFields,
 	ParseMediaOptions,
@@ -11,6 +12,7 @@ export type ParseMediaOnWorker = {
 	type: 'request-worker';
 	payload: Omit<ParseMediaOptions<Options<ParseMediaFields>>, 'worker'>;
 	postAudioCodec: boolean;
+	postContainer: boolean;
 };
 
 type RequestPause = {
@@ -85,10 +87,20 @@ export type ResponseError = {
 	type: 'response-error';
 } & AnyError;
 
+export type ResponseCallbackPayload =
+	| {
+			callbackType: 'audio-codec';
+			value: MediaParserAudioCodec | null;
+	  }
+	| {
+			callbackType: 'container';
+			value: MediaParserContainer;
+	  };
+
 export type ResponseOnCallbackRequest = {
 	type: 'response-on-callback-request';
-	value: MediaParserAudioCodec | null;
 	nonce: string;
+	payload: ResponseCallbackPayload;
 };
 
 export type AcknowledgeCallback = {

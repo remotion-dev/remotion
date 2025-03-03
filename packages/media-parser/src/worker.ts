@@ -17,12 +17,13 @@ const convertToWorkerPayload = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	payload: Omit<ParseMediaOptions<any>, 'controller'>,
 ): ParseMediaOnWorker => {
-	const {onAudioCodec, ...others} = payload;
+	const {onAudioCodec, onContainer, ...others} = payload;
 
 	return {
 		type: 'request-worker',
 		payload: others,
 		postAudioCodec: Boolean(onAudioCodec),
+		postContainer: Boolean(onContainer),
 	};
 };
 
@@ -75,7 +76,19 @@ export const parseMediaOnWorker: ParseMedia = async <
 
 		if (data.type === 'response-on-callback-request') {
 			Promise.resolve()
-				.then(() => params.onAudioCodec?.(data.value))
+				.then(() => {
+					if (data.payload.callbackType === 'audio-codec') {
+						return params.onAudioCodec?.(data.payload.value);
+					}
+
+					if (data.payload.callbackType === 'container') {
+						return params.onContainer?.(data.payload.value);
+					}
+
+					throw new Error(
+						`Unknown callback type: ${data.payload satisfies never}`,
+					);
+				})
 				.then(() => {
 					post(worker, {type: 'acknowledge-callback', nonce: data.nonce});
 				})
