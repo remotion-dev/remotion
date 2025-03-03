@@ -8,7 +8,11 @@ import type {
 	MediaParserVideoCodec,
 	TracksField,
 } from '@remotion/media-parser';
-import {hasBeenAborted, MediaParserInternals} from '@remotion/media-parser';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	hasBeenAborted,
+	MediaParserInternals,
+} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 import {webFileReader} from '@remotion/media-parser/web-file';
 import type {
@@ -272,6 +276,10 @@ const ConvertUI = ({
 				return selectedM3uId ?? streams[0].id;
 			},
 			selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
+				if (selectAssociatedPlaylistId === null) {
+					return defaultSelectM3uAssociatedPlaylists({associatedPlaylists});
+				}
+
 				return associatedPlaylists.filter(
 					(playlist) => selectAssociatedPlaylistId === playlist.id,
 				);
