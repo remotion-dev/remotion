@@ -1,7 +1,7 @@
 import {getMetadataFromFlac} from '../containers/flac/get-metadata-from-flac';
 import {getMetadataFromMp3} from '../containers/mp3/get-metadata-from-mp3';
 import {getMetadataFromWav} from '../containers/wav/get-metadata-from-wav';
-import type {Structure} from '../parse-result';
+import type {MediaParserStructureUnstable} from '../parse-result';
 import type {ParserState} from '../state/parser-state';
 import {getMetadataFromIsoBase} from './metadata-from-iso';
 import {getMetadataFromMatroska} from './metadata-from-matroska';
@@ -57,7 +57,9 @@ export const getMetadata = (state: ParserState): MetadataEntry[] => {
 
 // TODO: This forces some containers to check the whole file
 // we can do this better! skip over video data
-export const hasMetadata = (structure: Structure): boolean => {
+export const hasMetadata = (
+	structure: MediaParserStructureUnstable,
+): boolean => {
 	if (structure.type === 'mp3') {
 		return getMetadataFromMp3(structure) !== null;
 	}

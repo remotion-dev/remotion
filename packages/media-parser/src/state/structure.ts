@@ -1,7 +1,7 @@
-import type {Structure} from '../parse-result';
+import type {MediaParserStructureUnstable} from '../parse-result';
 
 export const structureState = () => {
-	let structure: Structure | null = null;
+	let structure: MediaParserStructureUnstable | null = null;
 
 	const getStructure = () => {
 		if (structure === null) {
@@ -16,7 +16,7 @@ export const structureState = () => {
 			return structure;
 		},
 		getStructure,
-		setStructure: (value: Structure) => {
+		setStructure: (value: MediaParserStructureUnstable) => {
 			structure = value;
 		},
 		getFlacStructure: () => {

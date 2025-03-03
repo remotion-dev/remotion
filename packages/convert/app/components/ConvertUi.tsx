@@ -5,8 +5,8 @@ import type {
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserTracks,
 	MediaParserVideoCodec,
-	TracksField,
 } from '@remotion/media-parser';
 import {
 	defaultSelectM3uAssociatedPlaylists,
@@ -82,7 +82,7 @@ const ConvertUI = ({
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
-	readonly tracks: TracksField | null;
+	readonly tracks: MediaParserTracks | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;

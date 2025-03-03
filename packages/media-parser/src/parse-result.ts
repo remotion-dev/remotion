@@ -46,7 +46,7 @@ export type Mp3Structure = {
 	boxes: Mp3Box[];
 };
 
-export type Structure =
+export type MediaParserStructureUnstable =
 	| IsoBaseMediaStructure
 	| RiffStructure
 	| MatroskaStructure

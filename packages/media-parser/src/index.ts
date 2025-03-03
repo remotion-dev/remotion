@@ -42,6 +42,7 @@ export {parseMediaOnWorker} from './worker';
 export {downloadAndParseMedia} from './download-and-parse-media';
 export type {
 	MediaParserContainer,
+	MediaParserTracks,
 	Options,
 	ParseMediaCallbacks,
 	ParseMediaFields,
@@ -49,7 +50,6 @@ export type {
 	ParseMediaOptions,
 	ParseMediaProgress,
 	ParseMediaResult,
-	TracksField,
 } from './options';
 export {parseMedia} from './parse-media';
 export type {
@@ -92,6 +92,7 @@ export type {
 	TrackEntry,
 	UintWithSize,
 } from './containers/webm/segments/all-segments';
+export {MediaParserStructureUnstable} from './parse-result';
 export type {LogLevel};
 
 export {M3uAssociatedPlaylist, M3uStream} from './containers/m3u/get-streams';

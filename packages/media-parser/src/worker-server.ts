@@ -53,42 +53,44 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		fields,
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
-		onAudioTrack,
-		onDimensions,
-		onDurationInSeconds,
-		onFps,
-		onImages,
-		onInternalStats,
-		onIsHdr,
-		onKeyframes,
-		onLocation,
-		onM3uStreams,
-		onMetadata,
-		onMimeType,
-		onName,
-		onNumberOfAudioChannels,
+		// TODO: Cannot pass a function
 		onParseProgress,
-		onRotation,
-		onSampleRate,
-		onSize,
-		onSlowAudioBitrate,
-		onSlowDurationInSeconds,
-		onSlowFps,
-		onSlowKeyframes,
-		onSlowNumberOfFrames,
-		onSlowVideoBitrate,
-		onStructure,
-		onTracks,
-		onUnrotatedDimensions,
-		onVideoCodec,
-		onVideoTrack,
 		progressIntervalInMs,
 		selectM3uStream,
 		mp4HeaderSegment,
 		selectM3uAssociatedPlaylists,
 	} = message.payload;
 
-	const {postAudioCodec, postContainer} = message;
+	const {
+		postAudioCodec,
+		postContainer,
+		postDimensions,
+		postFps,
+		postImages,
+		postInternalStats,
+		postIsHdr,
+		postKeyframes,
+		postLocation,
+		postM3uStreams,
+		postMetadata,
+		postMimeType,
+		postName,
+		postNumberOfAudioChannels,
+		postRotation,
+		postSampleRate,
+		postSlowAudioBitrate,
+		postSlowNumberOfFrames,
+		postSlowFps,
+		postSlowDurationInSeconds,
+		postSlowVideoBitrate,
+		postStructure,
+		postTracks,
+		postUnrotatedDimensions,
+		postVideoCodec,
+		postSize,
+		postSlowKeyframes,
+		postDurationInSeconds,
+	} = message;
 
 	const logLevel = userLogLevel ?? 'info';
 
@@ -104,8 +106,6 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 			apiName: 'parseMediaInWorker()',
 			controller,
 			mode: 'query',
-			// TODO: Callback for on Audio track
-			onAudioTrack: onAudioTrack ?? null,
 
 			onAudioCodec: postAudioCodec
 				? async (codec) => {
@@ -123,40 +123,224 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 						});
 					}
 				: null,
-			onDimensions: onDimensions ?? null,
-			onDiscardedData: null,
-			onDurationInSeconds: onDurationInSeconds ?? null,
-			onFps: onFps ?? null,
-			onImages: onImages ?? null,
-			onInternalStats: onInternalStats ?? null,
-			onIsHdr: onIsHdr ?? null,
-			onKeyframes: onKeyframes ?? null,
-			onLocation: onLocation ?? null,
-			onM3uStreams: onM3uStreams ?? null,
-			onMetadata: onMetadata ?? null,
-			onMimeType: onMimeType ?? null,
-			onName: onName ?? null,
-			onNumberOfAudioChannels: onNumberOfAudioChannels ?? null,
-			onRotation: onRotation ?? null,
-			onSampleRate: onSampleRate ?? null,
-			onSize: onSize ?? null,
-			onSlowAudioBitrate: onSlowAudioBitrate ?? null,
-			onSlowDurationInSeconds: onSlowDurationInSeconds ?? null,
-			onSlowFps: onSlowFps ?? null,
-			onSlowKeyframes: onSlowKeyframes ?? null,
-			onSlowNumberOfFrames: onSlowNumberOfFrames ?? null,
-			onSlowVideoBitrate: onSlowVideoBitrate ?? null,
-			onStructure: onStructure ?? null,
-			onTracks: onTracks ?? null,
+			onDimensions: postDimensions
+				? async (dimensions) => {
+						await executeCallback({
+							callbackType: 'dimensions',
+							value: dimensions,
+						});
+					}
+				: null,
+			onFps: postFps
+				? async (fps) => {
+						await executeCallback({
+							callbackType: 'fps',
+							value: fps,
+						});
+					}
+				: null,
+			onImages: postImages
+				? async (images) => {
+						await executeCallback({
+							callbackType: 'images',
+							value: images,
+						});
+					}
+				: null,
+			onInternalStats: postInternalStats
+				? async (internalStats) => {
+						await executeCallback({
+							callbackType: 'internal-stats',
+							value: internalStats,
+						});
+					}
+				: null,
+			onIsHdr: postIsHdr
+				? async (isHdr) => {
+						await executeCallback({
+							callbackType: 'is-hdr',
+							value: isHdr,
+						});
+					}
+				: null,
+			onKeyframes: postKeyframes
+				? async (keyframes) => {
+						await executeCallback({
+							callbackType: 'keyframes',
+							value: keyframes,
+						});
+					}
+				: null,
+			onLocation: postLocation
+				? async (location) => {
+						await executeCallback({
+							callbackType: 'location',
+							value: location,
+						});
+					}
+				: null,
+			onM3uStreams: postM3uStreams
+				? async (streams) => {
+						await executeCallback({
+							callbackType: 'm3u-streams',
+							value: streams,
+						});
+					}
+				: null,
+			onMetadata: postMetadata
+				? async (metadata) => {
+						await executeCallback({
+							callbackType: 'metadata',
+							value: metadata,
+						});
+					}
+				: null,
+			onMimeType: postMimeType
+				? async (mimeType) => {
+						await executeCallback({
+							callbackType: 'mime-type',
+							value: mimeType,
+						});
+					}
+				: null,
+			onName: postName
+				? async (name) => {
+						await executeCallback({
+							callbackType: 'name',
+							value: name,
+						});
+					}
+				: null,
+			onNumberOfAudioChannels: postNumberOfAudioChannels
+				? async (numberOfChannels) => {
+						await executeCallback({
+							callbackType: 'number-of-audio-channels',
+							value: numberOfChannels,
+						});
+					}
+				: null,
+			onRotation: postRotation
+				? async (rotation) => {
+						await executeCallback({
+							callbackType: 'rotation',
+							value: rotation,
+						});
+					}
+				: null,
+			onSampleRate: postSampleRate
+				? async (sampleRate) => {
+						await executeCallback({
+							callbackType: 'sample-rate',
+							value: sampleRate,
+						});
+					}
+				: null,
+			onSize: postSize
+				? async (size) => {
+						await executeCallback({
+							callbackType: 'size',
+							value: size,
+						});
+					}
+				: null,
+			onSlowAudioBitrate: postSlowAudioBitrate
+				? async (audioBitrate) => {
+						await executeCallback({
+							callbackType: 'slow-audio-bitrate',
+							value: audioBitrate,
+						});
+					}
+				: null,
+			onSlowDurationInSeconds: postSlowDurationInSeconds
+				? async (durationInSeconds) => {
+						await executeCallback({
+							callbackType: 'slow-duration-in-seconds',
+							value: durationInSeconds,
+						});
+					}
+				: null,
+			onSlowFps: postSlowFps
+				? async (fps) => {
+						await executeCallback({
+							callbackType: 'slow-fps',
+							value: fps,
+						});
+					}
+				: null,
+			onSlowKeyframes: postSlowKeyframes
+				? async (keyframes) => {
+						await executeCallback({
+							callbackType: 'slow-keyframes',
+							value: keyframes,
+						});
+					}
+				: null,
+			onSlowNumberOfFrames: postSlowNumberOfFrames
+				? async (numberOfFrames) => {
+						await executeCallback({
+							callbackType: 'slow-number-of-frames',
+							value: numberOfFrames,
+						});
+					}
+				: null,
+			onSlowVideoBitrate: postSlowVideoBitrate
+				? async (videoBitrate) => {
+						await executeCallback({
+							callbackType: 'slow-video-bitrate',
+							value: videoBitrate,
+						});
+					}
+				: null,
+			onStructure: postStructure
+				? async (structure) => {
+						await executeCallback({
+							callbackType: 'structure',
+							value: structure,
+						});
+					}
+				: null,
+			onTracks: postTracks
+				? async (tracks) => {
+						await executeCallback({
+							callbackType: 'tracks',
+							value: tracks,
+						});
+					}
+				: null,
+			onUnrotatedDimensions: postUnrotatedDimensions
+				? async (dimensions) => {
+						await executeCallback({
+							callbackType: 'unrotated-dimensions',
+							value: dimensions,
+						});
+					}
+				: null,
+			onVideoCodec: postVideoCodec
+				? async (codec) => {
+						await executeCallback({
+							callbackType: 'video-codec',
+							value: codec,
+						});
+					}
+				: null,
+			onDurationInSeconds: postDurationInSeconds
+				? async (durationInSeconds) => {
+						await executeCallback({
+							callbackType: 'duration-in-seconds',
+							value: durationInSeconds,
+						});
+					}
+				: null,
 			onParseProgress: onParseProgress ?? null,
-			onUnrotatedDimensions: onUnrotatedDimensions ?? null,
-			onVideoCodec: onVideoCodec ?? null,
-			onVideoTrack: onVideoTrack ?? null,
 			progressIntervalInMs: progressIntervalInMs ?? null,
 			selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
 			mp4HeaderSegment: mp4HeaderSegment ?? null,
 			selectM3uAssociatedPlaylists:
 				selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
+			// TODO: Callback for onAudioTrack / onVideoTrack
+			onAudioTrack: null,
+			onVideoTrack: null,
+			onDiscardedData: null,
 		});
 		post({
 			type: 'response-done',

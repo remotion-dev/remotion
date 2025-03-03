@@ -1,6 +1,6 @@
-import type {Structure} from './parse-result';
+import type {MediaParserStructureUnstable} from './parse-result';
 
-export const isAudioStructure = (structure: Structure) => {
+export const isAudioStructure = (structure: MediaParserStructureUnstable) => {
 	if (structure.type === 'mp3') {
 		return true;
 	}

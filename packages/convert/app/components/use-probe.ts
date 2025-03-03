@@ -7,10 +7,10 @@ import type {
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
+	MediaParserTracks,
 	MediaParserVideoCodec,
 	MetadataEntry,
 	ParseMediaOnProgress,
-	TracksField,
 } from '@remotion/media-parser';
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
@@ -50,7 +50,7 @@ export const useProbe = ({
 	const [size, setSize] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
-	const [tracks, setTracks] = useState<TracksField | null>(null);
+	const [tracks, setTracks] = useState<MediaParserTracks | null>(null);
 	const [container, setContainer] = useState<MediaParserContainer | null>(null);
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
