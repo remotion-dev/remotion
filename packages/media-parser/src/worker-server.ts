@@ -3,17 +3,49 @@ import {
 	defaultSelectM3uStreamFn,
 } from './containers/m3u/select-stream';
 import {fetchReader} from './fetch';
+import type {MediaParserAudioCodec} from './get-tracks';
 import {internalParseMedia} from './internal-parse-media';
 import {mediaParserController} from './media-parser-controller';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
 import {serializeError} from './worker/serialize-error';
-import type {ParseMediaOnWorker, WorkerPayload} from './worker/worker-types';
+import type {
+	ParseMediaOnWorker,
+	WorkerRequestPayload,
+	WorkerResponsePayload,
+} from './worker/worker-types';
 
-const post = (message: WorkerPayload) => {
+const post = (message: WorkerResponsePayload) => {
 	postMessage(message);
 };
 
 const controller = mediaParserController();
+
+const executeCallback = async (codec: MediaParserAudioCodec | null) => {
+	const nonce = crypto.randomUUID();
+	const {promise, resolve, reject} = Promise.withResolvers<void>();
+
+	const cb = (msg: MessageEvent) => {
+		const data = msg.data as WorkerRequestPayload;
+		if (data.type === 'acknowledge-callback' && data.nonce === nonce) {
+			resolve();
+			removeEventListener('message', cb);
+		}
+
+		if (data.type === 'signal-error-in-callback') {
+			reject(new Error('Error in callback function'));
+		}
+	};
+
+	addEventListener('message', cb);
+
+	post({
+		type: 'response-on-callback-request',
+		value: codec,
+		nonce,
+	});
+
+	await promise;
+};
 
 const startParsing = async (message: ParseMediaOnWorker) => {
 	const {
@@ -21,7 +53,6 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		fields,
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
-		onAudioCodec,
 		onAudioTrack,
 		onContainer,
 		onDimensions,
@@ -58,6 +89,8 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 		selectM3uAssociatedPlaylists,
 	} = message.payload;
 
+	const {postAudioCodec} = message;
+
 	const logLevel = userLogLevel ?? 'info';
 
 	try {
@@ -72,8 +105,11 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 			apiName: 'parseMediaInWorker()',
 			controller,
 			mode: 'query',
-			// TODO: on* APIs should be callback based
-			onAudioCodec: onAudioCodec ?? null,
+			onAudioCodec: postAudioCodec
+				? async (codec) => {
+						await executeCallback(codec);
+					}
+				: null,
 			onAudioTrack: onAudioTrack ?? null,
 			onContainer: onContainer ?? null,
 			onDimensions: onDimensions ?? null,
@@ -123,10 +159,20 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 const onMessageForWorker = forwardMediaParserControllerToWorker(controller);
 
 addEventListener('message', (message) => {
-	const data = message.data as WorkerPayload;
+	const data = message.data as WorkerRequestPayload;
 
 	if (data.type === 'request-worker') {
 		startParsing(data);
+		return;
+	}
+
+	// not handled here
+	if (data.type === 'acknowledge-callback') {
+		return;
+	}
+
+	if (data.type === 'signal-error-in-callback') {
+		return;
 	}
 
 	onMessageForWorker(data);

@@ -70,3 +70,32 @@ test('Custom errors should still work', async () => {
 		}
 	}
 });
+
+test('onAudioCodec() callback should still work', async () => {
+	let called = false;
+	await parseMediaOnWorker({
+		src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
+		acknowledgeRemotionLicense: true,
+		onAudioCodec: (audioCodec) => {
+			expect(audioCodec).toBe('aac');
+			called = true;
+		},
+	});
+	expect(called).toBe(true);
+});
+
+test('should do something smart when throwing inside a callback', async () => {
+	try {
+		await parseMediaOnWorker({
+			src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
+			acknowledgeRemotionLicense: true,
+			onAudioCodec: () => {
+				throw new Error('test');
+			},
+		});
+		throw new Error('Should not resolve');
+	} catch (err) {
+		expect(err instanceof Error).toBe(true);
+		expect((err as Error).message).toBe('test');
+	}
+});

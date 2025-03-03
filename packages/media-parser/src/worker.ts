@@ -7,9 +7,26 @@ import type {
 	ParseMediaResult,
 } from './options';
 import {deserializeError} from './worker/serialize-error';
-import type {WorkerPayload} from './worker/worker-types';
+import type {
+	ParseMediaOnWorker,
+	WorkerRequestPayload,
+	WorkerResponsePayload,
+} from './worker/worker-types';
 
-const post = (worker: Worker, payload: WorkerPayload) => {
+const convertToWorkerPayload = (
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	payload: Omit<ParseMediaOptions<any>, 'controller'>,
+): ParseMediaOnWorker => {
+	const {onAudioCodec, ...others} = payload;
+
+	return {
+		type: 'request-worker',
+		payload: others,
+		postAudioCodec: Boolean(onAudioCodec),
+	};
+};
+
+const post = (worker: Worker, payload: WorkerRequestPayload) => {
 	worker.postMessage(payload);
 };
 
@@ -25,10 +42,7 @@ export const parseMediaOnWorker: ParseMedia = async <
 
 	const worker = new Worker(new URL('./worker-server', import.meta.url));
 
-	post(worker, {
-		type: 'request-worker',
-		payload: params,
-	});
+	post(worker, convertToWorkerPayload(params));
 
 	const {promise, resolve, reject} =
 		Promise.withResolvers<
@@ -48,7 +62,7 @@ export const parseMediaOnWorker: ParseMedia = async <
 	};
 
 	function onMessage(message: MessageEvent) {
-		const data = message.data as WorkerPayload;
+		const data = message.data as WorkerResponsePayload;
 		if (data.type === 'response-done') {
 			resolve(data.payload);
 		}
@@ -57,6 +71,21 @@ export const parseMediaOnWorker: ParseMedia = async <
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			cleanup();
 			reject(deserializeError(data));
+		}
+
+		if (data.type === 'response-on-callback-request') {
+			Promise.resolve()
+				.then(() => params.onAudioCodec?.(data.value))
+				.then(() => {
+					post(worker, {type: 'acknowledge-callback', nonce: data.nonce});
+				})
+				.catch((err) => {
+					reject(err);
+					post(worker, {
+						type: 'signal-error-in-callback',
+						nonce: data.nonce,
+					});
+				});
 		}
 	}
 
