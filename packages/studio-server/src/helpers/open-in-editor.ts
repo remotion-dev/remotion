@@ -32,7 +32,9 @@ const isVsCodeDerivative = (editor: Editor) => {
 		editor === 'VSCodium.exe' ||
 		editor === 'Code - Insiders.exe' ||
 		editor === 'cursor' ||
-		editor === 'Cursor.exe'
+		editor === 'Cursor.exe' ||
+		editor === 'windsurf' ||
+		editor === 'Windsurf.exe'
 	);
 };
 
@@ -108,6 +110,10 @@ const editorNames = [
 	'cursor',
 	'/Applications/Cursor.app/Contents/MacOS/Cursor',
 	'Cursor.exe',
+	'windsurf',
+	'/Applications/Windsurf.app/Contents/MacOS/Windsurf',
+	'Windsurf.exe',
+	'zed',
 ] as const;
 
 const displayNameForEditor: {[key in Editor]: string} = {
@@ -129,10 +135,12 @@ const displayNameForEditor: {[key in Editor]: string} = {
 		'Sublime Text',
 	'/Applications/WebStorm.app/Contents/MacOS/webstorm': 'WebStorm',
 	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'Cursor',
+	'/Applications/Windsurf.app/Contents/MacOS/Windsurf': 'Windsurf',
 	'Brackets.exe': 'Brackets',
 	'Code - Insiders.exe': 'VS Code Insiders',
 	'Code.exe': 'VS Code',
 	'Cursor.exe': 'Cursor',
+	'Windsurf.exe': 'Windsurf',
 	'VSCodium.exe': 'VS Codium',
 	'atom.exe': 'Atom',
 	'clion.exe': 'CLion',
@@ -158,6 +166,8 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	brackets: 'Brackets',
 	code: 'VS Code',
 	cursor: 'Cursor',
+	windsurf: 'Windsurf',
+	zed: 'Zed',
 	emacs: 'emacs',
 	goland: 'GoLand',
 	gvim: 'GVim',
@@ -214,6 +224,7 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 		'code-insiders',
 	'/Applications/VSCodium.app/Contents/MacOS/Electron': 'vscodium',
 	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'cursor',
+	'/Applications/Windsurf.app/Contents/MacOS/Electron': 'windsurf',
 	'/Applications/AppCode.app/Contents/MacOS/appcode':
 		'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion':
@@ -243,6 +254,8 @@ const COMMON_EDITORS_LINUX: Record<string, Editor> = {
 	code: 'code',
 	'code-insiders': 'code-insiders',
 	cursor: 'cursor',
+	windsurf: 'windsurf',
+	zed: 'zed',
 	vscodium: 'vscodium',
 	emacs: 'emacs',
 	gvim: 'gvim',
@@ -263,6 +276,7 @@ const COMMON_EDITORS_WIN: Editor[] = [
 	'Code - Insiders.exe',
 	'VSCodium.exe',
 	'Cursor.exe',
+	'Windsurf.exe',
 	'atom.exe',
 	'sublime_text.exe',
 	'notepad++.exe',
@@ -334,7 +348,11 @@ function getArgumentsForLineNumber(
 		case 'VSCodium':
 		case 'cursor':
 		case 'Cursor':
+		case 'windsurf':
+		case 'Windsurf':
 			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
+		case 'zed':
+			return ['--new', fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
 		case 'clion64':

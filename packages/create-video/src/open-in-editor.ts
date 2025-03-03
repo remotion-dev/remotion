@@ -29,7 +29,9 @@ export const isVsCodeDerivative = (editor: Editor) => {
 		editor === 'VSCodium.exe' ||
 		editor === 'Code - Insiders.exe' ||
 		editor === 'cursor' ||
-		editor === 'Cursor.exe'
+		editor === 'Cursor.exe' ||
+		editor === 'windsurf' ||
+		editor === 'Windsurf.exe'
 	);
 };
 
@@ -103,6 +105,11 @@ const editorNames = [
 	'rider.exe',
 	'rider64.exe',
 	'nano',
+	'windsurf',
+	'Windsurf.exe',
+	'Zed.exe',
+	'Cursor.exe',
+	'zed',
 ] as const;
 
 const displayNameForEditor: {[key in Editor]: string} = {
@@ -128,6 +135,8 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	'Code.exe': 'VS Code',
 	'VSCodium.exe': 'VS Codium',
 	'Cursor.exe': 'Cursor',
+	'Windsurf.exe': 'Windsurf',
+	'Zed.exe': 'Zed',
 	'atom.exe': 'Atom',
 	'clion.exe': 'CLion',
 	'clion64.exe': 'CLion',
@@ -154,6 +163,8 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	brackets: 'Brackets',
 	code: 'VS Code',
 	emacs: 'emacs',
+	windsurf: 'Windsurf',
+	zed: 'Zed',
 	gvim: 'GVim',
 	idea: 'IDEA',
 	mvim: 'mvim',
@@ -315,6 +326,8 @@ function getArgumentsForLineNumber(
 		case 'Code - Insiders':
 		case 'vscodium':
 		case 'VSCodium':
+		case 'Cursor.exe':
+		case 'cursor':
 			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
