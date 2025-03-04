@@ -34,18 +34,6 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
-		"./web-file": {
-			"types": "./dist/web-file.d.ts",
-			"require": "./dist/web-file.js",
-			"module": "./dist/esm/web-file.mjs",
-			"import": "./dist/esm/web-file.mjs"
-		},
-		"./fetch": {
-			"types": "./dist/fetch.d.ts",
-			"require": "./dist/fetch.js",
-			"module": "./dist/esm/fetch.mjs",
-			"import": "./dist/esm/fetch.mjs"
-		},
 		"./node": {
 			"types": "./dist/node.d.ts",
 			"require": "./dist/node.js",
@@ -85,12 +73,6 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"web-file": [
-				"dist/web-file.d.ts"
-			],
-			"fetch": [
-				"dist/fetch.d.ts"
-			],
 			"node": [
 				"dist/node.d.ts"
 			],

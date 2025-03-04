@@ -11,14 +11,6 @@ await buildPackage({
 			target: 'browser',
 		},
 		{
-			path: 'src/web-file.ts',
-			target: 'browser',
-		},
-		{
-			path: 'src/fetch.ts',
-			target: 'browser',
-		},
-		{
 			path: 'src/node.ts',
 			target: 'node',
 		},

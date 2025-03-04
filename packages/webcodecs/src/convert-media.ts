@@ -22,7 +22,7 @@ import {
 } from '@remotion/media-parser';
 
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
+import {webReader} from '@remotion/media-parser/web';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
@@ -268,7 +268,7 @@ export const convertMedia = async function <
 			...fields,
 			durationInSeconds: true,
 		},
-		reader: reader ?? fetchReader,
+		reader: reader ?? webReader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
 			if (durationInSeconds === null) {

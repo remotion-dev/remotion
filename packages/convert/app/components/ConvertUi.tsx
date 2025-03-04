@@ -13,8 +13,6 @@ import {
 	hasBeenAborted,
 	MediaParserInternals,
 } from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
 import type {
 	ConvertMediaContainer,
 	ResizeOperation,
@@ -192,7 +190,6 @@ const ConvertUI = ({
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,
