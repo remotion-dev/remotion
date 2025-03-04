@@ -7,13 +7,13 @@ import {getMetadataFromIsoBase} from './metadata-from-iso';
 import {getMetadataFromMatroska} from './metadata-from-matroska';
 import {getMetadataFromRiff} from './metadata-from-riff';
 
-export type MetadataEntry = {
+export type MediaParserMetadataEntry = {
 	key: string;
 	value: string | number;
 	trackId: number | null;
 };
 
-export const getMetadata = (state: ParserState): MetadataEntry[] => {
+export const getMetadata = (state: ParserState): MediaParserMetadataEntry[] => {
 	const structure = state.getStructure();
 	if (structure.type === 'matroska') {
 		return getMetadataFromMatroska(structure);

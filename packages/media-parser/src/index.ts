@@ -34,7 +34,7 @@ export type {
 	VideoTrack,
 	VideoTrackColorParams,
 } from './get-tracks';
-export type {MetadataEntry} from './metadata/get-metadata';
+export type {MediaParserMetadataEntry} from './metadata/get-metadata';
 export type {MediaParserKeyframe, ParseMediaSrc} from './options';
 export {parseMediaOnServerWorker} from './parse-media-on-server-worker';
 export {parseMediaOnWebWorker} from './parse-media-on-web-worker';

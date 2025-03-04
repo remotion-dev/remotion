@@ -9,7 +9,7 @@ import type {
 import type {Dimensions, ImageType} from '../errors';
 import type {MediaParserLocation} from '../get-location';
 import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
-import type {MetadataEntry} from '../metadata/get-metadata';
+import type {MediaParserMetadataEntry} from '../metadata/get-metadata';
 import type {
 	MediaParserContainer,
 	MediaParserKeyframe,
@@ -194,7 +194,7 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'metadata';
-			value: MetadataEntry[];
+			value: MediaParserMetadataEntry[];
 	  }
 	| {
 			callbackType: 'mime-type';

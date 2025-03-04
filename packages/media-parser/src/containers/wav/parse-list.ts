@@ -1,4 +1,4 @@
-import type {MetadataEntry} from '../../metadata/get-metadata';
+import type {MediaParserMetadataEntry} from '../../metadata/get-metadata';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {WavList} from './types';
@@ -18,7 +18,7 @@ export const parseList = ({
 		throw new Error(`Only supporting LIST INFO, but got ${type}`);
 	}
 
-	const metadata: MetadataEntry[] = [];
+	const metadata: MediaParserMetadataEntry[] = [];
 
 	const remainingBytes = () =>
 		ckSize - (iterator.counter.getOffset() - startOffset);

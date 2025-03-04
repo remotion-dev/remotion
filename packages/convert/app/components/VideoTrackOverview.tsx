@@ -2,7 +2,7 @@ import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
 	MediaParserKeyframe,
 	MediaParserLocation,
-	MetadataEntry,
+	MediaParserMetadataEntry,
 	VideoTrack,
 } from '@remotion/media-parser';
 import React from 'react';
@@ -12,7 +12,7 @@ import {MetadataDisplay} from './MetadataTable';
 
 export const VideoTrackOverview: React.FC<{
 	readonly track: VideoTrack;
-	readonly metadata: MetadataEntry[] | null;
+	readonly metadata: MediaParserMetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
 	readonly keyframes: MediaParserKeyframe[] | null;
 	readonly durationInSeconds: number | null;

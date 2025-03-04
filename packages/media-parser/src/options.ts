@@ -13,7 +13,7 @@ import type {
 } from './get-tracks';
 import type {LogLevel} from './log';
 import type {MediaParserController} from './media-parser-controller';
-import type {MetadataEntry} from './metadata/get-metadata';
+import type {MediaParserMetadataEntry} from './metadata/get-metadata';
 import type {
 	IsoBaseMediaStructure,
 	MediaParserStructureUnstable,
@@ -191,7 +191,7 @@ export type ParseMediaCallbacksMandatory = {
 	onIsHdr: null | ((isHdr: boolean) => unknown | Promise<unknown>);
 	onMetadata:
 		| null
-		| ((metadata: MetadataEntry[]) => unknown | Promise<unknown>);
+		| ((metadata: MediaParserMetadataEntry[]) => unknown | Promise<unknown>);
 	onLocation:
 		| null
 		| ((location: MediaParserLocation | null) => unknown | Promise<unknown>);
@@ -243,7 +243,7 @@ export interface ParseMediaData {
 	internalStats: InternalStats;
 	size: number | null;
 	name: string;
-	metadata: MetadataEntry[];
+	metadata: MediaParserMetadataEntry[];
 	location: MediaParserLocation | null;
 	container: MediaParserContainer;
 	mimeType: string | null;
