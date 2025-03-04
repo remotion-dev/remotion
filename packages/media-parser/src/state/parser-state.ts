@@ -22,7 +22,6 @@ import {flacState} from './flac-state';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
-import {eventLoopState} from './last-eventloop-break';
 import {m3uState} from './m3u-state';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
@@ -144,7 +143,6 @@ export const makeParserState = ({
 		iterator,
 		controller,
 		mode,
-		eventLoop: eventLoopState(logLevel),
 		src,
 		readerInterface,
 		discardReadBytes,
