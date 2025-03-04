@@ -11,9 +11,9 @@ crumb: '@remotion/media-parser'
 The API for getting video metadata is stable and may be used in production.
 :::
 
-A reader for `@remotion/media-parser` that reads from a URL using `fetch()`.  
+A [reader](/docs/media-parser/readers) for [`@remotion/media-parser`](/docs/media-parser) that reads from a URL using [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).  
 It works in the browser, Node.js and Bun.  
-This is the default reader for `@remotion/media-parser`, so you don't need to explicitly specify it.
+This is the default reader for [`@remotion/media-parser`](/docs/media-parser), so you don't need to explicitly specify it.
 
 ## Example
 
@@ -22,7 +22,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {fetchReader} from '@remotion/media-parser/fetch';
 
 const result = await parseMedia({
-  src: '/Users/jonnyburger/Downloads/my-video.mp4',
+  src: 'https://example.com/my-video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -30,3 +30,8 @@ const result = await parseMedia({
   reader: fetchReader,
 });
 ```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/fetch.ts)
+- [`parseMedia()`](/docs/media-parser/parse-media)

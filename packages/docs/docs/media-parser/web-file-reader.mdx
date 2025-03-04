@@ -11,7 +11,7 @@ crumb: '@remotion/media-parser'
 The API for getting video metadata is stable and may be used in production.
 :::
 
-A reader for `@remotion/media-parser` that reads from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File) object.  
+A [reader](/docs/media-parser/readers) for [`@remotion/media-parser`](/docs/media-parser) that reads from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File) object.  
 It only works in the browser.  
 Useful if you want to parse a video from a `<input type="file">` element.
 
@@ -37,3 +37,8 @@ const MyComp: React.FC = () => {
   return <input type="file" onChange={(e) => onFile(e.target.files?.[0]!)} />;
 };
 ```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/web-file.ts)
+- [`parseMedia()`](/docs/media-parser/parse-media)

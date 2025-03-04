@@ -40,6 +40,10 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<strong>Extract ID3 tags and EXIF data</strong>
 					<div>Get embedded tags from video files</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/workers">
+					<strong>Parsing on Web Workers</strong>
+					<div>Parse a media file in the browser on a separate thread.</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/download-and-parse">
 					<strong>Download and parse</strong>
 					<div>Download a media file to disk and parse it simultaneously</div>
@@ -87,6 +91,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'mediaParserController()'}</strong>
 					<div>Pause, resume and abort the parsing.</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/has-been-aborted">
+					<strong>{'hasBeenAborted()'}</strong>
+					<div>Determine from an error if the parsing has been aborted.</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
@@ -103,7 +111,7 @@ export const ReadersTableOfContents: React.FC = () => {
 				<TOCItem link="/docs/media-parser/fetch-reader">
 					<strong>{'fetchReader'}</strong>
 					<div>
-						Read a file using <code>fetch()</code>.
+						Read a file from a URL using <code>fetch()</code>.
 					</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/web-file-reader">
@@ -114,11 +122,16 @@ export const ReadersTableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/web-reader">
 					<strong>{'webReader'}</strong>
-					<div>Read a file from the web.</div>
+					<div>
+						Read a file from a <code>File</code> or from a URL.
+					</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/universal-reader">
 					<strong>{'universalReader'}</strong>
-					<div>Read a file from the local file system, web or Node.</div>
+					<div>
+						Read a file from a <code>File</code>, from a URL or from the local
+						file system
+					</div>
 				</TOCItem>
 			</Grid>
 		</div>

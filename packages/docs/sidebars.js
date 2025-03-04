@@ -938,6 +938,7 @@ module.exports = {
 				'media-parser/fast-and-slow',
 				'media-parser/tags',
 				'media-parser/download-and-parse',
+				'media-parser/workers',
 				'media-parser/format-support',
 				'media-parser/runtime-support',
 				'media-parser/pause-resume-abort',

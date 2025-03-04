@@ -18,7 +18,7 @@ This API abstracts the communication between the main thread and the worker with
 
 The only difference in API is that the [`reader`](/docs/media-parser/parse-media#reader) option is not available. This is because you cannot pass a function to a Web Worker.
 
-```tsx twoslash title="Parsing a hosted video"
+```tsx twoslash title="Parsing a video on a Web Worker"
 import {parseMediaOnWebWorker} from '@remotion/media-parser';
 
 const result = await parseMediaOnWebWorker({
