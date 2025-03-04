@@ -20,7 +20,6 @@ export {
 	hasBeenAborted,
 	IsAGifError,
 	IsAnImageError,
-	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 	MediaParserAbortError,
@@ -35,13 +34,16 @@ export type {
 	VideoTrack,
 	VideoTrackColorParams,
 } from './get-tracks';
-export type {MetadataEntry} from './metadata/get-metadata';
+export type {MediaParserMetadataEntry} from './metadata/get-metadata';
 export type {MediaParserKeyframe, ParseMediaSrc} from './options';
+export {parseMediaOnServerWorker} from './parse-media-on-server-worker';
+export {parseMediaOnWebWorker} from './parse-media-on-web-worker';
 export type {MediaParserEmbeddedImage} from './state/images';
 
 export {downloadAndParseMedia} from './download-and-parse-media';
 export type {
 	MediaParserContainer,
+	MediaParserTracks,
 	Options,
 	ParseMediaCallbacks,
 	ParseMediaFields,
@@ -49,7 +51,6 @@ export type {
 	ParseMediaOptions,
 	ParseMediaProgress,
 	ParseMediaResult,
-	TracksField,
 } from './options';
 export {parseMedia} from './parse-media';
 export type {
@@ -92,6 +93,7 @@ export type {
 	TrackEntry,
 	UintWithSize,
 } from './containers/webm/segments/all-segments';
+export {MediaParserStructureUnstable} from './parse-result';
 export type {LogLevel};
 
 export {M3uAssociatedPlaylist, M3uStream} from './containers/m3u/get-streams';

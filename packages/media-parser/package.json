@@ -34,44 +34,62 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
-		"./web-file": {
-			"types": "./dist/web-file.d.ts",
-			"require": "./dist/web-file.js",
-			"module": "./dist/esm/web-file.mjs",
-			"import": "./dist/esm/web-file.mjs"
-		},
-		"./fetch": {
-			"types": "./dist/fetch.d.ts",
-			"require": "./dist/fetch.js",
-			"module": "./dist/esm/fetch.mjs",
-			"import": "./dist/esm/fetch.mjs"
-		},
 		"./node": {
 			"types": "./dist/node.d.ts",
 			"require": "./dist/node.js",
 			"module": "./dist/esm/node.mjs",
 			"import": "./dist/esm/node.mjs"
 		},
+		"./web": {
+			"types": "./dist/web.d.ts",
+			"require": "./dist/web.js",
+			"module": "./dist/esm/web.mjs",
+			"import": "./dist/esm/web.mjs"
+		},
+		"./universal": {
+			"types": "./dist/universal.d.ts",
+			"require": "./dist/universal.js",
+			"module": "./dist/esm/universal.mjs",
+			"import": "./dist/esm/universal.mjs"
+		},
 		"./node-writer": {
 			"types": "./dist/node-writer.d.ts",
 			"require": "./dist/node-writer.js",
 			"module": "./dist/esm/node-writer.mjs",
 			"import": "./dist/esm/node-writer.mjs"
+		},
+		"./worker-web-entry": {
+			"types": "./dist/worker-web-entry.d.ts",
+			"require": "./dist/worker-web-entry.js",
+			"module": "./dist/esm/worker-web-entry.mjs",
+			"import": "./dist/esm/worker-web-entry.mjs"
+		},
+		"./worker-server-entry": {
+			"types": "./dist/worker-server-entry.d.ts",
+			"require": "./dist/worker-server-entry.js",
+			"module": "./dist/esm/worker-server-entry.mjs",
+			"import": "./dist/esm/worker-server-entry.mjs"
 		}
 	},
 	"typesVersions": {
 		">=1.0": {
-			"web-file": [
-				"dist/web-file.d.ts"
-			],
-			"fetch": [
-				"dist/fetch.d.ts"
-			],
 			"node": [
 				"dist/node.d.ts"
 			],
+			"web": [
+				"dist/web.d.ts"
+			],
+			"universal": [
+				"dist/universal.d.ts"
+			],
 			"node-writer": [
 				"dist/node-writer.d.ts"
+			],
+			"worker-web-entry": [
+				"dist/worker-web-entry.d.ts"
+			],
+			"worker-server-entry": [
+				"dist/worker-server-entry.d.ts"
 			]
 		}
 	},

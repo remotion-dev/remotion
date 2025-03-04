@@ -8,15 +8,23 @@ export type OnVideoSample = (
 	sample: AudioOrVideoSample,
 ) => void | Promise<void>;
 
-export type OnAudioTrack = (options: {
+export type OnAudioTrackParams = {
 	track: AudioTrack;
 	container: MediaParserContainer;
-}) => OnAudioSample | Promise<OnAudioSample | null> | null;
+};
 
-export type OnVideoTrack = (options: {
+export type OnAudioTrack = (
+	options: OnAudioTrackParams,
+) => OnAudioSample | Promise<OnAudioSample | null> | null;
+
+export type OnVideoTrackParams = {
 	track: VideoTrack;
 	container: MediaParserContainer;
-}) => OnVideoSample | Promise<OnVideoSample | null> | null;
+};
+
+export type OnVideoTrack = (
+	options: OnVideoTrackParams,
+) => OnVideoSample | Promise<OnVideoSample | null> | null;
 
 export type AudioOrVideoSample = {
 	data: Uint8Array;

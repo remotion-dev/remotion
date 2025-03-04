@@ -1,4 +1,4 @@
-import type {MetadataEntry} from '../../metadata/get-metadata';
+import type {MediaParserMetadataEntry} from '../../metadata/get-metadata';
 
 export type WavHeader = {
 	type: 'wav-header';
@@ -16,7 +16,7 @@ export type WavFmt = {
 
 export type WavList = {
 	type: 'wav-list';
-	metadata: MetadataEntry[];
+	metadata: MediaParserMetadataEntry[];
 };
 
 export type WavId3 = {

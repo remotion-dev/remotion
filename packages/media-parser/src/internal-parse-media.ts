@@ -224,8 +224,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 			await fetchMoreData();
 		}
 
-		await state.eventLoop.eventLoopBreakIfNeeded();
-
 		timeReadingData += Date.now() - readStart;
 
 		throttledState.update?.(() => ({

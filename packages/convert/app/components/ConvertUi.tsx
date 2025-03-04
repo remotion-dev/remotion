@@ -5,16 +5,14 @@ import type {
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserTracks,
 	MediaParserVideoCodec,
-	TracksField,
 } from '@remotion/media-parser';
 import {
 	defaultSelectM3uAssociatedPlaylists,
 	hasBeenAborted,
 	MediaParserInternals,
 } from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
 import type {
 	ConvertMediaContainer,
 	ResizeOperation,
@@ -82,7 +80,7 @@ const ConvertUI = ({
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
-	readonly tracks: TracksField | null;
+	readonly tracks: MediaParserTracks | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
@@ -192,7 +190,6 @@ const ConvertUI = ({
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,

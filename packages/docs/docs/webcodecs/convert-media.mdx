@@ -37,15 +37,9 @@ await convertMedia({
 
 ### `src`
 
-A `string` or `File` or `Blob`.  
-If it is a `string`, it must be a URL.  
-If it is a `File`, the `reader` field must be set to [`webFileReader`](/docs/media-parser/web-file-reader).
+A URL or `File`/`Blob`, or a local file path.
 
-### `reader`
-
-A reader interface.  
-Default value: [`fetchReader`](/docs/media-parser/fetch-reader), which uses `fetch()` to read the video.  
-If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+If passing a local file, tracks can only be copied, and the [`reader`](#reader) field must be set to [`nodeReader`](/docs/media-parser/node-reader).
 
 ### `container`
 
@@ -72,6 +66,12 @@ If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this
 ### `controller?`
 
 A [controller](/docs/webcodecs/webcodecs-controller) object that allows you to pause, resume and abort the conversion process.
+
+### `reader?`
+
+A [reader](/docs/media-parser/readers) interface.
+
+Default value: `webReader`, which allows URLs and `File` objects.
 
 ### `rotate?`
 

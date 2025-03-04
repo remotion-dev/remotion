@@ -54,9 +54,9 @@ The API for getting video metadata is stable and may be used in production.
 
 ### `src`
 
-Either a local file path, or a URL, or a `File` or `Blob` object.  
-If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.  
-If you pass a `File` object, you must also pass [`webFileReader`](/docs/media-parser/web-file-reader) as the `reader` argument.
+Either a local file path, or a URL, or a `File` or `Blob` object.
+
+If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.
 
 ### `fields?`
 
@@ -67,10 +67,9 @@ See [Available Fields](/docs/media-parser/fields) for a list of available fields
 
 ### `reader?`
 
-A reader interface.  
-Default value: `fetchReader`, which uses `fetch()` to read the video.  
-If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
-If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+A [reader](/docs/media-parser/readers) interface.
+
+If you pass [`nodeReader`](/docs/media-parser/node-reader), you must pass a local file path as the `src` argument.
 
 ### `controller?`
 

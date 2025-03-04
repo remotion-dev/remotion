@@ -1,4 +1,4 @@
-import type {MetadataEntry} from '../../metadata/get-metadata';
+import type {MediaParserMetadataEntry} from '../../metadata/get-metadata';
 
 export type FlacHeader = {
 	type: 'flac-header';
@@ -18,7 +18,7 @@ export type FlacStreamInfo = {
 
 export type FlacVorbisComment = {
 	type: 'flac-vorbis-comment';
-	fields: MetadataEntry[];
+	fields: MediaParserMetadataEntry[];
 };
 
 export type FlacUnknownBlock = {

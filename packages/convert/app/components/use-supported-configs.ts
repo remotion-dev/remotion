@@ -1,4 +1,7 @@
-import type {MediaParserContainer, TracksField} from '@remotion/media-parser';
+import type {
+	MediaParserContainer,
+	MediaParserTracks,
+} from '@remotion/media-parser';
 import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
 import {useEffect, useState} from 'react';
 import type {RouteAction} from '~/seo';
@@ -14,7 +17,7 @@ export const useSupportedConfigs = ({
 	resizeOperation,
 }: {
 	outputContainer: ConvertMediaContainer;
-	tracks: TracksField | null;
+	tracks: MediaParserTracks | null;
 	action: RouteAction;
 	userRotation: number;
 	resizeOperation: ResizeOperation | null;

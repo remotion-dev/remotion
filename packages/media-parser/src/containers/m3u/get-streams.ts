@@ -1,6 +1,6 @@
 import type {Dimensions} from '../../get-dimensions';
 import type {ParseMediaSrc} from '../../options';
-import type {Structure} from '../../parse-result';
+import type {MediaParserStructureUnstable} from '../../parse-result';
 import type {ReaderInterface} from '../../readers/reader';
 import type {ParserState} from '../../state/parser-state';
 import type {M3uMediaInfo} from './types';
@@ -26,7 +26,9 @@ export type M3uStream = {
 	associatedPlaylists: M3uAssociatedPlaylist[];
 };
 
-export const isIndependentSegments = (structure: Structure | null): boolean => {
+export const isIndependentSegments = (
+	structure: MediaParserStructureUnstable | null,
+): boolean => {
 	if (structure === null || structure.type !== 'm3u') {
 		return false;
 	}
@@ -42,7 +44,7 @@ export const getM3uStreams = ({
 	originalSrc,
 	readerInterface,
 }: {
-	structure: Structure | null;
+	structure: MediaParserStructureUnstable | null;
 	originalSrc: ParseMediaSrc;
 	readerInterface: ReaderInterface;
 }): M3uStream[] | null => {
