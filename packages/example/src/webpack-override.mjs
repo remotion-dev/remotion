@@ -31,6 +31,7 @@ const aliases = {
 	'@remotion/skia': resolveCwd('@remotion/skia'),
 	'@remotion/three': resolveCwd('@remotion/three'),
 	'@remotion/webcodecs': resolveCwd('@remotion/webcodecs'),
+	'@remotion/media-parser/web': resolveCwd('@remotion/media-parser/web'),
 	'@remotion/media-parser': resolveCwd('@remotion/media-parser'),
 	'@remotion/transitions/fade': resolveCwd('@remotion/transitions/fade'),
 	'@remotion/transitions/slide': resolveCwd('@remotion/transitions/slide'),

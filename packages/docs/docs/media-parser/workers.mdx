@@ -16,7 +16,7 @@ Parsing using [`parseMedia()`](/docs/media-parser/parse-media) will block the ma
 
 You can run the parse on a [`Worker`](https://developer.mozilla.org/en-US/docs/Web/API/Worker) instead of on the main thread using [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker).
 
-The API takes care of exchanging messages between the main thread and the Web Worker, so that [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) can be used as a drop-in replacement for [`parseMedia()`](/docs/parse-media).
+The API takes care of exchanging messages between the main thread and the Web Worker, so that [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) can be used as a drop-in replacement for [`parseMedia()`](/docs/media-parse/parse-media).
 
 ## Example
 
@@ -38,7 +38,7 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 ## Parsing on the server using a worker
 
 [Bun](https://bun.sh) also implements the [`Worker`](https://developer.mozilla.org/en-US/docs/Web/API/Worker) object.  
-To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/server-worker) API.
+To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) API.
 
 ```tsx twoslash title="Parsing a video on a Web Worker on Bun"
 import {parseMediaOnServerWorker} from '@remotion/media-parser';
