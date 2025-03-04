@@ -30,7 +30,14 @@ const executeCallback = (payload: ResponseCallbackPayload) => {
 		const data = msg.data as WorkerRequestPayload;
 		if (data.type === 'acknowledge-callback' && data.nonce === nonce) {
 			const {nonce: _, ...pay} = data;
-			resolve(pay);
+			controller._internals
+				.checkForAbortAndPause()
+				.then(() => {
+					resolve(pay);
+				})
+				.catch((err) => {
+					reject(err);
+				});
 			removeEventListener('message', cb);
 		}
 
