@@ -108,18 +108,6 @@ export const ReadersTableOfContents: React.FC = () => {
 					<strong>{'nodeReader'}</strong>
 					<div>Read a file from the local file system.</div>
 				</TOCItem>
-				<TOCItem link="/docs/media-parser/fetch-reader">
-					<strong>{'fetchReader'}</strong>
-					<div>
-						Read a file from a URL using <code>fetch()</code>.
-					</div>
-				</TOCItem>
-				<TOCItem link="/docs/media-parser/web-file-reader">
-					<strong>{'webFileReader'}</strong>
-					<div>
-						Read a file from <code>&lt;input type=&quot;file&quot;&gt;</code>.
-					</div>
-				</TOCItem>
 				<TOCItem link="/docs/media-parser/web-reader">
 					<strong>{'webReader'}</strong>
 					<div>

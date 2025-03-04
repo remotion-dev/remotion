@@ -213,7 +213,7 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/media-parser/metadata',
+					href: '/docs/media-parser',
 					label: 'Guide',
 				},
 				'media-parser/parse-media',
@@ -223,10 +223,8 @@ module.exports = {
 				'media-parser/parse-media-on-server-worker',
 				'media-parser/has-been-aborted',
 				'media-parser/node-reader',
-				'media-parser/fetch-reader',
 				'media-parser/web-reader',
 				'media-parser/universal-reader',
-				'media-parser/web-file-reader',
 				'media-parser/node-writer',
 			],
 		},
@@ -603,7 +601,7 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/webcodecs/convert-a-video',
+					href: '/docs/webcodecs',
 					label: 'Guide',
 				},
 				'webcodecs/convert-media',
