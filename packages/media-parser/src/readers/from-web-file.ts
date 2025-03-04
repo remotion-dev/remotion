@@ -62,8 +62,8 @@ export const webFileReadContent: ReadContent = ({src, range, controller}) => {
 			});
 		};
 
-		reader.onerror = (error) => {
-			reject(error);
+		reader.onerror = () => {
+			reject(reader.error);
 		};
 	});
 };
