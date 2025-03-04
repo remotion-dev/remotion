@@ -1,10 +1,8 @@
 import type {LogLevel} from '@remotion/media-parser';
 import {
 	mediaParserController,
-	parseMediaOnWorker,
+	parseMediaOnBrowserWorker,
 } from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';
@@ -39,9 +37,8 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
-		parseMediaOnWorker({
+		parseMediaOnBrowserWorker({
 			controller,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
 			onDurationInSeconds: (dur) => {

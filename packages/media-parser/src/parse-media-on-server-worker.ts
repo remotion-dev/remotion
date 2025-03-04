@@ -1,19 +1,19 @@
 import type {
 	Options,
+	ParseMedia,
 	ParseMediaFields,
-	ParseMediaOnWorker,
-	ParseMediaOnWorkerOptions,
+	ParseMediaOptions,
 } from './options';
 import {parseMediaOnWorkerImplementation} from './parse-media-on-worker-entry';
 
-export const parseMediaOnBrowserWorker: ParseMediaOnWorker = <
+export const parseMediaOnServerWorker: ParseMedia = <
 	F extends Options<ParseMediaFields>,
 >(
-	params: ParseMediaOnWorkerOptions<F>,
+	params: ParseMediaOptions<F>,
 ) => {
 	return parseMediaOnWorkerImplementation(
 		params,
-		new URL('./worker-web-entry', import.meta.url),
-		'parseMediaOnBrowserWorker',
+		new URL('./worker-server-entry', import.meta.url),
+		'parseMediaOnServerWorker',
 	);
 };

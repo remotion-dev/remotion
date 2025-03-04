@@ -12,21 +12,21 @@ import type {ReaderInterface} from './reader';
 
 export const webReader: ReaderInterface = {
 	read: (params) => {
-		if (params.src instanceof File) {
+		if (params.src instanceof Blob) {
 			return webFileReadContent(params);
 		}
 
 		return fetchReadContent(params);
 	},
 	createAdjacentFileSource: (relativePath, src) => {
-		if (src instanceof File) {
+		if (src instanceof Blob) {
 			return webFileCreateAdjacentFileSource(relativePath, src);
 		}
 
 		return fetchCreateAdjacentFileSource(relativePath, src);
 	},
 	readWholeAsText: (src) => {
-		if (src instanceof File) {
+		if (src instanceof Blob) {
 			return webFileReadWholeAsText(src);
 		}
 

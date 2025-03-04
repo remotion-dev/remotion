@@ -9,7 +9,7 @@ import {forwardMediaParserControllerToWorker} from './worker/forward-controller'
 import {serializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
-	ParseMediaOnWorker,
+	ParseMediaOnWorkerPayload,
 	ResponseCallbackPayload,
 	WorkerRequestPayload,
 	WorkerResponsePayload,
@@ -21,7 +21,7 @@ const post = (message: WorkerResponsePayload) => {
 
 const controller = mediaParserController();
 
-const executeCallback = async (payload: ResponseCallbackPayload) => {
+const executeCallback = (payload: ResponseCallbackPayload) => {
 	const nonce = crypto.randomUUID();
 	const {promise, resolve, reject} =
 		Promise.withResolvers<AcknowledgePayload>();
@@ -51,17 +51,17 @@ const executeCallback = async (payload: ResponseCallbackPayload) => {
 };
 
 const startParsing = async (
-	message: ParseMediaOnWorker,
+	message: ParseMediaOnWorkerPayload,
 	reader: ReaderInterface,
 ) => {
+	const {payload, src} = message;
 	const {
-		src,
 		fields,
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
 		progressIntervalInMs,
 		mp4HeaderSegment,
-	} = message.payload;
+	} = payload;
 
 	const {
 		postAudioCodec,

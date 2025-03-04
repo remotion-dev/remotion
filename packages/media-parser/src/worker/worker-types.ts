@@ -16,9 +16,10 @@ import type {
 	MediaParserTracks,
 	Options,
 	ParseMediaFields,
-	ParseMediaOptionsWithoutCallbacks,
 	ParseMediaProgress,
 	ParseMediaResult,
+	ParseMediaSrc,
+	SerializeableOptionalParseMediaParams,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
 import type {MediaParserEmbeddedImage} from '../state/images';
@@ -29,15 +30,11 @@ import type {
 	OnVideoTrackParams,
 } from '../webcodec-sample-types';
 
-export type ParseMediaOnWorker = {
+export type ParseMediaOnWorkerPayload = {
 	type: 'request-worker';
-	payload: Omit<
-		ParseMediaOptionsWithoutCallbacks<Options<ParseMediaFields>>,
-		| 'worker'
-		| 'onParseProgress'
-		| 'selectM3uStream'
-		| 'selectM3uAssociatedPlaylists'
-		| 'reader'
+	src: ParseMediaSrc;
+	payload: Partial<
+		SerializeableOptionalParseMediaParams<Options<ParseMediaFields>>
 	>;
 	postAudioCodec: boolean;
 	postContainer: boolean;
@@ -331,7 +328,7 @@ export type SignalErrorInCallback = {
 };
 
 export type WorkerRequestPayload =
-	| ParseMediaOnWorker
+	| ParseMediaOnWorkerPayload
 	| RequestResume
 	| RequestPause
 	| RequestAbort

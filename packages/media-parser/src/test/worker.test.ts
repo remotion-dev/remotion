@@ -1,10 +1,12 @@
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {hasBeenAborted, IsAnImageError} from '../errors';
 import {mediaParserController} from '../media-parser-controller';
-import {parseMediaOnWorker} from '../parse-media-on-worker';
+import {parseMediaOnServerWorker} from '../parse-media-on-server-worker';
+import {parseMediaOnBrowserWorker} from '../parse-media-on-worker';
 
 test('worker should work', async () => {
-	const {audioCodec} = await parseMediaOnWorker({
+	const {audioCodec} = await parseMediaOnServerWorker({
 		src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
 		fields: {
 			audioCodec: true,
@@ -17,7 +19,7 @@ test('worker should work', async () => {
 
 test('worker should throw error as normal', () => {
 	expect(() =>
-		parseMediaOnWorker({
+		parseMediaOnBrowserWorker({
 			src: 'wrongurl',
 			fields: {
 				audioCodec: true,
@@ -35,7 +37,7 @@ test('hasBeenAborted() should still work', async () => {
 	}, 100);
 
 	try {
-		await parseMediaOnWorker({
+		await parseMediaOnServerWorker({
 			src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
 			fields: {
 				structure: true,
@@ -55,8 +57,8 @@ test('hasBeenAborted() should still work', async () => {
 
 test('Custom errors should still work', async () => {
 	try {
-		await parseMediaOnWorker({
-			src: 'https://avatars.githubusercontent.com/u/1629785?v=4',
+		await parseMediaOnServerWorker({
+			src: exampleVideos.png,
 			fields: {
 				dimensions: true,
 			},
@@ -73,7 +75,7 @@ test('Custom errors should still work', async () => {
 
 test('onAudioCodec() callback should still work', async () => {
 	let called = false;
-	await parseMediaOnWorker({
+	await parseMediaOnServerWorker({
 		src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
 		acknowledgeRemotionLicense: true,
 		onAudioCodec: (audioCodec) => {
@@ -86,7 +88,7 @@ test('onAudioCodec() callback should still work', async () => {
 
 test('should do something smart when throwing inside a callback', async () => {
 	try {
-		await parseMediaOnWorker({
+		await parseMediaOnServerWorker({
 			src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
 			acknowledgeRemotionLicense: true,
 			onAudioCodec: () => {
@@ -108,7 +110,7 @@ test('should get samples and be able to select stuff', async () => {
 	const controller = mediaParserController();
 
 	try {
-		await parseMediaOnWorker({
+		await parseMediaOnServerWorker({
 			src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
 			fields: {
 				dimensions: true,

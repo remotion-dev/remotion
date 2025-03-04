@@ -154,7 +154,7 @@ export type MediaParserKeyframe = {
 	trackId: number;
 };
 
-export type MandatoryParseMediaCallbacks = {
+export type ParseMediaCallbacksMandatory = {
 	onDimensions:
 		| null
 		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
@@ -225,7 +225,7 @@ export type MandatoryParseMediaCallbacks = {
 		| ((streams: M3uStream[] | null) => unknown | Promise<unknown>);
 };
 
-export type ParseMediaCallbacks = Partial<MandatoryParseMediaCallbacks>;
+export type ParseMediaCallbacks = Partial<ParseMediaCallbacksMandatory>;
 
 export interface ParseMediaData {
 	dimensions: Dimensions | null;
@@ -276,18 +276,27 @@ export type ParseMediaOnProgress = (
 	progress: ParseMediaProgress,
 ) => void | Promise<void>;
 
-type OptionalParseMediaParams<F extends Options<ParseMediaFields>> = {
+type ReaderParams = {
 	reader: ReaderInterface;
-	controller: MediaParserController | undefined;
+};
+
+export type SerializeableOptionalParseMediaParams<
+	F extends Options<ParseMediaFields>,
+> = {
 	logLevel: LogLevel;
-	onParseProgress: ParseMediaOnProgress | null;
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
-	selectM3uStream: SelectM3uStreamFn;
-	selectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 };
+
+type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =
+	SerializeableOptionalParseMediaParams<F> & {
+		controller: MediaParserController | undefined;
+		onParseProgress: ParseMediaOnProgress | null;
+		selectM3uStream: SelectM3uStreamFn;
+		selectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn;
+	};
 
 type ParseMediaSampleCallbacks = {
 	onAudioTrack: OnAudioTrack | null;
@@ -312,36 +321,46 @@ export type ParseMediaOnError = (
 	error: Error,
 ) => ContinueAfterError | Promise<ContinueAfterError>;
 
-export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> = {
-	src: ParseMediaSrc;
-} & OptionalParseMediaParams<F> &
-	MandatoryParseMediaCallbacks &
-	ParseMediaSampleCallbacks & {
-		onDiscardedData: OnDiscardedData | null;
-		mode: ParseMediaMode;
-		onError: ParseMediaOnError;
-		apiName: string;
-	};
+type InternalOptions = {
+	onDiscardedData: OnDiscardedData | null;
+	mode: ParseMediaMode;
+	onError: ParseMediaOnError;
+	apiName: string;
+};
 
-export type ParseMediaOptionsWithoutCallbacks<
-	F extends Options<ParseMediaFields>,
-> = {
+export type ParseMediaMandatoryOptions = {
 	src: ParseMediaSrc;
-} & Partial<OptionalParseMediaParams<F>>;
+};
 
-export type ParseMediaOptions<F extends Options<ParseMediaFields>> =
-	ParseMediaOptionsWithoutCallbacks<F> &
-		Partial<MandatoryParseMediaCallbacks> &
+type DownloadOptions = {
+	writer: WriterInterface;
+	onError?: ParseMediaOnError;
+};
+
+export type InternalParseMediaOptions<F extends Options<ParseMediaFields>> =
+	ParseMediaMandatoryOptions &
+		OptionalParseMediaParams<F> &
+		ReaderParams &
+		ParseMediaCallbacks &
+		ParseMediaSampleCallbacks &
+		InternalOptions;
+
+export type ParseMediaOnWorkerOptions<F extends Options<ParseMediaFields>> =
+	ParseMediaMandatoryOptions &
+		Partial<OptionalParseMediaParams<F>> &
+		Partial<ParseMediaCallbacks> &
 		Partial<ParseMediaSampleCallbacks>;
 
+export type ParseMediaOptions<F extends Options<ParseMediaFields>> =
+	ParseMediaOnWorkerOptions<F> & Partial<ReaderParams>;
+
 export type DownloadAndParseMediaOptions<F extends Options<ParseMediaFields>> =
-	{
-		src: ParseMediaSrc;
-	} & Partial<OptionalParseMediaParams<F>> &
-		Partial<MandatoryParseMediaCallbacks> & {
-			writer: WriterInterface;
-			onError?: ParseMediaOnError;
-		};
+	ParseMediaMandatoryOptions &
+		DownloadOptions &
+		Partial<OptionalParseMediaParams<F>> &
+		Partial<ReaderParams> &
+		Partial<ParseMediaCallbacks> &
+		Partial<ParseMediaSampleCallbacks>;
 
 export type InternalParseMedia = <F extends Options<ParseMediaFields>>(
 	options: InternalParseMediaOptions<F>,
@@ -349,6 +368,10 @@ export type InternalParseMedia = <F extends Options<ParseMediaFields>>(
 
 export type ParseMedia = <F extends Options<ParseMediaFields>>(
 	options: ParseMediaOptions<F>,
+) => Promise<ParseMediaResult<F>>;
+
+export type ParseMediaOnWorker = <F extends Options<ParseMediaFields>>(
+	options: ParseMediaOnWorkerOptions<F>,
 ) => Promise<ParseMediaResult<F>>;
 
 export type DownloadAndParseMedia = <F extends Options<ParseMediaFields>>(
