@@ -2,9 +2,9 @@ import {
 	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
 } from './containers/m3u/select-stream';
-import {fetchReader} from './fetch';
 import {internalParseMedia} from './internal-parse-media';
 import {mediaParserController} from './media-parser-controller';
+import type {ReaderInterface} from './readers/reader';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
 import {serializeError} from './worker/serialize-error';
 import type {
@@ -50,7 +50,10 @@ const executeCallback = async (payload: ResponseCallbackPayload) => {
 	return promise;
 };
 
-const startParsing = async (message: ParseMediaOnWorker) => {
+const startParsing = async (
+	message: ParseMediaOnWorker,
+	reader: ReaderInterface,
+) => {
 	const {
 		src,
 		fields,
@@ -101,8 +104,7 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 	try {
 		const ret = await internalParseMedia({
 			src,
-			// TODO: Reader should be dynamic
-			reader: fetchReader,
+			reader,
 			acknowledgeRemotionLicense: Boolean(acknowledgeRemotionLicense),
 			onError: () => ({action: 'fail'}),
 			logLevel,
@@ -432,11 +434,14 @@ const startParsing = async (message: ParseMediaOnWorker) => {
 
 const onMessageForWorker = forwardMediaParserControllerToWorker(controller);
 
-addEventListener('message', (message) => {
+export const messageHandler = (
+	message: MessageEvent,
+	readerInterface: ReaderInterface,
+) => {
 	const data = message.data as WorkerRequestPayload;
 
 	if (data.type === 'request-worker') {
-		startParsing(data);
+		startParsing(data, readerInterface);
 		return;
 	}
 
@@ -450,4 +455,4 @@ addEventListener('message', (message) => {
 	}
 
 	onMessageForWorker(data);
-});
+};

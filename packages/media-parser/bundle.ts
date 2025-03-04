@@ -23,6 +23,10 @@ await buildPackage({
 			target: 'node',
 		},
 		{
+			path: 'src/web.ts',
+			target: 'browser',
+		},
+		{
 			path: 'src/node-writer.ts',
 			target: 'node',
 		},

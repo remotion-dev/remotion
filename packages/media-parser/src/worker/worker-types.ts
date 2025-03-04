@@ -37,6 +37,7 @@ export type ParseMediaOnWorker = {
 		| 'onParseProgress'
 		| 'selectM3uStream'
 		| 'selectM3uAssociatedPlaylists'
+		| 'reader'
 	>;
 	postAudioCodec: boolean;
 	postContainer: boolean;

@@ -38,7 +38,6 @@ const convertToWorkerPayload = (
 		onMimeType,
 		onName,
 		onNumberOfAudioChannels,
-		// TODO: Callback functions
 		onParseProgress,
 		onRotation,
 		onSampleRate,
