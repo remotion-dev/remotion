@@ -1,7 +1,7 @@
 import type {LogLevel} from '@remotion/media-parser';
 import {
 	mediaParserController,
-	parseMediaOnBrowserWorker,
+	parseMediaOnWebWorker,
 } from '@remotion/media-parser';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
@@ -37,7 +37,7 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
-		parseMediaOnBrowserWorker({
+		parseMediaOnWebWorker({
 			controller,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,

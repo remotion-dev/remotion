@@ -3,7 +3,7 @@ import {expect, test} from 'bun:test';
 import {hasBeenAborted, IsAnImageError} from '../errors';
 import {mediaParserController} from '../media-parser-controller';
 import {parseMediaOnServerWorker} from '../parse-media-on-server-worker';
-import {parseMediaOnBrowserWorker} from '../parse-media-on-worker';
+import {parseMediaOnWebWorker} from '../parse-media-on-web-worker';
 
 test('worker should work', async () => {
 	const {audioCodec} = await parseMediaOnServerWorker({
@@ -19,7 +19,7 @@ test('worker should work', async () => {
 
 test('worker should throw error as normal', () => {
 	expect(() =>
-		parseMediaOnBrowserWorker({
+		parseMediaOnWebWorker({
 			src: 'wrongurl',
 			fields: {
 				audioCodec: true,

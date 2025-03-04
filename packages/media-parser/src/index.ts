@@ -37,7 +37,7 @@ export type {
 export type {MetadataEntry} from './metadata/get-metadata';
 export type {MediaParserKeyframe, ParseMediaSrc} from './options';
 export {parseMediaOnServerWorker} from './parse-media-on-server-worker';
-export {parseMediaOnBrowserWorker} from './parse-media-on-worker';
+export {parseMediaOnWebWorker} from './parse-media-on-web-worker';
 export type {MediaParserEmbeddedImage} from './state/images';
 
 export {downloadAndParseMedia} from './download-and-parse-media';
