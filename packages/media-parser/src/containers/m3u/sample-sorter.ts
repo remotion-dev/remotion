@@ -28,6 +28,12 @@ export const sampleSorter = ({
 		addAudioStreamToConsider: (src: string, callback: OnAudioSample) => {
 			audioCallbacks[src] = callback;
 		},
+		hasAudioStreamToConsider: (src: string) => {
+			return Boolean(audioCallbacks[src]);
+		},
+		hasVideoStreamToConsider: (src: string) => {
+			return Boolean(videoCallbacks[src]);
+		},
 		addAudioSample: async (src: string, sample: AudioOrVideoSample) => {
 			const callback = audioCallbacks[src];
 			if (!callback) {
@@ -40,7 +46,7 @@ export const sampleSorter = ({
 		addVideoSample: async (src: string, sample: AudioOrVideoSample) => {
 			const callback = videoCallbacks[src];
 			if (!callback) {
-				throw new Error('No callback found for audio sample');
+				throw new Error('No callback found for video sample.');
 			}
 
 			latestSample[src] = sample.dts;
@@ -48,6 +54,10 @@ export const sampleSorter = ({
 		},
 		getNextStreamToRun: (streams: string[]) => {
 			for (const stream of streams) {
+				if (getAllChunksProcessedForPlaylist(stream)) {
+					continue;
+				}
+
 				// If a stream does not have a track yet, work on that
 				if (!streamsWithTracks.includes(stream)) {
 					Log.trace(
@@ -70,6 +80,10 @@ export const sampleSorter = ({
 			}
 
 			for (const stream of streams) {
+				if (getAllChunksProcessedForPlaylist(stream)) {
+					continue;
+				}
+
 				if ((latestSample[stream] ?? 0) === smallestDts) {
 					Log.trace(
 						logLevel,
