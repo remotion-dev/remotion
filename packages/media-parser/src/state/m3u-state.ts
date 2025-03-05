@@ -102,7 +102,8 @@ export const m3uState = (logLevel: LogLevel) => {
 		setHasEmittedDoneWithTracks: (src: string) => {
 			hasEmittedDoneWithTracks[src] = true;
 		},
-		hasEmittedDoneWithTracks: (src: string) => hasEmittedDoneWithTracks[src],
+		hasEmittedDoneWithTracks: (src: string) =>
+			hasEmittedDoneWithTracks[src] !== undefined,
 		setReadyToIterateOverM3u: () => {
 			readyToIterateOverM3u = true;
 		},
@@ -135,6 +136,9 @@ export const m3uState = (logLevel: LogLevel) => {
 			tracksDone[playlistUrl] = true;
 			const selectedPlaylists = getSelectedPlaylists();
 			return selectedPlaylists.every((url) => tracksDone[url]);
+		},
+		getTrackDone: (playlistUrl: string) => {
+			return tracksDone[playlistUrl];
 		},
 		getM3uStreamRun: (playlistUrl: string) =>
 			m3uStreamRuns[playlistUrl] ?? null,

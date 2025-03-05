@@ -11,11 +11,18 @@ export const getTracksFromTransportStream = (
 	const parserTracks = parserState.callbacks.tracks.getTracks();
 
 	const mapped = programMapTable.streams
+		// only search for supported streams
+		.filter((stream) => stream.streamType === 27 || stream.streamType === 15)
 		.map((stream) => {
 			return parserTracks.find((track) => track.trackId === stream.pid);
 		})
 		.filter(truthy);
-	if (mapped.length !== programMapTable.streams.length) {
+	if (
+		mapped.length !==
+		programMapTable.streams.filter(
+			(s) => s.streamType === 27 || s.streamType === 15,
+		).length
+	) {
 		throw new Error('Not all tracks found');
 	}
 

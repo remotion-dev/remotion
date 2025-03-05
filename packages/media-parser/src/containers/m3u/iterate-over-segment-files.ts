@@ -24,8 +24,8 @@ export const iteratorOverSegmentFiles = async ({
 	readerInterface,
 }: {
 	structure: M3uStructure;
-	onVideoTrack: (track: VideoTrack) => Promise<OnVideoSample | null>;
-	onAudioTrack: (track: AudioTrack) => Promise<OnAudioSample | null>;
+	onVideoTrack: null | ((track: VideoTrack) => Promise<OnVideoSample | null>);
+	onAudioTrack: null | ((track: AudioTrack) => Promise<OnAudioSample | null>);
 	onDoneWithTracks: () => void;
 	m3uState: M3uState;
 	playlistUrl: string;
@@ -91,42 +91,50 @@ export const iteratorOverSegmentFiles = async ({
 						return null;
 					}
 				},
-				onAudioTrack: async ({track}) => {
-					const callbackOrFalse = m3uState.hasEmittedAudioTrack(playlistUrl);
-					if (callbackOrFalse === false) {
-						const callback = await onAudioTrack(track);
+				onAudioTrack:
+					onAudioTrack === null
+						? null
+						: async ({track}) => {
+								const callbackOrFalse =
+									m3uState.hasEmittedAudioTrack(playlistUrl);
+								if (callbackOrFalse === false) {
+									const callback = await onAudioTrack(track);
 
-						if (!callback) {
-							m3uState.setHasEmittedAudioTrack(playlistUrl, null);
-							return null;
-						}
+									if (!callback) {
+										m3uState.setHasEmittedAudioTrack(playlistUrl, null);
+										return null;
+									}
 
-						m3uState.setHasEmittedAudioTrack(playlistUrl, callback);
-						return (sample) => {
-							return callback(sample);
-						};
-					}
+									m3uState.setHasEmittedAudioTrack(playlistUrl, callback);
+									return (sample) => {
+										return callback(sample);
+									};
+								}
 
-					return callbackOrFalse;
-				},
-				onVideoTrack: async ({track}) => {
-					const callbackOrFalse = m3uState.hasEmittedVideoTrack(playlistUrl);
-					if (callbackOrFalse === false) {
-						const callback = await onVideoTrack(track);
+								return callbackOrFalse;
+							},
+				onVideoTrack:
+					onVideoTrack === null
+						? null
+						: async ({track}) => {
+								const callbackOrFalse =
+									m3uState.hasEmittedVideoTrack(playlistUrl);
+								if (callbackOrFalse === false) {
+									const callback = await onVideoTrack(track);
 
-						if (!callback) {
-							m3uState.setHasEmittedVideoTrack(playlistUrl, null);
-							return null;
-						}
+									if (!callback) {
+										m3uState.setHasEmittedVideoTrack(playlistUrl, null);
+										return null;
+									}
 
-						m3uState.setHasEmittedVideoTrack(playlistUrl, callback);
-						return (sample) => {
-							return callback(sample);
-						};
-					}
+									m3uState.setHasEmittedVideoTrack(playlistUrl, callback);
+									return (sample) => {
+										return callback(sample);
+									};
+								}
 
-					return callbackOrFalse;
-				},
+								return callbackOrFalse;
+							},
 				reader: readerInterface,
 				mp4HeaderSegment,
 			});
