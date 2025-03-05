@@ -109,6 +109,23 @@ export const parseM3uDirective = (str: string): M3uBox => {
 		return res;
 	}
 
+	if (directive === '#EXT-X-I-FRAME-STREAM-INF') {
+		return {
+			type: 'm3u-i-frame-stream-info',
+		};
+	}
+
+	if (directive === '#EXT-X-ALLOW-CACHE') {
+		if (!value) {
+			throw new Error('#EXT-X-ALLOW-CACHE directive must have a value');
+		}
+
+		return {
+			type: 'm3u-allow-cache',
+			allowsCache: value === 'YES',
+		};
+	}
+
 	if (directive === '#EXT-X-MAP') {
 		if (!value) {
 			throw new Error('#EXT-X-MAP directive must have a value');
