@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-troubleshooting-could-not-find-executable-to-run.png
 title: Could not determine executable to run
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 If you receive the following error:
@@ -9,6 +9,17 @@ If you receive the following error:
 ```
 npm ERR! could not determine executable to run
 ```
+
+It could be for multiple reasons.
+
+## Binary not installed
+
+NPM binaries can have different names than the NPM package.
+
+If you run `npx remotion`, and don't have `@remotion/cli` installed, it will fail because the `remotion` binary is supplied by the `@remotion/cli` package.  
+Check if you have the correct package installed.
+
+## Corepack issue
 
 It may be because you are using the `npx` command but the project is configured to use a different package manager.
 
@@ -22,7 +33,7 @@ If [Corepack](https://www.totaltypescript.com/how-to-use-corepack) is enabled, t
 
 If the package manager is set to something else than `npm`, then the `npx` command may give this error message.
 
-## Resolution
+### Resolution
 
 Use the correct command runner for your project:
 
