@@ -129,6 +129,7 @@ export const convertMedia = async function <
 	onM3uStreams,
 	selectM3uStream,
 	selectM3uAssociatedPlaylists,
+	expectedDurationInSeconds,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -143,6 +144,7 @@ export const convertMedia = async function <
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	selectM3uStream?: ParseMediaOptions<F>['selectM3uStream'];
 	selectM3uAssociatedPlaylists?: ParseMediaOptions<F>['selectM3uAssociatedPlaylists'];
+	expectedDurationInSeconds?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
@@ -228,6 +230,7 @@ export const convertMedia = async function <
 		},
 		logLevel,
 		progressTracker,
+		expectedDurationInSeconds: expectedDurationInSeconds ?? null,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
