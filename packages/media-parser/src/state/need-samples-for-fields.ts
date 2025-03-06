@@ -29,6 +29,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	slowAudioBitrate: true,
 	slowVideoBitrate: true,
 	m3uStreams: false,
+	seekingInfo: false,
 };
 
 export const needsToIterateOverSamples = ({

@@ -20,6 +20,7 @@ import type {
 	MediaParserStructureUnstable,
 } from './parse-result';
 import type {ReaderInterface} from './readers/reader';
+import type {SeekingInfo} from './seeking-info';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
@@ -63,6 +64,7 @@ export type AllParseMediaFields = {
 	slowVideoBitrate: true;
 	slowAudioBitrate: true;
 	m3uStreams: true;
+	seekingInfo: true;
 };
 
 export type MediaParserTracks = {
@@ -158,6 +160,9 @@ export type ParseMediaCallbacksMandatory = {
 	onM3uStreams:
 		| null
 		| ((streams: M3uStream[] | null) => unknown | Promise<unknown>);
+	onSeekingInfo:
+		| null
+		| ((seekingInfo: SeekingInfo | null) => unknown | Promise<unknown>);
 };
 
 export type ParseMediaCallbacks = Partial<ParseMediaCallbacksMandatory>;
@@ -191,6 +196,7 @@ export interface ParseMediaData {
 	slowVideoBitrate: number | null;
 	slowAudioBitrate: number | null;
 	m3uStreams: M3uStream[] | null;
+	seekingInfo: SeekingInfo | null;
 }
 
 export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {

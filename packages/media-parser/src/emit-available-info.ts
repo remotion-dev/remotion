@@ -11,6 +11,7 @@ import {getKeyframes} from './get-keyframes';
 import {getLocation} from './get-location';
 import {getNumberOfAudioChannels} from './get-number-of-audio-channels';
 import {getSampleRate} from './get-sample-rate';
+import {getSeekingInfo} from './get-seeking-info';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
@@ -475,6 +476,20 @@ export const emitAvailableInfo = async ({
 				}
 
 				emittedFields.m3uStreams = true;
+			}
+
+			continue;
+		}
+
+		if (key === 'seekingInfo') {
+			if (!emittedFields.seekingInfo && hasInfo.seekingInfo) {
+				const seekingInfo = getSeekingInfo(state);
+				await callbacks.onSeekingInfo?.(seekingInfo);
+				if (fieldsInReturnValue.seekingInfo) {
+					returnValue.seekingInfo = seekingInfo;
+				}
+
+				emittedFields.seekingInfo = true;
 			}
 
 			continue;

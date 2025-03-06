@@ -7,10 +7,10 @@ export const needsTracksForField = ({
 	structure,
 }: {
 	field: keyof Options<ParseMediaFields>;
-	structure: MediaParserStructureUnstable;
+	structure: MediaParserStructureUnstable | null;
 }) => {
 	if (field === 'dimensions') {
-		if (structure.type === 'riff') {
+		if (structure?.type === 'riff') {
 			return false;
 		}
 
@@ -39,7 +39,8 @@ export const needsTracksForField = ({
 		field === 'numberOfAudioChannels' ||
 		field === 'slowAudioBitrate' ||
 		field === 'slowVideoBitrate' ||
-		field === 'm3uStreams'
+		field === 'm3uStreams' ||
+		field === 'seekingInfo'
 	) {
 		return true;
 	}
@@ -79,7 +80,10 @@ export const makeCanSkipTracksState = ({
 			) as (keyof Options<ParseMediaFields>)[];
 			const selectedKeys = keys.filter((k) => fields[k]);
 			return !selectedKeys.some((k) =>
-				needsTracksForField({field: k, structure: structure.getStructure()}),
+				needsTracksForField({
+					field: k,
+					structure: structure.getStructureOrNull(),
+				}),
 			);
 		},
 	};

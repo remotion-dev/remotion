@@ -9,6 +9,7 @@ import {hasHdr} from './get-is-hdr';
 import {hasKeyframes} from './get-keyframes';
 import {hasNumberOfAudioChannels} from './get-number-of-audio-channels';
 import {hasSampleRate} from './get-sample-rate';
+import {hasSeekingInfo} from './get-seeking-info';
 import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {hasMetadata} from './metadata/get-metadata';
@@ -124,6 +125,10 @@ export const getAvailableInfo = ({
 
 		if (key === 'm3uStreams') {
 			return m3uHasStreams(state);
+		}
+
+		if (key === 'seekingInfo') {
+			return hasSeekingInfo(state);
 		}
 
 		throw new Error(`Unknown key: ${key satisfies never}`);

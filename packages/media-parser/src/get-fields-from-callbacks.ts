@@ -37,6 +37,7 @@ export const getFieldsFromCallback = <F extends Options<ParseMediaFields>>({
 		slowAudioBitrate: Boolean(callbacks.onSlowAudioBitrate),
 		slowVideoBitrate: Boolean(callbacks.onSlowVideoBitrate),
 		m3uStreams: Boolean(callbacks.onM3uStreams),
+		seekingInfo: Boolean(callbacks.onSeekingInfo),
 		...fields,
 	};
 	return newFields;
