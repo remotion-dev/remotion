@@ -48,15 +48,7 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 				fs: false,
 				path: false,
 			},
-			extensions: [
-				'.web.js',
-				'.web.ts',
-				'.web.tsx',
-				'.js',
-				'.ts',
-				'.tsx',
-				'...',
-			],
+			extensions: [...(currentConfiguration.resolve?.extensions ?? [])],
 			alias: {
 				...currentConfiguration.resolve?.alias,
 				'react-native-reanimated': "require('react-native-reanimated')",
