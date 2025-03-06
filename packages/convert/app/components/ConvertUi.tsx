@@ -58,7 +58,7 @@ const ConvertUI = ({
 	currentVideoCodec,
 	tracks,
 	setSrc,
-	duration,
+	durationInSeconds,
 	logLevel,
 	action,
 	enableRotateOrMirror,
@@ -84,7 +84,7 @@ const ConvertUI = ({
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
-	readonly duration: number | null;
+	readonly durationInSeconds: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: MediaParserContainer | null;
 	readonly logLevel: LogLevel;
@@ -184,8 +184,8 @@ const ConvertUI = ({
 		const waveform = makeWaveformVisualizer({
 			onWaveformBars,
 		});
-		if (duration) {
-			waveform.setDuration(duration);
+		if (durationInSeconds) {
+			waveform.setDuration(durationInSeconds);
 		}
 
 		convertMedia({
@@ -207,6 +207,7 @@ const ConvertUI = ({
 				waveform.add(audioData);
 				return audioData;
 			},
+			expectedDurationInSeconds: durationInSeconds,
 			rotate: userRotation,
 			logLevel,
 			onProgress: (s) => {
@@ -307,7 +308,7 @@ const ConvertUI = ({
 		};
 	}, [
 		onWaveformBars,
-		duration,
+		durationInSeconds,
 		src,
 		userRotation,
 		logLevel,
@@ -409,7 +410,7 @@ const ConvertUI = ({
 					name={name}
 					container={outputContainer}
 					done={false}
-					duration={duration}
+					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
 						isReencoding({
@@ -435,7 +436,7 @@ const ConvertUI = ({
 					state={state.state}
 					name={name}
 					container={outputContainer}
-					duration={duration}
+					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
 						isReencoding({

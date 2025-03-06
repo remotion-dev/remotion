@@ -19,6 +19,7 @@ export const createIsoBaseMedia = async ({
 	logLevel,
 	filename,
 	progressTracker,
+	expectedDurationInSeconds,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
@@ -54,6 +55,8 @@ export const createIsoBaseMedia = async ({
 				};
 			}),
 			timescale: CONTAINER_TIMESCALE,
+			expectedDurationInSeconds,
+			logLevel,
 		});
 	};
 
