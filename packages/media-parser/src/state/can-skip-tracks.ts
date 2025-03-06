@@ -1,4 +1,4 @@
-import type {Options, ParseMediaFields} from '../options';
+import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserStructureUnstable} from '../parse-result';
 import type {StructureState} from './structure';
 

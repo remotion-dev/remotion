@@ -1,9 +1,5 @@
-import type {
-	Options,
-	ParseMedia,
-	ParseMediaFields,
-	ParseMediaOptions,
-} from './options';
+import type {Options, ParseMediaFields} from './fields';
+import type {ParseMedia, ParseMediaOptions} from './options';
 import {parseMediaOnWorkerImplementation} from './parse-media-on-worker-entry';
 
 export const parseMediaOnServerWorker: ParseMedia = <

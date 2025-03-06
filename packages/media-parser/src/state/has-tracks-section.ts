@@ -1,7 +1,8 @@
+import type {Options, ParseMediaFields} from '../fields';
 import type {Track} from '../get-tracks';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
-import type {Options, ParseMediaFields, ParseMediaSrc} from '../options';
+import type {ParseMediaSrc} from '../options';
 import type {CanSkipTracksState} from './can-skip-tracks';
 
 export const makeTracksSectionState = (

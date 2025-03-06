@@ -41,12 +41,11 @@ export {parseMediaOnWebWorker} from './parse-media-on-web-worker';
 export type {MediaParserEmbeddedImage} from './state/images';
 
 export {downloadAndParseMedia} from './download-and-parse-media';
+export type {Options, ParseMediaFields} from './fields';
 export type {
 	MediaParserContainer,
 	MediaParserTracks,
-	Options,
 	ParseMediaCallbacks,
-	ParseMediaFields,
 	ParseMediaOnProgress,
 	ParseMediaOptions,
 	ParseMediaProgress,

@@ -1,4 +1,5 @@
 import {getM3uStreams} from './containers/m3u/get-streams';
+import type {Options, ParseMediaFields} from './fields';
 import {getAudioCodec} from './get-audio-codec';
 import {getContainer} from './get-container';
 import type {Dimensions} from './get-dimensions';
@@ -15,9 +16,7 @@ import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {
 	AllParseMediaFields,
-	Options,
 	ParseMediaCallbacks,
-	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
 import type {ParserState} from './state/parser-state';

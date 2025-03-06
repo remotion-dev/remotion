@@ -4,15 +4,10 @@ import type {
 	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 } from '../containers/m3u/select-stream';
+import type {Options, ParseMediaFields} from '../fields';
 import {Log, type LogLevel} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
-import type {
-	OnDiscardedData,
-	Options,
-	ParseMediaFields,
-	ParseMediaMode,
-	ParseMediaSrc,
-} from '../options';
+import type {OnDiscardedData, ParseMediaMode, ParseMediaSrc} from '../options';
 import type {IsoBaseMediaStructure} from '../parse-result';
 import type {ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';

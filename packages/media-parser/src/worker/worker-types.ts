@@ -7,6 +7,7 @@ import type {
 	SelectM3uStreamFnOptions,
 } from '../containers/m3u/select-stream';
 import type {Dimensions, ImageType} from '../errors';
+import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserLocation} from '../get-location';
 import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
 import type {MediaParserMetadataEntry} from '../metadata/get-metadata';
@@ -14,8 +15,6 @@ import type {
 	MediaParserContainer,
 	MediaParserKeyframe,
 	MediaParserTracks,
-	Options,
-	ParseMediaFields,
 	ParseMediaProgress,
 	ParseMediaResult,
 	ParseMediaSrc,

@@ -1,4 +1,5 @@
 import {emitAvailableInfo} from './emit-available-info';
+import type {Options, ParseMediaFields} from './fields';
 import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
@@ -7,9 +8,7 @@ import type {
 	AllParseMediaFields,
 	InternalParseMedia,
 	InternalParseMediaOptions,
-	Options,
 	ParseMediaCallbacks,
-	ParseMediaFields,
 	ParseMediaResult,
 } from './options';
 import {performSeek} from './perform-seek';
