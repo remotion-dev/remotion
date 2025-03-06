@@ -47,6 +47,14 @@ _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
 The container format to convert to. Currently, `"mp4"`, `"webm"` and `"wav"` is supported.
 
+### `expectedDurationInSeconds?`
+
+_number_
+
+Pass the expected duration of the output video in seconds, so that the size of the MP4 metadata section can be estimated well. If the value is not passed, 2MB will be allocated for the MP4 metadata section.
+
+If the size is exceeded (for videos which are around 1 hour or longer), the render may fail in the end.
+
 ### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
