@@ -1477,6 +1477,9 @@ importers:
       '@aws-sdk/client-sts':
         specifier: 3.738.0
         version: 3.738.0
+      '@aws-sdk/lib-storage':
+        specifier: 3.738.0
+        version: 3.738.0(@aws-sdk/client-s3@3.738.0)
       '@aws-sdk/s3-request-presigner':
         specifier: 3.738.0
         version: 3.738.0
@@ -4261,8 +4264,8 @@ packages:
     dependencies:
       '@aws-sdk/client-s3': 3.738.0
       '@smithy/abort-controller': 4.0.1
-      '@smithy/middleware-endpoint': 4.0.2
-      '@smithy/smithy-client': 4.1.2
+      '@smithy/middleware-endpoint': 4.0.6
+      '@smithy/smithy-client': 4.1.6
       buffer: 5.6.0
       events: 3.3.0
       stream-browserify: 3.0.0
@@ -13875,7 +13878,7 @@ packages:
     resolution: {integrity: sha512-Z9m67CXizGpj8CF/AW/7uHqYNh1VXXOn9Ap54fenWsCa0HnT4cJuE61zqG3cBkTZJDCy0wHJphilI41co/PE5g==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@smithy/core': 3.1.1
+      '@smithy/core': 3.1.5
       '@smithy/middleware-serde': 4.0.1
       '@smithy/node-config-provider': 4.0.1
       '@smithy/shared-ini-file-loader': 4.0.1
@@ -14038,12 +14041,12 @@ packages:
     resolution: {integrity: sha512-0yApeHWBqocelHGK22UivZyShNxFbDNrgREBllGh5Ws0D0rg/yId/CJfeoKKpjbfY2ju8j6WgDUGZHYQmINZ5w==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@smithy/core': 3.1.1
-      '@smithy/middleware-endpoint': 4.0.2
+      '@smithy/core': 3.1.5
+      '@smithy/middleware-endpoint': 4.0.6
       '@smithy/middleware-stack': 4.0.1
       '@smithy/protocol-http': 5.0.1
       '@smithy/types': 4.1.0
-      '@smithy/util-stream': 4.0.2
+      '@smithy/util-stream': 4.1.2
       tslib: 2.8.1
     dev: false
 
