@@ -1,20 +1,22 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/openai-whisper"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/mcp"
 	},
 	"name": "@remotion/mcp",
 	"version": "4.0.273",
-	"description": "Work with the output of the OpenAI Whisper API",
-	"main": "dist/index.js",
+	"description": "Remotion's Model Context Protocol",
+	"main": "dist/esm/index.mjs",
 	"sideEffects": false,
+	"type": "module",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"bin": {
+		"remotion-mcp": "./dist/esm/index.mjs"
+	},
 	"scripts": {
-		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"test": "bun test src",
-		"make": "tsc -d"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist"
@@ -23,7 +25,6 @@
 	"license": "MIT",
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "1.5.0",
-		"command-line-args": "6.0.1",
 		"zod": "3.24.2"
 	},
 	"peerDependencies": {},
@@ -39,5 +40,14 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/ai"
+	"homepage": "https://www.remotion.dev/docs/ai/mcp",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
+	}
 }

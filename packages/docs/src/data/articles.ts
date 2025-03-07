@@ -99,6 +99,15 @@ export const articles = [
 		slug: 'ai/index',
 	},
 	{
+		id: 'ai/mcp',
+		title: "Remotion's Model Context Protocol",
+		relativePath: 'docs/ai/mcp.mdx',
+		compId: 'articles-docs-ai-mcp',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/mcp',
+	},
+	{
 		id: 'ai/system-prompt',
 		title: 'Remotion System Prompt for LLMs',
 		relativePath: 'docs/ai/system-prompt.mdx',
