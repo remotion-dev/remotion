@@ -98,7 +98,7 @@ export const mergeChunksAndFinishRender = async <
 	await options.providerSpecifics.writeFile({
 		bucketName: options.renderBucketName,
 		key: options.key,
-		body: fs.readFileSync(outfile),
+		body: fs.createReadStream(outfile),
 		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
