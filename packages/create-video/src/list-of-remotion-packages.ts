@@ -45,6 +45,7 @@ export const listOfRemotionPackages = [
 	'@remotion/layout-utils',
 	'@remotion/licensing',
 	'@remotion/lottie',
+	'@remotion/mcp',
 	'@remotion/media-utils',
 	'@remotion/motion-blur',
 	'@remotion/noise',
