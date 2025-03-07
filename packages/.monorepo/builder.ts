@@ -40,12 +40,14 @@ export const buildPackage = async ({
 	formats,
 	external,
 	entrypoints,
+	filterExternal = (external) => external,
 }: {
 	formats: {
 		esm: FormatAction;
 		cjs: FormatAction;
 	};
 	external: 'dependencies' | string[];
+	filterExternal?: (external: string[]) => string[];
 	entrypoints: EntryPoint[];
 }) => {
 	console.time(`Generated.`);
@@ -71,7 +73,7 @@ export const buildPackage = async ({
 				const output = await build({
 					entrypoints: [p],
 					naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
-					external: getExternal(external),
+					external: filterExternal(getExternal(external)),
 					target,
 					format,
 				});
