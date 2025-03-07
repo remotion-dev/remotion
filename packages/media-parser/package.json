@@ -69,6 +69,12 @@
 			"require": "./dist/worker-server-entry.js",
 			"module": "./dist/esm/worker-server-entry.mjs",
 			"import": "./dist/esm/worker-server-entry.mjs"
+		},
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
 		}
 	},
 	"typesVersions": {
@@ -90,6 +96,9 @@
 			],
 			"worker-server-entry": [
 				"dist/worker-server-entry.d.ts"
+			],
+			"worker": [
+				"dist/worker.d.ts"
 			]
 		}
 	},

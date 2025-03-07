@@ -21,7 +21,7 @@ The API takes care of exchanging messages between the main thread and the Web Wo
 ## Example
 
 ```tsx twoslash title="Parsing a video on a Web Worker"
-import {parseMediaOnWebWorker} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 
 const result = await parseMediaOnWebWorker({
   src: 'https://example.com/my-video.mp4',
@@ -41,7 +41,7 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) API.
 
 ```tsx twoslash title="Parsing a video on a Web Worker on Bun"
-import {parseMediaOnServerWorker} from '@remotion/media-parser';
+import {parseMediaOnServerWorker} from '@remotion/media-parser/worker';
 
 const result = await parseMediaOnServerWorker({
   src: '/tmp/video.mp4',
