@@ -67,6 +67,9 @@
 			"path": "./packages/openai-whisper"
 		},
 		{
+			"path": "./packages/mcp"
+		},
+		{
 			"path": "./packages/it-tests"
 		},
 		{
