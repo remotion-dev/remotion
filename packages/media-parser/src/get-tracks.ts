@@ -67,6 +67,7 @@ export type VideoTrack = {
 	timescale: number;
 	codec: string;
 	codecWithoutConfig: MediaParserVideoCodec;
+	m3uStreamFormat: 'ts' | 'mp4' | null;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;

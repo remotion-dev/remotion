@@ -120,7 +120,11 @@ export const iteratorOverSegmentFiles = async ({
 								const callbackOrFalse =
 									m3uState.hasEmittedVideoTrack(playlistUrl);
 								if (callbackOrFalse === false) {
-									const callback = await onVideoTrack(track);
+									const callback = await onVideoTrack({
+										...track,
+										m3uStreamFormat:
+											chunk.isHeader || mp4HeaderSegment ? 'mp4' : 'ts',
+									});
 
 									if (!callback) {
 										m3uState.setHasEmittedVideoTrack(playlistUrl, null);

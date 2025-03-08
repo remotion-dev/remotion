@@ -76,7 +76,7 @@ export const ConvertProgress: React.FC<{
 						</>
 					) : null}
 				</>
-			) : duration ? (
+			) : duration && isAudioOnly ? (
 				<AudioWaveForm bars={bars} />
 			) : null}
 			<div className="p-2">
