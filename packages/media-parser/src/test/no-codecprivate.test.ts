@@ -19,6 +19,7 @@ test('webm with h264 and no codecprivate', async () => {
 
 	expect(tracks.videoTracks.length).toBe(1);
 	expect(tracks.videoTracks[0]).toEqual({
+		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,
 		codec: 'avc1.42c028',
