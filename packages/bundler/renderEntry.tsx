@@ -10,6 +10,7 @@ import type {render} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {
 	AnyComposition,
+	BundleCompositionState,
 	BundleState,
 	VideoConfigWithSerializedProps,
 } from 'remotion';
@@ -89,7 +90,48 @@ const DelayedSpinner: React.FC = () => {
 	);
 };
 
-const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
+const GetVideoEvaluation: React.FC<{state: BundleState}> = ({state}) => {
+	const {currentCompositionMetadata} = useContext(Internals.CompositionManager);
+
+	const portalContainer = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!currentCompositionMetadata) {
+			return;
+		}
+
+		const {current} = portalContainer;
+		if (!current) {
+			throw new Error('portal did not render');
+		}
+
+		current.appendChild(Internals.portalNode());
+		return () => {
+			current.removeChild(Internals.portalNode());
+		};
+	}, [currentCompositionMetadata]);
+
+	if (!currentCompositionMetadata) {
+		return null;
+	}
+
+	return (
+		<div
+			ref={portalContainer}
+			id="remotion-canvas"
+			style={{
+				width: currentCompositionMetadata.width,
+				height: currentCompositionMetadata.height,
+				display: 'flex',
+				backgroundColor: 'transparent',
+			}}
+		/>
+	);
+};
+
+const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
+	state,
+}) => {
 	const {compositions, currentCompositionMetadata} = useContext(
 		Internals.CompositionManager,
 	);
@@ -99,9 +141,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const [handle] = useState(() =>
-		delayRender(
-			`Waiting for Composition "${state.type === 'composition' ? state.compositionName : ''}"`,
-		),
+		delayRender(`Waiting for Composition "${state.compositionName}"`),
 	);
 
 	useEffect(() => {
@@ -153,9 +193,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	}, [compositions, state, currentCompositionMetadata]);
 
 	useEffect(() => {
-		if (state.type === 'evaluation') {
-			continueRender(handle);
-		} else if (currentBundleMode) {
+		if (currentBundleMode) {
 			continueRender(handle);
 		}
 	}, [handle, state.type, currentBundleMode]);
@@ -250,7 +288,7 @@ const renderContent = (Root: React.FC) => {
 				onlyRenderComposition={bundleMode.compositionName}
 			>
 				<Root />
-				<GetVideo state={bundleMode} />
+				<GetVideoComposition state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
 
@@ -265,7 +303,6 @@ const renderContent = (Root: React.FC) => {
 				onlyRenderComposition={null}
 			>
 				<Root />
-				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
 
