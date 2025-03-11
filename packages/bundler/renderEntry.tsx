@@ -90,8 +90,9 @@ const DelayedSpinner: React.FC = () => {
 };
 
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
-	const video = Internals.useVideo();
-	const {compositions} = useContext(Internals.CompositionManager);
+	const {compositions, currentCompositionMetadata} = useContext(
+		Internals.CompositionManager,
+	);
 	const {setCanvasContent, setCurrentCompositionMetadata} = useContext(
 		Internals.CompositionSetters,
 	);
@@ -112,7 +113,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			return;
 		}
 
-		if (!video && compositions.length > 0) {
+		if (!currentCompositionMetadata && compositions.length > 0) {
 			const foundComposition = compositions.find(
 				(c) => c.id === state.compositionName,
 			) as AnyComposition;
@@ -149,18 +150,18 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 				defaultOutName: state.compositionDefaultOutName,
 			});
 		}
-	}, [compositions, state, video]);
+	}, [compositions, state, currentCompositionMetadata]);
 
 	useEffect(() => {
 		if (state.type === 'evaluation') {
 			continueRender(handle);
-		} else if (video) {
+		} else if (currentBundleMode) {
 			continueRender(handle);
 		}
-	}, [handle, state.type, video]);
+	}, [handle, state.type, currentBundleMode]);
 
 	useEffect(() => {
-		if (!video) {
+		if (!currentCompositionMetadata) {
 			return;
 		}
 
@@ -173,9 +174,9 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [video]);
+	}, [currentCompositionMetadata]);
 
-	if (!video) {
+	if (!currentCompositionMetadata) {
 		return null;
 	}
 
@@ -184,8 +185,8 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			ref={portalContainer}
 			id="remotion-canvas"
 			style={{
-				width: video.width,
-				height: video.height,
+				width: currentCompositionMetadata.width,
+				height: currentCompositionMetadata.height,
 				display: 'flex',
 				backgroundColor: 'transparent',
 			}}
