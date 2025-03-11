@@ -95,7 +95,9 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const [handle] = useState(() =>
-		delayRender('Wait for Composition' + JSON.stringify(state)),
+		delayRender(
+			`Waiting for Composition "${state.type === 'composition' ? state.compositionName : ''}"`,
+		),
 	);
 
 	useEffect(() => {

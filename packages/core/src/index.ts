@@ -27,6 +27,7 @@ declare global {
 			[key: string]: {
 				label: string | null;
 				timeout: number | Timer;
+				startTime: number;
 			};
 		};
 		remotion_cancelledError: string | undefined;

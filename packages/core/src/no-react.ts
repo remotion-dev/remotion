@@ -13,6 +13,7 @@ export {random, RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
 	DELAY_RENDER_RETRIES_LEFT,
 	DELAY_RENDER_RETRY_TOKEN,
 } from './delay-render';
@@ -46,6 +47,7 @@ export const NoReactInternals = {
 	deserializeJSONWithCustomFields,
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_RETRY_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
 	DELAY_RENDER_ATTEMPT_TOKEN: DELAY_RENDER_RETRIES_LEFT,
 	getOffthreadVideoSource,
 	getExpectedMediaFrameUncorrected,

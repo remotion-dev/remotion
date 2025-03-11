@@ -127,6 +127,7 @@ export const RemotionRoot: React.FC<{
 		return {logLevel, mountTime: Date.now()};
 	}, [logLevel]);
 
+
 	return (
 		<LogLevelContext.Provider value={logging}>
 			<NonceContext.Provider value={nonceContext}>
