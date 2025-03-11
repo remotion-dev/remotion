@@ -115,11 +115,7 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
-/*
- * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
- * @see [Documentation](https://remotion.dev/docs/composition)
- */
-export const Composition = <
+const InnerComposition = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >({
@@ -134,30 +130,21 @@ export const Composition = <
 }: CompositionProps<Schema, Props>) => {
 	const compManager = useContext(CompositionSetters);
 
-	const {registerComposition, unregisterComposition, onlyRenderComposition} =
-		compManager;
-	if (onlyRenderComposition && onlyRenderComposition !== id) {
-		return null;
-	}
+	const {registerComposition, unregisterComposition} = compManager;
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const video = useVideo();
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const lazy = useLazyComponent<Props>({
 		compProps: compProps as CompProps<Props>,
 		componentName: 'Composition',
 		noSuspense: false,
 	});
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const nonce = useNonce();
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const isPlayer = useIsPlayer();
 	const environment = getRemotionEnvironment();
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
 		if (isPlayer) {
@@ -171,10 +158,8 @@ export const Composition = <
 		);
 	}
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const {folderName, parentName} = useContext(FolderContext);
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	useEffect(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
@@ -211,16 +196,15 @@ export const Composition = <
 		id,
 		folderName,
 		defaultProps,
-		registerComposition,
-		unregisterComposition,
 		width,
 		nonce,
 		parentName,
 		schema,
 		compProps.calculateMetadata,
+		registerComposition,
+		unregisterComposition,
 	]);
 
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {
@@ -266,4 +250,24 @@ export const Composition = <
 	}
 
 	return null;
+};
+
+/*
+ * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
+ * @see [Documentation](https://remotion.dev/docs/composition)
+ */
+export const Composition = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
+	props: CompositionProps<Schema, Props>,
+) => {
+	const {onlyRenderComposition} = useContext(CompositionSetters);
+
+	if (onlyRenderComposition && onlyRenderComposition !== props.id) {
+		return null;
+	}
+
+	// @ts-expect-error
+	return <InnerComposition {...props} />;
 };
