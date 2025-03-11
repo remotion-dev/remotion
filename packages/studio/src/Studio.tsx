@@ -34,6 +34,7 @@ export const Studio: React.FC<{
 			logLevel={window.remotion_logLevel}
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
 			onlyRenderComposition={null}
+			currentCompositionMetadata={null}
 		>
 			<EditorContexts readOnlyStudio={readOnly}>
 				<Editor readOnlyStudio={readOnly} Root={rootComponent} />

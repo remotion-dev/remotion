@@ -54,6 +54,7 @@ describe('Render composition-rules should throw with invalid props', () => {
 						numberOfAudioTags={0}
 						logLevel="info"
 						onlyRenderComposition={null}
+						currentCompositionMetadata={null}
 					>
 						<Composition
 							lazyComponent={() => Promise.resolve({default: AnyComp})}

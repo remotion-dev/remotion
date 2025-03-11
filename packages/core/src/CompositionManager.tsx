@@ -162,7 +162,13 @@ export const CompositionManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
 	readonly onlyRenderComposition: string | null;
-}> = ({children, numberOfAudioTags, onlyRenderComposition}) => {
+	readonly currentCompositionMetadata: BaseMetadata | null;
+}> = ({
+	children,
+	numberOfAudioTags,
+	onlyRenderComposition,
+	currentCompositionMetadata,
+}) => {
 	// Wontfix, expected to have
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
@@ -170,8 +176,6 @@ export const CompositionManagerProvider: React.FC<{
 	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
 		null,
 	);
-	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
-		useState<BaseMetadata | null>(null);
 
 	const updateCompositions = useCallback(
 		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
@@ -281,7 +285,6 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterComposition,
 			registerFolder,
 			unregisterFolder,
-			setCurrentCompositionMetadata,
 			setCanvasContent,
 			updateCompositionDefaultProps,
 			onlyRenderComposition,

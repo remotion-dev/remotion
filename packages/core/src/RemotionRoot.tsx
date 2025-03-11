@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {CompositionManagerProvider} from './CompositionManager.js';
+import type {BaseMetadata} from './CompositionManagerContext.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import {BufferingProvider} from './buffering.js';
 import {continueRender, delayRender} from './delay-render.js';
@@ -39,7 +40,14 @@ export const RemotionRoot: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly logLevel: LogLevel;
 	readonly onlyRenderComposition: string | null;
-}> = ({children, numberOfAudioTags, logLevel, onlyRenderComposition}) => {
+	readonly currentCompositionMetadata: BaseMetadata | null;
+}> = ({
+	children,
+	numberOfAudioTags,
+	logLevel,
+	onlyRenderComposition,
+	currentCompositionMetadata,
+}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<Record<string, number>>(() =>
 		getInitialFrameState(),
@@ -138,6 +146,7 @@ export const RemotionRoot: React.FC<{
 								<CompositionManagerProvider
 									numberOfAudioTags={numberOfAudioTags}
 									onlyRenderComposition={onlyRenderComposition}
+									currentCompositionMetadata={currentCompositionMetadata}
 								>
 									<DurationsContextProvider>
 										<BufferingProvider>{children}</BufferingProvider>

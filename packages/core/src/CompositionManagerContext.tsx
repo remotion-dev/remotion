@@ -40,7 +40,6 @@ export type CompositionManagerSetters = {
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
-	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	setCanvasContent: React.Dispatch<React.SetStateAction<CanvasContent | null>>;
 	updateCompositionDefaultProps: (
 		id: string,
@@ -69,7 +68,6 @@ export const CompositionSetters = createContext<CompositionManagerSetters>({
 	unregisterComposition: () => undefined,
 	registerFolder: () => undefined,
 	unregisterFolder: () => undefined,
-	setCurrentCompositionMetadata: () => undefined,
 	setCanvasContent: () => undefined,
 	updateCompositionDefaultProps: () => undefined,
 	onlyRenderComposition: null,

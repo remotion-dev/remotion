@@ -90,54 +90,13 @@ const DelayedSpinner: React.FC = () => {
 	);
 };
 
-const GetVideoEvaluation: React.FC<{state: BundleState}> = ({state}) => {
-	const {currentCompositionMetadata} = useContext(Internals.CompositionManager);
-
-	const portalContainer = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		if (!currentCompositionMetadata) {
-			return;
-		}
-
-		const {current} = portalContainer;
-		if (!current) {
-			throw new Error('portal did not render');
-		}
-
-		current.appendChild(Internals.portalNode());
-		return () => {
-			current.removeChild(Internals.portalNode());
-		};
-	}, [currentCompositionMetadata]);
-
-	if (!currentCompositionMetadata) {
-		return null;
-	}
-
-	return (
-		<div
-			ref={portalContainer}
-			id="remotion-canvas"
-			style={{
-				width: currentCompositionMetadata.width,
-				height: currentCompositionMetadata.height,
-				display: 'flex',
-				backgroundColor: 'transparent',
-			}}
-		/>
-	);
-};
-
 const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
 	state,
 }) => {
-	const {compositions, currentCompositionMetadata} = useContext(
+	const {compositions, currentCompositionMetadata, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
-	const {setCanvasContent, setCurrentCompositionMetadata} = useContext(
-		Internals.CompositionSetters,
-	);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const [handle] = useState(() =>
@@ -149,57 +108,33 @@ const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
 	}, [handle]);
 
 	useEffect(() => {
-		if (state.type !== 'composition') {
+		if (compositions.length === 0) {
 			return;
 		}
 
-		if (!currentCompositionMetadata && compositions.length > 0) {
-			const foundComposition = compositions.find(
-				(c) => c.id === state.compositionName,
-			) as AnyComposition;
-			if (!foundComposition) {
-				throw new Error(
-					`Found no composition with the name ${
-						state.compositionName
-					}. The following compositions were found instead: ${compositions
-						.map((c) => c.id)
-						.join(
-							', ',
-						)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`,
-				);
-			}
-
-			if (foundComposition) {
-				setCanvasContent({
-					type: 'composition',
-					compositionId: foundComposition.id,
-				});
-			} else {
-				setCanvasContent(null);
-			}
-
-			setCurrentCompositionMetadata({
-				props: NoReactInternals.deserializeJSONWithCustomFields(
-					state.serializedResolvedPropsWithSchema,
-				),
-				durationInFrames: state.compositionDurationInFrames,
-				fps: state.compositionFps,
-				height: state.compositionHeight,
-				width: state.compositionWidth,
-				defaultCodec: state.compositionDefaultCodec,
-				defaultOutName: state.compositionDefaultOutName,
-			});
+		const foundComposition = compositions.find(
+			(c) => c.id === state.compositionName,
+		) as AnyComposition;
+		if (!foundComposition) {
+			throw new Error(
+				`Found no composition with the name ${
+					state.compositionName
+				}. The following compositions were found instead: ${compositions
+					.map((c) => c.id)
+					.join(
+						', ',
+					)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`,
+			);
 		}
+
+		setCanvasContent({
+			type: 'composition',
+			compositionId: foundComposition.id,
+		});
 	}, [compositions, state, currentCompositionMetadata]);
 
 	useEffect(() => {
-		if (currentBundleMode) {
-			continueRender(handle);
-		}
-	}, [handle, state.type, currentBundleMode]);
-
-	useEffect(() => {
-		if (!currentCompositionMetadata) {
+		if (!canvasContent) {
 			return;
 		}
 
@@ -209,10 +144,12 @@ const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
 		}
 
 		current.appendChild(Internals.portalNode());
+		continueRender(handle);
+
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [currentCompositionMetadata]);
+	}, [canvasContent]);
 
 	if (!currentCompositionMetadata) {
 		return null;
@@ -286,6 +223,17 @@ const renderContent = (Root: React.FC) => {
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
 				onlyRenderComposition={bundleMode.compositionName}
+				currentCompositionMetadata={{
+					props: NoReactInternals.deserializeJSONWithCustomFields(
+						bundleMode.serializedResolvedPropsWithSchema,
+					),
+					durationInFrames: bundleMode.compositionDurationInFrames,
+					fps: bundleMode.compositionFps,
+					height: bundleMode.compositionHeight,
+					width: bundleMode.compositionWidth,
+					defaultCodec: bundleMode.compositionDefaultCodec,
+					defaultOutName: bundleMode.compositionDefaultOutName,
+				}}
 			>
 				<Root />
 				<GetVideoComposition state={bundleMode} />
@@ -301,6 +249,7 @@ const renderContent = (Root: React.FC) => {
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
 				onlyRenderComposition={null}
+				currentCompositionMetadata={null}
 			>
 				<Root />
 			</Internals.RemotionRoot>
