@@ -29,7 +29,7 @@ const indexOfDiff = bodyIfThereIsOne.indexOf('\ndiff');
 
 const body = bodyIfThereIsOne.slice(0, indexOfDiff).trim();
 
-await $`git push origin HEAD`;
+await $`git push -u origin HEAD`;
 
 const output =
 	await $`gh pr create --title "${goodPrTitle.message}" --body "${body || goodPrTitle.message}"`.nothrow();
