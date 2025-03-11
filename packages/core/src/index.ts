@@ -27,6 +27,7 @@ declare global {
 			[key: string]: {
 				label: string | null;
 				timeout: number | Timer;
+				startTime: number;
 			};
 		};
 		remotion_cancelledError: string | undefined;
@@ -73,24 +74,30 @@ declare global {
 	}
 }
 
+export type BundleCompositionState = {
+	type: 'composition';
+	compositionName: string;
+	serializedResolvedPropsWithSchema: string;
+	compositionHeight: number;
+	compositionDurationInFrames: number;
+	compositionWidth: number;
+	compositionFps: number;
+	compositionDefaultCodec: Codec;
+	compositionDefaultOutName: string | null;
+};
+
+export type BundleIndexState = {
+	type: 'index';
+};
+
+export type BundleEvaluationState = {
+	type: 'evaluation';
+};
+
 export type BundleState =
-	| {
-			type: 'index';
-	  }
-	| {
-			type: 'evaluation';
-	  }
-	| {
-			type: 'composition';
-			compositionName: string;
-			serializedResolvedPropsWithSchema: string;
-			compositionHeight: number;
-			compositionDurationInFrames: number;
-			compositionWidth: number;
-			compositionFps: number;
-			compositionDefaultCodec: Codec;
-			compositionDefaultOutName: string | null;
-	  };
+	| BundleIndexState
+	| BundleEvaluationState
+	| BundleCompositionState;
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';

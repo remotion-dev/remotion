@@ -1,1 +1,3 @@
-export const Empty: React.FC = () => null;
+export const Empty = () => {
+	return null;
+};

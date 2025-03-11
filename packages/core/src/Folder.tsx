@@ -1,6 +1,6 @@
 import type {FC} from 'react';
 import {createContext, useContext, useEffect, useMemo} from 'react';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {CompositionSetters} from './CompositionManagerContext.js';
 import {truthy} from './truthy.js';
 import {validateFolderName} from './validation/validate-folder-name.js';
 
@@ -28,7 +28,7 @@ export const Folder: FC<{
 	readonly children: React.ReactNode;
 }> = ({name, children}) => {
 	const parent = useContext(FolderContext);
-	const {registerFolder, unregisterFolder} = useContext(CompositionManager);
+	const {registerFolder, unregisterFolder} = useContext(CompositionSetters);
 
 	validateFolderName(name);
 
