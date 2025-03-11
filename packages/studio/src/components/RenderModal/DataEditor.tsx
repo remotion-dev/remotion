@@ -137,7 +137,7 @@ export const DataEditor: React.FC<{
 		() => getPersistedShowWarningState(),
 	);
 	const {updateCompositionDefaultProps} = useContext(
-		Internals.CompositionManager,
+		Internals.CompositionSetters,
 	);
 
 	const inJSONEditor = mode === 'json';

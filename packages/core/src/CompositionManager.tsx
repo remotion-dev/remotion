@@ -12,8 +12,12 @@ import type {
 	BaseMetadata,
 	CanvasContent,
 	CompositionManagerContext,
+	CompositionManagerSetters,
 } from './CompositionManagerContext.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
 import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
@@ -157,7 +161,8 @@ export const compositionsRef = React.createRef<{
 export const CompositionManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
-}> = ({children, numberOfAudioTags}) => {
+	readonly onlyRenderComposition: string | null;
+}> = ({children, numberOfAudioTags, onlyRenderComposition}) => {
 	// Wontfix, expected to have
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
@@ -264,43 +269,48 @@ export const CompositionManagerProvider: React.FC<{
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
+			folders,
+			currentCompositionMetadata,
+			canvasContent,
+		};
+	}, [compositions, folders, currentCompositionMetadata, canvasContent]);
+
+	const setters = useMemo((): CompositionManagerSetters => {
+		return {
 			registerComposition,
 			unregisterComposition,
-			folders,
 			registerFolder,
 			unregisterFolder,
-			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
-			canvasContent,
 			setCanvasContent,
 			updateCompositionDefaultProps,
+			onlyRenderComposition,
 		};
 	}, [
-		compositions,
 		registerComposition,
-		unregisterComposition,
-		folders,
 		registerFolder,
+		unregisterComposition,
 		unregisterFolder,
-		currentCompositionMetadata,
-		canvasContent,
 		updateCompositionDefaultProps,
+		onlyRenderComposition,
 	]);
 
 	return (
 		<CompositionManager.Provider value={contextValue}>
-			<SequenceManagerProvider>
-				<RenderAssetManagerProvider>
-					<ResolveCompositionConfig>
-						<SharedAudioContextProvider
-							numberOfAudioTags={numberOfAudioTags}
-							component={composition?.component ?? null}
-						>
-							{children}
-						</SharedAudioContextProvider>
-					</ResolveCompositionConfig>
-				</RenderAssetManagerProvider>
-			</SequenceManagerProvider>
+			<CompositionSetters.Provider value={setters}>
+				<SequenceManagerProvider>
+					<RenderAssetManagerProvider>
+						<ResolveCompositionConfig>
+							<SharedAudioContextProvider
+								numberOfAudioTags={numberOfAudioTags}
+								component={composition?.component ?? null}
+							>
+								{children}
+							</SharedAudioContextProvider>
+						</ResolveCompositionConfig>
+					</RenderAssetManagerProvider>
+				</SequenceManagerProvider>
+			</CompositionSetters.Provider>
 		</CompositionManager.Provider>
 	);
 };

@@ -6,7 +6,7 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
@@ -132,19 +132,32 @@ export const Composition = <
 	schema,
 	...compProps
 }: CompositionProps<Schema, Props>) => {
-	const {registerComposition, unregisterComposition} =
-		useContext(CompositionManager);
+	const compManager = useContext(CompositionSetters);
+
+	const {registerComposition, unregisterComposition, onlyRenderComposition} =
+		compManager;
+	if (onlyRenderComposition && onlyRenderComposition !== id) {
+		return null;
+	}
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const video = useVideo();
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const lazy = useLazyComponent<Props>({
 		compProps: compProps as CompProps<Props>,
 		componentName: 'Composition',
 		noSuspense: false,
 	});
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const nonce = useNonce();
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const isPlayer = useIsPlayer();
 	const environment = getRemotionEnvironment();
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
 		if (isPlayer) {
@@ -158,8 +171,10 @@ export const Composition = <
 		);
 	}
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const {folderName, parentName} = useContext(FolderContext);
 
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	useEffect(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
@@ -204,6 +219,8 @@ export const Composition = <
 		schema,
 		compProps.calculateMetadata,
 	]);
+
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {

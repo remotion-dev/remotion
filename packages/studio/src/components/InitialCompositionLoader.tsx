@@ -13,7 +13,7 @@ import {explorerSidebarTabs} from './ExplorerPanel';
 import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 
 export const useSelectAsset = () => {
-	const {setCanvasContent} = useContext(Internals.CompositionManager);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {setAssetFoldersExpanded} = useContext(FolderContext);
 
 	return (asset: string) => {
@@ -39,7 +39,7 @@ export const useSelectAsset = () => {
 
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
-	const {setCanvasContent} = useContext(Internals.CompositionManager);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const isMobileLayout = useMobileLayout();
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
@@ -82,9 +82,10 @@ export const useSelectComposition = () => {
 };
 
 export const InitialCompositionLoader: React.FC = () => {
-	const {compositions, canvasContent, setCanvasContent} = useContext(
+	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const selectComposition = useSelectComposition();
 	const selectAsset = useSelectAsset();
 

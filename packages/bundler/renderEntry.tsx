@@ -91,7 +91,10 @@ const DelayedSpinner: React.FC = () => {
 
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
-	const compositions = useContext(Internals.CompositionManager);
+	const {compositions} = useContext(Internals.CompositionManager);
+	const {setCanvasContent, setCurrentCompositionMetadata} = useContext(
+		Internals.CompositionSetters,
+	);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const [handle] = useState(() =>
@@ -109,15 +112,15 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			return;
 		}
 
-		if (!video && compositions.compositions.length > 0) {
-			const foundComposition = compositions.compositions.find(
+		if (!video && compositions.length > 0) {
+			const foundComposition = compositions.find(
 				(c) => c.id === state.compositionName,
 			) as AnyComposition;
 			if (!foundComposition) {
 				throw new Error(
 					`Found no composition with the name ${
 						state.compositionName
-					}. The following compositions were found instead: ${compositions.compositions
+					}. The following compositions were found instead: ${compositions
 						.map((c) => c.id)
 						.join(
 							', ',
@@ -126,15 +129,15 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			}
 
 			if (foundComposition) {
-				compositions.setCanvasContent({
+				setCanvasContent({
 					type: 'composition',
 					compositionId: foundComposition.id,
 				});
 			} else {
-				compositions.setCanvasContent(null);
+				setCanvasContent(null);
 			}
 
-			compositions.setCurrentCompositionMetadata({
+			setCurrentCompositionMetadata({
 				props: NoReactInternals.deserializeJSONWithCustomFields(
 					state.serializedResolvedPropsWithSchema,
 				),
@@ -146,7 +149,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 				defaultOutName: state.compositionDefaultOutName,
 			});
 		}
-	}, [compositions, compositions.compositions, state, video]);
+	}, [compositions, state, video]);
 
 	useEffect(() => {
 		if (state.type === 'evaluation') {
@@ -243,6 +246,7 @@ const renderContent = (Root: React.FC) => {
 			<Internals.RemotionRoot
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
+				onlyRenderComposition={bundleMode.compositionName}
 			>
 				<Root />
 				<GetVideo state={bundleMode} />
@@ -257,6 +261,7 @@ const renderContent = (Root: React.FC) => {
 			<Internals.RemotionRoot
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
+				onlyRenderComposition={null}
 			>
 				<Root />
 				<GetVideo state={bundleMode} />

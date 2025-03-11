@@ -38,7 +38,8 @@ export const RemotionRoot: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
 	readonly logLevel: LogLevel;
-}> = ({children, numberOfAudioTags, logLevel}) => {
+	readonly onlyRenderComposition: string | null;
+}> = ({children, numberOfAudioTags, logLevel, onlyRenderComposition}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<Record<string, number>>(() =>
 		getInitialFrameState(),
@@ -127,7 +128,6 @@ export const RemotionRoot: React.FC<{
 		return {logLevel, mountTime: Date.now()};
 	}, [logLevel]);
 
-
 	return (
 		<LogLevelContext.Provider value={logging}>
 			<NonceContext.Provider value={nonceContext}>
@@ -137,6 +137,7 @@ export const RemotionRoot: React.FC<{
 							<PrefetchProvider>
 								<CompositionManagerProvider
 									numberOfAudioTags={numberOfAudioTags}
+									onlyRenderComposition={onlyRenderComposition}
 								>
 									<DurationsContextProvider>
 										<BufferingProvider>{children}</BufferingProvider>
