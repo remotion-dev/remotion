@@ -16,6 +16,18 @@ export type ProcessedTrack = {
 	pad_end: string | null;
 };
 
+const cleanUpFloatingPointError = (value: number) => {
+	if (value % 1 < 0.0000001) {
+		return Math.floor(value);
+	}
+
+	if (value % 1 > 0.9999999) {
+		return Math.ceil(value);
+	}
+
+	return value;
+};
+
 const stringifyTrim = (trim: number) => {
 	const value = trim * 1_000_000;
 	const asString = `${value}us`;
