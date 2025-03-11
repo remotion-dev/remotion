@@ -239,8 +239,7 @@ export class Page extends EventEmitter {
 				.filter(truthy)
 				.join(':');
 
-			const tag = [origPosition?.name, file].filter(truthy).join('@');
-
+			const tag = `Tab ${this.pageIndex}, ${[origPosition?.name, file].filter(truthy).join('@')}`;
 			if (log.type === 'error') {
 				Log.error(
 					{
