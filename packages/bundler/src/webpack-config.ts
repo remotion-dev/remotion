@@ -158,9 +158,6 @@ export const webpackConfig = async ({
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
-				// Note: Order matters here! "remotion/no-react" must be matched before "remotion"
-				'remotion/no-react': require.resolve('remotion/no-react'),
-				remotion: require.resolve('remotion'),
 			},
 		},
 		module: {
