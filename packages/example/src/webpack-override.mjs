@@ -27,8 +27,6 @@ const aliases = {
 	'@remotion/preload': resolveCwd('@remotion/preload'),
 	'@remotion/rive': resolveCwd('@remotion/rive'),
 	'@remotion/shapes': resolveCwd('@remotion/shapes'),
-	'@remotion/studio/internals': resolveCwd('@remotion/studio/internals'),
-	'@remotion/studio': resolveCwd('@remotion/studio'),
 	'@remotion/animated-emoji': resolveCwd('@remotion/animated-emoji'),
 	'@remotion/skia': resolveCwd('@remotion/skia'),
 	'@remotion/three': resolveCwd('@remotion/three'),

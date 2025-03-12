@@ -71,10 +71,8 @@ export const getConfig = ({
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
-	const entry = path.resolve(__dirname, '..', './renderEntry.tsx');
-
 	return webpackConfig({
-		entry,
+		entry: '@remotion/studio/renderEntry',
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production',
