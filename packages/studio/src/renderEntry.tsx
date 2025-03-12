@@ -2,6 +2,8 @@
 // to keep the dynamic import
 
 import React, {useContext, useEffect, useRef, useState} from 'react';
+// @ts-expect-error
+// eslint-disable-next-line react/no-deprecated
 import type {render} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
 // In React 18, you should use render from "react-dom".
@@ -9,18 +11,18 @@ import type {render} from 'react-dom';
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
 import type {
-	AnyComposition,
+	_InternalTypes,
 	BundleCompositionState,
 	BundleState,
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
 	AbsoluteFill,
-	Internals,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
+	Internals,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -90,9 +92,9 @@ const DelayedSpinner: React.FC = () => {
 	);
 };
 
-const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
-	state,
-}) => {
+const GetVideoComposition: React.FC<{
+	readonly state: BundleCompositionState;
+}> = ({state}) => {
 	const {compositions, currentCompositionMetadata, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
@@ -114,7 +116,7 @@ const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
 
 		const foundComposition = compositions.find(
 			(c) => c.id === state.compositionName,
-		) as AnyComposition;
+		) as _InternalTypes['AnyComposition'];
 		if (!foundComposition) {
 			throw new Error(
 				`Found no composition with the name ${
@@ -131,7 +133,7 @@ const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
 			type: 'composition',
 			compositionId: foundComposition.id,
 		});
-	}, [compositions, state, currentCompositionMetadata]);
+	}, [compositions, state, currentCompositionMetadata, setCanvasContent]);
 
 	useEffect(() => {
 		if (!canvasContent) {
@@ -149,7 +151,7 @@ const GetVideoComposition: React.FC<{state: BundleCompositionState}> = ({
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [canvasContent]);
+	}, [canvasContent, handle]);
 
 	if (!currentCompositionMetadata) {
 		return null;
@@ -268,7 +270,7 @@ const renderContent = (Root: React.FC) => {
 				<DelayedSpinner />
 			</div>,
 		);
-		import('@remotion/studio/internals')
+		import('./internals')
 			.then(({StudioInternals}) => {
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
@@ -312,7 +314,8 @@ if (typeof window !== 'undefined') {
 
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
-			console.warn(
+			Internals.Log.warn(
+				window.remotion_logLevel,
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
 			for (const comp of compositions) {
@@ -323,7 +326,8 @@ if (typeof window !== 'undefined') {
 				}
 			}
 
-			console.warn(
+			Internals.Log.warn(
+				window.remotion_logLevel,
 				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);
 

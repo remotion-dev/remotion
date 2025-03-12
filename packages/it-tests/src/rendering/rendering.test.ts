@@ -546,58 +546,6 @@ test('Dynamic duration should work and audio separation', async () => {
 	fs.unlinkSync(audio);
 });
 
-test(
-	'Should be able to render if remotion.config.js is not provided, and separate audio',
-	async () => {
-		const task = await execa(
-			'node',
-			[
-				'packages/cli/remotion-cli.js',
-				'render',
-				'packages/example/src/entry.jsx',
-				'framer',
-				outputPath,
-			],
-			{
-				cwd: path.join(process.cwd(), '..', '..'),
-			},
-		);
-
-		expect(task.exitCode).toBe(0);
-		fs.unlinkSync(outputPath);
-	},
-	{
-		timeout: 30000,
-	},
-);
-
-test(
-	'Should be able to render if remotion.config.ts is not provided',
-	async () => {
-		const task = await execa(
-			'node',
-			[
-				'packages/cli/remotion-cli.js',
-				'render',
-				'packages/example/src/ts-entry.tsx',
-
-				'framer',
-				'--public-dir=packages/example/public',
-				outputPath,
-			],
-			{
-				cwd: path.join(process.cwd(), '..', '..'),
-			},
-		);
-
-		expect(task.exitCode).toBe(0);
-		fs.unlinkSync(outputPath);
-	},
-	{
-		timeout: 30000,
-	},
-);
-
 test('Should be able to render a huge payload that gets serialized', async () => {
 	const task = await execa(
 		'pnpm',

@@ -5,8 +5,8 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
-import {Internals, getInputProps} from 'remotion';
+import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
+import {getInputProps, Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -112,7 +112,7 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const DataEditor: React.FC<{
-	readonly unresolvedComposition: AnyComposition;
+	readonly unresolvedComposition: _InternalTypes['AnyComposition'];
 	readonly defaultProps: Record<string, unknown>;
 	readonly setDefaultProps: React.Dispatch<
 		React.SetStateAction<Record<string, unknown>>
