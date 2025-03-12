@@ -11,18 +11,18 @@ import type {render} from 'react-dom';
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
 import type {
-	AnyComposition,
+	_InternalTypes,
 	BundleCompositionState,
 	BundleState,
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
 	AbsoluteFill,
-	Internals,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
+	Internals,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -116,7 +116,7 @@ const GetVideoComposition: React.FC<{
 
 		const foundComposition = compositions.find(
 			(c) => c.id === state.compositionName,
-		) as AnyComposition;
+		) as _InternalTypes['AnyComposition'];
 		if (!foundComposition) {
 			throw new Error(
 				`Found no composition with the name ${

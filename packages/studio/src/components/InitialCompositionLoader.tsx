@@ -1,6 +1,6 @@
 import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
-import type {AnyComposition} from 'remotion';
+import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
 import {useMobileLayout} from '../helpers/mobile-layout';
@@ -44,7 +44,7 @@ export const useSelectComposition = () => {
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	return useCallback(
-		(c: AnyComposition, push: boolean) => {
+		(c: _InternalTypes['AnyComposition'], push: boolean) => {
 			if (push) {
 				pushUrl(`/${c.id}`);
 			}

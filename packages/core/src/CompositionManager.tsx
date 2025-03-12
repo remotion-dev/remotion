@@ -76,15 +76,6 @@ export type AnyCompMetadata = TCompMetadata<
 	Record<string, unknown>
 >;
 
-export type SmallTCompMetadata<
-	T extends AnyZodObject,
-	Props extends Record<string, unknown>,
-> = Pick<
-	TComposition<T, Props>,
-	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
-> &
-	Partial<Pick<TComposition<T, Props>, 'defaultProps'>>;
-
 type EnhancedTSequenceData =
 	| {
 			type: 'sequence';
