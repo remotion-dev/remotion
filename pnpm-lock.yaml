@@ -19,8 +19,8 @@ importers:
         version: 5.5.4
     devDependencies:
       '@types/bun':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 1.2.5
+        version: 1.2.5
       '@types/deno':
         specifier: 2.0.0
         version: 2.0.0
@@ -766,8 +766,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@types/bun':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 1.2.5
+        version: 1.2.5
       '@types/color-namer':
         specifier: ^1.3.0
         version: 1.3.0
@@ -1595,8 +1595,8 @@ importers:
         specifier: workspace:*
         version: link:../example-videos
       '@types/bun':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 1.2.5
+        version: 1.2.5
       '@types/wicg-file-system-access':
         specifier: 2023.10.5
         version: 2023.10.5
@@ -1783,6 +1783,9 @@ importers:
       '@remotion/shapes':
         specifier: workspace:*
         version: link:../shapes
+      bun-plugin-tailwind:
+        specifier: 0.0.15
+        version: 0.0.15(typescript@5.5.4)
       create-video:
         specifier: workspace:*
         version: link:../create-video
@@ -1795,9 +1798,6 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
-      vite:
-        specifier: ^5.4.12
-        version: 5.4.14(@types/node@20.12.14)
       zod:
         specifier: 3.22.3
         version: 3.22.3
@@ -1811,21 +1811,12 @@ importers:
       '@tailwindcss/cli':
         specifier: 4.0.0
         version: 4.0.0
-      '@tailwindcss/vite':
-        specifier: 4.0.0
-        version: 4.0.0(vite@5.4.14)
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
       '@types/react-dom':
         specifier: 19.0.0
         version: 19.0.0
-      '@vitejs/plugin-react-swc':
-        specifier: ^3.5.0
-        version: 3.7.2(vite@5.4.14)
-      bun-plugin-tailwind:
-        specifier: 0.0.13
-        version: 0.0.13(typescript@5.5.4)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -14414,6 +14405,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-darwin-x64@1.3.80:
@@ -14430,6 +14422,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-linux-arm-gnueabihf@1.3.80:
@@ -14446,6 +14439,7 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-linux-arm64-gnu@1.3.80:
@@ -14462,6 +14456,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-linux-arm64-musl@1.3.80:
@@ -14478,6 +14473,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-linux-x64-gnu@1.3.80:
@@ -14494,6 +14490,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-linux-x64-musl@1.3.80:
@@ -14510,6 +14507,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-win32-arm64-msvc@1.3.80:
@@ -14526,6 +14524,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-win32-ia32-msvc@1.3.80:
@@ -14542,6 +14541,7 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core-win32-x64-msvc@1.3.80:
@@ -14558,6 +14558,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
+    dev: false
     optional: true
 
   /@swc/core@1.3.80:
@@ -14606,6 +14607,7 @@ packages:
       '@swc/core-win32-arm64-msvc': 1.8.0
       '@swc/core-win32-ia32-msvc': 1.8.0
       '@swc/core-win32-x64-msvc': 1.8.0
+    dev: false
 
   /@swc/counter@0.1.3:
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
@@ -14727,6 +14729,7 @@ packages:
     resolution: {integrity: sha512-PbSmTiYCN+GMrvfjrMo9bdY+f2COnwbdnoMw7rqU/PI5jXpKjxOGZ0qqZCImxnT81NkNsKnmEpvu+hRXLBeCJg==}
     dependencies:
       '@swc/counter': 0.1.3
+    dev: false
 
   /@swc/types@0.1.5:
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
@@ -14883,6 +14886,7 @@ packages:
       lightningcss: 1.29.1
       tailwindcss: 4.0.0
       vite: 5.4.14(@types/node@20.12.14)
+    dev: false
 
   /@testing-library/dom@10.4.0:
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -15025,10 +15029,10 @@ packages:
       '@types/node': 20.12.14
     dev: false
 
-  /@types/bun@1.2.0:
-    resolution: {integrity: sha512-5N1JqdahfpBlAv4wy6svEYcd/YfO2GNrbL95JOmFx8nkE6dbK4R0oSE5SpBA4vBRqgrOUAXF8Dpiz+gi7r80SA==}
+  /@types/bun@1.2.5:
+    resolution: {integrity: sha512-w2OZTzrZTVtbnJew1pdFmgV99H0/L+Pvw+z1P67HaR18MHOzYnTYOi6qzErhK8HyT+DB782ADVPPE92Xu2/Opg==}
     dependencies:
-      bun-types: 1.2.0
+      bun-types: 1.2.5
     dev: true
 
   /@types/caseless@0.12.5:
@@ -16167,17 +16171,6 @@ packages:
       ts-morph: 12.0.0
     dev: false
 
-  /@vitejs/plugin-react-swc@3.7.2(vite@5.4.14):
-    resolution: {integrity: sha512-y0byko2b2tSVVf5Gpng1eEhX1OvPC7x8yns1Fx8jDzlJp4LS6CMkCPfLw47cjyoMrshQDoQw4qcgjsU9VvlCew==}
-    peerDependencies:
-      vite: ^4 || ^5 || ^6
-    dependencies:
-      '@swc/core': 1.8.0
-      vite: 5.4.14(@types/node@20.12.14)
-    transitivePeerDependencies:
-      - '@swc/helpers'
-    dev: true
-
   /@vitejs/plugin-react@4.3.4(vite@6.0.3):
     resolution: {integrity: sha512-SCCPBJtYLdE8PX/7ZQAs1QAZ8Jqwih+0VBLum1EGqmCCQal+MIUqLCzj3ZUy8ufbC0cAM4LRlSTm7IQJwWT4ug==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -17280,17 +17273,16 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  /bun-plugin-tailwind@0.0.13(typescript@5.5.4):
-    resolution: {integrity: sha512-rTbzx+pK3F3cqgbtfbYibfWfKSWdcMNjdPTHgm+BbPhZWzMkBR6NpGqmKExJuIvdKRZgqoA0vd2/lke6rwZqMA==}
+  /bun-plugin-tailwind@0.0.15(typescript@5.5.4):
+    resolution: {integrity: sha512-qtAXMNGG4R0UGGI8zWrqm2B7BdXqx48vunJXBPzfDOHPA5WkRUZdTSbE7TFwO4jLhYqSE23YMWsM9NhE6ovobw==}
     peerDependencies:
       typescript: ^5.0.0
     dependencies:
-      tailwindcss: 4.0.0-beta.9
       typescript: 5.5.4
-    dev: true
+    dev: false
 
-  /bun-types@1.2.0:
-    resolution: {integrity: sha512-KEaJxyZfbV/c4eyG0vyehDpYmBGreNiQbZIqvVHJwZ4BmeuWlNZ7EAzMN2Zcd7ailmS/tGVW0BgYbGf+lGEpWw==}
+  /bun-types@1.2.5:
+    resolution: {integrity: sha512-3oO6LVGGRRKI4kHINx5PIdIgnLRb7l/SprhzqXapmoYkFl5m4j6EvALvbDVuuBFaamB46Ap6HCUxIXNLCGy+tg==}
     dependencies:
       '@types/node': 20.12.14
       '@types/ws': 8.5.10
@@ -28704,10 +28696,6 @@ packages:
 
   /tailwindcss@4.0.0:
     resolution: {integrity: sha512-ULRPI3A+e39T7pSaf1xoi58AqqJxVCLg8F/uM5A3FadUbnyDTgltVnXJvdkTjwCOGA6NazqHVcwPJC5h2vRYVQ==}
-
-  /tailwindcss@4.0.0-beta.9:
-    resolution: {integrity: sha512-96KpsfQi+/sFIOfyFnGzyy5pobuzf1iMBD9NVtelerPM/lPI2XUS4Kikw9yuKRniXXw77ov1sl7gCSKLsn6CJA==}
-    dev: true
 
   /tailwindcss@4.0.3:
     resolution: {integrity: sha512-ImmZF0Lon5RrQpsEAKGxRvHwCvMgSC4XVlFRqmbzTEDb/3wvin9zfEZrMwgsa3yqBbPqahYcVI6lulM2S7IZAA==}
