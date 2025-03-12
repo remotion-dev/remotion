@@ -1,4 +1,5 @@
 import type {EmojiName} from '@remotion/animated-emoji';
+import type {LottieAnimationData} from '@remotion/lottie';
 import {Lottie, getLottieMetadata} from '@remotion/lottie';
 import React, {useEffect, useMemo, useState} from 'react';
 import {
