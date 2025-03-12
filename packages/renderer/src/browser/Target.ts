@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {BrowserLog} from '../browser-log';
 import type {LogLevel} from '../log-level';
 import type {BrowserContext, HeadlessBrowser} from './Browser';
 import {Page} from './BrowserPage';
@@ -98,11 +99,13 @@ export class Target {
 		logLevel,
 		indent,
 		pageIndex,
+		onBrowserLog,
 	}: {
 		sourceMapGetter: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
 	}): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
@@ -115,6 +118,7 @@ export class Target {
 					logLevel,
 					indent,
 					pageIndex,
+					onBrowserLog,
 				});
 			});
 		}

@@ -1,7 +1,7 @@
 import {splitRespectingQuotes} from './parse-stream-inf';
 import type {M3uMediaInfo} from './types';
 
-export const parseM3uMediaDirective = (str: string): M3uMediaInfo => {
+export const parseM3uKeyValue = (str: string) => {
 	const quotes = splitRespectingQuotes(str);
 	const map: Record<string, string> = {};
 	for (const quote of quotes) {
@@ -20,6 +20,12 @@ export const parseM3uMediaDirective = (str: string): M3uMediaInfo => {
 
 		map[key] = actualValue;
 	}
+
+	return map;
+};
+
+export const parseM3uMediaDirective = (str: string): M3uMediaInfo => {
+	const map = parseM3uKeyValue(str);
 
 	return {
 		type: 'm3u-media-info',

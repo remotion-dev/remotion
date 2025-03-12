@@ -42,6 +42,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		readonly className: string | undefined;
 		readonly overflowVisible: boolean;
 		readonly overrideInternalClassName: string | undefined;
+		readonly noSuspense: boolean;
 	}
 > = (
 	{
@@ -51,6 +52,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		renderLoading,
 		className,
 		overflowVisible,
+		noSuspense,
 		overrideInternalClassName,
 	},
 	ref,
@@ -164,7 +166,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 		</div>
 	);
 
-	if (IS_NODE && !doesReactVersionSupportSuspense) {
+	if (noSuspense || (IS_NODE && !doesReactVersionSupportSuspense)) {
 		return (
 			<div ref={container} style={outerStyle} className={className}>
 				{content}

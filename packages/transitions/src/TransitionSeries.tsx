@@ -243,7 +243,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					<Sequence
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
-						from={Math.floor(actualStartFrame)}
+						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
@@ -286,7 +286,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					<Sequence
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
-						from={Math.floor(actualStartFrame)}
+						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
@@ -318,7 +318,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					<Sequence
 						// eslint-disable-next-line react/no-array-index-key
 						key={i}
-						from={Math.floor(actualStartFrame)}
+						from={actualStartFrame}
 						durationInFrames={durationInFramesProp}
 						{...passedProps}
 						name={passedProps.name || '<TS.Sequence>'}
@@ -343,7 +343,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				<Sequence
 					// eslint-disable-next-line react/no-array-index-key
 					key={i}
-					from={Math.floor(actualStartFrame)}
+					from={actualStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
 					name={passedProps.name || '<TS.Sequence>'}

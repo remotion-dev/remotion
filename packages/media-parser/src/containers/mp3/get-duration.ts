@@ -4,8 +4,9 @@ import {getSamplesPerMpegFrame} from './samples-per-mpeg-file';
 
 export const getDurationFromMp3 = (state: ParserState): number | null => {
 	const mp3Info = state.mp3Info.getMp3Info();
-	if (!mp3Info) {
-		throw new Error('No mp3 info');
+	const mp3CbrInfo = state.mp3Info.getCbrMp3Info();
+	if (!mp3Info || !mp3CbrInfo) {
+		return null;
 	}
 
 	const samplesPerFrame = getSamplesPerMpegFrame({
@@ -13,7 +14,7 @@ export const getDurationFromMp3 = (state: ParserState): number | null => {
 		mpegVersion: mp3Info.mpegVersion,
 	});
 	const frameLengthInBytes = getMpegFrameLength({
-		bitrateKbit: mp3Info.bitrateKbit,
+		bitrateKbit: mp3CbrInfo.bitrateKbit,
 		padding: false,
 		samplesPerFrame,
 		samplingFrequency: mp3Info.sampleRate,

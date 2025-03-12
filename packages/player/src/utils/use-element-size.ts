@@ -81,15 +81,29 @@ export const useElementSize = (
 				? newSize[0].height
 				: newSize[0].height * (1 / probableCssParentScale);
 
-			setSize({
-				width,
-				height,
-				left: newSize[0].x,
-				top: newSize[0].y,
-				windowSize: {
-					height: window.innerHeight,
-					width: window.innerWidth,
-				},
+			setSize((prevState) => {
+				const isSame =
+					prevState &&
+					prevState.width === width &&
+					prevState.height === height &&
+					prevState.left === newSize[0].x &&
+					prevState.top === newSize[0].y &&
+					prevState.windowSize.height === window.innerHeight &&
+					prevState.windowSize.width === window.innerWidth;
+				if (isSame) {
+					return prevState;
+				}
+
+				return {
+					width,
+					height,
+					left: newSize[0].x,
+					top: newSize[0].y,
+					windowSize: {
+						height: window.innerHeight,
+						width: window.innerWidth,
+					},
+				};
 			});
 		});
 	}, [options.shouldApplyCssTransforms]);

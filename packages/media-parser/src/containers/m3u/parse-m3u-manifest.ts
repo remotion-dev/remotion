@@ -23,7 +23,7 @@ export const parseM3uManifest = ({
 		return Promise.resolve(null);
 	}
 
-	parseM3u8Text(line, structure.boxes);
+	parseM3u8Text(line.trim(), structure.boxes);
 
 	return Promise.resolve(null);
 };

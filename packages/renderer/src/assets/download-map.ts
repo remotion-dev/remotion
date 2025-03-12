@@ -62,11 +62,18 @@ const makeAndReturn = (dir: string, name: string) => {
 	return p;
 };
 
-const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+const dontInlineThis = 'package.json';
 
-const packageJson = fs.existsSync(packageJsonPath)
-	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
-	: null;
+let packageJsonPath = null;
+
+try {
+	packageJsonPath = require.resolve('../../' + dontInlineThis);
+} catch {}
+
+const packageJson =
+	packageJsonPath && fs.existsSync(packageJsonPath)
+		? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
+		: null;
 
 export const makeDownloadMap = (): DownloadMap => {
 	const dir = tmpDir(

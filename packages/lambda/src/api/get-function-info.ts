@@ -4,9 +4,9 @@ import {
 	getFunctionVersion,
 	LambdaClientInternals,
 } from '@remotion/lambda-client';
+import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import type {FunctionInfo} from '@remotion/serverless';
-import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 
 export type GetFunctionInfoInput = {
 	region: AwsRegion;

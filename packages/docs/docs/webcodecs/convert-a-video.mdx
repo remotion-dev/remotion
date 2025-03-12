@@ -76,7 +76,6 @@ await convertMedia({
 
 ```tsx twoslash title="Converting a file"
 import {convertMedia} from '@remotion/webcodecs';
-import {webFileReader} from '@remotion/media-parser/web-file';
 
 // Get an actual file from an <input type="file"> element
 const file = new File([], 'video.mp4');
@@ -84,7 +83,6 @@ const file = new File([], 'video.mp4');
 await convertMedia({
   src: file,
   container: 'webm',
-  reader: webFileReader,
 });
 ```
 

@@ -154,7 +154,7 @@ export const getUpgradeCommand = (manager: PackageManager) => {
 
 export const getDevCommand = (manager: PackageManager, template: Template) => {
 	if (
-		template.cliId === 'remix' ||
+		template.cliId === 'react-router' ||
 		template.cliId === 'next' ||
 		template.cliId === 'next-tailwind' ||
 		template.cliId === 'next-pages-dir'

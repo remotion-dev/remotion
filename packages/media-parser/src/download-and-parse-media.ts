@@ -1,8 +1,11 @@
-import {defaultSelectM3uStreamFn} from './containers/m3u/select-stream';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	defaultSelectM3uStreamFn,
+} from './containers/m3u/select-stream';
 import {internalParseMedia} from './internal-parse-media';
 import {Log} from './log';
 import type {DownloadAndParseMedia} from './options';
-import {fetchReader} from './readers/from-fetch';
+import {webReader} from './web';
 
 export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 	const logLevel = options.logLevel ?? 'info';
@@ -16,10 +19,14 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		logLevel,
 		mode: 'download',
 		onAudioCodec: options.onAudioCodec ?? null,
-		onAudioTrack: null,
+		onAudioTrack: options.onAudioTrack ?? null,
 		onContainer: options.onContainer ?? null,
 		onDimensions: options.onDimensions ?? null,
 		selectM3uStream: options.selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			options.selectM3uAssociatedPlaylists ??
+			defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: options.mp4HeaderSegment ?? null,
 		onDiscardedData: async (data) => {
 			await content.write(data);
 		},
@@ -49,9 +56,9 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		onTracks: options.onTracks ?? null,
 		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
 		onVideoCodec: options.onVideoCodec ?? null,
-		onVideoTrack: null,
+		onVideoTrack: options.onVideoTrack ?? null,
 		progressIntervalInMs: options.progressIntervalInMs ?? null,
-		reader: options.reader ?? fetchReader,
+		reader: options.reader ?? webReader,
 		controller: options.controller ?? undefined,
 		src: options.src,
 		onError: async (err) => {

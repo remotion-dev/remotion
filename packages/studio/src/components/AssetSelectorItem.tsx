@@ -245,9 +245,8 @@ const AssetSelectorItem: React.FC<{
 		setHovered(true);
 	}, []);
 
-	const {canvasContent, setCanvasContent} = useContext(
-		Internals.CompositionManager,
-	);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	const selected = useMemo(() => {
 		if (canvasContent && canvasContent.type === 'asset') {

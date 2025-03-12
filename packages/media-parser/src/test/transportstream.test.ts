@@ -61,6 +61,7 @@ test('Transport stream', async () => {
 		},
 		onVideoTrack: ({track}) => {
 			expect(track).toEqual({
+				m3uStreamFormat: null,
 				rotation: 0,
 				trackId: 256,
 				type: 'video',

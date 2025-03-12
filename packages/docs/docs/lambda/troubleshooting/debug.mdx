@@ -10,11 +10,14 @@ crumb: 'Lambda'
 
 ## General debugging strategy
 
-<Step>1</Step> Reproduce a render via the [`npx remotion lambda render`](/docs/lambda/cli/render) command. - Use `--props` to pass in a JSON file with the same input props as the render you want to debug. - Use `--log=verbose` to get detailed debugging information.
-<br />
+<Step>1</Step> Reproduce a render via the [`npx remotion lambda render`](/docs/lambda/cli/render) command.
 
-<Step>2</Step> Wait for the render to fully time out or throw an error.
-<br />
+- Use `--props` to pass in a JSON file with the same input props as the render you want to debug.
+- Use `--log=verbose` to get detailed debugging information.
+
+<div>
+  <Step>2</Step> Wait for the render to fully time out or throw an error.
+</div>
 <Step>3</Step> Read the error message carefully and use the log links that were printed.
 
 ## Reasons a render may fail
@@ -112,9 +115,15 @@ Note that two types of timeouts come into play in Remotion:
 
 ### Reporting an issue
 
-You may report an issue on [GitHub](https://remotion.dev/help) and [Discord](https://remotion.dev/discord).  
-Include the `progress.json` that lies in the S3 folder of the render, because it includes all informations to reproduce a render.  
-If you include CloudWatch logs, post the full ones (click "Load more messages" until there are no more to load.)
+You may report an issue on [GitHub](https://remotion.dev/help) and [Discord](https://remotion.dev/discord).
+
+To share a reproducible render, share the `progress.json` that lies in the S3 folder of the failed render under `renders/[render-id]/progress.json`.
+
+If you use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), this function returns a link [`folderInS3Console`](/docs/lambda/rendermediaonlambda#folderins3console) pointing you to the right location in the S3 console.
+
+If you use `npx remotion lambda render`, add `--log=verbose` to print the link to the file in the S3 console.
+
+If you include CloudWatch logs in your report, post the full logs (click "Load more messages" until there are no more to load.)
 
 ## See also
 

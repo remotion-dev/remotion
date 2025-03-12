@@ -5,6 +5,7 @@ bun build.ts --cloudrun
 cd ..
 cd cloudrun
 bun run make
+bun run makeruntime
 cd container
 ARTIFACT_REGISTRY_ENV=development node submit.mjs
 cd ..

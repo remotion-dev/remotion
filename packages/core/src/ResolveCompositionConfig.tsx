@@ -451,9 +451,7 @@ export const useResolvedVideoConfig = (
 				result: {
 					...currentCompositionMetadata,
 					id: composition.id,
-					props: currentCompositionMetadata.props,
 					defaultProps: composition.defaultProps ?? {},
-					defaultCodec: currentCompositionMetadata.defaultCodec,
 				},
 			};
 		}
@@ -478,6 +476,7 @@ export const useResolvedVideoConfig = (
 				'height',
 				`in <Composition id="${composition.id}">`,
 			);
+
 			return {
 				type: 'success',
 				result: {
@@ -496,6 +495,7 @@ export const useResolvedVideoConfig = (
 							: (getInputProps() ?? {})),
 					},
 					defaultCodec: null,
+					defaultOutName: null,
 				},
 			};
 		}

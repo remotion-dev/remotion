@@ -1,3 +1,5 @@
+import type {ParseMediaSrc} from '../../options';
+
 export type M3uHeader = {
 	type: 'm3u-header';
 };
@@ -28,6 +30,7 @@ export type M3uPlaylistType = {
 export type M3uPlaylist = {
 	type: 'm3u-playlist';
 	boxes: M3uBox[];
+	src: ParseMediaSrc;
 };
 
 export type M3uExtInf = {
@@ -37,6 +40,25 @@ export type M3uExtInf = {
 
 export type M3uEndList = {
 	type: 'm3u-endlist';
+};
+
+export type M3uMediaSequence = {
+	type: 'm3u-media-sequence';
+	value: number;
+};
+
+export type M3uDiscontinuitySequence = {
+	type: 'm3u-discontinuity-sequence';
+	value: number;
+};
+
+export type M3uIFrameStreamInfo = {
+	type: 'm3u-i-frame-stream-info';
+};
+
+export type M3uMap = {
+	type: 'm3u-map';
+	value: string;
 };
 
 export type M3uStreamInfo = {
@@ -67,6 +89,11 @@ export type M3uTextValue = {
 	value: string;
 };
 
+export type M3uAllowCache = {
+	type: 'm3u-allow-cache';
+	allowsCache: boolean;
+};
+
 export type M3uBox =
 	| M3uHeader
 	| M3uPlaylist
@@ -79,7 +106,12 @@ export type M3uBox =
 	| M3uMedia
 	| M3uMediaInfo
 	| M3uEndList
-	| M3uTextValue;
+	| M3uMediaSequence
+	| M3uDiscontinuitySequence
+	| M3uMap
+	| M3uIFrameStreamInfo
+	| M3uTextValue
+	| M3uAllowCache;
 
 export type M3uStructure = {
 	type: 'm3u';

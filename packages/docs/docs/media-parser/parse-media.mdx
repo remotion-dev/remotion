@@ -54,9 +54,9 @@ The API for getting video metadata is stable and may be used in production.
 
 ### `src`
 
-Either a local file path, or a URL, or a `File` or `Blob` object.  
-If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.  
-If you pass a `File` object, you must also pass [`webFileReader`](/docs/media-parser/web-file-reader) as the `reader` argument.
+Either a local file path, or a URL, or a `File` or `Blob` object.
+
+If you pass a local file path, you must also pass [`nodeReader`](/docs/media-parser/node-reader) as the `reader` argument.
 
 ### `fields?`
 
@@ -67,10 +67,9 @@ See [Available Fields](/docs/media-parser/fields) for a list of available fields
 
 ### `reader?`
 
-A reader interface.  
-Default value: `fetchReader`, which uses `fetch()` to read the video.  
-If you pass [`nodeReader`](/docs/media-parser/node-reader), you must also pass a local file path as the `src` argument.
-If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+A [reader](/docs/media-parser/readers) interface.
+
+If you pass [`nodeReader`](/docs/media-parser/node-reader), you must pass a local file path as the `src` argument.
 
 ### `controller?`
 
@@ -122,6 +121,11 @@ const onAudioTrack: OnAudioTrack = ({track}) => {
 A callback that is called when a `.m3u8` file is detected which has multiple streams.  
 See [Stream selection](/docs/media-parser/stream-selection) for an example.
 
+### `selectM3uAssociatedPlaylists?`
+
+A callback that is called after a M3U stream has been selected, allowing you to pick which auxiliary playlists should be parsed. Usually this is used for selecting an audio track.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
+
 ### `onParseProgress?`
 
 A callback that is called from time to time when bytes have been read from the media.  
@@ -142,7 +146,7 @@ This is useful if you want to add a small delay inbetween progress steps to keep
 _number_
 
 The interval in milliseconds at which the [`onParseProgress`](#onparseprogress) callback is called.  
-Default `100`. Set to `0` for unthrottled updates.  
+Default `100`. Set to `0` for unthrottled and synchronous updates.  
 Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
 ### `logLevel?`

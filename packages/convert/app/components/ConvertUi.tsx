@@ -5,12 +5,14 @@ import type {
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserTracks,
 	MediaParserVideoCodec,
-	TracksField,
 } from '@remotion/media-parser';
-import {hasBeenAborted, MediaParserInternals} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	hasBeenAborted,
+	MediaParserInternals,
+} from '@remotion/media-parser';
 import type {
 	ConvertMediaContainer,
 	ResizeOperation,
@@ -56,7 +58,7 @@ const ConvertUI = ({
 	currentVideoCodec,
 	tracks,
 	setSrc,
-	duration,
+	durationInSeconds,
 	logLevel,
 	action,
 	enableRotateOrMirror,
@@ -78,11 +80,11 @@ const ConvertUI = ({
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
-	readonly tracks: TracksField | null;
+	readonly tracks: MediaParserTracks | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
-	readonly duration: number | null;
+	readonly durationInSeconds: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: MediaParserContainer | null;
 	readonly logLevel: LogLevel;
@@ -111,6 +113,8 @@ const ConvertUI = ({
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
 	const [name, setName] = useState<string | null>(null);
 	const [selectedM3uId, setSelectedM3uId] = useState<number | null>(null);
+	const [selectAssociatedPlaylistId, setSelectedAssociatedPlaylistId] =
+		useState<number | null>(null);
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
@@ -180,13 +184,12 @@ const ConvertUI = ({
 		const waveform = makeWaveformVisualizer({
 			onWaveformBars,
 		});
-		if (duration) {
-			waveform.setDuration(duration);
+		if (durationInSeconds) {
+			waveform.setDuration(durationInSeconds);
 		}
 
 		convertMedia({
 			src: src.type === 'url' ? src.url : src.file,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			onVideoFrame: ({frame}) => {
 				const flipped = flipVideoFrame({
 					frame,
@@ -204,6 +207,7 @@ const ConvertUI = ({
 				waveform.add(audioData);
 				return audioData;
 			},
+			expectedDurationInSeconds: durationInSeconds,
 			rotate: userRotation,
 			logLevel,
 			onProgress: (s) => {
@@ -269,6 +273,15 @@ const ConvertUI = ({
 			selectM3uStream: ({streams}) => {
 				return selectedM3uId ?? streams[0].id;
 			},
+			selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
+				if (selectAssociatedPlaylistId === null) {
+					return defaultSelectM3uAssociatedPlaylists({associatedPlaylists});
+				}
+
+				return associatedPlaylists.filter(
+					(playlist) => selectAssociatedPlaylistId === playlist.id,
+				);
+			},
 			// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
 			apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
 		})
@@ -295,7 +308,7 @@ const ConvertUI = ({
 		};
 	}, [
 		onWaveformBars,
-		duration,
+		durationInSeconds,
 		src,
 		userRotation,
 		logLevel,
@@ -309,6 +322,7 @@ const ConvertUI = ({
 		audioOperationSelection,
 		videoOperationSelection,
 		selectedM3uId,
+		selectAssociatedPlaylistId,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -396,7 +410,7 @@ const ConvertUI = ({
 					name={name}
 					container={outputContainer}
 					done={false}
-					duration={duration}
+					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
 						isReencoding({
@@ -422,7 +436,7 @@ const ConvertUI = ({
 					state={state.state}
 					name={name}
 					container={outputContainer}
-					duration={duration}
+					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
 						isReencoding({
@@ -464,6 +478,8 @@ const ConvertUI = ({
 						streams={m3uStreams}
 						selectedId={selectedM3uId}
 						setSelectedM3uId={setSelectedM3uId}
+						selectedAssociatedPlaylistId={selectAssociatedPlaylistId}
+						setSelectedAssociatedPlaylistId={setSelectedAssociatedPlaylistId}
 					/>
 				) : null}
 				{order.map((section) => {
@@ -476,7 +492,7 @@ const ConvertUI = ({
 								>
 									Convert
 								</ConvertUiSection>
-								{enableConvert ? (
+								{enableConvert && currentVideoCodec ? (
 									<>
 										<div className="h-2" />
 										<ConvertForm

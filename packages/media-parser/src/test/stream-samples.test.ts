@@ -25,6 +25,7 @@ test('Stream samples', async () => {
 
 	const {trakBox, ...trackInfo} = tracks.videoTracks[0];
 	expect(trackInfo).toEqual({
+		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,
 		description,

@@ -56,7 +56,7 @@ type CleanupFn = () => Promise<unknown>;
 
 type InnerSelectCompositionConfig = Omit<
 	InternalSelectCompositionsConfig,
-	'port' | 'offthreadVideoThreads'
+	'port' | 'offthreadVideoThreads' | 'onBrowserLog'
 > & {
 	page: Page;
 	port: number;
@@ -64,7 +64,6 @@ type InnerSelectCompositionConfig = Omit<
 
 const innerSelectComposition = async ({
 	page,
-	onBrowserLog,
 	serializedInputPropsWithCustomSchema,
 	envVariables,
 	serveUrl,
@@ -75,16 +74,6 @@ const innerSelectComposition = async ({
 	logLevel,
 	onServeUrlVisited,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
-	if (onBrowserLog) {
-		page.on('console', (log) => {
-			onBrowserLog({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		});
-	}
-
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
@@ -154,7 +143,8 @@ const innerSelectComposition = async ({
 		ReturnType<typeof window.remotion_calculateComposition>
 	>;
 
-	const {width, durationInFrames, fps, height, defaultCodec} = res;
+	const {width, durationInFrames, fps, height, defaultCodec, defaultOutName} =
+		res;
 	return {
 		metadata: {
 			id,
@@ -169,6 +159,7 @@ const innerSelectComposition = async ({
 				res.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
+			defaultOutName,
 		},
 		propsSize: size,
 	};
@@ -215,6 +206,7 @@ export const internalSelectCompositionRaw = async (
 			onBrowserDownload,
 			chromeMode,
 			pageIndex: 0,
+			onBrowserLog,
 		}),
 		makeOrReuseServer(
 			options.server,
@@ -260,7 +252,6 @@ export const internalSelectCompositionRaw = async (
 			envVariables,
 			id,
 			serializedInputPropsWithCustomSchema,
-			onBrowserLog,
 			timeoutInMilliseconds,
 			logLevel,
 			indent,

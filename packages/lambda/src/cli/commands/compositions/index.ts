@@ -4,10 +4,10 @@ import {
 	getCompositionsOnLambda,
 	LambdaClientInternals,
 } from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {ProviderSpecifics} from '@remotion/serverless';
-import {BINARY_NAME} from '../../../defaults';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';

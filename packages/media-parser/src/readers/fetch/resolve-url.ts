@@ -1,4 +1,4 @@
-export const resolveUrl = (src: string) => {
+export const resolveUrl = (src: string | URL) => {
 	try {
 		const resolvedUrl =
 			typeof window !== 'undefined' && typeof window.location !== 'undefined'

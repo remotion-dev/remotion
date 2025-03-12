@@ -3,7 +3,7 @@ import {
 	LOG_GROUP_PREFIX,
 	REMOTION_BUCKET_PREFIX,
 	RENDER_FN_PREFIX,
-} from '../../defaults';
+} from '@remotion/lambda-client/constants';
 
 export const rolePermissions: {
 	actions: string[];

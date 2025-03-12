@@ -1,29 +1,34 @@
 import type {Dimensions} from '../../get-dimensions';
-import type {Structure} from '../../parse-result';
+import type {ParseMediaSrc} from '../../options';
+import type {MediaParserStructureUnstable} from '../../parse-result';
+import type {ReaderInterface} from '../../readers/reader';
 import type {ParserState} from '../../state/parser-state';
 import type {M3uMediaInfo} from './types';
 
-export type M3uStreamAudioTrack = {
+export type M3uAssociatedPlaylist = {
 	groupId: string;
 	language: string | null;
 	name: string | null;
 	autoselect: boolean;
 	default: boolean;
 	channels: number | null;
-	url: string;
+	src: string;
+	id: number;
 };
 
 export type M3uStream = {
-	url: string;
+	src: string;
 	bandwidth: number | null;
 	averageBandwidth: number | null;
 	resolution: Dimensions | null;
 	codecs: string[] | null;
 	id: number;
-	dedicatedAudioTracks: M3uStreamAudioTrack[];
+	associatedPlaylists: M3uAssociatedPlaylist[];
 };
 
-export const isIndependentSegments = (structure: Structure | null): boolean => {
+export const isIndependentSegments = (
+	structure: MediaParserStructureUnstable | null,
+): boolean => {
 	if (structure === null || structure.type !== 'm3u') {
 		return false;
 	}
@@ -34,10 +39,15 @@ export const isIndependentSegments = (structure: Structure | null): boolean => {
 	);
 };
 
-export const getM3uStreams = (
-	structure: Structure | null,
-	originalSrc: string | null,
-): M3uStream[] | null => {
+export const getM3uStreams = ({
+	structure,
+	originalSrc,
+	readerInterface,
+}: {
+	structure: MediaParserStructureUnstable | null;
+	originalSrc: ParseMediaSrc;
+	readerInterface: ReaderInterface;
+}): M3uStream[] | null => {
 	if (structure === null || structure.type !== 'm3u') {
 		return null;
 	}
@@ -52,7 +62,7 @@ export const getM3uStreams = (
 				throw new Error('Expected m3u-text-value');
 			}
 
-			const dedicatedAudioTracks: M3uStreamAudioTrack[] = [];
+			const associatedPlaylists: M3uAssociatedPlaylist[] = [];
 
 			if (str.audio) {
 				const match = structure.boxes.filter((box) => {
@@ -60,31 +70,29 @@ export const getM3uStreams = (
 				}) as M3uMediaInfo[];
 
 				for (const audioTrack of match) {
-					dedicatedAudioTracks.push({
+					associatedPlaylists.push({
 						autoselect: audioTrack.autoselect,
 						channels: audioTrack.channels,
 						default: audioTrack.default,
 						groupId: audioTrack.groupId,
 						language: audioTrack.language,
 						name: audioTrack.name,
-						url:
-							originalSrc && originalSrc.startsWith('http')
-								? new URL(audioTrack.uri, originalSrc).href
-								: audioTrack.uri,
+						src: readerInterface.createAdjacentFileSource(
+							audioTrack.uri,
+							originalSrc,
+						),
+						id: associatedPlaylists.length,
 					});
 				}
 			}
 
 			boxes.push({
-				url:
-					originalSrc && originalSrc.startsWith('http')
-						? new URL(next.value, originalSrc).href
-						: next.value,
+				src: readerInterface.createAdjacentFileSource(next.value, originalSrc),
 				averageBandwidth: str.averageBandwidth,
 				bandwidth: str.bandwidth,
 				codecs: str.codecs,
 				resolution: str.resolution,
-				dedicatedAudioTracks,
+				associatedPlaylists,
 			});
 		}
 	}
@@ -101,6 +109,12 @@ export const getM3uStreams = (
 		const bResolution = b.resolution
 			? b.resolution.width * b.resolution.height
 			: 0;
+		if (aResolution === bResolution) {
+			const bandwidthA = a.averageBandwidth ?? a.bandwidth ?? 0;
+			const bandwidthB = b.averageBandwidth ?? b.bandwidth ?? 0;
+			return bandwidthB - bandwidthA;
+		}
+
 		return bResolution - aResolution;
 	});
 

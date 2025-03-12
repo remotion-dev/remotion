@@ -47,7 +47,6 @@ ${[
 	'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + cpuLimit,
 	'Minimum Instances: '.padEnd(LEFT_COL, ' ') + ' ' + minInstances,
 	'Maximum Instances: '.padEnd(LEFT_COL, ' ') + ' ' + maxInstances,
-	'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + cpuLimit,
 	'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + timeoutSeconds,
 	'Project Name: '.padEnd(LEFT_COL, ' ') + ' ' + projectID,
 	'Region: '.padEnd(LEFT_COL, ' ') + ' ' + region,

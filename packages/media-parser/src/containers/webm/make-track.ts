@@ -26,6 +26,9 @@ import {
 	getWidthSegment,
 } from './traversal';
 
+export const NO_CODEC_PRIVATE_SHOULD_BE_DERIVED_FROM_SPS =
+	'no-codec-private-should-be-derived-from-sps';
+
 const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	const codec = getCodecSegment(track);
 	if (!codec) {
@@ -85,7 +88,7 @@ const getMatroskaVideoCodecString = ({
 		const priv = getPrivateData(track);
 		if (priv) {
 			throw new Error(
-				'@remotion/media-parser cannot handle the private data for VP9. Do you have an example file you could send so we can implement it?',
+				'@remotion/media-parser cannot handle the private data for VP9. Do you have an example file you could send so we can implement it? https://remotion.dev/report',
 			);
 		}
 
@@ -98,17 +101,7 @@ const getMatroskaVideoCodecString = ({
 			return `avc1.${priv[1].toString(16).padStart(2, '0')}${priv[2].toString(16).padStart(2, '0')}${priv[3].toString(16).padStart(2, '0')}`;
 		}
 
-		throw new Error('Could not find a CodecPrivate field in TrackEntry');
-	}
-
-	if (codec.value === 'V_AV1') {
-		const priv = getPrivateData(track);
-
-		if (!priv) {
-			throw new Error('Expected private data in AV1 track');
-		}
-
-		return parseAv1PrivateData(priv, null);
+		return NO_CODEC_PRIVATE_SHOULD_BE_DERIVED_FROM_SPS;
 	}
 
 	if (codec.value === 'V_MPEGH/ISO/HEVC') {
@@ -119,6 +112,16 @@ const getMatroskaVideoCodecString = ({
 		);
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
+	}
+
+	if (codec.value === 'V_AV1') {
+		const priv = getPrivateData(track);
+
+		if (!priv) {
+			throw new Error('Expected private data in AV1 track');
+		}
+
+		return parseAv1PrivateData(priv, null);
 	}
 
 	throw new Error(`Unknown codec: ${codec.value}`);
@@ -300,6 +303,7 @@ export const getTrack = ({
 		}
 
 		return {
+			m3uStreamFormat: null,
 			type: 'video',
 			trackId,
 			codec: codecString,

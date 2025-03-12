@@ -212,7 +212,7 @@ export const useMediaPlayback = ({
 				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
-			if (playing && !isVariableFpsVideo) {
+			if (playing) {
 				if (playbackRate > 0) {
 					bufferUntilFirstFrame(shouldBeTime);
 				}

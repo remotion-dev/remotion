@@ -1,7 +1,7 @@
 import type {AwsRegion} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {getSitesKey} from '@remotion/lambda-client/constants';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {getSitesKey} from '../defaults';
 
 type MandatoryParameters = {
 	bucketName: string;

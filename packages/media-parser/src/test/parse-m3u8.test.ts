@@ -1,7 +1,5 @@
-import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
-import {nodeReader} from '../readers/from-node';
 
 test('parse m3u8', async () => {
 	let audioSamples = 0;
@@ -15,7 +13,6 @@ test('parse m3u8', async () => {
 		container,
 		fps,
 		images,
-		internalStats,
 		isHdr,
 		keyframes,
 		location,
@@ -24,8 +21,7 @@ test('parse m3u8', async () => {
 		name,
 		m3uStreams,
 	} = await parseMedia({
-		src: exampleVideos.m3u8,
-		reader: nodeReader,
+		src: 'https://stream.mux.com/MT43ye01xu1301RYUmrpNZeBf800iEWkicKdKLUtUv7TMI.m3u8',
 		onAudioTrack: () => {
 			return () => {
 				audioSamples++;
@@ -69,6 +65,7 @@ test('parse m3u8', async () => {
 	});
 	expect(tracks.videoTracks).toEqual([
 		{
+			m3uStreamFormat: 'ts',
 			type: 'video',
 			codec: 'avc1.640028',
 			codecPrivate: new Uint8Array([
@@ -119,55 +116,52 @@ test('parse m3u8', async () => {
 	expect(container).toBe('m3u8');
 	expect(fps).toBe(null);
 	expect(images).toEqual([]);
-	expect(internalStats).toEqual({
-		// I assume this is because of the newlines on Windows vs Unix
-		finalCursorOffset: 2223 + (process.platform === 'win32' ? 12 : 0),
-		skippedBytes: 0,
-	});
+	// This is flaky because mux urls are dynamic
+	// expect(internalStats).toEqual({
+	// 	finalCursorOffset: 2235,
+	// 	skippedBytes: 0,
+	// });
 	expect(isHdr).toBe(false);
 	expect(keyframes).toEqual(null);
 	expect(location).toBe(null);
 	expect(metadata).toEqual([]);
-	expect(mimeType).toBe(null);
-	expect(name).toBe('video.m3u8');
+	expect(mimeType).toBe('application/x-mpegURL');
+	expect(name).toBe('MT43ye01xu1301RYUmrpNZeBf800iEWkicKdKLUtUv7TMI.m3u8');
 	expect(audioSamples).toBe(240);
 	expect(videoSamples).toBe(151);
-	expect(m3uStreams).toEqual([
+	// url omitted, is dynamic
+	expect(m3uStreams).toMatchObject([
 		{
-			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/UqxOz1B6t4myu5KZe7MDjWu016z5VlzgCUBS1rtL01urP02qlsm01e4EsjTX9VvmK1kGrbfLfM7LUAUitI004Rxhmy3y8WPtYN6mW/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfZDc5OGQzZTI3ZGZiOTE5NGJhZTQwZjdhN2I0NTJkMWQ1NjY4ZmFhYWIyNGE5OGRjYTA3ZjE4MDE3ZjQ1NWJhZA==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
 			averageBandwidth: 1057100,
 			bandwidth: 1057100,
 			codecs: ['mp4a.40.2', 'avc1.640028'],
 			resolution: {width: 1000, height: 1000},
 			id: 0,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 		{
-			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/YGMjPlHfWgy7lDqN01VVW8zCR200O4o0200R7hnLOO7bV14fLg5ThBx24M3y7fB6eMXudfbnE7THbepACAsY026ZxQ5DVbH6HObW01CMm6HiwEUBI/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfNjdiMWE2YTYzZDMyYzYxMTA3OTk5NjU5MjY0MzEwYTY3ZjQ0NGRmNWQ0OTVhMjhjNWNmYzhlOTMyOGRhMmJhZg==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
 			averageBandwidth: 618200,
 			bandwidth: 618200,
 			codecs: ['mp4a.40.2', 'avc1.640020'],
 			resolution: {width: 720, height: 720},
 			id: 1,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 		{
-			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/HK00VP300bJL5NOhaDdV5OE0200XUPTm02ImLVdoI00kxgnKdXSX00xH00Mn01oBtR63oAGS7XJGDcrxMVDfatXAcZSit9VOil1PdqLkywEZvDVZTM7s/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfYTVlYTQyYzM3OGY2ZjUwODE3MGFiYWY2YTBlNzgwMjk0YzQ0MWIzMmRjODBmNTJjZWMxMzIzNzRlYjMwOWEzNA==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
 			averageBandwidth: 358600,
 			bandwidth: 358600,
 			codecs: ['mp4a.40.2', 'avc1.64001f'],
 			resolution: {width: 480, height: 480},
 			id: 2,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 		{
-			url: 'https://manifest-gcp-us-east1-vop1.fastly.mux.com/e35901tOcxBHspMKcoo9ENOGGMIuUjvk7VVcD7JI0200imKZWYk4l6VuLZB9QwZvARhktihhC8Gk4RhtVUNDhKpveiFo5AwnxRn/rendition.m3u8?cdn=fastly&expires=1740218400&skid=default&signature=NjdiOWEwMjBfNGUzMTljZmEzNDI1ZWNiYmY4YmNmZWI5MTI0NzkzZDUwZmQ5YTYzZDI5ZWIwOThlY2EyM2JiODg0NmQxMmRkZA==&vsid=v9o00gTIN00tMihOSsY8x8QNDtZhn33IVc3j4OrbbrCA8ERnuLCE18iQQFBQqdhQToj3rbKtOeKdY',
 			averageBandwidth: 214500,
 			bandwidth: 214500,
 			codecs: ['mp4a.40.2', 'avc1.640015'],
 			resolution: {width: 270, height: 270},
 			id: 3,
-			dedicatedAudioTracks: [],
+			associatedPlaylists: [],
 		},
 	]);
 });

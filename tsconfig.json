@@ -31,9 +31,6 @@
 			"path": "./packages/cli"
 		},
 		{
-			"path": "./packages/cli-autocomplete"
-		},
-		{
 			"path": "./packages/core"
 		},
 		{
@@ -65,6 +62,9 @@
 		},
 		{
 			"path": "./packages/openai-whisper"
+		},
+		{
+			"path": "./packages/mcp"
 		},
 		{
 			"path": "./packages/it-tests"
@@ -163,7 +163,7 @@
 			"path": "./packages/template-overlay"
 		},
 		{
-			"path": "./packages/template-remix"
+			"path": "./packages/template-react-router"
 		},
 		{
 			"path": "./packages/template-tiktok"

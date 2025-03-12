@@ -1,7 +1,7 @@
 import type {
 	MediaParserAudioCodec,
 	MediaParserContainer,
-	TracksField,
+	MediaParserTracks,
 } from '@remotion/media-parser';
 import type {
 	AudioOperation,
@@ -88,7 +88,7 @@ export const getSupportedConfigs = async ({
 	inputContainer,
 	resizeOperation,
 }: {
-	tracks: TracksField;
+	tracks: MediaParserTracks;
 	container: ConvertMediaContainer;
 	bitrate: number;
 	action: RouteAction;

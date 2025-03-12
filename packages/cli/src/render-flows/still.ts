@@ -268,6 +268,7 @@ export const renderStillFlow = async ({
 		args: argsAfterComposition,
 		type: 'asset',
 		outputLocationFromUi,
+		compositionDefaultOutName: config.defaultOutName,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(

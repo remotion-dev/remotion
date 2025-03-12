@@ -14,6 +14,7 @@ import type {
 	WriterInterface,
 } from '@remotion/media-parser';
 import {
+	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
 	MediaParserAbortError,
 	MediaParserInternals,
@@ -21,7 +22,7 @@ import {
 } from '@remotion/media-parser';
 
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
+import {webReader} from '@remotion/media-parser/web';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
@@ -127,6 +128,8 @@ export const convertMedia = async function <
 	onVideoCodec,
 	onM3uStreams,
 	selectM3uStream,
+	selectM3uAssociatedPlaylists,
+	expectedDurationInSeconds,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -140,6 +143,8 @@ export const convertMedia = async function <
 	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
 	selectM3uStream?: ParseMediaOptions<F>['selectM3uStream'];
+	selectM3uAssociatedPlaylists?: ParseMediaOptions<F>['selectM3uAssociatedPlaylists'];
+	expectedDurationInSeconds?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
@@ -225,6 +230,7 @@ export const convertMedia = async function <
 		},
 		logLevel,
 		progressTracker,
+		expectedDurationInSeconds: expectedDurationInSeconds ?? null,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
@@ -265,7 +271,7 @@ export const convertMedia = async function <
 			...fields,
 			durationInSeconds: true,
 		},
-		reader: reader ?? fetchReader,
+		reader: reader ?? webReader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
 			if (durationInSeconds === null) {
@@ -326,6 +332,9 @@ export const convertMedia = async function <
 		apiName: 'convertMedia()',
 		onM3uStreams: onM3uStreams ?? null,
 		selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: null,
 	})
 		.then(() => {
 			return state.waitForFinish();

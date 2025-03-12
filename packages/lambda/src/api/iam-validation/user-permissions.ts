@@ -2,7 +2,7 @@ import {
 	LOG_GROUP_PREFIX,
 	REMOTION_BUCKET_PREFIX,
 	RENDER_FN_PREFIX,
-} from '../../defaults';
+} from '@remotion/lambda-client/constants';
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 
 export const requiredPermissions: {

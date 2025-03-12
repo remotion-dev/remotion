@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {BINARY_NAME} from '../../../defaults';
 import {INCREASE_SUBCOMMAND, quotasIncreaseCommand} from './increase';
 import {quotasListCommand} from './list';
 export const QUOTAS_COMMAND = 'quotas';

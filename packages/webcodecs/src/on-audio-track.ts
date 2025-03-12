@@ -180,7 +180,7 @@ export const makeAudioTrackHandler =
 			onError: (err) => {
 				abortConversion(
 					new Error(
-						`Audio encoder of ${track.trackId} failed (see .cause of this error)`,
+						`Audio encoder of track ${track.trackId} failed (see .cause of this error)`,
 						{
 							cause: err,
 						},
