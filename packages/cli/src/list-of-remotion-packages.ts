@@ -8,7 +8,6 @@ export const listOfRemotionPackages = [
 	'@remotion/babel-loader',
 	'@remotion/bugs',
 	'@remotion/bundler',
-	'@remotion/cli-autocomplete',
 	'@remotion/cli',
 	'@remotion/cloudrun',
 	'@remotion/compositor-darwin-arm64',
