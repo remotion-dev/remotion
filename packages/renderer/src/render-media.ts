@@ -716,11 +716,13 @@ const internalRenderMediaRaw = ({
 					assetsInfo,
 					onProgress: (frame: number) => {
 						stitchStage = 'muxing';
+						// With seamless AAC concatenation, the amount of rendered frames
+						// might be longer, so we need to clamp it to avoid progress over 100%
 						if (preEncodedFileLocation) {
-							muxedFrames = frame;
+							muxedFrames = Math.min(frame, totalFramesToRender);
 						} else {
-							muxedFrames = frame;
-							encodedFrames = frame;
+							muxedFrames = Math.min(frame, totalFramesToRender);
+							encodedFrames = Math.min(frame, totalFramesToRender);
 						}
 
 						if (encodedFrames === totalFramesToRender) {

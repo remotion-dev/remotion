@@ -118,6 +118,7 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {Empty} from './Empty';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
@@ -1552,6 +1553,14 @@ export const Index: React.FC = () => {
 					durationInFrames={900}
 				/>
 			</Folder>
+			<Composition
+				id="empty"
+				component={Empty}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={900}
+			/>
 		</>
 	);
 };
