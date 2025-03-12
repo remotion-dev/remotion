@@ -14,12 +14,21 @@ type ReadResult = {
 	supportsContentRange: boolean;
 	needsContentRange: boolean;
 };
-type ReadContent = (options: {
+export type ReadContent = (options: {
 	src: ParseMediaSrc;
 	range: [number, number] | number | null;
 	controller: MediaParserController;
 }) => Promise<ReadResult>;
 
+export type ReadWholeAsText = (src: ParseMediaSrc) => Promise<string>;
+
+export type CreateAdjacentFileSource = (
+	relativePath: string,
+	src: ParseMediaSrc,
+) => string;
+
 export type ReaderInterface = {
 	read: ReadContent;
+	readWholeAsText: ReadWholeAsText;
+	createAdjacentFileSource: CreateAdjacentFileSource;
 };

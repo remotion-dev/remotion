@@ -1,5 +1,10 @@
 import type {MediaParserController} from '../media-parser-controller';
-import type {AllOptions, Options, ParseMediaFields} from '../options';
+import type {
+	AllOptions,
+	Options,
+	ParseMediaFields,
+	ParseMediaSrc,
+} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
@@ -21,6 +26,7 @@ export const sampleCallback = ({
 	emittedFields,
 	slowDurationAndFpsState,
 	structure,
+	src,
 }: {
 	controller: MediaParserController;
 	hasAudioTrackHandlers: boolean;
@@ -30,6 +36,7 @@ export const sampleCallback = ({
 	emittedFields: AllOptions<ParseMediaFields>;
 	slowDurationAndFpsState: SlowDurationAndFpsState;
 	structure: StructureState;
+	src: ParseMediaSrc;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -44,7 +51,7 @@ export const sampleCallback = ({
 		structure,
 	});
 
-	const tracksState = makeTracksSectionState(canSkipTracksState);
+	const tracksState = makeTracksSectionState(canSkipTracksState, src);
 
 	const samplesForTrack: Record<number, number> = {};
 

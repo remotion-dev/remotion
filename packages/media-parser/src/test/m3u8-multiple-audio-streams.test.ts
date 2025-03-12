@@ -1,5 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import path from 'path';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
 
@@ -19,7 +20,7 @@ test('separate video and  audio streams', async () => {
 				averageBandwidth: null,
 				bandwidth: 5000000,
 				codecs: ['avc1.42e00a', 'mp4a.40.2'],
-				dedicatedAudioTracks: [
+				associatedPlaylists: [
 					{
 						autoselect: true,
 						channels: 1,
@@ -27,7 +28,11 @@ test('separate video and  audio streams', async () => {
 						groupId: 'aud1',
 						language: 'en',
 						name: 'English',
-						url: 'audio.m3u8',
+						src: path.resolve(
+							path.dirname(exampleVideos.separatedAudio),
+							'audio.m3u8',
+						),
+						id: 0,
 					},
 				],
 				id: 0,
@@ -35,7 +40,10 @@ test('separate video and  audio streams', async () => {
 					height: 1080,
 					width: 1920,
 				},
-				url: 'video.m3u8',
+				src: path.resolve(
+					path.dirname(exampleVideos.separatedAudio),
+					'video.m3u8',
+				),
 			},
 		],
 	});
@@ -53,12 +61,15 @@ test('multiple audio streams', async () => {
 
 	expect(m3uStreams).toEqual([
 		{
-			url: 'video/10000kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/10000kbit.m3u8',
+			),
 			averageBandwidth: null,
 			bandwidth: 10285391,
 			codecs: ['avc1.4d4033', 'mp4a.40.2'],
 			resolution: {width: 4096, height: 1744},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -66,7 +77,11 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'en',
 					name: 'English',
-					url: 'audio/surround/en/320kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/surround/en/320kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -75,18 +90,25 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 0,
 		},
 		{
-			url: 'video/4000kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/6000kbit.m3u8',
+			),
 			averageBandwidth: null,
-			bandwidth: 4149264,
+			bandwidth: 6214307,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
 			resolution: {width: 1921, height: 818},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -94,7 +116,11 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'en',
 					name: 'English',
-					url: 'audio/surround/en/320kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/surround/en/320kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -103,18 +129,25 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 1,
 		},
 		{
-			url: 'video/6000kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/4000kbit.m3u8',
+			),
 			averageBandwidth: null,
-			bandwidth: 6214307,
+			bandwidth: 4149264,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
 			resolution: {width: 1921, height: 818},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -122,7 +155,11 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'en',
 					name: 'English',
-					url: 'audio/surround/en/320kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/surround/en/320kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -131,18 +168,25 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 2,
 		},
 		{
-			url: 'video/1500kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/1500kbit.m3u8',
+			),
 			averageBandwidth: null,
 			bandwidth: 1558322,
 			codecs: ['avc1.4d401f', 'mp4a.40.2'],
 			resolution: {width: 1277, height: 554},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -150,7 +194,11 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'en',
 					name: 'English',
-					url: 'audio/surround/en/320kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/surround/en/320kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -159,18 +207,25 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 3,
 		},
 		{
-			url: 'video/1100kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/1100kbit.m3u8',
+			),
 			averageBandwidth: null,
 			bandwidth: 1144430,
 			codecs: ['avc1.4d401f', 'mp4a.40.2'],
 			resolution: {width: 958, height: 408},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -178,7 +233,11 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'en',
 					name: 'English',
-					url: 'audio/surround/en/320kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/surround/en/320kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -187,18 +246,26 @@ test('multiple audio streams', async () => {
 					groupId: 'surround',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+
+					id: 1,
 				},
 			],
 			id: 4,
 		},
 		{
-			url: 'video/500kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/800kbit.m3u8',
+			),
 			averageBandwidth: null,
-			bandwidth: 520929,
+			bandwidth: 831270,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
 			resolution: {width: 638, height: 272},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -206,7 +273,11 @@ test('multiple audio streams', async () => {
 					groupId: 'stereo',
 					language: 'en',
 					name: 'English',
-					url: 'audio/stereo/en/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/en/128kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -215,18 +286,25 @@ test('multiple audio streams', async () => {
 					groupId: 'stereo',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 5,
 		},
 		{
-			url: 'video/800kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/500kbit.m3u8',
+			),
 			averageBandwidth: null,
-			bandwidth: 831270,
+			bandwidth: 520929,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
 			resolution: {width: 638, height: 272},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -234,7 +312,11 @@ test('multiple audio streams', async () => {
 					groupId: 'stereo',
 					language: 'en',
 					name: 'English',
-					url: 'audio/stereo/en/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/en/128kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -243,18 +325,25 @@ test('multiple audio streams', async () => {
 					groupId: 'stereo',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 6,
 		},
 		{
-			url: 'video/250kbit.m3u8',
+			src: path.resolve(
+				path.dirname(exampleVideos.separatedAudio),
+				'video/250kbit.m3u8',
+			),
 			averageBandwidth: null,
 			bandwidth: 258157,
 			codecs: ['avc1.4d400d', 'mp4a.40.2'],
 			resolution: {width: 422, height: 180},
-			dedicatedAudioTracks: [
+			associatedPlaylists: [
 				{
 					autoselect: true,
 					channels: null,
@@ -262,7 +351,11 @@ test('multiple audio streams', async () => {
 					groupId: 'stereo',
 					language: 'en',
 					name: 'English',
-					url: 'audio/stereo/en/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/en/128kbit.m3u8',
+					),
+					id: 0,
 				},
 				{
 					autoselect: true,
@@ -271,7 +364,11 @@ test('multiple audio streams', async () => {
 					groupId: 'stereo',
 					language: 'dubbing',
 					name: 'Dubbing',
-					url: 'audio/stereo/none/128kbit.m3u8',
+					src: path.resolve(
+						path.dirname(exampleVideos.separatedAudio),
+						'audio/stereo/none/128kbit.m3u8',
+					),
+					id: 1,
 				},
 			],
 			id: 7,

@@ -46,24 +46,37 @@ export const throttledStateUpdate = ({
 		lastUpdated = currentState;
 	};
 
-	const interval = setInterval(() => {
-		callUpdateIfChanged();
-	}, everyMilliseconds);
+	let cleanup = () => {};
 
-	const onAbort = () => {
-		clearInterval(interval);
-	};
+	if (everyMilliseconds > 0) {
+		const interval = setInterval(() => {
+			callUpdateIfChanged();
+		}, everyMilliseconds);
 
-	controller._internals.signal.addEventListener('abort', onAbort, {once: true});
+		const onAbort = () => {
+			clearInterval(interval);
+		};
+
+		controller._internals.signal.addEventListener('abort', onAbort, {
+			once: true,
+		});
+
+		cleanup = () => {
+			clearInterval(interval);
+			controller._internals.signal.removeEventListener('abort', onAbort);
+		};
+	}
 
 	return {
 		get: () => currentState,
 		update: (fn) => {
 			currentState = fn(currentState);
+			if (everyMilliseconds === 0) {
+				callUpdateIfChanged();
+			}
 		},
 		stopAndGetLastProgress: () => {
-			clearInterval(interval);
-			controller._internals.signal.removeEventListener('abort', onAbort);
+			cleanup();
 			return currentState;
 		},
 	};

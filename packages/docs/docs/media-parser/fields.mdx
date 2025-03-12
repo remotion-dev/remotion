@@ -55,7 +55,7 @@ The size of the input in bytes.
 _string | null_
 
 The MIME type of the file that was returned when the file was fetched.  
-Only available if using the `fetchReader` or `webFileReader`.
+Only available if using the [`webReader`](/docs/media-parser/web-reader) (default).
 
 ### `structure`
 
@@ -206,10 +206,10 @@ An array of objects with the following fields:
 - `averageBandwidth`: The average bandwidth of the stream. May be `null`.
 - `resolution`: The resolution of the stream. May be `null`.
 - `codecs`: The codec strings of the stream as an array May be `null`.
-- `url`: The URI of the stream
+- `src`: The URL or file path of the stream
 - `id`: A unique identifier that Remotion gives the stream
-- `dedicatedAudioTracks`: Audio tracks that are connected to this stream but are in a separate file. Currently these need to be processed yourself. We plan a breaking change to allow you to select an audio stream and allowing you to get the samples in the usual interleaved manner. This value is an array with objects of the following shape:
-  - `url`: The URL of the audio track
+- `associatedPlaylists`: Audio tracks that are connected to this stream but live in a separate file.
+  - `src`: The URL or file path of the audio track
   - `autoselect`: Corresponds to the `AUTOSELECT` attribute in the HLS playlist
   - `default`: Corresponds to the `DEFAULT` attribute in the HLS playlist
   - `language`: The language of the audio track

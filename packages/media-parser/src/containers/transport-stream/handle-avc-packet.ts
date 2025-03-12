@@ -41,6 +41,7 @@ export const handleAvcPacket = async ({
 		);
 
 		const track: Track = {
+			m3uStreamFormat: null,
 			rotation: 0,
 			trackId: programId,
 			type: 'video',

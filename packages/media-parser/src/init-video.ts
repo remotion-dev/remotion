@@ -1,4 +1,5 @@
 import type {FlacStructure} from './containers/flac/types';
+import {getMoovFromFromIsoStructure} from './containers/iso-base-media/traversal';
 import type {WavStructure} from './containers/wav/types';
 import {
 	IsAGifError,
@@ -6,11 +7,13 @@ import {
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
 } from './errors';
+import {getTracksFromMoovBox} from './get-tracks';
 import {Log} from './log';
 import type {Mp3Structure} from './parse-result';
+import {registerAudioTrack, registerVideoTrack} from './register-track';
 import type {ParserState} from './state/parser-state';
 
-export const initVideo = ({
+export const initVideo = async ({
 	state,
 	mimeType,
 	name,
@@ -27,6 +30,39 @@ export const initVideo = ({
 		Log.verbose(state.logLevel, 'Detected RIFF container');
 		state.setStructure({
 			type: 'riff',
+			boxes: [],
+		});
+		return;
+	}
+
+	if (state.mp4HeaderSegment) {
+		Log.verbose(state.logLevel, 'Detected ISO Base Media segment');
+		const moovAtom = getMoovFromFromIsoStructure(state.mp4HeaderSegment);
+		if (!moovAtom) {
+			throw new Error('No moov box found');
+		}
+
+		const tracks = getTracksFromMoovBox(moovAtom);
+		for (const track of tracks.videoTracks) {
+			await registerVideoTrack({
+				state,
+				track,
+				container: 'mp4',
+			});
+		}
+
+		for (const track of tracks.audioTracks) {
+			await registerAudioTrack({
+				state,
+				track,
+				container: 'mp4',
+			});
+		}
+
+		state.callbacks.tracks.setIsDone(state.logLevel);
+
+		state.setStructure({
+			type: 'iso-base-media',
 			boxes: [],
 		});
 		return;

@@ -59,7 +59,7 @@ export const RenderQueueItem: React.FC<{
 }> = ({job, selected}) => {
 	const [hovered, setHovered] = useState(false);
 
-	const {setCanvasContent} = useContext(Internals.CompositionManager);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);

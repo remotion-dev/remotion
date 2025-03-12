@@ -42,6 +42,7 @@ const subFile = async (filePath, fileName, folder) => {
     model: WHISPER_MODEL,
     tokenLevelTimestamps: true,
     whisperPath: WHISPER_PATH,
+    whisperCppVersion: WHISPER_VERSION,
     printOutput: false,
     translateToEnglish: false,
     language: WHISPER_LANG,

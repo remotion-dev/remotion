@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
+import type {ObjectCannedACL, PutObjectCommandInput} from '@aws-sdk/client-s3';
 import {PutObjectCommand} from '@aws-sdk/client-s3';
+import {Upload} from '@aws-sdk/lib-storage';
 import type {
 	CustomCredentials,
 	WriteFileInput,
@@ -8,6 +10,9 @@ import mimeTypes from 'mime-types';
 import type {AwsProvider} from './aws-provider';
 import {getContentDispositionHeader} from './content-disposition-header';
 import {getS3Client} from './get-s3-client';
+
+// Files larger than 100MB will use multipart upload
+const MULTIPART_THRESHOLD = 100 * 1024 * 1024; // 5MB in bytes
 
 const tryLambdaWriteFile = async ({
 	bucketName,
@@ -20,28 +25,53 @@ const tryLambdaWriteFile = async ({
 	customCredentials,
 	forcePathStyle,
 }: WriteFileInput<AwsProvider>): Promise<void> => {
-	await getS3Client({
+	const client = getS3Client({
 		region,
 		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
 		forcePathStyle,
-	}).send(
-		new PutObjectCommand({
-			Bucket: bucketName,
-			Key: key,
-			Body: body,
-			ACL:
-				privacy === 'no-acl'
-					? undefined
-					: privacy === 'private'
-						? 'private'
-						: 'public-read',
-			ExpectedBucketOwner: customCredentials
+	});
+
+	const params: PutObjectCommandInput = {
+		Bucket: bucketName,
+		Key: key,
+		Body: body,
+		ACL:
+			privacy === 'no-acl'
 				? undefined
-				: (expectedBucketOwner ?? undefined),
-			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
-			ContentDisposition: getContentDispositionHeader(downloadBehavior),
-		}),
-	);
+				: ((privacy === 'private'
+						? 'private'
+						: 'public-read') as ObjectCannedACL),
+		ExpectedBucketOwner: customCredentials
+			? undefined
+			: (expectedBucketOwner ?? undefined),
+		ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
+		ContentDisposition: getContentDispositionHeader(downloadBehavior),
+	};
+
+	// Determine file size
+	const size =
+		body instanceof Buffer || body instanceof Uint8Array
+			? body.length
+			: body instanceof Blob
+				? body.size
+				: typeof body === 'string'
+					? Buffer.from(body).length
+					: null;
+
+	// Use multipart upload for large files or streams (where we can't determine size)
+	if (size === null || size > MULTIPART_THRESHOLD) {
+		const upload = new Upload({
+			client,
+			params,
+			queueSize: 4, // number of concurrent uploads
+			partSize: 5 * 1024 * 1024, // chunk size of 5MB
+		});
+
+		await upload.done();
+	} else {
+		// Use regular PutObject for small files
+		await client.send(new PutObjectCommand(params));
+	}
 };
 
 export const lambdaWriteFileImplementation = async (

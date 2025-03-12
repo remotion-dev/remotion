@@ -33,6 +33,7 @@ export type GetWaveformPortion = {
 	numberOfSamples: number;
 	channel?: number;
 	outputRange?: SampleOutputRange;
+	dataOffsetInSeconds?: number;
 };
 
 /*
@@ -46,17 +47,18 @@ export const getWaveformPortion = ({
 	numberOfSamples,
 	channel = 0,
 	outputRange = 'zero-to-one',
+	dataOffsetInSeconds,
 }: GetWaveformPortion): Bar[] => {
 	validateChannel(channel, audioData.numberOfChannels);
 
 	const waveform = audioData.channelWaveforms[channel];
 
 	const startSample = Math.floor(
-		(startTimeInSeconds / audioData.durationInSeconds) * waveform.length,
+		(startTimeInSeconds - (dataOffsetInSeconds ?? 0)) * audioData.sampleRate,
 	);
 	const endSample = Math.floor(
-		((startTimeInSeconds + durationInSeconds) / audioData.durationInSeconds) *
-			waveform.length,
+		(startTimeInSeconds - (dataOffsetInSeconds ?? 0) + durationInSeconds) *
+			audioData.sampleRate,
 	);
 
 	const samplesBeforeStart = 0 - startSample;

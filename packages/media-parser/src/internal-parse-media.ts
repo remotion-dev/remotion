@@ -36,6 +36,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 	acknowledgeRemotionLicense,
 	apiName,
 	selectM3uStream: selectM3uStreamFn,
+	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
+	mp4HeaderSegment,
 	...more
 }: InternalParseMediaOptions<F>) {
 	warnIfRemotionLicenseNotAcknowledged({
@@ -50,7 +52,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 		callbacks: more,
 	});
 
-	Log.verbose(logLevel, `Reading ${typeof src === 'string' ? src : src.name}`);
+	Log.verbose(
+		logLevel,
+		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src.name}`,
+	);
 
 	const {
 		reader: readerInstance,
@@ -111,6 +116,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 		src,
 		onDiscardedData,
 		selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment,
 	});
 	const {iterator} = state;
 
@@ -162,7 +169,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		if (state.iterator.counter.getOffset() === contentLength) {
 			if (
 				state.getStructure().type === 'm3u' &&
-				!state.m3u.getAllChunksProcessed()
+				!state.m3u.getAllChunksProcessedOverall()
 			) {
 				return false;
 			}
@@ -216,8 +223,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
 			await fetchMoreData();
 		}
-
-		await state.eventLoop.eventLoopBreakIfNeeded();
 
 		timeReadingData += Date.now() - readStart;
 
@@ -345,6 +350,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	iterator?.destroy();
 
 	state.callbacks.tracks.ensureHasTracksAtEnd(fields);
+	state.m3u.abortM3UStreamRuns();
 	if (errored) {
 		throw errored;
 	}

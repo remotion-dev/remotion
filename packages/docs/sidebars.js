@@ -213,16 +213,18 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/media-parser/metadata',
+					href: '/docs/media-parser',
 					label: 'Guide',
 				},
 				'media-parser/parse-media',
 				'media-parser/download-and-parse-media',
 				'media-parser/media-parser-controller',
+				'media-parser/parse-media-on-web-worker',
+				'media-parser/parse-media-on-server-worker',
 				'media-parser/has-been-aborted',
 				'media-parser/node-reader',
-				'media-parser/fetch-reader',
-				'media-parser/web-file-reader',
+				'media-parser/web-reader',
+				'media-parser/universal-reader',
 				'media-parser/node-writer',
 			],
 		},
@@ -599,7 +601,7 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/webcodecs/convert-a-video',
+					href: '/docs/webcodecs',
 					label: 'Guide',
 				},
 				'webcodecs/convert-media',
@@ -930,8 +932,11 @@ module.exports = {
 				},
 				'media-parser/fields',
 				'media-parser/metadata',
+				'media-parser/readers',
 				'media-parser/fast-and-slow',
 				'media-parser/tags',
+				'media-parser/download-and-parse',
+				'media-parser/workers',
 				'media-parser/format-support',
 				'media-parser/runtime-support',
 				'media-parser/pause-resume-abort',
@@ -981,6 +986,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'AI',
+			link: {
+				type: 'doc',
+				id: 'ai/index',
+			},
+			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+		},
+		{
+			type: 'category',
 			label: 'Tooling',
 			items: [
 				'tailwind',
@@ -990,6 +1004,7 @@ module.exports = {
 				'javascript',
 				'third-party',
 				'miscellaneous/typescript-aliases',
+				'testing',
 				'figma',
 				'spline',
 				'after-effects',
@@ -1114,6 +1129,7 @@ module.exports = {
 				'support',
 			],
 		},
+
 		{
 			type: 'category',
 			label: 'Miscellaneous',
@@ -1129,7 +1145,6 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
-				'system-prompt',
 			],
 		},
 		{

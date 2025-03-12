@@ -11,7 +11,7 @@ crumb: '@remotion/media-parser'
 The API for getting video metadata is stable and may be used in production.
 :::
 
-A reader for `@remotion/media-parser` that reads from the local file system using Node.js `fs` module.  
+A [reader](/docs/media-parser/readers) for `@remotion/media-parser` that reads from the local file system using Node.js `fs` module.  
 It also works with Bun.
 
 ## Example
@@ -29,3 +29,8 @@ const result = await parseMedia({
   reader: nodeReader,
 });
 ```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/node.ts)
+- [Readers](/docs/media-parser/readers)

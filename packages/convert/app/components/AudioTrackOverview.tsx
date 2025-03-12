@@ -1,7 +1,7 @@
 import type {
 	AudioTrack,
 	MediaParserLocation,
-	MetadataEntry,
+	MediaParserMetadataEntry,
 } from '@remotion/media-parser';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 import {MetadataDisplay} from './MetadataTable';
@@ -9,7 +9,7 @@ import {Table, TableBody, TableCell, TableRow} from './ui/table';
 
 export const AudioTrackOverview: React.FC<{
 	readonly track: AudioTrack;
-	readonly metadata: MetadataEntry[] | null;
+	readonly metadata: MediaParserMetadataEntry[] | null;
 	location: MediaParserLocation | null;
 }> = ({track, metadata, location}) => {
 	return (

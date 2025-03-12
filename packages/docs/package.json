@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.267",
+	"version": "4.0.273",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -11,6 +11,7 @@
 		"start": "docusaurus start --host 0.0.0.0",
 		"start-docs": "docusaurus start",
 		"build-docs": "DOCUSAURUS_IGNORE_SSG_WARNINGS=true node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && bun copy-convert.ts && bun count-pages.ts",
+		"make": "bun update-prompt.ts",
 		"swizzle": "docusaurus swizzle",
 		"deploy": "docusaurus deploy",
 		"serve": "docusaurus serve",
@@ -101,6 +102,7 @@
 		"@types/hls.js": "^0.13.3",
 		"@types/unist": "^2.0.0",
 		"@types/node": "20.12.14",
+		"@types/bun": "1.2.0",
 		"lodash.sortby": "^4.7.0",
 		"url-loader": "^4.1.1",
 		"openai": "4.67.1"

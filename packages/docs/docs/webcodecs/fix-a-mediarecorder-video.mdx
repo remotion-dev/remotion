@@ -48,7 +48,6 @@ You can also re-encode the video in the browser using the new and experimental [
 
 ```tsx twoslash title="Re-encoding a video"
 import {convertMedia} from '@remotion/webcodecs';
-import {webFileReader} from '@remotion/media-parser/web-file';
 
 // The video get from the MediaRecorder as a Blob
 const blob = new Blob([], {type: 'video/webm'});
@@ -58,7 +57,6 @@ await convertMedia({
   container: 'mp4',
   videoCodec: 'h264',
   audioCodec: 'aac',
-  reader: webFileReader,
 });
 ```
 
@@ -80,7 +78,6 @@ Instead of re-encoding to an MP4, you can also re-mux the video to a new WebM fi
 
 ```tsx twoslash title="Re-muxing a video"
 import {convertMedia} from '@remotion/webcodecs';
-import {webFileReader} from '@remotion/media-parser/web-file';
 
 // The video get from the MediaRecorder as a Blob
 const blob = new Blob([], {type: 'video/webm'});
@@ -88,7 +85,6 @@ const blob = new Blob([], {type: 'video/webm'});
 await convertMedia({
   src: blob,
   container: 'webm',
-  reader: webFileReader,
 });
 ```
 

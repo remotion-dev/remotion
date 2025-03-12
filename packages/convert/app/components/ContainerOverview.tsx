@@ -4,8 +4,8 @@ import type {
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserLocation,
+	MediaParserMetadataEntry,
 	MediaParserVideoCodec,
-	MetadataEntry,
 } from '@remotion/media-parser';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
@@ -27,7 +27,7 @@ export const ContainerOverview: React.FC<{
 	readonly fps: number | null | undefined;
 	readonly container: MediaParserContainer | null;
 	readonly isHdr: boolean | undefined;
-	readonly metadata: MetadataEntry[] | null;
+	readonly metadata: MediaParserMetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
 	readonly isAudioOnly: boolean;
 }> = ({

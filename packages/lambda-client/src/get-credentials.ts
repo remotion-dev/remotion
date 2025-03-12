@@ -1,4 +1,4 @@
-import {fromIni} from '@aws-sdk/credential-providers';
+import {fromIni} from '@aws-sdk/credential-provider-ini';
 import {getEnvVariable} from './get-env-variable';
 import {isInsideLambda} from './is-in-lambda';
 

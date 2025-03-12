@@ -119,6 +119,7 @@ export const makeBaseMediaTrack = (
 	const privateData = getVideoPrivateData(trakBox);
 
 	const track: VideoTrack = {
+		m3uStreamFormat: null,
 		type: 'video',
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors ?? undefined,

@@ -21,9 +21,11 @@ export const getOutputLocation = ({
 	args,
 	type,
 	outputLocationFromUi,
+	compositionDefaultOutName,
 }: {
 	compositionId: string;
 	outputLocationFromUi: string | null;
+	compositionDefaultOutName: string | null;
 	defaultExtension: string;
 	args: (string | number)[];
 	type: 'asset' | 'sequence';
@@ -43,6 +45,7 @@ export const getOutputLocation = ({
 			compositionName: compositionId,
 			defaultExtension,
 			type,
+			compositionDefaultOutName,
 		})
 	);
 };

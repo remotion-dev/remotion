@@ -1,5 +1,5 @@
 import type {Options, ParseMediaFields} from '../options';
-import type {Structure} from '../parse-result';
+import type {MediaParserStructureUnstable} from '../parse-result';
 import type {StructureState} from './structure';
 
 export const needsTracksForField = ({
@@ -7,7 +7,7 @@ export const needsTracksForField = ({
 	structure,
 }: {
 	field: keyof Options<ParseMediaFields>;
-	structure: Structure;
+	structure: MediaParserStructureUnstable;
 }) => {
 	if (field === 'dimensions') {
 		if (structure.type === 'riff') {

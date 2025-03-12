@@ -2,7 +2,12 @@ import './_check-rsc.js';
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {Codec} from './codec.js';
-import type {TRenderAsset} from './CompositionManager.js';
+import type {
+	AnyCompMetadata,
+	AnyComposition,
+	AudioOrVideoAsset,
+	TRenderAsset,
+} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -27,6 +32,7 @@ declare global {
 			[key: string]: {
 				label: string | null;
 				timeout: number | Timer;
+				startTime: number;
 			};
 		};
 		remotion_cancelledError: string | undefined;
@@ -73,23 +79,30 @@ declare global {
 	}
 }
 
+export type BundleCompositionState = {
+	type: 'composition';
+	compositionName: string;
+	serializedResolvedPropsWithSchema: string;
+	compositionHeight: number;
+	compositionDurationInFrames: number;
+	compositionWidth: number;
+	compositionFps: number;
+	compositionDefaultCodec: Codec;
+	compositionDefaultOutName: string | null;
+};
+
+export type BundleIndexState = {
+	type: 'index';
+};
+
+export type BundleEvaluationState = {
+	type: 'evaluation';
+};
+
 export type BundleState =
-	| {
-			type: 'index';
-	  }
-	| {
-			type: 'evaluation';
-	  }
-	| {
-			type: 'composition';
-			compositionName: string;
-			serializedResolvedPropsWithSchema: string;
-			compositionHeight: number;
-			compositionDurationInFrames: number;
-			compositionWidth: number;
-			compositionFps: number;
-			compositionDefaultCodec: Codec;
-	  };
+	| BundleIndexState
+	| BundleEvaluationState
+	| BundleCompositionState;
 
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
@@ -104,14 +117,6 @@ export {
 	CompProps,
 	StillProps,
 } from './Composition.js';
-export {
-	AnyCompMetadata,
-	AnyComposition,
-	AudioOrVideoAsset,
-	SmallTCompMetadata,
-	TCompMetadata,
-	TRenderAsset,
-} from './CompositionManager.js';
 export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
@@ -214,3 +219,13 @@ export const Config = new Proxy(proxyObj, {
 });
 
 addSequenceStackTraces(Sequence);
+
+export type _InternalTypes = {
+	AnyComposition: AnyComposition;
+	BundleCompositionState: BundleCompositionState;
+	BundleState: BundleState;
+	VideoConfigWithSerializedProps: VideoConfigWithSerializedProps;
+	AnyCompMetadata: AnyCompMetadata;
+	AudioOrVideoAsset: AudioOrVideoAsset;
+	TRenderAsset: TRenderAsset;
+};

@@ -90,6 +90,7 @@ test('AVI file', async () => {
 	]);
 	expect(tracks.videoTracks).toEqual([
 		{
+			m3uStreamFormat: null,
 			codec: 'avc1.640015',
 			codecPrivate: new Uint8Array([
 				1, // version

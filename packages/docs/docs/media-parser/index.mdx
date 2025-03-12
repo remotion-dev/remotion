@@ -6,7 +6,7 @@ title: '@remotion/media-parser'
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import {TableOfContents, MediaParserGuideTableOfContents} from './TableOfContents';
+import {TableOfContents, MediaParserGuideTableOfContents, ReadersTableOfContents, WritersTableOfContents} from './TableOfContents';
 
 _available from v4.0.190_
 
@@ -19,13 +19,13 @@ The API for getting video metadata is stable and may be used in production.
 
 Design goals:
 
-- [Support all relevant multimedia containers](/docs/media-parser/format-support): `.mp4`, `.mov`, `.webm`, `.mkv`, `.avi`, `.m3u8`, `.ts`, `.mp3`, `.wav`, `.aac` and `.flac`.
+- [Support all major containers](/docs/media-parser/format-support): `.mp4`, `.mov`, `.webm`, `.mkv`, `.avi`, `.m3u8`, `.ts`, `.mp3`, `.wav`, `.aac` and `.flac`.
 - [Easily get various information](/docs/media-parser/fields) from multimedia files
-- [Work in the browser, and server runtimes (Node.js, Bun, Edge, etc.)](/docs/media-parser/runtime-support)
+- [Work in the browser, and server runtimes](/docs/media-parser/runtime-support) (Node.js, Bun, Edge, etc.)
 - [Satisfy your query with minimal fetching](/docs/media-parser/fast-and-slow)
 - [Functional TypeScript API](/docs/media-parser/parse-media)
 - [Be useful when passing unsupported media](/docs/media-parser/foreign-file-types)
-- [Extract samples and enable WebCodecs use cases](/docs/media-parser/webcodecs)
+- [Allow decoding video frames and audio samples using WebCodecs](/docs/media-parser/webcodecs)
 - [Pausable, resumable and cancellable](/docs/media-parser/pause-resume-abort)
 - Seeking - continue parsing in a different section of the file (not yet implemented)
 - No dependencies
@@ -43,6 +43,48 @@ Design goals:
 The following APIs are available:
 
 <TableOfContents />
+
+## Readers
+
+Choose the appropriate reader for your file source:
+
+<ReadersTableOfContents />
+
+## Writers
+
+Choose how to store files downloaded using [`downloadAndParseMedia()`](/docs/media-parser/download-and-parse-media):
+
+<WritersTableOfContents />
+
+## How does this compare to FFmpeg?
+
+FFmpeg generally is a more mature software and carries more capabilities.  
+We advise you to use it always if you don't need to call it from JavaScript.
+
+We built `@remotion/media-parser` with the focus on making it work well on the web:
+
+- Importing this library is a lot lighter than FFmpeg.wasm, which loads at least 10MB.
+- Functional, promise-based API
+- Direct integration and intentional usage of JavaScript APIs like `fetch()`, `File`, `Worker`, `AbortController`, `node:fs`, resizable `ArrayBuffer`
+- Samples are returned in a WebCodecs-compatible format, which makes it easier to decode them in the browser with full hardware acceleration.
+
+## How does this compare to MP4Box.js?
+
+We aim to support more container formats than MP4Box.js, so that multimedia files of any kind can be passed in.  
+MP4Box.js focuses on the ISO Base Media Format and supports reading more boxes, however it does not support reading other container formats.
+
+## Thank you
+
+<table>
+  <tr>
+    <td>
+      <img style={{width: 100}} src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tellahq_logo.jpeg" />
+    </td>
+    <td>
+      <a href="https://tella.com">Tella</a> for boosting the development of @remotion/media-parser with $10.000!
+    </td>
+  </tr>
+</table>
 
 ## License
 

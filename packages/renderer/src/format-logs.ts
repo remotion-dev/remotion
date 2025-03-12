@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	DevtoolsRemoteObject,
 	ObjectPreview,
@@ -11,6 +12,13 @@ export const formatRemoteObject = (remoteObject: DevtoolsRemoteObject) => {
 	}
 
 	if (remoteObject.type === 'string') {
+		const isDelayRenderClear = remoteObject.value.includes(
+			NoReactInternals.DELAY_RENDER_CLEAR_TOKEN,
+		);
+		if (isDelayRenderClear) {
+			return chalk.gray(`${remoteObject.value}`);
+		}
+
 		return chalk.reset(`${remoteObject.value}`);
 	}
 

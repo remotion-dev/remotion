@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
 import {SAMPLE_FILE} from '~/lib/config';
 import type {Source} from '~/lib/convert-state';
+import {AlternativePickFileOptions} from './AlternativePickFileOptions';
 import {DropFileBox} from './DropFileBox';
 import {TextMarkLogo} from './TextMarkLogo';
 import {WhyRemotionConvert} from './WhyRemotionConvert';
@@ -50,12 +51,7 @@ export const PickFile: React.FC<{
 				<div className="h-4" />
 				<div className="font-brand">or </div>
 				<div className="h-4" />
-				<a
-					className="font-brand text-brand cursor cursor-pointer hover:underline"
-					onClick={onSampleFile}
-				>
-					Use a sample file
-				</a>
+				<AlternativePickFileOptions onSampleFile={onSampleFile} />
 				<div className="h-10" />
 			</div>
 			<div className="w-full bg-white border-t-2 border-black">

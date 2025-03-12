@@ -1,6 +1,9 @@
 import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
-import type {SelectM3uStreamFn} from '../containers/m3u/select-stream';
+import type {
+	SelectM3uAssociatedPlaylistsFn,
+	SelectM3uStreamFn,
+} from '../containers/m3u/select-stream';
 import {Log, type LogLevel} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
 import type {
@@ -10,6 +13,7 @@ import type {
 	ParseMediaMode,
 	ParseMediaSrc,
 } from '../options';
+import type {IsoBaseMediaStructure} from '../parse-result';
 import type {ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
@@ -18,7 +22,6 @@ import {flacState} from './flac-state';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
-import {eventLoopState} from './last-eventloop-break';
 import {m3uState} from './m3u-state';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
@@ -53,6 +56,8 @@ export const makeParserState = ({
 	readerInterface,
 	onDiscardedData,
 	selectM3uStreamFn,
+	selectM3uAssociatedPlaylistsFn,
+	mp4HeaderSegment,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -67,6 +72,8 @@ export const makeParserState = ({
 	readerInterface: ReaderInterface;
 	onDiscardedData: OnDiscardedData | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
+	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }) => {
 	let skippedBytes: number = 0;
 
@@ -105,7 +112,7 @@ export const makeParserState = ({
 		mp3Info,
 		aac: aacState(),
 		flac: flacState(),
-		m3u: m3uState(),
+		m3u: m3uState(logLevel),
 		callbacks: sampleCallback({
 			controller,
 			hasAudioTrackHandlers,
@@ -115,6 +122,7 @@ export const makeParserState = ({
 			emittedFields,
 			slowDurationAndFpsState: slowDurationAndFps,
 			structure,
+			src,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
@@ -136,11 +144,12 @@ export const makeParserState = ({
 		iterator,
 		controller,
 		mode,
-		eventLoop: eventLoopState(logLevel),
 		src,
 		readerInterface,
 		discardReadBytes,
 		selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment,
 	};
 };
 

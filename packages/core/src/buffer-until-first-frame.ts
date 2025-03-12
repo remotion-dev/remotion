@@ -3,6 +3,11 @@ import type {LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
 
+const isWebkit = () => {
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
+	return isAppleWebKit;
+};
+
 export const useBufferUntilFirstFrame = ({
 	mediaRef,
 	mediaType,
@@ -37,7 +42,14 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
-			if (current.readyState >= current.HAVE_ENOUGH_DATA) {
+			playbackLogging({
+				logLevel,
+				message: `Checking if should buffer until first frame, ${current.readyState}`,
+				mountTime,
+				tag: 'buffer',
+			});
+
+			if (current.readyState >= current.HAVE_ENOUGH_DATA && !isWebkit()) {
 				return;
 			}
 
