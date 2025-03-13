@@ -149,7 +149,7 @@ export const webpackConfig = async ({
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		resolve: {
-			extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx'],
+			extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx', '.mjs', '.cjs'],
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
@@ -158,9 +158,6 @@ export const webpackConfig = async ({
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
-				// Note: Order matters here! "remotion/no-react" must be matched before "remotion"
-				'remotion/no-react': require.resolve('remotion/no-react'),
-				remotion: require.resolve('remotion'),
 			},
 		},
 		module: {

@@ -148,7 +148,6 @@ export const ClockWipeDemo: React.FC<{}> = () => {
 
 	return (
 		<SampleTransition
-			// @ts-expect-error
 			effect={clockWipe({width, height})}
 			durationRestThreshold={0.001}
 		/>
@@ -160,7 +159,6 @@ export const CubeDemo: React.FC<{readonly direction: CubeDirection}> = ({
 }) => {
 	return (
 		<SampleTransition
-			// @ts-expect-error
 			effect={cube({direction})}
 			durationRestThreshold={0.001}
 		/>
@@ -172,7 +170,6 @@ export const CustomTransitionDemo: React.FC<{}> = () => {
 
 	return (
 		<SampleTransition
-			// @ts-expect-error
 			effect={customPresentation({height, width})}
 			durationRestThreshold={0.001}
 		/>

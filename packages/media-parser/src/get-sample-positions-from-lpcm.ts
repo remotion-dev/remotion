@@ -1,12 +1,12 @@
 // If an audio is of type, LPCM, the data structure will include 44100-48000 samples per second
 // We need to handle this case differently and treat each chunk as a sample instead
 
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getStcoBox,
 	getStscBox,
 	getStszBox,
-} from './boxes/iso-base-media/traversal';
+} from './containers/iso-base-media/traversal';
 import type {SamplePosition} from './get-sample-positions';
 
 // example video: mehmet.mov

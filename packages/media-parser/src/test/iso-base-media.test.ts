@@ -21,6 +21,10 @@ if (process.platform !== 'win32') {
 				dimensions: true,
 				rotation: true,
 				unrotatedDimensions: true,
+				numberOfAudioChannels: true,
+				sampleRate: true,
+				slowVideoBitrate: true,
+				slowAudioBitrate: true,
 			},
 			reader: nodeReader,
 			onVideoTrack: ({track}) => {
@@ -36,6 +40,7 @@ if (process.platform !== 'win32') {
 					audioSamples++;
 				};
 			},
+			acknowledgeRemotionLicense: true,
 		});
 		expect(result.dimensions).toEqual({
 			width: 2160,
@@ -52,6 +57,10 @@ if (process.platform !== 'win32') {
 			height: 2160,
 			width: 3840,
 		});
+		expect(result.sampleRate).toBe(44100);
+		expect(result.numberOfAudioChannels).toBe(2);
+		expect(result.slowVideoBitrate).toBe(24_521_925.585937504);
+		expect(result.slowAudioBitrate).toBe(163_756.20978860298);
 		expect(videoTracks).toBe(1);
 		expect(audioTracks).toBe(1);
 		expect(videoSamples).toBe(377);
@@ -66,10 +75,11 @@ if (process.platform !== 'win32') {
 				internalStats: true,
 			},
 			reader: nodeReader,
+			acknowledgeRemotionLicense: true,
 		});
 		expect(internalStats).toEqual({
-			finalCursorOffset: 39048828,
-			skippedBytes: -14108,
+			finalCursorOffset: 39062928,
+			skippedBytes: 2070,
 		});
 		expect(slowKeyframes).toEqual([
 			{

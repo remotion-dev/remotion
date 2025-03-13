@@ -34,6 +34,8 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 		const canReencode = await canReencodeVideoTrack({
 			videoCodec: defaultVideoCodec,
 			track,
+			resizeOperation,
+			rotate,
 		});
 
 		if (canReencode) {

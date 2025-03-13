@@ -105,7 +105,6 @@ class PHPClient
             throw new Exception($response['message']);
         }
         $classResponse->type = $response['type'];
-        print_r(json_encode($response));
         $classResponse->renderId = $response['renderId'];
         $classResponse->bucketName = $response['bucketName'];
         return $classResponse;

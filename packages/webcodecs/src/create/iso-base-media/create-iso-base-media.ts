@@ -19,6 +19,7 @@ export const createIsoBaseMedia = async ({
 	logLevel,
 	filename,
 	progressTracker,
+	expectedDurationInSeconds,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
@@ -26,7 +27,11 @@ export const createIsoBaseMedia = async ({
 		minorBrand: 512,
 	});
 
-	const w = await writer.createContent({filename, mimeType: 'video/mp4'});
+	const w = await writer.createContent({
+		filename,
+		mimeType: 'video/mp4',
+		logLevel,
+	});
 	await w.write(header);
 
 	let globalDurationInUnits = 0;
@@ -50,6 +55,8 @@ export const createIsoBaseMedia = async ({
 				};
 			}),
 			timescale: CONTAINER_TIMESCALE,
+			expectedDurationInSeconds,
+			logLevel,
 		});
 	};
 
@@ -217,8 +224,8 @@ export const createIsoBaseMedia = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
-		save: () => {
-			return w.save();
+		getBlob: () => {
+			return w.getBlob();
 		},
 		remove: async () => {
 			await w.remove();
@@ -273,7 +280,7 @@ export const createIsoBaseMedia = async ({
 				logLevel,
 				'All write operations done. Waiting for finish...',
 			);
-			await w.waitForFinish();
+			await w.finish();
 		},
 	};
 };

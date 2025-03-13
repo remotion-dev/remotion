@@ -3,8 +3,9 @@ import {
 	knownIdsWithOneLength,
 	knownIdsWithThreeLength,
 	knownIdsWithTwoLength,
-} from './boxes/webm/segments/all-segments';
+} from './containers/webm/segments/all-segments';
 import {detectFileType} from './file-types';
+import type {ParseMediaMode} from './options';
 
 export class OffsetCounter {
 	#offset: number;
@@ -71,30 +72,31 @@ export const getArrayBufferIterator = (
 		);
 	}
 
-	let data = new Uint8Array(buf);
+	let uintArray = new Uint8Array(buf);
 
-	data.set(initialData);
+	uintArray.set(initialData);
 
-	let view = new DataView(data.buffer);
+	let view = new DataView(uintArray.buffer);
 	const counter = makeOffsetCounter();
-	let discardAllowed = true;
+
+	const startCheckpoint = () => {
+		const checkpoint = counter.getOffset();
+
+		return {
+			returnToCheckpoint: () => {
+				counter.decrement(counter.getOffset() - checkpoint);
+			},
+		};
+	};
 
 	const getSlice = (amount: number) => {
-		const value = data.slice(
+		const value = uintArray.slice(
 			counter.getDiscardedOffset(),
 			counter.getDiscardedOffset() + amount,
 		);
 		counter.increment(amount);
 
 		return value;
-	};
-
-	const disallowDiscard = () => {
-		discardAllowed = false;
-	};
-
-	const allowDiscard = () => {
-		discardAllowed = true;
 	};
 
 	const discard = (length: number) => {
@@ -111,6 +113,26 @@ export const getArrayBufferIterator = (
 		counter.decrement(1);
 
 		return new TextDecoder().decode(new Uint8Array(bytes));
+	};
+
+	const readUntilLineEnd = () => {
+		const bytes = [];
+		// 10 is "\n"
+		while (true) {
+			if (bytesRemaining() === 0) {
+				return null;
+			}
+
+			const byte = getUint8();
+			bytes.push(byte);
+			if (byte === 10) {
+				break;
+			}
+		}
+
+		const str = new TextDecoder().decode(new Uint8Array(bytes)).trim();
+
+		return str;
 	};
 
 	const getUint8 = () => {
@@ -187,6 +209,18 @@ export const getArrayBufferIterator = (
 		return val;
 	};
 
+	const getSyncSafeInt32 = () => {
+		const val = view.getUint32(counter.getDiscardedOffset());
+		counter.increment(4);
+
+		return (
+			((val & 0x7f000000) >> 3) |
+			((val & 0x007f0000) >> 2) |
+			((val & 0x00007f00) >> 1) |
+			(val & 0x0000007f)
+		);
+	};
+
 	const getUint64 = (littleEndian = false) => {
 		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
 		counter.increment(8);
@@ -234,61 +268,65 @@ export const getArrayBufferIterator = (
 	const addData = (newData: Uint8Array) => {
 		const oldLength = buf.byteLength;
 		const newLength = oldLength + newData.byteLength;
+		if (newLength < oldLength) {
+			throw new Error('Cannot decrement size');
+		}
+
+		if (newLength > (maxBytes ?? Infinity)) {
+			throw new Error(
+				`Exceeded maximum byte length ${maxBytes} with ${newLength}`,
+			);
+		}
+
 		buf.resize(newLength);
 		const newArray = new Uint8Array(buf);
 		newArray.set(newData, oldLength);
-		data = newArray;
-		view = new DataView(data.buffer);
-	};
-
-	const byteLength = () => {
-		return data.byteLength;
+		uintArray = newArray;
+		view = new DataView(uintArray.buffer);
 	};
 
 	const bytesRemaining = () => {
-		return data.byteLength - counter.getDiscardedOffset();
+		return uintArray.byteLength - counter.getDiscardedOffset();
 	};
 
-	const removeBytesRead = () => {
-		if (!discardAllowed) {
-			return;
-		}
-
+	const removeBytesRead = (force: boolean, mode: ParseMediaMode) => {
 		const bytesToRemove = counter.getDiscardedOffset();
 
 		// Only do this operation if it is really worth it 😇
-		if (bytesToRemove < 100_000) {
-			return;
+		// let's set the threshold to 3MB
+		if (bytesToRemove < 3_000_000 && !force) {
+			return {bytesRemoved: 0, removedData: null};
+		}
+
+		// Don't remove if the data is not even available
+		if (view.byteLength < bytesToRemove && !force) {
+			return {bytesRemoved: 0, removedData: null};
 		}
 
 		counter.discardBytes(bytesToRemove);
-		const newData = data.slice(bytesToRemove);
-		data.set(newData);
+
+		const removedData =
+			mode === 'download' ? uintArray.slice(0, bytesToRemove) : null;
+
+		const newData = uintArray.slice(bytesToRemove);
+		uintArray.set(newData);
 		buf.resize(newData.byteLength);
-		view = new DataView(data.buffer);
+		view = new DataView(uintArray.buffer);
+
+		return {bytesRemoved: bytesToRemove, removedData};
 	};
 
-	const skipTo = (offset: number, reset: boolean) => {
+	const skipTo = (offset: number) => {
 		const becomesSmaller = offset < counter.getOffset();
-		if (becomesSmaller) {
-			if (reset) {
-				buf.resize(0);
-				counter.decrement(counter.getOffset() - offset);
-				counter.setDiscardedOffset(offset);
-			} else {
-				const toDecrement = counter.getOffset() - offset;
-				const newOffset = counter.getOffset() - toDecrement;
-				counter.decrement(toDecrement);
-				const c = counter.getDiscardedBytes();
-				if (c > newOffset) {
-					throw new Error('already discarded too many bytes');
-				}
-			}
-		} else {
+		if (!becomesSmaller) {
 			const currentOffset = counter.getOffset();
 			counter.increment(offset - currentOffset);
-			removeBytesRead();
+			return;
 		}
+
+		buf.resize(0);
+		counter.decrement(counter.getOffset() - offset);
+		counter.setDiscardedOffset(offset);
 	};
 
 	const readExpGolomb = () => {
@@ -356,6 +394,45 @@ export const getArrayBufferIterator = (
 		byteToShift = getUint8();
 	};
 
+	// https://www.rfc-editor.org/rfc/rfc9639.html#name-coded-number
+	const getFlacCodecNumber = () => {
+		let ones = 0;
+		let bits = 0;
+
+		// eslint-disable-next-line no-constant-binary-expression
+		while ((++bits || true) && getBits(1) === 1) {
+			ones++;
+		}
+
+		if (ones === 0) {
+			return getBits(7);
+		}
+
+		const bitArray: number[] = [];
+		const firstByteBits = 8 - ones - 1;
+		for (let i = 0; i < firstByteBits; i++) {
+			bitArray.unshift(getBits(1));
+		}
+
+		const extraBytes = ones - 1;
+		for (let i = 0; i < extraBytes; i++) {
+			for (let j = 0; j < 8; j++) {
+				const val = getBits(1);
+				if (j < 2) {
+					continue;
+				}
+
+				bitArray.unshift(val);
+			}
+		}
+
+		const encoded = bitArray.reduce((acc, bit, index) => {
+			return acc | (bit << index);
+		}, 0);
+
+		return encoded;
+	};
+
 	const getBits = (bits: number) => {
 		let result = 0;
 		let bitsCollected = 0;
@@ -382,7 +459,7 @@ export const getArrayBufferIterator = (
 	};
 
 	const destroy = () => {
-		data = new Uint8Array(0);
+		uintArray = new Uint8Array(0);
 		buf.resize(0);
 	};
 
@@ -395,7 +472,6 @@ export const getArrayBufferIterator = (
 		peekB,
 		peekD,
 		getBits,
-		byteLength,
 		bytesRemaining,
 		leb128,
 		removeBytesRead,
@@ -408,7 +484,7 @@ export const getArrayBufferIterator = (
 			return new TextDecoder().decode(atom);
 		},
 		detectFileType: () => {
-			return detectFileType(data);
+			return detectFileType(uintArray);
 		},
 		getPaddedFourByteNumber,
 		getMatroskaSegmentId: (): string | null => {
@@ -607,6 +683,19 @@ export const getArrayBufferIterator = (
 
 			return new TextDecoder().decode(bytes).trim();
 		},
+		planBytes: (size: number) => {
+			const currentOffset = counter.getOffset();
+			return {
+				discardRest: () => {
+					const toDiscard = size - (counter.getOffset() - currentOffset);
+					if (toDiscard < 0) {
+						throw new Error('read too many bytes');
+					}
+
+					return getSlice(toDiscard);
+				},
+			};
+		},
 		getFloat64: () => {
 			const val = view.getFloat64(counter.getDiscardedOffset());
 			counter.increment(8);
@@ -622,10 +711,12 @@ export const getArrayBufferIterator = (
 		getInt32Le,
 		getInt32,
 		destroy,
-		disallowDiscard,
-		allowDiscard,
 		startBox,
 		readExpGolomb,
+		startCheckpoint,
+		getFlacCodecNumber,
+		readUntilLineEnd,
+		getSyncSafeInt32,
 	};
 };
 

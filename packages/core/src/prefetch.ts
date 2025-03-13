@@ -1,5 +1,8 @@
 import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import type {LogLevel} from './log.js';
+import {Log} from './log.js';
+import {playbackLogging} from './playback-logging.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const usePreload = (src: string): string => {
@@ -86,9 +89,11 @@ export const prefetch = (
 		contentType?: string;
 		onProgress?: PrefetchOnProgress;
 		credentials?: RequestCredentials;
+		logLevel?: LogLevel;
 	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
+	const logLevel = options?.logLevel ?? 'info';
 
 	if (getRemotionEnvironment().isRendering) {
 		return {
@@ -96,6 +101,8 @@ export const prefetch = (
 			waitUntilDone: () => Promise.resolve(src),
 		};
 	}
+
+	Log.verbose(logLevel, `[prefetch] Starting prefetch ${src}`);
 
 	let canceled = false;
 	let objectUrl: string | null = null;
@@ -175,6 +182,13 @@ export const prefetch = (
 				return;
 			}
 
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Finished prefetch ${src} with method ${method}`,
+				mountTime: null,
+			});
+
 			objectUrl = url as string;
 
 			setPreloads((p) => ({
@@ -193,6 +207,12 @@ export const prefetch = (
 
 	return {
 		free: () => {
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Freeing ${src}`,
+				mountTime: null,
+			});
 			if (objectUrl) {
 				if (method === 'blob-url') {
 					URL.revokeObjectURL(objectUrl);

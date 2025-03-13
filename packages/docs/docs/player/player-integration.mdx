@@ -21,7 +21,7 @@ Use one of our starter templates:
 - [Next.js (App dir)](/templates/next)
 - [Next.js (App dir + TailwindCSS)](/templates/next-tailwind)
 - [Next.js (Pages dir)](/templates/next-pages-dir)
-- [Remix](/templates/remix)
+- [React Router 7 (Remix)](/templates/react-router)
 
 which have the Player and Lambda already set up.
 
@@ -30,7 +30,7 @@ which have the Player and Lambda already set up.
 Set up a React project with your preferred setup from the [Official React docs](https://react.dev/learn/start-a-new-react-project). Popular choices are:
 
 - [Next.js](https://nextjs.org/learn/basics/create-nextjs-app/setup)
-- [Remix](https://remix.run/docs/en/main/tutorials/blog)
+- [React Router](https://reactrouter.com/start/framework/installation)
 - [Vite](https://vitejs.dev/guide/)
 
 :::note
@@ -106,15 +106,7 @@ import {MyComp} from './MyComp';
 export const MyVideo = () => {
   return (
     <>
-      <Composition
-        component={MyComp}
-        durationInFrames={120}
-        width={1920}
-        height={1080}
-        fps={30}
-        id="my-comp"
-        defaultProps={{text: 'World'}}
-      />
+      <Composition component={MyComp} durationInFrames={120} width={1920} height={1080} fps={30} id="my-comp" defaultProps={{text: 'World'}} />
     </>
   );
 };
@@ -201,15 +193,10 @@ If everything worked, you can now run your webapp and preview your video.
 In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your video using Webpack and to server-side render the video. You need to add `@remotion/bundler` to your package.json for this.
 
 ```ts twoslash title="server.tsx"
-// @module: ESNext
-// @target: ESNext
-
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 
-const bundled = await bundle(
-  path.join(process.cwd(), 'src', 'remotion', 'index.ts'),
-);
+const bundled = await bundle(path.join(process.cwd(), 'src', 'remotion', 'index.ts'));
 ```
 
 See [Server-side rendering](/docs/ssr) for a full example.

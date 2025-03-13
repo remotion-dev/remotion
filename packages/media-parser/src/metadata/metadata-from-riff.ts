@@ -1,11 +1,10 @@
-import type {ListBox} from '../boxes/riff/riff-box';
-import type {RiffStructure} from '../parse-result';
+import type {ListBox, RiffStructure} from '../containers/riff/riff-box';
 import {truthy} from '../truthy';
-import type {MetadataEntry} from './get-metadata';
+import type {MediaParserMetadataEntry} from './get-metadata';
 
 export const getMetadataFromRiff = (
 	structure: RiffStructure,
-): MetadataEntry[] => {
+): MediaParserMetadataEntry[] => {
 	const boxes = structure.boxes.find(
 		(b) => b.type === 'list-box' && b.listType === 'INFO',
 	) as ListBox | undefined;

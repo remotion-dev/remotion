@@ -2,9 +2,9 @@ import {
 	getMatrixCoefficientsFromIndex,
 	getPrimariesFromIndex,
 	getTransferCharacteristicsFromIndex,
-} from './boxes/avc/color';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
-import {parseAv1PrivateData} from './boxes/webm/av1-codec-private';
+} from './containers/avc/color';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
+import {parseAv1PrivateData} from './containers/webm/av1-codec-private';
 import {
 	getAv1CBox,
 	getAvccBox,
@@ -13,27 +13,22 @@ import {
 	getStsdVideoConfig,
 } from './get-sample-aspect-ratio';
 import {
+	getHasTracks,
 	getTracks,
-	hasTracks,
 	type MediaParserVideoCodec,
 	type VideoTrackColorParams,
 } from './get-tracks';
-import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getVideoCodec = (
-	boxes: Structure,
 	state: ParserState,
 ): MediaParserVideoCodec | null => {
-	const track = getTracks(boxes, state);
+	const track = getTracks(state);
 	return track.videoTracks[0]?.codecWithoutConfig ?? null;
 };
 
-export const hasVideoCodec = (
-	boxes: Structure,
-	state: ParserState,
-): boolean => {
-	return hasTracks(boxes, state);
+export const hasVideoCodec = (state: ParserState): boolean => {
+	return getHasTracks(state);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

@@ -1,5 +1,10 @@
-import {needsToIterateOverSamples} from '../may-skip-video-data/need-samples-for-fields';
-import type {AllOptions, Options, ParseMediaFields} from '../options';
+import type {MediaParserController} from '../media-parser-controller';
+import type {
+	AllOptions,
+	Options,
+	ParseMediaFields,
+	ParseMediaSrc,
+} from '../options';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
@@ -8,24 +13,30 @@ import type {
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
+import {needsToIterateOverSamples} from './need-samples-for-fields';
 import type {SlowDurationAndFpsState} from './slow-duration-fps';
+import type {StructureState} from './structure';
 
 export const sampleCallback = ({
-	signal,
+	controller,
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	fields,
 	keyframes,
 	emittedFields,
 	slowDurationAndFpsState,
+	structure,
+	src,
 }: {
-	signal: AbortSignal | undefined;
+	controller: MediaParserController;
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
 	slowDurationAndFpsState: SlowDurationAndFpsState;
+	structure: StructureState;
+	src: ParseMediaSrc;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -37,9 +48,10 @@ export const sampleCallback = ({
 		hasAudioTrackHandlers,
 		fields,
 		hasVideoTrackHandlers,
+		structure,
 	});
 
-	const tracksState = makeTracksSectionState(canSkipTracksState);
+	const tracksState = makeTracksSectionState(canSkipTracksState, src);
 
 	const samplesForTrack: Record<number, number> = {};
 
@@ -62,7 +74,7 @@ export const sampleCallback = ({
 			queuedVideoSamples[id] = [];
 		},
 		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
-			if (signal?.aborted) {
+			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 
@@ -79,12 +91,16 @@ export const sampleCallback = ({
 					await callback(audioSample);
 				}
 			}
+
+			if (needsToIterateOverSamples({emittedFields, fields})) {
+				slowDurationAndFpsState.addAudioSample(audioSample);
+			}
 		},
 		getSamplesForTrack: (trackId: number) => {
 			return samplesForTrack[trackId] ?? 0;
 		},
 		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
-			if (signal?.aborted) {
+			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 
@@ -117,7 +133,7 @@ export const sampleCallback = ({
 					});
 				}
 
-				slowDurationAndFpsState.addSample(videoSample);
+				slowDurationAndFpsState.addVideoSample(videoSample);
 			}
 		},
 		canSkipTracksState,
@@ -140,5 +156,7 @@ export const sampleCallback = ({
 		tracks: tracksState,
 		audioSampleCallbacks,
 		videoSampleCallbacks,
+		hasAudioTrackHandlers,
+		hasVideoTrackHandlers,
 	};
 };

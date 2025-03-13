@@ -46,7 +46,7 @@ export const launchChrome = async ({
 			{timeout},
 		);
 	} catch (error) {
-		await browser.close(false, logLevel, indent);
+		await browser.close({silent: false});
 		throw error;
 	}
 

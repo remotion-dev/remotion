@@ -1,3 +1,4 @@
+import {apiKeyOption} from './api-key';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
@@ -22,6 +23,7 @@ import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
@@ -49,6 +51,7 @@ export const allOptions = {
 	mutedOption,
 	videoCodecOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
@@ -77,6 +80,7 @@ export const allOptions = {
 	metadataOption,
 	hardwareAccelerationOption,
 	chromeModeOption,
+	apiKeyOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

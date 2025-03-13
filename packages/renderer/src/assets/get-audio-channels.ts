@@ -25,7 +25,10 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 	const args = [
 		['-v', 'error'],
 		['-select_streams', 'a:0'],
-		['-show_entries', 'stream=channels:stream=start_time:format=duration'],
+		[
+			'-show_entries',
+			'stream=channels:stream=start_time:format=duration:format=format_name',
+		],
 		['-of', 'default=nw=1'],
 		[src],
 	]
@@ -44,11 +47,16 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 		const channels = task.stdout.match(/channels=([0-9]+)/);
 		const duration = task.stdout.match(/duration=([0-9.]+)/);
 		const startTime = task.stdout.match(/start_time=([0-9.]+)/);
+		const container = task.stdout.match(/format_name=([a-zA-Z0-9.]+)/);
+
+		const isMP3 = container ? container[1] === 'mp3' : false;
 
 		const result: AudioChannelsAndDurationResultCache = {
 			channels: channels ? parseInt(channels[1], 10) : 0,
 			duration: duration ? parseFloat(duration[1]) : null,
-			startTime: startTime ? parseFloat(startTime[1]) : null,
+			// We ignore the start time for MP3 because that is an inherent encoder thing
+			// not in the sense that we want
+			startTime: startTime ? (isMP3 ? 0 : parseFloat(startTime[1])) : null,
 		};
 		return result;
 	} catch (err) {

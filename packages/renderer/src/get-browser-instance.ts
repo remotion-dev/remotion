@@ -1,5 +1,6 @@
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
+import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {LogLevel} from './log-level';
@@ -18,6 +19,8 @@ export const getPageAndCleanupFn = async ({
 	logLevel,
 	onBrowserDownload,
 	chromeMode,
+	pageIndex,
+	onBrowserLog,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -27,12 +30,20 @@ export const getPageAndCleanupFn = async ({
 	logLevel: LogLevel;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
+	pageIndex: number;
+	onBrowserLog: null | ((log: BrowserLog) => void);
 }): Promise<{
 	cleanupPage: () => Promise<void>;
 	page: Page;
 }> => {
 	if (passedInInstance) {
-		const page = await passedInInstance.newPage(() => null, logLevel, indent);
+		const page = await passedInInstance.newPage({
+			context: () => null,
+			logLevel,
+			indent,
+			pageIndex,
+			onBrowserLog,
+		});
 		return {
 			page,
 			cleanupPage: () => {
@@ -63,17 +74,19 @@ export const getPageAndCleanupFn = async ({
 		onBrowserDownload,
 		chromeMode,
 	});
-	const browserPage = await browserInstance.newPage(
-		() => null,
+	const browserPage = await browserInstance.newPage({
+		context: () => null,
 		logLevel,
 		indent,
-	);
+		pageIndex,
+		onBrowserLog,
+	});
 
 	return {
 		page: browserPage,
 		cleanupPage: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close(true, logLevel, indent).catch((err) => {
+			browserInstance.close({silent: true}).catch((err) => {
 				if (!(err as Error).message.includes('Target closed')) {
 					Log.error(
 						{indent, logLevel},

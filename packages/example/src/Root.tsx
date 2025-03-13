@@ -43,8 +43,8 @@ import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderErro
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
 import {
+	LoopedOffthreadRemoteVideo,
 	OffthreadRemoteVideo,
-	calculateMetadataFn,
 } from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
@@ -113,23 +113,29 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
-import {AvifAnimatedImage} from './AnimatedImage/Avif';
-import {GifAnimatedImage} from './AnimatedImage/Gif';
-import {WebpAnimatedImage} from './AnimatedImage/Webp';
+import {ThreeDCheck} from './3DCheck';
+import {ThreeDContext} from './3DContext';
+import {ThreeDEngine} from './3DEngine';
+import {ThreeDSvgContent} from './3DSvgContent';
+import {AnimatedImages} from './AnimatedImage/Avif';
+import {Empty} from './Empty';
+import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
+import {SmoothTextTransition} from './SmoothTextTransition';
+import {Seek} from './StudioApis/Seek';
+import {TransitionRounding} from './TransitionRounding';
+import {VoiceVisualization} from './voice-visualization';
 
 class Vector2 {
 	readonly x: number;
 	readonly y: number;
 
 	constructor(x: number, y: number) {
-		// eslint-disable-next-line react/no-this-in-sfc
 		this.x = x;
-		// eslint-disable-next-line react/no-this-in-sfc
+
 		this.y = y;
 	}
 
 	toString(): string {
-		// eslint-disable-next-line react/no-this-in-sfc
 		return `Vector2 [X: ${this.x}, Y: ${this.y}]`;
 	}
 }
@@ -406,6 +412,14 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="transition-rounding"
+					component={TransitionRounding}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="ten-frame-tester"
 					component={TenFrameTester}
 					width={1080}
@@ -636,12 +650,8 @@ export const Index: React.FC = () => {
 						codec: 'mp4' as const,
 					}}
 				/>
-				<Composition
-					id="OffthreadRemoteVideo"
-					component={OffthreadRemoteVideo}
-					fps={30}
-					calculateMetadata={calculateMetadataFn}
-				/>
+				<OffthreadRemoteVideo />
+				<LoopedOffthreadRemoteVideo />
 				<Composition
 					id="OffthreadVideoToCanvas"
 					component={OffthreadVideoToCanvas}
@@ -725,30 +735,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="AnimatedImage">
-				<Composition
-					id="gif-animated-image"
-					component={GifAnimatedImage}
-					width={1920}
-					height={1080}
-					durationInFrames={200}
-					fps={30}
-				/>
-				<Composition
-					id="avif-animated-image"
-					component={AvifAnimatedImage}
-					width={1920}
-					height={1080}
-					durationInFrames={200}
-					fps={30}
-				/>
-				<Composition
-					id="webp-animated-image"
-					component={WebpAnimatedImage}
-					width={1920}
-					height={1080}
-					durationInFrames={200}
-					fps={30}
-				/>
+				<AnimatedImages />
 			</Folder>
 			<Folder name="still-tests">
 				<Still
@@ -827,6 +814,7 @@ export const Index: React.FC = () => {
 					calculateMetadata={() => {
 						return {
 							defaultCodec: 'aac',
+							defaultOutName: `out-${Date.now()}`,
 						};
 					}}
 					durationInFrames={100}
@@ -837,9 +825,6 @@ export const Index: React.FC = () => {
 					width={1000}
 					height={1000}
 					defaultProps={{flag: false}}
-					calculateMetadata={async () => {
-						return {};
-					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition
@@ -1319,7 +1304,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-				 // @ts-expect-error */}
+				 // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1404,6 +1389,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="save-default-props"
 					component={SaveDefaultProps}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
+					id="seek"
+					component={Seek}
 					fps={30}
 					durationInFrames={100}
 					height={200}
@@ -1512,6 +1507,60 @@ export const Index: React.FC = () => {
 			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
+			<Folder name="3DEngine">
+				<ThreeDEngine />
+				<Composition
+					id="3DCheck"
+					component={ThreeDCheck}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
+				/>
+				<Composition
+					id="3DContext"
+					component={ThreeDContext}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
+				/>
+				<Composition
+					id="ParseAndDownloadMedia"
+					component={ParseAndDownloadMedia}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={1000}
+				/>
+				<Composition
+					id="3DSVG"
+					component={ThreeDSvgContent}
+					width={574}
+					height={434}
+					fps={30}
+					durationInFrames={100}
+				/>
+			</Folder>
+			<SmoothTextTransition />
+			<Folder name="voice-visualization">
+				<Composition
+					id="voice-visualization"
+					component={VoiceVisualization}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={900}
+				/>
+			</Folder>
+			<Composition
+				id="empty"
+				component={Empty}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={900}
+			/>
 		</>
 	);
 };

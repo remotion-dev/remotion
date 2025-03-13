@@ -1,6 +1,6 @@
 # @remotion/eslint-config
  
-Default configuration for Remotion templates
+Default configuration for Remotion templates (ESLint <= 8)
  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/eslint-config.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/eslint-config?minimal=true)
  

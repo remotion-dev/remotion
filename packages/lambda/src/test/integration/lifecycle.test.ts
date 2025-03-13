@@ -1,8 +1,8 @@
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {expect, test} from 'bun:test';
-import {getLifeCycleRules} from '../../functions/helpers/lifecycle';
 
 test('Lifecycle', () => {
-	expect(getLifeCycleRules()).toEqual([
+	expect(LambdaClientInternals.getLifeCycleRules()).toEqual([
 		{
 			Expiration: {
 				Days: 1,

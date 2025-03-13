@@ -2,20 +2,15 @@ import {
 	ensureBrowser,
 	getCompositions,
 	openBrowser,
-	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
-import {afterEach, beforeAll, expect, test} from 'bun:test';
+import {beforeAll, expect, test} from 'bun:test';
 import {existsSync} from 'fs';
 import os from 'os';
 import path from 'path';
 
 beforeAll(async () => {
 	await ensureBrowser();
-});
-
-afterEach(async () => {
-	await RenderInternals.killAllBrowsers();
 });
 
 test('Render video with browser instance open', async () => {
@@ -46,7 +41,7 @@ test('Render video with browser instance open', async () => {
 		puppeteerInstance,
 	});
 	expect(buffer).toBe(null);
-	await puppeteerInstance.close(false, 'info', false);
+	await puppeteerInstance.close({silent: false});
 });
 
 test('Render still with browser instance not open and legacy webpack config', async () => {

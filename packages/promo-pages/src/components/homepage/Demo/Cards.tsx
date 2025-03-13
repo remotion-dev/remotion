@@ -91,7 +91,7 @@ export const Cards: React.FC<{
 						<TrendingRepos trending={trending} theme={theme} />
 					) : index === 1 ? (
 						<Temperature
-							city={location?.city ?? null}
+							city={location?.city ? decodeURIComponent(location?.city) : null}
 							theme={theme}
 							temperatureInCelsius={trending?.temperatureInCelsius ?? null}
 						/>
@@ -107,6 +107,7 @@ export const Cards: React.FC<{
 
 				return (
 					<Card
+						// eslint-disable-next-line react/no-array-index-key
 						key={i}
 						onUpdate={onUpdate}
 						// @ts-expect-error

@@ -1,4 +1,4 @@
-import type {CreateContent, Writer} from '../writer';
+import type {CreateContent, Writer} from '@remotion/media-parser';
 
 export const createContent: CreateContent = ({filename, mimeType}) => {
 	const buf = new ArrayBuffer(0, {
@@ -31,13 +31,18 @@ export const createContent: CreateContent = ({filename, mimeType}) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;
 		},
-		save: () => {
+		finish: async () => {
+			await writPromise;
+
 			if (removed) {
 				return Promise.reject(
 					new Error('Already called .remove() on the result'),
 				);
 			}
 
+			return Promise.resolve();
+		},
+		getBlob() {
 			const arr = new Uint8Array(buf);
 			return Promise.resolve(
 				// TODO: Unhardcode MIME type and file name
@@ -52,9 +57,6 @@ export const createContent: CreateContent = ({filename, mimeType}) => {
 		updateDataAt: (position: number, newData: Uint8Array) => {
 			writPromise = writPromise.then(() => updateDataAt(position, newData));
 			return writPromise;
-		},
-		waitForFinish: async () => {
-			await writPromise;
 		},
 	};
 	return Promise.resolve(writer);

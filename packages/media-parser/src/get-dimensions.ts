@@ -1,5 +1,5 @@
 import {getTracks} from './get-tracks';
-import type {Structure} from './parse-result';
+import {isAudioStructure} from './is-audio-structure';
 import type {ParserState} from './state/parser-state';
 
 export type Dimensions = {
@@ -14,12 +14,16 @@ export type ExpandedDimensions = Dimensions & {
 };
 
 export const getDimensions = (
-	boxes: Structure,
 	state: ParserState,
-): ExpandedDimensions => {
-	const {videoTracks} = getTracks(boxes, state);
+): ExpandedDimensions | null => {
+	const structure = state.getStructureOrNull();
+	if (structure && isAudioStructure(structure)) {
+		return null;
+	}
+
+	const {videoTracks} = getTracks(state);
 	if (!videoTracks.length) {
-		throw new Error('Expected video track');
+		return null;
 	}
 
 	const firstVideoTrack = videoTracks[0];
@@ -33,14 +37,14 @@ export const getDimensions = (
 	};
 };
 
-// TODO: An audio track should return 'hasDimensions' = true on an audio file
-// and stop parsing
-export const hasDimensions = (
-	boxes: Structure,
-	state: ParserState,
-): boolean => {
+export const hasDimensions = (state: ParserState): boolean => {
+	const structure = state.getStructureOrNull();
+	if (structure && isAudioStructure(structure)) {
+		return true;
+	}
+
 	try {
-		return getDimensions(boxes, state) !== null;
+		return getDimensions(state) !== null;
 	} catch {
 		return false;
 	}

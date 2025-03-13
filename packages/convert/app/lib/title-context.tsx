@@ -1,3 +1,4 @@
+import type {WebCodecsController} from '@remotion/webcodecs';
 import React, {useEffect, useLayoutEffect, useMemo} from 'react';
 import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
 import type {RouteAction} from '~/seo';
@@ -12,6 +13,8 @@ export type TitleContextT = {
 	setOutputFilename: React.Dispatch<React.SetStateAction<string | null>>;
 	progress: number | null;
 	setProgress: React.Dispatch<React.SetStateAction<number | null>>;
+	setPaused: React.Dispatch<React.SetStateAction<boolean>>;
+	paused: boolean;
 	favicon: OffscreenCanvas | null;
 };
 
@@ -26,6 +29,8 @@ export const TitleProvider: React.FC<{
 		null,
 	);
 	const [progress, setProgress] = React.useState<number | null>(null);
+	const [paused, setPaused] = React.useState(false);
+
 	const [favicon] = React.useState<OffscreenCanvas | null>(() => {
 		if (typeof OffscreenCanvas === 'undefined') {
 			return null;
@@ -46,8 +51,10 @@ export const TitleProvider: React.FC<{
 			favicon,
 			outputFilename,
 			setOutputFilename,
+			paused,
+			setPaused,
 		};
-	}, [filename, progress, favicon, outputFilename]);
+	}, [filename, progress, favicon, outputFilename, paused]);
 
 	useLayoutEffect(() => {
 		const file = outputFilename ?? filename;
@@ -55,14 +62,16 @@ export const TitleProvider: React.FC<{
 			progress
 				? progress === 1
 					? '✅ '
-					: `${Math.floor(progress * 100)}% - `
+					: paused
+						? '⏸️ '
+						: `${Math.floor(progress * 100)}% - `
 				: null,
 			file ? file + ' - ' : null,
 			getPageTitle(routeAction),
 		]
 			.filter(Boolean)
 			.join('');
-	}, [routeAction, progress, outputFilename, filename]);
+	}, [routeAction, progress, outputFilename, filename, paused]);
 
 	return (
 		<TitleContext.Provider value={value}>{children}</TitleContext.Provider>
@@ -121,6 +130,28 @@ export const useAddProgressToTitle = (progress: number | null) => {
 			setProgress(null);
 		};
 	}, [progress, setProgress]);
+};
+
+export const useAddPausedToTitle = (controller: WebCodecsController) => {
+	const {setPaused} = useTitle();
+
+	useEffect(() => {
+		const onPause = () => {
+			setPaused(true);
+		};
+
+		const onResume = () => {
+			setPaused(false);
+		};
+
+		controller.addEventListener('pause', onPause);
+		controller.addEventListener('resume', onResume);
+
+		return () => {
+			controller.removeEventListener('pause', onPause);
+			controller.removeEventListener('resume', onResume);
+		};
+	}, [controller, setPaused]);
 };
 
 export const useCopyThumbnailToFavicon = (

@@ -1,11 +1,13 @@
 import {CliInternals} from '@remotion/cli';
+import {
+	AwsProvider,
+	getCompositionsOnLambda,
+	LambdaClientInternals,
+} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {ProviderSpecifics} from '@remotion/serverless';
-import {getCompositionsOnLambda} from '../../..';
-import {AwsProvider} from '../../../functions/aws-implementation';
-import {BINARY_NAME} from '../../../shared/constants';
-import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -74,7 +76,7 @@ export const compositionsCommand = async ({
 	};
 
 	const region = getAwsRegion();
-	validateServeUrl(serveUrl);
+	LambdaClientInternals.validateServeUrl(serveUrl);
 	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const comps = await getCompositionsOnLambda({

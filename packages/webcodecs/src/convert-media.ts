@@ -4,25 +4,39 @@
  */
 
 import type {
+	AudioTrack,
 	LogLevel,
 	OnAudioTrack,
 	Options,
-	ParseMediaDynamicOptions,
 	ParseMediaFields,
 	ParseMediaOptions,
 	VideoTrack,
+	WriterInterface,
 } from '@remotion/media-parser';
-import {parseMedia, type OnVideoTrack} from '@remotion/media-parser';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	defaultSelectM3uStreamFn,
+	MediaParserAbortError,
+	MediaParserInternals,
+	type OnVideoTrack,
+} from '@remotion/media-parser';
 
+import type {ParseMediaCallbacks} from '@remotion/media-parser';
+import {webReader} from '@remotion/media-parser/web';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
 import {withResolversAndWaitForReturn} from './create/with-resolvers';
-import Error from './error-cause';
 import {generateOutputFilename} from './generate-output-filename';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
-import type {ConvertMediaContainer} from './get-available-containers';
-import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {
+	availableContainers,
+	type ConvertMediaContainer,
+} from './get-available-containers';
+import {
+	availableVideoCodecs,
+	type ConvertMediaVideoCodec,
+} from './get-available-video-codecs';
 import {Log} from './log';
 import {makeAudioTrackHandler} from './on-audio-track';
 import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
@@ -32,7 +46,10 @@ import type {ResizeOperation} from './resizing/mode';
 import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
-import type {WriterInterface} from './writers/writer';
+import {
+	webcodecsController,
+	type WebCodecsController,
+} from './webcodecs-controller';
 
 export type ConvertMediaProgress = {
 	decodedVideoFrames: number;
@@ -56,17 +73,22 @@ export type ConvertMediaOnVideoFrame = (options: {
 	frame: VideoFrame;
 	track: VideoTrack;
 }) => Promise<VideoFrame> | VideoFrame;
+export type ConvertMediaOnAudioData = (options: {
+	audioData: AudioData;
+	track: AudioTrack;
+}) => Promise<AudioData> | AudioData;
 
 export const convertMedia = async function <
 	F extends Options<ParseMediaFields>,
 >({
 	src,
 	onVideoFrame,
+	onAudioData,
 	onProgress: onProgressDoNotCallDirectly,
 	audioCodec,
 	container,
 	videoCodec,
-	signal: userPassedAbortSignal,
+	controller = webcodecsController(),
 	onAudioTrack: userAudioResolver,
 	onVideoTrack: userVideoResolver,
 	reader,
@@ -77,17 +99,52 @@ export const convertMedia = async function <
 	rotate,
 	apiKey,
 	resize,
+	onAudioCodec,
+	onContainer,
+	onDimensions,
+	onDurationInSeconds,
+	onFps,
+	onImages,
+	onInternalStats,
+	onIsHdr,
+	onKeyframes,
+	onLocation,
+	onMetadata,
+	onMimeType,
+	onName,
+	onNumberOfAudioChannels,
+	onRotation,
+	onSampleRate,
+	onSize,
+	onSlowAudioBitrate,
+	onSlowDurationInSeconds,
+	onSlowFps,
+	onSlowKeyframes,
+	onSlowNumberOfFrames,
+	onSlowVideoBitrate,
+	onStructure,
+	onTracks,
+	onUnrotatedDimensions,
+	onVideoCodec,
+	onM3uStreams,
+	selectM3uStream,
+	selectM3uAssociatedPlaylists,
+	expectedDurationInSeconds,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
 	container: ConvertMediaContainer;
 	onVideoFrame?: ConvertMediaOnVideoFrame;
+	onAudioData?: ConvertMediaOnAudioData;
 	onProgress?: ConvertMediaOnProgress;
 	videoCodec?: ConvertMediaVideoCodec;
 	audioCodec?: ConvertMediaAudioCodec;
-	signal?: AbortSignal;
+	controller?: WebCodecsController;
 	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
+	selectM3uStream?: ParseMediaOptions<F>['selectM3uStream'];
+	selectM3uAssociatedPlaylists?: ParseMediaOptions<F>['selectM3uAssociatedPlaylists'];
+	expectedDurationInSeconds?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
@@ -95,51 +152,51 @@ export const convertMedia = async function <
 	rotate?: number;
 	resize?: ResizeOperation;
 	apiKey?: string | null;
-} & ParseMediaDynamicOptions<F>): Promise<ConvertMediaResult> {
-	if (userPassedAbortSignal?.aborted) {
-		return Promise.reject(new Error('Aborted'));
+	fields?: F;
+} & ParseMediaCallbacks): Promise<ConvertMediaResult> {
+	if (controller._internals.signal.aborted) {
+		return Promise.reject(new MediaParserAbortError('Aborted'));
 	}
 
-	if (container !== 'webm' && container !== 'mp4' && container !== 'wav') {
+	if (availableContainers.indexOf(container) === -1) {
 		return Promise.reject(
 			new TypeError(
-				'Only `to: "webm"`, `to: "mp4"` and `to: "wav"` is supported currently',
+				`Only the following values for "container" are supported currently: ${JSON.stringify(availableContainers)}`,
 			),
 		);
 	}
 
-	if (videoCodec && videoCodec !== 'vp8' && videoCodec !== 'vp9') {
+	if (videoCodec && availableVideoCodecs.indexOf(videoCodec) === -1) {
 		return Promise.reject(
 			new TypeError(
-				'Only `videoCodec: "vp8"` and `videoCodec: "vp9"` are supported currently',
+				`Only the following values for "videoCodec" are supported currently: ${JSON.stringify(availableVideoCodecs)}`,
 			),
 		);
 	}
 
 	const {resolve, reject, getPromiseToImmediatelyReturn} =
 		withResolversAndWaitForReturn<ConvertMediaResult>();
-	const controller = new AbortController();
 
 	const abortConversion = (errCause: Error) => {
 		reject(errCause);
 
-		if (!controller.signal.aborted) {
+		if (!controller._internals.signal.aborted) {
 			controller.abort();
 		}
 	};
 
 	const onUserAbort = () => {
-		abortConversion(new Error('Conversion aborted by user'));
+		abortConversion(new MediaParserAbortError('Conversion aborted by user'));
 	};
 
-	userPassedAbortSignal?.addEventListener('abort', onUserAbort);
+	controller._internals.signal.addEventListener('abort', onUserAbort);
 
 	const creator = selectContainerCreator(container);
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal: controller.signal,
+		signal: controller._internals.signal,
 	});
 
 	const progressTracker = makeProgressTracker();
@@ -173,6 +230,7 @@ export const convertMedia = async function <
 		},
 		logLevel,
 		progressTracker,
+		expectedDurationInSeconds: expectedDurationInSeconds ?? null,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
@@ -200,26 +258,27 @@ export const convertMedia = async function <
 		logLevel,
 		outputContainer: container,
 		progressTracker,
+		onAudioData: onAudioData ?? null,
 	});
 
-	parseMedia({
+	MediaParserInternals.internalParseMedia({
 		logLevel,
 		src,
 		onVideoTrack,
 		onAudioTrack,
-		signal: controller.signal,
+		controller,
 		fields: {
 			...fields,
 			durationInSeconds: true,
 		},
-		reader,
+		reader: reader ?? webReader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
 			if (durationInSeconds === null) {
 				return null;
 			}
 
-			const casted = more as ParseMediaDynamicOptions<{
+			const casted = more as ParseMediaOptions<{
 				durationInSeconds: true;
 			}>;
 			if (casted.onDurationInSeconds) {
@@ -238,13 +297,51 @@ export const convertMedia = async function <
 				};
 			});
 		},
+		acknowledgeRemotionLicense: true,
+		mode: 'query',
+		onDiscardedData: null,
+		onError: () => ({action: 'fail'}),
+		onParseProgress: null,
+		progressIntervalInMs: null,
+		onAudioCodec: onAudioCodec ?? null,
+		onContainer: onContainer ?? null,
+		onDimensions: onDimensions ?? null,
+		onFps: onFps ?? null,
+		onImages: onImages ?? null,
+		onInternalStats: onInternalStats ?? null,
+		onIsHdr: onIsHdr ?? null,
+		onKeyframes: onKeyframes ?? null,
+		onLocation: onLocation ?? null,
+		onMetadata: onMetadata ?? null,
+		onMimeType: onMimeType ?? null,
+		onName: onName ?? null,
+		onNumberOfAudioChannels: onNumberOfAudioChannels ?? null,
+		onRotation: onRotation ?? null,
+		onSampleRate: onSampleRate ?? null,
+		onSize: onSize ?? null,
+		onSlowAudioBitrate: onSlowAudioBitrate ?? null,
+		onSlowDurationInSeconds: onSlowDurationInSeconds ?? null,
+		onSlowFps: onSlowFps ?? null,
+		onSlowKeyframes: onSlowKeyframes ?? null,
+		onSlowNumberOfFrames: onSlowNumberOfFrames ?? null,
+		onSlowVideoBitrate: onSlowVideoBitrate ?? null,
+		onStructure: onStructure ?? null,
+		onTracks: onTracks ?? null,
+		onUnrotatedDimensions: onUnrotatedDimensions ?? null,
+		onVideoCodec: onVideoCodec ?? null,
+		apiName: 'convertMedia()',
+		onM3uStreams: onM3uStreams ?? null,
+		selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: null,
 	})
 		.then(() => {
 			return state.waitForFinish();
 		})
 		.then(() => {
 			resolve({
-				save: state.save,
+				save: state.getBlob,
 				remove: state.remove,
 				finalState: throttledState.get(),
 			});
@@ -267,6 +364,6 @@ export const convertMedia = async function <
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {
-		userPassedAbortSignal?.removeEventListener('abort', onUserAbort);
+		controller._internals.signal.removeEventListener('abort', onUserAbort);
 	});
 };

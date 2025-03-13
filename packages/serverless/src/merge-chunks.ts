@@ -1,25 +1,23 @@
 import type {AudioCodec, LogLevel} from '@remotion/renderer';
 
+import {
+	inspectErrors,
+	type CloudProvider,
+	type CustomCredentials,
+	type DownloadBehavior,
+	type PostRenderData,
+	type Privacy,
+	type ProviderSpecifics,
+	type RenderMetadata,
+	type SerializedInputProps,
+	type ServerlessCodec,
+} from '@remotion/serverless-client';
 import fs from 'fs';
 import {cleanupProps} from './cleanup-props';
 import {concatVideos} from './concat-videos';
-import type {
-	CustomCredentials,
-	DownloadBehavior,
-	PostRenderData,
-	Privacy,
-	SerializedInputProps,
-	ServerlessCodec,
-} from './constants';
 import {createPostRenderData} from './create-post-render-data';
-import {inspectErrors} from './inspect-error';
 import type {OverallProgressHelper} from './overall-render-progress';
-import type {
-	InsideFunctionSpecifics,
-	ProviderSpecifics,
-} from './provider-implementation';
-import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider} from './types';
+import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const mergeChunksAndFinishRender = async <
 	Provider extends CloudProvider,
@@ -52,7 +50,7 @@ export const mergeChunksAndFinishRender = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	startTime: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	forcePathStyle: boolean;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress = (framesEncoded: number) => {
@@ -101,7 +99,7 @@ export const mergeChunksAndFinishRender = async <
 		bucketName: options.renderBucketName,
 		key: options.key,
 		body: fs.createReadStream(outfile),
-		region: options.providerSpecifics.getCurrentRegionInFunction(),
+		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,
 		downloadBehavior: options.downloadBehavior,
@@ -120,17 +118,18 @@ export const mergeChunksAndFinishRender = async <
 		serializedResolvedProps: options.serializedResolvedProps,
 		providerSpecifics: options.providerSpecifics,
 		forcePathStyle: options.forcePathStyle,
+		insideFunctionSpecifics: options.insideFunctionSpecifics,
 	});
 
 	const {url: outputUrl} = options.providerSpecifics.getOutputUrl({
 		bucketName: options.renderBucketName,
-		currentRegion: options.providerSpecifics.getCurrentRegionInFunction(),
+		currentRegion: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		customCredentials: options.customCredentials,
 		renderMetadata: options.renderMetadata,
 	});
 
 	const postRenderData = createPostRenderData({
-		region: options.providerSpecifics.getCurrentRegionInFunction(),
+		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		memorySizeInMb: options.insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		renderMetadata: options.renderMetadata,
 		errorExplanations,
@@ -147,6 +146,7 @@ export const mergeChunksAndFinishRender = async <
 
 	options.overallProgress.setPostRenderData(postRenderData);
 
-	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
+	fs.unlinkSync(outfile);
+	await cleanupChunksProm;
 	return postRenderData;
 };

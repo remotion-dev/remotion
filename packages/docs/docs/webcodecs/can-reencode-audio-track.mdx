@@ -19,9 +19,6 @@ You can obtain an `AudioTrack` using [`parseMedia()`](/docs/media-parser/parse-m
 ## Examples
 
 ```tsx twoslash title="Check if audio tracks can be re-encoded to Opus"
-// @module: es2022
-// @target: es2017
-
 import {parseMedia} from '@remotion/media-parser';
 import {canReencodeAudioTrack} from '@remotion/webcodecs';
 
@@ -42,8 +39,6 @@ for (const track of tracks.audioTracks) {
 ```
 
 ```tsx twoslash title="Convert an audio track to Opus, otherwise drop it"
-// @module: es2022
-// @target: es2017
 import {convertMedia, canReencodeAudioTrack} from '@remotion/webcodecs';
 
 await convertMedia({

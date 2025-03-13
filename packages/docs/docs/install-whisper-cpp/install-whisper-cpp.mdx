@@ -2,7 +2,7 @@
 image: /generated/articles-docs-install-whisper-cpp-install-whisper-cpp.png
 slug: install-whisper-cpp
 title: installWhisperCpp()
-crumb: "@remotion/install-whisper-cpp"
+crumb: '@remotion/install-whisper-cpp'
 ---
 
 # installWhisperCpp()<AvailableFrom v="4.0.115"/>
@@ -10,14 +10,12 @@ crumb: "@remotion/install-whisper-cpp"
 Installs a Whisper.cpp version into a folder.
 
 ```tsx twoslash title="install-whisper.mjs"
-// @module: esnext
-// @target: es2022
-import path from "path";
-import { installWhisperCpp } from "@remotion/install-whisper-cpp";
+import path from 'path';
+import {installWhisperCpp} from '@remotion/install-whisper-cpp';
 
-const { alreadyExisted } = await installWhisperCpp({
-  to: path.join(process.cwd(), "whisper.cpp"),
-  version: "1.5.5", // A Whisper.cpp semver or git tag
+const {alreadyExisted} = await installWhisperCpp({
+  to: path.join(process.cwd(), 'whisper.cpp'),
+  version: '1.5.5', // A Whisper.cpp semver or git tag
 });
 ```
 

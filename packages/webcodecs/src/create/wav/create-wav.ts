@@ -26,7 +26,11 @@ export const createWav = async ({
 	writer,
 	progressTracker,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
-	const w = await writer.createContent({filename, mimeType: 'audio/wav'});
+	const w = await writer.createContent({
+		filename,
+		mimeType: 'audio/wav',
+		logLevel,
+	});
 
 	await w.write(new Uint8Array([0x52, 0x49, 0x46, 0x46])); // "RIFF"
 	const sizePosition = w.getWrittenByteCount();
@@ -100,7 +104,7 @@ export const createWav = async ({
 	};
 
 	const addSample = async (chunk: AudioOrVideoSample) => {
-		Log.verbose(logLevel, 'Adding sample', chunk);
+		Log.trace(logLevel, 'Adding sample', chunk);
 		await w.write(chunk.data);
 		onMillisecondsProgress((chunk.timestamp + (chunk.duration ?? 0)) / 1000);
 		onBytesProgress(w.getWrittenByteCount());
@@ -109,8 +113,8 @@ export const createWav = async ({
 	const waitForFinishPromises: (() => Promise<void>)[] = [];
 
 	return {
-		save: () => {
-			return w.save();
+		getBlob: () => {
+			return w.getBlob();
 		},
 		remove: () => {
 			return w.remove();
@@ -144,7 +148,7 @@ export const createWav = async ({
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
 			await updateSize();
-			await w.waitForFinish();
+			await w.finish();
 		},
 		addTrack: async (track) => {
 			if (track.type !== 'audio') {

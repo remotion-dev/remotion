@@ -29,9 +29,10 @@ import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const TESTED_VERSION = '123.0.6312.86';
-// https://github.com/microsoft/playwright/tree/v1.42.0
-const PLAYWRIGHT_VERSION = '1105'; // 123.0.6312.4
+const TESTED_VERSION = '133.0.6943.0';
+// https://github.com/microsoft/playwright/tree/v1.50.1
+// packages/playwright-core/browsers.json
+const PLAYWRIGHT_VERSION = '1155'; // 133.0.6943.16
 
 type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
@@ -187,6 +188,8 @@ export const downloadBrowser = async ({
 				path.join(outputPath, 'chrome-headless-shell-linux-arm64'),
 			);
 		}
+	} catch (err) {
+		return Promise.reject(err);
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);

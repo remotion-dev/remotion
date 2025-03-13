@@ -38,5 +38,15 @@ export const getAudioEncoderConfig = async (
 		return actualConfig;
 	}
 
+	const maybeItIsTheSampleRateThatIsTheProblem =
+		config.sampleRate !== 48000 && config.sampleRate !== 44100;
+
+	if (maybeItIsTheSampleRateThatIsTheProblem) {
+		return getAudioEncoderConfig({
+			...config,
+			sampleRate: config.sampleRate === 22050 ? 44100 : 48000,
+		});
+	}
+
 	return null;
 };

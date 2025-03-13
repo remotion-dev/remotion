@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -34,8 +34,8 @@
 		"react-dom": "19.0.0",
 		"webpack": "5.96.1",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0",
-		"zod": "3.23.8"
+		"zod": "3.23.8",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",

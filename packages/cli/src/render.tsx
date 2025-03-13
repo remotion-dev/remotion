@@ -38,6 +38,7 @@ const {
 	metadataOption,
 	hardwareAccelerationOption,
 	chromeModeOption,
+	offthreadVideoThreadsOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -107,6 +108,9 @@ export const render = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
@@ -209,8 +213,8 @@ export const render = async (
 		frameRange,
 		jpegQuality,
 		onProgress: () => undefined,
-		addCleanupCallback: (c) => {
-			registerCleanupJob(c);
+		addCleanupCallback: (label, c) => {
+			registerCleanupJob(label, c);
 		},
 		outputLocationFromUI: null,
 		uiCodec: null,
@@ -240,5 +244,6 @@ export const render = async (
 		metadata,
 		hardwareAcceleration,
 		chromeMode,
+		offthreadVideoThreads,
 	});
 };

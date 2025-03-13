@@ -9,9 +9,11 @@ Remotion has APIs for visualizing audio, for example for creating audiograms or 
 
 The `@remotion/media-utils` package provides helper functions for reading and processing audio. Using the [`getAudioData()`](/docs/get-audio-data) API you can read audio, and using the [`useAudioData()`](/docs/use-audio-data) helper hook you can load this audio data directly into your component.
 
-Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio spectrum for the current frame, with the `numberOfSamples` parameter being an option to control the amount of detail you need.
+## Bar visualization
 
-Refer to the documentation of the above mentioned functions to learn more.
+Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio spectrum for the current frame.
+
+Bar visualizations are ideal for visualizing music.
 
 ```tsx twoslash
 import {useAudioData, visualizeAudio} from '@remotion/media-utils';
@@ -41,21 +43,27 @@ export const MyComponent: React.FC = () => {
     <div>
       <Audio src={music} />
       {visualization.map((v) => {
-        return (
-          <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
-        );
+        return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
       })}
     </div>
   );
 };
 ```
 
+## Waveform visualization
+
+See an example for a waveform visualizations using [`visualizeAudioWaveform()`](/docs/media-utils/visualize-audio-waveform) here.
+
+import {AudioWaveFormExample} from '../components/AudioWaveformExamples.tsx';
+
+<AudioWaveFormExample type="moving" />
+
 ## Working with large files
 
-[`useAudioData()`](/docs/use-audio-data) loads the entire audio file into memory.  
+[`useAudioData()`](/docs/use-audio-data) loads the entire audio file into memory.
 This is fine for small files, but for large files, it can be slow and consume a lot of memory.
 
-Use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only load a portion of the audio around the current frame.  
+Use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only load a portion of the audio around the current frame.
 The tradeoff is that this API only works with `.wav` files.
 
 ## See also
@@ -64,3 +72,4 @@ The tradeoff is that this API only works with `.wav` files.
 - [`useAudioData()`](/docs/use-audio-data)
 - [`useWindowedAudioData()`](/docs/use-windowed-audio-data)
 - [`visualizeAudio()`](/docs/visualize-audio)
+- [`visualizeAudioWaveform()`](/docs/media-utils/visualize-audio-waveform)

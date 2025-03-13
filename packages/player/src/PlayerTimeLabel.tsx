@@ -20,9 +20,13 @@ export const PlayerTimeLabel: React.FC<{
 		};
 	}, [maxTimeLabelWidth]);
 
+	// If the video ended and is not looping, it should show 0:04 / 0:04 instead of 0:03 / 0:04
+	const isLastFrame = frame === durationInFrames - 1;
+	const frameToDisplay = isLastFrame ? frame + 1 : frame;
+
 	return (
 		<div style={timeLabel}>
-			{formatTime(frame / fps)} / {formatTime(durationInFrames / fps)}
+			{formatTime(frameToDisplay / fps)} / {formatTime(durationInFrames / fps)}
 		</div>
 	);
 };

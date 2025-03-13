@@ -15,7 +15,7 @@ const outfile = path.join(outdir, 'index.js');
 fs.rmSync(outdir, {recursive: true});
 fs.mkdirSync(outdir, {recursive: true});
 const template = require.resolve(
-	path.join(__dirname, 'src', 'functions', 'index'),
+	path.join(__dirname, 'dist', 'functions', 'index'),
 );
 
 await BundlerInternals.esbuild.build({
@@ -54,6 +54,7 @@ fs.cpSync(
 	),
 	`${outdir}/mappings.wasm`,
 );
+
 await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
 fs.rmSync(outdir, {recursive: true});

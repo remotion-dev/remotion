@@ -1,19 +1,18 @@
-import {getSamplePositionsFromTrack} from './boxes/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
+import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
-	getMoofBox,
-	getMoovBox,
+	getMoofBoxes,
+	getMoovBoxFromState,
 	getMvhdBox,
-} from './boxes/iso-base-media/traversal';
-import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
-import type {DurationSegment} from './boxes/webm/segments/all-segments';
-import {getTracks, hasTracks} from './get-tracks';
-import type {
-	AnySegment,
-	IsoBaseMediaStructure,
-	RiffStructure,
-	Structure,
-} from './parse-result';
+} from './containers/iso-base-media/traversal';
+import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
+import {getDurationFromMp3} from './containers/mp3/get-duration';
+import {getDurationFromAvi} from './containers/riff/get-duration';
+import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
+import type {DurationSegment} from './containers/webm/segments/all-segments';
+import {getHasTracks, getTracks} from './get-tracks';
+import type {AnySegment} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -54,16 +53,46 @@ export const isMatroska = (boxes: AnySegment[]) => {
 	return matroskaBox;
 };
 
-const getDurationFromIsoBaseMedia = (
-	structure: IsoBaseMediaStructure,
-	parserState: ParserState,
-) => {
-	const moovBox = getMoovBox(structure.boxes);
+const isoHasDuration = (parserState: ParserState) => {
+	const structure = parserState.getIsoStructure();
+
+	const moovBox = getMoovBoxFromState(parserState);
+	if (!moovBox) {
+		return false;
+	}
+
+	const mvhdBox = getMvhdBox(moovBox);
+
+	if (!mvhdBox) {
+		return false;
+	}
+
+	if (mvhdBox.type !== 'mvhd-box') {
+		throw new Error('Expected mvhd-box');
+	}
+
+	if (mvhdBox.durationInSeconds > 0) {
+		return true;
+	}
+
+	// Checking if this is a fragmented mp4
+	const moofBoxes = getMoofBoxes(structure.boxes);
+	const hasMvex = moovBox.children.some(
+		(b) => b.type === 'regular-box' && b.boxType === 'mvex',
+	);
+	const isFragmented = moofBoxes.length > 0 || hasMvex;
+	return !isFragmented;
+};
+
+const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
+	const structure = parserState.getIsoStructure();
+
+	const moovBox = getMoovBoxFromState(parserState);
 	if (!moovBox) {
 		return null;
 	}
 
-	const moofBox = getMoofBox(structure.boxes);
+	const moofBoxes = getMoofBoxes(structure.boxes);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -78,7 +107,7 @@ const getDurationFromIsoBaseMedia = (
 		return mvhdBox.durationInSeconds;
 	}
 
-	const tracks = getTracks(structure, parserState);
+	const tracks = getTracks(parserState);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -86,49 +115,31 @@ const getDurationFromIsoBaseMedia = (
 	];
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack(
-			t.trakBox as TrakBox,
-			moofBox,
-		);
+		const samplePositions = getSamplePositionsFromTrack({
+			trakBox: t.trakBox as TrakBox,
+			moofBoxes,
+		});
 
 		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
+
 		return highest ?? 0;
 	});
+
 	const highestTimestamp = Math.max(...allSamples);
+
 	return highestTimestamp;
 };
 
-const getDurationFromAvi = (structure: RiffStructure) => {
-	const strl = getStrlBoxes(structure);
-
-	const lengths: number[] = [];
-	for (const s of strl) {
-		const strh = getStrhBox(s.children);
-		if (!strh) {
-			throw new Error('No strh box');
-		}
-
-		const samplesPerSecond = strh.rate / strh.scale;
-
-		const streamLength = strh.length / samplesPerSecond;
-		lengths.push(streamLength);
-	}
-
-	return Math.max(...lengths);
-};
-
-export const getDuration = (
-	structure: Structure,
-	parserState: ParserState,
-): number | null => {
+export const getDuration = (parserState: ParserState): number | null => {
+	const structure = parserState.getStructure();
 	if (structure.type === 'matroska') {
 		return getDurationFromMatroska(structure.boxes);
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getDurationFromIsoBaseMedia(structure, parserState);
+		return getDurationFromIsoBaseMedia(parserState);
 	}
 
 	if (structure.type === 'riff') {
@@ -139,26 +150,49 @@ export const getDuration = (
 		return null;
 	}
 
+	if (structure.type === 'mp3') {
+		return getDurationFromMp3(parserState);
+	}
+
+	if (structure.type === 'wav') {
+		return getDurationFromWav(parserState);
+	}
+
+	if (structure.type === 'aac') {
+		return null;
+	}
+
+	if (structure.type === 'flac') {
+		return getDurationFromFlac(parserState);
+	}
+
+	if (structure.type === 'm3u') {
+		return getDurationFromM3u(parserState);
+	}
+
 	throw new Error('Has no duration ' + (structure satisfies never));
 };
 
 // `duration` just grabs from metadata, and otherwise returns null
 // Therefore just checking if we have tracks
-export const hasDuration = (
-	structure: Structure,
-	parserState: ParserState,
-): boolean => {
-	return hasTracks(structure, parserState);
+export const hasDuration = (parserState: ParserState): boolean => {
+	const structure = parserState.getStructureOrNull();
+	if (structure === null) {
+		return false;
+	}
+
+	if (structure.type === 'iso-base-media') {
+		return isoHasDuration(parserState);
+	}
+
+	return getHasTracks(parserState);
 };
 
-// `slowDuration` does through everything, and therefore is false
+// `slowDuration` goes through everything, and therefore is false
 // Unless it it somewhere in the metadata and is non-null
-export const hasSlowDuration = (
-	structure: Structure,
-	parserState: ParserState,
-): boolean => {
+export const hasSlowDuration = (parserState: ParserState): boolean => {
 	try {
-		return getDuration(structure, parserState) !== null;
+		return hasDuration(parserState) && getDuration(parserState) !== null;
 	} catch {
 		return false;
 	}

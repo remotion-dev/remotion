@@ -1,43 +1,40 @@
 import type {EmittedArtifact, StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
-import fs from 'node:fs';
-import path from 'node:path';
-import {NoReactInternals} from 'remotion/no-react';
-import {VERSION} from 'remotion/version';
-import {cleanupSerializedInputProps} from '../cleanup-serialized-input-props';
-import {decompressInputProps} from '../compress-props';
-import type {ServerlessPayload} from '../constants';
-import {
-	ServerlessRoutines,
-	artifactName,
-	overallProgressKey,
-} from '../constants';
-import {
-	getCredentialsFromOutName,
-	getExpectedOutName,
-} from '../expected-out-name';
-import {formatCostsInfo} from '../format-costs-info';
-import {internalGetOrCreateBucket} from '../get-or-create-bucket';
-import {onDownloadsHelper} from '../on-downloads-helpers';
-import {makeInitialOverallRenderProgress} from '../overall-render-progress';
-import type {
-	InsideFunctionSpecifics,
-	ProviderSpecifics,
-} from '../provider-implementation';
-import type {RenderMetadata} from '../render-metadata';
-import type {OnStream} from '../streaming/streaming';
 import type {
 	CloudProvider,
+	OnStream,
+	ProviderSpecifics,
 	ReceivedArtifact,
+	RenderMetadata,
 	RenderStillFunctionResponsePayload,
-} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {
+	artifactName,
+	decompressInputProps,
+	formatCostsInfo,
+	getCredentialsFromOutName,
+	getExpectedOutName,
+	internalGetOrCreateBucket,
+	overallProgressKey,
+	serializeJSONWithDate,
+	ServerlessRoutines,
+	validateDownloadBehavior,
+	validateOutname,
+	validatePrivacy,
+	VERSION,
+} from '@remotion/serverless-client';
+import fs from 'node:fs';
+import path from 'node:path';
+import {cleanupSerializedInputProps} from '../cleanup-serialized-input-props';
+import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
+import {onDownloadsHelper} from '../on-downloads-helpers';
+import {makeInitialOverallRenderProgress} from '../overall-render-progress';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {validateComposition} from '../validate-composition';
-import {validateDownloadBehavior} from '../validate-download-behavior';
-import {validateOutname} from '../validate-outname';
-import {validatePrivacy} from '../validate-privacy';
-import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 import {checkVersionMismatch} from './check-version-mismatch';
+import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options<Provider extends CloudProvider> = {
 	params: ServerlessPayload<Provider>;
@@ -46,7 +43,7 @@ type Options<Provider extends CloudProvider> = {
 	onStream: OnStream<Provider>;
 	timeoutInMilliseconds: number;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 };
 
 const innerStillHandler = async <Provider extends CloudProvider>(
@@ -78,6 +75,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		codec: null,
 		audioCodecSetting: null,
 		separateAudioTo: null,
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
 
 	const start = Date.now();
@@ -89,10 +87,23 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
+
+	browserInstancePromise.then((instance) => {
+		cleanup.push(() => {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel:
+					params.type === ServerlessRoutines.still ? params.logLevel : 'error',
+				launchedBrowser: instance,
+			});
+
+			return Promise.resolve();
+		});
+	});
+
 	const bucketNamePromise =
 		params.bucketName ??
 		internalGetOrCreateBucket({
-			region: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			enableFolderExpiry: null,
 			customCredentials: null,
 			providerSpecifics,
@@ -104,7 +115,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const region = providerSpecifics.getCurrentRegionInFunction();
+	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 	const bucketName = await bucketNamePromise;
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
@@ -125,7 +136,9 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	const {server, cleanupServer} = await RenderInternals.makeOrReuseServer(
 		undefined,
 		{
-			concurrency: 1,
+			offthreadVideoThreads:
+				params.offthreadVideoThreads ??
+				RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 			indent: false,
 			port: null,
 			remotionRoot: process.cwd(),
@@ -162,6 +175,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		},
 		onServeUrlVisited: () => undefined,
 		providerSpecifics,
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
@@ -178,7 +192,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
@@ -189,6 +203,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		audioBitrate: null,
 		metadata: null,
 		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
+		rendererFunctionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
 			height: composition.height * (params.scale ?? 1),
 			width: composition.width * (params.scale ?? 1),
@@ -202,7 +217,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		bucketName,
 		key: overallProgressKey(renderId),
 		body: JSON.stringify(still),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		privacy: 'private',
 		expectedBucketOwner,
 		downloadBehavior: null,
@@ -216,11 +231,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 
 	const receivedArtifact: ReceivedArtifact<Provider>[] = [];
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
-		getCredentialsFromOutName(params.outName),
-	);
+		customCredentials: getCredentialsFromOutName(params.outName),
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+	});
 
 	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
 		if (receivedArtifact.find((a) => a.filename === artifact.filename)) {
@@ -230,7 +246,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		receivedArtifact.push(
-			providerSpecifics.makeArtifactWithDetails({
+			insideFunctionSpecifics.makeArtifactWithDetails({
 				storageKey,
 				artifact,
 				region,
@@ -296,17 +312,17 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		port: null,
 		server,
 		logLevel: params.logLevel,
-		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
-				indent: undefined,
-				staticBase: null,
-				data: composition.props,
-			}).serializedString,
+		serializedResolvedPropsWithCustomSchema: serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,
 		chromeMode: 'headless-shell',
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -317,7 +333,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		privacy: params.privacy,
 		body: fs.createReadStream(outputPath),
 		expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		downloadBehavior: params.downloadBehavior,
 		customCredentials,
 		forcePathStyle: params.forcePathStyle,
@@ -326,18 +342,19 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 	await Promise.all([
 		fs.promises.rm(outputPath, {recursive: true}),
 		cleanupSerializedInputProps({
-			region: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			serialized: params.inputProps,
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 		}),
 		server.closeServer(true),
+		sendTelemetryEvent(params.apiKey, params.logLevel),
 	]);
 
 	const estimatedPrice = providerSpecifics.estimatePrice({
 		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 	});
@@ -346,7 +363,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		renderMetadata,
 		bucketName,
 		customCredentials,
-		currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+		currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 	});
 
 	const payload: RenderStillFunctionResponsePayload<Provider> = {
@@ -426,7 +443,7 @@ export const stillHandler = async <Provider extends CloudProvider>(
 						isFatal: false,
 						tmpDir: getTmpDirStateIfENoSp(
 							(err as Error).stack as string,
-							options.providerSpecifics,
+							options.insideFunctionSpecifics,
 						),
 						attempt: params.attempt,
 						totalAttempts: 1 + params.maxRetries,
@@ -442,12 +459,6 @@ export const stillHandler = async <Provider extends CloudProvider>(
 			stack: (err as Error).stack as string,
 		};
 	} finally {
-		options.insideFunctionSpecifics.forgetBrowserEventLoop(
-			options.params.type === ServerlessRoutines.still
-				? options.params.logLevel
-				: 'error',
-		);
-
 		cleanUpFn.forEach((c) => c());
 	}
 };

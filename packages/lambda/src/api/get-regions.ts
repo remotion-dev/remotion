@@ -1,5 +1,8 @@
-import type {AwsRegion} from '../regions';
-import {AWS_REGIONS, DEFAULT_AWS_REGIONS} from '../regions';
+import type {AwsRegion} from '@remotion/lambda-client';
+import {
+	AWS_REGIONS,
+	DEFAULT_AWS_REGIONS,
+} from '@remotion/lambda-client/regions';
 
 type Options = {
 	enabledByDefaultOnly?: boolean;

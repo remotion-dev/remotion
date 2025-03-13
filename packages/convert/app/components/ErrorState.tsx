@@ -24,6 +24,7 @@ const ErrorBox: React.FC<{
 			<div>
 				{combined?.map((line, index) => (
 					<div
+						// eslint-disable-next-line react/no-array-index-key
 						key={index}
 						className="text-red-600 first:font-medium first:font-brand"
 					>
@@ -56,12 +57,12 @@ export const ErrorState: React.FC<{
 				Report this issue on{' '}
 				<a
 					target="_blank"
-					href="https://remotion.dev/issue"
+					href="https://remotion.dev/report"
 					className="underline"
 				>
-					remotion.dev/issue
+					remotion.dev/report
 				</a>{' '}
-				and upload the video. We'll try our best to help!
+				and upload the video. We&apos;ll try our best to help!
 			</div>
 		</>
 	);

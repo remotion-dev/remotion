@@ -14,7 +14,9 @@ export const watchPublicFolder = (
 ): {cancel: () => void} => {
 	if (!getRemotionEnvironment().isStudio) {
 		// eslint-disable-next-line no-console
-		console.warn('The API is only available while using the Remotion Studio.');
+		console.warn(
+			'The watchPublicFolder() API is only available while using the Remotion Studio.',
+		);
 		return {cancel: () => undefined};
 	}
 

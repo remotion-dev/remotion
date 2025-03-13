@@ -1,12 +1,9 @@
-import type {ParseMediaContainer} from '@remotion/media-parser';
-import type {
-	ConvertMediaContainer} from '@remotion/webcodecs';
-import {
-	getAvailableContainers,
-} from '@remotion/webcodecs';
+import type {MediaParserContainer} from '@remotion/media-parser';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import {getAvailableContainers} from '@remotion/webcodecs';
 import {renderHumanReadableContainer} from './lib/render-codec-label';
 
-export const inputContainers: ParseMediaContainer[] = ['mp4', 'webm', 'avi'];
+export const inputContainers: MediaParserContainer[] = ['mp4', 'webm', 'avi'];
 export const outputContainers = getAvailableContainers();
 
 export const parseConvertRouteAction = (action: string) => {
@@ -28,7 +25,7 @@ export const parseConvertRouteAction = (action: string) => {
 export type RouteAction =
 	| {
 			type: 'convert';
-			input: ConvertMediaContainer | ParseMediaContainer;
+			input: ConvertMediaContainer | MediaParserContainer;
 			output: ConvertMediaContainer;
 	  }
 	| {
@@ -39,21 +36,24 @@ export type RouteAction =
 	  }
 	| {
 			type: 'rotate-format';
-			format: ParseMediaContainer | ConvertMediaContainer;
+			format: MediaParserContainer | ConvertMediaContainer;
 	  }
 	| {
 			type: 'generic-mirror';
 	  }
 	| {
 			type: 'mirror-format';
-			format: ParseMediaContainer | ConvertMediaContainer;
+			format: MediaParserContainer | ConvertMediaContainer;
 	  }
 	| {
 			type: 'generic-resize';
 	  }
 	| {
+			type: 'report';
+	  }
+	| {
 			type: 'resize-format';
-			format: ParseMediaContainer | ConvertMediaContainer;
+			format: MediaParserContainer | ConvertMediaContainer;
 	  }
 	| {
 			type: 'generic-probe';
@@ -96,6 +96,10 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 		return `Fast ${renderHumanReadableContainer(routeAction.format)} resizing in the browser`;
 	}
 
+	if (routeAction.type === 'report') {
+		return `Report bad videos to Remotion`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -134,6 +138,10 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'resize-format') {
 		return `Online ${renderHumanReadableContainer(routeAction.format)} Resizer - Remotion Convert`;
+	}
+
+	if (routeAction.type === 'report') {
+		return `Report bad videos to Remotion`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -182,6 +190,10 @@ export const getDescription = (routeAction: RouteAction) => {
 		)} resizer, powered by WebCodecs. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'report') {
+		return `Report bad videos to Remotion. We will investigate and fix them.`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -216,6 +228,10 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'generic-resize') {
 		return '/resize';
+	}
+
+	if (routeAction.type === 'report') {
+		return '/report';
 	}
 
 	if (routeAction.type === 'resize-format') {

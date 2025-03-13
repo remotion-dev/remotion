@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-troubleshooting-subpixel-rendering.png
+sidebar_label: Subpixel rendering
+title: Text subpixel rendering
+crumb: 'Troubleshooting'
+---
+
+Chrome will by default always render text to align it with the closest pixel.  
+That means that a text with `margin-top: 10px` and `margin-top: 10.4px` will be rendered identically.
+
+This leads to an oscillation effect can make your animations less smooth and more jarring.
+
+To counter this effect, you can render your text with:
+
+- A `transform` property
+- An additional `perspective()` transform
+- A `willChange: "transform"` CSS property
+
+Notice the difference in this 200x100 video:
+
+<video
+  src="https://remotion-assets.s3.eu-central-1.amazonaws.com/smooth-text.mp4"
+  playsInline
+  muted
+  autoPlay
+  loop
+  style={{
+    width: '100%',
+    border: '2px solid var(--text-color)',
+    borderRadius: 4,
+  }}
+/>
+<br />
+
+```tsx title="Left side of the video"
+<div
+  style={{
+    transform: 'translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
+  }}
+>
+  hi there
+</div>
+```
+
+```tsx title="Right side of the video"
+<div
+  style={{
+    transform: 'perspective(100px) translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
+    willChange: 'transform',
+  }}
+>
+  hi there
+</div>
+```
+
+Consider using this optimization [only during rendering](/docs/get-remotion-environment) as excessive `will-change`: `transform` will use more resources.

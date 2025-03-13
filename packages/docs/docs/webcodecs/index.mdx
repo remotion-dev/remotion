@@ -20,12 +20,19 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 In browsers that implement WebCodecs, you can use this package to:
 
-- [Convert videos from one format to another](/docs/webcodecs/convert-a-video) (.mp4 and .webm bidirectional, .avi, .mkv, .mov as import)
+- [Convert videos from one format to another](/docs/webcodecs/convert-a-video) (From .mp4, .webm, .mov, .mkv, .m3u8, .ts, .avi, .mp3, .flac, .wav, .aac to .mp4, .webm, .wav)
 - [Rotate videos](/docs/webcodecs/rotate-a-video)
 - Extract audio from a video
 - Manipulate the pixels of a video
 - [Fix videos that were recorded with `MediaRecorder`](/docs/webcodecs/fix-mediarecorder-video)
 - Soon: Compress, trim, crop videos
+
+## Is it fast?
+
+Unlike solutions which leverage WebAssembly, WebCodecs have full access to GPU acceleration.  
+You can expect vastly faster processing than with online converters or WebAssembly-based processing.
+
+See a [comparison](https://github.com/remotion-dev/webcodecs-benchmark) here.
 
 ## 💼 License Disclaimer
 

@@ -29,9 +29,7 @@ A more sophisticated way of embedding a video, which:
 **Cons**
 
 ⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
-⛔ &nbsp; No ref can be attached to this element.  
-⛔ &nbsp; More work is required to loop a video. Check out: [Looping an `<Offthread>` video](/docs/offthreadvideo#looping-a-video).  
-⛔ &nbsp; Supports transparent videos only if the [`transparent`](/docs/offthreadvideo#transparent) is set which is a bit slower.
+⛔ &nbsp; Supports transparent videos only if the [`transparent`](/docs/offthreadvideo#transparent) prop is set which is a bit slower.
 
 ## [`<Video />`](/docs/video)
 
@@ -47,5 +45,4 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 ⛔ &nbsp; Fewer codecs are supported.  
 ⛔ &nbsp; Chrome may throttle video tags if the page is heavy.  
 ⛔ &nbsp; If too many video tags get rendered simultaneously, a timeout may occur.  
-⛔ &nbsp; If the input video framerate does not match with the output framerate, some duplicate frames may occur in the output.  
-⛔ &nbsp; A Google Chrome build with proprietary codecs is required.
+⛔ &nbsp; If the input video framerate does not match with the output framerate, some duplicate frames may occur in the output.

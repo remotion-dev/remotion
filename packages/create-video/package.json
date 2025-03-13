@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/create-video"
 	},
 	"name": "create-video",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"description": "Create a new Remotion project",
 	"main": "dist/index.js",
 	"bin": {
@@ -33,7 +33,7 @@
 		"@types/tar": "6.1.1",
 		"react": "19.0.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"exports": {
 		"./package.json": "./package.json",

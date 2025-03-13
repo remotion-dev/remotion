@@ -17,12 +17,16 @@ import type {
 } from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	editorPropsProviderRef,
+	timeValueRef,
 } from './EditorProps.js';
 import {
 	addSequenceStackTraces,
@@ -36,7 +40,11 @@ import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import type {LoggingContextValue} from './log-level-context.js';
+import {LogLevelContext, useLogLevel} from './log-level-context.js';
+import {Log} from './log.js';
 import {NonceContext} from './nonce.js';
+import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -104,6 +112,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline: TimelinePosition,
 	CompositionManager,
+	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
@@ -160,21 +169,26 @@ export const Internals = {
 	editorPropsProviderRef,
 	PROPS_UPDATED_EXTERNALLY,
 	validateRenderAsset,
+	Log,
+	LogLevelContext,
+	useLogLevel,
+	playbackLogging,
+	timeValueRef,
 } as const;
 
 export type {
 	CompositionManagerContext,
 	CompProps,
+	LoggingContextValue,
 	MediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TRenderAsset as TAsset,
 	TCompMetadata,
 	TComposition,
-	TimelinePosition as Timeline,
 	TimelineContextValue,
+	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

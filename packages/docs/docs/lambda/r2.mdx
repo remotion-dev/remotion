@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-lambda-r2.png
+id: r2
+title: Using Remotion Lambda with R2
+sidebar_label: Cloudflare R2
+slug: /lambda/r2
+---
+
+R2 by Cloudflare is a popular way to store renders because there are no egress fees.
+
+Create a Cloudflare bucket and set up an API key with **Object Read & Write** permissions.
+
+Use an [`s3OutputProvider`](/docs/lambda/custom-destination#saving-to-another-cloud) to store the rendered video in R2:
+
+```tsx twoslash
+import {renderMediaOnLambda, speculateFunctionName} from '@remotion/lambda/client';
+
+// ---cut---
+const {bucketName, renderId, cloudWatchMainLogs} = await renderMediaOnLambda({
+  serveUrl: 'https://remotion-helloworld.vercel.app',
+  // FIXME: Add your function specs here
+  functionName: speculateFunctionName({
+    diskSizeInMb: 2048,
+    memorySizeInMb: 2048,
+    timeoutInSeconds: 120,
+  }),
+  composition: 'HelloWorld',
+  region: 'eu-central-1',
+  codec: 'h264',
+  outName: {
+    // FIXME: Use the bucket name from your Cloudflare Storage settings
+    bucketName: 'remotion-test-bucket',
+    key: 'out.mp4',
+    s3OutputProvider: {
+      // FIXME: Use the endpoint from your Cloudflare Storage settings
+      endpoint: 'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com',
+      // FIXME: Use the Access Key from your Cloudflare settings
+      accessKeyId: process.env.R2_ACCESS_KEY_ID ?? '',
+      // FIXME: Use the Secret Access Key from your Cloudflare settings
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? '',
+    },
+  },
+});
+```
+
+## See also
+
+- [Using Remotion Lambda with Supabase](/docs/lambda/supabase)

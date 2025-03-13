@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-media-utils-create-smooth-svg-path.png
+title: createSmoothSvgPath()
+id: create-smooth-svg-path
+crumb: '@remotion/media-utils'
+---
+
+_Part of the `@remotion/media-utils`_ package of helper functions.
+
+This function takes points, usually generated from [`visualizeAudioWaveform()`](/docs/media-utils/visualize-audio-waveform) or [`visualizeAudio()`](/docs/visualize-audio), and adds SVG `C` (curve) statements inbetween them to create a smooth path.
+
+## Example
+
+```tsx twoslash
+import {createSmoothSvgPath} from '@remotion/media-utils';
+import React from 'react';
+
+const points = [
+  {x: 0, y: 0},
+  {x: 100, y: 100},
+  {x: 200, y: 50},
+  {x: 300, y: 150},
+];
+
+const path = createSmoothSvgPath({points});
+```
+
+See a practical example [here](http://localhost:3001/docs/media-utils/visualize-audio-waveform#examples).
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/create-smooth-svg-path.ts)
+- [Audio visualization](/docs/audio-visualization)

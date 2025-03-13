@@ -10,8 +10,6 @@ crumb: '@remotion/media-parser'
 [`@remotion/media-parser`](/docs/media-parser) allows you to extract metadata that is embedded in video files, such as ID3 tags or EXIF data.
 
 ```tsx twoslash title="Extracting metadata"
-// @module: es2022
-// @target: es2017
 import {parseMedia} from '@remotion/media-parser';
 
 const {metadata} = await parseMedia({
@@ -96,6 +94,31 @@ Use the [`container`](/docs/media-parser/parse-media#container) field to get the
 | Field     | Description                          | Example value     |
 | --------- | ------------------------------------ | ----------------- |
 | `encoder` | Software used to encode stream/Video | `"Lavf57.19.100"` |
+
+### MP3
+
+See [here](https://exiftool.org/TagNames/ID3.html) for a list of tags that can be returned.  
+The `APIC` tag will not be returned as part of the `metadata` field, but separately as elements in the [`images`](/docs/media-parser/parse-media#images) array.
+
+### WAV
+
+| Field  | Description                          | Example value                         |
+| ------ | ------------------------------------ | ------------------------------------- |
+| `ISFT` | Software used to encode stream/Video | `"Lavf60.16.100 (libsndfile-1.0.31)"` |
+
+### FLAC
+
+| Field         | Description                          | Example value                        |
+| ------------- | ------------------------------------ | ------------------------------------ |
+| `vendor`      | Software used to encode stream/Video | `"reference libFLAC 1.3.2 20190804"` |
+| `title`       | Name of the track                    | `"The Happy Meeting"`                |
+| `date`        | Recording date, or year              | `"2020"`                             |
+| `album`       | Music album                          | `"Sample files"`                     |
+| `artist`      | Music artist                         | `"Sample files"`                     |
+| `tracknumber` | Index of song in album               | `"4"`                                |
+| `genre`       | Music genre                          | `"Ambient"`                          |
+
+See more: https://www.rfc-editor.org/rfc/rfc9639.html#name-standard-field-names
 
 ## Fields are not unique
 

@@ -1,13 +1,35 @@
-import type {AvcPPs, AvcProfileInfo} from '../boxes/avc/parse-avc';
-import type {BufferIterator} from '../buffer-iterator';
-import type {Options, ParseMediaFields} from '../options';
+import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
+import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
+import type {
+	SelectM3uAssociatedPlaylistsFn,
+	SelectM3uStreamFn,
+} from '../containers/m3u/select-stream';
+import {Log, type LogLevel} from '../log';
+import type {MediaParserController} from '../media-parser-controller';
+import type {
+	OnDiscardedData,
+	Options,
+	ParseMediaFields,
+	ParseMediaMode,
+	ParseMediaSrc,
+} from '../options';
+import type {IsoBaseMediaStructure} from '../parse-result';
+import type {ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
+import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
+import {flacState} from './flac-state';
+import {imagesState} from './images';
+import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
+import {m3uState} from './m3u-state';
+import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
+import {transportStreamState} from './transport-stream';
+import {videoSectionState} from './video-section';
 import {webmState} from './webm';
 
 export type InternalStats = {
@@ -23,23 +45,42 @@ export type SpsAndPps = {
 export const makeParserState = ({
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
-	signal,
-	getIterator,
+	controller,
 	fields,
 	onAudioTrack,
 	onVideoTrack,
-	supportsContentRange,
+	contentLength,
+	logLevel,
+	mode,
+	src,
+	readerInterface,
+	onDiscardedData,
+	selectM3uStreamFn,
+	selectM3uAssociatedPlaylistsFn,
+	mp4HeaderSegment,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
-	signal: AbortSignal | undefined;
-	getIterator: () => BufferIterator | null;
+	controller: MediaParserController;
 	fields: Options<ParseMediaFields>;
-	supportsContentRange: boolean;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
+	contentLength: number;
+	logLevel: LogLevel;
+	mode: ParseMediaMode;
+	src: ParseMediaSrc;
+	readerInterface: ReaderInterface;
+	onDiscardedData: OnDiscardedData | null;
+	selectM3uStreamFn: SelectM3uStreamFn;
+	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }) => {
 	let skippedBytes: number = 0;
+
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		contentLength,
+	);
 
 	const increaseSkippedBytes = (bytes: number) => {
 		skippedBytes += bytes;
@@ -49,33 +90,66 @@ export const makeParserState = ({
 	const keyframes = keyframesState();
 	const emittedFields = emittedState();
 	const slowDurationAndFps = slowDurationAndFpsState();
+	const mp3Info = makeMp3State();
+	const images = imagesState();
+
+	const discardReadBytes = async (force: boolean) => {
+		const {bytesRemoved, removedData} = iterator.removeBytesRead(force, mode);
+		if (bytesRemoved) {
+			Log.verbose(logLevel, `Freed ${bytesRemoved} bytes`);
+		}
+
+		if (removedData && onDiscardedData) {
+			await onDiscardedData(removedData);
+		}
+	};
 
 	return {
 		riff: riffSpecificState(),
+		transportStream: transportStreamState(),
+		webm: webmState(),
+		iso: isoBaseMediaState(),
+		mp3Info,
+		aac: aacState(),
+		flac: flacState(),
+		m3u: m3uState(logLevel),
 		callbacks: sampleCallback({
-			signal,
+			controller,
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
 			fields,
 			keyframes,
 			emittedFields,
 			slowDurationAndFpsState: slowDurationAndFps,
+			structure,
+			src,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
-			finalCursorOffset: getIterator()?.counter.getOffset() ?? 0,
+			finalCursorOffset: iterator.counter.getOffset() ?? 0,
 		}),
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		keyframes,
-		structure,
+		...structure,
 		onAudioTrack,
 		onVideoTrack,
-		supportsContentRange,
-		webm: webmState(),
 		emittedFields,
 		fields,
 		slowDurationAndFps,
+		contentLength,
+		images,
+		videoSection: videoSectionState(),
+		logLevel,
+		iterator,
+		controller,
+		mode,
+		src,
+		readerInterface,
+		discardReadBytes,
+		selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment,
 	};
 };
 

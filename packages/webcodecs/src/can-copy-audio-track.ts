@@ -1,6 +1,6 @@
 import type {
 	MediaParserAudioCodec,
-	ParseMediaContainer,
+	MediaParserContainer,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
 
@@ -11,7 +11,7 @@ export const canCopyAudioTrack = ({
 }: {
 	inputCodec: MediaParserAudioCodec;
 	outputContainer: ConvertMediaContainer;
-	inputContainer: ParseMediaContainer;
+	inputContainer: MediaParserContainer;
 }) => {
 	if (outputContainer === 'webm') {
 		return inputCodec === 'opus';
@@ -20,7 +20,9 @@ export const canCopyAudioTrack = ({
 	if (outputContainer === 'mp4') {
 		return (
 			inputCodec === 'aac' &&
-			(inputContainer === 'mp4' || inputContainer === 'avi')
+			(inputContainer === 'mp4' ||
+				inputContainer === 'avi' ||
+				inputContainer === 'm3u8')
 		);
 	}
 

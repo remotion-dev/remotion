@@ -15,6 +15,7 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 const {
 	enableMultiprocessOnLinuxOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
@@ -95,6 +96,9 @@ export const listCompositionsCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
@@ -109,7 +113,9 @@ export const listCompositionsCommand = async (
 			indentOutput: false,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+				registerCleanupJob(`Delete ${dir}`, () =>
+					RenderInternals.deleteDirectory(dir),
+				);
 			},
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
@@ -121,7 +127,7 @@ export const listCompositionsCommand = async (
 			publicPath,
 		});
 
-	registerCleanupJob(() => cleanupBundle());
+	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());
 
 	const compositions = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundled,
@@ -142,6 +148,7 @@ export const listCompositionsCommand = async (
 		logLevel,
 		server: undefined,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		binariesDirectory,
 		onBrowserDownload: defaultBrowserDownloadProgress({
 			indent: false,

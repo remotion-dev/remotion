@@ -1,25 +1,24 @@
-import {getKeyframesFromIsoBaseMedia} from './boxes/iso-base-media/get-keyframes';
-import {hasTracks} from './get-tracks';
+import {getKeyframesFromIsoBaseMedia} from './containers/iso-base-media/get-keyframes';
+import {getHasTracks} from './get-tracks';
 import type {MediaParserKeyframe} from './options';
-import type {Structure} from './parse-result';
 import type {ParserState} from './state/parser-state';
 
 export const getKeyframes = (
-	structure: Structure,
+	state: ParserState,
 ): MediaParserKeyframe[] | null => {
+	const structure = state.getStructure();
+
 	if (structure.type === 'iso-base-media') {
-		return getKeyframesFromIsoBaseMedia(structure);
+		return getKeyframesFromIsoBaseMedia(state);
 	}
 
 	return null;
 };
 
-export const hasKeyframes = (
-	structure: Structure,
-	parserState: ParserState,
-) => {
+export const hasKeyframes = (parserState: ParserState) => {
+	const structure = parserState.getStructure();
 	if (structure.type === 'iso-base-media') {
-		return hasTracks(structure, parserState);
+		return getHasTracks(parserState);
 	}
 
 	// Has, but will be null

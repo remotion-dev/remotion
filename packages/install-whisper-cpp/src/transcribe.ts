@@ -116,6 +116,7 @@ export const modelToDtw = (model: WhisperModel): string => {
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
+	whisperCppVersion,
 	model,
 	tmpJSONPath,
 	modelFolder,
@@ -130,6 +131,7 @@ const transcribeToTemporaryFile = async ({
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
+	whisperCppVersion: string;
 	model: WhisperModel;
 	tmpJSONPath: string;
 	modelFolder: string | null;
@@ -154,7 +156,7 @@ const transcribeToTemporaryFile = async ({
 		);
 	}
 
-	const executable = getWhisperExecutablePath(whisperPath);
+	const executable = getWhisperExecutablePath(whisperPath, whisperCppVersion);
 
 	const args = [
 		'-f',
@@ -176,7 +178,7 @@ const transcribeToTemporaryFile = async ({
 
 	const outputPath = await new Promise<string>((resolve, reject) => {
 		const task = spawn(executable, args, {
-			cwd: whisperPath,
+			cwd: path.resolve(process.cwd(), whisperPath),
 			signal: signal ?? undefined,
 		});
 		const predictedPath = `${tmpJSONPath}.json`;
@@ -199,10 +201,14 @@ const transcribeToTemporaryFile = async ({
 			}
 		};
 
+		let stderr = '';
+
 		const onStderr = (data: Buffer) => {
 			onData(data);
+			const utf8 = data.toString('utf-8');
+			stderr += utf8;
 			if (printOutput) {
-				process.stderr.write(data.toString('utf-8'));
+				process.stderr.write(utf8);
 			}
 		};
 
@@ -233,6 +239,14 @@ const transcribeToTemporaryFile = async ({
 				return;
 			}
 
+			if (stderr.includes('must be 16 kHz')) {
+				reject(
+					new Error(
+						'wav file must be 16 kHz - use this command to make it so: "ffmpeg -i input.wav -ar 16000 output.wav -y"',
+					),
+				);
+			}
+
 			reject(
 				new Error(
 					`No transcription was created (process exited with code ${code}): ${output}`,
@@ -247,6 +261,7 @@ const transcribeToTemporaryFile = async ({
 export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	inputPath,
 	whisperPath,
+	whisperCppVersion,
 	model,
 	modelFolder,
 	translateToEnglish = false,
@@ -260,6 +275,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 }: {
 	inputPath: string;
 	whisperPath: string;
+	whisperCppVersion: string;
 	model: WhisperModel;
 	tokenLevelTimestamps: HasTokenLevelTimestamps;
 	modelFolder?: string;
@@ -283,7 +299,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 
 	if (!isWavFile(inputPath)) {
 		throw new Error(
-			'Invalid inputFile type. The provided file is not a wav file!',
+			'Invalid inputFile type. The provided file is not a wav file! Convert the file to a 16KHz wav file first: "ffmpeg -i input.mp4 -ar 16000 output.wav -y"',
 		);
 	}
 
@@ -292,6 +308,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	const {outputPath: tmpJSONPath} = await transcribeToTemporaryFile({
 		fileToTranscribe: inputPath,
 		whisperPath,
+		whisperCppVersion,
 		model,
 		tmpJSONPath: tmpJSONDir,
 		modelFolder: modelFolder ?? null,

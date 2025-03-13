@@ -94,7 +94,7 @@ export const stillCommand = async (
 		}
 
 		const server = RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -137,6 +137,7 @@ export const stillCommand = async (
 					quiet: CliInternals.quietFlagProvided(),
 				}),
 				chromeMode: 'headless-shell',
+				offthreadVideoThreads: 1,
 			});
 		composition = compositionId;
 	}

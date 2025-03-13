@@ -37,7 +37,9 @@ type RemotionOptions struct {
 	Webhook                        interface{}            `json:"webhook"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
+	ApiKey                         interface{}            `json:"apiKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 	ForceBucketName                string                 `json:"forceBucketName"`
@@ -85,8 +87,10 @@ type renderInternalOptions struct {
 	EncodingMaxRate                interface{}            `json:"encodingMaxRate"`
 	Webhook                        interface{}            `json:"webhook"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
+	ApiKey                         interface{}            `json:"apiKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
 
@@ -107,12 +111,14 @@ type RemotionRenderResponse struct {
 }
 
 type RenderConfig struct {
-	RenderId     string  `json:"renderId" validate:"required"`
-	BucketName   string  `json:"bucketName" validate:"required"`
-	LogLevel     string  `json:"logLevel"`
-	FunctionName string  `json:"functionName" validate:"required"`
-	Region       string  `json:"region" validate:"required"`
-	DeleteAfter  *string `json:"deleteAfter"`
+	RenderId         string      `json:"renderId" validate:"required"`
+	BucketName       string      `json:"bucketName" validate:"required"`
+	LogLevel         string      `json:"logLevel"`
+	FunctionName     string      `json:"functionName" validate:"required"`
+	Region           string      `json:"region" validate:"required"`
+	DeleteAfter      *string     `json:"deleteAfter"`
+	S3OutputProvider interface{} `json:"s3OutputProvider"`
+	ForcePathStyle   bool        `json:"forcePathStyle"`
 }
 
 type renderProgressInternalConfig struct {

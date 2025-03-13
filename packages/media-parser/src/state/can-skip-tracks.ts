@@ -1,38 +1,72 @@
 import type {Options, ParseMediaFields} from '../options';
+import type {MediaParserStructureUnstable} from '../parse-result';
+import type {StructureState} from './structure';
 
-const needsTracksField: Record<keyof Options<ParseMediaFields>, boolean> = {
-	audioCodec: true,
-	container: false,
-	dimensions: true,
-	durationInSeconds: true,
-	slowDurationInSeconds: true,
-	slowFps: true,
-	fps: true,
-	internalStats: false,
-	isHdr: true,
-	name: false,
-	rotation: true,
-	size: false,
-	structure: true,
-	tracks: true,
-	unrotatedDimensions: true,
-	videoCodec: true,
-	metadata: true,
-	location: true,
-	mimeType: false,
-	slowKeyframes: true,
-	slowNumberOfFrames: true,
-	keyframes: true,
+export const needsTracksForField = ({
+	field,
+	structure,
+}: {
+	field: keyof Options<ParseMediaFields>;
+	structure: MediaParserStructureUnstable;
+}) => {
+	if (field === 'dimensions') {
+		if (structure.type === 'riff') {
+			return false;
+		}
+
+		return true;
+	}
+
+	if (
+		field === 'audioCodec' ||
+		field === 'durationInSeconds' ||
+		field === 'slowDurationInSeconds' ||
+		field === 'slowFps' ||
+		field === 'fps' ||
+		field === 'isHdr' ||
+		field === 'rotation' ||
+		field === 'structure' ||
+		field === 'tracks' ||
+		field === 'unrotatedDimensions' ||
+		field === 'videoCodec' ||
+		field === 'metadata' ||
+		field === 'location' ||
+		field === 'slowKeyframes' ||
+		field === 'slowNumberOfFrames' ||
+		field === 'keyframes' ||
+		field === 'images' ||
+		field === 'sampleRate' ||
+		field === 'numberOfAudioChannels' ||
+		field === 'slowAudioBitrate' ||
+		field === 'slowVideoBitrate' ||
+		field === 'm3uStreams'
+	) {
+		return true;
+	}
+
+	if (
+		field === 'container' ||
+		field === 'internalStats' ||
+		field === 'mimeType' ||
+		field === 'name' ||
+		field === 'size'
+	) {
+		return false;
+	}
+
+	throw new Error(`field not implemeted ${field satisfies never}`);
 };
 
 export const makeCanSkipTracksState = ({
 	hasAudioTrackHandlers,
 	fields,
 	hasVideoTrackHandlers,
+	structure,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	fields: Options<ParseMediaFields>;
+	structure: StructureState;
 }) => {
 	return {
 		canSkipTracks: () => {
@@ -44,7 +78,9 @@ export const makeCanSkipTracksState = ({
 				fields ?? {},
 			) as (keyof Options<ParseMediaFields>)[];
 			const selectedKeys = keys.filter((k) => fields[k]);
-			return !selectedKeys.some((k) => needsTracksField[k]);
+			return !selectedKeys.some((k) =>
+				needsTracksForField({field: k, structure: structure.getStructure()}),
+			);
 		},
 	};
 };

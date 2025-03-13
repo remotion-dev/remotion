@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import type {
 	CompProps,
+	LogLevel,
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -29,6 +30,7 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
+import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -88,6 +90,9 @@ export type PlayerProps<
 	readonly overflowVisible?: boolean;
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
 	readonly overrideInternalClassName?: string;
+	readonly logLevel?: LogLevel;
+	readonly noSuspense?: boolean;
+	readonly acknowledgeRemotionLicense?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -151,6 +156,9 @@ const PlayerFn = <
 		renderMuteButton,
 		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
 		overrideInternalClassName,
+		logLevel = 'info',
+		noSuspense,
+		acknowledgeRemotionLicense,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -186,9 +194,18 @@ const PlayerFn = <
 		);
 	}
 
-	const component = Internals.useLazyComponent(
-		componentProps,
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	useState(() =>
+		acknowledgeRemotionLicenseMessage(
+			Boolean(acknowledgeRemotionLicense),
+			logLevel,
+		),
+	);
+
+	const component = Internals.useLazyComponent({
+		compProps: componentProps,
+		componentName: 'Player',
+		noSuspense: Boolean(noSuspense),
+	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	validateInitialFrame({initialFrame, durationInFrames});
 
@@ -317,6 +334,17 @@ const PlayerFn = <
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
+	useState(() => {
+		Internals.playbackLogging({
+			logLevel,
+			message: `[player] Mounting <Player>. User agent = ${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
+			tag: 'player',
+			mountTime: Date.now(),
+		});
+	});
+
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
@@ -373,6 +401,7 @@ const PlayerFn = <
 				fps={fps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
+				logLevel={logLevel}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
@@ -423,6 +452,7 @@ const PlayerFn = <
 							overflowVisible={overflowVisible}
 							browserMediaControlsBehavior={browserMediaControlsBehavior}
 							overrideInternalClassName={overrideInternalClassName ?? undefined}
+							noSuspense={Boolean(noSuspense)}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>

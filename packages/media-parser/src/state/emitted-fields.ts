@@ -24,6 +24,12 @@ export const emittedState = () => {
 		slowKeyframes: false,
 		slowNumberOfFrames: false,
 		keyframes: false,
+		images: false,
+		numberOfAudioChannels: false,
+		sampleRate: false,
+		slowAudioBitrate: false,
+		slowVideoBitrate: false,
+		m3uStreams: false,
 	};
 
 	return emittedFields;

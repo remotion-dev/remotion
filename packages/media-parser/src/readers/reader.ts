@@ -1,4 +1,7 @@
-type Reader = {
+import type {MediaParserController} from '../media-parser-controller';
+import type {ParseMediaSrc} from '../options';
+
+export type Reader = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
 	abort: () => void;
 };
@@ -9,15 +12,23 @@ type ReadResult = {
 	contentType: string | null;
 	name: string;
 	supportsContentRange: boolean;
+	needsContentRange: boolean;
 };
-type ReadContent = (
-	src: string | Blob,
-	range: [number, number] | number | null,
-	signal: AbortSignal | undefined,
-) => Promise<ReadResult>;
-type GetLength = (src: string | Blob) => Promise<number>;
+export type ReadContent = (options: {
+	src: ParseMediaSrc;
+	range: [number, number] | number | null;
+	controller: MediaParserController;
+}) => Promise<ReadResult>;
+
+export type ReadWholeAsText = (src: ParseMediaSrc) => Promise<string>;
+
+export type CreateAdjacentFileSource = (
+	relativePath: string,
+	src: ParseMediaSrc,
+) => string;
 
 export type ReaderInterface = {
 	read: ReadContent;
-	getLength: GetLength;
+	readWholeAsText: ReadWholeAsText;
+	createAdjacentFileSource: CreateAdjacentFileSource;
 };

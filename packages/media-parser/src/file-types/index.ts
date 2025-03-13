@@ -2,8 +2,10 @@ import {isBmp} from './bmp';
 import type {FileType} from './detect-file-type';
 import {
 	isAac,
+	isFlac,
 	isGif,
 	isIsoBaseMedia,
+	isM3u,
 	isMp3,
 	isRiffAvi,
 	isRiffWave,
@@ -26,6 +28,14 @@ export const detectFileType = (data: Uint8Array): FileType => {
 
 	if (isAac(data)) {
 		return {type: 'aac'};
+	}
+
+	if (isFlac(data)) {
+		return {type: 'flac'};
+	}
+
+	if (isM3u(data)) {
+		return {type: 'm3u'};
 	}
 
 	const webp = isWebp(data);

@@ -105,6 +105,7 @@ export const renderVideoFlow = async ({
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	repro,
 	binariesDirectory,
@@ -142,7 +143,7 @@ export const renderVideoFlow = async ({
 	everyNthFrame: number;
 	jpegQuality: number | undefined;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
@@ -161,6 +162,7 @@ export const renderVideoFlow = async ({
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace | null;
 	repro: boolean;
 	binariesDirectory: string | null;
@@ -273,7 +275,9 @@ export const renderVideoFlow = async ({
 			indentOutput: indent,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
+				addCleanupCallback(`Delete ${dir}`, () =>
+					RenderInternals.deleteDirectory(dir),
+				);
 			},
 			quietProgress: updatesDontOverwrite,
 			quietFlag: quietFlagProvided(),
@@ -286,7 +290,7 @@ export const renderVideoFlow = async ({
 		},
 	);
 
-	addCleanupCallback(() => cleanupBundle());
+	addCleanupCallback(`Cleanup bundle`, () => cleanupBundle());
 
 	const onDownload: RenderMediaOnDownload = makeOnDownload({
 		downloads,
@@ -298,11 +302,15 @@ export const renderVideoFlow = async ({
 	});
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
+	addCleanupCallback(`Closing browser instance`, () =>
+		puppeteerInstance.close({silent: false}),
+	);
 
 	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);
 	const server = await RenderInternals.prepareServer({
-		concurrency: resolvedConcurrency,
+		offthreadVideoThreads:
+			offthreadVideoThreads ??
+			RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 		indent,
 		port,
 		remotionRoot,
@@ -313,7 +321,7 @@ export const renderVideoFlow = async ({
 		forceIPv4: false,
 	});
 
-	addCleanupCallback(() => server.closeServer(false));
+	addCleanupCallback(`Close server`, () => server.closeServer(false));
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -333,6 +341,7 @@ export const renderVideoFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
@@ -370,11 +379,14 @@ export const renderVideoFlow = async ({
 		codec,
 		scale,
 		wantsImageSequence: shouldOutputImageSequence,
+		indent,
+		logLevel,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
+		compositionDefaultOutName: config.defaultOutName,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(
 			codec,
 			audioCodec,
@@ -512,6 +524,7 @@ export const renderVideoFlow = async ({
 					data: config.props,
 				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
 			compositionStart: 0,
@@ -601,6 +614,7 @@ export const renderVideoFlow = async ({
 				staticBase: null,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		repro: repro ?? false,
 		binariesDirectory,

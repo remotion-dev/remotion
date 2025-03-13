@@ -3,7 +3,11 @@ import {useCallback, useContext, useEffect, useRef} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
+import {useLogLevel, useMountTime} from './log-level-context.js';
+import {Log} from './log.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {playbackLogging} from './playback-logging.js';
+import {seek} from './seek.js';
 import {
 	TimelineContext,
 	usePlayingState,
@@ -14,23 +18,9 @@ import {useMediaBuffering} from './use-media-buffering.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
-import {isIosSafari} from './video/video-fragment.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
 
 export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
-
-const seek = (
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>,
-	time: number,
-): void => {
-	if (!mediaRef.current) {
-		return;
-	}
-
-	// iOS seeking does not support multiple decimals
-	const timeToSet = isIosSafari() ? Number(time.toFixed(1)) : time;
-	mediaRef.current.currentTime = timeToSet;
-};
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -41,7 +31,6 @@ export const useMediaPlayback = ({
 	acceptableTimeshift,
 	pauseWhenBuffering,
 	isPremounting,
-	debugSeeking,
 	onAutoPlayError,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
@@ -52,7 +41,6 @@ export const useMediaPlayback = ({
 	acceptableTimeshift: number;
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
-	debugSeeking: boolean;
 	onAutoPlayError: null | (() => void);
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
@@ -64,6 +52,8 @@ export const useMediaPlayback = ({
 	const mediaStartsAt = useMediaStartsAt();
 	const lastSeekDueToShift = useRef<number | null>(null);
 	const lastSeek = useRef<number | null>(null);
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 
 	if (!buffering) {
 		throw new Error(
@@ -78,15 +68,13 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		if (debugSeeking) {
-			// eslint-disable-next-line no-console
-			console.log(
-				`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
-			);
-		}
+		Log.verbose(
+			logLevel,
+			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
+		);
 
 		isVariableFpsVideoMap.current[src] = true;
-	}, [debugSeeking, src]);
+	}, [logLevel, src]);
 
 	const currentTime = useRequestVideoCallbackTime({
 		mediaRef,
@@ -106,6 +94,8 @@ export const useMediaPlayback = ({
 		element: mediaRef,
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
+		logLevel,
+		mountTime,
 	});
 
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
@@ -113,6 +103,8 @@ export const useMediaPlayback = ({
 		mediaType,
 		onVariableFpsVideoDetected,
 		pauseWhenBuffering,
+		logLevel,
+		mountTime,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -132,7 +124,17 @@ export const useMediaPlayback = ({
 	const isPlayerBuffering = useIsPlayerBuffering(buffering);
 
 	useEffect(() => {
+		if (mediaRef.current?.paused) {
+			return;
+		}
+
 		if (!playing) {
+			playbackLogging({
+				logLevel,
+				tag: 'pause',
+				message: `Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : 'Player is not playing'}`,
+				mountTime,
+			});
 			mediaRef.current?.pause();
 			return;
 		}
@@ -140,9 +142,25 @@ export const useMediaPlayback = ({
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 
 		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
+			playbackLogging({
+				logLevel,
+				tag: 'pause',
+				message: `Pausing ${mediaRef.current?.src} because player is buffering but media tag is not`,
+				mountTime,
+			});
 			mediaRef.current?.pause();
 		}
-	}, [isBuffering, isMediaTagBuffering, isPlayerBuffering, mediaRef, playing]);
+	}, [
+		isBuffering,
+		isMediaTagBuffering,
+		isPlayerBuffering,
+		isPremounting,
+		logLevel,
+		mediaRef,
+		mediaType,
+		mountTime,
+		playing,
+	]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -179,18 +197,6 @@ export const useMediaPlayback = ({
 				? timeShiftRvcTag
 				: timeShiftMediaTag;
 
-		if (debugSeeking) {
-			// eslint-disable-next-line no-console
-			console.log({
-				mediaTagTime,
-				rvcTime,
-				shouldBeTime,
-				state: mediaRef.current.readyState,
-				playing: !mediaRef.current.paused,
-				isVariableFpsVideo,
-			});
-		}
-
 		if (
 			timeShift > acceptableTimeShiftButLessThanDuration &&
 			lastSeekDueToShift.current !== shouldBeTime
@@ -198,27 +204,29 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
-			if (debugSeeking) {
-				// eslint-disable-next-line no-console
-				console.log('Seeking', {
-					shouldBeTime,
-					isTime: mediaTagTime,
-					rvcTime,
-					timeShift,
-					isVariableFpsVideo,
-				});
-			}
-
-			seek(mediaRef, shouldBeTime);
-			lastSeek.current = shouldBeTime;
-			lastSeekDueToShift.current = shouldBeTime;
-			if (playing && !isVariableFpsVideo) {
+			lastSeek.current = seek({
+				mediaRef: mediaRef.current,
+				time: shouldBeTime,
+				logLevel,
+				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}${isVariableFpsVideo ? ', isVariableFpsVideo = true' : ''}, isPremounting = ${isPremounting}, pauseWhenBuffering = ${pauseWhenBuffering}`,
+				mountTime,
+			});
+			lastSeekDueToShift.current = lastSeek.current;
+			if (playing) {
 				if (playbackRate > 0) {
 					bufferUntilFirstFrame(shouldBeTime);
 				}
 
 				if (mediaRef.current.paused) {
-					playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
+					playAndHandleNotAllowedError({
+						mediaRef,
+						mediaType,
+						onAutoPlayError,
+						logLevel,
+						mountTime,
+						reason:
+							'player is playing but media tag is paused, and just seeked',
+					});
 				}
 			}
 
@@ -248,28 +256,49 @@ export const useMediaPlayback = ({
 
 		if (!playing || isSomethingElseBuffering) {
 			if (makesSenseToSeek) {
-				seek(mediaRef, shouldBeTime);
-				lastSeek.current = shouldBeTime;
+				lastSeek.current = seek({
+					mediaRef: mediaRef.current,
+					time: shouldBeTime,
+					logLevel,
+					why: `not playing or something else is buffering. time offset is over seek threshold (${seekThreshold})`,
+					mountTime,
+				});
 			}
 
 			return;
 		}
 
-		// We assured we are in playing state
-		if (
-			(mediaRef.current.paused && !mediaRef.current.ended) ||
-			absoluteFrame === 0
-		) {
+		if (!playing || buffering.buffering.current) {
+			return;
+		}
+
+		// We now assured we are in playing state and not buffering
+		const pausedCondition = mediaRef.current.paused && !mediaRef.current.ended;
+		const firstFrameCondition = absoluteFrame === 0;
+		if (pausedCondition || firstFrameCondition) {
+			const reason = pausedCondition
+				? 'media tag is paused'
+				: 'absolute frame is 0';
 			if (makesSenseToSeek) {
-				seek(mediaRef, shouldBeTime);
-				lastSeek.current = shouldBeTime;
+				lastSeek.current = seek({
+					mediaRef: mediaRef.current,
+					time: shouldBeTime,
+					logLevel,
+					why: `is over timeshift threshold (threshold = ${seekThreshold}) and ${reason}`,
+					mountTime,
+				});
 			}
 
-			playAndHandleNotAllowedError(mediaRef, mediaType, onAutoPlayError);
-			if (!isVariableFpsVideo) {
-				if (playbackRate > 0) {
-					bufferUntilFirstFrame(shouldBeTime);
-				}
+			playAndHandleNotAllowedError({
+				mediaRef,
+				mediaType,
+				onAutoPlayError,
+				logLevel,
+				mountTime,
+				reason: `player is playing and ${reason}`,
+			});
+			if (!isVariableFpsVideo && playbackRate > 0) {
+				bufferUntilFirstFrame(shouldBeTime);
 			}
 		}
 	}, [
@@ -278,7 +307,7 @@ export const useMediaPlayback = ({
 		bufferUntilFirstFrame,
 		buffering.buffering,
 		currentTime,
-		debugSeeking,
+		logLevel,
 		desiredUnclampedTime,
 		isBuffering,
 		isMediaTagBuffering,
@@ -289,5 +318,8 @@ export const useMediaPlayback = ({
 		playing,
 		src,
 		onAutoPlayError,
+		isPremounting,
+		pauseWhenBuffering,
+		mountTime,
 	]);
 };

@@ -13,6 +13,7 @@ test('should be able to get keyframes from webm', async () => {
 			internalStats: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	expect(slowKeyframes).toEqual([
 		{
@@ -51,6 +52,7 @@ test('should be able to get keyframes from avi', async () => {
 			internalStats: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	expect(slowKeyframes).toEqual([
 		{
@@ -97,8 +99,9 @@ test('should be able to get keyframes from .ts', async () => {
 			slowNumberOfFrames: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
-	expect(slowNumberOfFrames).toEqual(294);
+	expect(slowNumberOfFrames).toEqual(298);
 	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 10,

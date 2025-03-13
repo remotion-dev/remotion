@@ -22,6 +22,11 @@ The following input formats are supported:
 - Matroska (`.mkv`, `.webm`)
 - `.avi`
 - MPEG Transport Stream (`.ts`)
+- `.wav`,
+- `.mp3`
+- `.flac`
+- `.aac`
+- HLS (`.m3u8`)
 
 The following output formats are supported:
 
@@ -59,8 +64,6 @@ Install the `@remotion/webcodecs` and `@remotion/media-parser` packages:
 (needs to be CORS-enabled)
 
 ```tsx twoslash title="Converting an MP4 to a WebM"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -72,11 +75,7 @@ await convertMedia({
 ### Converting from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File):
 
 ```tsx twoslash title="Converting a file"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia} from '@remotion/webcodecs';
-import {webFileReader} from '@remotion/media-parser/web-file';
 
 // Get an actual file from an <input type="file"> element
 const file = new File([], 'video.mp4');
@@ -84,7 +83,6 @@ const file = new File([], 'video.mp4');
 await convertMedia({
   src: file,
   container: 'webm',
-  reader: webFileReader,
 });
 ```
 
@@ -93,9 +91,6 @@ await convertMedia({
 You can specify the output codec by passing the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`audioCodec`](/docs/webcodecs/convert-media#audiocodec) options:
 
 ```tsx twoslash title="Converting to VP9"
-// @module: es2022
-// @target: es2017
-
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({

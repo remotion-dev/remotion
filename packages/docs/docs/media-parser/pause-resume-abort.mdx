@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-media-parser-pause-resume-abort.png
+id: pause-resume-abort
+title: Pause, resume and abort parsing
+sidebar_label: Pause, resume and abort
+slug: /media-parser/pause-resume-abort
+crumb: '@remotion/media-parser'
+---
+
+You can pause, resume and abort the parsing process.
+
+Create a [`mediaParserController()`](/docs/media-parser/media-parser-controller) and use the following methods:
+
+## Pause and resume
+
+```tsx twoslash title="Pause and resume"
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+parseMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  controller,
+})
+  .then(() => {
+    console.log('Finished downloading');
+  })
+  .catch((err) => {
+    console.error('Error downloading', err);
+  });
+
+// Wait 1 sec, pause, wait 1 sec, resume
+await new Promise((resolve) => setTimeout(resolve, 1000));
+controller.pause();
+await new Promise((resolve) => setTimeout(resolve, 1000));
+controller.resume();
+```
+
+## Cancel a parsing process
+
+```tsx twoslash title="Cancel a parsing process"
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+parseMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  controller,
+})
+  .then(() => {
+    console.log('Finished parsing');
+  })
+  .catch((err) => {
+    console.error('Error parsing', err);
+  });
+
+// Cancel after 10 seconds
+await new Promise((resolve) => setTimeout(resolve, 10_000));
+controller.abort();
+```
+
+## Checking if a parse was aborted
+
+Use the [`hasBeenAborted()`](/docs/media-parser/has-been-aborted) function to check if a parse was aborted using the `.abort()` method.
+
+```tsx twoslash title="Checking if a parse was aborted"
+import {mediaParserController, parseMedia, hasBeenAborted} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+const promise = parseMedia({
+  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+  controller,
+})
+  .then(() => {
+    console.log('Finished downloading');
+  })
+  .catch((err) => {
+    if (hasBeenAborted(err)) {
+      console.log('Download was cancelled');
+    } else {
+      console.error('Error downloading', err);
+    }
+  });
+```
+
+## See also
+
+- [`mediaParserController`](/docs/media-parser/media-parser-controller)
+- [`hasBeenAborted`](/docs/media-parser/has-been-aborted)
+- [`parseMedia`](/docs/media-parser/parse-media)

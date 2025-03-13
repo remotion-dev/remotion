@@ -50,7 +50,12 @@ describe('Render composition-rules should throw with invalid props', () => {
 		expectToThrow(
 			() =>
 				render(
-					<RemotionRoot numberOfAudioTags={0}>
+					<RemotionRoot
+						numberOfAudioTags={0}
+						logLevel="info"
+						onlyRenderComposition={null}
+						currentCompositionMetadata={null}
+					>
 						<Composition
 							lazyComponent={() => Promise.resolve({default: AnyComp})}
 							durationInFrames={100}

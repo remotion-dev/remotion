@@ -1,13 +1,19 @@
-import type {CreateContent, Writer, WriterInterface} from './writer';
+import type {
+	CreateContent,
+	Writer,
+	WriterInterface,
+} from '@remotion/media-parser';
 
 const createContent: CreateContent = async ({filename}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
 	const actualFilename = `__remotion_mediaparser:${filename}`;
 
 	const remove = async () => {
-		await directoryHandle.removeEntry(actualFilename, {
-			recursive: true,
-		});
+		try {
+			await directoryHandle.removeEntry(actualFilename, {
+				recursive: true,
+			});
+		} catch {}
 	};
 
 	await remove();
@@ -37,13 +43,16 @@ const createContent: CreateContent = async ({filename}) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;
 		},
-		save: async () => {
+		finish: async () => {
+			await writPromise;
+
 			try {
 				await writable.close();
 			} catch {
 				// Ignore, could already be closed
 			}
-
+		},
+		async getBlob() {
 			const newHandle = await directoryHandle.getFileHandle(actualFilename, {
 				create: true,
 			});
@@ -54,9 +63,6 @@ const createContent: CreateContent = async ({filename}) => {
 		updateDataAt: (position: number, data: Uint8Array) => {
 			writPromise = writPromise.then(() => updateDataAt(position, data));
 			return writPromise;
-		},
-		waitForFinish: async () => {
-			await writPromise;
 		},
 		remove,
 	};

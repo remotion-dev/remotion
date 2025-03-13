@@ -1,6 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getStsdBox} from '../boxes/iso-base-media/traversal';
+import {getStsdBox} from '../containers/iso-base-media/traversal';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
@@ -11,6 +11,7 @@ test('parse colr', async () => {
 			structure: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	const trak = structure.boxes

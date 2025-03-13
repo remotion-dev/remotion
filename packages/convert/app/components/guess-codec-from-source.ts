@@ -1,9 +1,9 @@
-import type {ParseMediaContainer} from '@remotion/media-parser';
+import type {MediaParserContainer} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import type {Source} from '~/lib/convert-state';
 import type {RouteAction} from '~/seo';
 
-const guessFromExtension = (src: string): ParseMediaContainer => {
+const guessFromExtension = (src: string): MediaParserContainer => {
 	if (src.endsWith('.webm')) {
 		return 'webm';
 	}
@@ -16,8 +16,28 @@ const guessFromExtension = (src: string): ParseMediaContainer => {
 		return 'avi';
 	}
 
+	if (src.endsWith('.mp3')) {
+		return 'mp3';
+	}
+
 	if (src.endsWith('.ts')) {
 		return 'transport-stream';
+	}
+
+	if (src.endsWith('.m3u8')) {
+		return 'm3u8';
+	}
+
+	if (src.endsWith('.wav') || src.endsWith('.wave')) {
+		return 'wav';
+	}
+
+	if (src.endsWith('.flac')) {
+		return 'flac';
+	}
+
+	if (src.endsWith('.mp3')) {
+		return 'mp3';
 	}
 
 	return 'mp4';
@@ -25,13 +45,13 @@ const guessFromExtension = (src: string): ParseMediaContainer => {
 
 export const guessContainerFromSource = (
 	source: Source,
-): ParseMediaContainer => {
+): MediaParserContainer => {
 	if (source.type === 'file') {
 		return guessFromExtension(source.file.name);
 	}
 
 	if (source.type === 'url') {
-		return guessFromExtension(source.url);
+		return guessFromExtension(new URL(source.url).pathname);
 	}
 
 	throw new Error(`Unhandled source type: ${source satisfies never}`);
@@ -74,6 +94,10 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 		return true;
 	}
 
+	if (action.type === 'report') {
+		return true;
+	}
+
 	throw new Error(`Unhandled action type: ${action satisfies never}`);
 };
 
@@ -97,6 +121,26 @@ export const getDefaultContainerForConversion = (
 	}
 
 	if (guessed === 'transport-stream') {
+		return 'mp4';
+	}
+
+	if (guessed === 'mp3') {
+		return 'wav';
+	}
+
+	if (guessed === 'wav') {
+		return 'wav';
+	}
+
+	if (guessed === 'aac') {
+		return 'wav';
+	}
+
+	if (guessed === 'flac') {
+		return 'wav';
+	}
+
+	if (guessed === 'm3u8') {
 		return 'mp4';
 	}
 

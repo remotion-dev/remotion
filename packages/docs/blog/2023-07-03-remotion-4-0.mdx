@@ -27,20 +27,6 @@ With Remotion 4.0, we offer significant improvements to every workflow.
 <br />
 <br />
 
-<a style={{
-  color: 'var(--text-color)',
-  border: '3px solid var(--text-color)',
-display: 'block',
-padding: '10px 15px',
-borderRadius: 10,
-textDecoration: 'none',
-}} href="/4">
-
-<div>
-Discover the new features of Remotion 4.0 in a new video every day. <svg style={{verticalAlign: 'text-bottom', marginLeft: 6}} xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path d="M422.6 278.6L445.3 256l-22.6-22.6-144-144L256 66.7 210.8 112l22.6 22.6L322.8 224 32 224 0 224l0 64 32 0 290.7 0-89.4 89.4L210.8 400 256 445.3l22.6-22.6 144-144z"/></svg>
-</div>
-</a>
-
 ## Introducing the Remotion Studio
 
 We added handy features to the Remotion Preview - as a result, it's more than just a preview! Therefore, we renamed it: Say hello to the Remotion Studio.
@@ -66,8 +52,6 @@ Every render triggered through the UI is also trackable in the CLI as usual and 
 Failed renders show the stack trace and allow for retries with the same configuration.
 
 Edited props in the Remotion Studio can be used to render a video using the Render Button as well - which means you can now render a parameterized video by filling out a form and not having to touch any code.
-
-**Learn more** on July 5th: [Render Button](/4)
 
 ## Rust-powered architecture
 
@@ -101,8 +85,7 @@ There are plenty of ways you can render stills: the new [Render button](/docs/re
 
 We are introducing a new [`calculateMetadata()`](/docs/composition#calculatemetadata) API for the `<Composition>` component. It helps if you want to:
 
-<Step>1</Step> Adjust the duration or resolution based on the props of the React
-component <br />
+<Step>1</Step> Adjust the duration or resolution based on the props of the React component <br />
 <Step>2</Step> Perform data fetching before the video renders <br />
 <Step>3</Step> Precalculate props before mounting the React component <br />
 <br />

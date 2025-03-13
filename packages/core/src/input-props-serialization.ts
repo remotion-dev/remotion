@@ -1,7 +1,6 @@
 // Must keep this file in sync with the one in packages/lambda/src/shared/serialize-props.ts!
 
 import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {staticFile} from './static-file.js';
 
 export type SerializedJSONWithCustomFields = {
 	serializedString: string;
@@ -79,11 +78,21 @@ export const deserializeJSONWithCustomFields = <T = Record<string, unknown>>(
 		}
 
 		if (typeof value === 'string' && value.startsWith(FILE_TOKEN)) {
-			return staticFile(value.replace(FILE_TOKEN, ''));
+			return `${window.remotion_staticBase}/${value.replace(FILE_TOKEN, '')}`;
 		}
 
 		return value;
 	});
+};
+
+export const serializeThenDeserialize = (props: Record<string, unknown>) => {
+	return deserializeJSONWithCustomFields(
+		serializeJSONWithDate({
+			data: props,
+			indent: 2,
+			staticBase: window.remotion_staticBase,
+		}).serializedString,
+	);
 };
 
 export const serializeThenDeserializeInStudio = (
@@ -92,13 +101,7 @@ export const serializeThenDeserializeInStudio = (
 	// Serializing once in the Studio, to catch potential serialization errors before
 	// you only get them during rendering
 	if (getRemotionEnvironment().isStudio) {
-		return deserializeJSONWithCustomFields(
-			serializeJSONWithDate({
-				data: props,
-				indent: 2,
-				staticBase: window.remotion_staticBase,
-			}).serializedString,
-		);
+		return serializeThenDeserialize(props);
 	}
 
 	return props;

@@ -10,6 +10,7 @@ import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai
 import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
+import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
@@ -83,8 +84,11 @@ export const TableOfContents: React.FC = () => {
 			<p>Obtain info about video and audio.</p>
 			<AnimationUtilsTableOfContents />
 			<h2>@remotion/tailwind</h2>
-			<p>Webpack override for using TailwindCSS</p>
+			<p>Webpack override for using TailwindCSS v3</p>
 			<TailwindTableOfContents />
+			<h2>@remotion/tailwind-v4</h2>
+			<p>Webpack override for using TailwindCSS v4</p>
+			<TailwindV4TableOfContents />
 			<h2>@remotion/enable-scss</h2>
 			<p>Webpack override for enabling SASS/SCSS</p>
 			<EnableScssTableOfContents />

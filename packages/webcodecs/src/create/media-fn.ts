@@ -1,11 +1,10 @@
-import type {AudioOrVideoSample} from '@remotion/media-parser';
+import type {AudioOrVideoSample, WriterInterface} from '@remotion/media-parser';
 import type {LogLevel} from '../log';
-import type {WriterInterface} from '../writers/writer';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 import type {ProgressTracker} from './progress-tracker';
 
 export type MediaFn = {
-	save: () => Promise<Blob>;
+	getBlob: () => Promise<Blob>;
 	remove: () => Promise<void>;
 	addSample: (options: {
 		chunk: AudioOrVideoSample;
@@ -33,4 +32,5 @@ export type MediaFnGeneratorInput = {
 	logLevel: LogLevel;
 	filename: string;
 	progressTracker: ProgressTracker;
+	expectedDurationInSeconds: number | null;
 };

@@ -1,14 +1,14 @@
-import type {
-	AudioCodec,
-	ChromiumOptions,
-	FrameRange,
-	LogLevel,
-	PixelFormat,
-	ProResProfile,
-	ToOptions,
-	VideoImageFormat,
+import {
+	type AudioCodec,
+	type ChromiumOptions,
+	type FrameRange,
+	type LogLevel,
+	type PixelFormat,
+	type ProResProfile,
+	type ToOptions,
+	type VideoImageFormat,
 } from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
@@ -63,21 +63,21 @@ type InternalRenderMediaOnCloudrun = {
 	metadata?: Record<string, string> | null;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
+} & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
 
 export type RenderMediaOnCloudrunInput = {
-	cloudRunUrl?: string;
-	serviceName?: string;
 	region: GcpRegion;
 	serveUrl: string;
 	composition: string;
+	renderId?: string | undefined;
+	codec: CloudrunCodec;
+	cloudRunUrl?: string;
+	serviceName?: string;
 	inputProps?: Record<string, unknown>;
 	privacy?: 'public' | 'private';
 	forceBucketName?: string;
 	outName?: string;
 	updateRenderProgress?: (progress: number, error?: boolean) => void;
-	renderId: string | undefined;
-	codec: CloudrunCodec;
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
@@ -138,6 +138,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	enforceAudioTrack,
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	downloadBehavior,
 	metadata,
@@ -197,6 +198,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
 		downloadBehavior,
@@ -338,6 +340,7 @@ export const renderMediaOnCloudrun = ({
 	metadata,
 	renderIdOverride,
 	renderStatusWebhook,
+	offthreadVideoThreads,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -353,34 +356,34 @@ export const renderMediaOnCloudrun = ({
 		privacy: privacy ?? undefined,
 		outName: outName ?? undefined,
 		updateRenderProgress: updateRenderProgress ?? undefined,
-		jpegQuality: jpegQuality ?? undefined,
+		jpegQuality: jpegQuality ?? 80,
 		audioCodec: audioCodec ?? undefined,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		proResProfile: proResProfile ?? undefined,
-		x264Preset: x264Preset ?? undefined,
+		x264Preset: x264Preset ?? null,
 		crf: crf ?? undefined,
 		pixelFormat: pixelFormat ?? undefined,
 		imageFormat: imageFormat ?? undefined,
-		scale: scale ?? undefined,
+		scale: scale ?? 1,
 		everyNthFrame: everyNthFrame ?? undefined,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? undefined,
 		envVariables: envVariables ?? undefined,
 		chromiumOptions: chromiumOptions ?? undefined,
-		muted: muted ?? undefined,
+		muted: muted ?? false,
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? undefined,
+			delayRenderTimeoutInMilliseconds ?? BrowserSafeApis.DEFAULT_TIMEOUT,
 		concurrency: concurrency ?? null,
-		enforceAudioTrack: enforceAudioTrack ?? undefined,
-		preferLossless: preferLossless ?? undefined,
-		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
-		colorSpace: colorSpace ?? undefined,
+		enforceAudioTrack: enforceAudioTrack ?? false,
+		preferLossless: preferLossless ?? false,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		colorSpace: colorSpace ?? null,
 		indent: false,
 		downloadBehavior: downloadBehavior ?? {
 			type: 'play-in-browser',
@@ -388,5 +391,6 @@ export const renderMediaOnCloudrun = ({
 		metadata: metadata ?? null,
 		renderIdOverride: renderIdOverride ?? undefined,
 		renderStatusWebhook: renderStatusWebhook ?? undefined,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

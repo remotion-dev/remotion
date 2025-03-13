@@ -1,16 +1,13 @@
-import {RenderInternals} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'bun:test';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {rendersPrefix} from '@remotion/serverless';
+import {$} from 'bun';
+import {expect, test} from 'bun:test';
 import {existsSync, unlinkSync} from 'fs';
 import path from 'path';
-import {internalDeleteRender} from '../../../api/delete-render';
-import {mockImplementation} from '../../mock-implementation';
+import {mockImplementation} from '../../mocks/mock-implementation';
+import {streamToUint8Array} from '../../mocks/mock-store';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test(
 	'Should make seamless audio',
@@ -20,10 +17,11 @@ test(
 			composition: 'framer',
 			frameRange: [100, 200],
 			imageFormat: 'none',
-			logLevel: 'error',
 			region: 'eu-central-1',
 			inputProps: {playbackRate: 2},
 			metadata: {Author: 'Lunar'},
+			framesPerLambda: 30,
+			logLevel: 'error',
 		});
 
 		const wav = path.join(process.cwd(), 'seamless.wav');
@@ -31,17 +29,8 @@ test(
 			unlinkSync(wav);
 		}
 
-		await RenderInternals.callFf({
-			bin: 'ffmpeg',
-			args: ['-i', '-', '-ac', '1', '-c:a', 'pcm_s16le', '-y', wav],
-			options: {
-				stdin: file,
-			},
-			indent: false,
-			binariesDirectory: null,
-			cancelSignal: undefined,
-			logLevel: 'info',
-		});
+		const stream = await streamToUint8Array(file);
+		await $`bunx remotion ffmpeg -i - -ac 1 -c:a pcm_s16le -y ${wav} < ${stream}`.quiet();
 
 		const wd = new Wavedraw(wav);
 
@@ -75,7 +64,7 @@ test(
 
 		expect(files.length).toBe(2);
 
-		await internalDeleteRender({
+		await LambdaClientInternals.internalDeleteRender({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			renderId,

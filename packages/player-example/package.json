@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -12,22 +12,22 @@
 	],
 	"dependencies": {
 		"@remotion/bundler": "workspace:*",
-		"@remotion/eslint-config": "workspace:*",
+		"@remotion/eslint-config-flat": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
-		"next": "15.1.2",
+		"next": "15.1.6",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"eslint": "8.57.1"
+		"eslint": "9.19.0"
 	},
 	"scripts": {
 		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"lint": "eslint src",
 		"dev": "next dev",
 		"build-site": "next build"
 	}

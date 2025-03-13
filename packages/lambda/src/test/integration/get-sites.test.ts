@@ -1,15 +1,15 @@
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {internalDeploySite} from '../../api/deploy-site';
-import {internalGetSites} from '../../api/get-sites';
-import {
-	mockFullClientSpecifics,
-	mockImplementation,
-} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
+import {resetMockStore} from '../mocks/mock-store';
 
 test('Should have no buckets at first', async () => {
+	resetMockStore();
 	expect(
-		await internalGetSites({
+		await LambdaClientInternals.internalGetSites({
 			region: 'us-east-1',
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
@@ -19,6 +19,7 @@ test('Should have no buckets at first', async () => {
 });
 
 test('Should have a site after deploying', async () => {
+	resetMockStore();
 	await internalGetOrCreateBucket({
 		region: 'eu-central-1',
 		providerSpecifics: mockImplementation,
@@ -54,7 +55,7 @@ test('Should have a site after deploying', async () => {
 		},
 	});
 	expect(
-		await internalGetSites({
+		await LambdaClientInternals.internalGetSites({
 			region: 'eu-central-1',
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lottie"
 	},
 	"name": "@remotion/lottie",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"description": "Include Lottie animations in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -45,7 +45,7 @@
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",

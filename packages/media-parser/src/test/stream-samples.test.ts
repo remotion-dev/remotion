@@ -1,7 +1,7 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getSamplePositionsFromTrack} from '../boxes/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from '../boxes/iso-base-media/trak/trak';
+import {getSamplePositionsFromTrack} from '../containers/iso-base-media/get-sample-positions-from-track';
+import type {TrakBox} from '../containers/iso-base-media/trak/trak';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
@@ -14,6 +14,7 @@ test('Stream samples', async () => {
 			audioCodec: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	const description = new Uint8Array([
@@ -24,6 +25,7 @@ test('Stream samples', async () => {
 
 	const {trakBox, ...trackInfo} = tracks.videoTracks[0];
 	expect(trackInfo).toEqual({
+		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,
 		description,
@@ -55,7 +57,9 @@ test('Stream samples', async () => {
 		fps: 30,
 	});
 
-	expect(getSamplePositionsFromTrack(trakBox as TrakBox, null));
+	expect(
+		getSamplePositionsFromTrack({trakBox: trakBox as TrakBox, moofBoxes: []}),
+	);
 
 	const [firstAudioTrack] = tracks.audioTracks;
 	const {trakBox: trakBox2, ...audioTrack} = firstAudioTrack;
@@ -71,7 +75,9 @@ test('Stream samples', async () => {
 		codecPrivate: null,
 		codecWithoutConfig: 'mp3',
 	});
-	expect(getSamplePositionsFromTrack(trakBox2 as TrakBox, null)).toEqual([
+	expect(
+		getSamplePositionsFromTrack({trakBox: trakBox2 as TrakBox, moofBoxes: []}),
+	).toEqual([
 		{
 			offset: 6908,
 			size: 960,

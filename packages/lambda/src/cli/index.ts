@@ -1,15 +1,14 @@
 import {CliInternals} from '@remotion/cli';
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {
+	DOCS_URL,
 	FullClientSpecifics,
 	type ProviderSpecifics,
 } from '@remotion/serverless';
-import {DOCS_URL} from '@remotion/serverless/client';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
-import {BINARY_NAME} from '../defaults';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {parsedLambdaCli} from './args';
 import {
@@ -27,7 +26,6 @@ import {SITES_COMMAND, sitesCommand} from './commands/sites';
 import {STILL_COMMAND, stillCommand} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
-import {setIsCli} from './is-cli';
 import {Log} from './log';
 
 const requiresCredentials = (args: string[]) => {
@@ -67,7 +65,7 @@ const matchCommand = ({
 	}
 
 	if (requiresCredentials(args)) {
-		fullClientSpecifics.checkCredentials();
+		providerSpecifics.checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
@@ -179,16 +177,17 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	providerSpecifics: ProviderSpecifics<AwsProvider> | null,
+	_providerSpecifics: ProviderSpecifics<AwsProvider> | null,
 	fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
 ) => {
 	try {
-		setIsCli(true);
+		const providerSpecifics =
+			_providerSpecifics ?? LambdaClientInternals.awsImplementation;
 		await matchCommand({
 			args,
 			remotionRoot,
 			logLevel,
-			providerSpecifics: providerSpecifics ?? awsImplementation,
+			providerSpecifics: providerSpecifics,
 			fullClientSpecifics: fullClientSpecifics ?? awsFullClientSpecifics,
 		});
 	} catch (err) {
@@ -247,11 +246,17 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			)
 		) {
 			const keyButDoesntStartWithAki =
-				process.env.REMOTION_AWS_ACCESS_KEY_ID &&
-				!process.env.REMOTION_AWS_ACCESS_KEY_ID.startsWith('AKI');
+				LambdaClientInternals.getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') &&
+				!(
+					LambdaClientInternals.getEnvVariable(
+						'REMOTION_AWS_ACCESS_KEY_ID',
+					) as string
+				).startsWith('AKI');
 			const pureKeyButDoesntStartWithAki =
-				process.env.AWS_ACCESS_KEY_ID &&
-				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
+				LambdaClientInternals.getEnvVariable('AWS_ACCESS_KEY_ID') &&
+				!(
+					LambdaClientInternals.getEnvVariable('AWS_ACCESS_KEY_ID') as string
+				).startsWith('AKI');
 			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
 				Log.error(
 					{indent: false, logLevel},
@@ -297,7 +302,7 @@ export const cli = async (logLevel: LogLevel) => {
 		parsedLambdaCli._,
 		remotionRoot,
 		logLevel,
-		awsImplementation,
+		LambdaClientInternals.awsImplementation,
 		awsFullClientSpecifics,
 	);
 };

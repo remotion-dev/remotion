@@ -1,16 +1,21 @@
-import type {ParseMediaContainer, TracksField} from '@remotion/media-parser';
+import type {
+	MediaParserAudioCodec,
+	MediaParserContainer,
+	MediaParserTracks,
+} from '@remotion/media-parser';
 import type {
 	AudioOperation,
 	ConvertMediaContainer,
 	ResizeOperation,
-	VideoOperation} from '@remotion/webcodecs';
+	VideoOperation,
+} from '@remotion/webcodecs';
 import {
 	canCopyAudioTrack,
 	canCopyVideoTrack,
 	canReencodeAudioTrack,
 	canReencodeVideoTrack,
 	getAvailableAudioCodecs,
-	getAvailableVideoCodecs
+	getAvailableVideoCodecs,
 } from '@remotion/webcodecs';
 import type {RouteAction} from '~/seo';
 
@@ -22,6 +27,7 @@ export type VideoTrackOption = {
 export type AudioTrackOption = {
 	trackId: number;
 	operations: AudioOperation[];
+	audioCodec: MediaParserAudioCodec;
 };
 
 export type SupportedConfigs = {
@@ -66,6 +72,10 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 		return false;
 	}
 
+	if (routeAction.type === 'report') {
+		return false;
+	}
+
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
 
@@ -78,12 +88,12 @@ export const getSupportedConfigs = async ({
 	inputContainer,
 	resizeOperation,
 }: {
-	tracks: TracksField;
+	tracks: MediaParserTracks;
 	container: ConvertMediaContainer;
 	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
-	inputContainer: ParseMediaContainer;
+	inputContainer: MediaParserContainer;
 	resizeOperation: ResizeOperation | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
@@ -112,6 +122,8 @@ export const getSupportedConfigs = async ({
 			const canReencode = await canReencodeVideoTrack({
 				videoCodec: outputCodec,
 				track,
+				resizeOperation,
+				rotate: userRotation,
 			});
 			if (canReencode) {
 				options.push({
@@ -175,6 +187,7 @@ export const getSupportedConfigs = async ({
 		audioTrackOptions.push({
 			trackId: track.trackId,
 			operations: audioTrackOperations,
+			audioCodec: track.codecWithoutConfig,
 		});
 	}
 

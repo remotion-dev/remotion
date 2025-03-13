@@ -13,8 +13,13 @@ test('Should get duration of AV1 video', async () => {
 			fps: true,
 			slowFps: true,
 			slowNumberOfFrames: true,
+			numberOfAudioChannels: true,
+			sampleRate: true,
+			slowAudioBitrate: true,
+			slowVideoBitrate: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
@@ -25,6 +30,10 @@ test('Should get duration of AV1 video', async () => {
 		width: 1920,
 		height: 1080,
 	});
+	expect(parsed.numberOfAudioChannels).toBe(null);
+	expect(parsed.sampleRate).toBe(null);
+	expect(parsed.slowAudioBitrate).toBe(null);
+	expect(parsed.slowVideoBitrate).toBe(2773832);
 
 	expect(parsed.structure.boxes).toEqual([
 		{
@@ -362,131 +371,6 @@ test('Should get duration of AV1 video', async () => {
 							type: 'Timestamp',
 							value: {value: 0, byteLength: 1},
 							minVintWidth: 1,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 3,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 1,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
 						},
 					],
 					type: 'Cluster',

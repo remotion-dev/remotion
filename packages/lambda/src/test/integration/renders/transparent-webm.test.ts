@@ -1,15 +1,15 @@
-import {RenderInternals} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
-import {afterAll, expect, test} from 'bun:test';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {ensureBrowser, RenderInternals} from '@remotion/renderer';
+import {rendersPrefix} from '@remotion/serverless';
+import {beforeAll, expect, test} from 'bun:test';
 import fs, {createWriteStream} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {internalDeleteRender} from '../../../api/delete-render';
-import {mockImplementation} from '../../mock-implementation';
+import {mockImplementation} from '../../mocks/mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
+beforeAll(async () => {
+	await ensureBrowser();
 });
 
 test(
@@ -25,6 +25,7 @@ test(
 			region: 'eu-central-1',
 			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
+			scale: 0.25,
 		});
 
 		// We create a temporary directory for storing the frames
@@ -60,7 +61,7 @@ test(
 
 		expect(files.length).toBe(2);
 
-		await internalDeleteRender({
+		await LambdaClientInternals.internalDeleteRender({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			renderId,

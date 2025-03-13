@@ -19,9 +19,6 @@ You can obtain a `VideoTrack` using [`parseMedia()`](/docs/media-parser/parse-me
 ## Examples
 
 ```tsx twoslash title="Check if video tracks can be re-encoded to VP8"
-// @module: es2022
-// @target: es2017
-
 import {parseMedia} from '@remotion/media-parser';
 import {canReencodeVideoTrack} from '@remotion/webcodecs';
 
@@ -36,13 +33,13 @@ for (const track of tracks.videoTracks) {
   await canReencodeVideoTrack({
     track,
     videoCodec: 'vp8',
+    resizeOperation: null,
+    rotate: null,
   });
 }
 ```
 
 ```tsx twoslash title="Convert a video track to VP8, otherwise drop it"
-// @module: es2022
-// @target: es2017
 import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -50,10 +47,12 @@ await convertMedia({
   container: 'webm',
   videoCodec: 'vp8',
   audioCodec: 'opus',
-  onVideoTrack: async ({track}) => {
+  onVideoTrack: async ({track, resizeOperation, rotate}) => {
     const canReencode = await canReencodeVideoTrack({
       track,
       videoCodec: 'vp8',
+      resizeOperation,
+      rotate,
     });
 
     if (canReencode) {
@@ -76,6 +75,14 @@ A `VideoTrack` object.
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
 
 One of the supported video codecs: `"vp8"`, `"vp9"`.
+
+### `resizeOperation`
+
+The [resize operation](/docs/webcodecs/resize-a-video) you would like to apply.
+
+### `rotate`
+
+The [rotate operation](/docs/webcodecs/rotate-a-video) you would like to apply.
 
 ## Return value
 

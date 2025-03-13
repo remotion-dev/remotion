@@ -1,10 +1,11 @@
+import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import {
 	getTfdtBox,
 	getTfhdBox,
 	getTrunBoxes,
-} from './boxes/iso-base-media/traversal';
+} from './containers/iso-base-media/traversal';
 import type {SamplePosition} from './get-sample-positions';
-import type {AnySegment, IsoBaseMediaBox} from './parse-result';
+import type {AnySegment} from './parse-result';
 
 const getSamplesFromTraf = (
 	trafSegment: IsoBaseMediaBox,
@@ -66,7 +67,7 @@ const getSamplesFromTraf = (
 			const samplePosition: SamplePosition = {
 				offset: offset + (moofOffset ?? 0) + (dataOffset ?? 0),
 				dts,
-				cts: dts,
+				cts: dts + (sample.sampleCompositionTimeOffset ?? 0),
 				duration,
 				isKeyframe: keyframe,
 				size,
@@ -103,5 +104,6 @@ export const getSamplesFromMoof = ({
 			? getSamplesFromTraf(traf, moofBox.offset)
 			: [];
 	});
+
 	return mapped.flat(1);
 };

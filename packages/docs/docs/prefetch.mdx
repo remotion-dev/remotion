@@ -18,13 +18,10 @@ Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/We
   <summary>More info</summary>
   <ul>
     <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it
-      may be different if rendering on Lambda or the port is busy.
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
-      You can{' '}
-      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
-      during renders.
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
 </details>
@@ -51,11 +48,9 @@ An alternative to `prefetch()` are the [`@remotion/preload`](/docs/preload) APIs
 
 ## API
 
-## Arguments
-
 ### `src`
 
-The function takes a `src`, which can be a remote URL, an imported asset or an asset loaded using [`staticFile()`](/docs/staticfile) (see: [Importing assets](/docs/assets)). Once called, prefetching starts and an object with two properties are returned:
+The function takes a `src`, which can be a remote URL, an imported asset or an asset loaded using [`staticFile()`](/docs/staticfile) (see: [Importing assets](/docs/assets)).
 
 ### `options`
 
@@ -94,10 +89,7 @@ const onProgress: PrefetchOnProgress = (progress) => {
     return;
   }
 
-  console.log(
-    'Loading progress:',
-    Math.round(progress.loadedBytes / progress.totalBytes / 100) + '%',
-  );
+  console.log('Loading progress:', Math.round(progress.loadedBytes / progress.totalBytes / 100) + '%');
 };
 
 prefetch('https://example.com/video.mp4', {
@@ -105,9 +97,13 @@ prefetch('https://example.com/video.mp4', {
 });
 ```
 
+### `logLevel?`<AvailableFrom v="4.0.250" />
+
+<Options id="log" />
+
 ## Return value
 
-An object with:
+Once called, prefetching starts and an object with two properties are returned:
 
 ### `free()`
 

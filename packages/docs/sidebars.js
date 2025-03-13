@@ -198,7 +198,34 @@ module.exports = {
 				'use-audio-data',
 				'use-windowed-audio-data',
 				'visualize-audio',
+				'media-utils/visualize-audio-waveform',
+				'media-utils/create-smooth-svg-path',
 				'get-image-dimensions',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/media-parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
+			},
+			items: [
+				{
+					type: 'link',
+					href: '/docs/media-parser',
+					label: 'Guide',
+				},
+				'media-parser/parse-media',
+				'media-parser/download-and-parse-media',
+				'media-parser/media-parser-controller',
+				'media-parser/parse-media-on-web-worker',
+				'media-parser/parse-media-on-server-worker',
+				'media-parser/has-been-aborted',
+				'media-parser/node-reader',
+				'media-parser/web-reader',
+				'media-parser/universal-reader',
+				'media-parser/node-writer',
 			],
 		},
 
@@ -253,6 +280,7 @@ module.exports = {
 				'lambda/validatewebhooksignature',
 				'lambda/approuterwebhook',
 				'lambda/pagesrouterwebhook',
+				'lambda/expresswebhook',
 			],
 		},
 		{
@@ -291,6 +319,15 @@ module.exports = {
 				id: 'tailwind/tailwind',
 			},
 			items: ['tailwind/enable-tailwind'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/tailwind-v4',
+			link: {
+				type: 'doc',
+				id: 'tailwind-v4/overview',
+			},
+			items: ['tailwind-v4/enable-tailwind'],
 		},
 		{
 			type: 'category',
@@ -452,6 +489,7 @@ module.exports = {
 				'studio/delete-static-file',
 				'studio/restart-studio',
 				'studio/save-default-props',
+				'studio/seek',
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
@@ -555,25 +593,6 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/media-parser',
-			link: {
-				type: 'doc',
-				id: 'media-parser/index',
-			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/media-parser/metadata',
-					label: 'Guide',
-				},
-				'media-parser/parse-media',
-				'media-parser/node-reader',
-				'media-parser/fetch-reader',
-				'media-parser/web-file-reader',
-			],
-		},
-		{
-			type: 'category',
 			label: '@remotion/webcodecs',
 			link: {
 				type: 'doc',
@@ -582,11 +601,11 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/webcodecs/convert-a-video',
+					href: '/docs/webcodecs',
 					label: 'Guide',
 				},
-				'webcodecs/track-transformation',
 				'webcodecs/convert-media',
+				'webcodecs/webcodecs-controller',
 				'webcodecs/get-available-containers',
 				'webcodecs/can-reencode-audio-track',
 				'webcodecs/can-reencode-video-track',
@@ -798,6 +817,7 @@ module.exports = {
 				'player/drag-and-drop/index',
 				'player/custom-controls',
 				'player/media-keys',
+				'player/playback-issues',
 			],
 		},
 
@@ -859,6 +879,8 @@ module.exports = {
 				'lambda/python',
 				'lambda/ruby',
 				'lambda/serverless-framework-integration',
+				'lambda/supabase',
+				'lambda/r2',
 				'lambda/insights',
 				'lambda/multiple-buckets',
 				'lambda/how-lambda-works',
@@ -908,12 +930,19 @@ module.exports = {
 					href: '/docs/media-parser/parse-media',
 					label: 'API Reference',
 				},
+				'media-parser/fields',
 				'media-parser/metadata',
+				'media-parser/readers',
 				'media-parser/fast-and-slow',
 				'media-parser/tags',
-				'media-parser/support',
+				'media-parser/download-and-parse',
+				'media-parser/workers',
+				'media-parser/format-support',
+				'media-parser/runtime-support',
+				'media-parser/pause-resume-abort',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
+				'media-parser/stream-selection',
 			],
 		},
 		{
@@ -933,6 +962,8 @@ module.exports = {
 				'webcodecs/rotate-a-video',
 				'webcodecs/resize-a-video',
 				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/track-transformation',
+				'webcodecs/pause-resume-abort',
 				'webcodecs/telemetry',
 			],
 		},
@@ -955,6 +986,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'AI',
+			link: {
+				type: 'doc',
+				id: 'ai/index',
+			},
+			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+		},
+		{
+			type: 'category',
 			label: 'Tooling',
 			items: [
 				'tailwind',
@@ -964,6 +1004,7 @@ module.exports = {
 				'javascript',
 				'third-party',
 				'miscellaneous/typescript-aliases',
+				'testing',
 				'figma',
 				'spline',
 				'after-effects',
@@ -999,6 +1040,7 @@ module.exports = {
 				'troubleshooting/bundling-bundle',
 				'troubleshooting/browser-launch',
 				'troubleshooting/sigkill',
+				'troubleshooting/subpixel-rendering',
 				'troubleshooting/could-not-find-executable-to-run',
 				'troubleshooting/stuck-render',
 			],
@@ -1087,6 +1129,7 @@ module.exports = {
 				'support',
 			],
 		},
+
 		{
 			type: 'category',
 			label: 'Miscellaneous',
@@ -1102,7 +1145,6 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
-				'system-prompt',
 			],
 		},
 		{

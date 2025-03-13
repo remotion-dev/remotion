@@ -1,19 +1,12 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::Rational;
+use ffmpeg_next:: Rational;
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
 use crate::{
-    errors::ErrorWithBacktrace,
-    ffmpeg,
-    frame_cache::{get_frame_cache_id, FrameCacheItem},
-    frame_cache_manager::FrameCacheManager,
-    global_printer::_print_verbose,
-    rotation,
-    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
-    tone_map::FilterGraph,
+    errors::ErrorWithBacktrace, frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose,  rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
 };
 
 pub struct OpenedStream {
@@ -28,10 +21,13 @@ pub struct OpenedStream {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: Option<i64>,
     pub duration_or_zero: i64,
+    pub duration_in_seconds: Option<f64>,
     pub reached_eof: bool,
     pub transparent: bool,
     pub rotation: Rotate,
     pub filter_graph: FilterGraph,
+    pub time_base: Rational,
+    pub fps: Rational
 }
 
 #[derive(Clone, Copy)]
@@ -80,6 +76,8 @@ impl OpenedStream {
         one_frame_in_time_base: i64,
         previous_pts: Option<i64>,
         tone_mapped: bool,
+        frame_cache_manager: &mut FrameCacheManager,
+        thread_index: usize
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -94,11 +92,11 @@ impl OpenedStream {
                 Ok(Some(video)) => {
                     let frame_cache_id = get_frame_cache_id();
 
-                    let mut size: u128 = 0;
+                    let mut size: u64 = 0;
 
                     let amount_of_planes = video.planes();
                     for i in 0..amount_of_planes {
-                        size += video.data(i).len() as u128;
+                        size += video.data(i).len() as u64;
                     }
 
                     let frame = NotRgbFrame {
@@ -128,19 +126,20 @@ impl OpenedStream {
                     };
 
                     looped_pts = video.pts();
-                    FrameCacheManager::get_instance()
-                        .get_frame_cache(
+                    frame_cache_manager
+                        .add_to_cache(
                             &self.src,
                             &self.original_src,
                             self.transparent,
                             tone_mapped,
-                        )
-                        .lock()?
-                        .add_item(item);
+                            item,
+                            thread_index
+                        );
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
                     });
+
                 }
                 Ok(None) => {
                     if self.reached_eof {
@@ -157,13 +156,16 @@ impl OpenedStream {
 
     pub fn get_frame(
         &mut self,
+        stream_index: usize,
         time: f64,
         target_position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
-        maximum_frame_cache_size_in_bytes: Option<u128>,
         tone_mapped: bool,
+        frame_cache_manager: &mut FrameCacheManager,
+        thread_index: usize,
+        max_cache_size_in_bytes: u64
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let position_to_seek_to = match self.duration_or_zero {
@@ -238,31 +240,30 @@ impl OpenedStream {
                         one_frame_in_time_base,
                         match freshly_seeked || self.last_position.is_none() {
                             true => None,
-                            false => Some(self.last_position.unwrap()),
+                            false => Some(self.last_position.unwrap_or(0)),
                         },
                         tone_mapped,
+                        frame_cache_manager,
+                        thread_index
                     )?;
                     if data.is_some() {
                         last_frame_received = data;
-                        FrameCacheManager::get_instance()
-                            .get_frame_cache(
+                     frame_cache_manager
+                            .set_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .set_last_frame(last_frame_received.unwrap().index);
+                                last_frame_received.unwrap().index
+                            );
                     } else {
-                        FrameCacheManager::get_instance()
-                            .get_frame_cache(
+                        frame_cache_manager
+                            .set_biggest_frame_as_last_frame(
                                 &self.src,
                                 &self.original_src,
                                 self.transparent,
                                 tone_mapped,
-                            )
-                            .lock()?
-                            .set_biggest_frame_as_last_frame();
+                            );
                     }
 
                     break;
@@ -279,7 +280,9 @@ impl OpenedStream {
             }
 
             _print_verbose(&format!(
-                "Got packet dts = {:?} pts = {:?} key = {}",
+                "Thread {}, stream {} - got packet, dts = {:?} pts = {:?} key = {}",
+                thread_index,
+                stream_index,
                 packet.dts(),
                 packet.pts(),
                 packet.is_key()
@@ -313,117 +316,119 @@ impl OpenedStream {
             // but it'll still work!
             let res = self.video.send_packet(&packet);
             if res.is_err() {
+                if res.err().unwrap().to_string().contains("Resource temporarily unavailable") {
+                    _print_verbose(&format!("Need to send another packet"))?;
+
+                }
                 _print_verbose(&format!("Error sending packet: {}", res.err().unwrap()))?;
             }
 
-            let result = self.receive_frame();
+            loop {
+                let result = self.receive_frame();
 
-            match result {
-                Ok(Some(unfiltered)) => {
-                    _print_verbose(&format!("received frame {}", tone_mapped))?;
+                match result {
+                    Ok(Some(unfiltered)) => {
+                        _print_verbose(&format!("Thread {}, stream {} - received frame, tone_mapped = {}", thread_index, stream_index, tone_mapped))?;
 
-                    let frame_cache_id = get_frame_cache_id();
+                        let frame_cache_id = get_frame_cache_id();
 
-                    let mut size: u128 = 0;
+                        let mut size: u64 = 0;
 
-                    let amount_of_planes = unfiltered.planes();
-                    for i in 0..amount_of_planes {
-                        size += unfiltered.data(i).len() as u128;
-                    }
+                        let amount_of_planes = unfiltered.planes();
+                        for i in 0..amount_of_planes {
+                            size += unfiltered.data(i).len() as u64;
+                        }
 
-                    let frame = NotRgbFrame {
-                        original_height: self.original_height,
-                        original_width: self.original_width,
-                        scaled_height: self.scaled_height,
-                        scaled_width: self.scaled_width,
-                        rotate: self.rotation,
-                        original_src: self.original_src.clone(),
-                        size,
-                        unscaled_frame: unfiltered.clone(),
-                        tone_mapped,
-                        filter_graph: self.filter_graph,
-                        colorspace: unfiltered.color_space(),
-                        src_range: unfiltered.color_range(),
-                    };
-
-                    let previous_pts = match freshly_seeked || self.last_position.is_none() {
-                        true => None,
-                        false => Some(self.last_position.unwrap()),
-                    };
-                    let item = FrameCacheItem {
-                        resolved_pts: unfiltered.pts().expect("expected pts"),
-                        frame: ScalableFrame::new(frame, self.transparent),
-                        id: frame_cache_id,
-                        asked_time: target_position,
-                        last_used: get_time(),
-                        previous_pts,
-                    };
-
-                    self.last_position = Some(unfiltered.pts().expect("expected pts"));
-                    freshly_seeked = false;
-                    FrameCacheManager::get_instance()
-                        .get_frame_cache(
-                            &self.src,
-                            &self.original_src,
-                            self.transparent,
+                        let frame = NotRgbFrame {
+                            original_height: self.original_height,
+                            original_width: self.original_width,
+                            scaled_height: self.scaled_height,
+                            scaled_width: self.scaled_width,
+                            rotate: self.rotation,
+                            original_src: self.original_src.clone(),
+                            size,
+                            unscaled_frame: unfiltered.clone(),
                             tone_mapped,
-                        )
-                        .lock()?
-                        .add_item(item);
+                            filter_graph: self.filter_graph,
+                            colorspace: unfiltered.color_space(),
+                            src_range: unfiltered.color_range(),
+                        };
 
-                    items_in_loop += 1;
+                        let previous_pts = match freshly_seeked || self.last_position.is_none() {
+                            true => None,
+                            false => Some(self.last_position.unwrap_or(0)),
+                        };
+                        let item = FrameCacheItem {
+                            resolved_pts: unfiltered.pts().expect("expected pts"),
+                            frame: ScalableFrame::new(frame, self.transparent),
+                            id: frame_cache_id,
+                            asked_time: target_position,
+                            last_used: get_time(),
+                            previous_pts,
+                        };
 
-                    if items_in_loop % 10 == 0 {
-                        match maximum_frame_cache_size_in_bytes {
-                            Some(cache_size) => {
-                                ffmpeg::keep_only_latest_frames(cache_size)?;
-                            }
+                        self.last_position = Some(unfiltered.pts().expect("expected pts"));
+                        freshly_seeked = false;
+                        frame_cache_manager
+                            .add_to_cache(
+                                &self.src,
+                                &self.original_src,
+                                self.transparent,
+                                tone_mapped,
+                                item,
+                                thread_index
+                            );
+
+
+                        items_in_loop += 1;
+                        
+                        if items_in_loop % 5 == 0 {
+                            frame_cache_manager.prune_on_thread(max_cache_size_in_bytes)?;                            
+                        }
+
+                        match stop_after_n_diverging_pts {
+                            Some(stop) => match last_frame_received {
+                                Some(last_frame) => {
+                                    let prev_difference = (last_frame.pts - target_position).abs();
+                                    let new_difference =
+                                        (unfiltered.pts().expect("pts") - target_position).abs();
+
+                                    if new_difference >= prev_difference {
+                                        stop_after_n_diverging_pts = Some(stop - 1);
+                                    } else if prev_difference > new_difference {
+                                        // Fixing test video crazy1.mp4, frames 240-259
+                                        stop_after_n_diverging_pts =
+                                            Some((stop + 1).min(MAX_DIVERGING_SEEK));
+                                    }
+                                }
+                                None => {}
+                            },
                             None => {}
                         }
+
+                        last_frame_received = Some(LastFrameInfo {
+                            index: frame_cache_id,
+                            pts: unfiltered.pts().expect("pts"),
+                        });
                     }
-
-                    match stop_after_n_diverging_pts {
-                        Some(stop) => match last_frame_received {
-                            Some(last_frame) => {
-                                let prev_difference = (last_frame.pts - target_position).abs();
-                                let new_difference =
-                                    (unfiltered.pts().expect("pts") - target_position).abs();
-
-                                if new_difference >= prev_difference {
-                                    stop_after_n_diverging_pts = Some(stop - 1);
-                                } else if prev_difference > new_difference {
-                                    // Fixing test video crazy1.mp4, frames 240-259
-                                    stop_after_n_diverging_pts =
-                                        Some((stop + 1).min(MAX_DIVERGING_SEEK));
-                                }
-                            }
-                            None => {}
-                        },
-                        None => {}
+                    Ok(None) => {
+                        break;
                     }
-
-                    last_frame_received = Some(LastFrameInfo {
-                        index: frame_cache_id,
-                        pts: unfiltered.pts().expect("pts"),
-                    });
-                }
-                Ok(None) => {}
-                Err(err) => {
-                    return Err(err);
+                    Err(err) => {
+                        return Err(err);
+                    }
                 }
             }
         }
 
-        let final_frame = FrameCacheManager::get_instance()
-            .get_frame_cache(&self.src, &self.original_src, self.transparent, tone_mapped)
-            .lock()?
-            .get_item_id(target_position, threshold)?;
+        let final_frame = frame_cache_manager
+            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, threshold)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
-                    "No frame found at position {} for source {} (original source = {}). If you think this should work, file an issue at https://remotion.dev/issue or post it in https://remotion.dev/discord. Post the problematic video and the output of `npx remotion versions`.",
+                    "No frame found at position {} for source {} (original source = {}). If you think this should work, file an issue at https://remotion.dev/report or post it in https://remotion.dev/discord. Post the problematic video and the output of `npx remotion versions`.",
                     target_position, self.src, self.original_src
                 ),
             ))?;
@@ -462,7 +467,7 @@ pub fn open_stream(
     src: &str,
     original_src: &str,
     transparent: bool,
-) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
+) -> Result<OpenedStream, ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
@@ -483,8 +488,12 @@ pub fn open_stream(
     let stream_index = mut_stream.index();
 
     let duration_or_zero = mut_stream.duration().max(0);
-
+    
     let time_base = mut_stream.time_base();
+    let duration_in_seconds = match duration_or_zero {
+        0 => None,
+        _ => Some(duration_or_zero as f64 * time_base.1 as f64 / time_base.0 as f64)
+    };
     let parameters = mut_stream.parameters();
     let side_data = mut_stream.side_data();
 
@@ -588,12 +597,15 @@ pub fn open_stream(
         input,
         last_position: None,
         duration_or_zero,
+        duration_in_seconds,
         reached_eof: false,
         transparent,
         rotation: rotate,
         original_src: original_src.to_string(),
         filter_graph,
+        fps,
+        time_base
     };
 
-    Ok((opened_stream, fps, time_base))
+    Ok(opened_stream)
 }

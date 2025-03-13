@@ -71,10 +71,8 @@ export const getConfig = ({
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }) => {
-	const entry = path.resolve(__dirname, '..', './renderEntry.tsx');
-
 	return webpackConfig({
-		entry,
+		entry: '@remotion/studio/renderEntry',
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production',
@@ -305,6 +303,9 @@ export const internalBundle = async (
 		}),
 		installedDependencies: null,
 		packageManager: 'unknown',
+		// Actual log level is set in setPropsAndEnv()
+		logLevel: 'info',
+		mode: 'bundle',
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);

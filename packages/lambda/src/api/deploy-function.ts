@@ -1,3 +1,10 @@
+import type {RuntimePreference} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	speculateFunctionName,
+	type AwsRegion,
+} from '@remotion/lambda-client';
+import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
@@ -6,25 +13,12 @@ import type {
 	ProviderSpecifics,
 } from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {awsImplementation} from '../functions/aws-implementation';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
-import type {AwsRegion} from '../regions';
-import {
-	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
-	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-} from '../shared/constants';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
-import {
-	validateRuntimePreference,
-	type RuntimePreference,
-} from '../shared/get-layers';
-import {validateAwsRegion} from '../shared/validate-aws-region';
+import {validateRuntimePreference} from '../shared/get-layers';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
-import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
-import {validateMemorySize} from '../shared/validate-memory-size';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
-import {speculateFunctionName} from './speculate-function-name';
 
 type MandatoryParameters = {
 	createCloudWatchLogGroup: boolean;
@@ -60,11 +54,11 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 			fullClientSpecifics: FullClientSpecifics<Provider>;
 		},
 ): Promise<DeployFunctionOutput> => {
-	validateMemorySize(params.memorySizeInMb);
+	LambdaClientInternals.validateMemorySize(params.memorySizeInMb);
 	validateTimeout(params.timeoutInSeconds);
-	validateAwsRegion(params.region);
+	LambdaClientInternals.validateAwsRegion(params.region);
 	validateCloudWatchRetentionPeriod(params.cloudWatchLogRetentionPeriodInDays);
-	validateDiskSizeInMb(params.diskSizeInMb);
+	LambdaClientInternals.validateDiskSizeInMb(params.diskSizeInMb);
 	validateCustomRoleArn(params.customRoleArn);
 	validateRuntimePreference(params.runtimePreference);
 
@@ -100,7 +94,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		timeoutInSeconds: params.timeoutInSeconds,
 		retentionInDays:
 			params.cloudWatchLogRetentionPeriodInDays ??
-			DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
+			LambdaClientInternals.DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 		alreadyCreated: Boolean(alreadyDeployed),
 		ephemerealStorageInMb: params.diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
@@ -166,7 +160,7 @@ export const deployFunction = ({
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference: runtimePreference ?? 'default',
-		providerSpecifics: awsImplementation,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
 		fullClientSpecifics: awsFullClientSpecifics,
 	});
 };

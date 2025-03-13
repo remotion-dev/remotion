@@ -5,6 +5,8 @@ import './index.css';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<NewLanding colorMode="light" setColorMode={() => {}} />
+		<div data-theme="light">
+			<NewLanding colorMode="light" setColorMode={() => {}} />
+		</div>
 	</StrictMode>,
 );

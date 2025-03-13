@@ -18,15 +18,7 @@ import {Player} from '@remotion/player';
 import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />;
 };
 ```
 
@@ -201,16 +193,7 @@ const MyApp: React.FC = () => {
     );
   }, []);
 
-  return (
-    <Player
-      fps={30}
-      component={Component}
-      durationInFrames={100}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      renderLoading={renderLoading}
-    />
-  );
+  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} renderLoading={renderLoading} />;
 };
 ```
 
@@ -241,38 +224,23 @@ import type {RenderPoster} from '@remotion/player';
 import {Player} from '@remotion/player';
 
 const MyApp: React.FC = () => {
-  const renderPoster: RenderPoster = useCallback(
-    ({height, width, isBuffering}) => {
-      if (isBuffering) {
-        return (
-          <AbsoluteFill
-            style={{justifyContent: 'center', alignItems: 'center'}}
-          >
-            <Spinner />
-          </AbsoluteFill>
-        );
-      }
-
+  const renderPoster: RenderPoster = useCallback(({height, width, isBuffering}) => {
+    if (isBuffering) {
       return (
-        <AbsoluteFill style={{backgroundColor: 'gray'}}>
-          Click to play! ({height}x{width})
+        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Spinner />
         </AbsoluteFill>
       );
-    },
-    [],
-  );
+    }
 
-  return (
-    <Player
-      fps={30}
-      component={Component}
-      durationInFrames={100}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      renderPoster={renderPoster}
-      showPosterWhenUnplayed
-    />
-  );
+    return (
+      <AbsoluteFill style={{backgroundColor: 'gray'}}>
+        Click to play! ({height}x{width})
+      </AbsoluteFill>
+    );
+  }, []);
+
+  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} renderPoster={renderPoster} showPosterWhenUnplayed />;
 };
 ```
 
@@ -341,32 +309,20 @@ import {Player, RenderPlayPauseButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({playing, isBuffering}) => {
-      // Since v4.0.111, isBuffering is available
-      if (playing && isBuffering) {
-        return <MySpinner />;
-      }
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(({playing, isBuffering}) => {
+    // Since v4.0.111, isBuffering is available
+    if (playing && isBuffering) {
+      return <MySpinner />;
+    }
 
-      if (playing) {
-        return <MyPlayButton />;
-      }
+    if (playing) {
+      return <MyPlayButton />;
+    }
 
-      return <MyPauseButton />;
-    },
-    [],
-  );
+    return <MyPauseButton />;
+  }, []);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      renderPlayPauseButton={renderPlayPauseButton}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} renderPlayPauseButton={renderPlayPauseButton} />;
 };
 ```
 
@@ -389,27 +345,15 @@ import {Player, RenderFullscreenButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderFullscreenButton: RenderFullscreenButton = useCallback(
-    ({isFullscreen}) => {
-      if (isFullscreen) {
-        return <MinimiseButton />;
-      }
+  const renderFullscreenButton: RenderFullscreenButton = useCallback(({isFullscreen}) => {
+    if (isFullscreen) {
+      return <MinimiseButton />;
+    }
 
-      return <FullScreenButton />;
-    },
-    [],
-  );
+    return <FullScreenButton />;
+  }, []);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      renderFullscreenButton={renderFullscreenButton}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} renderFullscreenButton={renderFullscreenButton} />;
 };
 ```
 
@@ -439,16 +383,7 @@ export const App: React.FC = () => {
     return <VolumeOnIcon />;
   }, []);
 
-  return (
-    <Player
-      fps={30}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      renderMuteButton={renderMuteButton}
-    />
-  );
+  return <Player fps={30} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} renderMuteButton={renderMuteButton} />;
 };
 ```
 
@@ -467,23 +402,11 @@ import {useCallback} from 'react';
 import {Player, type RenderVolumeSlider} from '@remotion/player';
 
 export const App: React.FC = () => {
-  const renderVolumeSlider: RenderVolumeSlider = useCallback(
-    ({isVertical, volume, onBlur, inputRef, setVolume}) => {
-      return null; // Your volume slider implementation
-    },
-    [],
-  );
+  const renderVolumeSlider: RenderVolumeSlider = useCallback(({isVertical, volume, onBlur, inputRef, setVolume}) => {
+    return null; // Your volume slider implementation
+  }, []);
 
-  return (
-    <Player
-      fps={30}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      renderVolumeSlider={renderVolumeSlider}
-    />
-  );
+  return <Player fps={30} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} renderVolumeSlider={renderVolumeSlider} />;
 };
 ```
 
@@ -544,6 +467,18 @@ See [Media Keys Behavior](/docs/player/media-keys) for more information.
 _optional_
 
 A HTML class name to be used in place of the default `__remotion-player`.
+
+### `logLevel?`<AvailableFrom v="4.0.250" />
+
+<Options id="log" />
+
+### `noSuspense`<AvailableFrom v="4.0.271" />
+
+Disables React Suspense, which is [useful for writing tests](/docs/player/thumbnail).
+
+### `acknowledgeRemotionLicense?`<AvailableFrom v="4.0.253" />
+
+Acknowledge the [Remotion License](/docs/license) to make the console message disappear.
 
 ## `PlayerRef`
 
@@ -786,10 +721,7 @@ useEffect(() => {
       playerRef.current.removeEventListener('pause', onPause);
       playerRef.current.removeEventListener('ended', onEnded);
       playerRef.current.removeEventListener('error', onError);
-      playerRef.current.removeEventListener(
-        'fullscreenchange',
-        onFullscreenChange,
-      );
+      playerRef.current.removeEventListener('fullscreenchange', onFullscreenChange);
       playerRef.current.removeEventListener('scalechange', onScaleChange);
       playerRef.current.removeEventListener('mutechange', onMuteChange);
       playerRef.current.removeEventListener('seeked', onSeeked);
@@ -984,16 +916,7 @@ const MyApp: React.FC = () => {
     );
   }, []);
 
-  return (
-    <Player
-      fps={30}
-      component={Component}
-      durationInFrames={100}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      errorFallback={errorFallback}
-    />
-  );
+  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} errorFallback={errorFallback} />;
 };
 ```
 

@@ -6,13 +6,13 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src && tsc"
   },
   "private": true,
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.645.0",
+    "@aws-sdk/client-s3": "3.738.0",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/zod-types": "workspace:*",
@@ -24,10 +24,10 @@
   },
   "devDependencies": {
     "@types/node": "20.12.14",
-    "@remotion/eslint-config": "workspace:*",
+    "@remotion/eslint-config-flat": "workspace:*",
     "@types/md5": "2.3.0",
     "@types/react": "19.0.0",
-    "eslint": "8.57.1",
+    "eslint": "9.19.0",
     "prettier": "3.3.3",
     "ts-node": "10.9.1",
     "typescript": "5.5.4",

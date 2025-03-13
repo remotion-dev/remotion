@@ -29,7 +29,11 @@ export const serializeTrack = ({
 	samplePositions,
 	timescale,
 }: IsoBaseMediaTrackData) => {
-	if (track.codec !== 'h264' && track.codec !== 'aac') {
+	if (
+		track.codec !== 'h264' &&
+		track.codec !== 'h265' &&
+		track.codec !== 'aac'
+	) {
 		throw new Error('Currently only H.264 and AAC is supported');
 	}
 

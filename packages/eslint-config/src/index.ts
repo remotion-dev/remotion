@@ -1,4 +1,3 @@
-import {autoImports} from './auto-import-rules';
 import {allowESLintShareableConfig} from './patch-eslint';
 
 const baseExtends = ['eslint:recommended', 'plugin:@remotion/recommended'];
@@ -471,7 +470,6 @@ const getRules = (typescript: boolean) => {
 		// Turning off rules that are too strict or don't apply to Remotion
 		'react/jsx-no-constructed-context-values': 'off',
 		'no-console': 'off',
-		'10x/react-in-scope': 'off',
 		'react/react-in-jsx-scope': 'off',
 		'react/jsx-key': 'off',
 		'react/jsx-no-target-blank': 'off',
@@ -509,12 +507,6 @@ const getRules = (typescript: boolean) => {
 		'react/jsx-no-useless-fragment': 'off',
 		// This is generally okay because on every frame, there will be a full rerender anyway!
 		'react/no-array-index-key': 'off',
-		'10x/auto-import': [
-			'error',
-			{
-				imports: autoImports,
-			},
-		],
 	};
 };
 
@@ -526,7 +518,7 @@ export = {
 		es6: true,
 		jest: true,
 	},
-	plugins: ['react', 'react-hooks', '@typescript-eslint', '10x', '@remotion'],
+	plugins: ['react', 'react-hooks', '@typescript-eslint', '@remotion'],
 	extends: baseExtends,
 	parser: require.resolve('@typescript-eslint/parser'),
 	parserOptions: {

@@ -9,7 +9,6 @@ export type RemotionMainVideoProps = {
 	 * @deprecated Only for internal `transparent` use
 	 */
 	_remotionInternalNativeLoopPassed?: boolean;
-	_remotionDebugSeeking?: boolean;
 };
 
 export type RemotionVideoProps = Omit<
@@ -36,7 +35,7 @@ export type RemotionVideoProps = Omit<
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
-	onAutoPlayError?: () => void;
+	onAutoPlayError?: null | (() => void);
 };
 
 type DeprecatedOffthreadVideoProps = {

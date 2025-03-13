@@ -1,6 +1,6 @@
 import type {
 	LogLevel,
-	ParseMediaContainer,
+	MediaParserContainer,
 	VideoTrack,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
@@ -25,6 +25,6 @@ export type ConvertMediaOnVideoTrackHandler = (options: {
 	outputContainer: ConvertMediaContainer;
 	rotate: number;
 	resizeOperation: ResizeOperation | null;
-	inputContainer: ParseMediaContainer;
+	inputContainer: MediaParserContainer;
 	canCopyTrack: boolean;
 }) => VideoOperation | Promise<VideoOperation>;

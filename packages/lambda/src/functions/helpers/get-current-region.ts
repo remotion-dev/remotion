@@ -1,4 +1,4 @@
-import type {AwsRegion} from '../../regions';
+import type {AwsRegion} from '@remotion/lambda-client';
 
 export const getCurrentRegionInFunctionImplementation = () => {
 	if (!process.env.AWS_REGION) {

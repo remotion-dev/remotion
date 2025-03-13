@@ -1,71 +1,99 @@
-import {createReadStream} from 'fs';
-import {stat} from 'node:fs/promises';
-import {sep} from 'path';
+import {createReadStream, promises, statSync} from 'fs';
+import {dirname, join, relative, sep} from 'path';
 import {Readable} from 'stream';
-import type {ReaderInterface} from './reader';
+import type {
+	CreateAdjacentFileSource,
+	ReadContent,
+	ReadWholeAsText,
+	ReaderInterface,
+} from './reader';
 
-export const nodeReader: ReaderInterface = {
-	read: async (src, range, signal) => {
-		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `nodeReader`');
-		}
+export const nodeReadContent: ReadContent = ({src, range, controller}) => {
+	if (typeof src !== 'string') {
+		throw new Error('src must be a string when using `nodeReader`');
+	}
 
-		const controller = new AbortController();
+	const ownController = new AbortController();
 
-		const stream = createReadStream(src, {
-			start: range === null ? 0 : typeof range === 'number' ? range : range[0],
-			end:
-				range === null
+	const stream = createReadStream(src, {
+		start: range === null ? 0 : typeof range === 'number' ? range : range[0],
+		end:
+			range === null
+				? Infinity
+				: typeof range === 'number'
 					? Infinity
-					: typeof range === 'number'
-						? Infinity
-						: range[1],
-			signal: controller.signal,
-		});
+					: range[1],
+		signal: ownController.signal,
+	});
 
-		signal?.addEventListener(
+	controller._internals.signal.addEventListener(
+		'abort',
+		() => {
+			ownController.abort();
+		},
+		{once: true},
+	);
+
+	const stats = statSync(src);
+
+	const reader = Readable.toWeb(
+		stream,
+	).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+
+	if (controller) {
+		controller._internals.signal.addEventListener(
 			'abort',
 			() => {
-				controller.abort();
+				reader.cancel().catch(() => {});
 			},
 			{once: true},
 		);
+	}
 
-		const stats = await stat(src);
-
-		const reader = Readable.toWeb(
-			stream,
-		).getReader() as ReadableStreamDefaultReader<Uint8Array>;
-
-		if (signal) {
-			signal.addEventListener(
-				'abort',
-				() => {
-					reader.cancel().catch(() => {});
-				},
-				{once: true},
-			);
-		}
-
-		return {
-			reader: {
-				reader,
-				abort: () => {
-					controller.abort();
-				},
+	return Promise.resolve({
+		reader: {
+			reader,
+			abort: () => {
+				ownController.abort();
 			},
-			contentLength: stats.size,
-			contentType: null,
-			name: src.split(sep).pop() as string,
-			supportsContentRange: true,
-		};
-	},
-	getLength: async (src) => {
-		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `nodeReader`');
-		}
+		},
+		contentLength: stats.size,
+		contentType: null,
+		name: src.split(sep).pop() as string,
+		supportsContentRange: true,
+		needsContentRange: true,
+	});
+};
 
-		const stats = await stat(src);
-		return stats.size;
-	},
+export const nodeReadWholeAsText: ReadWholeAsText = (src) => {
+	if (typeof src !== 'string') {
+		throw new Error('src must be a string when using `nodeReader`');
+	}
+
+	return promises.readFile(src, 'utf8');
+};
+
+export const nodeCreateAdjacentFileSource: CreateAdjacentFileSource = (
+	relativePath,
+	src,
+) => {
+	if (typeof src !== 'string') {
+		throw new Error('src must be a string when using `nodeReader`');
+	}
+
+	const result = join(dirname(src), relativePath);
+	const rel = relative(dirname(src), result);
+	if (rel.startsWith('..')) {
+		throw new Error(
+			'Path is outside of the parent directory - not allowing reading of arbitrary files',
+		);
+	}
+
+	return result;
+};
+
+export const nodeReader: ReaderInterface = {
+	read: nodeReadContent,
+	readWholeAsText: nodeReadWholeAsText,
+	createAdjacentFileSource: nodeCreateAdjacentFileSource,
 };

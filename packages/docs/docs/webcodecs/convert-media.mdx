@@ -25,8 +25,6 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
 
 ```tsx twoslash title="Converting a video"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
@@ -39,15 +37,9 @@ await convertMedia({
 
 ### `src`
 
-A `string` or `File` or `Blob`.  
-If it is a `string`, it must be a URL.  
-If it is a `File`, the `reader` field must be set to [`webFileReader`](/docs/media-parser/web-file-reader).
+A URL or `File`/`Blob`, or a local file path.
 
-### `reader`
-
-A reader interface.  
-Default value: [`fetchReader`](/docs/media-parser/fetch-reader), which uses `fetch()` to read the video.  
-If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+If passing a local file, tracks can only be copied, and the [`reader`](#reader) field must be set to [`nodeReader`](/docs/media-parser/node-reader).
 
 ### `container`
 
@@ -55,11 +47,19 @@ _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
 The container format to convert to. Currently, `"mp4"`, `"webm"` and `"wav"` is supported.
 
+### `expectedDurationInSeconds?`
+
+_number_
+
+Pass the expected duration of the output video in seconds, so that the size of the MP4 metadata section can be estimated well. If the value is not passed, 2MB will be allocated for the MP4 metadata section.
+
+If the size is exceeded (for videos which are around 1 hour or longer), the render may fail in the end.
+
 ### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>
 
-The video codec to convert to. Currently, `"h264"`, `"vp8"` and `"vp9"` are supported.  
+The video codec to convert to. Currently, `"h264"`, `"h265"`, `"vp8"` and `"vp9"` are supported.  
 The default is defined by [`getDefaultVideoCodec()`](/docs/webcodecs/get-default-video-codec).  
 If a [`onVideoTrack`](#onvideotrack) handler is provided, it will override this setting.
 
@@ -70,6 +70,16 @@ _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
 The audio codec to convert to. Currently, only `"opus"` is supported.  
 The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
 If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
+
+### `controller?`
+
+A [controller](/docs/webcodecs/webcodecs-controller) object that allows you to pause, resume and abort the conversion process.
+
+### `reader?`
+
+A [reader](/docs/media-parser/readers) interface.
+
+Default value: `webReader`, which allows URLs and `File` objects.
 
 ### `rotate?`
 
@@ -105,21 +115,9 @@ _Function_ <TsType type="ConvertMediaOnProgress" source="@remotion/media-parser"
 Allows receiving progress updates. The following fields are available:
 
 ```tsx twoslash
-import type {
-  ConvertMediaOnProgress,
-  ConvertMediaProgress,
-} from '@remotion/webcodecs';
+import type {ConvertMediaOnProgress, ConvertMediaProgress} from '@remotion/webcodecs';
 
-export const onProgress: ConvertMediaOnProgress = ({
-  decodedVideoFrames,
-  decodedAudioFrames,
-  encodedVideoFrames,
-  encodedAudioFrames,
-  bytesWritten,
-  millisecondsWritten,
-  expectedOutputDurationInMs,
-  overallProgress,
-}: ConvertMediaProgress) => {
+export const onProgress: ConvertMediaOnProgress = ({decodedVideoFrames, decodedAudioFrames, encodedVideoFrames, encodedAudioFrames, bytesWritten, millisecondsWritten, expectedOutputDurationInMs, overallProgress}: ConvertMediaProgress) => {
   console.log(decodedVideoFrames);
   //                   ^?
   console.log(decodedAudioFrames);
@@ -168,14 +166,42 @@ You may return the same frame or replace it with a new `VideoFrame` object.
 
 After the function returns, `convertMedia()` will call [`.close()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/close) on the input and output frames.  
 This will destroy the frame and free up memory.
-
 If you need a reference to the frame that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/clone) on it.
 
 If you return a different frame than the one you received, it must have the same values for `codedWidth`, `codedHeight`, `displayWidth` and `displayHeight`, `timestamp` and `duration` as the input frame.
 
-### `signal?`
+### `onAudioData?`
 
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to cancel the conversion process whenever the signal is aborted.
+_Function_ <TsType type="ConvertMediaOnAudioData" source="@remotion/media-parser"/>
+
+Allows you to hook into the audio data. The items are native [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) objects.
+
+```tsx twoslash
+import type {ConvertMediaOnAudioData} from '@remotion/webcodecs';
+
+export const onAudioData: ConvertMediaOnAudioData = ({audioData}) => {
+  console.log(audioData);
+  //           ^?
+
+  // Do something with the audiodata, for example:
+  // - Change the pitch
+  // - Lower the volume
+
+  // Then return the frame to be used for encoding.
+  return audioData;
+};
+```
+
+The callback function may be async.
+
+When the function returns, the returned audio data is used for audio encoding.  
+You may return the same audio data or replace it with a new [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object.
+
+After the function returns, `convertMedia()` will call [`.close()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/close) on the input and output audio data.  
+This will destroy the audio data and free up memory.
+If you need a reference to the audio data that lasts longer than the lifetime of this function, you must call [`.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/clone) on it.
+
+If you return a different audio data than the one you received, it should have the same [`duration`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/duration), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels), [`sampleRate`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/sampleRate), [`timestamp`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format), [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/timestamp), [`format`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/format) and [`numberOfChannels`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/numberOfChannels) as the input audio data.
 
 ### `writer?`
 
@@ -191,8 +217,6 @@ import {bufferWriter} from '@remotion/webcodecs/buffer';
 Write to a resizable Array Buffer.
 
 ```tsx twoslash title="Web File System writer"
-// @module: es2022
-// @target: es2017
 import {canUseWebFsWriter, webFsWriter} from '@remotion/webcodecs/web-fs';
 //                          ^?
 
@@ -217,6 +241,13 @@ _Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webc
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
 See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
 
+### `selectM3uStream?`
+
+_Function_ <TsType type="SelectM3uStreamFn" source="@remotion/media-parser"/>
+
+A callback that is called when a `.m3u8` file is detected which has multiple streams.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
+
 ### `progressIntervalInMs?`
 
 _number_
@@ -231,8 +262,6 @@ You can obtain information about the video file while you are converting it.
 This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media), but only the callback-style API is available.
 
 ```tsx twoslash title="Converting a video"
-// @module: es2022
-// @target: es2017
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({

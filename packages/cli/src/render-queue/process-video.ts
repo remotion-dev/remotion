@@ -21,7 +21,7 @@ export const processVideoJob = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	logLevel: LogLevel;
 }) => {
 	if (job.type !== 'video' && job.type !== 'sequence') {
@@ -99,5 +99,6 @@ export const processVideoJob = async ({
 		hardwareAcceleration:
 			job.type === 'video' ? job.hardwareAcceleration : 'disable',
 		chromeMode: job.chromeMode,
+		offthreadVideoThreads: job.offthreadVideoThreads,
 	});
 };

@@ -63,6 +63,10 @@ execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
 });
 
+execSync('pnpm build', {
+	stdio: 'inherit',
+});
+
 execSync('bun test src/monorepo', {
 	cwd: 'packages/it-tests',
 	stdio: 'inherit',
@@ -70,11 +74,6 @@ execSync('bun test src/monorepo', {
 
 execSync('bun build.ts --all', {
 	cwd: 'packages/compositor',
-	stdio: 'inherit',
-});
-
-execSync('pnpm run make', {
-	cwd: 'packages/cloudrun',
 	stdio: 'inherit',
 });
 

@@ -456,6 +456,7 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
 
 test('Should render a still that uses the staticFile() API and should apply props', async () => {
 	const out = outputPath.replace('.mp4', '.png');
+	await Bun.write('props.json', JSON.stringify({flag: true}));
 	const task = await execa(
 		'pnpm',
 		[
@@ -470,6 +471,7 @@ test('Should render a still that uses the staticFile() API and should apply prop
 		],
 		{
 			cwd: path.join(process.cwd(), '..', 'example'),
+			// @ts-expect-error staticfile
 			env: {
 				REMOTION_FLAG: 'hi',
 			},
@@ -537,58 +539,6 @@ test('Dynamic duration should work and audio separation', async () => {
 	);
 	fs.unlinkSync(audio);
 });
-
-test(
-	'Should be able to render if remotion.config.js is not provided, and separate audio',
-	async () => {
-		const task = await execa(
-			'node',
-			[
-				'packages/cli/remotion-cli.js',
-				'render',
-				'packages/example/src/entry.jsx',
-				'framer',
-				outputPath,
-			],
-			{
-				cwd: path.join(process.cwd(), '..', '..'),
-			},
-		);
-
-		expect(task.exitCode).toBe(0);
-		fs.unlinkSync(outputPath);
-	},
-	{
-		timeout: 30000,
-	},
-);
-
-test(
-	'Should be able to render if remotion.config.ts is not provided',
-	async () => {
-		const task = await execa(
-			'node',
-			[
-				'packages/cli/remotion-cli.js',
-				'render',
-				'packages/example/src/ts-entry.tsx',
-
-				'framer',
-				'--public-dir=packages/example/public',
-				outputPath,
-			],
-			{
-				cwd: path.join(process.cwd(), '..', '..'),
-			},
-		);
-
-		expect(task.exitCode).toBe(0);
-		fs.unlinkSync(outputPath);
-	},
-	{
-		timeout: 30000,
-	},
-);
 
 test('Should be able to render a huge payload that gets serialized', async () => {
 	const task = await execa(

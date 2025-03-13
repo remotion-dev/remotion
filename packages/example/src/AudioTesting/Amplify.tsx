@@ -1,6 +1,6 @@
 import {Audio, staticFile} from 'remotion';
 
-const AudioTesting: React.FC = () => {
+const Amplify: React.FC = () => {
 	return (
 		<Audio
 			allowAmplificationDuringRender
@@ -10,4 +10,4 @@ const AudioTesting: React.FC = () => {
 	);
 };
 
-export default AudioTesting;
+export default Amplify;

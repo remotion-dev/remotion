@@ -31,6 +31,12 @@ test('Should be able to "import" frontend in node', async () => {
 		`node --input-type=module -e "import {measureText} from '@remotion/layout-utils'; console.log(measureText)"`,
 	);
 	execSync(
+		`node --input-type=module -e "import {getRenderProgress} from '@remotion/lambda/client'; console.log(getRenderProgress)"`,
+	);
+	execSync(
+		`node --input-type=module -e "import {getRenderProgress} from '@remotion/lambda'; console.log(getRenderProgress)"`,
+	);
+	execSync(
 		`node --input-type=module -e "import {loadFont} from '@remotion/google-fonts/Montserrat'; console.log(loadFont)"`,
 	);
 

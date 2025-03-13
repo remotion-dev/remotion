@@ -13,7 +13,6 @@ import type {
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {GitSource} from './git-source';
-import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
 
 export type RenderDefaults = {
@@ -44,6 +43,7 @@ export type RenderDefaults = {
 	openGlRenderer: OpenGlRenderer | null;
 	ignoreCertificateErrors: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
@@ -58,7 +58,7 @@ declare global {
 	interface Window {
 		remotion_renderDefaults: RenderDefaults | undefined;
 		remotion_gitSource: GitSource | null;
-		remotion_installedPackages: InstallablePackage[] | null;
+		remotion_installedPackages: string[] | null;
 		remotion_packageManager: PackageManager | 'unknown';
 	}
 }

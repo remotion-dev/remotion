@@ -1,7 +1,8 @@
+import type {ParseMediaSrc} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
 
 export const generateOutputFilename = (
-	source: string | Blob,
+	source: ParseMediaSrc,
 	container: ConvertMediaContainer,
 ) => {
 	const filename =

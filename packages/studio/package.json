@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
@@ -38,7 +38,7 @@
 		"zod": "3.23.8",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -47,17 +47,41 @@
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
-			"import": "./dist/esm/index.mjs",
-			"require": "./dist/index.js"
+			"import": "./dist/esm/index.mjs"
 		},
-		"./entry": "./dist/previewEntry.js",
+		"./renderEntry": {
+			"types": "./dist/renderEntry.d.ts",
+			"require": "./dist/renderEntry.js",
+			"module": "./dist/esm/renderEntry.mjs",
+			"import": "./dist/esm/renderEntry.mjs"
+		},
 		"./internals": {
 			"types": "./dist/internals.d.ts",
+			"require": "./dist/internals.js",
 			"module": "./dist/esm/internals.mjs",
-			"import": "./dist/esm/internals.mjs",
-			"require": "./dist/internals.js"
+			"import": "./dist/esm/internals.mjs"
+		},
+		"./previewEntry": {
+			"types": "./dist/previewEntry.d.ts",
+			"require": "./dist/previewEntry.js",
+			"module": "./dist/esm/previewEntry.mjs",
+			"import": "./dist/esm/previewEntry.mjs"
 		}
 	},
-	"homepage": "https://www.remotion.dev/docs/studio/api"
+	"homepage": "https://www.remotion.dev/docs/studio/api",
+	"typesVersions": {
+		">=1.0": {
+			"renderEntry": [
+				"dist/renderEntry.d.ts"
+			],
+			"internals": [
+				"dist/internals.d.ts"
+			],
+			"previewEntry": [
+				"dist/previewEntry.d.ts"
+			]
+		}
+	}
 }

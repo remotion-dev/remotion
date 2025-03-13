@@ -33,7 +33,7 @@ type PrepareServerOptions = {
 	webpackConfigOrServeUrl: string;
 	port: number | null;
 	remotionRoot: string;
-	concurrency: number;
+	offthreadVideoThreads: number;
 	logLevel: LogLevel;
 	indent: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
@@ -45,7 +45,7 @@ export const prepareServer = async ({
 	webpackConfigOrServeUrl,
 	port,
 	remotionRoot,
-	concurrency,
+	offthreadVideoThreads,
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
@@ -68,7 +68,7 @@ export const prepareServer = async ({
 			port,
 			downloadMap,
 			remotionRoot,
-			concurrency,
+			offthreadVideoThreads,
 			logLevel,
 			indent,
 			offthreadVideoCacheSizeInBytes,
@@ -142,7 +142,7 @@ export const prepareServer = async ({
 		port,
 		downloadMap,
 		remotionRoot,
-		concurrency,
+		offthreadVideoThreads,
 		logLevel,
 		indent,
 		offthreadVideoCacheSizeInBytes,

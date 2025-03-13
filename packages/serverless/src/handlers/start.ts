@@ -1,12 +1,15 @@
-import type {ServerlessPayload} from '../constants';
-import {ServerlessRoutines, overallProgressKey} from '../constants';
-import {internalGetOrCreateBucket} from '../get-or-create-bucket';
-import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {
-	InsideFunctionSpecifics,
+	CloudProvider,
 	ProviderSpecifics,
-} from '../provider-implementation';
-import type {CloudProvider} from '../types';
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {
+	ServerlessRoutines,
+	internalGetOrCreateBucket,
+	overallProgressKey,
+} from '@remotion/serverless-client';
+import {makeInitialOverallRenderProgress} from '../overall-render-progress';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
@@ -24,7 +27,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -36,12 +39,12 @@ export const startHandler = async <Provider extends CloudProvider>({
 		params,
 	});
 
-	const region = providerSpecifics.getCurrentRegionInFunction();
+	const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 	const bucketName =
 		params.bucketName ??
 		(
 			await internalGetOrCreateBucket({
-				region: providerSpecifics.getCurrentRegionInFunction(),
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 				enableFolderExpiry: null,
 				customCredentials: null,
 				providerSpecifics,
@@ -118,6 +121,8 @@ export const startHandler = async <Provider extends CloudProvider>({
 		preferLossless: params.preferLossless,
 		forcePathStyle: params.forcePathStyle,
 		metadata: params.metadata,
+		apiKey: params.apiKey,
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	};
 
 	await providerSpecifics.callFunctionAsync({

@@ -16,10 +16,30 @@ const output = await build({
 });
 
 if (!output.success) {
+	console.log(output.logs.join('\n'));
 	process.exit(1);
 }
 
 for (const file of output.outputs) {
+	const str = await file.text();
+	const out = path.join('dist', 'esm', file.path);
+
+	await Bun.write(out, str);
+}
+
+const nodeOutputs = await build({
+	entrypoints: ['src/writers/buffer.ts', 'src/writers/web-fs.ts'],
+	target: 'node',
+	naming: '[name].mjs',
+	external: ['node:fs', 'fs'],
+});
+
+if (!nodeOutputs.success) {
+	console.log(nodeOutputs.logs.join('\n'));
+	process.exit(1);
+}
+
+for (const file of nodeOutputs.outputs) {
 	const str = await file.text();
 	const out = path.join('dist', 'esm', file.path);
 

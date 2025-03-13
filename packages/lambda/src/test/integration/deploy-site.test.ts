@@ -1,12 +1,10 @@
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {awsImplementation} from '../../functions/aws-implementation';
-import {
-	mockFullClientSpecifics,
-	mockImplementation,
-} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 import {getDirFiles} from '../mocks/upload-dir';
 
 test('Should throw on wrong prefix', async () => {
@@ -38,12 +36,14 @@ test('Should throw if invalid region was passed', () => {
 			region: 'ap-northeast-9',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: awsImplementation,
+			providerSpecifics: LambdaClientInternals.awsImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: true,
+			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).rejects.toThrow(/ap-northeast-9 is not a supported AWS region/);
 });
@@ -255,6 +255,19 @@ test('Should keep the previous site if deploying the new one with different ID',
 		forcePathStyle: false,
 	});
 
+	expect(
+		files.map((f) => {
+			return f.Key;
+		}),
+	).toEqual([
+		...getDirFiles('/path/to/bundle-1').map((f) => {
+			return 'sites/testing/' + f.name;
+		}),
+		...getDirFiles('/path/to/bundle-2').map((f) => {
+			return 'sites/testing-2/' + f.name;
+		}),
+	]);
+
 	await internalDeleteSite({
 		bucketName,
 		region: 'ap-northeast-1',
@@ -271,18 +284,6 @@ test('Should keep the previous site if deploying the new one with different ID',
 		forcePathStyle: false,
 		onAfterItemDeleted: null,
 	});
-	expect(
-		files.map((f) => {
-			return f.Key;
-		}),
-	).toEqual([
-		...getDirFiles('/path/to/bundle-1').map((f) => {
-			return 'sites/testing/' + f.name;
-		}),
-		...getDirFiles('/path/to/bundle-2').map((f) => {
-			return 'sites/testing-2/' + f.name;
-		}),
-	]);
 });
 
 test('Should not delete site with same prefix', async () => {

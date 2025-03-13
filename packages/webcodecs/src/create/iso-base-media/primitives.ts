@@ -13,6 +13,20 @@ export const numberTo32BitUIntOrInt = (num: number) => {
 	]);
 };
 
+export const numberTo64BitUIntOrInt = (num: number | bigint) => {
+	const bigNum = BigInt(num);
+	return new Uint8Array([
+		Number((bigNum >> 56n) & 0xffn),
+		Number((bigNum >> 48n) & 0xffn),
+		Number((bigNum >> 40n) & 0xffn),
+		Number((bigNum >> 32n) & 0xffn),
+		Number((bigNum >> 24n) & 0xffn),
+		Number((bigNum >> 16n) & 0xffn),
+		Number((bigNum >> 8n) & 0xffn),
+		Number(bigNum & 0xffn),
+	]);
+};
+
 export const numberTo32BitUIntOrIntLeading128 = (num: number) => {
 	const arr = [
 		(num >> 24) & 0xff,
@@ -125,7 +139,7 @@ export const stringToPascalString = (str: string) => {
 export const padIsoBaseMediaBytes = (data: Uint8Array, totalLength: number) => {
 	if (data.length - 8 > totalLength) {
 		throw new Error(
-			`Data is longer than the total length: ${data.length - 8} > ${totalLength}`,
+			`Data is longer than the total length: ${data.length - 8} > ${totalLength}. Set the 'expectedDurationInSeconds' value to avoid this problem: https://www.remotion.dev/docs/webcodecs/convert-media#expecteddurationinseconds`,
 		);
 	}
 

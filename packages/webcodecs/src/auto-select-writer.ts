@@ -1,10 +1,10 @@
 import {canUseWebFsWriter, webFsWriter} from './writers/web-fs';
 
+import type {WriterInterface} from '@remotion/media-parser';
 import {withResolvers} from './create/with-resolvers';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {bufferWriter} from './writers/buffer';
-import type {WriterInterface} from './writers/writer';
 
 export const autoSelectWriter = async (
 	writer: WriterInterface | undefined,
@@ -16,6 +16,12 @@ export const autoSelectWriter = async (
 	}
 
 	Log.verbose(logLevel, 'Determining best writer');
+
+	const hasNavigator = typeof navigator !== 'undefined';
+	if (!hasNavigator) {
+		Log.verbose(logLevel, 'No navigator API detected, using buffer writer');
+		return bufferWriter;
+	}
 
 	// Check if we're offline using the navigator API
 	const isOffline = !navigator.onLine;

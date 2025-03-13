@@ -1,7 +1,7 @@
 import type {
 	AudioTrack,
 	LogLevel,
-	ParseMediaContainer,
+	MediaParserContainer,
 } from '@remotion/media-parser';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
@@ -17,6 +17,6 @@ export type ConvertMediaOnAudioTrackHandler = (options: {
 	defaultAudioCodec: ConvertMediaAudioCodec | null;
 	logLevel: LogLevel;
 	outputContainer: ConvertMediaContainer;
-	inputContainer: ParseMediaContainer;
+	inputContainer: MediaParserContainer;
 	canCopyTrack: boolean;
 }) => AudioOperation | Promise<AudioOperation>;

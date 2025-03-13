@@ -71,7 +71,12 @@ export const makeBrowserRunner = async ({
 		stdio,
 	});
 
-	const browserWSEndpoint = await waitForWSEndpoint(proc, timeout);
+	const browserWSEndpoint = await waitForWSEndpoint({
+		browserProcess: proc,
+		timeout,
+		indent,
+		logLevel,
+	});
 	const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 	const connection = new Connection(transport);
 
@@ -101,6 +106,10 @@ export const makeBrowserRunner = async ({
 						// Killing the process group can fail due e.g. to missing permissions.
 						// Let's kill the process via Node API. This delays killing of all child
 						// processes of `this.proc` until the main Node.js process dies.
+						Log.verbose(
+							{indent, logLevel},
+							`Could not kill browser process group ${processGroupId}. Killing process via Node.js API`,
+						);
 						proc.kill('SIGKILL');
 					}
 				}
@@ -235,10 +244,17 @@ export const makeBrowserRunner = async ({
 	};
 };
 
-function waitForWSEndpoint(
-	browserProcess: childProcess.ChildProcess,
-	timeout: number,
-): Promise<string> {
+function waitForWSEndpoint({
+	browserProcess,
+	timeout,
+	logLevel,
+	indent,
+}: {
+	browserProcess: childProcess.ChildProcess;
+	timeout: number;
+	logLevel: LogLevel;
+	indent: boolean;
+}): Promise<string> {
 	const browserStderr = browserProcess.stderr;
 	assert(browserStderr, '`browserProcess` does not have stderr.');
 
@@ -250,8 +266,15 @@ function waitForWSEndpoint(
 		const listeners = [
 			() => browserStderr.removeListener('data', onData),
 			() => browserStderr.removeListener('close', onClose),
-			addEventListener(browserProcess, 'exit', () => {
-				return onClose();
+			addEventListener(browserProcess, 'exit', (code, signal) => {
+				Log.verbose(
+					{indent, logLevel},
+					'Browser process exited with code',
+					code,
+					'signal',
+					signal,
+				);
+				return onClose(new Error(`Closed with ${code} signal: ${signal}`));
 			}),
 			addEventListener(browserProcess, 'error', (error) => {
 				return onClose(error);
@@ -265,7 +288,7 @@ function waitForWSEndpoint(
 				new Error(
 					[
 						'Failed to launch the browser process!',
-						error ? error.message : null,
+						error ? error.stack : null,
 						stderrString,
 						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]

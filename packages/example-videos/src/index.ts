@@ -46,6 +46,8 @@ export const exampleVideos = {
 	vp9: path.join(examplePackage, 'public', 'vp9.webm'),
 	stretchedVp8: path.join(examplePackage, 'public', 'stretched-vp8.webm'),
 	matroskaMp3: path.join(examplePackage, 'public', 'matroska-mp3.mkv'),
+	shortmp3: path.join(examplePackage, 'public', 'whip.mp3'),
+	mpeg1layer3: path.join(examplePackage, 'src', 'resources', 'sound1.mp3'),
 	matroskaH265Aac: path.join(examplePackage, 'public', 'matroska-h265-aac.mkv'),
 	opusWebm: path.join(examplePackage, 'public', 'opus.webm'),
 	avi: path.join(examplePackage, 'public', 'example.avi'),
@@ -66,6 +68,7 @@ export const exampleVideos = {
 		'renders',
 		'regular-audio.bmp',
 	),
+	flac: path.join(__dirname, '..', 'videos', 'sample.flac'),
 	webp: path.join(__dirname, '..', 'videos', '1.webp'),
 	pdf: path.join(
 		docsPackage,
@@ -75,4 +78,22 @@ export const exampleVideos = {
 	),
 	unknown: __filename,
 	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
+	syncsafe: path.join(__dirname, '..', 'videos', 'syncsafe-id3.mp3'),
+	separatedAudio: path.join(__dirname, '..', 'videos', 'separated-audio.m3u8'),
+	mp3vbr: path.join(__dirname, '..', 'videos', 'vbr.mp3'),
+	multipleAudio: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'multiple-audio-streams.m3u8',
+	),
+	localplaylist: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'local-playlist',
+		'output.m3u8',
+	),
 };
+
+export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';

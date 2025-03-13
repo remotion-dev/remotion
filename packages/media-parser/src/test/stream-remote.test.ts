@@ -10,6 +10,7 @@ test('Should stream', async () => {
 			dimensions: true,
 			videoCodec: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(result.durationInSeconds).toBe(10);
 	expect(result.fps).toBe(60);
@@ -33,6 +34,7 @@ test(
 				internalStats: true,
 				mimeType: true,
 			},
+			acknowledgeRemotionLicense: true,
 		});
 		expect(result.durationInSeconds).toBe(634.571);
 		expect(result.fps).toBe(null);
@@ -56,6 +58,7 @@ test('Should handle redirect', async () => {
 			durationInSeconds: true,
 			internalStats: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(result.videoCodec).toEqual('h264');
 	expect(result.fps).toEqual(24);

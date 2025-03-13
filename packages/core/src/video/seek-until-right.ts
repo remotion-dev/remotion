@@ -1,10 +1,22 @@
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
+import {type LogLevel} from '../log';
+import {seek} from '../seek';
 
 const roundTo6Commas = (num: number) => {
 	return Math.round(num * 100_000) / 100_000;
 };
 
-export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
+export const seekToTime = ({
+	element,
+	desiredTime,
+	logLevel,
+	mountTime,
+}: {
+	element: HTMLVideoElement;
+	desiredTime: number;
+	logLevel: LogLevel;
+	mountTime: number;
+}) => {
 	if (isApproximatelyTheSame(element.currentTime, desiredTime)) {
 		return {
 			wait: Promise.resolve(desiredTime),
@@ -12,7 +24,13 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 		};
 	}
 
-	element.currentTime = desiredTime;
+	seek({
+		logLevel,
+		mediaRef: element,
+		time: desiredTime,
+		why: 'Seeking during rendering',
+		mountTime,
+	});
 
 	let cancel: number;
 	let cancelSeeked: null | (() => void) = null;
@@ -55,11 +73,19 @@ export const seekToTime = (element: HTMLVideoElement, desiredTime: number) => {
 	};
 };
 
-export const seekToTimeMultipleUntilRight = (
-	element: HTMLVideoElement,
-	desiredTime: number,
-	fps: number,
-) => {
+export const seekToTimeMultipleUntilRight = ({
+	element,
+	desiredTime,
+	fps,
+	logLevel,
+	mountTime,
+}: {
+	element: HTMLVideoElement;
+	desiredTime: number;
+	fps: number;
+	logLevel: LogLevel;
+	mountTime: number;
+}) => {
 	const threshold = 1 / fps / 2;
 	let currentCancel: () => void = () => undefined;
 
@@ -75,7 +101,12 @@ export const seekToTimeMultipleUntilRight = (
 	}
 
 	const prom = new Promise<void>((resolve, reject) => {
-		const firstSeek = seekToTime(element, desiredTime + threshold);
+		const firstSeek = seekToTime({
+			element,
+			desiredTime: desiredTime + threshold,
+			logLevel,
+			mountTime,
+		});
 		firstSeek.wait.then((seekedTo) => {
 			const difference = Math.abs(desiredTime - seekedTo);
 
@@ -85,7 +116,12 @@ export const seekToTimeMultipleUntilRight = (
 
 			const sign = desiredTime > seekedTo ? 1 : -1;
 
-			const newSeek = seekToTime(element, seekedTo + threshold * sign);
+			const newSeek = seekToTime({
+				element,
+				desiredTime: seekedTo + threshold * sign,
+				logLevel,
+				mountTime,
+			});
 			currentCancel = newSeek.cancel;
 			newSeek.wait
 				.then((newTime) => {
@@ -95,7 +131,12 @@ export const seekToTimeMultipleUntilRight = (
 						return resolve();
 					}
 
-					const thirdSeek = seekToTime(element, desiredTime + threshold);
+					const thirdSeek = seekToTime({
+						element,
+						desiredTime: desiredTime + threshold,
+						logLevel,
+						mountTime,
+					});
 					currentCancel = thirdSeek.cancel;
 					return thirdSeek.wait
 						.then(() => {

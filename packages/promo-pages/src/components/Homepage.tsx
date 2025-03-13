@@ -3,7 +3,6 @@
 import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
-import './homepage/custom.css';
 import {Demo} from './homepage/Demo';
 import {LightningFastEditor} from './homepage/Editor';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
@@ -25,7 +24,7 @@ export const NewLanding: React.FC<{
 }> = ({colorMode, setColorMode}) => {
 	return (
 		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
-			<div data-theme={colorMode} className="bg-[var(--background)] relative">
+			<div className="bg-[var(--background)] relative">
 				<div>
 					<div>
 						<BackgroundAnimation />

@@ -1,10 +1,24 @@
-import type {OnTrackEntrySegment} from '../boxes/webm/segments';
-import type {TrackInfo} from '../boxes/webm/segments/track-entry';
+import type {BufferIterator} from '../buffer-iterator';
+import type {AvcProfileInfo} from '../containers/avc/parse-avc';
+import type {OnTrackEntrySegment} from '../containers/webm/segments';
+import type {TrackInfo} from '../containers/webm/segments/track-entry';
 import {
 	getTrackCodec,
 	getTrackId,
 	getTrackTimestampScale,
-} from '../boxes/webm/traversal';
+} from '../containers/webm/traversal';
+
+export type SegmentSection = {
+	start: number;
+	size: number;
+	index: number;
+};
+
+export type ClusterSection = {
+	start: number;
+	size: number;
+	segment: number;
+};
 
 export const webmState = () => {
 	const trackEntries: Record<number, TrackInfo> = {};
@@ -72,6 +86,24 @@ export const webmState = () => {
 		return timescale;
 	};
 
+	const segments: SegmentSection[] = [];
+	const clusters: ClusterSection[] = [];
+
+	const avcProfilesMap: Record<number, AvcProfileInfo> = {};
+
+	const setAvcProfileForTrackNumber = (
+		trackNumber: number,
+		avcProfile: AvcProfileInfo,
+	) => {
+		avcProfilesMap[trackNumber] = avcProfile;
+	};
+
+	const getAvcProfileForTrackNumber = (
+		trackNumber: number,
+	): AvcProfileInfo | null => {
+		return avcProfilesMap[trackNumber] ?? null;
+	};
+
 	return {
 		onTrackEntrySegment,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
@@ -80,5 +112,42 @@ export const webmState = () => {
 		timescale,
 		getTimescale,
 		setTimescale,
+		addSegment: (seg: Omit<SegmentSection, 'index'>) => {
+			const segment: SegmentSection = {
+				...seg,
+				index: segments.length,
+			};
+			segments.push(segment);
+		},
+		addCluster: (cluster: ClusterSection) => {
+			clusters.push(cluster);
+		},
+		isInsideSegment: (iterator: BufferIterator): SegmentSection | null => {
+			const offset = iterator.counter.getOffset();
+			const insideClusters = segments.filter((cluster) => {
+				return (
+					offset >= cluster.start && offset <= cluster.start + cluster.size
+				);
+			});
+			if (insideClusters.length > 1) {
+				throw new Error('Expected to only be inside 1 cluster');
+			}
+
+			return insideClusters[0] ?? null;
+		},
+		isInsideCluster: (iterator: BufferIterator): ClusterSection | null => {
+			for (const cluster of clusters) {
+				const offset = iterator.counter.getOffset();
+				if (offset >= cluster.start && offset <= cluster.start + cluster.size) {
+					return cluster;
+				}
+			}
+
+			return null;
+		},
+		setAvcProfileForTrackNumber,
+		getAvcProfileForTrackNumber,
 	};
 };
+
+export type WebmState = ReturnType<typeof webmState>;

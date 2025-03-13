@@ -1,8 +1,7 @@
-/* eslint-disable max-depth */
-import type {PossibleEbml} from '../boxes/webm/segments/all-segments';
-import {getTrackWithUid} from '../boxes/webm/traversal';
+import type {PossibleEbml} from '../containers/webm/segments/all-segments';
+import {getTrackWithUid} from '../containers/webm/traversal';
 import type {MatroskaStructure} from '../parse-result';
-import type {MetadataEntry} from './get-metadata';
+import type {MediaParserMetadataEntry} from './get-metadata';
 
 const removeEndZeroes = (value: string): string => {
 	return value.endsWith('\u0000') ? removeEndZeroes(value.slice(0, -1)) : value;
@@ -11,7 +10,7 @@ const removeEndZeroes = (value: string): string => {
 const parseSimpleTagIntoEbml = (
 	children: PossibleEbml[],
 	trackId: number | null,
-): MetadataEntry | null => {
+): MediaParserMetadataEntry | null => {
 	const tagName = children.find((c) => c.type === 'TagName');
 	const tagString = children.find((c) => c.type === 'TagString');
 	if (!tagName || !tagString) {
@@ -27,8 +26,8 @@ const parseSimpleTagIntoEbml = (
 
 export const getMetadataFromMatroska = (
 	structure: MatroskaStructure,
-): MetadataEntry[] => {
-	const entries: MetadataEntry[] = [];
+): MediaParserMetadataEntry[] => {
+	const entries: MediaParserMetadataEntry[] = [];
 	for (const segment of structure.boxes) {
 		if (segment.type !== 'Segment') {
 			continue;

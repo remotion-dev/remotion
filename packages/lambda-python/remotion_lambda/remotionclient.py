@@ -103,16 +103,30 @@ class RemotionClient:
     def _invoke_lambda(self, function_name, payload):
 
         client = self._create_lambda_client()
-        response = client.invoke(
-            FunctionName=function_name, Payload=payload, )
-        result = response['Payload'].read().decode('utf-8')
-        decoded_result = self._parse_stream(result)[-1]
+        try:
+            response = client.invoke(
+                FunctionName=function_name, Payload=payload)
+            result = response['Payload'].read().decode('utf-8')
+            decoded_result = self._parse_stream(result)[-1]
+        except client.exceptions.ResourceNotFoundException as e:
+            raise ValueError(
+                f"The function {function_name} does not exist.") from e
+        except client.exceptions.InvalidRequestContentException as e:
+            raise ValueError("The request content is invalid.") from e
+        except client.exceptions.RequestTooLargeException as e:
+            raise ValueError("The request payload is too large.") from e
+        except client.exceptions.ServiceException as e:
+            raise ValueError(
+                f"An internal service error occurred: {str(e)}") from e
+        except Exception as e:
+            raise ValueError(f"An unexpected error occurred: {str(e)}") from e
+
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
 
         if 'type' in decoded_result and decoded_result['type'] == 'error':
             raise ValueError(decoded_result['message'])
-        if (not 'type' in decoded_result or decoded_result['type'] != 'success'):
+        if 'type' not in decoded_result or decoded_result['type'] != 'success':
             raise ValueError(result)
 
         return decoded_result

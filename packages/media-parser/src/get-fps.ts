@@ -1,18 +1,16 @@
-import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
-import type {TrakBox} from './boxes/iso-base-media/trak/trak';
+import type {SttsBox} from './containers/iso-base-media/stsd/stts';
+import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMdhdBox,
-	getMoovBox,
+	getMoovBoxFromState,
 	getStsdBox,
 	getSttsBox,
 	getTraks,
-} from './boxes/iso-base-media/traversal';
-import {getStrhBox, getStrlBoxes} from './boxes/riff/traversal';
-import type {
-	IsoBaseMediaStructure,
-	RiffStructure,
-	Structure,
-} from './parse-result';
+} from './containers/iso-base-media/traversal';
+import type {RiffStructure} from './containers/riff/riff-box';
+import {getStrhBox, getStrlBoxes} from './containers/riff/traversal';
+import {isAudioStructure} from './is-audio-structure';
+import type {ParserState} from './state/parser-state';
 
 const calculateFps = ({
 	sttsBox,
@@ -27,6 +25,10 @@ const calculateFps = ({
 
 	for (const sample of sttsBox.sampleDistribution) {
 		totalSamples += sample.sampleCount;
+	}
+
+	if (totalSamples === 0) {
+		return null;
 	}
 
 	const durationInSeconds = durationInSamples / timeScale;
@@ -97,8 +99,8 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 	});
 };
 
-const getFpsFromIsoMaseMedia = (structure: IsoBaseMediaStructure) => {
-	const moovBox = getMoovBox(structure.boxes);
+const getFpsFromIsoMaseMedia = (state: ParserState) => {
+	const moovBox = getMoovBoxFromState(state);
 	if (!moovBox) {
 		return null;
 	}
@@ -132,9 +134,11 @@ const getFpsFromAvi = (structure: RiffStructure) => {
 	return null;
 };
 
-export const getFps = (segments: Structure) => {
+export const getFps = (state: ParserState) => {
+	const segments = state.getStructure();
+
 	if (segments.type === 'iso-base-media') {
-		return getFpsFromIsoMaseMedia(segments);
+		return getFpsFromIsoMaseMedia(state);
 	}
 
 	if (segments.type === 'riff') {
@@ -151,28 +155,56 @@ export const getFps = (segments: Structure) => {
 		return null;
 	}
 
-	throw new Error('Cannot get fps, not implemented');
+	// Same as m3u8
+	if (segments.type === 'm3u') {
+		return null;
+	}
+
+	if (
+		segments.type === 'mp3' ||
+		segments.type === 'wav' ||
+		segments.type === 'flac' ||
+		segments.type === 'aac'
+	) {
+		return null;
+	}
+
+	throw new Error(
+		'Cannot get fps, not implemented: ' + (segments satisfies never),
+	);
 };
 
-export const hasFpsSuitedForSlowFps = (boxes: Structure): boolean => {
+export const hasFpsSuitedForSlowFps = (state: ParserState): boolean => {
 	try {
-		return getFps(boxes) !== null;
+		return getFps(state) !== null;
 	} catch {
 		return false;
 	}
 };
 
-export const hasFps = (boxes: Structure): boolean => {
+export const hasFps = (state: ParserState): boolean => {
 	// Matroska and Transport stream has no FPS metadata
 	// Not bothering to parse
 	// Users should use `slowFps` field
-	if (boxes.type === 'matroska') {
+	// same goes for audio
+
+	const structure = state.getStructure();
+
+	if (isAudioStructure(structure)) {
 		return true;
 	}
 
-	if (boxes.type === 'transport-stream') {
+	if (structure.type === 'matroska') {
 		return true;
 	}
 
-	return hasFpsSuitedForSlowFps(boxes);
+	if (structure.type === 'transport-stream') {
+		return true;
+	}
+
+	if (structure.type === 'm3u') {
+		return true;
+	}
+
+	return hasFpsSuitedForSlowFps(state);
 };

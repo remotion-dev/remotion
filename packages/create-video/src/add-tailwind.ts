@@ -1,37 +1,25 @@
 import fs from 'fs';
 import path from 'path';
 
-export const addTailwindStyleCss = (projectRoot: string) => {
-	const styleFile = path.join(projectRoot, 'src', 'tailwind.css');
-	fs.writeFileSync(
-		styleFile,
-		`@tailwind base;
-@tailwind components;
-@tailwind utilities;
-`,
-	);
-};
-
-export const addTailwindConfigJs = (projectRoot: string) => {
-	const tailwindConfigFile = path.join(projectRoot, 'tailwind.config.js');
+export const addPostcssConfig = (projectRoot: string) => {
+	const postcssConfigMjs = path.join(projectRoot, 'postcss.config.mjs');
 
 	fs.writeFileSync(
-		tailwindConfigFile,
-		`/* eslint-env node */
-module.exports = {
-  content: ["./src/**/*.{ts,tsx,js,jsx}"],
-  theme: {
-    extend: {},
+		postcssConfigMjs,
+		`
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
   },
-  plugins: [],
 };
-`,
+`.trim() + '\n',
 	);
 };
 
 export const addTailwindRootCss = (projectRoot: string) => {
 	const rootFileTsx = path.join(projectRoot, 'src', 'Root.tsx');
 	const rootFileJsx = path.join(projectRoot, 'src', 'Root.jsx');
+	const indexCss = path.join(projectRoot, 'src', 'index.css');
 
 	const rootFile = fs.existsSync(rootFileTsx) ? rootFileTsx : rootFileJsx;
 
@@ -41,8 +29,11 @@ export const addTailwindRootCss = (projectRoot: string) => {
 
 	const root = fs.readFileSync(rootFile, 'utf-8');
 
-	const newFile = `import './tailwind.css';\n${root}`;
+	const newFile = `import "./index.css";\n${root}`;
 	fs.writeFileSync(rootFile, newFile);
+
+	const css = `@import "tailwindcss";\n`;
+	fs.writeFileSync(indexCss, css);
 };
 
 export const addTailwindToConfig = (projectRoot: string) => {
@@ -72,7 +63,7 @@ export const addTailwindToConfig = (projectRoot: string) => {
 
 	const newLines = [
 		...headerLines,
-		`import { enableTailwind } from '@remotion/tailwind';`,
+		`import { enableTailwind } from '@remotion/tailwind-v4';`,
 		...tailLines,
 		'Config.overrideWebpackConfig(enableTailwind);',
 	];

@@ -55,6 +55,11 @@ export const defaultBrowserDownloadProgress = ({
 
 		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 
+		const productName =
+			chromeMode === 'chrome-for-testing'
+				? 'Chrome for Testing'
+				: 'Headless Shell';
+
 		if (updatesDontOverwrite) {
 			let lastProgress = 0;
 			return {
@@ -65,7 +70,7 @@ export const defaultBrowserDownloadProgress = ({
 
 						Log.info(
 							{indent, logLevel},
-							`Getting Headless Shell - ${RenderInternals.toMegabytes(
+							`Getting ${productName} - ${RenderInternals.toMegabytes(
 								progress.downloadedBytes,
 							)}/${RenderInternals.toMegabytes(
 								progress.totalSizeInBytes as number,
@@ -74,7 +79,7 @@ export const defaultBrowserDownloadProgress = ({
 					}
 
 					if (progress.percent === 1) {
-						Log.info({indent, logLevel}, `Got Headless Shell`);
+						Log.info({indent, logLevel}, `Got ${productName}`);
 					}
 				},
 			};

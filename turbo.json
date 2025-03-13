@@ -9,7 +9,7 @@
 		},
 		"clean": {},
 		"testssr": {
-			"dependsOn": ["@remotion/example#bundle"]
+			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
 		"testlambda": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
@@ -57,6 +57,11 @@
 		"@remotion/google-fonts#make": {
 			"outputs": ["src", ".cache-css", "dist"],
 			"dependsOn": ["^make"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/docs#make": {
+			"outputs": [],
+			"dependsOn": [],
 			"outputLogs": "new-only"
 		},
 		"@remotion/fig-autocomplete#make": {

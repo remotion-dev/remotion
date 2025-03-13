@@ -1,8 +1,10 @@
-import {isRiffAvi} from './boxes/riff/traversal';
-import type {ParseMediaContainer} from './options';
-import type {Structure} from './parse-result';
+import {isRiffAvi} from './containers/riff/traversal';
+import type {MediaParserContainer} from './options';
+import type {MediaParserStructureUnstable} from './parse-result';
 
-export const getContainer = (segments: Structure): ParseMediaContainer => {
+export const getContainer = (
+	segments: MediaParserStructureUnstable,
+): MediaParserContainer => {
 	if (segments.type === 'iso-base-media') {
 		return 'mp4';
 	}
@@ -15,16 +17,38 @@ export const getContainer = (segments: Structure): ParseMediaContainer => {
 		return 'transport-stream';
 	}
 
+	if (segments.type === 'mp3') {
+		return 'mp3';
+	}
+
+	if (segments.type === 'wav') {
+		return 'wav';
+	}
+
+	if (segments.type === 'flac') {
+		return 'flac';
+	}
+
 	if (segments.type === 'riff') {
 		if (isRiffAvi(segments)) {
 			return 'avi';
 		}
+
+		throw new Error('Unknown RIFF container ' + segments.type);
 	}
 
-	throw new Error('Unknown container');
+	if (segments.type === 'aac') {
+		return 'aac';
+	}
+
+	if (segments.type === 'm3u') {
+		return 'm3u8';
+	}
+
+	throw new Error('Unknown container ' + (segments satisfies never));
 };
 
-export const hasContainer = (boxes: Structure): boolean => {
+export const hasContainer = (boxes: MediaParserStructureUnstable): boolean => {
 	try {
 		return getContainer(boxes) !== null;
 	} catch {

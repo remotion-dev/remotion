@@ -1,16 +1,27 @@
 import {useCallback, useMemo, useRef} from 'react';
+import type {LogLevel} from './log';
+import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
+
+const isWebkit = () => {
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
+	return isAppleWebKit;
+};
 
 export const useBufferUntilFirstFrame = ({
 	mediaRef,
 	mediaType,
 	onVariableFpsVideoDetected,
 	pauseWhenBuffering,
+	logLevel,
+	mountTime,
 }: {
 	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
 	pauseWhenBuffering: boolean;
+	logLevel: LogLevel;
+	mountTime: number | null;
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
@@ -31,11 +42,29 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
+			playbackLogging({
+				logLevel,
+				message: `Checking if should buffer until first frame, ${current.readyState}`,
+				mountTime,
+				tag: 'buffer',
+			});
+
+			if (current.readyState >= current.HAVE_ENOUGH_DATA && !isWebkit()) {
+				return;
+			}
+
 			if (!current.requestVideoFrameCallback) {
 				return;
 			}
 
 			bufferingRef.current = true;
+
+			playbackLogging({
+				logLevel,
+				message: `Buffering ${mediaRef.current?.src} until the first frame is received`,
+				mountTime,
+				tag: 'buffer',
+			});
 
 			const playback = delayPlayback();
 
@@ -75,8 +104,10 @@ export const useBufferUntilFirstFrame = ({
 		},
 		[
 			delayPlayback,
+			logLevel,
 			mediaRef,
 			mediaType,
+			mountTime,
 			onVariableFpsVideoDetected,
 			pauseWhenBuffering,
 		],

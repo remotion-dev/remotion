@@ -16,8 +16,6 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderStill} from '@remotion/renderer';
 
@@ -200,6 +198,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 

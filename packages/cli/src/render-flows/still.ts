@@ -77,6 +77,7 @@ export const renderStillFlow = async ({
 	binariesDirectory,
 	publicPath,
 	chromeMode,
+	offthreadVideoThreads,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -101,10 +102,11 @@ export const renderStillFlow = async ({
 	logLevel: LogLevel;
 	onProgress: JobProgressCallback;
 	indent: boolean;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 	outputLocationFromUi: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
 	publicPath: string | null;
 	chromeMode: ChromeMode;
@@ -185,7 +187,7 @@ export const renderStillFlow = async ({
 			indentOutput: indent,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => {
+				registerCleanupJob(`Delete ${dir}`, () => {
 					RenderInternals.deleteDirectory(dir);
 				});
 			},
@@ -201,7 +203,9 @@ export const renderStillFlow = async ({
 	);
 
 	const server = await RenderInternals.prepareServer({
-		concurrency: 1,
+		offthreadVideoThreads:
+			offthreadVideoThreads ??
+			RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 		indent,
 		port,
 		remotionRoot,
@@ -212,12 +216,14 @@ export const renderStillFlow = async ({
 		forceIPv4: false,
 	});
 
-	addCleanupCallback(() => server.closeServer(false));
+	addCleanupCallback(`Close server`, () => server.closeServer(false));
 
-	addCleanupCallback(() => cleanupBundle());
+	addCleanupCallback(`Cleanup bundle`, () => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
+	addCleanupCallback(`Close browser`, () =>
+		puppeteerInstance.close({silent: false}),
+	);
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -237,6 +243,7 @@ export const renderStillFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
@@ -261,6 +268,7 @@ export const renderStillFlow = async ({
 		args: argsAfterComposition,
 		type: 'asset',
 		outputLocationFromUi,
+		compositionDefaultOutName: config.defaultOutName,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
@@ -370,6 +378,7 @@ export const renderStillFlow = async ({
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		offthreadVideoThreads,
 	});
 
 	aggregate.rendering = {

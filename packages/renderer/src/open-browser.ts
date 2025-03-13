@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
-import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {launchChrome} from './browser/Launcher';
@@ -73,6 +72,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 			'--use-angle=vulkan',
 			'--use-vulkan=native',
 			'--disable-vulkan-fallback-to-gl-for-testing',
+			'--disable-vulkan-surface',
 			'--ignore-gpu-blocklist',
 			'--enable-gpu',
 		];
@@ -181,6 +181,7 @@ export const internalOpenBrowser = async ({
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
+			'--force-gpu-mem-available-mb=4096',
 			'--disable-hang-monitor',
 			'--disable-extensions',
 			'--allow-chrome-scheme-url',
@@ -246,10 +247,9 @@ export const internalOpenBrowser = async ({
 		},
 	});
 
-	const pages = await browserInstance.pages(logLevel, indent);
-	await pages[0].close();
+	const pages = await browserInstance.pages();
+	await pages[0]?.close();
 
-	addHeadlessBrowser(browserInstance);
 	return browserInstance;
 };
 

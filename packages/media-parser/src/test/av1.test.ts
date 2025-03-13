@@ -1,6 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {getMoovBox, getTraks} from '../boxes/iso-base-media/traversal';
+import {getTraks} from '../containers/iso-base-media/traversal';
 import {trakBoxContainsVideo} from '../get-fps';
 import {getAv1CBox} from '../get-sample-aspect-ratio';
 import {parseMedia} from '../parse-media';
@@ -10,6 +10,7 @@ import {nodeReader} from '../readers/from-node';
 if (process.platform !== 'win32') {
 	test('AV1 in MP4', async () => {
 		const parsed = await parseMedia({
+			acknowledgeRemotionLicense: true,
 			src: exampleVideos.av1mp4,
 			fields: {
 				durationInSeconds: true,
@@ -28,8 +29,10 @@ if (process.platform !== 'win32') {
 			throw new Error('Not an ISO base media file');
 		}
 
-		const moovBox = getMoovBox(parsed.structure.boxes);
-		if (!moovBox) {
+		const {structure} = parsed;
+
+		const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
+		if (!moovBox || moovBox.type !== 'moov-box') {
 			throw new Error('No moov box');
 		}
 
@@ -62,6 +65,7 @@ if (process.platform !== 'win32') {
 		let samples = 0;
 
 		const parsed = await parseMedia({
+			acknowledgeRemotionLicense: true,
 			src: exampleVideos.av1mp4WithColr,
 			fields: {
 				durationInSeconds: true,
@@ -86,8 +90,14 @@ if (process.platform !== 'win32') {
 			throw new Error('Not an ISO base media file');
 		}
 
-		const moovBox = getMoovBox(parsed.structure.boxes);
-		if (!moovBox) {
+		const {structure} = parsed;
+
+		if (structure.type !== 'iso-base-media') {
+			throw new Error('Expected iso-base-media');
+		}
+
+		const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
+		if (!moovBox || moovBox.type !== 'moov-box') {
 			throw new Error('No moov box');
 		}
 

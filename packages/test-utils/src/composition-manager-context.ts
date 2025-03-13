@@ -14,13 +14,9 @@ export const makeMockCompositionManagerContext =
 				width: 100,
 				props: {},
 				defaultCodec: null,
+				defaultOutName: null,
 			},
 			folders: [],
-			registerComposition: () => undefined,
-			registerFolder: () => undefined,
-			unregisterComposition: () => undefined,
-			unregisterFolder: () => undefined,
-			setCurrentCompositionMetadata: () => undefined,
 			compositions: [
 				{
 					id: 'markup',
@@ -45,7 +41,5 @@ export const makeMockCompositionManagerContext =
 				type: 'composition',
 				compositionId: 'markup',
 			},
-			setCanvasContent: () => undefined,
-			updateCompositionDefaultProps: () => undefined,
 		};
 	};

@@ -310,7 +310,9 @@ class RenderMediaParams:
     webhook: Optional[Webhook] = None
     force_height: Optional[int] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
+    offthreadvideo_threads: Optional[int] = None
     force_width: Optional[int] = None
+    api_key: Optional[str] = None
     audio_codec: Optional[str] = None
     renderer_function_name: Optional[str] = None
     pro_res_profile: Optional[str] = None
@@ -357,7 +359,9 @@ class RenderMediaParams:
             'webhook': self.webhook,
             'forceHeight': self.force_height,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
+            'offthreadVideoThreads': self.offthreadvideo_threads,
             'forceWidth': self.force_width,
+            'apiKey': self.api_key,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
             'x264Preset': self.x264_preset,
@@ -422,12 +426,14 @@ class RenderStillParams:
     download_behavior: Dict = field(default_factory=lambda: {
                                     'type': 'play-in-browser'})
     force_width: Optional[int] = None
+    api_key: Optional[int] = None
     force_height: Optional[int] = None
     force_bucket_name: Optional[str] = None
     dump_browser_logs: Optional[bool] = None
     delete_after: Optional[DeleteAfter] = None
     force_path_style: Optional[bool] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
+    offthreadvideo_threads: Optional[int] = None
     streamed: bool = False
 
     def serialize_params(self) -> Dict:
@@ -467,11 +473,13 @@ class RenderStillParams:
             'scale': self.scale,
             'downloadBehavior': self.download_behavior or {'type': 'play-in-browser'},
             'forceWidth': self.force_width,
+            'apiKey': self.api_key,
             'forceHeight': self.force_height,
             'forceBucketName': self.force_bucket_name,
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
+            'offthreadVideoThreads': self.offthreadvideo_threads,
             'streamed': self.streamed,
         }
 

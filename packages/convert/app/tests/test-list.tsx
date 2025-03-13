@@ -1,13 +1,7 @@
 import {convertMedia} from '@remotion/webcodecs';
 import {flipVideoFrame} from '~/components/flip-video';
-import type {
-	TestStructure} from './test-structure';
-import {
-	addTestWatcher,
-	allowSafariAudioDrop,
-	isSafari,
-	makeProgressReporter
-} from './test-structure';
+import type {TestStructure} from './test-structure';
+import {addTestWatcher, isSafari, makeProgressReporter} from './test-structure';
 
 const basicMp4ToWebM = (): TestStructure => {
 	const src =
@@ -20,7 +14,6 @@ const basicMp4ToWebM = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
-				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -38,7 +31,24 @@ const av1WebmToMp4 = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'mp4',
-				onAudioTrack: allowSafariAudioDrop,
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
+const av1WebmToMp4H265 = (): TestStructure => {
+	const src =
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/av1-bbb.webm';
+
+	return addTestWatcher({
+		name: 'AV1 WebM to MP4 (H.265)',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'mp4',
+				videoCodec: 'h265',
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -58,7 +68,6 @@ const weirdMp4aConfig = (): TestStructure => {
 				container: 'webm',
 				audioCodec: 'opus',
 				videoCodec: 'vp8',
-				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -92,7 +101,6 @@ const lpcmLivePhoto = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
-				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -154,7 +162,6 @@ const rotatedVideo = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
-				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -191,7 +198,6 @@ const offsetTimestamps = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
-				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -209,7 +215,6 @@ const transportStream = (): TestStructure => {
 			await convertMedia({
 				src,
 				container: 'webm',
-				onAudioTrack: allowSafariAudioDrop,
 				onProgress: makeProgressReporter(onUpdate),
 			});
 		},
@@ -263,11 +268,30 @@ const remuxToughTimestamps = (): TestStructure => {
 	});
 };
 
+const tsWithSmallAudioOnEend = (): TestStructure => {
+	const src =
+		'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts';
+
+	return addTestWatcher({
+		name: '.ts with 16 Byte audio sample at the end',
+		src,
+		async execute(onUpdate) {
+			await convertMedia({
+				src,
+				container: 'mp4',
+				onVideoTrack: () => ({type: 'drop'}),
+				onProgress: makeProgressReporter(onUpdate),
+			});
+		},
+	});
+};
+
 export const testList: TestStructure[] = [
 	basicMp4ToWebM(),
 	av1WebmToMp4(),
 	aviToMp4(),
 	aviToMp4ReEncode(),
+	av1WebmToMp4H265(),
 	convertToWav(),
 	weirdMp4aConfig(),
 	rotatedVideo(),
@@ -277,4 +301,5 @@ export const testList: TestStructure[] = [
 	transportStream(),
 	remuxUnevenDim(),
 	remuxToughTimestamps(),
+	tsWithSmallAudioOnEend(),
 ];

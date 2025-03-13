@@ -34,7 +34,11 @@ export const createMatroskaMedia = async ({
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = makeMatroskaHeader();
 
-	const w = await writer.createContent({filename, mimeType: 'video/webm'});
+	const w = await writer.createContent({
+		filename,
+		mimeType: 'video/webm',
+		logLevel,
+	});
 	await w.write(header.bytes);
 	const matroskaInfo = makeMatroskaInfo({
 		timescale,
@@ -239,8 +243,8 @@ export const createMatroskaMedia = async ({
 				}
 			});
 		},
-		save: () => {
-			return w.save();
+		getBlob: async () => {
+			return w.getBlob();
 		},
 		remove: async () => {
 			await w.remove();
@@ -267,20 +271,25 @@ export const createMatroskaMedia = async ({
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
-			seeks.push({
-				hexString: matroskaElements.Cues,
-				byte: w.getWrittenByteCount() - seekHeadOffset,
-			});
+
+			const cuesBytes = createMatroskaCues(cues);
+			if (cuesBytes) {
+				seeks.push({
+					hexString: matroskaElements.Cues,
+					byte: w.getWrittenByteCount() - seekHeadOffset,
+				});
+				await w.write(cuesBytes.bytes);
+			}
+
 			await updateSeekWrite();
 
-			await w.write(createMatroskaCues(cues).bytes);
-			await w.waitForFinish();
 			const segmentSize =
 				w.getWrittenByteCount() -
 				segmentOffset -
 				matroskaToHex(matroskaElements.Segment).byteLength -
 				MATROSKA_SEGMENT_MIN_VINT_WIDTH;
 			await updateSegmentSize(segmentSize);
+			await w.finish();
 		},
 	};
 };

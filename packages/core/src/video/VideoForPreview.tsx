@@ -10,6 +10,8 @@ import React, {
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {useLogLevel, useMountTime} from '../log-level-context.js';
+import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
@@ -32,7 +34,6 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly pauseWhenBuffering: boolean;
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
-	readonly _remotionDebugSeeking: boolean;
 	readonly showInTimeline: boolean;
 	readonly onVideoFrame: null | OnVideoFrame;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
@@ -58,7 +59,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		_remotionInternalNativeLoopPassed,
 		_remotionInternalStack,
-		_remotionDebugSeeking,
 		style,
 		pauseWhenBuffering,
 		showInTimeline,
@@ -76,6 +76,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
+	const logLevel = useLogLevel();
+	const mountTime = useMountTime();
 
 	const [timelineId] = useState(() => String(Math.random()));
 	const isSequenceHidden = hidden[timelineId] ?? false;
@@ -122,7 +124,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
-		debugSeeking: _remotionDebugSeeking,
 		onAutoPlayError: onAutoPlayError ?? null,
 	});
 
@@ -141,6 +142,15 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		return videoRef.current as HTMLVideoElement;
 	}, []);
+
+	useState(() =>
+		playbackLogging({
+			logLevel,
+			message: `Mounting video with source = ${actualSrc}`,
+			tag: 'video',
+			mountTime,
+		}),
+	);
 
 	useEffect(() => {
 		const {current} = videoRef;

@@ -16,6 +16,8 @@ export type UseOffthreadVideoTextureOptions = {
 	playbackRate?: number;
 	transparent?: boolean;
 	toneMapped?: boolean;
+	delayRenderRetries?: number;
+	delayRenderTimeoutInMilliseconds?: number;
 };
 
 export const useInnerVideoTexture = ({
@@ -23,11 +25,15 @@ export const useInnerVideoTexture = ({
 	src,
 	transparent,
 	toneMapped,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
 }: {
 	playbackRate: number;
 	src: string;
 	transparent: boolean;
 	toneMapped: boolean;
+	delayRenderRetries?: number;
+	delayRenderTimeoutInMilliseconds?: number;
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -59,7 +65,10 @@ export const useInnerVideoTexture = ({
 	const [imageTexture, setImageTexture] = useState<Texture | null>(null);
 
 	const fetchTexture = useCallback(() => {
-		const imageTextureHandle = delayRender('fetch offthread video frame');
+		const imageTextureHandle = delayRender('fetch offthread video frame', {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 
 		let textureLoaded: Texture | null = null;
 		let cleanedUp = false;
@@ -86,7 +95,12 @@ export const useInnerVideoTexture = ({
 			textureLoaded?.dispose();
 			continueRender(imageTextureHandle);
 		};
-	}, [offthreadVideoFrameSrc, textLoaderPromise]);
+	}, [
+		offthreadVideoFrameSrc,
+		textLoaderPromise,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	]);
 
 	useLayoutEffect(() => {
 		const cleanup = fetchTexture();
@@ -108,6 +122,8 @@ export function useOffthreadVideoTexture({
 	playbackRate = 1,
 	transparent = false,
 	toneMapped = true,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
 }: UseOffthreadVideoTextureOptions) {
 	if (!src) {
 		throw new Error('src must be provided to useOffthreadVideoTexture');
@@ -120,5 +136,12 @@ export function useOffthreadVideoTexture({
 		);
 	}
 
-	return useInnerVideoTexture({playbackRate, src, transparent, toneMapped});
+	return useInnerVideoTexture({
+		playbackRate,
+		src,
+		transparent,
+		toneMapped,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	});
 }

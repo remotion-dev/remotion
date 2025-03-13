@@ -12,7 +12,6 @@ import type {
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {RecastCodemod} from './codemods';
-import type {InstallablePackage} from './installable-packages';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
@@ -100,6 +99,7 @@ export type AddRenderRequest = {
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
@@ -199,7 +199,7 @@ export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
 export type InstallPackageRequest = {
-	packageNames: InstallablePackage[];
+	packageNames: string[];
 };
 export type InstallPackageResponse = {};
 

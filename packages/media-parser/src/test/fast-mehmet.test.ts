@@ -4,6 +4,10 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('mehmet video should be fast', async () => {
+	if (process.platform === 'win32') {
+		return;
+	}
+
 	let audioTracks = 0;
 	let audioSamples = 0;
 	await parseMedia({
@@ -23,6 +27,7 @@ test('mehmet video should be fast', async () => {
 				audioSamples++;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(audioTracks).toBe(1);

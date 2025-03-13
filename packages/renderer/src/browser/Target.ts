@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {BrowserLog} from '../browser-log';
 import type {LogLevel} from '../log-level';
 import type {BrowserContext, HeadlessBrowser} from './Browser';
 import {Page} from './BrowserPage';
@@ -93,11 +94,19 @@ export class Target {
 	/**
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
-	async page(
-		sourceMapGetter: SourceMapGetter,
-		logLevel: LogLevel,
-		indent: boolean,
-	): Promise<Page | null> {
+	async page({
+		sourceMapGetter,
+		logLevel,
+		indent,
+		pageIndex,
+		onBrowserLog,
+	}: {
+		sourceMapGetter: SourceMapGetter;
+		logLevel: LogLevel;
+		indent: boolean;
+		pageIndex: number;
+		onBrowserLog: null | ((log: BrowserLog) => void);
+	}): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
 				return Page._create({
@@ -108,10 +117,16 @@ export class Target {
 					sourceMapGetter,
 					logLevel,
 					indent,
+					pageIndex,
+					onBrowserLog,
 				});
 			});
 		}
 
+		return (await this.#pagePromise) ?? null;
+	}
+
+	async expectPage(): Promise<Page | null> {
 		return (await this.#pagePromise) ?? null;
 	}
 

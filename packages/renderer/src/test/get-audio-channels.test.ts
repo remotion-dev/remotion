@@ -53,7 +53,7 @@ test('Get audio channels for video without music', async () => {
 	expect(channels.duration).toBeCloseTo(3.334, 2);
 }, 90000);
 
-test('Get audio channels for video with music', async () => {
+test('Get audio channels for mp3', async () => {
 	const downloadMap = makeDownloadMap();
 	const audio = path.join(
 		__dirname,
@@ -76,7 +76,11 @@ test('Get audio channels for video with music', async () => {
 	});
 	cleanDownloadMap(downloadMap);
 
-	expect(channels).toEqual({channels: 2, duration: 56.529, startTime: 0});
+	expect(channels).toEqual({
+		channels: 2,
+		duration: 56.52898,
+		startTime: 0,
+	});
 }, 90000);
 
 test('Throw error if parsing a non video file', () => {

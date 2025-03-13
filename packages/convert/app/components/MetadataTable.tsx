@@ -1,4 +1,7 @@
-import type {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
+import type {
+	MediaParserLocation,
+	MediaParserMetadataEntry,
+} from '@remotion/media-parser';
 import React, {useMemo} from 'react';
 import {
 	renderMetadataLabel,
@@ -19,7 +22,7 @@ const LimitedWidthLabel: React.FC<{
 };
 
 export const MetadataDisplay: React.FC<{
-	readonly metadata: MetadataEntry[];
+	readonly metadata: MediaParserMetadataEntry[];
 	readonly trackId: number | null;
 	readonly location: MediaParserLocation | null;
 }> = ({metadata, trackId, location}) => {
@@ -31,8 +34,9 @@ export const MetadataDisplay: React.FC<{
 
 	return (
 		<>
-			{filtered.map((entry) => (
-				<TableRow key={entry.key}>
+			{filtered.map((entry, i) => (
+				// eslint-disable-next-line react/no-array-index-key
+				<TableRow key={entry.key + i}>
 					<TableCell className="font-brand">
 						<LimitedWidthLabel alt={entry.key}>
 							{renderMetadataLabel(entry.key)}

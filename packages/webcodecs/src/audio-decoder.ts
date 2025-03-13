@@ -6,6 +6,7 @@ import type {
 import type {ProgressTracker} from './create/progress-tracker';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
 	processSample: (audioSample: AudioOrVideoSample) => Promise<void>;
@@ -17,7 +18,7 @@ export type WebCodecsAudioDecoder = {
 export type CreateAudioDecoderInit = {
 	onFrame: (frame: AudioData) => Promise<void>;
 	onError: (error: DOMException) => void;
-	signal: AbortSignal;
+	controller: WebCodecsController;
 	config: AudioDecoderConfig;
 	logLevel: LogLevel;
 	track: AudioTrack;
@@ -27,13 +28,13 @@ export type CreateAudioDecoderInit = {
 export const createAudioDecoder = ({
 	onFrame,
 	onError,
-	signal,
+	controller,
 	config,
 	logLevel,
 	track,
 	progressTracker,
 }: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
-	if (signal.aborted) {
+	if (controller._internals.signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
 	}
 
@@ -56,10 +57,12 @@ export const createAudioDecoder = ({
 				frame.close();
 			};
 
-			signal.addEventListener('abort', abortHandler, {once: true});
+			controller._internals.signal.addEventListener('abort', abortHandler, {
+				once: true,
+			});
 			outputQueue = outputQueue
 				.then(() => {
-					if (signal.aborted) {
+					if (controller._internals.signal.aborted) {
 						return;
 					}
 
@@ -67,7 +70,10 @@ export const createAudioDecoder = ({
 				})
 				.then(() => {
 					ioSynchronizer.onProcessed();
-					signal.removeEventListener('abort', abortHandler);
+					controller._internals.signal.removeEventListener(
+						'abort',
+						abortHandler,
+					);
 					return Promise.resolve();
 				})
 				.catch((err) => {
@@ -82,7 +88,7 @@ export const createAudioDecoder = ({
 
 	const close = () => {
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		signal.removeEventListener('abort', onAbort);
+		controller._internals.signal.removeEventListener('abort', onAbort);
 
 		if (audioDecoder.state === 'closed') {
 			return;
@@ -95,7 +101,7 @@ export const createAudioDecoder = ({
 		close();
 	};
 
-	signal.addEventListener('abort', onAbort);
+	controller._internals.signal.addEventListener('abort', onAbort);
 
 	audioDecoder.configure(config);
 
@@ -116,14 +122,22 @@ export const createAudioDecoder = ({
 			unemitted: 20,
 			unprocessed: 20,
 			minimumProgress: audioSample.timestamp - 10_000_000,
-			signal,
+			controller,
 		});
 
 		// Don't flush, it messes up the audio
 
 		const chunk = new EncodedAudioChunk(audioSample);
 		audioDecoder.decode(chunk);
-		ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
+
+		// https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts
+		// has a 16 byte audio sample at the end which chrome does not decode
+		// Might be empty audio
+		// For now only reporting chunks that are bigger than that
+		// 16 was chosen arbitrarily, can be improved
+		if (chunk.byteLength > 16) {
+			ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
+		}
 	};
 
 	let queue = Promise.resolve();
@@ -140,7 +154,7 @@ export const createAudioDecoder = ({
 			} catch {}
 
 			await queue;
-			await ioSynchronizer.waitForFinish(signal);
+			await ioSynchronizer.waitForFinish(controller);
 			await outputQueue;
 		},
 		close,

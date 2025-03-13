@@ -52,6 +52,7 @@ const {
 	metadataOption,
 	hardwareAccelerationOption,
 	chromeModeOption,
+	offthreadVideoThreadsOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -272,7 +273,9 @@ export const benchmarkCommand = async (
 			indentOutput: false,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+				registerCleanupJob(`Delete ${dir}`, () =>
+					RenderInternals.deleteDirectory(dir),
+				);
 			},
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
@@ -284,7 +287,7 @@ export const benchmarkCommand = async (
 			publicPath,
 		});
 
-	registerCleanupJob(() => cleanupBundle());
+	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 
@@ -315,6 +318,9 @@ export const benchmarkCommand = async (
 			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+		offthreadVideoThreads: offthreadVideoThreadsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		binariesDirectory: binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
 		}).value,
@@ -476,6 +482,9 @@ export const benchmarkCommand = async (
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
+					offthreadVideoThreads: offthreadVideoThreadsOption.getValue({
+						commandLine: parsedCli,
+					}).value,
 					offthreadVideoCacheSizeInBytes:
 						offthreadVideoCacheSizeInBytesOption.getValue({
 							commandLine: parsedCli,

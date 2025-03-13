@@ -20,6 +20,8 @@ test('AVI file', async () => {
 		name,
 		rotation,
 		videoCodec,
+		numberOfAudioChannels,
+		sampleRate,
 	} = await parseMedia({
 		src: exampleVideos.avi,
 		reader: nodeReader,
@@ -35,6 +37,8 @@ test('AVI file', async () => {
 			name: true,
 			rotation: true,
 			videoCodec: true,
+			sampleRate: true,
+			numberOfAudioChannels: true,
 		},
 		onAudioTrack: () => {
 			audioTrackCount++;
@@ -52,6 +56,7 @@ test('AVI file', async () => {
 				videoSamples++;
 			};
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(container).toBe('avi');
 	expect(dimensions).toEqual({
@@ -85,6 +90,7 @@ test('AVI file', async () => {
 	]);
 	expect(tracks.videoTracks).toEqual([
 		{
+			m3uStreamFormat: null,
 			codec: 'avc1.640015',
 			codecPrivate: new Uint8Array([
 				1, // version
@@ -133,6 +139,10 @@ test('AVI file', async () => {
 				239,
 				139,
 				203,
+				253,
+				248,
+				248,
+				0,
 			]),
 			codecWithoutConfig: 'h264',
 			codedHeight: 270,
@@ -200,20 +210,20 @@ test('AVI file', async () => {
 								start: 0,
 								suggestedBufferSize: 4796,
 								language: 0,
-							},
-							{
-								biSize: 40,
-								bitCount: 24,
-								clrImportant: 0,
-								clrUsed: 0,
-								compression: 'H264',
-								height: 270,
-								planes: 1,
-								sizeImage: 388800,
-								type: 'strf-box-video',
-								width: 480,
-								xPelsPerMeter: 0,
-								yPelsPerMeter: 0,
+								strf: {
+									biSize: 40,
+									bitCount: 24,
+									clrImportant: 0,
+									clrUsed: 0,
+									compression: 'H264',
+									height: 270,
+									planes: 1,
+									sizeImage: 388800,
+									type: 'strf-box-video',
+									width: 480,
+									xPelsPerMeter: 0,
+									yPelsPerMeter: 0,
+								},
 							},
 							{
 								id: 'JUNK',
@@ -246,16 +256,16 @@ test('AVI file', async () => {
 								start: 0,
 								suggestedBufferSize: 373,
 								language: 0,
-							},
-							{
-								avgBytesPerSecond: 17454,
-								bitsPerSample: 16,
-								blockAlign: 1536,
-								cbSize: 0,
-								formatTag: 255,
-								numberOfChannels: 2,
-								sampleRate: 48000,
-								type: 'strf-box-audio',
+								strf: {
+									avgBytesPerSecond: 17454,
+									bitsPerSample: 16,
+									blockAlign: 1536,
+									cbSize: 0,
+									formatTag: 255,
+									numberOfChannels: 2,
+									sampleRate: 48000,
+									type: 'strf-box-audio',
+								},
 							},
 							{
 								id: 'JUNK',
@@ -291,13 +301,12 @@ test('AVI file', async () => {
 				type: 'riff-box',
 			},
 			{
-				type: 'movi-box',
-			},
-			{
 				id: 'idx1',
 				size: 37376,
 				type: 'riff-box',
 			},
 		],
 	});
+	expect(sampleRate).toBe(48000);
+	expect(numberOfAudioChannels).toBe(2);
 });

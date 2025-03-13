@@ -1,30 +1,101 @@
 import type {LogLevel} from '@remotion/media-parser';
-import {parseMedia} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {mediaParserController} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
+import {makeWaveformVisualizer} from './waveform-visualizer';
 
-export const useThumbnail = ({
+export const useThumbnailAndWaveform = ({
 	src,
 	logLevel,
 	onVideoThumbnail,
 	onDone,
+	onWaveformBars,
 }: {
 	src: Source;
 	logLevel: LogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
+	onWaveformBars: (bars: number[]) => void;
 	onDone: () => void;
 }) => {
 	const [err, setError] = useState<Error | null>(null);
 
+	const waveform = useMemo(() => {
+		return makeWaveformVisualizer({
+			onWaveformBars,
+		});
+	}, [onWaveformBars]);
+
+	const hasStartedWaveform = useRef(false);
+
 	const execute = useCallback(() => {
-		const abortController = new AbortController();
-		parseMedia({
-			signal: abortController.signal,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
+		const hasEnoughData = () => {
+			onDone();
+		};
+
+		const controller = mediaParserController();
+
+		parseMediaOnWebWorker({
+			controller,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
+			onDurationInSeconds: (dur) => {
+				if (dur !== null) {
+					waveform.setDuration(dur);
+				}
+			},
+			onAudioTrack: async ({track}) => {
+				if (typeof AudioDecoder === 'undefined') {
+					return null;
+				}
+
+				if (hasStartedWaveform.current) {
+					return null;
+				}
+
+				hasStartedWaveform.current = true;
+
+				const decoder = new AudioDecoder({
+					output(frame) {
+						waveform.add(frame);
+						frame.close();
+					},
+					error: (error) => {
+						// eslint-disable-next-line no-console
+						console.log(error);
+						setError(error);
+						controller.abort();
+					},
+				});
+
+				if (track.codecWithoutConfig === 'pcm-s16') {
+					return (sample) => {
+						waveform.add(
+							new AudioData({
+								data: sample.data,
+								format: 's16',
+								numberOfChannels: track.numberOfChannels,
+								sampleRate: track.sampleRate,
+								numberOfFrames:
+									((sample.duration as number) * track.sampleRate) / 1_000_000,
+								timestamp: sample.timestamp,
+							}),
+						);
+					};
+				}
+
+				if (!(await AudioDecoder.isConfigSupported(track)).supported) {
+					controller.abort();
+					setError(new Error('Audio configuration not supported'));
+					return null;
+				}
+
+				decoder.configure(track);
+
+				return (sample) => {
+					decoder.decode(new EncodedAudioChunk(sample));
+				};
+			},
 			onVideoTrack: async ({track, container}) => {
 				if (typeof VideoDecoder === 'undefined') {
 					return null;
@@ -32,7 +103,9 @@ export const useThumbnail = ({
 
 				let frames = 0;
 				const onlyKeyframes =
-					container !== 'transport-stream' && container !== 'webm';
+					container !== 'transport-stream' &&
+					container !== 'webm' &&
+					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
 				const decoder = new VideoDecoder({
@@ -40,13 +113,13 @@ export const useThumbnail = ({
 						// eslint-disable-next-line no-console
 						console.log(error);
 						setError(error);
-						abortController.abort();
+						controller.abort();
 					},
 					output(frame) {
 						if (frames >= framesToGet) {
-							abortController.abort();
+							controller.abort();
 							frame.close();
-							onDone();
+							hasEnoughData();
 							return;
 						}
 
@@ -59,7 +132,7 @@ export const useThumbnail = ({
 				});
 
 				if (!(await VideoDecoder.isConfigSupported(track)).supported) {
-					abortController.abort();
+					controller.abort();
 					setError(new Error('Video configuration not supported'));
 					return null;
 				}
@@ -78,27 +151,31 @@ export const useThumbnail = ({
 					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
-		}).catch((err2) => {
-			if ((err2 as Error).stack?.includes('Cancelled')) {
-				return;
-			}
+		})
+			.catch((err2) => {
+				if ((err2 as Error).stack?.includes('Cancelled')) {
+					return;
+				}
 
-			if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+				if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			// firefox
-			if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+				// firefox
+				if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			// eslint-disable-next-line no-console
-			console.log(err2);
-			setError(err2 as Error);
-		});
+				// eslint-disable-next-line no-console
+				console.log(err2);
+				setError(err2 as Error);
+			})
+			.then(() => {
+				hasEnoughData();
+			});
 
-		return abortController;
-	}, [logLevel, onVideoThumbnail, src]);
+		return controller;
+	}, [logLevel, onDone, onVideoThumbnail, src, waveform]);
 
 	useEffect(() => {
 		const task = execute();

@@ -44,9 +44,7 @@ type MyCompProps = {
 import {CalculateMetadataFunction} from 'remotion';
 import {parseMedia} from '@remotion/media-parser';
 
-export const calculateMetadata: CalculateMetadataFunction<
-  MyCompProps
-> = async ({props}) => {
+export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
   const {slowDurationInSeconds, dimensions} = await parseMedia({
     src: props.src,
     fields: {
@@ -54,6 +52,11 @@ export const calculateMetadata: CalculateMetadataFunction<
       dimensions: true,
     },
   });
+
+  if (dimensions === null) {
+    // For example when passing an MP3 file:
+    throw new Error('Not a video file');
+  }
 
   const fps = 30;
 
@@ -85,9 +88,7 @@ type MyCompProps = {
   src: string;
 };
 
-export const calculateMetadata: CalculateMetadataFunction<
-  MyCompProps
-> = async ({props}) => {
+export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
   const data = await getVideoMetadata(props.src);
   const fps = 30;
 

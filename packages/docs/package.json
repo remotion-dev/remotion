@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -11,6 +11,7 @@
 		"start": "docusaurus start --host 0.0.0.0",
 		"start-docs": "docusaurus start",
 		"build-docs": "DOCUSAURUS_IGNORE_SSG_WARNINGS=true node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && bun copy-convert.ts && bun count-pages.ts",
+		"make": "bun update-prompt.ts",
 		"swizzle": "docusaurus swizzle",
 		"deploy": "docusaurus deploy",
 		"serve": "docusaurus serve",
@@ -21,7 +22,7 @@
 	},
 	"dependencies": {
 		"@algora/sdk": "^0.1.2",
-		"@aws-sdk/s3-request-presigner": "3.645.0",
+		"@aws-sdk/s3-request-presigner": "3.738.0",
 		"@babel/plugin-transform-modules-commonjs": "^7.15.4",
 		"@docusaurus/core": "3.7.0",
 		"@docusaurus/plugin-content-blog": "3.7.0",
@@ -32,6 +33,7 @@
 		"@docusaurus/types": "3.7.0",
 		"@mdx-js/react": "3.0.1",
 		"@remotion-dev/cube-presentation": "https://www.remotion.pro/pkg/cube-transition/1.0.2/docs",
+		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
@@ -46,6 +48,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/install-whisper-cpp": "workspace:*",
 		"@remotion/lambda": "workspace:*",
+		"@remotion/lambda-client": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"@remotion/lottie": "workspace:*",
@@ -62,6 +65,7 @@
 		"@remotion/skia": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
@@ -82,7 +86,7 @@
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
-		"next": "15.1.2",
+		"next": "15.1.6",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remark-shiki-twoslash": "^3.1.3",
@@ -91,7 +95,7 @@
 		"uuid": "^8.3.2",
 		"zod": "3.23.8",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.14.0"
+		"eslint": "9.19.0"
 	},
 	"devDependencies": {
 		"@tsconfig/docusaurus": "^1.0.5",
@@ -99,6 +103,7 @@
 		"@types/hls.js": "^0.13.3",
 		"@types/unist": "^2.0.0",
 		"@types/node": "20.12.14",
+		"@types/bun": "1.2.5",
 		"lodash.sortby": "^4.7.0",
 		"url-loader": "^4.1.1",
 		"openai": "4.67.1"

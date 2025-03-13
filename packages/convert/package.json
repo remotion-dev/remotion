@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.248",
+	"version": "4.0.274",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
@@ -17,6 +17,7 @@
 		"@radix-ui/react-label": "^2.1.0",
 		"@radix-ui/react-scroll-area": "^1.1.0",
 		"@radix-ui/react-select": "^2.1.1",
+		"@radix-ui/react-radio-group": "^1.2.2",
 		"@radix-ui/react-separator": "^1.1.0",
 		"@radix-ui/react-slot": "^1.1.0",
 		"@radix-ui/react-dialog": "^1.1.0",
@@ -41,11 +42,12 @@
 		"@remix-run/dev": "^2.15.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"autoprefixer": "10.4.20",
-		"eslint": "8.57.1",
+		"eslint": "9.19.0",
 		"postcss": "8.4.47",
 		"tailwindcss": "3.4.13",
-		"vite": "^5.4.6",
-		"vite-tsconfig-paths": "^4.2.1"
+		"vite": "^5.4.12",
+		"vite-tsconfig-paths": "^4.2.1",
+		"@types/dom-webcodecs": "0.1.11"
 	},
 	"engines": {
 		"node": ">=20.0.0"

@@ -1,7 +1,7 @@
 import type {
 	MediaParserAudioCodec,
+	MediaParserContainer,
 	MediaParserVideoCodec,
-	ParseMediaContainer,
 } from '@remotion/media-parser';
 import type {
 	ConvertMediaAudioCodec,
@@ -55,6 +55,14 @@ export const renderHumanReadableAudioCodec = (
 		return 'WAV';
 	}
 
+	if (codec === 'flac') {
+		return 'FLAC';
+	}
+
+	if (codec === 'ac3') {
+		return 'AC3';
+	}
+
 	throw new Error(`Unknown audio codec ${codec satisfies never}`);
 };
 
@@ -87,26 +95,42 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 };
 
 export const renderHumanReadableContainer = (
-	container: ParseMediaContainer | ConvertMediaContainer,
+	container: MediaParserContainer | ConvertMediaContainer,
 ) => {
 	if (container === 'webm') {
-		return 'WebM';
+		return '.webm';
 	}
 
 	if (container === 'mp4') {
-		return 'MP4';
+		return '.mp4';
 	}
 
 	if (container === 'wav') {
-		return 'WAV';
+		return '.wav';
 	}
 
 	if (container === 'avi') {
-		return 'AVI';
+		return '.avi';
+	}
+
+	if (container === 'mp3') {
+		return '.mp3';
+	}
+
+	if (container === 'aac') {
+		return '.aac';
 	}
 
 	if (container === 'transport-stream') {
-		return 'Transport Stream';
+		return '.ts';
+	}
+
+	if (container === 'flac') {
+		return '.flac';
+	}
+
+	if (container === 'm3u8') {
+		return '.m3u8';
 	}
 
 	throw new Error(`Unknown container ${container satisfies never}`);

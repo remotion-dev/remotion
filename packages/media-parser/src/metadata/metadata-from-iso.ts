@@ -1,12 +1,13 @@
-import type {IlstBox} from '../boxes/iso-base-media/meta/ilst';
+import type {RegularBox} from '../containers/iso-base-media/base-media-box';
+import type {IlstBox} from '../containers/iso-base-media/meta/ilst';
 import {
-	getMoovBox,
+	getMoovBoxFromState,
 	getTkhdBox,
 	getTraks,
-} from '../boxes/iso-base-media/traversal';
-import type {IsoBaseMediaStructure, RegularBox} from '../parse-result';
+} from '../containers/iso-base-media/traversal';
+import type {ParserState} from '../state/parser-state';
 import {truthy} from '../truthy';
-import type {MetadataEntry} from './get-metadata';
+import type {MediaParserMetadataEntry} from './get-metadata';
 
 /**
  * 
@@ -87,9 +88,11 @@ const mapToKey = (index: number) => {
 	return null;
 };
 
-const parseIlstBoxWithoutKeys = (ilstBox: IlstBox): MetadataEntry[] => {
+const parseIlstBoxWithoutKeys = (
+	ilstBox: IlstBox,
+): MediaParserMetadataEntry[] => {
 	return ilstBox.entries
-		.map((entry): MetadataEntry | null => {
+		.map((entry): MediaParserMetadataEntry | null => {
 			const key = mapToKey(entry.index);
 			if (!key) {
 				return null;
@@ -111,7 +114,7 @@ const parseIlstBoxWithoutKeys = (ilstBox: IlstBox): MetadataEntry[] => {
 export const parseIsoMetaBox = (
 	meta: RegularBox,
 	trackId: number | null,
-): MetadataEntry[] => {
+): MediaParserMetadataEntry[] => {
 	const ilstBox = meta.children.find((b) => b.type === 'ilst-box');
 	const keysBox = meta.children.find((b) => b.type === 'keys-box');
 	if (!ilstBox || !keysBox) {
@@ -122,7 +125,7 @@ export const parseIsoMetaBox = (
 		return [];
 	}
 
-	const entries: MetadataEntry[] = [];
+	const entries: MediaParserMetadataEntry[] = [];
 
 	for (let i = 0; i < ilstBox.entries.length; i++) {
 		const ilstEntry = ilstBox.entries[i];
@@ -145,9 +148,9 @@ export const parseIsoMetaBox = (
 };
 
 export const getMetadataFromIsoBase = (
-	isoBase: IsoBaseMediaStructure,
-): MetadataEntry[] => {
-	const moov = getMoovBox(isoBase.boxes);
+	state: ParserState,
+): MediaParserMetadataEntry[] => {
+	const moov = getMoovBoxFromState(state);
 	if (!moov) {
 		return [];
 	}

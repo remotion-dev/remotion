@@ -134,7 +134,6 @@ export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
-import {killAllBrowsers} from './browser-instances';
 import {codecSupportsMedia} from './codec-supports-media';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
@@ -145,6 +144,7 @@ import {
 	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import {printUsefulErrorMessage} from './print-useful-error-message';
 import {getShouldRenderAudio} from './render-has-audio';
 import {toMegabytes} from './to-megabytes';
@@ -167,7 +167,6 @@ export const RenderInternals = {
 	getRealFrameRange,
 	validatePuppeteerTimeout,
 	downloadFile,
-	killAllBrowsers,
 	parseStack,
 	symbolicateError,
 	SymbolicateableError,
@@ -240,6 +239,7 @@ export const RenderInternals = {
 	toMegabytes,
 	internalEnsureBrowser,
 	printUsefulErrorMessage,
+	DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
