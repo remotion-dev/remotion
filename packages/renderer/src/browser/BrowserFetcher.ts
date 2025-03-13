@@ -46,12 +46,7 @@ function getChromeDownloadUrl({
 	chromeMode: ChromeMode;
 }): string {
 	if (platform === 'linux-arm64') {
-		if (chromeMode === 'chrome-for-testing') {
-			throw new Error(
-				`chromeMode: 'chrome-for-testing' is not supported on platform linux-arm64`,
-			);
-		}
-		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
 	}
 
 	if (chromeMode === 'headless-shell') {
@@ -234,7 +229,9 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 			`chrome-headless-shell-${platform}`,
 			platform === 'win64'
 				? 'chrome-headless-shell.exe'
-				: 'chrome-headless-shell',
+				: platform === 'linux-arm64'
+					? 'headless_shell'
+					: 'chrome-headless-shell',
 		);
 	}
 
@@ -251,6 +248,7 @@ export const getRevisionInfo = (
 
 	const url = getChromeDownloadUrl({platform, version: null, chromeMode});
 	const local = fs.existsSync(folderPath);
+
 	return {
 		executablePath,
 		folderPath,
