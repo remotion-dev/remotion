@@ -29,7 +29,7 @@ function putUintDynamic(number: number, minimumLength: number | null) {
 
 	// Calculate the minimum number of bytes needed to store the integer
 	const length = Math.max(
-		minimumLength ?? 0,
+		minimumLength ?? 1,
 		Math.ceil(Math.log2(number + 1) / 8),
 	);
 	const bytes = new Uint8Array(length);
@@ -52,7 +52,6 @@ const makeFromStructure = (
 	const arrays: Uint8Array[] = [];
 
 	const struct = MediaParserInternals.ebmlMap[getIdForName(fields.type)];
-
 	if (struct.type === 'uint8array') {
 		return {
 			bytes: fields.value as Uint8Array,
