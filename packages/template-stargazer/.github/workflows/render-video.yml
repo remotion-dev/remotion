@@ -28,7 +28,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
       - name: Install Fallback fonts (fonts)
         run: |
           sudo apt-get update -yqq
@@ -45,7 +45,7 @@ jobs:
         env:
           REMOTION_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload video
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: out.mp4
-          path: out/Main.mp4
+          path: out/main.mp4
