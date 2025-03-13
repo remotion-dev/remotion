@@ -18,6 +18,13 @@ RUN apt install -y \
   libxcomposite1 \
   libxdamage1 \
   libgbm-dev \
+  libcups2 \
+  libcairo2 \
+  libpango-1.0-0 \
   libatk-bridge2.0-0
+
+COPY ensure-browser.mjs .
+COPY ensure.mjs .
+RUN node ensure.mjs
 
 RUN npx remotion compositions
