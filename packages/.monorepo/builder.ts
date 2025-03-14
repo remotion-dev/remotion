@@ -34,11 +34,13 @@ const validateExternal = (external: string[]) => {
 	const packageJson = Object.keys(
 		getDependenciesAndPeerAndOptionalDependencies(),
 	);
-
-	if (external.some((dep) => !packageJson.includes(dep))) {
-		throw new Error(
-			`External dependency ${external} not found in package.json`,
-		);
+	for (const dep of external) {
+		if (dep === 'stream' || dep === 'fs' || dep === 'path') {
+			continue;
+		}
+		if (!packageJson.includes(dep)) {
+			throw new Error(`External dependency ${dep} not found in package.json`);
+		}
 	}
 };
 
