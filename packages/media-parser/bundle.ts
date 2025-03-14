@@ -35,7 +35,7 @@ await buildPackage({
 			target: 'node',
 		},
 		{
-			path: 'src/worker.ts',
+			path: 'src/worker.module.ts',
 			target: 'browser',
 		},
 	],

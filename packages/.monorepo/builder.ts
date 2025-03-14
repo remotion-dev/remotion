@@ -81,7 +81,7 @@ export const buildPackage = async ({
 				for (const file of output.outputs) {
 					const text = await file.text();
 
-					const outputPath = `./${path.join('./dist', format, file.path)}`;
+					const outputPath = `./${path.join('./dist', format, file.path.replace('.module.', '.'))}`;
 
 					await Bun.write(path.join(process.cwd(), outputPath), text);
 
