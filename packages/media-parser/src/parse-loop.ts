@@ -7,6 +7,17 @@ import {performSeek} from './perform-seek';
 import {runParseIteration} from './run-parse-iteration';
 import type {ParserState} from './state/parser-state';
 import type {ThrottledState} from './throttled-progress';
+import {workOnSeekRequest} from './work-on-seek-request';
+
+const fetchMoreData = async (state: ParserState) => {
+	await state.controller._internals.checkForAbortAndPause();
+	const result = await state.currentReader.reader.read();
+	if (result.value) {
+		state.iterator.addData(result.value);
+	}
+
+	return result.done;
+};
 
 export const parseLoop = async ({
 	state,
@@ -20,35 +31,24 @@ export const parseLoop = async ({
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
-		const seek = state.controller._internals.seekSignal.getSeek();
-		if (seek) {
-			throw new Error('cannot seek, not implemented');
-		}
+
+		await workOnSeekRequest(state);
 
 		const offsetBefore = state.iterator.counter.getOffset();
 
-		const fetchMoreData = async () => {
-			await state.controller._internals.checkForAbortAndPause();
-			const result = await state.currentReader.reader.read();
-			if (result.value) {
-				state.iterator.addData(result.value);
-			}
-
-			return result.done;
-		};
-
 		const readStart = Date.now();
 		while (state.iterator.bytesRemaining() < 0) {
-			const done = await fetchMoreData();
+			const done = await fetchMoreData(state);
 			if (done) {
 				break;
 			}
 		}
 
-		const hasBigBuffer = state.iterator.bytesRemaining() > 100_000;
-
-		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
-			await fetchMoreData();
+		if (
+			iterationWithThisOffset > 0 ||
+			state.iterator.bytesRemaining() <= 100_000
+		) {
+			await fetchMoreData(state);
 		}
 
 		state.timings.timeReadingData += Date.now() - readStart;
@@ -72,8 +72,8 @@ export const parseLoop = async ({
 
 			try {
 				await triggerInfoEmit(state);
-				const start = Date.now();
 
+				const start = Date.now();
 				await state.controller._internals.checkForAbortAndPause();
 				const skip = await runParseIteration({
 					state,
@@ -93,7 +93,7 @@ export const parseLoop = async ({
 					}
 
 					const seekStart = Date.now();
-					state.currentReader = await performSeek({
+					await performSeek({
 						seekTo: skip.skipTo,
 						state,
 					});
@@ -119,18 +119,17 @@ export const parseLoop = async ({
 					);
 				}
 			}
-
-			const didProgress = state.iterator.counter.getOffset() > offsetBefore;
-			if (!didProgress) {
-				iterationWithThisOffset++;
-			} else {
-				iterationWithThisOffset = 0;
-			}
 		}
 
 		const timeFreeStart = Date.now();
 		await state.discardReadBytes(false);
-
 		state.timings.timeFreeingData += Date.now() - timeFreeStart;
+
+		const didProgress = state.iterator.counter.getOffset() > offsetBefore;
+		if (!didProgress) {
+			iterationWithThisOffset++;
+		} else {
+			iterationWithThisOffset = 0;
+		}
 	}
 };

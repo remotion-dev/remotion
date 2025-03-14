@@ -1,5 +1,4 @@
 import {Log} from './log';
-import type {Reader} from './readers/reader';
 import type {ParserState} from './state/parser-state';
 
 export const performSeek = async ({
@@ -8,7 +7,7 @@ export const performSeek = async ({
 }: {
 	seekTo: number;
 	state: ParserState;
-}): Promise<Reader> => {
+}) => {
 	const {iterator, logLevel, mode, contentLength} = state;
 
 	if (seekTo <= iterator.counter.getOffset()) {
@@ -59,5 +58,5 @@ export const performSeek = async ({
 		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,
 	);
-	return newReader;
+	state.currentReader = newReader;
 };

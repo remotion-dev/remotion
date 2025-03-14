@@ -149,6 +149,8 @@ export const makeParserState = ({
 			slowDurationAndFpsState: slowDurationAndFps,
 			structure,
 			src,
+			seekSignal: controller._internals.seekSignal,
+			logLevel,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,

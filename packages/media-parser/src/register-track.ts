@@ -3,6 +3,7 @@ import type {AudioTrack, Track, VideoTrack} from './get-tracks';
 import {Log} from './log';
 import type {MediaParserContainer} from './options';
 import type {ParserState} from './state/parser-state';
+import {workOnSeekRequest} from './work-on-seek-request';
 
 export const registerVideoTrack = async ({
 	state,
@@ -38,6 +39,8 @@ export const registerVideoTrack = async ({
 		track.trackId,
 		callback ?? null,
 	);
+
+	await workOnSeekRequest(state);
 
 	return callback;
 };
@@ -75,6 +78,8 @@ export const registerAudioTrack = async ({
 		track.trackId,
 		callback ?? null,
 	);
+	await workOnSeekRequest(state);
+
 	return callback;
 };
 
