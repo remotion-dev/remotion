@@ -1,10 +1,10 @@
-import type {MediaParserController} from '@remotion/media-parser';
+import type {WebCodecsController} from '@remotion/webcodecs';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useAddPausedToTitle} from '~/lib/title-context';
 import {Button} from './ui/button';
 
 export const PauseResumeAndCancel: React.FC<{
-	readonly controller: MediaParserController;
+	readonly controller: WebCodecsController;
 }> = ({controller}) => {
 	useAddPausedToTitle(controller);
 
