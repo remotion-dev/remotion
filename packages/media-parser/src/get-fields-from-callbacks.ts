@@ -1,9 +1,5 @@
-import type {
-	AllOptions,
-	Options,
-	ParseMediaCallbacks,
-	ParseMediaFields,
-} from './options';
+import type {AllOptions, Options, ParseMediaFields} from './fields';
+import type {ParseMediaCallbacks} from './options';
 
 export const getFieldsFromCallback = <F extends Options<ParseMediaFields>>({
 	fields,

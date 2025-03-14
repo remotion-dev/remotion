@@ -3,6 +3,7 @@ import type {
 	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 } from './containers/m3u/select-stream';
+import type {Options, ParseMediaFields} from './fields';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
@@ -32,37 +33,6 @@ export type KnownAudioCodecs =
 	| 'pcm'
 	| 'vorbis'
 	| 'unknown';
-
-export type ParseMediaFields = {
-	dimensions: boolean;
-	durationInSeconds: boolean;
-	slowDurationInSeconds: boolean;
-	structure: boolean;
-	fps: boolean;
-	slowFps: boolean;
-	videoCodec: boolean;
-	audioCodec: boolean;
-	tracks: boolean;
-	rotation: boolean;
-	unrotatedDimensions: boolean;
-	internalStats: boolean;
-	size: boolean;
-	name: boolean;
-	container: boolean;
-	isHdr: boolean;
-	metadata: boolean;
-	location: boolean;
-	mimeType: boolean;
-	keyframes: boolean;
-	slowKeyframes: boolean;
-	slowNumberOfFrames: boolean;
-	slowVideoBitrate: boolean;
-	slowAudioBitrate: boolean;
-	images: boolean;
-	sampleRate: boolean;
-	numberOfAudioChannels: boolean;
-	m3uStreams: boolean;
-};
 
 export type AllParseMediaFields = {
 	dimensions: true;
@@ -94,41 +64,6 @@ export type AllParseMediaFields = {
 	slowAudioBitrate: true;
 	m3uStreams: true;
 };
-
-export type AllOptions<Fields extends ParseMediaFields> = {
-	dimensions: Fields['dimensions'];
-	durationInSeconds: Fields['durationInSeconds'];
-	slowDurationInSeconds: Fields['slowDurationInSeconds'];
-	slowFps: Fields['slowFps'];
-	structure: Fields['structure'];
-	fps: Fields['fps'];
-	videoCodec: Fields['videoCodec'];
-	audioCodec: Fields['audioCodec'];
-	tracks: Fields['tracks'];
-	rotation: Fields['rotation'];
-	unrotatedDimensions: Fields['unrotatedDimensions'];
-	internalStats: Fields['internalStats'];
-	size: Fields['size'];
-	name: Fields['name'];
-	container: Fields['container'];
-	isHdr: Fields['isHdr'];
-	metadata: Fields['metadata'];
-	location: Fields['location'];
-	mimeType: Fields['mimeType'];
-	keyframes: Fields['keyframes'];
-	slowKeyframes: Fields['slowKeyframes'];
-	slowNumberOfFrames: Fields['slowNumberOfFrames'];
-	images: Fields['images'];
-	sampleRate: Fields['sampleRate'];
-	numberOfAudioChannels: Fields['numberOfAudioChannels'];
-	slowVideoBitrate: Fields['slowVideoBitrate'];
-	slowAudioBitrate: Fields['slowAudioBitrate'];
-	m3uStreams: Fields['m3uStreams'];
-};
-
-export type Options<Fields extends ParseMediaFields> = Partial<
-	AllOptions<Fields>
->;
 
 export type MediaParserTracks = {
 	videoTracks: VideoTrack[];

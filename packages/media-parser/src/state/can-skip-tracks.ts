@@ -1,4 +1,4 @@
-import type {Options, ParseMediaFields} from '../options';
+import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserStructureUnstable} from '../parse-result';
 import type {StructureState} from './structure';
 
@@ -7,10 +7,10 @@ export const needsTracksForField = ({
 	structure,
 }: {
 	field: keyof Options<ParseMediaFields>;
-	structure: MediaParserStructureUnstable;
+	structure: MediaParserStructureUnstable | null;
 }) => {
 	if (field === 'dimensions') {
-		if (structure.type === 'riff') {
+		if (structure?.type === 'riff') {
 			return false;
 		}
 
@@ -79,7 +79,10 @@ export const makeCanSkipTracksState = ({
 			) as (keyof Options<ParseMediaFields>)[];
 			const selectedKeys = keys.filter((k) => fields[k]);
 			return !selectedKeys.some((k) =>
-				needsTracksForField({field: k, structure: structure.getStructure()}),
+				needsTracksForField({
+					field: k,
+					structure: structure.getStructureOrNull(),
+				}),
 			);
 		},
 	};
