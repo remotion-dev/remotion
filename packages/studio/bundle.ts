@@ -3,7 +3,6 @@ import {buildPackage} from '../.monorepo/builder';
 const external = [
 	'react',
 	'remotion',
-	'scheduler',
 	'react-dom',
 	'react',
 	'@remotion/media-utils',

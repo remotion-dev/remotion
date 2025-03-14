@@ -19,6 +19,10 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
 	"dependencies": {
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
@@ -27,16 +31,16 @@
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"@remotion/zod-types": "workspace:*",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
-		"open": "^8.4.2"
+		"open": "^8.4.2",
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"@types/semver": "^7.3.4",
-		"zod": "3.22.3",
-		"@remotion/zod-types": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0"
 	},
