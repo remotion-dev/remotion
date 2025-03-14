@@ -15,6 +15,7 @@ export type WebCodecsController = {
 		signal: AbortSignal;
 		checkForAbortAndPause: MediaParserController['_internals']['checkForAbortAndPause'];
 	};
+	_mediaParserController: MediaParserController;
 };
 
 export const webcodecsController = (): WebCodecsController => {
@@ -27,5 +28,6 @@ export const webcodecsController = (): WebCodecsController => {
 		addEventListener: controller.addEventListener,
 		removeEventListener: controller.removeEventListener,
 		_internals: controller._internals,
+		_mediaParserController: controller,
 	};
 };

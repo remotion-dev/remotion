@@ -266,7 +266,7 @@ export const convertMedia = async function <
 		src,
 		onVideoTrack,
 		onAudioTrack,
-		controller,
+		controller: controller._mediaParserController,
 		fields: {
 			...fields,
 			durationInSeconds: true,
