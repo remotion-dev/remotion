@@ -2067,6 +2067,9 @@ importers:
       '@remotion/studio-shared':
         specifier: workspace:*
         version: link:../studio-shared
+      '@remotion/zod-types':
+        specifier: workspace:*
+        version: link:../zod-types
       memfs:
         specifier: 3.4.3
         version: 3.4.3
@@ -2082,13 +2085,13 @@ importers:
       source-map:
         specifier: 0.7.3
         version: 0.7.3
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
-      '@remotion/zod-types':
-        specifier: workspace:*
-        version: link:../zod-types
       '@types/semver':
         specifier: ^7.3.4
         version: 7.5.3
@@ -2101,9 +2104,6 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
-      zod:
-        specifier: 3.22.3
-        version: 3.22.3
 
   packages/studio-server:
     dependencies:
