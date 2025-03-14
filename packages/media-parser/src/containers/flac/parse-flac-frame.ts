@@ -1,8 +1,8 @@
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {
 	getArrayBufferIterator,
 	type BufferIterator,
-} from '../../buffer-iterator';
-import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getBlockSize} from './get-block-size';

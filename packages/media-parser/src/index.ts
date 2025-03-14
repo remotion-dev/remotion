@@ -1,5 +1,4 @@
 import {createAacCodecPrivate} from './aac-codecprivate';
-import {getArrayBufferIterator} from './buffer-iterator';
 import {parseFtyp} from './containers/iso-base-media/ftyp';
 import {parseMvhd} from './containers/iso-base-media/mvhd';
 import {processIsoFormatBox} from './containers/iso-base-media/stsd/samples';
@@ -11,6 +10,7 @@ import {
 	matroskaElements,
 } from './containers/webm/segments/all-segments';
 import {internalParseMedia} from './internal-parse-media';
+import {getArrayBufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {makeParserState} from './state/parser-state';

@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {getArrayBufferIterator} from '../buffer-iterator';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 import {getHvc1CodecString} from '../make-hvc1-codec-strings';
 
 test('video submitted by tella should have correct hvc1 codec string', () => {

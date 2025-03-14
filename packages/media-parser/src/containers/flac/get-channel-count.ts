@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 // https://www.rfc-editor.org/rfc/rfc9639.html#name-channels-bits
 export const getChannelCount = (iterator: BufferIterator) => {

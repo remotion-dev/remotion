@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 
 // https://www.rfc-editor.org/rfc/rfc9639.html#name-sample-rate-bits

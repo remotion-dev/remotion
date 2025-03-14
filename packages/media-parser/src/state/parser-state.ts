@@ -1,10 +1,13 @@
-import {getArrayBufferIterator, type BufferIterator} from '../buffer-iterator';
 import type {AvcPPs, AvcProfileInfo} from '../containers/avc/parse-avc';
 import type {
 	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 } from '../containers/m3u/select-stream';
 import type {Options, ParseMediaFields} from '../fields';
+import {
+	getArrayBufferIterator,
+	type BufferIterator,
+} from '../iterator/buffer-iterator';
 import {Log, type LogLevel} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
 import type {OnDiscardedData, ParseMediaMode, ParseMediaSrc} from '../options';

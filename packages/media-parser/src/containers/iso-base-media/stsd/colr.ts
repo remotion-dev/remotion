@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../../buffer-iterator';
+import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {IccProfile} from '../parse-icc-profile';
 import {parseIccProfile} from '../parse-icc-profile';
 

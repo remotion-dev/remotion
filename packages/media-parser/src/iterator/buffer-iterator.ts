@@ -3,58 +3,10 @@ import {
 	knownIdsWithOneLength,
 	knownIdsWithThreeLength,
 	knownIdsWithTwoLength,
-} from './containers/webm/segments/all-segments';
-import {detectFileType} from './file-types';
-import type {ParseMediaMode} from './options';
-
-export class OffsetCounter {
-	#offset: number;
-	#discardedBytes: number;
-	constructor(initial: number) {
-		this.#offset = initial;
-		this.#discardedBytes = 0;
-	}
-
-	increment(amount: number) {
-		if (amount < 0) {
-			throw new Error('Cannot increment by a negative amount: ' + amount);
-		}
-
-		this.#offset += amount;
-	}
-
-	getOffset(): number {
-		return this.#offset;
-	}
-
-	getDiscardedOffset(): number {
-		return this.#offset - this.#discardedBytes;
-	}
-
-	setDiscardedOffset(offset: number) {
-		this.#discardedBytes = offset;
-	}
-
-	getDiscardedBytes() {
-		return this.#discardedBytes;
-	}
-
-	discardBytes(amount: number) {
-		this.#discardedBytes += amount;
-	}
-
-	decrement(amount: number) {
-		if (amount < 0) {
-			throw new Error('Cannot decrement by a negative amount');
-		}
-
-		this.#offset -= amount;
-	}
-}
-
-const makeOffsetCounter = (): OffsetCounter => {
-	return new OffsetCounter(0);
-};
+} from '../containers/webm/segments/all-segments';
+import {detectFileType} from '../file-types';
+import type {ParseMediaMode} from '../options';
+import {makeOffsetCounter} from './offset-counter';
 
 export const getArrayBufferIterator = (
 	initialData: Uint8Array,
@@ -77,7 +29,7 @@ export const getArrayBufferIterator = (
 	uintArray.set(initialData);
 
 	let view = new DataView(uintArray.buffer);
-	const counter = makeOffsetCounter();
+	const counter = makeOffsetCounter(0);
 
 	const startCheckpoint = () => {
 		const checkpoint = counter.getOffset();

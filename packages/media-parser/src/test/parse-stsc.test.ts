@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseStsc} from '../containers/iso-base-media/stsd/stsc';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 test('Parse stsc box', () => {
 	const buffer = Uint8Array.from([

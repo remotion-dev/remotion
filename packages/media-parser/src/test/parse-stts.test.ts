@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseStts} from '../containers/iso-base-media/stsd/stts';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 const buffer = new Uint8Array([
 	// mock header

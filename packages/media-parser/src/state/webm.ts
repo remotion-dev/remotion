@@ -1,4 +1,3 @@
-import type {BufferIterator} from '../buffer-iterator';
 import type {AvcProfileInfo} from '../containers/avc/parse-avc';
 import type {OnTrackEntrySegment} from '../containers/webm/segments';
 import type {TrackInfo} from '../containers/webm/segments/track-entry';
@@ -7,6 +6,7 @@ import {
 	getTrackId,
 	getTrackTimestampScale,
 } from '../containers/webm/traversal';
+import type {BufferIterator} from '../iterator/buffer-iterator';
 
 export type SegmentSection = {
 	start: number;
