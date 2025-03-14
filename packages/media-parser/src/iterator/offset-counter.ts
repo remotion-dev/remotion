@@ -28,3 +28,5 @@ export const makeOffsetCounter = (initial: number) => {
 		},
 	};
 };
+
+export type OffsetCounter = ReturnType<typeof makeOffsetCounter>;
