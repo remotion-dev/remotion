@@ -19,15 +19,6 @@ export const getSeekingInfo = (state: ParserState): SeekingInfo | null => {
 	return null;
 };
 
-export const hasSeekingInfo = (state: ParserState): boolean => {
-	const structure = state.getStructureOrNull();
-	if (structure && structure.type === 'iso-base-media') {
-		return Boolean(getSeekingInfoFromMp4(state));
-	}
-
-	return false;
-};
-
 export const getSeekingByte = (info: SeekingInfo, time: number): number => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia(info, time).offset;

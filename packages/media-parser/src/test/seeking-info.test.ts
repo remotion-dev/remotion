@@ -10,13 +10,10 @@ test('getSeekingInfo', async () => {
 	try {
 		await parseMedia({
 			src: exampleVideos.bigBuckBunny,
-			fields: {
-				seekingInfo: true,
-			},
 			controller,
 			reader: nodeReader,
 			onVideoTrack: () => {
-				controller.seek({
+				controller._experimentalSeek({
 					type: 'time-in-seconds',
 					time: 10,
 				});

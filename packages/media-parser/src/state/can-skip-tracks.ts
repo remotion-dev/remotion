@@ -39,8 +39,7 @@ export const needsTracksForField = ({
 		field === 'numberOfAudioChannels' ||
 		field === 'slowAudioBitrate' ||
 		field === 'slowVideoBitrate' ||
-		field === 'm3uStreams' ||
-		field === 'seekingInfo'
+		field === 'm3uStreams'
 	) {
 		return true;
 	}

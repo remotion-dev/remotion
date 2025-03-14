@@ -10,7 +10,7 @@ export type MediaParserController = {
 	abort: (reason?: any) => void;
 	pause: PauseSignal['pause'];
 	resume: PauseSignal['resume'];
-	seek: SeekSignal['seek'];
+	_experimentalSeek: SeekSignal['seek'];
 	addEventListener: MediaParserEmitter['addEventListener'];
 	removeEventListener: MediaParserEmitter['removeEventListener'];
 	/**
@@ -43,7 +43,7 @@ export const mediaParserController = (): MediaParserController => {
 			abortController.abort(reason);
 			emitter.dispatchAbort(reason);
 		},
-		seek: seekSignal.seek,
+		_experimentalSeek: seekSignal.seek,
 		pause: pauseSignal.pause,
 		resume: pauseSignal.resume,
 		addEventListener: emitter.addEventListener,

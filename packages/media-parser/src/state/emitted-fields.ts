@@ -30,7 +30,6 @@ export const emittedState = () => {
 		slowAudioBitrate: false,
 		slowVideoBitrate: false,
 		m3uStreams: false,
-		seekingInfo: false,
 	};
 
 	return emittedFields;

@@ -27,7 +27,6 @@ export type ParseMediaFields = {
 	sampleRate: boolean;
 	numberOfAudioChannels: boolean;
 	m3uStreams: boolean;
-	seekingInfo: boolean;
 };
 
 export type AllOptions<Fields extends ParseMediaFields> = {
@@ -59,7 +58,6 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	slowVideoBitrate: Fields['slowVideoBitrate'];
 	slowAudioBitrate: Fields['slowAudioBitrate'];
 	m3uStreams: Fields['m3uStreams'];
-	seekingInfo: Fields['seekingInfo'];
 };
 
 export type Options<Fields extends ParseMediaFields> = Partial<
