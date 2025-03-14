@@ -13,7 +13,7 @@ export const parseMediaOnServerWorker: ParseMedia = <
 ) => {
 	return parseMediaOnWorkerImplementation(
 		params,
-		new URL('./worker-server-entry', import.meta.url),
+		new URL('./worker-server-entry'),
 		'parseMediaOnServerWorker',
 	);
 };

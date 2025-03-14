@@ -13,7 +13,7 @@ export const parseMediaOnWebWorker: ParseMediaOnWorker = <
 ) => {
 	return parseMediaOnWorkerImplementation(
 		params,
-		new URL('./worker-web-entry', import.meta.url),
+		new URL('./worker-web-entry'),
 		'parseMediaOnWebWorker',
 	);
 };
