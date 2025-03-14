@@ -196,6 +196,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
 		await controller._internals.checkForAbortAndPause();
+		const seek = controller._internals.seekSignal.getSeek();
+		if (seek) {
+			throw new Error('cannot seek, not implemented');
+		}
 
 		const offsetBefore = iterator.counter.getOffset();
 
