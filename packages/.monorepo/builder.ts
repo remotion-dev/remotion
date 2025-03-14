@@ -30,6 +30,18 @@ const getExternal = (deps: string[] | 'dependencies'): string[] => {
 	return deps;
 };
 
+// Turn @remotion/renderer/client into @remotion/renderer
+// and remotion/no-react into remotion
+// but leave @remotion/player alone
+const stripEntryPoints = (packageName: string) => {
+	const splitted = packageName.split('/');
+	if (splitted[0].startsWith('@')) {
+		return splitted[0] + '/' + splitted[1];
+	}
+
+	return splitted[0];
+};
+
 const validateExternal = (external: string[]) => {
 	const packageJson = Object.keys(
 		getDependenciesAndPeerAndOptionalDependencies(),
@@ -38,8 +50,10 @@ const validateExternal = (external: string[]) => {
 		if (dep === 'stream' || dep === 'fs' || dep === 'path') {
 			continue;
 		}
-		if (!packageJson.includes(dep)) {
-			throw new Error(`External dependency ${dep} not found in package.json`);
+		if (!packageJson.includes(stripEntryPoints(dep))) {
+			throw new Error(
+				`External dependency ${stripEntryPoints(dep)} not found in package.json`,
+			);
 		}
 	}
 };
