@@ -7,6 +7,7 @@ import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
 import {getMoovFromFromIsoStructure} from './traversal';
 
+// TODO: await parseMedia({fields: {moovAtom: true}) would be a nicer API
 export const getMoovAtom = async ({
 	endOfMdat,
 	state,
@@ -36,9 +37,6 @@ export const getMoovAtom = async ({
 		hasAudioTrackHandlers: false,
 		hasVideoTrackHandlers: false,
 		controller: state.controller,
-		fields: {
-			structure: true,
-		},
 		onAudioTrack: state.onAudioTrack
 			? async ({track, container}) => {
 					await registerAudioTrack({state, track, container});
@@ -60,6 +58,13 @@ export const getMoovAtom = async ({
 		selectM3uStreamFn: state.selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
 		mp4HeaderSegment: state.mp4HeaderSegment,
+		callbacks: {},
+		fieldsInReturnValue: {
+			structure: true,
+		},
+		contentType: null,
+		mimeType: null,
+		name: '',
 	});
 
 	while (true) {

@@ -1,21 +1,29 @@
 import {emitAvailableInfo} from './emit-available-info';
 import type {Options, ParseMediaFields} from './fields';
-import {getFieldsFromCallback} from './get-fields-from-callbacks';
 import {getAvailableInfo, hasAllInfo} from './has-all-info';
 import {Log} from './log';
 import {mediaParserController} from './media-parser-controller';
 import type {
-	AllParseMediaFields,
 	InternalParseMedia,
 	InternalParseMediaOptions,
-	ParseMediaCallbacks,
 	ParseMediaResult,
 } from './options';
 import {performSeek} from './perform-seek';
 import {warnIfRemotionLicenseNotAcknowledged} from './remotion-license-acknowledge';
 import {runParseIteration} from './run-parse-iteration';
+import type {ParserState} from './state/parser-state';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
+
+const triggerInfoEmit = async (state: ParserState) => {
+	const availableInfo = getAvailableInfo({
+		state,
+	});
+	await emitAvailableInfo({
+		hasInfo: availableInfo,
+		state,
+	});
+};
 
 export const internalParseMedia: InternalParseMedia = async function <
 	F extends Options<ParseMediaFields>,
@@ -43,12 +51,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 		acknowledgeRemotionLicense,
 		logLevel,
 		apiName,
-	});
-	const fieldsInReturnValue = _fieldsInReturnValue ?? {};
-
-	const fields = getFieldsFromCallback({
-		fields: fieldsInReturnValue,
-		callbacks: more,
 	});
 
 	Log.verbose(
@@ -80,20 +82,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 	const hasAudioTrackHandlers = Boolean(onAudioTrack);
 	const hasVideoTrackHandlers = Boolean(onVideoTrack);
 
-	if (
-		!hasAudioTrackHandlers &&
-		!hasVideoTrackHandlers &&
-		Object.values(fields).every((v) => !v) &&
-		mode === 'query'
-	) {
-		Log.warn(
-			logLevel,
-			new Error(
-				'Warning - No `fields` and no `on*` callbacks were passed to `parseMedia()`. Specify the data you would like to retrieve.',
-			),
-		);
-	}
-
 	let timeIterating = 0;
 	let timeReadingData = 0;
 	let timeSeeking = 0;
@@ -105,7 +93,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
 		controller,
-		fields,
 		onAudioTrack: onAudioTrack ?? null,
 		onVideoTrack: onVideoTrack ?? null,
 		contentLength,
@@ -117,13 +104,28 @@ export const internalParseMedia: InternalParseMedia = async function <
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
 		mp4HeaderSegment,
+		contentType,
+		name,
+		callbacks: more,
+		fieldsInReturnValue: _fieldsInReturnValue ?? {},
+		mimeType: contentType,
 	});
-	const {iterator} = state;
+
+	if (
+		!hasAudioTrackHandlers &&
+		!hasVideoTrackHandlers &&
+		Object.values(state.fields).every((v) => !v) &&
+		mode === 'query'
+	) {
+		Log.warn(
+			logLevel,
+			new Error(
+				'Warning - No `fields` and no `on*` callbacks were passed to `parseMedia()`. Specify the data you would like to retrieve.',
+			),
+		);
+	}
 
 	let currentReader = readerInstance;
-
-	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
-	const moreFields = more as ParseMediaCallbacks;
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onParseProgressDoNotCallDirectly ?? null,
@@ -132,26 +134,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 		totalBytes: contentLength,
 	});
 
-	const triggerInfoEmit = async () => {
-		const availableInfo = getAvailableInfo({
-			fieldsToFetch: fields,
-			state,
-		});
-		await emitAvailableInfo({
-			hasInfo: availableInfo,
-			callbacks: moreFields,
-			fieldsInReturnValue,
-			state,
-			returnValue,
-			name,
-			mimeType: contentType,
-		});
-	};
-
 	const checkIfDone = async () => {
 		const startCheck = Date.now();
 		const hasAll = hasAllInfo({
-			fields,
 			state,
 		});
 		timeCheckingIfDone += Date.now() - startCheck;
@@ -191,7 +176,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		return false;
 	};
 
-	await triggerInfoEmit();
+	await triggerInfoEmit(state);
 
 	let iterationWithThisOffset = 0;
 	while (!(await checkIfDone())) {
@@ -201,27 +186,27 @@ export const internalParseMedia: InternalParseMedia = async function <
 			throw new Error('cannot seek, not implemented');
 		}
 
-		const offsetBefore = iterator.counter.getOffset();
+		const offsetBefore = state.iterator.counter.getOffset();
 
 		const fetchMoreData = async () => {
 			await controller._internals.checkForAbortAndPause();
 			const result = await currentReader.reader.read();
 			if (result.value) {
-				iterator.addData(result.value);
+				state.iterator.addData(result.value);
 			}
 
 			return result.done;
 		};
 
 		const readStart = Date.now();
-		while (iterator.bytesRemaining() < 0) {
+		while (state.iterator.bytesRemaining() < 0) {
 			const done = await fetchMoreData();
 			if (done) {
 				break;
 			}
 		}
 
-		const hasBigBuffer = iterator.bytesRemaining() > 100_000;
+		const hasBigBuffer = state.iterator.bytesRemaining() > 100_000;
 
 		if (iterationWithThisOffset > 0 || !hasBigBuffer) {
 			await fetchMoreData();
@@ -230,9 +215,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 		timeReadingData += Date.now() - readStart;
 
 		throttledState.update?.(() => ({
-			bytes: iterator.counter.getOffset(),
+			bytes: state.iterator.counter.getOffset(),
 			percentage: contentLength
-				? iterator.counter.getOffset() / contentLength
+				? state.iterator.counter.getOffset() / contentLength
 				: null,
 			totalBytes: contentLength,
 		}));
@@ -240,7 +225,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		if (!errored) {
 			Log.trace(
 				logLevel,
-				`Continuing parsing of file, currently at position ${iterator.counter.getOffset()}/${contentLength} (0x${iterator.counter.getOffset().toString(16)})`,
+				`Continuing parsing of file, currently at position ${state.iterator.counter.getOffset()}/${contentLength} (0x${state.iterator.counter.getOffset().toString(16)})`,
 			);
 
 			if (
@@ -253,7 +238,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 			}
 
 			try {
-				await triggerInfoEmit();
+				await triggerInfoEmit(state);
 				const start = Date.now();
 
 				await controller._internals.checkForAbortAndPause();
@@ -267,7 +252,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 				if (skip !== null) {
 					state.increaseSkippedBytes(
-						skip.skipTo - iterator.counter.getOffset(),
+						skip.skipTo - state.iterator.counter.getOffset(),
 					);
 					if (skip.skipTo === contentLength) {
 						Log.verbose(logLevel, 'Skipped to end of file, not fetching.');
@@ -305,7 +290,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 				}
 			}
 
-			const didProgress = iterator.counter.getOffset() > offsetBefore;
+			const didProgress = state.iterator.counter.getOffset() > offsetBefore;
 			if (!didProgress) {
 				iterationWithThisOffset++;
 			} else {
@@ -324,10 +309,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 	// Force assign
 	await emitAvailableInfo({
 		hasInfo: (
-			Object.keys(fields) as (keyof Options<ParseMediaFields>)[]
+			Object.keys(state.fields) as (keyof Options<ParseMediaFields>)[]
 		).reduce(
 			(acc, key) => {
-				if (fields?.[key]) {
+				if (state.fields?.[key]) {
 					acc[key] = true;
 				}
 
@@ -335,12 +320,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 			},
 			{} as Record<keyof Options<ParseMediaFields>, boolean>,
 		),
-		callbacks: moreFields,
-		fieldsInReturnValue,
 		state,
-		returnValue,
-		mimeType: contentType,
-		name,
 	});
 
 	Log.verbose(logLevel, `Time iterating over file: ${timeIterating}ms`);
@@ -350,13 +330,13 @@ export const internalParseMedia: InternalParseMedia = async function <
 	Log.verbose(logLevel, `Time freeing data: ${timeFreeingData}ms`);
 
 	currentReader.abort();
-	iterator?.destroy();
+	state.iterator?.destroy();
 
-	state.callbacks.tracks.ensureHasTracksAtEnd(fields);
+	state.callbacks.tracks.ensureHasTracksAtEnd(state.fields);
 	state.m3u.abortM3UStreamRuns();
 	if (errored) {
 		throw errored;
 	}
 
-	return returnValue as ParseMediaResult<F>;
+	return state.returnValue as ParseMediaResult<F>;
 };
