@@ -1,22 +1,15 @@
 import {Log} from './log';
-import type {ParseMediaSrc} from './options';
-import type {Reader, ReaderInterface} from './readers/reader';
+import type {Reader} from './readers/reader';
 import type {ParserState} from './state/parser-state';
 
 export const performSeek = async ({
 	seekTo,
 	state,
-	currentReader,
-	readerInterface,
-	src,
 }: {
 	seekTo: number;
 	state: ParserState;
-	currentReader: Reader;
-	readerInterface: ReaderInterface;
-	src: ParseMediaSrc;
 }): Promise<Reader> => {
-	const {iterator, logLevel, controller, mode, contentLength} = state;
+	const {iterator, logLevel, mode, contentLength} = state;
 
 	if (seekTo <= iterator.counter.getOffset()) {
 		throw new Error(
@@ -34,7 +27,7 @@ export const performSeek = async ({
 			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Data already fetched`,
 		);
 		iterator.discard(seekTo - iterator.counter.getOffset());
-		return currentReader;
+		return state.currentReader;
 	}
 
 	if (mode === 'download') {
@@ -43,7 +36,7 @@ export const performSeek = async ({
 			`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Fetching but not reading all the data inbetween because in download mode`,
 		);
 		iterator.discard(seekTo - iterator.counter.getOffset());
-		return currentReader;
+		return state.currentReader;
 	}
 
 	const time = Date.now();
@@ -51,13 +44,13 @@ export const performSeek = async ({
 		logLevel,
 		`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available`,
 	);
-	currentReader.abort();
+	state.currentReader.abort();
 
-	await controller?._internals.checkForAbortAndPause();
-	const {reader: newReader} = await readerInterface.read({
-		src,
+	await state.controller?._internals.checkForAbortAndPause();
+	const {reader: newReader} = await state.readerInterface.read({
+		src: state.src,
 		range: seekTo,
-		controller,
+		controller: state.controller,
 	});
 	iterator.skipTo(seekTo);
 	await state.discardReadBytes(true);

@@ -20,7 +20,7 @@ import type {
 	ParseMediaSrc,
 } from '../options';
 import type {IsoBaseMediaStructure} from '../parse-result';
-import type {ReaderInterface} from '../readers/reader';
+import type {Reader, ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
@@ -34,10 +34,10 @@ import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
+import {timingsState} from './timings';
 import {transportStreamState} from './transport-stream';
 import {videoSectionState} from './video-section';
 import {webmState} from './webm';
-
 export type InternalStats = {
 	skippedBytes: number;
 	finalCursorOffset: number;
@@ -68,6 +68,7 @@ export const makeParserState = ({
 	callbacks,
 	fieldsInReturnValue,
 	mimeType,
+	initialReaderInstance,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -88,6 +89,7 @@ export const makeParserState = ({
 	callbacks: ParseMediaCallbacks;
 	fieldsInReturnValue: Options<ParseMediaFields>;
 	mimeType: string | null;
+	initialReaderInstance: Reader;
 }) => {
 	let skippedBytes: number = 0;
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
@@ -107,6 +109,9 @@ export const makeParserState = ({
 	const slowDurationAndFps = slowDurationAndFpsState();
 	const mp3Info = makeMp3State();
 	const images = imagesState();
+	const timings = timingsState();
+
+	const errored: Error | null = null;
 
 	const discardReadBytes = async (force: boolean) => {
 		const {bytesRemoved, removedData} = iterator.removeBytesRead(force, mode);
@@ -133,6 +138,7 @@ export const makeParserState = ({
 		aac: aacState(),
 		flac: flacState(),
 		m3u: m3uState(logLevel),
+		timings,
 		callbacks: sampleCallback({
 			controller,
 			hasAudioTrackHandlers,
@@ -176,6 +182,8 @@ export const makeParserState = ({
 		callbackFunctions: callbacks,
 		fieldsInReturnValue,
 		mimeType,
+		errored: errored as Error | null,
+		currentReader: initialReaderInstance,
 	};
 };
 

@@ -65,6 +65,7 @@ export const getMoovAtom = async ({
 		contentType: null,
 		mimeType: null,
 		name: '',
+		initialReaderInstance: reader,
 	});
 
 	while (true) {

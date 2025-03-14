@@ -13,18 +13,9 @@ import type {Mp3Structure} from './parse-result';
 import {registerAudioTrack, registerVideoTrack} from './register-track';
 import type {ParserState} from './state/parser-state';
 
-export const initVideo = async ({
-	state,
-	mimeType,
-	name,
-	contentLength,
-}: {
-	state: ParserState;
-	mimeType: string | null;
-	name: string | null;
-	contentLength: number;
-}) => {
+export const initVideo = async ({state}: {state: ParserState}) => {
 	const fileType = state.iterator.detectFileType();
+	const {mimeType, name, contentLength} = state;
 
 	if (fileType.type === 'riff') {
 		Log.verbose(state.logLevel, 'Detected RIFF container');
