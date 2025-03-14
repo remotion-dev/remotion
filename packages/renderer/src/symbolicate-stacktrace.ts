@@ -183,7 +183,8 @@ export const symbolicateFromSources = (
 
 			return symbolicateStackFrame(frame, map);
 		})
-		.filter(truthy);
+		.filter(truthy)
+		.filter((f) => f.originalScriptCode !== null);
 };
 
 export const symbolicateStackFrame = (

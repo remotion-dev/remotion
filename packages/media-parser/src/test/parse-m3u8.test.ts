@@ -65,6 +65,7 @@ test('parse m3u8', async () => {
 	});
 	expect(tracks.videoTracks).toEqual([
 		{
+			m3uStreamFormat: 'ts',
 			type: 'video',
 			codec: 'avc1.640028',
 			codecPrivate: new Uint8Array([

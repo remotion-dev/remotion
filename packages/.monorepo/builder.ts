@@ -8,16 +8,54 @@ if (process.env.NODE_ENV !== 'production') {
 
 type Format = 'esm' | 'cjs';
 
+const getPackageJson = () => {
+	return require(path.join(process.cwd(), 'package.json'));
+};
+
+const getDependenciesAndPeerAndOptionalDependencies = () => {
+	const packageJson = getPackageJson();
+
+	return {
+		...(packageJson.dependencies ?? {}),
+		...(packageJson.optionalDependencies ?? {}),
+		...(packageJson.peerDependencies ?? {}),
+	};
+};
+
 const getExternal = (deps: string[] | 'dependencies'): string[] => {
 	if (deps === 'dependencies') {
-		const packageJson = require(path.join(process.cwd(), 'package.json'));
-		return Object.keys({
-			...(packageJson.dependencies ?? {}),
-			...(packageJson.optionalDependencies ?? {}),
-		});
+		return Object.keys(getDependenciesAndPeerAndOptionalDependencies());
 	}
 
 	return deps;
+};
+
+// Turn @remotion/renderer/client into @remotion/renderer
+// and remotion/no-react into remotion
+// but leave @remotion/player alone
+const stripEntryPoints = (packageName: string) => {
+	const splitted = packageName.split('/');
+	if (splitted[0].startsWith('@')) {
+		return splitted[0] + '/' + splitted[1];
+	}
+
+	return splitted[0];
+};
+
+const validateExternal = (external: string[]) => {
+	const packageJson = Object.keys(
+		getDependenciesAndPeerAndOptionalDependencies(),
+	);
+	for (const dep of external) {
+		if (dep === 'stream' || dep === 'fs' || dep === 'path') {
+			continue;
+		}
+		if (!packageJson.includes(stripEntryPoints(dep))) {
+			throw new Error(
+				`External dependency ${stripEntryPoints(dep)} not found in package.json`,
+			);
+		}
+	}
 };
 
 const sortObject = (obj: Record<string, string>) => {
@@ -40,12 +78,14 @@ export const buildPackage = async ({
 	formats,
 	external,
 	entrypoints,
+	filterExternal = (external) => external,
 }: {
 	formats: {
 		esm: FormatAction;
 		cjs: FormatAction;
 	};
 	external: 'dependencies' | string[];
+	filterExternal?: (external: string[]) => string[];
 	entrypoints: EntryPoint[];
 }) => {
 	console.time(`Generated.`);
@@ -68,10 +108,12 @@ export const buildPackage = async ({
 		} else if (action === 'use-tsc') {
 		} else if (action === 'build') {
 			for (const {path: p, target} of entrypoints) {
+				const externalFinal = filterExternal(getExternal(external));
+				validateExternal(externalFinal);
 				const output = await build({
 					entrypoints: [p],
 					naming: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
-					external: getExternal(external),
+					external: externalFinal,
 					target,
 					format,
 				});
@@ -79,7 +121,7 @@ export const buildPackage = async ({
 				for (const file of output.outputs) {
 					const text = await file.text();
 
-					const outputPath = `./${path.join('./dist', format, file.path)}`;
+					const outputPath = `./${path.join('./dist', format, file.path.replace('.module.', '.'))}`;
 
 					await Bun.write(path.join(process.cwd(), outputPath), text);
 

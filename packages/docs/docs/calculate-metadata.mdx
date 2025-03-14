@@ -11,13 +11,19 @@ crumb: 'API'
 
 Use it if you:
 
-<Step>1</Step> need to make the `durationInFrames`, `width`, `height`, or `fps` <a href="/docs/dynamic-metadata">dynamic based on some data</a>
-<br />
+<div>
+  <Step>1</Step> need to make the `durationInFrames`, `width`, `height`, or `fps` <a href="/docs/dynamic-metadata">dynamic based on some data</a>
+</div>
+<div>
+
 <Step>2</Step> want to transform the props passed to the composition, for example to do <a href="/docs/data-fetching">data fetching</a>
-<br />
+</div>
+<div>
 <Step>3</Step> want to add a per-composition default codec
-<br />
+</div>
+<div>
 <Step>4</Step> want to run code once, before the actual render starts.
+</div>
 
 The `calculateMetadata()` function is called a single time, independently from the concurrency of the render.  
 It runs in a separate tab, as part of the render process calling [`selectComposition()`](/docs/renderer/select-composition).

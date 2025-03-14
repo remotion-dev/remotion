@@ -1,13 +1,13 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.272",
+	"version": "4.0.278",
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
 		"make": "bun --env-file=../.env.bundle bundle.ts",
 		"lint": "tsc && eslint src",
-		"dev": "vite"
+		"dev": "bun server.ts"
 	},
 	"type": "module",
 	"dependencies": {
@@ -21,8 +21,8 @@
 		"hls.js": "1.5.19",
 		"polished": "4.3.1",
 		"remotion": "workspace:*",
-		"vite": "^5.4.12",
-		"zod": "3.22.3"
+		"zod": "3.22.3",
+		"bun-plugin-tailwind": "0.0.15"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
@@ -35,10 +35,8 @@
 		"postcss": "8.4.47",
 		"tailwindcss": "4.0.0",
 		"@tailwindcss/cli": "4.0.0",
-		"@tailwindcss/vite": "4.0.0",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
-		"@vitejs/plugin-react-swc": "^3.5.0",
 		"tailwind-merge": "2.5.2",
 		"bun-plugin-tailwind": "0.0.13",
 		"clsx": "2.1.1"

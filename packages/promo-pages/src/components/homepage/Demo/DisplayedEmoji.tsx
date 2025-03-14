@@ -1,5 +1,6 @@
 import type {EmojiName} from '@remotion/animated-emoji';
-import type {Lottie, LottieAnimationData} from '@remotion/lottie';
+import type {LottieAnimationData} from '@remotion/lottie';
+import {Lottie, getLottieMetadata} from '@remotion/lottie';
 import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
@@ -39,11 +40,8 @@ export const DisplayedEmoji: React.FC<{
 	const [handle] = useState(() => delayRender());
 
 	useEffect(() => {
-		Promise.all([
-			import('@remotion/lottie'),
-			fetch(src).then((res) => res.json()),
-		])
-			.then(([{Lottie, getLottieMetadata}, json]) => {
+		Promise.all([fetch(src).then((res) => res.json())])
+			.then(([json]) => {
 				setData({
 					Lottie,
 					duration: getLottieMetadata(json)?.durationInSeconds as number,

@@ -1,5 +1,6 @@
 import {cancelRender} from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {Log} from './log.js';
 import {truthy} from './truthy.js';
 
 if (typeof window !== 'undefined') {
@@ -15,6 +16,7 @@ export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
 export const DELAY_RENDER_RETRIES_LEFT = 'Retries left: ';
 export const DELAY_RENDER_RETRY_TOKEN =
 	'- Rendering the frame will be retried.';
+export const DELAY_RENDER_CLEAR_TOKEN = 'handle was cleared after';
 
 const defaultTimeout = 30000;
 
@@ -53,6 +55,7 @@ export const delayRender = (
 				(options?.retries ?? 0) - (window.remotion_attempt - 1);
 			window.remotion_delayRenderTimeouts[handle] = {
 				label: label ?? null,
+				startTime: Date.now(),
 				timeout: setTimeout(() => {
 					const message = [
 						`A delayRender()`,
@@ -100,7 +103,21 @@ export const continueRender = (handle: number): void => {
 	handles = handles.filter((h) => {
 		if (h === handle) {
 			if (getRemotionEnvironment().isRendering) {
-				clearTimeout(window.remotion_delayRenderTimeouts[handle].timeout);
+				if (!window.remotion_delayRenderTimeouts[handle]) {
+					return false;
+				}
+
+				const {label, startTime, timeout} =
+					window.remotion_delayRenderTimeouts[handle];
+				clearTimeout(timeout);
+				const message = [
+					label ? `delayRender() "${label}"` : 'A delayRender()',
+					DELAY_RENDER_CLEAR_TOKEN,
+					`${Date.now() - startTime}ms`,
+				]
+					.filter(truthy)
+					.join(' ');
+				Log.verbose(window.remotion_logLevel, message);
 				delete window.remotion_delayRenderTimeouts[handle];
 			}
 

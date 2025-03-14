@@ -1,6 +1,6 @@
 async function fetchWithTimeout(
 	url: string,
-	options: FetchRequestInit,
+	options: RequestInit,
 	timeout = 3000,
 ) {
 	const controller = new AbortController();

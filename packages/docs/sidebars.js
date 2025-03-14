@@ -991,7 +991,7 @@ module.exports = {
 				type: 'doc',
 				id: 'ai/index',
 			},
-			items: ['ai/chatbot', 'ai/bolt', 'ai/system-prompt'],
+			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
 		},
 		{
 			type: 'category',
@@ -1235,12 +1235,12 @@ module.exports = {
 				},
 				'recorder/source-control',
 				'recorder/external-recordings',
+				'recorder/experiments',
 				'recorder/upgrading',
 				{
 					type: 'category',
 					label: 'Troubleshooting',
 					items: [
-						'recorder/troubleshooting/failed-to-execute-get-video-metadata',
 						'recorder/troubleshooting/cannot-read-properties-of-undefined',
 					],
 				},

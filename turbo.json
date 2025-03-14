@@ -60,7 +60,7 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/docs#make": {
-			"outputs": ["src/helpers/system-prompt.ts"],
+			"outputs": [],
 			"dependsOn": [],
 			"outputLogs": "new-only"
 		},

@@ -239,8 +239,14 @@ export class Page extends EventEmitter {
 				.filter(truthy)
 				.join(':');
 
-			const tag = [origPosition?.name, file].filter(truthy).join('@');
-
+			const isDelayRenderClear = log.previewString.includes(
+				NoReactInternals.DELAY_RENDER_CLEAR_TOKEN,
+			);
+			const tabInfo = `Tab ${this.pageIndex}`;
+			const tagInfo = [origPosition?.name, isDelayRenderClear ? null : file]
+				.filter(truthy)
+				.join('@');
+			const tag = [tabInfo, tagInfo].filter(truthy).join(', ');
 			if (log.type === 'error') {
 				Log.error(
 					{
@@ -257,7 +263,7 @@ export class Page extends EventEmitter {
 						tag,
 						indent,
 					},
-					log.previewString,
+					isDelayRenderClear ? log.previewString : log.previewString,
 				);
 			}
 		} else if (log.type === 'error') {

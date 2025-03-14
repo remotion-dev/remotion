@@ -1,8 +1,6 @@
 import type {LogLevel} from '@remotion/media-parser';
-import {
-	mediaParserController,
-	parseMediaOnWebWorker,
-} from '@remotion/media-parser';
+import {mediaParserController} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';

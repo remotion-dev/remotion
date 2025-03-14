@@ -303,6 +303,7 @@ export const getTrack = ({
 		}
 
 		return {
+			m3uStreamFormat: null,
 			type: 'video',
 			trackId,
 			codec: codecString,

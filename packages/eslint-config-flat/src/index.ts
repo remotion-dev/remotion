@@ -1,7 +1,6 @@
 import eslint from '@eslint/js';
 import remotionPlugin from '@remotion/eslint-plugin';
 import reactPlugin from 'eslint-plugin-react';
-// @ts-expect-error no types
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
@@ -22,6 +21,7 @@ export const makeConfig = ({
 			],
 		},
 		eslint.configs.recommended,
+		tseslint.configs.eslintRecommended,
 		tseslint.configs.recommended,
 		{
 			plugins: {
@@ -32,11 +32,13 @@ export const makeConfig = ({
 				...reactPlugin.configs.flat.recommended.languageOptions,
 				parser: tseslint.parser,
 				parserOptions: {
-					projectService: true,
+					projectService: false,
 				},
 			},
 			rules: {
-				...reactPlugin.configs.flat.rules,
+				// wrong types 🙈
+				...(reactPlugin.configs.flat
+					.rules as unknown as typeof reactPlugin.configs.flat.rules.rules),
 				...hooksPlugin.configs.recommended.rules,
 				// Turning off rules that are too strict or don't apply to Remotion
 				'no-console': 'off',
@@ -60,10 +62,6 @@ export const makeConfig = ({
 			},
 			rules: remotionPlugin.configs.recommended.rules,
 			...(remotionDir ? {files: [remotionDir]} : {}),
-		},
-		{
-			files: ['**/*.js'],
-			extends: [tseslint.configs.disableTypeChecked],
 		},
 	);
 

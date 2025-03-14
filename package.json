@@ -17,8 +17,9 @@
 		"watchserverless": "turbo watch make --experimental-write-cache --filter='@remotion/lambda' --filter='@remotion/serverless' --filter='@remotion/streaming'",
 		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
 		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
-		"cleanall": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo",
-		"clean": "turbo run clean && rm -rf packages/**/dist && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
+		"cleantypes": "rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo",
+		"clean": "turbo run clean && rm -rf packages/**/dist && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo",
+		"cleanall": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
 	},
 	"engines": {
 		"node": ">=16",
@@ -30,7 +31,7 @@
 		}
 	},
 	"devDependencies": {
-		"@types/bun": "1.2.0",
+		"@types/bun": "1.2.5",
 		"@types/deno": "2.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
@@ -38,7 +39,7 @@
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
-		"turbo": "2.4.0",
+		"turbo": "2.4.4",
 		"typescript": "5.5.4"
 	},
 	"packageManager": "pnpm@8.10.2"

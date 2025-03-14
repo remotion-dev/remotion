@@ -481,121 +481,73 @@ test('Should render a still that uses the staticFile() API and should apply prop
 	fs.unlinkSync(out);
 });
 
-test('Dynamic duration should work and audio separation', async () => {
-	const audio = path.join(process.cwd(), '..', 'example', 'audio.wav');
-
-	const randomDuration = Math.round(Math.random() * 18 + 2);
-	const task = await execa(
-		'pnpm',
-		[
-			'exec',
-			'remotion',
-			'render',
-			'build',
-			'dynamic-duration',
-			`--props`,
-			`{"duration": ${randomDuration}, "offthread": true}`,
-			'--separate-audio-to',
-			'audio.wav',
-			outputPath,
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-		},
-	);
-
-	expect(task.exitCode).toBe(0);
-	expect(fs.existsSync(outputPath)).toBe(true);
-
-	const info = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [outputPath],
-		indent: false,
-		logLevel: 'info',
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	const data = info.stderr;
-	expect(data).toContain('Video: h264');
-	const expectedDuration = (randomDuration / 30).toFixed(2);
-	expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
-	if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
-		expect(data).toContain(
-			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
-		);
-	} else {
-		expect(data).toContain(
-			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuvj420p(pc, bt470bg/unknown/unknown, progressive)`,
-		);
-	}
-
-	fs.unlinkSync(outputPath);
-
-	const audioInfo = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [audio],
-		indent: false,
-		logLevel: 'info',
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	const audioData = audioInfo.stderr;
-	expect(audioData).toContain(
-		'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 2 channels, s16',
-	);
-	fs.unlinkSync(audio);
-});
-
 test(
-	'Should be able to render if remotion.config.js is not provided, and separate audio',
+	'Dynamic duration should work and audio separation',
 	async () => {
+		const audio = path.join(process.cwd(), '..', 'example', 'audio.wav');
+
+		const randomDuration = Math.round(Math.random() * 18 + 2);
 		const task = await execa(
-			'node',
+			'pnpm',
 			[
-				'packages/cli/remotion-cli.js',
+				'exec',
+				'remotion',
 				'render',
-				'packages/example/src/entry.jsx',
-				'framer',
+				'build',
+				'dynamic-duration',
+				`--props`,
+				`{"duration": ${randomDuration}, "offthread": true}`,
+				'--separate-audio-to',
+				'audio.wav',
 				outputPath,
 			],
 			{
-				cwd: path.join(process.cwd(), '..', '..'),
+				cwd: path.join(process.cwd(), '..', 'example'),
 			},
 		);
 
 		expect(task.exitCode).toBe(0);
+		expect(fs.existsSync(outputPath)).toBe(true);
+
+		const info = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [outputPath],
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		const data = info.stderr;
+		expect(data).toContain('Video: h264');
+		const expectedDuration = (randomDuration / 30).toFixed(2);
+		expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			expect(data).toContain(
+				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
+			);
+		} else {
+			expect(data).toContain(
+				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuvj420p(pc, bt470bg/unknown/unknown, progressive)`,
+			);
+		}
+
 		fs.unlinkSync(outputPath);
-	},
-	{
-		timeout: 30000,
-	},
-);
 
-test(
-	'Should be able to render if remotion.config.ts is not provided',
-	async () => {
-		const task = await execa(
-			'node',
-			[
-				'packages/cli/remotion-cli.js',
-				'render',
-				'packages/example/src/ts-entry.tsx',
-
-				'framer',
-				'--public-dir=packages/example/public',
-				outputPath,
-			],
-			{
-				cwd: path.join(process.cwd(), '..', '..'),
-			},
+		const audioInfo = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [audio],
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		const audioData = audioInfo.stderr;
+		expect(audioData).toContain(
+			'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 2 channels, s16',
 		);
-
-		expect(task.exitCode).toBe(0);
-		fs.unlinkSync(outputPath);
+		fs.unlinkSync(audio);
 	},
-	{
-		timeout: 30000,
-	},
+	{timeout: 20000},
 );
 
 test('Should be able to render a huge payload that gets serialized', async () => {

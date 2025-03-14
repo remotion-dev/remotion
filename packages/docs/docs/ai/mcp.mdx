@@ -1,0 +1,32 @@
+---
+image: /generated/articles-docs-ai-mcp.png
+crumb: 'AI'
+title: Remotion's Model Context Protocol
+sidebar_label: MCP
+---
+
+You can use Remotion's Model Context Protocol (MCP) Client to make your editor's AI Chat better at understanding Remotion.
+
+Our MCP server uses [CrawlChat](https://crawlchat.app)'s technology to index Remotion's documentation into a vector database and
+
+:::warning
+**Test Phase**: Right now, this tool is open without authentication. If running this tool gets too expensive, we might restrict the usage.
+:::
+
+To set it up:
+
+<Step>1</Step> Go to your Cursor Settings: <kbd>Cmd+Ctrl</kbd> + <kbd>P</kbd>, then type `> Cursor Settings` and confirm with Enter.
+
+<Step>2</Step> Add an MCP with the following settings:
+
+- **Name**: Search Remotion Documentation
+- **Command**: `npx @remotion/mcp`
+- **Type**: Command
+
+If this worked, a green dot should show up and the tool `search_remotion_documentation` should show up.
+
+If you now ask Cursor in the composer to use the Remotion Documentation, the MCP should get invoked.
+
+<br />
+
+<img style={{width: 600}} src="https://remotion-assets.s3.eu-central-1.amazonaws.com/mcp-cursor.png" />

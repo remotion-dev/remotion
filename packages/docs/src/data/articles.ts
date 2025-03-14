@@ -99,6 +99,15 @@ export const articles = [
 		slug: 'ai/index',
 	},
 	{
+		id: 'ai/mcp',
+		title: "Remotion's Model Context Protocol",
+		relativePath: 'docs/ai/mcp.mdx',
+		compId: 'articles-docs-ai-mcp',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/mcp',
+	},
+	{
 		id: 'ai/system-prompt',
 		title: 'Remotion System Prompt for LLMs',
 		relativePath: 'docs/ai/system-prompt.mdx',
@@ -3766,6 +3775,15 @@ export const articles = [
 		slug: 'recorder/editing/transitions',
 	},
 	{
+		id: 'recorder/experiments',
+		title: 'Experiments',
+		relativePath: 'docs/recorder/experiments.mdx',
+		compId: 'articles-docs-recorder-experiments',
+		crumb: 'Recorder',
+		noAi: false,
+		slug: 'recorder/experiments',
+	},
+	{
 		id: 'recorder/exporting-subtitles',
 		title: 'Exporting subtitles',
 		relativePath: 'docs/recorder/exporting-subtitles.mdx',
@@ -3910,17 +3928,6 @@ export const articles = [
 		crumb: 'Recorder',
 		noAi: false,
 		slug: 'recorder/troubleshooting/cannot-read-properties-of-undefined',
-	},
-	{
-		id: 'recorder/troubleshooting/failed-to-execute-get-video-metadata',
-		title: 'Failed to execute getVideoMetadata()',
-		relativePath:
-			'docs/recorder/troubleshooting/failed-to-execute-get-video-metadata.mdx',
-		compId:
-			'articles-docs-recorder-troubleshooting-failed-to-execute-get-video-metadata',
-		crumb: 'Recorder',
-		noAi: false,
-		slug: 'recorder/troubleshooting/failed-to-execute-get-video-metadata',
 	},
 	{
 		id: 'recorder/upgrading',

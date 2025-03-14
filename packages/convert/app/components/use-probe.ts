@@ -12,10 +12,8 @@ import type {
 	MediaParserVideoCodec,
 	ParseMediaOnProgress,
 } from '@remotion/media-parser';
-import {
-	mediaParserController,
-	parseMediaOnWebWorker,
-} from '@remotion/media-parser';
+import {mediaParserController} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 

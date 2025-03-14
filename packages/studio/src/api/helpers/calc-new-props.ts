@@ -1,4 +1,4 @@
-import type {AnyComposition} from 'remotion';
+import type {_InternalTypes} from 'remotion';
 import {Internals, getRemotionEnvironment} from 'remotion';
 import type {AnyZodObject} from 'zod';
 
@@ -12,7 +12,7 @@ export const calcNewProps = (
 	compositionId: string,
 	defaultProps: UpdateDefaultPropsFunction,
 ): {
-	composition: AnyComposition;
+	composition: _InternalTypes['AnyComposition'];
 	generatedDefaultProps: Record<string, unknown>;
 } => {
 	if (!getRemotionEnvironment().isStudio) {

@@ -2,6 +2,8 @@
 // to keep the dynamic import
 
 import React, {useContext, useEffect, useRef, useState} from 'react';
+// @ts-expect-error
+// eslint-disable-next-line react/no-deprecated
 import type {render} from 'react-dom';
 // In React 18, you should use createRoot() from "react-dom/client".
 // In React 18, you should use render from "react-dom".
@@ -9,17 +11,18 @@ import type {render} from 'react-dom';
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
 import type {
-	AnyComposition,
+	_InternalTypes,
+	BundleCompositionState,
 	BundleState,
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
 	AbsoluteFill,
-	Internals,
 	continueRender,
 	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
+	Internals,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -89,13 +92,17 @@ const DelayedSpinner: React.FC = () => {
 	);
 };
 
-const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
-	const video = Internals.useVideo();
-	const compositions = useContext(Internals.CompositionManager);
+const GetVideoComposition: React.FC<{
+	readonly state: BundleCompositionState;
+}> = ({state}) => {
+	const {compositions, currentCompositionMetadata, canvasContent} = useContext(
+		Internals.CompositionManager,
+	);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const [handle] = useState(() =>
-		delayRender('Wait for Composition' + JSON.stringify(state)),
+		delayRender(`Waiting for Composition "${state.compositionName}"`),
 	);
 
 	useEffect(() => {
@@ -103,59 +110,33 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	}, [handle]);
 
 	useEffect(() => {
-		if (state.type !== 'composition') {
+		if (compositions.length === 0) {
 			return;
 		}
 
-		if (!video && compositions.compositions.length > 0) {
-			const foundComposition = compositions.compositions.find(
-				(c) => c.id === state.compositionName,
-			) as AnyComposition;
-			if (!foundComposition) {
-				throw new Error(
-					`Found no composition with the name ${
-						state.compositionName
-					}. The following compositions were found instead: ${compositions.compositions
-						.map((c) => c.id)
-						.join(
-							', ',
-						)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`,
-				);
-			}
-
-			if (foundComposition) {
-				compositions.setCanvasContent({
-					type: 'composition',
-					compositionId: foundComposition.id,
-				});
-			} else {
-				compositions.setCanvasContent(null);
-			}
-
-			compositions.setCurrentCompositionMetadata({
-				props: NoReactInternals.deserializeJSONWithCustomFields(
-					state.serializedResolvedPropsWithSchema,
-				),
-				durationInFrames: state.compositionDurationInFrames,
-				fps: state.compositionFps,
-				height: state.compositionHeight,
-				width: state.compositionWidth,
-				defaultCodec: state.compositionDefaultCodec,
-				defaultOutName: state.compositionDefaultOutName,
-			});
+		const foundComposition = compositions.find(
+			(c) => c.id === state.compositionName,
+		) as _InternalTypes['AnyComposition'];
+		if (!foundComposition) {
+			throw new Error(
+				`Found no composition with the name ${
+					state.compositionName
+				}. The following compositions were found instead: ${compositions
+					.map((c) => c.id)
+					.join(
+						', ',
+					)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`,
+			);
 		}
-	}, [compositions, compositions.compositions, state, video]);
+
+		setCanvasContent({
+			type: 'composition',
+			compositionId: foundComposition.id,
+		});
+	}, [compositions, state, currentCompositionMetadata, setCanvasContent]);
 
 	useEffect(() => {
-		if (state.type === 'evaluation') {
-			continueRender(handle);
-		} else if (video) {
-			continueRender(handle);
-		}
-	}, [handle, state.type, video]);
-
-	useEffect(() => {
-		if (!video) {
+		if (!canvasContent) {
 			return;
 		}
 
@@ -165,12 +146,14 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		}
 
 		current.appendChild(Internals.portalNode());
+		continueRender(handle);
+
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [video]);
+	}, [canvasContent, handle]);
 
-	if (!video) {
+	if (!currentCompositionMetadata) {
 		return null;
 	}
 
@@ -179,8 +162,8 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			ref={portalContainer}
 			id="remotion-canvas"
 			style={{
-				width: video.width,
-				height: video.height,
+				width: currentCompositionMetadata.width,
+				height: currentCompositionMetadata.height,
 				display: 'flex',
 				backgroundColor: 'transparent',
 			}}
@@ -241,9 +224,21 @@ const renderContent = (Root: React.FC) => {
 			<Internals.RemotionRoot
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
+				onlyRenderComposition={bundleMode.compositionName}
+				currentCompositionMetadata={{
+					props: NoReactInternals.deserializeJSONWithCustomFields(
+						bundleMode.serializedResolvedPropsWithSchema,
+					),
+					durationInFrames: bundleMode.compositionDurationInFrames,
+					fps: bundleMode.compositionFps,
+					height: bundleMode.compositionHeight,
+					width: bundleMode.compositionWidth,
+					defaultCodec: bundleMode.compositionDefaultCodec,
+					defaultOutName: bundleMode.compositionDefaultOutName,
+				}}
 			>
 				<Root />
-				<GetVideo state={bundleMode} />
+				<GetVideoComposition state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
 
@@ -255,9 +250,10 @@ const renderContent = (Root: React.FC) => {
 			<Internals.RemotionRoot
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
+				onlyRenderComposition={null}
+				currentCompositionMetadata={null}
 			>
 				<Root />
-				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
 		);
 
@@ -274,7 +270,7 @@ const renderContent = (Root: React.FC) => {
 				<DelayedSpinner />
 			</div>,
 		);
-		import('@remotion/studio/internals')
+		import('./internals')
 			.then(({StudioInternals}) => {
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
@@ -318,7 +314,8 @@ if (typeof window !== 'undefined') {
 
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
-			console.warn(
+			Internals.Log.warn(
+				window.remotion_logLevel,
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
 			for (const comp of compositions) {
@@ -329,7 +326,8 @@ if (typeof window !== 'undefined') {
 				}
 			}
 
-			console.warn(
+			Internals.Log.warn(
+				window.remotion_logLevel,
 				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);
 

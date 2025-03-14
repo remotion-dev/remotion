@@ -10,7 +10,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Chatbot'}</strong>
 					<div>Use the chatbot to get help with Remotion</div>
 				</TOCItem>
-
+				<TOCItem link="/docs/ai/mcp">
+					<strong>{'MCP'}</strong>
+					<div>Get Remotion-domain specific help from LLMs</div>
+				</TOCItem>
 				<TOCItem link="/docs/ai/bolt">
 					<strong>{'Bolt.new'}</strong>
 					<div>Use Bolt.new to prompt Remotion videos</div>

@@ -104,6 +104,7 @@ export const runOverM3u = async ({
 						const onVideoSample = await registerVideoTrack({
 							container: 'm3u8',
 							state,
+
 							track: {
 								...track,
 								trackId,

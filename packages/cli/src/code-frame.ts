@@ -71,27 +71,30 @@ const logLine = (frame: SymbolicatedStackFrame, logLevel: LogLevel) => {
 	);
 };
 
-export const printCodeFrameAndStack = (
-	err: ErrorWithStackFrame,
-	logLevel: LogLevel,
-) => {
+export const printCodeFrameAndStack = ({
+	symbolicated,
+	logLevel,
+}: {
+	symbolicated: ErrorWithStackFrame;
+	logLevel: LogLevel;
+}) => {
 	if (
-		!err.symbolicatedStackFrames ||
-		err.symbolicatedStackFrames.length === 0
+		!symbolicated.symbolicatedStackFrames ||
+		symbolicated.symbolicatedStackFrames.length === 0
 	) {
-		Log.error({indent: false, logLevel}, err.stack);
+		Log.error({indent: false, logLevel}, symbolicated.stack);
 		return;
 	}
 
-	const firstFrame = err.symbolicatedStackFrames[0];
+	const firstFrame = symbolicated.symbolicatedStackFrames[0];
 	Log.error(
 		{indent: false, logLevel},
-		chalk.bgRed(chalk.white(` ${err.name} `)),
-		err.message,
+		chalk.bgRed(chalk.white(` ${symbolicated.name} `)),
+		symbolicated.message,
 	);
 	printCodeFrame(firstFrame as SymbolicatedStackFrame, logLevel);
 	Log.info({indent: false, logLevel});
-	for (const frame of err.symbolicatedStackFrames) {
+	for (const frame of symbolicated.symbolicatedStackFrames) {
 		if (frame === firstFrame) {
 			continue;
 		}
@@ -106,17 +109,17 @@ export const printCodeFrameAndStack = (
 		}
 	}
 
-	if (err.delayRenderCall) {
+	if (symbolicated.delayRenderCall) {
 		Log.error({indent: false, logLevel});
 		Log.error(
 			{indent: false, logLevel},
 			'🕧 The delayRender() call is located at:',
 		);
-		for (const frame of err.delayRenderCall) {
+		for (const frame of symbolicated.delayRenderCall) {
 			const showCodeFrame =
 				(!frame.originalFileName?.includes('node_modules') &&
 					!frame.originalFileName?.startsWith('webpack/')) ||
-				frame === err.delayRenderCall[0] ||
+				frame === symbolicated.delayRenderCall[0] ||
 				frame.originalScriptCode
 					?.map((c) => c.content)
 					.join('')
