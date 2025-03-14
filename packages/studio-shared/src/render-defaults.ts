@@ -44,7 +44,6 @@ export type RenderDefaults = {
 	ignoreCertificateErrors: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
-	headless: boolean;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;

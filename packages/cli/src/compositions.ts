@@ -17,7 +17,6 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	offthreadVideoThreadsOption,
 	glOption,
-	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	publicPathOption,
@@ -80,7 +79,6 @@ export const listCompositionsCommand = async (
 			commandLine: parsedCli,
 		}).value,
 		gl: glOption.getValue({commandLine: parsedCli}).value,
-		headless: headlessOption.getValue({commandLine: parsedCli}).value,
 		ignoreCertificateErrors,
 		userAgent,
 	};

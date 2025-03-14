@@ -20,7 +20,6 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
-	headlessOption,
 } = BrowserSafeApis.options;
 
 export const compositionsCommand = async ({
@@ -67,15 +66,11 @@ export const compositionsCommand = async ({
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const headless = headlessOption.getValue({
-		commandLine: CliInternals.parsedCli,
-	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
-		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
