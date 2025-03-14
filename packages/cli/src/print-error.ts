@@ -46,7 +46,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 				output.update(chalk.red('An error occurred:'), true);
 			}
 
-			printCodeFrameAndStack(symbolicated, logLevel);
+			printCodeFrameAndStack({symbolicated, logLevel});
 			RenderInternals.printUsefulErrorMessage(err, logLevel, false);
 		} catch (e) {
 			output.update(chalk.red(''), true);
