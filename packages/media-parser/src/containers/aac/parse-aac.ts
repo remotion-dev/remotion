@@ -4,6 +4,7 @@ import {
 	mapAudioObjectTypeToCodecString,
 } from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
@@ -83,9 +84,9 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const timestamp = (1024 / sampleRate) * index;
 
 	// One ADTS frame contains 1024 samples
-	await state.callbacks.onAudioSample(
-		0,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(
+	await emitAudioSample({
+		trackId: 0,
+		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
 			{
 				duration,
 				type: 'key',
@@ -99,7 +100,8 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 			},
 			1,
 		),
-	);
+		state,
+	});
 
 	return Promise.resolve(null);
 };

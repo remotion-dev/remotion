@@ -1,4 +1,5 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {emitVideoSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
 import {registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
@@ -81,8 +82,12 @@ export const handleAvcPacket = async ({
 		timescale: MPEG_TIMESCALE,
 	};
 
-	await state.callbacks.onVideoSample(
-		programId,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
-	);
+	await emitVideoSample({
+		trackId: programId,
+		videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
+			sample,
+			MPEG_TIMESCALE,
+		),
+		state,
+	});
 };

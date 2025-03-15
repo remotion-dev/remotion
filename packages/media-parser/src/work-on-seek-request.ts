@@ -36,7 +36,7 @@ export const workOnSeekRequest = async (state: ParserState) => {
 
 	if (resolution.type === 'do-seek') {
 		await performSeek({state, seekTo: resolution.byte});
-		await state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
+		state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
 	}
 
 	if (resolution.type === 'invalid') {

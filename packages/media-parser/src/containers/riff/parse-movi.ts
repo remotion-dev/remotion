@@ -1,4 +1,5 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
 import type {ParserState} from '../../state/parser-state';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
@@ -59,9 +60,9 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		await state.callbacks.onVideoSample(
+		await emitVideoSample({
 			trackId,
-			convertAudioOrVideoSampleToWebCodecsTimestamps(
+			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
 				{
 					cts: timestamp,
 					dts: timestamp,
@@ -75,7 +76,8 @@ export const handleChunk = async ({
 				},
 				1,
 			),
-		);
+			state,
+		});
 
 		return;
 	}
@@ -98,9 +100,9 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		await state.callbacks.onAudioSample(
+		await emitAudioSample({
 			trackId,
-			convertAudioOrVideoSampleToWebCodecsTimestamps(
+			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
 				{
 					cts: timestamp,
 					dts: timestamp,
@@ -114,7 +116,8 @@ export const handleChunk = async ({
 				},
 				1,
 			),
-		);
+			state,
+		});
 	}
 };
 
