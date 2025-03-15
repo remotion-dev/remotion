@@ -17,13 +17,11 @@ import {maySkipVideoData} from './state/may-skip-video-data';
 import type {ParserState} from './state/parser-state';
 
 export const getAvailableInfo = ({
-	fieldsToFetch,
 	state,
 }: {
-	fieldsToFetch: Options<ParseMediaFields>;
 	state: ParserState;
 }): Record<keyof Options<ParseMediaFields>, boolean> => {
-	const keys = Object.entries(fieldsToFetch).filter(([, value]) => value) as [
+	const keys = Object.entries(state.fields).filter(([, value]) => value) as [
 		keyof Options<ParseMediaFields>,
 		boolean,
 	][];
@@ -142,15 +140,8 @@ export const getAvailableInfo = ({
 	>;
 };
 
-export const hasAllInfo = ({
-	fields,
-	state,
-}: {
-	fields: Options<ParseMediaFields>;
-	state: ParserState;
-}) => {
+export const hasAllInfo = ({state}: {state: ParserState}) => {
 	const availableInfo = getAvailableInfo({
-		fieldsToFetch: fields ?? {},
 		state,
 	});
 

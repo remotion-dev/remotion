@@ -13,14 +13,8 @@ import type {ParserState} from './state/parser-state';
 
 export const runParseIteration = async ({
 	state,
-	mimeType,
-	contentLength,
-	name,
 }: {
 	state: ParserState;
-	mimeType: string | null;
-	contentLength: number;
-	name: string | null;
 }): Promise<ParseResult> => {
 	const structure = state.getStructureOrNull();
 	// m3u8 is busy parsing the chunks once the manifest has been read
@@ -35,9 +29,6 @@ export const runParseIteration = async ({
 	if (structure === null) {
 		await initVideo({
 			state,
-			mimeType,
-			name,
-			contentLength,
 		});
 		return null;
 	}

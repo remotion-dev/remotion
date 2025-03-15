@@ -1,6 +1,9 @@
 import type {AllOptions, Options, ParseMediaFields} from '../fields';
+import type {LogLevel} from '../log';
+import {Log} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
 import type {ParseMediaSrc} from '../options';
+import type {SeekSignal} from '../seek-signal';
 import type {
 	AudioOrVideoSample,
 	OnAudioSample,
@@ -23,6 +26,8 @@ export const sampleCallback = ({
 	slowDurationAndFpsState,
 	structure,
 	src,
+	seekSignal,
+	logLevel,
 }: {
 	controller: MediaParserController;
 	hasAudioTrackHandlers: boolean;
@@ -33,6 +38,8 @@ export const sampleCallback = ({
 	slowDurationAndFpsState: SlowDurationAndFpsState;
 	structure: StructureState;
 	src: ParseMediaSrc;
+	seekSignal: SeekSignal;
+	logLevel: LogLevel;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
@@ -84,7 +91,15 @@ export const sampleCallback = ({
 				samplesForTrack[trackId]++;
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
-					await callback(audioSample);
+					if (seekSignal.getSeek()) {
+						Log.verbose(
+							logLevel,
+							'Not emitting sample because seek is processing',
+						);
+					} else {
+						await callback(audioSample);
+						// TODO: work on seek request
+					}
 				}
 			}
 
@@ -109,7 +124,15 @@ export const sampleCallback = ({
 				const callback = videoSampleCallbacks[trackId];
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {
-					await callback(videoSample);
+					if (seekSignal.getSeek()) {
+						Log.verbose(
+							logLevel,
+							'Not emitting sample because seek is processing',
+						);
+					} else {
+						await callback(videoSample);
+						// TODO: work on seek request
+					}
 				}
 			}
 

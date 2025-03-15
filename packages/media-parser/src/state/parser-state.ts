@@ -4,15 +4,23 @@ import type {
 	SelectM3uStreamFn,
 } from '../containers/m3u/select-stream';
 import type {Options, ParseMediaFields} from '../fields';
+import {getFieldsFromCallback} from '../get-fields-from-callbacks';
 import {
 	getArrayBufferIterator,
 	type BufferIterator,
 } from '../iterator/buffer-iterator';
 import {Log, type LogLevel} from '../log';
 import type {MediaParserController} from '../media-parser-controller';
-import type {OnDiscardedData, ParseMediaMode, ParseMediaSrc} from '../options';
+import type {
+	AllParseMediaFields,
+	OnDiscardedData,
+	ParseMediaCallbacks,
+	ParseMediaMode,
+	ParseMediaResult,
+	ParseMediaSrc,
+} from '../options';
 import type {IsoBaseMediaStructure} from '../parse-result';
-import type {ReaderInterface} from '../readers/reader';
+import type {Reader, ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
 import {emittedState} from './emitted-fields';
@@ -26,10 +34,10 @@ import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
+import {timingsState} from './timings';
 import {transportStreamState} from './transport-stream';
 import {videoSectionState} from './video-section';
 import {webmState} from './webm';
-
 export type InternalStats = {
 	skippedBytes: number;
 	finalCursorOffset: number;
@@ -44,7 +52,6 @@ export const makeParserState = ({
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	controller,
-	fields,
 	onAudioTrack,
 	onVideoTrack,
 	contentLength,
@@ -56,11 +63,16 @@ export const makeParserState = ({
 	selectM3uStreamFn,
 	selectM3uAssociatedPlaylistsFn,
 	mp4HeaderSegment,
+	contentType,
+	name,
+	callbacks,
+	fieldsInReturnValue,
+	mimeType,
+	initialReaderInstance,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	controller: MediaParserController;
-	fields: Options<ParseMediaFields>;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	contentLength: number;
@@ -72,8 +84,15 @@ export const makeParserState = ({
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	contentType: string | null;
+	name: string;
+	callbacks: ParseMediaCallbacks;
+	fieldsInReturnValue: Options<ParseMediaFields>;
+	mimeType: string | null;
+	initialReaderInstance: Reader;
 }) => {
 	let skippedBytes: number = 0;
+	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 
 	const iterator: BufferIterator = getArrayBufferIterator(
 		new Uint8Array([]),
@@ -90,6 +109,9 @@ export const makeParserState = ({
 	const slowDurationAndFps = slowDurationAndFpsState();
 	const mp3Info = makeMp3State();
 	const images = imagesState();
+	const timings = timingsState();
+
+	const errored: Error | null = null;
 
 	const discardReadBytes = async (force: boolean) => {
 		const {bytesRemoved, removedData} = iterator.removeBytesRead(force, mode);
@@ -102,6 +124,11 @@ export const makeParserState = ({
 		}
 	};
 
+	const fields = getFieldsFromCallback({
+		fields: fieldsInReturnValue,
+		callbacks,
+	});
+
 	return {
 		riff: riffSpecificState(),
 		transportStream: transportStreamState(),
@@ -111,6 +138,7 @@ export const makeParserState = ({
 		aac: aacState(),
 		flac: flacState(),
 		m3u: m3uState(logLevel),
+		timings,
 		callbacks: sampleCallback({
 			controller,
 			hasAudioTrackHandlers,
@@ -121,6 +149,8 @@ export const makeParserState = ({
 			slowDurationAndFpsState: slowDurationAndFps,
 			structure,
 			src,
+			seekSignal: controller._internals.seekSignal,
+			logLevel,
 		}),
 		getInternalStats: (): InternalStats => ({
 			skippedBytes,
@@ -148,6 +178,14 @@ export const makeParserState = ({
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
 		mp4HeaderSegment,
+		contentType,
+		name,
+		returnValue,
+		callbackFunctions: callbacks,
+		fieldsInReturnValue,
+		mimeType,
+		errored: errored as Error | null,
+		currentReader: initialReaderInstance,
 	};
 };
 
