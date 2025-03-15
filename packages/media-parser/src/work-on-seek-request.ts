@@ -5,7 +5,7 @@ import type {Seek} from './seek-signal';
 import type {ParserState} from './state/parser-state';
 
 const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
-	if (seek.type === 'time-in-seconds') {
+	if (seek.type === 'keyframe-before-time-in-seconds') {
 		const seekingInfo = getSeekingInfo(state);
 		if (!seekingInfo) {
 			return {
@@ -36,7 +36,15 @@ export const workOnSeekRequest = async (state: ParserState) => {
 
 	if (resolution.type === 'do-seek') {
 		await performSeek({state, seekTo: resolution.byte});
-		await state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
+		const {hasChanged} =
+			state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
+		if (hasChanged) {
+			Log.trace(
+				state.logLevel,
+				`Seek request has changed while seeking, seeking again`,
+			);
+			await workOnSeekRequest(state);
+		}
 	}
 
 	if (resolution.type === 'invalid') {

@@ -50,11 +50,12 @@ export const getSeekingByteFromIsoBaseMedia = (
 		});
 
 		for (const sample of samplePositions) {
-			const timestamp = sample.cts / ts;
+			const ctsInSeconds = sample.cts / ts;
+			const dtsInSeconds = sample.dts / ts;
 
 			if (
-				timestamp <= time &&
-				byte < sample.offset &&
+				(ctsInSeconds <= time || dtsInSeconds <= time) &&
+				byte <= sample.offset &&
 				type === 'video' &&
 				sample.isKeyframe
 			) {

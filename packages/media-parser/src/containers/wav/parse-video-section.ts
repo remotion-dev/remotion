@@ -1,4 +1,5 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {WavFmt} from './types';
@@ -35,9 +36,9 @@ export const parseVideoSection = async ({
 		(offset - videoSection.start) / (fmtBox.sampleRate * fmtBox.blockAlign);
 
 	const data = iterator.getSlice(toRead);
-	await state.callbacks.onAudioSample(
-		0,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(
+	await emitAudioSample({
+		trackId: 0,
+		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
 			{
 				cts: timestamp,
 				dts: timestamp,
@@ -51,6 +52,7 @@ export const parseVideoSection = async ({
 			},
 			1,
 		),
-	);
+		state,
+	});
 	return null;
 };

@@ -62,7 +62,14 @@ export const bufferManager = ({
 	const skipTo = (offset: number) => {
 		const becomesSmaller = offset < counter.getOffset();
 		if (becomesSmaller) {
-			throw new Error('Cannot skip to a smaller offset');
+			const toDecrement = counter.getOffset() - offset;
+			if (toDecrement > counter.getDiscardedOffset()) {
+				throw new Error(
+					'Cannot count backwards, data has already been flushed',
+				);
+			}
+
+			counter.decrement(toDecrement);
 		}
 
 		const currentOffset = counter.getOffset();
@@ -83,10 +90,22 @@ export const bufferManager = ({
 		}
 
 		buf.resize(newLength);
-		const newArray = new Uint8Array(buf);
-		newArray.set(newData, oldLength);
-		uintArray = newArray;
+		uintArray = new Uint8Array(buf);
+		uintArray.set(newData, oldLength);
 		view = new DataView(uintArray.buffer);
+	};
+
+	const replaceData = (newData: Uint8Array, seekTo: number) => {
+		buf.resize(newData.byteLength);
+		uintArray = new Uint8Array(buf);
+		uintArray.set(newData);
+		view = new DataView(uintArray.buffer);
+		// no more dicarded bytes
+		counter.setDiscardedOffset(0);
+		// reset counter to 0
+		counter.decrement(counter.getOffset());
+		// seek to the new position
+		counter.increment(seekTo);
 	};
 
 	return {
@@ -96,5 +115,6 @@ export const bufferManager = ({
 		addData,
 		skipTo,
 		removeBytesRead: flushBytesRead,
+		replaceData,
 	};
 };
