@@ -13,8 +13,15 @@ export const getArrayBufferIterator = (
 	maxBytes: number | null,
 ) => {
 	const counter = makeOffsetCounter(0);
-	const {uintArray, view, addData, destroy, removeBytesRead, skipTo} =
-		bufferManager({initialData, maxBytes, counter});
+	const {
+		uintArray,
+		view,
+		addData,
+		destroy,
+		removeBytesRead,
+		skipTo,
+		replaceData,
+	} = bufferManager({initialData, maxBytes, counter});
 
 	const startCheckpoint = () => {
 		const checkpoint = counter.getOffset();
@@ -589,6 +596,7 @@ export const getArrayBufferIterator = (
 		getFlacCodecNumber,
 		readUntilLineEnd,
 		getSyncSafeInt32,
+		replaceData,
 	};
 };
 

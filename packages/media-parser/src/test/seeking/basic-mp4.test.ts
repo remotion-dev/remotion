@@ -1,12 +1,12 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
-import {hasBeenAborted} from '../errors';
-import {mediaParserController} from '../media-parser-controller';
-import {nodeReader} from '../node';
-import {parseMedia} from '../parse-media';
-import type {AudioOrVideoSample} from '../webcodec-sample-types';
+import {hasBeenAborted} from '../../errors';
+import {mediaParserController} from '../../media-parser-controller';
+import {nodeReader} from '../../node';
+import {parseMedia} from '../../parse-media';
+import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 
-test('should process a seek request', async () => {
+test('should process a basic seek request', async () => {
 	const controller = mediaParserController();
 
 	let firstSample: AudioOrVideoSample | undefined;
@@ -18,7 +18,7 @@ test('should process a seek request', async () => {
 			reader: nodeReader,
 			onVideoTrack: () => {
 				controller._experimentalSeek({
-					type: 'time-in-seconds',
+					type: 'keyframe-before-time-in-seconds',
 					time: 10.6,
 				});
 				return (s) => {

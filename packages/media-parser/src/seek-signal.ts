@@ -1,11 +1,11 @@
 export type SeekSignal = {
 	seek: (seek: Seek) => void;
 	getSeek: () => Seek | undefined;
-	clearSeekIfStillSame: (previousSeek: Seek) => void;
+	clearSeekIfStillSame: (previousSeek: Seek) => {hasChanged: boolean};
 };
 
 type SeekToTime = {
-	type: 'time-in-seconds';
+	type: 'keyframe-before-time-in-seconds';
 	time: number;
 };
 type SeekToByte = {
@@ -38,7 +38,10 @@ export const makeSeekSignal = (): SeekSignal => {
 		clearSeekIfStillSame(previousSeek: Seek) {
 			if (seek === previousSeek) {
 				seek = undefined;
+				return {hasChanged: false};
 			}
+
+			return {hasChanged: true};
 		},
 	};
 };

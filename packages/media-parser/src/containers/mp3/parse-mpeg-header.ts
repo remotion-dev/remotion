@@ -1,5 +1,6 @@
 // spec: http://www.mp3-tech.org/programmer/frame_header.html
 
+import {emitAudioSample} from '../../emit-audio-sample';
 import {Log} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {Mp3Info} from '../../state/mp3';
@@ -342,16 +343,20 @@ export const parseMpegHeader = async ({
 		const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
 		const timestamp = Math.round(timeInSeconds * 1_000_000);
 		const duration = Math.round(durationInSeconds * 1_000_000);
-		await state.callbacks.onAudioSample(0, {
-			data,
-			cts: timestamp,
-			dts: timestamp,
-			duration,
-			offset: initialOffset,
-			timescale: 1_000_000,
-			timestamp,
+		await emitAudioSample({
 			trackId: 0,
-			type: 'key',
+			audioSample: {
+				data,
+				cts: timestamp,
+				dts: timestamp,
+				duration,
+				offset: initialOffset,
+				timescale: 1_000_000,
+				timestamp,
+				trackId: 0,
+				type: 'key',
+			},
+			state,
 		});
 	}
 };
