@@ -22,7 +22,6 @@ test('should be able to seek forward and then backwards', async () => {
 			src: exampleVideos.bigBuckBunny,
 			controller,
 			reader: nodeReader,
-			logLevel: 'verbose',
 			onVideoTrack: () => {
 				return (s) => {
 					currentSample = s;

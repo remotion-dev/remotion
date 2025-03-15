@@ -15,6 +15,7 @@ import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {ParserState} from './state/parser-state';
+import {workOnSeekRequest} from './work-on-seek-request';
 
 export const emitAvailableInfo = async ({
 	hasInfo,
@@ -34,6 +35,7 @@ export const emitAvailableInfo = async ({
 	} = state;
 
 	for (const key of keys) {
+		await workOnSeekRequest(state);
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
 				await callbackFunctions.onStructure?.(state.getStructure());
@@ -479,4 +481,6 @@ export const emitAvailableInfo = async ({
 
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
+
+	await workOnSeekRequest(state);
 };
