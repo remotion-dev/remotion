@@ -18,7 +18,7 @@ test('should process a basic seek request', async () => {
 			reader: nodeReader,
 			onVideoTrack: () => {
 				controller._experimentalSeek({
-					type: 'time-in-seconds',
+					type: 'keyframe-before-time-in-seconds',
 					time: 10.6,
 				});
 				return (s) => {

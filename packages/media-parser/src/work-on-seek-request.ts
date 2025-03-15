@@ -5,7 +5,7 @@ import type {Seek} from './seek-signal';
 import type {ParserState} from './state/parser-state';
 
 const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
-	if (seek.type === 'time-in-seconds') {
+	if (seek.type === 'keyframe-before-time-in-seconds') {
 		const seekingInfo = getSeekingInfo(state);
 		if (!seekingInfo) {
 			return {

@@ -13,7 +13,7 @@ test('should be able to set the start seek', async () => {
 
 	try {
 		controller._experimentalSeek({
-			type: 'time-in-seconds',
+			type: 'keyframe-before-time-in-seconds',
 			time: 10.6,
 		});
 

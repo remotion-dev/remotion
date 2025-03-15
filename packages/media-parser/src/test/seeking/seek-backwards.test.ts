@@ -14,7 +14,7 @@ test('should be able to seek forward and then backwards', async () => {
 
 	try {
 		controller._experimentalSeek({
-			type: 'time-in-seconds',
+			type: 'keyframe-before-time-in-seconds',
 			time: 10.6,
 		});
 
@@ -32,7 +32,7 @@ test('should be able to seek forward and then backwards', async () => {
 							(currentSample?.timestamp ?? 0) / (currentSample?.timescale ?? 1);
 						expect(timeInSeconds).toBe(10.5);
 						controller._experimentalSeek({
-							type: 'time-in-seconds',
+							type: 'keyframe-before-time-in-seconds',
 							time: 0,
 						});
 					}
