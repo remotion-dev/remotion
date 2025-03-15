@@ -36,7 +36,15 @@ export const workOnSeekRequest = async (state: ParserState) => {
 
 	if (resolution.type === 'do-seek') {
 		await performSeek({state, seekTo: resolution.byte});
-		state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
+		const {hasChanged} =
+			state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
+		if (hasChanged) {
+			Log.trace(
+				state.logLevel,
+				`Seek request has changed while seeking, seeking again`,
+			);
+			await workOnSeekRequest(state);
+		}
 	}
 
 	if (resolution.type === 'invalid') {
