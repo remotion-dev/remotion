@@ -4,12 +4,10 @@ import {hasBeenAborted} from '../../errors';
 import {mediaParserController} from '../../media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 
 test('should be able to seek forward and then backwards', async () => {
 	const controller = mediaParserController();
 
-	let currentSample: AudioOrVideoSample | undefined;
 	let samples = 0;
 
 	try {
@@ -23,14 +21,13 @@ test('should be able to seek forward and then backwards', async () => {
 			controller,
 			reader: nodeReader,
 			onVideoTrack: () => {
-				return (s) => {
-					currentSample = s;
+				return (sample) => {
 					samples++;
 
 					if (samples === 1) {
-						const timeInSeconds =
-							(currentSample?.timestamp ?? 0) / (currentSample?.timescale ?? 1);
-						expect(timeInSeconds).toBe(10.5);
+						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
+							10.5,
+						);
 						controller._experimentalSeek({
 							type: 'keyframe-before-time-in-seconds',
 							time: 0,
@@ -38,9 +35,9 @@ test('should be able to seek forward and then backwards', async () => {
 					}
 
 					if (samples === 2) {
-						const timeInSeconds =
-							(currentSample?.timestamp ?? 0) / (currentSample?.timescale ?? 1);
-						expect(timeInSeconds).toBe(0.08333333333333333);
+						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
+							0.08333333333333333,
+						);
 						controller.abort();
 					}
 				};
@@ -50,5 +47,6 @@ test('should be able to seek forward and then backwards', async () => {
 		throw new Error('should not complete');
 	} catch (err) {
 		expect(hasBeenAborted(err)).toBe(true);
+		expect(samples).toBe(2);
 	}
 });
