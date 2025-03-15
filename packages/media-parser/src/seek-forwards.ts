@@ -6,6 +6,11 @@ export const seekForward = async (state: ParserState, seekTo: number) => {
 	const alreadyHasBuffer =
 		iterator.bytesRemaining() >= seekTo - iterator.counter.getOffset();
 
+	Log.verbose(
+		state.logLevel,
+		`Performing seek from ${iterator.counter.getOffset()} to ${seekTo}`,
+	);
+
 	// (a) starting byte has already been fetched
 
 	if (alreadyHasBuffer) {

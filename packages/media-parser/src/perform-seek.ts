@@ -34,7 +34,6 @@ export const performSeek = async ({
 	}
 
 	await state.controller?._internals.checkForAbortAndPause();
-	state.currentReader.abort();
 
 	const alreadyAtByte = iterator.counter.getOffset() === seekTo;
 	if (alreadyAtByte) {
@@ -48,4 +47,6 @@ export const performSeek = async ({
 	} else {
 		await seekBackwards(state, seekTo);
 	}
+
+	await state.controller?._internals.checkForAbortAndPause();
 };
