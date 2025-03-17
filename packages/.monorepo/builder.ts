@@ -91,6 +91,7 @@ export const buildPackage = async ({
 	console.time(`Generated.`);
 	const pkg = await Bun.file(path.join(process.cwd(), 'package.json')).json();
 	const newExports: Exports = {
+		...(pkg.exports ?? {}),
 		'./package.json': './package.json',
 	};
 	const versions = {};
@@ -134,12 +135,19 @@ export const buildPackage = async ({
 
 		for (const firstName of firstNames) {
 			const exportName = firstName === 'index' ? '.' : './' + firstName;
+			const tsConfig = await Bun.file(
+				path.join(process.cwd(), 'tsconfig.json'),
+			).json();
+			let cjsOutDir = tsConfig.compilerOptions.outDir ?? './dist';
+			if (!cjsOutDir.startsWith('./')) {
+				cjsOutDir = './' + cjsOutDir;
+			}
 			const outputName =
 				action === 'use-tsc'
-					? `./dist/${firstName}.js`
+					? `${cjsOutDir}/${firstName}.js`
 					: `./dist/${format}/${firstName}.${format === 'cjs' ? 'js' : 'mjs'}`;
 			newExports[exportName] = sortObject({
-				types: `./dist/${firstName}.d.ts`,
+				types: `${cjsOutDir}/${firstName}.d.ts`,
 				...(format === 'cjs'
 					? {
 							require: outputName,
@@ -157,7 +165,7 @@ export const buildPackage = async ({
 			});
 
 			if (firstName !== 'index') {
-				versions[firstName] = [`dist/${firstName}.d.ts`];
+				versions[firstName] = [`${cjsOutDir}/${firstName}.d.ts`];
 			}
 		}
 	}
@@ -169,7 +177,14 @@ export const buildPackage = async ({
 				...pkg,
 				exports: newExports,
 				...(Object.keys(versions).length > 0
-					? {typesVersions: {'>=1.0': versions}}
+					? {
+							typesVersions: {
+								'>=1.0': {
+									...(pkg.typesVersions?.['>=1.0'] ?? {}),
+									...versions,
+								},
+							},
+						}
 					: {}),
 			},
 			null,
