@@ -1236,6 +1236,18 @@ module.exports = {
 		},
 		'license',
 		'acknowledgements',
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'doc',
+			id: 'timeline',
+			label: 'Timeline',
+			className: 'pro-item',
+		},
 	],
 	recorderSidebar: [
 		{

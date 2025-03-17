@@ -5073,6 +5073,15 @@ export const articles = [
 		slug: 'three',
 	},
 	{
+		id: 'timeline',
+		title: 'Remotion Timeline',
+		relativePath: 'docs/timeline.mdx',
+		compId: 'articles-docs-timeline',
+		crumb: null,
+		noAi: false,
+		slug: 'timeline',
+	},
+	{
 		id: 'timeout',
 		title: 'Debugging timeouts',
 		relativePath: 'docs/timeout.mdx',

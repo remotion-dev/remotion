@@ -278,11 +278,6 @@
 			"permanent": false
 		},
 		{
-			"source": "/docs/timeline",
-			"destination": "/docs/studio",
-			"permanent": false
-		},
-		{
 			"source": "/templates/remix",
 			"destination": "/templates/react-router",
 			"permanent": false
