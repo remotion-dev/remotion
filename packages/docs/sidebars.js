@@ -1190,10 +1190,9 @@ module.exports = {
 		},
 		{
 			type: 'doc',
-			id: 'remotion-timeline',
-			customProps: {
-				paid: true,
-			},
+			id: 'timeline',
+			label: 'Timeline',
+			className: 'pro-item',
 		},
 	],
 	recorderSidebar: [
