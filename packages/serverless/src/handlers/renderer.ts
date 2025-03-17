@@ -24,10 +24,6 @@ import {
 } from '@remotion/serverless-client';
 import fs from 'node:fs';
 import path from 'node:path';
-import {
-	canConcatAudioSeamlessly,
-	canConcatVideoSeamlessly,
-} from '../can-concat-seamlessly';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {startLeakDetection} from '../leak-detection';
@@ -134,11 +130,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 		preferLossless: params.preferLossless,
 	});
 
-	const seamlessAudio = canConcatAudioSeamlessly(
+	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
 		defaultAudioCodec,
 		params.framesPerLambda,
 	);
-	const seamlessVideo = canConcatVideoSeamlessly(params.codec);
+	const seamlessVideo = RenderInternals.canConcatVideoSeamlessly(params.codec);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},

@@ -92,13 +92,13 @@
 	"typesVersions": {
 		">=1.0": {
 			"client": [
-				"dist/client.d.ts"
+				"./dist/client.d.ts"
 			],
 			"pure": [
-				"dist/pure.d.ts"
+				"./dist/pure.d.ts"
 			],
 			"error-handling": [
-				"dist/error-handling.d.ts"
+				"./dist/error-handling.d.ts"
 			]
 		}
 	}

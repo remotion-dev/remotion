@@ -504,6 +504,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		insideFunctionSpecifics,
+		everyNthFrame: params.everyNthFrame,
+		frameRange: params.frameRange,
 	});
 
 	return postRenderData;

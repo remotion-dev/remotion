@@ -78,13 +78,13 @@
 	"typesVersions": {
 		">=1.0": {
 			"renderEntry": [
-				"dist/renderEntry.d.ts"
+				"./dist/renderEntry.d.ts"
 			],
 			"internals": [
-				"dist/internals.d.ts"
+				"./dist/internals.d.ts"
 			],
 			"previewEntry": [
-				"dist/previewEntry.d.ts"
+				"./dist/previewEntry.d.ts"
 			]
 		}
 	}
