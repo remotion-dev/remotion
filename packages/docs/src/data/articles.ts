@@ -1341,6 +1341,15 @@ export const articles = [
 		slug: 'google-fonts/google-fonts',
 	},
 	{
+		id: 'google-fonts/load-font-from-info',
+		title: 'loadFontFromInfo()',
+		relativePath: 'docs/google-fonts/load-font-from-info.mdx',
+		compId: 'articles-docs-google-fonts-load-font-from-info',
+		crumb: '@remotion/google-fonts',
+		noAi: false,
+		slug: 'google-fonts/load-font-from-info',
+	},
+	{
 		id: 'google-fonts/load-font',
 		title: 'loadFont()',
 		relativePath: 'docs/google-fonts/load-font.mdx',
