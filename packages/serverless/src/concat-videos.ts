@@ -1,5 +1,5 @@
 import type {AudioCodec, CancelSignal, LogLevel} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {combineChunks, RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import {join} from 'node:path';
 
@@ -9,10 +9,7 @@ import {
 } from './can-concat-seamlessly';
 
 import type {CloudProvider, ServerlessCodec} from '@remotion/serverless-client';
-import {
-	REMOTION_CONCATENATED_TOKEN,
-	REMOTION_FILELIST_TOKEN,
-} from '@remotion/serverless-client';
+import {REMOTION_CONCATENATED_TOKEN} from '@remotion/serverless-client';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const concatVideos = async <Provider extends CloudProvider>({
@@ -57,7 +54,6 @@ export const concatVideos = async <Provider extends CloudProvider>({
 		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
 	);
 	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);
-	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const chunkDurationInSeconds = framesPerLambda / fps;
 
@@ -74,9 +70,8 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	);
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
 
-	await RenderInternals.combineChunks({
+	await combineChunks({
 		files,
-		filelistDir,
 		output: outfile,
 		onProgress,
 		numberOfFrames,

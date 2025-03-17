@@ -82,10 +82,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"client": [
-				"dist/client.d.ts"
+				"./dist/client.d.ts"
 			],
 			"policies": [
-				"dist/policies.d.ts"
+				"./dist/policies.d.ts"
 			]
 		}
 	},

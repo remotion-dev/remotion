@@ -62,10 +62,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"constants": [
-				"dist/constants.d.ts"
+				"./dist/constants.d.ts"
 			],
 			"regions": [
-				"dist/regions.d.ts"
+				"./dist/regions.d.ts"
 			]
 		}
 	}

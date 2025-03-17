@@ -9,7 +9,6 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import {checkRuntimeVersion} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
-import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
@@ -74,6 +73,7 @@ export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
+export {combineChunks} from './combine-videos';
 export {Crf} from './crf';
 export {EnsureBrowserOptions, ensureBrowser} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
@@ -198,7 +198,6 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,
-	combineChunks,
 	getMinConcurrency,
 	getMaxConcurrency,
 	getDefaultAudioCodec,

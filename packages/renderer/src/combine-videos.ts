@@ -14,11 +14,11 @@ import type {CancelSignal} from './make-cancel-signal';
 import {muxVideoAndAudio} from './mux-video-and-audio';
 import type {AudioCodec} from './options/audio-codec';
 import {getExtensionFromAudioCodec} from './options/audio-codec';
+import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
 
 type Options = {
 	files: string[];
-	filelistDir: string;
 	output: string;
 	onProgress: (p: number) => void;
 	numberOfFrames: number;
@@ -52,9 +52,10 @@ const codecSupportsFastStart: {[key in Codec]: boolean} = {
 	wav: false,
 };
 
+const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
+
 export const combineChunks = async ({
 	files,
-	filelistDir,
 	output,
 	onProgress,
 	numberOfFrames,
@@ -73,6 +74,8 @@ export const combineChunks = async ({
 	muted,
 	metadata,
 }: Options) => {
+	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
+
 	const shouldCreateAudio = resolvedAudioCodec !== null && !muted;
 	const shouldCreateVideo = !isAudioCodec(codec);
 
