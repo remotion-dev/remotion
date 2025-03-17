@@ -1,0 +1,161 @@
+---
+id: combine-chunks
+title: combineChunks()
+crumb: '@remotion/renderer'
+---
+
+# combineChunks()<AvailableFrom v="4.0.279" />
+
+Combine multiple video or audio chunks into a single output file. This function is useful for decentralized rendering workflows where different parts of a video are rendered separately and need to be combined.
+
+```tsx twoslash title="combine.mjs"
+import {combineChunks} from '@remotion/renderer';
+
+// Video files rendered as separate chunks
+const videoFiles = ['/path/to/chunk1.mp4', '/path/to/chunk2.mp4', '/path/to/chunk3.mp4'];
+
+// Optional audio files corresponding to each video chunk
+const audioFiles = ['/path/to/chunk1.aac', '/path/to/chunk2.aac', '/path/to/chunk3.aac'];
+
+await combineChunks({
+  outputLocation: '/path/to/final-video.mp4',
+  videoFiles,
+  audioFiles,
+  codec: 'h264',
+  fps: 30,
+  framesPerChunk: 100,
+  audioCodec: 'aac',
+  preferLossless: false,
+  totalDurationInFrames: 300,
+});
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `outputLocation`
+
+_string_
+
+Where to save the output media file. Must be an absolute path or a relative path that will be resolved relative to the current working directory.
+
+### `videoFiles`
+
+_string[]_
+
+An array of file paths pointing to the video chunks to be combined. These should be in the correct order for combining.
+
+### `audioFiles`
+
+_string[]_
+
+An array of file paths pointing to the audio chunks to be combined. These should be in the correct order for combining.
+
+### `codec`
+
+_"h264" | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
+
+The codec to use for the output file. Must match the codec used to create the chunks.
+
+### `fps`
+
+_number_
+
+The frames per second of the video.
+
+### `framesPerChunk`
+
+_number_
+
+The number of frames in each chunk. This is used to calculate timing for proper audio synchronization.
+
+### `audioCodec`
+
+_"pcm-16" | "aac" | "mp3" | "opus" | null - optional_
+
+Audio codec to use for the output file. If not specified, it will be determined based on the video codec.
+
+### `preferLossless`
+
+_boolean_
+
+Whether to prefer lossless audio when possible.
+
+### `totalDurationInFrames`
+
+_number_
+
+The total duration of the video in frames.
+
+### `onProgress?`
+
+_function - optional_
+
+Callback function to track the progress of the combining operation.
+
+```tsx twoslash
+import {CombineChunksOnProgress} from '@remotion/renderer';
+
+const onProgress: CombineChunksOnProgress = ({totalProgress, frames}) => {
+  console.log(`Combining is ${totalProgress * 100}% complete`);
+  console.log(`Processed ${frames} frames`);
+};
+```
+
+### `audioBitrate?`
+
+_string | null - optional_
+
+The bitrate to use for audio encoding, for example `"128k"`.
+
+### `numberOfGifLoops?`
+
+_number | null - optional_
+
+Only applies when codec is 'gif'. Controls how many times the GIF will loop (use 0 for infinite loop).
+
+### `logLevel?`
+
+_"verbose" | "info" | "warn" | "error" - optional_
+
+Controls the verbosity of logging. Default is `"info"`.
+
+### `binariesDirectory?`
+
+_string | null - optional_
+
+A directory containing FFmpeg binaries to use instead of the bundled or system-installed ones.
+
+### `cancelSignal?`
+
+_CancelSignal - optional_
+
+A token that allows the combining process to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
+
+### `metadata?`
+
+_Record<string, string> | null - optional_
+
+Metadata to add to the output file, in the format of key-value pairs.
+
+### `frameRange?`
+
+_number | [number, number] | null - optional_
+
+Specify a single frame or a range of frames to be included in the output.
+
+### `everyNthFrame?`
+
+_number - optional_
+
+Include only every nth frame in the output. Useful for GIF rendering. Default is 1 (include all frames).
+
+## Return Value
+
+The function returns a Promise that resolves when the combining process is complete.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/combine-chunks.ts)
+- [renderMedia()](/docs/renderer/render-media)
