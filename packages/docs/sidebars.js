@@ -439,6 +439,7 @@ module.exports = {
 				'google-fonts/load-font',
 				'google-fonts/get-available-fonts',
 				'google-fonts/get-info',
+				'google-fonts/load-font-from-info',
 			],
 		},
 		{

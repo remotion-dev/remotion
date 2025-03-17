@@ -29,6 +29,9 @@ export const validateExports = (exports: Exports) => {
 				throw new Error(`Invalid export: ${entry}: ${JSON.stringify(exports)}`);
 			}
 			const pathToCheck = path.join(process.cwd(), value[entry]);
+			if (pathToCheck.includes('*')) {
+				continue;
+			}
 			const exists = existsSync(pathToCheck);
 			if (!exists) {
 				throw new Error(`Path does not exist: ${pathToCheck}`);
