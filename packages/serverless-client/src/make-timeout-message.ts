@@ -103,7 +103,7 @@ export const makeTimeoutMessage = <Provider extends CloudProvider>({
 		'',
 		`Consider increasing the timeout of your function.`,
 		`▸ You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction() API.`,
-		`${DOCS_URL}/docs/lambda/cli/functions#deploy`,
+		`${DOCS_URL}/docs/lambda/cli/functions/deploy`,
 		'',
 		'▸ Visit the logs for the main function:',
 		cloudWatchLaunchUrl,

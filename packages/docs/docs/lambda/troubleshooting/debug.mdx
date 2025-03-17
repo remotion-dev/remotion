@@ -47,7 +47,7 @@ You can increase the timeout by passing `timeoutInMilliseconds` to [`renderMedia
 <br />
 If your error message reads that the main Lambda function has timed out, it means that the render was still ongoing, but the maximum execution duration of the Lambda function has been hit. This is caused by either: <br /> <br />
 
-- A render that takes too long to complete within the specified duration. In that case, you should increase the function timeout by passing `--timeout` to the CLI [when deploying a function](/docs/lambda/cli/functions).
+- A render that takes too long to complete within the specified duration. In that case, you should increase the function timeout by passing `--timeout` to the CLI [when deploying a function](/docs/lambda/cli/functions/deploy).
 - A render that has a bottleneck and completes slowly on Lambda. In that case, you should identify the bottleneck by measuring and optimizing the render. See [Optimizing for speed](/docs/lambda/optimizing-speed) for more tips.
 - A chunk is getting stuck, making it impossible for the main function to complete the task of concatenating the chunks. You should identify the chunk that is getting stuck by looking at the logs. See below for how to do this.
 
@@ -111,7 +111,7 @@ After you've identified which chunks are missing, [inspect the logs](#inspecting
 Note that two types of timeouts come into play in Remotion:
 
 - The `delayRender()` timeout. This is the timeout that is defined using `--timeout` when calling [`npx remotion lambda render`](/docs/lambda/cli/render) or using `timeoutInMilliseconds` when calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
-- The Lambda function timeout. This is the timeout that is defined using `--timeout` when calling [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions) or using `timeoutInSeconds` when calling [`deployFunction()`](/docs/lambda/deployfunction).
+- The Lambda function timeout. This is the timeout that is defined using `--timeout` when calling [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy) or using `timeoutInSeconds` when calling [`deployFunction()`](/docs/lambda/deployfunction).
 
 ### Reporting an issue
 
