@@ -2,7 +2,7 @@
 image: /generated/articles-docs-troubleshooting-bundling-bundle.png
 sidebar_label: Calling bundle() in bundled code
 title: Calling bundle() in bundled code
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 If you receive the following error:
@@ -42,7 +42,7 @@ See how to parametrize the [content with input props](/docs/passing-props) as we
 
 **If you are using a long-running server:** we recommend to call `bundle()` once in a Node.js context and then reusing it for the lifetime of the server. See: [Rendering in Node.js](/docs/ssr-node)
 
-**If you are rendering on Lambda**: Create a bundle and deploy it once either via [`npx remotion sites create`](/docs/lambda/cli/sites#create) or using [`deploySite()`](/docs/lambda/deploysite) in a non-bundled Node.js script and then refer to the bundle via the URL that you get back.
+**If you are rendering on Lambda**: Create a bundle and deploy it once either via [`npx remotion sites create`](/docs/lambda/cli/sites/create) or using [`deploySite()`](/docs/lambda/deploysite) in a non-bundled Node.js script and then refer to the bundle via the URL that you get back.
 
 In both cases, do all parameterization of the video using [input props](/docs/parameterized-rendering).
 

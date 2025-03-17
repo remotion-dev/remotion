@@ -23,8 +23,34 @@ module.exports = {
 						id: 'lambda/cli',
 					},
 					items: [
-						'lambda/cli/sites',
-						'lambda/cli/functions',
+						{
+							type: 'category',
+							label: 'sites',
+							link: {
+								type: 'doc',
+								id: 'lambda/cli/sites',
+							},
+							items: [
+								'lambda/cli/sites/create',
+								'lambda/cli/sites/ls',
+								'lambda/cli/sites/rm',
+								'lambda/cli/sites/rmall',
+							],
+						},
+						{
+							type: 'category',
+							label: 'functions',
+							link: {
+								type: 'doc',
+								id: 'lambda/cli/functions',
+							},
+							items: [
+								'lambda/cli/functions/deploy',
+								'lambda/cli/functions/ls',
+								'lambda/cli/functions/rm',
+								'lambda/cli/functions/rmall',
+							],
+						},
 						'lambda/cli/render',
 						'lambda/cli/still',
 						'lambda/cli/policies',
@@ -41,8 +67,34 @@ module.exports = {
 						id: 'cloudrun/cli',
 					},
 					items: [
-						'cloudrun/cli/sites',
-						'cloudrun/cli/services',
+						{
+							type: 'category',
+							label: 'sites',
+							link: {
+								type: 'doc',
+								id: 'cloudrun/cli/sites',
+							},
+							items: [
+								'cloudrun/cli/sites/create',
+								'cloudrun/cli/sites/ls',
+								'cloudrun/cli/sites/rm',
+								'cloudrun/cli/sites/rmall',
+							],
+						},
+						{
+							type: 'category',
+							label: 'services',
+							link: {
+								type: 'doc',
+								id: 'cloudrun/cli/services',
+							},
+							items: [
+								'cloudrun/cli/services/deploy',
+								'cloudrun/cli/services/ls',
+								'cloudrun/cli/services/rm',
+								'cloudrun/cli/services/rmall',
+							],
+						},
 						'cloudrun/cli/render',
 						'cloudrun/cli/still',
 						'cloudrun/cli/permissions',
