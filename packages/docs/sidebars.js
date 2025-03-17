@@ -23,8 +23,34 @@ module.exports = {
 						id: 'lambda/cli',
 					},
 					items: [
-						'lambda/cli/sites',
-						'lambda/cli/functions',
+						{
+							type: 'category',
+							label: 'sites',
+							link: {
+								type: 'doc',
+								id: 'lambda/cli/sites',
+							},
+							items: [
+								'lambda/cli/sites/create',
+								'lambda/cli/sites/ls',
+								'lambda/cli/sites/rm',
+								'lambda/cli/sites/rmall',
+							],
+						},
+						{
+							type: 'category',
+							label: 'functions',
+							link: {
+								type: 'doc',
+								id: 'lambda/cli/functions',
+							},
+							items: [
+								'lambda/cli/functions/deploy',
+								'lambda/cli/functions/ls',
+								'lambda/cli/functions/rm',
+								'lambda/cli/functions/rmall',
+							],
+						},
 						'lambda/cli/render',
 						'lambda/cli/still',
 						'lambda/cli/policies',
