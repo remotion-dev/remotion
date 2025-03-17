@@ -73,7 +73,11 @@ export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
-export {combineChunks} from './combine-chunks';
+export {
+	CombineChunksOnProgress,
+	CombineChunksOptions,
+	combineChunks,
+} from './combine-chunks';
 export {Crf} from './crf';
 export {EnsureBrowserOptions, ensureBrowser} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
@@ -134,7 +138,12 @@ export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
+import {
+	canConcatAudioSeamlessly,
+	canConcatVideoSeamlessly,
+} from './can-concat-seamlessly';
 import {codecSupportsMedia} from './codec-supports-media';
+import {internalCombineChunks} from './combine-chunks';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
 import type {AudioCodec} from './options/audio-codec';
@@ -239,6 +248,9 @@ export const RenderInternals = {
 	internalEnsureBrowser,
 	printUsefulErrorMessage,
 	DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
+	canConcatVideoSeamlessly,
+	canConcatAudioSeamlessly,
+	internalCombineChunks,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

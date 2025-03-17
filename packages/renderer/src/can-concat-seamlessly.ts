@@ -1,6 +1,7 @@
-import type {AudioCodec, Codec} from '@remotion/renderer';
-
 // Cannot do WAV yet, because currently assumes AAC in+outpoint
+
+import type {Codec} from './codec';
+import type {AudioCodec} from './options/audio-codec';
 
 export const canConcatAudioSeamlessly = (
 	audioCodec: AudioCodec | null,

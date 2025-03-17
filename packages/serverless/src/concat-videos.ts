@@ -1,12 +1,13 @@
-import type {AudioCodec, CancelSignal, LogLevel} from '@remotion/renderer';
-import {combineChunks, RenderInternals} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	CancelSignal,
+	CombineChunksOnProgress,
+	FrameRange,
+	LogLevel,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import {join} from 'node:path';
-
-import {
-	canConcatAudioSeamlessly,
-	canConcatVideoSeamlessly,
-} from './can-concat-seamlessly';
 
 import type {CloudProvider, ServerlessCodec} from '@remotion/serverless-client';
 import {REMOTION_CONCATENATED_TOKEN} from '@remotion/serverless-client';
@@ -14,7 +15,6 @@ import type {InsideFunctionSpecifics} from './provider-implementation';
 
 export const concatVideos = async <Provider extends CloudProvider>({
 	onProgress,
-	numberOfFrames,
 	codec,
 	fps,
 	numberOfGifLoops,
@@ -27,12 +27,13 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	binariesDirectory,
 	cancelSignal,
 	preferLossless,
-	muted,
 	metadata,
 	insideFunctionSpecifics,
+	everyNthFrame,
+	frameRange,
+	totalDurationInFrames,
 }: {
-	onProgress: (frames: number) => void;
-	numberOfFrames: number;
+	onProgress: CombineChunksOnProgress;
 	codec: ServerlessCodec;
 	fps: number;
 	numberOfGifLoops: number | null;
@@ -45,9 +46,11 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
-	muted: boolean;
 	metadata: Record<string, string> | null;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	totalDurationInFrames: number;
+	everyNthFrame: number;
+	frameRange: FrameRange | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN),
@@ -55,41 +58,31 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	);
 	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);
 
-	const chunkDurationInSeconds = framesPerLambda / fps;
+	const audioFiles = files.filter((f) => f.endsWith('audio'));
+	const videoFiles = files.filter((f) => f.endsWith('video'));
 
-	const resolvedAudioCodec = RenderInternals.resolveAudioCodec({
-		setting: audioCodec,
-		codec,
-		preferLossless,
-		separateAudioTo: null,
-	});
-
-	const seamlessAudio = canConcatAudioSeamlessly(
-		resolvedAudioCodec,
-		framesPerLambda,
-	);
-	const seamlessVideo = canConcatVideoSeamlessly(codec);
-
-	await combineChunks({
-		files,
-		output: outfile,
+	await RenderInternals.internalCombineChunks({
+		outputLocation: outfile,
 		onProgress,
-		numberOfFrames,
 		codec,
 		fps,
 		numberOfGifLoops,
-		resolvedAudioCodec,
 		audioBitrate,
 		indent: false,
 		logLevel,
-		chunkDurationInSeconds,
 		binariesDirectory,
 		cancelSignal,
-		seamlessAudio,
-		seamlessVideo,
-		muted,
 		metadata,
+		audioFiles,
+		videoFiles,
+		framesPerChunk: framesPerLambda,
+		audioCodec,
+		preferLossless,
+		totalDurationInFrames,
+		everyNthFrame,
+		frameRange,
 	});
+
 	combine.end();
 
 	const cleanupChunksProm = fs.promises.rm(outdir, {
