@@ -58,6 +58,7 @@ const config = (mode) => ({
 						{to: '/docs/media-parser', label: 'Media Parser'},
 						{to: '/docs/webcodecs', label: 'WebCodecs'},
 						{to: '/docs/recorder', label: 'Recorder'},
+						{to: '/docs/remotion-timeline', label: 'Timeline'},
 					],
 				},
 				{
