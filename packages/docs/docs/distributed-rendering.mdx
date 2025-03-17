@@ -85,23 +85,23 @@ Pass the video and audio chunks, and [artifacts](/docs/artifacts) that you have 
 
 Collect all the audio and video chunks. Once you have all of them, you can call [`combineChunks()`](/docs/renderer/combine-chunks) with the following parameters:
 
-- [`videoFiles`](/docs/combine-chunks#videofiles): An array of absolute paths to video chunks, must be in order.
-- [`audioFiles`](/docs/combine-chunks#audiofiles): An array of absolute paths to audio chunks, must be in order.
-- [`outputLocation`](/docs/combine-chunks#outputlocation): An absolute file path where the combined chunks are stored.
-- [`onProgress`](/docs/combine-chunks#onprogress): See documentation for `combineChunks()`.
-- [`codec`](/docs/combine-chunks#codec): The final codec of the media. If you want to render `h264`, you should now pass `h264`, not `h264-ts`.
-- [`framesPerChunk`](/docs/combine-chunks#framesperchunk): The amount of frames that were rendered per chunk. The `everyNthFrame` option will be applied only afterwards, so don't calculate it in.
-- [`fps`](/docs/combine-chunks#fps): Must be the value of `fps` that you got from [`selectComposition`](/docs/renderer/select-composition).
+- [`videoFiles`](/docs/renderer/combine-chunks#videofiles): An array of absolute paths to video chunks, must be in order.
+- [`audioFiles`](/docs/renderer/combine-chunks#audiofiles): An array of absolute paths to audio chunks, must be in order.
+- [`outputLocation`](/docs/renderer/combine-chunks#outputlocation): An absolute file path where the combined chunks are stored.
+- [`onProgress`](/docs/renderer/combine-chunks#onprogress): See documentation for `combineChunks()`.
+- [`codec`](/docs/renderer/combine-chunks#codec): The final codec of the media. If you want to render `h264`, you should now pass `h264`, not `h264-ts`.
+- [`framesPerChunk`](/docs/renderer/combine-chunks#framesperchunk): The amount of frames that were rendered per chunk. The `everyNthFrame` option will be applied only afterwards, so don't calculate it in.
+- [`fps`](/docs/renderer/combine-chunks#fps): Must be the value of `fps` that you got from [`selectComposition`](/docs/renderer/select-composition).
 - [`preferLossless`](/docs/renderer/combine-chunks#preferlossless): Pass it here as well if you passed it to [`renderMedia()`](/docs/renderer/render-media#preferlossless).
 - [`compositionDurationInFrames`](/docs/renderer/combine-chunks#compositiondurationinframes): The total duration of the composition, taken from [`selectComposition()`](/docs/renderer/select-composition). Pass the full duration even if you are only rendering a portion of it.
 - [`frameRange`](/docs/renderer/combine-chunks#framerange): If you only rendered a portion of a composition, then you must pass that exact frame range here as well. Remember that frame ranges start at `0`, and end at `durationInFrames - 1`. Passing values too small or too big will cause an error to be thrown.
 
 If you have changed the defaults of a [`renderMedia()`](/docs/renderer/render-media) call, you may also have to pass additional parameters:
 
-- [`audioCodec`](/docs/combine-chunks#audiocodec): If you passed a custom `audioCodec` to the render routines, then you should also pass it here. Otherwise, should be `null`. If the default for the video codec would have been `aac` and you passed `pcm-16` to the render routine, you can now pass `null` again.
-- [`audioBitrate`](/docs/combine-chunks#audiobitrate): The bitrate that you would target. Since you might have rendered
-- [`numberOfGifLoops`](/docs/combine-chunks#numberofgifloops): If you are rendering a GIF, you can now set the number of loops (remember that for each chunk it must be `null`)
-- [`everyNthFrame`](/docs/combine-chunks#everynthframe): If you passed it to each [`renderMedia()`](/docs/renderer/render-media) call, pass it here again.
+- [`audioCodec`](/docs/renderer/combine-chunks#audiocodec): If you passed a custom `audioCodec` to the render routines, then you should also pass it here. Otherwise, should be `null`. If the default for the video codec would have been `aac` and you passed `pcm-16` to the render routine, you can now pass `null` again.
+- [`audioBitrate`](/docs/renderer/combine-chunks#audiobitrate): The bitrate that you would target. Since you might have rendered
+- [`numberOfGifLoops`](/docs/renderer/combine-chunks#numberofgifloops): If you are rendering a GIF, you can now set the number of loops (remember that for each chunk it must be `null`)
+- [`everyNthFrame`](/docs/renderer/combine-chunks#everynthframe): If you passed it to each [`renderMedia()`](/docs/renderer/render-media) call, pass it here again.
 
 Furthermore, you can use the [`logLevel`](/docs/renderer/combine-chunks#loglevel), [`metadata`](/docs/renderer/combine-chunks#metadata), [`cancelSignal`](/docs/renderer/combine-chunks#cancelsignal) and [`binariesDirectory`](/docs/renderer/combine-chunks#binariesdirectory) options as you would use with [`renderMedia`](/docs/renderer/render-media).
 
