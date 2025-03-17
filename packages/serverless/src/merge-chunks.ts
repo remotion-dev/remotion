@@ -89,7 +89,7 @@ export const mergeChunksAndFinishRender = async <
 		preferLossless: options.preferLossless,
 		metadata: options.renderMetadata.metadata,
 		insideFunctionSpecifics: options.insideFunctionSpecifics,
-		totalDurationInFrames: options.numberOfFrames,
+		compositionDurationInFrames: options.numberOfFrames,
 		everyNthFrame: options.everyNthFrame,
 		frameRange: options.frameRange,
 	});

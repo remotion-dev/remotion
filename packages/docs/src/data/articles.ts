@@ -1035,6 +1035,15 @@ export const articles = [
 		slug: 'deno',
 	},
 	{
+		id: 'distributed-rendering',
+		title: 'Distributed rendering',
+		relativePath: 'docs/distributed-rendering.mdx',
+		compId: 'articles-docs-distributed-rendering',
+		crumb: 'Advanced rendering',
+		noAi: false,
+		slug: 'distributed-rendering',
+	},
+	{
 		id: 'docker',
 		title: 'Dockerizing a Remotion app',
 		relativePath: 'docs/docker.mdx',
@@ -4000,6 +4009,15 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'renderer',
+	},
+	{
+		id: 'combine-chunks',
+		title: 'combineChunks()',
+		relativePath: 'docs/renderer/combine-chunks.mdx',
+		compId: 'articles-docs-renderer-combine-chunks',
+		crumb: '@remotion/renderer',
+		noAi: false,
+		slug: 'renderer/combine-chunks',
 	},
 	{
 		id: 'ensure-browser',

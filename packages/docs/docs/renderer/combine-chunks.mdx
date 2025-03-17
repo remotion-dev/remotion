@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-combine-chunks.png
 id: combine-chunks
 title: combineChunks()
 crumb: '@remotion/renderer'
@@ -7,6 +8,14 @@ crumb: '@remotion/renderer'
 # combineChunks()<AvailableFrom v="4.0.279" />
 
 Combine multiple video or audio chunks into a single output file. This function is useful for decentralized rendering workflows where different parts of a video are rendered separately and need to be combined.
+
+[Remotion Lambda](/docs/lambda) uses this API under the hood to combine chunks that were rendered on individual Lambda functions.
+
+:::note
+**Advanced API:** This is a hard-to-use API that most people should not use directly. Misusage of this API might lead to unpredictable behavior and potential audio and video artifacts. If you want a distributed rendering solution, use [`renderMediaOnLambda()`](/docs/lambda/render-media-on-lambda). If you just want to render a video with multithreading enabled, use [`renderMedia()`](/docs/renderer/render-media).
+:::
+
+## Example
 
 ```tsx twoslash title="combine.mjs"
 import {combineChunks} from '@remotion/renderer';
@@ -26,7 +35,7 @@ await combineChunks({
   framesPerChunk: 100,
   audioCodec: 'aac',
   preferLossless: false,
-  totalDurationInFrames: 300,
+  compositionDurationInFrames: 300,
 });
 ```
 
@@ -38,37 +47,37 @@ An object with the following properties:
 
 _string_
 
-Where to save the output media file. Must be an absolute path or a relative path that will be resolved relative to the current working directory.
+Where to save the output media file. Must be an absolute path.
 
 ### `videoFiles`
 
 _string[]_
 
-An array of file paths pointing to the video chunks to be combined. These should be in the correct order for combining.
+An array of absolute file paths pointing to the video chunks to be combined. These should be in the correct order for combining.
 
 ### `audioFiles`
 
 _string[]_
 
-An array of file paths pointing to the audio chunks to be combined. These should be in the correct order for combining.
+An array of absolute file paths pointing to the audio chunks to be combined. These should be in the correct order for combining.
 
 ### `codec`
 
 _"h264" | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
 
-The codec to use for the output file. Must match the codec used to create the chunks.
+The codec to use for the output file. See the distributed rendering guide to see which parameter to set.
 
 ### `fps`
 
 _number_
 
-The frames per second of the video.
+The frames per second of the video. Must be set to the `fps` value returned by [`selectComposition()`](/docs/renderer/select-composition).
 
 ### `framesPerChunk`
 
 _number_
 
-The number of frames in each chunk. This is used to calculate timing for proper audio synchronization.
+The number of frames in each chunk. All chunks must have the same number of frames, except the last one.
 
 ### `audioCodec`
 
@@ -80,13 +89,28 @@ Audio codec to use for the output file. If not specified, it will be determined 
 
 _boolean_
 
-Whether to prefer lossless audio when possible.
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
-### `totalDurationInFrames`
+### `compositionDurationInFrames`
 
 _number_
 
-The total duration of the video in frames.
+The total duration of the composition. Must be set to the `durationInFrames` value returned by [`selectComposition()`](/docs/renderer/select-composition).  
+Do not change the value, even if you use the `frameRange` or `everyNthFrame` options.
+
+### `frameRange?`
+
+_number | [number, number] | null - optional_
+
+Like [`frameRange`](/docs/renderer/render-media#framerange) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/renderer/render-media-on-lambda). The range of frames of which the video exists once all chunks are combined.
+
+### `everyNthFrame?`
+
+_number - optional_
+
+Like [`everyNthFrame`](/docs/renderer/render-media#everynthframe) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/renderer/render-media-on-lambda).
+
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
 ### `onProgress?`
 
@@ -107,13 +131,13 @@ const onProgress: CombineChunksOnProgress = ({totalProgress, frames}) => {
 
 _string | null - optional_
 
-The bitrate to use for audio encoding, for example `"128k"`.
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
 ### `numberOfGifLoops?`
 
 _number | null - optional_
 
-Only applies when codec is 'gif'. Controls how many times the GIF will loop (use 0 for infinite loop).
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
 
 ### `logLevel?`
 
@@ -135,21 +159,7 @@ A token that allows the combining process to be cancelled. See: [`makeCancelSign
 
 ### `metadata?`
 
-_Record<string, string> | null - optional_
-
 Metadata to add to the output file, in the format of key-value pairs.
-
-### `frameRange?`
-
-_number | [number, number] | null - optional_
-
-Specify a single frame or a range of frames to be included in the output.
-
-### `everyNthFrame?`
-
-_number - optional_
-
-Include only every nth frame in the output. Useful for GIF rendering. Default is 1 (include all frames).
 
 ## Return Value
 

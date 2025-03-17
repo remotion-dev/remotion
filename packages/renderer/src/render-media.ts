@@ -185,6 +185,7 @@ export type RenderMediaOptions = Prettify<{
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
+	compositionStart?: number;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -905,6 +906,7 @@ export const renderMedia = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
+	compositionStart,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -987,8 +989,7 @@ export const renderMedia = ({
 			}),
 		onArtifact: onArtifact ?? null,
 		metadata: metadata ?? null,
-		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
-		compositionStart: 0,
+		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 	});

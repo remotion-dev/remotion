@@ -152,6 +152,7 @@ module.exports = {
 				'renderer/get-can-extract-frames-fast',
 				'renderer/get-video-metadata',
 				'renderer/get-silent-parts',
+				'renderer/combine-chunks',
 				'renderer/extract-audio',
 			],
 		},
@@ -790,6 +791,7 @@ module.exports = {
 				'miscellaneous/cloud-gpu',
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
+				'distributed-rendering',
 			],
 		},
 		{

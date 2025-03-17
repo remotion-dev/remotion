@@ -34,9 +34,8 @@ type MandatoryCombineChunksOptions = {
 	videoFiles: string[];
 	fps: number;
 	framesPerChunk: number;
-	audioCodec: AudioCodec | null;
 	preferLossless: boolean;
-	totalDurationInFrames: number;
+	compositionDurationInFrames: number;
 };
 
 type CombineChunksProgress = {
@@ -50,9 +49,9 @@ type OptionalCombineChunksOptions = {
 	onProgress: CombineChunksOnProgress;
 	audioBitrate: string | null;
 	numberOfGifLoops: number | null;
-	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
+	audioCodec: AudioCodec | null;
 	cancelSignal: CancelSignal | undefined;
 	metadata: Record<string, string> | null;
 	frameRange: FrameRange | null;
@@ -100,8 +99,10 @@ export const internalCombineChunks = async ({
 	preferLossless,
 	everyNthFrame,
 	frameRange,
-	totalDurationInFrames,
-}: AllCombineChunksOptions) => {
+	compositionDurationInFrames,
+}: AllCombineChunksOptions & {
+	indent: boolean;
+}) => {
 	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const shouldCreateVideo = !isAudioCodec(codec);
@@ -122,7 +123,10 @@ export const internalCombineChunks = async ({
 		framesPerChunk,
 	);
 
-	const realFrameRange = getRealFrameRange(totalDurationInFrames, frameRange);
+	const realFrameRange = getRealFrameRange(
+		compositionDurationInFrames,
+		frameRange,
+	);
 
 	const numberOfFrames = getFramesToRender(
 		realFrameRange,
@@ -255,12 +259,12 @@ export const combineChunks = (options: CombineChunksOptions) => {
 	return internalCombineChunks({
 		audioBitrate: options.audioBitrate ?? null,
 		numberOfGifLoops: options.numberOfGifLoops ?? null,
-		indent: options.indent ?? false,
+		indent: false,
 		logLevel: options.logLevel ?? 'info',
 		binariesDirectory: options.binariesDirectory ?? null,
 		cancelSignal: options.cancelSignal,
 		metadata: options.metadata ?? null,
-		audioCodec: options.audioCodec,
+		audioCodec: options.audioCodec ?? null,
 		preferLossless: options.preferLossless,
 		audioFiles: options.audioFiles,
 		codec: options.codec,
@@ -271,6 +275,6 @@ export const combineChunks = (options: CombineChunksOptions) => {
 		videoFiles: options.videoFiles,
 		everyNthFrame: options.everyNthFrame ?? 1,
 		frameRange: options.frameRange ?? null,
-		totalDurationInFrames: options.totalDurationInFrames,
+		compositionDurationInFrames: options.compositionDurationInFrames,
 	});
 };

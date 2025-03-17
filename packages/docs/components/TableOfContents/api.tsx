@@ -9,6 +9,7 @@ import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
 import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
+import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
@@ -28,7 +29,6 @@ import {TableOfContents as NoiseTableOfContents} from '../TableOfContents/noise'
 import {TableOfContents as PathsTableOfContents} from '../TableOfContents/paths';
 import {TableOfContents as PreloadTableOfContents} from '../TableOfContents/preload';
 import {TableOfContents as RemotionTableOfContents} from '../TableOfContents/remotion';
-import {TableOfContents as RendererTableOfContents} from '../TableOfContents/renderer';
 import {TableOfContents as RiveTableOfContents} from '../TableOfContents/rive';
 import {TableOfContents as ShapesTableOfContents} from '../TableOfContents/shapes';
 import {TableOfContents as TransitionsTableOfContents} from '../TableOfContents/transitions';

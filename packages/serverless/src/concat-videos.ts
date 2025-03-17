@@ -31,7 +31,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	insideFunctionSpecifics,
 	everyNthFrame,
 	frameRange,
-	totalDurationInFrames,
+	compositionDurationInFrames,
 }: {
 	onProgress: CombineChunksOnProgress;
 	codec: ServerlessCodec;
@@ -48,7 +48,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	preferLossless: boolean;
 	metadata: Record<string, string> | null;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-	totalDurationInFrames: number;
+	compositionDurationInFrames: number;
 	everyNthFrame: number;
 	frameRange: FrameRange | null;
 }) => {
@@ -78,7 +78,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 		framesPerChunk: framesPerLambda,
 		audioCodec,
 		preferLossless,
-		totalDurationInFrames,
+		compositionDurationInFrames,
 		everyNthFrame,
 		frameRange,
 	});
