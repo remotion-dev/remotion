@@ -17,7 +17,7 @@ import {getExtensionFromAudioCodec} from './options/audio-codec';
 import {tmpDir} from './tmp-dir';
 import {truthy} from './truthy';
 
-type Options = {
+type CombineChunksOptions = {
 	files: string[];
 	output: string;
 	onProgress: (p: number) => void;
@@ -73,7 +73,7 @@ export const combineChunks = async ({
 	seamlessVideo,
 	muted,
 	metadata,
-}: Options) => {
+}: CombineChunksOptions) => {
 	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const shouldCreateAudio = resolvedAudioCodec !== null && !muted;

@@ -73,7 +73,7 @@ export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
-export {combineChunks} from './combine-videos';
+export {combineChunks} from './combine-chunks';
 export {Crf} from './crf';
 export {EnsureBrowserOptions, ensureBrowser} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
