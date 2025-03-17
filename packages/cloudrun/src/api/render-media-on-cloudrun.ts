@@ -41,7 +41,7 @@ type InternalRenderMediaOnCloudrun = {
 	forceBucketName: string | undefined;
 	outName: string | undefined;
 	updateRenderProgress:
-		| ((progress: number, error?: boolean) => void)
+		| ((progress: number, error: boolean) => void)
 		| undefined;
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
@@ -65,6 +65,8 @@ type InternalRenderMediaOnCloudrun = {
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
 
+export type UpdateRenderProgress = (progress: number, error: boolean) => void;
+
 export type RenderMediaOnCloudrunInput = {
 	region: GcpRegion;
 	serveUrl: string;
@@ -77,7 +79,7 @@ export type RenderMediaOnCloudrunInput = {
 	privacy?: 'public' | 'private';
 	forceBucketName?: string;
 	outName?: string;
-	updateRenderProgress?: (progress: number, error?: boolean) => void;
+	updateRenderProgress?: UpdateRenderProgress;
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
@@ -250,7 +252,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 			if (parsedData.response) {
 				response = parsedData.response;
 			} else if (parsedData.onProgress) {
-				updateRenderProgress?.(parsedData.onProgress);
+				updateRenderProgress?.(parsedData.onProgress, false);
 			}
 
 			if (parsedData.type === 'error') {
