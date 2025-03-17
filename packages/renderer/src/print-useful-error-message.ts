@@ -181,4 +181,16 @@ export const printUsefulErrorMessage = (
 			'Try increasing the disk size of your Lambda function.',
 		);
 	}
+
+	if (err.message.includes('Invalid value specified for cpu')) {
+		Log.info({indent, logLevel});
+		Log.info(
+			{indent, logLevel},
+			'💡 This error indicates that your GCP account does have a limit. Try setting `--maxInstances=5` / `maxInstances: 5` when deploying this service.',
+		);
+		Log.info({
+			indent,
+			logLevel,
+		});
+	}
 };
