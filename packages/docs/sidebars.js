@@ -42,7 +42,20 @@ module.exports = {
 					},
 					items: [
 						'cloudrun/cli/sites',
-						'cloudrun/cli/services',
+						{
+							type: 'category',
+							label: 'services',
+							link: {
+								type: 'doc',
+								id: 'cloudrun/cli/services',
+							},
+							items: [
+								'cloudrun/cli/services/deploy',
+								'cloudrun/cli/services/ls',
+								'cloudrun/cli/services/rm',
+								'cloudrun/cli/services/rmall',
+							],
+						},
 						'cloudrun/cli/render',
 						'cloudrun/cli/still',
 						'cloudrun/cli/permissions',
