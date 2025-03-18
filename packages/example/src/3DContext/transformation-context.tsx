@@ -40,9 +40,6 @@ export function transformPoint({
 	return [result[0], result[1], result[2], result[3]];
 }
 
-type Perspective = 'top' | 'front';
-const perspective: Perspective = 'top';
-
 export const isTranslateXYTransform = (
 	transform: MatrixTransform4D,
 ): boolean => {
