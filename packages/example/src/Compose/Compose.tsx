@@ -265,7 +265,7 @@ export const Compose = () => {
 					style={{
 						maskImage:
 							frame > 100
-								? 'linear-gradient( -98deg,  red 80%, transparent 90%)'
+								? 'linear-gradient( -98deg, transparent 5%, red 15%, red 80%, transparent 90%)'
 								: 'none',
 					}}
 				>
@@ -304,48 +304,57 @@ export const Compose = () => {
 						/>
 					</TranslateY>
 				</AbsoluteFill>
-				{endCard > 0 && (
-					<TranslateX px={secondX}>
-						<RotateY radians={Math.PI * outAnimation}>
-							<LabelOpacityContext.Provider value={1 - outAnimation}>
-								<VideoLayers
-									boxHeight={outActual.height}
-									boxWidth={outActual.width}
-									delay={animationStart}
-									label="<EndCard />"
-									endCard
-								></VideoLayers>
-							</LabelOpacityContext.Provider>
-						</RotateY>
-					</TranslateX>
-				)}
 				<AbsoluteFill
 					style={{
-						maskImage: 'linear-gradient(to bottom, transparent , black 10%)',
+						maskImage:
+							frame > 100
+								? 'linear-gradient( -98deg, transparent 10%, red 18%, red 80%, transparent 90%)'
+								: 'none',
 					}}
 				>
-					<TranslateX px={secondX}>
-						<AbsoluteFill
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
-						>
-							<Sequence layout="none" from={100}>
-								<div
-									style={{
-										width: width,
-										height: height,
-										position: 'relative',
-									}}
-								>
-									{endCard ? (
-										<EndCard cornerRadius={cornerRadius}></EndCard>
-									) : null}
-								</div>
-							</Sequence>
-						</AbsoluteFill>
-					</TranslateX>
+					{endCard > 0 && (
+						<TranslateX px={secondX}>
+							<RotateY radians={Math.PI * outAnimation}>
+								<LabelOpacityContext.Provider value={1 - outAnimation}>
+									<VideoLayers
+										boxHeight={outActual.height}
+										boxWidth={outActual.width}
+										delay={animationStart}
+										label="<EndCard />"
+										endCard
+									></VideoLayers>
+								</LabelOpacityContext.Provider>
+							</RotateY>
+						</TranslateX>
+					)}
+					<AbsoluteFill
+						style={{
+							maskImage: 'linear-gradient(to bottom, transparent , black 10%)',
+						}}
+					>
+						<TranslateX px={secondX}>
+							<AbsoluteFill
+								style={{
+									justifyContent: 'center',
+									alignItems: 'center',
+								}}
+							>
+								<Sequence layout="none" from={100}>
+									<div
+										style={{
+											width: width,
+											height: height,
+											position: 'relative',
+										}}
+									>
+										{endCard ? (
+											<EndCard cornerRadius={cornerRadius}></EndCard>
+										) : null}
+									</div>
+								</Sequence>
+							</AbsoluteFill>
+						</TranslateX>
+					</AbsoluteFill>
 				</AbsoluteFill>
 				<TranslateY px={190}>
 					<TranslateZ px={-depth * 2 + liftCaptions}>
