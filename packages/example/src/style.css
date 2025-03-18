@@ -1,1 +1,6 @@
 @import 'tailwindcss';
+
+@theme inline {
+	--color-brand: #0b84f3;
+	--font-brand: 'GT Planar', sans-serif;
+}

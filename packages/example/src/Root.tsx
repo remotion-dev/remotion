@@ -119,6 +119,7 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import {Compose} from './Compose/Compose';
 import {Empty} from './Empty';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
@@ -1517,6 +1518,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={1000}
+				/>
+				<Composition
+					id="3DCompose"
+					component={Compose}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={273}
 				/>
 				<Composition
 					id="3DContext"
