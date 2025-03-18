@@ -260,30 +260,50 @@ export const Compose = () => {
 
 	return (
 		<AbsoluteFill className="flex justify-center items-center">
-			<Scale factor={1.3}>
-				<TranslateX px={firstX}>
-					<TranslateZ px={1.5 * depth * layerDownProgress}>
-						<VideoLayers
-							footage
-							codeFrame
-							delay={animationStart}
-							boxHeight={actual.height}
-							boxWidth={actual.width}
-							label="<Video />"
-						/>
-					</TranslateZ>
-				</TranslateX>
-				<TranslateY
-					px={interpolate(bRollEnter + bRollExit, [0, 1, 2], [1500, 0, -1500])}
+			<Scale factor={1.1}>
+				<AbsoluteFill
+					style={{
+						maskImage:
+							frame > 100
+								? 'linear-gradient( -98deg,  red 80%, transparent 90%)'
+								: 'none',
+					}}
 				>
-					<VideoLayers
-						bRoll
-						boxWidth={width}
-						boxHeight={height}
-						delay={animationStart}
-						label="<BRoll />"
-					/>
-				</TranslateY>
+					<TranslateX px={firstX}>
+						<TranslateZ px={1.5 * depth * layerDownProgress}>
+							<VideoLayers
+								footage
+								codeFrame
+								delay={animationStart}
+								boxHeight={actual.height}
+								boxWidth={actual.width}
+								label="<Video />"
+							/>
+						</TranslateZ>
+					</TranslateX>
+				</AbsoluteFill>
+				<AbsoluteFill
+					style={{
+						maskImage:
+							'linear-gradient( -7deg, transparent 6%, red 15%, red 84%, transparent 94%)',
+					}}
+				>
+					<TranslateY
+						px={interpolate(
+							bRollEnter + bRollExit,
+							[0, 1, 2],
+							[1500, 0, -1500],
+						)}
+					>
+						<VideoLayers
+							bRoll
+							boxWidth={width}
+							boxHeight={height}
+							delay={animationStart}
+							label="<BRoll />"
+						/>
+					</TranslateY>
+				</AbsoluteFill>
 				{endCard > 0 && (
 					<TranslateX px={secondX}>
 						<RotateY radians={Math.PI * outAnimation}>

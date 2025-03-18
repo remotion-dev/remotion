@@ -156,7 +156,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'blank' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
-		featuredOnHomePage: null,
+		featuredOnHomePage: 'Blank',
 		previewURL: 'https://template-empty.vercel.app/?/MyComp',
 		templateInMonorepo: 'template-blank',
 		allowEnableTailwind: true,
@@ -177,7 +177,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'javascript' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
-		featuredOnHomePage: 'JavaScript',
+		featuredOnHomePage: null,
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-javascript',

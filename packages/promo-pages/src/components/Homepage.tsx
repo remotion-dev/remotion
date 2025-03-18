@@ -37,12 +37,6 @@ export const NewLanding: React.FC<{
 						<WriteInReact />
 						<br />
 						<IfYouKnowReact />
-						<br />
-						<br />
-						<br />
-						<br />
-						<br />
-						<br />
 						<RealMP4Videos />
 						<br />
 						<br />
