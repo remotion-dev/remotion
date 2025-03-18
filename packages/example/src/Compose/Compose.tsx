@@ -241,7 +241,7 @@ export const Compose = () => {
 		config: {
 			damping: 200,
 		},
-		delay: 220,
+		delay: 250,
 		durationInFrames: 20,
 	});
 
@@ -299,24 +299,34 @@ export const Compose = () => {
 						</RotateY>
 					</TranslateX>
 				)}
-				<TranslateX px={secondX}>
-					<AbsoluteFill
-						style={{
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<div
+				<AbsoluteFill
+					style={{
+						maskImage: 'linear-gradient(to bottom, transparent , black 10%)',
+					}}
+				>
+					<TranslateX px={secondX}>
+						<AbsoluteFill
 							style={{
-								width: width,
-								height: height,
-								position: 'relative',
+								justifyContent: 'center',
+								alignItems: 'center',
 							}}
 						>
-							{endCard ? <EndCard cornerRadius={cornerRadius}></EndCard> : null}
-						</div>
-					</AbsoluteFill>
-				</TranslateX>
+							<Sequence layout="none" from={100}>
+								<div
+									style={{
+										width: width,
+										height: height,
+										position: 'relative',
+									}}
+								>
+									{endCard ? (
+										<EndCard cornerRadius={cornerRadius}></EndCard>
+									) : null}
+								</div>
+							</Sequence>
+						</AbsoluteFill>
+					</TranslateX>
+				</AbsoluteFill>
 				<TranslateY px={190}>
 					<TranslateZ px={-depth * 2 + liftCaptions}>
 						<CaptionLayers delay={animationStart} />
