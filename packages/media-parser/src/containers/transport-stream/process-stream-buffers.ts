@@ -1,5 +1,6 @@
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {filterStreamsBySupportedTypes} from './get-tracks';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
 import type {PacketPes} from './parse-pes';
@@ -51,7 +52,7 @@ export const processStreamBuffer = async ({
 	if (!state.callbacks.tracks.hasAllTracks()) {
 		const tracksRegistered = state.callbacks.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
-		if (streams.length === tracksRegistered) {
+		if (filterStreamsBySupportedTypes(streams).length === tracksRegistered) {
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 	}

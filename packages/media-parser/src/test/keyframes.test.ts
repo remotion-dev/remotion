@@ -101,7 +101,7 @@ test('should be able to get keyframes from .ts', async () => {
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 	});
-	expect(slowNumberOfFrames).toEqual(294);
+	expect(slowNumberOfFrames).toEqual(298);
 	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 10,

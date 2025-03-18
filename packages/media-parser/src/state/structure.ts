@@ -1,7 +1,7 @@
-import type {Structure} from '../parse-result';
+import type {MediaParserStructureUnstable} from '../parse-result';
 
 export const structureState = () => {
-	let structure: Structure | null = null;
+	let structure: MediaParserStructureUnstable | null = null;
 
 	const getStructure = () => {
 		if (structure === null) {
@@ -16,7 +16,7 @@ export const structureState = () => {
 			return structure;
 		},
 		getStructure,
-		setStructure: (value: Structure) => {
+		setStructure: (value: MediaParserStructureUnstable) => {
 			structure = value;
 		},
 		getFlacStructure: () => {
@@ -38,6 +38,14 @@ export const structureState = () => {
 		getMp3Structure: () => {
 			const struc = getStructure();
 			if (struc.type !== 'mp3') {
+				throw new Error('Invalid structure type');
+			}
+
+			return struc;
+		},
+		getM3uStructure: () => {
+			const struc = getStructure();
+			if (struc.type !== 'm3u') {
 				throw new Error('Invalid structure type');
 			}
 

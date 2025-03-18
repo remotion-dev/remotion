@@ -57,10 +57,10 @@ export const ErrorState: React.FC<{
 				Report this issue on{' '}
 				<a
 					target="_blank"
-					href="https://remotion.dev/issue"
+					href="https://remotion.dev/report"
 					className="underline"
 				>
-					remotion.dev/issue
+					remotion.dev/report
 				</a>{' '}
 				and upload the video. We&apos;ll try our best to help!
 			</div>

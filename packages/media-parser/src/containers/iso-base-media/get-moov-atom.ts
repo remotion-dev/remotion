@@ -1,11 +1,13 @@
 import {Log} from '../../log';
-import {registerTrack} from '../../register-track';
+import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {makeParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
+import {getMoovFromFromIsoStructure} from './traversal';
 
+// TODO: await parseMedia({fields: {moovAtom: true}) would be a nicer API
 export const getMoovAtom = async ({
 	endOfMdat,
 	state,
@@ -13,6 +15,16 @@ export const getMoovAtom = async ({
 	state: ParserState;
 	endOfMdat: number;
 }): Promise<MoovBox> => {
+	const headerSegment = state.mp4HeaderSegment;
+	if (headerSegment) {
+		const segment = getMoovFromFromIsoStructure(headerSegment);
+		if (!segment) {
+			throw new Error('No moov box found in header segment');
+		}
+
+		return segment;
+	}
+
 	const start = Date.now();
 	Log.verbose(state.logLevel, 'Starting second fetch to get moov atom');
 	const {reader} = await state.readerInterface.read({
@@ -25,18 +37,15 @@ export const getMoovAtom = async ({
 		hasAudioTrackHandlers: false,
 		hasVideoTrackHandlers: false,
 		controller: state.controller,
-		fields: {
-			structure: true,
-		},
 		onAudioTrack: state.onAudioTrack
 			? async ({track, container}) => {
-					await registerTrack({state, track, container});
+					await registerAudioTrack({state, track, container});
 					return null;
 				}
 			: null,
 		onVideoTrack: state.onVideoTrack
 			? async ({track, container}) => {
-					await registerTrack({state, track, container});
+					await registerVideoTrack({state, track, container});
 					return null;
 				}
 			: null,
@@ -46,6 +55,17 @@ export const getMoovAtom = async ({
 		readerInterface: state.readerInterface,
 		src: state.src,
 		onDiscardedData: null,
+		selectM3uStreamFn: state.selectM3uStreamFn,
+		selectM3uAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+		callbacks: {},
+		fieldsInReturnValue: {
+			structure: true,
+		},
+		contentType: null,
+		mimeType: null,
+		name: '',
+		initialReaderInstance: reader,
 	});
 
 	while (true) {

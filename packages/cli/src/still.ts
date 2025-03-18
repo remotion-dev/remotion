@@ -23,6 +23,7 @@ const {
 	publicPathOption,
 	publicDirOption,
 	chromeModeOption,
+	offthreadVideoThreadsOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -90,6 +91,9 @@ export const still = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -159,6 +163,7 @@ export const still = async (
 		cancelSignal: null,
 		outputLocationFromUi: null,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		binariesDirectory,
 		publicPath,
 		chromeMode,

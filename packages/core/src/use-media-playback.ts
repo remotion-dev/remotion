@@ -103,6 +103,8 @@ export const useMediaPlayback = ({
 		mediaType,
 		onVariableFpsVideoDetected,
 		pauseWhenBuffering,
+		logLevel,
+		mountTime,
 	});
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
@@ -122,11 +124,15 @@ export const useMediaPlayback = ({
 	const isPlayerBuffering = useIsPlayerBuffering(buffering);
 
 	useEffect(() => {
+		if (mediaRef.current?.paused) {
+			return;
+		}
+
 		if (!playing) {
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
-				message: `Pausing ${mediaRef.current?.src} because player is not playing`,
+				message: `Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : 'Player is not playing'}`,
 				mountTime,
 			});
 			mediaRef.current?.pause();
@@ -148,6 +154,7 @@ export const useMediaPlayback = ({
 		isBuffering,
 		isMediaTagBuffering,
 		isPlayerBuffering,
+		isPremounting,
 		logLevel,
 		mediaRef,
 		mediaType,
@@ -205,7 +212,7 @@ export const useMediaPlayback = ({
 				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
-			if (playing && !isVariableFpsVideo) {
+			if (playing) {
 				if (playbackRate > 0) {
 					bufferUntilFirstFrame(shouldBeTime);
 				}
@@ -217,6 +224,8 @@ export const useMediaPlayback = ({
 						onAutoPlayError,
 						logLevel,
 						mountTime,
+						reason:
+							'player is playing but media tag is paused, and just seeked',
 					});
 				}
 			}
@@ -259,17 +268,23 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		// We assured we are in playing state
-		if (
-			(mediaRef.current.paused && !mediaRef.current.ended) ||
-			absoluteFrame === 0
-		) {
+		if (!playing || buffering.buffering.current) {
+			return;
+		}
+
+		// We now assured we are in playing state and not buffering
+		const pausedCondition = mediaRef.current.paused && !mediaRef.current.ended;
+		const firstFrameCondition = absoluteFrame === 0;
+		if (pausedCondition || firstFrameCondition) {
+			const reason = pausedCondition
+				? 'media tag is paused'
+				: 'absolute frame is 0';
 			if (makesSenseToSeek) {
 				lastSeek.current = seek({
 					mediaRef: mediaRef.current,
 					time: shouldBeTime,
 					logLevel,
-					why: `is over timeshift threshold (threshold = ${seekThreshold}) is paused OR has reached end of timeline and is starting over`,
+					why: `is over timeshift threshold (threshold = ${seekThreshold}) and ${reason}`,
 					mountTime,
 				});
 			}
@@ -280,11 +295,10 @@ export const useMediaPlayback = ({
 				onAutoPlayError,
 				logLevel,
 				mountTime,
+				reason: `player is playing and ${reason}`,
 			});
-			if (!isVariableFpsVideo) {
-				if (playbackRate > 0) {
-					bufferUntilFirstFrame(shouldBeTime);
-				}
+			if (!isVariableFpsVideo && playbackRate > 0) {
+				bufferUntilFirstFrame(shouldBeTime);
 			}
 		}
 	}, [

@@ -6,7 +6,7 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
@@ -40,6 +40,7 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	height?: number;
 	props?: T;
 	defaultCodec?: Codec;
+	defaultOutName?: string;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =
@@ -114,11 +115,7 @@ const Fallback: React.FC = () => {
 	return null;
 };
 
-/*
- * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
- * @see [Documentation](https://remotion.dev/docs/composition)
- */
-export const Composition = <
+const InnerComposition = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >({
@@ -131,12 +128,20 @@ export const Composition = <
 	schema,
 	...compProps
 }: CompositionProps<Schema, Props>) => {
-	const {registerComposition, unregisterComposition} =
-		useContext(CompositionManager);
+	const compManager = useContext(CompositionSetters);
+
+	const {registerComposition, unregisterComposition} = compManager;
+
 	const video = useVideo();
 
-	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
+	const lazy = useLazyComponent<Props>({
+		compProps: compProps as CompProps<Props>,
+		componentName: 'Composition',
+		noSuspense: false,
+	});
+
 	const nonce = useNonce();
+
 	const isPlayer = useIsPlayer();
 	const environment = getRemotionEnvironment();
 
@@ -191,14 +196,15 @@ export const Composition = <
 		id,
 		folderName,
 		defaultProps,
-		registerComposition,
-		unregisterComposition,
 		width,
 		nonce,
 		parentName,
 		schema,
 		compProps.calculateMetadata,
+		registerComposition,
+		unregisterComposition,
 	]);
+
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {
@@ -244,4 +250,24 @@ export const Composition = <
 	}
 
 	return null;
+};
+
+/*
+ * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
+ * @see [Documentation](https://remotion.dev/docs/composition)
+ */
+export const Composition = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
+	props: CompositionProps<Schema, Props>,
+) => {
+	const {onlyRenderComposition} = useContext(CompositionSetters);
+
+	if (onlyRenderComposition && onlyRenderComposition !== props.id) {
+		return null;
+	}
+
+	// @ts-expect-error
+	return <InnerComposition {...props} />;
 };

@@ -15,7 +15,7 @@ The command has the following structure:
 npx remotion lambda still <serve-url>? [<composition-id>] [<output-location>]
 ```
 
-- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites#create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
+- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
 - The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the still is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
@@ -113,6 +113,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `--delete-after`<AvailableFrom v="4.0.32"/>
 

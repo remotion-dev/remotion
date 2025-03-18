@@ -90,6 +90,7 @@ test('AVI file', async () => {
 	]);
 	expect(tracks.videoTracks).toEqual([
 		{
+			m3uStreamFormat: null,
 			codec: 'avc1.640015',
 			codecPrivate: new Uint8Array([
 				1, // version
@@ -138,6 +139,10 @@ test('AVI file', async () => {
 				239,
 				139,
 				203,
+				253,
+				248,
+				248,
+				0,
 			]),
 			codecWithoutConfig: 'h264',
 			codedHeight: 270,

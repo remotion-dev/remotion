@@ -9,7 +9,6 @@ import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import {checkRuntimeVersion} from './check-version-requirements';
 import {DEFAULT_CODEC, validCodecs} from './codec';
-import {combineChunks} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
@@ -74,6 +73,11 @@ export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
+export {
+	CombineChunksOnProgress,
+	CombineChunksOptions,
+	combineChunks,
+} from './combine-chunks';
 export {Crf} from './crf';
 export {EnsureBrowserOptions, ensureBrowser} from './ensure-browser';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
@@ -134,8 +138,12 @@ export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
 
 import {makeDownloadMap} from './assets/download-map';
-import {killAllBrowsers} from './browser-instances';
+import {
+	canConcatAudioSeamlessly,
+	canConcatVideoSeamlessly,
+} from './can-concat-seamlessly';
 import {codecSupportsMedia} from './codec-supports-media';
+import {internalCombineChunks} from './combine-chunks';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
 import {internalEnsureBrowser} from './ensure-browser';
 import type {AudioCodec} from './options/audio-codec';
@@ -145,6 +153,7 @@ import {
 	resolveAudioCodec,
 	supportedAudioCodecs,
 } from './options/audio-codec';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import {printUsefulErrorMessage} from './print-useful-error-message';
 import {getShouldRenderAudio} from './render-has-audio';
 import {toMegabytes} from './to-megabytes';
@@ -167,7 +176,6 @@ export const RenderInternals = {
 	getRealFrameRange,
 	validatePuppeteerTimeout,
 	downloadFile,
-	killAllBrowsers,
 	parseStack,
 	symbolicateError,
 	SymbolicateableError,
@@ -199,7 +207,6 @@ export const RenderInternals = {
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,
-	combineChunks,
 	getMinConcurrency,
 	getMaxConcurrency,
 	getDefaultAudioCodec,
@@ -240,6 +247,10 @@ export const RenderInternals = {
 	toMegabytes,
 	internalEnsureBrowser,
 	printUsefulErrorMessage,
+	DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
+	canConcatVideoSeamlessly,
+	canConcatAudioSeamlessly,
+	internalCombineChunks,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

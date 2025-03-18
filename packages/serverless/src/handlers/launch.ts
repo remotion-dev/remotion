@@ -2,46 +2,45 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
+import {VERSION} from '@remotion/serverless-client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
-import {VERSION} from 'remotion/version';
-import {
-	compressInputProps,
-	decompressInputProps,
-	getNeedsToUpload,
-	serializeOrThrow,
-} from '../compress-props';
-import type {PostRenderData, ServerlessPayload} from '../constants';
-import {
-	CONCAT_FOLDER_TOKEN,
-	MAX_FUNCTIONS_PER_RENDER,
-	ServerlessRoutines,
-	artifactName,
-} from '../constants';
-import {DOCS_URL} from '../docs-url';
-import {getExpectedOutName} from '../expected-out-name';
-import type {OverallProgressHelper} from '../overall-render-progress';
-import {makeOverallRenderProgress} from '../overall-render-progress';
-import type {
-	InsideFunctionSpecifics,
-	ProviderSpecifics,
-	WebhookClient,
-} from '../provider-implementation';
-import type {RenderMetadata} from '../render-metadata';
+import type {InsideFunctionSpecifics} from '../provider-implementation';
 
+import type {
+	CloudProvider,
+	PostRenderData,
+	ProviderSpecifics,
+	RenderMetadata,
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {
+	artifactName,
+	compressInputProps,
+	CONCAT_FOLDER_TOKEN,
+	decompressInputProps,
+	DOCS_URL,
+	getExpectedOutName,
+	getNeedsToUpload,
+	MAX_FUNCTIONS_PER_RENDER,
+	serializeOrThrow,
+	ServerlessRoutines,
+	validateFramesPerFunction,
+	validateOutname,
+	validatePrivacy,
+} from '@remotion/serverless-client';
 import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
+import type {LaunchedBrowser} from '../get-browser-instance';
+import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
+import type {OverallProgressHelper} from '../overall-render-progress';
+import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
 import {streamRendererFunctionWithRetry} from '../stream-renderer';
-import type {CloudProvider} from '../types';
 import {validateComposition} from '../validate-composition';
-import {validateFramesPerFunction} from '../validate-frames-per-function';
-import {validateOutname} from '../validate-outname';
-import {validatePrivacy} from '../validate-privacy';
-import {getTmpDirStateIfENoSp} from '../write-error-to-storage';
 import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options = {
@@ -56,13 +55,15 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	registerCleanupTask,
 	providerSpecifics,
 	insideFunctionSpecifics,
+	onBrowser,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	overallProgress: OverallProgressHelper<Provider>;
 	registerCleanupTask: (cleanupTask: CleanupTask) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	onBrowser: (browser: LaunchedBrowser) => void;
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -78,10 +79,14 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		insideFunctionSpecifics,
 	});
 
+	browserInstance.then((b) => {
+		onBrowser(b);
+	});
+
 	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 		propsType: 'input-props',
 		providerSpecifics,
@@ -127,6 +132,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			overallProgress.setServeUrlOpened(Date.now());
 		},
 		providerSpecifics,
+		offthreadVideoThreads: params.offthreadVideoThreads,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -168,6 +174,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		codec: params.codec,
 		audioCodecSetting: params.audioCodec,
 		separateAudioTo: null,
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
@@ -204,7 +211,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		stringifiedInputProps: serializedResolved,
 		userSpecifiedBucketName: params.bucketName,
 		needsToUpload,
@@ -214,11 +221,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	});
 
 	registerCleanupTask(() => {
-		return cleanupProps({
+		return cleanupProps<Provider>({
 			serializedResolvedProps,
 			inputProps: params.inputProps,
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			insideFunctionSpecifics,
 		});
 	});
 
@@ -277,6 +285,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			progressEveryNthFrame,
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
+			offthreadVideoThreads: params.offthreadVideoThreads,
 		};
 		return payload;
 	});
@@ -310,7 +319,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		lambdaVersion: VERSION,
 		framesPerLambda,
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
 		outName: params.outName ?? undefined,
 		privacy: params.privacy,
@@ -333,13 +342,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			insideFunctionSpecifics.getCurrentFunctionName(),
 	};
 
-	const {key, renderBucketName, customCredentials} = getExpectedOutName(
+	const {key, renderBucketName, customCredentials} = getExpectedOutName({
 		renderMetadata,
-		params.bucketName,
-		typeof params.outName === 'string' || typeof params.outName === 'undefined'
-			? null
-			: (params.outName?.s3OutputProvider ?? null),
-	);
+		bucketName: params.bucketName,
+		customCredentials:
+			typeof params.outName === 'string' ||
+			typeof params.outName === 'undefined'
+				? null
+				: (params.outName?.s3OutputProvider ?? null),
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+	});
 
 	if (!params.overwrite) {
 		const findOutputFile = insideFunctionSpecifics.timer(
@@ -350,14 +362,14 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			bucketName: params.bucketName,
 			customCredentials,
 			renderMetadata,
-			region: providerSpecifics.getCurrentRegionInFunction(),
-			currentRegion: providerSpecifics.getCurrentRegionInFunction(),
+			region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 		});
 		if (output) {
 			throw new TypeError(
-				`Output file "${key}" in bucket "${renderBucketName}" in region "${providerSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
+				`Output file "${key}" in bucket "${renderBucketName}" in region "${insideFunctionSpecifics.getCurrentRegionInFunction()}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it."`,
 			);
 		}
 
@@ -386,7 +398,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			return {alreadyExisted: true};
 		}
 
-		const region = providerSpecifics.getCurrentRegionInFunction();
+		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
 		const storageKey = artifactName(renderMetadata.renderId, artifact.filename);
 
 		const start = Date.now();
@@ -413,7 +425,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				);
 
 				overallProgress.addReceivedArtifact(
-					providerSpecifics.makeArtifactWithDetails({
+					insideFunctionSpecifics.makeArtifactWithDetails({
 						region,
 						renderBucketName,
 						storageKey,
@@ -456,6 +468,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				logLevel: params.logLevel,
 				onArtifact,
 				providerSpecifics,
+				insideFunctionSpecifics,
 			});
 		}),
 	);
@@ -491,6 +504,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		insideFunctionSpecifics,
+		everyNthFrame: params.everyNthFrame,
+		frameRange: params.frameRange,
 	});
 
 	return postRenderData;
@@ -502,14 +517,12 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	params,
 	options,
 	providerSpecifics,
-	client,
 	insideFunctionSpecifics,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
-	client: WebhookClient;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<{
 	type: 'success';
 }> => {
@@ -523,6 +536,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	};
 
 	const cleanupTasks: CleanupTask[] = [];
+	let instance: LaunchedBrowser | null = null;
 
 	const registerCleanupTask = (task: CleanupTask) => {
 		cleanupTasks.push(task);
@@ -598,8 +612,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						bucketName: params.bucketName,
 						customData: params.webhook.customData ?? null,
 					},
-					redirectsSoFar: 0,
-					client,
 				},
 				logLevel: params.logLevel,
 			});
@@ -661,7 +673,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
-		region: providerSpecifics.getCurrentRegionInFunction(),
+		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		timeoutTimestamp: options.getRemainingTimeInMillis() + Date.now(),
 		logLevel: params.logLevel,
 		providerSpecifics,
@@ -676,6 +688,9 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			registerCleanupTask,
 			providerSpecifics,
 			insideFunctionSpecifics,
+			onBrowser: (browser) => {
+				instance = browser;
+			},
 		});
 		clearTimeout(webhookDueToTimeout);
 
@@ -704,8 +719,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 						timeToFinish: postRenderData.timeToFinish,
 						costs: postRenderData.cost,
 					},
-					redirectsSoFar: 0,
-					client,
 				},
 				logLevel: params.logLevel,
 			});
@@ -764,7 +777,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			isFatal: true,
 			tmpDir: getTmpDirStateIfENoSp(
 				(err as Error).stack as string,
-				providerSpecifics,
+				insideFunctionSpecifics,
 			),
 			attempt: 1,
 			totalAttempts: 1,
@@ -799,8 +812,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 								stack: e.stack as string,
 							})),
 						},
-						redirectsSoFar: 0,
-						client,
 					},
 					logLevel: params.logLevel,
 				});
@@ -838,6 +849,11 @@ export const launchHandler = async <Provider extends CloudProvider>({
 
 		throw err;
 	} finally {
-		insideFunctionSpecifics.forgetBrowserEventLoop(params.logLevel);
+		if (instance) {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel: params.logLevel,
+				launchedBrowser: instance,
+			});
+		}
 	}
 };

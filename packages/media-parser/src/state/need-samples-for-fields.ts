@@ -1,4 +1,4 @@
-import type {AllOptions, Options, ParseMediaFields} from '../options';
+import type {AllOptions, Options, ParseMediaFields} from '../fields';
 
 const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	slowDurationInSeconds: true,
@@ -28,6 +28,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	sampleRate: false,
 	slowAudioBitrate: true,
 	slowVideoBitrate: true,
+	m3uStreams: false,
 };
 
 export const needsToIterateOverSamples = ({

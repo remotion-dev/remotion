@@ -15,7 +15,7 @@ const Triangle: React.FC<{
 		}}
 	>
 		<path
-			fill="currentcolor"
+			className="fill-text"
 			d="M7.17096 0.475588C6.73198 0.0764969 6.01906 0.0764969 5.58007 0.475588L1.08483 4.56228C0.761737 4.85601 0.666915 5.29341 0.84251 5.67654C1.01811 6.05966 1.42549 6.3087 1.88203 6.3087H10.8725C11.3255 6.3087 11.7364 6.05966 11.912 5.67654C12.0876 5.29341 11.9893 4.85601 11.6697 4.56228L7.17448 0.475588H7.17096Z"
 		/>
 	</svg>
@@ -65,10 +65,10 @@ export const Counter: React.FC<CounterProps> = ({
 	};
 
 	return (
-		<div style={container} className={cn('border-effect w-[110px]')}>
+		<div style={container} className={cn('border-effect w-[110px] text-text')}>
 			<input
 				className={
-					'fontbrand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0'
+					'fontbrand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0 text-text'
 				}
 				type="number"
 				onClick={(e) => e.currentTarget.select()}
@@ -86,7 +86,7 @@ export const Counter: React.FC<CounterProps> = ({
 			<div className="flex flex-col ml-3 h-full">
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid border-b-2 flex-1"
+					className="border-0 border-l-2 border-l-solid border-b-2 flex-1 border-text"
 					style={{
 						...buttonContainer,
 					}}
@@ -96,7 +96,7 @@ export const Counter: React.FC<CounterProps> = ({
 				</button>
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid flex-1"
+					className="border-0 border-l-2 border-l-solid flex-1 border-text"
 					style={{
 						...buttonContainer,
 					}}

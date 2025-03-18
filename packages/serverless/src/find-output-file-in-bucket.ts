@@ -1,8 +1,10 @@
-import type {CustomCredentials} from './constants';
-import {getExpectedOutName} from './expected-out-name';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {RenderMetadata} from './render-metadata';
-import type {CloudProvider} from './types';
+import type {
+	CloudProvider,
+	CustomCredentials,
+	ProviderSpecifics,
+	RenderMetadata,
+} from '@remotion/serverless-client';
+import {getExpectedOutName} from '@remotion/serverless-client';
 
 export type OutputFileMetadata = {
 	url: string;
@@ -29,11 +31,12 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 		throw new Error('unexpectedly did not get renderMetadata');
 	}
 
-	const {renderBucketName, key} = getExpectedOutName(
+	const {renderBucketName, key} = getExpectedOutName({
 		renderMetadata,
 		bucketName,
 		customCredentials,
-	);
+		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+	});
 
 	try {
 		await providerSpecifics.headFile({

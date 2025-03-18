@@ -7,7 +7,6 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
@@ -68,7 +67,6 @@ type InternalRenderStillOptions = {
 	server: RemotionServer | undefined;
 	serveUrl: string;
 	port: number | null;
-	offthreadVideoCacheSizeInBytes: number | null;
 	onArtifact: OnArtifact | null;
 } & ToOptions<typeof optionsMap.renderStill>;
 
@@ -215,6 +213,7 @@ const innerRenderStill = async ({
 		logLevel,
 		indent,
 		pageIndex: 0,
+		onBrowserLog,
 	});
 	await page.setViewport({
 		width: composition.width,
@@ -233,17 +232,8 @@ const innerRenderStill = async ({
 		frame: null,
 	});
 
-	const logCallback = (log: ConsoleMessage) => {
-		onBrowserLog?.({
-			stackTrace: log.stackTrace(),
-			text: log.text,
-			type: log.type,
-		});
-	};
-
 	const cleanup = async () => {
 		cleanUpJSException();
-		page.off('console', logCallback);
 
 		if (puppeteerInstance) {
 			await page.close();
@@ -257,10 +247,6 @@ const innerRenderStill = async ({
 	cancelSignal?.(() => {
 		cleanup();
 	});
-
-	if (onBrowserLog) {
-		page.on('console', logCallback);
-	}
 
 	await setPropsAndEnv({
 		serializedInputPropsWithCustomSchema,
@@ -288,6 +274,7 @@ const innerRenderStill = async ({
 			height: number,
 			width: number,
 			defaultCodec: Codec,
+			defaultOutName: string | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -298,6 +285,7 @@ const innerRenderStill = async ({
 				compositionHeight: height,
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
+				compositionDefaultOutName: defaultOutName,
 			});
 		},
 		args: [
@@ -308,6 +296,7 @@ const innerRenderStill = async ({
 			composition.height,
 			composition.width,
 			composition.defaultCodec,
+			composition.defaultOutName,
 		],
 		frame: null,
 		page,
@@ -372,7 +361,7 @@ const internalRenderStillRaw = (
 				webpackConfigOrServeUrl: options.serveUrl,
 				port: options.port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads: options.offthreadVideoThreads ?? 2,
 				logLevel: options.logLevel,
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
@@ -456,6 +445,7 @@ export const renderStill = (
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		offthreadVideoThreads,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -520,5 +510,6 @@ export const renderStill = (
 			}),
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

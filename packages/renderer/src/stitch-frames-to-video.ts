@@ -150,6 +150,8 @@ const innerStitchFramesToVideo = async (
 		codec,
 		scale: 1,
 		wantsImageSequence: false,
+		indent,
+		logLevel,
 	});
 	validateSelectedCodecAndProResCombination({
 		codec,

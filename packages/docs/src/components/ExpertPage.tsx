@@ -16,6 +16,7 @@ const layout: React.CSSProperties = {
 	margin: 'auto',
 	paddingLeft: 16,
 	paddingRight: 16,
+	paddingTop: 30,
 };
 
 const header: React.CSSProperties = {

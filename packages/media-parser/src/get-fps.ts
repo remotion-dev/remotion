@@ -2,7 +2,7 @@ import type {SttsBox} from './containers/iso-base-media/stsd/stts';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMdhdBox,
-	getMoovBox,
+	getMoovBoxFromState,
 	getStsdBox,
 	getSttsBox,
 	getTraks,
@@ -100,7 +100,7 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 };
 
 const getFpsFromIsoMaseMedia = (state: ParserState) => {
-	const moovBox = getMoovBox(state);
+	const moovBox = getMoovBoxFromState(state);
 	if (!moovBox) {
 		return null;
 	}
@@ -155,6 +155,11 @@ export const getFps = (state: ParserState) => {
 		return null;
 	}
 
+	// Same as m3u8
+	if (segments.type === 'm3u') {
+		return null;
+	}
+
 	if (
 		segments.type === 'mp3' ||
 		segments.type === 'wav' ||
@@ -194,6 +199,10 @@ export const hasFps = (state: ParserState): boolean => {
 	}
 
 	if (structure.type === 'transport-stream') {
+		return true;
+	}
+
+	if (structure.type === 'm3u') {
 		return true;
 	}
 

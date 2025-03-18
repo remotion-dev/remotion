@@ -9,6 +9,7 @@ test(
 			logLevel: 'info',
 			indent: false,
 			binariesDirectory: null,
+			extraThreads: 2,
 		});
 
 		const matching = await Promise.all(

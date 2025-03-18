@@ -27,6 +27,7 @@ export const getCompositionWithDimensionOverride = async ({
 	logLevel,
 	server,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
@@ -47,6 +48,7 @@ export const getCompositionWithDimensionOverride = async ({
 	serializedInputPropsWithCustomSchema: string;
 	server: RemotionServer;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
@@ -74,6 +76,7 @@ export const getCompositionWithDimensionOverride = async ({
 		binariesDirectory,
 		onBrowserDownload,
 		chromeMode,
+		offthreadVideoThreads,
 	});
 
 	return {

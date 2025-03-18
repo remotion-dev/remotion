@@ -2,18 +2,27 @@
 image: /generated/articles-docs-get-input-props.png
 title: getInputProps()
 id: get-input-props
-crumb: "API"
+crumb: 'API'
 ---
 
 _Available from v2.0_.
 
-Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr) parameter if you are using the Node.JS API.
+Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr) parameter if you are using the Node.JS APIs ([`renderMedia()`](/docs/renderer/render-media), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)).
 
-You should whenever possible prefer to retrieve props directly in your composition, like you would read props from a component if you were to code a React application, but this method is useful if you want to retrieve the input props outside of a composition.
+This method is useful if you want to retrieve the input props in the [root component](/docs/terminology/root-file).
 
 :::info
 This method is not available when inside a Remotion Player. Instead, get the props as React props from the component you passed as the `component` prop to the player.
 :::
+
+## You might not need this API
+
+Prefer the following ways of getting your input props:
+
+- A component that was rendered as a [composition](/docs/composition) will retrieve the input props as regular props.
+- In the [root component](/docs/terminology/root-file), you can get the input props by using the [`calculateMetadata()`](/docs/calculate-metadata) function.
+
+In both cases, you can type the props, which is better than using this API which returns a non-typesafe object.
 
 ## API
 
@@ -35,12 +44,27 @@ You may also specify a file containing JSON and Remotion will parse the file for
 npx remotion render --props=./path/to/props.json
 ```
 
-You can then access the props in JavaScript:
+You can then access the props anywhere in your Remotion project:
 
-```tsx twoslash
-const getInputProps = () => ({ hello: "world" } as const);
+```tsx twoslash {3}
+import {Composition} from 'remotion';
+const getInputProps = () => ({hello: 'world'}) as const;
+const MyComp: React.FC = () => null;
+const config = {
+  component: MyComp,
+  durationInFrames: 100,
+  fps: 30,
+  width: 1000,
+  height: 1000,
+  id: 'MyComp',
+} as const;
 // ---cut---
-const { hello } = getInputProps(); // "world"
+
+export const Root: React.FC = () => {
+  const {hello} = getInputProps(); // "world"
+
+  return <Composition {...config} />;
+};
 ```
 
 In this example, the props also get passed to the component of the composition with the id `my-composition`.

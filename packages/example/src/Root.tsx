@@ -38,6 +38,7 @@ import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
+import './LoadFontBasedOnInfo';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
@@ -119,8 +120,12 @@ import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import {Compose} from './Compose/Compose';
+import {Empty} from './Empty';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
+import {Seek} from './StudioApis/Seek';
+import {TransitionRounding} from './TransitionRounding';
+import {VoiceVisualization} from './voice-visualization';
 
 class Vector2 {
 	readonly x: number;
@@ -403,6 +408,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="missing-img"
 					component={MissingImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
+					id="transition-rounding"
+					component={TransitionRounding}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -803,6 +816,7 @@ export const Index: React.FC = () => {
 					calculateMetadata={() => {
 						return {
 							defaultCodec: 'aac',
+							defaultOutName: `out-${Date.now()}`,
 						};
 					}}
 					durationInFrames={100}
@@ -813,9 +827,6 @@ export const Index: React.FC = () => {
 					width={1000}
 					height={1000}
 					defaultProps={{flag: false}}
-					calculateMetadata={async () => {
-						return {};
-					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition
@@ -1388,6 +1399,16 @@ export const Index: React.FC = () => {
 					defaultProps={{color: 'green'}}
 				/>
 				<Composition
+					id="seek"
+					component={Seek}
+					fps={30}
+					durationInFrames={100}
+					height={200}
+					width={200}
+					schema={saveStudioSchema}
+					defaultProps={{color: 'green'}}
+				/>
+				<Composition
 					id="restart-studio"
 					component={ClickUpdate}
 					fps={30}
@@ -1532,6 +1553,24 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<SmoothTextTransition />
+			<Folder name="voice-visualization">
+				<Composition
+					id="voice-visualization"
+					component={VoiceVisualization}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={900}
+				/>
+			</Folder>
+			<Composition
+				id="empty"
+				component={Empty}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={900}
+			/>
 		</>
 	);
 };

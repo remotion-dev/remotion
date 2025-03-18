@@ -1,54 +1,19 @@
-use crate::errors::ErrorWithBacktrace;
-use crate::memory::is_about_to_run_out_of_memory;
-use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::CliInputCommandPayload;
-use crate::{ffmpeg, get_silent_parts, max_cache_size};
+use crate::errors::{error_to_json, ErrorWithBacktrace};
+use crate::payloads::payloads::{CliInputCommand, CliInputCommandPayload};
+use crate::{extract_audio, get_silent_parts, get_video_metadata, global_printer};
 use std::io::ErrorKind;
 
-pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
-    let current_maximum_cache_size = max_cache_size::get_instance().lock().unwrap().get_value();
-
-    if is_about_to_run_out_of_memory() && current_maximum_cache_size.is_some() {
-        ffmpeg::emergency_memory_free_up().unwrap();
-        max_cache_size::get_instance()
-            .lock()
-            .unwrap()
-            .set_value(Some(current_maximum_cache_size.unwrap() / 2));
-    }
-
+pub fn execute_command_on_thread(
+    opts: CliInputCommandPayload,
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let res = match opts {
-        CliInputCommandPayload::ExtractFrame(command) => {
-            let res = ffmpeg::extract_frame(
-                command.src,
-                command.original_src,
-                command.time,
-                command.transparent,
-                command.tone_mapped,
-                max_cache_size::get_instance().lock().unwrap().get_value(),
-            )?;
-            Ok(res)
-        }
-        CliInputCommandPayload::GetOpenVideoStats(_) => {
-            let res = ffmpeg::get_open_video_stats()?;
-            let str = serde_json::to_string(&res)?;
-            Ok(str.as_bytes().to_vec())
-        }
         CliInputCommandPayload::DeliberatePanic(_) => {
             // For testing purposes
             let hi: Option<usize> = None;
             hi.unwrap();
             Ok(vec![])
         }
-        CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::keep_only_latest_frames_and_close_videos(payload.remaining_bytes)?;
-            Ok(vec![])
-        }
-        CliInputCommandPayload::CloseAllVideos(_) => {
-            let manager = OpenedVideoManager::get_instance();
-            manager.close_all_videos()?;
-
-            Ok(vec![])
-        }
+        CliInputCommandPayload::Eof(_) => Ok(vec![]),
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
             ErrorKind::Other,
             "Cannot start long running process as command",
@@ -57,7 +22,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(format!("Echo {}", _command.message).as_bytes().to_vec())
         }
         CliInputCommandPayload::GetVideoMetadata(_command) => {
-            let res = ffmpeg::get_video_metadata(&_command.src)?;
+            let res = get_video_metadata::get_video_metadata(&_command.src)?;
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
         }
@@ -72,14 +37,25 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
         }
 
         CliInputCommandPayload::ExtractAudio(_command) => {
-            ffmpeg::extract_audio(&_command.input_path, &_command.output_path)?;
+            extract_audio::extract_audio(&_command.input_path, &_command.output_path)?;
             Ok(vec![])
         }
+        _ => {
+            panic!("Command not implemented");
+        }
     };
-    if current_maximum_cache_size.is_some() {
-        ffmpeg::keep_only_latest_frames_and_close_videos(current_maximum_cache_size.unwrap())
-            .unwrap();
-    }
 
     return res;
+}
+
+pub fn execute_command_and_print(message: CliInputCommand) -> Result<(), ErrorWithBacktrace> {
+    match execute_command_on_thread(message.payload.clone()) {
+        Ok(res) => global_printer::synchronized_write_buf(0, &message.nonce, &res)?,
+        Err(err) => global_printer::synchronized_write_buf(
+            1,
+            &message.nonce,
+            &error_to_json(err).unwrap().as_bytes(),
+        )?,
+    };
+    Ok(())
 }

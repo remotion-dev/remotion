@@ -1,8 +1,8 @@
 // https://www.itu.int/rec/T-REC-H.264-202408-I/en
 // Page 455
 
-import type {BufferIterator} from '../../buffer-iterator';
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 
 const Extended_SAR = 255;
 
@@ -126,46 +126,42 @@ const readSps = (iterator: BufferIterator): SpsInfo => {
 
 	// Page 71
 	if (
-		!(
-			profile === 100 ||
-			profile === 110 ||
-			profile === 122 ||
-			profile === 244 ||
-			profile === 44 ||
-			profile === 83 ||
-			profile === 86 ||
-			profile === 118 ||
-			profile === 128 ||
-			profile === 138 ||
-			profile === 139 ||
-			profile === 134 ||
-			profile === 135
-		)
+		profile === 100 ||
+		profile === 110 ||
+		profile === 122 ||
+		profile === 244 ||
+		profile === 44 ||
+		profile === 83 ||
+		profile === 86 ||
+		profile === 118 ||
+		profile === 128 ||
+		profile === 138 ||
+		profile === 139 ||
+		profile === 134 ||
+		profile === 135
 	) {
-		throw new Error('Invalid profile');
-	}
+		const chromaFormat = iterator.readExpGolomb();
+		if (chromaFormat === 3) {
+			separate_colour_plane_flag = iterator.getBits(1);
+		}
 
-	const chromaFormat = iterator.readExpGolomb();
-	if (chromaFormat === 3) {
-		separate_colour_plane_flag = iterator.getBits(1);
-	}
+		bit_depth_luma_minus8 = iterator.readExpGolomb();
+		bit_depth_chroma_minus8 = iterator.readExpGolomb();
+		qpprime_y_zero_transform_bypass_flag = iterator.getBits(1);
+		const seq_scaling_matrix_present_flag = iterator.getBits(1);
+		const seq_scaling_list_present_flag: number[] = [];
 
-	bit_depth_luma_minus8 = iterator.readExpGolomb();
-	bit_depth_chroma_minus8 = iterator.readExpGolomb();
-	qpprime_y_zero_transform_bypass_flag = iterator.getBits(1);
-	const seq_scaling_matrix_present_flag = iterator.getBits(1);
-	const seq_scaling_list_present_flag: number[] = [];
-
-	if (seq_scaling_matrix_present_flag) {
-		for (let i = 0; i < (chromaFormat !== 3 ? 8 : 12); i++) {
-			seq_scaling_list_present_flag[i] = iterator.getBits(1);
-			if (seq_scaling_list_present_flag[i]) {
-				if (i < 6) {
-					// scaling_list not implemented
-					throw new Error('Not implemented');
-				} else {
-					// scaling_list not implemented
-					throw new Error('Not implemented');
+		if (seq_scaling_matrix_present_flag) {
+			for (let i = 0; i < (chromaFormat !== 3 ? 8 : 12); i++) {
+				seq_scaling_list_present_flag[i] = iterator.getBits(1);
+				if (seq_scaling_list_present_flag[i]) {
+					if (i < 6) {
+						// scaling_list not implemented
+						throw new Error('Not implemented');
+					} else {
+						// scaling_list not implemented
+						throw new Error('Not implemented');
+					}
 				}
 			}
 		}

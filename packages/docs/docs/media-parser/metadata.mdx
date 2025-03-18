@@ -53,12 +53,10 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 
 ## Getting metadata from a `File`
 
-If you take user uploads in the browser, they will be in the form of a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).  
-Use [`webFileReader`](/docs/media-parser/web-file-reader) to read a video from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).
+If you take user uploads in the browser, they will be in the form of a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).
 
 ```tsx twoslash title="Parsing a video from a file path"
 import {parseMedia} from '@remotion/media-parser';
-import {webFileReader} from '@remotion/media-parser/web-file';
 
 // You would get this from a `<input type="file">`
 const file = new File([], 'video.mp4');
@@ -69,7 +67,6 @@ const result = await parseMedia({
     durationInSeconds: true,
     dimensions: true,
   },
-  reader: webFileReader,
 });
 
 console.log(result.durationInSeconds); // 10
@@ -80,7 +77,7 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 
 You can read the duration, the dimensions, the framerate, the container format, the codecs, the ID3 tags and more information from a video file.
 
-See [Available Fields](/docs/media-parser/parse-media#available-fields) for a complete list.
+See [Available Fields](/docs/media-parser/fields) for a complete list.
 
 ## Getting metadata as soon as possible
 

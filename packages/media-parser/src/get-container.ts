@@ -1,8 +1,10 @@
 import {isRiffAvi} from './containers/riff/traversal';
 import type {MediaParserContainer} from './options';
-import type {Structure} from './parse-result';
+import type {MediaParserStructureUnstable} from './parse-result';
 
-export const getContainer = (segments: Structure): MediaParserContainer => {
+export const getContainer = (
+	segments: MediaParserStructureUnstable,
+): MediaParserContainer => {
 	if (segments.type === 'iso-base-media') {
 		return 'mp4';
 	}
@@ -39,10 +41,14 @@ export const getContainer = (segments: Structure): MediaParserContainer => {
 		return 'aac';
 	}
 
+	if (segments.type === 'm3u') {
+		return 'm3u8';
+	}
+
 	throw new Error('Unknown container ' + (segments satisfies never));
 };
 
-export const hasContainer = (boxes: Structure): boolean => {
+export const hasContainer = (boxes: MediaParserStructureUnstable): boolean => {
 	try {
 		return getContainer(boxes) !== null;
 	} catch {

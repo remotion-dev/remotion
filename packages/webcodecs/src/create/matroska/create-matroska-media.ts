@@ -271,13 +271,18 @@ export const createMatroskaMedia = async ({
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
-			seeks.push({
-				hexString: matroskaElements.Cues,
-				byte: w.getWrittenByteCount() - seekHeadOffset,
-			});
+
+			const cuesBytes = createMatroskaCues(cues);
+			if (cuesBytes) {
+				seeks.push({
+					hexString: matroskaElements.Cues,
+					byte: w.getWrittenByteCount() - seekHeadOffset,
+				});
+				await w.write(cuesBytes.bytes);
+			}
+
 			await updateSeekWrite();
 
-			await w.write(createMatroskaCues(cues).bytes);
 			const segmentSize =
 				w.getWrittenByteCount() -
 				segmentOffset -

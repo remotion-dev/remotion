@@ -3,11 +3,13 @@ import {TableOfContents as AnimatedEmojiTableOfContents} from '../../docs/animat
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
+import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
 import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
+import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
@@ -18,7 +20,6 @@ import {TableOfContents as AnimationUtilsTableOfContents} from '../TableOfConten
 import {TableOfContents as BundlerTableOfContents} from '../TableOfContents/bundler';
 import {TableOfContents as CloudrunTableOfContents} from '../TableOfContents/cloudrun';
 import {TableOfContents as GifTableOfContents} from '../TableOfContents/gif';
-import {TableOfContents as GoogleFontsTableOfContents} from '../TableOfContents/google-fonts';
 import {TableOfContents as LambdaTableOfContents} from '../TableOfContents/lambda';
 import {TableOfContents as LayoutUtilsTableOfContents} from '../TableOfContents/LayoutUtils';
 import {TableOfContents as LottieTableOfContents} from '../TableOfContents/lottie';
@@ -28,7 +29,6 @@ import {TableOfContents as NoiseTableOfContents} from '../TableOfContents/noise'
 import {TableOfContents as PathsTableOfContents} from '../TableOfContents/paths';
 import {TableOfContents as PreloadTableOfContents} from '../TableOfContents/preload';
 import {TableOfContents as RemotionTableOfContents} from '../TableOfContents/remotion';
-import {TableOfContents as RendererTableOfContents} from '../TableOfContents/renderer';
 import {TableOfContents as RiveTableOfContents} from '../TableOfContents/rive';
 import {TableOfContents as ShapesTableOfContents} from '../TableOfContents/shapes';
 import {TableOfContents as TransitionsTableOfContents} from '../TableOfContents/transitions';

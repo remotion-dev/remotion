@@ -71,10 +71,10 @@ describe('Templates should be valid', () => {
 
 			const scripts = body.scripts;
 			expect(scripts.dev).toMatch(
-				/(remotion\sstudio)|(ts-node src\/studio)|(next dev)|(remix dev)/,
+				/(remotion\sstudio)|(ts-node src\/studio)|(next dev)|(react-router dev)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(ts-node\ssrc\/render)|(remix\sbuild)|(next\sbuild)/,
+				/(remotion\sbundle)|(ts-node\ssrc\/render)|(react-router build)|(next\sbuild)/,
 			);
 		});
 
@@ -96,6 +96,7 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/index.js'),
 				getFileForTemplate(template, 'remotion/index.ts'),
 				getFileForTemplate(template, 'app/remotion/index.ts'),
+				getFileForTemplate(template, 'src/remotion/index.ts'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/RemotionRoot/);
@@ -107,6 +108,8 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/Root.jsx'),
 				getFileForTemplate(template, 'remotion/Root.tsx'),
 				getFileForTemplate(template, 'app/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/export const RemotionRoot/);
@@ -143,7 +146,10 @@ describe('Templates should be valid', () => {
 				expect(contents).not.toInclude('outDir');
 			}
 			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
-			expect(contents).not.toInclude('"incremental": true');
+
+			if (!template.shortName.includes('Next')) {
+				expect(contents).not.toInclude('"incremental": true');
+			}
 		});
 
 		it(`${template.shortName} should use correct prettier`, async () => {

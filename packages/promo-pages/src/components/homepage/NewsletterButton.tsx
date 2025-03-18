@@ -58,7 +58,7 @@ export const NewsletterButton: React.FC<{}> = () => {
 							</p>
 
 							<input
-								className="w-full rounded-lg border-effect border-black outline-none px-3 py-3 fontbrand text-lg box-border focus:border-brand"
+								className="w-full dark:bg-[#121212] rounded-lg border-effect border-black outline-none px-3 py-3 fontbrand text-lg box-border focus:border-brand"
 								disabled={submitting}
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}

@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import type {TrackEntry} from './segments/all-segments';
 import {getCodecSegment, getPrivateData} from './traversal';
 

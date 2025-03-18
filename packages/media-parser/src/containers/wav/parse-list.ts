@@ -1,4 +1,4 @@
-import type {MetadataEntry} from '../../metadata/get-metadata';
+import type {MediaParserMetadataEntry} from '../../metadata/get-metadata';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {WavList} from './types';
@@ -18,9 +18,19 @@ export const parseList = ({
 		throw new Error(`Only supporting LIST INFO, but got ${type}`);
 	}
 
-	const metadata: MetadataEntry[] = [];
+	const metadata: MediaParserMetadataEntry[] = [];
 
-	while (iterator.counter.getOffset() < startOffset + ckSize) {
+	const remainingBytes = () =>
+		ckSize - (iterator.counter.getOffset() - startOffset);
+	while (remainingBytes() > 0) {
+		// Padding
+		// https://discord.com/channels/809501355504959528/1308803317480292482/1343979547246333983
+		// Indie_Hacker_Podcast (2).wav
+		if (remainingBytes() < 4) {
+			iterator.discard(remainingBytes());
+			break;
+		}
+
 		const key = iterator.getByteString(4, false);
 		const size = iterator.getUint32Le();
 		const value = iterator.getByteString(size, true);

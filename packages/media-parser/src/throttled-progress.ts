@@ -1,7 +1,7 @@
 import type {MediaParserController} from './media-parser-controller';
 import type {ParseMediaOnProgress, ParseMediaProgress} from './options';
 
-type ReturnType = {
+export type ThrottledState = {
 	get: () => ParseMediaProgress;
 	update: ParseMediaProgressFn | null;
 	stopAndGetLastProgress: () => void;
@@ -20,7 +20,7 @@ export const throttledStateUpdate = ({
 	everyMilliseconds: number;
 	controller: MediaParserController;
 	totalBytes: number | null;
-}): ReturnType => {
+}): ThrottledState => {
 	let currentState: ParseMediaProgress = {
 		bytes: 0,
 		percentage: null,
@@ -46,24 +46,37 @@ export const throttledStateUpdate = ({
 		lastUpdated = currentState;
 	};
 
-	const interval = setInterval(() => {
-		callUpdateIfChanged();
-	}, everyMilliseconds);
+	let cleanup = () => {};
 
-	const onAbort = () => {
-		clearInterval(interval);
-	};
+	if (everyMilliseconds > 0) {
+		const interval = setInterval(() => {
+			callUpdateIfChanged();
+		}, everyMilliseconds);
 
-	controller._internals.signal.addEventListener('abort', onAbort, {once: true});
+		const onAbort = () => {
+			clearInterval(interval);
+		};
+
+		controller._internals.signal.addEventListener('abort', onAbort, {
+			once: true,
+		});
+
+		cleanup = () => {
+			clearInterval(interval);
+			controller._internals.signal.removeEventListener('abort', onAbort);
+		};
+	}
 
 	return {
 		get: () => currentState,
 		update: (fn) => {
 			currentState = fn(currentState);
+			if (everyMilliseconds === 0) {
+				callUpdateIfChanged();
+			}
 		},
 		stopAndGetLastProgress: () => {
-			clearInterval(interval);
-			controller._internals.signal.removeEventListener('abort', onAbort);
+			cleanup();
 			return currentState;
 		},
 	};

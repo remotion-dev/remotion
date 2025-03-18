@@ -32,4 +32,5 @@ export type MediaFnGeneratorInput = {
 	logLevel: LogLevel;
 	filename: string;
 	progressTracker: ProgressTracker;
+	expectedDurationInSeconds: number | null;
 };

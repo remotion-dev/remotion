@@ -7,7 +7,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {AnyComposition} from 'remotion';
+import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
@@ -97,7 +97,7 @@ export const OptionsPanel: React.FC<{
 		Internals.CompositionManager,
 	);
 
-	const composition = useMemo((): AnyComposition | null => {
+	const composition = useMemo((): _InternalTypes['AnyComposition'] | null => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
 			return null;
 		}

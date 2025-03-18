@@ -1,4 +1,4 @@
-import type {MetadataEntry} from '../../metadata/get-metadata';
+import type {MediaParserMetadataEntry} from '../../metadata/get-metadata';
 import type {ParserState} from '../../state/parser-state';
 
 function combine28Bits(a: number, b: number, c: number, d: number): number {
@@ -31,7 +31,7 @@ export const parseId3 = ({state}: {state: ParserState}) => {
 		return;
 	}
 
-	const entries: MetadataEntry[] = [];
+	const entries: MediaParserMetadataEntry[] = [];
 
 	const initial = iterator.counter.getOffset();
 	while (iterator.counter.getOffset() < size + initial) {
@@ -45,9 +45,11 @@ export const parseId3 = ({state}: {state: ParserState}) => {
 		}
 
 		const s =
-			versionMajor === 3 || versionMajor === 4
-				? iterator.getUint32()
-				: iterator.getUint24();
+			versionMajor === 4
+				? iterator.getSyncSafeInt32()
+				: versionMajor === 3
+					? iterator.getUint32()
+					: iterator.getUint24();
 		if (versionMajor === 3 || versionMajor === 4) {
 			iterator.getUint16(); // flags
 		}

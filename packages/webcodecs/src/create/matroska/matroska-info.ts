@@ -15,12 +15,12 @@ export const makeMatroskaInfo = ({timescale}: {timescale: number}) => {
 			},
 			{
 				type: 'MuxingApp',
-				value: '@remotion/media-parser',
+				value: '@remotion/webcodecs',
 				minVintWidth: null,
 			},
 			{
 				type: 'WritingApp',
-				value: '@remotion/media-parser',
+				value: '@remotion/webcodecs',
 				minVintWidth: null,
 			},
 			makeDurationWithPadding(0),

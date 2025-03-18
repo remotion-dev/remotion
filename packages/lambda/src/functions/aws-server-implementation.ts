@@ -1,3 +1,4 @@
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import type {InsideFunctionSpecifics} from '@remotion/serverless';
 import {
 	forgetBrowserEventLoopImplementation,
@@ -5,15 +6,22 @@ import {
 	invokeWebhook,
 } from '@remotion/serverless';
 import {deleteTmpDir} from './helpers/clean-tmpdir';
-import {generateRandomHashWithLifeCycleRule} from './helpers/lifecycle';
+import {getCurrentRegionInFunctionImplementation} from './helpers/get-current-region';
+import {getFolderFiles} from './helpers/get-folder-files';
+import {makeAwsArtifact} from './helpers/make-aws-artifact';
 import {timer} from './helpers/timer';
 
-export const serverAwsImplementation: InsideFunctionSpecifics = {
+export const serverAwsImplementation: InsideFunctionSpecifics<AwsProvider> = {
 	forgetBrowserEventLoop: forgetBrowserEventLoopImplementation,
 	getBrowserInstance: getBrowserInstanceImplementation,
 	timer,
+	getCurrentRegionInFunction: getCurrentRegionInFunctionImplementation,
+
 	generateRandomId: ({deleteAfter, randomHashFn}) => {
-		return generateRandomHashWithLifeCycleRule({deleteAfter, randomHashFn});
+		return LambdaClientInternals.generateRandomHashWithLifeCycleRule({
+			deleteAfter,
+			randomHashFn,
+		});
 	},
 	deleteTmpDir: () => Promise.resolve(deleteTmpDir()),
 	getCurrentFunctionName: () => {
@@ -27,4 +35,6 @@ export const serverAwsImplementation: InsideFunctionSpecifics = {
 		return Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE);
 	},
 	invokeWebhook,
+	makeArtifactWithDetails: makeAwsArtifact,
+	getFolderFiles,
 };

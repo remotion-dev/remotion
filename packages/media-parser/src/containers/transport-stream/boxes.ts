@@ -38,6 +38,10 @@ export type TransportStreamPATBox = {
 	pat: TransportStreamProgramAssociationTableEntry[];
 };
 
+export type TransportStreamSdtBox = {
+	type: 'transport-stream-sdt-box';
+};
+
 export type TransportStreamPMTBox = {
 	type: 'transport-stream-pmt-box';
 	tableId: number;
@@ -47,4 +51,5 @@ export type TransportStreamPMTBox = {
 export type TransportStreamBox =
 	| TransportStreamGenericBox
 	| TransportStreamPATBox
+	| TransportStreamSdtBox
 	| TransportStreamPMTBox;

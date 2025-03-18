@@ -1,4 +1,5 @@
 export {audioBufferToDataUrl} from './audio-buffer/audio-url-helpers';
+export {createSmoothSvgPath} from './create-smooth-svg-path';
 export {getAudioData} from './get-audio-data';
 export {
 	getAudioDuration,
@@ -18,3 +19,7 @@ export {
 	useWindowedAudioData,
 } from './use-windowed-audio-data';
 export {VisualizeAudioOptions, visualizeAudio} from './visualize-audio';
+export {
+	VisualizeAudioWaveformOptions,
+	visualizeAudioWaveform,
+} from './visualize-audio-waveform';

@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
+import {deleteFunction} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {deleteFunction} from '../../../api/delete-function';
 import {getFunctionInfo} from '../../../api/get-function-info';
-import {BINARY_NAME} from '../../../shared/constants';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';

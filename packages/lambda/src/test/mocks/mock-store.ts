@@ -1,11 +1,12 @@
-import type {CloudProvider} from '@remotion/serverless';
-import type {Privacy} from '@remotion/serverless/client';
+import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
+import type {
+	BucketWithLocation,
+	CloudProvider,
+	Privacy,
+} from '@remotion/serverless';
 import {Readable} from 'stream';
-import type {BucketWithLocation} from '../../api/get-buckets';
-import type {AwsProvider} from '../../functions/aws-implementation';
-import type {AwsRegion} from '../../regions';
 
-export const mockBucketStore: BucketWithLocation[] = [];
+export const mockBucketStore: BucketWithLocation<AwsProvider>[] = [];
 
 type S3MockFile<Provider extends CloudProvider> = {
 	bucketName: string;
@@ -17,7 +18,7 @@ type S3MockFile<Provider extends CloudProvider> = {
 
 let mockS3Store: S3MockFile<AwsProvider>[] = [];
 
-export const addMockBucket = (bucket: BucketWithLocation) => {
+export const addMockBucket = (bucket: BucketWithLocation<AwsProvider>) => {
 	mockBucketStore.push(bucket);
 };
 

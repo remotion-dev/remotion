@@ -1,7 +1,7 @@
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless';
 import {expect, test} from 'bun:test';
 import {VERSION} from 'remotion/version';
-import {mockImplementation} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 
 test('Call function locally', async () => {
 	expect(

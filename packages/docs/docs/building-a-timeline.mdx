@@ -2,6 +2,7 @@
 image: /generated/articles-docs-building-a-timeline.png
 id: building-a-timeline
 title: Build a timeline-based video editor
+sidebar_label: Build a timeline
 crumb: 'Building video apps'
 ---
 
@@ -12,11 +13,25 @@ Read this document for guidance on building a video editor with the following ch
 - Items can be arbitrarily placed on a track
 - Items can be of different types (e.g. video, audio, text, etc.)
 
+## Get the `<Timeline>` component
+
+We offer a copy-pasteable `<Timeline>` component that follows Remotion's best practices and also already handles zoom.  
+If you want to save time and get a head start, you can [purchase it in the Remotion Store](https://www.remotion.pro/timeline).
+
+You can also build your own timeline component.  
+The following steps will use the same approach we used to build our Timeline component.
+
+## Watch the "Build a video editor in React" talk
+
+Watch the talk "Build a video editor in React" by Jonny Burger, the creator of Remotion [here](https://www.youtube.com/watch?v=gYf_FWZGHng).  
+You'll receive an outline of how to build a timeline, canvas, captioning and exporting functionality in just 30 minutes.
+
+## Build your own timeline
+
 <img src="/img/timelineitems.png" />
 <br />
 <br />
-<Step>1</Step> Define a TypeScript type <code>Item</code> defining the different
-item types. Create another one for defining the shape of a <code>Track</code>:
+<Step>1</Step> Define a TypeScript type <code>Item</code> defining the different item types. Create another one for defining the shape of a <code>Track</code>:
 
 ```tsx twoslash title="types.ts"
 type BaseItem = {
@@ -113,11 +128,7 @@ const Track: React.FC<{
     <AbsoluteFill>
       {track.items.map((item) => {
         return (
-          <Sequence
-            key={item.id}
-            from={item.from}
-            durationInFrames={item.durationInFrames}
-          >
+          <Sequence key={item.id} from={item.from} durationInFrames={item.durationInFrames}>
             <ItemComp item={item} />
           </Sequence>
         );
@@ -213,22 +224,13 @@ export const Editor = () => {
 
   return (
     <>
-      <Player
-        component={Main}
-        fps={30}
-        inputProps={inputProps}
-        durationInFrames={600}
-        compositionWidth={1280}
-        compositionHeight={720}
-      />
+      <Player component={Main} fps={30} inputProps={inputProps} durationInFrames={600} compositionWidth={1280} compositionHeight={720} />
     </>
   );
 };
 ```
 
-<Step>4</Step> Build a timeline component: You now have access to the <code>
-  tracks
-</code> state and can update it using the <code>setTracks</code> function.
+<Step>4</Step> Build a timeline component: You now have access to the <code>tracks</code> state and can update it using the <code>setTracks</code> function.
 
 We do not currently provide samples how to build a timeline component, since everybody has different needs and styling preferences.
 
@@ -268,14 +270,7 @@ const Editor: React.FC = () => {
 
   return (
     <>
-      <Player
-        component={Main}
-        fps={30}
-        inputProps={inputProps}
-        durationInFrames={600}
-        compositionWidth={1280}
-        compositionHeight={720}
-      />
+      <Player component={Main} fps={30} inputProps={inputProps} durationInFrames={600} compositionWidth={1280} compositionHeight={720} />
       <Timeline tracks={tracks} setTracks={setTracks} />
     </>
   );

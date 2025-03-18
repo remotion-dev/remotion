@@ -17,12 +17,16 @@ import type {
 } from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	editorPropsProviderRef,
+	timeValueRef,
 } from './EditorProps.js';
 import {
 	addSequenceStackTraces,
@@ -108,6 +112,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline: TimelinePosition,
 	CompositionManager,
+	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
@@ -168,6 +173,7 @@ export const Internals = {
 	LogLevelContext,
 	useLogLevel,
 	playbackLogging,
+	timeValueRef,
 } as const;
 
 export type {
@@ -179,11 +185,10 @@ export type {
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TRenderAsset as TAsset,
 	TCompMetadata,
 	TComposition,
-	TimelinePosition as Timeline,
 	TimelineContextValue,
+	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

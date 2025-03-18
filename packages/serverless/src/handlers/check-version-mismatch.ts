@@ -1,7 +1,9 @@
-import {VERSION} from 'remotion/version';
-import {ServerlessRoutines, type ServerlessPayload} from '../constants';
+import type {
+	CloudProvider,
+	ServerlessPayload,
+} from '@remotion/serverless-client';
+import {ServerlessRoutines, VERSION} from '@remotion/serverless-client';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
-import type {CloudProvider} from '../types';
 
 export const checkVersionMismatch = <Provider extends CloudProvider>({
 	params,
@@ -9,7 +11,7 @@ export const checkVersionMismatch = <Provider extends CloudProvider>({
 	apiName,
 }: {
 	params: ServerlessPayload<Provider>;
-	insideFunctionSpecifics: InsideFunctionSpecifics;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	apiName: string;
 }) => {
 	if (params.type === ServerlessRoutines.info) {

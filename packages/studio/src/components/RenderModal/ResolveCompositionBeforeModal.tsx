@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useMemo} from 'react';
-import type {AnyComposition, VideoConfig} from 'remotion';
+import type {_InternalTypes, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {inlineCodeSnippet} from '../Menu/styles';
@@ -25,7 +25,7 @@ const loaderLabel: React.CSSProperties = {
 };
 
 type TResolvedCompositionContext = {
-	unresolved: AnyComposition;
+	unresolved: _InternalTypes['AnyComposition'];
 	resolved: {
 		type: 'success';
 		result: VideoConfig;

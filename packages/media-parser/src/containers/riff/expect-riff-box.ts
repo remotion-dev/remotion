@@ -1,5 +1,5 @@
 import {
-	registerTrack,
+	registerAudioTrack,
 	registerVideoTrackWhenProfileIsAvailable,
 } from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
@@ -53,7 +53,7 @@ export const expectRiffBox = async (
 				index: state.riff.getNextTrackIndex(),
 				strf: box.strf,
 			});
-			await registerTrack({
+			await registerAudioTrack({
 				state,
 				track: audioTrack,
 				container: 'avi',

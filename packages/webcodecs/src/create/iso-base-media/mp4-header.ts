@@ -1,8 +1,11 @@
+import type {LogLevel} from '@remotion/media-parser';
 import {VERSION} from '@remotion/media-parser';
+import {Log} from '../../log';
 import {createIlst} from './create-ilst';
 import {createMoov} from './create-moov';
 import {createMvhd} from './create-mvhd';
 import {createUdta} from './create-udta';
+import {calculateAReasonableMp4HeaderLength} from './header-length';
 import {createCmt} from './ilst/create-cmt';
 import {createToo} from './ilst/create-too';
 import {IDENTITY_MATRIX, padIsoBaseMediaBytes} from './primitives';
@@ -11,18 +14,34 @@ import {serializeTrack} from './serialize-track';
 import {createMeta} from './udta/create-meta';
 import {createHdlr} from './udta/meta/create-hdlr';
 
-// TODO: Creates a header that is way too large
-const HEADER_LENGTH = 1024_000;
-
 export const createPaddedMoovAtom = ({
 	durationInUnits,
 	trackInfo,
 	timescale,
+	expectedDurationInSeconds,
+	logLevel,
 }: {
 	durationInUnits: number;
 	trackInfo: IsoBaseMediaTrackData[];
 	timescale: number;
+	expectedDurationInSeconds: number | null;
+	logLevel: LogLevel;
 }) => {
+	const headerLength = calculateAReasonableMp4HeaderLength(
+		expectedDurationInSeconds,
+	);
+	if (expectedDurationInSeconds !== null) {
+		Log.verbose(
+			logLevel,
+			`Expecting duration of the video to be ${expectedDurationInSeconds} seconds, allocating ${headerLength} bytes for the MP4 header.`,
+		);
+	} else {
+		Log.verbose(
+			logLevel,
+			`No duration was provided, allocating ${headerLength} bytes for the MP4 header.`,
+		);
+	}
+
 	return padIsoBaseMediaBytes(
 		createMoov({
 			mvhd: createMvhd({
@@ -56,6 +75,6 @@ export const createPaddedMoovAtom = ({
 				}),
 			),
 		}),
-		HEADER_LENGTH,
+		headerLength,
 	);
 };

@@ -1,4 +1,4 @@
-import type {AllOptions, ParseMediaFields} from '../options';
+import type {AllOptions, ParseMediaFields} from '../fields';
 
 export const emittedState = () => {
 	const emittedFields: AllOptions<ParseMediaFields> = {
@@ -29,6 +29,7 @@ export const emittedState = () => {
 		sampleRate: false,
 		slowAudioBitrate: false,
 		slowVideoBitrate: false,
+		m3uStreams: false,
 	};
 
 	return emittedFields;

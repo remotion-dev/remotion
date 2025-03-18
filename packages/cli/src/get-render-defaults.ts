@@ -8,6 +8,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	jpegQualityOption,
 	videoBitrateOption,
@@ -52,6 +53,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const defaultScale = scaleOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -148,6 +152,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		ignoreCertificateErrors,
 		openGlRenderer: gl,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		multiProcessOnLinux,
 		userAgent,

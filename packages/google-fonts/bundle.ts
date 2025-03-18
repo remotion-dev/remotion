@@ -1,4 +1,5 @@
 import {build} from 'bun';
+import {buildPackage} from '../.monorepo/builder';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
@@ -84,3 +85,17 @@ const length =
 		.text();
 
 equal(length.trim(), '1575');
+
+await buildPackage({
+	entrypoints: [
+		{
+			path: 'src/from-info.ts',
+			target: 'browser',
+		},
+	],
+	formats: {
+		esm: 'build',
+		cjs: 'use-tsc',
+	},
+	external: 'dependencies',
+});

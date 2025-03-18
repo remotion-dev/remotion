@@ -1,3 +1,5 @@
+import {getM3uStreams} from './containers/m3u/get-streams';
+import type {Options, ParseMediaFields} from './fields';
 import {getAudioCodec} from './get-audio-codec';
 import {getContainer} from './get-container';
 import type {Dimensions} from './get-dimensions';
@@ -12,40 +14,31 @@ import {getSampleRate} from './get-sample-rate';
 import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
-import type {
-	AllParseMediaFields,
-	Options,
-	ParseMediaCallbacks,
-	ParseMediaFields,
-	ParseMediaResult,
-} from './options';
 import type {ParserState} from './state/parser-state';
+import {workOnSeekRequest} from './work-on-seek-request';
 
 export const emitAvailableInfo = async ({
 	hasInfo,
-	callbacks,
 	state,
-	returnValue,
-	name,
-	mimeType,
-	fieldsInReturnValue,
 }: {
 	hasInfo: Record<keyof Options<ParseMediaFields>, boolean>;
-	callbacks: ParseMediaCallbacks;
-	fieldsInReturnValue: Options<ParseMediaFields>;
 	state: ParserState;
-	returnValue: ParseMediaResult<AllParseMediaFields>;
-	mimeType: string | null;
-	name: string;
 }) => {
 	const keys = Object.keys(hasInfo) as (keyof Options<ParseMediaFields>)[];
 
-	const {emittedFields} = state;
+	const {
+		emittedFields,
+		fieldsInReturnValue,
+		returnValue,
+		name,
+		callbackFunctions,
+	} = state;
 
 	for (const key of keys) {
+		await workOnSeekRequest(state);
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
-				await callbacks.onStructure?.(state.getStructure());
+				await callbackFunctions.onStructure?.(state.getStructure());
 				if (fieldsInReturnValue.structure) {
 					returnValue.structure = state.getStructure();
 				}
@@ -60,7 +53,7 @@ export const emitAvailableInfo = async ({
 			if (hasInfo.durationInSeconds) {
 				if (!emittedFields.durationInSeconds) {
 					const durationInSeconds = getDuration(state);
-					await callbacks.onDurationInSeconds?.(durationInSeconds);
+					await callbackFunctions.onDurationInSeconds?.(durationInSeconds);
 					if (fieldsInReturnValue.durationInSeconds) {
 						returnValue.durationInSeconds = durationInSeconds;
 					}
@@ -80,7 +73,9 @@ export const emitAvailableInfo = async ({
 				const slowDurationInSeconds =
 					getDuration(state) ??
 					state.slowDurationAndFps.getSlowDurationInSeconds();
-				await callbacks.onSlowDurationInSeconds?.(slowDurationInSeconds);
+				await callbackFunctions.onSlowDurationInSeconds?.(
+					slowDurationInSeconds,
+				);
 				if (fieldsInReturnValue.slowDurationInSeconds) {
 					returnValue.slowDurationInSeconds = slowDurationInSeconds;
 				}
@@ -95,7 +90,7 @@ export const emitAvailableInfo = async ({
 			if (hasInfo.fps) {
 				if (!emittedFields.fps) {
 					const fps = getFps(state);
-					await callbacks.onFps?.(fps);
+					await callbackFunctions.onFps?.(fps);
 					if (fieldsInReturnValue.fps) {
 						returnValue.fps = fps;
 					}
@@ -106,7 +101,7 @@ export const emitAvailableInfo = async ({
 				if (!emittedFields.slowFps) {
 					const fps = getFps(state);
 					if (fps) {
-						await callbacks.onSlowFps?.(fps);
+						await callbackFunctions.onSlowFps?.(fps);
 						if (fieldsInReturnValue.slowFps) {
 							returnValue.slowFps = fps;
 						}
@@ -123,7 +118,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowFps') {
 			if (hasInfo.slowFps && !emittedFields.slowFps) {
 				const slowFps = state.slowDurationAndFps.getFps();
-				await callbacks.onSlowFps?.(slowFps);
+				await callbackFunctions.onSlowFps?.(slowFps);
 				if (fieldsInReturnValue.slowFps) {
 					returnValue.slowFps = slowFps;
 				}
@@ -144,7 +139,7 @@ export const emitAvailableInfo = async ({
 								height: dimensionsQueried.height,
 								width: dimensionsQueried.width,
 							};
-				await callbacks.onDimensions?.(dimensions);
+				await callbackFunctions.onDimensions?.(dimensions);
 				if (fieldsInReturnValue.dimensions) {
 					returnValue.dimensions = dimensions;
 				}
@@ -166,7 +161,7 @@ export const emitAvailableInfo = async ({
 								width: dimensionsQueried.unrotatedWidth,
 							};
 
-				await callbacks.onUnrotatedDimensions?.(unrotatedDimensions);
+				await callbackFunctions.onUnrotatedDimensions?.(unrotatedDimensions);
 				if (fieldsInReturnValue.unrotatedDimensions) {
 					returnValue.unrotatedDimensions = unrotatedDimensions;
 				}
@@ -182,7 +177,7 @@ export const emitAvailableInfo = async ({
 				const dimensionsQueried = getDimensions(state);
 				const rotation = dimensionsQueried?.rotation ?? 0;
 
-				await callbacks.onRotation?.(rotation);
+				await callbackFunctions.onRotation?.(rotation);
 				if (fieldsInReturnValue.rotation) {
 					returnValue.rotation = rotation;
 				}
@@ -196,7 +191,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'videoCodec') {
 			if (!emittedFields.videoCodec && hasInfo.videoCodec) {
 				const videoCodec = getVideoCodec(state);
-				await callbacks.onVideoCodec?.(videoCodec);
+				await callbackFunctions.onVideoCodec?.(videoCodec);
 				if (fieldsInReturnValue.videoCodec) {
 					returnValue.videoCodec = videoCodec;
 				}
@@ -210,7 +205,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'audioCodec') {
 			if (!emittedFields.audioCodec && hasInfo.audioCodec) {
 				const audioCodec = getAudioCodec(state);
-				await callbacks.onAudioCodec?.(audioCodec);
+				await callbackFunctions.onAudioCodec?.(audioCodec);
 				if (fieldsInReturnValue.audioCodec) {
 					returnValue.audioCodec = audioCodec;
 				}
@@ -224,7 +219,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'tracks') {
 			if (!emittedFields.tracks && hasInfo.tracks) {
 				const {videoTracks, audioTracks} = getTracks(state);
-				await callbacks.onTracks?.({videoTracks, audioTracks});
+				await callbackFunctions.onTracks?.({videoTracks, audioTracks});
 				if (fieldsInReturnValue.tracks) {
 					returnValue.tracks = {videoTracks, audioTracks};
 				}
@@ -251,7 +246,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'size') {
 			if (!emittedFields.size && hasInfo.size) {
-				await callbacks.onSize?.(state.contentLength);
+				await callbackFunctions.onSize?.(state.contentLength);
 				if (fieldsInReturnValue.size) {
 					returnValue.size = state.contentLength;
 				}
@@ -264,9 +259,9 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'mimeType') {
 			if (!emittedFields.mimeType && hasInfo.mimeType) {
-				await callbacks.onMimeType?.(mimeType);
+				await callbackFunctions.onMimeType?.(state.mimeType);
 				if (fieldsInReturnValue.mimeType) {
-					returnValue.mimeType = mimeType;
+					returnValue.mimeType = state.mimeType;
 				}
 
 				emittedFields.mimeType = true;
@@ -277,7 +272,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'name') {
 			if (!emittedFields.name && hasInfo.name) {
-				await callbacks.onName?.(name);
+				await callbackFunctions.onName?.(name);
 				if (fieldsInReturnValue.name) {
 					returnValue.name = name;
 				}
@@ -291,7 +286,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'isHdr') {
 			if (!returnValue.isHdr && hasInfo.isHdr) {
 				const isHdr = getIsHdr(state);
-				await callbacks.onIsHdr?.(isHdr);
+				await callbackFunctions.onIsHdr?.(isHdr);
 				if (fieldsInReturnValue.isHdr) {
 					returnValue.isHdr = isHdr;
 				}
@@ -305,7 +300,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'container') {
 			if (!returnValue.container && hasInfo.container) {
 				const container = getContainer(state.getStructure());
-				await callbacks.onContainer?.(container);
+				await callbackFunctions.onContainer?.(container);
 				if (fieldsInReturnValue.container) {
 					returnValue.container = container;
 				}
@@ -319,7 +314,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'metadata') {
 			if (!emittedFields.metadata && hasInfo.metadata) {
 				const metadata = getMetadata(state);
-				await callbacks.onMetadata?.(metadata);
+				await callbackFunctions.onMetadata?.(metadata);
 				if (fieldsInReturnValue.metadata) {
 					returnValue.metadata = metadata;
 				}
@@ -333,7 +328,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'location') {
 			if (!emittedFields.location && hasInfo.location) {
 				const location = getLocation(state);
-				await callbacks.onLocation?.(location);
+				await callbackFunctions.onLocation?.(location);
 				if (fieldsInReturnValue.location) {
 					returnValue.location = location;
 				}
@@ -346,7 +341,9 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'slowKeyframes') {
 			if (!emittedFields.slowKeyframes && hasInfo.slowKeyframes) {
-				await callbacks.onSlowKeyframes?.(state.keyframes.getKeyframes());
+				await callbackFunctions.onSlowKeyframes?.(
+					state.keyframes.getKeyframes(),
+				);
 				if (fieldsInReturnValue.slowKeyframes) {
 					returnValue.slowKeyframes = state.keyframes.getKeyframes();
 				}
@@ -359,7 +356,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'slowNumberOfFrames') {
 			if (!emittedFields.slowNumberOfFrames && hasInfo.slowNumberOfFrames) {
-				await callbacks.onSlowNumberOfFrames?.(
+				await callbackFunctions.onSlowNumberOfFrames?.(
 					state.slowDurationAndFps.getSlowNumberOfFrames(),
 				);
 				if (fieldsInReturnValue.slowNumberOfFrames) {
@@ -375,7 +372,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'slowAudioBitrate') {
 			if (!emittedFields.slowAudioBitrate && hasInfo.slowAudioBitrate) {
-				await callbacks.onSlowAudioBitrate?.(
+				await callbackFunctions.onSlowAudioBitrate?.(
 					state.slowDurationAndFps.getAudioBitrate(),
 				);
 				if (fieldsInReturnValue.slowAudioBitrate) {
@@ -391,7 +388,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'slowVideoBitrate') {
 			if (!emittedFields.slowVideoBitrate && hasInfo.slowVideoBitrate) {
-				await callbacks.onSlowVideoBitrate?.(
+				await callbackFunctions.onSlowVideoBitrate?.(
 					state.slowDurationAndFps.getVideoBitrate(),
 				);
 				if (fieldsInReturnValue.slowVideoBitrate) {
@@ -407,7 +404,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'keyframes') {
 			if (!emittedFields.keyframes && hasInfo.keyframes) {
-				await callbacks.onKeyframes?.(getKeyframes(state));
+				await callbackFunctions.onKeyframes?.(getKeyframes(state));
 				if (fieldsInReturnValue.keyframes) {
 					returnValue.keyframes = getKeyframes(state);
 				}
@@ -420,7 +417,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'images') {
 			if (!emittedFields.images && hasInfo.images) {
-				await callbacks.onImages?.(state.images.images);
+				await callbackFunctions.onImages?.(state.images.images);
 				if (fieldsInReturnValue.images) {
 					returnValue.images = state.images.images;
 				}
@@ -434,7 +431,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'sampleRate') {
 			if (!emittedFields.sampleRate && hasInfo.sampleRate) {
 				const sampleRate = getSampleRate(state);
-				await callbacks.onSampleRate?.(sampleRate);
+				await callbackFunctions.onSampleRate?.(sampleRate);
 				if (fieldsInReturnValue.sampleRate) {
 					returnValue.sampleRate = sampleRate;
 				}
@@ -451,7 +448,9 @@ export const emitAvailableInfo = async ({
 				hasInfo.numberOfAudioChannels
 			) {
 				const numberOfAudioChannels = getNumberOfAudioChannels(state);
-				await callbacks.onNumberOfAudioChannels?.(numberOfAudioChannels);
+				await callbackFunctions.onNumberOfAudioChannels?.(
+					numberOfAudioChannels,
+				);
 				if (fieldsInReturnValue.numberOfAudioChannels) {
 					returnValue.numberOfAudioChannels = numberOfAudioChannels;
 				}
@@ -462,6 +461,26 @@ export const emitAvailableInfo = async ({
 			continue;
 		}
 
+		if (key === 'm3uStreams') {
+			if (!emittedFields.m3uStreams && hasInfo.m3uStreams) {
+				const streams = getM3uStreams({
+					structure: state.getStructureOrNull(),
+					originalSrc: state.src,
+					readerInterface: state.readerInterface,
+				});
+				await callbackFunctions.onM3uStreams?.(streams);
+				if (fieldsInReturnValue.m3uStreams) {
+					returnValue.m3uStreams = streams;
+				}
+
+				emittedFields.m3uStreams = true;
+			}
+
+			continue;
+		}
+
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
+
+	await workOnSeekRequest(state);
 };

@@ -23,8 +23,34 @@ module.exports = {
 						id: 'lambda/cli',
 					},
 					items: [
-						'lambda/cli/sites',
-						'lambda/cli/functions',
+						{
+							type: 'category',
+							label: 'sites',
+							link: {
+								type: 'doc',
+								id: 'lambda/cli/sites',
+							},
+							items: [
+								'lambda/cli/sites/create',
+								'lambda/cli/sites/ls',
+								'lambda/cli/sites/rm',
+								'lambda/cli/sites/rmall',
+							],
+						},
+						{
+							type: 'category',
+							label: 'functions',
+							link: {
+								type: 'doc',
+								id: 'lambda/cli/functions',
+							},
+							items: [
+								'lambda/cli/functions/deploy',
+								'lambda/cli/functions/ls',
+								'lambda/cli/functions/rm',
+								'lambda/cli/functions/rmall',
+							],
+						},
 						'lambda/cli/render',
 						'lambda/cli/still',
 						'lambda/cli/policies',
@@ -41,8 +67,34 @@ module.exports = {
 						id: 'cloudrun/cli',
 					},
 					items: [
-						'cloudrun/cli/sites',
-						'cloudrun/cli/services',
+						{
+							type: 'category',
+							label: 'sites',
+							link: {
+								type: 'doc',
+								id: 'cloudrun/cli/sites',
+							},
+							items: [
+								'cloudrun/cli/sites/create',
+								'cloudrun/cli/sites/ls',
+								'cloudrun/cli/sites/rm',
+								'cloudrun/cli/sites/rmall',
+							],
+						},
+						{
+							type: 'category',
+							label: 'services',
+							link: {
+								type: 'doc',
+								id: 'cloudrun/cli/services',
+							},
+							items: [
+								'cloudrun/cli/services/deploy',
+								'cloudrun/cli/services/ls',
+								'cloudrun/cli/services/rm',
+								'cloudrun/cli/services/rmall',
+							],
+						},
 						'cloudrun/cli/render',
 						'cloudrun/cli/still',
 						'cloudrun/cli/permissions',
@@ -152,6 +204,7 @@ module.exports = {
 				'renderer/get-can-extract-frames-fast',
 				'renderer/get-video-metadata',
 				'renderer/get-silent-parts',
+				'renderer/combine-chunks',
 				'renderer/extract-audio',
 			],
 		},
@@ -198,6 +251,8 @@ module.exports = {
 				'use-audio-data',
 				'use-windowed-audio-data',
 				'visualize-audio',
+				'media-utils/visualize-audio-waveform',
+				'media-utils/create-smooth-svg-path',
 				'get-image-dimensions',
 			],
 		},
@@ -211,16 +266,18 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/media-parser/metadata',
+					href: '/docs/media-parser',
 					label: 'Guide',
 				},
 				'media-parser/parse-media',
 				'media-parser/download-and-parse-media',
 				'media-parser/media-parser-controller',
+				'media-parser/parse-media-on-web-worker',
+				'media-parser/parse-media-on-server-worker',
 				'media-parser/has-been-aborted',
 				'media-parser/node-reader',
-				'media-parser/fetch-reader',
-				'media-parser/web-file-reader',
+				'media-parser/web-reader',
+				'media-parser/universal-reader',
 				'media-parser/node-writer',
 			],
 		},
@@ -435,6 +492,7 @@ module.exports = {
 				'google-fonts/load-font',
 				'google-fonts/get-available-fonts',
 				'google-fonts/get-info',
+				'google-fonts/load-font-from-info',
 			],
 		},
 		{
@@ -485,6 +543,7 @@ module.exports = {
 				'studio/delete-static-file',
 				'studio/restart-studio',
 				'studio/save-default-props',
+				'studio/seek',
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
@@ -596,7 +655,7 @@ module.exports = {
 			items: [
 				{
 					type: 'link',
-					href: '/docs/webcodecs/convert-a-video',
+					href: '/docs/webcodecs',
 					label: 'Guide',
 				},
 				'webcodecs/convert-media',
@@ -784,6 +843,7 @@ module.exports = {
 				'miscellaneous/cloud-gpu',
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
+				'distributed-rendering',
 			],
 		},
 		{
@@ -874,6 +934,8 @@ module.exports = {
 				'lambda/python',
 				'lambda/ruby',
 				'lambda/serverless-framework-integration',
+				'lambda/supabase',
+				'lambda/r2',
 				'lambda/insights',
 				'lambda/multiple-buckets',
 				'lambda/how-lambda-works',
@@ -923,14 +985,19 @@ module.exports = {
 					href: '/docs/media-parser/parse-media',
 					label: 'API Reference',
 				},
+				'media-parser/fields',
 				'media-parser/metadata',
+				'media-parser/readers',
 				'media-parser/fast-and-slow',
 				'media-parser/tags',
+				'media-parser/download-and-parse',
+				'media-parser/workers',
 				'media-parser/format-support',
 				'media-parser/runtime-support',
 				'media-parser/pause-resume-abort',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
+				'media-parser/stream-selection',
 			],
 		},
 		{
@@ -974,6 +1041,15 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'AI',
+			link: {
+				type: 'doc',
+				id: 'ai/index',
+			},
+			items: ['ai/bolt', 'ai/chatbot', 'ai/mcp', 'ai/system-prompt'],
+		},
+		{
+			type: 'category',
 			label: 'Tooling',
 			items: [
 				'tailwind',
@@ -983,6 +1059,7 @@ module.exports = {
 				'javascript',
 				'third-party',
 				'miscellaneous/typescript-aliases',
+				'testing',
 				'figma',
 				'spline',
 				'after-effects',
@@ -1107,6 +1184,7 @@ module.exports = {
 				'support',
 			],
 		},
+
 		{
 			type: 'category',
 			label: 'Miscellaneous',
@@ -1122,7 +1200,6 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
-				'system-prompt',
 			],
 		},
 		{
@@ -1159,6 +1236,18 @@ module.exports = {
 		},
 		'license',
 		'acknowledgements',
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'doc',
+			id: 'timeline',
+			label: 'Timeline',
+			className: 'pro-item',
+		},
 	],
 	recorderSidebar: [
 		{
@@ -1213,12 +1302,12 @@ module.exports = {
 				},
 				'recorder/source-control',
 				'recorder/external-recordings',
+				'recorder/experiments',
 				'recorder/upgrading',
 				{
 					type: 'category',
 					label: 'Troubleshooting',
 					items: [
-						'recorder/troubleshooting/failed-to-execute-get-video-metadata',
 						'recorder/troubleshooting/cannot-read-properties-of-undefined',
 					],
 				},

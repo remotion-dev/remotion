@@ -14,13 +14,15 @@ import type {
 	WriterInterface,
 } from '@remotion/media-parser';
 import {
+	defaultSelectM3uAssociatedPlaylists,
+	defaultSelectM3uStreamFn,
 	MediaParserAbortError,
 	MediaParserInternals,
 	type OnVideoTrack,
 } from '@remotion/media-parser';
 
 import type {ParseMediaCallbacks} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
+import {webReader} from '@remotion/media-parser/web';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
 import {makeProgressTracker} from './create/progress-tracker';
@@ -124,6 +126,10 @@ export const convertMedia = async function <
 	onTracks,
 	onUnrotatedDimensions,
 	onVideoCodec,
+	onM3uStreams,
+	selectM3uStream,
+	selectM3uAssociatedPlaylists,
+	expectedDurationInSeconds,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -136,6 +142,9 @@ export const convertMedia = async function <
 	controller?: WebCodecsController;
 	onAudioTrack?: ConvertMediaOnAudioTrackHandler;
 	onVideoTrack?: ConvertMediaOnVideoTrackHandler;
+	selectM3uStream?: ParseMediaOptions<F>['selectM3uStream'];
+	selectM3uAssociatedPlaylists?: ParseMediaOptions<F>['selectM3uAssociatedPlaylists'];
+	expectedDurationInSeconds?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
 	logLevel?: LogLevel;
 	writer?: WriterInterface;
@@ -221,6 +230,7 @@ export const convertMedia = async function <
 		},
 		logLevel,
 		progressTracker,
+		expectedDurationInSeconds: expectedDurationInSeconds ?? null,
 	});
 
 	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
@@ -256,12 +266,12 @@ export const convertMedia = async function <
 		src,
 		onVideoTrack,
 		onAudioTrack,
-		controller,
+		controller: controller._mediaParserController,
 		fields: {
 			...fields,
 			durationInSeconds: true,
 		},
-		reader: reader ?? fetchReader,
+		reader: reader ?? webReader,
 		...more,
 		onDurationInSeconds: (durationInSeconds) => {
 			if (durationInSeconds === null) {
@@ -320,6 +330,11 @@ export const convertMedia = async function <
 		onUnrotatedDimensions: onUnrotatedDimensions ?? null,
 		onVideoCodec: onVideoCodec ?? null,
 		apiName: 'convertMedia()',
+		onM3uStreams: onM3uStreams ?? null,
+		selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
+		mp4HeaderSegment: null,
 	})
 		.then(() => {
 			return state.waitForFinish();

@@ -4,7 +4,7 @@ import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
-	play: () => void;
+	play: (reason: string) => void;
 	id: string;
 };
 

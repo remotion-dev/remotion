@@ -422,7 +422,7 @@ const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
-- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use a two-pass process for the video generation. `pre-stitcher` is the encoding phase and `stitcher` is the muxing phase. If the override function is only called once with `stitcher`, then encoding and muxing is done in the same step. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
 - `args`: An array of strings that is passed as arguments to the FFMPEG command.
 
 Your function must return a modified array of strings.
@@ -437,13 +437,17 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
-### `disallowParallelEncoding`<AvailableFrom v="3.2.29" />
+### `disallowParallelEncoding?`<AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `colorSpace?`<AvailableFrom v="4.0.28"/>
 
@@ -466,6 +470,10 @@ _boolean - default `false`_
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
+
+### `compositionStart?`<AvailableFrom v="4.0.279"/>
+
+An option to be used only if implementing a distributed renderer, see [Distributed rendering](/docs/distributed-rendering#2-invoking-render-functions) for what to set it to.
 
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 

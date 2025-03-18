@@ -1,4 +1,5 @@
-import {registerTrack} from '../../register-track';
+import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
+import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
@@ -168,8 +169,16 @@ export const postprocessEbml = async ({
 			timescale: state.webm.getTimescale(),
 		});
 
-		if (track) {
-			await registerTrack({
+		if (track && track.type === 'audio') {
+			await registerAudioTrack({
+				state,
+				track,
+				container: 'webm',
+			});
+		}
+
+		if (track && track.type === 'video') {
+			await registerVideoTrack({
 				state,
 				track,
 				container: 'webm',
@@ -185,10 +194,11 @@ export const postprocessEbml = async ({
 		const sample = getSampleFromBlock(ebml, state, offset);
 
 		if (sample.type === 'video-sample') {
-			await state.callbacks.onVideoSample(
-				sample.videoSample.trackId,
-				sample.videoSample,
-			);
+			await emitVideoSample({
+				trackId: sample.videoSample.trackId,
+				videoSample: sample.videoSample,
+				state,
+			});
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -197,10 +207,12 @@ export const postprocessEbml = async ({
 		}
 
 		if (sample.type === 'audio-sample') {
-			await state.callbacks.onAudioSample(
-				sample.audioSample.trackId,
-				sample.audioSample,
-			);
+			await emitAudioSample({
+				trackId: sample.audioSample.trackId,
+				audioSample: sample.audioSample,
+				state,
+			});
+
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -244,10 +256,11 @@ export const postprocessEbml = async ({
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
-			await state.callbacks.onVideoSample(
-				sample.partialVideoSample.trackId,
-				completeFrame,
-			);
+			await emitVideoSample({
+				trackId: sample.partialVideoSample.trackId,
+				videoSample: completeFrame,
+				state,
+			});
 		}
 
 		return {

@@ -1,18 +1,16 @@
 import {CliInternals} from '@remotion/cli';
-import type {LogLevel} from '@remotion/renderer';
-import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
-import {VERSION} from 'remotion/version';
-import {internalDeployFunction} from '../../../api/deploy-function';
-import {AwsProvider} from '../../../functions/aws-implementation';
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	DEFAULT_MEMORY_SIZE,
 	DEFAULT_TIMEOUT,
-} from '../../../shared/constants';
+} from '@remotion/lambda-client/constants';
+import type {LogLevel} from '@remotion/renderer';
+import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
+import {VERSION} from 'remotion/version';
+import {internalDeployFunction} from '../../../api/deploy-function';
 import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
-import {validateDiskSizeInMb} from '../../../shared/validate-disk-size-in-mb';
-import {validateMemorySize} from '../../../shared/validate-memory-size';
 import {validateTimeout} from '../../../shared/validate-timeout';
 import {validateVpcSecurityGroupIds} from '../../../shared/validate-vpc-security-group-ids';
 import {validateVpcSubnetIds} from '../../../shared/validate-vpc-subnet-ids';
@@ -53,9 +51,9 @@ export const functionsDeploySubcommand = async ({
 		parsedLambdaCli['vpc-security-group-ids'] ?? undefined;
 	const runtimePreference = parsedLambdaCli['runtime-preference'] ?? 'default';
 
-	validateMemorySize(memorySizeInMb);
+	LambdaClientInternals.validateMemorySize(memorySizeInMb);
 	validateTimeout(timeoutInSeconds);
-	validateDiskSizeInMb(diskSizeInMb);
+	LambdaClientInternals.validateDiskSizeInMb(diskSizeInMb);
 	validateCustomRoleArn(customRoleArn);
 	validateVpcSubnetIds(vpcSubnetIds);
 	validateVpcSecurityGroupIds(vpcSecurityGroupIds);

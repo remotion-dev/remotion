@@ -1,13 +1,8 @@
-import {RenderInternals} from '@remotion/renderer';
 import {$} from 'bun';
-import {afterAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import path from 'path';
 import {streamToUint8Array} from '../../mocks/mock-store';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test(
 	'Should be able to render to another bucket, and silent audio should be added',

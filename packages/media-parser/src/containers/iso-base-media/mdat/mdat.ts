@@ -1,4 +1,5 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
+import {emitAudioSample, emitVideoSample} from '../../../emit-audio-sample';
 import {getHasTracks} from '../../../get-tracks';
 import type {Skip} from '../../../skip';
 import {makeSkip} from '../../../skip';
@@ -20,6 +21,7 @@ export const parseMdatSection = async (
 	}
 
 	const alreadyHas = getHasTracks(state);
+
 	if (!alreadyHas) {
 		const moov = await getMoovAtom({
 			endOfMdat,
@@ -77,9 +79,9 @@ export const parseMdatSection = async (
 		samplesWithIndex.samplePosition;
 
 	if (samplesWithIndex.track.type === 'audio') {
-		await state.callbacks.onAudioSample(
-			samplesWithIndex.track.trackId,
-			convertAudioOrVideoSampleToWebCodecsTimestamps(
+		await emitAudioSample({
+			trackId: samplesWithIndex.track.trackId,
+			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
 				{
 					data: bytes,
 					timestamp: cts,
@@ -93,7 +95,8 @@ export const parseMdatSection = async (
 				},
 				samplesWithIndex.track.timescale,
 			),
-		);
+			state,
+		});
 	}
 
 	if (samplesWithIndex.track.type === 'video') {
@@ -110,9 +113,9 @@ export const parseMdatSection = async (
 			isRecoveryPoint = seiType === 6;
 		}
 
-		await state.callbacks.onVideoSample(
-			samplesWithIndex.track.trackId,
-			convertAudioOrVideoSampleToWebCodecsTimestamps(
+		await emitVideoSample({
+			trackId: samplesWithIndex.track.trackId,
+			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
 				{
 					data: bytes,
 					timestamp: cts,
@@ -126,7 +129,8 @@ export const parseMdatSection = async (
 				},
 				samplesWithIndex.track.timescale,
 			),
-		);
+			state,
+		});
 	}
 
 	return null;

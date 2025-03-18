@@ -98,6 +98,7 @@ const internalRenderStillOnCloudRun = async ({
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	downloadBehavior,
 	renderIdOverride,
 	renderStatusWebhook,
@@ -140,6 +141,7 @@ const internalRenderStillOnCloudRun = async ({
 		logLevel,
 		delayRenderTimeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		clientVersion: VERSION,
 		downloadBehavior,
 		renderIdOverride,
@@ -242,6 +244,7 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		logLevel: options.logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: options.offthreadVideoThreads ?? null,
 		outName: options.outName ?? null,
 		privacy: options.privacy ?? 'public',
 		region: options.region,

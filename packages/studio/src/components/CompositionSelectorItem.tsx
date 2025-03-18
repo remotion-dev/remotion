@@ -1,6 +1,6 @@
 import type {KeyboardEvent, MouseEvent} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {type AnyComposition} from 'remotion';
+import {type _InternalTypes} from 'remotion';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
@@ -58,7 +58,7 @@ export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'composition';
-			composition: AnyComposition;
+			composition: _InternalTypes['AnyComposition'];
 	  }
 	| {
 			key: string;
@@ -73,7 +73,10 @@ export const CompositionSelectorItem: React.FC<{
 	readonly item: CompositionSelectorItemType;
 	readonly currentComposition: string | null;
 	readonly tabIndex: number;
-	readonly selectComposition: (c: AnyComposition, push: boolean) => void;
+	readonly selectComposition: (
+		c: _InternalTypes['AnyComposition'],
+		push: boolean,
+	) => void;
 	readonly toggleFolder: (
 		folderName: string,
 		parentName: string | null,

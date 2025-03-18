@@ -37,6 +37,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {validateSelectedCodecAndPresetCombination} from './options/x264-preset';
@@ -184,6 +185,7 @@ export type RenderMediaOptions = Prettify<{
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
+	compositionStart?: number;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -250,6 +252,7 @@ const internalRenderMediaRaw = ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	offthreadVideoThreads,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	if (repro) {
 		enableRepro({
@@ -431,6 +434,8 @@ const internalRenderMediaRaw = ({
 		scale,
 		width: composition.width,
 		wantsImageSequence: false,
+		indent,
+		logLevel,
 	});
 
 	const realFrameRange = getRealFrameRange(
@@ -567,7 +572,9 @@ const internalRenderMediaRaw = ({
 				return makeOrReuseServer(
 					reusedServer,
 					{
-						concurrency: resolvedConcurrency,
+						offthreadVideoThreads:
+							offthreadVideoThreads ??
+							DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
@@ -663,6 +670,7 @@ const internalRenderMediaRaw = ({
 					server,
 					serializedResolvedPropsWithCustomSchema,
 					offthreadVideoCacheSizeInBytes,
+					offthreadVideoThreads,
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
 					compositionStart,
@@ -709,11 +717,13 @@ const internalRenderMediaRaw = ({
 					assetsInfo,
 					onProgress: (frame: number) => {
 						stitchStage = 'muxing';
+						// With seamless AAC concatenation, the amount of rendered frames
+						// might be longer, so we need to clamp it to avoid progress over 100%
 						if (preEncodedFileLocation) {
-							muxedFrames = frame;
+							muxedFrames = Math.min(frame, totalFramesToRender);
 						} else {
-							muxedFrames = frame;
-							encodedFrames = frame;
+							muxedFrames = Math.min(frame, totalFramesToRender);
+							encodedFrames = Math.min(frame, totalFramesToRender);
 						}
 
 						if (encodedFrames === totalFramesToRender) {
@@ -895,6 +905,8 @@ export const renderMedia = ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	offthreadVideoThreads,
+	compositionStart,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -962,6 +974,7 @@ export const renderMedia = ({
 				data: composition.props ?? {},
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		colorSpace: colorSpace ?? DEFAULT_COLOR_SPACE,
 		repro: repro ?? false,
 		binariesDirectory: binariesDirectory ?? null,
@@ -976,8 +989,7 @@ export const renderMedia = ({
 			}),
 		onArtifact: onArtifact ?? null,
 		metadata: metadata ?? null,
-		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
-		compositionStart: 0,
+		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 	});

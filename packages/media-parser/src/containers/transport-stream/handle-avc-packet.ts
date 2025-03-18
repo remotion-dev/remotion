@@ -1,6 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+import {emitVideoSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
-import {registerTrack} from '../../register-track';
+import {registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
@@ -41,6 +42,7 @@ export const handleAvcPacket = async ({
 		);
 
 		const track: Track = {
+			m3uStreamFormat: null,
 			rotation: 0,
 			trackId: programId,
 			type: 'video',
@@ -64,7 +66,7 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerTrack({track, state, container: 'transport-stream'});
+		await registerVideoTrack({track, state, container: 'transport-stream'});
 	}
 
 	// sample for webcodecs needs to be in nano seconds
@@ -80,8 +82,12 @@ export const handleAvcPacket = async ({
 		timescale: MPEG_TIMESCALE,
 	};
 
-	await state.callbacks.onVideoSample(
-		programId,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
-	);
+	await emitVideoSample({
+		trackId: programId,
+		videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
+			sample,
+			MPEG_TIMESCALE,
+		),
+		state,
+	});
 };

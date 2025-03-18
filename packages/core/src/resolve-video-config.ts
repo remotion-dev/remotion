@@ -64,7 +64,9 @@ const validateCalculated = ({
 	const defaultCodec = calculated?.defaultCodec;
 	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
 
-	return {width, height, fps, durationInFrames, defaultCodec};
+	const defaultOutName = calculated?.defaultOutName;
+
+	return {width, height, fps, durationInFrames, defaultCodec, defaultOutName};
 };
 
 type ResolveVideoConfigParams = {
@@ -107,15 +109,21 @@ export const resolveVideoConfig = ({
 		'then' in calculatedProm
 	) {
 		return calculatedProm.then((c) => {
-			const {height, width, durationInFrames, fps, defaultCodec} =
-				validateCalculated({
-					calculated: c,
-					compositionDurationInFrames,
-					compositionFps,
-					compositionHeight,
-					compositionWidth,
-					compositionId,
-				});
+			const {
+				height,
+				width,
+				durationInFrames,
+				fps,
+				defaultCodec,
+				defaultOutName,
+			} = validateCalculated({
+				calculated: c,
+				compositionDurationInFrames,
+				compositionFps,
+				compositionHeight,
+				compositionWidth,
+				compositionId,
+			});
 			return {
 				width,
 				height,
@@ -125,6 +133,7 @@ export const resolveVideoConfig = ({
 				defaultProps: serializeThenDeserializeInStudio(defaultProps),
 				props: serializeThenDeserializeInStudio(c.props ?? originalProps),
 				defaultCodec: defaultCodec ?? null,
+				defaultOutName: defaultOutName ?? null,
 			};
 		});
 	}
@@ -145,6 +154,7 @@ export const resolveVideoConfig = ({
 			defaultProps: serializeThenDeserializeInStudio(defaultProps ?? {}),
 			props: serializeThenDeserializeInStudio(originalProps),
 			defaultCodec: null,
+			defaultOutName: null,
 		};
 	}
 
@@ -156,6 +166,7 @@ export const resolveVideoConfig = ({
 			calculatedProm.props ?? originalProps,
 		),
 		defaultCodec: calculatedProm.defaultCodec ?? null,
+		defaultOutName: calculatedProm.defaultOutName ?? null,
 	};
 };
 

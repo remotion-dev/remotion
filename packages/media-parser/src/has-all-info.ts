@@ -1,3 +1,5 @@
+import {m3uHasStreams} from './containers/m3u/get-streams';
+import type {Options, ParseMediaFields} from './fields';
 import {hasAudioCodec} from './get-audio-codec';
 import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
@@ -10,18 +12,16 @@ import {hasSampleRate} from './get-sample-rate';
 import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {hasMetadata} from './metadata/get-metadata';
-import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
+import type {AllParseMediaFields} from './options';
 import {maySkipVideoData} from './state/may-skip-video-data';
 import type {ParserState} from './state/parser-state';
 
 export const getAvailableInfo = ({
-	fieldsToFetch,
 	state,
 }: {
-	fieldsToFetch: Options<ParseMediaFields>;
 	state: ParserState;
 }): Record<keyof Options<ParseMediaFields>, boolean> => {
-	const keys = Object.entries(fieldsToFetch).filter(([, value]) => value) as [
+	const keys = Object.entries(state.fields).filter(([, value]) => value) as [
 		keyof Options<ParseMediaFields>,
 		boolean,
 	][];
@@ -120,6 +120,10 @@ export const getAvailableInfo = ({
 			return hasSampleRate(state);
 		}
 
+		if (key === 'm3uStreams') {
+			return m3uHasStreams(state);
+		}
+
 		throw new Error(`Unknown key: ${key satisfies never}`);
 	});
 
@@ -136,15 +140,8 @@ export const getAvailableInfo = ({
 	>;
 };
 
-export const hasAllInfo = ({
-	fields,
-	state,
-}: {
-	fields: Options<ParseMediaFields>;
-	state: ParserState;
-}) => {
+export const hasAllInfo = ({state}: {state: ParserState}) => {
 	const availableInfo = getAvailableInfo({
-		fieldsToFetch: fields ?? {},
 		state,
 	});
 
@@ -152,9 +149,13 @@ export const hasAllInfo = ({
 		return false;
 	}
 
-	const canSkipSamples =
-		maySkipVideoData({state}) ||
-		state.callbacks.canSkipTracksState.canSkipTracks();
+	if (maySkipVideoData({state})) {
+		return true;
+	}
 
-	return canSkipSamples;
+	if (state.callbacks.canSkipTracksState.canSkipTracks()) {
+		return true;
+	}
+
+	return false;
 };

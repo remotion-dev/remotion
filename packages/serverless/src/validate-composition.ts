@@ -6,10 +6,12 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {VideoConfig} from 'remotion/no-react';
-import type {Await} from './await';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './types';
+import type {
+	Await,
+	CloudProvider,
+	ProviderSpecifics,
+	VideoConfig,
+} from '@remotion/serverless-client';
 import {
 	validateDimension,
 	validateDurationInFrames,
@@ -30,6 +32,7 @@ type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	logLevel: LogLevel;
 	server: RemotionServer | undefined;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
@@ -52,6 +55,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 	onBrowserDownload,
 	onServeUrlVisited,
 	providerSpecifics,
+	offthreadVideoThreads,
 }: ValidateCompositionOptions<Provider>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -68,6 +72,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		onBrowserLog: null,
 		server,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onServeUrlVisited,

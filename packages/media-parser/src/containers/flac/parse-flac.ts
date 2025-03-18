@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';

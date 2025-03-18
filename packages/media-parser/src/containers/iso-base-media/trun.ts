@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 export interface TrunBox {
 	type: 'trun-box';
@@ -26,7 +26,7 @@ export const parseTrun = ({
 	size: number;
 }): TrunBox => {
 	const version = iterator.getUint8();
-	if (version !== 0) {
+	if (version !== 0 && version !== 1) {
 		throw new Error(`Unsupported TRUN version ${version}`);
 	}
 
@@ -46,7 +46,7 @@ export const parseTrun = ({
 			flags & 0x800
 				? version === 0
 					? iterator.getUint32()
-					: iterator.getInt32Le()
+					: iterator.getInt32()
 				: null;
 
 		samples.push({

@@ -1,19 +1,19 @@
 import type {
 	Dimensions,
 	LogLevel,
+	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
+	MediaParserMetadataEntry,
+	MediaParserTracks,
 	MediaParserVideoCodec,
-	MetadataEntry,
 	ParseMediaOnProgress,
-	TracksField,
 } from '@remotion/media-parser';
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
+import {mediaParserController} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 
@@ -47,28 +47,32 @@ export const useProbe = ({
 	>(undefined);
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
-	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
+	const [metadata, setMetadata] = useState<MediaParserMetadataEntry[] | null>(
+		null,
+	);
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
-	const [tracks, setTracks] = useState<TracksField | null>(null);
+	const [tracks, setTracks] = useState<MediaParserTracks | null>(null);
 	const [container, setContainer] = useState<MediaParserContainer | null>(null);
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);
 	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
+	const [m3u, setM3u] = useState<M3uStream[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
 	const getStart = useCallback(() => {
 		const controller = mediaParserController();
-		parseMedia({
+		parseMediaOnWebWorker({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
-
 			onParseProgress: onProgress,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			controller,
 			onMetadata: (newMetadata) => {
 				setMetadata(newMetadata);
+			},
+			onM3uStreams: (m) => {
+				setM3u(m);
 			},
 			onContainer(c) {
 				setContainer(c);
@@ -169,6 +173,7 @@ export const useProbe = ({
 			keyframes,
 			unrotatedDimensions,
 			images,
+			m3u,
 		};
 	}, [
 		tracks,
@@ -189,5 +194,6 @@ export const useProbe = ({
 		keyframes,
 		unrotatedDimensions,
 		images,
+		m3u,
 	]);
 };

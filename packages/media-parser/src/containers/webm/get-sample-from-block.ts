@@ -1,6 +1,8 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import {parseAvc} from '../avc/parse-avc';
+import {getTracksFromMatroska} from './get-ready-tracks';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
 import {matroskaElements} from './segments/all-segments';
 import {parseBlockFlags} from './segments/block-simple-block-flags';
@@ -21,6 +23,30 @@ type SampleResult =
 	| {
 			type: 'no-sample';
 	  };
+
+const addAvcToTrackIfNecessary = ({
+	partialVideoSample,
+	codec,
+	state,
+	trackNumber,
+}: {
+	partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+	codec: string;
+	state: ParserState;
+	trackNumber: number;
+}) => {
+	if (
+		codec === 'V_MPEG4/ISO/AVC' &&
+		getTracksFromMatroska({state}).missingInfo.length > 0
+	) {
+		const parsed = parseAvc(partialVideoSample.data);
+		for (const parse of parsed) {
+			if (parse.type === 'avc-profile') {
+				state.webm.setAvcProfileForTrackNumber(trackNumber, parse);
+			}
+		}
+	}
+};
 
 export const getSampleFromBlock = (
 	ebml: BlockSegment | SimpleBlockSegment,
@@ -88,6 +114,13 @@ export const getSampleFromBlock = (
 				partialVideoSample,
 			};
 		}
+
+		addAvcToTrackIfNecessary({
+			codec,
+			partialVideoSample,
+			state,
+			trackNumber,
+		});
 
 		const sample: AudioOrVideoSample = {
 			...partialVideoSample,

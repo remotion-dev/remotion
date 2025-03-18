@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-offthreadvideo.png
 id: offthreadvideo
-title: "<OffthreadVideo>"
-crumb: "API"
+title: '<OffthreadVideo>'
+crumb: 'API'
 ---
 
 _Available from Remotion 3.0.11_
@@ -14,12 +14,12 @@ This component was designed to combat limitations of the default `<Video>` eleme
 ## Example
 
 ```tsx twoslash
-import { AbsoluteFill, OffthreadVideo, staticFile } from "remotion";
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo src={staticFile("video.webm")} />
+      <OffthreadVideo src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -28,7 +28,7 @@ export const MyVideo = () => {
 You can load a video from an URL as well:
 
 ```tsx twoslash
-import { AbsoluteFill, OffthreadVideo } from "remotion";
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -57,17 +57,13 @@ By passing `endAt={120}`, any video after the 4 second mark in the file will be 
 The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
 
 ```tsx twoslash
-import { AbsoluteFill, OffthreadVideo, staticFile } from "remotion";
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo
-        src={staticFile("video.webm")}
-        startFrom={60}
-        endAt={120}
-      />
+      <OffthreadVideo src={staticFile('video.webm')} startFrom={60} endAt={120} />
     </AbsoluteFill>
   );
 };
@@ -88,36 +84,26 @@ If set to `false` (_default_), frames will be extracted as bitmap (BMP), which i
 Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
 
 ```tsx twoslash title="Example using static volume"
-import { AbsoluteFill, OffthreadVideo, staticFile } from "remotion";
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo volume={0.5} src={staticFile("video.webm")} />
+      <OffthreadVideo volume={0.5} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
 ```
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
-import {
-  AbsoluteFill,
-  interpolate,
-  staticFile,
-  OffthreadVideo,
-} from "remotion";
+import {AbsoluteFill, interpolate, staticFile, OffthreadVideo} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo
-        volume={(f) =>
-          interpolate(f, [0, 100], [0, 1], { extrapolateLeft: "clamp" })
-        }
-        src={staticFile("video.webm")}
-      />
+      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -139,16 +125,13 @@ Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"`
 You can pass any style you can pass to a native HTML element. Keep in mind that during rendering, `<OffthreadVideo>` renders an [`<Img>`](/docs/img) tag, but a `<video>` tag is used during preview.
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Img
-        src={staticFile("video.webm")}
-        style={{ height: 720, width: 1280 }}
-      />
+      <Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
     </AbsoluteFill>
   );
 };
@@ -182,13 +165,13 @@ Controls the speed of the video. `1` is the default and means regular speed, `0.
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
 ```tsx twoslash title="Example of a video playing twice as fast"
-import { AbsoluteFill, OffthreadVideo, staticFile } from "remotion";
+import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo playbackRate={2} src={staticFile("video.webm")} />
+      <OffthreadVideo playbackRate={2} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -199,15 +182,12 @@ export const MyComposition = () => {
 You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
-import { AbsoluteFill, OffthreadVideo } from "remotion";
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo
-        muted
-        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-      />
+      <OffthreadVideo muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -291,80 +271,83 @@ The props [`onError`](/docs/img#onerror), `className` and `style` are supported 
 Only set `transparent` to `true` if you need transparency. It is slower than non-transparent frame extraction.  
 If you don't care about color accuracy, you can set `toneMapped` to `false` as well to save time on color conversion.
 
-## Looping a video
+## Looping a OffthreadVideo
 
 Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
 
-You can use the following snippet that uses [`@remotion/media-utils`](/docs/media-utils/) to loop a video.
+You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
 
-Note that this will mount a `<video>` tag in the browser, meaning only codecs supported by the browser can be used.
-
-```tsx twoslash title="LoopedOffthreadVideo.tsx"
+```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
+import React, {useEffect, useState} from 'react';
 import {
+  cancelRender,
+  continueRender,
+  delayRender,
+  getRemotionEnvironment,
   Loop,
   OffthreadVideo,
+  RemotionOffthreadVideoProps,
   useVideoConfig,
-} from "remotion";
+  Video
+} from 'remotion';
 
-export const LoopedOffthreadVideo: React.FC<{
-  durationInSeconds: number | null;
-  src: string;
-}> = ({durationInSeconds, src}) => {
-  const { fps } = useVideoConfig();
+const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
+  const [duration, setDuration] = useState<number | null>(null);
+  const [handle] = useState(() => delayRender());
+  const {fps} = useVideoConfig();
 
-  if (durationInSeconds === null) {
+  useEffect(() => {
+    const controller = mediaParserController();
+
+    parseMedia({
+      src: props.src,
+      acknowledgeRemotionLicense: true,
+      controller,
+      fields: {
+        slowDurationInSeconds: true,
+      },
+    })
+      .then(({slowDurationInSeconds}) => {
+        setDuration(slowDurationInSeconds);
+        continueRender(handle);
+      })
+      .catch((err) => {
+        cancelRender(err);
+      });
+
+    return () => {
+      continueRender(handle);
+      controller.abort();
+    };
+  }, [handle, props.src]);
+
+  if (duration === null) {
     return null;
   }
 
   return (
-    <Loop durationInFrames={Math.floor(fps * durationInSeconds)}>
-      <OffthreadVideo src={src} />
+    <Loop durationInFrames={Math.floor(duration * fps)}>
+      <OffthreadVideo {...props} />;
     </Loop>
   );
 };
-```
 
-```tsx twoslash title="Root.tsx"
-const LoopedOffthreadVideo: React.FC<{
-  durationInSeconds: number | null;
-  src: string;
-}> = () => null;
+export const LoopableOffthreadVideo: React.FC<
+  RemotionOffthreadVideoProps & {
+    loop?: boolean;
+  }
+> = ({loop, ...props}) => {
+  if (getRemotionEnvironment().isRendering) {
+    if (loop) {
+      return <LoopedOffthreadVideo {...props} />;
+    }
 
-// ---cut---
+    return <OffthreadVideo {...props} />;
+  }
 
-import React, { useState } from "react";
-import { Composition, staticFile } from "remotion";
-import { getVideoMetadata } from "@remotion/media-utils";
-
-export const RemotionRoot: React.FC = () => {
-  return (
-    <Composition 
-      id="MyComp"
-      component={LoopedOffthreadVideo}
-      defaultProps={{
-        durationInSeconds: null,
-        src: staticFile("myvideo.mp4"),
-      }}
-      calculateMetadata={async ({props}) => {
-        const { durationInSeconds, width, height } = await getVideoMetadata(props.src);
-        const fps = 30;
-
-        return {
-          // Set any duration, here as an example, we loop the video 5 times
-          durationInFrames: Math.floor(durationInSeconds * fps * 5),
-          fps,
-          width,
-          height,
-          props: {
-            ...props,
-            // Pass the durationInSeconds as prop to the React component
-            durationInSeconds,
-          }
-        };
-      }}
-    />
-  )
-}
+  return <Video loop={loop} {...props}></Video>;
+};
 ```
 
 ## Supported codecs by `<OffthreadVideo>`

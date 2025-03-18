@@ -77,6 +77,7 @@ export const renderStillFlow = async ({
 	binariesDirectory,
 	publicPath,
 	chromeMode,
+	offthreadVideoThreads,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -105,6 +106,7 @@ export const renderStillFlow = async ({
 	cancelSignal: CancelSignal | null;
 	outputLocationFromUi: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
 	publicPath: string | null;
 	chromeMode: ChromeMode;
@@ -201,7 +203,9 @@ export const renderStillFlow = async ({
 	);
 
 	const server = await RenderInternals.prepareServer({
-		concurrency: 1,
+		offthreadVideoThreads:
+			offthreadVideoThreads ??
+			RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 		indent,
 		port,
 		remotionRoot,
@@ -239,6 +243,7 @@ export const renderStillFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
@@ -263,6 +268,7 @@ export const renderStillFlow = async ({
 		args: argsAfterComposition,
 		type: 'asset',
 		outputLocationFromUi,
+		compositionDefaultOutName: config.defaultOutName,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
@@ -372,6 +378,7 @@ export const renderStillFlow = async ({
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		offthreadVideoThreads,
 	});
 
 	aggregate.rendering = {

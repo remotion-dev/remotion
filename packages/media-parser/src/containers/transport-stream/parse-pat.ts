@@ -1,7 +1,7 @@
 // https://en.wikipedia.org/wiki/Program-specific_information
 
-import type {BufferIterator} from '../../buffer-iterator';
-import type {TransportStreamPATBox} from './boxes';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {TransportStreamPATBox, TransportStreamSdtBox} from './boxes';
 import {discardRestOfPacket} from './discard-rest-of-packet';
 
 export type TransportStreamProgramAssociationTableEntry = {
@@ -63,4 +63,20 @@ export const parsePat = (iterator: BufferIterator): TransportStreamPATBox => {
 	const tables = parsePatTable(iterator, tableId);
 	discardRestOfPacket(iterator);
 	return tables;
+};
+
+export const parseSdt = (iterator: BufferIterator): TransportStreamSdtBox => {
+	iterator.startReadingBits();
+	iterator.getBits(8); // table ID
+	iterator.getBits(1); // section syntax indicator
+	iterator.getBits(1); // private bit
+	iterator.getBits(2); // reserved
+	const sectionLength = iterator.getBits(12);
+	iterator.stopReadingBits();
+	iterator.discard(sectionLength);
+	discardRestOfPacket(iterator);
+
+	return {
+		type: 'transport-stream-sdt-box',
+	};
 };

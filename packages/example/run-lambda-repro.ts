@@ -1,7 +1,3 @@
-import {
-	_InternalAwsProvider,
-	_InternalOverallRenderProgress,
-} from '@remotion/lambda';
 import {$} from 'bun';
 
 const progress = (await Bun.file(

@@ -1,11 +1,13 @@
+import type {Options, ParseMediaFields} from '../fields';
 import type {Track} from '../get-tracks';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
-import type {Options, ParseMediaFields} from '../options';
+import type {ParseMediaSrc} from '../options';
 import type {CanSkipTracksState} from './can-skip-tracks';
 
 export const makeTracksSectionState = (
 	canSkipTracksState: CanSkipTracksState,
+	src: ParseMediaSrc,
 ) => {
 	const tracks: Track[] = [];
 	let doneWithTracks = false;
@@ -38,7 +40,9 @@ export const makeTracksSectionState = (
 
 			if (!doneWithTracks) {
 				throw new Error(
-					'Error in Media Parser: End of parsing has been reached, but no tracks have been found',
+					'Error in Media Parser: End of parsing of ' +
+						src +
+						' has been reached, but no tracks have been found ',
 				);
 			}
 		},

@@ -1,7 +1,6 @@
 import type {LogLevel} from '@remotion/media-parser';
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
+import {mediaParserController} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';
@@ -36,9 +35,8 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
-		parseMedia({
+		parseMediaOnWebWorker({
 			controller,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
 			onDurationInSeconds: (dur) => {
@@ -105,7 +103,9 @@ export const useThumbnailAndWaveform = ({
 
 				let frames = 0;
 				const onlyKeyframes =
-					container !== 'transport-stream' && container !== 'webm';
+					container !== 'transport-stream' &&
+					container !== 'webm' &&
+					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
 				const decoder = new VideoDecoder({
@@ -151,24 +151,28 @@ export const useThumbnailAndWaveform = ({
 					decoder.decode(new EncodedVideoChunk(sample));
 				};
 			},
-		}).catch((err2) => {
-			if ((err2 as Error).stack?.includes('Cancelled')) {
-				return;
-			}
+		})
+			.catch((err2) => {
+				if ((err2 as Error).stack?.includes('Cancelled')) {
+					return;
+				}
 
-			if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+				if ((err2 as Error).stack?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			// firefox
-			if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
-				return;
-			}
+				// firefox
+				if ((err2 as Error).message?.toLowerCase()?.includes('aborted')) {
+					return;
+				}
 
-			// eslint-disable-next-line no-console
-			console.log(err2);
-			setError(err2 as Error);
-		});
+				// eslint-disable-next-line no-console
+				console.log(err2);
+				setError(err2 as Error);
+			})
+			.then(() => {
+				hasEnoughData();
+			});
 
 		return controller;
 	}, [logLevel, onDone, onVideoThumbnail, src, waveform]);

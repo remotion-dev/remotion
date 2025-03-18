@@ -1,6 +1,8 @@
-import type {MediaParserLocation, MetadataEntry} from '@remotion/media-parser';
+import type {
+	MediaParserLocation,
+	MediaParserMetadataEntry,
+} from '@remotion/media-parser';
 
-/* eslint-disable complexity */
 export const renderMetadataLabel = (key: string) => {
 	if (key === 'com.apple.quicktime.location.accuracy.horizontal') {
 		return 'Location Accuracy (Horizontal)';
@@ -189,7 +191,9 @@ export const renderMetadataLabel = (key: string) => {
 	return key;
 };
 
-export const sortMetadataByRelevance = (metadata: MetadataEntry[]) => {
+export const sortMetadataByRelevance = (
+	metadata: MediaParserMetadataEntry[],
+) => {
 	const metadataKeys = [
 		// General metadata sorted by relevance
 		'title',

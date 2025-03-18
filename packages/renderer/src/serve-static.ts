@@ -14,7 +14,7 @@ export const serveStatic = async (
 		port: number | null;
 		downloadMap: DownloadMap;
 		remotionRoot: string;
-		concurrency: number;
+		offthreadVideoThreads: number;
 		logLevel: LogLevel;
 		indent: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
@@ -32,7 +32,7 @@ export const serveStatic = async (
 		compositor,
 	} = startOffthreadVideoServer({
 		downloadMap: options.downloadMap,
-		concurrency: options.concurrency,
+		offthreadVideoThreads: options.offthreadVideoThreads,
 		logLevel: options.logLevel,
 		indent: options.indent,
 		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,

@@ -10,6 +10,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import type {RemotionServer} from './prepare-server';
@@ -46,7 +47,6 @@ export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
-	onBrowserLog: null | ((log: BrowserLog) => void);
 	serveUrl: string;
 	page: Page;
 	proxyPort: number;
@@ -56,7 +56,6 @@ type InnerGetCompositionsParams = {
 const innerGetCompositions = async ({
 	envVariables,
 	serializedInputPropsWithCustomSchema,
-	onBrowserLog,
 	page,
 	proxyPort,
 	serveUrl,
@@ -64,16 +63,6 @@ const innerGetCompositions = async ({
 	indent,
 	logLevel,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
-	if (onBrowserLog) {
-		page.on('console', (log) => {
-			onBrowserLog({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		});
-	}
-
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
@@ -126,7 +115,15 @@ const innerGetCompositions = async ({
 	>;
 
 	return res.map((r) => {
-		const {width, durationInFrames, fps, height, id, defaultCodec} = r;
+		const {
+			width,
+			durationInFrames,
+			fps,
+			height,
+			id,
+			defaultCodec,
+			defaultOutName,
+		} = r;
 
 		return {
 			id,
@@ -141,6 +138,7 @@ const innerGetCompositions = async ({
 				r.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
+			defaultOutName,
 		};
 	});
 };
@@ -164,6 +162,7 @@ const internalGetCompositionsRaw = async ({
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
+	offthreadVideoThreads,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -175,6 +174,7 @@ const internalGetCompositionsRaw = async ({
 		onBrowserDownload,
 		chromeMode,
 		pageIndex: 0,
+		onBrowserLog,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -196,7 +196,9 @@ const internalGetCompositionsRaw = async ({
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads:
+					offthreadVideoThreads ??
+					DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
@@ -217,7 +219,6 @@ const internalGetCompositionsRaw = async ({
 				return innerGetCompositions({
 					envVariables,
 					serializedInputPropsWithCustomSchema,
-					onBrowserLog,
 					page,
 					proxyPort: offthreadPort,
 					serveUrl,
@@ -228,6 +229,7 @@ const internalGetCompositionsRaw = async ({
 					binariesDirectory,
 					onBrowserDownload,
 					chromeMode,
+					offthreadVideoThreads,
 				});
 			})
 
@@ -277,6 +279,7 @@ export const getCompositions = (
 		binariesDirectory,
 		offthreadVideoCacheSizeInBytes,
 		chromeMode,
+		offthreadVideoThreads,
 	} = config ?? {};
 
 	const indent = false;
@@ -310,5 +313,6 @@ export const getCompositions = (
 				api: 'getCompositions()',
 			}),
 		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 	});
 };

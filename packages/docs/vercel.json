@@ -278,8 +278,8 @@
 			"permanent": false
 		},
 		{
-			"source": "/docs/timeline",
-			"destination": "/docs/studio",
+			"source": "/templates/remix",
+			"destination": "/templates/react-router",
 			"permanent": false
 		},
 		{
@@ -335,6 +335,11 @@
 		{
 			"source": "/media-parser",
 			"destination": "/docs/media-parser",
+			"permanent": false
+		},
+		{
+			"source": "/docs/system-prompt",
+			"destination": "/docs/ai/system-prompt",
 			"permanent": false
 		},
 		{
@@ -395,6 +400,11 @@
 		{
 			"source": "/docs/snippets/fps-converter",
 			"destination": "/docs/multiple-fps",
+			"permanent": false
+		},
+		{
+			"source": "/system-prompt",
+			"destination": "/docs/ai/system-prompt",
 			"permanent": false
 		}
 	]

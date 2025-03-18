@@ -1,4 +1,3 @@
-/* eslint-disable complexity */
 import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';

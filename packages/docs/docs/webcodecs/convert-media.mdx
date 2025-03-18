@@ -37,21 +37,23 @@ await convertMedia({
 
 ### `src`
 
-A `string` or `File` or `Blob`.  
-If it is a `string`, it must be a URL.  
-If it is a `File`, the `reader` field must be set to [`webFileReader`](/docs/media-parser/web-file-reader).
+A URL or `File`/`Blob`, or a local file path.
 
-### `reader`
-
-A reader interface.  
-Default value: [`fetchReader`](/docs/media-parser/fetch-reader), which uses `fetch()` to read the video.  
-If you pass [`webFileReader`](/docs/media-parser/web-file-reader), you must also pass a `File` as the `src` argument.
+If passing a local file, tracks can only be copied, and the [`reader`](#reader) field must be set to [`nodeReader`](/docs/media-parser/node-reader).
 
 ### `container`
 
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs"/>
 
 The container format to convert to. Currently, `"mp4"`, `"webm"` and `"wav"` is supported.
+
+### `expectedDurationInSeconds?`
+
+_number_
+
+Pass the expected duration of the output video in seconds, so that the size of the MP4 metadata section can be estimated well. If the value is not passed, 2MB will be allocated for the MP4 metadata section.
+
+If the size is exceeded (for videos which are around 1 hour or longer), the render may fail in the end.
 
 ### `videoCodec?`
 
@@ -72,6 +74,12 @@ If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this
 ### `controller?`
 
 A [controller](/docs/webcodecs/webcodecs-controller) object that allows you to pause, resume and abort the conversion process.
+
+### `reader?`
+
+A [reader](/docs/media-parser/readers) interface.
+
+Default value: `webReader`, which allows URLs and `File` objects.
 
 ### `rotate?`
 
@@ -232,6 +240,13 @@ _Function_ <TsType type="ConvertMediaOnVideoTrackHandler" source="@remotion/webc
 
 Take control of what to do for each video track in the file: Re-encoding, copying, or dropping.  
 See [Track Transformation](/docs/webcodecs/track-transformation) for a guide on how to use this callback.
+
+### `selectM3uStream?`
+
+_Function_ <TsType type="SelectM3uStreamFn" source="@remotion/media-parser"/>
+
+A callback that is called when a `.m3u8` file is detected which has multiple streams.  
+See [Stream selection](/docs/media-parser/stream-selection) for an example.
 
 ### `progressIntervalInMs?`
 
