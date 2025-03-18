@@ -102,7 +102,7 @@ const VideoLayers: React.FC<{
 						borderRadius: cornerRadius,
 						overflow: 'hidden',
 						fontFamily: 'GT Planar',
-						backgroundColor: 'white',
+						backgroundColor: 'black',
 						border: '3px solid black',
 					}}
 					className="text-black flex justify-center items-center font-sans text-2xl font-bold flex-1"

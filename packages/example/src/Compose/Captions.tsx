@@ -44,9 +44,8 @@ const Token: React.FC<{
 			background: active ? '#0983F1' : 'white',
 			paddingTop: 3,
 			paddingBottom: 3,
-			outline: active ? '4px solid ' + '#0983F1' : 'none',
 			color: active ? 'white' : 'black',
-			border: active ? '2px solid #0983F1' : '1px solid transparent',
+			border: active ? '2px double #0983F1' : '1px solid transparent',
 			borderRadius: 5,
 			scale: String(1 + jump * 0.1),
 		};
