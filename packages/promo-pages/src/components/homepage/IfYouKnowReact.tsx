@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {BlueButton} from './layout/Button';
 
 export const isWebkit = () => {
@@ -15,10 +15,18 @@ export const isWebkit = () => {
 };
 
 export const IfYouKnowReact: React.FC = () => {
+	const [vid, setVid] = useState('/img/compose.webm');
+
+	useEffect(() => {
+		if (isWebkit()) {
+			setVid('/img/compose.mp4');
+		}
+	}, []);
+
 	return (
 		<div className="flex flex-col lg:flex-row text-left lg:text-right justify-start lg:justify-end items-start lg:mb-0">
 			<video
-				src={isWebkit() ? '/img/compose.mp4' : '/img/compose.webm'}
+				src={vid}
 				muted
 				autoPlay
 				playsInline
