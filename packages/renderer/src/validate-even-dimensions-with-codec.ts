@@ -20,8 +20,13 @@ export const validateEvenDimensionsWithCodec = ({
 	indent: boolean;
 	logLevel: LogLevel;
 }) => {
+	let actualWidth = width * scale;
+	let actualHeight = height * scale;
 	if (wantsImageSequence) {
-		return;
+		return {
+			actualWidth,
+			actualHeight,
+		};
 	}
 
 	if (
@@ -30,11 +35,12 @@ export const validateEvenDimensionsWithCodec = ({
 		codec !== 'h265' &&
 		codec !== 'h264-ts'
 	) {
-		return;
+		return {
+			actualWidth,
+			actualHeight,
+		};
 	}
 
-	let actualWidth = width * scale;
-	let actualHeight = height * scale;
 	if (
 		actualWidth % 1 !== 0 &&
 		(actualWidth % 1 < 0.005 || actualWidth % 1 > 0.005)
@@ -82,4 +88,9 @@ export const validateEvenDimensionsWithCodec = ({
 		].join(' ');
 		throw new Error(message);
 	}
+
+	return {
+		actualWidth,
+		actualHeight,
+	};
 };

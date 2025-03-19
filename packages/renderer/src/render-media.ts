@@ -428,7 +428,7 @@ const internalRenderMediaRaw = ({
 		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
-	validateEvenDimensionsWithCodec({
+	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
 		height: composition.height,
 		scale,
@@ -485,8 +485,8 @@ const internalRenderMediaRaw = ({
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {
 			preStitcher = prespawnFfmpeg({
-				width: composition.width * scale,
-				height: composition.height * scale,
+				width: actualWidth,
+				height: actualHeight,
 				fps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
@@ -702,8 +702,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: composition.width * scale,
-					height: composition.height * scale,
+					width: actualWidth,
+					height: actualHeight,
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
