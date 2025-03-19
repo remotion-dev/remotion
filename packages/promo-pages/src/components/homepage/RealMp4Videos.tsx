@@ -1,11 +1,17 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import {isWebkit} from './IfYouKnowReact';
 
 export const RealMP4Videos: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [isIntersecting, setIsIntersecting] = useState(false);
+	const videoRef = useRef<HTMLVideoElement>(null);
 
-	const callback: IntersectionObserverCallback = useCallback((data) => {
-		setIsIntersecting(data[0].isIntersecting);
+	const [vid, setVid] = useState('/img/render-progress.webm');
+
+	useEffect(() => {
+		if (isWebkit()) {
+			setVid('/img/render-progress.mp4');
+		}
 	}, []);
 
 	useEffect(() => {
@@ -14,6 +20,12 @@ export const RealMP4Videos: React.FC = () => {
 			return;
 		}
 
+		const callback = (data: IntersectionObserverEntry[]) => {
+			if (data[0].isIntersecting) {
+				videoRef.current?.play();
+			}
+		};
+
 		const observer = new IntersectionObserver(callback, {
 			root: null,
 			threshold: 0.5,
@@ -21,10 +33,25 @@ export const RealMP4Videos: React.FC = () => {
 		observer.observe(current);
 
 		return () => observer.unobserve(current);
-	}, [callback]);
+	}, []);
 
 	return (
-		<div ref={ref} className={'flex flex-col lg:flex-row mt-20 lg:mt-0'}>
+		<div
+			ref={ref}
+			className={'flex flex-col lg:flex-row-reverse items-center mt-20 lg:mt-0'}
+		>
+			<div className="flex flex-1 justify-start lg:justify-end items-end">
+				<video
+					ref={videoRef}
+					src={vid}
+					muted
+					autoPlay
+					playsInline
+					loop
+					style={{}}
+					className="w-[550px] h-[550px] cursor-default! relative lg:translate-x-8 -mt-20 -mb-20 lg:mt-0 lg:mb-0"
+				/>
+			</div>{' '}
 			<div>
 				<h2 className="text-4xl fontbrand">
 					Real <span className={'text-brand'}>.mp4</span> videos
@@ -34,16 +61,6 @@ export const RealMP4Videos: React.FC = () => {
 					real video - audio support included. <br /> WebM and other formats are
 					also supported.
 				</p>
-			</div>
-			<div className="flex flex-1 justify-start lg:justify-end items-end">
-				<img
-					src="/img/mp4.png"
-					className="mb-[30px] lg:mb-0"
-					style={{
-						width: 110,
-						animationPlayState: isIntersecting ? 'running' : 'paused',
-					}}
-				/>
 			</div>
 		</div>
 	);
