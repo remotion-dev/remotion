@@ -3,7 +3,6 @@ import {isWebkit} from './IfYouKnowReact';
 
 export const RealMP4Videos: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
-	const [isIntersecting, setIsIntersecting] = useState(false);
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const [vid, setVid] = useState('/img/render-progress.webm');
