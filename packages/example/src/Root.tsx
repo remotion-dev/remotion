@@ -1309,7 +1309,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-             // @ts-expect-error intentional */}
+         // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1367,28 +1367,28 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-         * 
-         * 
-         * disabled for react   19
-        <Folder name="Skia">
-            <Composition
-                id="skia-shader"
-                component={RuntimeShaderDemo}
-                fps={30}
-                height={1080}
-                width={1080}
-                durationInFrames={120}
-            />
-            <Composition
-                id="skia-zoomblur"
-                component={RuntimeShaderZoomBlur}
-                fps={30}
-                height={1080}
-                width={1080}
-                durationInFrames={120}
-            />
-        </Folder>
-         */}
+     * 
+     * 
+     * disabled for react   19
+    <Folder name="Skia">
+        <Composition
+            id="skia-shader"
+            component={RuntimeShaderDemo}
+            fps={30}
+            height={1080}
+            width={1080}
+            durationInFrames={120}
+        />
+        <Composition
+            id="skia-zoomblur"
+            component={RuntimeShaderZoomBlur}
+            fps={30}
+            height={1080}
+            width={1080}
+            durationInFrames={120}
+        />
+    </Folder>
+     */}
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"
@@ -1528,7 +1528,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={273}
 					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: true, reel: true}}
+					defaultProps={{fade: false, whiteBackground: true, reel: false}}
 					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition
