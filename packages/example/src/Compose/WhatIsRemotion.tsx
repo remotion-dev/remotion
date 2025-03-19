@@ -1,6 +1,7 @@
 import React from 'react';
 import {
 	AbsoluteFill,
+	CalculateMetadataFunction,
 	Easing,
 	interpolate,
 	measureSpring,
@@ -11,6 +12,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {z} from 'zod';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 import {
 	RotateY,
@@ -183,7 +185,27 @@ const CaptionLayers: React.FC<{
 	);
 };
 
-export const Compose = () => {
+export const whatIsRemotionSchema = z.object({
+	fade: z.boolean(),
+	whiteBackground: z.boolean(),
+	reel: z.boolean(),
+});
+
+export const whatIsRemotionCalculateMetadata: CalculateMetadataFunction<
+	z.infer<typeof whatIsRemotionSchema>
+> = ({props}) => {
+	return {
+		height: props.reel ? 1920 : 1080,
+		durationInFrames: props.reel ? 276 : 273,
+		props,
+	};
+};
+
+export const WhatIsRemotion = ({
+	fade,
+	whiteBackground,
+	reel,
+}: z.infer<typeof whatIsRemotionSchema>) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const bRollEnter = spring({
@@ -259,12 +281,17 @@ export const Compose = () => {
 	const outActual = getActualLayerWidth(1 - outAnimation);
 
 	return (
-		<AbsoluteFill className="flex justify-center items-center">
-			<Scale factor={1.1}>
+		<AbsoluteFill
+			style={{
+				backgroundColor: whiteBackground ? 'white' : undefined,
+			}}
+			className="flex justify-center items-center"
+		>
+			<Scale factor={reel ? 1.3 : 1.1}>
 				<AbsoluteFill
 					style={{
 						maskImage:
-							frame > 100
+							frame > 100 && fade
 								? 'linear-gradient( -98deg, transparent 5%, red 15%, red 80%, transparent 90%)'
 								: 'none',
 					}}
@@ -284,15 +311,16 @@ export const Compose = () => {
 				</AbsoluteFill>
 				<AbsoluteFill
 					style={{
-						maskImage:
-							'linear-gradient( -7deg, transparent 6%, red 15%, red 84%, transparent 94%)',
+						maskImage: fade
+							? 'linear-gradient( -7deg, transparent 6%, red 15%, red 84%, transparent 94%)'
+							: 'none',
 					}}
 				>
 					<TranslateY
 						px={interpolate(
 							bRollEnter + bRollExit,
 							[0, 1, 2],
-							[1500, 0, -1500],
+							[1900, 0, -1900],
 						)}
 					>
 						<VideoLayers
@@ -307,7 +335,7 @@ export const Compose = () => {
 				<AbsoluteFill
 					style={{
 						maskImage:
-							frame > 100
+							frame > 100 && fade
 								? 'linear-gradient( -98deg, transparent 10%, red 18%, red 80%, transparent 90%)'
 								: 'none',
 					}}
@@ -329,7 +357,9 @@ export const Compose = () => {
 					)}
 					<AbsoluteFill
 						style={{
-							maskImage: 'linear-gradient(to bottom, transparent , black 10%)',
+							maskImage: fade
+								? 'linear-gradient(to bottom, transparent , black 10%)'
+								: undefined,
 						}}
 					>
 						<TranslateX px={secondX}>

@@ -119,7 +119,11 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
-import {Compose} from './Compose/Compose';
+import {
+	WhatIsRemotion,
+	whatIsRemotionCalculateMetadata,
+	whatIsRemotionSchema,
+} from './Compose/WhatIsRemotion';
 import {Empty} from './Empty';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
@@ -1150,7 +1154,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
-
 			<Folder name="shapes">
 				<Composition
 					id="circle-test"
@@ -1306,7 +1309,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-				 // @ts-expect-error intentional */}
+             // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1364,29 +1367,28 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-			 * 
-			 * 
-			 * disabled for react   19
-			<Folder name="Skia">
-				<Composition
-					id="skia-shader"
-					component={RuntimeShaderDemo}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={120}
-				/>
-				<Composition
-					id="skia-zoomblur"
-					component={RuntimeShaderZoomBlur}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={120}
-				/>
-			</Folder>
-			 */}
-
+         * 
+         * 
+         * disabled for react   19
+        <Folder name="Skia">
+            <Composition
+                id="skia-shader"
+                component={RuntimeShaderDemo}
+                fps={30}
+                height={1080}
+                width={1080}
+                durationInFrames={120}
+            />
+            <Composition
+                id="skia-zoomblur"
+                component={RuntimeShaderZoomBlur}
+                fps={30}
+                height={1080}
+                width={1080}
+                durationInFrames={120}
+            />
+        </Folder>
+         */}
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"
@@ -1520,12 +1522,14 @@ export const Index: React.FC = () => {
 					durationInFrames={1000}
 				/>
 				<Composition
-					id="3DCompose"
-					component={Compose}
+					id="WhatIsRemotion"
+					component={WhatIsRemotion}
 					width={1080}
-					height={1080}
 					fps={30}
 					durationInFrames={273}
+					schema={whatIsRemotionSchema}
+					defaultProps={{fade: false, whiteBackground: true, reel: true}}
+					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition
 					id="3DContext"
