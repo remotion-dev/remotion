@@ -1118,11 +1118,6 @@ module.exports = {
 		},
 		'upgrading',
 		{
-			type: 'link',
-			href: '/docs/recorder',
-			label: 'Recorder',
-		},
-		{
 			type: 'category',
 			label: 'Terminology',
 			link: {
@@ -1243,9 +1238,19 @@ module.exports = {
 			defaultStyle: true, // Use the default menu item styling
 		},
 		{
-			type: 'doc',
-			id: 'timeline',
+			type: 'category',
 			label: 'Timeline',
+			className: 'pro-item',
+			link: {
+				type: 'doc',
+				id: 'timeline/index',
+			},
+			items: ['timeline/setup', 'timeline/usage', 'timeline/faq'],
+		},
+		{
+			type: 'link',
+			href: '/docs/recorder',
+			label: 'Recorder',
 			className: 'pro-item',
 		},
 	],
