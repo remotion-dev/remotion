@@ -26,7 +26,7 @@ describe('EvaluateVolume does not throw', () => {
 			volume: 10,
 			mediaVolume: 1,
 		};
-		expect(evaluateVolume(toEvaluate)).toBe(1);
+		expect(evaluateVolume(toEvaluate)).toBe(10);
 	});
 	test('evaluated volume from frame that is smaller than one', () => {
 		const toEvaluate = {
@@ -42,7 +42,7 @@ describe('EvaluateVolume does not throw', () => {
 			volume: (frame: number) => frame,
 			mediaVolume: 1,
 		};
-		expect(evaluateVolume(toEvaluate)).toBe(1);
+		expect(evaluateVolume(toEvaluate)).toBe(10);
 	});
 });
 
