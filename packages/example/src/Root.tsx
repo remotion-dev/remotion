@@ -909,8 +909,8 @@ export const Index: React.FC = () => {
 				<Composition
 					id="audio-testing-amplify"
 					lazyComponent={() => import('./AudioTesting/Amplify')}
-					width={1080}
-					height={1080}
+					width={200}
+					height={200}
 					fps={30}
 					durationInFrames={120}
 				/>

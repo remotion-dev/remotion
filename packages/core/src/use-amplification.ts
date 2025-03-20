@@ -1,4 +1,4 @@
-import {useLayoutEffect, useRef, type RefObject} from 'react';
+import {useEffect, useLayoutEffect, useRef, type RefObject} from 'react';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
@@ -14,6 +14,12 @@ const warnOnce = (logLevel: LogLevel) => {
 	Log.warn(logLevel, 'AudioContext is not supported in this browser');
 };
 
+type AudioItems = {
+	gainNode: GainNode;
+	source: MediaElementAudioSourceNode;
+	audioContext: AudioContext;
+};
+
 export const useAmplification = ({
 	mediaRef,
 	volume,
@@ -24,7 +30,7 @@ export const useAmplification = ({
 	logLevel: LogLevel;
 }) => {
 	const shouldAmplify = volume > 1;
-	const gainRef = useRef<GainNode | null>(null);
+	const audioStuffRef = useRef<AudioItems | null>(null);
 
 	useLayoutEffect(() => {
 		if (!shouldAmplify) {
@@ -40,26 +46,38 @@ export const useAmplification = ({
 			return;
 		}
 
-		const audioContext = new AudioContext();
-		const source = audioContext.createMediaElementSource(mediaRef.current);
-		const gainNode = audioContext.createGain();
-		gainRef.current = gainNode;
-		source.connect(gainNode);
-		gainNode.connect(audioContext.destination);
-
-		return () => {
-			gainNode.disconnect();
-			source.disconnect();
-			audioContext.close();
-			gainRef.current = null;
-		};
-	}, [logLevel, mediaRef, shouldAmplify]);
-
-	useLayoutEffect(() => {
-		if (!gainRef.current) {
+		if (audioStuffRef.current) {
 			return;
 		}
 
-		gainRef.current.gain.value = volume;
+		const audioContext = new AudioContext();
+		const source = audioContext.createMediaElementSource(mediaRef.current);
+		const gainNode = audioContext.createGain();
+
+		audioStuffRef.current = {
+			gainNode,
+			source,
+			audioContext,
+		};
+		source.connect(gainNode);
+		gainNode.connect(audioContext.destination);
+	}, [logLevel, mediaRef, shouldAmplify]);
+
+	useLayoutEffect(() => {
+		if (!audioStuffRef.current) {
+			return;
+		}
+
+		if (volume <= 1) {
+			audioStuffRef.current.gainNode.gain.value = 1;
+		}
+
+		audioStuffRef.current.gainNode.gain.value = volume;
 	}, [volume]);
+
+	useEffect(() => {
+		return () => {
+			audioStuffRef.current = null;
+		};
+	}, []);
 };

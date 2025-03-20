@@ -13,6 +13,7 @@ import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
+import {useAmplification} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
@@ -24,6 +25,7 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
+import {evaluateVolume} from '../volume-prop.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
@@ -91,6 +93,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+	});
+
 	useMediaInTimeline({
 		mediaRef: videoRef,
 		volume,
@@ -112,6 +120,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 		mediaRef: videoRef,
+	});
+
+	useAmplification({
+		logLevel,
+		mediaRef: videoRef,
+		volume: userPreferredVolume,
 	});
 
 	useMediaPlayback({
@@ -256,7 +270,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	return (
 		<video
 			ref={videoRef}
-			muted={muted || mediaMuted}
+			muted={
+				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0
+			}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
