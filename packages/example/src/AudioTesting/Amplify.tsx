@@ -15,6 +15,7 @@ const Amplify: React.FC = () => {
 				onChange={(e) => setVolume(Number(e.target.value))}
 				style={{width: 200}}
 			/>
+			<button onClick={() => setVolume(2)}>set to 2</button>
 			<Audio
 				src={staticFile('music.mp3')}
 				// eslint-disable-next-line @remotion/volume-callback
