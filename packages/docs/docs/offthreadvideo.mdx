@@ -137,11 +137,6 @@ export const MyComposition = () => {
 };
 ```
 
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
-
-Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
-
 ### `name?`<AvailableFrom v="4.0.71"/>
 
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
@@ -197,10 +192,10 @@ export const MyComposition = () => {
 
 In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
+### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
 
-Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+Deprecated since v4.0.279: It is now always allowed to set the volume higher than `1`.  
+To prevent synthetic amplification, set a volume not higher than 1.
 
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
@@ -280,17 +275,7 @@ You can use the following `<LoopableOffthreadVideo>` component that uses [`@remo
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import React, {useEffect, useState} from 'react';
-import {
-  cancelRender,
-  continueRender,
-  delayRender,
-  getRemotionEnvironment,
-  Loop,
-  OffthreadVideo,
-  RemotionOffthreadVideoProps,
-  useVideoConfig,
-  Video
-} from 'remotion';
+import {cancelRender, continueRender, delayRender, getRemotionEnvironment, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useVideoConfig, Video} from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);

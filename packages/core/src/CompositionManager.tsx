@@ -129,7 +129,6 @@ export type AudioOrVideoAsset = {
 	volume: number;
 	mediaFrame: number;
 	playbackRate: number;
-	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
 	audioStartFrame: number;
 };

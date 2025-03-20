@@ -92,7 +92,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
-		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {
@@ -120,7 +119,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
-			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
@@ -136,7 +134,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		frame,
 		absoluteFrame,
 		playbackRate,
-		allowAmplificationDuringRender,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
 	]);

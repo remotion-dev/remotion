@@ -2,7 +2,7 @@
 image: /generated/articles-docs-video.png
 title: <Video>
 id: video
-crumb: "API"
+crumb: 'API'
 ---
 
 Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement) element to include video in your component that is synchronized with Remotion's time.
@@ -18,12 +18,12 @@ Prefer [`<OffthreadVideo>`](/docs/offthreadvideo) which during render is faster 
 All the props that the native `<video>` element accepts (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
 
 ```tsx twoslash
-import { AbsoluteFill, staticFile, Video } from "remotion";
+import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video src={staticFile("video.webm")} />
+      <Video src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -32,7 +32,7 @@ export const MyComposition = () => {
 You can load a video from an URL as well:
 
 ```tsx twoslash
-import { AbsoluteFill, Video } from "remotion";
+import {AbsoluteFill, Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -61,13 +61,13 @@ By passing `endAt={120}`, any video after the 4 second mark in the file will be 
 The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
 
 ```tsx twoslash
-import { AbsoluteFill, staticFile, Video } from "remotion";
+import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video src={staticFile("video.webm")} startFrom={60} endAt={120} />
+      <Video src={staticFile('video.webm')} startFrom={60} endAt={120} />
     </AbsoluteFill>
   );
 };
@@ -82,16 +82,13 @@ Removes a portion of the video at the end. See [`startFrom`](/docs/video#startfr
 You can pass any style you can pass to a native `<video>` element. For example, set its size:
 
 ```tsx twoslash
-import { AbsoluteFill, staticFile, Video } from "remotion";
+import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video
-        src={staticFile("video.webm")}
-        style={{ height: 720, width: 1280 }}
-      />
+      <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
     </AbsoluteFill>
   );
 };
@@ -102,31 +99,26 @@ export const MyComposition = () => {
 Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
 
 ```tsx twoslash title="Example using static volume"
-import { AbsoluteFill, staticFile, Video } from "remotion";
+import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video volume={0.5} src={staticFile("video.webm")} />
+      <Video volume={0.5} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
 ```
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
-import { AbsoluteFill, interpolate, staticFile, Video } from "remotion";
+import {AbsoluteFill, interpolate, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video
-        volume={(f) =>
-          interpolate(f, [0, 100], [0, 1], { extrapolateLeft: "clamp" })
-        }
-        src={staticFile("video.webm")}
-      />
+      <Video volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -154,13 +146,13 @@ Controls the speed of the video. `1` is the default and means regular speed, `0.
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
 ```tsx twoslash title="Example of a video playing twice as fast"
-import { AbsoluteFill, staticFile, Video } from "remotion";
+import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video playbackRate={2} src={staticFile("video.webm")} />
+      <Video playbackRate={2} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -171,15 +163,12 @@ export const MyComposition = () => {
 You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
-import { AbsoluteFill, Video } from "remotion";
+import {AbsoluteFill, Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video
-        muted
-        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-      />
+      <Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -192,15 +181,12 @@ This has the benefit that Remotion will not have to download the video file duri
 Makes the video loop indefinitely.
 
 ```tsx twoslash title="Example of a looped video"
-import { AbsoluteFill, Video } from "remotion";
+import {AbsoluteFill, Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video
-        loop
-        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-      />
+      <Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -210,10 +196,10 @@ export const MyComposition = () => {
 
 In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
+### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
 
-Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+Deprecated since v4.0.279: It is now always allowed to set the volume higher than `1`.  
+To prevent synthetic amplification, set a volume not higher than 1.
 
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
@@ -255,7 +241,6 @@ Read more here about [autoplay restrictions](/docs/player/autoplay).
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
-
 
 ## Speed up renders for video with silent audio
 

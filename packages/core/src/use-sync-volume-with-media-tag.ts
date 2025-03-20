@@ -26,7 +26,6 @@ export const useSyncVolumeWithMediaTag = ({
 			frame: volumePropFrame,
 			volume,
 			mediaVolume,
-			allowAmplificationDuringRender: false,
 		});
 
 		if (!isApproximatelyTheSame(userPreferredVolume, mediaRef.current.volume)) {
