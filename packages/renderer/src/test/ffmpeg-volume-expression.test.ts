@@ -92,7 +92,7 @@ test('Simple expression - should not clamp to 1', () => {
 		}),
 	).toEqual({
 		eval: 'once',
-		value: '1',
+		value: '2',
 	});
 });
 
