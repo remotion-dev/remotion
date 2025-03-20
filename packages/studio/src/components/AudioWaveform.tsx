@@ -16,7 +16,7 @@ import {
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	alignItems: 'center',
+	alignItems: 'flex-end',
 	position: 'absolute',
 	height: TIMELINE_LAYER_HEIGHT,
 };
@@ -134,7 +134,10 @@ export const AudioWaveform: React.FC<{
 		return getWaveformPortion({
 			audioData: metadata,
 			startTimeInSeconds: startFrom / vidConf.fps,
-			durationInSeconds: (durationInFrames / vidConf.fps) * playbackRate,
+			durationInSeconds: Math.min(
+				(durationInFrames / vidConf.fps) * playbackRate,
+				metadata.durationInSeconds,
+			),
 			numberOfSamples,
 		});
 	}, [
@@ -163,7 +166,12 @@ export const AudioWaveform: React.FC<{
 	return (
 		<div style={container}>
 			{normalized.map((w) => {
-				return <AudioWaveformBar key={w.index} amplitude={w.amplitude} />;
+				return (
+					<AudioWaveformBar
+						key={w.index}
+						amplitude={w.amplitude * (typeof volume === 'number' ? volume : 1)}
+					/>
+				);
 			})}
 
 			<canvas

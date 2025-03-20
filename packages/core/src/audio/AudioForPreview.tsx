@@ -9,13 +9,12 @@ import React, {
 } from 'react';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
+import {useAmplification} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
-import {
-	DEFAULT_ACCEPTABLE_TIMESHIFT,
-	useMediaPlayback,
-} from '../use-media-playback.js';
+import {useMediaPlayback} from '../use-media-playback.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {
 	useMediaMutedState,
@@ -48,6 +47,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 			'Cannot change the behavior for pre-mounting audio tags dynamically.',
 		);
 	}
+
+	const logLevel = useLogLevel();
 
 	const {
 		volume,
@@ -94,7 +95,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		frame: volumePropFrame,
 		volume,
 		mediaVolume,
-		allowAmplificationDuringRender: false,
 	});
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
@@ -158,17 +158,23 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 	});
 
+	useAmplification({
+		logLevel,
+		mediaRef: audioRef,
+		volume: userPreferredVolume,
+	});
+
 	useMediaPlayback({
 		mediaRef: audioRef,
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 		onlyWarnForMediaSeekingError: false,
-		acceptableTimeshift:
-			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(sequenceContext?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: null,
+		userPreferredVolume,
 	});
 
 	useImperativeHandle(ref, () => {

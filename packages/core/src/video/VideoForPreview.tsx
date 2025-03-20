@@ -13,17 +13,16 @@ import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
+import {useAmplification} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
-import {
-	DEFAULT_ACCEPTABLE_TIMESHIFT,
-	useMediaPlayback,
-} from '../use-media-playback.js';
+import {useMediaPlayback} from '../use-media-playback.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
+import {evaluateVolume} from '../volume-prop.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
@@ -91,6 +90,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+	});
+
 	useMediaInTimeline({
 		mediaRef: videoRef,
 		volume,
@@ -114,17 +119,23 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaRef: videoRef,
 	});
 
+	useAmplification({
+		logLevel,
+		mediaRef: videoRef,
+		volume: userPreferredVolume,
+	});
+
 	useMediaPlayback({
 		mediaRef: videoRef,
 		src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
-		acceptableTimeshift:
-			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: onAutoPlayError ?? null,
+		userPreferredVolume,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;
@@ -256,7 +267,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	return (
 		<video
 			ref={videoRef}
-			muted={muted || mediaMuted}
+			muted={
+				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0
+			}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}

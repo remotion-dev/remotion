@@ -110,8 +110,9 @@ export const MyComposition = () => {
 ```
 
 :::note
-On iOS Safari, it's not possible to granularly change the volume of a media tag.  
-Only values `0` and `1` will be respected by the browser.
+On iOS Safari, it's currently not possible to granularly change the volume of a media tag.  
+Before Remotion v4.0.279, the maximum value was 1.
+Since v4.0.279, the Web Audio API will be used to synthetically amplify audio that has a volume higher than 1.
 :::
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
@@ -136,11 +137,6 @@ export const MyComposition = () => {
   );
 };
 ```
-
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
-
-Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ### `name?`<AvailableFrom v="4.0.71"/>
 
@@ -196,11 +192,6 @@ export const MyComposition = () => {
 ### `acceptableTimeShiftInSeconds?`<AvailableFrom v="3.2.42" />
 
 In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
-
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
-
-Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
@@ -262,6 +253,13 @@ _removed in v4.0.0_
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
+### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
+
+Deprecated since v4.0.279: This prop intended to opt into setting the volume to a value higher than one, even though it would only apply during render.
+
+The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
+To prevent synthetic amplification, set a volume not higher than 1.
+
 ### Other props
 
 The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during Preview, this is a `<video>` element.
@@ -280,17 +278,7 @@ You can use the following `<LoopableOffthreadVideo>` component that uses [`@remo
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import React, {useEffect, useState} from 'react';
-import {
-  cancelRender,
-  continueRender,
-  delayRender,
-  getRemotionEnvironment,
-  Loop,
-  OffthreadVideo,
-  RemotionOffthreadVideoProps,
-  useVideoConfig,
-  Video
-} from 'remotion';
+import {cancelRender, continueRender, delayRender, getRemotionEnvironment, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useVideoConfig, Video} from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
