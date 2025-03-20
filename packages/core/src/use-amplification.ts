@@ -65,7 +65,7 @@ export const useAmplification = ({
 		});
 
 		const gainNode = new GainNode(audioContext, {
-			gain: currentVolumeRef.current,
+			gain: Math.max(currentVolumeRef.current, 1),
 		});
 
 		audioStuffRef.current = {
