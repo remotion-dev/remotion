@@ -119,6 +119,7 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import Amplify from './AudioTesting/Amplify';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -908,11 +909,11 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="audio-testing-amplify"
-					lazyComponent={() => import('./AudioTesting/Amplify')}
+					component={Amplify}
 					width={200}
 					height={200}
 					fps={30}
-					durationInFrames={120}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="audio-testing-base64"
