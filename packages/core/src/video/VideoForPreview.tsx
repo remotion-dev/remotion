@@ -15,10 +15,7 @@ import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
 import {useAmplification} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
-import {
-	DEFAULT_ACCEPTABLE_TIMESHIFT,
-	useMediaPlayback,
-} from '../use-media-playback.js';
+import {useMediaPlayback} from '../use-media-playback.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {
@@ -134,11 +131,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
-		acceptableTimeshift:
-			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: onAutoPlayError ?? null,
+		userPreferredVolume,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;

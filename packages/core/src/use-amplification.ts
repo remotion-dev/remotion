@@ -1,4 +1,4 @@
-import {useEffect, useLayoutEffect, useRef, type RefObject} from 'react';
+import {useLayoutEffect, useRef, type RefObject} from 'react';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
@@ -20,6 +20,10 @@ type AudioItems = {
 	audioContext: AudioContext;
 };
 
+export const getShouldAmplify = (volume: number) => {
+	return volume > 1;
+};
+
 export const useAmplification = ({
 	mediaRef,
 	volume,
@@ -29,8 +33,10 @@ export const useAmplification = ({
 	volume: number;
 	logLevel: LogLevel;
 }) => {
-	const shouldAmplify = volume > 1;
+	const shouldAmplify = getShouldAmplify(volume);
 	const audioStuffRef = useRef<AudioItems | null>(null);
+	const currentVolumeRef = useRef(volume);
+	currentVolumeRef.current = volume;
 
 	useLayoutEffect(() => {
 		if (!shouldAmplify) {
@@ -50,34 +56,42 @@ export const useAmplification = ({
 			return;
 		}
 
-		const audioContext = new AudioContext();
-		const source = audioContext.createMediaElementSource(mediaRef.current);
-		const gainNode = audioContext.createGain();
+		const audioContext = new AudioContext({
+			latencyHint: 'interactive',
+		});
+
+		const source = new MediaElementAudioSourceNode(audioContext, {
+			mediaElement: mediaRef.current,
+		});
+
+		const gainNode = new GainNode(audioContext, {
+			gain: currentVolumeRef.current,
+		});
 
 		audioStuffRef.current = {
 			gainNode,
 			source,
 			audioContext,
 		};
+
 		source.connect(gainNode);
 		gainNode.connect(audioContext.destination);
+		Log.trace(
+			logLevel,
+			`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}`,
+		);
 	}, [logLevel, mediaRef, shouldAmplify]);
 
-	useLayoutEffect(() => {
-		if (!audioStuffRef.current) {
-			return;
+	if (audioStuffRef.current) {
+		const valueToSet = Math.max(volume, 1);
+		if (audioStuffRef.current.gainNode.gain.value !== valueToSet) {
+			audioStuffRef.current.gainNode.gain.value = valueToSet;
+			Log.trace(
+				logLevel,
+				`Setting gain to ${valueToSet} for ${mediaRef.current?.src}`,
+			);
 		}
+	}
 
-		if (volume <= 1) {
-			audioStuffRef.current.gainNode.gain.value = 1;
-		}
-
-		audioStuffRef.current.gainNode.gain.value = volume;
-	}, [volume]);
-
-	useEffect(() => {
-		return () => {
-			audioStuffRef.current = null;
-		};
-	}, []);
+	return audioStuffRef;
 };
