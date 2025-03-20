@@ -9,9 +9,8 @@ export const evaluateVolume = ({
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 }): number => {
-	const maxVolume = Infinity;
 	if (typeof volume === 'number') {
-		return Math.min(maxVolume, volume * mediaVolume);
+		return volume * mediaVolume;
 	}
 
 	if (typeof volume === 'undefined') {
@@ -37,5 +36,5 @@ export const evaluateVolume = ({
 		);
 	}
 
-	return Math.max(0, Math.min(maxVolume, evaluated));
+	return Math.max(0, evaluated);
 };

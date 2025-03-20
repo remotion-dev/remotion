@@ -83,7 +83,7 @@ test('Should use 0 as else statement', () => {
 	});
 });
 
-test('Simple expression - should not be higher than 1', () => {
+test('Simple expression - should not clamp to 1', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: 2,
