@@ -24,7 +24,7 @@ const media = await parseMedia({
     for (const stream of streams) {
       console.log(stream.resolution); // {width: 1920, height: 1080}
       console.log(stream.bandwidth); // 4400000
-      console.log(stream.url); // "https://test-streams.mux.dev/x36xhzz/193039199_mp4_h264_aac_hd_7.m3u8"
+      console.log(stream.src); // "https://test-streams.mux.dev/x36xhzz/193039199_mp4_h264_aac_hd_7.m3u8"
       console.log(stream.averageBandwidth); // null
       console.log(stream.codecs); // ["avc1.640028", "mp4a.40.2"]
       console.log(stream.associatedPlaylists); // See below
@@ -89,7 +89,7 @@ const media = await parseMedia({
       console.log(playlist.autoselect); // boolean
       console.log(playlist.default); // boolean
       console.log(playlist.channels); // number | null
-      console.log(playlist.url); // string
+      console.log(playlist.src); // string
 
       return playlist.default;
     });
