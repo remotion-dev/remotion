@@ -55,7 +55,7 @@ export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 	});
 	if (response.status !== 206) {
 		throw new Error(
-			`Tried to read bytes 0-256 from ${src}, but the response status code was not 206. This means the server might not support returning a partial response.`,
+			`Tried to read bytes 0-256 from ${src}, but the response status code was ${response.status} (expected was 206). This means the server might not support returning a partial response.`,
 		);
 	}
 
