@@ -1,0 +1,55 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-wasm"
+	},
+	"name": "@remotion/whisper-wasm",
+	"version": "1.0.0",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"test": "bun test src",
+		"lint": "eslint src",
+		"make": "node append.js && tsc -d && bun --env-file=../.env.bundle bundle.ts "
+	},
+	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
+	"license": "UNLICENSED",
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./main": {
+			"types": "./dist/main.d.ts",
+			"require": "./dist/main.js",
+			"module": "./dist/esm/main.mjs",
+			"import": "./dist/esm/main.mjs"
+		}
+	},
+	"keywords": [
+		"remotion",
+		"openai",
+		"whisper",
+		"wasm"
+	],
+	"typesVersions": {
+		">=1.0": {
+			"main": [
+				"./dist/main.d.ts"
+			]
+		}
+	},
+	"dependencies": {
+		"@remotion/eslint-config-internal": "workspace:^"
+	}
+}
