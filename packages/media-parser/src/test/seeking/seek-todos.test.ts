@@ -1,6 +1,5 @@
 import {test} from 'bun:test';
 
-test.todo('should not count samples twice');
 test.todo(
 	'should not calculate slow fps, slow duration, slow keyframes etc. if there was seeking inbetween',
 );
