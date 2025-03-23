@@ -54,7 +54,8 @@ const printHandler = (text) => {
 	console.log(text);
 };
 
-const Module = {
+// eslint-disable-next-line no-var
+var Module = {
 	print: (text) => printHandler(text),
 	printErr: (text) => printHandler(text),
 };
@@ -108,7 +109,8 @@ const fetchRemote = async (
 		receivedLength += value.length;
 
 		if (contentLength) {
-			progressCallback?.(receivedLength / total);
+			const progressPercentage = Math.round((receivedLength / total) * 100);
+			progressCallback?.(progressPercentage);
 
 			const progressCur = Math.round((receivedLength / total) * 10);
 			if (progressCur !== progressLast) {
@@ -223,7 +225,7 @@ const loadModel = (url: string, cbProgress: (arg0: number) => void) => {
 	});
 };
 
-export const downloadModel = async (name: string) => {
+export const downloadWhisperModel = async ({model, onProgress}) => {
 	modelLoading = true;
 	const allowedModels = [
 		'tiny',
@@ -240,7 +242,7 @@ export const downloadModel = async (name: string) => {
 		'large-v3-turbo',
 	] as const;
 
-	if (!name || !allowedModels.includes(name)) {
+	if (!model || !allowedModels.includes(model)) {
 		modelLoading = false;
 		throw new Error('invalid model name');
 	}
@@ -251,8 +253,8 @@ export const downloadModel = async (name: string) => {
 	}
 
 	//  all good, proceed
-	const url = `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${name}.bin`;
-	await loadModel(url);
+	const url = `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model}.bin`;
+	await loadModel(url, onProgress);
 	modelLoading = false;
 };
 
@@ -334,12 +336,7 @@ const audioProcessor = (file) => {
 	});
 };
 
-export const transcribe = (
-	file: File,
-	onProgress: (arg0: number) => void,
-	onTranscribeChunk: (start: string, end: string, text: string) => void,
-	threads: number = 8,
-) => {
+export const transcribe = ({file, onProgress, onTranscribeChunk, threads}) => {
 	return new Promise((resolve) => {
 		checkForHeaders();
 
@@ -364,7 +361,7 @@ export const transcribe = (
 			console.log('Whisper initialized, instance: ' + instance);
 		}
 
-		if (threads > maxThreadsAllowed) {
+		if ((threads ?? 8) > maxThreadsAllowed) {
 			transcribing = false;
 			throw new Error(
 				`Thread limit exceeded: max ${maxThreadsAllowed} allowed.`,
@@ -387,7 +384,7 @@ export const transcribe = (
 
 				setTimeout(() => {
 					try {
-						Module.full_default(instance, data, 'en', threads, false);
+						Module.full_default(instance, data, 'en', threads ?? 8, false);
 					} catch (e) {
 						console.log("couldn't start transcription ", e);
 					}
