@@ -35,7 +35,7 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	Log.trace(state.logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
 	if (resolution.type === 'do-seek') {
-		await performSeek({state, seekTo: resolution.byte});
+		await performSeek({state, seekTo: resolution.byte, userInitiated: true});
 		const {hasChanged} =
 			state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
 		if (hasChanged) {

@@ -2,10 +2,24 @@ import {disallowForwardSeekIfSamplesAreNeeded} from './disallow-forward-seek-if-
 import {Log} from './log';
 import type {ParserState} from './state/parser-state';
 
-export const seekForward = async (state: ParserState, seekTo: number) => {
+export const seekForward = async ({
+	state,
+	seekTo,
+	userInitiated,
+}: {
+	state: ParserState;
+	seekTo: number;
+	userInitiated: boolean;
+}) => {
 	const {iterator} = state;
 
-	disallowForwardSeekIfSamplesAreNeeded(state);
+	if (userInitiated) {
+		disallowForwardSeekIfSamplesAreNeeded({
+			state,
+			seekTo,
+			previousPosition: iterator.counter.getOffset(),
+		});
+	}
 
 	const alreadyHasBuffer =
 		iterator.bytesRemaining() >= seekTo - iterator.counter.getOffset();

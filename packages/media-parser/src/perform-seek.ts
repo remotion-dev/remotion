@@ -6,9 +6,11 @@ import type {ParserState} from './state/parser-state';
 export const performSeek = async ({
 	seekTo,
 	state,
+	userInitiated,
 }: {
 	seekTo: number;
 	state: ParserState;
+	userInitiated: boolean;
 }): Promise<void> => {
 	const {iterator, logLevel, mode, contentLength, seekInfiniteLoop} = state;
 
@@ -45,7 +47,7 @@ export const performSeek = async ({
 
 	const skippingForward = seekTo > iterator.counter.getOffset();
 	if (skippingForward) {
-		await seekForward(state, seekTo);
+		await seekForward({state, seekTo, userInitiated});
 	} else {
 		await seekBackwards(state, seekTo);
 	}
