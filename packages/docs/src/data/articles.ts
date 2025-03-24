@@ -1566,6 +1566,15 @@ export const articles = [
 		slug: 'interpolate',
 	},
 	{
+		id: 'investors',
+		title: 'Investors',
+		relativePath: 'docs/investors.mdx',
+		compId: 'articles-docs-investors',
+		crumb: null,
+		noAi: false,
+		slug: 'investors',
+	},
+	{
 		id: 'javascript',
 		title: 'Plain JavaScript',
 		relativePath: 'docs/jsx-support.mdx',
@@ -5082,6 +5091,12 @@ export const articles = [
 		slug: 'timeline/demo',
 	},
 	{
+		id: 'faq',
+		title: 'Timeline – FAQ',
+		relativePath: 'docs/timeline/faq.mdx',
+		compId: 'articles-docs-timeline-faq',
+		crumb: null,
+		noAi: false,
 		id: 'faq',
 		title: 'Timeline – FAQ',
 		relativePath: 'docs/timeline/faq.mdx',

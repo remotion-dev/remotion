@@ -406,6 +406,11 @@
 			"source": "/system-prompt",
 			"destination": "/docs/ai/system-prompt",
 			"permanent": false
+		},
+		{
+			"source": "/investors",
+			"destination": "/docs/investors",
+			"permanent": false
 		}
 	]
 }
