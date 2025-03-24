@@ -1,17 +1,17 @@
 import {createHash} from 'node:crypto';
+import path from 'node:path';
 import ReactDOM from 'react-dom';
+import {NoReactInternals} from 'remotion/no-react';
+import type {Configuration} from 'webpack';
 import webpack, {ProgressPlugin} from 'webpack';
+import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
+import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
-
-import {NoReactInternals} from 'remotion/no-react';
-import type {Configuration} from 'webpack';
-import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
-import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
-import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
@@ -155,6 +155,20 @@ export const webpackConfig = async ({
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
 				react: require.resolve('react'),
+				'remotion/no-react': path.resolve(
+					require.resolve('remotion'),
+					'..',
+					'..',
+					'esm',
+					'no-react.mjs',
+				),
+				remotion: path.resolve(
+					require.resolve('remotion'),
+					'..',
+					'..',
+					'esm',
+					'index.mjs',
+				),
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
