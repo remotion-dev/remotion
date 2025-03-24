@@ -130,6 +130,7 @@ export const parseLoop = async ({
 			iterationWithThisOffset++;
 		} else {
 			iterationWithThisOffset = 0;
+			state.seekInfiniteLoop.reset();
 		}
 	}
 };
