@@ -8,7 +8,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"docusaurus": "docusaurus",
-		"start": "docusaurus start --host 0.0.0.0",
+		"start": "cd .. && bun run build && cd docs && docusaurus start --host 0.0.0.0",
 		"start-docs": "docusaurus start",
 		"build-docs": "DOCUSAURUS_IGNORE_SSG_WARNINGS=true node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && bun copy-convert.ts && bun count-pages.ts",
 		"make": "bun update-prompt.ts",
