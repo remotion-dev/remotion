@@ -27,10 +27,6 @@ export const makeSeekSignal = (emitter: MediaParserEmitter): SeekSignal => {
 
 	return {
 		seek: (seekRequest) => {
-			if (seek) {
-				throw new Error('Seek already requested, must wait');
-			}
-
 			seek = seekRequest;
 			emitter.dispatchSeek(seekRequest);
 		},

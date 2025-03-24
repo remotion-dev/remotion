@@ -1,0 +1,19 @@
+---
+image: /generated/articles-docs-media-parser-seeking.png
+id: seeking
+title: Seeking
+slug: /media-parser/seeking
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+**In construction:** Seeking is not yet supported and you should not yet use it. This documentation page is a living document allowing us to write down the rules
+:::
+
+## When you cannot seek
+
+It is not allowed to **seek forward** if any of the following [fields](/docs/media-parser/fields) are required:
+
+import {DisallowForwardSeekingFields} from './DisallowForwardSeekingFields';
+
+<DisallowForwardSeekingFields />
