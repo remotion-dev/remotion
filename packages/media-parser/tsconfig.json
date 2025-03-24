@@ -14,5 +14,9 @@
 		}
 	],
 	"include": ["src"],
-	"exclude": ["./src/worker.module.ts", "./src/test/worker.test.ts"]
+	"exclude": [
+		"./src/worker.module.ts",
+		"./src/test/worker.test.ts",
+		"./src/test/seeking/seek-on-worker.test.ts"
+	]
 }

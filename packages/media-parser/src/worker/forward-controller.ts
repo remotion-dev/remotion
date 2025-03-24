@@ -11,6 +11,11 @@ export const forwardMediaParserControllerToWorker = (
 			return;
 		}
 
+		if (message.type === 'request-seek') {
+			controller._experimentalSeek(message.payload);
+			return;
+		}
+
 		if (message.type === 'request-resume') {
 			controller.resume();
 			return;
