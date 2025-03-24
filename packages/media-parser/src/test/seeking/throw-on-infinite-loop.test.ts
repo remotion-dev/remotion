@@ -29,7 +29,7 @@ test('handle seek infinite loop better', async () => {
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Seeking infinite loop detected: Seeked to byte 0x30 10 times in a row with less than 200ms inbetween. Check your usage of .seek().',
+			'Seeking infinite loop detected: Seeked to byte 0x30 10 times in a row with no position change in the file. Check your usage of .seek().',
 		);
 	}
 });
