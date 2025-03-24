@@ -13,6 +13,10 @@ export const parseMdatSection = async (
 	state: ParserState,
 ): Promise<Skip | null> => {
 	const videoSection = state.videoSection.getVideoSection();
+	if (!videoSection) {
+		throw new Error('No video section defined');
+	}
+
 	const endOfMdat = videoSection.size + videoSection.start;
 
 	// don't need mdat at all, can skip

@@ -4,12 +4,9 @@ import {hasBeenAborted} from '../../errors';
 import {mediaParserController} from '../../media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 
-test('should be able to set the start seek', async () => {
+test('should not be able to seek to a byte too early', async () => {
 	const controller = mediaParserController();
-
-	let firstSample: AudioOrVideoSample | undefined;
 
 	try {
 		controller._experimentalSeek({
@@ -21,9 +18,64 @@ test('should be able to set the start seek', async () => {
 			src: exampleVideos.bigBuckBunny,
 			controller,
 			reader: nodeReader,
+			acknowledgeRemotionLicense: true,
+			fields: {
+				dimensions: true,
+			},
+		});
+		throw new Error('should not complete');
+	} catch (err) {
+		expect((err as Error).message).toBe(
+			'Cannot seek to a byte that is not in the video section. Seeking to: 5, section: start: 48, end: 14282315',
+		);
+	}
+});
+
+test('should not be able to seek to a byte beyond the file', async () => {
+	const controller = mediaParserController();
+
+	try {
+		controller._experimentalSeek({
+			type: 'byte',
+			byte: 1_000_000_000,
+		});
+
+		await parseMedia({
+			src: exampleVideos.bigBuckBunny,
+			controller,
+			reader: nodeReader,
+			acknowledgeRemotionLicense: true,
+			fields: {
+				dimensions: true,
+			},
+		});
+		throw new Error('should not complete');
+	} catch (err) {
+		expect((err as Error).message).toBe(
+			'Cannot seek to a byte that is not in the video section. Seeking to: 1000000000, section: start: 48, end: 14282315',
+		);
+	}
+});
+
+test('should  be able to seek to a valid byte', async () => {
+	const controller = mediaParserController();
+
+	try {
+		controller._experimentalSeek({
+			type: 'byte',
+			byte: 3224491,
+		});
+
+		await parseMedia({
+			src: exampleVideos.bigBuckBunny,
+			controller,
+			reader: nodeReader,
+			fields: {
+				dimensions: true,
+			},
 			onVideoTrack: () => {
-				return (s) => {
-					firstSample = s;
+				return (sample) => {
+					expect(sample.offset).toBe(3224491);
 					controller.abort();
 				};
 			},
@@ -31,10 +83,6 @@ test('should be able to set the start seek', async () => {
 		});
 		throw new Error('should not complete');
 	} catch (err) {
-		console.log({err});
-		expect(hasBeenAborted(err)).toBe(true);
-		const timeInSeconds =
-			(firstSample?.timestamp ?? 0) / (firstSample?.timescale ?? 1);
-		expect(timeInSeconds).toBe(10.5);
+		expect(hasBeenAborted(err as Error)).toBe(true);
 	}
 });

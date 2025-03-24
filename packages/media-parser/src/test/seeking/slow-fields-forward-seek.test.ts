@@ -30,7 +30,7 @@ test('should not calculate slow fps, slow duration, slow keyframes etc. if there
 		throw new Error('should not get this far');
 	} catch (error) {
 		expect((error as Error).message).toInclude(
-			`Forward seeking is not allowed when the following fields are requested from parseMedia(): slowDurationInSeconds, slowFps. Either don't seek forward, or don't request these fields.`,
+			`Forward seeking is not allowed when the following fields are requested from parseMedia(): slowDurationInSeconds, slowFps. Seek was from 0x3ba to 0x480672. Either don't seek forward, or don't request these fields.`,
 		);
 	}
 });

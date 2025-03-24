@@ -22,9 +22,14 @@ export const performSeek = async ({
 	} = state;
 
 	const byteInVideoSection = videoSection.isByteInVideoSection(seekTo);
-	if (byteInVideoSection !== 'in-section') {
+	if (byteInVideoSection !== 'in-section' && userInitiated) {
+		const section = videoSection.getVideoSection();
+		const sectionString =
+			section === null
+				? 'not yet defined'
+				: `start: ${section.start}, end: ${section.size + section.start}`;
 		throw new Error(
-			`Cannot seek to a byte that is not in the video section: ${seekTo}`,
+			`Cannot seek to a byte that is not in the video section. Seeking to: ${seekTo}, section: ${sectionString}`,
 		);
 	}
 

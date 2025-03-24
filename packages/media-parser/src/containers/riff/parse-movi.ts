@@ -144,6 +144,10 @@ export const parseMovi = async ({
 	await handleChunk({state, ckId, ckSize});
 
 	const videoSection = state.videoSection.getVideoSection();
+	if (!videoSection) {
+		throw new Error('No video section defined');
+	}
+
 	const maxOffset = videoSection.start + videoSection.size;
 
 	// Discard added zeroes

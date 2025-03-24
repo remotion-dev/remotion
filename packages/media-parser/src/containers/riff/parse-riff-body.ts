@@ -19,6 +19,9 @@ export const parseRiffBody = async (
 			state.riff.getAvcProfile()
 		) {
 			const videoSection = state.videoSection.getVideoSection();
+			if (!videoSection) {
+				throw new Error('No video section defined');
+			}
 
 			// only skipping forward in query mode
 			return Promise.resolve(makeSkip(videoSection.start + videoSection.size));

@@ -20,7 +20,7 @@ export const videoSectionState = () => {
 
 	const getVideoSection = () => {
 		if (!videoSection) {
-			throw new Error('No video section defined');
+			return null;
 		}
 
 		return videoSection;
