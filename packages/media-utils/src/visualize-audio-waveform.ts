@@ -23,7 +23,7 @@ const visualizeAudioWaveformFrame = ({
 	windowInSeconds,
 	channel,
 	dataOffsetInSeconds,
-	normalize = true,
+	normalize = false,
 }: VisualizeAudioWaveformOptions) => {
 	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(

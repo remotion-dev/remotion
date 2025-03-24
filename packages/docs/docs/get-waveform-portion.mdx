@@ -49,6 +49,16 @@ _number_
 
 The range of the output values. Either `minus-one-to-one` or `zero-to-one`. Defaults to `zero-to-one`.
 
+### `normalize?`<AvailableFrom v="4.0.280" />
+
+_boolean_
+
+Default `true`. If set to `true`, then the data gets scaled so that the biggest value is `1`.
+
+:::note
+From v4.0.267 to v4.0.279, `normalize` was mistakenly changed to `false`. We have restored the original behavior from v4.0.280.
+:::
+
 ## Return value
 
 `Bar[]` - An array of objects with the following properties:
