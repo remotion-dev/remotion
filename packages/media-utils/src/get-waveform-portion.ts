@@ -34,6 +34,7 @@ export type GetWaveformPortion = {
 	channel?: number;
 	outputRange?: SampleOutputRange;
 	dataOffsetInSeconds?: number;
+	normalize?: boolean;
 };
 
 /*
@@ -48,6 +49,7 @@ export const getWaveformPortion = ({
 	channel = 0,
 	outputRange = 'zero-to-one',
 	dataOffsetInSeconds,
+	normalize = true,
 }: GetWaveformPortion): Bar[] => {
 	validateChannel(channel, audioData.numberOfChannels);
 
@@ -84,6 +86,7 @@ export const getWaveformPortion = ({
 		audioBuffer,
 		numberOfSamples,
 		outputRange,
+		normalize,
 	}).map((w, i) => {
 		return {
 			index: i,
