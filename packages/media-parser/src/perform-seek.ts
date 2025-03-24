@@ -12,7 +12,21 @@ export const performSeek = async ({
 	state: ParserState;
 	userInitiated: boolean;
 }): Promise<void> => {
-	const {iterator, logLevel, mode, contentLength, seekInfiniteLoop} = state;
+	const {
+		iterator,
+		logLevel,
+		mode,
+		contentLength,
+		seekInfiniteLoop,
+		videoSection,
+	} = state;
+
+	const byteInVideoSection = videoSection.isByteInVideoSection(seekTo);
+	if (byteInVideoSection !== 'in-section') {
+		throw new Error(
+			`Cannot seek to a byte that is not in the video section: ${seekTo}`,
+		);
+	}
 
 	seekInfiniteLoop.registerSeek(seekTo);
 

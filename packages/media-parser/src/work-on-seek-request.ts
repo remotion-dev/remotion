@@ -21,7 +21,16 @@ const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
 		};
 	}
 
-	throw new Error(`Cannot process seek request ${JSON.stringify(seek)}`);
+	if (seek.type === 'byte') {
+		return {
+			type: 'do-seek',
+			byte: seek.byte,
+		};
+	}
+
+	throw new Error(
+		`Cannot process seek request for ${seek}: ${JSON.stringify(seek)}`,
+	);
 };
 
 export const workOnSeekRequest = async (state: ParserState) => {

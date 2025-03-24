@@ -9,7 +9,8 @@ export const parseRiffBody = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
 	if (
-		state.videoSection.isInVideoSectionState(state.iterator) === 'in-section'
+		state.videoSection.isCurrentByteInVideoSection(state.iterator) ===
+		'in-section'
 	) {
 		if (
 			maySkipVideoData({

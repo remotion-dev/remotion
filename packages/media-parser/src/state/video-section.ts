@@ -26,17 +26,16 @@ export const videoSectionState = () => {
 		return videoSection;
 	};
 
-	const isInVideoSectionState = (
-		iterator: BufferIterator,
+	const isByteInVideoSection = (
+		byte: number,
 	): 'no-section-defined' | 'in-section' | 'outside-section' => {
 		if (!videoSection) {
 			return 'no-section-defined';
 		}
 
-		const offset = iterator.counter.getOffset();
 		if (
-			offset >= videoSection.start &&
-			offset < videoSection.start + videoSection.size
+			byte >= videoSection.start &&
+			byte < videoSection.start + videoSection.size
 		) {
 			return 'in-section';
 		}
@@ -44,9 +43,17 @@ export const videoSectionState = () => {
 		return 'outside-section';
 	};
 
+	const isCurrentByteInVideoSection = (
+		iterator: BufferIterator,
+	): 'no-section-defined' | 'in-section' | 'outside-section' => {
+		const offset = iterator.counter.getOffset();
+		return isByteInVideoSection(offset);
+	};
+
 	return {
 		setVideoSection,
 		getVideoSection,
-		isInVideoSectionState,
+		isCurrentByteInVideoSection,
+		isByteInVideoSection,
 	};
 };

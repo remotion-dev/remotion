@@ -21,7 +21,8 @@ export const parseFlac = ({
 	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
-	const videoSectionState = state.videoSection.isInVideoSectionState(iterator);
+	const videoSectionState =
+		state.videoSection.isCurrentByteInVideoSection(iterator);
 	if (videoSectionState === 'in-section') {
 		if (maySkipVideoData({state})) {
 			return Promise.resolve(makeSkip(state.contentLength));
