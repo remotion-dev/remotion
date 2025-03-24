@@ -1,0 +1,53 @@
+---
+title: downloadWhisperModel()
+crumb: '@remotion/whisper-wasm'
+---
+
+# downloadWhisperModel()
+
+Downloads a Whisper.cpp model to the browser.  
+
+```tsx title="app.tsx"
+import { useEffect, useState } from "react";
+import {downloadWhisperModel} from '@remotion/whisper-wasm';
+
+export default function MyApp(){
+    const [progress, setProgress] = useState(0)
+    useEffect(()=>{
+    downloadWhisperModel({model: 'tiny.en', onProgress: setProgress});
+  },[]);
+
+  return (
+    <h1>my great app</h1>
+  )
+}
+```
+
+## Options
+
+
+### `model`
+
+The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`, `large-v3-turbo`.
+
+### `onProgress?`
+
+Act upon download progress. This is the function signature:
+
+```tsx twoslash
+
+const onProgress = (progress: number) => {
+  // do something
+};
+```
+
+
+## Return Value
+
+resolves with the message  `Model loaded successfully` if the model has been successfully stored in the `indexedDB` storage of the browser.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/helpers.ts)
+- [`@remotion/whisper-wasm`](/docs/whisper-wasm)
+- [`transcribe()`](/docs/whisper-wasm/transcribe)

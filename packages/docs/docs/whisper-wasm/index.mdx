@@ -1,0 +1,61 @@
+---
+
+title: '@remotion/whisper-wasm'
+crumb: 'Transcribe audio in browser'
+---
+
+<!-- _Available from v4.0.115_ -->
+
+Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for the browser. Allows you to transcribe audio locally in the browser, with the help of WASM.
+
+import {TableOfContents} from './whisper-wasm';
+
+<Installation pkg="@remotion/whisper-wasm" />
+
+## Example usage
+
+
+```tsx title="app.tsx"
+
+import {  downloadModel, transcribe } from "@remotion/whisper-wasm"
+import { useEffect, useState } from "react";
+
+
+
+export default function Home() {
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [transcriptionProgress, setTranscriptionProgress] = useState(0);
+  const [text, setText] = useState("");
+
+  useEffect(()=>{
+    downloadModel({model:'tiny.en', onProgress: downloadProgress});
+  },[]);
+
+  const onTranscribeChunk = (start:string, end:string, text:string) => {
+    // do something
+  }
+
+  return (
+     <div>
+    
+            <input type="file" accept=".wav" onChange={(e)=>{
+            transcribe({file: e.target.files[0], onProgress: transcriptionProgress, onTranscribeChunk, threads: 12})
+                 .then(result => setText(result));
+
+   
+            }} />
+            
+      <progress value={transcriptionProgress} max={100} />
+      </div>
+  );
+}
+
+```
+
+## Functions
+
+<TableOfContents />
+
+## License
+
+MIT

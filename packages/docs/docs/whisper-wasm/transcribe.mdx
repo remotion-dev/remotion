@@ -1,0 +1,65 @@
+---
+title: transcribe()
+crumb: '@remotion/whisper-wasm'
+---
+
+# transcribe()
+
+Transcribes a media file by utilizing Whisper.cpp.  
+
+```tsx title="app.tsx"
+import { useState } from "react";
+import {transcribe} from '@remotion/whisper-wasm';
+
+export default function MyApp(){
+  const [text, setText] = useState("");
+
+
+  return(
+         <input type="file" accept=".wav" onChange={(e)=>{
+              transcribe({file: e.target.files[0]})
+              .then(result => setText(result));
+            }} />
+  )
+}
+```
+
+## Arguments
+
+### `file`
+
+The audio file you want extract text from. The file has to be a 16KHz wav file. 
+
+
+
+### `onProgress?`
+
+Act upon transcription progress. This is the function signature:
+
+```tsx twoslash
+
+const onProgress = (progress: number) => {
+  // do something
+};
+```
+
+### `onTranscribeChunk?`
+
+Called when a new chunk of text has been extracted from the file. This is the function signature:
+
+```tsx twoslash
+
+  const onTranscribeChunk = (start:string, end:string, text:string) => {
+    console.log(`transcribed ${text} for the time ${start} to ${end} `)
+  }
+```
+
+### `threads?`
+The number of threads to use for transcription, set to `8` by default.
+
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/helpers.ts)
+- [`@remotion/whisper-wasm`](/docs/whisper-wasm)
+- [`downloadWhisperModel()`](/docs/whisper-wasm/download-whisper-model)
