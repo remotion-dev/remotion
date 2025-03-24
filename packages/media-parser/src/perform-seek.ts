@@ -10,7 +10,9 @@ export const performSeek = async ({
 	seekTo: number;
 	state: ParserState;
 }): Promise<void> => {
-	const {iterator, logLevel, mode, contentLength} = state;
+	const {iterator, logLevel, mode, contentLength, seekInfiniteLoop} = state;
+
+	seekInfiniteLoop(seekTo);
 
 	if (seekTo <= iterator.counter.getOffset() && mode === 'download') {
 		throw new Error(
