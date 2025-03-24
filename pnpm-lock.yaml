@@ -689,6 +689,9 @@ importers:
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
+      '@remotion/whisper-wasm':
+        specifier: workspace:^
+        version: link:../whisper-wasm
       '@rive-app/canvas-advanced':
         specifier: 2.3.0
         version: 2.3.0
@@ -3369,6 +3372,16 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
 
+  packages/whisper-wasm:
+    dependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:^
+        version: link:../eslint-config-internal
+    devDependencies:
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+
   packages/zod-types:
     dependencies:
       remotion:
@@ -4592,7 +4605,7 @@ packages:
       '@babel/traverse': 7.25.6
       '@babel/types': 7.24.0
       convert-source-map: 2.0.0
-      debug: 4.3.6
+      debug: 4.4.0
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1

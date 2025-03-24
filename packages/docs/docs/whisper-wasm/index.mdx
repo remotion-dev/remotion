@@ -17,7 +17,7 @@ import {TableOfContents} from './whisper-wasm';
 
 ```tsx title="app.tsx"
 
-import {  downloadModel, transcribe } from "@remotion/whisper-wasm"
+import {  downloadWhisperModel, transcribe } from "@remotion/whisper-wasm"
 import { useEffect, useState } from "react";
 
 
@@ -28,7 +28,7 @@ export default function Home() {
   const [text, setText] = useState("");
 
   useEffect(()=>{
-    downloadModel({model:'tiny.en', onProgress: downloadProgress});
+    downloadWhisperModel({model:'tiny.en', onProgress: downloadProgress});
   },[]);
 
   const onTranscribeChunk = (start:string, end:string, text:string) => {
