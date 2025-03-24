@@ -12,6 +12,7 @@ export type VisualizeAudioWaveformOptions = {
 	numberOfSamples: number;
 	channel?: number;
 	dataOffsetInSeconds?: number;
+	normalize?: boolean;
 };
 
 const visualizeAudioWaveformFrame = ({
@@ -22,6 +23,7 @@ const visualizeAudioWaveformFrame = ({
 	windowInSeconds,
 	channel,
 	dataOffsetInSeconds,
+	normalize = false,
 }: VisualizeAudioWaveformOptions) => {
 	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(
@@ -55,6 +57,7 @@ const visualizeAudioWaveformFrame = ({
 		outputRange: 'minus-one-to-one',
 		channel,
 		dataOffsetInSeconds,
+		normalize,
 	});
 };
 

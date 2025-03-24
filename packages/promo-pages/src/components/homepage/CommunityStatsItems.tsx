@@ -66,7 +66,7 @@ export const InstallsPerMonth: React.FC = () => {
 				}}
 			>
 				<StatItemContent
-					content="180k"
+					content="230k"
 					width="100px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -213,7 +213,7 @@ export const DiscordMembers: React.FC = () => {
 					}}
 				>
 					<StatItemContent
-						content="4000"
+						content="5000"
 						width="142px"
 						fontSize="2.5rem"
 						fontWeight="bold"

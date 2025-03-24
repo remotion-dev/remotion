@@ -179,7 +179,7 @@ const VideoAppsShowcase: React.FC = () => {
 						key={tab}
 						type="button"
 						data-active={index === activeTab}
-						className={`bg-transparent border-none mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
+						className={`bg-transparent border-none lg:mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
 						onClick={() => setActiveTab(index)}
 					>
 						{tab}

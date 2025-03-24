@@ -56,7 +56,6 @@ export const calculateAssetPositions = (
 					trimLeft: asset.mediaFrame,
 					volume: [],
 					playbackRate: asset.playbackRate,
-					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 					toneFrequency: asset.toneFrequency,
 					audioStartFrame: asset.audioStartFrame,
 				});

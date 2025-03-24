@@ -200,13 +200,13 @@ declare global {
 		readonly setShouldOpenBrowser: (should: boolean) => void;
 		/**
 		 * Set the log level.
-		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose'
+		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose' | 'trace'
 		 * Default value: 'info'
 		 *
 		 * Set this to 'verbose' to get browser logs and other IO.
 		 */
 		readonly setLevel: (
-			newLogLevel: 'verbose' | 'info' | 'warn' | 'error',
+			newLogLevel: 'trace' | 'verbose' | 'info' | 'warn' | 'error',
 		) => void;
 		/**
 		 * Specify executable path for the browser to use.

@@ -87,6 +87,7 @@ const config = (mode) => ({
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
 						{to: 'about', label: 'About us'},
+						{to: '/docs/investors', label: 'Investors'},
 						{to: 'contact', label: 'Contact us'},
 					],
 				},

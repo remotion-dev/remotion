@@ -100,8 +100,7 @@ export const bufferManager = ({
 		uintArray = new Uint8Array(buf);
 		uintArray.set(newData);
 		view = new DataView(uintArray.buffer);
-		// no more dicarded bytes
-		counter.setDiscardedOffset(0);
+		counter.setDiscardedOffset(seekTo);
 		// reset counter to 0
 		counter.decrement(counter.getOffset());
 		// seek to the new position

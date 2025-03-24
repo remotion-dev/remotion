@@ -17,6 +17,9 @@ export type RemotionAudioProps = Omit<
 	volume?: VolumeProp;
 	playbackRate?: number;
 	acceptableTimeShiftInSeconds?: number;
+	/**
+	 * @deprecated Amplification is now always enabled. To prevent amplification, set `volume` to a value less than 1.
+	 */
 	allowAmplificationDuringRender?: boolean;
 	_remotionInternalNeedsDurationCalculation?: boolean;
 	_remotionInternalNativeLoopPassed?: boolean;

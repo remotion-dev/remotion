@@ -93,7 +93,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
-		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {
@@ -121,7 +120,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
-			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
@@ -137,7 +135,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
-		allowAmplificationDuringRender,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
 	]);

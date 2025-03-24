@@ -4,7 +4,7 @@ import {convertToCaptions} from '../convert-to-captions';
 import {toCaptions} from '../to-captions';
 import {examplePayload} from './example-payload';
 
-test('Convert to captions - 200ms together', () => {
+test('Convert to captions - 200ms together', async () => {
 	const {captions} = toCaptions({
 		whisperCppOutput: examplePayload,
 	});
@@ -18,11 +18,13 @@ test('Convert to captions - 200ms together', () => {
 			text: 'William',
 			startMs: 40,
 			tokens: [{text: 'William', fromMs: 40, toMs: 420}],
+			durationMs: 380,
 		},
 		{
 			text: 'just',
 			startMs: 420,
 			tokens: [{text: 'just', fromMs: 420, toMs: 650}],
+			durationMs: 230,
 		},
 		{
 			text: 'hit 100,000',
@@ -33,16 +35,19 @@ test('Convert to captions - 200ms together', () => {
 				{text: ',', fromMs: 1330, toMs: 1440},
 				{text: '000', fromMs: 1440, toMs: 1950},
 			],
+			durationMs: 1300,
 		},
 		{
 			text: 'YouTube',
 			startMs: 1950,
 			tokens: [{text: 'YouTube', fromMs: 1950, toMs: 2370}],
+			durationMs: 420,
 		},
 		{
 			text: 'subscribers',
 			startMs: 2370,
 			tokens: [{text: 'subscribers', fromMs: 2370, toMs: 3060}],
+			durationMs: 690,
 		},
 		{
 			text: 'And we',
@@ -51,6 +56,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'And', fromMs: 3060, toMs: 3190},
 				{text: ' we', fromMs: 3190, toMs: 3280},
 			],
+			durationMs: 220,
 		},
 		{
 			text: 'are going',
@@ -59,6 +65,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'are', fromMs: 3280, toMs: 3410},
 				{text: ' going', fromMs: 3410, toMs: 3630},
 			],
+			durationMs: 350,
 		},
 		{
 			text: 'to celebrate',
@@ -67,11 +74,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'to', fromMs: 3630, toMs: 3710},
 				{text: ' celebrate', fromMs: 3710, toMs: 4130},
 			],
+			durationMs: 500,
 		},
 		{
 			text: 'that',
 			startMs: 4130,
 			tokens: [{text: 'that', fromMs: 4130, toMs: 4340}],
+			durationMs: 210,
 		},
 		{
 			text: 'We thought',
@@ -80,11 +89,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'We', fromMs: 4340, toMs: 4500},
 				{text: ' thought', fromMs: 4500, toMs: 5140},
 			],
+			durationMs: 800,
 		},
 		{
 			text: 'about',
 			startMs: 5140,
 			tokens: [{text: 'about', fromMs: 5140, toMs: 5480}],
+			durationMs: 340,
 		},
 		{
 			text: 'to bake',
@@ -93,6 +104,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'to', fromMs: 5480, toMs: 5660},
 				{text: ' bake', fromMs: 5660, toMs: 5980},
 			],
+			durationMs: 500,
 		},
 		{
 			text: 'a cake',
@@ -101,6 +113,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'a', fromMs: 5980, toMs: 6080},
 				{text: ' cake', fromMs: 6080, toMs: 6400},
 			],
+			durationMs: 420,
 		},
 		{
 			text: 'We found',
@@ -109,11 +122,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'We', fromMs: 6400, toMs: 6540},
 				{text: ' found', fromMs: 6540, toMs: 6900},
 			],
+			durationMs: 500,
 		},
 		{
 			text: 'this',
 			startMs: 6900,
 			tokens: [{text: 'this', fromMs: 6900, toMs: 7200}],
+			durationMs: 300,
 		},
 		{
 			text: 'and it',
@@ -122,11 +137,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'and', fromMs: 7200, toMs: 7390},
 				{text: ' it', fromMs: 7390, toMs: 7510},
 			],
+			durationMs: 310,
 		},
 		{
 			text: 'reminded',
 			startMs: 7510,
 			tokens: [{text: 'reminded', fromMs: 7510, toMs: 8030}],
+			durationMs: 520,
 		},
 		{
 			text: 'us of',
@@ -135,11 +152,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'us', fromMs: 8030, toMs: 8170},
 				{text: ' of', fromMs: 8170, toMs: 8260},
 			],
+			durationMs: 230,
 		},
 		{
 			text: 'William',
 			startMs: 8260,
 			tokens: [{text: 'William', fromMs: 8260, toMs: 8740}],
+			durationMs: 480,
 		},
 		{
 			text: 'We hope',
@@ -148,6 +167,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'We', fromMs: 8740, toMs: 8850},
 				{text: ' hope', fromMs: 8850, toMs: 9080},
 			],
+			durationMs: 340,
 		},
 		{
 			text: 'he will',
@@ -156,11 +176,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'he', fromMs: 9080, toMs: 9190},
 				{text: ' will', fromMs: 9190, toMs: 9420},
 			],
+			durationMs: 340,
 		},
 		{
 			text: 'like',
 			startMs: 9420,
 			tokens: [{text: 'like', fromMs: 9420, toMs: 9650}],
+			durationMs: 230,
 		},
 		{
 			text: 'the cake',
@@ -169,6 +191,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'the', fromMs: 9650, toMs: 9820},
 				{text: ' cake', fromMs: 9820, toMs: 10100},
 			],
+			durationMs: 450,
 		},
 		{
 			text: "Let's start",
@@ -178,6 +201,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: "'s", fromMs: 10220, toMs: 10300},
 				{text: ' start', fromMs: 10300, toMs: 10570},
 			],
+			durationMs: 470,
 		},
 		{
 			text: 'with the',
@@ -186,11 +210,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'with', fromMs: 10570, toMs: 10700},
 				{text: ' the', fromMs: 10700, toMs: 10780},
 			],
+			durationMs: 210,
 		},
 		{
 			text: 'dough',
 			startMs: 10780,
 			tokens: [{text: 'dough', fromMs: 10780, toMs: 11000}],
+			durationMs: 220,
 		},
 		{
 			text: 'By putting',
@@ -199,31 +225,37 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'By', fromMs: 11000, toMs: 11120},
 				{text: ' putting', fromMs: 11120, toMs: 11550},
 			],
+			durationMs: 550,
 		},
 		{
 			text: 'some',
 			startMs: 11550,
 			tokens: [{text: 'some', fromMs: 11550, toMs: 11790}],
+			durationMs: 240,
 		},
 		{
 			text: 'butter',
 			startMs: 11790,
 			tokens: [{text: 'butter', fromMs: 11790, toMs: 12180}],
+			durationMs: 390,
 		},
 		{
 			text: 'Some',
 			startMs: 12180,
 			tokens: [{text: 'Some', fromMs: 12180, toMs: 12750}],
+			durationMs: 570,
 		},
 		{
 			text: 'sugar',
 			startMs: 12750,
 			tokens: [{text: 'sugar', fromMs: 12750, toMs: 13380}],
+			durationMs: 630,
 		},
 		{
 			text: 'Eggs',
 			startMs: 13380,
 			tokens: [{text: 'Eggs', fromMs: 13380, toMs: 14580}],
+			durationMs: 1200,
 		},
 		{
 			text: 'No frameworks,',
@@ -233,16 +265,19 @@ test('Convert to captions - 200ms together', () => {
 				{text: ' frameworks', fromMs: 14720, toMs: 15440},
 				{text: ',', fromMs: 15440, toMs: 15550},
 			],
+			durationMs: 970,
 		},
 		{
 			text: 'just',
 			startMs: 15550,
 			tokens: [{text: 'just', fromMs: 15550, toMs: 15790}],
+			durationMs: 240,
 		},
 		{
 			text: 'vanilla',
 			startMs: 15790,
 			tokens: [{text: 'vanilla', fromMs: 15790, toMs: 16220}],
+			durationMs: 430,
 		},
 		{
 			text: 'Pinch',
@@ -251,6 +286,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'P', fromMs: 16220, toMs: 16300},
 				{text: 'inch', fromMs: 16300, toMs: 16640},
 			],
+			durationMs: 420,
 		},
 		{
 			text: 'of salt',
@@ -259,11 +295,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'of', fromMs: 16640, toMs: 16810},
 				{text: ' salt', fromMs: 16810, toMs: 17180},
 			],
+			durationMs: 540,
 		},
 		{
 			text: 'Some',
 			startMs: 17180,
 			tokens: [{text: 'Some', fromMs: 17180, toMs: 17480}],
+			durationMs: 300,
 		},
 		{
 			text: 'Nutella',
@@ -272,16 +310,19 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'Nut', fromMs: 17480, toMs: 17700},
 				{text: 'ella', fromMs: 17700, toMs: 18020},
 			],
+			durationMs: 540,
 		},
 		{
 			text: 'Some',
 			startMs: 18020,
 			tokens: [{text: 'Some', fromMs: 18020, toMs: 18280}],
+			durationMs: 260,
 		},
 		{
 			text: 'chocolate',
 			startMs: 18280,
 			tokens: [{text: 'chocolate', fromMs: 18280, toMs: 18880}],
+			durationMs: 600,
 		},
 		{
 			text: 'Baking',
@@ -290,31 +331,37 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'B', fromMs: 18880, toMs: 18980},
 				{text: 'aking', fromMs: 18980, toMs: 19420},
 			],
+			durationMs: 540,
 		},
 		{
 			text: 'powder',
 			startMs: 19420,
 			tokens: [{text: 'powder', fromMs: 19420, toMs: 19980}],
+			durationMs: 560,
 		},
 		{
 			text: 'And',
 			startMs: 19980,
 			tokens: [{text: 'And', fromMs: 19980, toMs: 20500}],
+			durationMs: 520,
 		},
 		{
 			text: 'flour',
 			startMs: 20500,
 			tokens: [{text: 'flour', fromMs: 20500, toMs: 21380}],
+			durationMs: 880,
 		},
 		{
 			text: 'Just',
 			startMs: 21380,
 			tokens: [{text: 'Just', fromMs: 21380, toMs: 21690}],
+			durationMs: 310,
 		},
 		{
 			text: 'massage',
 			startMs: 21690,
 			tokens: [{text: 'massage', fromMs: 21690, toMs: 22120}],
+			durationMs: 430,
 		},
 		{
 			text: 'in the',
@@ -323,11 +370,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'in', fromMs: 22120, toMs: 22250},
 				{text: ' the', fromMs: 22250, toMs: 22450},
 			],
+			durationMs: 330,
 		},
 		{
 			text: 'butter',
 			startMs: 22450,
 			tokens: [{text: 'butter', fromMs: 22450, toMs: 22880}],
+			durationMs: 430,
 		},
 		{
 			text: 'to give',
@@ -336,6 +385,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'to', fromMs: 22880, toMs: 23000},
 				{text: ' give', fromMs: 23000, toMs: 23250},
 			],
+			durationMs: 370,
 		},
 		{
 			text: 'it the',
@@ -344,21 +394,25 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'it', fromMs: 23250, toMs: 23380},
 				{text: ' the', fromMs: 23380, toMs: 23590},
 			],
+			durationMs: 340,
 		},
 		{
 			text: 'full',
 			startMs: 23590,
 			tokens: [{text: 'full', fromMs: 23590, toMs: 23890}],
+			durationMs: 300,
 		},
 		{
 			text: 'treatment',
 			startMs: 23890,
 			tokens: [{text: 'treatment', fromMs: 23890, toMs: 24380}],
+			durationMs: 490,
 		},
 		{
 			text: 'Fill',
 			startMs: 24380,
 			tokens: [{text: 'Fill', fromMs: 24380, toMs: 24740}],
+			durationMs: 360,
 		},
 		{
 			text: 'it in',
@@ -367,11 +421,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'it', fromMs: 24740, toMs: 24920},
 				{text: ' in', fromMs: 24920, toMs: 25120},
 			],
+			durationMs: 380,
 		},
 		{
 			text: 'Bake',
 			startMs: 25120,
 			tokens: [{text: 'Bake', fromMs: 25120, toMs: 25570}],
+			durationMs: 450,
 		},
 		{
 			text: 'it for',
@@ -380,21 +436,25 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'it', fromMs: 25570, toMs: 25770},
 				{text: ' for', fromMs: 25770, toMs: 26060},
 			],
+			durationMs: 490,
 		},
 		{
 			text: 'half',
 			startMs: 26060,
 			tokens: [{text: 'half', fromMs: 26060, toMs: 26480}],
+			durationMs: 420,
 		},
 		{
 			text: 'an',
 			startMs: 26480,
 			tokens: [{text: 'an', fromMs: 26480, toMs: 26690}],
+			durationMs: 210,
 		},
 		{
 			text: 'hour',
 			startMs: 26690,
 			tokens: [{text: 'hour', fromMs: 26690, toMs: 27110}],
+			durationMs: 420,
 		},
 		{
 			text: 'at 170',
@@ -403,11 +463,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'at', fromMs: 27110, toMs: 27300},
 				{text: ' 170', fromMs: 27300, toMs: 28170},
 			],
+			durationMs: 1060,
 		},
 		{
 			text: 'degrees',
 			startMs: 28170,
 			tokens: [{text: 'degrees', fromMs: 28170, toMs: 28800}],
+			durationMs: 680,
 		},
 		{
 			text: "It's time",
@@ -417,6 +479,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: "'s", fromMs: 28900, toMs: 29000},
 				{text: ' time', fromMs: 29000, toMs: 29210},
 			],
+			durationMs: 360,
 		},
 		{
 			text: 'for the',
@@ -425,11 +488,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'for', fromMs: 29210, toMs: 29400},
 				{text: ' the', fromMs: 29400, toMs: 29530},
 			],
+			durationMs: 320,
 		},
 		{
 			text: 'icing',
 			startMs: 29530,
 			tokens: [{text: 'icing', fromMs: 29530, toMs: 29800}],
+			durationMs: 270,
 		},
 		{
 			text: 'on the',
@@ -438,76 +503,91 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'on', fromMs: 29800, toMs: 29900},
 				{text: ' the', fromMs: 29900, toMs: 30060},
 			],
+			durationMs: 260,
 		},
 		{
 			text: 'cake',
 			startMs: 30060,
 			tokens: [{text: 'cake', fromMs: 30060, toMs: 30320}],
+			durationMs: 260,
 		},
 		{
 			text: 'Time',
 			startMs: 30320,
 			tokens: [{text: 'Time', fromMs: 30320, toMs: 30940}],
+			durationMs: 620,
 		},
 		{
 			text: 'for',
 			startMs: 30940,
 			tokens: [{text: 'for', fromMs: 30940, toMs: 31410}],
+			durationMs: 470,
 		},
 		{
 			text: 'the',
 			startMs: 31410,
 			tokens: [{text: 'the', fromMs: 31410, toMs: 31880}],
+			durationMs: 470,
 		},
 		{
 			text: 'most',
 			startMs: 31880,
 			tokens: [{text: 'most', fromMs: 31880, toMs: 32500}],
+			durationMs: 620,
 		},
 		{
 			text: 'critical',
 			startMs: 32500,
 			tokens: [{text: 'critical', fromMs: 32500, toMs: 33750}],
+			durationMs: 1250,
 		},
 		{
 			text: 'part',
 			startMs: 33750,
 			tokens: [{text: 'part', fromMs: 33750, toMs: 34400}],
+			durationMs: 650,
 		},
 		{
 			text: 'This',
 			startMs: 34400,
 			tokens: [{text: 'This', fromMs: 34400, toMs: 35840}],
+			durationMs: 1440,
 		},
 		{
 			text: 'is',
 			startMs: 35840,
 			tokens: [{text: 'is', fromMs: 35840, toMs: 36580}],
+			durationMs: 740,
 		},
 		{
 			text: 'how',
 			startMs: 36580,
 			tokens: [{text: 'how', fromMs: 36580, toMs: 37670}],
+			durationMs: 1090,
 		},
 		{
 			text: 'it',
 			startMs: 37670,
 			tokens: [{text: 'it', fromMs: 37670, toMs: 38420}],
+			durationMs: 750,
 		},
 		{
 			text: 'turned',
 			startMs: 38420,
 			tokens: [{text: 'turned', fromMs: 38420, toMs: 40580}],
+			durationMs: 2160,
 		},
 		{
 			text: 'out',
 			startMs: 40580,
 			tokens: [{text: 'out', fromMs: 40580, toMs: 41700}],
+			durationMs: 1120,
 		},
 		{
 			text: 'Stupid',
 			startMs: 41700,
 			tokens: [{text: 'Stupid', fromMs: 41700, toMs: 42750}],
+			durationMs: 1050,
 		},
 		{
 			text: 'idea,',
@@ -516,21 +596,25 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'idea', fromMs: 42750, toMs: 43440},
 				{text: ',', fromMs: 43440, toMs: 43590},
 			],
+			durationMs: 840,
 		},
 		{
 			text: 'pretty',
 			startMs: 43590,
 			tokens: [{text: 'pretty', fromMs: 43590, toMs: 44070}],
+			durationMs: 480,
 		},
 		{
 			text: 'bad',
 			startMs: 44070,
 			tokens: [{text: 'bad', fromMs: 44070, toMs: 44310}],
+			durationMs: 240,
 		},
 		{
 			text: 'execution',
 			startMs: 44310,
 			tokens: [{text: 'execution', fromMs: 44310, toMs: 45040}],
+			durationMs: 730,
 		},
 		{
 			text: 'I hope',
@@ -539,6 +623,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'I', fromMs: 45040, toMs: 45140},
 				{text: ' hope', fromMs: 45140, toMs: 45530},
 			],
+			durationMs: 490,
 		},
 		{
 			text: 'he likes',
@@ -547,6 +632,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'he', fromMs: 45530, toMs: 45730},
 				{text: ' likes', fromMs: 45730, toMs: 46220},
 			],
+			durationMs: 690,
 		},
 		{
 			text: 'it anyway',
@@ -555,16 +641,19 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'it', fromMs: 46220, toMs: 46420},
 				{text: ' anyway', fromMs: 46420, toMs: 47040},
 			],
+			durationMs: 820,
 		},
 		{
 			text: 'Hey',
 			startMs: 47040,
 			tokens: [{text: 'Hey', fromMs: 47040, toMs: 48030}],
+			durationMs: 990,
 		},
 		{
 			text: 'William',
 			startMs: 48030,
 			tokens: [{text: 'William', fromMs: 48030, toMs: 50340}],
+			durationMs: 2310,
 		},
 		{
 			text: 'Congrats',
@@ -573,16 +662,19 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'Cong', fromMs: 50340, toMs: 51970},
 				{text: 'rats', fromMs: 51970, toMs: 53580},
 			],
+			durationMs: 3240,
 		},
 		{
 			text: 'We',
 			startMs: 53580,
 			tokens: [{text: 'We', fromMs: 53580, toMs: 53790}],
+			durationMs: 210,
 		},
 		{
 			text: 'wanted',
 			startMs: 53790,
 			tokens: [{text: 'wanted', fromMs: 53790, toMs: 54440}],
+			durationMs: 650,
 		},
 		{
 			text: 'to congratulate',
@@ -591,21 +683,25 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'to', fromMs: 54440, toMs: 54640},
 				{text: ' congratulate', fromMs: 54640, toMs: 55930},
 			],
+			durationMs: 1490,
 		},
 		{
 			text: 'you',
 			startMs: 55930,
 			tokens: [{text: 'you', fromMs: 55930, toMs: 56280}],
+			durationMs: 350,
 		},
 		{
 			text: 'on',
 			startMs: 56280,
 			tokens: [{text: 'on', fromMs: 56280, toMs: 56520}],
+			durationMs: 240,
 		},
 		{
 			text: 'the',
 			startMs: 56520,
 			tokens: [{text: 'the', fromMs: 56520, toMs: 56880}],
+			durationMs: 360,
 		},
 		{
 			text: '100,000',
@@ -615,6 +711,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: ',', fromMs: 57980, toMs: 58010},
 				{text: '000', fromMs: 58010, toMs: 58180},
 			],
+			durationMs: 1810,
 		},
 		{
 			text: 'You hear',
@@ -623,11 +720,13 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'You', fromMs: 58690, toMs: 58870},
 				{text: ' hear', fromMs: 58870, toMs: 59150},
 			],
+			durationMs: 460,
 		},
 		{
 			text: 'Joseph',
 			startMs: 59150,
 			tokens: [{text: 'Joseph', fromMs: 59150, toMs: 59570}],
+			durationMs: 420,
 		},
 		{
 			text: 'crying?',
@@ -636,26 +735,31 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'crying', fromMs: 59570, toMs: 59990},
 				{text: '?', fromMs: 59990, toMs: 60220},
 			],
+			durationMs: 650,
 		},
 		{
 			text: 'Thank',
 			startMs: 60220,
 			tokens: [{text: 'Thank', fromMs: 60220, toMs: 60820}],
+			durationMs: 600,
 		},
 		{
 			text: 'you',
 			startMs: 60820,
 			tokens: [{text: 'you', fromMs: 60820, toMs: 61180}],
+			durationMs: 360,
 		},
 		{
 			text: 'so',
 			startMs: 61180,
 			tokens: [{text: 'so', fromMs: 61180, toMs: 61420}],
+			durationMs: 240,
 		},
 		{
 			text: 'much',
 			startMs: 61420,
 			tokens: [{text: 'much', fromMs: 61420, toMs: 61920}],
+			durationMs: 500,
 		},
 		{
 			text: '(electronic',
@@ -665,6 +769,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'elect', fromMs: 62080, toMs: 62880},
 				{text: 'ronic', fromMs: 62880, toMs: 63680},
 			],
+			durationMs: 1760,
 		},
 		{
 			text: 'beeping)',
@@ -674,6 +779,7 @@ test('Convert to captions - 200ms together', () => {
 				{text: 'eping', fromMs: 63890, toMs: 64800},
 				{text: ')', fromMs: 64800, toMs: 65000},
 			],
+			durationMs: 1320,
 		},
 	]);
 });

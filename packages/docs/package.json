@@ -3,12 +3,12 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.278",
+	"version": "4.0.279",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
 		"docusaurus": "docusaurus",
-		"start": "docusaurus start --host 0.0.0.0",
+		"start": "cd .. && bun run build && cd docs && docusaurus start --host 0.0.0.0",
 		"start-docs": "docusaurus start",
 		"build-docs": "DOCUSAURUS_IGNORE_SSG_WARNINGS=true node --max_old_space_size=16000 node_modules/@docusaurus/core/bin/docusaurus.mjs build && bun copy-convert.ts && bun count-pages.ts",
 		"make": "bun update-prompt.ts",
@@ -86,7 +86,7 @@
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
-		"next": "15.1.6",
+		"next": "15.2.3",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remark-shiki-twoslash": "^3.1.3",

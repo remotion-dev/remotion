@@ -8,7 +8,6 @@ test('Simple expression', () => {
 			volume: 0.5,
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'once',
@@ -22,7 +21,6 @@ test('Simple expression with volume multiplier', () => {
 			volume: 0.5,
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'once',
@@ -36,7 +34,6 @@ test('Complex expression with volume multiplier', () => {
 			volume: [0, 1],
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -50,7 +47,6 @@ test('Should respect trimLeft multiplier', () => {
 			volume: [0, 1],
 			fps: 30,
 			trimLeft: 0.5,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -67,7 +63,6 @@ test('Really complex volume expression', () => {
 			volume: [0, 0.25, 0.5, 0.99, 0.99, 0.99, 0.99, 1, 1, 1, 1, 1],
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -80,7 +75,6 @@ test('Should use 0 as else statement', () => {
 		ffmpegVolumeExpression({
 			volume: [0, 0, 0, 1, 1],
 			fps: 30,
-			allowAmplificationDuringRender: false,
 			trimLeft: 0,
 		}),
 	).toEqual({
@@ -89,17 +83,16 @@ test('Should use 0 as else statement', () => {
 	});
 });
 
-test('Simple expression - should not be higher than 1', () => {
+test('Simple expression - should not clamp to 1', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: 2,
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'once',
-		value: '1',
+		value: '2',
 	});
 });
 
@@ -109,7 +102,6 @@ test('Complex expression - should  be higher than 1 if allowed', () => {
 			volume: [0.5, 2],
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: true,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -123,7 +115,6 @@ test('Should simplify an expression', () => {
 			volume: [0, 1, 1, 1, 0, 1],
 			fps: 30,
 			trimLeft: 0,
-			allowAmplificationDuringRender: false,
 		}),
 	).toEqual({
 		eval: 'frame',
@@ -142,7 +133,6 @@ test('Should stay under half 8000 windows character limit', () => {
 		}),
 		fps: 30,
 		trimLeft: 0,
-		allowAmplificationDuringRender: false,
 	});
 
 	expect(expression.value.length).toBeLessThan(4000);
@@ -157,7 +147,6 @@ test('Last volume should be default case', () => {
 		}),
 		fps: 30,
 		trimLeft: 0,
-		allowAmplificationDuringRender: false,
 	});
 	expect(expression).toEqual({
 		eval: 'frame',

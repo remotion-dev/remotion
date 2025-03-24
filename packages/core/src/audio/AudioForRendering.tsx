@@ -75,7 +75,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		frame: volumePropFrame,
 		mediaVolume: 1,
-		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useImperativeHandle(ref, () => {
@@ -107,7 +106,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
-			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
@@ -124,7 +122,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame,
 		playbackRate,
 		props.playbackRate,
-		allowAmplificationDuringRender,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
 	]);

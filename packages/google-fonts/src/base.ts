@@ -11,6 +11,21 @@ export type FontInfo = {
 	fonts: Record<string, Record<string, Record<string, string>>>;
 };
 
+const loadFontFaceOrTimeoutAfter20Seconds = (fontFace: FontFace) => {
+	const timeout = Promise.withResolvers();
+
+	const int = setTimeout(() => {
+		timeout.reject(new Error('Timed out loading Google Font'));
+	}, 18_000);
+
+	return Promise.race([
+		fontFace.load().then(() => {
+			clearTimeout(int);
+		}),
+		timeout.promise,
+	]);
+};
+
 /**
  * @description Load a Google Font for use in Remotion.
  * @param meta
@@ -98,8 +113,12 @@ export const loadFonts = (
 
 				const tryToLoad = () => {
 					//  Load font-face
-					const promise = fontFace
-						.load()
+					if (fontFace.status === 'loaded') {
+						continueRender(handle);
+						return;
+					}
+
+					const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
 						.then(() => {
 							(options?.document ?? document).fonts.add(fontFace);
 							continueRender(handle);

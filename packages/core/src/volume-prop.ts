@@ -4,16 +4,13 @@ export const evaluateVolume = ({
 	frame,
 	volume,
 	mediaVolume = 1,
-	allowAmplificationDuringRender,
 }: {
 	frame: number;
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	allowAmplificationDuringRender: boolean;
 }): number => {
-	const maxVolume = allowAmplificationDuringRender ? Infinity : 1;
 	if (typeof volume === 'number') {
-		return Math.min(maxVolume, volume * mediaVolume);
+		return volume * mediaVolume;
 	}
 
 	if (typeof volume === 'undefined') {
@@ -39,5 +36,5 @@ export const evaluateVolume = ({
 		);
 	}
 
-	return Math.max(0, Math.min(maxVolume, evaluated));
+	return Math.max(0, evaluated);
 };
