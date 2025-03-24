@@ -1,5 +1,6 @@
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
+import type {Seek} from './seek-signal';
 import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
 import {deserializeError} from './worker/serialize-error';
 import type {
@@ -131,6 +132,11 @@ export const parseMediaOnWorkerImplementation = async <
 
 	const onPause = () => {
 		post(worker, {type: 'request-pause'});
+	};
+
+	const onSeek = ({detail: {seek}}: {detail: {seek: Seek}}) => {
+		post(worker, {type: 'request-seek', payload: seek});
+		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
 	};
 
 	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
@@ -379,15 +385,19 @@ export const parseMediaOnWorkerImplementation = async <
 	controller?.addEventListener('abort', onAbort);
 	controller?.addEventListener('resume', onResume);
 	controller?.addEventListener('pause', onPause);
+	controller?.addEventListener('seek', onSeek);
 
 	function cleanup() {
 		worker.removeEventListener('message', onMessage);
 		controller?.removeEventListener('abort', onAbort);
 		controller?.removeEventListener('resume', onResume);
 		controller?.removeEventListener('pause', onPause);
+		controller?.removeEventListener('seek', onSeek);
 
 		worker.terminate();
 	}
+
+	controller?._internals.markAsReadyToEmitEvents();
 
 	const val = await promise;
 

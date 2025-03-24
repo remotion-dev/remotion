@@ -21,6 +21,7 @@ import type {
 	SerializeableOptionalParseMediaParams,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
+import type {Seek} from '../seek-signal';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
@@ -72,6 +73,11 @@ export type ParseMediaOnWorkerPayload = {
 
 type RequestPause = {
 	type: 'request-pause';
+};
+
+type RequestSeek = {
+	type: 'request-seek';
+	payload: Seek;
 };
 
 type RequestResume = {
@@ -331,6 +337,7 @@ export type WorkerRequestPayload =
 	| RequestResume
 	| RequestPause
 	| RequestAbort
+	| RequestSeek
 	| AcknowledgeCallback
 	| SignalErrorInCallback;
 

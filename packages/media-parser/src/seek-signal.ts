@@ -1,3 +1,5 @@
+import type {MediaParserEmitter} from './emitter';
+
 export type SeekSignal = {
 	seek: (seek: Seek) => void;
 	getSeek: () => Seek | undefined;
@@ -20,16 +22,17 @@ type ForceSeekToByte = {
 
 export type Seek = SeekToTime | SeekToByte | ForceSeekToByte;
 
-export const makeSeekSignal = (): SeekSignal => {
+export const makeSeekSignal = (emitter: MediaParserEmitter): SeekSignal => {
 	let seek: Seek | undefined;
 
 	return {
-		seek: (time) => {
+		seek: (seekRequest) => {
 			if (seek) {
 				throw new Error('Seek already requested, must wait');
 			}
 
-			seek = time;
+			seek = seekRequest;
+			emitter.dispatchSeek(seekRequest);
 		},
 		getSeek() {
 			return seek;

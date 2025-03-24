@@ -1,7 +1,10 @@
+import type {Seek} from './seek-signal';
+
 type MediaParserEventMap = {
 	pause: undefined;
 	resume: undefined;
 	abort: {reason?: unknown};
+	seek: {seek: Seek};
 };
 
 export type MediaParserEventTypes = keyof MediaParserEventMap;
@@ -19,6 +22,20 @@ export class MediaParserEmitter {
 		pause: [],
 		resume: [],
 		abort: [],
+		seek: [],
+	};
+
+	readyPromise: Promise<void>;
+	#markAsReady: () => void;
+
+	constructor() {
+		const {promise, resolve} = Promise.withResolvers<void>();
+		this.readyPromise = promise;
+		this.#markAsReady = resolve;
+	}
+
+	markAsReady = () => {
+		this.#markAsReady();
 	};
 
 	addEventListener = <Q extends MediaParserEventTypes>(
@@ -49,14 +66,26 @@ export class MediaParserEmitter {
 	}
 
 	dispatchPause = () => {
-		this.dispatchEvent('pause', undefined);
+		this.readyPromise = this.readyPromise.then(() => {
+			this.dispatchEvent('pause', undefined);
+		});
 	};
 
 	dispatchResume = () => {
-		this.dispatchEvent('resume', undefined);
+		this.readyPromise = this.readyPromise.then(() => {
+			this.dispatchEvent('resume', undefined);
+		});
 	};
 
 	dispatchAbort = (reason?: unknown) => {
-		this.dispatchEvent('abort', {reason});
+		this.readyPromise = this.readyPromise.then(() => {
+			this.dispatchEvent('abort', {reason});
+		});
+	};
+
+	dispatchSeek = (seek: Seek) => {
+		this.readyPromise = this.readyPromise.then(() => {
+			this.dispatchEvent('seek', {seek});
+		});
 	};
 }
