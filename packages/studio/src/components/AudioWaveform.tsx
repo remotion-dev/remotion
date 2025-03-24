@@ -139,6 +139,7 @@ export const AudioWaveform: React.FC<{
 				metadata.durationInSeconds,
 			),
 			numberOfSamples,
+			normalize: false,
 		});
 	}, [
 		durationInFrames,
