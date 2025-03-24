@@ -8,9 +8,13 @@ export type SelectM3uStreamFn = (
 	options: SelectM3uStreamFnOptions,
 ) => number | Promise<number>;
 
-export type SelectM3uAssociatedPlaylistsFn = (options: {
+export type SelectM3uAssociatedPlaylistsFnOptions = {
 	associatedPlaylists: M3uAssociatedPlaylist[];
-}) => M3uAssociatedPlaylist[] | Promise<M3uAssociatedPlaylist[]>;
+};
+
+export type SelectM3uAssociatedPlaylistsFn = (
+	options: SelectM3uAssociatedPlaylistsFnOptions,
+) => M3uAssociatedPlaylist[] | Promise<M3uAssociatedPlaylist[]>;
 
 export const selectAssociatedPlaylists = async ({
 	playlists,

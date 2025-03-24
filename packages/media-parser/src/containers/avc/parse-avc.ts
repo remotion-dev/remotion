@@ -1,8 +1,8 @@
 // https://www.itu.int/rec/T-REC-H.264-202408-I/en
 // Page 455
 
-import type {BufferIterator} from '../../buffer-iterator';
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 
 const Extended_SAR = 255;
 

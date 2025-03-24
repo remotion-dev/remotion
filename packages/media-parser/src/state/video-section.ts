@@ -4,7 +4,7 @@
  * that can be read partially
  */
 
-import type {BufferIterator} from '../buffer-iterator';
+import type {BufferIterator} from '../iterator/buffer-iterator';
 
 type VideoSection = {
 	start: number;

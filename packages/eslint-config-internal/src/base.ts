@@ -258,7 +258,7 @@ export const rules = ({react}: {react: boolean}) => {
 				},
 			},
 		],
-		'constructor-super': 'error',
+		'constructor-super': 'off',
 		'no-class-assign': 'error',
 		'no-const-assign': 'error',
 		'no-dupe-class-members': 'error',

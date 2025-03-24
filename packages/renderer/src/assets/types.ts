@@ -14,7 +14,6 @@ export type UnsafeAsset = Omit<
 	volume: number[];
 	id: string;
 	playbackRate: number;
-	allowAmplificationDuringRender: boolean;
 	toneFrequency: number | null;
 };
 

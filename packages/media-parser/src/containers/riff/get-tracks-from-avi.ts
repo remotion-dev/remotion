@@ -78,6 +78,7 @@ export const makeAviVideoTrack = ({
 		displayAspectHeight: strf.height,
 		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		description: undefined,
+		m3uStreamFormat: null,
 		trackId: index,
 		color: {
 			fullRange: null,

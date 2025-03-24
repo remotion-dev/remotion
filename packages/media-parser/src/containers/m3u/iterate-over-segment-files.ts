@@ -24,8 +24,8 @@ export const iteratorOverSegmentFiles = async ({
 	readerInterface,
 }: {
 	structure: M3uStructure;
-	onVideoTrack: (track: VideoTrack) => Promise<OnVideoSample | null>;
-	onAudioTrack: (track: AudioTrack) => Promise<OnAudioSample | null>;
+	onVideoTrack: null | ((track: VideoTrack) => Promise<OnVideoSample | null>);
+	onAudioTrack: null | ((track: AudioTrack) => Promise<OnAudioSample | null>);
 	onDoneWithTracks: () => void;
 	m3uState: M3uState;
 	playlistUrl: string;
@@ -70,7 +70,6 @@ export const iteratorOverSegmentFiles = async ({
 			chunk.url,
 			playlistUrl,
 		);
-		const isMp4 = src.includes('.mp4');
 
 		try {
 			const mp4HeaderSegment = m3uState.getMp4HeaderSegment(playlistUrl);
@@ -84,7 +83,7 @@ export const iteratorOverSegmentFiles = async ({
 					childController.pause();
 					resolver(makeContinuationFn());
 				},
-				fields: isMp4 ? {structure: true} : undefined,
+				fields: chunk.isHeader ? {structure: true} : undefined,
 				onTracks: () => {
 					if (!m3uState.hasEmittedDoneWithTracks(playlistUrl)) {
 						m3uState.setHasEmittedDoneWithTracks(playlistUrl);
@@ -92,46 +91,58 @@ export const iteratorOverSegmentFiles = async ({
 						return null;
 					}
 				},
-				onAudioTrack: async ({track}) => {
-					const callbackOrFalse = m3uState.hasEmittedAudioTrack(playlistUrl);
-					if (callbackOrFalse === false) {
-						const callback = await onAudioTrack(track);
+				onAudioTrack:
+					onAudioTrack === null
+						? null
+						: async ({track}) => {
+								const callbackOrFalse =
+									m3uState.hasEmittedAudioTrack(playlistUrl);
+								if (callbackOrFalse === false) {
+									const callback = await onAudioTrack(track);
 
-						if (!callback) {
-							m3uState.setHasEmittedAudioTrack(playlistUrl, null);
-							return null;
-						}
+									if (!callback) {
+										m3uState.setHasEmittedAudioTrack(playlistUrl, null);
+										return null;
+									}
 
-						m3uState.setHasEmittedAudioTrack(playlistUrl, callback);
-						return (sample) => {
-							return callback(sample);
-						};
-					}
+									m3uState.setHasEmittedAudioTrack(playlistUrl, callback);
+									return (sample) => {
+										return callback(sample);
+									};
+								}
 
-					return callbackOrFalse;
-				},
-				onVideoTrack: async ({track}) => {
-					const callbackOrFalse = m3uState.hasEmittedVideoTrack(playlistUrl);
-					if (callbackOrFalse === false) {
-						const callback = await onVideoTrack(track);
+								return callbackOrFalse;
+							},
+				onVideoTrack:
+					onVideoTrack === null
+						? null
+						: async ({track}) => {
+								const callbackOrFalse =
+									m3uState.hasEmittedVideoTrack(playlistUrl);
+								if (callbackOrFalse === false) {
+									const callback = await onVideoTrack({
+										...track,
+										m3uStreamFormat:
+											chunk.isHeader || mp4HeaderSegment ? 'mp4' : 'ts',
+									});
 
-						if (!callback) {
-							m3uState.setHasEmittedVideoTrack(playlistUrl, null);
-							return null;
-						}
+									if (!callback) {
+										m3uState.setHasEmittedVideoTrack(playlistUrl, null);
+										return null;
+									}
 
-						m3uState.setHasEmittedVideoTrack(playlistUrl, callback);
-						return (sample) => {
-							return callback(sample);
-						};
-					}
+									m3uState.setHasEmittedVideoTrack(playlistUrl, callback);
+									return (sample) => {
+										return callback(sample);
+									};
+								}
 
-					return callbackOrFalse;
-				},
+								return callbackOrFalse;
+							},
 				reader: readerInterface,
 				mp4HeaderSegment,
 			});
-			if (isMp4) {
+			if (chunk.isHeader) {
 				if (data.structure.type !== 'iso-base-media') {
 					throw new Error('Expected an mp4 file');
 				}

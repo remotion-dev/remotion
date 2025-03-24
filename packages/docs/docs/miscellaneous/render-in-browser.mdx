@@ -2,21 +2,22 @@
 image: /generated/articles-docs-miscellaneous-render-in-browser.png
 sidebar_label: Browser rendering
 title: Can I render videos in the browser?
-crumb: "FAQ"
+crumb: 'FAQ'
 ---
 
-**Rendering videos in the browser is not supported.** In order to render videos, you need to hook up [server-side rendering](/docs/ssr), [Remotion Lambda](/docs/lambda), or [render videos locally](/docs/render).
+Rendering videos in the browser is currently not supported.  
+In order to render videos, you need to hook up [server-side rendering](/docs/ssr), [Remotion Lambda](/docs/lambda), or [render videos locally](/docs/render).
 
-## Will it be supported in the future?
+## Our future plans
 
-Currently there is no browser API that allows to capture the viewport. There [are](https://x.com/fserb/status/1794058245901824349) [some](https://github.com/WICG/proposals/issues/73) proposed APIs for it.   
-If such an API gets introduced, we can consider supporting browser rendering in the future.
+The biggest limitation is that there is no way to capture the browser viewport.
 
-## Why not...
+<details>
+  <summary>How about?</summary>
 
 ### a Chrome extension?
 
-Chrome extensions do get the privilege of capturing the viewport. We may explore this in the future, but the combination of asking the user to install an extension and slow render times means we are not prioritizing this feature.
+Chrome extensions do get the privilege of capturing the viewport. However, asking the user to install an extension is a big barrier and therefore we are not believing in this approach.
 
 ### [`canvas.getImageData()`](https://developer.mozilla.org/de/docs/Web/API/CanvasRenderingContext2D/getImageData)?
 
@@ -33,11 +34,19 @@ You can render HTML markup inside an SVG `<foreignElement>` and then render that
 
 This is the closest thing to browser rendering, however there are problems with `<img>` tags and potentially other technologies as well. It's not yet fully out of the questions, but seems hacky so far.
 
-## How can I avoid server-rendering?
+### The Element Capture API
 
-We cannot fully avoid server-rendering, but we are taking initiatives to make it easier and efficient:
+Returns an already compressed video stream of the DOM instead of just a bitmap.  
+Also will display a permission prompt to the user.
+After discussion with the authors of the specification, capturing images is not a usecase they are considering.
 
-- [Remotion Lambda](/lambda) is a batteries-included renderer for Remotion that you only have to pay for when you use it.
+</details>
+
+However, certain elements can be captured, such as `<canvas>`, `<video>` and `<img>`. Also, `<audio>` can be processed.  
+We are intending to introduce a render mode of Remotion which is limited to those tags, but allows for rendering in the browser.
+
+The encoding of the video would work with WebCodecs.  
+We hope to launch this mode in late 2025.
 
 ## See also
 

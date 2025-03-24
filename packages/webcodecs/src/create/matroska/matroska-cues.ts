@@ -1,3 +1,4 @@
+import type {BytesAndOffset} from './matroska-utils';
 import {makeMatroskaBytes} from './matroska-utils';
 
 export type Cue = {
@@ -6,7 +7,11 @@ export type Cue = {
 	trackNumber: number;
 };
 
-export const createMatroskaCues = (cues: Cue[]) => {
+export const createMatroskaCues = (cues: Cue[]): BytesAndOffset | null => {
+	if (cues.length === 0) {
+		return null;
+	}
+
 	return makeMatroskaBytes({
 		type: 'Cues',
 		minVintWidth: null,

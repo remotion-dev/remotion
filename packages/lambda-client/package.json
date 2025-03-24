@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
 	},
 	"name": "@remotion/lambda-client",
-	"version": "4.0.270",
+	"version": "4.0.279",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -22,16 +22,17 @@
 		"@aws-sdk/client-s3": "3.738.0",
 		"@aws-sdk/client-service-quotas": "3.738.0",
 		"@aws-sdk/client-sts": "3.738.0",
-		"@aws-sdk/credential-providers": "3.738.0",
+		"@aws-sdk/lib-storage": "3.738.0",
 		"mime-types": "2.1.34"
 	},
 	"devDependencies": {
+		"@aws-sdk/credential-provider-ini": "3.734.0",
 		"@remotion/serverless-client": "workspace:*",
 		"@types/express": "^5.0.0",
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"next": "15.1.6",
+		"next": "15.2.3",
 		"@types/mime-types": "2.1.1"
 	},
 	"publishConfig": {
@@ -61,10 +62,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"constants": [
-				"dist/constants.d.ts"
+				"./dist/constants.d.ts"
 			],
 			"regions": [
-				"dist/regions.d.ts"
+				"./dist/regions.d.ts"
 			]
 		}
 	}

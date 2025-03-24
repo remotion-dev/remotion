@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.270",
+	"version": "4.0.279",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -4756,6 +4756,9 @@
 			],
 			"ZillaSlabHighlight": [
 				"dist/cjs/ZillaSlabHighlight.d.ts"
+			],
+			"from-info": [
+				"./dist/cjs/from-info.d.ts"
 			]
 		}
 	},
@@ -4778,6 +4781,12 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
+		},
+		"./from-info": {
+			"types": "./dist/cjs/from-info.d.ts",
+			"require": "./dist/cjs/from-info.js",
+			"module": "./dist/esm/from-info.mjs",
+			"import": "./dist/esm/from-info.mjs"
 		}
 	},
 	"homepage": "https://www.remotion.dev/docs/google-fonts"

@@ -6,7 +6,7 @@ import type {RiffBox, RiffStructure} from './containers/riff/riff-box';
 import type {TransportStreamBox} from './containers/transport-stream/boxes';
 import type {WavStructure} from './containers/wav/types';
 import type {MatroskaSegment} from './containers/webm/segments';
-import type {MetadataEntry} from './metadata/get-metadata';
+import type {MediaParserMetadataEntry} from './metadata/get-metadata';
 import type {Skip} from './skip';
 
 type Mp3Id3Header = {
@@ -15,7 +15,7 @@ type Mp3Id3Header = {
 	versionMinor: number;
 	flags: number;
 	size: number;
-	metatags: MetadataEntry[];
+	metatags: MediaParserMetadataEntry[];
 };
 
 export type Mp3Box = Mp3Id3Header;
@@ -46,7 +46,7 @@ export type Mp3Structure = {
 	boxes: Mp3Box[];
 };
 
-export type Structure =
+export type MediaParserStructureUnstable =
 	| IsoBaseMediaStructure
 	| RiffStructure
 	| MatroskaStructure

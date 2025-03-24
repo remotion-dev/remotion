@@ -185,6 +185,7 @@ export type RenderMediaOptions = Prettify<{
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
+	compositionStart?: number;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -427,7 +428,7 @@ const internalRenderMediaRaw = ({
 		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
-	validateEvenDimensionsWithCodec({
+	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
 		height: composition.height,
 		scale,
@@ -484,8 +485,8 @@ const internalRenderMediaRaw = ({
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {
 			preStitcher = prespawnFfmpeg({
-				width: composition.width * scale,
-				height: composition.height * scale,
+				width: actualWidth,
+				height: actualHeight,
 				fps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
@@ -701,8 +702,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: composition.width * scale,
-					height: composition.height * scale,
+					width: actualWidth,
+					height: actualHeight,
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
@@ -716,11 +717,13 @@ const internalRenderMediaRaw = ({
 					assetsInfo,
 					onProgress: (frame: number) => {
 						stitchStage = 'muxing';
+						// With seamless AAC concatenation, the amount of rendered frames
+						// might be longer, so we need to clamp it to avoid progress over 100%
 						if (preEncodedFileLocation) {
-							muxedFrames = frame;
+							muxedFrames = Math.min(frame, totalFramesToRender);
 						} else {
-							muxedFrames = frame;
-							encodedFrames = frame;
+							muxedFrames = Math.min(frame, totalFramesToRender);
+							encodedFrames = Math.min(frame, totalFramesToRender);
 						}
 
 						if (encodedFrames === totalFramesToRender) {
@@ -903,6 +906,7 @@ export const renderMedia = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
+	compositionStart,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -985,8 +989,7 @@ export const renderMedia = ({
 			}),
 		onArtifact: onArtifact ?? null,
 		metadata: metadata ?? null,
-		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
-		compositionStart: 0,
+		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 	});

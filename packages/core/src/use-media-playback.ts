@@ -13,14 +13,13 @@ import {
 	usePlayingState,
 	useTimelinePosition,
 } from './timeline-position-state.js';
+import {getShouldAmplify} from './use-amplification.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
-
-export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -32,16 +31,18 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering,
 	isPremounting,
 	onAutoPlayError,
+	userPreferredVolume,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 	onlyWarnForMediaSeekingError: boolean;
-	acceptableTimeshift: number;
+	acceptableTimeshift: number | null;
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
 	onAutoPlayError: null | (() => void);
+	userPreferredVolume: number;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -109,16 +110,26 @@ export const useMediaPlayback = ({
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
-	// For short audio, a lower acceptable time shift is used
 	const acceptableTimeShiftButLessThanDuration = (() => {
+		// In Safari, it seems to lag behind mostly around ~0.4 seconds
+		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK = 0.45;
+
+		// If there is amplification, the acceptable timeshift is higher
+		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION =
+			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK + 0.2;
+
+		const defaultAcceptableTimeshift = getShouldAmplify(userPreferredVolume)
+			? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
+			: DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK;
+		// For short audio, a lower acceptable time shift is used
 		if (mediaRef.current?.duration) {
 			return Math.min(
 				mediaRef.current.duration,
-				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+				acceptableTimeshift ?? defaultAcceptableTimeshift,
 			);
 		}
 
-		return acceptableTimeshift;
+		return acceptableTimeshift ?? defaultAcceptableTimeshift;
 	})();
 
 	const isPlayerBuffering = useIsPlayerBuffering(buffering);
@@ -212,7 +223,7 @@ export const useMediaPlayback = ({
 				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
-			if (playing && !isVariableFpsVideo) {
+			if (playing) {
 				if (playbackRate > 0) {
 					bufferUntilFirstFrame(shouldBeTime);
 				}
@@ -240,7 +251,7 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		const seekThreshold = playing ? 0.15 : 0.00001;
+		const seekThreshold = playing ? 0.15 : 0.01;
 
 		// Only perform a seek if the time is not already the same.
 		// Chrome rounds to 6 digits, so 0.033333333 -> 0.033333,

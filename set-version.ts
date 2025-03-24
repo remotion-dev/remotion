@@ -56,15 +56,15 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 	}
 }
 
-execSync('pnpm build', {
-	stdio: 'inherit',
-});
-
 execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/core',
 });
 execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
+});
+
+execSync('pnpm build', {
+	stdio: 'inherit',
 });
 
 execSync('bun test src/monorepo', {

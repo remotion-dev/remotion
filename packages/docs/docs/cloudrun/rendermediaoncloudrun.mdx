@@ -112,7 +112,17 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 _optional_
 
-A callback that is called with the progress of the render.
+```tsx twoslash
+import type {UpdateRenderProgress} from '@remotion/cloudrun/client';
+
+const updateRenderProgress: UpdateRenderProgress = (progress: number, error: boolean) => {
+  if (error) {
+    console.error('Render failed');
+  } else {
+    console.log(`Render progress: ${progress * 100}%`);
+  }
+};
+```
 
 ### `renderStatusWebhook?`
 

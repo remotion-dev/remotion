@@ -116,6 +116,7 @@ export const modelToDtw = (model: WhisperModel): string => {
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
+	whisperCppVersion,
 	model,
 	tmpJSONPath,
 	modelFolder,
@@ -130,6 +131,7 @@ const transcribeToTemporaryFile = async ({
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
+	whisperCppVersion: string;
 	model: WhisperModel;
 	tmpJSONPath: string;
 	modelFolder: string | null;
@@ -154,7 +156,7 @@ const transcribeToTemporaryFile = async ({
 		);
 	}
 
-	const executable = getWhisperExecutablePath(whisperPath);
+	const executable = getWhisperExecutablePath(whisperPath, whisperCppVersion);
 
 	const args = [
 		'-f',
@@ -259,6 +261,7 @@ const transcribeToTemporaryFile = async ({
 export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	inputPath,
 	whisperPath,
+	whisperCppVersion,
 	model,
 	modelFolder,
 	translateToEnglish = false,
@@ -272,6 +275,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 }: {
 	inputPath: string;
 	whisperPath: string;
+	whisperCppVersion: string;
 	model: WhisperModel;
 	tokenLevelTimestamps: HasTokenLevelTimestamps;
 	modelFolder?: string;
@@ -304,6 +308,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	const {outputPath: tmpJSONPath} = await transcribeToTemporaryFile({
 		fileToTranscribe: inputPath,
 		whisperPath,
+		whisperCppVersion,
 		model,
 		tmpJSONPath: tmpJSONDir,
 		modelFolder: modelFolder ?? null,

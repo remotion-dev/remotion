@@ -26,11 +26,10 @@ export const useSyncVolumeWithMediaTag = ({
 			frame: volumePropFrame,
 			volume,
 			mediaVolume,
-			allowAmplificationDuringRender: false,
 		});
 
 		if (!isApproximatelyTheSame(userPreferredVolume, mediaRef.current.volume)) {
-			mediaRef.current.volume = userPreferredVolume;
+			mediaRef.current.volume = Math.min(userPreferredVolume, 1);
 		}
 	}, [mediaRef, mediaVolume, volume, volumePropFrame]);
 

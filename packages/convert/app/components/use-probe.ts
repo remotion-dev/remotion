@@ -7,14 +7,13 @@ import type {
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
+	MediaParserMetadataEntry,
+	MediaParserTracks,
 	MediaParserVideoCodec,
-	MetadataEntry,
 	ParseMediaOnProgress,
-	TracksField,
 } from '@remotion/media-parser';
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
-import {fetchReader} from '@remotion/media-parser/fetch';
-import {webFileReader} from '@remotion/media-parser/web-file';
+import {mediaParserController} from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 
@@ -48,9 +47,11 @@ export const useProbe = ({
 	>(undefined);
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
-	const [metadata, setMetadata] = useState<MetadataEntry[] | null>(null);
+	const [metadata, setMetadata] = useState<MediaParserMetadataEntry[] | null>(
+		null,
+	);
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
-	const [tracks, setTracks] = useState<TracksField | null>(null);
+	const [tracks, setTracks] = useState<MediaParserTracks | null>(null);
 	const [container, setContainer] = useState<MediaParserContainer | null>(null);
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
@@ -62,12 +63,10 @@ export const useProbe = ({
 
 	const getStart = useCallback(() => {
 		const controller = mediaParserController();
-		parseMedia({
+		parseMediaOnWebWorker({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
-
 			onParseProgress: onProgress,
-			reader: src.type === 'file' ? webFileReader : fetchReader,
 			controller,
 			onMetadata: (newMetadata) => {
 				setMetadata(newMetadata);

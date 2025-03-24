@@ -91,7 +91,7 @@ export const shapeComponents: ShapeComponent[] = [
 			},
 			{
 				name: 'rotation',
-				type: 'boolean',
+				type: 'number',
 				description: (
 					<>
 						Add rotation to the path. <code>0</code> means no rotation,{' '}

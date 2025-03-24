@@ -1,4 +1,4 @@
-import type {BufferIterator} from './buffer-iterator';
+import type {BufferIterator} from './iterator/buffer-iterator';
 
 export const getHvc1CodecString = (data: BufferIterator) => {
 	const configurationVersion = data.getUint8();

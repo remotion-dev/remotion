@@ -38,6 +38,7 @@ import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
+import './LoadFontBasedOnInfo';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
@@ -118,6 +119,13 @@ import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import Amplify from './AudioTesting/Amplify';
+import {
+	WhatIsRemotion,
+	whatIsRemotionCalculateMetadata,
+	whatIsRemotionSchema,
+} from './Compose/WhatIsRemotion';
+import {Empty} from './Empty';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
@@ -901,11 +909,11 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="audio-testing-amplify"
-					lazyComponent={() => import('./AudioTesting/Amplify')}
-					width={1080}
-					height={1080}
+					component={Amplify}
+					width={200}
+					height={200}
 					fps={30}
-					durationInFrames={120}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="audio-testing-base64"
@@ -1147,7 +1155,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
-
 			<Folder name="shapes">
 				<Composition
 					id="circle-test"
@@ -1303,7 +1310,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-				 // @ts-expect-error intentional */}
+         // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1361,29 +1368,28 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-			 * 
-			 * 
-			 * disabled for react   19
-			<Folder name="Skia">
-				<Composition
-					id="skia-shader"
-					component={RuntimeShaderDemo}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={120}
-				/>
-				<Composition
-					id="skia-zoomblur"
-					component={RuntimeShaderZoomBlur}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={120}
-				/>
-			</Folder>
-			 */}
-
+     * 
+     * 
+     * disabled for react   19
+    <Folder name="Skia">
+        <Composition
+            id="skia-shader"
+            component={RuntimeShaderDemo}
+            fps={30}
+            height={1080}
+            width={1080}
+            durationInFrames={120}
+        />
+        <Composition
+            id="skia-zoomblur"
+            component={RuntimeShaderZoomBlur}
+            fps={30}
+            height={1080}
+            width={1080}
+            durationInFrames={120}
+        />
+    </Folder>
+     */}
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"
@@ -1517,6 +1523,16 @@ export const Index: React.FC = () => {
 					durationInFrames={1000}
 				/>
 				<Composition
+					id="WhatIsRemotion"
+					component={WhatIsRemotion}
+					width={1080}
+					fps={30}
+					durationInFrames={273}
+					schema={whatIsRemotionSchema}
+					defaultProps={{fade: false, whiteBackground: true, reel: false}}
+					calculateMetadata={whatIsRemotionCalculateMetadata}
+				/>
+				<Composition
 					id="3DContext"
 					component={ThreeDContext}
 					width={1080}
@@ -1552,6 +1568,14 @@ export const Index: React.FC = () => {
 					durationInFrames={900}
 				/>
 			</Folder>
+			<Composition
+				id="empty"
+				component={Empty}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={900}
+			/>
 		</>
 	);
 };

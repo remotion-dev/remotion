@@ -5,10 +5,8 @@ export const slowDurationAndFpsState = () => {
 	let largestVideoSample: number | undefined;
 	let smallestAudioSample: number | undefined;
 	let largestAudioSample: number | undefined;
-	let audioSizesInBytes = 0;
-	let videoSizeInBytes = 0;
-	let videoSamples = 0;
-	let audioSamples = 0;
+	const videoSamples: Map<number, number> = new Map();
+	const audioSamples: Map<number, number> = new Map();
 
 	const getSlowVideoDurationInSeconds = () => {
 		let videoDuration: number | null = null;
@@ -17,8 +15,8 @@ export const slowDurationAndFpsState = () => {
 			const startingTimestampDifference =
 				largestVideoSample - smallestVideoSample;
 			const timeBetweenSamples =
-				startingTimestampDifference / (videoSamples - 1);
-			videoDuration = timeBetweenSamples * videoSamples;
+				startingTimestampDifference / (videoSamples.size - 1);
+			videoDuration = timeBetweenSamples * videoSamples.size;
 		}
 
 		return videoDuration;
@@ -32,8 +30,8 @@ export const slowDurationAndFpsState = () => {
 			const startingTimestampDifferenceAudio =
 				largestAudioSample - smallestAudioSample;
 			const timeBetweenSamplesAudio =
-				startingTimestampDifferenceAudio / (audioSamples - 1);
-			audioDuration = timeBetweenSamplesAudio * audioSamples;
+				startingTimestampDifferenceAudio / (audioSamples.size - 1);
+			audioDuration = timeBetweenSamplesAudio * audioSamples.size;
 		}
 
 		if (videoDuration === null && audioDuration === null) {
@@ -45,7 +43,7 @@ export const slowDurationAndFpsState = () => {
 
 	return {
 		addVideoSample: (videoSample: AudioOrVideoSample) => {
-			videoSamples++;
+			videoSamples.set(videoSample.cts, videoSample.data.byteLength);
 			const presentationTimeInSeconds = videoSample.cts / videoSample.timescale;
 			if (
 				largestVideoSample === undefined ||
@@ -60,11 +58,9 @@ export const slowDurationAndFpsState = () => {
 			) {
 				smallestVideoSample = presentationTimeInSeconds;
 			}
-
-			videoSizeInBytes += videoSample.data.byteLength;
 		},
 		addAudioSample: (audioSample: AudioOrVideoSample) => {
-			audioSamples++;
+			audioSamples.set(audioSample.cts, audioSample.data.byteLength);
 			const presentationTimeInSeconds = audioSample.cts / audioSample.timescale;
 			if (
 				largestAudioSample === undefined ||
@@ -79,8 +75,6 @@ export const slowDurationAndFpsState = () => {
 			) {
 				smallestAudioSample = presentationTimeInSeconds;
 			}
-
-			audioSizesInBytes += audioSample.data.byteLength;
 		},
 		getSlowDurationInSeconds,
 		getFps: () => {
@@ -89,24 +83,32 @@ export const slowDurationAndFpsState = () => {
 				return 0;
 			}
 
-			return videoSamples / videoDuration;
+			return videoSamples.size / videoDuration;
 		},
-		getSlowNumberOfFrames: () => videoSamples,
+		getSlowNumberOfFrames: () => videoSamples.size,
 		getAudioBitrate: () => {
 			const audioDuration = getSlowDurationInSeconds();
-			if (audioDuration === 0 || audioSizesInBytes === 0) {
+			if (audioDuration === 0 || audioSamples.size === 0) {
 				return null;
 			}
 
+			const audioSizesInBytes = Array.from(audioSamples.values()).reduce(
+				(acc, size) => acc + size,
+				0,
+			);
 			return (audioSizesInBytes * 8) / audioDuration;
 		},
 		getVideoBitrate: () => {
 			const videoDuration = getSlowDurationInSeconds();
-			if (videoDuration === 0 || videoSizeInBytes === 0) {
+			if (videoDuration === 0 || videoSamples.size === 0) {
 				return null;
 			}
 
-			return (videoSizeInBytes * 8) / videoDuration;
+			const videoSizesInBytes = Array.from(videoSamples.values()).reduce(
+				(acc, size) => acc + size,
+				0,
+			);
+			return (videoSizesInBytes * 8) / videoDuration;
 		},
 	};
 };

@@ -30,7 +30,7 @@ export const renderStillSingleThread = async (
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${body.clientVersion}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
 		);
 	}
 

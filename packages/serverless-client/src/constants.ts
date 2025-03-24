@@ -402,6 +402,5 @@ export const MAX_FUNCTIONS_PER_RENDER = 200;
 export const MINIMUM_FRAMES_PER_FUNCTIONS = 4;
 
 export const REMOTION_CONCATENATED_TOKEN = 'remotion-concatenated-token';
-export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';

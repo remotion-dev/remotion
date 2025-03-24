@@ -3,7 +3,6 @@
 import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
-import './homepage/custom.css';
 import {Demo} from './homepage/Demo';
 import {LightningFastEditor} from './homepage/Editor';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
@@ -38,12 +37,6 @@ export const NewLanding: React.FC<{
 						<WriteInReact />
 						<br />
 						<IfYouKnowReact />
-						<br />
-						<br />
-						<br />
-						<br />
-						<br />
-						<br />
 						<RealMP4Videos />
 						<br />
 						<br />

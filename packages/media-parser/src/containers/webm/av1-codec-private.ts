@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import type {ColorParameterBox} from '../iso-base-media/stsd/colr';
 
 export const parseAv1PrivateData = (

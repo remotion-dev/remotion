@@ -1,4 +1,4 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 
 type Point = {
 	x: number;

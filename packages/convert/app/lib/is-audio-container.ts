@@ -1,10 +1,13 @@
-import type {MediaParserContainer, TracksField} from '@remotion/media-parser';
+import type {
+	MediaParserContainer,
+	MediaParserTracks,
+} from '@remotion/media-parser';
 
 export const isAudioOnly = ({
 	tracks,
 	container,
 }: {
-	tracks: TracksField | null;
+	tracks: MediaParserTracks | null;
 	container: MediaParserContainer | null;
 }) => {
 	if (container === 'mp3') {

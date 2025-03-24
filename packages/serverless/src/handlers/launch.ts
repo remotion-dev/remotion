@@ -477,7 +477,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
 		expectedBucketOwner: options.expectedBucketOwner,
-		numberOfFrames: frameCount.length,
+		numberOfFrames: comp.durationInFrames,
 		audioCodec: params.audioCodec,
 		chunkCount: chunks.length,
 		codec: params.codec,
@@ -504,6 +504,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		insideFunctionSpecifics,
+		everyNthFrame: params.everyNthFrame,
+		frameRange: params.frameRange,
 	});
 
 	return postRenderData;

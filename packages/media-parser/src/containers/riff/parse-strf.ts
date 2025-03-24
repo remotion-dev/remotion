@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {FccType, StrfBoxAudio, StrfBoxVideo} from './riff-box';
 
 const parseStrfAudio = ({

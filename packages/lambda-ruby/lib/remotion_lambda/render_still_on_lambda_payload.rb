@@ -46,7 +46,6 @@ payload = {
     jpegQuality: jpeg_quality,
     logLevel: log_level,
     maxRetries: max_retries,
-    offthreadVideoCacheSizeInBytes: offthread_video_threads,
     offthreadVideoCacheSizeInBytes: offthread_video_cache_size_in_bytes,
     offthreadVideoThreads: offthread_video_threads,
     outName: out_name,

@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {TransportStreamPMTBox} from './boxes';
 import {discardRestOfPacket} from './discard-rest-of-packet';
 
@@ -30,13 +30,13 @@ const parsePmtTable = ({
 	const lastSectionNumber = iterator.getBits(8);
 
 	const tables: TransportStreamProgramMapTable[] = [];
+	iterator.getBits(3); // reserved
+	iterator.getBits(13); // PCR PID
+	iterator.getBits(4); // reserved
+	const programInfoLength = iterator.getBits(12);
+	iterator.getBits(programInfoLength * 8); // program descriptor
 
 	for (let i = sectionNumber; i <= lastSectionNumber; i++) {
-		iterator.getBits(3); // reserved
-		iterator.getBits(13); // PCR PID
-		iterator.getBits(4); // reserved
-		const programInfoLength = iterator.getBits(12);
-
 		const streams: TransportStreamEntry[] = [];
 		while (true) {
 			const streamType = iterator.getBits(8);
@@ -46,7 +46,6 @@ const parsePmtTable = ({
 			const esInfoLength = iterator.getBits(12);
 			iterator.getBits(esInfoLength * 8);
 			streams.push({streamType, pid: elementaryPid});
-			iterator.getBits(programInfoLength * 8); // program descriptor
 
 			const remaining = sectionLength - (iterator.counter.getOffset() - start);
 			if (remaining <= 4) {

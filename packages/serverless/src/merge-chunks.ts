@@ -1,4 +1,9 @@
-import type {AudioCodec, LogLevel} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	CombineChunksOnProgress,
+	FrameRange,
+	LogLevel,
+} from '@remotion/renderer';
 
 import {
 	inspectErrors,
@@ -52,8 +57,10 @@ export const mergeChunksAndFinishRender = async <
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	forcePathStyle: boolean;
+	everyNthFrame: number;
+	frameRange: FrameRange | null;
 }): Promise<PostRenderData<Provider>> => {
-	const onProgress = (framesEncoded: number) => {
+	const onProgress: CombineChunksOnProgress = ({frames: framesEncoded}) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
 	};
 
@@ -68,7 +75,6 @@ export const mergeChunksAndFinishRender = async <
 
 	const {outfile, cleanupChunksProm} = await concatVideos({
 		onProgress,
-		numberOfFrames: options.numberOfFrames,
 		codec: options.codec,
 		fps: options.fps,
 		numberOfGifLoops: options.numberOfGifLoops,
@@ -81,9 +87,11 @@ export const mergeChunksAndFinishRender = async <
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,
-		muted: options.renderMetadata.muted,
 		metadata: options.renderMetadata.metadata,
 		insideFunctionSpecifics: options.insideFunctionSpecifics,
+		compositionDurationInFrames: options.numberOfFrames,
+		everyNthFrame: options.everyNthFrame,
+		frameRange: options.frameRange,
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
@@ -98,7 +106,7 @@ export const mergeChunksAndFinishRender = async <
 	await options.providerSpecifics.writeFile({
 		bucketName: options.renderBucketName,
 		key: options.key,
-		body: fs.readFileSync(outfile),
+		body: fs.createReadStream(outfile),
 		region: options.insideFunctionSpecifics.getCurrentRegionInFunction(),
 		privacy: options.privacy,
 		expectedBucketOwner: options.expectedBucketOwner,

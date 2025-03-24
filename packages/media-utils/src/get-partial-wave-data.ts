@@ -40,7 +40,7 @@ export const getPartialWaveData = async ({
 
 	if (response.status !== 206) {
 		throw new Error(
-			`Tried to read bytes ${startByte}-${endByte} from ${src}, but the response status code was not 206. This means the server might not support returning a partial response.`,
+			`Tried to read bytes ${startByte}-${endByte} from ${src}, but the response status code was ${response.status} (expected was 206). This means the server might not support returning a partial response.`,
 		);
 	}
 

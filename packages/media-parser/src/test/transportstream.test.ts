@@ -61,6 +61,7 @@ test('Transport stream', async () => {
 		},
 		onVideoTrack: ({track}) => {
 			expect(track).toEqual({
+				m3uStreamFormat: null,
 				rotation: 0,
 				trackId: 256,
 				type: 'video',
@@ -190,7 +191,7 @@ test('Transport stream', async () => {
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
 	expect(slowFps).toBe(59.999999999999986);
-	expect(slowDurationInSeconds).toBe(4.966666666666668);
+	expect(slowDurationInSeconds).toBe(5.119999999999999);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
 	expect(videoSamples).toBe(298);

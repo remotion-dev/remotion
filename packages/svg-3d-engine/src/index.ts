@@ -1,4 +1,4 @@
-export {MatrixTransform4D} from './matrix';
+export {MatrixTransform4D, Vector4D} from './matrix';
 
 export type {ThreeDReducedInstruction} from './3d-svg';
 

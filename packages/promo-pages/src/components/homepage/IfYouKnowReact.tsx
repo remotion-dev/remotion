@@ -1,22 +1,49 @@
-import React from 'react';
-import {CodeExample} from './CodeExample';
+import React, {useEffect, useState} from 'react';
 import {BlueButton} from './layout/Button';
 
+export const isWebkit = () => {
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isSafariUserAgent = Boolean(
+		navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
+	);
+
+	const isChrome = Boolean(navigator.userAgent.match(/CriOS\//));
+	return isSafariUserAgent || isChrome;
+};
+
 export const IfYouKnowReact: React.FC = () => {
+	const [vid, setVid] = useState('/img/compose.webm');
+
+	useEffect(() => {
+		if (isWebkit()) {
+			setVid('/img/compose.mp4');
+		}
+	}, []);
+
 	return (
-		<div className="flex flex-col-reverse lg:flex-row text-left lg:text-right justify-start lg:justify-end items-start lg:items-center">
-			<CodeExample />
-			<div className="h-10 lg:w-10" />
+		<div className="flex flex-col lg:flex-row text-left lg:text-right justify-start lg:justify-end items-start lg:mb-0">
+			<video
+				src={vid}
+				muted
+				autoPlay
+				playsInline
+				loop
+				className="w-[600px] h-[600px] cursor-default! relative lg:-translate-x-8 -mb-50 -mt-10 lg:mt-0 lg:mb-0"
+			/>
+			<div className="h-10 lg:flex-1" />
 			<div className="lg:text-right">
-				<h2 className="text-4xl fontbrand">
-					Leverage <span className="text-brand">React</span> <br />
-					to express yourself.
+				<h2 className="text-4xl fontbrand pt-20">
+					<span className="text-brand">Compose</span> your
+					<br />
+					video with code.
 				</h2>
 				<p className="leading-relaxed">
-					Remotion gives you the tools for video creation, <br /> but the rules
-					of React stay the same. <br />
+					Use React, a powerful frontend technology, to create sophisticated
+					videos with code.
 				</p>
-				Learn the fundamentals in just a few minutes.
 				<div className="h-7" />
 				<a className="no-underline inline-block" href="/docs/the-fundamentals">
 					<BlueButton size="sm" loading={false}>

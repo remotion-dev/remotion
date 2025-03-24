@@ -16,7 +16,6 @@ const baseAsset: MediaAsset = {
 	volume: 1,
 	id: '1',
 	playbackRate: 1,
-	allowAmplificationDuringRender: false,
 	toneFrequency: null,
 	audioStartFrame: 0,
 };
@@ -105,7 +104,7 @@ test('Trim the end', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:704000.0000000001us[a0]',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:704000us[a0]',
 		pad_end: 'apad=pad_len=' + padding,
 		pad_start: null,
 	});
@@ -325,7 +324,6 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					trimLeft: 0,
 					startInVideo: 0,
 					playbackRate: 16,
-					allowAmplificationDuringRender: false,
 					toneFrequency: null,
 					audioStartFrame: 0,
 				},
@@ -348,7 +346,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:33333333.000000004us,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atrim=0us:2083333.3125000002us[a0]',
 		pad_end: `apad=pad_len=${expectedPadLength}`,
 		pad_start: null,
 	});

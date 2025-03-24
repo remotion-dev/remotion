@@ -1,0 +1,171 @@
+---
+image: /generated/articles-docs-renderer-combine-chunks.png
+id: combine-chunks
+title: combineChunks()
+crumb: '@remotion/renderer'
+---
+
+# combineChunks()<AvailableFrom v="4.0.279" />
+
+Combine multiple video or audio chunks into a single output file. This function is useful for decentralized rendering workflows where different parts of a video are rendered separately and need to be combined.
+
+[Remotion Lambda](/docs/lambda) uses this API under the hood to combine chunks that were rendered on individual Lambda functions.
+
+:::note
+**Advanced API:** This is a hard-to-use API that most people should not use directly. Misusage of this API might lead to unpredictable behavior and potential audio and video artifacts. If you want a distributed rendering solution, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). If you just want to render a video with multithreading enabled, use [`renderMedia()`](/docs/renderer/render-media).
+:::
+
+## Example
+
+```tsx twoslash title="combine.mjs"
+import {combineChunks} from '@remotion/renderer';
+
+// Video files rendered as separate chunks
+const videoFiles = ['/path/to/chunk1.mp4', '/path/to/chunk2.mp4', '/path/to/chunk3.mp4'];
+
+// Optional audio files corresponding to each video chunk
+const audioFiles = ['/path/to/chunk1.aac', '/path/to/chunk2.aac', '/path/to/chunk3.aac'];
+
+await combineChunks({
+  outputLocation: '/path/to/final-video.mp4',
+  videoFiles,
+  audioFiles,
+  codec: 'h264',
+  fps: 30,
+  framesPerChunk: 100,
+  audioCodec: 'aac',
+  preferLossless: false,
+  compositionDurationInFrames: 300,
+});
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `outputLocation`
+
+_string_
+
+Where to save the output media file. Must be an absolute path.
+
+### `videoFiles`
+
+_string[]_
+
+An array of absolute file paths pointing to the video chunks to be combined. These should be in the correct order for combining.
+
+### `audioFiles`
+
+_string[]_
+
+An array of absolute file paths pointing to the audio chunks to be combined. These should be in the correct order for combining.
+
+### `codec`
+
+_"h264" | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
+
+The codec to use for the output file. See the distributed rendering guide to see which parameter to set.
+
+### `fps`
+
+_number_
+
+The frames per second of the video. Must be set to the `fps` value returned by [`selectComposition()`](/docs/renderer/select-composition).
+
+### `framesPerChunk`
+
+_number_
+
+The number of frames in each chunk. All chunks must have the same number of frames, except the last one.
+
+### `audioCodec`
+
+_"pcm-16" | "aac" | "mp3" | "opus" | null - optional_
+
+Audio codec to use for the output file. If not specified, it will be determined based on the video codec.
+
+### `preferLossless`
+
+_boolean_
+
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
+
+### `compositionDurationInFrames`
+
+_number_
+
+The total duration of the composition. Must be set to the `durationInFrames` value returned by [`selectComposition()`](/docs/renderer/select-composition).  
+Do not change the value, even if you use the `frameRange` or `everyNthFrame` options.
+
+### `frameRange?`
+
+_number | [number, number] | null - optional_
+
+Like [`frameRange`](/docs/renderer/render-media#framerange) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda). The range of frames of which the video exists once all chunks are combined.
+
+### `everyNthFrame?`
+
+_number - optional_
+
+Like [`everyNthFrame`](/docs/renderer/render-media#everynthframe) that you would pass to [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
+
+### `onProgress?`
+
+_function - optional_
+
+Callback function to track the progress of the combining operation.
+
+```tsx twoslash
+import {CombineChunksOnProgress} from '@remotion/renderer';
+
+const onProgress: CombineChunksOnProgress = ({totalProgress, frames}) => {
+  console.log(`Combining is ${totalProgress * 100}% complete`);
+  console.log(`Processed ${frames} frames`);
+};
+```
+
+### `audioBitrate?`
+
+_string | null - optional_
+
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
+
+### `numberOfGifLoops?`
+
+_number | null - optional_
+
+Must be the same value that you passed to each [`renderMedia()`](/docs/renderer/render-media) call.
+
+### `logLevel?`
+
+_"verbose" | "info" | "warn" | "error" - optional_
+
+Controls the verbosity of logging. Default is `"info"`.
+
+### `binariesDirectory?`
+
+_string | null - optional_
+
+A directory containing FFmpeg binaries to use instead of the bundled or system-installed ones.
+
+### `cancelSignal?`
+
+_CancelSignal - optional_
+
+A token that allows the combining process to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
+
+### `metadata?`
+
+Metadata to add to the output file, in the format of key-value pairs.
+
+## Return Value
+
+The function returns a Promise that resolves when the combining process is complete.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/combine-chunks.ts)
+- [renderMedia()](/docs/renderer/render-media)

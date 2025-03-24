@@ -1,10 +1,10 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
 import type {
 	AudioTrack,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 	VideoTrack,
 } from '../../get-tracks';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {parseColorSegment} from './color';
@@ -303,6 +303,7 @@ export const getTrack = ({
 		}
 
 		return {
+			m3uStreamFormat: null,
 			type: 'video',
 			trackId,
 			codec: codecString,

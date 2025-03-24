@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.270",
+	"version": "4.0.279",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -20,7 +20,6 @@
 	"license": "MIT",
 	"dependencies": {
 		"@aws-sdk/s3-request-presigner": "3.738.0",
-		"@aws-sdk/credential-providers": "3.738.0",
 		"@aws-sdk/client-lambda": "3.738.0",
 		"@aws-sdk/client-s3": "3.738.0",
 		"@aws-sdk/client-sts": "3.738.0",
@@ -49,7 +48,7 @@
 		"@types/minimist": "1.2.2",
 		"@types/prompt": "^1.1.0",
 		"eslint": "9.19.0",
-		"next": "15.1.6",
+		"next": "15.2.3",
 		"pureimage": "0.4.13",
 		"zip-lib": "^0.7.2"
 	},
@@ -83,10 +82,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"client": [
-				"dist/client.d.ts"
+				"./dist/client.d.ts"
 			],
 			"policies": [
-				"dist/policies.d.ts"
+				"./dist/policies.d.ts"
 			]
 		}
 	},

@@ -1,5 +1,4 @@
 import {createAacCodecPrivate} from './aac-codecprivate';
-import {getArrayBufferIterator} from './buffer-iterator';
 import {parseFtyp} from './containers/iso-base-media/ftyp';
 import {parseMvhd} from './containers/iso-base-media/mvhd';
 import {processIsoFormatBox} from './containers/iso-base-media/stsd/samples';
@@ -11,6 +10,7 @@ import {
 	matroskaElements,
 } from './containers/webm/segments/all-segments';
 import {internalParseMedia} from './internal-parse-media';
+import {getArrayBufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {makeParserState} from './state/parser-state';
@@ -20,7 +20,6 @@ export {
 	hasBeenAborted,
 	IsAGifError,
 	IsAnImageError,
-	IsAnUnsupportedAudioTypeError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
 	MediaParserAbortError,
@@ -35,21 +34,20 @@ export type {
 	VideoTrack,
 	VideoTrackColorParams,
 } from './get-tracks';
-export type {MetadataEntry} from './metadata/get-metadata';
+export type {MediaParserMetadataEntry} from './metadata/get-metadata';
 export type {MediaParserKeyframe, ParseMediaSrc} from './options';
 export type {MediaParserEmbeddedImage} from './state/images';
 
 export {downloadAndParseMedia} from './download-and-parse-media';
+export type {Options, ParseMediaFields} from './fields';
 export type {
 	MediaParserContainer,
-	Options,
+	MediaParserTracks,
 	ParseMediaCallbacks,
-	ParseMediaFields,
 	ParseMediaOnProgress,
 	ParseMediaOptions,
 	ParseMediaProgress,
 	ParseMediaResult,
-	TracksField,
 } from './options';
 export {parseMedia} from './parse-media';
 export type {
@@ -92,6 +90,7 @@ export type {
 	TrackEntry,
 	UintWithSize,
 } from './containers/webm/segments/all-segments';
+export {MediaParserStructureUnstable} from './parse-result';
 export type {LogLevel};
 
 export {M3uAssociatedPlaylist, M3uStream} from './containers/m3u/get-streams';

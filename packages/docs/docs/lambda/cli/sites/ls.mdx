@@ -1,0 +1,54 @@
+---
+image: /generated/articles-docs-lambda-cli-sites-ls.png
+sidebar_label: ls
+title: 'npx remotion lambda sites ls'
+slug: /lambda/cli/sites/ls
+crumb: 'Lambda CLI Reference'
+---
+
+```
+npx remotion lambda sites ls
+```
+
+Get a list of sites. The URL that is printed can be passed to the `render` command to render a video.
+
+<details>
+  <summary>Example output</summary>
+  <pre>
+    Site Name Bucket Size Last updated
+    <br />
+    pr6fwglz05 remotionlambda-abcdefg 14.7 MB 2021-12-02
+    <br />
+    https://remotionlambda-abcdefg.s3.eu-central-1.amazonaws.com/sites/pr6fwglz05/index.html
+    <br />
+    <br />
+    testbed remotionlambda-abcdefg 14.7 MB 2021-12-02 <br />
+    https://remotionlambda-abcdefg.s3.eu-central-1.amazonaws.com/sites/testbed/index.html
+    <br />
+  </pre>
+</details>
+
+
+## `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
+
+## `--quiet`, `-q`
+
+Returns only a list of space-separated sites.
+
+```
+npx remotion lambda sites ls -q
+```
+
+<details>
+  <summary>Example output</summary>
+  <pre>
+    pr6fwglz05 testbed
+    <br />
+  </pre>
+</details>
+
+## `--force-path-style`<AvailableFrom v="4.0.202" />
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
