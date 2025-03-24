@@ -17,7 +17,7 @@ export default function MyApp(){
 
   return(
          <input type="file" accept=".wav" onChange={(e)=>{
-              transcribe(e.target.files[0])
+              transcribe({file: e.target.files[0]})
               .then(result => setText(result));
             }} />
   )
@@ -62,4 +62,4 @@ The number of threads to use for transcription, set to `8` by default.
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/helpers.ts)
 - [`@remotion/whisper-wasm`](/docs/whisper-wasm)
-- [`downloadModel()`](/docs/whisper-wasm/download-model)
+- [`downloadWhisperModel()`](/docs/whisper-wasm/download-whisper-model)

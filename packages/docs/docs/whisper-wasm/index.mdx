@@ -28,7 +28,7 @@ export default function Home() {
   const [text, setText] = useState("");
 
   useEffect(()=>{
-    downloadModel('tiny.en', downloadProgress);
+    downloadModel({model:'tiny.en', onProgress: downloadProgress});
   },[]);
 
   const onTranscribeChunk = (start:string, end:string, text:string) => {
@@ -39,7 +39,7 @@ export default function Home() {
      <div>
     
             <input type="file" accept=".wav" onChange={(e)=>{
-              transcribe(e.target.files[0], transcriptionProgress, onTranscribeChunk, 12)
+            transcribe({file: e.target.files[0], onProgress: transcriptionProgress, onTranscribeChunk, threads: 12})
                  .then(result => setText(result));
 
    

@@ -710,7 +710,7 @@ module.exports = {
 				id: 'whisper-wasm/index',
 			},
 			items: [
-				'whisper-wasm/download-model',
+				'whisper-wasm/download-whisper-model',
 				'whisper-wasm/transcribe',
 			],
 		},

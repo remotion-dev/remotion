@@ -1,20 +1,20 @@
 ---
-title: downloadModel()
+title: downloadWhisperModel()
 crumb: '@remotion/whisper-wasm'
 ---
 
-# downloadModel()
+# downloadWhisperModel()
 
 Downloads a Whisper.cpp model to the browser.  
 
 ```tsx title="app.tsx"
 import { useEffect, useState } from "react";
-import {downloadModel} from '@remotion/whisper-wasm';
+import {downloadWhisperModel} from '@remotion/whisper-wasm';
 
 export default function MyApp(){
     const [progress, setProgress] = useState(0)
     useEffect(()=>{
-    downloadModel('tiny.en', setProgress);
+    downloadWhisperModel({model: 'tiny.en', onProgress: setProgress});
   },[]);
 
   return (
@@ -23,7 +23,7 @@ export default function MyApp(){
 }
 ```
 
-## Arguments
+## Options
 
 
 ### `model`

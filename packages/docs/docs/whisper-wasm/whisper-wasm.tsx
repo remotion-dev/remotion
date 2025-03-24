@@ -6,8 +6,8 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
-				<TOCItem link="/docs/whisper-wasm/download-model">
-					<strong>downloadModel()</strong>
+				<TOCItem link="/docs/whisper-wasm/download-whisper-model">
+					<strong>downloadWhisperModel()</strong>
 					<div>Download a Whisper model in browser</div>
 				</TOCItem>
 				<TOCItem link="/docs/whisper-wasm/transcribe">
