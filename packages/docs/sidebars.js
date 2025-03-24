@@ -1245,7 +1245,12 @@ module.exports = {
 				type: 'doc',
 				id: 'timeline/index',
 			},
-			items: ['timeline/setup', 'timeline/usage', 'timeline/faq'],
+			items: [
+				'timeline/demo',
+				'timeline/setup',
+				'timeline/usage',
+				'timeline/faq',
+			],
 		},
 		{
 			type: 'link',
