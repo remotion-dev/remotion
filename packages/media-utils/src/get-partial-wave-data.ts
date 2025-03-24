@@ -26,10 +26,11 @@ export const getPartialWaveData = async ({
 }) => {
 	const startByte =
 		dataOffset + Math.floor(fromSeconds * sampleRate) * blockAlign;
-	const endByte = Math.min(
-		fileSize - 1,
-		dataOffset + Math.floor(toSeconds * sampleRate - 1) * blockAlign,
-	);
+	const endByte =
+		Math.min(
+			fileSize,
+			(dataOffset + Math.floor(toSeconds * sampleRate)) * blockAlign,
+		) - 1;
 
 	const response = await fetchWithCorsCatch(src, {
 		headers: {
@@ -37,6 +38,12 @@ export const getPartialWaveData = async ({
 		},
 		signal,
 	});
+
+	if (response.status === 416) {
+		throw new Error(
+			`Tried to read bytes ${startByte}-${endByte} from ${src}, but the response status code was 416 "Range Not Satisfiable". Were too many bytes requested? The file is ${fileSize} bytes long.`,
+		);
+	}
 
 	if (response.status !== 206) {
 		throw new Error(
