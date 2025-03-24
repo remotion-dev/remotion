@@ -155,6 +155,7 @@ export const webpackConfig = async ({
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
 				react: require.resolve('react'),
+				// Needed to not fail on this: https://github.com/remotion-dev/remotion/issues/5045
 				'remotion/no-react': path.resolve(
 					require.resolve('remotion'),
 					'..',
