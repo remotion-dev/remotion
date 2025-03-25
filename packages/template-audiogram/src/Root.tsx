@@ -33,9 +33,9 @@ export const RemotionRoot: React.FC = () => {
           // visualizer settings
           visualizerType: "oscilloscope",
           visualizerColor: "#D2FF00",
+          visualizerNumberOfSamples: "64" as const,
           visualizerFreqRangeStartIndex: 7,
           visualizerLinesToDisplay: 29,
-          visualizerNumberOfSamples: "256" as const,
           visualizerMirror: true,
         }}
         // Determine the length of the video based on the duration of the audio file

@@ -21,7 +21,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   captionsTextColor: subtitlesTextColor,
   captionsLinePerPage: subtitlesLinePerPage,
   visualizerColor,
-  visualizerNumberOfSamples: waveNumberOfSamples,
+  visualizerNumberOfSamples,
   visualizerFreqRangeStartIndex: waveFreqRangeStartIndex,
   visualizerLinesToDisplay: waveLinesToDisplay,
   captionsZoomMeasurerSize: subtitlesZoomMeasurerSize,
@@ -40,6 +40,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   }
 
   const audioOffsetInFrames = Math.round(audioOffsetInSeconds * fps);
+  const baseNumberOfSamples = Number(visualizerNumberOfSamples);
 
   return (
     <AbsoluteFill>
@@ -60,20 +61,20 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
           <div>
             {visualizerType === "oscilloscope" ? (
               <Oscilloscope
+                waveColor={visualizerColor}
                 padding={50}
                 audioSrc={audioFileUrl}
-                numberOfSamples={40}
+                numberOfSamples={baseNumberOfSamples}
                 windowInSeconds={0.1}
                 posterization={3}
                 amplitude={4}
-                waveColor={visualizerColor}
               />
             ) : visualizerType === "spectrum" ? (
               <Spectrum
+                barColor={visualizerColor}
                 audioSrc={audioFileUrl}
                 mirrorWave={mirrorWave}
-                barColor={visualizerColor}
-                numberOfSamples={Number(waveNumberOfSamples)}
+                numberOfSamples={baseNumberOfSamples * 4} // since fft is used, we need to increase the number of samples to get a better resolution
                 freqRangeStartIndex={waveFreqRangeStartIndex}
                 waveLinesToDisplay={waveLinesToDisplay}
               />
