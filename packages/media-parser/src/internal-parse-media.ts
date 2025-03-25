@@ -132,5 +132,9 @@ export const internalParseMedia: InternalParseMedia = async function <
 		throw state.errored;
 	}
 
+	if (state.controller._internals.seekSignal.getSeek()) {
+		throw new Error('Should not finish while a seek is pending');
+	}
+
 	return state.returnValue as ParseMediaResult<F>;
 };

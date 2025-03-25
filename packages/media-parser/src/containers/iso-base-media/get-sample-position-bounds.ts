@@ -8,12 +8,15 @@ export const getSamplePositionBounds = (
 	let max = -Infinity;
 
 	for (const samplePosition of samplePositions) {
-		if (samplePosition.cts < min) {
-			min = samplePosition.cts;
+		const timestampMin = Math.min(samplePosition.cts, samplePosition.dts);
+		const timestampMax = Math.max(samplePosition.cts, samplePosition.dts);
+
+		if (timestampMin < min) {
+			min = timestampMin;
 		}
 
-		if (samplePosition.cts > max) {
-			max = samplePosition.cts;
+		if (timestampMax > max) {
+			max = timestampMax;
 		}
 	}
 

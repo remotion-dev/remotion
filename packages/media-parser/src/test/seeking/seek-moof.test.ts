@@ -14,6 +14,7 @@ test('seek moof', async () => {
 		type: 'keyframe-before-time-in-seconds',
 		time: 20,
 	});
+	let samples = 0;
 
 	try {
 		await parseMedia({
@@ -22,18 +23,35 @@ test('seek moof', async () => {
 			acknowledgeRemotionLicense: true,
 			controller,
 			fields: {
-				slowKeyframes: true,
 				internalStats: true,
 			},
 			onVideoTrack: () => {
 				return (sample) => {
-					if (sample.cts < 10_400_000) {
-						throw new Error('did not seek correctly');
+					samples++;
+
+					if (samples > 3) {
+						throw new Error('should not reach here');
 					}
 
-					expect(sample.cts).toBe(19533333.333333332);
-					expect(sample.type).toBe('key');
-					controller.abort();
+					if (sample.cts === 19533333.333333332) {
+						expect(sample.type).toBe('key');
+
+						controller._experimentalSeek({
+							type: 'keyframe-before-time-in-seconds',
+							time: 0,
+						});
+					}
+
+					if (sample.dts === 0) {
+						controller._experimentalSeek({
+							type: 'keyframe-before-time-in-seconds',
+							time: 10,
+						});
+					}
+
+					if (sample.dts === 9700000) {
+						controller.abort();
+					}
 				};
 			},
 		});
@@ -152,6 +170,16 @@ test('seek moof', async () => {
 				from: 1163013,
 				to: 1214780,
 				type: 'internal',
+			},
+			{
+				from: 1261511,
+				to: 2052,
+				type: 'user-initiated',
+			},
+			{
+				from: 9349,
+				to: 802836,
+				type: 'user-initiated',
 			},
 		]);
 	}

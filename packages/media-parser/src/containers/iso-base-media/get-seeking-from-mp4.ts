@@ -88,28 +88,28 @@ export const getSeekingByteFromIsoBaseMedia = ({
 			isByteInVideoSection({
 				position: currentPosition,
 				videoSections: info.videoSections,
-			}) === 'in-section'
+			}) !== 'in-section'
 		) {
-			Log.trace(
-				logLevel,
-				'Fragmented MP4 - Inside the wrong video section, skipping to the end of the section',
-			);
-			const videoSection = getCurrentVideoSection({
-				offset: currentPosition,
-				videoSections: info.videoSections,
-			});
-			if (!videoSection) {
-				throw new Error('No video section defined');
-			}
-
 			return {
-				type: 'intermediary-seek',
-				byte: videoSection.start + videoSection.size,
+				type: 'valid-but-must-wait',
 			};
 		}
 
+		Log.trace(
+			logLevel,
+			'Fragmented MP4 - Inside the wrong video section, skipping to the end of the section',
+		);
+		const videoSection = getCurrentVideoSection({
+			offset: currentPosition,
+			videoSections: info.videoSections,
+		});
+		if (!videoSection) {
+			throw new Error('No video section defined');
+		}
+
 		return {
-			type: 'valid-but-must-wait',
+			type: 'intermediary-seek',
+			byte: videoSection.start + videoSection.size,
 		};
 	}
 

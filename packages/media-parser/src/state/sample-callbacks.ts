@@ -92,7 +92,7 @@ export const sampleCallback = ({
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
 					if (seekSignal.getSeek()) {
-						Log.verbose(
+						Log.trace(
 							logLevel,
 							'Not emitting sample because seek is processing',
 						);
@@ -125,7 +125,7 @@ export const sampleCallback = ({
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {
 					if (seekSignal.getSeek()) {
-						Log.verbose(
+						Log.trace(
 							logLevel,
 							'Not emitting sample because seek is processing',
 						);
