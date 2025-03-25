@@ -5,6 +5,7 @@ import {
 	getMoofBoxes,
 	getMoovBoxFromState,
 	getMvhdBox,
+	getTfraBoxes,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
@@ -53,37 +54,6 @@ export const isMatroska = (boxes: AnySegment[]) => {
 	return matroskaBox;
 };
 
-const isoHasDuration = (parserState: ParserState) => {
-	const structure = parserState.getIsoStructure();
-
-	const moovBox = getMoovBoxFromState(parserState);
-	if (!moovBox) {
-		return false;
-	}
-
-	const mvhdBox = getMvhdBox(moovBox);
-
-	if (!mvhdBox) {
-		return false;
-	}
-
-	if (mvhdBox.type !== 'mvhd-box') {
-		throw new Error('Expected mvhd-box');
-	}
-
-	if (mvhdBox.durationInSeconds > 0) {
-		return true;
-	}
-
-	// Checking if this is a fragmented mp4
-	const moofBoxes = getMoofBoxes(structure.boxes);
-	const hasMvex = moovBox.children.some(
-		(b) => b.type === 'regular-box' && b.boxType === 'mvex',
-	);
-	const isFragmented = moofBoxes.length > 0 || hasMvex;
-	return !isFragmented;
-};
-
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const structure = parserState.getIsoStructure();
 
@@ -93,6 +63,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	}
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
+	const tfraBoxes = getTfraBoxes(structure);
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -118,7 +89,13 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		const samplePositions = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
+			tfraBoxes,
+			needsToBeComplete: true,
 		});
+
+		if (samplePositions === null) {
+			return null;
+		}
 
 		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
@@ -127,7 +104,11 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return highest ?? 0;
 	});
 
-	const highestTimestamp = Math.max(...allSamples);
+	if (allSamples.some((s) => s === null)) {
+		return null;
+	}
+
+	const highestTimestamp = Math.max(...allSamples.filter((s) => s !== null));
 
 	return highestTimestamp;
 };
@@ -179,10 +160,6 @@ export const hasDuration = (parserState: ParserState): boolean => {
 	const structure = parserState.getStructureOrNull();
 	if (structure === null) {
 		return false;
-	}
-
-	if (structure.type === 'iso-base-media') {
-		return isoHasDuration(parserState);
 	}
 
 	return getHasTracks(parserState);

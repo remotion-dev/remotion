@@ -5,6 +5,7 @@ import {getSamplePositions} from '../../get-sample-positions';
 import {getSamplePositionsFromLpcm} from '../../get-sample-positions-from-lpcm';
 import {getSamplesFromMoof} from '../../samples-from-moof';
 import type {IsoBaseMediaBox} from './base-media-box';
+import type {TfraBox} from './mfra/tfra';
 import type {TrakBox} from './trak/trak';
 import {
 	getCttsBox,
@@ -19,10 +20,34 @@ import {
 export const getSamplePositionsFromTrack = ({
 	trakBox,
 	moofBoxes,
+	tfraBoxes,
+	needsToBeComplete,
 }: {
 	trakBox: TrakBox;
 	moofBoxes: IsoBaseMediaBox[];
-}): SamplePosition[] => {
+	tfraBoxes: TfraBox[];
+	needsToBeComplete: boolean;
+}): SamplePosition[] | null => {
+	const tkhdBox = getTkhdBox(trakBox);
+	if (!tkhdBox) {
+		throw new Error('Expected tkhd box in trak box');
+	}
+
+	if (moofBoxes.length > 0) {
+		const isComplete =
+			tfraBoxes.length > 0 &&
+			tfraBoxes.every((t) => t.entries.length === moofBoxes.length);
+		if (needsToBeComplete && !isComplete) {
+			return null;
+		}
+
+		return moofBoxes
+			.map((m) => {
+				return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
+			})
+			.flat(1);
+	}
+
 	const isLpcm = isLpcmAudioCodec(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
@@ -35,12 +60,7 @@ export const getSamplePositionsFromTrack = ({
 	const stscBox = getStscBox(trakBox);
 	const stssBox = getStssBox(trakBox);
 	const sttsBox = getSttsBox(trakBox);
-	const tkhdBox = getTkhdBox(trakBox);
 	const cttsBox = getCttsBox(trakBox);
-
-	if (!tkhdBox) {
-		throw new Error('Expected tkhd box in trak box');
-	}
 
 	if (!stszBox) {
 		throw new Error('Expected stsz box in trak box');
@@ -70,13 +90,8 @@ export const getSamplePositionsFromTrack = ({
 		sttsBox,
 		cttsBox,
 	});
-
-	if (samplePositions.length === 0 && moofBoxes.length > 0) {
-		return moofBoxes
-			.map((m) => {
-				return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
-			})
-			.flat(1);
+	if (samplePositions.length === 0) {
+		return null;
 	}
 
 	return samplePositions;

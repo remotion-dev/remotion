@@ -17,6 +17,7 @@ test('should parse mfra atoms', async () => {
 		acknowledgeRemotionLicense: true,
 		controller,
 		fields: {
+			durationInSeconds: true,
 			structure: true,
 		},
 	});

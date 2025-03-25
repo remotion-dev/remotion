@@ -58,7 +58,12 @@ test('Stream samples', async () => {
 	});
 
 	expect(
-		getSamplePositionsFromTrack({trakBox: trakBox as TrakBox, moofBoxes: []}),
+		getSamplePositionsFromTrack({
+			trakBox: trakBox as TrakBox,
+			moofBoxes: [],
+			tfraBoxes: [],
+			needsToBeComplete: true,
+		}),
 	);
 
 	const [firstAudioTrack] = tracks.audioTracks;
@@ -76,7 +81,12 @@ test('Stream samples', async () => {
 		codecWithoutConfig: 'mp3',
 	});
 	expect(
-		getSamplePositionsFromTrack({trakBox: trakBox2 as TrakBox, moofBoxes: []}),
+		getSamplePositionsFromTrack({
+			trakBox: trakBox2 as TrakBox,
+			moofBoxes: [],
+			tfraBoxes: [],
+			needsToBeComplete: true,
+		}),
 	).toEqual([
 		{
 			offset: 6908,
