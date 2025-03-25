@@ -62,7 +62,7 @@ export const getSamplePositionsFromTrack = ({
 		throw new Error('Expected timescale and duration in trak box');
 	}
 
-	let samplePositions = getSamplePositions({
+	const samplePositions = getSamplePositions({
 		stcoBox,
 		stscBox,
 		stszBox,
@@ -72,7 +72,7 @@ export const getSamplePositionsFromTrack = ({
 	});
 
 	if (samplePositions.length === 0 && moofBoxes.length > 0) {
-		samplePositions = moofBoxes
+		return moofBoxes
 			.map((m) => {
 				return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
 			})

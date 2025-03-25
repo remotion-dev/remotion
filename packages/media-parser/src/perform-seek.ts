@@ -6,11 +6,32 @@ import type {ParserState} from './state/parser-state';
 export const performSeek = async ({
 	seekTo,
 	state,
+	userInitiated,
 }: {
 	seekTo: number;
 	state: ParserState;
+	userInitiated: boolean;
 }): Promise<void> => {
-	const {iterator, logLevel, mode, contentLength, seekInfiniteLoop} = state;
+	const {
+		iterator,
+		logLevel,
+		mode,
+		contentLength,
+		seekInfiniteLoop,
+		videoSection,
+	} = state;
+
+	const byteInVideoSection = videoSection.isByteInVideoSection(seekTo);
+	if (byteInVideoSection !== 'in-section' && userInitiated) {
+		const section = videoSection.getVideoSection();
+		const sectionString =
+			section === null
+				? 'not yet defined'
+				: `start: ${section.start}, end: ${section.size + section.start}`;
+		throw new Error(
+			`Cannot seek to a byte that is not in the video section. Seeking to: ${seekTo}, section: ${sectionString}`,
+		);
+	}
 
 	seekInfiniteLoop.registerSeek(seekTo);
 
@@ -45,7 +66,7 @@ export const performSeek = async ({
 
 	const skippingForward = seekTo > iterator.counter.getOffset();
 	if (skippingForward) {
-		await seekForward(state, seekTo);
+		await seekForward({state, seekTo, userInitiated});
 	} else {
 		await seekBackwards(state, seekTo);
 	}

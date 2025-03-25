@@ -10,7 +10,8 @@ import {parseVideoSection} from './parse-video-section';
 
 export const parseWav = (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
-	const insideVideoSection = state.videoSection.isInVideoSectionState(iterator);
+	const insideVideoSection =
+		state.videoSection.isCurrentByteInVideoSection(iterator);
 	if (insideVideoSection === 'in-section') {
 		return parseVideoSection({state});
 	}

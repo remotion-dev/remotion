@@ -5,6 +5,13 @@ import type {Seek} from './seek-signal';
 import type {ParserState} from './state/parser-state';
 
 const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
+	const videoSection = state.videoSection.getVideoSection();
+	if (!videoSection) {
+		return {
+			type: 'valid-but-must-wait',
+		};
+	}
+
 	if (seek.type === 'keyframe-before-time-in-seconds') {
 		const seekingInfo = getSeekingInfo(state);
 		if (!seekingInfo) {
@@ -21,7 +28,16 @@ const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
 		};
 	}
 
-	throw new Error(`Cannot process seek request ${JSON.stringify(seek)}`);
+	if (seek.type === 'byte') {
+		return {
+			type: 'do-seek',
+			byte: seek.byte,
+		};
+	}
+
+	throw new Error(
+		`Cannot process seek request for ${seek}: ${JSON.stringify(seek)}`,
+	);
 };
 
 export const workOnSeekRequest = async (state: ParserState) => {
@@ -35,7 +51,7 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	Log.trace(state.logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
 	if (resolution.type === 'do-seek') {
-		await performSeek({state, seekTo: resolution.byte});
+		await performSeek({state, seekTo: resolution.byte, userInitiated: true});
 		const {hasChanged} =
 			state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
 		if (hasChanged) {
@@ -45,11 +61,20 @@ export const workOnSeekRequest = async (state: ParserState) => {
 			);
 			await workOnSeekRequest(state);
 		}
+
+		return;
 	}
 
 	if (resolution.type === 'invalid') {
 		throw new Error(
 			`The seek request ${JSON.stringify(seek)} cannot be processed`,
+		);
+	}
+
+	if (resolution.type === 'valid-but-must-wait') {
+		Log.trace(
+			state.logLevel,
+			'Seek request is valid but cannot be processed yet',
 		);
 	}
 };

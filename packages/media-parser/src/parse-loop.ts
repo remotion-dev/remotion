@@ -96,6 +96,7 @@ export const parseLoop = async ({
 					await performSeek({
 						seekTo: skip.skipTo,
 						state,
+						userInitiated: false,
 					});
 					state.timings.timeSeeking += Date.now() - seekStart;
 				}

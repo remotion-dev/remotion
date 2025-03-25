@@ -15,22 +15,13 @@ type SeekToByte = {
 	byte: number;
 };
 
-type ForceSeekToByte = {
-	type: 'force-seek-to-byte';
-	byte: number;
-};
-
-export type Seek = SeekToTime | SeekToByte | ForceSeekToByte;
+export type Seek = SeekToTime | SeekToByte;
 
 export const makeSeekSignal = (emitter: MediaParserEmitter): SeekSignal => {
 	let seek: Seek | undefined;
 
 	return {
 		seek: (seekRequest) => {
-			if (seek) {
-				throw new Error('Seek already requested, must wait');
-			}
-
 			seek = seekRequest;
 			emitter.dispatchSeek(seekRequest);
 		},

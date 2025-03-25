@@ -13,6 +13,10 @@ export const parseVideoSection = async ({
 	const structure = state.getWavStructure();
 
 	const videoSection = state.videoSection.getVideoSection();
+	if (!videoSection) {
+		throw new Error('No video section defined');
+	}
+
 	const maxOffset = videoSection.start + videoSection.size;
 	const maxRead = maxOffset - iterator.counter.getOffset();
 	const offset = iterator.counter.getOffset();
