@@ -14,7 +14,7 @@ test.skip('seek moof', async () => {
 		time: 20,
 	});
 
-	const {slowKeyframes} = await parseMedia({
+	await parseMedia({
 		src: video,
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
@@ -30,6 +30,4 @@ test.skip('seek moof', async () => {
 			};
 		},
 	});
-
-	console.log(slowKeyframes);
 });
