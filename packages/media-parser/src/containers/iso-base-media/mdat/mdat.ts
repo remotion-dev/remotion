@@ -7,12 +7,16 @@ import type {FlatSample} from '../../../state/iso-base-media/cached-sample-posit
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
+import {getCurrentVideoSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
 
 export const parseMdatSection = async (
 	state: ParserState,
 ): Promise<Skip | null> => {
-	const videoSection = state.videoSection.getVideoSection();
+	const videoSection = getCurrentVideoSection({
+		offset: state.iterator.counter.getOffset(),
+		videoSections: state.videoSection.getVideoSections(),
+	});
 	if (!videoSection) {
 		throw new Error('No video section defined');
 	}

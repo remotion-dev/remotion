@@ -1,5 +1,5 @@
+import type {MediaParserController} from '../controller/media-parser-controller';
 import {Log} from '../log';
-import type {MediaParserController} from '../media-parser-controller';
 import type {WorkerRequestPayload} from './worker-types';
 
 export const forwardMediaParserControllerToWorker = (

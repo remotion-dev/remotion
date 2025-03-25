@@ -24,15 +24,11 @@ export const calculateFlatSamples = (state: ParserState) => {
 
 	const flatSamples = allTracks
 		.map((track) => {
-			const samplePositions = getSamplePositionsFromTrack({
+			const {samplePositions} = getSamplePositionsFromTrack({
 				trakBox: track.trakBox as TrakBox,
 				moofBoxes: getMoofBoxes(state.getIsoStructure().boxes),
 				tfraBoxes: getTfraBoxes(state.getIsoStructure()),
-				needsToBeComplete: false,
 			});
-			if (!samplePositions) {
-				throw new Error('No sample positions');
-			}
 
 			return samplePositions.map((samplePosition) => {
 				return {

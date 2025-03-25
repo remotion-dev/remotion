@@ -3,6 +3,7 @@ import type {
 	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 } from '../containers/m3u/select-stream';
+import type {MediaParserController} from '../controller/media-parser-controller';
 import type {Options, ParseMediaFields} from '../fields';
 import {getFieldsFromCallback} from '../get-fields-from-callbacks';
 import {
@@ -10,7 +11,6 @@ import {
 	type BufferIterator,
 } from '../iterator/buffer-iterator';
 import {Log, type LogLevel} from '../log';
-import type {MediaParserController} from '../media-parser-controller';
 import type {
 	AllParseMediaFields,
 	OnDiscardedData,

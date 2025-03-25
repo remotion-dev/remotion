@@ -2,6 +2,7 @@ import {Log} from './log';
 import {seekBackwards} from './seek-backwards';
 import {seekForward} from './seek-forwards';
 import type {ParserState} from './state/parser-state';
+import {isByteInVideoSection} from './state/video-section';
 
 export const performSeek = async ({
 	seekTo,
@@ -19,17 +20,22 @@ export const performSeek = async ({
 		contentLength,
 		seekInfiniteLoop,
 		videoSection,
+		controller,
 	} = state;
 
-	const byteInVideoSection = videoSection.isByteInVideoSection(seekTo);
+	const byteInVideoSection = isByteInVideoSection({
+		position: seekTo,
+		videoSections: videoSection.getVideoSections(),
+	});
 	if (byteInVideoSection !== 'in-section' && userInitiated) {
-		const section = videoSection.getVideoSection();
-		const sectionString =
-			section === null
-				? 'not yet defined'
-				: `start: ${section.start}, end: ${section.size + section.start}`;
+		const sections = videoSection.getVideoSections();
+		const sectionStrings = sections.map((section) => {
+			return `start: ${section.start}, end: ${section.size + section.start}`;
+		});
 		throw new Error(
-			`Cannot seek to a byte that is not in the video section. Seeking to: ${seekTo}, section: ${sectionString}`,
+			`Cannot seek to a byte that is not in the video section. Seeking to: ${seekTo}, sections: ${sectionStrings.join(
+				' | ',
+			)}`,
 		);
 	}
 
@@ -56,7 +62,7 @@ export const performSeek = async ({
 		return;
 	}
 
-	await state.controller?._internals.checkForAbortAndPause();
+	await controller._internals.checkForAbortAndPause();
 
 	const alreadyAtByte = iterator.counter.getOffset() === seekTo;
 	if (alreadyAtByte) {
@@ -65,6 +71,11 @@ export const performSeek = async ({
 	}
 
 	const skippingForward = seekTo > iterator.counter.getOffset();
+	controller._internals.performedSeeksSignal.recordSeek({
+		from: iterator.counter.getOffset(),
+		to: seekTo,
+		type: userInitiated ? 'user-initiated' : 'internal',
+	});
 	if (skippingForward) {
 		await seekForward({state, seekTo, userInitiated});
 	} else {

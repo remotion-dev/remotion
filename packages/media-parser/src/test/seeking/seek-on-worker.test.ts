@@ -1,7 +1,7 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
-import {mediaParserController} from '../../media-parser-controller';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {parseMediaOnServerWorker} from '../../worker.module';
 

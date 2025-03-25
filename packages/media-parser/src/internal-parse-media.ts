@@ -1,7 +1,7 @@
+import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
 import type {Options, ParseMediaFields} from './fields';
 import {Log} from './log';
-import {mediaParserController} from './media-parser-controller';
 import type {
 	InternalParseMedia,
 	InternalParseMediaOptions,
@@ -130,6 +130,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	if (state.errored) {
 		throw state.errored;
+	}
+
+	if (state.controller._internals.seekSignal.getSeek()) {
+		throw new Error('Should not finish while a seek is pending');
 	}
 
 	return state.returnValue as ParseMediaResult<F>;

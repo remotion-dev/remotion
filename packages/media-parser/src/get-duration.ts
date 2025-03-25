@@ -86,14 +86,17 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	];
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack({
+		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
 			tfraBoxes,
-			needsToBeComplete: true,
 		});
 
-		if (samplePositions === null) {
+		if (!isComplete) {
+			return null;
+		}
+
+		if (samplePositions.length === 0) {
 			return null;
 		}
 
@@ -104,7 +107,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return highest ?? 0;
 	});
 
-	if (allSamples.some((s) => s === null)) {
+	if (allSamples.every((s) => s === null)) {
 		return null;
 	}
 
