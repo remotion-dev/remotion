@@ -1,7 +1,5 @@
-import {
-	getSeekingByteFromIsoBaseMedia,
-	getSeekingInfoFromMp4,
-} from './containers/iso-base-media/get-seeking-from-mp4';
+import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-from-mp4';
+import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-info-from-mp4';
 import type {SeekingInfo} from './seeking-info';
 import type {ParserState} from './state/parser-state';
 
