@@ -22,6 +22,12 @@ const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
 
 		const seekingByte = getSeekingByte(seekingInfo, seek.time);
 
+		if (!seekingByte) {
+			return {
+				type: 'valid-but-must-wait',
+			};
+		}
+
 		return {
 			type: 'do-seek',
 			byte: seekingByte,

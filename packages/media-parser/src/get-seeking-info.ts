@@ -17,9 +17,12 @@ export const getSeekingInfo = (state: ParserState): SeekingInfo | null => {
 	return null;
 };
 
-export const getSeekingByte = (info: SeekingInfo, time: number): number => {
+export const getSeekingByte = (
+	info: SeekingInfo,
+	time: number,
+): number | null => {
 	if (info.type === 'iso-base-media-seeking-info') {
-		return getSeekingByteFromIsoBaseMedia(info, time).offset;
+		return getSeekingByteFromIsoBaseMedia(info, time);
 	}
 
 	throw new Error(`Unknown seeking info type: ${info.type as never}`);

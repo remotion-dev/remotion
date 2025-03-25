@@ -30,5 +30,5 @@ export const findKeyframeBeforeTime = ({
 		throw new Error('No sample found');
 	}
 
-	return sam;
+	return sam.offset;
 };

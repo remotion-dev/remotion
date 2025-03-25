@@ -16,11 +16,9 @@ export const collectSamplePositionsFromMoofBoxes = ({
 		tfraBoxes.length > 0 &&
 		tfraBoxes.every((t) => t.entries.length === moofBoxes.length);
 
-	const samplePositions_ = moofBoxes
-		.map((m) => {
-			return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
-		})
-		.flat(1);
+	const samplePositions_ = moofBoxes.map((m) => {
+		return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
+	});
 
 	return {samplePositions: samplePositions_, isComplete};
 };

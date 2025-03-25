@@ -2,6 +2,7 @@ import {getTracksFromMoovBox} from '../../get-tracks';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
+import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
@@ -31,21 +32,25 @@ export const getSeekingByteFromIsoBaseMedia = (
 			throw new Error('Expected tkhd box in trak box');
 		}
 
-		const {isComplete: isComplete_, samplePositions: samplePositions_} =
+		const {samplePositions: samplePositionsArray} =
 			collectSamplePositionsFromMoofBoxes({
 				moofBoxes: info.moofBoxes,
 				tfraBoxes: info.tfraBoxes,
 				tkhdBox,
 			});
-		if (!isComplete_) {
-			throw new Error('Incomplete sample positions');
+
+		for (const positions of samplePositionsArray) {
+			const {min, max} = getSamplePositionBounds(positions, timescale);
+			if (min <= time && time <= max) {
+				return findKeyframeBeforeTime({
+					samplePositions: positions,
+					time,
+					timescale,
+				});
+			}
 		}
 
-		return findKeyframeBeforeTime({
-			samplePositions: samplePositions_,
-			time,
-			timescale,
-		});
+		return null;
 	}
 
 	const {samplePositions, isComplete} = getSamplePositionsFromTrack({
