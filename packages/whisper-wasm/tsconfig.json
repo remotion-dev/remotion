@@ -1,8 +1,9 @@
 {
-  "extends": "../tsconfig.settings.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist"
-  },
-  "include": ["src/index.ts", "src/main.ts"]
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist"
+	},
+	"include": ["src"],
+	"exclude": ["bundle.ts"]
 }

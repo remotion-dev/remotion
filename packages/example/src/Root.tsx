@@ -1569,6 +1569,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Composition
+				id="whisper-wasm"
+				component={Empty}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={900}
+			/>
+			<Composition
 				id="empty"
 				component={Empty}
 				width={1080}
