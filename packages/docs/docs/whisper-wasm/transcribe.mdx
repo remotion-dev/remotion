@@ -5,22 +5,27 @@ crumb: '@remotion/whisper-wasm'
 
 # transcribe()
 
-Transcribes a media file by utilizing Whisper.cpp.  
+Transcribes a media file by utilizing Whisper.cpp.
 
-```tsx title="app.tsx"
-import { useState } from "react";
+```tsx twoslash title="app.tsx"
+import {useState} from 'react';
 import {transcribe} from '@remotion/whisper-wasm';
 
-export default function MyApp(){
-  const [text, setText] = useState("");
+export default function MyApp() {
+  const [text, setText] = useState('');
 
-
-  return(
-         <input type="file" accept=".wav" onChange={(e)=>{
-              transcribe({file: e.target.files[0]})
-              .then(result => setText(result));
-            }} />
-  )
+  return (
+    <input
+      type="file"
+      accept=".wav"
+      onChange={(e) =>
+        e.target.files &&
+        transcribe({
+          file: e.target.files[0]
+        }).then((result) => console.log(result))
+      }
+    />
+  );
 }
 ```
 
@@ -28,16 +33,13 @@ export default function MyApp(){
 
 ### `file`
 
-The audio file you want extract text from. The file has to be a 16KHz wav file. 
-
-
+The audio file you want extract text from. The file has to be a 16KHz wav file.
 
 ### `onProgress?`
 
 Act upon transcription progress. This is the function signature:
 
 ```tsx twoslash
-
 const onProgress = (progress: number) => {
   // do something
 };
@@ -48,15 +50,14 @@ const onProgress = (progress: number) => {
 Called when a new chunk of text has been extracted from the file. This is the function signature:
 
 ```tsx twoslash
-
-  const onTranscribeChunk = (start:string, end:string, text:string) => {
-    console.log(`transcribed ${text} for the time ${start} to ${end} `)
-  }
+const onTranscribeChunk = (start: string, end: string, text: string) => {
+  console.log(`transcribed ${text} for the time ${start} to ${end} `);
+};
 ```
 
 ### `threads?`
-The number of threads to use for transcription, set to `8` by default.
 
+The number of threads to use for transcription, set to `8` by default.
 
 ## See also
 

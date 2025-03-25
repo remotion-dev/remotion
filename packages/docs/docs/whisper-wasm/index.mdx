@@ -1,5 +1,4 @@
 ---
-
 title: '@remotion/whisper-wasm'
 crumb: 'Transcribe audio in browser'
 ---
@@ -14,42 +13,41 @@ import {TableOfContents} from './whisper-wasm';
 
 ## Example usage
 
-
-```tsx title="app.tsx"
-
-import {  downloadWhisperModel, transcribe } from "@remotion/whisper-wasm"
-import { useEffect, useState } from "react";
-
-
+```tsx twoslash title="app.tsx"
+import {downloadWhisperModel, transcribe} from '@remotion/whisper-wasm';
+import {useEffect, useState} from 'react';
 
 export default function Home() {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [transcriptionProgress, setTranscriptionProgress] = useState(0);
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
 
-  useEffect(()=>{
-    downloadWhisperModel({model:'tiny.en', onProgress: downloadProgress});
-  },[]);
+  useEffect(() => {
+    downloadWhisperModel({model: 'tiny.en', onProgress: setDownloadProgress});
+  }, []);
 
-  const onTranscribeChunk = (start:string, end:string, text:string) => {
+  const onTranscribeChunk = (start: string, end: string, text: string) => {
     // do something
-  }
+  };
 
   return (
-     <div>
-    
-            <input type="file" accept=".wav" onChange={(e)=>{
-            transcribe({file: e.target.files[0], onProgress: transcriptionProgress, onTranscribeChunk, threads: 12})
-                 .then(result => setText(result));
+    <div>
+      <input
+        type="file"
+        accept=".wav"
+        onChange={(e) =>
+          e.target.files &&
+          transcribe({
+            file: e.target.files[0],
+            onProgress: setTranscriptionProgress,
+          }).then((result) => console.log(result))
+        }
+      />
 
-   
-            }} />
-            
       <progress value={transcriptionProgress} max={100} />
-      </div>
+    </div>
   );
 }
-
 ```
 
 ## Functions
