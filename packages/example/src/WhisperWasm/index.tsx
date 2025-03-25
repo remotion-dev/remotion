@@ -3,7 +3,7 @@ import {useCallback} from 'react';
 
 export const WhisperWasm = () => {
 	const onClick = useCallback(() => {
-		downloadWhisperModel();
+		downloadWhisperModel({model: 'tiny.en'});
 	}, []);
 
 	return (
