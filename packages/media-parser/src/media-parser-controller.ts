@@ -20,6 +20,7 @@ export type MediaParserController = {
 		signal: AbortSignal;
 		checkForAbortAndPause: () => Promise<void>;
 		seekSignal: SeekSignal;
+		markAsReadyToEmitEvents: () => void;
 	};
 };
 
@@ -27,7 +28,7 @@ export const mediaParserController = (): MediaParserController => {
 	const abortController = new AbortController();
 	const emitter = new MediaParserEmitter();
 	const pauseSignal = makePauseSignal(emitter);
-	const seekSignal = makeSeekSignal();
+	const seekSignal = makeSeekSignal(emitter);
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
@@ -52,6 +53,7 @@ export const mediaParserController = (): MediaParserController => {
 			signal: abortController.signal,
 			checkForAbortAndPause,
 			seekSignal,
+			markAsReadyToEmitEvents: emitter.markAsReady,
 		},
 	};
 };

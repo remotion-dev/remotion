@@ -32,6 +32,7 @@ import {m3uState} from './m3u-state';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
+import {seekInfiniteLoopDetectionState} from './seek-infinite-loop';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {timingsState} from './timings';
@@ -110,6 +111,7 @@ export const makeParserState = ({
 	const mp3Info = makeMp3State();
 	const images = imagesState();
 	const timings = timingsState();
+	const seekInfiniteLoop = seekInfiniteLoopDetectionState();
 
 	const errored: Error | null = null;
 
@@ -186,6 +188,7 @@ export const makeParserState = ({
 		mimeType,
 		errored: errored as Error | null,
 		currentReader: initialReaderInstance,
+		seekInfiniteLoop,
 	};
 };
 

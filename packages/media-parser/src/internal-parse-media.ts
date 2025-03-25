@@ -35,6 +35,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	mp4HeaderSegment,
 	...more
 }: InternalParseMediaOptions<F>) {
+	controller._internals.markAsReadyToEmitEvents();
 	warnIfRemotionLicenseNotAcknowledged({
 		acknowledgeRemotionLicense,
 		logLevel,
