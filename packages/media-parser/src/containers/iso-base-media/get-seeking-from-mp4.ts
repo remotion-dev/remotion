@@ -2,6 +2,11 @@ import {getTracksFromMoovBox} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
+import {
+	getCurrentVideoSection,
+	isByteInVideoSection,
+} from '../../state/video-section';
+import type {SeekResolution} from '../../work-on-seek-request';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
@@ -13,11 +18,13 @@ export const getSeekingByteFromIsoBaseMedia = ({
 	info,
 	time,
 	logLevel,
+	currentPosition,
 }: {
 	info: IsoBaseMediaSeekingInfo;
 	time: number;
 	logLevel: LogLevel;
-}) => {
+	currentPosition: number;
+}): SeekResolution => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
 	const allTracks = [
 		...tracks.videoTracks,
@@ -57,22 +64,53 @@ export const getSeekingByteFromIsoBaseMedia = ({
 					logLevel,
 					`Fragmented MP4 - Found that we have seeking info for this time range: ${min} <= ${time} <= ${max}`,
 				);
-				return findKeyframeBeforeTime({
+				const kf = findKeyframeBeforeTime({
 					samplePositions: positions,
 					time,
 					timescale,
 					logLevel,
 					videoSections: info.videoSections,
 				});
+				if (kf) {
+					return {
+						type: 'do-seek',
+						byte: kf,
+					};
+				}
 			}
 		}
 
 		Log.trace(
 			logLevel,
-			'Fragmented MP4 - No seeking info found for this time range. Not returning a byte',
+			'Fragmented MP4 - No seeking info found for this time range.',
 		);
+		if (
+			isByteInVideoSection({
+				position: currentPosition,
+				videoSections: info.videoSections,
+			}) === 'in-section'
+		) {
+			Log.trace(
+				logLevel,
+				'Fragmented MP4 - Inside the wrong video section, skipping to the end of the section',
+			);
+			const videoSection = getCurrentVideoSection({
+				offset: currentPosition,
+				videoSections: info.videoSections,
+			});
+			if (!videoSection) {
+				throw new Error('No video section defined');
+			}
 
-		return null;
+			return {
+				type: 'intermediary-seek',
+				byte: videoSection.start + videoSection.size,
+			};
+		}
+
+		return {
+			type: 'valid-but-must-wait',
+		};
 	}
 
 	const {samplePositions, isComplete} = getSamplePositionsFromTrack({
@@ -85,11 +123,22 @@ export const getSeekingByteFromIsoBaseMedia = ({
 		throw new Error('Incomplete sample positions');
 	}
 
-	return findKeyframeBeforeTime({
+	const keyframe = findKeyframeBeforeTime({
 		samplePositions,
 		time,
 		timescale,
 		logLevel,
 		videoSections: info.videoSections,
 	});
+
+	if (keyframe) {
+		return {
+			type: 'do-seek',
+			byte: keyframe,
+		};
+	}
+
+	return {
+		type: 'invalid',
+	};
 };

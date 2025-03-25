@@ -32,22 +32,10 @@ const turnSeekIntoByte = ({
 			info: seekingInfo,
 			time: seek.time,
 			logLevel: state.logLevel,
+			currentPosition: state.iterator.counter.getOffset(),
 		});
 
-		if (!seekingByte) {
-			Log.trace(
-				state.logLevel,
-				'Could not calculate seeking byte, cannot seek yet',
-			);
-			return {
-				type: 'valid-but-must-wait',
-			};
-		}
-
-		return {
-			type: 'do-seek',
-			byte: seekingByte,
-		};
+		return seekingByte;
 	}
 
 	if (seek.type === 'byte') {
@@ -71,6 +59,15 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	Log.trace(state.logLevel, `Has seek request: ${JSON.stringify(seek)}`);
 	const resolution = turnSeekIntoByte({seek, state});
 	Log.trace(state.logLevel, `Seek action: ${JSON.stringify(resolution)}`);
+
+	if (resolution.type === 'intermediary-seek') {
+		await performSeek({
+			state,
+			seekTo: resolution.byte,
+			userInitiated: false,
+		});
+		return;
+	}
 
 	if (resolution.type === 'do-seek') {
 		await performSeek({state, seekTo: resolution.byte, userInitiated: true});
@@ -101,12 +98,16 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	}
 };
 
-type SeekResolution =
+export type SeekResolution =
 	| {
 			type: 'valid-but-must-wait';
 	  }
 	| {
 			type: 'invalid';
+	  }
+	| {
+			type: 'intermediary-seek';
+			byte: number;
 	  }
 	| {
 			type: 'do-seek';

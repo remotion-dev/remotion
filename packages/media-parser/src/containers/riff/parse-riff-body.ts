@@ -2,6 +2,7 @@ import type {ParseResult} from '../../parse-result';
 import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
+import {getCurrentVideoSection} from '../../state/video-section';
 import {expectRiffBox} from './expect-riff-box';
 import {parseVideoSection} from './parse-video-section';
 
@@ -18,9 +19,10 @@ export const parseRiffBody = async (
 			}) &&
 			state.riff.getAvcProfile()
 		) {
-			const videoSection = state.videoSection.getCurrentVideoSection(
-				state.iterator.counter.getOffset(),
-			);
+			const videoSection = getCurrentVideoSection({
+				offset: state.iterator.counter.getOffset(),
+				videoSections: state.videoSection.getVideoSections(),
+			});
 			if (!videoSection) {
 				throw new Error('No video section defined');
 			}

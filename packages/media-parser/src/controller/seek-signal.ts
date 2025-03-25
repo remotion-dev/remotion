@@ -10,6 +10,7 @@ type SeekToTime = {
 	type: 'keyframe-before-time-in-seconds';
 	time: number;
 };
+
 type SeekToByte = {
 	type: 'byte';
 	byte: number;

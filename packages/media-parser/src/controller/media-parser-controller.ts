@@ -2,6 +2,8 @@ import {MediaParserAbortError} from '../errors';
 import {MediaParserEmitter} from './emitter';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
+import type {PerformedSeeksSignal} from './performed-seeks-stats';
+import {performedSeeksStats} from './performed-seeks-stats';
 import type {SeekSignal} from './seek-signal';
 import {makeSeekSignal} from './seek-signal';
 
@@ -21,6 +23,7 @@ export type MediaParserController = {
 		checkForAbortAndPause: () => Promise<void>;
 		seekSignal: SeekSignal;
 		markAsReadyToEmitEvents: () => void;
+		performedSeeksSignal: PerformedSeeksSignal;
 	};
 };
 
@@ -29,6 +32,7 @@ export const mediaParserController = (): MediaParserController => {
 	const emitter = new MediaParserEmitter();
 	const pauseSignal = makePauseSignal(emitter);
 	const seekSignal = makeSeekSignal(emitter);
+	const performedSeeksSignal = performedSeeksStats();
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
@@ -54,6 +58,7 @@ export const mediaParserController = (): MediaParserController => {
 			checkForAbortAndPause,
 			seekSignal,
 			markAsReadyToEmitEvents: emitter.markAsReady,
+			performedSeeksSignal,
 		},
 	};
 };

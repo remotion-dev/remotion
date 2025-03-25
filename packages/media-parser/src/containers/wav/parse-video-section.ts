@@ -2,6 +2,7 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {getCurrentVideoSection} from '../../state/video-section';
 import type {WavFmt} from './types';
 
 export const parseVideoSection = async ({
@@ -12,9 +13,10 @@ export const parseVideoSection = async ({
 	const {iterator} = state;
 	const structure = state.getWavStructure();
 
-	const videoSection = state.videoSection.getCurrentVideoSection(
-		iterator.counter.getOffset(),
-	);
+	const videoSection = getCurrentVideoSection({
+		offset: iterator.counter.getOffset(),
+		videoSections: state.videoSection.getVideoSections(),
+	});
 	if (!videoSection) {
 		throw new Error('No video section defined');
 	}

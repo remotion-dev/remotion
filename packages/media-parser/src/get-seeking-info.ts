@@ -3,6 +3,7 @@ import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-inf
 import type {LogLevel} from './log';
 import type {SeekingInfo} from './seeking-info';
 import type {ParserState} from './state/parser-state';
+import type {SeekResolution} from './work-on-seek-request';
 
 export const getSeekingInfo = (state: ParserState): SeekingInfo | null => {
 	const structure = state.getStructureOrNull();
@@ -22,13 +23,20 @@ export const getSeekingByte = ({
 	info,
 	time,
 	logLevel,
+	currentPosition,
 }: {
 	info: SeekingInfo;
 	time: number;
 	logLevel: LogLevel;
-}): number | null => {
+	currentPosition: number;
+}): SeekResolution => {
 	if (info.type === 'iso-base-media-seeking-info') {
-		return getSeekingByteFromIsoBaseMedia({info, time, logLevel});
+		return getSeekingByteFromIsoBaseMedia({
+			info,
+			time,
+			logLevel,
+			currentPosition,
+		});
 	}
 
 	throw new Error(`Unknown seeking info type: ${info.type as never}`);

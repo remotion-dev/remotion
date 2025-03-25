@@ -11,6 +11,42 @@ export type VideoSection = {
 	size: number;
 };
 
+export const isByteInVideoSection = ({
+	position,
+	videoSections,
+}: {
+	position: number;
+	videoSections: VideoSection[];
+}): 'no-section-defined' | 'in-section' | 'outside-section' => {
+	if (videoSections.length === 0) {
+		return 'no-section-defined';
+	}
+
+	for (const section of videoSections) {
+		if (position >= section.start && position < section.start + section.size) {
+			return 'in-section';
+		}
+	}
+
+	return 'outside-section';
+};
+
+export const getCurrentVideoSection = ({
+	offset,
+	videoSections,
+}: {
+	offset: number;
+	videoSections: VideoSection[];
+}): VideoSection | null => {
+	for (const section of videoSections) {
+		if (offset >= section.start && offset < section.start + section.size) {
+			return section;
+		}
+	}
+
+	return null;
+};
+
 export const videoSectionState = () => {
 	const videoSections: VideoSection[] = [];
 
@@ -31,37 +67,11 @@ export const videoSectionState = () => {
 		return videoSections;
 	};
 
-	const isByteInVideoSection = (
-		byte: number,
-	): 'no-section-defined' | 'in-section' | 'outside-section' => {
-		if (videoSections.length === 0) {
-			return 'no-section-defined';
-		}
-
-		for (const section of videoSections) {
-			if (byte >= section.start && byte < section.start + section.size) {
-				return 'in-section';
-			}
-		}
-
-		return 'outside-section';
-	};
-
 	const isCurrentByteInVideoSection = (
 		iterator: BufferIterator,
 	): 'no-section-defined' | 'in-section' | 'outside-section' => {
 		const offset = iterator.counter.getOffset();
-		return isByteInVideoSection(offset);
-	};
-
-	const getCurrentVideoSection = (offset: number): VideoSection | null => {
-		for (const section of videoSections) {
-			if (offset >= section.start && offset < section.start + section.size) {
-				return section;
-			}
-		}
-
-		return null;
+		return isByteInVideoSection({position: offset, videoSections});
 	};
 
 	const getVideoSectionAssertOnlyOne = (): VideoSection => {
