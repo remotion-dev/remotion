@@ -1,6 +1,9 @@
 import type {AllOptions, Options, ParseMediaFields} from '../fields';
 
-const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
+export const fieldsNeedSamplesMap: Record<
+	keyof Options<ParseMediaFields>,
+	boolean
+> = {
 	slowDurationInSeconds: true,
 	slowFps: true,
 	slowKeyframes: true,
@@ -40,5 +43,5 @@ export const needsToIterateOverSamples = ({
 }) => {
 	const keys = Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[];
 	const selectedKeys = keys.filter((k) => fields[k]);
-	return selectedKeys.some((k) => needsSamples[k] && !emittedFields[k]);
+	return selectedKeys.some((k) => fieldsNeedSamplesMap[k] && !emittedFields[k]);
 };

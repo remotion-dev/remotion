@@ -9,6 +9,7 @@ import {makeBaseMediaTrack} from './make-track';
 import {parseMdhd} from './mdhd';
 import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
+import {parseTfraBox} from './mfra/tfra';
 import {parseMoov} from './moov/moov';
 import {parseMvhd} from './mvhd';
 import {parseAv1C} from './stsd/av1c';
@@ -64,7 +65,7 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
-		state.videoSection.setVideoSection({
+		state.videoSection.addVideoSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});
@@ -185,6 +186,14 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		});
 	}
 
+	if (boxType === 'tfra') {
+		return parseTfraBox({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+	}
+
 	if (boxType === 'moov') {
 		if (state.callbacks.tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
@@ -298,6 +307,7 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		boxType === 'meta' ||
 		boxType === 'wave' ||
 		boxType === 'traf' ||
+		boxType === 'mfra' ||
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({

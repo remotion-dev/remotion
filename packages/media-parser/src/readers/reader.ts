@@ -1,4 +1,4 @@
-import type {MediaParserController} from '../media-parser-controller';
+import type {MediaParserController} from '../controller/media-parser-controller';
 import type {ParseMediaSrc} from '../options';
 
 export type Reader = {

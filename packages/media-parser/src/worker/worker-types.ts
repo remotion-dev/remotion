@@ -6,6 +6,7 @@ import type {
 	SelectM3uAssociatedPlaylistsFnOptions,
 	SelectM3uStreamFnOptions,
 } from '../containers/m3u/select-stream';
+import type {Seek} from '../controller/seek-signal';
 import type {Dimensions, ImageType} from '../errors';
 import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserLocation} from '../get-location';
@@ -21,7 +22,6 @@ import type {
 	SerializeableOptionalParseMediaParams,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
-import type {Seek} from '../seek-signal';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {

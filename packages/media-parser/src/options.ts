@@ -3,6 +3,7 @@ import type {
 	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 } from './containers/m3u/select-stream';
+import type {MediaParserController} from './controller/media-parser-controller';
 import type {Options, ParseMediaFields} from './fields';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
@@ -13,7 +14,6 @@ import type {
 	VideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
-import type {MediaParserController} from './media-parser-controller';
 import type {MediaParserMetadataEntry} from './metadata/get-metadata';
 import type {
 	IsoBaseMediaStructure,

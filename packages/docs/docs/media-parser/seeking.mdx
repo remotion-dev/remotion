@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-media-parser-seeking.png
+id: seeking
+title: Seeking
+slug: /media-parser/seeking
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+**In construction:** Seeking is not yet supported and you should not yet use it. This documentation page is a living document allowing us to write down the rules
+:::
+
+In [`parseMedia()`](/docs/media-parser/parse-media), [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker), you can seek to a different position in the media file.
+
+```tsx twoslash title="Basic seeking"
+import {parseMedia, mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+// You can make a seek even before starting a parse
+// This will be considered before emitting the first sample
+controller._experimentalSeek({
+  type: 'keyframe-before-time-in-seconds',
+  time: 5,
+});
+
+await parseMedia({
+  src: 'https://example.com/video.mp4',
+  controller,
+  onVideoTrack: () => {
+    return () => {
+      // You can also seek inmidst a parse.
+      controller._experimentalSeek({
+        type: 'keyframe-before-time-in-seconds',
+        time: 10,
+      });
+    };
+  },
+});
+```
+
+## Types of seek
+
+### `keyframe-before-time-in-seconds`
+
+This will seek to the last keyframe that comes before a certain time. If there is a keyframe at exactly this time, it will seek to this one.
+
+Remember that if you want to decode a video, you always have to start at a keyframe. If you are not interested in the frames before `time`, you still need to decode them, but you may discard them.
+
+```tsx twoslash title="Seeking to a keyframe"
+import {mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+controller._experimentalSeek({
+  type: 'keyframe-before-time-in-seconds',
+  time: 5,
+});
+```
+
+## When you cannot seek
+
+It is not allowed to **seek forward** if any of the following [fields](/docs/media-parser/fields) are required:
+
+import {DisallowForwardSeekingFields} from './DisallowForwardSeekingFields';
+
+<DisallowForwardSeekingFields />
+
+The reason for this is that all samples need to be iterated over for these fields to be calculated. By seeking forward, some samples would be skipped which would skew the results.
+
+An error will be thrown if you attempt to do this.

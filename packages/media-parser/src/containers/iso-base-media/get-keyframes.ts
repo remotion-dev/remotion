@@ -3,7 +3,7 @@ import type {MediaParserKeyframe} from '../../options';
 import type {ParserState} from '../../state/parser-state';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import type {TrakBox} from './trak/trak';
-import {getMoofBoxes} from './traversal';
+import {getMoofBoxes, getTfraBoxes} from './traversal';
 
 export const getKeyframesFromIsoBaseMedia = (
 	state: ParserState,
@@ -11,14 +11,20 @@ export const getKeyframesFromIsoBaseMedia = (
 	const {videoTracks} = getTracksFromIsoBaseMedia(state);
 	const structure = state.getIsoStructure();
 
-	const moofBox = getMoofBoxes(structure.boxes);
+	const moofBoxes = getMoofBoxes(structure.boxes);
+	const tfraBoxes = getTfraBoxes(structure);
 
 	const allSamples = videoTracks.map((t): MediaParserKeyframe[] => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack({
+		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
-			moofBoxes: moofBox,
+			moofBoxes,
+			tfraBoxes,
 		});
+
+		if (!isComplete) {
+			return [];
+		}
 
 		const keyframes = samplePositions
 			.filter((k) => {

@@ -4,6 +4,7 @@ import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
 import type {HdlrBox} from './meta/hdlr';
 import type {IlstBox} from './meta/ilst';
+import type {TfraBox} from './mfra/tfra';
 import type {MoovBox} from './moov/moov';
 import type {MvhdBox} from './mvhd';
 import type {Av1CBox} from './stsd/av1c';
@@ -65,4 +66,5 @@ export type IsoBaseMediaBox =
 	| HdlrBox
 	| ColorParameterBox
 	| TfdtBox
-	| TfhdBox;
+	| TfhdBox
+	| TfraBox;
