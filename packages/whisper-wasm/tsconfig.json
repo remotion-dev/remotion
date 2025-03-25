@@ -4,6 +4,5 @@
 		"rootDir": "src",
 		"outDir": "dist"
 	},
-	"include": ["src"],
-	"exclude": ["bundle.ts", "main.js"]
+	"include": ["src/index.ts"]
 }

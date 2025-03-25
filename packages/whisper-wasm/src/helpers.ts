@@ -1,5 +1,5 @@
 /* eslint-disable no-console, new-cap */
-
+// @ts-nocheck
 import type {MainModule} from './emscripten-types';
 
 const dbName = 'whisper-wasm';
@@ -7,9 +7,9 @@ const dst = 'whisper.bin';
 const dbVersion = 1;
 const kMaxAudio_s = 30 * 60;
 const kSampleRate = 16000;
-const maxThreadsAllowed = 13;
+const maxThreadsAllowed = 16;
 
-let transcriptionText = '';
+let transcriptionText = [];
 let transcriptionProgressPlayback = null;
 let transcriptionChunkPlayback = null;
 let resolver = null;
@@ -37,25 +37,26 @@ const printHandler = (text) => {
 	if (chunkMatch) {
 		const timestampStart = chunkMatch[1];
 		const timestampEnd = chunkMatch[2];
+		const textOnly = chunkMatch[3].trim();
 		transcriptionChunkPlayback?.(
 			timestampStart,
 			timestampEnd,
-			chunkMatch[3].trim(),
+			textOnly,
 		);
-		transcriptionText += ' ' + text;
+		transcriptionText.push(textOnly);
 	}
 
 	if (text === 'completed') {
-		resolver(transcriptionText);
+		resolver(transcriptionText.join(' '));
 		transcriptionChunkPlayback = null;
 		transcriptionProgressPlayback = null;
-		transcriptionText = '';
+		transcriptionText = [];
 	}
 
 	console.log(text);
 };
 
-const Module = window.Module as MainModule;
+var Module = {} as MainModule;
 Module.print = (text: string) => printHandler(text);
 Module.printErr = (text: string) => printHandler(text);
 
