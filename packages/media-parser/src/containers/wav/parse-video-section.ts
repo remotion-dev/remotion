@@ -12,7 +12,9 @@ export const parseVideoSection = async ({
 	const {iterator} = state;
 	const structure = state.getWavStructure();
 
-	const videoSection = state.videoSection.getVideoSection();
+	const videoSection = state.videoSection.getCurrentVideoSection(
+		iterator.counter.getOffset(),
+	);
 	if (!videoSection) {
 		throw new Error('No video section defined');
 	}

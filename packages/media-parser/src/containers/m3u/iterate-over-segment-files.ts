@@ -1,8 +1,8 @@
+import type {MediaParserController} from '../../controller/media-parser-controller';
+import {mediaParserController} from '../../controller/media-parser-controller';
 import {forwardMediaParserController} from '../../forward-controller';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import type {LogLevel} from '../../log';
-import type {MediaParserController} from '../../media-parser-controller';
-import {mediaParserController} from '../../media-parser-controller';
 import {parseMedia} from '../../parse-media';
 import type {ReaderInterface} from '../../readers/reader';
 import type {ExistingM3uRun, M3uState} from '../../state/m3u-state';

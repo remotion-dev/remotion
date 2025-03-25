@@ -65,7 +65,7 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
-		state.videoSection.setVideoSection({
+		state.videoSection.addVideoSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});

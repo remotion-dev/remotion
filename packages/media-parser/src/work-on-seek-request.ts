@@ -1,12 +1,19 @@
+import type {Seek} from './controller/seek-signal';
 import {getSeekingByte, getSeekingInfo} from './get-seeking-info';
 import {Log} from './log';
 import {performSeek} from './perform-seek';
-import type {Seek} from './seek-signal';
 import type {ParserState} from './state/parser-state';
 
-const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
-	const videoSection = state.videoSection.getVideoSection();
-	if (!videoSection) {
+const turnSeekIntoByte = ({
+	seek,
+	state,
+}: {
+	seek: Seek;
+	state: ParserState;
+}): SeekResolution => {
+	const videoSections = state.videoSection.getVideoSections();
+	if (videoSections.length === 0) {
+		Log.trace(state.logLevel, 'No video sections defined, cannot seek yet');
 		return {
 			type: 'valid-but-must-wait',
 		};
@@ -15,14 +22,23 @@ const turnSeekIntoByte = (seek: Seek, state: ParserState): SeekResolution => {
 	if (seek.type === 'keyframe-before-time-in-seconds') {
 		const seekingInfo = getSeekingInfo(state);
 		if (!seekingInfo) {
+			Log.trace(state.logLevel, 'No seeking info, cannot seek yet');
 			return {
 				type: 'valid-but-must-wait',
 			};
 		}
 
-		const seekingByte = getSeekingByte(seekingInfo, seek.time);
+		const seekingByte = getSeekingByte({
+			info: seekingInfo,
+			time: seek.time,
+			logLevel: state.logLevel,
+		});
 
 		if (!seekingByte) {
+			Log.trace(
+				state.logLevel,
+				'Could not calculate seeking byte, cannot seek yet',
+			);
 			return {
 				type: 'valid-but-must-wait',
 			};
@@ -53,7 +69,7 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	}
 
 	Log.trace(state.logLevel, `Has seek request: ${JSON.stringify(seek)}`);
-	const resolution = turnSeekIntoByte(seek, state);
+	const resolution = turnSeekIntoByte({seek, state});
 	Log.trace(state.logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
 	if (resolution.type === 'do-seek') {

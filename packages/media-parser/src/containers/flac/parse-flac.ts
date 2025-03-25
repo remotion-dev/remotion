@@ -47,7 +47,7 @@ export const parseFlac = ({
 	iterator.stopReadingBits();
 	const size = iterator.getUint24();
 	if (isLastMetadata) {
-		state.videoSection.setVideoSection({
+		state.videoSection.addVideoSection({
 			start: iterator.counter.getOffset() + size,
 			size: state.contentLength - iterator.counter.getOffset() - size,
 		});

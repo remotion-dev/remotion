@@ -1,7 +1,7 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
-import {mediaParserController} from '../../media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
 
@@ -27,7 +27,7 @@ if (process.platform !== 'win32') {
 			throw new Error('should not complete');
 		} catch (err) {
 			expect((err as Error).message).toBe(
-				'Cannot seek to a byte that is not in the video section. Seeking to: 5, section: start: 48, end: 14282315',
+				'Cannot seek to a byte that is not in the video section. Seeking to: 5, sections: start: 48, end: 14282315',
 			);
 		}
 	});
@@ -53,7 +53,7 @@ if (process.platform !== 'win32') {
 			throw new Error('should not complete');
 		} catch (err) {
 			expect((err as Error).message).toBe(
-				'Cannot seek to a byte that is not in the video section. Seeking to: 1000000000, section: start: 48, end: 14282315',
+				'Cannot seek to a byte that is not in the video section. Seeking to: 1000000000, sections: start: 48, end: 14282315',
 			);
 		}
 	});

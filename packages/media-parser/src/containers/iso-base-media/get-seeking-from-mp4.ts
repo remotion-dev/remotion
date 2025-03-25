@@ -1,4 +1,6 @@
 import {getTracksFromMoovBox} from '../../get-tracks';
+import type {LogLevel} from '../../log';
+import {Log} from '../../log';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
@@ -7,10 +9,15 @@ import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
 
-export const getSeekingByteFromIsoBaseMedia = (
-	info: IsoBaseMediaSeekingInfo,
-	time: number,
-) => {
+export const getSeekingByteFromIsoBaseMedia = ({
+	info,
+	time,
+	logLevel,
+}: {
+	info: IsoBaseMediaSeekingInfo;
+	time: number;
+	logLevel: LogLevel;
+}) => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
 	const allTracks = [
 		...tracks.videoTracks,
@@ -39,16 +46,31 @@ export const getSeekingByteFromIsoBaseMedia = (
 				tkhdBox,
 			});
 
+		Log.trace(
+			logLevel,
+			'Fragmented MP4 - Checking if we have seeking info for this time range',
+		);
 		for (const positions of samplePositionsArray) {
 			const {min, max} = getSamplePositionBounds(positions, timescale);
 			if (min <= time && time <= max) {
+				Log.trace(
+					logLevel,
+					`Fragmented MP4 - Found that we have seeking info for this time range: ${min} <= ${time} <= ${max}`,
+				);
 				return findKeyframeBeforeTime({
 					samplePositions: positions,
 					time,
 					timescale,
+					logLevel,
+					videoSections: info.videoSections,
 				});
 			}
 		}
+
+		Log.trace(
+			logLevel,
+			'Fragmented MP4 - No seeking info found for this time range. Not returning a byte',
+		);
 
 		return null;
 	}
@@ -63,5 +85,11 @@ export const getSeekingByteFromIsoBaseMedia = (
 		throw new Error('Incomplete sample positions');
 	}
 
-	return findKeyframeBeforeTime({samplePositions, time, timescale});
+	return findKeyframeBeforeTime({
+		samplePositions,
+		time,
+		timescale,
+		logLevel,
+		videoSections: info.videoSections,
+	});
 };

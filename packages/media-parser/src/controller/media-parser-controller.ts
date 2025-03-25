@@ -1,5 +1,5 @@
+import {MediaParserAbortError} from '../errors';
 import {MediaParserEmitter} from './emitter';
-import {MediaParserAbortError} from './errors';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
 import type {SeekSignal} from './seek-signal';

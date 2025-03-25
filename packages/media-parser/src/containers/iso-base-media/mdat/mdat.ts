@@ -12,7 +12,9 @@ import {getMoovAtom} from '../get-moov-atom';
 export const parseMdatSection = async (
 	state: ParserState,
 ): Promise<Skip | null> => {
-	const videoSection = state.videoSection.getVideoSection();
+	const videoSection = state.videoSection.getCurrentVideoSection(
+		state.iterator.counter.getOffset(),
+	);
 	if (!videoSection) {
 		throw new Error('No video section defined');
 	}

@@ -18,7 +18,9 @@ export const parseRiffBody = async (
 			}) &&
 			state.riff.getAvcProfile()
 		) {
-			const videoSection = state.videoSection.getVideoSection();
+			const videoSection = state.videoSection.getCurrentVideoSection(
+				state.iterator.counter.getOffset(),
+			);
 			if (!videoSection) {
 				throw new Error('No video section defined');
 			}

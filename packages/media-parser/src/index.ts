@@ -106,5 +106,5 @@ export {
 export {
 	mediaParserController,
 	MediaParserController,
-} from './media-parser-controller';
+} from './controller/media-parser-controller';
 export {VERSION} from './version';

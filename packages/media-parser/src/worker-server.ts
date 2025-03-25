@@ -2,8 +2,8 @@ import {
 	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
 } from './containers/m3u/select-stream';
+import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
-import {mediaParserController} from './media-parser-controller';
 import type {ReaderInterface} from './readers/reader';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
 import {serializeError} from './worker/serialize-error';

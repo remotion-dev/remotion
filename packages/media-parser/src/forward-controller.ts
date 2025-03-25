@@ -1,5 +1,5 @@
-import type {CallbackListener} from './emitter';
-import type {MediaParserController} from './media-parser-controller';
+import type {CallbackListener} from './controller/emitter';
+import type {MediaParserController} from './controller/media-parser-controller';
 
 export const forwardMediaParserController = ({
 	parentController,

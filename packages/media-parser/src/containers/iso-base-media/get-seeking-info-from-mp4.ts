@@ -19,5 +19,6 @@ export const getSeekingInfoFromMp4 = (
 		moovBox: moovAtom,
 		moofBoxes,
 		tfraBoxes,
+		videoSections: state.videoSection.getVideoSections(),
 	};
 };

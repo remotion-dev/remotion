@@ -1,6 +1,6 @@
+import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
-import type {Seek} from './seek-signal';
 import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
 import {deserializeError} from './worker/serialize-error';
 import type {

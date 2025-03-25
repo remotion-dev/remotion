@@ -28,7 +28,7 @@ export const getSamplePositionsFromTrack = ({
 		});
 
 		return {
-			samplePositions,
+			samplePositions: samplePositions.flat(1),
 			isComplete,
 		};
 	}
