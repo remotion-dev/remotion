@@ -1,39 +1,33 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Audio,
-  Img,
-  Sequence,
-  staticFile,
-  useVideoConfig,
-} from "remotion";
+import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
 import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
 import "./style.css";
 
 import { PaginatedCaptions } from "./Captions";
-import { Waveform } from "./Waveform";
+import { Spectrum } from "./Spectrum";
 import { AudiogramCompositionSchemaType } from "./schema";
-import { VoiceVis } from "./Waveform2";
+import { Oscilloscope } from "./Oscilloscope";
 
 loadFont("normal", {
   weights: ["500"],
 });
 
 export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
-  audioFileName,
-  coverImgFileName,
+  visualizerType,
+  audioFileUrl,
+  coverImageUrl,
   titleText,
   titleColor,
-  subtitlesTextColor,
-  subtitlesLinePerPage,
-  waveColor,
-  waveNumberOfSamples,
-  waveFreqRangeStartIndex,
-  waveLinesToDisplay,
-  subtitlesZoomMeasurerSize,
-  subtitlesLineHeight,
+  captionsTextColor: subtitlesTextColor,
+  captionsLinePerPage: subtitlesLinePerPage,
+  visualizerColor,
+  visualizerNumberOfSamples: waveNumberOfSamples,
+  visualizerFreqRangeStartIndex: waveFreqRangeStartIndex,
+  visualizerLinesToDisplay: waveLinesToDisplay,
+  captionsZoomMeasurerSize: subtitlesZoomMeasurerSize,
+  captionsLineHeight: subtitlesLineHeight,
   onlyDisplayCurrentSentence,
-  mirrorWave,
+  visualizerMirror: mirrorWave,
   audioOffsetInSeconds,
   captions,
 }) => {
@@ -50,7 +44,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   return (
     <AbsoluteFill>
       <Sequence from={-audioOffsetInFrames}>
-        <Audio pauseWhenBuffering src={audioFileName} />
+        <Audio pauseWhenBuffering src={audioFileUrl} />
         <div
           className="container"
           style={{
@@ -58,25 +52,32 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
           }}
         >
           <div className="row">
-            <Img
-              className="cover"
-              src={
-                "https://i.scdn.co/image/ab67656300005f1f16d0cf26a8f69dcfa09c630b"
-              }
-            />
+            <Img className="cover" src={coverImageUrl} />
             <div className="title" style={{ color: titleColor }}>
               {titleText}
             </div>
           </div>
           <div>
-            <VoiceVis
-              padding={50}
-              audioSrc={staticFile("audio.wav")}
-              numberOfSamples={40}
-              windowInSeconds={0.1}
-              posterization={3}
-              amplitude={4}
-            />
+            {visualizerType === "oscilloscope" ? (
+              <Oscilloscope
+                padding={50}
+                audioSrc={audioFileUrl}
+                numberOfSamples={40}
+                windowInSeconds={0.1}
+                posterization={3}
+                amplitude={4}
+                waveColor={visualizerColor}
+              />
+            ) : visualizerType === "spectrum" ? (
+              <Spectrum
+                audioSrc={audioFileUrl}
+                mirrorWave={mirrorWave}
+                barColor={visualizerColor}
+                numberOfSamples={Number(waveNumberOfSamples)}
+                freqRangeStartIndex={waveFreqRangeStartIndex}
+                waveLinesToDisplay={waveLinesToDisplay}
+              />
+            ) : null}
           </div>
           <div
             style={{ lineHeight: `${subtitlesLineHeight}px` }}

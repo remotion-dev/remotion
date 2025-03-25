@@ -2,15 +2,15 @@ import { visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 
-export const Waveform: React.FC<{
-  readonly waveColor: string;
+export const Spectrum: React.FC<{
+  readonly barColor: string;
   readonly numberOfSamples: number;
   readonly freqRangeStartIndex: number;
   readonly waveLinesToDisplay: number;
   readonly mirrorWave: boolean;
   readonly audioSrc: string;
 }> = ({
-  waveColor,
+  barColor,
   numberOfSamples,
   freqRangeStartIndex,
   waveLinesToDisplay,
@@ -61,8 +61,8 @@ export const Waveform: React.FC<{
             className="bar"
             style={{
               minWidth: "1px",
-              backgroundColor: waveColor,
-              height: `${500 * Math.sqrt(v)}%`,
+              backgroundColor: barColor,
+              height: `${300 * Math.sqrt(v)}%`,
             }}
           />
         );

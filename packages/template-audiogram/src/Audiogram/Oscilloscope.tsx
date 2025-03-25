@@ -6,13 +6,14 @@ import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 
-export const VoiceVis: React.FC<{
+export const Oscilloscope: React.FC<{
   audioSrc: string;
   padding: number;
   numberOfSamples: number;
   windowInSeconds: number;
   posterization: number;
   amplitude: number;
+  waveColor: string;
 }> = ({
   padding,
   numberOfSamples,
@@ -20,6 +21,7 @@ export const VoiceVis: React.FC<{
   posterization,
   amplitude,
   audioSrc,
+  waveColor,
 }) => {
   const { width, fps } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -73,7 +75,7 @@ export const VoiceVis: React.FC<{
       <path
         strokeLinecap="round"
         fill="none"
-        stroke="#D2FF00"
+        stroke={waveColor}
         strokeWidth={10}
         d={p}
       />
