@@ -690,7 +690,7 @@ importers:
         specifier: workspace:*
         version: link:../webcodecs
       '@remotion/whisper-wasm':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../whisper-wasm
       '@rive-app/canvas-advanced':
         specifier: 2.3.0
@@ -3377,10 +3377,13 @@ importers:
 
   packages/whisper-wasm:
     dependencies:
-      '@remotion/eslint-config-internal':
-        specifier: workspace:^
-        version: link:../eslint-config-internal
+      remotion:
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -5657,7 +5660,7 @@ packages:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-create-regexp-features-plugin': 7.24.7(@babel/core@7.26.0)
-      '@babel/helper-plugin-utils': 7.25.9
+      '@babel/helper-plugin-utils': 7.24.8
     dev: false
 
   /@babel/plugin-transform-arrow-functions@7.24.7(@babel/core@7.23.2):
@@ -9103,7 +9106,7 @@ packages:
     dependencies:
       '@mdx-js/mdx': 3.0.1
       '@types/history': 4.7.11
-      '@types/react': 18.3.1
+      '@types/react': 19.0.0
       commander: 5.1.0
       joi: 17.13.3
       react: 18.3.1
@@ -10279,7 +10282,7 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.7
+      debug: 4.4.0
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -11371,7 +11374,7 @@ packages:
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.5
-      '@types/react': 18.3.1
+      '@types/react': 19.0.0
       react: 19.0.0
     dev: false
 
@@ -15347,12 +15350,6 @@ packages:
     dependencies:
       undici-types: 5.26.5
 
-  /@types/node@20.14.11:
-    resolution: {integrity: sha512-kprQpL8MMeszbz6ojB5/tU8PLN4kesnN8Gjzw349rDlNgsSzg90lAVj3llK99Dh7JON+t9AuscPPFW6mPbTnSA==}
-    dependencies:
-      undici-types: 5.26.5
-    dev: true
-
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: false
@@ -15391,13 +15388,13 @@ packages:
   /@types/prompts@2.0.14:
     resolution: {integrity: sha512-HZBd99fKxRWpYCErtm2/yxUZv6/PBI9J7N4TNFffl5JbrYMHBwF25DjQGTW3b3jmXq+9P6/8fCIb2ee57BFfYA==}
     dependencies:
-      '@types/node': 18.14.6
+      '@types/node': 20.12.14
     dev: true
 
   /@types/prompts@2.4.1:
     resolution: {integrity: sha512-1Mqzhzi9W5KlooNE4o0JwSXGUDeQXKldbGn9NO4tpxwZbHXYd+WcKpCksG2lbhH7U9I9LigfsdVsP2QAY0lNPA==}
     dependencies:
-      '@types/node': 18.14.6
+      '@types/node': 20.12.14
     dev: true
 
   /@types/prop-types@15.7.4:
@@ -15547,7 +15544,7 @@ packages:
     resolution: {integrity: sha512-8mto3YZfVpqB1CHMaYz1TUYIQfZFbh/QbEq5Hsn6D0ilCfqRVCdalmc89B7vi3jhl9UYIk+dWDABShNfOkv5HA==}
     dependencies:
       '@types/minipass': 3.1.2
-      '@types/node': 18.14.6
+      '@types/node': 20.12.14
     dev: true
 
   /@types/three@0.170.0:
@@ -29971,7 +29968,7 @@ packages:
       vfile-message: 4.0.2
     dev: false
 
-  /vite-node@0.31.1(@types/node@20.14.11):
+  /vite-node@0.31.1(@types/node@20.12.14):
     resolution: {integrity: sha512-BajE/IsNQ6JyizPzu9zRgHrBwczkAs0erQf/JRpgTIESpKvNj9/Gd0vxX905klLkb0I0SJVCKbdrl5c6FnqYKA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -29981,7 +29978,7 @@ packages:
       mlly: 1.5.0
       pathe: 1.1.2
       picocolors: 1.1.1
-      vite: 4.5.9(@types/node@20.14.11)
+      vite: 4.5.9(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -30052,7 +30049,7 @@ packages:
       - supports-color
       - typescript
 
-  /vite@4.5.9(@types/node@20.14.11):
+  /vite@4.5.9(@types/node@20.12.14):
     resolution: {integrity: sha512-qK9W4xjgD3gXbC0NmdNFFnVFLMWSNiR3swj957yutwzzN16xF/E7nmtAyp1rT9hviDroQANjE4HK3H4WqWdFtw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -30080,7 +30077,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.14.11
+      '@types/node': 20.12.14
       esbuild: 0.18.20
       postcss: 8.5.1
       rollup: 3.29.5
@@ -30217,7 +30214,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.11
       '@types/chai-subset': 1.3.5
-      '@types/node': 20.14.11
+      '@types/node': 20.12.14
       '@vitest/expect': 0.31.1
       '@vitest/runner': 0.31.1
       '@vitest/snapshot': 0.31.1
@@ -30237,8 +30234,8 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.6.0
       tinypool: 0.5.0
-      vite: 4.5.9(@types/node@20.14.11)
-      vite-node: 0.31.1(@types/node@20.14.11)
+      vite: 4.5.9(@types/node@20.12.14)
+      vite-node: 0.31.1(@types/node@20.12.14)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
