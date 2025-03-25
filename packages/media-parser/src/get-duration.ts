@@ -96,6 +96,10 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 			return null;
 		}
 
+		if (samplePositions.length === 0) {
+			return null;
+		}
+
 		const highest = samplePositions
 			?.map((sp) => (sp.cts + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
@@ -103,7 +107,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return highest ?? 0;
 	});
 
-	if (allSamples.some((s) => s === null)) {
+	if (allSamples.every((s) => s === null)) {
 		return null;
 	}
 
