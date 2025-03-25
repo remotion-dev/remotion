@@ -4,7 +4,7 @@ import type {IsoBaseMediaSeekingInfo, SeekingInfo} from '../../seeking-info';
 import type {ParserState} from '../../state/parser-state';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import type {TrakBox} from './trak/trak';
-import {getMoofBoxes, getMoovBoxFromState} from './traversal';
+import {getMoofBoxes, getMoovBoxFromState, getTfraBoxes} from './traversal';
 
 export const getSeekingInfoFromMp4 = (
 	state: ParserState,
@@ -12,6 +12,7 @@ export const getSeekingInfoFromMp4 = (
 	const structure = state.getIsoStructure();
 	const moovAtom = getMoovBoxFromState(state);
 	const moofBoxes = getMoofBoxes(structure.boxes);
+	const tfraBoxes = getTfraBoxes(structure);
 
 	if (!moovAtom) {
 		return null;
@@ -21,6 +22,7 @@ export const getSeekingInfoFromMp4 = (
 		type: 'iso-base-media-seeking-info',
 		moovBox: moovAtom,
 		moofBoxes,
+		tfraBoxes,
 	};
 };
 
@@ -47,7 +49,13 @@ export const getSeekingByteFromIsoBaseMedia = (
 		const samplePositions = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes: info.moofBoxes,
+			tfraBoxes: info.tfraBoxes,
+			needsToBeComplete: true,
 		});
+
+		if (samplePositions === null) {
+			continue;
+		}
 
 		for (const sample of samplePositions) {
 			const ctsInSeconds = sample.cts / ts;
