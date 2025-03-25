@@ -12,9 +12,5 @@ await buildPackage({
 			path: 'src/index.module.ts',
 			target: 'browser',
 		},
-		{
-			path: 'src/main.ts',
-			target: 'browser',
-		}
-	]
+	],
 });

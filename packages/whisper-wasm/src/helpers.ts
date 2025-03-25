@@ -1,5 +1,6 @@
 /* eslint-disable no-console, new-cap */
-// @ts-nocheck
+
+import type {MainModule} from './emscripten-types';
 
 const dbName = 'whisper-wasm';
 const dst = 'whisper.bin';
@@ -54,11 +55,9 @@ const printHandler = (text) => {
 	console.log(text);
 };
 
-// eslint-disable-next-line no-var
-var Module = {
-	print: (text) => printHandler(text),
-	printErr: (text) => printHandler(text),
-};
+const Module = window.Module as MainModule;
+Module.print = (text: string) => printHandler(text);
+Module.printErr = (text: string) => printHandler(text);
 
 const checkForHeaders = () => {
 	if (!headerWarningPrinted && !crossOriginIsolated) {
@@ -307,10 +306,6 @@ const audioProcessor = (file) => {
 			reject();
 			return;
 		}
-
-		window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		window.OfflineAudioContext =
-			window.OfflineAudioContext || window.webkitOfflineAudioContext;
 
 		if (!file) {
 			reject(new Error('File is empty'));

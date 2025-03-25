@@ -5,5 +5,5 @@
 		"outDir": "dist"
 	},
 	"include": ["src"],
-	"exclude": ["bundle.ts"]
+	"exclude": ["bundle.ts", "main.js"]
 }
