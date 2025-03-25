@@ -4,7 +4,7 @@ import {mediaParserController} from '../../media-parser-controller';
 import {parseMedia} from '../../parse-media';
 import {nodeReader} from '../../readers/from-node';
 
-test.skip('seek moof', async () => {
+test('seek moof', async () => {
 	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
 
 	const controller = mediaParserController();

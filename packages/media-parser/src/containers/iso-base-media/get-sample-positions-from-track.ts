@@ -21,13 +21,11 @@ export const getSamplePositionsFromTrack = ({
 	trakBox,
 	moofBoxes,
 	tfraBoxes,
-	needsToBeComplete,
 }: {
 	trakBox: TrakBox;
 	moofBoxes: IsoBaseMediaBox[];
 	tfraBoxes: TfraBox[];
-	needsToBeComplete: boolean;
-}): SamplePosition[] | null => {
+}): {samplePositions: SamplePosition[]; isComplete: boolean} => {
 	const tkhdBox = getTkhdBox(trakBox);
 	if (!tkhdBox) {
 		throw new Error('Expected tkhd box in trak box');
@@ -37,22 +35,24 @@ export const getSamplePositionsFromTrack = ({
 		const isComplete =
 			tfraBoxes.length > 0 &&
 			tfraBoxes.every((t) => t.entries.length === moofBoxes.length);
-		if (needsToBeComplete && !isComplete) {
-			return null;
-		}
 
-		return moofBoxes
+		const samplePositions_ = moofBoxes
 			.map((m) => {
 				return getSamplesFromMoof({moofBox: m, trackId: tkhdBox.trackId});
 			})
 			.flat(1);
+
+		return {samplePositions: samplePositions_, isComplete};
 	}
 
 	const isLpcm = isLpcmAudioCodec(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
 	if (isLpcm) {
-		return getSamplePositionsFromLpcm(trakBox);
+		return {
+			samplePositions: getSamplePositionsFromLpcm(trakBox),
+			isComplete: true,
+		};
 	}
 
 	const stszBox = getStszBox(trakBox);
@@ -91,8 +91,8 @@ export const getSamplePositionsFromTrack = ({
 		cttsBox,
 	});
 	if (samplePositions.length === 0) {
-		return null;
+		return {samplePositions: [], isComplete: false};
 	}
 
-	return samplePositions;
+	return {samplePositions, isComplete: true};
 };

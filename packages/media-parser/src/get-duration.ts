@@ -86,14 +86,13 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	];
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack({
+		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
 			tfraBoxes,
-			needsToBeComplete: true,
 		});
 
-		if (samplePositions === null) {
+		if (!isComplete) {
 			return null;
 		}
 

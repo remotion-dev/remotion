@@ -46,14 +46,13 @@ export const getSeekingByteFromIsoBaseMedia = (
 			continue;
 		}
 
-		const samplePositions = getSamplePositionsFromTrack({
+		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes: info.moofBoxes,
 			tfraBoxes: info.tfraBoxes,
-			needsToBeComplete: true,
 		});
 
-		if (samplePositions === null) {
+		if (!isComplete) {
 			continue;
 		}
 

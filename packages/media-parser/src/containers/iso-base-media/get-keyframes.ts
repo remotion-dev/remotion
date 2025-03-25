@@ -16,14 +16,13 @@ export const getKeyframesFromIsoBaseMedia = (
 
 	const allSamples = videoTracks.map((t): MediaParserKeyframe[] => {
 		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack({
+		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
 			tfraBoxes,
-			needsToBeComplete: true,
 		});
 
-		if (samplePositions === null) {
+		if (!isComplete) {
 			return [];
 		}
 
