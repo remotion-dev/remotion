@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-export interface Transcribe {
-	file: File;
-	onProgress?: (p: number) => void;
-	onTranscribeChunk?: (start: string, end: string, text: string) => void;
-	threads?: number;
-}
+import type {TranscribeParams} from './transcribe';
 
 // Ensures transcribe() returns a Promise that resolves to a string
-export const transcribe = async (_args: Transcribe): Promise<string> => {
+export const transcribe = async (_args: TranscribeParams): Promise<string> => {
 	throw new Error('cjs not supported');
 };
 

@@ -29,10 +29,10 @@ const cmakeListsFile = path.join(
 
 const file = fs.readFileSync(cmakeListsFile, 'utf8');
 
-// Disable Node.JS target
+// Disable Node.JS target, compile with assertions to get stack trace
 const lines = file.split('\n').map((line) => {
 	if (line.includes('-s FORCE_FILESYSTEM=1 \\')) {
-		return `-s FORCE_FILESYSTEM=1 -s ENVIRONMENT='web,worker' \\`;
+		return `-s FORCE_FILESYSTEM=1 -s ENVIRONMENT='web,worker' -s ASSERTIONS=1 \\`;
 	}
 
 	return line;
@@ -47,11 +47,6 @@ fs.writeFileSync(
 	].join('\n'),
 );
 
-const emscriptenFilePath = path.join(wasmDir, 'examples', 'whisper.wasm', 'emscripten.cpp');
-//now get our version
-const modifiedVersion = fs.readFileSync('./emscripten.cpp', 'utf8');
-fs.writeFileSync(emscriptenFilePath, modifiedVersion);
-
 // brew install emscripten if necessary
 await $`emcmake cmake ..`.cwd(cwd);
 await $`make -j`.cwd(cwd);
@@ -62,13 +57,12 @@ let content = fs.readFileSync(mainJsFile, 'utf8');
 
 // Modify the Worker path
 content = content.replace(
-    'new Worker(pthreadMainJs',
-    `new Worker(new URL('./main.mjs', import.meta.url)`
+	'new Worker(pthreadMainJs',
+	`new Worker(new URL('./main.mjs', import.meta.url)`,
 );
 
 // Write the modified content directly to the destination
 fs.writeFileSync(path.join(__dirname, 'main.js'), content, 'utf8');
-
 
 const dTsFile = path.join(
 	wasmDir,

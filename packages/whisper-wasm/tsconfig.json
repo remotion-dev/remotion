@@ -4,5 +4,6 @@
 		"rootDir": "src",
 		"outDir": "dist"
 	},
-	"include": ["src/index.ts"]
+	"include": ["src"],
+	"exclude": ["src/index.module.ts"]
 }

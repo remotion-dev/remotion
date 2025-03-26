@@ -10,7 +10,7 @@
 		"formatting": "prettier src --check",
 		"test": "bun test src",
 		"lint": "eslint src",
-		"make": "node append.js && tsc -d && bun --env-file=../.env.bundle bundle.ts && node -e \"require('fs').copyFileSync('main.js', 'dist/esm/main.mjs')\""
+		"make": "bun append.ts && tsc -d && bun --env-file=../.env.bundle bundle.ts && node -e \"require('fs').copyFileSync('main.js', 'dist/esm/main.mjs')\""
 	},
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
 	"license": "UNLICENSED",
