@@ -136,7 +136,7 @@ export const transcribe = async ({
 		}
 
 		if (!instance) {
-			instance = Mod.init('whisper.bin');
+			instance = Mod.init(FILE_DESTINATION);
 			if (!instance) {
 				transcribing = false;
 				throw new Error('Failed to initialize Whisper.');
