@@ -100,6 +100,10 @@ export const makeBrowserRunner = async ({
 					// a minus sign. The process group id is the group leader's pid.
 					const processGroupId = -proc.pid;
 
+					Log.verbose(
+						{indent, logLevel},
+						`Trying to kill browser process group ${processGroupId}`,
+					);
 					try {
 						process.kill(processGroupId, 'SIGKILL');
 					} catch (error) {
@@ -134,6 +138,10 @@ export const makeBrowserRunner = async ({
 			return Promise.resolve();
 		}
 
+		Log.verbose(
+			{indent, logLevel},
+			'Received SIGTERM signal. Killing browser process',
+		);
 		killProcess();
 
 		deleteDirectory(userDataDir);
