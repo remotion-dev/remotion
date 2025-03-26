@@ -6,7 +6,6 @@ await buildPackage({
 		esm: 'build',
 	},
 	external: 'dependencies',
-
 	entrypoints: [
 		{
 			path: 'src/index.module.ts',

@@ -1,6 +1,6 @@
 import {DB_NAME, DB_OBJECT_STORE_NAME, DB_VERSION} from '../constants';
 
-export const openDb = () => {
+export const openDb = (transactionMode: IDBTransactionMode) => {
 	return new Promise<IDBObjectStore>((resolve, reject) => {
 		const rq = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -30,7 +30,10 @@ export const openDb = () => {
 		rq.onsuccess = () => {
 			try {
 				const db = rq.result;
-				const transaction = db.transaction([DB_OBJECT_STORE_NAME], 'readonly');
+				const transaction = db.transaction(
+					[DB_OBJECT_STORE_NAME],
+					transactionMode,
+				);
 
 				transaction.onerror = () => {
 					reject(new Error('Transaction failed'));

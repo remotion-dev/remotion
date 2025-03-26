@@ -56,10 +56,14 @@ const mainJsFile = path.join(cwd, 'bin', 'whisper.wasm', 'main.js');
 let content = fs.readFileSync(mainJsFile, 'utf8');
 
 // Modify the Worker path
-content = content.replace(
-	'new Worker(pthreadMainJs',
-	`new Worker(new URL('./main.mjs', import.meta.url)`,
-);
+content =
+	content.replace(
+		'new Worker(pthreadMainJs',
+		`new Worker(new URL('../../main.js', import.meta.url)`,
+	) +
+	'\n' +
+	'export default Module;' +
+	'\n';
 
 // Write the modified content directly to the destination
 fs.writeFileSync(path.join(__dirname, 'main.js'), content, 'utf8');
@@ -72,6 +76,6 @@ const dTsFile = path.join(
 	'interface.d.ts',
 );
 
-fs.copyFileSync(dTsFile, path.join(__dirname, 'src', 'emscripten-types.d.ts'));
+fs.copyFileSync(dTsFile, path.join(__dirname, 'main.d.ts'));
 
 fs.rmSync(wasmDir, {recursive: true});

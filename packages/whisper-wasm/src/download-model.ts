@@ -31,7 +31,7 @@ export const fetchRemote = async ({
 		receivedLength += value.length;
 
 		if (contentLength) {
-			const progressPercentage = Math.round((receivedLength / total) * 100);
+			const progressPercentage = receivedLength / total;
 			onProgress(progressPercentage);
 
 			const progressCur = Math.round((receivedLength / total) * 10);

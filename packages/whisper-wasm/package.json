@@ -10,7 +10,7 @@
 		"formatting": "prettier src --check",
 		"test": "bun test src",
 		"lint": "eslint src",
-		"make": "bun append.ts && tsc -d && bun --env-file=../.env.bundle bundle.ts && node -e \"require('fs').copyFileSync('main.js', 'dist/esm/main.mjs')\""
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
 	"license": "UNLICENSED",
@@ -31,9 +31,9 @@
 			"import": "./dist/esm/index.mjs"
 		},
 		"./main": {
-			"require": "./dist/esm/main.mjs",
-			"module": "./dist/esm/main.mjs",
-			"import": "./dist/esm/main.mjs"
+			"require": "./main.js",
+			"module": "./main.js",
+			"import": "./main.js"
 		}
 	},
 	"keywords": [

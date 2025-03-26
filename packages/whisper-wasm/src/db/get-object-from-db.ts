@@ -1,4 +1,8 @@
-export const getObjectFromDb = (objectStore: IDBObjectStore, key: string) => {
+import {openDb} from './open-db';
+
+export const getObject = async ({key}: {key: string}) => {
+	const objectStore = await openDb('readonly');
+
 	return new Promise<Uint8Array>((resolve, reject) => {
 		const request = objectStore.get(key);
 		request.onsuccess = () => {

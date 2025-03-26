@@ -1,5 +1,6 @@
 import type {
 	DownloadWhisperModelParams,
+	DownloadWhisperModelResult,
 	downloadWhisperModel as originalDownloadWhisperModel,
 } from './download-whisper-model';
 import type {
@@ -19,4 +20,8 @@ export const downloadWhisperModel: typeof originalDownloadWhisperModel = () => {
 	);
 };
 
-export type {DownloadWhisperModelParams, TranscribeParams};
+export type {
+	DownloadWhisperModelParams,
+	DownloadWhisperModelResult,
+	TranscribeParams,
+};

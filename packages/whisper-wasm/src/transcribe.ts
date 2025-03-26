@@ -1,7 +1,13 @@
+/* eslint-disable new-cap */
 /* eslint-disable no-console */
 
+import type {MainModule} from '../main';
 import {checkForHeaders} from './check-for-headers';
-import {modelState, Module} from './mod';
+import {FILE_DESTINATION, type WhisperModel} from './constants';
+import {getObject} from './db/get-object-from-db';
+import {getModelUrl} from './get-model-url';
+import {loadMod} from './load-mod/load-mod';
+import {modelState, printHandler} from './print-handler';
 
 const MAX_AUDIO_SECONDS = 30 * 60;
 const SAMPLE_RATE = 16000;
@@ -83,17 +89,43 @@ const audioProcessor = (file: Blob) => {
 
 export type TranscribeParams = {
 	file: Blob;
+	model: WhisperModel;
 	onProgress?: (p: number) => void;
 	onTranscribeChunk?: (start: string, end: string, text: string) => void;
 	threads?: number;
 };
 
-export const transcribe = ({
+const storeFS = (mod: MainModule, fname: string, buf: any) => {
+	try {
+		mod.FS_unlink(fname);
+	} catch {
+		// ignore
+	}
+
+	mod.FS_createDataFile('/', fname, buf, true, true, undefined);
+};
+
+export const transcribe = async ({
 	file,
+	model,
 	onProgress,
 	onTranscribeChunk,
 	threads,
 }: TranscribeParams) => {
+	const Mod = await loadMod();
+	Mod.print = printHandler;
+	Mod.printErr = printHandler;
+
+	const url = getModelUrl(model);
+	const result = await getObject({key: url});
+	if (!result) {
+		throw new Error(
+			`Model ${model} is not loaded. Call downloadWhisperModel() first.`,
+		);
+	}
+
+	storeFS(Mod, FILE_DESTINATION, result);
+
 	return new Promise((resolve) => {
 		checkForHeaders();
 
@@ -104,7 +136,7 @@ export const transcribe = ({
 		}
 
 		if (!instance) {
-			instance = Module.init('whisper.bin');
+			instance = Mod.init('whisper.bin');
 			if (!instance) {
 				transcribing = false;
 				throw new Error('Failed to initialize Whisper.');
@@ -136,7 +168,7 @@ export const transcribe = ({
 
 				setTimeout(() => {
 					try {
-						Module.full_default(
+						Mod.full_default(
 							instance as number,
 							data,
 							'en',

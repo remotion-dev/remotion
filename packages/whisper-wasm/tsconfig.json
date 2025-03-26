@@ -2,8 +2,10 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist",
+		"module": "ES2022",
+		"resolveJsonModule": false
 	},
-	"include": ["src"],
+	"include": ["src", "main.d.ts"],
 	"exclude": ["src/index.module.ts"]
 }
