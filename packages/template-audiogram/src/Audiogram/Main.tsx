@@ -13,21 +13,16 @@ loadFont("normal", {
 });
 
 export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
-  visualizerType,
+  visualizer,
   audioFileUrl,
   coverImageUrl,
   titleText,
   titleColor,
-  captionsTextColor: subtitlesTextColor,
-  captionsLinePerPage: subtitlesLinePerPage,
-  visualizerColor,
-  visualizerNumberOfSamples,
-  visualizerFreqRangeStartIndex: waveFreqRangeStartIndex,
-  visualizerLinesToDisplay: waveLinesToDisplay,
-  captionsZoomMeasurerSize: subtitlesZoomMeasurerSize,
-  captionsLineHeight: subtitlesLineHeight,
+  captionsTextColor,
+  captionsLinePerPage,
+  captionsZoomMeasurerSize,
+  captionsLineHeight,
   onlyDisplayCurrentSentence,
-  visualizerMirror: mirrorWave,
   audioOffsetInSeconds,
   captions,
 }) => {
@@ -40,7 +35,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   }
 
   const audioOffsetInFrames = Math.round(audioOffsetInSeconds * fps);
-  const baseNumberOfSamples = Number(visualizerNumberOfSamples);
+  const baseNumberOfSamples = Number(visualizer.numberOfSamples);
 
   return (
     <AbsoluteFill>
@@ -59,39 +54,39 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
             </div>
           </div>
           <div>
-            {visualizerType === "oscilloscope" ? (
+            {visualizer.type === "oscilloscope" ? (
               <Oscilloscope
-                waveColor={visualizerColor}
-                padding={50}
+                waveColor={visualizer.color}
+                padding={visualizer.padding}
                 audioSrc={audioFileUrl}
                 numberOfSamples={baseNumberOfSamples}
-                windowInSeconds={0.1}
-                posterization={3}
-                amplitude={4}
+                windowInSeconds={visualizer.windowInSeconds}
+                posterization={visualizer.posterization}
+                amplitude={visualizer.amplitude}
               />
-            ) : visualizerType === "spectrum" ? (
+            ) : visualizer.type === "spectrum" ? (
               <Spectrum
-                barColor={visualizerColor}
+                barColor={visualizer.color}
                 audioSrc={audioFileUrl}
-                mirrorWave={mirrorWave}
+                mirrorWave={visualizer.mirrorWave}
                 numberOfSamples={baseNumberOfSamples * 4} // since fft is used, we need to increase the number of samples to get a better resolution
-                freqRangeStartIndex={waveFreqRangeStartIndex}
-                waveLinesToDisplay={waveLinesToDisplay}
+                freqRangeStartIndex={visualizer.spectrumFreqRangeStartIndex}
+                waveLinesToDisplay={visualizer.spectrumLinesToDisplay}
               />
             ) : null}
           </div>
           <div
-            style={{ lineHeight: `${subtitlesLineHeight}px` }}
+            style={{ lineHeight: `${captionsLineHeight}px` }}
             className="captions"
           >
             <PaginatedCaptions
               captions={captions}
               startFrame={audioOffsetInFrames}
               endFrame={audioOffsetInFrames + durationInFrames}
-              linesPerPage={subtitlesLinePerPage}
-              subtitlesTextColor={subtitlesTextColor}
-              subtitlesZoomMeasurerSize={subtitlesZoomMeasurerSize}
-              subtitlesLineHeight={subtitlesLineHeight}
+              linesPerPage={captionsLinePerPage}
+              subtitlesTextColor={captionsTextColor}
+              subtitlesZoomMeasurerSize={captionsZoomMeasurerSize}
+              subtitlesLineHeight={captionsLineHeight}
               onlyDisplayCurrentSentence={onlyDisplayCurrentSentence}
             />
           </div>

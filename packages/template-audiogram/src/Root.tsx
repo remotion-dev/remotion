@@ -31,12 +31,15 @@ export const RemotionRoot: React.FC = () => {
           captionsZoomMeasurerSize: 10,
           captionsLineHeight: 98,
           // visualizer settings
-          visualizerType: "oscilloscope",
-          visualizerColor: "#D2FF00",
-          visualizerNumberOfSamples: "64" as const,
-          visualizerFreqRangeStartIndex: 7,
-          visualizerLinesToDisplay: 29,
-          visualizerMirror: true,
+          visualizer: {
+            type: "oscilloscope",
+            color: "#D2FF00",
+            numberOfSamples: "64" as const,
+            windowInSeconds: 0.1,
+            posterization: 3,
+            amplitude: 4,
+            padding: 50,
+          },
         }}
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
