@@ -22,7 +22,7 @@ We do not test against Deno's `Worker` implementation.
 :::
 
 ```tsx twoslash title="Parsing a video on a Bun Worker"
-import {parseMediaOnServerWorker} from '@remotion/media-parser/worker';
+import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
   src: '/tmp/video.mp4',

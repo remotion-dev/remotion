@@ -41,7 +41,7 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) API.
 
 ```tsx twoslash title="Parsing a video on a Web Worker on Bun"
-import {parseMediaOnServerWorker} from '@remotion/media-parser/worker';
+import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
   src: '/tmp/video.mp4',
