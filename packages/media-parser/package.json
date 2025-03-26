@@ -75,6 +75,12 @@
 			"require": "./dist/worker.js",
 			"module": "./dist/esm/worker.mjs",
 			"import": "./dist/esm/worker.mjs"
+		},
+		"./server-worker": {
+			"types": "./dist/server-worker.d.ts",
+			"require": "./dist/server-worker.js",
+			"module": "./dist/esm/server-worker.mjs",
+			"import": "./dist/esm/server-worker.mjs"
 		}
 	},
 	"typesVersions": {
@@ -99,6 +105,9 @@
 			],
 			"worker": [
 				"./dist/worker.d.ts"
+			],
+			"server-worker": [
+				"./dist/server-worker.d.ts"
 			]
 		}
 	},
