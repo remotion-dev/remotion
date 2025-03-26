@@ -18,13 +18,7 @@ export type WhisperModel =
 	| 'base'
 	| 'base.en'
 	| 'small'
-	| 'small.en'
-	| 'medium'
-	| 'medium.en'
-	| 'large-v1'
-	| 'large-v2'
-	| 'large-v3'
-	| 'large-v3-turbo';
+	| 'small.en';
 
 export interface DownloadWhisperModel {
 	model: WhisperModel;
