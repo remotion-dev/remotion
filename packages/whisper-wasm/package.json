@@ -33,6 +33,7 @@
 			"import": "./dist/esm/index.mjs"
 		},
 		"./main": {
+			"require": "./dist/esm/main.mjs",
 			"module": "./dist/esm/main.mjs",
 			"import": "./dist/esm/main.mjs"
 		}
