@@ -1,27 +1,27 @@
-/* eslint-disable no-console, new-cap */
-
+/* eslint-disable no-console, new-cap, no-var */
 import type {MainModule} from './emscripten-types';
+import type {DownloadWhisperModel} from './index';
 
 const dbName = 'whisper-wasm';
 const dst = 'whisper.bin';
 const dbVersion = 1;
 const kMaxAudio_s = 30 * 60;
 const kSampleRate = 16000;
-const maxThreadsAllowed = 13;
+const maxThreadsAllowed = 16;
 
-let transcriptionText = '';
-let transcriptionProgressPlayback = null;
-let transcriptionChunkPlayback = null;
-let resolver = null;
+let transcriptionText: string[] = [];
+let transcriptionProgressPlayback;
+let transcriptionChunkPlayback;
+let resolver;
 
 let modelLoading = false;
 let transcribing = false;
 
-let instance = null;
-let context = null;
+let instance;
+let context;
 let headerWarningPrinted = false;
 
-const indexedDB = typeof window !== 'undefined' ? window.indexedDB : null;
+const indexedDB = window?.indexedDB;
 
 const printHandler = (text) => {
 	const progressMatch = text.match(/Progress:\s*(\d+)%/i);
@@ -37,25 +37,22 @@ const printHandler = (text) => {
 	if (chunkMatch) {
 		const timestampStart = chunkMatch[1];
 		const timestampEnd = chunkMatch[2];
-		transcriptionChunkPlayback?.(
-			timestampStart,
-			timestampEnd,
-			chunkMatch[3].trim(),
-		);
-		transcriptionText += ' ' + text;
+		const textOnly = chunkMatch[3].trim();
+		transcriptionChunkPlayback?.(timestampStart, timestampEnd, textOnly);
+		transcriptionText.push(textOnly);
 	}
 
 	if (text === 'completed') {
-		resolver(transcriptionText);
+		resolver(transcriptionText.join(' '));
 		transcriptionChunkPlayback = null;
 		transcriptionProgressPlayback = null;
-		transcriptionText = '';
+		transcriptionText = [];
 	}
 
 	console.log(text);
 };
 
-const Module = window.Module as MainModule;
+var Module = {} as MainModule;
 Module.print = (text: string) => printHandler(text);
 Module.printErr = (text: string) => printHandler(text);
 
@@ -75,7 +72,7 @@ const storeFS = (fname: string, buf: any) => {
 		// ignore
 	}
 
-	Module.FS_createDataFile('/', fname, buf, true, true);
+	Module.FS_createDataFile('/', fname, buf, true, true, undefined);
 };
 
 const fetchRemote = async (
@@ -93,7 +90,7 @@ const fetchRemote = async (
 	const total = parseInt(contentLength, 10);
 	const reader = response.body.getReader();
 
-	const chunks = [];
+	const chunks: Uint8Array<ArrayBufferLike>[] = [];
 	let receivedLength = 0;
 	let progressLast = -1;
 
@@ -138,11 +135,12 @@ const postModelLoaded = (data: Uint8Array<ArrayBuffer>, url: string) => {
 
 		const rq = indexedDB.open(dbName, dbVersion);
 		rq.onsuccess = function (event) {
+			//	@ts-expect-error
 			const db = event.target.result;
 			const objectStore = db
 				.transaction(['models'], 'readwrite')
 				.objectStore('models');
-			let putRq = null;
+			let putRq;
 			try {
 				putRq = objectStore.put(data, url);
 			} catch (e) {
@@ -165,7 +163,7 @@ const postModelLoaded = (data: Uint8Array<ArrayBuffer>, url: string) => {
 	});
 };
 
-const loadModel = (url: string, cbProgress: (arg0: number) => void) => {
+const loadModel = (url: string, cbProgress?: (arg0: number) => void) => {
 	return new Promise((resolve, reject) => {
 		checkForHeaders();
 		if (!navigator.storage || !navigator.storage.estimate) {
@@ -180,11 +178,13 @@ const loadModel = (url: string, cbProgress: (arg0: number) => void) => {
 		const rq = indexedDB.open(dbName, dbVersion);
 
 		rq.onupgradeneeded = (event) => {
+			//	@ts-expect-error
 			const db = event.target.result;
 			if (event.oldVersion < 1) {
 				db.createObjectStore('models', {autoIncrement: false});
 				console.log('DB created');
 			} else {
+				//	@ts-expect-error
 				const os = event.currentTarget.transaction.objectStore('models');
 				os.clear();
 				console.log('DB cleared');
@@ -192,6 +192,7 @@ const loadModel = (url: string, cbProgress: (arg0: number) => void) => {
 		};
 
 		rq.onsuccess = (event) => {
+			//	@ts-expect-error
 			const db = event.target.result;
 			const transaction = db.transaction(['models'], 'readonly');
 			const objectStore = transaction.objectStore('models');
@@ -224,7 +225,10 @@ const loadModel = (url: string, cbProgress: (arg0: number) => void) => {
 	});
 };
 
-export const downloadWhisperModel = async ({model, onProgress}) => {
+export const downloadWhisperModel = async ({
+	model,
+	onProgress,
+}: DownloadWhisperModel) => {
 	modelLoading = true;
 	const allowedModels = [
 		'tiny',
@@ -261,10 +265,6 @@ const getAudioContext = () => {
 	if (!context) {
 		context = new AudioContext({
 			sampleRate: kSampleRate,
-			channelCount: 1,
-			echoCancellation: false,
-			autoGainControl: true,
-			noiseSuppression: true,
 		});
 	}
 
@@ -317,7 +317,7 @@ const audioProcessor = (file) => {
 
 		reader.onload = async () => {
 			try {
-				const buffer = new Uint8Array(reader.result);
+				const buffer = new Uint8Array(reader.result as ArrayBuffer);
 				const audioBuffer = await innerContext.decodeAudioData(buffer.buffer);
 				const processedAudio = await audioDecoder(audioBuffer);
 				resolve(processedAudio);

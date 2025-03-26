@@ -26,7 +26,8 @@ const mainJsContent = fs.readFileSync(MAIN_JS, 'utf8');
 // Concatenate helpers.ts and main.js, then write to index.ts
 fs.writeFileSync(
 	INDEX_MODULE_TS,
-	helpersContent + '\n' + mainJsContent,
+	helpersContent + '\n' + `/* eslint-disable */
+` + '\n' + mainJsContent,
 	'utf8',
 );
 
