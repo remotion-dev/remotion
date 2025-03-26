@@ -31,6 +31,10 @@
 			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
+		},
+		"./main": {
+			"module": "./dist/esm/main.mjs",
+			"import": "./dist/esm/main.mjs"
 		}
 	},
 	"keywords": [
