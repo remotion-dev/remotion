@@ -85,6 +85,7 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
@@ -105,7 +106,6 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -131,6 +131,7 @@ import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TransitionRounding} from './TransitionRounding';
 import {VoiceVisualization} from './voice-visualization';
+import {WhisperWasm} from './WhisperWasm';
 
 class Vector2 {
 	readonly x: number;
@@ -1570,9 +1571,9 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Composition
 				id="whisper-wasm"
-				component={Empty}
-				width={1080}
-				height={1080}
+				component={WhisperWasm}
+				width={150}
+				height={150}
 				fps={30}
 				durationInFrames={900}
 			/>
