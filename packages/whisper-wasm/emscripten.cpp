@@ -76,7 +76,7 @@ EMSCRIPTEN_BINDINGS(whisper) {
         params.print_timestamps = true;
         params.print_special    = false;
         params.translate        = false;
-        params.language         = "en";
+        params.language         = lang.c_str(); // Convert std::string to const char*
         params.n_threads        = std::min(nthreads, std::min(16, mpow2(std::thread::hardware_concurrency())));
         params.offset_ms        = 0;
         params.progress_callback = progress_callback; // Assigning the callback
@@ -97,9 +97,9 @@ EMSCRIPTEN_BINDINGS(whisper) {
             printf("system_info: n_threads = %d / %d | %s\n",
                    params.n_threads, std::thread::hardware_concurrency(), whisper_print_system_info());
 
-            printf("%s: processing %d samples, %.1f sec, %d threads, %d processors, lang = %s, task = %s ...\n",
+            printf("%s: processing %d samples, %.1f sec, %d threads, lang = %s, task = %s ...\n",
                    __func__, int(pcmf32.size()), float(pcmf32.size()) / WHISPER_SAMPLE_RATE,
-                   params.n_threads, 1,
+                   params.n_threads,
                    params.language,
                    params.translate ? "translate" : "transcribe");
 
