@@ -9,8 +9,8 @@ const baseVisualizerSchema = z.object({
 
 const spectrumVisualizerSchema = baseVisualizerSchema.extend({
   type: z.literal("spectrum"),
-  spectrumLinesToDisplay: z.number().int().min(0).default(55),
-  spectrumFreqRangeStartIndex: z.number().int().min(0).default(0),
+  linesToDisplay: z.number().int().min(0).default(55),
+  freqRangeStartIndex: z.number().int().min(0).default(0),
   mirrorWave: z.boolean(),
 });
 

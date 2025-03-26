@@ -70,8 +70,8 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
                 audioSrc={audioFileUrl}
                 mirrorWave={visualizer.mirrorWave}
                 numberOfSamples={baseNumberOfSamples * 4} // since fft is used, we need to increase the number of samples to get a better resolution
-                freqRangeStartIndex={visualizer.spectrumFreqRangeStartIndex}
-                waveLinesToDisplay={visualizer.spectrumLinesToDisplay}
+                freqRangeStartIndex={visualizer.freqRangeStartIndex}
+                waveLinesToDisplay={visualizer.linesToDisplay}
               />
             ) : null}
           </div>
