@@ -26,7 +26,7 @@ export default function Home() {
   }, []);
 
   const onTranscribeChunk = (start: string, end: string, text: string) => {
-    // do something
+    console.log(`transcribed ${text} for time ${start} to ${end}`)
   };
 
   return (
@@ -39,6 +39,7 @@ export default function Home() {
           transcribe({
             file: e.target.files[0],
             onProgress: setTranscriptionProgress,
+            onTranscribeChunk
           }).then((result) => console.log(result))
         }
       />
