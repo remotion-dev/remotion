@@ -1,12 +1,24 @@
 /* eslint-disable no-console */
 /* eslint-disable new-cap */
-import type {DownloadWhisperModel} from '.';
 import {checkForHeaders} from './check-for-headers';
 import {modelState, Module} from './mod';
 
 const dbName = 'whisper-wasm';
 const dst = 'whisper.bin';
 const dbVersion = 1;
+
+export type WhisperModel =
+	| 'tiny'
+	| 'tiny.en'
+	| 'base'
+	| 'base.en'
+	| 'small'
+	| 'small.en';
+
+export interface DownloadWhisperModelParams {
+	model: WhisperModel;
+	onProgress?: (progress: number) => void;
+}
 
 const storeFS = (fname: string, buf: any) => {
 	// write to WASM file using FS_createDataFile
@@ -171,7 +183,7 @@ const loadModel = (url: string, cbProgress?: (arg0: number) => void) => {
 export const downloadWhisperModel = async ({
 	model,
 	onProgress,
-}: DownloadWhisperModel) => {
+}: DownloadWhisperModelParams) => {
 	modelState.loading = true;
 	const allowedModels = [
 		'tiny',

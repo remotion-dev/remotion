@@ -1,28 +1,22 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import type {
+	DownloadWhisperModelParams,
+	downloadWhisperModel as originalDownloadWhisperModel,
+} from './download-whisper-model';
+import type {
+	transcribe as originalTranscribe,
+	TranscribeParams,
+} from './transcribe';
 
-import type {TranscribeParams} from './transcribe';
-
-// Ensures transcribe() returns a Promise that resolves to a string
-export const transcribe = async (_args: TranscribeParams): Promise<string> => {
-	throw new Error('cjs not supported');
+export const transcribe: typeof originalTranscribe = () => {
+	throw new Error(
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+	);
 };
 
-export type WhisperModel =
-	| 'tiny'
-	| 'tiny.en'
-	| 'base'
-	| 'base.en'
-	| 'small'
-	| 'small.en';
-
-export interface DownloadWhisperModel {
-	model: WhisperModel;
-	onProgress?: (progress: number) => void;
-}
-
-// Ensures downloadWhisperModel() returns a Promise that resolves to a string
-export const downloadWhisperModel = async (
-	_args: DownloadWhisperModel,
-): Promise<string> => {
-	throw new Error('cjs not supported');
+export const downloadWhisperModel: typeof originalDownloadWhisperModel = () => {
+	throw new Error(
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+	);
 };
+
+export type {DownloadWhisperModelParams, TranscribeParams};
