@@ -30,8 +30,19 @@ You can supply a .srt file or a .json file that follows the [`@remotion/captions
 
 **Generate them:**
 
-- Use [`@remotion/install-whisper-cpp`](https://www.remotion.dev/docs/install-whisper-cpp/) to use Whisper locally
-- Use [`@remotion/openai-whisper`](https://www.remotion.dev/docs/openai-whisper/openai-whisper-api-to-captions) to get captions from OpenAI Whisper into the right shape.
+- Use the built-in transcription script:
+
+  ```console
+  npm run transcribe
+  ```
+
+  This will:
+
+  - Ask for your audio file path (supports any ffmpeg format)
+  - Ask for the speech start time (to avoid false triggers from background music, intro jingles or noise)
+  - Generate captions.json in the public folder
+
+- Alternatively, use [`@remotion/openai-whisper`](https://www.remotion.dev/docs/openai-whisper/openai-whisper-api-to-captions) to get captions from OpenAI Whisper into the right shape.
 
 **Get it from a provider:**
 
@@ -64,6 +75,12 @@ npm run dev
 
 ```console
 npx remotion render
+```
+
+**Generate Transcript**
+
+```console
+npm run transcribe
 ```
 
 **Upgrade Remotion**
