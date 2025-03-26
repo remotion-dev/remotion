@@ -112,9 +112,20 @@ export const transcribe = async ({
 	onTranscribeChunk,
 	threads,
 }: TranscribeParams) => {
+	// Emscripten creates moduleOverrides from global Module object
+
+	// var Module = typeof Module != 'undefined' ? Module : {};
+	// var moduleOverrides = Object.assign({}, Module);
+
+	// @ts-expect-error
+	window.remotion_wasm_moduleOverrides = {
+		print: printHandler,
+		printErr: printHandler,
+	};
 	const Mod = await loadMod();
-	Mod.print = printHandler;
-	Mod.printErr = printHandler;
+
+	// @ts-expect-error
+	delete window.remotion_wasm_moduleOverrides;
 
 	const url = getModelUrl(model);
 	const result = await getObject({key: url});

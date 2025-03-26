@@ -47,6 +47,16 @@ fs.writeFileSync(
 	].join('\n'),
 );
 
+const emscriptenFilePath = path.join(
+	wasmDir,
+	'examples',
+	'whisper.wasm',
+	'emscripten.cpp',
+);
+//now get our version
+const modifiedVersion = fs.readFileSync('./emscripten.cpp', 'utf8');
+fs.writeFileSync(emscriptenFilePath, modifiedVersion);
+
 // brew install emscripten if necessary
 await $`emcmake cmake ..`.cwd(cwd);
 await $`make -j`.cwd(cwd);
@@ -64,6 +74,22 @@ content =
 	'\n' +
 	'export default Module;' +
 	'\n';
+
+// assert changes have been made
+if (!content.includes('new Worker(new URL(')) {
+	throw new Error('Changes have not been made');
+}
+
+// pass our handlers
+content = content.replace(
+	'var moduleOverrides=Object.assign({},Module);',
+	'var moduleOverrides=Object.assign({},Module);if (typeof window !== "undefined") {Object.assign(Module, window.remotion_wasm_moduleOverrides);};',
+);
+
+// assert changes have been made
+if (!content.includes('window.remotion_wasm_moduleOverrides')) {
+	throw new Error('Changes have not been made');
+}
 
 // Write the modified content directly to the destination
 fs.writeFileSync(path.join(__dirname, 'main.js'), content, 'utf8');
