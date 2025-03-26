@@ -103,11 +103,6 @@ export const transcribe = ({
 			transcribing = true;
 		}
 
-		if (modelState.loading) {
-			transcribing = false;
-			throw new Error("can't transcribe while a model is being loaded");
-		}
-
 		if (!instance) {
 			instance = Module.init('whisper.bin');
 			if (!instance) {

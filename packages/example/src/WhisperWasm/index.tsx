@@ -4,7 +4,12 @@ import {staticFile} from 'remotion';
 
 export const WhisperWasm = () => {
 	const onClick = useCallback(() => {
-		downloadWhisperModel({model: 'tiny.en'});
+		downloadWhisperModel({
+			model: 'tiny.en',
+			onProgress: (progress) => {
+				console.log(progress);
+			},
+		});
 	}, []);
 
 	const onClickTranscribe = useCallback(async () => {

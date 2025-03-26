@@ -3376,10 +3376,6 @@ importers:
         version: 9.19.0
 
   packages/whisper-wasm:
-    dependencies:
-      remotion:
-        specifier: workspace:*
-        version: link:../core
     devDependencies:
       '@remotion/eslint-config-internal':
         specifier: workspace:*

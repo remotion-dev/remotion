@@ -1,23 +1,26 @@
 /* eslint-disable no-console */
 /* eslint-disable new-cap */
 import {checkForHeaders} from './check-for-headers';
-import {modelState, Module} from './mod';
+import {Module} from './mod';
 
 const dbName = 'whisper-wasm';
 const dst = 'whisper.bin';
 const dbVersion = 1;
 
-export type WhisperModel =
-	| 'tiny'
-	| 'tiny.en'
-	| 'base'
-	| 'base.en'
-	| 'small'
-	| 'small.en';
+const MODELS = [
+	'tiny',
+	'tiny.en',
+	'base',
+	'base.en',
+	'small',
+	'small.en',
+] as const;
+
+export type WhisperModel = (typeof MODELS)[number];
 
 export interface DownloadWhisperModelParams {
 	model: WhisperModel;
-	onProgress?: (progress: number) => void;
+	onProgress: (progress: number) => void;
 }
 
 const storeFS = (fname: string, buf: any) => {
@@ -32,10 +35,13 @@ const storeFS = (fname: string, buf: any) => {
 	Module.FS_createDataFile('/', fname, buf, true, true, undefined);
 };
 
-const fetchRemote = async (
-	url: string,
-	progressCallback?: (arg0: number) => void,
-) => {
+const fetchRemote = async ({
+	url,
+	progressCallback,
+}: {
+	url: string;
+	progressCallback?: (arg0: number) => void;
+}) => {
 	//  start the fetch
 	const response = await fetch(url, {method: 'get'});
 	if (!response.ok || !response.body) {
@@ -120,7 +126,13 @@ const postModelLoaded = (data: Uint8Array, url: string) => {
 	});
 };
 
-const loadModel = (url: string, cbProgress?: (arg0: number) => void) => {
+const loadModel = ({
+	url,
+	onProgress,
+}: {
+	url: string;
+	onProgress: (progress: number) => void;
+}) => {
 	return new Promise((resolve, reject) => {
 		checkForHeaders();
 		if (!navigator.storage || !navigator.storage.estimate) {
@@ -140,9 +152,10 @@ const loadModel = (url: string, cbProgress?: (arg0: number) => void) => {
 				db.createObjectStore('models', {autoIncrement: false});
 				console.log('DB created');
 			} else {
-				//	@ts-expect-error
-				const os = event.currentTarget.transaction.objectStore('models');
-				os.clear();
+				const os = (
+					event.currentTarget as IDBOpenDBRequest
+				).transaction?.objectStore('models');
+				os?.clear();
 				console.log('DB cleared');
 			}
 		};
@@ -160,7 +173,7 @@ const loadModel = (url: string, cbProgress?: (arg0: number) => void) => {
 					resolve('Model loaded successfully');
 				} else {
 					// Now postModelLoaded() returns a Promise
-					fetchRemote(url, cbProgress)
+					fetchRemote({url, progressCallback: onProgress})
 						.then((data) => postModelLoaded(data, url))
 						.then(() => resolve('Loaded model after downloading successfully'))
 						.catch((error) =>
@@ -184,28 +197,18 @@ export const downloadWhisperModel = async ({
 	model,
 	onProgress,
 }: DownloadWhisperModelParams) => {
-	modelState.loading = true;
-	const allowedModels = [
-		'tiny',
-		'tiny.en',
-		'base',
-		'base.en',
-		'small',
-		'small.en',
-	] as const;
-
-	if (!model || !allowedModels.includes(model)) {
-		modelState.loading = false;
-		throw new Error('invalid model name');
+	if (!model || !MODELS.includes(model)) {
+		throw new Error(
+			`Invalid model name. Supported models: ${MODELS.join(', ')}.`,
+		);
 	}
 
-	if (!indexedDB) {
-		modelState.loading = false;
+	if (!window.indexedDB) {
 		throw new Error('IndexedDB is not available in this environment.');
 	}
 
-	//  all good, proceed
-	const url = `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model}.bin`;
-	await loadModel(url, onProgress);
-	modelState.loading = false;
+	await loadModel({
+		url: `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model}.bin`,
+		onProgress,
+	});
 };

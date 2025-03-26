@@ -3,7 +3,6 @@ import type {MainModule} from './emscripten-types';
 let transcriptionText: string[] = [];
 
 type ModelState = {
-	loading: boolean;
 	transcriptionProgressPlayback: null | ((progress: number) => void);
 	transcriptionChunkPlayback:
 		| null
@@ -16,14 +15,12 @@ type ModelState = {
 };
 
 export const modelState: ModelState = {
-	loading: false,
 	transcriptionProgressPlayback: null,
 	transcriptionChunkPlayback: null,
 	resolver: null,
 };
 
 const printHandler = (text: string) => {
-	console.log('printHandler', text);
 	const progressMatch = text.match(/Progress:\s*(\d+)%/i);
 	const chunkMatch = text.match(
 		/^\[(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\]\s*(.+)$/,
