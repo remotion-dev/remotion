@@ -60,7 +60,7 @@ async function transcribeAudio(options: TranscriptionOptions) {
   const tempAudioForWhisper = path.join(os.tmpdir(), `whisper-${Date.now()}.wav`);
 
   // Cut the audio starting from speech start time and convert to 16-bit WAV
-  execSync(`ffmpeg -i "${options.audioPath}" -ss ${options.speechStartsAtSecond} -ar 16000 -ac 1 "${tempAudioForWhisper}" -y`);
+  execSync(`npx remotion ffmpeg -i "${options.audioPath}" -ss ${options.speechStartsAtSecond} -ar 16000 -ac 1 "${tempAudioForWhisper}" -y`);
 
   const whisperCppOutput = await transcribe({
     model: WHISPER_MODEL,
