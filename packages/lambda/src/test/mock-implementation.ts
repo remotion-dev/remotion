@@ -10,12 +10,19 @@ import type {
 	InsideFunctionSpecifics,
 	InvokeWebhookParams,
 } from '@remotion/serverless';
+import {Log} from '../cli/log';
 import {mockBundleSite} from './mocks/mock-bundle-site';
 import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';
 import {mockUploadDir} from './mocks/upload-dir';
 
-export const getBrowserInstance: GetBrowserInstance = async () => {
+let browsersOpen = 0;
+export const getBrowserInstance: GetBrowserInstance = async ({logLevel}) => {
+	Log.verbose(
+		{logLevel, indent: false},
+		`Opening new browser instance. ${browsersOpen} browsers open`,
+	);
+	browsersOpen++;
 	return {instance: await openBrowser('chrome'), configurationString: 'chrome'};
 };
 

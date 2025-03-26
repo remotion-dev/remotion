@@ -2781,6 +2781,15 @@ export const articles = [
 		slug: 'media-parser/runtime-support',
 	},
 	{
+		id: 'seeking',
+		title: 'Seeking',
+		relativePath: 'docs/media-parser/seeking.mdx',
+		compId: 'articles-docs-media-parser-seeking',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/seeking',
+	},
+	{
 		id: 'stream-selection',
 		title: 'Stream selection',
 		relativePath: 'docs/media-parser/selecting-streams.mdx',

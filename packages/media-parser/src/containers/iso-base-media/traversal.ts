@@ -3,6 +3,7 @@ import type {ParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
 import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
+import type {TfraBox} from './mfra/tfra';
 import type {MoovBox} from './moov/moov';
 import type {MvhdBox} from './mvhd';
 import type {CttsBox} from './stsd/ctts';
@@ -294,4 +295,20 @@ export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
 	const trunBoxes = segment.children.filter((c) => c.type === 'trun-box');
 
 	return trunBoxes as TrunBox[];
+};
+
+export const getTfraBoxes = (structure: IsoBaseMediaStructure): TfraBox[] => {
+	const mfraBox = structure.boxes.find(
+		(b) => b.type === 'regular-box' && b.boxType === 'mfra',
+	) as RegularBox | null;
+
+	if (!mfraBox) {
+		return [];
+	}
+
+	const tfraBoxes = mfraBox.children.filter(
+		(b) => b.type === 'tfra-box',
+	) as TfraBox[];
+
+	return tfraBoxes;
 };

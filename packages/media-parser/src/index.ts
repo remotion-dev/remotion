@@ -13,6 +13,7 @@ import {internalParseMedia} from './internal-parse-media';
 import {getArrayBufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
+import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
 import {makeParserState} from './state/parser-state';
 export type {MatroskaSegment} from './containers/webm/segments';
 export type {MatroskaElement} from './containers/webm/segments/all-segments';
@@ -78,6 +79,7 @@ export const MediaParserInternals = {
 	parseEbml,
 	parseMvhd,
 	internalParseMedia,
+	fieldsNeedSamplesMap,
 };
 
 export type {Prettify} from './containers/webm/parse-ebml';
@@ -104,5 +106,5 @@ export {
 export {
 	mediaParserController,
 	MediaParserController,
-} from './media-parser-controller';
+} from './controller/media-parser-controller';
 export {VERSION} from './version';

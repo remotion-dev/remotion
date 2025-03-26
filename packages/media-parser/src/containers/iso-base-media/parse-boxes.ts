@@ -6,7 +6,7 @@ import {processBox} from './process-box';
 export const parseIsoBaseMedia = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
-	const videoSectionState = state.videoSection.isInVideoSectionState(
+	const videoSectionState = state.videoSection.isCurrentByteInVideoSection(
 		state.iterator,
 	);
 

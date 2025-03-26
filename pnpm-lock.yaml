@@ -433,7 +433,7 @@ importers:
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.15.2
-        version: 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.14)
+        version: 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.15)
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
@@ -453,11 +453,11 @@ importers:
         specifier: 3.4.13
         version: 3.4.13
       vite:
-        specifier: ^5.4.12
-        version: 5.4.14(@types/node@20.12.14)
+        specifier: 5.4.15
+        version: 5.4.15(@types/node@20.12.14)
       vite-tsconfig-paths:
         specifier: ^4.2.1
-        version: 4.3.2(typescript@5.5.4)(vite@5.4.14)
+        version: 4.3.2(typescript@5.5.4)(vite@5.4.15)
 
   packages/core:
     devDependencies:
@@ -2786,7 +2786,7 @@ importers:
         version: 4.0.0
       '@tailwindcss/vite':
         specifier: 4.0.0
-        version: 4.0.0(vite@5.4.14)
+        version: 4.0.0(vite@5.4.15)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -2815,18 +2815,18 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       vite:
-        specifier: ^5.4.12
-        version: 5.4.14(@types/node@20.12.14)
+        specifier: 5.4.15
+        version: 5.4.15(@types/node@20.12.14)
       vite-tsconfig-paths:
         specifier: ^4.2.1
-        version: 4.3.2(typescript@5.5.4)(vite@5.4.14)
+        version: 4.3.2(typescript@5.5.4)(vite@5.4.15)
       zod:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
       '@react-router/dev':
         specifier: 7.2.0
-        version: 7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.2.0)(typescript@5.5.4)(vite@5.4.14)
+        version: 7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.2.0)(typescript@5.5.4)(vite@5.4.15)
       '@remotion/eslint-config-flat':
         specifier: workspace:*
         version: link:../eslint-config-flat
@@ -12677,7 +12677,7 @@ packages:
     resolution: {integrity: sha512-A9+lCBZoaMJlVKcRBz2YByCG+Cp2t6nAnMnNba+XiWxnj6r4JUFqfsgwocMBZU9LPtdxC6wB56ySYpc7LQIoJg==}
     dev: false
 
-  /@react-router/dev@7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.2.0)(typescript@5.5.4)(vite@5.4.14):
+  /@react-router/dev@7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.2.0)(typescript@5.5.4)(vite@5.4.15):
     resolution: {integrity: sha512-GzSNGeWuhx6sMsnidCQAlCAephibUMC61xIAdsc6hBXWCJe/T9wUrvtnh2Xbcpr7BRZJtJN4UhI472ZURA6m9w==}
     engines: {node: '>=20.0.0'}
     hasBin: true
@@ -12726,7 +12726,7 @@ packages:
       set-cookie-parser: 2.7.0
       typescript: 5.5.4
       valibot: 0.41.0(typescript@5.5.4)
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
       vite-node: 3.0.0-beta.2(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
@@ -12937,7 +12937,7 @@ packages:
       - '@types/react'
       - immer
 
-  /@remix-run/dev@2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.14):
+  /@remix-run/dev@2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.15):
     resolution: {integrity: sha512-o8lix8t4GBhtXjo/G1IzwtHVW5GRMs7amtFtBHiR1bhSyK7VyX5qGtTDmJyny5QDv83pxaLOCiE0dUng2BCoyQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
@@ -13013,7 +13013,7 @@ packages:
       tsconfig-paths: 4.2.0
       typescript: 5.5.4
       valibot: 0.41.0(typescript@5.5.4)
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
       vite-node: 1.6.0
       ws: 7.5.10
     transitivePeerDependencies:
@@ -14896,7 +14896,7 @@ packages:
       tailwindcss: 4.0.0
     dev: false
 
-  /@tailwindcss/vite@4.0.0(vite@5.4.14):
+  /@tailwindcss/vite@4.0.0(vite@5.4.15):
     resolution: {integrity: sha512-4uukMiU9gHui8KMPMdWic5SP1O/tmQ1NFSRNrQWmcop5evAVl/LZ6/LuWL3quEiecp2RBcRWwqJrG+mFXlRlew==}
     peerDependencies:
       vite: ^5.2.0 || ^6
@@ -14905,7 +14905,7 @@ packages:
       '@tailwindcss/oxide': 4.0.0
       lightningcss: 1.29.1
       tailwindcss: 4.0.0
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
     dev: false
 
   /@testing-library/dom@10.4.0:
@@ -16146,7 +16146,7 @@ packages:
       lodash: 4.17.21
       mlly: 1.5.0
       outdent: 0.8.0
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
       vite-node: 1.6.0
     transitivePeerDependencies:
       - '@types/node'
@@ -16173,7 +16173,7 @@ packages:
       react: '*'
       react-dom: '*'
     dependencies:
-      '@remix-run/dev': 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.14)
+      '@remix-run/dev': 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.5.4)(vite@5.4.15)
       '@remix-run/node': 2.15.2(typescript@5.5.4)
       '@remix-run/server-runtime': 2.15.2(typescript@5.5.4)
       '@vercel/static-config': 3.0.0
@@ -30002,7 +30002,7 @@ packages:
       debug: 4.4.0
       pathe: 1.1.2
       picocolors: 1.1.1
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -30023,7 +30023,7 @@ packages:
       debug: 4.4.0
       es-module-lexer: 1.5.4
       pathe: 1.1.2
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -30036,7 +30036,7 @@ packages:
       - terser
     dev: true
 
-  /vite-tsconfig-paths@4.3.2(typescript@5.5.4)(vite@5.4.14):
+  /vite-tsconfig-paths@4.3.2(typescript@5.5.4)(vite@5.4.15):
     resolution: {integrity: sha512-0Vd/a6po6Q+86rPlntHye7F31zA2URZMbH8M3saAZ/xR9QoGN/L21bxEGfXdWmFdNkqPpRdxFT7nmNe12e9/uA==}
     peerDependencies:
       vite: '*'
@@ -30047,7 +30047,7 @@ packages:
       debug: 4.3.6
       globrex: 0.1.2
       tsconfck: 3.1.3(typescript@5.5.4)
-      vite: 5.4.14(@types/node@20.12.14)
+      vite: 5.4.15(@types/node@20.12.14)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -30088,8 +30088,8 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@5.4.14(@types/node@20.12.14):
-    resolution: {integrity: sha512-EK5cY7Q1D8JNhSaPKVK4pwBFvaTmZxEnoKXLG/U9gmdDcihQGNzFlgIvaxezFR4glP1LsuiedwMBqCXH3wZccA==}
+  /vite@5.4.15(@types/node@20.12.14):
+    resolution: {integrity: sha512-6ANcZRivqL/4WtwPGTKNaosuNJr5tWiftOC7liM7G9+rMb8+oeJeyzymDu4rTN93seySBmbjSfsS3Vzr19KNtA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
