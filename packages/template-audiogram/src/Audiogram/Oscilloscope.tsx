@@ -6,6 +6,32 @@ import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 
+const height = 120;
+const container: React.CSSProperties = {
+  overflow: "visible",
+  height,
+  marginTop: 40,
+  marginBottom: 40,
+};
+
+const OscilloscopeContainer: React.FC<{
+  children?: React.ReactNode;
+  padding: number;
+}> = ({ children, padding }) => {
+  const { width } = useVideoConfig();
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      style={container}
+      width={width - padding * 2}
+      height={height}
+    >
+      {children}
+    </svg>
+  );
+};
+
 export const Oscilloscope: React.FC<{
   audioSrc: string;
   padding: number;
@@ -26,8 +52,6 @@ export const Oscilloscope: React.FC<{
   const { width, fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  const height = 120;
-
   const posterized = Math.round(frame / posterization) * posterization;
 
   const { audioData, dataOffsetInSeconds } = useWindowedAudioDataIfPossible({
@@ -38,7 +62,7 @@ export const Oscilloscope: React.FC<{
   });
 
   if (!audioData) {
-    return null;
+    return <OscilloscopeContainer padding={padding} />;
   }
 
   const waveform = visualizeAudioWaveform({
@@ -61,17 +85,7 @@ export const Oscilloscope: React.FC<{
   });
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      style={{
-        overflow: "visible",
-        height,
-        marginTop: 40,
-        marginBottom: 40,
-      }}
-      width={width - padding * 2}
-      height={height}
-    >
+    <OscilloscopeContainer padding={padding}>
       <path
         strokeLinecap="round"
         fill="none"
@@ -79,6 +93,6 @@ export const Oscilloscope: React.FC<{
         strokeWidth={10}
         d={p}
       />
-    </svg>
+    </OscilloscopeContainer>
   );
 };

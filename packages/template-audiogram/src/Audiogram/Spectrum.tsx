@@ -28,7 +28,7 @@ export const Spectrum: React.FC<{
   });
 
   if (!audioData) {
-    return null;
+    return <div className="audio-viz" />;
   }
 
   const frequencyData = visualizeAudio({
