@@ -2,10 +2,8 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted, IsAnImageError} from '../errors';
-import {
-	parseMediaOnServerWorker,
-	parseMediaOnWebWorker,
-} from '../worker.module';
+import {parseMediaOnServerWorker} from '../server-worker.module';
+import {parseMediaOnWebWorker} from '../worker.module';
 
 test('worker should work', async () => {
 	const {audioCodec} = await parseMediaOnServerWorker({
