@@ -63,8 +63,9 @@ export const useVisualControl = (): UseVisualControl => {
 					return value;
 				}
 
-				const {same} = setControl(hook, key, {
+				const {same, currentValue} = setControl(hook, key, {
 					valueInCode: value,
+					unsavedValue: value,
 					schema: schema ?? getZodSchemaFromPrimitive(value, z),
 					stack: new Error().stack as string,
 				});
@@ -73,7 +74,7 @@ export const useVisualControl = (): UseVisualControl => {
 					changed.current = true;
 				}
 
-				return value;
+				return currentValue as T;
 			},
 		}),
 		[hook, setControl, z],

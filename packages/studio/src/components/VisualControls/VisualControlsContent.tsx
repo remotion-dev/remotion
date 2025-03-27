@@ -7,22 +7,29 @@ import {ClickableFileName} from './ClickableFileName';
 import {VisualControlHandle} from './VisualControlHandle';
 
 const Control: React.FC<{
-	readonly control: VisualControlHook;
-}> = ({control}) => {
+	readonly hook: VisualControlHook;
+}> = ({hook}) => {
 	const {handles} = useContext(VisualControlsContext);
 
-	const handle = handles[control.id];
+	const handle = handles[hook.id];
 
 	if (!handle) {
 		return null;
 	}
 
 	return (
-		<div key={control.id}>
-			<ClickableFileName stack={control.stack} />
+		<div key={hook.id}>
+			<ClickableFileName stack={hook.stack} />
 			<Spacing block y={1} />
 			{Object.entries(handle).map(([key, value]) => {
-				return <VisualControlHandle key={key} keyName={key} value={value} />;
+				return (
+					<VisualControlHandle
+						key={key}
+						keyName={key}
+						value={value}
+						hook={hook}
+					/>
+				);
 			})}
 		</div>
 	);
@@ -34,12 +41,12 @@ const container: React.CSSProperties = {
 };
 
 export const VisualControlsContent = () => {
-	const {controls} = useContext(VisualControlsContext);
+	const {hooks: controls} = useContext(VisualControlsContext);
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			{controls.map((control) => (
-				<Control key={control.id} control={control} />
+			{controls.map((hook) => (
+				<Control key={hook.id} hook={hook} />
 			))}
 		</div>
 	);

@@ -6,9 +6,11 @@ import React, {
 	useState,
 } from 'react';
 import type {ZodTypeAny} from 'zod';
+import {getVisualControlEditedValue} from './get-current-edited-value';
 
 export type VisualControlValue = {
 	valueInCode: unknown;
+	unsavedValue: unknown;
 	schema: ZodTypeAny;
 	stack: string;
 };
@@ -19,7 +21,7 @@ export type VisualControlHook = {
 };
 
 export type VisualControlsContextType = {
-	controls: VisualControlHook[];
+	hooks: VisualControlHook[];
 	handles: Record<number, Record<string, VisualControlValue>>;
 };
 
@@ -35,8 +37,9 @@ export type SetVisualControlsContextType = {
 		hook: VisualControlHook,
 		key: string,
 		value: VisualControlValue,
-	) => {same: boolean};
+	) => {same: boolean; currentValue: unknown};
 	updateHandles: () => void;
+	updateValue: (hook: VisualControlHook, key: string, value: unknown) => void;
 };
 
 export const makeHook = (stack: string): VisualControlHook => {
@@ -44,7 +47,7 @@ export const makeHook = (stack: string): VisualControlHook => {
 };
 
 export const VisualControlsContext = createContext<VisualControlsContextType>({
-	controls: [],
+	hooks: [],
 	handles: {},
 });
 
@@ -62,12 +65,15 @@ export const SetVisualControlsContext =
 		updateHandles: () => {
 			throw new Error('updateHandles is not implemented');
 		},
+		updateValue: () => {
+			throw new Error('updateValue is not implemented');
+		},
 	});
 
 export const VisualControlsProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [controls, setControls] = useState<VisualControlHook[]>([]);
+	const [hooks, setHooks] = useState<VisualControlHook[]>([]);
 
 	const imperativeHandles = useRef<
 		Record<number, Record<string, VisualControlValue>>
@@ -80,7 +86,7 @@ export const VisualControlsProvider: React.FC<{
 
 	const addHook = useCallback(
 		(hook: VisualControlHook) => {
-			setControls((prev) => {
+			setHooks((prev) => {
 				if (prev.find((c) => c.id === hook.id)) {
 					return prev;
 				}
@@ -89,32 +95,54 @@ export const VisualControlsProvider: React.FC<{
 			});
 			setTabActivated(true);
 		},
-		[setControls],
+		[setHooks],
 	);
 
 	const removeHook = useCallback(
 		(hook: VisualControlHook) => {
-			setControls((prev) => prev.filter((c) => c !== hook));
+			setHooks((prev) => prev.filter((c) => c !== hook));
 		},
-		[setControls],
+		[setHooks],
 	);
+
+	const state: VisualControlsContextType = useMemo(() => {
+		return {
+			hooks,
+			handles,
+		};
+	}, [hooks, handles]);
 
 	const setControl = useCallback(
 		(hook: VisualControlHook, key: string, value: VisualControlValue) => {
-			const current = imperativeHandles.current?.[hook.id]?.[key]?.valueInCode;
+			const currentSaved =
+				imperativeHandles.current?.[hook.id]?.[key]?.valueInCode;
+			const currentUnsaved =
+				imperativeHandles.current?.[hook.id]?.[key]?.unsavedValue;
 
-			if (current === value.valueInCode) {
-				return {same: true};
+			if (currentSaved === value.valueInCode) {
+				return {
+					same: true,
+					currentValue: getVisualControlEditedValue({hook, key, state}),
+				};
 			}
 
 			imperativeHandles.current = {
 				...imperativeHandles.current,
-				[hook.id]: {...imperativeHandles.current[hook.id], [key]: value},
+				[hook.id]: {
+					...imperativeHandles.current[hook.id],
+					[key]: {
+						...value,
+						unsavedValue: currentUnsaved ?? value.valueInCode,
+					},
+				},
 			};
 
-			return {same: false};
+			return {
+				same: false,
+				currentValue: getVisualControlEditedValue({hook, key, state}),
+			};
 		},
-		[],
+		[state],
 	);
 
 	const updateHandles = useCallback(() => {
@@ -123,12 +151,22 @@ export const VisualControlsProvider: React.FC<{
 		});
 	}, []);
 
-	const state: VisualControlsContextType = useMemo(() => {
-		return {
-			controls,
-			handles,
-		};
-	}, [controls, handles]);
+	const updateValue = useCallback(
+		(hook: VisualControlHook, key: string, value: unknown) => {
+			imperativeHandles.current = {
+				...imperativeHandles.current,
+				[hook.id]: {
+					...imperativeHandles.current[hook.id],
+					[key]: {
+						...imperativeHandles.current[hook.id][key],
+						unsavedValue: value,
+					},
+				},
+			};
+			updateHandles();
+		},
+		[updateHandles],
+	);
 
 	const setState: SetVisualControlsContextType = useMemo(() => {
 		return {
@@ -136,8 +174,9 @@ export const VisualControlsProvider: React.FC<{
 			removeHook,
 			setControl,
 			updateHandles,
+			updateValue,
 		};
-	}, [addHook, removeHook, setControl, updateHandles]);
+	}, [addHook, removeHook, setControl, updateHandles, updateValue]);
 
 	return (
 		<VisualControlsTabActivatedContext.Provider value={tabActivated}>
