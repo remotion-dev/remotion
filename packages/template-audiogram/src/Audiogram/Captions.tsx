@@ -95,7 +95,6 @@ export const PaginatedCaptions: React.FC<{
   const currentFrameSentences = currentAndFollowingSentences.filter((word) => {
     return msToFrame(word.startMs) < frame;
   });
-  console.log(currentFrameSentences);
 
   return (
     <div

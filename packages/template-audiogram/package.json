@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "My Remotion video",
   "scripts": {
-    "transcribe": "npx tsx transcribe.ts",
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
