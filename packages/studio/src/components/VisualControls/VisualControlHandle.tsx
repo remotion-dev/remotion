@@ -28,7 +28,7 @@ export const VisualControlHandle: React.FC<{
 	const {updateValue} = useContext(SetVisualControlsContext);
 
 	const currentValue = getVisualControlEditedValue({
-		state,
+		handles: state.handles,
 		hook,
 		key: keyName,
 	});

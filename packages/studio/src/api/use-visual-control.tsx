@@ -5,6 +5,7 @@ import {useZodIfPossible} from '../components/get-zod-if-possible';
 import {
 	makeHook,
 	SetVisualControlsContext,
+	VisualControlsContext,
 } from '../visual-controls/VisualControls';
 import {getZodSchemaFromPrimitive} from './get-zod-schema-from-primitive';
 
@@ -18,6 +19,7 @@ export const useVisualControl = (): UseVisualControl => {
 	const {addHook, removeHook, setControl, updateHandles} = useContext(
 		SetVisualControlsContext,
 	);
+	const {handles} = useContext(VisualControlsContext);
 
 	const changed = useRef(false);
 
@@ -77,6 +79,6 @@ export const useVisualControl = (): UseVisualControl => {
 				return currentValue as T;
 			},
 		}),
-		[hook, setControl, z],
+		[handles, hook, setControl, z],
 	);
 };

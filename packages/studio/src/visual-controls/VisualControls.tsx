@@ -20,9 +20,13 @@ export type VisualControlHook = {
 	stack: string;
 };
 
+type Handle = Record<string, VisualControlValue>;
+
+export type Handles = Record<number, Handle>;
+
 export type VisualControlsContextType = {
 	hooks: VisualControlHook[];
-	handles: Record<number, Record<string, VisualControlValue>>;
+	handles: Handles;
 };
 
 type VisualControlsTabActivated = boolean;
@@ -122,7 +126,11 @@ export const VisualControlsProvider: React.FC<{
 			if (currentSaved === value.valueInCode) {
 				return {
 					same: true,
-					currentValue: getVisualControlEditedValue({hook, key, state}),
+					currentValue: getVisualControlEditedValue({
+						hook,
+						key,
+						handles: imperativeHandles.current,
+					}),
 				};
 			}
 
@@ -139,10 +147,14 @@ export const VisualControlsProvider: React.FC<{
 
 			return {
 				same: false,
-				currentValue: getVisualControlEditedValue({hook, key, state}),
+				currentValue: getVisualControlEditedValue({
+					hook,
+					key,
+					handles: imperativeHandles.current,
+				}),
 			};
 		},
-		[state],
+		[],
 	);
 
 	const updateHandles = useCallback(() => {
