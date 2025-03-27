@@ -14,7 +14,7 @@
 
 .bar {
   border-radius: calc(var(--base-size) * 0.25);
-  width: calc(var(--base-size) * 0.25);
+  width: calc(var(--base-size) * 0.43);
 }
 
 .container {

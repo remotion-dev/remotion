@@ -169,7 +169,11 @@ describe('Templates should be valid', () => {
 			]);
 			expect(contents).toInclude('npx remotion upgrade');
 			expect(contents).toInclude('npx remotion render');
-			expect(contents).toInclude('npm run dev');
+
+			expect(
+				contents?.includes('npm run dev') ||
+					contents?.includes('npx remotion studio'),
+			).toBe(true);
 		});
 		it(`${template.shortName} should be registered in tsconfig.json`, async () => {
 			const tsconfig = path.join(process.cwd(), '..', '..', 'tsconfig.json');

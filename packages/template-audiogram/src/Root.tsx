@@ -15,37 +15,37 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         schema={audiogramSchema}
         defaultProps={{
-          // Audio settings
-          audioOffsetInSeconds: 6.9,
-
-          // Title settings
-          audioFileName: staticFile("audio.wav"),
-          coverImgFileName: staticFile("cover.jpg"),
-          titleText:
-            "#234 – Money, Kids, and Choosing Your Market with Justin Jackson of Transistor.fm",
+          // audio settings
+          audioOffsetInSeconds: 0,
+          audioFileUrl: staticFile("podcast-audio.wav"),
+          // podcast data
+          coverImageUrl: staticFile("podcast-cover.jpeg"),
+          titleText: "Deep Dive 170 – Remotion mit Jonny Burger",
           titleColor: "rgba(186, 186, 186, 0.93)",
-
-          // Subtitles settings
-          subtitlesFileName: staticFile("captions1.srt"),
-          onlyDisplayCurrentSentence: true,
-          subtitlesTextColor: "rgba(255, 255, 255, 0.93)",
-          subtitlesLinePerPage: 4,
-          subtitlesZoomMeasurerSize: 10,
-          subtitlesLineHeight: 98,
-
-          // Wave settings
-          waveColor: "#a3a5ae",
-          waveFreqRangeStartIndex: 7,
-          waveLinesToDisplay: 29,
-          waveNumberOfSamples: "256", // This is string for Remotion controls and will be converted to a number
-          mirrorWave: true,
+          // captions settings
           captions: null,
+          captionsFileName: staticFile("captions.json"),
+          onlyDisplayCurrentSentence: true,
+          captionsTextColor: "rgba(255, 255, 255, 0.93)",
+          captionsLinePerPage: 4,
+          captionsZoomMeasurerSize: 10,
+          captionsLineHeight: 98,
+          // visualizer settings
+          visualizer: {
+            type: "oscilloscope",
+            color: "#D2FF00",
+            numberOfSamples: "64" as const,
+            windowInSeconds: 0.1,
+            posterization: 3,
+            amplitude: 4,
+            padding: 50,
+          },
         }}
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
-          const captions = await getSubtitles(props.subtitlesFileName);
+          const captions = await getSubtitles(props.captionsFileName);
           const durationInSeconds = await getAudioDurationInSeconds(
-            props.audioFileName,
+            props.audioFileUrl,
           );
 
           return {
