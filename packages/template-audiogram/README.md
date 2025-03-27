@@ -79,7 +79,13 @@ We provide help [on our Discord server](https://discord.gg/6VzzNDwUwV).
 
 ## Issues
 
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
+Found an issue with Remotion? Upgrade Remotion to receive fixes:
+
+```
+npx remotion upgrade
+```
+
+Didn't help? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
 
 ## Contributing
 

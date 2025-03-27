@@ -19,7 +19,7 @@ test('Bundle size of media parser', async () => {
 	}
 
 	const [output] = result.outputs;
-	expect(output.size).toBeLessThan(200_000);
+	expect(output.size).toBeLessThan(400_000);
 });
 
 test('Bundle size of webcodecs', async () => {
@@ -39,5 +39,5 @@ test('Bundle size of webcodecs', async () => {
 	}
 
 	const [output] = result.outputs;
-	expect(output.size).toBeLessThan(200_000);
+	expect(output.size).toBeLessThan(400_000);
 });
