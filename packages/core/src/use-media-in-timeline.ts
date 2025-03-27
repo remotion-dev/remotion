@@ -94,7 +94,7 @@ export const useMediaInTimeline = ({
 	useEffect(() => {
 		if (typeof volume === 'number' && volume !== initialVolume) {
 			warnOnce(
-				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/using-audio/#controlling-volume`,
+				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/audio/volume`,
 			);
 		}
 	}, [initialVolume, mediaType, src, volume]);

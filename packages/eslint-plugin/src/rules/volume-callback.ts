@@ -9,7 +9,7 @@ type Options = [];
 type MessageIds = 'VolumeCallback';
 
 const VolumeCallback =
-	'Prefer a callback function for setting the volume: `volume={(f) => interpolate(...)}`. See https://www.remotion.dev/docs/using-audio/#controlling-volume';
+	'Prefer a callback function for setting the volume: `volume={(f) => interpolate(...)}`. See https://www.remotion.dev/docs/audio/volume';
 
 export default createRule<Options, MessageIds>({
 	name: 'volume-callback',
