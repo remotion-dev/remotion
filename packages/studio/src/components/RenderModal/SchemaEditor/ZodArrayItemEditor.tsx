@@ -17,6 +17,7 @@ export const ZodArrayItemEditor: React.FC<{
 	saving: boolean;
 	saveDisabledByParent: boolean;
 	mayPad: boolean;
+	mayRemove: boolean;
 }> = ({
 	def,
 	onChange,
@@ -29,6 +30,7 @@ export const ZodArrayItemEditor: React.FC<{
 	saving,
 	saveDisabledByParent,
 	mayPad,
+	mayRemove,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -85,7 +87,7 @@ export const ZodArrayItemEditor: React.FC<{
 				defaultValue={defaultValue}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
-				onRemove={onRemove}
+				onRemove={mayRemove ? onRemove : null}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}

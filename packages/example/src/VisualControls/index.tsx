@@ -1,29 +1,15 @@
 import {useVisualControl} from '@remotion/studio';
+import {zMatrix} from '@remotion/zod-types';
 import {AbsoluteFill} from 'remotion';
-import {z} from 'zod';
 
 export const VisualControls = () => {
 	const {visualControl} = useVisualControl();
 
+	const values = visualControl('arr', [1, 0, 0, 0, 1, 0, 0, 0, 1], zMatrix());
+
 	return (
-		<AbsoluteFill className="bg-red-300  text-9xl">
-			<p>{visualControl('testedexxx', 'test')}</p>
-			<p>{visualControl('testedex', 1)}</p>
-			<p>
-				{JSON.stringify(
-					visualControl(
-						'object',
-						{
-							a: 'b',
-							c: 'd',
-						},
-						z.object({
-							a: z.string(),
-							c: z.string(),
-						}),
-					),
-				)}
-			</p>
+		<AbsoluteFill className="bg-red-300 text-7xl">
+			<p>{values.join(', ')}</p>
 		</AbsoluteFill>
 	);
 };

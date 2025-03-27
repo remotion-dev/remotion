@@ -54,7 +54,7 @@ export const VisualControlHandle: React.FC<{
 					value={localValue.value}
 					defaultValue={value.valueInCode}
 					setValue={onChange}
-					onRemove={() => undefined}
+					onRemove={null}
 				/>
 			</RevisionContextProvider>
 		</div>
