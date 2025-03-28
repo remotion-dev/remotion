@@ -6,6 +6,7 @@ import {
 } from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getBlockSize} from './get-block-size';
 import {getChannelCount} from './get-channel-count';
 import {getSampleRate} from './get-sample-rate';
@@ -131,7 +132,8 @@ const emitSample = async ({
 			},
 			1,
 		),
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		callbacks: state.callbacks,
 	});
 
 	iterator.destroy();

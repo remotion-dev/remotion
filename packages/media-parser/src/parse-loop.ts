@@ -7,7 +7,10 @@ import {performSeek} from './perform-seek';
 import {runParseIteration} from './run-parse-iteration';
 import type {ParserState} from './state/parser-state';
 import type {ThrottledState} from './throttled-progress';
-import {workOnSeekRequest} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 const fetchMoreData = async (state: ParserState) => {
 	await state.controller._internals.checkForAbortAndPause();
@@ -32,24 +35,7 @@ export const parseLoop = async ({
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
-		await workOnSeekRequest({
-			logLevel: state.logLevel,
-			controller: state.controller,
-			videoSection: state.videoSection,
-			mp4HeaderSegment: state.mp4HeaderSegment,
-			isoState: state.iso,
-			iterator: state.iterator,
-			structureState: state.structure,
-			callbacks: state.callbacks,
-			src: state.src,
-			contentLength: state.contentLength,
-			readerInterface: state.readerInterface,
-			mode: state.mode,
-			seekInfiniteLoop: state.seekInfiniteLoop,
-			currentReader: state.currentReader,
-			discardReadBytes: state.discardReadBytes,
-			fields: state.fields,
-		});
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 
 		const offsetBefore = state.iterator.counter.getOffset();
 

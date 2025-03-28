@@ -3,6 +3,7 @@ import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getCurrentVideoSection} from '../../state/video-section';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {WavFmt} from './types';
 
 export const parseVideoSection = async ({
@@ -60,7 +61,8 @@ export const parseVideoSection = async ({
 			},
 			1,
 		),
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		callbacks: state.callbacks,
 	});
 	return null;
 };

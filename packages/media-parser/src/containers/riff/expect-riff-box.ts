@@ -3,6 +3,7 @@ import {
 	registerVideoTrackWhenProfileIsAvailable,
 } from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {makeAviAudioTrack, makeAviVideoTrack} from './get-tracks-from-avi';
 import {isMoviAtom} from './is-movi';
 import {parseRiffBox} from './parse-riff-box';
@@ -54,7 +55,7 @@ export const expectRiffBox = async (
 				strf: box.strf,
 			});
 			await registerAudioTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track: audioTrack,
 				container: 'avi',
 				callbacks: state.callbacks,

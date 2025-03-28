@@ -1,5 +1,6 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {parseMdatSection} from './mdat/mdat';
 import {processBox} from './process-box';
 
@@ -23,6 +24,7 @@ export const parseIsoBaseMedia = async (
 			callbacks: state.callbacks,
 			isoState: state.iso,
 			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		},
 		onlyIfMdatAtomExpected: {
 			videoSectionState: state.videoSection,

@@ -2,6 +2,7 @@ import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {makeParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
@@ -40,7 +41,7 @@ export const getMoovAtom = async ({
 		onAudioTrack: state.onAudioTrack
 			? async ({track, container}) => {
 					await registerAudioTrack({
-						state,
+						workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 						track,
 						container,
 						callbacks: state.callbacks,
@@ -52,7 +53,7 @@ export const getMoovAtom = async ({
 		onVideoTrack: state.onVideoTrack
 			? async ({track, container}) => {
 					await registerVideoTrack({
-						state,
+						workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 						track,
 						container,
 						callbacks: state.callbacks,
@@ -101,6 +102,7 @@ export const getMoovAtom = async ({
 				callbacks: childState.callbacks,
 				isoState: childState.iso,
 				state: childState,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(childState),
 			},
 			onlyIfMdatAtomExpected: null,
 		});

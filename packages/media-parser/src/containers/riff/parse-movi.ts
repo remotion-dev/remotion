@@ -1,6 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffStructure, StrhBox} from './riff-box';
@@ -76,7 +77,8 @@ export const handleChunk = async ({
 				},
 				1,
 			),
-			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			callbacks: state.callbacks,
 		});
 
 		return;
@@ -116,7 +118,8 @@ export const handleChunk = async ({
 				},
 				1,
 			),
-			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			callbacks: state.callbacks,
 		});
 	}
 };

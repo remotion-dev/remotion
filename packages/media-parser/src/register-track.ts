@@ -5,20 +5,24 @@ import {Log} from './log';
 import type {MediaParserContainer} from './options';
 import type {ParserState} from './state/parser-state';
 import type {SampleCallbacks} from './state/sample-callbacks';
-import {workOnSeekRequest} from './work-on-seek-request';
+import type {WorkOnSeekRequestOptions} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 export const registerVideoTrack = async ({
-	state,
 	track,
 	container,
 	callbacks,
 	logLevel,
+	workOnSeekRequestOptions,
 }: {
-	state: ParserState;
 	track: Track;
 	container: MediaParserContainer;
 	callbacks: SampleCallbacks;
 	logLevel: LogLevel;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 }) => {
 	if (callbacks.tracks.getTracks().find((t) => t.trackId === track.trackId)) {
 		Log.trace(logLevel, `Track ${track.trackId} already registered, skipping`);
@@ -31,43 +35,29 @@ export const registerVideoTrack = async ({
 
 	callbacks.tracks.addTrack(track);
 
-	if (!state.onVideoTrack) {
+	if (!workOnSeekRequestOptions.onVideoTrack) {
 		return null;
 	}
 
-	const callback = await state.onVideoTrack({track, container});
+	const callback = await workOnSeekRequestOptions.onVideoTrack({
+		track,
+		container,
+	});
 	await callbacks.registerVideoSampleCallback(track.trackId, callback ?? null);
 
-	await workOnSeekRequest({
-		mode: state.mode,
-		seekInfiniteLoop: state.seekInfiniteLoop,
-		logLevel,
-		controller: state.controller,
-		videoSection: state.videoSection,
-		mp4HeaderSegment: state.mp4HeaderSegment,
-		isoState: state.iso,
-		iterator: state.iterator,
-		structureState: state.structure,
-		callbacks: state.callbacks,
-		src: state.src,
-		contentLength: state.contentLength,
-		readerInterface: state.readerInterface,
-		currentReader: state.currentReader,
-		discardReadBytes: state.discardReadBytes,
-		fields: state.fields,
-	});
+	await workOnSeekRequest(workOnSeekRequestOptions);
 
 	return callback;
 };
 
 export const registerAudioTrack = async ({
-	state,
+	workOnSeekRequestOptions,
 	track,
 	container,
 	callbacks,
 	logLevel,
 }: {
-	state: ParserState;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	track: AudioTrack;
 	container: MediaParserContainer;
 	callbacks: SampleCallbacks;
@@ -83,30 +73,16 @@ export const registerAudioTrack = async ({
 	}
 
 	callbacks.tracks.addTrack(track);
-	if (!state.onAudioTrack) {
+	if (!workOnSeekRequestOptions.onAudioTrack) {
 		return null;
 	}
 
-	const callback = await state.onAudioTrack({track, container});
-	await callbacks.registerAudioSampleCallback(track.trackId, callback ?? null);
-	await workOnSeekRequest({
-		mode: state.mode,
-		seekInfiniteLoop: state.seekInfiniteLoop,
-		logLevel,
-		controller: state.controller,
-		videoSection: state.videoSection,
-		mp4HeaderSegment: state.mp4HeaderSegment,
-		isoState: state.iso,
-		iterator: state.iterator,
-		structureState: state.structure,
-		callbacks: state.callbacks,
-		src: state.src,
-		contentLength: state.contentLength,
-		readerInterface: state.readerInterface,
-		currentReader: state.currentReader,
-		discardReadBytes: state.discardReadBytes,
-		fields: state.fields,
+	const callback = await workOnSeekRequestOptions.onAudioTrack({
+		track,
+		container,
 	});
+	await callbacks.registerAudioSampleCallback(track.trackId, callback ?? null);
+	await workOnSeekRequest(workOnSeekRequestOptions);
 
 	return callback;
 };
@@ -122,7 +98,7 @@ export const registerVideoTrackWhenProfileIsAvailable = ({
 }) => {
 	state.riff.registerOnAvcProfileCallback(async (profile) => {
 		await registerVideoTrack({
-			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			track: addAvcProfileToTrack(track, profile),
 			container,
 			callbacks: state.callbacks,

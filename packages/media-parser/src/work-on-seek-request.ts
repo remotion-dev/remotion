@@ -11,10 +11,11 @@ import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
-import type {SampleCallbacks} from './state/sample-callbacks';
+import type {ParserState} from './state/parser-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
 import {type VideoSectionState} from './state/video-section';
+import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 const turnSeekIntoByte = async ({
 	seek,
@@ -89,30 +90,12 @@ const turnSeekIntoByte = async ({
 	);
 };
 
-export const workOnSeekRequest = async ({
-	logLevel,
-	controller,
-	videoSection,
-	mp4HeaderSegment,
-	isoState,
-	iterator,
-	structureState,
-	callbacks,
-	src,
-	contentLength,
-	readerInterface,
-	mode,
-	seekInfiniteLoop,
-	currentReader,
-	discardReadBytes,
-	fields,
-}: {
+export type WorkOnSeekRequestOptions = {
 	logLevel: LogLevel;
 	controller: MediaParserController;
 	isoState: IsoBaseMediaState;
 	iterator: BufferIterator;
 	structureState: StructureState;
-	callbacks: SampleCallbacks;
 	src: ParseMediaSrc;
 	contentLength: number;
 	readerInterface: ReaderInterface;
@@ -123,7 +106,52 @@ export const workOnSeekRequest = async ({
 	currentReader: CurrentReader;
 	discardReadBytes: (force: boolean) => Promise<void>;
 	fields: Partial<AllOptions<ParseMediaFields>>;
-}) => {
+	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: OnAudioTrack | null;
+};
+
+export const getWorkOnSeekRequestOptions = (
+	state: ParserState,
+): WorkOnSeekRequestOptions => {
+	return {
+		logLevel: state.logLevel,
+		controller: state.controller,
+		isoState: state.iso,
+		iterator: state.iterator,
+		structureState: state.structure,
+		src: state.src,
+		contentLength: state.contentLength,
+		readerInterface: state.readerInterface,
+		videoSection: state.videoSection,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+		mode: state.mode,
+		seekInfiniteLoop: state.seekInfiniteLoop,
+		currentReader: state.currentReader,
+		discardReadBytes: state.discardReadBytes,
+		fields: state.fields,
+		onVideoTrack: state.onVideoTrack,
+		onAudioTrack: state.onAudioTrack,
+	};
+};
+
+export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
+	const {
+		logLevel,
+		controller,
+		videoSection,
+		mp4HeaderSegment,
+		isoState,
+		iterator,
+		structureState,
+		src,
+		contentLength,
+		readerInterface,
+		mode,
+		seekInfiniteLoop,
+		currentReader,
+		discardReadBytes,
+		fields,
+	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
 		return;
@@ -189,24 +217,7 @@ export const workOnSeekRequest = async ({
 				logLevel,
 				`Seek request has changed while seeking, seeking again`,
 			);
-			await workOnSeekRequest({
-				logLevel,
-				controller,
-				videoSection,
-				mp4HeaderSegment,
-				isoState,
-				iterator,
-				structureState,
-				callbacks,
-				src,
-				contentLength,
-				readerInterface,
-				mode,
-				seekInfiniteLoop,
-				currentReader,
-				discardReadBytes,
-				fields,
-			});
+			await workOnSeekRequest(options);
 		}
 
 		return;

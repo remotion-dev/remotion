@@ -15,7 +15,10 @@ import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {ParserState} from './state/parser-state';
-import {workOnSeekRequest} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 export const emitAvailableInfo = async ({
 	hasInfo,
@@ -35,24 +38,7 @@ export const emitAvailableInfo = async ({
 	} = state;
 
 	for (const key of keys) {
-		await workOnSeekRequest({
-			logLevel: state.logLevel,
-			controller: state.controller,
-			videoSection: state.videoSection,
-			mp4HeaderSegment: state.mp4HeaderSegment,
-			isoState: state.iso,
-			iterator: state.iterator,
-			structureState: state.structure,
-			callbacks: state.callbacks,
-			src: state.src,
-			contentLength: state.contentLength,
-			readerInterface: state.readerInterface,
-			mode: state.mode,
-			seekInfiniteLoop: state.seekInfiniteLoop,
-			currentReader: state.currentReader,
-			discardReadBytes: state.discardReadBytes,
-			fields: state.fields,
-		});
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
 				await callbackFunctions.onStructure?.(state.structure.getStructure());
@@ -499,22 +485,5 @@ export const emitAvailableInfo = async ({
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 
-	await workOnSeekRequest({
-		logLevel: state.logLevel,
-		controller: state.controller,
-		videoSection: state.videoSection,
-		mp4HeaderSegment: state.mp4HeaderSegment,
-		isoState: state.iso,
-		iterator: state.iterator,
-		structureState: state.structure,
-		callbacks: state.callbacks,
-		src: state.src,
-		contentLength: state.contentLength,
-		readerInterface: state.readerInterface,
-		mode: state.mode,
-		seekInfiniteLoop: state.seekInfiniteLoop,
-		currentReader: state.currentReader,
-		discardReadBytes: state.discardReadBytes,
-		fields: state.fields,
-	});
+	await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 };

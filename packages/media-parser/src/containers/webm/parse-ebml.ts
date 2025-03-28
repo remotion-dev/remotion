@@ -2,6 +2,7 @@ import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getSampleFromBlock} from './get-sample-from-block';
 import {getTrack} from './make-track';
 import type {PossibleEbml} from './segments/all-segments';
@@ -171,7 +172,7 @@ export const postprocessEbml = async ({
 
 		if (track && track.type === 'audio') {
 			await registerAudioTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'webm',
 				callbacks: state.callbacks,
@@ -181,7 +182,7 @@ export const postprocessEbml = async ({
 
 		if (track && track.type === 'video') {
 			await registerVideoTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'webm',
 				callbacks: state.callbacks,
@@ -201,7 +202,8 @@ export const postprocessEbml = async ({
 			await emitVideoSample({
 				trackId: sample.videoSample.trackId,
 				videoSample: sample.videoSample,
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+				callbacks: state.callbacks,
 			});
 			return {
 				type: 'Block',
@@ -214,7 +216,8 @@ export const postprocessEbml = async ({
 			await emitAudioSample({
 				trackId: sample.audioSample.trackId,
 				audioSample: sample.audioSample,
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+				callbacks: state.callbacks,
 			});
 
 			return {
@@ -263,7 +266,8 @@ export const postprocessEbml = async ({
 			await emitVideoSample({
 				trackId: sample.partialVideoSample.trackId,
 				videoSample: completeFrame,
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+				callbacks: state.callbacks,
 			});
 		}
 

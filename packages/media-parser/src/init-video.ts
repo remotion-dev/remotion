@@ -12,6 +12,7 @@ import {Log} from './log';
 import type {Mp3Structure} from './parse-result';
 import {registerAudioTrack, registerVideoTrack} from './register-track';
 import type {ParserState} from './state/parser-state';
+import {getWorkOnSeekRequestOptions} from './work-on-seek-request';
 
 export const initVideo = async ({state}: {state: ParserState}) => {
 	const fileType = state.iterator.detectFileType();
@@ -36,7 +37,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 		const tracks = getTracksFromMoovBox(moovAtom);
 		for (const track of tracks.videoTracks) {
 			await registerVideoTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'mp4',
 				callbacks: state.callbacks,
@@ -46,7 +47,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 		for (const track of tracks.audioTracks) {
 			await registerAudioTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'mp4',
 				callbacks: state.callbacks,
