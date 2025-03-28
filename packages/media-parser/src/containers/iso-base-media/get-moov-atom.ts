@@ -96,11 +96,13 @@ export const getMoovAtom = async ({
 	while (true) {
 		const box = await processBox({
 			iterator: childState.iterator,
-			logLevel: childState.logLevel,
-			state: childState,
-			videoSectionState: childState.videoSection,
-			callbacks: childState.callbacks,
-			isoState: childState.iso,
+			logLevel: state.logLevel,
+			onlyIfMoovAtomExpected: {
+				callbacks: childState.callbacks,
+				isoState: childState.iso,
+				state: childState,
+			},
+			onlyIfMdatAtomExpected: null,
 		});
 		if (box) {
 			boxes.push(box);

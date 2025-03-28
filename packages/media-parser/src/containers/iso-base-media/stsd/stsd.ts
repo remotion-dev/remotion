@@ -1,6 +1,5 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
-import type {VideoSectionState} from '../../../state/video-section';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseIsoFormatBoxes} from './samples';
@@ -14,13 +13,11 @@ export interface StsdBox extends BaseBox {
 export const parseStsd = async ({
 	offset,
 	size,
-	videoSectionState,
 	iterator,
 	logLevel,
 }: {
 	offset: number;
 	size: number;
-	videoSectionState: VideoSectionState;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 }): Promise<StsdBox> => {
@@ -40,7 +37,6 @@ export const parseStsd = async ({
 		maxBytes: bytesRemainingInBox,
 		logLevel,
 		iterator,
-		videoSectionState,
 	});
 
 	if (boxes.length !== numberOfEntries) {

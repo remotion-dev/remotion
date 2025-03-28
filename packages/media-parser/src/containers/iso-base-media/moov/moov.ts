@@ -1,7 +1,7 @@
 import type {AnySegment} from '../../../parse-result';
-import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
 import {getIsoBaseMediaChildren} from '../get-children';
+import type {OnlyIfMoovAtomExpected} from '../process-box';
 
 export interface MoovBox extends BaseBox {
 	type: 'moov-box';
@@ -11,19 +11,17 @@ export interface MoovBox extends BaseBox {
 export const parseMoov = async ({
 	offset,
 	size,
-	state,
+	onlyIfMoovAtomExpected,
 }: {
 	offset: number;
 	size: number;
-	state: ParserState;
+	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected;
 }): Promise<MoovBox> => {
 	const children = await getIsoBaseMediaChildren({
-		state,
-		iterator: state.iterator,
-		logLevel: state.logLevel,
+		onlyIfMoovAtomExpected,
+		iterator: onlyIfMoovAtomExpected.state.iterator,
+		logLevel: onlyIfMoovAtomExpected.state.logLevel,
 		size: size - 8,
-		videoSectionState: state.videoSection,
-		callbacks: state.callbacks,
 	});
 
 	return {

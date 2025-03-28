@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
-import type {VideoSectionState} from '../../../state/video-section';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
 
@@ -124,11 +123,9 @@ const audioTags = [
 export const processIsoFormatBox = async ({
 	iterator,
 	logLevel,
-	videoSectionState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
-	videoSectionState: VideoSectionState;
 }): Promise<FormatBoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -181,9 +178,7 @@ export const processIsoFormatBox = async ({
 				iterator,
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
-				state: null,
-				videoSectionState,
-				callbacks: null,
+				onlyIfMoovAtomExpected: null,
 			});
 
 			return {
@@ -227,9 +222,7 @@ export const processIsoFormatBox = async ({
 				iterator,
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
-				state: null,
-				videoSectionState,
-				callbacks: null,
+				onlyIfMoovAtomExpected: null,
 			});
 
 			return {
@@ -273,12 +266,10 @@ export const processIsoFormatBox = async ({
 			const samplesPerPacket = iterator.getUint32();
 
 			const children = await getIsoBaseMediaChildren({
-				state: null,
 				iterator,
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
-				videoSectionState,
-				callbacks: null,
+				onlyIfMoovAtomExpected: null,
 			});
 
 			return {
@@ -330,12 +321,10 @@ export const processIsoFormatBox = async ({
 		const children: IsoBaseMediaBox[] =
 			bytesRemainingInBox > 8
 				? await getIsoBaseMediaChildren({
-						state: null,
+						onlyIfMoovAtomExpected: null,
 						iterator,
 						logLevel,
 						size: bytesRemainingInBox,
-						videoSectionState,
-						callbacks: null,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);
 
@@ -370,12 +359,10 @@ export const processIsoFormatBox = async ({
 
 export const parseIsoFormatBoxes = async ({
 	maxBytes,
-	videoSectionState,
 	logLevel,
 	iterator,
 }: {
 	maxBytes: number;
-	videoSectionState: VideoSectionState;
 	logLevel: LogLevel;
 	iterator: BufferIterator;
 }): Promise<Sample[]> => {
@@ -389,7 +376,6 @@ export const parseIsoFormatBoxes = async ({
 		const {sample} = await processIsoFormatBox({
 			iterator,
 			logLevel,
-			videoSectionState,
 		});
 
 		if (sample) {

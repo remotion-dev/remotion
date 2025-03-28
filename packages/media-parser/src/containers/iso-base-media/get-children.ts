@@ -1,25 +1,19 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
-import type {ParserState} from '../../state/parser-state';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
-import {type VideoSectionState} from '../../state/video-section';
 import type {IsoBaseMediaBox} from './base-media-box';
+import type {OnlyIfMoovAtomExpected} from './process-box';
 import {processBox} from './process-box';
 
 export const getIsoBaseMediaChildren = async ({
 	size,
 	iterator,
 	logLevel,
-	state,
-	videoSectionState,
-	callbacks,
+	onlyIfMoovAtomExpected,
 }: {
 	size: number;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
-	state: ParserState | null;
-	videoSectionState: VideoSectionState;
-	callbacks: SampleCallbacks | null;
+	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 }): Promise<IsoBaseMediaBox[]> => {
 	const boxes: IsoBaseMediaBox[] = [];
 	const initial = iterator.counter.getOffset();
@@ -28,10 +22,8 @@ export const getIsoBaseMediaChildren = async ({
 		const parsed = await processBox({
 			iterator,
 			logLevel,
-			state,
-			videoSectionState,
-			callbacks,
-			isoState: null,
+			onlyIfMoovAtomExpected,
+			onlyIfMdatAtomExpected: null,
 		});
 		if (!parsed) {
 			throw new Error('Expected box');

@@ -19,10 +19,14 @@ export const parseIsoBaseMedia = async (
 	const result = await processBox({
 		iterator: state.iterator,
 		logLevel: state.logLevel,
-		state,
-		videoSectionState: state.videoSection,
-		callbacks: state.callbacks,
-		isoState: state.iso,
+		onlyIfMoovAtomExpected: {
+			callbacks: state.callbacks,
+			isoState: state.iso,
+			state,
+		},
+		onlyIfMdatAtomExpected: {
+			videoSectionState: state.videoSection,
+		},
 	});
 	if (result) {
 		state.structure.getIsoStructure().boxes.push(result);
