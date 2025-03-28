@@ -1,5 +1,8 @@
 # Remotion Music Visualization Template
 
+<img alt='Spectrum Visualizer' width='300px' src='./spectrum-demo.jpeg' />
+<img alt='Waveform Visualizer' width='300px' src='./waveform-demo.jpeg' />
+
 This template allows you to create stunning music visualization videos. Perfect for sharing song previews, album teasers, or music snippets on social media with beautiful visual effects synchronized to your audio.
 
 ## Getting started
@@ -12,7 +15,7 @@ npx remotion studio
 
 You can customize your music visualization:
 
-- Choose between spectrum analyzer or oscilloscope visualizations
+- Choose between spectrum or waveform visualizer
 - Customize colors, wave patterns, and visual parameters
 - Add your album artwork, song name, and artist name
 - Adjust audio timing and visualization settings
