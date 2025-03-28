@@ -1,6 +1,5 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
-import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {ParserState} from '../../state/parser-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import {type VideoSectionState} from '../../state/video-section';
@@ -14,7 +13,6 @@ export const getIsoBaseMediaChildren = async ({
 	state,
 	videoSectionState,
 	callbacks,
-	isoState,
 }: {
 	size: number;
 	iterator: BufferIterator;
@@ -22,7 +20,6 @@ export const getIsoBaseMediaChildren = async ({
 	state: ParserState | null;
 	videoSectionState: VideoSectionState;
 	callbacks: SampleCallbacks | null;
-	isoState: IsoBaseMediaState;
 }): Promise<IsoBaseMediaBox[]> => {
 	const boxes: IsoBaseMediaBox[] = [];
 	const initial = iterator.counter.getOffset();
@@ -34,7 +31,7 @@ export const getIsoBaseMediaChildren = async ({
 			state,
 			videoSectionState,
 			callbacks,
-			isoState,
+			isoState: null,
 		});
 		if (!parsed) {
 			throw new Error('Expected box');

@@ -76,7 +76,6 @@ const turnSeekIntoByte = async ({
 			readerInterface,
 			videoSectionState,
 			callbacks,
-			isoState,
 		});
 
 		return seekingByte;

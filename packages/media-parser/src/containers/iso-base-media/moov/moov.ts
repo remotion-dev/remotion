@@ -24,7 +24,6 @@ export const parseMoov = async ({
 		size: size - 8,
 		videoSectionState: state.videoSection,
 		callbacks: state.callbacks,
-		isoState: state.iso,
 	});
 
 	return {

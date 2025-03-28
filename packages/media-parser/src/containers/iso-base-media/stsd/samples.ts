@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
-import type {IsoBaseMediaState} from '../../../state/iso-base-media/iso-state';
 import type {VideoSectionState} from '../../../state/video-section';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
@@ -126,12 +125,10 @@ export const processIsoFormatBox = async ({
 	iterator,
 	logLevel,
 	videoSectionState,
-	isoState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	videoSectionState: VideoSectionState;
-	isoState: IsoBaseMediaState;
 }): Promise<FormatBoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -187,7 +184,6 @@ export const processIsoFormatBox = async ({
 				state: null,
 				videoSectionState,
 				callbacks: null,
-				isoState,
 			});
 
 			return {
@@ -234,7 +230,6 @@ export const processIsoFormatBox = async ({
 				state: null,
 				videoSectionState,
 				callbacks: null,
-				isoState,
 			});
 
 			return {
@@ -284,7 +279,6 @@ export const processIsoFormatBox = async ({
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				videoSectionState,
 				callbacks: null,
-				isoState,
 			});
 
 			return {
@@ -342,7 +336,6 @@ export const processIsoFormatBox = async ({
 						size: bytesRemainingInBox,
 						videoSectionState,
 						callbacks: null,
-						isoState,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);
 
@@ -380,13 +373,11 @@ export const parseIsoFormatBoxes = async ({
 	videoSectionState,
 	logLevel,
 	iterator,
-	isoState,
 }: {
 	maxBytes: number;
 	videoSectionState: VideoSectionState;
 	logLevel: LogLevel;
 	iterator: BufferIterator;
-	isoState: IsoBaseMediaState;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -399,7 +390,6 @@ export const parseIsoFormatBoxes = async ({
 			iterator,
 			logLevel,
 			videoSectionState,
-			isoState,
 		});
 
 		if (sample) {

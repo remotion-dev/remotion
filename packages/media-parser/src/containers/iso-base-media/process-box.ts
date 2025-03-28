@@ -50,7 +50,7 @@ export const processBox = async ({
 	state: ParserState | null;
 	videoSectionState: VideoSectionState;
 	callbacks: SampleCallbacks | null;
-	isoState: IsoBaseMediaState;
+	isoState: IsoBaseMediaState | null;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
@@ -130,7 +130,6 @@ export const processBox = async ({
 			videoSectionState,
 			iterator,
 			logLevel,
-			isoState,
 		});
 	}
 
@@ -190,7 +189,6 @@ export const processBox = async ({
 			iterator,
 			logLevel,
 			videoSectionState,
-			isoState,
 		});
 	}
 
@@ -225,6 +223,10 @@ export const processBox = async ({
 
 		if (!callbacks) {
 			throw new Error('Callbacks are required');
+		}
+
+		if (!isoState) {
+			throw new Error('IsoState is required');
 		}
 
 		if (callbacks.tracks.hasAllTracks()) {
@@ -357,7 +359,6 @@ export const processBox = async ({
 			state,
 			videoSectionState,
 			callbacks,
-			isoState,
 		});
 
 		return {
