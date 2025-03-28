@@ -1,6 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffStructure, StrhBox} from './riff-box';
@@ -39,7 +40,7 @@ export const handleChunk = async ({
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
 		const trackId = parseInt(videoChunk[1], 10);
-		const strh = getStrhForIndex(state.getRiffStructure(), trackId);
+		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -76,7 +77,8 @@ export const handleChunk = async ({
 				},
 				1,
 			),
-			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			callbacks: state.callbacks,
 		});
 
 		return;
@@ -85,7 +87,7 @@ export const handleChunk = async ({
 	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
 	if (audioChunk) {
 		const trackId = parseInt(audioChunk[1], 10);
-		const strh = getStrhForIndex(state.getRiffStructure(), trackId);
+		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
@@ -116,7 +118,8 @@ export const handleChunk = async ({
 				},
 				1,
 			),
-			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			callbacks: state.callbacks,
 		});
 	}
 };

@@ -1,6 +1,13 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
+import type {TracksState} from '../../state/has-tracks-section';
+import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {VideoSectionState} from '../../state/video-section';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {BoxAndNext} from './base-media-box';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
@@ -32,8 +39,31 @@ import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
-export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
-	const {iterator} = state;
+export type OnlyIfMoovAtomExpected = {
+	tracks: TracksState;
+	isoState: IsoBaseMediaState | null;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions | null;
+	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: OnAudioTrack | null;
+	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
+	registerAudioSampleCallback: SampleCallbacks['registerAudioSampleCallback'];
+};
+
+export type OnlyIfMdatAtomExpected = {
+	videoSectionState: VideoSectionState;
+};
+
+export const processBox = async ({
+	iterator,
+	logLevel,
+	onlyIfMoovAtomExpected,
+	onlyIfMdatAtomExpected,
+}: {
+	iterator: BufferIterator;
+	logLevel: LogLevel;
+	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
+	onlyIfMdatAtomExpected: OnlyIfMdatAtomExpected | null;
+}): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -61,11 +91,16 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 	const boxType = iterator.getByteString(4, false);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
-	Log.trace(state.logLevel, 'Found box', boxType, boxSize);
+	Log.trace(logLevel, 'Found box', boxType, boxSize);
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
-		state.videoSection.addVideoSection({
+		if (!onlyIfMdatAtomExpected) {
+			throw new Error('State is required');
+		}
+
+		const {videoSectionState} = onlyIfMdatAtomExpected;
+		videoSectionState.addVideoSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});
@@ -109,7 +144,8 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		return parseStsd({
 			offset: fileOffset,
 			size: boxSize,
-			state,
+			iterator,
+			logLevel,
 		});
 	}
 
@@ -166,7 +202,8 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		return parseMebx({
 			offset: fileOffset,
 			size: boxSize,
-			state,
+			iterator,
+			logLevel,
 		});
 	}
 
@@ -195,13 +232,18 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	}
 
 	if (boxType === 'moov') {
-		if (state.callbacks.tracks.hasAllTracks()) {
+		if (!onlyIfMoovAtomExpected) {
+			throw new Error('State is required');
+		}
+
+		const {tracks, isoState} = onlyIfMoovAtomExpected;
+		if (tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
 			return null;
 		}
 
-		if (state.iso.moov.getMoovBox()) {
-			Log.verbose(state.logLevel, 'Moov box already parsed, skipping');
+		if (isoState && isoState.moov.getMoovBox()) {
+			Log.verbose(logLevel, 'Moov box already parsed, skipping');
 			iterator.discard(boxSize - 8);
 			return null;
 		}
@@ -209,34 +251,54 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		const box = await parseMoov({
 			offset: fileOffset,
 			size: boxSize,
-			state,
+			onlyIfMoovAtomExpected,
+			iterator,
+			logLevel,
 		});
 
-		state.callbacks.tracks.setIsDone(state.logLevel);
+		tracks.setIsDone(logLevel);
 
 		return box;
 	}
 
 	if (boxType === 'trak') {
+		if (!onlyIfMoovAtomExpected) {
+			throw new Error('State is required');
+		}
+
+		const {workOnSeekRequestOptions, tracks, onAudioTrack, onVideoTrack} =
+			onlyIfMoovAtomExpected;
+
 		const box = await parseTrak({
 			size: boxSize,
 			offsetAtStart: fileOffset,
-			state,
+			iterator,
+			logLevel,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack && transformedTrack.type === 'video') {
 			await registerVideoTrack({
-				state,
+				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
+				logLevel,
+				onVideoTrack,
+				registerVideoSampleCallback:
+					onlyIfMoovAtomExpected.registerVideoSampleCallback,
+				tracks,
 			});
 		}
 
 		if (transformedTrack && transformedTrack.type === 'audio') {
 			await registerAudioTrack({
-				state,
+				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
+				registerAudioSampleCallback:
+					onlyIfMoovAtomExpected.registerAudioSampleCallback,
+				tracks,
+				logLevel,
+				onAudioTrack,
 			});
 		}
 
@@ -297,6 +359,10 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		});
 	}
 
+	if (boxType === 'moof') {
+		onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
+	}
+
 	if (
 		boxType === 'mdia' ||
 		boxType === 'minf' ||
@@ -311,8 +377,10 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({
-			state,
+			iterator,
 			size: boxSize - 8,
+			logLevel,
+			onlyIfMoovAtomExpected,
 		});
 
 		return {

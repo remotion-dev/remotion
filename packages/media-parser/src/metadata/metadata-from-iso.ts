@@ -150,7 +150,11 @@ export const parseIsoMetaBox = (
 export const getMetadataFromIsoBase = (
 	state: ParserState,
 ): MediaParserMetadataEntry[] => {
-	const moov = getMoovBoxFromState(state);
+	const moov = getMoovBoxFromState({
+		structureState: state.structure,
+		isoState: state.iso,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+	});
 	if (!moov) {
 		return [];
 	}

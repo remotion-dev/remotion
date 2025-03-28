@@ -100,7 +100,11 @@ export const getFpsFromMp4TrakBox = (trakBox: TrakBox) => {
 };
 
 const getFpsFromIsoMaseMedia = (state: ParserState) => {
-	const moovBox = getMoovBoxFromState(state);
+	const moovBox = getMoovBoxFromState({
+		structureState: state.structure,
+		isoState: state.iso,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+	});
 	if (!moovBox) {
 		return null;
 	}
@@ -135,7 +139,7 @@ const getFpsFromAvi = (structure: RiffStructure) => {
 };
 
 export const getFps = (state: ParserState) => {
-	const segments = state.getStructure();
+	const segments = state.structure.getStructure();
 
 	if (segments.type === 'iso-base-media') {
 		return getFpsFromIsoMaseMedia(state);
@@ -188,7 +192,7 @@ export const hasFps = (state: ParserState): boolean => {
 	// Users should use `slowFps` field
 	// same goes for audio
 
-	const structure = state.getStructure();
+	const structure = state.structure.getStructure();
 
 	if (isAudioStructure(structure)) {
 		return true;

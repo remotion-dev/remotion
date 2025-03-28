@@ -26,7 +26,7 @@ export const getAvailableInfo = ({
 		boolean,
 	][];
 
-	const structure = state.getStructureOrNull();
+	const structure = state.structure.getStructureOrNull();
 
 	const infos = keys.map(([_key]) => {
 		const key = _key as keyof Options<AllParseMediaFields>;

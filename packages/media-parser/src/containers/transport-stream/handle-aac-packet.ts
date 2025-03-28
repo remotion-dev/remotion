@@ -5,6 +5,7 @@ import type {Track} from '../../get-tracks';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
@@ -48,8 +49,12 @@ export const handleAacPacket = async ({
 		};
 		await registerAudioTrack({
 			track,
-			state,
 			container: 'transport-stream',
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+			tracks: state.callbacks.tracks,
+			logLevel: state.logLevel,
+			onAudioTrack: state.onAudioTrack,
 		});
 	}
 
@@ -71,6 +76,7 @@ export const handleAacPacket = async ({
 			sample,
 			MPEG_TIMESCALE,
 		),
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		callbacks: state.callbacks,
 	});
 };

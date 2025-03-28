@@ -6,6 +6,7 @@ import {
 } from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getBlockSize} from './get-block-size';
 import {getChannelCount} from './get-channel-count';
 import {getSampleRate} from './get-sample-rate';
@@ -101,7 +102,7 @@ const emitSample = async ({
 	const {blockSize, num, sampleRate} = parsed;
 
 	const duration = blockSize / sampleRate;
-	const structure = state.getFlacStructure();
+	const structure = state.structure.getFlacStructure();
 	const streamInfo = structure.boxes.find(
 		(box) => box.type === 'flac-streaminfo',
 	);
@@ -131,7 +132,8 @@ const emitSample = async ({
 			},
 			1,
 		),
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		callbacks: state.callbacks,
 	});
 
 	iterator.destroy();
@@ -175,7 +177,7 @@ export const parseFlacFrame = async ({
 
 	iterator.stopReadingBits();
 
-	const structure = state.getFlacStructure();
+	const structure = state.structure.getFlacStructure();
 
 	const minimumFrameSize =
 		structure.boxes.find((b) => b.type === 'flac-streaminfo')

@@ -1,9 +1,28 @@
+import type {MediaParserController} from './controller/media-parser-controller';
+import type {BufferIterator} from './iterator/buffer-iterator';
+import type {LogLevel} from './log';
 import {Log} from './log';
-import type {ParserState} from './state/parser-state';
+import type {ParseMediaSrc} from './options';
+import type {ReaderInterface} from './readers/reader';
+import type {CurrentReader} from './state/current-reader';
 
-export const seekBackwards = async (state: ParserState, seekTo: number) => {
-	const {iterator} = state;
-
+export const seekBackwards = async ({
+	iterator,
+	seekTo,
+	readerInterface,
+	src,
+	controller,
+	logLevel,
+	currentReader,
+}: {
+	iterator: BufferIterator;
+	seekTo: number;
+	readerInterface: ReaderInterface;
+	src: ParseMediaSrc;
+	controller: MediaParserController;
+	logLevel: LogLevel;
+	currentReader: CurrentReader;
+}) => {
 	// (a) data has not been discarded yet
 	const howManyBytesNotYetDiscarded = iterator.counter.getDiscardedOffset();
 	const howManyBytesWeCanGoBack =
@@ -17,21 +36,21 @@ export const seekBackwards = async (state: ParserState, seekTo: number) => {
 	// (b) data has been discarded, making new reader
 	const time = Date.now();
 	Log.verbose(
-		state.logLevel,
+		logLevel,
 		`Seeking in video from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available`,
 	);
 
-	const {reader: newReader} = await state.readerInterface.read({
-		src: state.src,
+	const {reader: newReader} = await readerInterface.read({
+		src,
 		range: seekTo,
-		controller: state.controller,
+		controller,
 	});
 
 	iterator.replaceData(new Uint8Array([]), seekTo);
 
 	Log.verbose(
-		state.logLevel,
+		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,
 	);
-	state.currentReader = newReader;
+	currentReader.setCurrent(newReader);
 };

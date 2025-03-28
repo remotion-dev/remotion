@@ -5,7 +5,7 @@ import {hasBeenAborted} from '../../errors';
 import {parseMedia} from '../../parse-media';
 import {nodeReader} from '../../readers/from-node';
 
-test('seek moof', async () => {
+test('seek moof, should make use of the mfra atom if available', async () => {
 	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
 
 	const controller = mediaParserController();
@@ -63,113 +63,8 @@ test('seek moof', async () => {
 		).toEqual([
 			{
 				from: 2052,
-				to: 12482,
-				type: 'internal',
-			},
-			{
-				from: 12758,
-				to: 25532,
-				type: 'internal',
-			},
-			{
-				from: 25976,
-				to: 94095,
-				type: 'internal',
-			},
-			{
-				from: 94539,
-				to: 241735,
-				type: 'internal',
-			},
-			{
-				from: 242179,
-				to: 355739,
-				type: 'internal',
-			},
-			{
-				from: 356183,
-				to: 490611,
-				type: 'internal',
-			},
-			{
-				from: 491227,
-				to: 586370,
-				type: 'internal',
-			},
-			{
-				from: 586814,
-				to: 674532,
-				type: 'internal',
-			},
-			{
-				from: 674976,
-				to: 713330,
-				type: 'internal',
-			},
-			{
-				from: 713774,
-				to: 771926,
-				type: 'internal',
-			},
-			{
-				from: 772226,
-				to: 802392,
-				type: 'internal',
-			},
-			{
-				from: 802836,
-				to: 832655,
-				type: 'internal',
-			},
-			{
-				from: 833099,
-				to: 880227,
-				type: 'internal',
-			},
-			{
-				from: 880843,
-				to: 914385,
-				type: 'internal',
-			},
-			{
-				from: 914805,
-				to: 943825,
-				type: 'internal',
-			},
-			{
-				from: 944269,
-				to: 974849,
-				type: 'internal',
-			},
-			{
-				from: 975293,
-				to: 1020488,
-				type: 'internal',
-			},
-			{
-				from: 1020932,
-				to: 1064325,
-				type: 'internal',
-			},
-			{
-				from: 1064649,
-				to: 1094851,
-				type: 'internal',
-			},
-			{
-				from: 1095467,
-				to: 1133409,
-				type: 'internal',
-			},
-			{
-				from: 1133701,
-				to: 1162569,
-				type: 'internal',
-			},
-			{
-				from: 1163013,
 				to: 1214780,
-				type: 'internal',
+				type: 'user-initiated',
 			},
 			{
 				from: 1261511,
@@ -178,11 +73,9 @@ test('seek moof', async () => {
 			},
 			{
 				from: 9349,
-				to: 802836,
+				to: 802392,
 				type: 'user-initiated',
 			},
 		]);
 	}
 });
-
-test.todo('should use mfro then mfra atom if available');

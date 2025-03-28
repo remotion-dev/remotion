@@ -4,6 +4,7 @@ import type {Track} from '../../get-tracks';
 import {registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
@@ -66,7 +67,15 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerVideoTrack({track, state, container: 'transport-stream'});
+		await registerVideoTrack({
+			track,
+			container: 'transport-stream',
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			logLevel: state.logLevel,
+			onVideoTrack: state.onVideoTrack,
+			registerVideoSampleCallback: state.callbacks.registerVideoSampleCallback,
+			tracks: state.callbacks.tracks,
+		});
 	}
 
 	// sample for webcodecs needs to be in nano seconds
@@ -88,6 +97,7 @@ export const handleAvcPacket = async ({
 			sample,
 			MPEG_TIMESCALE,
 		),
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		callbacks: state.callbacks,
 	});
 };

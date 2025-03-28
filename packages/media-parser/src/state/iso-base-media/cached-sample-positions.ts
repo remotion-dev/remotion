@@ -26,8 +26,8 @@ export const calculateFlatSamples = (state: ParserState) => {
 		.map((track) => {
 			const {samplePositions} = getSamplePositionsFromTrack({
 				trakBox: track.trakBox as TrakBox,
-				moofBoxes: getMoofBoxes(state.getIsoStructure().boxes),
-				tfraBoxes: getTfraBoxes(state.getIsoStructure()),
+				moofBoxes: getMoofBoxes(state.structure.getIsoStructure().boxes),
+				tfraBoxes: getTfraBoxes(state.structure.getIsoStructure()),
 			});
 
 			return samplePositions.map((samplePosition) => {

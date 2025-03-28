@@ -14,7 +14,7 @@ export type MediaParserMetadataEntry = {
 };
 
 export const getMetadata = (state: ParserState): MediaParserMetadataEntry[] => {
-	const structure = state.getStructure();
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getMetadataFromMatroska(structure);
 	}

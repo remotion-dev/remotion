@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {FlacStreamInfo} from './types';
 
 export const parseStreamInfo = async ({
@@ -40,11 +41,11 @@ export const parseStreamInfo = async ({
 		totalSamples,
 	};
 
-	state.getFlacStructure().boxes.push(flacStreamInfo);
+	state.structure.getFlacStructure().boxes.push(flacStreamInfo);
 
 	await registerAudioTrack({
 		container: 'flac',
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		track: {
 			codec: 'flac',
 			type: 'audio',
@@ -57,6 +58,10 @@ export const parseStreamInfo = async ({
 			trackId: 0,
 			trakBox: null,
 		},
+		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+		tracks: state.callbacks.tracks,
+		logLevel: state.logLevel,
+		onAudioTrack: state.onAudioTrack,
 	});
 
 	state.callbacks.tracks.setIsDone(state.logLevel);
