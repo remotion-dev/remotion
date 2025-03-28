@@ -58,7 +58,9 @@ export const expectRiffBox = async (
 				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track: audioTrack,
 				container: 'avi',
-				callbacks: state.callbacks,
+				registerAudioSampleCallback:
+					state.callbacks.registerAudioSampleCallback,
+				tracks: state.callbacks.tracks,
 				logLevel: state.logLevel,
 				onAudioTrack: state.onAudioTrack,
 			});

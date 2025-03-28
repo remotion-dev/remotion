@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
+import type {TracksState} from '../../state/has-tracks-section';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {VideoSectionState} from '../../state/video-section';
@@ -39,11 +40,13 @@ import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
 export type OnlyIfMoovAtomExpected = {
-	callbacks: SampleCallbacks;
-	isoState: IsoBaseMediaState;
+	tracks: TracksState;
+	isoState: IsoBaseMediaState | null;
 	workOnSeekRequestOptions: WorkOnSeekRequestOptions | null;
 	onVideoTrack: OnVideoTrack | null;
 	onAudioTrack: OnAudioTrack | null;
+	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
+	registerAudioSampleCallback: SampleCallbacks['registerAudioSampleCallback'];
 };
 
 export type OnlyIfMdatAtomExpected = {
@@ -233,13 +236,13 @@ export const processBox = async ({
 			throw new Error('State is required');
 		}
 
-		const {callbacks, isoState} = onlyIfMoovAtomExpected;
-		if (callbacks.tracks.hasAllTracks()) {
+		const {tracks, isoState} = onlyIfMoovAtomExpected;
+		if (tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
 			return null;
 		}
 
-		if (isoState.moov.getMoovBox()) {
+		if (isoState && isoState.moov.getMoovBox()) {
 			Log.verbose(logLevel, 'Moov box already parsed, skipping');
 			iterator.discard(boxSize - 8);
 			return null;
@@ -253,7 +256,7 @@ export const processBox = async ({
 			logLevel,
 		});
 
-		callbacks.tracks.setIsDone(logLevel);
+		tracks.setIsDone(logLevel);
 
 		return box;
 	}
@@ -263,13 +266,12 @@ export const processBox = async ({
 			throw new Error('State is required');
 		}
 
-		const {workOnSeekRequestOptions, callbacks, onAudioTrack, onVideoTrack} =
+		const {workOnSeekRequestOptions, tracks, onAudioTrack, onVideoTrack} =
 			onlyIfMoovAtomExpected;
 
 		const box = await parseTrak({
 			size: boxSize,
 			offsetAtStart: fileOffset,
-			onlyIfMoovAtomExpected,
 			iterator,
 			logLevel,
 		});
@@ -279,9 +281,11 @@ export const processBox = async ({
 				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
-				callbacks,
 				logLevel,
 				onVideoTrack,
+				registerVideoSampleCallback:
+					onlyIfMoovAtomExpected.registerVideoSampleCallback,
+				tracks,
 			});
 		}
 
@@ -290,7 +294,9 @@ export const processBox = async ({
 				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
-				callbacks,
+				registerAudioSampleCallback:
+					onlyIfMoovAtomExpected.registerAudioSampleCallback,
+				tracks,
 				logLevel,
 				onAudioTrack,
 			});

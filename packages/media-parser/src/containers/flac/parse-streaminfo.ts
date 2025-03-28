@@ -58,7 +58,8 @@ export const parseStreamInfo = async ({
 			trackId: 0,
 			trakBox: null,
 		},
-		callbacks: state.callbacks,
+		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+		tracks: state.callbacks.tracks,
 		logLevel: state.logLevel,
 		onAudioTrack: state.onAudioTrack,
 	});

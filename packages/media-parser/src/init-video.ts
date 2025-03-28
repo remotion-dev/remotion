@@ -40,9 +40,11 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'mp4',
-				callbacks: state.callbacks,
 				logLevel: state.logLevel,
 				onVideoTrack: state.onVideoTrack,
+				registerVideoSampleCallback:
+					state.callbacks.registerVideoSampleCallback,
+				tracks: state.callbacks.tracks,
 			});
 		}
 
@@ -51,7 +53,9 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'mp4',
-				callbacks: state.callbacks,
+				registerAudioSampleCallback:
+					state.callbacks.registerAudioSampleCallback,
+				tracks: state.callbacks.tracks,
 				logLevel: state.logLevel,
 				onAudioTrack: state.onAudioTrack,
 			});

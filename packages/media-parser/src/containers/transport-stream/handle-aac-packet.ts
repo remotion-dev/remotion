@@ -51,7 +51,8 @@ export const handleAacPacket = async ({
 			track,
 			container: 'transport-stream',
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			callbacks: state.callbacks,
+			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+			tracks: state.callbacks.tracks,
 			logLevel: state.logLevel,
 			onAudioTrack: state.onAudioTrack,
 		});

@@ -71,9 +71,10 @@ export const handleAvcPacket = async ({
 			track,
 			container: 'transport-stream',
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			callbacks: state.callbacks,
 			logLevel: state.logLevel,
 			onVideoTrack: state.onVideoTrack,
+			registerVideoSampleCallback: state.callbacks.registerVideoSampleCallback,
+			tracks: state.callbacks.tracks,
 		});
 	}
 

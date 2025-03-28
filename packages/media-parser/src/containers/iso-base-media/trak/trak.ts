@@ -3,7 +3,6 @@ import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {BaseBox} from '../base-type';
 import {getIsoBaseMediaChildren} from '../get-children';
-import type {OnlyIfMoovAtomExpected} from '../process-box';
 
 export interface TrakBox extends BaseBox {
 	type: 'trak-box';
@@ -13,7 +12,6 @@ export interface TrakBox extends BaseBox {
 export const parseTrak = async ({
 	size,
 	offsetAtStart,
-	onlyIfMoovAtomExpected,
 	iterator,
 	logLevel,
 }: {
@@ -21,10 +19,9 @@ export const parseTrak = async ({
 	offsetAtStart: number;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
-	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 }): Promise<TrakBox> => {
 	const children = await getIsoBaseMediaChildren({
-		onlyIfMoovAtomExpected,
+		onlyIfMoovAtomExpected: null,
 		size: size - 8,
 		iterator,
 		logLevel,

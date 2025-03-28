@@ -1,12 +1,11 @@
-import {getFieldsFromCallback} from '../../get-fields-from-callbacks';
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
-import {emittedState} from '../../state/emitted-fields';
-import {keyframesState} from '../../state/keyframes';
+import {makeCanSkipTracksState} from '../../state/can-skip-tracks';
+import {makeTracksSectionState} from '../../state/has-tracks-section';
 import type {ParserState} from '../../state/parser-state';
-import {sampleCallback} from '../../state/sample-callbacks';
+import {structureState} from '../../state/structure';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {IsoBaseMediaBox} from './base-media-box';
@@ -14,7 +13,6 @@ import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
 import {getMoovFromFromIsoStructure} from './traversal';
 
-// TODO: await parseMedia({fields: {moovAtom: true}) would be a nicer API
 export const getMoovAtom = async ({
 	endOfMdat,
 	state,
@@ -46,9 +44,11 @@ export const getMoovAtom = async ({
 					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 					track,
 					container,
-					callbacks: state.callbacks,
 					logLevel: state.logLevel,
 					onAudioTrack: state.onAudioTrack,
+					registerAudioSampleCallback:
+						state.callbacks.registerAudioSampleCallback,
+					tracks: state.callbacks.tracks,
 				});
 				return null;
 			}
@@ -60,9 +60,11 @@ export const getMoovAtom = async ({
 					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 					track,
 					container,
-					callbacks: state.callbacks,
 					logLevel: state.logLevel,
 					onVideoTrack: state.onVideoTrack,
+					registerVideoSampleCallback:
+						state.callbacks.registerVideoSampleCallback,
+					tracks: state.callbacks.tracks,
 				});
 				return null;
 			}
@@ -86,34 +88,27 @@ export const getMoovAtom = async ({
 
 	const boxes: IsoBaseMediaBox[] = [];
 
-	const keyframes = keyframesState();
-	const callbacks = sampleCallback({
+	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers: false,
+		fields: {structure: true},
 		hasVideoTrackHandlers: false,
-		controller: state.controller,
-		emittedFields: emittedState(),
-		fields: getFieldsFromCallback({
-			callbacks: {},
-			fields: {structure: true},
-		}),
-		keyframes,
-		logLevel: state.logLevel,
-		seekSignal: state.controller._internals.seekSignal,
-		slowDurationAndFpsState: state.slowDurationAndFps,
-		src: state.src,
-		structure: state.structure,
+		structure: structureState(),
 	});
+
+	const tracksState = makeTracksSectionState(canSkipTracksState, state.src);
 
 	while (true) {
 		const box = await processBox({
 			iterator,
 			logLevel: state.logLevel,
 			onlyIfMoovAtomExpected: {
-				callbacks,
-				isoState: state.iso,
+				tracks: tracksState,
+				isoState: null,
 				workOnSeekRequestOptions: null,
 				onAudioTrack,
 				onVideoTrack,
+				registerVideoSampleCallback: () => Promise.resolve(),
+				registerAudioSampleCallback: () => Promise.resolve(),
 			},
 			onlyIfMdatAtomExpected: null,
 		});
