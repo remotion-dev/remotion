@@ -21,7 +21,7 @@ export const getIsoBaseMediaChildren = async ({
 	logLevel: LogLevel;
 	state: ParserState | null;
 	videoSectionState: VideoSectionState;
-	callbacks: SampleCallbacks;
+	callbacks: SampleCallbacks | null;
 	isoState: IsoBaseMediaState;
 }): Promise<IsoBaseMediaBox[]> => {
 	const boxes: IsoBaseMediaBox[] = [];

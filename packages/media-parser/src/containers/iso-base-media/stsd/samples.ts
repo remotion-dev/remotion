@@ -2,7 +2,6 @@ import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {IsoBaseMediaState} from '../../../state/iso-base-media/iso-state';
-import type {SampleCallbacks} from '../../../state/sample-callbacks';
 import type {VideoSectionState} from '../../../state/video-section';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
@@ -127,13 +126,11 @@ export const processIsoFormatBox = async ({
 	iterator,
 	logLevel,
 	videoSectionState,
-	callbacks,
 	isoState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	videoSectionState: VideoSectionState;
-	callbacks: SampleCallbacks;
 	isoState: IsoBaseMediaState;
 }): Promise<FormatBoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
@@ -189,7 +186,7 @@ export const processIsoFormatBox = async ({
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				state: null,
 				videoSectionState,
-				callbacks,
+				callbacks: null,
 				isoState,
 			});
 
@@ -236,7 +233,7 @@ export const processIsoFormatBox = async ({
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				state: null,
 				videoSectionState,
-				callbacks,
+				callbacks: null,
 				isoState,
 			});
 
@@ -286,7 +283,7 @@ export const processIsoFormatBox = async ({
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				videoSectionState,
-				callbacks,
+				callbacks: null,
 				isoState,
 			});
 
@@ -344,7 +341,7 @@ export const processIsoFormatBox = async ({
 						logLevel,
 						size: bytesRemainingInBox,
 						videoSectionState,
-						callbacks,
+						callbacks: null,
 						isoState,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);
@@ -383,14 +380,12 @@ export const parseIsoFormatBoxes = async ({
 	videoSectionState,
 	logLevel,
 	iterator,
-	callbacks,
 	isoState,
 }: {
 	maxBytes: number;
 	videoSectionState: VideoSectionState;
 	logLevel: LogLevel;
 	iterator: BufferIterator;
-	callbacks: SampleCallbacks;
 	isoState: IsoBaseMediaState;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
@@ -404,7 +399,6 @@ export const parseIsoFormatBoxes = async ({
 			iterator,
 			logLevel,
 			videoSectionState,
-			callbacks,
 			isoState,
 		});
 

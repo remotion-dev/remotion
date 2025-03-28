@@ -49,7 +49,7 @@ export const processBox = async ({
 	logLevel: LogLevel;
 	state: ParserState | null;
 	videoSectionState: VideoSectionState;
-	callbacks: SampleCallbacks;
+	callbacks: SampleCallbacks | null;
 	isoState: IsoBaseMediaState;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
@@ -130,7 +130,6 @@ export const processBox = async ({
 			videoSectionState,
 			iterator,
 			logLevel,
-			callbacks,
 			isoState,
 		});
 	}
@@ -191,7 +190,6 @@ export const processBox = async ({
 			iterator,
 			logLevel,
 			videoSectionState,
-			callbacks,
 			isoState,
 		});
 	}
@@ -223,6 +221,10 @@ export const processBox = async ({
 	if (boxType === 'moov') {
 		if (!state) {
 			throw new Error('State is required');
+		}
+
+		if (!callbacks) {
+			throw new Error('Callbacks are required');
 		}
 
 		if (callbacks.tracks.hasAllTracks()) {
