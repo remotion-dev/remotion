@@ -1228,6 +1228,7 @@ module.exports = {
 				'miscellaneous/absolute-paths',
 				'miscellaneous/live-streaming',
 				'miscellaneous/parse-media-vs-get-video-metadata',
+				'miscellaneous/pexels',
 				'compare/motion-canvas',
 			],
 		},
