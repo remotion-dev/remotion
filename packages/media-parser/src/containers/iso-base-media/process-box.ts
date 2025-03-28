@@ -34,11 +34,15 @@ import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
-export const processBox = async (
-	iterator: BufferIterator,
-	logLevel: LogLevel,
-	state: ParserState | null,
-): Promise<BoxAndNext> => {
+export const processBox = async ({
+	iterator,
+	logLevel,
+	state,
+}: {
+	iterator: BufferIterator;
+	logLevel: LogLevel;
+	state: ParserState | null;
+}): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();

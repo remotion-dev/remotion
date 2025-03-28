@@ -82,11 +82,11 @@ export const getMoovAtom = async ({
 	const boxes: IsoBaseMediaBox[] = [];
 
 	while (true) {
-		const box = await processBox(
-			childState.iterator,
-			childState.logLevel,
-			childState,
-		);
+		const box = await processBox({
+			iterator: childState.iterator,
+			logLevel: childState.logLevel,
+			state: childState,
+		});
 		if (box) {
 			boxes.push(box);
 		}
