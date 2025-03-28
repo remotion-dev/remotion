@@ -10,7 +10,7 @@ This template allows you to create stunning music visualization videos. Perfect 
 ## Getting started
 
 ```
-npx remotion studio
+npm run dev
 ```
 
 ## Customization
@@ -31,11 +31,7 @@ All parameters can be modified in `src/Root.tsx` or directly in the Studio sideb
 3. Adjust the song and artist information
 4. Customize the visualizer settings to match your music style
 
-Then render your video by running:
-
-```console
-npx remotion render
-```
+Then render your video by running clicking "Render" button in Remotion Studio.
 
 Check out the [Remotion docs](/docs/render/) for more rendering options.
 
