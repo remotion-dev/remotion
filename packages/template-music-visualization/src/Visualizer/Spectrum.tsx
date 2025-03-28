@@ -7,8 +7,9 @@ const spectrumContainer: React.CSSProperties = {
   height: "30rem",
   alignItems: "center",
   justifyContent: "center",
-  gap: "6px",
+  gap: "0px",
   overflow: "hidden",
+  width: "100%",
 };
 
 /**
@@ -129,11 +130,12 @@ export const Spectrum: React.FC<{
           <div
             key={i}
             style={{
-              minWidth: "1px",
+              flex: 1,
               backgroundColor: barColor,
               height: `${Math.min(100, 80 * v)}%`,
-              borderRadius: "4px",
-              width: "8px",
+              borderRadius: "8px",
+              margin: "0 0.3%",
+              minWidth: "1px",
             }}
           />
         );
