@@ -87,6 +87,7 @@ export const performSeek = async ({
 	const alreadyAtByte = iterator.counter.getOffset() === seekTo;
 	if (alreadyAtByte) {
 		Log.verbose(logLevel, `Already at the desired position, seeking done`);
+		controller._internals.performedSeeksSignal.markLastSeekAsUserInitiated();
 		return;
 	}
 

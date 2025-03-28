@@ -7,6 +7,12 @@ export type PerformedSeek = {
 export const performedSeeksStats = () => {
 	const performedSeeks: PerformedSeek[] = [];
 
+	const markLastSeekAsUserInitiated = () => {
+		if (performedSeeks.length > 0) {
+			performedSeeks[performedSeeks.length - 1].type = 'user-initiated';
+		}
+	};
+
 	return {
 		recordSeek: (seek: PerformedSeek) => {
 			performedSeeks.push(seek);
@@ -14,6 +20,7 @@ export const performedSeeksStats = () => {
 		getPerformedSeeks: () => {
 			return performedSeeks;
 		},
+		markLastSeekAsUserInitiated,
 	};
 };
 
