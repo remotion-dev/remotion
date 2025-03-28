@@ -25,6 +25,7 @@ export const RemotionRoot: React.FC = () => {
           textColor: "white",
           // visualizer settings
           visualizer: {
+            bassOverlay: true,
             type: "oscilloscope",
             color: "#0b84f3",
             windowInSeconds: 1,

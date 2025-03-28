@@ -5,6 +5,7 @@ import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
 import { Spectrum } from "./Spectrum";
 import { AudiogramCompositionSchemaType } from "./schema";
 import { Waveform } from "./Waveform";
+import { BassOverlay } from "./BassOverlay";
 
 loadFont("normal", {
   weights: ["500", "700"],
@@ -69,6 +70,7 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
       }}
     >
       <Sequence from={-audioOffsetInFrames}>
+        <BassOverlay audioSrc={audioFileUrl} color={visualizer.color} />
         <Audio pauseWhenBuffering src={audioFileUrl} />
         <div style={containerStyle}>
           <div style={visualizerContainerStyle}>

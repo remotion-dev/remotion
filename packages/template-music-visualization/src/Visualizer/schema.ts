@@ -2,6 +2,7 @@ import { zColor } from "@remotion/zod-types";
 import { z } from "zod";
 
 const baseVisualizerSchema = z.object({
+  bassOverlay: z.boolean().default(true),
   color: zColor().default("#0b84f3"),
 });
 
