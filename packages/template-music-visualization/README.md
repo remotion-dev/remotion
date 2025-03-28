@@ -1,7 +1,9 @@
 # Remotion Music Visualization Template
 
-<img alt='Spectrum Visualizer' width='300px' src='./spectrum-demo.jpeg' />
-<img alt='Waveform Visualizer' width='300px' src='./waveform-demo.jpeg' />
+<div class='grid' markdown>
+  <img alt='Spectrum Visualizer' width='300px' src='./spectrum-demo.jpeg' />
+  <img alt='Waveform Visualizer' width='300px' src='./waveform-demo.jpeg' />
+</div>
 
 This template allows you to create stunning music visualization videos. Perfect for sharing song previews, album teasers, or music snippets on social media with beautiful visual effects synchronized to your audio.
 
