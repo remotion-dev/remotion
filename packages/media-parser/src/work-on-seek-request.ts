@@ -4,13 +4,13 @@ import {Log} from './log';
 import {performSeek} from './perform-seek';
 import type {ParserState} from './state/parser-state';
 
-const turnSeekIntoByte = ({
+const turnSeekIntoByte = async ({
 	seek,
 	state,
 }: {
 	seek: Seek;
 	state: ParserState;
-}): SeekResolution => {
+}): Promise<SeekResolution> => {
 	const videoSections = state.videoSection.getVideoSections();
 	if (videoSections.length === 0) {
 		Log.trace(state.logLevel, 'No video sections defined, cannot seek yet');
@@ -28,11 +28,15 @@ const turnSeekIntoByte = ({
 			};
 		}
 
-		const seekingByte = getSeekingByte({
+		const seekingByte = await getSeekingByte({
 			info: seekingInfo,
 			time: seek.time,
 			logLevel: state.logLevel,
 			currentPosition: state.iterator.counter.getOffset(),
+			src: state.src,
+			contentLength: state.contentLength,
+			controller: state.controller,
+			readerInterface: state.readerInterface,
 		});
 
 		return seekingByte;
@@ -57,7 +61,7 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	}
 
 	Log.trace(state.logLevel, `Has seek request: ${JSON.stringify(seek)}`);
-	const resolution = turnSeekIntoByte({seek, state});
+	const resolution = await turnSeekIntoByte({seek, state});
 	Log.trace(state.logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
 	if (resolution.type === 'intermediary-seek') {

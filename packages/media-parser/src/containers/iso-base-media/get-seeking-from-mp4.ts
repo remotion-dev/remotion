@@ -1,6 +1,9 @@
+import type {MediaParserController} from '../../controller/media-parser-controller';
 import {getTracksFromMoovBox} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
+import type {ParseMediaSrc} from '../../options';
+import type {ReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
 import {
 	getCurrentVideoSection,
@@ -9,22 +12,31 @@ import {
 import type {SeekResolution} from '../../work-on-seek-request';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
+import {getMfroAtom} from './get-mfro-atom';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
 
-export const getSeekingByteFromIsoBaseMedia = ({
+export const getSeekingByteFromIsoBaseMedia = async ({
 	info,
 	time,
 	logLevel,
 	currentPosition,
+	src,
+	contentLength,
+	controller,
+	readerInterface,
 }: {
 	info: IsoBaseMediaSeekingInfo;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
-}): SeekResolution => {
+	src: ParseMediaSrc;
+	contentLength: number;
+	controller: MediaParserController;
+	readerInterface: ReaderInterface;
+}): Promise<SeekResolution> => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
 	const allTracks = [
 		...tracks.videoTracks,
@@ -41,6 +53,14 @@ export const getSeekingByteFromIsoBaseMedia = ({
 	const {timescale} = firstVideoTrack;
 
 	if (info.moofBoxes.length > 0) {
+		const mfraAtom = await getMfroAtom({
+			contentLength,
+			controller,
+			readerInterface,
+			src,
+		});
+
+		console.log(mfraAtom);
 		const tkhdBox = getTkhdBox(firstVideoTrack.trakBox as TrakBox);
 		if (!tkhdBox) {
 			throw new Error('Expected tkhd box in trak box');
