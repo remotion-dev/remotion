@@ -19,6 +19,8 @@ export const parseMoov = async ({
 }): Promise<MoovBox> => {
 	const children = await getIsoBaseMediaChildren({
 		state,
+		iterator: state.iterator,
+		logLevel: state.logLevel,
 		size: size - 8,
 	});
 

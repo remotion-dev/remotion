@@ -1,3 +1,5 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
@@ -32,8 +34,11 @@ import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
-export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
-	const {iterator} = state;
+export const processBox = async (
+	iterator: BufferIterator,
+	logLevel: LogLevel,
+	state: ParserState | null,
+): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -61,10 +66,14 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 	const boxType = iterator.getByteString(4, false);
 	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
-	Log.trace(state.logLevel, 'Found box', boxType, boxSize);
+	Log.trace(logLevel, 'Found box', boxType, boxSize);
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
+		if (!state) {
+			throw new Error('State is required');
+		}
+
 		state.videoSection.addVideoSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
@@ -106,6 +115,10 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	}
 
 	if (boxType === 'stsd') {
+		if (!state) {
+			throw new Error('State is required');
+		}
+
 		return parseStsd({
 			offset: fileOffset,
 			size: boxSize,
@@ -163,9 +176,14 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	}
 
 	if (boxType === 'mebx') {
+		if (!state) {
+			throw new Error('State is required');
+		}
+
 		return parseMebx({
 			offset: fileOffset,
 			size: boxSize,
+			iterator,
 			state,
 		});
 	}
@@ -195,6 +213,10 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	}
 
 	if (boxType === 'moov') {
+		if (!state) {
+			throw new Error('State is required');
+		}
+
 		if (state.callbacks.tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
 			return null;
@@ -218,6 +240,10 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 	}
 
 	if (boxType === 'trak') {
+		if (!state) {
+			throw new Error('State is required');
+		}
+
 		const box = await parseTrak({
 			size: boxSize,
 			offsetAtStart: fileOffset,
@@ -311,8 +337,10 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({
-			state,
+			iterator,
 			size: boxSize - 8,
+			logLevel,
+			state,
 		});
 
 		return {

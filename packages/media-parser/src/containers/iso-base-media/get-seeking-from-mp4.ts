@@ -12,6 +12,7 @@ import {
 import type {SeekResolution} from '../../work-on-seek-request';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
+import {getIsoBaseMediaChildren} from './get-children';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import {getMfraAtom} from './mfra/get-mfra-atom';
@@ -69,7 +70,15 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 				parentSize,
 			});
 
-			console.log({mfraAtom: mfraAtom.getSlice(parentSize), parentSize});
+			mfraAtom.discard(8);
+			// TODO: Do something with this
+			await getIsoBaseMediaChildren({
+				iterator: mfraAtom,
+				logLevel,
+				size: parentSize - 8,
+				state: null,
+			});
+			mfraAtom.destroy();
 		}
 
 		const tkhdBox = getTkhdBox(firstVideoTrack.trakBox as TrakBox);

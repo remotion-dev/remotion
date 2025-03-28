@@ -20,6 +20,8 @@ export const parseTrak = async ({
 	const children = await getIsoBaseMediaChildren({
 		state: options,
 		size: size - 8,
+		iterator: options.iterator,
+		logLevel: options.logLevel,
 	});
 
 	return {

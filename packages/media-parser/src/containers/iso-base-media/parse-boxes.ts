@@ -16,7 +16,7 @@ export const parseIsoBaseMedia = async (
 		return skipTo;
 	}
 
-	const result = await processBox(state);
+	const result = await processBox(state.iterator, state.logLevel, state);
 	if (result) {
 		state.getIsoStructure().boxes.push(result);
 	}

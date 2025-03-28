@@ -174,6 +174,8 @@ export const processIsoFormatBox = async ({
 
 			const children = await getIsoBaseMediaChildren({
 				state,
+				iterator,
+				logLevel: state.logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 			});
 
@@ -216,6 +218,8 @@ export const processIsoFormatBox = async ({
 
 			const children = await getIsoBaseMediaChildren({
 				state,
+				iterator,
+				logLevel: state.logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 			});
 
@@ -261,6 +265,8 @@ export const processIsoFormatBox = async ({
 
 			const children = await getIsoBaseMediaChildren({
 				state,
+				iterator,
+				logLevel: state.logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 			});
 
@@ -314,6 +320,8 @@ export const processIsoFormatBox = async ({
 			bytesRemainingInBox > 8
 				? await getIsoBaseMediaChildren({
 						state,
+						iterator,
+						logLevel: state.logLevel,
 						size: bytesRemainingInBox,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);

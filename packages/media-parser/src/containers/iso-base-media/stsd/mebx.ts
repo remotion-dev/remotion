@@ -1,5 +1,6 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {AnySegment} from '../../../parse-result';
+import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
 import {getIsoBaseMediaChildren} from '../get-children';
 
@@ -14,10 +15,12 @@ export const parseMebx = async ({
 	offset,
 	size,
 	iterator,
+	state,
 }: {
 	offset: number;
 	size: number;
 	iterator: BufferIterator;
+	state: ParserState;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -25,8 +28,10 @@ export const parseMebx = async ({
 	const dataReferenceIndex = iterator.getUint16();
 
 	const children = await getIsoBaseMediaChildren({
-		state,
+		iterator,
 		size: size - 8,
+		logLevel: state.logLevel,
+		state,
 	});
 
 	return {
