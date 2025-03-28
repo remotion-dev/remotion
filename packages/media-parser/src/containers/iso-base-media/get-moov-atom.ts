@@ -1,7 +1,13 @@
+import {getFieldsFromCallback} from '../../get-fields-from-callbacks';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
+import {emittedState} from '../../state/emitted-fields';
+import {keyframesState} from '../../state/keyframes';
 import type {ParserState} from '../../state/parser-state';
-import {makeParserState} from '../../state/parser-state';
+import {sampleCallback} from '../../state/sample-callbacks';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {MoovBox} from './moov/moov';
@@ -34,59 +40,43 @@ export const getMoovAtom = async ({
 		controller: state.controller,
 	});
 
-	const childState = makeParserState({
-		hasAudioTrackHandlers: false,
-		hasVideoTrackHandlers: false,
-		controller: state.controller,
-		onAudioTrack: state.onAudioTrack
-			? async ({track, container}) => {
-					await registerAudioTrack({
-						workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-						track,
-						container,
-						callbacks: state.callbacks,
-						logLevel: state.logLevel,
-						onAudioTrack: state.onAudioTrack,
-					});
-					return null;
-				}
-			: null,
-		onVideoTrack: state.onVideoTrack
-			? async ({track, container}) => {
-					await registerVideoTrack({
-						workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-						track,
-						container,
-						callbacks: state.callbacks,
-						logLevel: state.logLevel,
-						onVideoTrack: state.onVideoTrack,
-					});
-					return null;
-				}
-			: null,
-		contentLength: state.contentLength,
-		logLevel: state.logLevel,
-		mode: 'query',
-		readerInterface: state.readerInterface,
-		src: state.src,
-		onDiscardedData: null,
-		selectM3uStreamFn: state.selectM3uStreamFn,
-		selectM3uAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
-		mp4HeaderSegment: state.mp4HeaderSegment,
-		callbacks: {},
-		fieldsInReturnValue: {
-			structure: true,
-		},
-		contentType: null,
-		mimeType: null,
-		name: '',
-		initialReaderInstance: reader,
-	});
+	const onAudioTrack: OnAudioTrack | null = state.onAudioTrack
+		? async ({track, container}) => {
+				await registerAudioTrack({
+					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+					track,
+					container,
+					callbacks: state.callbacks,
+					logLevel: state.logLevel,
+					onAudioTrack: state.onAudioTrack,
+				});
+				return null;
+			}
+		: null;
+
+	const onVideoTrack: OnVideoTrack | null = state.onVideoTrack
+		? async ({track, container}) => {
+				await registerVideoTrack({
+					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+					track,
+					container,
+					callbacks: state.callbacks,
+					logLevel: state.logLevel,
+					onVideoTrack: state.onVideoTrack,
+				});
+				return null;
+			}
+		: null;
+
+	const iterator: BufferIterator = getArrayBufferIterator(
+		new Uint8Array([]),
+		state.contentLength,
+	);
 
 	while (true) {
 		const result = await reader.reader.read();
 		if (result.value) {
-			childState.iterator.addData(result.value);
+			iterator.addData(result.value);
 		}
 
 		if (result.done) {
@@ -96,16 +86,34 @@ export const getMoovAtom = async ({
 
 	const boxes: IsoBaseMediaBox[] = [];
 
+	const keyframes = keyframesState();
+	const callbacks = sampleCallback({
+		hasAudioTrackHandlers: false,
+		hasVideoTrackHandlers: false,
+		controller: state.controller,
+		emittedFields: emittedState(),
+		fields: getFieldsFromCallback({
+			callbacks: {},
+			fields: {structure: true},
+		}),
+		keyframes,
+		logLevel: state.logLevel,
+		seekSignal: state.controller._internals.seekSignal,
+		slowDurationAndFpsState: state.slowDurationAndFps,
+		src: state.src,
+		structure: state.structure,
+	});
+
 	while (true) {
 		const box = await processBox({
-			iterator: childState.iterator,
+			iterator,
 			logLevel: state.logLevel,
 			onlyIfMoovAtomExpected: {
-				callbacks: childState.callbacks,
+				callbacks,
 				isoState: state.iso,
 				workOnSeekRequestOptions: null,
-				onAudioTrack: childState.onAudioTrack,
-				onVideoTrack: childState.onVideoTrack,
+				onAudioTrack,
+				onVideoTrack,
 			},
 			onlyIfMdatAtomExpected: null,
 		});
@@ -113,17 +121,11 @@ export const getMoovAtom = async ({
 			boxes.push(box);
 		}
 
-		if (
-			childState.iterator.counter.getOffset() + endOfMdat >
-			state.contentLength
-		) {
+		if (iterator.counter.getOffset() + endOfMdat > state.contentLength) {
 			throw new Error('Read past end of file');
 		}
 
-		if (
-			childState.iterator.counter.getOffset() + endOfMdat ===
-			state.contentLength
-		) {
+		if (iterator.counter.getOffset() + endOfMdat === state.contentLength) {
 			break;
 		}
 	}
