@@ -2,7 +2,9 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
+import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {ParserState} from '../../state/parser-state';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {VideoSectionState} from '../../state/video-section';
 import type {BoxAndNext} from './base-media-box';
 import {parseEsds} from './esds/esds';
@@ -40,11 +42,15 @@ export const processBox = async ({
 	logLevel,
 	state,
 	videoSectionState,
+	callbacks,
+	isoState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	state: ParserState | null;
 	videoSectionState: VideoSectionState;
+	callbacks: SampleCallbacks;
+	isoState: IsoBaseMediaState;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
@@ -124,6 +130,8 @@ export const processBox = async ({
 			videoSectionState,
 			iterator,
 			logLevel,
+			callbacks,
+			isoState,
 		});
 	}
 
@@ -177,16 +185,14 @@ export const processBox = async ({
 	}
 
 	if (boxType === 'mebx') {
-		if (!state) {
-			throw new Error('State is required');
-		}
-
 		return parseMebx({
 			offset: fileOffset,
 			size: boxSize,
 			iterator,
 			logLevel,
 			videoSectionState,
+			callbacks,
+			isoState,
 		});
 	}
 
@@ -219,12 +225,12 @@ export const processBox = async ({
 			throw new Error('State is required');
 		}
 
-		if (state.callbacks.tracks.hasAllTracks()) {
+		if (callbacks.tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
 			return null;
 		}
 
-		if (state.iso.moov.getMoovBox()) {
+		if (isoState.moov.getMoovBox()) {
 			Log.verbose(logLevel, 'Moov box already parsed, skipping');
 			iterator.discard(boxSize - 8);
 			return null;
@@ -236,7 +242,7 @@ export const processBox = async ({
 			state,
 		});
 
-		state.callbacks.tracks.setIsDone(logLevel);
+		callbacks.tracks.setIsDone(logLevel);
 
 		return box;
 	}
@@ -344,6 +350,8 @@ export const processBox = async ({
 			logLevel,
 			state,
 			videoSectionState,
+			callbacks,
+			isoState,
 		});
 
 		return {

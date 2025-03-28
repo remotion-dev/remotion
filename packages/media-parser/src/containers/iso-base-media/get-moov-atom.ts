@@ -87,6 +87,8 @@ export const getMoovAtom = async ({
 			logLevel: childState.logLevel,
 			state: childState,
 			videoSectionState: childState.videoSection,
+			callbacks: childState.callbacks,
+			isoState: childState.iso,
 		});
 		if (box) {
 			boxes.push(box);

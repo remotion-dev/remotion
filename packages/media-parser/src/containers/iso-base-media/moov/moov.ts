@@ -23,6 +23,8 @@ export const parseMoov = async ({
 		logLevel: state.logLevel,
 		size: size - 8,
 		videoSectionState: state.videoSection,
+		callbacks: state.callbacks,
+		isoState: state.iso,
 	});
 
 	return {

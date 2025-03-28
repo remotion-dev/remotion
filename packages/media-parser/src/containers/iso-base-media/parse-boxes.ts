@@ -21,6 +21,8 @@ export const parseIsoBaseMedia = async (
 		logLevel: state.logLevel,
 		state,
 		videoSectionState: state.videoSection,
+		callbacks: state.callbacks,
+		isoState: state.iso,
 	});
 	if (result) {
 		state.getIsoStructure().boxes.push(result);

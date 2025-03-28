@@ -23,6 +23,8 @@ export const parseTrak = async ({
 		iterator: options.iterator,
 		logLevel: options.logLevel,
 		videoSectionState: options.videoSection,
+		callbacks: options.callbacks,
+		isoState: options.iso,
 	});
 
 	return {

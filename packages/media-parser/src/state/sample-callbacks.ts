@@ -179,3 +179,5 @@ export const sampleCallback = ({
 		hasVideoTrackHandlers,
 	};
 };
+
+export type SampleCallbacks = ReturnType<typeof sampleCallback>;

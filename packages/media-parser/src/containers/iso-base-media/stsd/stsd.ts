@@ -1,5 +1,7 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
+import type {IsoBaseMediaState} from '../../../state/iso-base-media/iso-state';
+import type {SampleCallbacks} from '../../../state/sample-callbacks';
 import type {VideoSectionState} from '../../../state/video-section';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
@@ -17,12 +19,16 @@ export const parseStsd = async ({
 	videoSectionState,
 	iterator,
 	logLevel,
+	callbacks,
+	isoState,
 }: {
 	offset: number;
 	size: number;
 	videoSectionState: VideoSectionState;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	callbacks: SampleCallbacks;
+	isoState: IsoBaseMediaState;
 }): Promise<StsdBox> => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
@@ -41,6 +47,8 @@ export const parseStsd = async ({
 		logLevel,
 		iterator,
 		videoSectionState,
+		callbacks,
+		isoState,
 	});
 
 	if (boxes.length !== numberOfEntries) {

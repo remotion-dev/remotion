@@ -5,7 +5,9 @@ import type {LogLevel} from './log';
 import type {ParseMediaSrc} from './options';
 import type {ReaderInterface} from './readers/reader';
 import type {SeekingInfo} from './seeking-info';
+import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
+import type {SampleCallbacks} from './state/sample-callbacks';
 import type {VideoSectionState} from './state/video-section';
 import type {SeekResolution} from './work-on-seek-request';
 
@@ -33,6 +35,8 @@ export const getSeekingByte = ({
 	controller,
 	readerInterface,
 	videoSectionState,
+	callbacks,
+	isoState,
 }: {
 	info: SeekingInfo;
 	time: number;
@@ -43,6 +47,8 @@ export const getSeekingByte = ({
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
 	videoSectionState: VideoSectionState;
+	callbacks: SampleCallbacks;
+	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -55,6 +61,8 @@ export const getSeekingByte = ({
 			controller,
 			readerInterface,
 			videoSectionState,
+			callbacks,
+			isoState,
 		});
 	}
 

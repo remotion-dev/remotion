@@ -7,3 +7,5 @@ export const isoBaseMediaState = () => {
 		moov: moovState(),
 	};
 };
+
+export type IsoBaseMediaState = ReturnType<typeof isoBaseMediaState>;
