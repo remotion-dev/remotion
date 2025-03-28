@@ -1,16 +1,18 @@
 import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
+import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte, getSeekingInfo} from './get-seeking-info';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
-import type {ParseMediaSrc} from './options';
+import type {ParseMediaMode, ParseMediaSrc} from './options';
 import type {IsoBaseMediaStructure} from './parse-result';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
+import type {CurrentReader} from './state/current-reader';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
-import type {ParserState} from './state/parser-state';
 import type {SampleCallbacks} from './state/sample-callbacks';
+import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
 import {type VideoSectionState} from './state/video-section';
 
@@ -93,13 +95,39 @@ const turnSeekIntoByte = async ({
 };
 
 export const workOnSeekRequest = async ({
-	state,
 	logLevel,
 	controller,
+	videoSection,
+	mp4HeaderSegment,
+	isoState,
+	iterator,
+	structureState,
+	callbacks,
+	src,
+	contentLength,
+	readerInterface,
+	mode,
+	seekInfiniteLoop,
+	currentReader,
+	discardReadBytes,
+	fields,
 }: {
-	state: ParserState;
 	logLevel: LogLevel;
 	controller: MediaParserController;
+	isoState: IsoBaseMediaState;
+	iterator: BufferIterator;
+	structureState: StructureState;
+	callbacks: SampleCallbacks;
+	src: ParseMediaSrc;
+	contentLength: number;
+	readerInterface: ReaderInterface;
+	videoSection: VideoSectionState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	mode: ParseMediaMode;
+	seekInfiniteLoop: SeekInfiniteLoop;
+	currentReader: CurrentReader;
+	discardReadBytes: (force: boolean) => Promise<void>;
+	fields: Partial<AllOptions<ParseMediaFields>>;
 }) => {
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -109,31 +137,57 @@ export const workOnSeekRequest = async ({
 	Log.trace(logLevel, `Has seek request: ${JSON.stringify(seek)}`);
 	const resolution = await turnSeekIntoByte({
 		seek,
-		videoSectionState: state.videoSection,
+		videoSectionState: videoSection,
 		logLevel,
-		contentLength: state.contentLength,
-		src: state.src,
-		readerInterface: state.readerInterface,
+		contentLength,
+		src,
+		readerInterface,
 		controller,
-		callbacks: state.callbacks,
-		isoState: state.iso,
-		iterator: state.iterator,
-		structureState: state.structure,
-		mp4HeaderSegment: state.mp4HeaderSegment,
+		callbacks,
+		isoState,
+		iterator,
+		structureState,
+		mp4HeaderSegment,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
 	if (resolution.type === 'intermediary-seek') {
 		await performSeek({
-			state,
 			seekTo: resolution.byte,
 			userInitiated: false,
+			controller,
+			videoSection,
+			iterator,
+			logLevel,
+			mode,
+			contentLength,
+			seekInfiniteLoop,
+			currentReader,
+			readerInterface,
+			src,
+			discardReadBytes,
+			fields,
 		});
 		return;
 	}
 
 	if (resolution.type === 'do-seek') {
-		await performSeek({state, seekTo: resolution.byte, userInitiated: true});
+		await performSeek({
+			seekTo: resolution.byte,
+			userInitiated: true,
+			controller,
+			videoSection,
+			iterator,
+			logLevel,
+			mode,
+			contentLength,
+			seekInfiniteLoop,
+			currentReader,
+			readerInterface,
+			src,
+			discardReadBytes,
+			fields,
+		});
 		const {hasChanged} =
 			controller._internals.seekSignal.clearSeekIfStillSame(seek);
 		if (hasChanged) {
@@ -141,7 +195,24 @@ export const workOnSeekRequest = async ({
 				logLevel,
 				`Seek request has changed while seeking, seeking again`,
 			);
-			await workOnSeekRequest({state, logLevel, controller});
+			await workOnSeekRequest({
+				logLevel,
+				controller,
+				videoSection,
+				mp4HeaderSegment,
+				isoState,
+				iterator,
+				structureState,
+				callbacks,
+				src,
+				contentLength,
+				readerInterface,
+				mode,
+				seekInfiniteLoop,
+				currentReader,
+				discardReadBytes,
+				fields,
+			});
 		}
 
 		return;

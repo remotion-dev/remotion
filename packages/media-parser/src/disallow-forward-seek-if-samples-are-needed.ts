@@ -1,18 +1,15 @@
 import type {AllOptions, ParseMediaFields} from './fields';
 import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
-import type {ParserState} from './state/parser-state';
 
 export const disallowForwardSeekIfSamplesAreNeeded = ({
-	state,
 	seekTo,
 	previousPosition,
+	fields,
 }: {
-	state: ParserState;
+	fields: Partial<AllOptions<ParseMediaFields>>;
 	seekTo: number;
 	previousPosition: number;
 }) => {
-	const {fields} = state;
-
 	const fieldsNeedingSamples = Object.entries(fields)
 		.filter(([, value]) => value)
 		.map(([key]) => key)

@@ -1,28 +1,48 @@
+import type {MediaParserController} from './controller/media-parser-controller';
+import type {AllOptions, ParseMediaFields} from './fields';
+import type {BufferIterator} from './iterator/buffer-iterator';
+import type {LogLevel} from './log';
 import {Log} from './log';
+import type {ParseMediaMode, ParseMediaSrc} from './options';
+import type {ReaderInterface} from './readers/reader';
 import {seekBackwards} from './seek-backwards';
 import {seekForward} from './seek-forwards';
-import type {ParserState} from './state/parser-state';
+import type {CurrentReader} from './state/current-reader';
+import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
+import type {VideoSectionState} from './state/video-section';
 import {isByteInVideoSection} from './state/video-section';
 
 export const performSeek = async ({
 	seekTo,
-	state,
 	userInitiated,
+	controller,
+	videoSection,
+	iterator,
+	seekInfiniteLoop,
+	logLevel,
+	mode,
+	contentLength,
+	currentReader,
+	readerInterface,
+	src,
+	discardReadBytes,
+	fields,
 }: {
 	seekTo: number;
-	state: ParserState;
 	userInitiated: boolean;
+	controller: MediaParserController;
+	videoSection: VideoSectionState;
+	iterator: BufferIterator;
+	logLevel: LogLevel;
+	mode: ParseMediaMode;
+	contentLength: number;
+	seekInfiniteLoop: SeekInfiniteLoop;
+	currentReader: CurrentReader;
+	readerInterface: ReaderInterface;
+	fields: Partial<AllOptions<ParseMediaFields>>;
+	src: ParseMediaSrc;
+	discardReadBytes: (force: boolean) => Promise<void>;
 }): Promise<void> => {
-	const {
-		iterator,
-		logLevel,
-		mode,
-		contentLength,
-		seekInfiniteLoop,
-		videoSection,
-		controller,
-	} = state;
-
 	const byteInVideoSection = isByteInVideoSection({
 		position: seekTo,
 		videoSections: videoSection.getVideoSections(),
@@ -47,7 +67,7 @@ export const performSeek = async ({
 		);
 	}
 
-	if (seekTo > state.contentLength) {
+	if (seekTo > contentLength) {
 		throw new Error(
 			`Cannot seek beyond the end of the file: ${seekTo} > ${contentLength}`,
 		);
@@ -77,10 +97,29 @@ export const performSeek = async ({
 		type: userInitiated ? 'user-initiated' : 'internal',
 	});
 	if (skippingForward) {
-		await seekForward({state, seekTo, userInitiated});
+		await seekForward({
+			seekTo,
+			userInitiated,
+			iterator,
+			fields,
+			logLevel,
+			currentReader,
+			readerInterface,
+			src,
+			controller,
+			discardReadBytes,
+		});
 	} else {
-		await seekBackwards(state, seekTo);
+		await seekBackwards({
+			controller,
+			seekTo,
+			iterator,
+			logLevel,
+			currentReader,
+			readerInterface,
+			src,
+		});
 	}
 
-	await state.controller?._internals.checkForAbortAndPause();
+	await controller._internals.checkForAbortAndPause();
 };

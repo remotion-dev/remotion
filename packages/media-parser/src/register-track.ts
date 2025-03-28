@@ -39,9 +39,22 @@ export const registerVideoTrack = async ({
 	await callbacks.registerVideoSampleCallback(track.trackId, callback ?? null);
 
 	await workOnSeekRequest({
-		state,
+		mode: state.mode,
+		seekInfiniteLoop: state.seekInfiniteLoop,
 		logLevel,
 		controller: state.controller,
+		videoSection: state.videoSection,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+		isoState: state.iso,
+		iterator: state.iterator,
+		structureState: state.structure,
+		callbacks: state.callbacks,
+		src: state.src,
+		contentLength: state.contentLength,
+		readerInterface: state.readerInterface,
+		currentReader: state.currentReader,
+		discardReadBytes: state.discardReadBytes,
+		fields: state.fields,
 	});
 
 	return callback;
@@ -77,9 +90,22 @@ export const registerAudioTrack = async ({
 	const callback = await state.onAudioTrack({track, container});
 	await callbacks.registerAudioSampleCallback(track.trackId, callback ?? null);
 	await workOnSeekRequest({
-		state,
+		mode: state.mode,
+		seekInfiniteLoop: state.seekInfiniteLoop,
 		logLevel,
 		controller: state.controller,
+		videoSection: state.videoSection,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+		isoState: state.iso,
+		iterator: state.iterator,
+		structureState: state.structure,
+		callbacks: state.callbacks,
+		src: state.src,
+		contentLength: state.contentLength,
+		readerInterface: state.readerInterface,
+		currentReader: state.currentReader,
+		discardReadBytes: state.discardReadBytes,
+		fields: state.fields,
 	});
 
 	return callback;

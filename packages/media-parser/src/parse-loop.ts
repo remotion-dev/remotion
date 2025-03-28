@@ -11,7 +11,7 @@ import {workOnSeekRequest} from './work-on-seek-request';
 
 const fetchMoreData = async (state: ParserState) => {
 	await state.controller._internals.checkForAbortAndPause();
-	const result = await state.currentReader.reader.read();
+	const result = await state.currentReader.getCurrent().reader.read();
 	if (result.value) {
 		state.iterator.addData(result.value);
 	}
@@ -33,9 +33,22 @@ export const parseLoop = async ({
 		await state.controller._internals.checkForAbortAndPause();
 
 		await workOnSeekRequest({
-			state,
 			logLevel: state.logLevel,
 			controller: state.controller,
+			videoSection: state.videoSection,
+			mp4HeaderSegment: state.mp4HeaderSegment,
+			isoState: state.iso,
+			iterator: state.iterator,
+			structureState: state.structure,
+			callbacks: state.callbacks,
+			src: state.src,
+			contentLength: state.contentLength,
+			readerInterface: state.readerInterface,
+			mode: state.mode,
+			seekInfiniteLoop: state.seekInfiniteLoop,
+			currentReader: state.currentReader,
+			discardReadBytes: state.discardReadBytes,
+			fields: state.fields,
 		});
 
 		const offsetBefore = state.iterator.counter.getOffset();
@@ -99,8 +112,19 @@ export const parseLoop = async ({
 					const seekStart = Date.now();
 					await performSeek({
 						seekTo: skip.skipTo,
-						state,
 						userInitiated: false,
+						controller: state.controller,
+						videoSection: state.videoSection,
+						iterator: state.iterator,
+						logLevel: state.logLevel,
+						mode: state.mode,
+						contentLength: state.contentLength,
+						seekInfiniteLoop: state.seekInfiniteLoop,
+						currentReader: state.currentReader,
+						readerInterface: state.readerInterface,
+						fields: state.fields,
+						src: state.src,
+						discardReadBytes: state.discardReadBytes,
 					});
 					state.timings.timeSeeking += Date.now() - seekStart;
 				}

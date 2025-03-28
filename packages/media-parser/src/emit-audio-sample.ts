@@ -13,9 +13,22 @@ export const emitAudioSample = async ({
 }) => {
 	await state.callbacks.onAudioSample(trackId, audioSample);
 	await workOnSeekRequest({
-		state,
+		mode: state.mode,
+		seekInfiniteLoop: state.seekInfiniteLoop,
 		logLevel: state.logLevel,
 		controller: state.controller,
+		videoSection: state.videoSection,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+		isoState: state.iso,
+		iterator: state.iterator,
+		structureState: state.structure,
+		callbacks: state.callbacks,
+		src: state.src,
+		contentLength: state.contentLength,
+		readerInterface: state.readerInterface,
+		currentReader: state.currentReader,
+		discardReadBytes: state.discardReadBytes,
+		fields: state.fields,
 	});
 };
 
@@ -30,8 +43,21 @@ export const emitVideoSample = async ({
 }) => {
 	await state.callbacks.onVideoSample(trackId, videoSample);
 	await workOnSeekRequest({
-		state,
 		logLevel: state.logLevel,
 		controller: state.controller,
+		videoSection: state.videoSection,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+		isoState: state.iso,
+		iterator: state.iterator,
+		structureState: state.structure,
+		callbacks: state.callbacks,
+		src: state.src,
+		contentLength: state.contentLength,
+		readerInterface: state.readerInterface,
+		mode: state.mode,
+		seekInfiniteLoop: state.seekInfiniteLoop,
+		currentReader: state.currentReader,
+		discardReadBytes: state.discardReadBytes,
+		fields: state.fields,
 	});
 };

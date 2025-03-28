@@ -23,6 +23,7 @@ import type {IsoBaseMediaStructure} from '../parse-result';
 import type {Reader, ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
+import {currentReader} from './current-reader';
 import {emittedState} from './emitted-fields';
 import {flacState} from './flac-state';
 import {imagesState} from './images';
@@ -112,6 +113,7 @@ export const makeParserState = ({
 	const images = imagesState();
 	const timings = timingsState();
 	const seekInfiniteLoop = seekInfiniteLoopDetectionState();
+	const currentReaderState = currentReader(initialReaderInstance);
 
 	const errored: Error | null = null;
 
@@ -187,7 +189,7 @@ export const makeParserState = ({
 		fieldsInReturnValue,
 		mimeType,
 		errored: errored as Error | null,
-		currentReader: initialReaderInstance,
+		currentReader: currentReaderState,
 		seekInfiniteLoop,
 	};
 };
