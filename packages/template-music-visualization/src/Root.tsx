@@ -20,16 +20,15 @@ export const RemotionRoot: React.FC = () => {
           audioFileUrl: staticFile("demo-track.mp3"),
           // song data
           coverImageUrl: staticFile("demo-song-cover.jpeg"),
-          songName: "Render Me a Sandwich, Bro",
-          artistName: "DJ ReFrame",
+          songName: "Sunset Render Deja Vu",
+          artistName: "Remotion",
           textColor: "white",
           // visualizer settings
           visualizer: {
-            type: "spectrum",
-            color: "#2dac5f",
-            linesToDisplay: 65,
-            numberOfSamples: "256",
-            mirrorWave: false,
+            type: "oscilloscope",
+            color: "#0b84f3",
+            windowInSeconds: 1,
+            amplitude: 1.3,
           },
         }}
         // Determine the length of the video based on the duration of the audio file

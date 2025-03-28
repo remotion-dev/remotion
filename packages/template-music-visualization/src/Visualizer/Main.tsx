@@ -1,15 +1,54 @@
 import React from "react";
 import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
 import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
-import "./style.css";
 
 import { Spectrum } from "./Spectrum";
 import { AudiogramCompositionSchemaType } from "./schema";
-import { Oscilloscope } from "./Oscilloscope";
+import { Waveform } from "./Waveform";
 
 loadFont("normal", {
   weights: ["500", "700"],
 });
+
+const containerStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-end",
+  width: "1080px",
+  height: "1080px",
+  color: "white",
+  backgroundColor: "black",
+  padding: "48px",
+  gap: "32px",
+  fontFamily,
+};
+
+const visualizerContainerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
+  borderRadius: "32px",
+  padding: "32px",
+  marginTop: "32px",
+};
+
+const imageContainerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "40px",
+  background: "rgba(255,255,255,0.02)",
+  padding: "32px",
+  borderRadius: "32px",
+  boxShadow: "0 -4px 24px rgba(0,0,0,0.2)",
+};
+
+const imageStyle: React.CSSProperties = {
+  width: "280px",
+  height: "280px",
+  objectFit: "cover",
+  borderRadius: "20px",
+  boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+};
 
 export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
   visualizer,
@@ -22,7 +61,6 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
 }) => {
   const { fps } = useVideoConfig();
   const audioOffsetInFrames = Math.round(audioOffsetInSeconds * fps);
-  const baseNumberOfSamples = Number(visualizer.numberOfSamples);
 
   return (
     <AbsoluteFill
@@ -32,35 +70,13 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
     >
       <Sequence from={-audioOffsetInFrames}>
         <Audio pauseWhenBuffering src={audioFileUrl} />
-        <div
-          className="container"
-          style={{
-            fontFamily,
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-            padding: "48px",
-            gap: "32px",
-          }}
-        >
-          <div
-            className="visualizer-container"
-            style={{
-              width: "100%",
-              borderRadius: "32px",
-              padding: "32px",
-              marginTop: "32px",
-            }}
-          >
+        <div style={containerStyle}>
+          <div style={visualizerContainerStyle}>
             {visualizer.type === "oscilloscope" ? (
-              <Oscilloscope
+              <Waveform
                 waveColor={visualizer.color}
-                padding={visualizer.padding}
                 audioSrc={audioFileUrl}
-                numberOfSamples={baseNumberOfSamples}
                 windowInSeconds={visualizer.windowInSeconds}
-                posterization={visualizer.posterization}
                 amplitude={visualizer.amplitude}
               />
             ) : visualizer.type === "spectrum" ? (
@@ -68,33 +84,14 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
                 barColor={visualizer.color}
                 audioSrc={audioFileUrl}
                 mirrorWave={visualizer.mirrorWave}
-                numberOfSamples={baseNumberOfSamples * 4}
+                numberOfSamples={Number(visualizer.numberOfSamples)}
                 waveLinesToDisplay={visualizer.linesToDisplay}
               />
             ) : null}
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "40px",
-              background: "rgba(255,255,255,0.02)",
-              padding: "32px",
-              borderRadius: "32px",
-              boxShadow: "0 -4px 24px rgba(0,0,0,0.2)",
-            }}
-          >
-            <Img
-              style={{
-                width: "280px",
-                height: "280px",
-                objectFit: "cover",
-                borderRadius: "20px",
-                boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-              }}
-              src={coverImageUrl}
-            />
+          <div style={imageContainerStyle}>
+            <Img style={imageStyle} src={coverImageUrl} />
 
             <div className="text-overlay">
               <div

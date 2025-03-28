@@ -2,27 +2,27 @@ import { zColor } from "@remotion/zod-types";
 import { z } from "zod";
 
 const baseVisualizerSchema = z.object({
-  color: zColor(),
-  numberOfSamples: z.enum(["32", "64", "128", "256", "512", "1024"]),
+  color: zColor().default("#0b84f3"),
 });
 
 const spectrumVisualizerSchema = baseVisualizerSchema.extend({
   type: z.literal("spectrum"),
-  linesToDisplay: z.number().int().min(0).default(55),
+  linesToDisplay: z.number().int().min(0).default(65),
   mirrorWave: z.boolean(),
+  numberOfSamples: z
+    .enum(["32", "64", "128", "256", "512", "1024"])
+    .default("512"),
 });
 
-const oscilloscopeVisualizerSchema = baseVisualizerSchema.extend({
+const waveformVisualizerSchema = baseVisualizerSchema.extend({
   type: z.literal("oscilloscope"),
-  windowInSeconds: z.number().min(0.1).default(0.1),
-  posterization: z.number().int().min(0.1).default(3),
-  amplitude: z.number().int().min(0.1).default(4),
-  padding: z.number().int().min(0).default(50),
+  windowInSeconds: z.number().min(0.1).default(1),
+  amplitude: z.number().min(0.1).default(1.3),
 });
 
 const visualizerSchema = z.discriminatedUnion("type", [
   spectrumVisualizerSchema,
-  oscilloscopeVisualizerSchema,
+  waveformVisualizerSchema,
 ]);
 
 export const visualizerCompositionSchema = z.object({
