@@ -15,7 +15,6 @@ import type {ParserState} from './state/parser-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
 import {type VideoSectionState} from './state/video-section';
-import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 const turnSeekIntoByte = async ({
 	seek,
@@ -106,8 +105,6 @@ export type WorkOnSeekRequestOptions = {
 	currentReader: CurrentReader;
 	discardReadBytes: (force: boolean) => Promise<void>;
 	fields: Partial<AllOptions<ParseMediaFields>>;
-	onVideoTrack: OnVideoTrack | null;
-	onAudioTrack: OnAudioTrack | null;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -129,8 +126,6 @@ export const getWorkOnSeekRequestOptions = (
 		currentReader: state.currentReader,
 		discardReadBytes: state.discardReadBytes,
 		fields: state.fields,
-		onVideoTrack: state.onVideoTrack,
-		onAudioTrack: state.onAudioTrack,
 	};
 };
 

@@ -177,6 +177,7 @@ export const postprocessEbml = async ({
 				container: 'webm',
 				callbacks: state.callbacks,
 				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
 			});
 		}
 
@@ -187,6 +188,7 @@ export const postprocessEbml = async ({
 				container: 'webm',
 				callbacks: state.callbacks,
 				logLevel: state.logLevel,
+				onVideoTrack: state.onVideoTrack,
 			});
 		}
 	}

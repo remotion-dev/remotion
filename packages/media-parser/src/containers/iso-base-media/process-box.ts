@@ -3,9 +3,9 @@ import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
-import type {ParserState} from '../../state/parser-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {VideoSectionState} from '../../state/video-section';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {BoxAndNext} from './base-media-box';
 import {parseEsds} from './esds/esds';
@@ -39,10 +39,11 @@ import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
 export type OnlyIfMoovAtomExpected = {
-	state: ParserState;
 	callbacks: SampleCallbacks;
 	isoState: IsoBaseMediaState;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions | null;
+	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: OnAudioTrack | null;
 };
 
 export type OnlyIfMdatAtomExpected = {
@@ -248,6 +249,8 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			onlyIfMoovAtomExpected,
+			iterator,
+			logLevel,
 		});
 
 		callbacks.tracks.setIsDone(logLevel);
@@ -260,16 +263,15 @@ export const processBox = async ({
 			throw new Error('State is required');
 		}
 
-		const {state, workOnSeekRequestOptions} = onlyIfMoovAtomExpected;
-		if (!state) {
-			throw new Error('State is required');
-		}
+		const {workOnSeekRequestOptions, callbacks, onAudioTrack, onVideoTrack} =
+			onlyIfMoovAtomExpected;
 
 		const box = await parseTrak({
 			size: boxSize,
 			offsetAtStart: fileOffset,
-			state,
 			onlyIfMoovAtomExpected,
+			iterator,
+			logLevel,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack && transformedTrack.type === 'video') {
@@ -277,8 +279,9 @@ export const processBox = async ({
 				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
-				callbacks: state.callbacks,
-				logLevel: state.logLevel,
+				callbacks,
+				logLevel,
+				onVideoTrack,
 			});
 		}
 
@@ -287,8 +290,9 @@ export const processBox = async ({
 				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
-				callbacks: state.callbacks,
+				callbacks,
 				logLevel,
+				onAudioTrack,
 			});
 		}
 

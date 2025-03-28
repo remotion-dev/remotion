@@ -64,6 +64,7 @@ export const parseFmt = async ({
 		container: 'wav',
 		callbacks: state.callbacks,
 		logLevel: state.logLevel,
+		onAudioTrack: state.onAudioTrack,
 	});
 
 	box.expectNoMoreBytes();

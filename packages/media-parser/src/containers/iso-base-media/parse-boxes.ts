@@ -23,8 +23,9 @@ export const parseIsoBaseMedia = async (
 		onlyIfMoovAtomExpected: {
 			callbacks: state.callbacks,
 			isoState: state.iso,
-			state,
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			onAudioTrack: state.onAudioTrack,
+			onVideoTrack: state.onVideoTrack,
 		},
 		onlyIfMdatAtomExpected: {
 			videoSectionState: state.videoSection,

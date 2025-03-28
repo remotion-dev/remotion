@@ -53,6 +53,7 @@ export const handleAacPacket = async ({
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 			logLevel: state.logLevel,
+			onAudioTrack: state.onAudioTrack,
 		});
 	}
 

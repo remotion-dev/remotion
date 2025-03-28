@@ -42,6 +42,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				container: 'mp4',
 				callbacks: state.callbacks,
 				logLevel: state.logLevel,
+				onVideoTrack: state.onVideoTrack,
 			});
 		}
 
@@ -52,6 +53,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				container: 'mp4',
 				callbacks: state.callbacks,
 				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
 			});
 		}
 

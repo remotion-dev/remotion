@@ -46,6 +46,7 @@ export const getMoovAtom = async ({
 						container,
 						callbacks: state.callbacks,
 						logLevel: state.logLevel,
+						onAudioTrack: state.onAudioTrack,
 					});
 					return null;
 				}
@@ -58,6 +59,7 @@ export const getMoovAtom = async ({
 						container,
 						callbacks: state.callbacks,
 						logLevel: state.logLevel,
+						onVideoTrack: state.onVideoTrack,
 					});
 					return null;
 				}
@@ -100,9 +102,10 @@ export const getMoovAtom = async ({
 			logLevel: state.logLevel,
 			onlyIfMoovAtomExpected: {
 				callbacks: childState.callbacks,
-				isoState: childState.iso,
-				state: childState,
-				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(childState),
+				isoState: state.iso,
+				workOnSeekRequestOptions: null,
+				onAudioTrack: childState.onAudioTrack,
+				onVideoTrack: childState.onVideoTrack,
 			},
 			onlyIfMdatAtomExpected: null,
 		});
@@ -134,5 +137,6 @@ export const getMoovAtom = async ({
 		state.logLevel,
 		`Finished fetching moov atom in ${Date.now() - start}ms`,
 	);
+
 	return moov;
 };
