@@ -45,7 +45,7 @@ export const parseFmt = async ({
 		type: 'wav-fmt',
 	};
 
-	state.getWavStructure().boxes.push(wavHeader);
+	state.structure.getWavStructure().boxes.push(wavHeader);
 	await registerAudioTrack({
 		state,
 		track: {
@@ -61,6 +61,8 @@ export const parseFmt = async ({
 			trakBox: null,
 		},
 		container: 'wav',
+		callbacks: state.callbacks,
+		logLevel: state.logLevel,
 	});
 
 	box.expectNoMoreBytes();

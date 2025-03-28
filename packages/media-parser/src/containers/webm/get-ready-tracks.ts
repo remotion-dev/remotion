@@ -19,7 +19,7 @@ export const getTracksFromMatroska = ({
 }): ResolvedAndUnresolvedTracks => {
 	const webmState = state.webm;
 
-	const structure = state.getMatroskaStructure();
+	const structure = state.structure.getMatroskaStructure();
 	const mainSegment = getMainSegment(structure.boxes);
 	if (!mainSegment) {
 		throw new Error('No main segment');
@@ -71,7 +71,7 @@ export const getTracksFromMatroska = ({
 };
 
 export const matroskaHasTracks = (state: ParserState) => {
-	const structure = state.getMatroskaStructure();
+	const structure = state.structure.getMatroskaStructure();
 	const mainSegment = getMainSegment(structure.boxes);
 	if (!mainSegment) {
 		return false;

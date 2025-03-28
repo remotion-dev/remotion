@@ -25,7 +25,7 @@ export const parseIsoBaseMedia = async (
 		isoState: state.iso,
 	});
 	if (result) {
-		state.getIsoStructure().boxes.push(result);
+		state.structure.getIsoStructure().boxes.push(result);
 	}
 
 	return null;

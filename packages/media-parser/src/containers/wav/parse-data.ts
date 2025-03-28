@@ -16,7 +16,7 @@ export const parseData = ({
 		dataSize: ckSize,
 	};
 
-	state.getWavStructure().boxes.push(box);
+	state.structure.getWavStructure().boxes.push(box);
 	state.callbacks.tracks.setIsDone(state.logLevel);
 
 	state.videoSection.addVideoSection({

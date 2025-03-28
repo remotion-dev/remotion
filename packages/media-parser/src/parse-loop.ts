@@ -32,7 +32,11 @@ export const parseLoop = async ({
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
-		await workOnSeekRequest(state);
+		await workOnSeekRequest({
+			state,
+			logLevel: state.logLevel,
+			controller: state.controller,
+		});
 
 		const offsetBefore = state.iterator.counter.getOffset();
 
@@ -63,7 +67,7 @@ export const parseLoop = async ({
 
 			if (
 				iterationWithThisOffset > 300 &&
-				state.getStructure().type !== 'm3u'
+				state.structure.getStructure().type !== 'm3u'
 			) {
 				throw new Error(
 					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',

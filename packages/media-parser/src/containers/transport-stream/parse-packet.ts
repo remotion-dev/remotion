@@ -55,7 +55,7 @@ export const parsePacket = async ({
 		return Promise.resolve(null);
 	}
 
-	const structure = parserState.getTsStructure();
+	const structure = parserState.structure.getTsStructure();
 
 	const pat = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',

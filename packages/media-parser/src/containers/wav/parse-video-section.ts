@@ -11,7 +11,7 @@ export const parseVideoSection = async ({
 	state: ParserState;
 }): Promise<ParseResult> => {
 	const {iterator} = state;
-	const structure = state.getWavStructure();
+	const structure = state.structure.getWavStructure();
 
 	const videoSection = getCurrentVideoSection({
 		offset: iterator.counter.getOffset(),

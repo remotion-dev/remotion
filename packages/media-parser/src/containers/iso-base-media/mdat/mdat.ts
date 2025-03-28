@@ -37,7 +37,7 @@ export const parseMdatSection = async (
 		});
 		state.iso.moov.setMoovBox(moov);
 		state.callbacks.tracks.setIsDone(state.logLevel);
-		state.getIsoStructure().boxes.push(moov);
+		state.structure.getIsoStructure().boxes.push(moov);
 
 		return parseMdatSection(state);
 	}

@@ -122,7 +122,7 @@ export const getM3uStreams = ({
 };
 
 export const m3uHasStreams = (state: ParserState): boolean => {
-	const structure = state.getStructureOrNull();
+	const structure = state.structure.getStructureOrNull();
 
 	if (!structure) {
 		return false;

@@ -16,7 +16,7 @@ export const parseId3 = ({
 		type: 'wav-id3',
 	};
 
-	state.getWavStructure().boxes.push(id3Box);
+	state.structure.getWavStructure().boxes.push(id3Box);
 
 	return Promise.resolve(null);
 };

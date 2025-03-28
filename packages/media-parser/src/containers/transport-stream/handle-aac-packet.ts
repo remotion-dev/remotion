@@ -50,6 +50,8 @@ export const handleAacPacket = async ({
 			track,
 			state,
 			container: 'transport-stream',
+			callbacks: state.callbacks,
+			logLevel: state.logLevel,
 		});
 	}
 

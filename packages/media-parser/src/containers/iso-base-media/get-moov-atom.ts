@@ -39,13 +39,25 @@ export const getMoovAtom = async ({
 		controller: state.controller,
 		onAudioTrack: state.onAudioTrack
 			? async ({track, container}) => {
-					await registerAudioTrack({state, track, container});
+					await registerAudioTrack({
+						state,
+						track,
+						container,
+						callbacks: state.callbacks,
+						logLevel: state.logLevel,
+					});
 					return null;
 				}
 			: null,
 		onVideoTrack: state.onVideoTrack
 			? async ({track, container}) => {
-					await registerVideoTrack({state, track, container});
+					await registerVideoTrack({
+						state,
+						track,
+						container,
+						callbacks: state.callbacks,
+						logLevel: state.logLevel,
+					});
 					return null;
 				}
 			: null,

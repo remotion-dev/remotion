@@ -37,7 +37,7 @@ export const parseRiffBody = async (
 
 	const box = await expectRiffBox(state);
 	if (box !== null) {
-		const structure = state.getRiffStructure();
+		const structure = state.structure.getRiffStructure();
 		structure.boxes.push(box);
 	}
 

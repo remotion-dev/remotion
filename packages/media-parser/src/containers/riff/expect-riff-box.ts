@@ -57,6 +57,8 @@ export const expectRiffBox = async (
 				state,
 				track: audioTrack,
 				container: 'avi',
+				callbacks: state.callbacks,
+				logLevel: state.logLevel,
 			});
 		}
 

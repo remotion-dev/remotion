@@ -76,6 +76,8 @@ export const runOverM3u = async ({
 								...track,
 								trackId,
 							},
+							callbacks: state.callbacks,
+							logLevel: state.logLevel,
 						});
 						state.m3u.sampleSorter.addToStreamWithTrack(playlistUrl);
 
@@ -109,6 +111,8 @@ export const runOverM3u = async ({
 								...track,
 								trackId,
 							},
+							callbacks: state.callbacks,
+							logLevel: state.logLevel,
 						});
 						state.m3u.sampleSorter.addToStreamWithTrack(playlistUrl);
 

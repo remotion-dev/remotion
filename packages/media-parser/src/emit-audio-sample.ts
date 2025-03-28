@@ -12,7 +12,11 @@ export const emitAudioSample = async ({
 	state: ParserState;
 }) => {
 	await state.callbacks.onAudioSample(trackId, audioSample);
-	await workOnSeekRequest(state);
+	await workOnSeekRequest({
+		state,
+		logLevel: state.logLevel,
+		controller: state.controller,
+	});
 };
 
 export const emitVideoSample = async ({
@@ -25,5 +29,9 @@ export const emitVideoSample = async ({
 	state: ParserState;
 }) => {
 	await state.callbacks.onVideoSample(trackId, videoSample);
-	await workOnSeekRequest(state);
+	await workOnSeekRequest({
+		state,
+		logLevel: state.logLevel,
+		controller: state.controller,
+	});
 };

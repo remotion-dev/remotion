@@ -6,7 +6,7 @@ import {processFinalStreamBuffers} from './process-stream-buffers';
 export const parseTransportStream = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
-	const structure = state.getTsStructure();
+	const structure = state.structure.getTsStructure();
 
 	const {iterator} = state;
 

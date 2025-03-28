@@ -161,7 +161,7 @@ export const makeParserState = ({
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		keyframes,
-		...structure,
+		structure,
 		onAudioTrack,
 		onVideoTrack,
 		emittedFields,

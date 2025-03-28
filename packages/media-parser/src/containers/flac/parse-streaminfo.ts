@@ -40,7 +40,7 @@ export const parseStreamInfo = async ({
 		totalSamples,
 	};
 
-	state.getFlacStructure().boxes.push(flacStreamInfo);
+	state.structure.getFlacStructure().boxes.push(flacStreamInfo);
 
 	await registerAudioTrack({
 		container: 'flac',
@@ -57,6 +57,8 @@ export const parseStreamInfo = async ({
 			trackId: 0,
 			trakBox: null,
 		},
+		callbacks: state.callbacks,
+		logLevel: state.logLevel,
 	});
 
 	state.callbacks.tracks.setIsDone(state.logLevel);

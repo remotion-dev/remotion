@@ -75,6 +75,8 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 				trakBox: null,
 				type: 'audio',
 			},
+			callbacks: state.callbacks,
+			logLevel: state.logLevel,
 		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
 	}

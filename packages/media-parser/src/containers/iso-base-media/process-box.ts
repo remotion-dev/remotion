@@ -263,6 +263,8 @@ export const processBox = async ({
 				state,
 				track: transformedTrack,
 				container: 'mp4',
+				callbacks: state.callbacks,
+				logLevel: state.logLevel,
 			});
 		}
 
@@ -271,6 +273,8 @@ export const processBox = async ({
 				state,
 				track: transformedTrack,
 				container: 'mp4',
+				callbacks: state.callbacks,
+				logLevel,
 			});
 		}
 

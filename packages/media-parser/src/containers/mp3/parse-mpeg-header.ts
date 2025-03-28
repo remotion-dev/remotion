@@ -317,6 +317,8 @@ export const parseMpegHeader = async ({
 					trackId: 0,
 					trakBox: null,
 				},
+				callbacks: state.callbacks,
+				logLevel: state.logLevel,
 			});
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		}

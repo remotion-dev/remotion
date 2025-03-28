@@ -19,7 +19,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'riff') {
 		Log.verbose(state.logLevel, 'Detected RIFF container');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'riff',
 			boxes: [],
 		});
@@ -39,6 +39,8 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				state,
 				track,
 				container: 'mp4',
+				callbacks: state.callbacks,
+				logLevel: state.logLevel,
 			});
 		}
 
@@ -47,12 +49,14 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				state,
 				track,
 				container: 'mp4',
+				callbacks: state.callbacks,
+				logLevel: state.logLevel,
 			});
 		}
 
 		state.callbacks.tracks.setIsDone(state.logLevel);
 
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
@@ -61,7 +65,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(state.logLevel, 'Detected ISO Base Media container');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
@@ -70,7 +74,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'webm') {
 		Log.verbose(state.logLevel, 'Detected Matroska container');
-		state.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'matroska',
 		});
@@ -79,7 +83,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'transport-stream') {
 		Log.verbose(state.logLevel, 'Detected MPEG-2 Transport Stream');
-		state.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
 		});
@@ -92,7 +96,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			boxes: [],
 			type: 'mp3',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
@@ -102,7 +106,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			boxes: [],
 			type: 'wav',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
@@ -112,13 +116,13 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			boxes: [],
 			type: 'flac',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
 	if (fileType.type === 'aac') {
 		Log.verbose(state.logLevel, 'Detected AAC');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'aac',
 			boxes: [],
 		});
@@ -127,7 +131,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'm3u') {
 		Log.verbose(state.logLevel, 'Detected M3U');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'm3u',
 			boxes: [],
 		});
