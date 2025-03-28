@@ -359,6 +359,10 @@ export const processBox = async ({
 		});
 	}
 
+	if (boxType === 'moof') {
+		onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
+	}
+
 	if (
 		boxType === 'mdia' ||
 		boxType === 'minf' ||

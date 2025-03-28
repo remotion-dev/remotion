@@ -49,6 +49,7 @@ export const getSeekingByte = ({
 	contentLength,
 	controller,
 	readerInterface,
+	isoState,
 }: {
 	info: SeekingInfo;
 	time: number;
@@ -58,6 +59,7 @@ export const getSeekingByte = ({
 	contentLength: number;
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
+	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -69,6 +71,7 @@ export const getSeekingByte = ({
 			contentLength,
 			controller,
 			readerInterface,
+			isoState,
 		});
 	}
 

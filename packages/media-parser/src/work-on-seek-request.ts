@@ -72,6 +72,7 @@ const turnSeekIntoByte = async ({
 			contentLength,
 			controller,
 			readerInterface,
+			isoState,
 		});
 
 		return seekingByte;

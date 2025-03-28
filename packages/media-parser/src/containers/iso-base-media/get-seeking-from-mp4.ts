@@ -5,6 +5,7 @@ import {Log} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
+import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import {
 	getCurrentVideoSection,
 	isByteInVideoSection,
@@ -12,10 +13,8 @@ import {
 import type {SeekResolution} from '../../work-on-seek-request';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
-import {getIsoBaseMediaChildren} from './get-children';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
-import {getMfraAtom} from './mfra/get-mfra-atom';
 import {getMfroAtom} from './mfra/get-mfro-atom';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
@@ -29,6 +28,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	contentLength,
 	controller,
 	readerInterface,
+	isoState,
 }: {
 	info: IsoBaseMediaSeekingInfo;
 	time: number;
@@ -38,6 +38,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	contentLength: number;
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
+	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
 	const allTracks = [
@@ -62,23 +63,8 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 			src,
 		});
 		if (parentSize) {
-			const mfraAtom = await getMfraAtom({
-				contentLength,
-				controller,
-				readerInterface,
-				src,
-				parentSize,
-			});
-
-			mfraAtom.discard(8);
-			// TODO: Do something with this
-			await getIsoBaseMediaChildren({
-				iterator: mfraAtom,
-				logLevel,
-				size: parentSize - 8,
-				onlyIfMoovAtomExpected: null,
-			});
-			mfraAtom.destroy();
+			const atom = await isoState.mfra.triggerLoad();
+			console.log(atom);
 		}
 
 		const tkhdBox = getTkhdBox(firstVideoTrack.trakBox as TrakBox);
