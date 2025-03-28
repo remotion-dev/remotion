@@ -22,6 +22,7 @@ export const parseMoov = async ({
 		iterator: state.iterator,
 		logLevel: state.logLevel,
 		size: size - 8,
+		videoSectionState: state.videoSection,
 	});
 
 	return {

@@ -91,3 +91,5 @@ export const videoSectionState = () => {
 		getVideoSectionAssertOnlyOne,
 	};
 };
+
+export type VideoSectionState = ReturnType<typeof videoSectionState>;

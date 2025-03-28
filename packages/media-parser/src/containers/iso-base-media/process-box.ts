@@ -3,6 +3,7 @@ import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import type {VideoSectionState} from '../../state/video-section';
 import type {BoxAndNext} from './base-media-box';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
@@ -38,10 +39,12 @@ export const processBox = async ({
 	iterator,
 	logLevel,
 	state,
+	videoSectionState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	state: ParserState | null;
+	videoSectionState: VideoSectionState;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
@@ -74,11 +77,7 @@ export const processBox = async ({
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
-		if (!state) {
-			throw new Error('State is required');
-		}
-
-		state.videoSection.addVideoSection({
+		videoSectionState.addVideoSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});
@@ -345,6 +344,7 @@ export const processBox = async ({
 			size: boxSize - 8,
 			logLevel,
 			state,
+			videoSectionState,
 		});
 
 		return {

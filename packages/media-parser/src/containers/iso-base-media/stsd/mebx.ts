@@ -32,6 +32,7 @@ export const parseMebx = async ({
 		size: size - 8,
 		logLevel: state.logLevel,
 		state,
+		videoSectionState: state.videoSection,
 	});
 
 	return {

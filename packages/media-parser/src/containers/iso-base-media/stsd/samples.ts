@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {ParserState} from '../../../state/parser-state';
+import type {VideoSectionState} from '../../../state/video-section';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
 
@@ -124,9 +125,11 @@ const audioTags = [
 export const processIsoFormatBox = async ({
 	iterator,
 	logLevel,
+	videoSectionState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	videoSectionState: VideoSectionState;
 }): Promise<FormatBoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -180,6 +183,7 @@ export const processIsoFormatBox = async ({
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				state: null,
+				videoSectionState,
 			});
 
 			return {
@@ -224,6 +228,7 @@ export const processIsoFormatBox = async ({
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				state: null,
+				videoSectionState,
 			});
 
 			return {
@@ -271,6 +276,7 @@ export const processIsoFormatBox = async ({
 				iterator,
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
+				videoSectionState,
 			});
 
 			return {
@@ -326,6 +332,7 @@ export const processIsoFormatBox = async ({
 						iterator,
 						logLevel,
 						size: bytesRemainingInBox,
+						videoSectionState,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);
 
@@ -376,6 +383,7 @@ export const parseIsoFormatBoxes = async ({
 		const {sample} = await processIsoFormatBox({
 			iterator,
 			logLevel: state.logLevel,
+			videoSectionState: state.videoSection,
 		});
 
 		if (sample) {

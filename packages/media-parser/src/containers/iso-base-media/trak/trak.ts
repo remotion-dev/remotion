@@ -22,6 +22,7 @@ export const parseTrak = async ({
 		size: size - 8,
 		iterator: options.iterator,
 		logLevel: options.logLevel,
+		videoSectionState: options.videoSection,
 	});
 
 	return {
