@@ -24,11 +24,10 @@ const turnSeekIntoByte = async ({
 	readerInterface,
 	src,
 	controller,
-	callbacks,
-	isoState,
 	iterator,
 	structureState,
 	mp4HeaderSegment,
+	isoState,
 }: {
 	seek: Seek;
 	videoSectionState: VideoSectionState;
@@ -37,11 +36,10 @@ const turnSeekIntoByte = async ({
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;
 	controller: MediaParserController;
-	callbacks: SampleCallbacks;
-	isoState: IsoBaseMediaState;
 	iterator: BufferIterator;
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
 	const videoSections = videoSectionState.getVideoSections();
 	if (videoSections.length === 0) {
@@ -54,9 +52,9 @@ const turnSeekIntoByte = async ({
 	if (seek.type === 'keyframe-before-time-in-seconds') {
 		const seekingInfo = getSeekingInfo({
 			structureState,
-			isoState,
 			mp4HeaderSegment,
 			videoSectionState,
+			isoState,
 		});
 		if (!seekingInfo) {
 			Log.trace(logLevel, 'No seeking info, cannot seek yet');
@@ -75,7 +73,6 @@ const turnSeekIntoByte = async ({
 			controller,
 			readerInterface,
 			videoSectionState,
-			callbacks,
 		});
 
 		return seekingByte;
@@ -142,11 +139,10 @@ export const workOnSeekRequest = async ({
 		src,
 		readerInterface,
 		controller,
-		callbacks,
-		isoState,
 		iterator,
 		structureState,
 		mp4HeaderSegment,
+		isoState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

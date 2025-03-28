@@ -5,7 +5,6 @@ import {Log} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {VideoSectionState} from '../../state/video-section';
 import {
 	getCurrentVideoSection,
@@ -32,7 +31,6 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	controller,
 	readerInterface,
 	videoSectionState,
-	callbacks,
 }: {
 	info: IsoBaseMediaSeekingInfo;
 	time: number;
@@ -43,7 +41,6 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
 	videoSectionState: VideoSectionState;
-	callbacks: SampleCallbacks;
 }): Promise<SeekResolution> => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
 	const allTracks = [
@@ -84,7 +81,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 				size: parentSize - 8,
 				state: null,
 				videoSectionState,
-				callbacks,
+				callbacks: null,
 			});
 			mfraAtom.destroy();
 		}

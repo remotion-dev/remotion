@@ -7,21 +7,20 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import type {ReaderInterface} from './readers/reader';
 import type {SeekingInfo} from './seeking-info';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
-import type {SampleCallbacks} from './state/sample-callbacks';
 import type {StructureState} from './state/structure';
 import type {VideoSectionState} from './state/video-section';
 import type {SeekResolution} from './work-on-seek-request';
 
 export const getSeekingInfo = ({
 	structureState,
-	isoState,
 	mp4HeaderSegment,
 	videoSectionState,
+	isoState,
 }: {
 	structureState: StructureState;
-	isoState: IsoBaseMediaState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	videoSectionState: VideoSectionState;
+	isoState: IsoBaseMediaState;
 }): SeekingInfo | null => {
 	const structure = structureState.getStructureOrNull();
 
@@ -51,7 +50,6 @@ export const getSeekingByte = ({
 	controller,
 	readerInterface,
 	videoSectionState,
-	callbacks,
 }: {
 	info: SeekingInfo;
 	time: number;
@@ -62,7 +60,6 @@ export const getSeekingByte = ({
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
 	videoSectionState: VideoSectionState;
-	callbacks: SampleCallbacks;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -75,7 +72,6 @@ export const getSeekingByte = ({
 			controller,
 			readerInterface,
 			videoSectionState,
-			callbacks,
 		});
 	}
 
