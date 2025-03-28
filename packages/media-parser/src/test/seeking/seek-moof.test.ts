@@ -25,7 +25,6 @@ test('seek moof', async () => {
 			fields: {
 				internalStats: true,
 			},
-			logLevel: 'verbose',
 			onVideoTrack: () => {
 				return (sample) => {
 					samples++;

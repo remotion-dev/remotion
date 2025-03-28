@@ -1,9 +1,6 @@
-import type {MediaParserController} from '../../controller/media-parser-controller';
 import {getTracksFromMoovBox} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import {
@@ -15,7 +12,7 @@ import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-fr
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
-import {getMfroAtom} from './mfra/get-mfro-atom';
+import {findBestSegmentFromTfra} from './mfra/find-best-segment-from-tfra';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
 
@@ -24,20 +21,12 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	time,
 	logLevel,
 	currentPosition,
-	src,
-	contentLength,
-	controller,
-	readerInterface,
 	isoState,
 }: {
 	info: IsoBaseMediaSeekingInfo;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
-	src: ParseMediaSrc;
-	contentLength: number;
-	controller: MediaParserController;
-	readerInterface: ReaderInterface;
 	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
@@ -56,17 +45,6 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	const {timescale} = firstVideoTrack;
 
 	if (info.moofBoxes.length > 0) {
-		const parentSize = await getMfroAtom({
-			contentLength,
-			controller,
-			readerInterface,
-			src,
-		});
-		if (parentSize) {
-			const atom = await isoState.mfra.triggerLoad();
-			console.log(atom);
-		}
-
 		const tkhdBox = getTkhdBox(firstVideoTrack.trakBox as TrakBox);
 		if (!tkhdBox) {
 			throw new Error('Expected tkhd box in trak box');
@@ -103,6 +81,34 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 						byte: kf,
 					};
 				}
+			}
+		}
+
+		const atom = await isoState.mfra.triggerLoad();
+		if (atom) {
+			const moofOffset = findBestSegmentFromTfra({
+				mfra: atom,
+				time,
+				firstVideoTrack,
+				timescale,
+			});
+
+			if (
+				moofOffset !== null &&
+				!(
+					moofOffset.start <= currentPosition &&
+					currentPosition < moofOffset.end
+				)
+			) {
+				Log.verbose(
+					logLevel,
+					`Fragmented MP4 - Found based on mfra information that we should seek to: ${moofOffset.start} ${moofOffset.end}`,
+				);
+
+				return {
+					type: 'intermediary-seek',
+					byte: moofOffset.start,
+				};
 			}
 		}
 
