@@ -1,7 +1,7 @@
-import type {MediaParserController} from '../../controller/media-parser-controller';
-import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
-import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserController} from '../../../controller/media-parser-controller';
+import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
+import type {ParseMediaSrc} from '../../../options';
+import type {ReaderInterface} from '../../../readers/reader';
 
 export const getMfroAtom = async ({
 	src,
@@ -28,16 +28,19 @@ export const getMfroAtom = async ({
 	const iterator = getArrayBufferIterator(value, value.length);
 	const size = iterator.getUint32();
 	if (size !== 16) {
+		iterator.destroy();
 		return null;
 	}
 
 	const atom = iterator.getByteString(4, false);
 	if (atom !== 'mfro') {
+		iterator.destroy();
 		return null;
 	}
 
 	const version = iterator.getUint8();
 	if (version !== 0) {
+		iterator.destroy();
 		return null;
 	}
 
@@ -45,5 +48,6 @@ export const getMfroAtom = async ({
 	iterator.discard(3);
 	const parentSize = iterator.getUint32();
 
+	iterator.destroy();
 	return parentSize;
 };

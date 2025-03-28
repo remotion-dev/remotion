@@ -1,3 +1,4 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 import type {IsoBaseMediaBox} from './base-media-box';
 import {processBox} from './process-box';
@@ -5,12 +6,13 @@ import {processBox} from './process-box';
 export const getIsoBaseMediaChildren = async ({
 	state,
 	size,
+	iterator,
 }: {
 	state: ParserState;
 	size: number;
+	iterator: BufferIterator;
 }): Promise<IsoBaseMediaBox[]> => {
 	const boxes: IsoBaseMediaBox[] = [];
-	const {iterator} = state;
 	const initial = iterator.counter.getOffset();
 
 	while (iterator.counter.getOffset() < size + initial) {

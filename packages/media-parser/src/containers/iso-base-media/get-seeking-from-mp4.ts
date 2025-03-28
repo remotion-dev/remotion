@@ -12,9 +12,10 @@ import {
 import type {SeekResolution} from '../../work-on-seek-request';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
-import {getMfroAtom} from './get-mfro-atom';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
+import {getMfraAtom} from './mfra/get-mfra-atom';
+import {getMfroAtom} from './mfra/get-mfro-atom';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
 
@@ -53,14 +54,24 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	const {timescale} = firstVideoTrack;
 
 	if (info.moofBoxes.length > 0) {
-		const mfraAtom = await getMfroAtom({
+		const parentSize = await getMfroAtom({
 			contentLength,
 			controller,
 			readerInterface,
 			src,
 		});
+		if (parentSize) {
+			const mfraAtom = await getMfraAtom({
+				contentLength,
+				controller,
+				readerInterface,
+				src,
+				parentSize,
+			});
 
-		console.log(mfraAtom);
+			console.log({mfraAtom: mfraAtom.getSlice(parentSize), parentSize});
+		}
+
 		const tkhdBox = getTkhdBox(firstVideoTrack.trakBox as TrakBox);
 		if (!tkhdBox) {
 			throw new Error('Expected tkhd box in trak box');
