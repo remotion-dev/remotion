@@ -1,6 +1,7 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
+import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
-import type {ParserState} from '../../../state/parser-state';
+import type {VideoSectionState} from '../../../state/video-section';
 import type {BaseBox} from '../base-type';
 import {getIsoBaseMediaChildren} from '../get-children';
 
@@ -15,12 +16,14 @@ export const parseMebx = async ({
 	offset,
 	size,
 	iterator,
-	state,
+	logLevel,
+	videoSectionState,
 }: {
 	offset: number;
 	size: number;
 	iterator: BufferIterator;
-	state: ParserState;
+	videoSectionState: VideoSectionState;
+	logLevel: LogLevel;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -30,9 +33,9 @@ export const parseMebx = async ({
 	const children = await getIsoBaseMediaChildren({
 		iterator,
 		size: size - 8,
-		logLevel: state.logLevel,
-		state,
-		videoSectionState: state.videoSection,
+		logLevel,
+		state: null,
+		videoSectionState,
 	});
 
 	return {

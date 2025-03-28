@@ -118,14 +118,12 @@ export const processBox = async ({
 	}
 
 	if (boxType === 'stsd') {
-		if (!state) {
-			throw new Error('State is required');
-		}
-
 		return parseStsd({
 			offset: fileOffset,
 			size: boxSize,
-			state,
+			videoSectionState,
+			iterator,
+			logLevel,
 		});
 	}
 
@@ -187,7 +185,8 @@ export const processBox = async ({
 			offset: fileOffset,
 			size: boxSize,
 			iterator,
-			state,
+			logLevel,
+			videoSectionState,
 		});
 	}
 
@@ -226,7 +225,7 @@ export const processBox = async ({
 		}
 
 		if (state.iso.moov.getMoovBox()) {
-			Log.verbose(state.logLevel, 'Moov box already parsed, skipping');
+			Log.verbose(logLevel, 'Moov box already parsed, skipping');
 			iterator.discard(boxSize - 8);
 			return null;
 		}
@@ -237,7 +236,7 @@ export const processBox = async ({
 			state,
 		});
 
-		state.callbacks.tracks.setIsDone(state.logLevel);
+		state.callbacks.tracks.setIsDone(logLevel);
 
 		return box;
 	}

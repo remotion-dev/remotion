@@ -1,7 +1,6 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
-import type {ParserState} from '../../../state/parser-state';
 import type {VideoSectionState} from '../../../state/video-section';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
@@ -367,12 +366,15 @@ export const processIsoFormatBox = async ({
 
 export const parseIsoFormatBoxes = async ({
 	maxBytes,
-	state,
+	videoSectionState,
+	logLevel,
+	iterator,
 }: {
 	maxBytes: number;
-	state: ParserState;
+	videoSectionState: VideoSectionState;
+	logLevel: LogLevel;
+	iterator: BufferIterator;
 }): Promise<Sample[]> => {
-	const {iterator} = state;
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -382,8 +384,8 @@ export const parseIsoFormatBoxes = async ({
 	) {
 		const {sample} = await processIsoFormatBox({
 			iterator,
-			logLevel: state.logLevel,
-			videoSectionState: state.videoSection,
+			logLevel,
+			videoSectionState,
 		});
 
 		if (sample) {
