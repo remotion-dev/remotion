@@ -17,7 +17,7 @@ import {
 	VERY_LIGHT_TEXT,
 } from '../../../helpers/colors';
 import {getGitRefUrl} from '../../../helpers/get-git-menu-item';
-import {openInEditor} from '../../../helpers/open-in-editor';
+import {openOriginalPositionInEditor} from '../../../helpers/open-in-editor';
 import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
 import {showNotification} from '../../Notifications/NotificationCenter';
@@ -80,13 +80,7 @@ export const TimelineStack: React.FC<{
 
 		setOpening(true);
 		try {
-			await openInEditor({
-				originalColumnNumber: location.column,
-				originalFileName: location.source,
-				originalFunctionName: null,
-				originalLineNumber: location.line,
-				originalScriptCode: null,
-			});
+			await openOriginalPositionInEditor(location);
 		} catch (err) {
 			showNotification((err as Error).message, 2000);
 		} finally {
@@ -163,7 +157,7 @@ export const TimelineStack: React.FC<{
 			return;
 		}
 
-		getOriginalLocationFromStack(sequence.stack)
+		getOriginalLocationFromStack(sequence.stack, 'sequence')
 			.then((frame) => {
 				setOriginalLocation(frame);
 			})
