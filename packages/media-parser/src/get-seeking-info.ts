@@ -1,10 +1,7 @@
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-from-mp4';
 import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-info-from-mp4';
-import type {MediaParserController} from './controller/media-parser-controller';
 import type {LogLevel} from './log';
-import type {ParseMediaSrc} from './options';
 import type {IsoBaseMediaStructure} from './parse-result';
-import type {ReaderInterface} from './readers/reader';
 import type {SeekingInfo} from './seeking-info';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {StructureState} from './state/structure';
@@ -45,20 +42,12 @@ export const getSeekingByte = ({
 	time,
 	logLevel,
 	currentPosition,
-	src,
-	contentLength,
-	controller,
-	readerInterface,
 	isoState,
 }: {
 	info: SeekingInfo;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
-	src: ParseMediaSrc;
-	contentLength: number;
-	controller: MediaParserController;
-	readerInterface: ReaderInterface;
 	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
@@ -67,10 +56,6 @@ export const getSeekingByte = ({
 			time,
 			logLevel,
 			currentPosition,
-			src,
-			contentLength,
-			controller,
-			readerInterface,
 			isoState,
 		});
 	}

@@ -20,10 +20,6 @@ const turnSeekIntoByte = async ({
 	seek,
 	videoSectionState,
 	logLevel,
-	contentLength,
-	readerInterface,
-	src,
-	controller,
 	iterator,
 	structureState,
 	mp4HeaderSegment,
@@ -32,10 +28,6 @@ const turnSeekIntoByte = async ({
 	seek: Seek;
 	videoSectionState: VideoSectionState;
 	logLevel: LogLevel;
-	contentLength: number;
-	src: ParseMediaSrc;
-	readerInterface: ReaderInterface;
-	controller: MediaParserController;
 	iterator: BufferIterator;
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
@@ -68,10 +60,6 @@ const turnSeekIntoByte = async ({
 			time: seek.time,
 			logLevel,
 			currentPosition: iterator.counter.getOffset(),
-			src,
-			contentLength,
-			controller,
-			readerInterface,
 			isoState,
 		});
 
@@ -158,10 +146,6 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		seek,
 		videoSectionState: videoSection,
 		logLevel,
-		contentLength,
-		src,
-		readerInterface,
-		controller,
 		iterator,
 		structureState,
 		mp4HeaderSegment,
