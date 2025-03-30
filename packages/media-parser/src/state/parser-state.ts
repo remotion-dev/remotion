@@ -37,7 +37,7 @@ import {seekInfiniteLoopDetectionState} from './seek-infinite-loop';
 import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {timingsState} from './timings';
-import {transportStreamState} from './transport-stream';
+import {transportStreamState} from './transport-stream/transport-stream';
 import {mediaSectionState} from './video-section';
 import {webmState} from './webm';
 export type InternalStats = {

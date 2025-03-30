@@ -1,7 +1,7 @@
 import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
-import type {TransportStreamState} from '../../state/transport-stream';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {filterStreamsBySupportedTypes} from './get-tracks';
@@ -27,6 +27,7 @@ export const processStreamBuffer = async ({
 	logLevel,
 	onAudioTrack,
 	onVideoTrack,
+	transportStream,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -36,6 +37,7 @@ export const processStreamBuffer = async ({
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
 }) => {
 	const stream = getStreamForId(structure, programId);
 	if (!stream) {
@@ -52,6 +54,7 @@ export const processStreamBuffer = async ({
 			logLevel,
 			onVideoTrack,
 			offset: streamBuffer.offset,
+			transportStream,
 		});
 	}
 	// 15 = AAC / ADTS
@@ -64,6 +67,7 @@ export const processStreamBuffer = async ({
 			sampleCallbacks,
 			logLevel,
 			onAudioTrack,
+			transportStream,
 		});
 	}
 
@@ -104,6 +108,7 @@ export const processFinalStreamBuffers = async ({
 				logLevel,
 				onAudioTrack,
 				onVideoTrack,
+				transportStream,
 			});
 			transportStream.streamBuffers.delete(programId);
 		}

@@ -18,4 +18,11 @@ export type WavSeekingInfo = {
 	mediaSections: MediaSection;
 };
 
-export type SeekingInfo = IsoBaseMediaSeekingInfo | WavSeekingInfo;
+export type TransportStreamSeekingInfo = {
+	type: 'transport-stream-seeking-info';
+};
+
+export type SeekingInfo =
+	| IsoBaseMediaSeekingInfo
+	| WavSeekingInfo
+	| TransportStreamSeekingInfo;

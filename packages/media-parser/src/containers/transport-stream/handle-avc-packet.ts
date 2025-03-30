@@ -4,6 +4,7 @@ import type {Track} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
 	AudioOrVideoSample,
 	OnVideoTrack,
@@ -31,6 +32,7 @@ export const handleAvcPacket = async ({
 	sampleCallbacks,
 	logLevel,
 	onVideoTrack,
+	transportStream,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -39,6 +41,7 @@ export const handleAvcPacket = async ({
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
 }) => {
 	const avc = parseAvc(streamBuffer.buffer);
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
@@ -51,6 +54,11 @@ export const handleAvcPacket = async ({
 		const sampleAspectRatio = getSampleAspectRatioFromSps(
 			spsAndPps.sps.spsData,
 		);
+		const startOffset = Math.min(
+			streamBuffer.pesHeader.pts,
+			streamBuffer.pesHeader.dts ?? Infinity,
+		);
+		transportStream.startOffset.setOffset(startOffset);
 
 		const track: Track = {
 			m3uStreamFormat: null,
@@ -90,9 +98,12 @@ export const handleAvcPacket = async ({
 
 	// sample for webcodecs needs to be in nano seconds
 	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts,
-		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
-		timestamp: streamBuffer.pesHeader.pts,
+		cts: streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
+		dts:
+			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
+			transportStream.startOffset.getOffset(),
+		timestamp:
+			streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
 		duration: undefined,
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
@@ -110,4 +121,6 @@ export const handleAvcPacket = async ({
 		workOnSeekRequestOptions,
 		callbacks: sampleCallbacks,
 	});
+
+	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

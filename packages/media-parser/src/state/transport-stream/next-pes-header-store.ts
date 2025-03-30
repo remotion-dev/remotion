@@ -1,4 +1,4 @@
-import type {PacketPes} from './parse-pes';
+import type {PacketPes} from '../../containers/transport-stream/parse-pes';
 
 export const makeNextPesHeaderStore = () => {
 	let nextPesHeader: PacketPes | null = null;

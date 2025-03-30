@@ -5,6 +5,7 @@ import type {Track} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
 	AudioOrVideoSample,
 	OnAudioTrack,
@@ -22,6 +23,7 @@ export const handleAacPacket = async ({
 	sampleCallbacks,
 	logLevel,
 	onAudioTrack,
+	transportStream,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -30,6 +32,7 @@ export const handleAacPacket = async ({
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
+	transportStream: TransportStreamState;
 }) => {
 	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
 	if (!adtsHeader) {
@@ -89,4 +92,6 @@ export const handleAacPacket = async ({
 		workOnSeekRequestOptions,
 		callbacks: sampleCallbacks,
 	});
+
+	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

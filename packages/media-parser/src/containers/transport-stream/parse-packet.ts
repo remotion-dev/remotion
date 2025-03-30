@@ -2,7 +2,7 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
-import type {TransportStreamState} from '../../state/transport-stream';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {TransportStreamBox} from './boxes';
@@ -100,15 +100,16 @@ export const parsePacket = async ({
 	// Die Service Description Table nennt den Programmnamen (z. B. „ZDF“) und gibt weitere Informationen der einzelnen Programme (Services); sie wird auf PID 17 übertragen.
 	const program =
 		programId === 17 ? null : getProgramForId(structure, programId);
+
 	if (program) {
 		const pmt = parsePmt(iterator);
 		return Promise.resolve(pmt);
 	}
 
-	const stream = getStreamForId(structure, programId);
-	if (stream) {
+	const transportStreamEntry = getStreamForId(structure, programId);
+	if (transportStreamEntry) {
 		await parseStream({
-			transportStreamEntry: stream,
+			transportStreamEntry,
 			structure,
 			iterator,
 			transportStream,
@@ -119,6 +120,7 @@ export const parsePacket = async ({
 			workOnSeekRequestOptions,
 			programId,
 		});
+
 		return Promise.resolve(null);
 	}
 

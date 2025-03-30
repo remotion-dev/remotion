@@ -190,7 +190,7 @@ test('Transport stream', async () => {
 	expect(audioSamples).toBe(234);
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
-	expect(slowFps).toBe(59.999999999999986);
+	expect(slowFps).toBe(60);
 	expect(slowDurationInSeconds).toBe(5.119999999999999);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
@@ -223,9 +223,9 @@ test('Transport stream', async () => {
 	expect(slowNumberOfFrames).toBe(298);
 	expect(slowKeyframes).toEqual([
 		{
-			decodingTimeInSeconds: 10,
+			decodingTimeInSeconds: 0,
 			positionInBytes: 564,
-			presentationTimeInSeconds: 10.033333333333331,
+			presentationTimeInSeconds: 0.03333333333333333,
 			sizeInBytes: 23814,
 			trackId: 256,
 		},
