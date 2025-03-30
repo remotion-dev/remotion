@@ -7,6 +7,7 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingInfo} from './seeking-info';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {StructureState} from './state/structure';
+import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import type {MediaSectionState} from './state/video-section';
 import type {SeekResolution} from './work-on-seek-request';
 
@@ -43,6 +44,12 @@ export const getSeekingInfo = ({
 		});
 	}
 
+	if (structure.type === 'transport-stream') {
+		return {
+			type: 'transport-stream-seeking-info',
+		};
+	}
+
 	throw new Error(
 		`Seeking is not supported for this format: ${structure.type}`,
 	);
@@ -54,12 +61,14 @@ export const getSeekingByte = ({
 	logLevel,
 	currentPosition,
 	isoState,
+	transportStream,
 }: {
 	info: SeekingInfo;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
+	transportStream: TransportStreamState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -75,6 +84,14 @@ export const getSeekingByte = ({
 		return getSeekingByteFromWav({
 			info,
 			time,
+		});
+	}
+
+	if (info.type === 'transport-stream-seeking-info') {
+		transportStream.resetBeforeSeek();
+		return Promise.resolve({
+			type: 'do-seek',
+			byte: 0,
 		});
 	}
 
