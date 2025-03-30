@@ -13,10 +13,9 @@ export const transportStreamState = () => {
 		streamBuffers,
 		startOffset,
 		resetBeforeSeek: () => {
-			streamBuffers.clear();
+			state.streamBuffers.clear();
 			state.nextPesHeaderStore = makeNextPesHeaderStore();
 
-			console.log('resetBeforeSeek');
 			// start offset is useful, we can keep it
 		},
 		lastEmittedSample,

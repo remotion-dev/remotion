@@ -13,7 +13,6 @@ test('should seek transport stream', async () => {
 		src: exampleVideos.transportstream,
 		controller,
 		reader: nodeReader,
-		logLevel: 'verbose',
 		onVideoTrack: () => {
 			return (sample) => {
 				samples++;
@@ -22,7 +21,7 @@ test('should seek transport stream', async () => {
 						type: 'keyframe-before-time-in-seconds',
 						time: 10,
 					});
-					expect(sample.dts).toBe(304666.6666666666);
+					expect(sample.dts).toBe(316666.6666666666);
 				}
 
 				if (samples === 21) {

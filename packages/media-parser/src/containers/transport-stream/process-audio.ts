@@ -6,21 +6,14 @@ import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import type {TransportStreamEntry} from './parse-pmt';
+import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 import {processStreamBuffer} from './process-stream-buffers';
 
 export const canProcessAudio = ({
-	transportStreamEntry,
-	transportStream,
+	streamBuffer,
 }: {
-	transportStreamEntry: TransportStreamEntry;
-	transportStream: TransportStreamState;
+	streamBuffer: TransportStreamPacketBuffer;
 }) => {
-	const {streamBuffers} = transportStream;
-	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
-	if (!streamBuffer) {
-		throw new Error('Stream buffer not found');
-	}
-
 	const expectedLength =
 		readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
 
@@ -57,7 +50,7 @@ export const processAudio = async ({
 	transportStream: TransportStreamState;
 	offset: number;
 	makeSamplesStartAtZero: boolean;
-}): Promise<{done: boolean}> => {
+}): Promise<void> => {
 	const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 	if (!streamBuffer) {
@@ -98,6 +91,4 @@ export const processAudio = async ({
 		pesHeader: nextPesHeader.getNextPesHeader(),
 		offset,
 	});
-
-	return {done: false};
 };

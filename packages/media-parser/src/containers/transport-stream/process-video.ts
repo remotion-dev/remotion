@@ -8,7 +8,24 @@ import {findNthSubarrayIndex} from './find-separator';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 import {processStreamBuffer} from './process-stream-buffers';
 
-export const parseAvcStream = async ({
+export const canProcessVideo = ({
+	streamBuffer,
+}: {
+	streamBuffer: TransportStreamPacketBuffer;
+}) => {
+	const indexOfSeparator = findNthSubarrayIndex(
+		streamBuffer.buffer,
+		new Uint8Array([0, 0, 1, 9]),
+		2,
+	);
+	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
+		return false;
+	}
+
+	return true;
+};
+
+export const processVideo = async ({
 	programId,
 	structure,
 	streamBuffer,
@@ -30,14 +47,14 @@ export const parseAvcStream = async ({
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
-}): Promise<Uint8Array | null> => {
+}): Promise<Uint8Array> => {
 	const indexOfSeparator = findNthSubarrayIndex(
 		streamBuffer.buffer,
 		new Uint8Array([0, 0, 1, 9]),
 		2,
 	);
 	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
-		return null;
+		throw new Error('cannot process avc stream');
 	}
 
 	const packet = streamBuffer.buffer.slice(0, indexOfSeparator);
@@ -60,5 +77,6 @@ export const parseAvcStream = async ({
 		transportStream,
 		makeSamplesStartAtZero,
 	});
+
 	return rest;
 };

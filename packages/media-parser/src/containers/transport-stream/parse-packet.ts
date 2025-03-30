@@ -1,10 +1,6 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
-import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {TransportStreamBox} from './boxes';
 import {parsePat, parseSdt} from './parse-pat';
 import {parsePes} from './parse-pes';
@@ -12,27 +8,15 @@ import {parsePmt} from './parse-pmt';
 import {parseStream} from './parse-stream-packet';
 import {getProgramForId, getStreamForId} from './traversal';
 
-export const parsePacket = async ({
+export const parsePacket = ({
 	iterator,
 	structure,
 	transportStream,
-	callbacks,
-	logLevel,
-	onAudioTrack,
-	onVideoTrack,
-	workOnSeekRequestOptions,
-	makeSamplesStartAtZero,
 }: {
 	iterator: BufferIterator;
 	structure: TransportStreamStructure;
 	transportStream: TransportStreamState;
-	callbacks: SampleCallbacks;
-	logLevel: LogLevel;
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
-	makeSamplesStartAtZero: boolean;
-}): Promise<TransportStreamBox | null> => {
+}): TransportStreamBox | null => {
 	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
@@ -73,7 +57,7 @@ export const parsePacket = async ({
 
 	const read = iterator.counter.getOffset() - offset;
 	if (read === 188) {
-		return Promise.resolve(null);
+		return null;
 	}
 
 	const pat = structure.boxes.find(
@@ -90,11 +74,11 @@ export const parsePacket = async ({
 	}
 
 	if (programId === 0) {
-		return Promise.resolve(parsePat(iterator));
+		return parsePat(iterator);
 	}
 
 	if (programId === 17) {
-		return Promise.resolve(parseSdt(iterator));
+		return parseSdt(iterator);
 	}
 
 	// PID 17 is SDT
@@ -105,26 +89,19 @@ export const parsePacket = async ({
 
 	if (program) {
 		const pmt = parsePmt(iterator);
-		return Promise.resolve(pmt);
+		return pmt;
 	}
 
 	const transportStreamEntry = getStreamForId(structure, programId);
 	if (transportStreamEntry) {
-		await parseStream({
+		parseStream({
 			transportStreamEntry,
-			structure,
 			iterator,
 			transportStream,
-			callbacks,
-			logLevel,
-			onAudioTrack,
-			onVideoTrack,
-			workOnSeekRequestOptions,
 			programId,
-			makeSamplesStartAtZero,
 		});
 
-		return Promise.resolve(null);
+		return null;
 	}
 
 	throw new Error('Unknown packet identifier');
