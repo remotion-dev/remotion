@@ -3,7 +3,6 @@ import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import {findNthSubarrayIndex} from './find-separator';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 import {
 	makeTransportStreamPacketBuffer,
@@ -15,11 +14,8 @@ export const canProcessVideo = ({
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 }) => {
-	const indexOfSeparator = findNthSubarrayIndex(
-		streamBuffer.getBuffer(),
-		new Uint8Array([0, 0, 1, 9]),
-		2,
-	);
+	const indexOfSeparator = streamBuffer.get2ndSubArrayIndex();
+
 	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
 		return false;
 	}
@@ -48,11 +44,8 @@ export const processVideo = async ({
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }): Promise<Uint8Array> => {
-	const indexOfSeparator = findNthSubarrayIndex(
-		streamBuffer.getBuffer(),
-		new Uint8Array([0, 0, 1, 9]),
-		2,
-	);
+	const indexOfSeparator = streamBuffer.get2ndSubArrayIndex();
+
 	if (indexOfSeparator === -1 || indexOfSeparator === 0) {
 		throw new Error('cannot process avc stream');
 	}
@@ -77,6 +70,5 @@ export const processVideo = async ({
 		transportStream,
 		makeSamplesStartAtZero,
 	});
-
 	return rest;
 };

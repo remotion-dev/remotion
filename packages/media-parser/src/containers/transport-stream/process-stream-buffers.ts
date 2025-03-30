@@ -4,6 +4,8 @@ import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {FindNthSubarrayIndexNotFound} from './find-separator';
+import {findNthSubarrayIndex} from './find-separator';
 import {filterStreamsBySupportedTypes} from './get-tracks';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
@@ -15,6 +17,7 @@ export type TransportStreamPacketBuffer = {
 	offset: number;
 	getBuffer: () => Uint8Array;
 	addBuffer: (buffer: Uint8Array) => void;
+	get2ndSubArrayIndex: () => number;
 };
 
 export const makeTransportStreamPacketBuffer = ({
@@ -27,23 +30,50 @@ export const makeTransportStreamPacketBuffer = ({
 	offset: number;
 }): TransportStreamPacketBuffer => {
 	let currentBuf = buffers ? [buffers] : [];
+	let subarrayIndex: number | null = null;
+
+	const getBuffer = () => {
+		if (currentBuf.length === 0) {
+			return new Uint8Array();
+		}
+
+		if (currentBuf.length === 1) {
+			return currentBuf[0];
+		}
+
+		currentBuf = [combineUint8Arrays(currentBuf)];
+		return currentBuf[0];
+	};
+
+	let fastFind: FindNthSubarrayIndexNotFound | null = null;
+
 	return {
 		pesHeader,
 		offset,
-		getBuffer: () => {
-			if (currentBuf.length === 0) {
-				return new Uint8Array();
-			}
-
-			if (currentBuf.length === 1) {
-				return currentBuf[0];
-			}
-
-			currentBuf = [combineUint8Arrays(currentBuf)];
-			return currentBuf[0];
-		},
+		getBuffer,
 		addBuffer: (buffer: Uint8Array) => {
 			currentBuf.push(buffer);
+			subarrayIndex = null;
+		},
+		get2ndSubArrayIndex: () => {
+			if (subarrayIndex === null) {
+				const result = findNthSubarrayIndex({
+					array: getBuffer(),
+					subarray: new Uint8Array([0, 0, 1, 9]),
+					n: 2,
+					startIndex: fastFind?.index ?? 0,
+					startCount: fastFind?.count ?? 0,
+				});
+				if (result.type === 'found') {
+					subarrayIndex = result.index;
+					fastFind = null;
+				} else {
+					fastFind = result;
+					return -1;
+				}
+			}
+
+			return subarrayIndex;
 		},
 	};
 };

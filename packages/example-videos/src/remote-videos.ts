@@ -10,6 +10,8 @@ export const remoteExampleVideos = {
 		'https://remotion-video-submissions.s3.ap-northeast-1.amazonaws.com/6048e3e4-ffbb-43a5-b6b5-75643365646a',
 	webmNoCodecPrivate:
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/webm-no-codecprivate.webm',
+	tsKeyframes:
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/ts-keyframes.ts',
 };
 
 const rootDir = path.join(__dirname, '..');
