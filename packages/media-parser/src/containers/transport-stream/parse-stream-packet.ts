@@ -1,8 +1,8 @@
-import {combineUint8Arrays} from '../../combine-uint8-arrays';
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import type {TransportStreamEntry} from './parse-pmt';
+import {makeTransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const parseStream = ({
 	transportStreamEntry,
@@ -21,13 +21,16 @@ export const parseStream = ({
 	const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 
 	if (!streamBuffers.has(transportStreamEntry.pid)) {
-		streamBuffers.set(programId, {
-			pesHeader: nextPesHeader.getNextPesHeader(),
-			buffer: new Uint8Array([]),
-			offset,
-		});
+		streamBuffers.set(
+			programId,
+			makeTransportStreamPacketBuffer({
+				pesHeader: nextPesHeader.getNextPesHeader(),
+				buffers: null,
+				offset,
+			}),
+		);
 	}
 
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid)!;
-	streamBuffer.buffer = combineUint8Arrays([streamBuffer.buffer, restOfPacket]);
+	streamBuffer.addBuffer(restOfPacket);
 };

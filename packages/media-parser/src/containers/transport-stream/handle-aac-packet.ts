@@ -33,7 +33,7 @@ export const handleAacPacket = async ({
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {
-	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
+	const adtsHeader = readAdtsHeader(streamBuffer.getBuffer());
 	if (!adtsHeader) {
 		throw new Error('Invalid ADTS header - too short');
 	}
@@ -88,7 +88,7 @@ export const handleAacPacket = async ({
 			streamBuffer.pesHeader.pts -
 			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
-		data: new Uint8Array(streamBuffer.buffer),
+		data: streamBuffer.getBuffer(),
 		trackId: programId,
 		type: 'key',
 		offset,

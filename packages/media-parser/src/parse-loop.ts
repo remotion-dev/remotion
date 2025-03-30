@@ -76,12 +76,10 @@ export const parseLoop = async ({
 			try {
 				await triggerInfoEmit(state);
 
-				const start = Date.now();
 				await state.controller._internals.checkForAbortAndPause();
 				const skip = await runParseIteration({
 					state,
 				});
-				state.timings.timeIterating += Date.now() - start;
 
 				if (skip !== null) {
 					state.increaseSkippedBytes(

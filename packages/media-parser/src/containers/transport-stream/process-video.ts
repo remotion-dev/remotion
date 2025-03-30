@@ -5,7 +5,10 @@ import type {TransportStreamState} from '../../state/transport-stream/transport-
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import {findNthSubarrayIndex} from './find-separator';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
-import {processStreamBuffer} from './process-stream-buffers';
+import {
+	makeTransportStreamPacketBuffer,
+	processStreamBuffer,
+} from './process-stream-buffers';
 
 export const canProcessVideo = ({
 	streamBuffer,
@@ -13,7 +16,7 @@ export const canProcessVideo = ({
 	streamBuffer: TransportStreamPacketBuffer;
 }) => {
 	const indexOfSeparator = findNthSubarrayIndex(
-		streamBuffer.buffer,
+		streamBuffer.getBuffer(),
 		new Uint8Array([0, 0, 1, 9]),
 		2,
 	);
@@ -46,7 +49,7 @@ export const processVideo = async ({
 	makeSamplesStartAtZero: boolean;
 }): Promise<Uint8Array> => {
 	const indexOfSeparator = findNthSubarrayIndex(
-		streamBuffer.buffer,
+		streamBuffer.getBuffer(),
 		new Uint8Array([0, 0, 1, 9]),
 		2,
 	);
@@ -54,16 +57,17 @@ export const processVideo = async ({
 		throw new Error('cannot process avc stream');
 	}
 
-	const packet = streamBuffer.buffer.slice(0, indexOfSeparator);
-	const rest = streamBuffer.buffer.slice(indexOfSeparator);
+	const buf = streamBuffer.getBuffer();
+	const packet = buf.slice(0, indexOfSeparator);
+	const rest = buf.slice(indexOfSeparator);
 
 	await processStreamBuffer({
-		streamBuffer: {
+		streamBuffer: makeTransportStreamPacketBuffer({
 			offset: streamBuffer.offset,
 			pesHeader: streamBuffer.pesHeader,
 			// Replace the regular 0x00000001 with 0x00000002 to avoid confusion with other 0x00000001 (?)
-			buffer: packet,
-		},
+			buffers: packet,
+		}),
 		programId,
 		structure,
 		sampleCallbacks,

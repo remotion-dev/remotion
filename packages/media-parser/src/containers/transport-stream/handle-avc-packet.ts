@@ -42,7 +42,7 @@ export const handleAvcPacket = async ({
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {
-	const avc = parseAvc(streamBuffer.buffer);
+	const avc = parseAvc(streamBuffer.getBuffer());
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
@@ -108,7 +108,7 @@ export const handleAvcPacket = async ({
 			streamBuffer.pesHeader.pts -
 			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
-		data: new Uint8Array(streamBuffer.buffer),
+		data: streamBuffer.getBuffer(),
 		trackId: programId,
 		type: getKeyFrameOrDeltaFromAvcInfo(avc),
 		offset,

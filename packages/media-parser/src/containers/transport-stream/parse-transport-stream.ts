@@ -10,6 +10,7 @@ export const parseTransportStream = async (
 	const structure = state.structure.getTsStructure();
 
 	const processed = await processSampleIfPossible(state);
+
 	if (processed) {
 		return Promise.resolve(null);
 	}

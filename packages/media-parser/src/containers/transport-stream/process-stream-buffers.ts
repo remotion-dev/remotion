@@ -1,3 +1,4 @@
+import {combineUint8Arrays} from '../../combine-uint8-arrays';
 import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
@@ -10,9 +11,41 @@ import type {PacketPes} from './parse-pes';
 import {findProgramMapTableOrThrow, getStreamForId} from './traversal';
 
 export type TransportStreamPacketBuffer = {
-	buffer: Uint8Array;
 	pesHeader: PacketPes;
 	offset: number;
+	getBuffer: () => Uint8Array;
+	addBuffer: (buffer: Uint8Array) => void;
+};
+
+export const makeTransportStreamPacketBuffer = ({
+	buffers,
+	pesHeader,
+	offset,
+}: {
+	buffers: Uint8Array | null;
+	pesHeader: PacketPes;
+	offset: number;
+}): TransportStreamPacketBuffer => {
+	let currentBuf = buffers ? [buffers] : [];
+	return {
+		pesHeader,
+		offset,
+		getBuffer: () => {
+			if (currentBuf.length === 0) {
+				return new Uint8Array();
+			}
+
+			if (currentBuf.length === 1) {
+				return currentBuf[0];
+			}
+
+			currentBuf = [combineUint8Arrays(currentBuf)];
+			return currentBuf[0];
+		},
+		addBuffer: (buffer: Uint8Array) => {
+			currentBuf.push(buffer);
+		},
+	};
 };
 
 export type StreamBufferMap = Map<number, TransportStreamPacketBuffer>;
@@ -102,7 +135,7 @@ export const processFinalStreamBuffers = async ({
 	makeSamplesStartAtZero: boolean;
 }) => {
 	for (const [programId, buffer] of transportStream.streamBuffers) {
-		if (buffer.buffer.byteLength > 0) {
+		if (buffer.getBuffer().byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
 				programId,

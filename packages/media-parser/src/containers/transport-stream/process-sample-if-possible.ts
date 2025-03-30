@@ -1,5 +1,6 @@
 import type {ParserState} from '../../state/parser-state';
 import {canProcessAudio, processAudio} from './process-audio';
+import {makeTransportStreamPacketBuffer} from './process-stream-buffers';
 import {canProcessVideo, processVideo} from './process-video';
 import {findProgramMapOrNull} from './traversal';
 
@@ -32,12 +33,15 @@ export const processSampleIfPossible = async (state: ParserState) => {
 				});
 				state.transportStream.streamBuffers.delete(stream.pid);
 
-				state.transportStream.streamBuffers.set(stream.pid, {
-					pesHeader:
-						state.transportStream.nextPesHeaderStore.getNextPesHeader(),
-					buffer: rest,
-					offset: state.iterator.counter.getOffset(),
-				});
+				state.transportStream.streamBuffers.set(
+					stream.pid,
+					makeTransportStreamPacketBuffer({
+						pesHeader:
+							state.transportStream.nextPesHeaderStore.getNextPesHeader(),
+						buffers: rest,
+						offset: state.iterator.counter.getOffset(),
+					}),
+				);
 				processed = true;
 				break;
 			}

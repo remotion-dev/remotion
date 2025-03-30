@@ -6,7 +6,10 @@ import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
 import type {TransportStreamEntry} from './parse-pmt';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
-import {processStreamBuffer} from './process-stream-buffers';
+import {
+	makeTransportStreamPacketBuffer,
+	processStreamBuffer,
+} from './process-stream-buffers';
 
 export const canProcessAudio = ({
 	streamBuffer,
@@ -14,13 +17,13 @@ export const canProcessAudio = ({
 	streamBuffer: TransportStreamPacketBuffer;
 }) => {
 	const expectedLength =
-		readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
+		readAdtsHeader(streamBuffer.getBuffer())?.frameLength ?? null;
 
 	if (expectedLength === null) {
 		return false;
 	}
 
-	if (expectedLength > streamBuffer.buffer.length) {
+	if (expectedLength > streamBuffer.getBuffer().length) {
 		return false;
 	}
 
@@ -55,22 +58,22 @@ export const processAudio = async ({
 	}
 
 	const expectedLength =
-		readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
+		readAdtsHeader(streamBuffer.getBuffer())?.frameLength ?? null;
 
 	if (expectedLength === null) {
 		throw new Error('Expected length is null');
 	}
 
-	if (expectedLength > streamBuffer.buffer.length) {
+	if (expectedLength > streamBuffer.getBuffer().length) {
 		throw new Error('Expected length is greater than stream buffer length');
 	}
 
 	await processStreamBuffer({
-		streamBuffer: {
-			buffer: streamBuffer.buffer.slice(0, expectedLength),
+		streamBuffer: makeTransportStreamPacketBuffer({
+			buffers: streamBuffer.getBuffer().slice(0, expectedLength),
 			offset,
 			pesHeader: streamBuffer.pesHeader,
-		},
+		}),
 		programId: transportStreamEntry.pid,
 		structure,
 		sampleCallbacks,
@@ -81,10 +84,13 @@ export const processAudio = async ({
 		makeSamplesStartAtZero,
 	});
 
-	const rest = streamBuffer.buffer.slice(expectedLength);
-	streamBuffers.set(transportStreamEntry.pid, {
-		buffer: rest,
-		pesHeader: nextPesHeader.getNextPesHeader(),
-		offset,
-	});
+	const rest = streamBuffer.getBuffer().slice(expectedLength);
+	streamBuffers.set(
+		transportStreamEntry.pid,
+		makeTransportStreamPacketBuffer({
+			buffers: rest,
+			pesHeader: nextPesHeader.getNextPesHeader(),
+			offset,
+		}),
+	);
 };
