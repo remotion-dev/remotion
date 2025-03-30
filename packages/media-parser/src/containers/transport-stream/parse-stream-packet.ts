@@ -1,11 +1,11 @@
 import {combineUint8Arrays} from '../../combine-uint8-arrays';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserState} from '../../state/parser-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import {findNthSubarrayIndex} from './find-separator';
@@ -15,17 +15,26 @@ import {processStreamBuffer} from './process-stream-buffers';
 
 const parseAdtsStream = async ({
 	transportStreamEntry,
-	state,
 	structure,
 	offset,
+	workOnSeekRequestOptions,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
+	transportStream,
 }: {
 	transportStreamEntry: TransportStreamEntry;
 	structure: TransportStreamStructure;
-	state: ParserState;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
 	offset: number;
 }) => {
-	const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
-		state.transportStream;
+	const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 
 	while (true) {
 		const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
@@ -52,11 +61,11 @@ const parseAdtsStream = async ({
 			},
 			programId: transportStreamEntry.pid,
 			structure,
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			sampleCallbacks: state.callbacks,
-			logLevel: state.logLevel,
-			onAudioTrack: state.onAudioTrack,
-			onVideoTrack: state.onVideoTrack,
+			workOnSeekRequestOptions,
+			sampleCallbacks,
+			logLevel,
+			onAudioTrack,
+			onVideoTrack,
 		});
 
 		const rest = streamBuffer.buffer.slice(expectedLength);
@@ -119,22 +128,32 @@ const parseAvcStream = async ({
 
 export const parseStream = async ({
 	transportStreamEntry,
-	state,
 	programId,
 	structure,
+	iterator,
+	transportStream,
+	callbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
+	workOnSeekRequestOptions,
 }: {
 	transportStreamEntry: TransportStreamEntry;
-	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
+	iterator: BufferIterator;
+	transportStream: TransportStreamState;
+	callbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 }): Promise<void> => {
-	const {iterator} = state;
 	let restOfPacket = getRestOfPacket(iterator);
 	const offset = iterator.counter.getOffset();
 
 	if (transportStreamEntry.streamType === 27) {
-		const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
-			state.transportStream;
+		const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 
 		while (true) {
 			if (!streamBuffers.has(transportStreamEntry.pid)) {
@@ -155,11 +174,11 @@ export const parseStream = async ({
 				programId,
 				structure,
 				streamBuffer: streamBuffers.get(transportStreamEntry.pid)!,
-				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-				sampleCallbacks: state.callbacks,
-				logLevel: state.logLevel,
-				onAudioTrack: state.onAudioTrack,
-				onVideoTrack: state.onVideoTrack,
+				workOnSeekRequestOptions,
+				sampleCallbacks: callbacks,
+				logLevel,
+				onAudioTrack,
+				onVideoTrack,
 			});
 
 			if (rest !== null) {
@@ -178,8 +197,7 @@ export const parseStream = async ({
 	}
 
 	if (transportStreamEntry.streamType === 15) {
-		const {streamBuffers, nextPesHeaderStore: nextPesHeader} =
-			state.transportStream;
+		const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 		const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
 		if (!streamBuffer) {
 			streamBuffers.set(transportStreamEntry.pid, {
@@ -196,9 +214,14 @@ export const parseStream = async ({
 
 		return parseAdtsStream({
 			transportStreamEntry,
-			state,
 			structure,
 			offset,
+			workOnSeekRequestOptions,
+			sampleCallbacks: callbacks,
+			logLevel,
+			onAudioTrack,
+			onVideoTrack,
+			transportStream,
 		});
 	}
 

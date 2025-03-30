@@ -16,7 +16,14 @@ export const parseTransportStream = async (
 	}
 
 	const packet = await parsePacket({
-		parserState: state,
+		iterator,
+		structure,
+		transportStream: state.transportStream,
+		callbacks: state.callbacks,
+		logLevel: state.logLevel,
+		onAudioTrack: state.onAudioTrack,
+		onVideoTrack: state.onVideoTrack,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 	});
 
 	if (packet) {

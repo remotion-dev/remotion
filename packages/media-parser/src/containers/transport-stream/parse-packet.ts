@@ -1,4 +1,10 @@
-import type {ParserState} from '../../state/parser-state';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {LogLevel} from '../../log';
+import type {TransportStreamStructure} from '../../parse-result';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {TransportStreamBox} from './boxes';
 import {parsePat, parseSdt} from './parse-pat';
 import {parsePes} from './parse-pes';
@@ -7,11 +13,24 @@ import {parseStream} from './parse-stream-packet';
 import {getProgramForId, getStreamForId} from './traversal';
 
 export const parsePacket = async ({
-	parserState,
+	iterator,
+	structure,
+	transportStream,
+	callbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
+	workOnSeekRequestOptions,
 }: {
-	parserState: ParserState;
+	iterator: BufferIterator;
+	structure: TransportStreamStructure;
+	transportStream: TransportStreamState;
+	callbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 }): Promise<TransportStreamBox | null> => {
-	const {iterator} = parserState;
 	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
@@ -55,8 +74,6 @@ export const parsePacket = async ({
 		return Promise.resolve(null);
 	}
 
-	const structure = parserState.structure.getTsStructure();
-
 	const pat = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',
 	);
@@ -65,7 +82,7 @@ export const parsePacket = async ({
 
 	if (isPes) {
 		const packetPes = parsePes(iterator);
-		parserState.transportStream.nextPesHeaderStore.setNextPesHeader(packetPes);
+		transportStream.nextPesHeaderStore.setNextPesHeader(packetPes);
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField
 	}
@@ -92,9 +109,15 @@ export const parsePacket = async ({
 	if (stream) {
 		await parseStream({
 			transportStreamEntry: stream,
-			state: parserState,
-			programId,
 			structure,
+			iterator,
+			transportStream,
+			callbacks,
+			logLevel,
+			onAudioTrack,
+			onVideoTrack,
+			workOnSeekRequestOptions,
+			programId,
 		});
 		return Promise.resolve(null);
 	}
