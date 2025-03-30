@@ -29,7 +29,7 @@ export const expectRiffBox = async (
 
 	if (isMoviAtom(iterator, ckId)) {
 		iterator.discard(4);
-		state.videoSection.addVideoSection({
+		state.mediaSection.addMediaSection({
 			start: iterator.counter.getOffset(),
 			size: ckSize - 4,
 		});

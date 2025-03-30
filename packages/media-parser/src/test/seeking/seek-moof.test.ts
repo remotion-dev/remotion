@@ -33,7 +33,7 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 						throw new Error('should not reach here');
 					}
 
-					if (sample.cts === 19533333.333333332) {
+					if (sample.cts === 19533333.333333336) {
 						expect(sample.type).toBe('key');
 
 						controller._experimentalSeek({
@@ -57,6 +57,10 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 		});
 		throw new Error('should not reach here');
 	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+
 		expect(hasBeenAborted(err)).toBe(true);
 		expect(
 			controller._internals.performedSeeksSignal.getPerformedSeeks(),

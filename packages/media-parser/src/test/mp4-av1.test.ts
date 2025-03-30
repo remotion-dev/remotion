@@ -36,7 +36,7 @@ test('mp4-av1', async () => {
 
 	expect(samples).toBe(1185);
 
-	expect(slowFps).toBe(60.000000000000014);
+	expect(slowFps).toBe(60);
 	expect(slowNumberOfFrames).toBe(1185);
 	expect(videoCodec).toBe('av1');
 	expect(audioCodec).toBe(null);

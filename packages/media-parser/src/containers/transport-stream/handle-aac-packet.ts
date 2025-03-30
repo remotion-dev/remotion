@@ -72,10 +72,10 @@ export const handleAacPacket = async ({
 
 	await emitAudioSample({
 		trackId: programId,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
+		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
 			sample,
-			MPEG_TIMESCALE,
-		),
+			timescale: MPEG_TIMESCALE,
+		}),
 		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		callbacks: state.callbacks,
 	});

@@ -1,5 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import {WAVE_SAMPLES_PER_SECOND} from '../containers/wav/get-seeking-byte';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
@@ -179,14 +180,16 @@ test('should get all samples', async () => {
 		},
 		onAudioTrack: () => {
 			return (sample) => {
-				expect(sample.dts % 1_000_000).toBe(0);
-				expect(sample.cts % 1_000_000).toBe(0);
-				expect(sample.timestamp % 1_000_000).toBe(0);
+				expect(sample.dts % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(0);
+				expect(sample.cts % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(0);
+				expect(sample.timestamp % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(
+					0,
+				);
 				samples++;
 			};
 		},
 	});
-	expect(samples).toBe(30);
+	expect(samples).toBe(750);
 	expect(internalStats).toEqual({
 		skippedBytes: 0,
 		finalCursorOffset: 2646150,

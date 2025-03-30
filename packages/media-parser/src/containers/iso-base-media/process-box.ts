@@ -5,7 +5,7 @@ import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {TracksState} from '../../state/has-tracks-section';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
-import type {VideoSectionState} from '../../state/video-section';
+import type {MediaSectionState} from '../../state/video-section';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {BoxAndNext} from './base-media-box';
@@ -50,7 +50,7 @@ export type OnlyIfMoovAtomExpected = {
 };
 
 export type OnlyIfMdatAtomExpected = {
-	videoSectionState: VideoSectionState;
+	mediaSectionState: MediaSectionState;
 };
 
 export const processBox = async ({
@@ -99,8 +99,8 @@ export const processBox = async ({
 			throw new Error('State is required');
 		}
 
-		const {videoSectionState} = onlyIfMdatAtomExpected;
-		videoSectionState.addVideoSection({
+		const {mediaSectionState} = onlyIfMdatAtomExpected;
+		mediaSectionState.addMediaSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});

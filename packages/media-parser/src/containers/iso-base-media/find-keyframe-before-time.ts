@@ -1,19 +1,19 @@
 import type {SamplePosition} from '../../get-sample-positions';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {VideoSection} from '../../state/video-section';
+import type {MediaSection} from '../../state/video-section';
 
 export const findKeyframeBeforeTime = ({
 	samplePositions,
 	time,
 	timescale,
-	videoSections,
+	mediaSections,
 	logLevel,
 }: {
 	samplePositions: SamplePosition[];
 	time: number;
 	timescale: number;
-	videoSections: VideoSection[];
+	mediaSections: MediaSection[];
 	logLevel: LogLevel;
 }) => {
 	let byte = 0;
@@ -37,12 +37,12 @@ export const findKeyframeBeforeTime = ({
 		throw new Error('No sample found');
 	}
 
-	const videoSection = videoSections.find(
+	const mediaSection = mediaSections.find(
 		(section) =>
 			sam.offset >= section.start && sam.offset < section.start + section.size,
 	);
 
-	if (!videoSection) {
+	if (!mediaSection) {
 		Log.trace(
 			logLevel,
 			'Found a sample, but the offset has not yet been marked as a video section yet. Not yet able to seek, but probably once we have started reading the next box.',

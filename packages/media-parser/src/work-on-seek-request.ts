@@ -14,11 +14,11 @@ import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
-import {type VideoSectionState} from './state/video-section';
+import {type MediaSectionState} from './state/video-section';
 
 const turnSeekIntoByte = async ({
 	seek,
-	videoSectionState,
+	mediaSectionState,
 	logLevel,
 	iterator,
 	structureState,
@@ -26,15 +26,15 @@ const turnSeekIntoByte = async ({
 	isoState,
 }: {
 	seek: Seek;
-	videoSectionState: VideoSectionState;
+	mediaSectionState: MediaSectionState;
 	logLevel: LogLevel;
 	iterator: BufferIterator;
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	isoState: IsoBaseMediaState;
 }): Promise<SeekResolution> => {
-	const videoSections = videoSectionState.getVideoSections();
-	if (videoSections.length === 0) {
+	const mediaSections = mediaSectionState.getMediaSections();
+	if (mediaSections.length === 0) {
 		Log.trace(logLevel, 'No video sections defined, cannot seek yet');
 		return {
 			type: 'valid-but-must-wait',
@@ -45,7 +45,7 @@ const turnSeekIntoByte = async ({
 		const seekingInfo = getSeekingInfo({
 			structureState,
 			mp4HeaderSegment,
-			videoSectionState,
+			mediaSectionState,
 			isoState,
 		});
 		if (!seekingInfo) {
@@ -87,7 +87,7 @@ export type WorkOnSeekRequestOptions = {
 	src: ParseMediaSrc;
 	contentLength: number;
 	readerInterface: ReaderInterface;
-	videoSection: VideoSectionState;
+	mediaSection: MediaSectionState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	mode: ParseMediaMode;
 	seekInfiniteLoop: SeekInfiniteLoop;
@@ -108,7 +108,7 @@ export const getWorkOnSeekRequestOptions = (
 		src: state.src,
 		contentLength: state.contentLength,
 		readerInterface: state.readerInterface,
-		videoSection: state.videoSection,
+		mediaSection: state.mediaSection,
 		mp4HeaderSegment: state.mp4HeaderSegment,
 		mode: state.mode,
 		seekInfiniteLoop: state.seekInfiniteLoop,
@@ -122,7 +122,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 	const {
 		logLevel,
 		controller,
-		videoSection,
+		mediaSection,
 		mp4HeaderSegment,
 		isoState,
 		iterator,
@@ -144,7 +144,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 	Log.trace(logLevel, `Has seek request: ${JSON.stringify(seek)}`);
 	const resolution = await turnSeekIntoByte({
 		seek,
-		videoSectionState: videoSection,
+		mediaSectionState: mediaSection,
 		logLevel,
 		iterator,
 		structureState,
@@ -158,7 +158,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			seekTo: resolution.byte,
 			userInitiated: false,
 			controller,
-			videoSection,
+			mediaSection,
 			iterator,
 			logLevel,
 			mode,
@@ -178,7 +178,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			seekTo: resolution.byte,
 			userInitiated: true,
 			controller,
-			videoSection,
+			mediaSection,
 			iterator,
 			logLevel,
 			mode,

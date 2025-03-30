@@ -9,14 +9,14 @@ import {seekBackwards} from './seek-backwards';
 import {seekForward} from './seek-forwards';
 import type {CurrentReader} from './state/current-reader';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
-import type {VideoSectionState} from './state/video-section';
-import {isByteInVideoSection} from './state/video-section';
+import type {MediaSectionState} from './state/video-section';
+import {isByteInMediaSection} from './state/video-section';
 
 export const performSeek = async ({
 	seekTo,
 	userInitiated,
 	controller,
-	videoSection,
+	mediaSection,
 	iterator,
 	seekInfiniteLoop,
 	logLevel,
@@ -31,7 +31,7 @@ export const performSeek = async ({
 	seekTo: number;
 	userInitiated: boolean;
 	controller: MediaParserController;
-	videoSection: VideoSectionState;
+	mediaSection: MediaSectionState;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	mode: ParseMediaMode;
@@ -43,12 +43,12 @@ export const performSeek = async ({
 	src: ParseMediaSrc;
 	discardReadBytes: (force: boolean) => Promise<void>;
 }): Promise<void> => {
-	const byteInVideoSection = isByteInVideoSection({
+	const byteInMediaSection = isByteInMediaSection({
 		position: seekTo,
-		videoSections: videoSection.getVideoSections(),
+		mediaSections: mediaSection.getMediaSections(),
 	});
-	if (byteInVideoSection !== 'in-section' && userInitiated) {
-		const sections = videoSection.getVideoSections();
+	if (byteInMediaSection !== 'in-section' && userInitiated) {
+		const sections = mediaSection.getMediaSections();
 		const sectionStrings = sections.map((section) => {
 			return `start: ${section.start}, end: ${section.size + section.start}`;
 		});

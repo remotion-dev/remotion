@@ -100,7 +100,7 @@ export const parseLoop = async ({
 						seekTo: skip.skipTo,
 						userInitiated: false,
 						controller: state.controller,
-						videoSection: state.videoSection,
+						mediaSection: state.mediaSection,
 						iterator: state.iterator,
 						logLevel: state.logLevel,
 						mode: state.mode,
