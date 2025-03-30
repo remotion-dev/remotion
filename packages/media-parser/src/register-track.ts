@@ -7,17 +7,11 @@ import type {TracksState} from './state/has-tracks-section';
 import type {ParserState} from './state/parser-state';
 import type {SampleCallbacks} from './state/sample-callbacks';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from './work-on-seek-request';
-import {
-	getWorkOnSeekRequestOptions,
-	workOnSeekRequest,
-} from './work-on-seek-request';
 
 export const registerVideoTrack = async ({
 	track,
 	container,
 	logLevel,
-	workOnSeekRequestOptions,
 	onVideoTrack,
 	registerVideoSampleCallback,
 	tracks,
@@ -25,7 +19,6 @@ export const registerVideoTrack = async ({
 	track: Track;
 	container: MediaParserContainer;
 	logLevel: LogLevel;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions | null;
 	onVideoTrack: OnVideoTrack | null;
 	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
 	tracks: TracksState;
@@ -52,15 +45,10 @@ export const registerVideoTrack = async ({
 
 	await registerVideoSampleCallback(track.trackId, callback ?? null);
 
-	if (workOnSeekRequestOptions) {
-		await workOnSeekRequest(workOnSeekRequestOptions);
-	}
-
 	return callback;
 };
 
 export const registerAudioTrack = async ({
-	workOnSeekRequestOptions,
 	track,
 	container,
 	tracks,
@@ -68,7 +56,6 @@ export const registerAudioTrack = async ({
 	onAudioTrack,
 	registerAudioSampleCallback,
 }: {
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions | null;
 	track: AudioTrack;
 	container: MediaParserContainer;
 	tracks: TracksState;
@@ -95,9 +82,6 @@ export const registerAudioTrack = async ({
 		container,
 	});
 	await registerAudioSampleCallback(track.trackId, callback ?? null);
-	if (workOnSeekRequestOptions) {
-		await workOnSeekRequest(workOnSeekRequestOptions);
-	}
 
 	return callback;
 };
@@ -113,7 +97,6 @@ export const registerVideoTrackWhenProfileIsAvailable = ({
 }) => {
 	state.riff.registerOnAvcProfileCallback(async (profile) => {
 		await registerVideoTrack({
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			track: addAvcProfileToTrack(track, profile),
 			container,
 			logLevel: state.logLevel,

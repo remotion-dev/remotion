@@ -3,7 +3,6 @@ import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import type {TransportStreamEntry} from './parse-pmt';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
@@ -32,7 +31,6 @@ export const processAudio = async ({
 	transportStreamEntry,
 	structure,
 	offset,
-	workOnSeekRequestOptions,
 	sampleCallbacks,
 	logLevel,
 	onAudioTrack,
@@ -42,7 +40,6 @@ export const processAudio = async ({
 }: {
 	transportStreamEntry: TransportStreamEntry;
 	structure: TransportStreamStructure;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
@@ -76,7 +73,6 @@ export const processAudio = async ({
 		},
 		programId: transportStreamEntry.pid,
 		structure,
-		workOnSeekRequestOptions,
 		sampleCallbacks,
 		logLevel,
 		onAudioTrack,

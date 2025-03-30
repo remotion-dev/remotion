@@ -8,7 +8,6 @@ import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
-import {getWorkOnSeekRequestOptions} from '../../../work-on-seek-request';
 import {getMoovAtom} from '../get-moov-atom';
 
 export const parseMdatSection = async (
@@ -104,7 +103,6 @@ export const parseMdatSection = async (
 				},
 				timescale: samplesWithIndex.track.timescale,
 			}),
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 		});
 	}
@@ -139,7 +137,6 @@ export const parseMdatSection = async (
 				},
 				timescale: samplesWithIndex.track.timescale,
 			}),
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 		});
 	}

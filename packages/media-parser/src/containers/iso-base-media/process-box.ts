@@ -7,7 +7,6 @@ import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {MediaSectionState} from '../../state/video-section';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {BoxAndNext} from './base-media-box';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
@@ -42,7 +41,6 @@ import {parseTrun} from './trun';
 export type OnlyIfMoovAtomExpected = {
 	tracks: TracksState;
 	isoState: IsoBaseMediaState | null;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions | null;
 	onVideoTrack: OnVideoTrack | null;
 	onAudioTrack: OnAudioTrack | null;
 	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
@@ -266,8 +264,7 @@ export const processBox = async ({
 			throw new Error('State is required');
 		}
 
-		const {workOnSeekRequestOptions, tracks, onAudioTrack, onVideoTrack} =
-			onlyIfMoovAtomExpected;
+		const {tracks, onAudioTrack, onVideoTrack} = onlyIfMoovAtomExpected;
 
 		const box = await parseTrak({
 			size: boxSize,
@@ -278,7 +275,6 @@ export const processBox = async ({
 		const transformedTrack = makeBaseMediaTrack(box);
 		if (transformedTrack && transformedTrack.type === 'video') {
 			await registerVideoTrack({
-				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
 				logLevel,
@@ -291,7 +287,6 @@ export const processBox = async ({
 
 		if (transformedTrack && transformedTrack.type === 'audio') {
 			await registerAudioTrack({
-				workOnSeekRequestOptions,
 				track: transformedTrack,
 				container: 'mp4',
 				registerAudioSampleCallback:

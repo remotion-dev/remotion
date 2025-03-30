@@ -7,7 +7,6 @@ import {makeTracksSectionState} from '../../state/has-tracks-section';
 import type {ParserState} from '../../state/parser-state';
 import {structureState} from '../../state/structure';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
@@ -41,7 +40,6 @@ export const getMoovAtom = async ({
 	const onAudioTrack: OnAudioTrack | null = state.onAudioTrack
 		? async ({track, container}) => {
 				await registerAudioTrack({
-					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 					track,
 					container,
 					logLevel: state.logLevel,
@@ -57,7 +55,6 @@ export const getMoovAtom = async ({
 	const onVideoTrack: OnVideoTrack | null = state.onVideoTrack
 		? async ({track, container}) => {
 				await registerVideoTrack({
-					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 					track,
 					container,
 					logLevel: state.logLevel,
@@ -104,7 +101,6 @@ export const getMoovAtom = async ({
 			onlyIfMoovAtomExpected: {
 				tracks: tracksState,
 				isoState: null,
-				workOnSeekRequestOptions: null,
 				onAudioTrack,
 				onVideoTrack,
 				registerVideoSampleCallback: () => Promise.resolve(),

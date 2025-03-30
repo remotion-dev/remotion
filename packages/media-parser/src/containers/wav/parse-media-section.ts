@@ -2,7 +2,6 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {WAVE_SAMPLES_PER_SECOND} from './get-seeking-byte';
 import type {WavFmt} from './types';
 
@@ -53,7 +52,6 @@ export const parseMediaSection = async ({
 			},
 			timescale: 1,
 		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		callbacks: state.callbacks,
 	});
 	return null;

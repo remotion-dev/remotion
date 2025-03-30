@@ -10,7 +10,6 @@ import type {
 	AudioOrVideoSample,
 	OnAudioTrack,
 } from '../../webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
@@ -19,7 +18,6 @@ export const handleAacPacket = async ({
 	streamBuffer,
 	programId,
 	offset,
-	workOnSeekRequestOptions,
 	sampleCallbacks,
 	logLevel,
 	onAudioTrack,
@@ -29,7 +27,6 @@ export const handleAacPacket = async ({
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
 	offset: number;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
@@ -73,7 +70,6 @@ export const handleAacPacket = async ({
 		await registerAudioTrack({
 			track,
 			container: 'transport-stream',
-			workOnSeekRequestOptions,
 			registerAudioSampleCallback: sampleCallbacks.registerAudioSampleCallback,
 			tracks: sampleCallbacks.tracks,
 			logLevel,
@@ -105,7 +101,6 @@ export const handleAacPacket = async ({
 			sample,
 			timescale: MPEG_TIMESCALE,
 		}),
-		workOnSeekRequestOptions,
 		callbacks: sampleCallbacks,
 	});
 

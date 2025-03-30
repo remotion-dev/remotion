@@ -3,7 +3,6 @@ import type {TransportStreamStructure} from '../../parse-result';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {filterStreamsBySupportedTypes} from './get-tracks';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
@@ -22,7 +21,6 @@ export const processStreamBuffer = async ({
 	streamBuffer,
 	programId,
 	structure,
-	workOnSeekRequestOptions,
 	sampleCallbacks,
 	logLevel,
 	onAudioTrack,
@@ -33,7 +31,6 @@ export const processStreamBuffer = async ({
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
 	structure: TransportStreamStructure;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
@@ -51,7 +48,6 @@ export const processStreamBuffer = async ({
 		await handleAvcPacket({
 			programId,
 			streamBuffer,
-			workOnSeekRequestOptions,
 			sampleCallbacks,
 			logLevel,
 			onVideoTrack,
@@ -66,7 +62,6 @@ export const processStreamBuffer = async ({
 			streamBuffer,
 			programId,
 			offset: streamBuffer.offset,
-			workOnSeekRequestOptions,
 			sampleCallbacks,
 			logLevel,
 			onAudioTrack,
@@ -86,7 +81,6 @@ export const processStreamBuffer = async ({
 
 export const processFinalStreamBuffers = async ({
 	structure,
-	workOnSeekRequestOptions,
 	sampleCallbacks,
 	logLevel,
 	onAudioTrack,
@@ -95,7 +89,6 @@ export const processFinalStreamBuffers = async ({
 	makeSamplesStartAtZero,
 }: {
 	structure: TransportStreamStructure;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
@@ -109,7 +102,6 @@ export const processFinalStreamBuffers = async ({
 				streamBuffer: buffer,
 				programId,
 				structure,
-				workOnSeekRequestOptions,
 				sampleCallbacks,
 				logLevel,
 				onAudioTrack,

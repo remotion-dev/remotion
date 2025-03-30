@@ -1,5 +1,4 @@
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {canProcessAudio, processAudio} from './process-audio';
 import {canProcessVideo, processVideo} from './process-video';
 import {findProgramMapOrNull} from './traversal';
@@ -24,7 +23,6 @@ export const processSampleIfPossible = async (state: ParserState) => {
 					programId: stream.pid,
 					structure: state.structure.getTsStructure(),
 					streamBuffer,
-					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 					sampleCallbacks: state.callbacks,
 					logLevel: state.logLevel,
 					onAudioTrack: state.onAudioTrack,
@@ -50,7 +48,6 @@ export const processSampleIfPossible = async (state: ParserState) => {
 				await processAudio({
 					structure: state.structure.getTsStructure(),
 					offset: state.iterator.counter.getOffset(),
-					workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 					sampleCallbacks: state.callbacks,
 					logLevel: state.logLevel,
 					onAudioTrack: state.onAudioTrack,

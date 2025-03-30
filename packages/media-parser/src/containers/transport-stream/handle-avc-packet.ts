@@ -9,7 +9,6 @@ import type {
 	AudioOrVideoSample,
 	OnVideoTrack,
 } from '../../webcodec-sample-types';
-import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
@@ -28,7 +27,6 @@ export const handleAvcPacket = async ({
 	streamBuffer,
 	programId,
 	offset,
-	workOnSeekRequestOptions,
 	sampleCallbacks,
 	logLevel,
 	onVideoTrack,
@@ -38,7 +36,6 @@ export const handleAvcPacket = async ({
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
 	offset: number;
-	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	sampleCallbacks: SampleCallbacks;
 	logLevel: LogLevel;
 	onVideoTrack: OnVideoTrack | null;
@@ -92,7 +89,6 @@ export const handleAvcPacket = async ({
 		await registerVideoTrack({
 			track,
 			container: 'transport-stream',
-			workOnSeekRequestOptions,
 			logLevel,
 			onVideoTrack,
 			registerVideoSampleCallback: sampleCallbacks.registerVideoSampleCallback,
@@ -125,7 +121,6 @@ export const handleAvcPacket = async ({
 			sample,
 			timescale: MPEG_TIMESCALE,
 		}),
-		workOnSeekRequestOptions,
 		callbacks: sampleCallbacks,
 	});
 

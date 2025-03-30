@@ -8,7 +8,6 @@ import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 
 export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
@@ -62,7 +61,6 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
 		await registerAudioTrack({
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			container: 'aac',
 			track: {
 				codec: mapAudioObjectTypeToCodecString(audioObjectType),
@@ -105,7 +103,6 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 			},
 			timescale: 1,
 		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		callbacks: state.callbacks,
 	});
 
