@@ -1,10 +1,10 @@
 export const startOffsetStore = () => {
-	let offset = 0;
+	const offsets: Record<number, number> = {};
 
 	return {
-		getOffset: () => offset,
-		setOffset: (newOffset: number) => {
-			offset = newOffset;
+		getOffset: (trackId: number) => offsets[trackId] || 0,
+		setOffset: (trackId: number, newOffset: number) => {
+			offsets[trackId] = newOffset;
 		},
 	};
 };

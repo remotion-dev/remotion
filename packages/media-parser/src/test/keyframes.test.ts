@@ -104,9 +104,9 @@ test('should be able to get keyframes from .ts', async () => {
 	expect(slowNumberOfFrames).toEqual(298);
 	expect(slowKeyframes).toEqual([
 		{
-			decodingTimeInSeconds: 10,
+			decodingTimeInSeconds: 0,
 			positionInBytes: 564,
-			presentationTimeInSeconds: 10.033333333333331,
+			presentationTimeInSeconds: 0.03333333333333333,
 			sizeInBytes: 23814,
 			trackId: 256,
 		},

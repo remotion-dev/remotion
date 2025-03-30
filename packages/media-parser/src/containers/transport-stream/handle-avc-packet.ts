@@ -62,7 +62,7 @@ export const handleAvcPacket = async ({
 					streamBuffer.pesHeader.dts ?? Infinity,
 				)
 			: 0;
-		transportStream.startOffset.setOffset(startOffset);
+		transportStream.startOffset.setOffset(programId, startOffset);
 
 		const track: Track = {
 			m3uStreamFormat: null,
@@ -102,12 +102,15 @@ export const handleAvcPacket = async ({
 
 	// sample for webcodecs needs to be in nano seconds
 	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
+		cts:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		dts:
 			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
-			transportStream.startOffset.getOffset(),
+			transportStream.startOffset.getOffset(programId),
 		timestamp:
-			streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,

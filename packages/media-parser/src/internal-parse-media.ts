@@ -33,7 +33,6 @@ export const internalParseMedia: InternalParseMedia = async function <
 	selectM3uStream: selectM3uStreamFn,
 	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
 	mp4HeaderSegment,
-	// TODO: Document this field
 	makeSamplesStartAtZero,
 	...more
 }: InternalParseMediaOptions<F>) {

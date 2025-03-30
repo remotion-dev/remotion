@@ -55,7 +55,7 @@ export const handleAacPacket = async ({
 					streamBuffer.pesHeader.dts ?? Infinity,
 				)
 			: 0;
-		transportStream.startOffset.setOffset(startOffset);
+		transportStream.startOffset.setOffset(programId, startOffset);
 
 		const track: Track = {
 			type: 'audio',
@@ -82,12 +82,15 @@ export const handleAacPacket = async ({
 	}
 
 	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
+		cts:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		dts:
 			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
-			transportStream.startOffset.getOffset(),
+			transportStream.startOffset.getOffset(programId),
 		timestamp:
-			streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
