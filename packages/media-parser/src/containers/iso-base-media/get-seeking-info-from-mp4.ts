@@ -1,5 +1,5 @@
 import type {IsoBaseMediaStructure} from '../../parse-result';
-import type {SeekingInfo} from '../../seeking-info';
+import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {StructureState} from '../../state/structure';
 import type {VideoSectionState} from '../../state/video-section';
@@ -15,7 +15,7 @@ export const getSeekingInfoFromMp4 = ({
 	isoState: IsoBaseMediaState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	videoSectionState: VideoSectionState;
-}): SeekingInfo | null => {
+}): IsoBaseMediaSeekingInfo | null => {
 	const structure = structureState.getIsoStructure();
 	const moovAtom = getMoovBoxFromState({
 		isoState,

@@ -11,4 +11,11 @@ export type IsoBaseMediaSeekingInfo = {
 	videoSections: VideoSection[];
 };
 
-export type SeekingInfo = IsoBaseMediaSeekingInfo;
+export type WavSeekingInfo = {
+	type: 'wav-seeking-info';
+	sampleRate: number;
+	blockAlign: number;
+	videoSection: VideoSection;
+};
+
+export type SeekingInfo = IsoBaseMediaSeekingInfo | WavSeekingInfo;

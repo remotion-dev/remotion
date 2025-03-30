@@ -2,8 +2,8 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {getCurrentVideoSection} from '../../state/video-section';
 import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
+import {WAVE_SECONDS_PER_SAMPLE} from './get-seeking-byte';
 import type {WavFmt} from './types';
 
 export const parseVideoSection = async ({
@@ -14,13 +14,7 @@ export const parseVideoSection = async ({
 	const {iterator} = state;
 	const structure = state.structure.getWavStructure();
 
-	const videoSection = getCurrentVideoSection({
-		offset: iterator.counter.getOffset(),
-		videoSections: state.videoSection.getVideoSections(),
-	});
-	if (!videoSection) {
-		throw new Error('No video section defined');
-	}
+	const videoSection = state.videoSection.getVideoSectionAssertOnlyOne();
 
 	const maxOffset = videoSection.start + videoSection.size;
 	const maxRead = maxOffset - iterator.counter.getOffset();
@@ -33,11 +27,9 @@ export const parseVideoSection = async ({
 		throw new Error('Expected fmt box');
 	}
 
-	const secondsToRead = 1;
-
 	const toRead = Math.min(
 		maxRead,
-		fmtBox.sampleRate * fmtBox.blockAlign * secondsToRead,
+		fmtBox.sampleRate * fmtBox.blockAlign * WAVE_SECONDS_PER_SAMPLE,
 	);
 
 	const duration = toRead / (fmtBox.sampleRate * fmtBox.blockAlign);

@@ -1,5 +1,7 @@
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-from-mp4';
 import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-info-from-mp4';
+import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
+import {getSeekingInfoFromWav} from './containers/wav/get-seeking-info';
 import type {LogLevel} from './log';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingInfo} from './seeking-info';
@@ -34,7 +36,13 @@ export const getSeekingInfo = ({
 		});
 	}
 
-	return null;
+	if (structure.type === 'wav') {
+		return getSeekingInfoFromWav({structure, videoSectionState});
+	}
+
+	throw new Error(
+		`Seeking is not supported for this format: ${structure.type}`,
+	);
 };
 
 export const getSeekingByte = ({
@@ -60,5 +68,12 @@ export const getSeekingByte = ({
 		});
 	}
 
-	throw new Error(`Unknown seeking info type: ${info.type as never}`);
+	if (info.type === 'wav-seeking-info') {
+		return getSeekingByteFromWav({
+			info,
+			time,
+		});
+	}
+
+	throw new Error(`Unknown seeking info type: ${info as never}`);
 };
