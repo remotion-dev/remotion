@@ -13,6 +13,7 @@ test(
 			src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
 			controller,
 			acknowledgeRemotionLicense: true,
+			logLevel: 'verbose',
 			onVideoTrack: () => {
 				return async (sample) => {
 					samples++;

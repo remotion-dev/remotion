@@ -429,6 +429,7 @@ const startParsing = async (
 					}
 				: null,
 			onDiscardedData: null,
+			makeSamplesStartAtZero: true,
 		});
 		post({
 			type: 'response-done',

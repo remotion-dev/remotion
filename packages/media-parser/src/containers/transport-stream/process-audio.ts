@@ -18,6 +18,7 @@ export const processAudio = async ({
 	onAudioTrack,
 	onVideoTrack,
 	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	transportStreamEntry: TransportStreamEntry;
 	structure: TransportStreamStructure;
@@ -28,6 +29,7 @@ export const processAudio = async ({
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
 	offset: number;
+	makeSamplesStartAtZero: boolean;
 }): Promise<{done: boolean}> => {
 	const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
@@ -60,6 +62,7 @@ export const processAudio = async ({
 		onAudioTrack,
 		onVideoTrack,
 		transportStream,
+		makeSamplesStartAtZero,
 	});
 
 	const rest = streamBuffer.buffer.slice(expectedLength);

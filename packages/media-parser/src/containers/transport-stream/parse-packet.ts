@@ -21,6 +21,7 @@ export const parsePacket = async ({
 	onAudioTrack,
 	onVideoTrack,
 	workOnSeekRequestOptions,
+	makeSamplesStartAtZero,
 }: {
 	iterator: BufferIterator;
 	structure: TransportStreamStructure;
@@ -30,6 +31,7 @@ export const parsePacket = async ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	makeSamplesStartAtZero: boolean;
 }): Promise<TransportStreamBox | null> => {
 	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
@@ -119,6 +121,7 @@ export const parsePacket = async ({
 			onVideoTrack,
 			workOnSeekRequestOptions,
 			programId,
+			makeSamplesStartAtZero,
 		});
 
 		return Promise.resolve(null);

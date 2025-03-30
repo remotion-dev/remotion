@@ -24,6 +24,7 @@ export const parseTransportStream = async (
 		onAudioTrack: state.onAudioTrack,
 		onVideoTrack: state.onVideoTrack,
 		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		makeSamplesStartAtZero: state.makeSamplesStartAtZero,
 	});
 
 	if (packet) {
@@ -39,6 +40,7 @@ export const parseTransportStream = async (
 			logLevel: state.logLevel,
 			onAudioTrack: state.onAudioTrack,
 			onVideoTrack: state.onVideoTrack,
+			makeSamplesStartAtZero: state.makeSamplesStartAtZero,
 		});
 	}
 

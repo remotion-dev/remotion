@@ -71,6 +71,7 @@ export const makeParserState = ({
 	fieldsInReturnValue,
 	mimeType,
 	initialReaderInstance,
+	makeSamplesStartAtZero,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -92,6 +93,7 @@ export const makeParserState = ({
 	fieldsInReturnValue: Options<ParseMediaFields>;
 	mimeType: string | null;
 	initialReaderInstance: Reader;
+	makeSamplesStartAtZero: boolean;
 }) => {
 	let skippedBytes: number = 0;
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
@@ -197,6 +199,7 @@ export const makeParserState = ({
 		errored: errored as Error | null,
 		currentReader: currentReaderState,
 		seekInfiniteLoop,
+		makeSamplesStartAtZero,
 	};
 };
 

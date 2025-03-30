@@ -33,6 +33,7 @@ export const handleAvcPacket = async ({
 	logLevel,
 	onVideoTrack,
 	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -42,6 +43,7 @@ export const handleAvcPacket = async ({
 	logLevel: LogLevel;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
 	const avc = parseAvc(streamBuffer.buffer);
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
@@ -54,10 +56,12 @@ export const handleAvcPacket = async ({
 		const sampleAspectRatio = getSampleAspectRatioFromSps(
 			spsAndPps.sps.spsData,
 		);
-		const startOffset = Math.min(
-			streamBuffer.pesHeader.pts,
-			streamBuffer.pesHeader.dts ?? Infinity,
-		);
+		const startOffset = makeSamplesStartAtZero
+			? Math.min(
+					streamBuffer.pesHeader.pts,
+					streamBuffer.pesHeader.dts ?? Infinity,
+				)
+			: 0;
 		transportStream.startOffset.setOffset(startOffset);
 
 		const track: Track = {

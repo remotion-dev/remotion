@@ -28,6 +28,7 @@ export const processStreamBuffer = async ({
 	onAudioTrack,
 	onVideoTrack,
 	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -38,6 +39,7 @@ export const processStreamBuffer = async ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
 	const stream = getStreamForId(structure, programId);
 	if (!stream) {
@@ -55,6 +57,7 @@ export const processStreamBuffer = async ({
 			onVideoTrack,
 			offset: streamBuffer.offset,
 			transportStream,
+			makeSamplesStartAtZero,
 		});
 	}
 	// 15 = AAC / ADTS
@@ -68,6 +71,7 @@ export const processStreamBuffer = async ({
 			logLevel,
 			onAudioTrack,
 			transportStream,
+			makeSamplesStartAtZero,
 		});
 	}
 
@@ -88,6 +92,7 @@ export const processFinalStreamBuffers = async ({
 	onAudioTrack,
 	onVideoTrack,
 	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	structure: TransportStreamStructure;
 	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
@@ -96,6 +101,7 @@ export const processFinalStreamBuffers = async ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
 	for (const [programId, buffer] of transportStream.streamBuffers) {
 		if (buffer.buffer.byteLength > 0) {
@@ -109,6 +115,7 @@ export const processFinalStreamBuffers = async ({
 				onAudioTrack,
 				onVideoTrack,
 				transportStream,
+				makeSamplesStartAtZero,
 			});
 			transportStream.streamBuffers.delete(programId);
 		}

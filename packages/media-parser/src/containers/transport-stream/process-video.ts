@@ -18,6 +18,7 @@ export const parseAvcStream = async ({
 	onAudioTrack,
 	onVideoTrack,
 	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	programId: number;
 	structure: TransportStreamStructure;
@@ -28,6 +29,7 @@ export const parseAvcStream = async ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }): Promise<Uint8Array | null> => {
 	const indexOfSeparator = findNthSubarrayIndex(
 		streamBuffer.buffer,
@@ -56,6 +58,7 @@ export const parseAvcStream = async ({
 		onAudioTrack,
 		onVideoTrack,
 		transportStream,
+		makeSamplesStartAtZero,
 	});
 	return rest;
 };

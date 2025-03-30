@@ -223,6 +223,7 @@ export type SerializeableOptionalParseMediaParams<
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	makeSamplesStartAtZero: boolean;
 };
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =

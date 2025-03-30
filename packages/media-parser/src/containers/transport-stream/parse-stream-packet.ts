@@ -22,6 +22,7 @@ export const parseStream = async ({
 	onAudioTrack,
 	onVideoTrack,
 	workOnSeekRequestOptions,
+	makeSamplesStartAtZero,
 }: {
 	transportStreamEntry: TransportStreamEntry;
 	programId: number;
@@ -33,6 +34,7 @@ export const parseStream = async ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	makeSamplesStartAtZero: boolean;
 }): Promise<void> => {
 	let restOfPacket = getRestOfPacket(iterator);
 	const offset = iterator.counter.getOffset();
@@ -65,6 +67,7 @@ export const parseStream = async ({
 				onAudioTrack,
 				onVideoTrack,
 				transportStream,
+				makeSamplesStartAtZero,
 			});
 			if (rest === null) {
 				break;
@@ -108,6 +111,7 @@ export const parseStream = async ({
 				onAudioTrack,
 				onVideoTrack,
 				transportStream,
+				makeSamplesStartAtZero,
 			});
 			if (done) {
 				break;

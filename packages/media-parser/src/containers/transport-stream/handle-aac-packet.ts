@@ -24,6 +24,7 @@ export const handleAacPacket = async ({
 	logLevel,
 	onAudioTrack,
 	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -33,6 +34,7 @@ export const handleAacPacket = async ({
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
 	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
 	if (!adtsHeader) {
@@ -47,6 +49,14 @@ export const handleAacPacket = async ({
 	});
 
 	if (!isTrackRegistered) {
+		const startOffset = makeSamplesStartAtZero
+			? Math.min(
+					streamBuffer.pesHeader.pts,
+					streamBuffer.pesHeader.dts ?? Infinity,
+				)
+			: 0;
+		transportStream.startOffset.setOffset(startOffset);
+
 		const track: Track = {
 			type: 'audio',
 			codecPrivate,
@@ -72,9 +82,12 @@ export const handleAacPacket = async ({
 	}
 
 	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts,
-		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
-		timestamp: streamBuffer.pesHeader.pts,
+		cts: streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
+		dts:
+			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
+			transportStream.startOffset.getOffset(),
+		timestamp:
+			streamBuffer.pesHeader.pts - transportStream.startOffset.getOffset(),
 		duration: undefined,
 		data: new Uint8Array(streamBuffer.buffer),
 		trackId: programId,
