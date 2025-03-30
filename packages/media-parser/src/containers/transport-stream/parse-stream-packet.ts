@@ -113,6 +113,8 @@ export const parseStream = async ({
 				break;
 			}
 		}
+
+		return;
 	}
 
 	throw new Error(`Unsupported stream type ${transportStreamEntry.streamType}`);
