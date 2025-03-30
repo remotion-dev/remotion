@@ -38,7 +38,7 @@ import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {timingsState} from './timings';
 import {transportStreamState} from './transport-stream';
-import {videoSectionState} from './video-section';
+import {mediaSectionState} from './video-section';
 import {webmState} from './webm';
 export type InternalStats = {
 	skippedBytes: number;
@@ -177,7 +177,7 @@ export const makeParserState = ({
 		slowDurationAndFps,
 		contentLength,
 		images,
-		videoSection: videoSectionState(),
+		mediaSection: mediaSectionState(),
 		logLevel,
 		iterator,
 		controller,

@@ -146,9 +146,9 @@ export const parseMovi = async ({
 
 	await handleChunk({state, ckId, ckSize});
 
-	const videoSection = state.videoSection.getVideoSectionAssertOnlyOne();
+	const mediaSection = state.mediaSection.getMediaSectionAssertOnlyOne();
 
-	const maxOffset = videoSection.start + videoSection.size;
+	const maxOffset = mediaSection.start + mediaSection.size;
 
 	// Discard added zeroes
 	while (

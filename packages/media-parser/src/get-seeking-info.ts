@@ -7,18 +7,18 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingInfo} from './seeking-info';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {StructureState} from './state/structure';
-import type {VideoSectionState} from './state/video-section';
+import type {MediaSectionState} from './state/video-section';
 import type {SeekResolution} from './work-on-seek-request';
 
 export const getSeekingInfo = ({
 	structureState,
 	mp4HeaderSegment,
-	videoSectionState,
+	mediaSectionState,
 	isoState,
 }: {
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
-	videoSectionState: VideoSectionState;
+	mediaSectionState: MediaSectionState;
 	isoState: IsoBaseMediaState;
 }): SeekingInfo | null => {
 	const structure = structureState.getStructureOrNull();
@@ -32,12 +32,15 @@ export const getSeekingInfo = ({
 			structureState,
 			isoState,
 			mp4HeaderSegment,
-			videoSectionState,
+			mediaSectionState,
 		});
 	}
 
 	if (structure.type === 'wav') {
-		return getSeekingInfoFromWav({structure, videoSectionState});
+		return getSeekingInfoFromWav({
+			structure,
+			mediaSectionState,
+		});
 	}
 
 	throw new Error(

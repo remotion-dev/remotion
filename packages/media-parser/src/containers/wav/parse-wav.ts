@@ -6,14 +6,14 @@ import {parseFmt} from './parse-fmt';
 import {parseHeader} from './parse-header';
 import {parseId3} from './parse-id3';
 import {parseList} from './parse-list';
-import {parseVideoSection} from './parse-video-section';
+import {parseMediaSection} from './parse-media-section';
 
 export const parseWav = (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
-	const insideVideoSection =
-		state.videoSection.isCurrentByteInVideoSection(iterator);
-	if (insideVideoSection === 'in-section') {
-		return parseVideoSection({state});
+	const insideMediaSection =
+		state.mediaSection.isCurrentByteInMediaSection(iterator);
+	if (insideMediaSection === 'in-section') {
+		return parseMediaSection({state});
 	}
 
 	const type = iterator.getByteString(4, false);

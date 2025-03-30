@@ -4,8 +4,8 @@ import {Log} from '../../log';
 import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import {
-	getCurrentVideoSection,
-	isByteInVideoSection,
+	getCurrentMediaSection,
+	isByteInMediaSection,
 } from '../../state/video-section';
 import type {SeekResolution} from '../../work-on-seek-request';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
@@ -73,7 +73,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 					time,
 					timescale,
 					logLevel,
-					videoSections: info.videoSections,
+					mediaSections: info.mediaSections,
 				});
 				if (kf) {
 					return {
@@ -117,9 +117,9 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 			'Fragmented MP4 - No seeking info found for this time range.',
 		);
 		if (
-			isByteInVideoSection({
+			isByteInMediaSection({
 				position: currentPosition,
-				videoSections: info.videoSections,
+				mediaSections: info.mediaSections,
 			}) !== 'in-section'
 		) {
 			return {
@@ -131,17 +131,17 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 			logLevel,
 			'Fragmented MP4 - Inside the wrong video section, skipping to the end of the section',
 		);
-		const videoSection = getCurrentVideoSection({
+		const mediaSection = getCurrentMediaSection({
 			offset: currentPosition,
-			videoSections: info.videoSections,
+			mediaSections: info.mediaSections,
 		});
-		if (!videoSection) {
+		if (!mediaSection) {
 			throw new Error('No video section defined');
 		}
 
 		return {
 			type: 'intermediary-seek',
-			byte: videoSection.start + videoSection.size,
+			byte: mediaSection.start + mediaSection.size,
 		};
 	}
 
@@ -160,7 +160,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 		time,
 		timescale,
 		logLevel,
-		videoSections: info.videoSections,
+		mediaSections: info.mediaSections,
 	});
 
 	if (keyframe) {

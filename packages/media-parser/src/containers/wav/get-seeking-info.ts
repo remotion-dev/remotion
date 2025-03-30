@@ -1,13 +1,13 @@
 import type {WavSeekingInfo} from '../../seeking-info';
-import type {VideoSectionState} from '../../state/video-section';
+import type {MediaSectionState} from '../../state/video-section';
 import type {WavFmt, WavStructure} from './types';
 
 export const getSeekingInfoFromWav = ({
 	structure,
-	videoSectionState,
+	mediaSectionState,
 }: {
 	structure: WavStructure;
-	videoSectionState: VideoSectionState;
+	mediaSectionState: MediaSectionState;
 }): WavSeekingInfo | null => {
 	const fmtBox = structure.boxes.find((box) => box.type === 'wav-fmt') as
 		| WavFmt
@@ -17,8 +17,8 @@ export const getSeekingInfoFromWav = ({
 		return null;
 	}
 
-	const videoSection = videoSectionState.getVideoSections();
-	if (videoSection.length !== 1) {
+	const mediaSection = mediaSectionState.getMediaSections();
+	if (mediaSection.length !== 1) {
 		return null;
 	}
 
@@ -26,6 +26,6 @@ export const getSeekingInfoFromWav = ({
 		type: 'wav-seeking-info',
 		sampleRate: fmtBox.sampleRate,
 		blockAlign: fmtBox.blockAlign,
-		videoSection: videoSection[0],
+		mediaSections: mediaSection[0],
 	};
 };

@@ -7,11 +7,11 @@ import {processBox} from './process-box';
 export const parseIsoBaseMedia = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
-	const videoSectionState = state.videoSection.isCurrentByteInVideoSection(
+	const mediaSectionState = state.mediaSection.isCurrentByteInMediaSection(
 		state.iterator,
 	);
 
-	if (videoSectionState === 'in-section') {
+	if (mediaSectionState === 'in-section') {
 		const skipTo = await parseMdatSection(state);
 
 		return skipTo;
@@ -30,7 +30,7 @@ export const parseIsoBaseMedia = async (
 			registerVideoSampleCallback: state.callbacks.registerVideoSampleCallback,
 		},
 		onlyIfMdatAtomExpected: {
-			videoSectionState: state.videoSection,
+			mediaSectionState: state.mediaSection,
 		},
 	});
 	if (result) {

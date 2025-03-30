@@ -6,7 +6,7 @@ import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {WAVE_SECONDS_PER_SAMPLE} from './get-seeking-byte';
 import type {WavFmt} from './types';
 
-export const parseVideoSection = async ({
+export const parseMediaSection = async ({
 	state,
 }: {
 	state: ParserState;
@@ -14,7 +14,7 @@ export const parseVideoSection = async ({
 	const {iterator} = state;
 	const structure = state.structure.getWavStructure();
 
-	const videoSection = state.videoSection.getVideoSectionAssertOnlyOne();
+	const videoSection = state.mediaSection.getMediaSectionAssertOnlyOne();
 
 	const maxOffset = videoSection.start + videoSection.size;
 	const maxRead = maxOffset - iterator.counter.getOffset();

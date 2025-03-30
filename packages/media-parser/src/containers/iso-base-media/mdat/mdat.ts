@@ -7,22 +7,22 @@ import type {FlatSample} from '../../../state/iso-base-media/cached-sample-posit
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
-import {getCurrentVideoSection} from '../../../state/video-section';
+import {getCurrentMediaSection} from '../../../state/video-section';
 import {getWorkOnSeekRequestOptions} from '../../../work-on-seek-request';
 import {getMoovAtom} from '../get-moov-atom';
 
 export const parseMdatSection = async (
 	state: ParserState,
 ): Promise<Skip | null> => {
-	const videoSection = getCurrentVideoSection({
+	const mediaSection = getCurrentMediaSection({
 		offset: state.iterator.counter.getOffset(),
-		videoSections: state.videoSection.getVideoSections(),
+		mediaSections: state.mediaSection.getMediaSections(),
 	});
-	if (!videoSection) {
+	if (!mediaSection) {
 		throw new Error('No video section defined');
 	}
 
-	const endOfMdat = videoSection.size + videoSection.start;
+	const endOfMdat = mediaSection.size + mediaSection.start;
 
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
@@ -43,15 +43,15 @@ export const parseMdatSection = async (
 		return parseMdatSection(state);
 	}
 
-	if (!state.iso.flatSamples.getSamples(videoSection.start)) {
+	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
 		state.iso.flatSamples.setSamples(
-			videoSection.start,
+			mediaSection.start,
 			calculateFlatSamples(state),
 		);
 	}
 
 	const flatSamples = state.iso.flatSamples.getSamples(
-		videoSection.start,
+		mediaSection.start,
 	) as FlatSample[];
 	const {iterator} = state;
 
