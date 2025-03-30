@@ -90,6 +90,10 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'transport-stream') {
 		Log.verbose(state.logLevel, 'Detected MPEG-2 Transport Stream');
+		state.mediaSection.addMediaSection({
+			start: 0,
+			size: contentLength,
+		});
 		state.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
