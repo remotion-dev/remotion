@@ -43,6 +43,11 @@ export const processStreamBuffer = async ({
 		throw new Error('No stream found');
 	}
 
+	// 2 = ITU-T Rec. H.262 | ISO/IEC 13818-2 Video or ISO/IEC 11172-2 constrained parameter video stream
+	if (stream.streamType === 2) {
+		throw new Error('H.262 video stream not supported');
+	}
+
 	// 27 = AVC / H.264 Video
 	if (stream.streamType === 27) {
 		await handleAvcPacket({
