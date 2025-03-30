@@ -1,6 +1,11 @@
 import {combineUint8Arrays} from '../../combine-uint8-arrays';
+import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import {findNthSubarrayIndex} from './find-separator';
@@ -46,8 +51,12 @@ const parseAdtsStream = async ({
 				pesHeader: streamBuffer.pesHeader,
 			},
 			programId: transportStreamEntry.pid,
-			state,
 			structure,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			sampleCallbacks: state.callbacks,
+			logLevel: state.logLevel,
+			onAudioTrack: state.onAudioTrack,
+			onVideoTrack: state.onVideoTrack,
 		});
 
 		const rest = streamBuffer.buffer.slice(expectedLength);
@@ -61,14 +70,22 @@ const parseAdtsStream = async ({
 
 const parseAvcStream = async ({
 	programId,
-	state,
 	structure,
 	streamBuffer,
+	workOnSeekRequestOptions,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
 }: {
 	programId: number;
-	state: ParserState;
 	structure: TransportStreamStructure;
 	streamBuffer: TransportStreamPacketBuffer;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
 }): Promise<Uint8Array | null> => {
 	const indexOfSeparator = findNthSubarrayIndex(
 		streamBuffer.buffer,
@@ -83,7 +100,6 @@ const parseAvcStream = async ({
 	const rest = streamBuffer.buffer.slice(indexOfSeparator);
 
 	await processStreamBuffer({
-		state,
 		streamBuffer: {
 			offset: streamBuffer.offset,
 			pesHeader: streamBuffer.pesHeader,
@@ -92,6 +108,11 @@ const parseAvcStream = async ({
 		},
 		programId,
 		structure,
+		workOnSeekRequestOptions,
+		sampleCallbacks,
+		logLevel,
+		onAudioTrack,
+		onVideoTrack,
 	});
 	return rest;
 };
@@ -131,10 +152,14 @@ export const parseStream = async ({
 			]);
 
 			const rest = await parseAvcStream({
-				state,
 				programId,
 				structure,
 				streamBuffer: streamBuffers.get(transportStreamEntry.pid)!,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+				sampleCallbacks: state.callbacks,
+				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
+				onVideoTrack: state.onVideoTrack,
 			});
 
 			if (rest !== null) {

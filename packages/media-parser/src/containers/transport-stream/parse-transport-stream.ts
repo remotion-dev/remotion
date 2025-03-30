@@ -1,5 +1,6 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {parsePacket} from './parse-packet';
 import {processFinalStreamBuffers} from './process-stream-buffers';
 
@@ -24,8 +25,13 @@ export const parseTransportStream = async (
 
 	if (iterator.bytesRemaining() === 0) {
 		await processFinalStreamBuffers({
-			state,
+			transportStream: state.transportStream,
 			structure,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			sampleCallbacks: state.callbacks,
+			logLevel: state.logLevel,
+			onAudioTrack: state.onAudioTrack,
+			onVideoTrack: state.onVideoTrack,
 		});
 	}
 

@@ -2,24 +2,34 @@ import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {emitAudioSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {
+	AudioOrVideoSample,
+	OnAudioTrack,
+} from '../../webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const handleAacPacket = async ({
 	streamBuffer,
-	state,
 	programId,
 	offset,
+	workOnSeekRequestOptions,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	state: ParserState;
 	programId: number;
 	offset: number;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
 }) => {
 	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
 	if (!adtsHeader) {
@@ -29,7 +39,7 @@ export const handleAacPacket = async ({
 	const {channelConfiguration, codecPrivate, sampleRate, audioObjectType} =
 		adtsHeader;
 
-	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
+	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
@@ -50,11 +60,11 @@ export const handleAacPacket = async ({
 		await registerAudioTrack({
 			track,
 			container: 'transport-stream',
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
-			tracks: state.callbacks.tracks,
-			logLevel: state.logLevel,
-			onAudioTrack: state.onAudioTrack,
+			workOnSeekRequestOptions,
+			registerAudioSampleCallback: sampleCallbacks.registerAudioSampleCallback,
+			tracks: sampleCallbacks.tracks,
+			logLevel,
+			onAudioTrack,
 		});
 	}
 
@@ -76,7 +86,7 @@ export const handleAacPacket = async ({
 			sample,
 			timescale: MPEG_TIMESCALE,
 		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-		callbacks: state.callbacks,
+		workOnSeekRequestOptions,
+		callbacks: sampleCallbacks,
 	});
 };

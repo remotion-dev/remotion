@@ -7,3 +7,5 @@ export const transportStreamState = () => {
 		streamBuffers: new Map<number, TransportStreamPacketBuffer>(),
 	};
 };
+
+export type TransportStreamState = ReturnType<typeof transportStreamState>;

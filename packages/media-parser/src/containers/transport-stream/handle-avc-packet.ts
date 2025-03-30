@@ -1,10 +1,14 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {emitVideoSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {
+	AudioOrVideoSample,
+	OnVideoTrack,
+} from '../../webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
@@ -22,16 +26,22 @@ export const MPEG_TIMESCALE = 90000;
 export const handleAvcPacket = async ({
 	streamBuffer,
 	programId,
-	state,
 	offset,
+	workOnSeekRequestOptions,
+	sampleCallbacks,
+	logLevel,
+	onVideoTrack,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
-	state: ParserState;
 	offset: number;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onVideoTrack: OnVideoTrack | null;
 }) => {
 	const avc = parseAvc(streamBuffer.buffer);
-	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
+	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
@@ -70,11 +80,11 @@ export const handleAvcPacket = async ({
 		await registerVideoTrack({
 			track,
 			container: 'transport-stream',
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			logLevel: state.logLevel,
-			onVideoTrack: state.onVideoTrack,
-			registerVideoSampleCallback: state.callbacks.registerVideoSampleCallback,
-			tracks: state.callbacks.tracks,
+			workOnSeekRequestOptions,
+			logLevel,
+			onVideoTrack,
+			registerVideoSampleCallback: sampleCallbacks.registerVideoSampleCallback,
+			tracks: sampleCallbacks.tracks,
 		});
 	}
 
@@ -97,7 +107,7 @@ export const handleAvcPacket = async ({
 			sample,
 			timescale: MPEG_TIMESCALE,
 		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-		callbacks: state.callbacks,
+		workOnSeekRequestOptions,
+		callbacks: sampleCallbacks,
 	});
 };

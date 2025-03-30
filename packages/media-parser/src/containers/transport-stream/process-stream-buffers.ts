@@ -1,5 +1,9 @@
+import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserState} from '../../state/parser-state';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {filterStreamsBySupportedTypes} from './get-tracks';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
@@ -16,14 +20,22 @@ export type StreamBufferMap = Map<number, TransportStreamPacketBuffer>;
 
 export const processStreamBuffer = async ({
 	streamBuffer,
-	state,
 	programId,
 	structure,
+	workOnSeekRequestOptions,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
 }) => {
 	const stream = getStreamForId(structure, programId);
 	if (!stream) {
@@ -35,7 +47,10 @@ export const processStreamBuffer = async ({
 		await handleAvcPacket({
 			programId,
 			streamBuffer,
-			state,
+			workOnSeekRequestOptions,
+			sampleCallbacks,
+			logLevel,
+			onVideoTrack,
 			offset: streamBuffer.offset,
 		});
 	}
@@ -43,37 +58,54 @@ export const processStreamBuffer = async ({
 	else if (stream.streamType === 15) {
 		await handleAacPacket({
 			streamBuffer,
-			state,
 			programId,
 			offset: streamBuffer.offset,
+			workOnSeekRequestOptions,
+			sampleCallbacks,
+			logLevel,
+			onAudioTrack,
 		});
 	}
 
-	if (!state.callbacks.tracks.hasAllTracks()) {
-		const tracksRegistered = state.callbacks.tracks.getTracks().length;
+	if (!sampleCallbacks.tracks.hasAllTracks()) {
+		const tracksRegistered = sampleCallbacks.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (filterStreamsBySupportedTypes(streams).length === tracksRegistered) {
-			state.callbacks.tracks.setIsDone(state.logLevel);
+			sampleCallbacks.tracks.setIsDone(logLevel);
 		}
 	}
 };
 
 export const processFinalStreamBuffers = async ({
-	state,
 	structure,
+	workOnSeekRequestOptions,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
+	transportStream,
 }: {
-	state: ParserState;
 	structure: TransportStreamStructure;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
 }) => {
-	for (const [programId, buffer] of state.transportStream.streamBuffers) {
+	for (const [programId, buffer] of transportStream.streamBuffers) {
 		if (buffer.buffer.byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
-				state,
 				programId,
 				structure,
+				workOnSeekRequestOptions,
+				sampleCallbacks,
+				logLevel,
+				onAudioTrack,
+				onVideoTrack,
 			});
-			state.transportStream.streamBuffers.delete(programId);
+			transportStream.streamBuffers.delete(programId);
 		}
 	}
 };
