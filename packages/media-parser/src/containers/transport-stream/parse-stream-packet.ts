@@ -8,7 +8,7 @@ import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {WorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getRestOfPacket} from './discard-rest-of-packet';
 import type {TransportStreamEntry} from './parse-pmt';
-import {processAudio} from './process-audio';
+import {canProcessAudio, processAudio} from './process-audio';
 import {parseAvcStream} from './process-video';
 
 export const parseStream = async ({
@@ -36,27 +36,27 @@ export const parseStream = async ({
 	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
 	makeSamplesStartAtZero: boolean;
 }): Promise<void> => {
-	let restOfPacket = getRestOfPacket(iterator);
+	const restOfPacket = getRestOfPacket(iterator);
 	const offset = iterator.counter.getOffset();
 
 	if (transportStreamEntry.streamType === 27) {
 		const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 
+		if (!streamBuffers.has(transportStreamEntry.pid)) {
+			streamBuffers.set(programId, {
+				pesHeader: nextPesHeader.getNextPesHeader(),
+				buffer: new Uint8Array([]),
+				offset,
+			});
+		}
+
+		const streamBuffer = streamBuffers.get(transportStreamEntry.pid)!;
+		streamBuffer.buffer = combineUint8Arrays([
+			streamBuffer.buffer,
+			restOfPacket,
+		]);
+
 		while (true) {
-			if (!streamBuffers.has(transportStreamEntry.pid)) {
-				streamBuffers.set(programId, {
-					pesHeader: nextPesHeader.getNextPesHeader(),
-					buffer: new Uint8Array([]),
-					offset,
-				});
-			}
-
-			const streamBuffer = streamBuffers.get(transportStreamEntry.pid)!;
-			streamBuffer.buffer = combineUint8Arrays([
-				streamBuffer.buffer,
-				restOfPacket,
-			]);
-
 			const rest = await parseAvcStream({
 				programId,
 				structure,
@@ -78,7 +78,11 @@ export const parseStream = async ({
 				break;
 			}
 
-			restOfPacket = rest;
+			streamBuffers.set(programId, {
+				pesHeader: nextPesHeader.getNextPesHeader(),
+				buffer: rest,
+				offset,
+			});
 		}
 
 		return;
@@ -100,7 +104,7 @@ export const parseStream = async ({
 			]);
 		}
 
-		while (true) {
+		while (canProcessAudio({transportStreamEntry, transportStream})) {
 			const {done} = await processAudio({
 				transportStreamEntry,
 				structure,

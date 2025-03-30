@@ -8,6 +8,33 @@ import {readAdtsHeader} from './adts-header';
 import type {TransportStreamEntry} from './parse-pmt';
 import {processStreamBuffer} from './process-stream-buffers';
 
+export const canProcessAudio = ({
+	transportStreamEntry,
+	transportStream,
+}: {
+	transportStreamEntry: TransportStreamEntry;
+	transportStream: TransportStreamState;
+}) => {
+	const {streamBuffers} = transportStream;
+	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
+	if (!streamBuffer) {
+		throw new Error('Stream buffer not found');
+	}
+
+	const expectedLength =
+		readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
+
+	if (expectedLength === null) {
+		return false;
+	}
+
+	if (expectedLength > streamBuffer.buffer.length) {
+		return false;
+	}
+
+	return true;
+};
+
 export const processAudio = async ({
 	transportStreamEntry,
 	structure,
@@ -41,11 +68,11 @@ export const processAudio = async ({
 		readAdtsHeader(streamBuffer.buffer)?.frameLength ?? null;
 
 	if (expectedLength === null) {
-		return {done: true};
+		throw new Error('Expected length is null');
 	}
 
 	if (expectedLength > streamBuffer.buffer.length) {
-		return {done: true};
+		throw new Error('Expected length is greater than stream buffer length');
 	}
 
 	await processStreamBuffer({
