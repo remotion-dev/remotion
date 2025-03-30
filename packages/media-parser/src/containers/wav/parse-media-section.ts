@@ -3,7 +3,7 @@ import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
-import {WAVE_SECONDS_PER_SAMPLE} from './get-seeking-byte';
+import {WAVE_SAMPLES_PER_SECOND} from './get-seeking-byte';
 import type {WavFmt} from './types';
 
 export const parseMediaSection = async ({
@@ -29,7 +29,7 @@ export const parseMediaSection = async ({
 
 	const toRead = Math.min(
 		maxRead,
-		fmtBox.sampleRate * fmtBox.blockAlign * WAVE_SECONDS_PER_SAMPLE,
+		(fmtBox.sampleRate * fmtBox.blockAlign) / WAVE_SAMPLES_PER_SECOND,
 	);
 
 	const duration = toRead / (fmtBox.sampleRate * fmtBox.blockAlign);
@@ -39,8 +39,8 @@ export const parseMediaSection = async ({
 	const data = iterator.getSlice(toRead);
 	await emitAudioSample({
 		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-			{
+		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
 				cts: timestamp,
 				dts: timestamp,
 				data,
@@ -51,8 +51,8 @@ export const parseMediaSection = async ({
 				offset,
 				timescale: 1_000_000,
 			},
-			1,
-		),
+			timescale: 1,
+		}),
 		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		callbacks: state.callbacks,
 	});

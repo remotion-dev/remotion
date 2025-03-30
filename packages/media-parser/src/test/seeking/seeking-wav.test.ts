@@ -51,7 +51,7 @@ test('seeking in a wav', async () => {
 				}
 
 				if (samples === 4) {
-					expect(sample.timestamp).toBe(29000000);
+					expect(sample.timestamp).toBe(29960000);
 				}
 			};
 		},
@@ -67,13 +67,18 @@ test('seeking in a wav', async () => {
 			type: 'user-initiated',
 		},
 		{
-			from: 970244,
+			from: 885572,
 			to: 44,
 			type: 'user-initiated',
 		},
 		{
-			from: 88244,
+			from: 3572,
 			to: 2469644,
+			type: 'user-initiated',
+		},
+		{
+			from: 2473172,
+			to: 2642516,
 			type: 'user-initiated',
 		},
 	]);

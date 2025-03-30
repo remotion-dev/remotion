@@ -90,8 +90,8 @@ export const parseMdatSection = async (
 	if (samplesWithIndex.track.type === 'audio') {
 		await emitAudioSample({
 			trackId: samplesWithIndex.track.trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
+			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+				sample: {
 					data: bytes,
 					timestamp: cts,
 					duration,
@@ -102,8 +102,8 @@ export const parseMdatSection = async (
 					offset,
 					timescale: samplesWithIndex.track.timescale,
 				},
-				samplesWithIndex.track.timescale,
-			),
+				timescale: samplesWithIndex.track.timescale,
+			}),
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 		});
@@ -125,8 +125,8 @@ export const parseMdatSection = async (
 
 		await emitVideoSample({
 			trackId: samplesWithIndex.track.trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
+			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+				sample: {
 					data: bytes,
 					timestamp: cts,
 					duration,
@@ -137,8 +137,8 @@ export const parseMdatSection = async (
 					offset,
 					timescale: samplesWithIndex.track.timescale,
 				},
-				samplesWithIndex.track.timescale,
-			),
+				timescale: samplesWithIndex.track.timescale,
+			}),
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 		});

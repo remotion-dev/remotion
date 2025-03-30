@@ -1,7 +1,7 @@
 import type {WavSeekingInfo} from '../../seeking-info';
 import type {SeekResolution} from '../../work-on-seek-request';
 
-export const WAVE_SECONDS_PER_SAMPLE = 1;
+export const WAVE_SAMPLES_PER_SECOND = 25;
 
 export const getSeekingByteFromWav = ({
 	info,
@@ -15,8 +15,8 @@ export const getSeekingByteFromWav = ({
 
 	const timeRoundedDown =
 		Math.floor(
-			Math.min(time, durationInSeconds - 0.0000001) / WAVE_SECONDS_PER_SAMPLE,
-		) * WAVE_SECONDS_PER_SAMPLE;
+			Math.min(time, durationInSeconds - 0.0000001) * WAVE_SAMPLES_PER_SECOND,
+		) / WAVE_SAMPLES_PER_SECOND;
 
 	const byteOffset = bytesPerSecond * timeRoundedDown;
 

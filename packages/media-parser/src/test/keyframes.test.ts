@@ -106,7 +106,7 @@ test('should be able to get keyframes from .ts', async () => {
 		{
 			decodingTimeInSeconds: 10,
 			positionInBytes: 564,
-			presentationTimeInSeconds: 10.033333333333333,
+			presentationTimeInSeconds: 10.033333333333331,
 			sizeInBytes: 23814,
 			trackId: 256,
 		},

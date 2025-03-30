@@ -93,10 +93,10 @@ export const handleAvcPacket = async ({
 
 	await emitVideoSample({
 		trackId: programId,
-		videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
+		videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
 			sample,
-			MPEG_TIMESCALE,
-		),
+			timescale: MPEG_TIMESCALE,
+		}),
 		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		callbacks: state.callbacks,
 	});

@@ -63,8 +63,8 @@ export const handleChunk = async ({
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		await emitVideoSample({
 			trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
+			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+				sample: {
 					cts: timestamp,
 					dts: timestamp,
 					data,
@@ -75,8 +75,8 @@ export const handleChunk = async ({
 					offset,
 					timescale: samplesPerSecond,
 				},
-				1,
-			),
+				timescale: 1,
+			}),
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 		});
@@ -104,8 +104,8 @@ export const handleChunk = async ({
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		await emitAudioSample({
 			trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
+			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+				sample: {
 					cts: timestamp,
 					dts: timestamp,
 					data,
@@ -116,8 +116,8 @@ export const handleChunk = async ({
 					offset,
 					timescale: samplesPerSecond,
 				},
-				1,
-			),
+				timescale: 1,
+			}),
 			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			callbacks: state.callbacks,
 		});

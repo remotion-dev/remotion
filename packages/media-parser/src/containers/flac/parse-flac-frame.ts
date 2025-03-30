@@ -118,8 +118,8 @@ const emitSample = async ({
 
 	await emitAudioSample({
 		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-			{
+		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
 				data,
 				duration,
 				cts: timestamp,
@@ -127,11 +127,11 @@ const emitSample = async ({
 				timestamp,
 				type: 'key',
 				offset,
-				timescale: 1_000_000,
+				timescale: 1000000,
 				trackId: 0,
 			},
-			1,
-		),
+			timescale: 1,
+		}),
 		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		callbacks: state.callbacks,
 	});
