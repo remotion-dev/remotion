@@ -3087,6 +3087,15 @@ export const articles = [
 		slug: 'miscellaneous/parse-media-vs-get-video-metadata',
 	},
 	{
+		id: 'miscellaneous/pexels',
+		title: 'Timeouts with Pexels videos',
+		relativePath: 'docs/miscellaneous/pexels.mdx',
+		compId: 'articles-docs-miscellaneous-pexels',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'miscellaneous/pexels',
+	},
+	{
 		id: 'miscellaneous/render-in-browser',
 		title: 'Can I render videos in the browser?',
 		relativePath: 'docs/miscellaneous/render-in-browser.mdx',
