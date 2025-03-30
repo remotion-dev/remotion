@@ -16,6 +16,9 @@ test('Should return keyframes', async () => {
 	const {slowKeyframes} = await parseMedia({
 		src: await getRemoteExampleVideo('tsKeyframes'),
 		fields: {
+			// TODO: Test only works because of
+			// 				if (fields.slowKeyframes && videoSample.type === 'key') {
+			// in sample-callbacks.ts
 			slowKeyframes: true,
 		},
 		onVideoTrack: () => {
