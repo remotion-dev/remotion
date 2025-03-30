@@ -1,5 +1,6 @@
 import {getRemoteExampleVideo} from '@remotion/example-videos';
 import {beforeAll, expect, test} from 'bun:test';
+import {mediaParserController} from '../controller/media-parser-controller';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
 
@@ -9,6 +10,9 @@ beforeAll(async () => {
 
 test('Should return keyframes', async () => {
 	let keyframes = 0;
+
+	const controller = mediaParserController();
+
 	const {slowKeyframes} = await parseMedia({
 		src: await getRemoteExampleVideo('tsKeyframes'),
 		fields: {
@@ -18,14 +22,21 @@ test('Should return keyframes', async () => {
 			return (sample) => {
 				if (sample.type === 'key') {
 					keyframes++;
+					if (sample.timestamp === 2902900 && keyframes === 4) {
+						controller._experimentalSeek({
+							type: 'byte',
+							byte: 564,
+						});
+					}
 				}
 			};
 		},
+		controller,
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 	});
 
-	expect(keyframes).toBe(75);
+	expect(keyframes).toBe(78);
 	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 0,
