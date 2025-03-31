@@ -1214,6 +1214,7 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
+				'react-native',
 			],
 		},
 		{
