@@ -65,21 +65,6 @@ const mainJsFile = path.join(cwd, 'bin', 'whisper.wasm', 'main.js');
 
 let content = fs.readFileSync(mainJsFile, 'utf8');
 
-// Modify the Worker path
-content =
-	content.replace(
-		'new Worker(pthreadMainJs',
-		`new Worker(new URL('./main.js', import.meta.url)`,
-	) +
-	'\n' +
-	'export default Module;' +
-	'\n';
-
-// assert changes have been made
-if (!content.includes('new Worker(new URL(')) {
-	throw new Error('Changes have not been made');
-}
-
 // pass our handlers
 content = content.replace(
 	'var moduleOverrides=Object.assign({},Module);',
@@ -91,8 +76,33 @@ if (!content.includes('window.remotion_wasm_moduleOverrides')) {
 	throw new Error('Changes have not been made');
 }
 
+// Modify the Worker path
+const mainContent =
+	content.replace(
+		'new Worker(pthreadMainJs',
+		`new Worker(new URL('./worker.js', import.meta.url)`,
+	) +
+	'\n' +
+	'export default Module;' +
+	'\n';
+
+// assert changes have been made
+if (!mainContent.includes('new Worker(new URL(')) {
+	throw new Error('Changes have not been made');
+}
+
+const workerContent =
+	content.replace(
+		'worker=new Worker(pthreadMainJs)',
+		`throw new Error('Already is in worker')`,
+	) +
+	'\n' +
+	'export default Module;' +
+	'\n';
+
 // Write the modified content directly to the destination
-fs.writeFileSync(path.join(__dirname, 'main.js'), content, 'utf8');
+fs.writeFileSync(path.join(__dirname, 'main.js'), mainContent, 'utf8');
+fs.writeFileSync(path.join(__dirname, 'worker.js'), workerContent, 'utf8');
 
 const dTsFile = path.join(
 	wasmDir,

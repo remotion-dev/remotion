@@ -19,6 +19,12 @@ let transcribing = false;
 let instance: number | undefined;
 let context: AudioContext | undefined;
 
+declare global {
+	interface Window {
+		remotion_wasm_moduleOverrides?: Record<string, (...args: any[]) => void>;
+	}
+}
+
 const getAudioContext = () => {
 	if (!context) {
 		context = new AudioContext({
@@ -117,14 +123,12 @@ export const transcribe = async ({
 	// var Module = typeof Module != 'undefined' ? Module : {};
 	// var moduleOverrides = Object.assign({}, Module);
 
-	// @ts-expect-error
 	window.remotion_wasm_moduleOverrides = {
 		print: printHandler,
 		printErr: printHandler,
 	};
 	const Mod = await loadMod();
 
-	// @ts-expect-error
 	delete window.remotion_wasm_moduleOverrides;
 
 	const url = getModelUrl(model);
