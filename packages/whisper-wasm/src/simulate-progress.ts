@@ -25,8 +25,9 @@ export const simulateProgress = ({
 
 		let iterations = 0;
 		lastTimerStart = Date.now();
+
 		timer = setInterval(() => {
-			progress += 1 / NEW_PROGRESS_EVENT_EVERY_N_SECONDS / progressSteps;
+			progress += 1 / NEW_PROGRESS_EVENT_EVERY_N_SECONDS / (progressSteps + 1);
 			progress = Math.min(progress, 0.99);
 			onProgress(progress);
 			iterations += 1;

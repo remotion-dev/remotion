@@ -70,6 +70,7 @@ static bool output_json(
     int indent = 0;
     std::string output;
 
+
     auto doindent = [&]() {
         for (int i = 0; i < indent; i++) output += "\t";
     };
@@ -168,7 +169,6 @@ static bool output_json(
             value_i("mels", whisper_model_n_mels(ctx), false);
             value_i("ftype", whisper_model_ftype(ctx), true);
         end_obj(false);
-        end_obj(false);
         start_obj("result");
             value_s("language", whisper_lang_str(whisper_full_lang_id(ctx)), true);
         end_obj(false);
@@ -183,7 +183,7 @@ static bool output_json(
 
                 start_obj(nullptr);
                     times_o(t0, t1, false);
-                    value_s("text", text, true);
+                    value_s("text", text, false);
 
                     if (full) {
                         start_arr("tokens");
@@ -204,7 +204,6 @@ static bool output_json(
                         end_arr(true);
                     }
 
-                    
                 end_obj(i == (n_segments - 1));
             }
 
@@ -213,8 +212,10 @@ static bool output_json(
 
     printf("remotion_final:%s\n", output.c_str());
 
+
     return true;
 }
+
 
 // Define the progress callback function
 void progress_callback(struct whisper_context * ctx, struct whisper_state * state, int progress, void * user_data) {
