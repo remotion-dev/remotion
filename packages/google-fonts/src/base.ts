@@ -41,6 +41,7 @@ export const loadFonts = (
 		weights?: string[];
 		subsets?: string[];
 		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
 	},
 ): {
 	fontFamily: FontInfo['fontFamily'];
@@ -50,6 +51,9 @@ export const loadFonts = (
 } => {
 	const promises: Promise<void>[] = [];
 	const styles = style ? [style] : Object.keys(meta.fonts);
+
+	let fontsLoaded = 0;
+
 	for (const style of styles) {
 		// Don't load fonts on server
 		if (typeof FontFace === 'undefined') {
@@ -97,6 +101,7 @@ export const loadFonts = (
 					})}`,
 					{timeoutInMilliseconds: 60000},
 				);
+				fontsLoaded++;
 
 				//  Create font-face
 				const fontFace = new FontFace(
@@ -142,6 +147,12 @@ export const loadFonts = (
 
 				tryToLoad();
 			}
+		}
+
+		if (fontsLoaded > 20) {
+			console.warn(
+				`Made ${fontsLoaded} network requests to load fonts for ${meta.fontFamily}. Consider loading fewer weights and subsets by passing options to loadFont(). Disable this warning by passing "ignoreTooManyRequestsWarning: true" to "options".`,
+			);
 		}
 	}
 
