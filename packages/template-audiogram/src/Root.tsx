@@ -17,10 +17,10 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           // audio settings
           audioOffsetInSeconds: 0,
-          audioFileUrl: staticFile("podcast-audio.wav"),
+          audioFileUrl: staticFile("audio.wav"),
           // podcast data
           coverImageUrl: staticFile("podcast-cover.jpeg"),
-          titleText: "Deep Dive 170 – Remotion mit Jonny Burger",
+          titleText: "Ep 550 - Supper Club × Remotion React",
           titleColor: "rgba(186, 186, 186, 0.93)",
           // captions settings
           captions: null,
@@ -33,7 +33,7 @@ export const RemotionRoot: React.FC = () => {
           // visualizer settings
           visualizer: {
             type: "oscilloscope",
-            color: "#D2FF00",
+            color: "#F4B941",
             numberOfSamples: "64" as const,
             windowInSeconds: 0.1,
             posterization: 3,
