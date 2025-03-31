@@ -15,9 +15,6 @@ const SAMPLE_RATE = 16000;
 const MAX_THREADS_ALLOWED = 16;
 const DEFAULT_THREADS = 4;
 
-let transcribing = false;
-
-let instance: number | undefined;
 let context: AudioContext | undefined;
 
 declare global {
@@ -113,6 +110,8 @@ export const transcribe = async ({
 	onTranscribeChunk,
 	threads,
 }: TranscribeParams): Promise<TranscriptionJson> => {
+	checkForHeaders();
+
 	// Emscripten creates moduleOverrides from global Module object
 
 	// var Module = typeof Module != 'undefined' ? Module : {};
@@ -152,72 +151,47 @@ export const transcribe = async ({
 
 	storeFS(Mod, fileName, result);
 
+	const instance = Mod.init(fileName);
+	if (!instance) {
+		throw new Error('Failed to initialize Whisper.');
+	}
+
+	console.log('Whisper initialized, instance: ' + instance);
+
+	if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
+		throw new Error(
+			`Thread limit exceeded: max ${MAX_THREADS_ALLOWED} allowed.`,
+		);
+	}
+
+	const data = await audioProcessor(file);
+	if (!data) {
+		throw new Error('No audio data.');
+	}
+
 	return new Promise((resolve) => {
-		checkForHeaders();
-
-		if (transcribing) {
-			throw new Error('already transcribing something');
-		} else {
-			transcribing = true;
-		}
-
-		if (!instance) {
-			instance = Mod.init(fileName);
-			if (!instance) {
-				transcribing = false;
-				throw new Error('Failed to initialize Whisper.');
+		modelState.transcriptionProgressPlayback = (p) => {
+			if (p === 0) {
+				startProgress();
+			} else if (p === 100) {
+				onProgressDone();
+			} else {
+				progressStepReceived();
 			}
+		};
 
-			console.log('Whisper initialized, instance: ' + instance);
-		}
+		modelState.transcriptionChunkPlayback = onTranscribeChunk ?? null;
+		modelState.resolver = (transcript) => {
+			resolve(transcript);
+		};
 
-		if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
-			transcribing = false;
-			throw new Error(
-				`Thread limit exceeded: max ${MAX_THREADS_ALLOWED} allowed.`,
-			);
-		}
-
-		audioProcessor(file)
-			.then((data) => {
-				if (!data) {
-					transcribing = false;
-					throw new Error('No audio data.');
-				}
-
-				modelState.transcriptionProgressPlayback = (p) => {
-					if (p === 0) {
-						startProgress();
-					} else if (p === 100) {
-						onProgressDone();
-					} else {
-						progressStepReceived();
-					}
-				};
-
-				modelState.transcriptionChunkPlayback = onTranscribeChunk ?? null;
-				modelState.resolver = (transcript) => {
-					transcribing = false;
-					resolve(transcript);
-				};
-
-				setTimeout(() => {
-					try {
-						Mod.full_default(
-							instance as number,
-							data,
-							model,
-							'en',
-							threads ?? DEFAULT_THREADS,
-							false,
-						);
-					} catch (e) {
-						console.log("couldn't start transcription ", e);
-					}
-				}, 100);
-			})
-			.catch((e) => {
-				console.log("couldn't process audio file ", e);
-			});
+		Mod.full_default(
+			instance as number,
+			data,
+			model,
+			'en',
+			threads ?? DEFAULT_THREADS,
+			false,
+		);
 	});
 };
