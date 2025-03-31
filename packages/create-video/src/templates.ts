@@ -297,7 +297,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
 		promoVideo: {
-			muxId: 'nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU',
+			muxId: '7RwHiqZX5k5radAqZpGq7x02jJhi5j4OD8BMiM1z7nmE',
 			height: 1080,
 			width: 1080,
 		},
