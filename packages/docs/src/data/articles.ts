@@ -5524,6 +5524,15 @@ export const articles = [
 		slug: 'troubleshooting/nextjs-image',
 	},
 	{
+		id: 'no-frame-found-at-position',
+		title: 'No frame found at position error message',
+		relativePath: 'docs/troubleshooting/no-frame-found-at-position.mdx',
+		compId: 'articles-docs-troubleshooting-no-frame-found-at-position',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/no-frame-found-at-position',
+	},
+	{
 		id: 'stuck-render',
 		title: 'Debugging stuck renders',
 		relativePath: 'docs/troubleshooting/render-stuck.mdx',
