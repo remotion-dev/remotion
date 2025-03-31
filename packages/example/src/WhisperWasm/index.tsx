@@ -31,13 +31,14 @@ export const WhisperWasm = () => {
 	const onClickTranscribe = useCallback(async () => {
 		const file = await fetch(staticFile('16khz.wav'));
 		const blob = await file.blob();
-		transcribe({
+		const transcription = await transcribe({
 			model: 'tiny.en',
 			file: blob,
 			onProgress(p) {
-				console.log(p);
+				console.log({p});
 			},
 		});
+		console.log({transcription});
 	}, []);
 
 	useEffect(() => {

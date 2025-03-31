@@ -8,6 +8,7 @@ import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
 import {loadMod} from './load-mod/load-mod';
 import {modelState, printHandler} from './print-handler';
+import {simulateProgress} from './simulate-progress';
 
 const MAX_AUDIO_SECONDS = 30 * 60;
 const SAMPLE_RATE = 16000;
@@ -129,6 +130,20 @@ export const transcribe = async ({
 	};
 	const Mod = await loadMod();
 
+	const audioDurationInSeconds = file.size / SAMPLE_RATE / 2;
+	const {
+		// @ts-expect-error
+		abort: abortProgress,
+		onDone: onProgressDone,
+		progressStepReceived,
+		start: startProgress,
+	} = simulateProgress({
+		audioDurationInSeconds,
+		onProgress: (p) => {
+			onProgress?.(p);
+		},
+	});
+
 	delete window.remotion_wasm_moduleOverrides;
 
 	const url = getModelUrl(model);
@@ -176,7 +191,16 @@ export const transcribe = async ({
 					throw new Error('No audio data.');
 				}
 
-				modelState.transcriptionProgressPlayback = onProgress ?? null;
+				modelState.transcriptionProgressPlayback = (p) => {
+					if (p === 0) {
+						startProgress();
+					} else if (p === 100) {
+						onProgressDone();
+					} else {
+						progressStepReceived();
+					}
+				};
+
 				modelState.transcriptionChunkPlayback = onTranscribeChunk ?? null;
 				modelState.resolver = (text) => {
 					transcribing = false;

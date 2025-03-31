@@ -1,6 +1,6 @@
 import type {ModelState} from './mod';
 
-let transcriptionText: string[] = [];
+const transcriptionText: string[] = [];
 
 export const modelState: ModelState = {
 	transcriptionProgressPlayback: null,
@@ -8,16 +8,15 @@ export const modelState: ModelState = {
 	resolver: null,
 };
 
+const RESULT_TOKEN = 'remotion_final:';
+const PROGRESS_TOKEN = 'remotion_progress:';
+
 export const printHandler = (text: string) => {
-	const progressMatch = text.match(/Progress:\s*(\d+)%/i);
+	console.log({text});
+
 	const chunkMatch = text.match(
 		/^\[(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\]\s*(.+)$/,
 	);
-
-	if (progressMatch && modelState.transcriptionProgressPlayback) {
-		const progress = parseInt(progressMatch[1], 10);
-		modelState.transcriptionProgressPlayback(progress);
-	}
 
 	if (chunkMatch) {
 		const timestampStart = chunkMatch[1];
@@ -31,12 +30,19 @@ export const printHandler = (text: string) => {
 		transcriptionText.push(textOnly);
 	}
 
-	if (text === 'completed') {
-		modelState.resolver?.(transcriptionText.join(' '));
-		modelState.transcriptionChunkPlayback = null;
-		modelState.transcriptionProgressPlayback = null;
-		transcriptionText = [];
+	if (text.startsWith(PROGRESS_TOKEN)) {
+		const value = parseInt(text.slice(PROGRESS_TOKEN.length), 10);
+		modelState.transcriptionProgressPlayback?.(value);
 	}
 
-	console.log(text);
+	if (text.startsWith(RESULT_TOKEN)) {
+		try {
+			console.log({t: text.slice(RESULT_TOKEN.length)});
+			const json = JSON.parse(text.slice(RESULT_TOKEN.length));
+
+			modelState.resolver?.(json);
+		} catch (e) {
+			console.error(e);
+		}
+	}
 };
