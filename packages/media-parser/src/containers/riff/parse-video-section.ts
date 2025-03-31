@@ -3,7 +3,7 @@ import type {ParserState} from '../../state/parser-state';
 import {TO_BE_OVERRIDDEN_LATER} from './get-tracks-from-avi';
 import {parseMovi} from './parse-movi';
 
-export const parseVideoSection = async (state: ParserState): Promise<void> => {
+export const parseMediaSection = async (state: ParserState): Promise<void> => {
 	await parseMovi({
 		state,
 	});

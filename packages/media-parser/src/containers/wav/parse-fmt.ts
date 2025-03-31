@@ -1,6 +1,7 @@
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import type {WavFmt} from './types';
 
 export const parseFmt = async ({
@@ -45,9 +46,9 @@ export const parseFmt = async ({
 		type: 'wav-fmt',
 	};
 
-	state.getWavStructure().boxes.push(wavHeader);
+	state.structure.getWavStructure().boxes.push(wavHeader);
 	await registerAudioTrack({
-		state,
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 		track: {
 			type: 'audio',
 			codec: format,
@@ -61,6 +62,10 @@ export const parseFmt = async ({
 			trakBox: null,
 		},
 		container: 'wav',
+		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+		tracks: state.callbacks.tracks,
+		logLevel: state.logLevel,
+		onAudioTrack: state.onAudioTrack,
 	});
 
 	box.expectNoMoreBytes();

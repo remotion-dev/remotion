@@ -8,7 +8,7 @@ export const parseFlacHeader = ({
 	state: ParserState;
 	iterator: BufferIterator;
 }): Promise<ParseResult> => {
-	state.getFlacStructure().boxes.push({
+	state.structure.getFlacStructure().boxes.push({
 		type: 'flac-header',
 	});
 

@@ -22,7 +22,7 @@ We do not test against Deno's `Worker` implementation.
 :::
 
 ```tsx twoslash title="Parsing a video on a Bun Worker"
-import {parseMediaOnServerWorker} from '@remotion/media-parser/worker';
+import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
   src: '/tmp/video.mp4',
@@ -44,6 +44,6 @@ The [`reader`](/docs/media-parser/parse-media#reader) option in the worker is ha
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/worker.module.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/server-worker.module.ts)
 - [`parseMedia()`](/docs/media-parser/parse-media)
 - [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker)

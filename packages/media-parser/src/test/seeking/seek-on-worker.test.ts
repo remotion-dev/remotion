@@ -2,8 +2,8 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
+import {parseMediaOnServerWorker} from '../../server-worker.module';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
-import {parseMediaOnServerWorker} from '../../worker.module';
 
 test('seek should also work on worker', async () => {
 	const controller = mediaParserController();

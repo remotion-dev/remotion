@@ -15,7 +15,7 @@ export const filterStreamsBySupportedTypes = (
 export const getTracksFromTransportStream = (
 	parserState: ParserState,
 ): AllTracks => {
-	const structure = parserState.getTsStructure();
+	const structure = parserState.structure.getTsStructure();
 	const programMapTable = findProgramMapTableOrThrow(structure);
 	const parserTracks = parserState.callbacks.tracks.getTracks();
 

@@ -1,0 +1,30 @@
+---
+image: /generated/articles-docs-audio-muting.png
+title: Muting Audio
+sidebar_label: Muting Audio
+id: muting
+crumb: 'Audio'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {AvailableFrom} from '../../src/components/AvailableFrom';
+
+You may pass in the [`muted`](/docs/audio#muted) prop to [`<Audio>`](/docs/audio), [`<OffthreadVideo>`](/docs/offthreadvideo) and [`<Video>`](/docs/video) and even change it over time.
+
+When [`muted`](/docs/audio#muted) is true, audio will be omitted at that time. In the following example, we are muting the track between seconds 2 and 4.
+
+```tsx twoslash {9}
+import {AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} muted={frame >= 2 * fps && frame <= 4 * fps} />
+    </AbsoluteFill>
+  );
+};
+```

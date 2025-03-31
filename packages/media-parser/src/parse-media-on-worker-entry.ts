@@ -100,20 +100,14 @@ export const parseMediaOnWorkerImplementation = async <
 	F extends Options<ParseMediaFields>,
 >(
 	{controller, reader, ...params}: ParseMediaOptions<F>,
-	workerUrlEntry: URL,
+	worker: Worker,
 	apiName: string,
 ) => {
-	if (typeof Worker === 'undefined') {
-		throw new Error('"Worker" is not available. Cannot call workerClient()');
-	}
-
 	if (reader) {
 		throw new Error(
 			`\`reader\` should not be provided to \`${apiName}\`. If you want to use it in the browser, use parseMediaOnWorker(). If you also want to read files from the file system, use parseMediaOnServerWorker().`,
 		);
 	}
-
-	const worker = new Worker(workerUrlEntry);
 
 	post(worker, convertToWorkerPayload(params));
 

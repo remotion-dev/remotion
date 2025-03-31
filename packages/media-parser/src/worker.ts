@@ -7,9 +7,3 @@ export const parseMediaOnWebWorker: ParseMediaOnWorker = () => {
 		'parseMediaOnWebWorker is not available in CJS mode. Load this function using ESM to use it.',
 	);
 };
-
-export const parseMediaOnServerWorker: ParseMediaOnWorker = () => {
-	throw new Error(
-		'parseMediaOnServerWorker is not available in CJS mode. Load this function using ESM to use it.',
-	);
-};

@@ -3,7 +3,7 @@ import {getAllPlaylists, getDurationFromPlaylist} from './get-playlist';
 
 export const getDurationFromM3u = (state: ParserState): number | null => {
 	const playlists = getAllPlaylists({
-		structure: state.getM3uStructure(),
+		structure: state.structure.getM3uStructure(),
 		src: state.src,
 	});
 

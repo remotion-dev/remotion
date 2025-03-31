@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.280",
+	"version": "4.0.282",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -75,6 +75,12 @@
 			"require": "./dist/worker.js",
 			"module": "./dist/esm/worker.mjs",
 			"import": "./dist/esm/worker.mjs"
+		},
+		"./server-worker": {
+			"types": "./dist/server-worker.d.ts",
+			"require": "./dist/server-worker.js",
+			"module": "./dist/esm/server-worker.mjs",
+			"import": "./dist/esm/server-worker.mjs"
 		}
 	},
 	"typesVersions": {
@@ -99,6 +105,9 @@
 			],
 			"worker": [
 				"./dist/worker.d.ts"
+			],
+			"server-worker": [
+				"./dist/server-worker.d.ts"
 			]
 		}
 	},

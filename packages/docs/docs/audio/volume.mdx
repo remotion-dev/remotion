@@ -1,0 +1,66 @@
+---
+image: /generated/articles-docs-audio-volume.png
+title: Controlling Volume
+sidebar_label: Controlling Volume
+id: volume
+crumb: 'Audio'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+You can use the [`volume`](/docs/audio#volume) prop to control the volume.
+
+The simplest way is to pass a number between `0` and `1`.
+
+```tsx twoslash {7} title="MyComp.tsx"
+import {Audio, staticFile, AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <div>Hello World!</div>
+      <Audio src={staticFile('audio.mp3')} volume={0.5} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Changing volume over time
+
+You can also change volume over time by passing in a function that takes a frame number and returns the volume.
+
+```tsx twoslash {8}
+import {AbsoluteFill, Audio, interpolate, staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} volume={(f) => interpolate(f, [0, 1 * fps], [0, 1], {extrapolateLeft: 'clamp'})} />
+    </AbsoluteFill>
+  );
+};
+```
+
+In this example we are using the [`interpolate()`](/docs/interpolate) function to fade the audio in over 1 second.
+
+Note that because values below 0 are not allowed, we need to set the [`extrapolateLeft: 'clamp'`](/docs/interpolate#extrapolateleft) option to ensure no negative values.
+
+Inside the callback function, the value of `f` starts always `0` when the audio begins to play.  
+It is not the same as the value of [`useCurrentFrame()`](/docs/use-current-frame).
+
+Prefer using a callback function if the volume is changing. This will enable Remotion to draw a volume curve in the [Studio](/docs/studio) and is more performant.
+
+## Volume on iOS Safari
+
+Note that Mobile Safari [does not support the `volume` property](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW11). Currently, the volume will always be 1. We plan on in the future support to provide a workaround using the Web Audio API (see below).
+
+## Increasing the volume to above 1<AvailableFrom v="4.0.279" />
+
+It is possible to set volumes above 1, but some things need your attention.
+
+Remotion will use the Web Audio API to amplify the audio.
+
+For remote audio that does not support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS-enabled), you need to also add `crossOrigin="anonymous"` to your media tags, otherwise the audio will be fully muted.

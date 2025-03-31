@@ -2,24 +2,19 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {getCurrentVideoSection} from '../../state/video-section';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
+import {WAVE_SAMPLES_PER_SECOND} from './get-seeking-byte';
 import type {WavFmt} from './types';
 
-export const parseVideoSection = async ({
+export const parseMediaSection = async ({
 	state,
 }: {
 	state: ParserState;
 }): Promise<ParseResult> => {
 	const {iterator} = state;
-	const structure = state.getWavStructure();
+	const structure = state.structure.getWavStructure();
 
-	const videoSection = getCurrentVideoSection({
-		offset: iterator.counter.getOffset(),
-		videoSections: state.videoSection.getVideoSections(),
-	});
-	if (!videoSection) {
-		throw new Error('No video section defined');
-	}
+	const videoSection = state.mediaSection.getMediaSectionAssertOnlyOne();
 
 	const maxOffset = videoSection.start + videoSection.size;
 	const maxRead = maxOffset - iterator.counter.getOffset();
@@ -32,11 +27,9 @@ export const parseVideoSection = async ({
 		throw new Error('Expected fmt box');
 	}
 
-	const secondsToRead = 1;
-
 	const toRead = Math.min(
 		maxRead,
-		fmtBox.sampleRate * fmtBox.blockAlign * secondsToRead,
+		(fmtBox.sampleRate * fmtBox.blockAlign) / WAVE_SAMPLES_PER_SECOND,
 	);
 
 	const duration = toRead / (fmtBox.sampleRate * fmtBox.blockAlign);
@@ -46,8 +39,8 @@ export const parseVideoSection = async ({
 	const data = iterator.getSlice(toRead);
 	await emitAudioSample({
 		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-			{
+		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
 				cts: timestamp,
 				dts: timestamp,
 				data,
@@ -58,9 +51,10 @@ export const parseVideoSection = async ({
 				offset,
 				timescale: 1_000_000,
 			},
-			1,
-		),
-		state,
+			timescale: 1,
+		}),
+		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+		callbacks: state.callbacks,
 	});
 	return null;
 };

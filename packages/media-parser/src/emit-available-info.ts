@@ -15,7 +15,10 @@ import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {ParserState} from './state/parser-state';
-import {workOnSeekRequest} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 export const emitAvailableInfo = async ({
 	hasInfo,
@@ -35,12 +38,12 @@ export const emitAvailableInfo = async ({
 	} = state;
 
 	for (const key of keys) {
-		await workOnSeekRequest(state);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
-				await callbackFunctions.onStructure?.(state.getStructure());
+				await callbackFunctions.onStructure?.(state.structure.getStructure());
 				if (fieldsInReturnValue.structure) {
-					returnValue.structure = state.getStructure();
+					returnValue.structure = state.structure.getStructure();
 				}
 
 				emittedFields.structure = true;
@@ -299,7 +302,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'container') {
 			if (!returnValue.container && hasInfo.container) {
-				const container = getContainer(state.getStructure());
+				const container = getContainer(state.structure.getStructure());
 				await callbackFunctions.onContainer?.(container);
 				if (fieldsInReturnValue.container) {
 					returnValue.container = container;
@@ -464,7 +467,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'm3uStreams') {
 			if (!emittedFields.m3uStreams && hasInfo.m3uStreams) {
 				const streams = getM3uStreams({
-					structure: state.getStructureOrNull(),
+					structure: state.structure.getStructureOrNull(),
 					originalSrc: state.src,
 					readerInterface: state.readerInterface,
 				});
@@ -482,5 +485,5 @@ export const emitAvailableInfo = async ({
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 
-	await workOnSeekRequest(state);
+	await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 };

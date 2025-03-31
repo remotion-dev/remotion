@@ -16,7 +16,7 @@ export const runParseIteration = async ({
 }: {
 	state: ParserState;
 }): Promise<ParseResult> => {
-	const structure = state.getStructureOrNull();
+	const structure = state.structure.getStructureOrNull();
 	// m3u8 is busy parsing the chunks once the manifest has been read
 	if (structure && structure.type === 'm3u') {
 		return parseM3u({state});

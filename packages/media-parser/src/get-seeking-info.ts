@@ -1,22 +1,51 @@
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-from-mp4';
 import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-info-from-mp4';
+import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
+import {getSeekingInfoFromWav} from './containers/wav/get-seeking-info';
 import type {LogLevel} from './log';
+import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingInfo} from './seeking-info';
-import type {ParserState} from './state/parser-state';
+import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
+import type {StructureState} from './state/structure';
+import type {MediaSectionState} from './state/video-section';
 import type {SeekResolution} from './work-on-seek-request';
 
-export const getSeekingInfo = (state: ParserState): SeekingInfo | null => {
-	const structure = state.getStructureOrNull();
+export const getSeekingInfo = ({
+	structureState,
+	mp4HeaderSegment,
+	mediaSectionState,
+	isoState,
+}: {
+	structureState: StructureState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	mediaSectionState: MediaSectionState;
+	isoState: IsoBaseMediaState;
+}): SeekingInfo | null => {
+	const structure = structureState.getStructureOrNull();
 
 	if (!structure) {
 		return null;
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getSeekingInfoFromMp4(state);
+		return getSeekingInfoFromMp4({
+			structureState,
+			isoState,
+			mp4HeaderSegment,
+			mediaSectionState,
+		});
 	}
 
-	return null;
+	if (structure.type === 'wav') {
+		return getSeekingInfoFromWav({
+			structure,
+			mediaSectionState,
+		});
+	}
+
+	throw new Error(
+		`Seeking is not supported for this format: ${structure.type}`,
+	);
 };
 
 export const getSeekingByte = ({
@@ -24,20 +53,30 @@ export const getSeekingByte = ({
 	time,
 	logLevel,
 	currentPosition,
+	isoState,
 }: {
 	info: SeekingInfo;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
-}): SeekResolution => {
+	isoState: IsoBaseMediaState;
+}): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia({
 			info,
 			time,
 			logLevel,
 			currentPosition,
+			isoState,
 		});
 	}
 
-	throw new Error(`Unknown seeking info type: ${info.type as never}`);
+	if (info.type === 'wav-seeking-info') {
+		return getSeekingByteFromWav({
+			info,
+			time,
+		});
+	}
+
+	throw new Error(`Unknown seeking info type: ${info as never}`);
 };

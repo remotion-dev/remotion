@@ -23,6 +23,7 @@ const container: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
 	marginRight: 6,
+	flexShrink: 0,
 };
 
 let layerPointedDown: null | 'enable' | 'disable' = null;

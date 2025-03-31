@@ -1,29 +1,34 @@
-import type {ParserState} from './state/parser-state';
+import type {SampleCallbacks} from './state/sample-callbacks';
 import type {AudioOrVideoSample} from './webcodec-sample-types';
+import type {WorkOnSeekRequestOptions} from './work-on-seek-request';
 import {workOnSeekRequest} from './work-on-seek-request';
 
 export const emitAudioSample = async ({
 	trackId,
 	audioSample,
-	state,
+	workOnSeekRequestOptions,
+	callbacks,
 }: {
 	trackId: number;
 	audioSample: AudioOrVideoSample;
-	state: ParserState;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	callbacks: SampleCallbacks;
 }) => {
-	await state.callbacks.onAudioSample(trackId, audioSample);
-	await workOnSeekRequest(state);
+	await callbacks.onAudioSample(trackId, audioSample);
+	await workOnSeekRequest(workOnSeekRequestOptions);
 };
 
 export const emitVideoSample = async ({
 	trackId,
 	videoSample,
-	state,
+	workOnSeekRequestOptions,
+	callbacks,
 }: {
 	trackId: number;
 	videoSample: AudioOrVideoSample;
-	state: ParserState;
+	workOnSeekRequestOptions: WorkOnSeekRequestOptions;
+	callbacks: SampleCallbacks;
 }) => {
-	await state.callbacks.onVideoSample(trackId, videoSample);
-	await workOnSeekRequest(state);
+	await callbacks.onVideoSample(trackId, videoSample);
+	await workOnSeekRequest(workOnSeekRequestOptions);
 };

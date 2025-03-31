@@ -2,15 +2,15 @@ import type {ParseResult} from '../../parse-result';
 import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
-import {getCurrentVideoSection} from '../../state/video-section';
+import {getCurrentMediaSection} from '../../state/video-section';
 import {expectRiffBox} from './expect-riff-box';
-import {parseVideoSection} from './parse-video-section';
+import {parseMediaSection} from './parse-video-section';
 
 export const parseRiffBody = async (
 	state: ParserState,
 ): Promise<ParseResult> => {
 	if (
-		state.videoSection.isCurrentByteInVideoSection(state.iterator) ===
+		state.mediaSection.isCurrentByteInMediaSection(state.iterator) ===
 		'in-section'
 	) {
 		if (
@@ -19,25 +19,25 @@ export const parseRiffBody = async (
 			}) &&
 			state.riff.getAvcProfile()
 		) {
-			const videoSection = getCurrentVideoSection({
+			const mediaSection = getCurrentMediaSection({
 				offset: state.iterator.counter.getOffset(),
-				videoSections: state.videoSection.getVideoSections(),
+				mediaSections: state.mediaSection.getMediaSections(),
 			});
-			if (!videoSection) {
+			if (!mediaSection) {
 				throw new Error('No video section defined');
 			}
 
 			// only skipping forward in query mode
-			return Promise.resolve(makeSkip(videoSection.start + videoSection.size));
+			return Promise.resolve(makeSkip(mediaSection.start + mediaSection.size));
 		}
 
-		await parseVideoSection(state);
+		await parseMediaSection(state);
 		return null;
 	}
 
 	const box = await expectRiffBox(state);
 	if (box !== null) {
-		const structure = state.getRiffStructure();
+		const structure = state.structure.getRiffStructure();
 		structure.boxes.push(box);
 	}
 

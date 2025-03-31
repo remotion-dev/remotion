@@ -353,6 +353,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/docs/audio-visualization",
+			"destination": "/docs/audio/visualization",
+			"permanent": false
+		},
+		{
 			"source": "/recorder",
 			"destination": "/docs/recorder",
 			"permanent": false

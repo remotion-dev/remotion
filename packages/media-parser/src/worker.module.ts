@@ -9,21 +9,17 @@ export const parseMediaOnWebWorker: ParseMediaOnWorker = <
 >(
 	params: ParseMediaOnWorkerOptions<F>,
 ) => {
-	return parseMediaOnWorkerImplementation(
-		params,
-		new URL('./worker-web-entry', import.meta.url),
-		'parseMediaOnWebWorker',
-	);
-};
+	if (typeof Worker === 'undefined') {
+		throw new Error(
+			'"Worker" is not available. Cannot call parseMediaOnWebWorker()',
+		);
+	}
 
-export const parseMediaOnServerWorker: ParseMediaOnWorker = <
-	F extends Options<ParseMediaFields>,
->(
-	params: ParseMediaOnWorkerOptions<F>,
-) => {
+	const worker = new Worker(new URL('./worker-web-entry', import.meta.url));
+
 	return parseMediaOnWorkerImplementation(
 		params,
-		new URL('./worker-server-entry', import.meta.url),
-		'parseMediaOnServerWorker',
+		worker,
+		'parseMediaOnWebWorker',
 	);
 };
