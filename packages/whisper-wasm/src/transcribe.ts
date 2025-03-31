@@ -8,9 +8,9 @@ import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
 import {loadMod} from './load-mod/load-mod';
 import {modelState, printHandler} from './print-handler';
+import type {TranscriptionJson} from './result';
 import {simulateProgress} from './simulate-progress';
 
-const MAX_AUDIO_SECONDS = 30 * 60;
 const SAMPLE_RATE = 16000;
 const MAX_THREADS_ALLOWED = 16;
 const DEFAULT_THREADS = 4;
@@ -49,14 +49,8 @@ const audioDecoder = async (audioBuffer: AudioBuffer) => {
 	source.start(0);
 
 	const renderedBuffer = await offlineContext.startRendering();
-	let audio = renderedBuffer.getChannelData(0);
+	const audio = renderedBuffer.getChannelData(0);
 	console.log(`Audio loaded, size: ${audio.length}`);
-
-	// Truncate to first 30 seconds
-	if (audio.length > MAX_AUDIO_SECONDS * SAMPLE_RATE) {
-		audio = audio.slice(0, MAX_AUDIO_SECONDS * SAMPLE_RATE);
-		console.log(`Truncated audio to first ${MAX_AUDIO_SECONDS} seconds`);
-	}
 
 	return audio;
 };
@@ -118,7 +112,7 @@ export const transcribe = async ({
 	onProgress,
 	onTranscribeChunk,
 	threads,
-}: TranscribeParams) => {
+}: TranscribeParams): Promise<TranscriptionJson> => {
 	// Emscripten creates moduleOverrides from global Module object
 
 	// var Module = typeof Module != 'undefined' ? Module : {};
@@ -202,9 +196,9 @@ export const transcribe = async ({
 				};
 
 				modelState.transcriptionChunkPlayback = onTranscribeChunk ?? null;
-				modelState.resolver = (text) => {
+				modelState.resolver = (transcript) => {
 					transcribing = false;
-					resolve(text);
+					resolve(transcript);
 				};
 
 				setTimeout(() => {
@@ -212,6 +206,7 @@ export const transcribe = async ({
 						Mod.full_default(
 							instance as number,
 							data,
+							model,
 							'en',
 							threads ?? DEFAULT_THREADS,
 							false,

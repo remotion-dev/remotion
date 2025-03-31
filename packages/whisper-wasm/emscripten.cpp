@@ -255,7 +255,7 @@ EMSCRIPTEN_BINDINGS(whisper) {
         }
     }));
 
-    emscripten::function("full_default", emscripten::optional_override([](size_t index, const emscripten::val & audio, const std::string & lang, int nthreads, bool translate) {
+    emscripten::function("full_default", emscripten::optional_override([](size_t index, const emscripten::val & audio, const std::string & model, const std::string & lang, int nthreads, bool translate) {
         if (g_worker.joinable()) {
             g_worker.join();
         }
@@ -277,6 +277,7 @@ EMSCRIPTEN_BINDINGS(whisper) {
         params.print_timestamps = true;
         params.print_special    = false;
         params.translate        = translate;
+        params.token_timestamps = true;
         params.language         = lang.c_str(); // Convert std::string to const char*
         params.n_threads        = std::min(nthreads, std::min(16, mpow2(std::thread::hardware_concurrency())));
         params.offset_ms        = 0;

@@ -42,7 +42,7 @@ type EmbindString = ArrayBuffer|Uint8Array|Uint8ClampedArray|Int8Array|string;
 interface EmbindModule {
   init(_0: EmbindString): number;
   free(_0: number): void;
-  full_default(_0: number, _1: any, _2: EmbindString, _3: number, _4: boolean): number;
+  full_default(_0: number, _1: any, _2: EmbindString, _3: EmbindString, _4: number, _5: boolean): number;
 }
 
 export type MainModule = WasmModule & typeof RuntimeExports & EmbindModule;
