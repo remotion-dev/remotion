@@ -3,7 +3,7 @@
 
 import type {MainModule} from '../main';
 import {checkForHeaders} from './check-for-headers';
-import {FILE_DESTINATION, type WhisperModel} from './constants';
+import {type WhisperModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
 import {loadMod} from './load-mod/load-mod';
@@ -135,7 +135,9 @@ export const transcribe = async ({
 		);
 	}
 
-	storeFS(Mod, FILE_DESTINATION, result);
+	const fileName = `${model}.bin`;
+
+	storeFS(Mod, fileName, result);
 
 	return new Promise((resolve) => {
 		checkForHeaders();
@@ -147,7 +149,7 @@ export const transcribe = async ({
 		}
 
 		if (!instance) {
-			instance = Mod.init(FILE_DESTINATION);
+			instance = Mod.init(fileName);
 			if (!instance) {
 				transcribing = false;
 				throw new Error('Failed to initialize Whisper.');

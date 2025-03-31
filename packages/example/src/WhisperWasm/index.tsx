@@ -11,16 +11,22 @@ import {staticFile} from 'remotion';
 export const WhisperWasm = () => {
 	const [loadedModels, setLoadedModels] = useState<WhisperModel[]>([]);
 
+	const fetchModels = useCallback(async () => {
+		const models = await getLoadedModels();
+		setLoadedModels(models);
+	}, []);
+
 	const onClick = useCallback(async () => {
 		const {alreadyDownloaded} = await downloadWhisperModel({
-			model: 'tiny',
+			model: 'tiny.en',
 			onProgress: (progress) => {
 				console.log(progress);
 			},
 		});
+		fetchModels();
 
 		console.log({alreadyDownloaded});
-	}, []);
+	}, [fetchModels]);
 
 	const onClickTranscribe = useCallback(async () => {
 		const file = await fetch(staticFile('16khz.wav'));
@@ -32,11 +38,6 @@ export const WhisperWasm = () => {
 				console.log(p);
 			},
 		});
-	}, []);
-
-	const fetchModels = useCallback(async () => {
-		const models = await getLoadedModels();
-		setLoadedModels(models);
 	}, []);
 
 	useEffect(() => {
