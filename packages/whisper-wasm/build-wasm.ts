@@ -69,7 +69,7 @@ let content = fs.readFileSync(mainJsFile, 'utf8');
 content =
 	content.replace(
 		'new Worker(pthreadMainJs',
-		`new Worker(new URL('../../main.js', import.meta.url)`,
+		`new Worker(new URL('./main.js', import.meta.url)`,
 	) +
 	'\n' +
 	'export default Module;' +
