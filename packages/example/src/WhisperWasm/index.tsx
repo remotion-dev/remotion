@@ -1,4 +1,5 @@
 import {
+	deleteModel,
 	downloadWhisperModel,
 	getLoadedModels,
 	transcribe,
@@ -33,11 +34,14 @@ export const WhisperWasm = () => {
 		});
 	}, []);
 
-	useEffect(() => {
-		getLoadedModels().then((mod) => {
-			setLoadedModels(mod);
-		});
+	const fetchModels = useCallback(async () => {
+		const models = await getLoadedModels();
+		setLoadedModels(models);
 	}, []);
+
+	useEffect(() => {
+		fetchModels();
+	}, [fetchModels]);
 
 	return (
 		<div>
@@ -45,7 +49,17 @@ export const WhisperWasm = () => {
 			<button onClick={onClickTranscribe}>Transcribe</button>
 			<div>
 				{loadedModels.map((model) => (
-					<div key={model}>{model}</div>
+					<div key={model}>
+						{model}
+						<button
+							onClick={async () => {
+								await deleteModel(model);
+								await fetchModels();
+							}}
+						>
+							Delete
+						</button>
+					</div>
 				))}
 			</div>
 		</div>

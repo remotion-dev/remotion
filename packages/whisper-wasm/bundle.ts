@@ -5,7 +5,7 @@ await buildPackage({
 		cjs: 'use-tsc',
 		esm: 'build',
 	},
-	external: 'dependencies',
+	external: ['./main.js'],
 	entrypoints: [
 		{
 			path: 'src/index.module.ts',

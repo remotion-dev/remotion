@@ -1,3 +1,4 @@
+export {deleteModel} from './delete-model';
 export {
 	DownloadWhisperModelParams,
 	DownloadWhisperModelResult,
