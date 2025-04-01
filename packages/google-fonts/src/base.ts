@@ -93,14 +93,20 @@ export const loadFonts = (
 					continue;
 				}
 
-				const handle = delayRender(
-					`Fetching ${meta.fontFamily} font ${JSON.stringify({
-						style,
-						weight,
-						subset,
-					})}`,
-					{timeoutInMilliseconds: 60000},
-				);
+				const weightsAndSubsetsAreSpecified =
+					options?.weights && options?.subsets;
+
+				const baseLabel = `Fetching ${meta.fontFamily} font ${JSON.stringify({
+					style,
+					weight,
+					subset,
+				})}`;
+
+				const label = weightsAndSubsetsAreSpecified
+					? baseLabel
+					: `${baseLabel}. This might be caused by loading too many font variations. Read more: https://www.remotion.dev/docs/troubleshooting/font-loading-errors#render-timeout-when-loading-google-fonts`;
+
+				const handle = delayRender(label, {timeoutInMilliseconds: 60000});
 				fontsLoaded++;
 
 				//  Create font-face
