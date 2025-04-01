@@ -74,7 +74,9 @@ const handleFallback = async ({
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
 	response.setHeader('content-type', 'text/html');
-	response.writeHead(200);
+	response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+	response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+
 	const packageManager = getPackageManager(remotionRoot, undefined, 0);
 	fetchFolder({publicDir, staticHash: hash});
 
