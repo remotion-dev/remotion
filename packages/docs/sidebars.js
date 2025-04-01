@@ -1118,6 +1118,7 @@ module.exports = {
 				'troubleshooting/could-not-find-executable-to-run',
 				'troubleshooting/stuck-render',
 				'troubleshooting/no-frame-found-at-position',
+				'troubleshooting/font-loading-errors',
 			],
 		},
 		{
