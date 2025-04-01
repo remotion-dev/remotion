@@ -5,6 +5,7 @@ import {
 import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
 import type {ReaderInterface} from './readers/reader';
+import {withResolvers} from './with-resolvers';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
 import {serializeError} from './worker/serialize-error';
 import type {
@@ -23,8 +24,7 @@ const controller = mediaParserController();
 
 const executeCallback = (payload: ResponseCallbackPayload) => {
 	const nonce = crypto.randomUUID();
-	const {promise, resolve, reject} =
-		Promise.withResolvers<AcknowledgePayload>();
+	const {promise, resolve, reject} = withResolvers<AcknowledgePayload>();
 
 	const cb = (msg: MessageEvent) => {
 		const data = msg.data as WorkerRequestPayload;

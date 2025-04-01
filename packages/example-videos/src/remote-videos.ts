@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import {$} from 'bun';
 import fs from 'fs';
 import path from 'path';
 
@@ -18,6 +17,7 @@ const cacheDir = path.join(rootDir, 'node_modules', '.videos');
 export const getRemoteExampleVideo = async (
 	videoName: keyof typeof remoteExampleVideos,
 ) => {
+	const {$} = await import('bun');
 	const url = remoteExampleVideos[videoName];
 	const name = new URL(url).pathname.split('/').pop() as string;
 	const location = path.join(cacheDir, name);

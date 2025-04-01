@@ -92,6 +92,7 @@ export const mediaSectionState = () => {
 		isByteInMediaSection,
 		getCurrentMediaSection,
 		getMediaSectionAssertOnlyOne,
+		mediaSections,
 	};
 };
 
