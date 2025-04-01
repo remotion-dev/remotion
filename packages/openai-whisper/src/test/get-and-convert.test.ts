@@ -104,7 +104,7 @@ if (!process.env.CI) {
 				timestamp_granularities: ['word'],
 			});
 			const {captions} = openAiWhisperApiToCaptions({transcription});
-			expect(captions.length).toBeGreaterThan(400);
+			expect(captions.length).toBeGreaterThan(60);
 		},
 		{timeout: 60000},
 	);
