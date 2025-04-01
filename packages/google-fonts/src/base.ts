@@ -1,4 +1,5 @@
 import {continueRender, delayRender} from 'remotion';
+import {NoReactInternals} from 'remotion/src/no-react';
 
 const loadedFonts: Record<string, Promise<void> | undefined> = {};
 
@@ -49,6 +50,21 @@ export const loadFonts = (
 	unicodeRanges: FontInfo['unicodeRanges'];
 	waitUntilDone: () => Promise<undefined>;
 } => {
+	const weightsAndSubsetsAreSpecified =
+		Array.isArray(options?.weights) &&
+		Array.isArray(options?.subsets) &&
+		options.weights.length > 0 &&
+		options.subsets.length > 0;
+
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		!weightsAndSubsetsAreSpecified
+	) {
+		throw new Error(
+			'Loading Google Fonts without specifying weights and subsets is not supported in Remotion v5. Please specify the weights and subsets you need.',
+		);
+	}
+
 	const promises: Promise<void>[] = [];
 	const styles = style ? [style] : Object.keys(meta.fonts);
 
@@ -92,9 +108,6 @@ export const loadFonts = (
 					promises.push(previousPromise);
 					continue;
 				}
-
-				const weightsAndSubsetsAreSpecified =
-					options?.weights && options?.subsets;
 
 				const baseLabel = `Fetching ${meta.fontFamily} font ${JSON.stringify({
 					style,
