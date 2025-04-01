@@ -1,4 +1,5 @@
 import {continueRender, delayRender} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 
 const loadedFonts: Record<string, Promise<void> | undefined> = {};
 
@@ -26,6 +27,22 @@ const loadFontFaceOrTimeoutAfter20Seconds = (fontFace: FontFace) => {
 	]);
 };
 
+type FontLoadOptions = {
+	document?: Document;
+	ignoreTooManyRequestsWarning?: boolean;
+};
+
+type V4Options = FontLoadOptions & {
+	weights?: string[];
+	subsets?: string[];
+};
+
+// weights and subsets are required in v5
+type V5Options = FontLoadOptions & {
+	weights: string[];
+	subsets: string[];
+};
+
 /**
  * @description Load a Google Font for use in Remotion.
  * @param meta
@@ -37,18 +54,30 @@ const loadFontFaceOrTimeoutAfter20Seconds = (fontFace: FontFace) => {
 export const loadFonts = (
 	meta: FontInfo,
 	style?: string,
-	options?: {
-		weights?: string[];
-		subsets?: string[];
-		document?: Document;
-		ignoreTooManyRequestsWarning?: boolean;
-	},
+	options?: typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? V5Options
+		: V4Options,
 ): {
 	fontFamily: FontInfo['fontFamily'];
 	fonts: FontInfo['fonts'];
 	unicodeRanges: FontInfo['unicodeRanges'];
 	waitUntilDone: () => Promise<undefined>;
 } => {
+	const weightsAndSubsetsAreSpecified =
+		Array.isArray(options?.weights) &&
+		Array.isArray(options?.subsets) &&
+		options.weights.length > 0 &&
+		options.subsets.length > 0;
+
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		!weightsAndSubsetsAreSpecified
+	) {
+		throw new Error(
+			'Loading Google Fonts without specifying weights and subsets is not supported in Remotion v5. Please specify the weights and subsets you need.',
+		);
+	}
+
 	const promises: Promise<void>[] = [];
 	const styles = style ? [style] : Object.keys(meta.fonts);
 
@@ -93,14 +122,17 @@ export const loadFonts = (
 					continue;
 				}
 
-				const handle = delayRender(
-					`Fetching ${meta.fontFamily} font ${JSON.stringify({
-						style,
-						weight,
-						subset,
-					})}`,
-					{timeoutInMilliseconds: 60000},
-				);
+				const baseLabel = `Fetching ${meta.fontFamily} font ${JSON.stringify({
+					style,
+					weight,
+					subset,
+				})}`;
+
+				const label = weightsAndSubsetsAreSpecified
+					? baseLabel
+					: `${baseLabel}. This might be caused by loading too many font variations. Read more: https://www.remotion.dev/docs/troubleshooting/font-loading-errors#render-timeout-when-loading-google-fonts`;
+
+				const handle = delayRender(label, {timeoutInMilliseconds: 60000});
 				fontsLoaded++;
 
 				//  Create font-face
