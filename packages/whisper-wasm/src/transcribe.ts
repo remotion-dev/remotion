@@ -151,13 +151,6 @@ export const transcribe = async ({
 
 	storeFS(Mod, fileName, result);
 
-	const instance = Mod.init(fileName);
-	if (!instance) {
-		throw new Error('Failed to initialize Whisper.');
-	}
-
-	console.log('Whisper initialized, instance: ' + instance);
-
 	if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
 		throw new Error(
 			`Thread limit exceeded: max ${MAX_THREADS_ALLOWED} allowed.`,
@@ -192,6 +185,7 @@ export const transcribe = async ({
 			'en',
 			threads ?? DEFAULT_THREADS,
 			false,
+			fileName,
 		);
 	});
 };

@@ -3,7 +3,9 @@
 import type {MainModule} from '../../main';
 
 export const loadMod = async () => {
-	const Mod = await import('../../main.js');
+	// According to MDN, this is allowed:
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object
+	const Mod = await import('../../main.js?t=' + Date.now());
 
 	return Mod.default as unknown as MainModule;
 };
