@@ -12,15 +12,12 @@ loadFont("normal", {
 });
 
 const containerStyle: React.CSSProperties = {
-  display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
-  width: "1080px",
-  height: "1080px",
   color: "white",
   backgroundColor: "black",
-  padding: "48px",
-  gap: "32px",
+  padding: 48,
+  gap: 32,
   fontFamily,
 };
 
@@ -28,26 +25,26 @@ const visualizerContainerStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   width: "100%",
-  borderRadius: "32px",
-  padding: "32px",
-  marginTop: "32px",
+  borderRadius: 32,
+  padding: 32,
+  marginTop: 32,
 };
 
 const imageContainerStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: "40px",
-  background: "rgba(255,255,255,0.02)",
-  padding: "32px",
-  borderRadius: "32px",
+  gap: 40,
+  background: "rgba(255, 255, 255, 0.02)",
+  padding: 32,
+  borderRadius: 32,
   boxShadow: "0 -4px 24px rgba(0,0,0,0.2)",
 };
 
 const imageStyle: React.CSSProperties = {
-  width: "280px",
-  height: "280px",
+  width: 280,
+  height: 280,
   objectFit: "cover",
-  borderRadius: "20px",
+  borderRadius: 20,
   boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
 };
 
@@ -72,7 +69,7 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
       <Sequence from={-audioOffsetInFrames}>
         <BassOverlay audioSrc={audioFileUrl} color={visualizer.color} />
         <Audio pauseWhenBuffering src={audioFileUrl} />
-        <div style={containerStyle}>
+        <AbsoluteFill style={containerStyle}>
           <div style={visualizerContainerStyle}>
             {visualizer.type === "oscilloscope" ? (
               <Waveform
@@ -95,13 +92,12 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
           <div style={imageContainerStyle}>
             <Img style={imageStyle} src={coverImageUrl} />
 
-            <div className="text-overlay">
+            <div>
               <div
-                className="song-name"
                 style={{
                   fontSize: "5.5rem",
                   fontWeight: "700",
-                  marginBottom: "16px",
+                  marginBottom: 16,
                   lineHeight: "1.1",
                   color: textColor,
                   letterSpacing: "-0.02em",
@@ -111,12 +107,10 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
                 {songName}
               </div>
               <div
-                className="artist-name"
                 style={{
                   fontSize: "3.5rem",
                   fontWeight: "500",
-                  opacity: "0.9",
-                  letterSpacing: "0.01em",
+                  opacity: 0.9,
                   color: textColor,
                   textShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 }}
@@ -125,7 +119,7 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
               </div>
             </div>
           </div>
-        </div>
+        </AbsoluteFill>
       </Sequence>
     </AbsoluteFill>
   );
