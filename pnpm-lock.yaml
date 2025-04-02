@@ -1815,6 +1815,9 @@ importers:
       '@tailwindcss/cli':
         specifier: 4.1.0
         version: 4.1.0
+      '@tailwindcss/node':
+        specifier: 4.1.0
+        version: 4.1.0
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -18966,13 +18969,6 @@ packages:
       graceful-fs: 4.2.11
       tapable: 2.2.1
 
-  /enhanced-resolve@5.18.0:
-    resolution: {integrity: sha512-0/r0MySGYG8YqlayBZ6MuCfECmHFdJ5qyPh8s8wa5Hnm6SaFLSK1VYCbj+NKp090Nm1caZhD+QTnmxO7esYGyQ==}
-    engines: {node: '>=10.13.0'}
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.2.1
-
   /enhanced-resolve@5.18.1:
     resolution: {integrity: sha512-ZSW3ma5GkcQBIpwZTSRAI8N71Uuwgs93IezB7mf7R60tC8ZbJideoDNKjHn2O9KIlx6rkGTTEk1xUCK2E1Y2Yg==}
     engines: {node: '>=10.13.0'}
@@ -19433,7 +19429,7 @@ packages:
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.0
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.18.1
       eslint: 9.19.0
       eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.12.2)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.19.0)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.12.2)(eslint-import-resolver-typescript@3.6.3)(eslint@9.19.0)
@@ -30488,7 +30484,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.18.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -30526,7 +30522,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.18.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -30565,7 +30561,7 @@ packages:
       acorn: 8.14.0
       browserslist: 4.24.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.18.0
+      enhanced-resolve: 5.18.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0

@@ -35,6 +35,7 @@
 		"postcss": "8.4.47",
 		"tailwindcss": "4.1.0",
 		"@tailwindcss/cli": "4.1.0",
+		"@tailwindcss/node": "4.1.0",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"tailwind-merge": "2.5.2",
