@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { delayRender, continueRender, cancelRender } from "remotion";
+import { waitForFonts } from "./font";
 
 export const WaitForFonts: React.FC<{
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export const WaitForFonts: React.FC<{
   useEffect(() => {
     const delay = delayRender("Waiting for fonts to be loaded");
 
-    WaitForFonts()
+    waitForFonts()
       .then(() => {
         continueRender(handle);
         continueRender(delay);
