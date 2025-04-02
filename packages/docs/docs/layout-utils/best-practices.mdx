@@ -114,7 +114,7 @@ export const WaitForFonts: React.FC<{
     return () => {
       continueRender(handle);
     };
-  }, []);
+  }, [handle]);
 
   useEffect(() => {
     const delay = delayRender('Waiting for fonts to be loaded');
