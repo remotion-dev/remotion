@@ -2,7 +2,7 @@ import { visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
 import { AudioVizContainer } from "./AudioVizContainer";
-import { BASE_SIZE } from "./schema";
+import { BASE_SIZE } from "./constants";
 
 const Bar: React.FC<{ height: number; color: string }> = ({
   height,

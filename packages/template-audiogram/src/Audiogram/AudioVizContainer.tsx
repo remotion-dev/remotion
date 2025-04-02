@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { BASE_SIZE } from "./schema";
+import { BASE_SIZE } from "./constants";
 
 export const AudioVizContainer: React.FC<{ children?: React.ReactNode }> = ({
   children,

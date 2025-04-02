@@ -1,7 +1,7 @@
 import { Caption } from "@remotion/captions";
 import { fillTextBox } from "@remotion/layout-utils";
 import { msToFrame } from "../helpers/ms-to-frame";
-import { LINES_PER_PAGE } from "./schema";
+import { LINES_PER_PAGE } from "./constants";
 
 export const layoutText = ({
   captions,

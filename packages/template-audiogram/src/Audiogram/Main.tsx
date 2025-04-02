@@ -4,16 +4,16 @@ import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
 import { PaginatedCaptions } from "./Captions";
 import { Spectrum } from "./Spectrum";
 import {
-  AudiogramCompositionSchemaType,
   BASE_SIZE,
   CAPTIONS_FONT_SIZE,
   CAPTIONS_FONT_WEIGHT,
   LINE_HEIGHT,
   LINES_PER_PAGE,
-} from "./schema";
+} from "./constants";
 import { Oscilloscope } from "./Oscilloscope";
 import { FONT_FAMILY } from "./font";
 import { WaitForFonts } from "./WaitForFonts";
+import { AudiogramCompositionSchemaType } from "./schema";
 
 export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   visualizer,
