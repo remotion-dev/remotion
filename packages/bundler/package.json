@@ -31,7 +31,7 @@
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
-		"style-loader": "2.0.0",
+		"style-loader": "4.0.0",
 		"source-map": "0.7.3",
 		"webpack": "5.96.1"
 	},

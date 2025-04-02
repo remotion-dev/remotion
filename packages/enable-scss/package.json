@@ -21,7 +21,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"style-loader": "2.0.0",
+		"style-loader": "4.0.0",
 		"css-loader": "5.2.7",
 		"sass-loader": "14.2.1"
 	},
