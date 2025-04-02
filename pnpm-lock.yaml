@@ -2271,6 +2271,9 @@ importers:
       '@remotion/install-whisper-cpp':
         specifier: workspace:*
         version: link:../install-whisper-cpp
+      '@remotion/layout-utils':
+        specifier: workspace:*
+        version: link:../layout-utils
       '@remotion/media-utils':
         specifier: workspace:*
         version: link:../media-utils
