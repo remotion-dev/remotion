@@ -313,7 +313,7 @@ export const selectComposition = async (
 	} = options;
 
 	const indent = false;
-	const logLevel = (passedLogLevel ?? verbose) ? 'verbose' : 'info';
+	const logLevel = passedLogLevel ?? (verbose ? 'verbose' : 'info');
 
 	const data = await internalSelectComposition({
 		id,

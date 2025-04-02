@@ -49,7 +49,8 @@ export const isTransportStream = (data: Uint8Array) => {
 };
 
 export const isMp3 = (data: Uint8Array) => {
-	const mpegPattern = new Uint8Array([0xff, 0xf3, 0xe4, 0x64]);
+	const mpegPattern = new Uint8Array([0xff, 0xf3]);
+	const mpegPattern2 = new Uint8Array([0xff, 0xfb]);
 	const id3v4Pattern = new Uint8Array([0x49, 0x44, 0x33, 4]);
 	const id3v3Pattern = new Uint8Array([0x49, 0x44, 0x33, 3]);
 	const id3v2Pattern = new Uint8Array([0x49, 0x44, 0x33, 2]);
@@ -57,6 +58,7 @@ export const isMp3 = (data: Uint8Array) => {
 	const subarray = data.subarray(0, 4);
 	return (
 		matchesPattern(mpegPattern)(subarray) ||
+		matchesPattern(mpegPattern2)(subarray) ||
 		matchesPattern(id3v4Pattern)(subarray) ||
 		matchesPattern(id3v3Pattern)(subarray) ||
 		matchesPattern(id3v2Pattern)(subarray)

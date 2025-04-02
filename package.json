@@ -15,6 +15,7 @@
 		"watch": "turbo watch make --concurrency=2 --experimental-write-cache",
 		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
 		"watchcore": "turbo watch make --experimental-write-cache --filter='remotion'",
+		"watchstudio": "turbo watch make --experimental-write-cache --filter='@remotion/studio'",
 		"watchserverless": "turbo watch make --experimental-write-cache --filter='@remotion/lambda' --filter='@remotion/serverless' --filter='@remotion/streaming'",
 		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
 		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
@@ -32,7 +33,7 @@
 		}
 	},
 	"devDependencies": {
-		"@types/bun": "1.2.5",
+		"@types/bun": "1.2.8",
 		"@types/deno": "2.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
@@ -41,7 +42,7 @@
 	},
 	"dependencies": {
 		"turbo": "2.4.4",
-		"typescript": "5.5.4"
+		"typescript": "5.8.2"
 	},
 	"packageManager": "pnpm@8.10.2"
 }

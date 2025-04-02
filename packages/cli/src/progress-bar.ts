@@ -64,7 +64,7 @@ export const createOverwriteableCliOutput = (options: {
 	const diff = new StudioServerInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
-		process.stdout.write(diff.finish());
+		process.stdout.write(diff.finish() as never as Uint8Array);
 	});
 
 	return {
@@ -77,11 +77,13 @@ export const createOverwriteableCliOutput = (options: {
 							.filter((a) => a.trim())
 							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
 							.join('\n') + (newline ? '\n' : ''),
-					),
+					) as never as Uint8Array,
 				);
 			}
 
-			return process.stdout.write(diff.update(up + (newline ? '\n' : '')));
+			return process.stdout.write(
+				diff.update(up + (newline ? '\n' : '')) as never as Uint8Array,
+			);
 		},
 	};
 };

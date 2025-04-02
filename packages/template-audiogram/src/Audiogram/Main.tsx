@@ -1,16 +1,19 @@
 import React from "react";
 import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
-import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
-import "./style.css";
 
 import { PaginatedCaptions } from "./Captions";
 import { Spectrum } from "./Spectrum";
-import { AudiogramCompositionSchemaType } from "./schema";
+import {
+  BASE_SIZE,
+  CAPTIONS_FONT_SIZE,
+  CAPTIONS_FONT_WEIGHT,
+  LINE_HEIGHT,
+  LINES_PER_PAGE,
+} from "./constants";
 import { Oscilloscope } from "./Oscilloscope";
-
-loadFont("normal", {
-  weights: ["500"],
-});
+import { FONT_FAMILY } from "./font";
+import { WaitForFonts } from "./WaitForFonts";
+import { AudiogramCompositionSchemaType } from "./schema";
 
 export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   visualizer,
@@ -19,14 +22,11 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   titleText,
   titleColor,
   captionsTextColor,
-  captionsLinePerPage,
-  captionsZoomMeasurerSize,
-  captionsLineHeight,
   onlyDisplayCurrentSentence,
   audioOffsetInSeconds,
   captions,
 }) => {
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames, fps, width } = useVideoConfig();
 
   if (!captions) {
     throw new Error(
@@ -37,19 +37,47 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   const audioOffsetInFrames = Math.round(audioOffsetInSeconds * fps);
   const baseNumberOfSamples = Number(visualizer.numberOfSamples);
 
+  const textBoxWidth = width - BASE_SIZE * 2;
+
   return (
     <AbsoluteFill>
       <Sequence from={-audioOffsetInFrames}>
         <Audio pauseWhenBuffering src={audioFileUrl} />
         <div
-          className="container"
           style={{
-            fontFamily,
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            color: "white",
+            padding: "48px",
+            backgroundColor: "black",
+            fontFamily: FONT_FAMILY,
           }}
         >
-          <div className="row">
-            <Img className="cover" src={coverImageUrl} />
-            <div className="title" style={{ color: titleColor }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Img
+              style={{
+                borderRadius: "6px",
+                maxHeight: "250px",
+              }}
+              src={coverImageUrl}
+            />
+            <div
+              style={{
+                marginLeft: "48px",
+                lineHeight: "1.25",
+                fontWeight: 800,
+                color: titleColor,
+                fontSize: "48px",
+              }}
+            >
               {titleText}
             </div>
           </div>
@@ -75,21 +103,27 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
               />
             ) : null}
           </div>
-          <div
-            style={{ lineHeight: `${captionsLineHeight}px` }}
-            className="captions"
-          >
-            <PaginatedCaptions
-              captions={captions}
-              startFrame={audioOffsetInFrames}
-              endFrame={audioOffsetInFrames + durationInFrames}
-              linesPerPage={captionsLinePerPage}
-              subtitlesTextColor={captionsTextColor}
-              subtitlesZoomMeasurerSize={captionsZoomMeasurerSize}
-              subtitlesLineHeight={captionsLineHeight}
-              onlyDisplayCurrentSentence={onlyDisplayCurrentSentence}
-            />
-          </div>
+          <WaitForFonts>
+            <div
+              style={{
+                lineHeight: `${LINE_HEIGHT}px`,
+                width: textBoxWidth,
+                fontWeight: CAPTIONS_FONT_WEIGHT,
+                fontSize: CAPTIONS_FONT_SIZE,
+                marginTop: BASE_SIZE * 0.5,
+              }}
+            >
+              <PaginatedCaptions
+                captions={captions}
+                startFrame={audioOffsetInFrames}
+                endFrame={audioOffsetInFrames + durationInFrames}
+                linesPerPage={LINES_PER_PAGE}
+                subtitlesTextColor={captionsTextColor}
+                onlyDisplayCurrentSentence={onlyDisplayCurrentSentence}
+                textBoxWidth={textBoxWidth}
+              />
+            </div>
+          </WaitForFonts>
         </div>
       </Sequence>
     </AbsoluteFill>

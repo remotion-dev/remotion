@@ -7,6 +7,7 @@ import {parseMedia} from '../../parse-media';
 import type {ReaderInterface} from '../../readers/reader';
 import type {ExistingM3uRun, M3uState} from '../../state/m3u-state';
 import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
+import {withResolvers} from '../../with-resolvers';
 import {getChunks} from './get-chunks';
 import {getPlaylist} from './get-playlist';
 import type {M3uStructure} from './types';
@@ -51,7 +52,7 @@ export const iteratorOverSegmentFiles = async ({
 		return {
 			continue() {
 				const {promise, reject, resolve} =
-					Promise.withResolvers<ExistingM3uRun | null>();
+					withResolvers<ExistingM3uRun | null>();
 				resolver = resolve;
 				rejector = reject;
 				childController.resume();

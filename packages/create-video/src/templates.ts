@@ -36,6 +36,7 @@ export type Template = {
 		| 'tts'
 		| 'google-tts'
 		| 'audiogram'
+		| 'music-visualization'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
@@ -297,7 +298,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
 		promoVideo: {
-			muxId: 'nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU',
+			muxId: '7RwHiqZX5k5radAqZpGq7x02jJhi5j4OD8BMiM1z7nmE',
 			height: 1080,
 			width: 1080,
 		},
@@ -307,6 +308,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: 'https://template-audiogram-1nrh.vercel.app',
 		templateInMonorepo: 'template-audiogram',
+		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Music Visualization',
+		shortName: 'Music Visualization',
+		org: 'remotion-dev',
+		repoName: 'template-music-visualization',
+		description: 'Text and waveform visualization for podcasts',
+		longerDescription:
+			'A template that turns music snippets into videos that can be posted on Social Media.',
+		promoVideo: {
+			muxId: '8msABU02zPeFOGdvUWChssvsLVJZgFNWGWaVKA9hNAlw',
+			height: 1080,
+			width: 1080,
+		},
+		cliId: 'music-visualization' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-music-visualization',
 		allowEnableTailwind: true,
 	},
 	{

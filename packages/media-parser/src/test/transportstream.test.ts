@@ -8,7 +8,7 @@ test('Transport stream', async () => {
 	let audioSamples = 0;
 	let videoSamples = 0;
 
-	let h264File = new Uint8Array([]);
+	let h264File: Uint8Array = new Uint8Array([]);
 
 	const {
 		structure,
@@ -174,7 +174,7 @@ test('Transport stream', async () => {
 			throw new Error(ffmpegResult.stderr.toString('utf8'));
 		}
 
-		const output = new Uint8Array(ffmpegResult.stdout);
+		const output: Uint8Array = new Uint8Array(ffmpegResult.stdout);
 		expect(output).toEqual(h264File);
 	} else {
 		// eslint-disable-next-line no-console

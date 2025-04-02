@@ -1,6 +1,12 @@
 import path from 'node:path';
 
 const examplePackage = path.join(__dirname, '..', '..', 'example');
+const musicVisualizationPackage = path.join(
+	__dirname,
+	'..',
+	'..',
+	'template-music-visualization',
+);
 const docsPackage = path.join(__dirname, '..', '..', 'docs');
 const lambdaPackage = path.join(__dirname, '..', '..', 'lambda');
 
@@ -94,6 +100,11 @@ export const exampleVideos = {
 		'videos',
 		'local-playlist',
 		'output.m3u8',
+	),
+	mp3nomagicword: path.join(
+		musicVisualizationPackage,
+		'public',
+		'demo-track.mp3',
 	),
 };
 

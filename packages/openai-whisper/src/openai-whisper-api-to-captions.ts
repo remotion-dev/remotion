@@ -38,7 +38,7 @@ export const openAiWhisperApiToCaptions = ({
 
 		const punctuation = `\\?,\\.\\%\\–\\!\\;\\:\\'\\"\\-\\_\\(\\)\\[\\]\\{\\}\\@\\#\\$\\^\\&\\*\\+\\=\\/\\|\\<\\>\\~\``;
 		const match = new RegExp(
-			`^([\\s${punctuation}]{0,4})${word.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([${punctuation}]{0,3})?`,
+			`^([\\s?${punctuation}]{0,4})${word.word.replace(new RegExp(`^[${punctuation}]+`), '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([${punctuation}]{0,3})?`,
 		).exec(remainingText);
 		if (!match) {
 			throw new Error(

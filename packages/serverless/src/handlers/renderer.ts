@@ -363,7 +363,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		);
 		await onStream({
 			type: 'audio-chunk-rendered',
-			payload: fs.readFileSync(audioOutputLocation),
+			payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
 		});
 		audioChunkTimer.end();
 	}
@@ -377,7 +377,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
-			payload: fs.readFileSync(videoOutputLocation),
+			payload: new Uint8Array(fs.readFileSync(videoOutputLocation)),
 		});
 		videoChunkTimer.end();
 	}
