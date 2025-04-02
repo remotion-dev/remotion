@@ -187,8 +187,8 @@ importers:
         specifier: 0.7.3
         version: 0.7.3
       style-loader:
-        specifier: 2.0.0
-        version: 2.0.0(webpack@5.96.1)
+        specifier: 4.0.0
+        version: 4.0.0(webpack@5.96.1)
       webpack:
         specifier: 5.96.1
         version: 5.96.1(esbuild@0.25.0)
@@ -833,8 +833,8 @@ importers:
         specifier: 14.2.1
         version: 14.2.1(sass@1.77.2)(webpack@5.96.1)
       style-loader:
-        specifier: 2.0.0
-        version: 2.0.0(webpack@5.96.1)
+        specifier: 4.0.0
+        version: 4.0.0(webpack@5.96.1)
     devDependencies:
       '@remotion/bundler':
         specifier: workspace:*
@@ -1122,8 +1122,8 @@ importers:
         specifier: 14.2.1
         version: 14.2.1(sass@1.77.2)(webpack@5.96.1)
       style-loader:
-        specifier: 2.0.0
-        version: 2.0.0(webpack@5.96.1)
+        specifier: 4.0.0
+        version: 4.0.0(webpack@5.96.1)
       styled-components:
         specifier: 6.1.13
         version: 6.1.13(react-dom@19.0.0)(react@19.0.0)
@@ -2204,8 +2204,8 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2(postcss@8.4.47)
       style-loader:
-        specifier: 2.0.0
-        version: 2.0.0(webpack@5.96.1)
+        specifier: 4.0.0
+        version: 4.0.0(webpack@5.96.1)
       tailwindcss:
         specifier: 3.4.13
         version: 3.4.13
@@ -27750,15 +27750,6 @@ packages:
       ajv: 6.12.6
       ajv-keywords: 3.5.2(ajv@6.12.6)
 
-  /schema-utils@3.1.2:
-    resolution: {integrity: sha512-pvjEHOgWc9OWA/f/DE3ohBWTD6EleVLf7iFUkoSwAxttdBhB9QUebQgxER2kWueOvRJXPHNnyrvvh9eZINB8Eg==}
-    engines: {node: '>= 10.13.0'}
-    dependencies:
-      '@types/json-schema': 7.0.13
-      ajv: 6.12.6
-      ajv-keywords: 3.5.2(ajv@6.12.6)
-    dev: false
-
   /schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
     engines: {node: '>= 10.13.0'}
@@ -28508,24 +28499,13 @@ packages:
     resolution: {integrity: sha512-PdHt7hHUJKxvTCgbKX9C1V/ftOcjJQgz8BZwNfV5c4B6dcGqlpelTbJ999jBGZ2jYiPAwcX5dP6oBwVlBlUbxw==}
     dev: false
 
-  /style-loader@2.0.0(webpack@5.96.1):
-    resolution: {integrity: sha512-Z0gYUJmzZ6ZdRUqpg1r8GsaFKypE+3xAzuFeMuoHgjc9KZv3wMyCRjQIWEbhoFSq7+7yoHXySDJyyWQaPajeiQ==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      webpack: ^4.0.0 || ^5.0.0
-    dependencies:
-      loader-utils: 2.0.2
-      schema-utils: 3.1.2
-      webpack: 5.96.1(esbuild@0.25.0)
-    dev: false
-
   /style-loader@4.0.0(webpack@5.96.1):
     resolution: {integrity: sha512-1V4WqhhZZgjVAVJyt7TdDPZoPBPNHbekX4fWnCJL1yQukhCeZhJySUL+gL9y6sNdN95uEOS83Y55SqHcP7MzLA==}
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       webpack: ^5.27.0
     dependencies:
-      webpack: 5.96.1
+      webpack: 5.96.1(esbuild@0.25.0)
     dev: false
 
   /style-to-object@0.4.2:
