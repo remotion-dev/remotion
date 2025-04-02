@@ -119,6 +119,13 @@
     "confidence": 0.979148
   },
   {
+    "text": ".",
+    "startMs": 7280,
+    "endMs": 7380,
+    "timestampMs": 7360,
+    "confidence": 0.688935
+  },
+  {
     "text": " Today",
     "startMs": 7380,
     "endMs": 7520,
@@ -168,6 +175,13 @@
     "confidence": 0.997581
   },
   {
+    "text": ".",
+    "startMs": 8480,
+    "endMs": 8680,
+    "timestampMs": 8760,
+    "confidence": 0.635517
+  },
+  {
     "text": " This",
     "startMs": 8680,
     "endMs": 9060,
@@ -194,6 +208,13 @@
     "endMs": 10210,
     "timestampMs": 9860,
     "confidence": 0.998102
+  },
+  {
+    "text": ".",
+    "startMs": 10210,
+    "endMs": 10540,
+    "timestampMs": 10500,
+    "confidence": 0.827042
   },
   {
     "text": " Program",
@@ -238,11 +259,25 @@
     "confidence": 0.544645
   },
   {
+    "text": ".",
+    "startMs": 13030,
+    "endMs": 13340,
+    "timestampMs": 14220,
+    "confidence": 0.895253
+  },
+  {
     "text": " What",
     "startMs": 13340,
     "endMs": 14220,
     "timestampMs": 14640,
     "confidence": 0.899077
+  },
+  {
+    "text": "?",
+    "startMs": 14220,
+    "endMs": 14490,
+    "timestampMs": 14840,
+    "confidence": 0.73571
   },
   {
     "text": " Like",
@@ -523,6 +558,13 @@
     "endMs": 24830,
     "timestampMs": 24820,
     "confidence": 0.883598
+  },
+  {
+    "text": ".",
+    "startMs": 24830,
+    "endMs": 25120,
+    "timestampMs": 24980,
+    "confidence": 0.586781
   },
   {
     "text": " And",

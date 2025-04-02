@@ -2469,6 +2469,55 @@ importers:
         specifier: 3.3.3
         version: 3.3.3
 
+  packages/template-music-visualization:
+    dependencies:
+      '@remotion/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@remotion/google-fonts':
+        specifier: workspace:*
+        version: link:../google-fonts
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
+      '@remotion/media-utils':
+        specifier: workspace:*
+        version: link:../media-utils
+      '@remotion/zod-types':
+        specifier: workspace:*
+        version: link:../zod-types
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
+    devDependencies:
+      '@remotion/eslint-config-flat':
+        specifier: workspace:*
+        version: link:../eslint-config-flat
+      '@types/react':
+        specifier: 19.0.0
+        version: 19.0.0
+      '@types/web':
+        specifier: 0.0.166
+        version: 0.0.166
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+      prettier:
+        specifier: 3.3.3
+        version: 3.3.3
+      typescript:
+        specifier: 5.5.4
+        version: 5.5.4
+
   packages/template-next-app:
     dependencies:
       '@remotion/bundler':
@@ -30887,7 +30936,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1
-      escalade: 3.1.2
+      escalade: 3.2.0
       get-caller-file: 2.0.5
       require-directory: 2.1.1
       string-width: 4.2.3

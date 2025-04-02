@@ -4,6 +4,7 @@ import {Blank} from './icons/blank';
 import {CodeHike} from './icons/code-hike';
 import {Cubes} from './icons/cubes';
 import {JSIcon} from './icons/js';
+import {MusicIcon} from './icons/music';
 import {NextIcon} from './icons/next';
 import {OverlayIcon} from './icons/overlay';
 import {RemixIcon} from './icons/remix';
@@ -103,6 +104,16 @@ export const IconForTemplate: React.FC<{
 	if (template.cliId === 'skia') {
 		return (
 			<SkiaIcon
+				style={{
+					height: scale * 32,
+				}}
+			/>
+		);
+	}
+
+	if (template.cliId === 'music-visualization') {
+		return (
+			<MusicIcon
 				style={{
 					height: scale * 32,
 				}}

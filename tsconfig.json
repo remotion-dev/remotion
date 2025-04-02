@@ -175,6 +175,9 @@
 			"path": "./packages/template-audiogram"
 		},
 		{
+			"path": "./packages/template-music-visualization"
+		},
+		{
 			"path": "./packages/template-stargazer"
 		},
 		{
