@@ -123,7 +123,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	await emitAllInfo(state);
 	printTimings(state);
 
-	state.currentReader.abort();
+	state.currentReader.getCurrent().abort();
 	state.iterator?.destroy();
 	state.callbacks.tracks.ensureHasTracksAtEnd(state.fields);
 	state.m3u.abortM3UStreamRuns();

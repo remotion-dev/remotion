@@ -12,6 +12,7 @@ import {Log} from './log';
 import type {Mp3Structure} from './parse-result';
 import {registerAudioTrack, registerVideoTrack} from './register-track';
 import type {ParserState} from './state/parser-state';
+import {getWorkOnSeekRequestOptions} from './work-on-seek-request';
 
 export const initVideo = async ({state}: {state: ParserState}) => {
 	const fileType = state.iterator.detectFileType();
@@ -19,7 +20,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'riff') {
 		Log.verbose(state.logLevel, 'Detected RIFF container');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'riff',
 			boxes: [],
 		});
@@ -36,23 +37,33 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 		const tracks = getTracksFromMoovBox(moovAtom);
 		for (const track of tracks.videoTracks) {
 			await registerVideoTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'mp4',
+				logLevel: state.logLevel,
+				onVideoTrack: state.onVideoTrack,
+				registerVideoSampleCallback:
+					state.callbacks.registerVideoSampleCallback,
+				tracks: state.callbacks.tracks,
 			});
 		}
 
 		for (const track of tracks.audioTracks) {
 			await registerAudioTrack({
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track,
 				container: 'mp4',
+				registerAudioSampleCallback:
+					state.callbacks.registerAudioSampleCallback,
+				tracks: state.callbacks.tracks,
+				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
 			});
 		}
 
 		state.callbacks.tracks.setIsDone(state.logLevel);
 
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
@@ -61,7 +72,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(state.logLevel, 'Detected ISO Base Media container');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
@@ -70,7 +81,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'webm') {
 		Log.verbose(state.logLevel, 'Detected Matroska container');
-		state.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'matroska',
 		});
@@ -79,7 +90,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'transport-stream') {
 		Log.verbose(state.logLevel, 'Detected MPEG-2 Transport Stream');
-		state.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
 		});
@@ -92,7 +103,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			boxes: [],
 			type: 'mp3',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
@@ -102,7 +113,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			boxes: [],
 			type: 'wav',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
@@ -112,13 +123,13 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			boxes: [],
 			type: 'flac',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
 	if (fileType.type === 'aac') {
 		Log.verbose(state.logLevel, 'Detected AAC');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'aac',
 			boxes: [],
 		});
@@ -127,7 +138,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 
 	if (fileType.type === 'm3u') {
 		Log.verbose(state.logLevel, 'Detected M3U');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'm3u',
 			boxes: [],
 		});

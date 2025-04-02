@@ -1,4 +1,5 @@
-import type {ParserState} from '../../../state/parser-state';
+import type {BufferIterator} from '../../../iterator/buffer-iterator';
+import type {LogLevel} from '../../../log';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseIsoFormatBoxes} from './samples';
@@ -12,13 +13,14 @@ export interface StsdBox extends BaseBox {
 export const parseStsd = async ({
 	offset,
 	size,
-	state,
+	iterator,
+	logLevel,
 }: {
 	offset: number;
 	size: number;
-	state: ParserState;
+	iterator: BufferIterator;
+	logLevel: LogLevel;
 }): Promise<StsdBox> => {
-	const {iterator} = state;
 	const version = iterator.getUint8();
 	if (version !== 0) {
 		throw new Error(`Unsupported STSD version ${version}`);
@@ -33,7 +35,8 @@ export const parseStsd = async ({
 
 	const boxes = await parseIsoFormatBoxes({
 		maxBytes: bytesRemainingInBox,
-		state,
+		logLevel,
+		iterator,
 	});
 
 	if (boxes.length !== numberOfEntries) {

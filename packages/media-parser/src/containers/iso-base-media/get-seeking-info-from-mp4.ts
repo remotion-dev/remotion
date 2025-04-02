@@ -1,12 +1,27 @@
-import type {SeekingInfo} from '../../seeking-info';
-import type {ParserState} from '../../state/parser-state';
+import type {IsoBaseMediaStructure} from '../../parse-result';
+import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
+import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {StructureState} from '../../state/structure';
+import type {MediaSectionState} from '../../state/video-section';
 import {getMoofBoxes, getMoovBoxFromState, getTfraBoxes} from './traversal';
 
-export const getSeekingInfoFromMp4 = (
-	state: ParserState,
-): SeekingInfo | null => {
-	const structure = state.getIsoStructure();
-	const moovAtom = getMoovBoxFromState(state);
+export const getSeekingInfoFromMp4 = ({
+	structureState,
+	isoState,
+	mp4HeaderSegment,
+	mediaSectionState,
+}: {
+	structureState: StructureState;
+	isoState: IsoBaseMediaState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	mediaSectionState: MediaSectionState;
+}): IsoBaseMediaSeekingInfo | null => {
+	const structure = structureState.getIsoStructure();
+	const moovAtom = getMoovBoxFromState({
+		isoState,
+		mp4HeaderSegment,
+		structureState,
+	});
 	const moofBoxes = getMoofBoxes(structure.boxes);
 	const tfraBoxes = getTfraBoxes(structure);
 
@@ -19,6 +34,6 @@ export const getSeekingInfoFromMp4 = (
 		moovBox: moovAtom,
 		moofBoxes,
 		tfraBoxes,
-		videoSections: state.videoSection.getVideoSections(),
+		mediaSections: mediaSectionState.getMediaSections(),
 	};
 };

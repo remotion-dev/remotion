@@ -127,14 +127,6 @@ export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 
 	const dataSize = getUint32(uintArray, offset + 4);
 
-	if (dataSize + offset !== size) {
-		throw new Error(
-			`getPartialAudioData() requires a WAVE file, but: Expected ${
-				dataSize + offset
-			}, got ${size}. `,
-		);
-	}
-
 	return {
 		dataOffset: offset + 8,
 		bitsPerSample,

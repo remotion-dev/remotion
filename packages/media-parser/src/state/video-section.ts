@@ -6,23 +6,23 @@
 
 import type {BufferIterator} from '../iterator/buffer-iterator';
 
-export type VideoSection = {
+export type MediaSection = {
 	start: number;
 	size: number;
 };
 
-export const isByteInVideoSection = ({
+export const isByteInMediaSection = ({
 	position,
-	videoSections,
+	mediaSections,
 }: {
 	position: number;
-	videoSections: VideoSection[];
+	mediaSections: MediaSection[];
 }): 'no-section-defined' | 'in-section' | 'outside-section' => {
-	if (videoSections.length === 0) {
+	if (mediaSections.length === 0) {
 		return 'no-section-defined';
 	}
 
-	for (const section of videoSections) {
+	for (const section of mediaSections) {
 		if (position >= section.start && position < section.start + section.size) {
 			return 'in-section';
 		}
@@ -31,14 +31,14 @@ export const isByteInVideoSection = ({
 	return 'outside-section';
 };
 
-export const getCurrentVideoSection = ({
+export const getCurrentMediaSection = ({
 	offset,
-	videoSections,
+	mediaSections,
 }: {
 	offset: number;
-	videoSections: VideoSection[];
-}): VideoSection | null => {
-	for (const section of videoSections) {
+	mediaSections: MediaSection[];
+}): MediaSection | null => {
+	for (const section of mediaSections) {
 		if (offset >= section.start && offset < section.start + section.size) {
 			return section;
 		}
@@ -47,47 +47,53 @@ export const getCurrentVideoSection = ({
 	return null;
 };
 
-export const videoSectionState = () => {
-	const videoSections: VideoSection[] = [];
+export const mediaSectionState = () => {
+	const mediaSections: MediaSection[] = [];
 
-	const addVideoSection = (section: VideoSection) => {
+	const addMediaSection = (section: MediaSection) => {
 		// Check if section overlaps with any existing sections
-		const overlaps = videoSections.some(
+		const overlaps = mediaSections.some(
 			(existingSection) =>
 				section.start < existingSection.start + existingSection.size &&
 				section.start + section.size > existingSection.start,
 		);
 
 		if (!overlaps) {
-			videoSections.push(section);
+			mediaSections.push(section);
 		}
 	};
 
-	const getVideoSections = () => {
-		return videoSections;
+	const getMediaSections = () => {
+		return mediaSections;
 	};
 
-	const isCurrentByteInVideoSection = (
+	const isCurrentByteInMediaSection = (
 		iterator: BufferIterator,
 	): 'no-section-defined' | 'in-section' | 'outside-section' => {
 		const offset = iterator.counter.getOffset();
-		return isByteInVideoSection({position: offset, videoSections});
+		return isByteInMediaSection({
+			position: offset,
+			mediaSections,
+		});
 	};
 
-	const getVideoSectionAssertOnlyOne = (): VideoSection => {
-		if (videoSections.length !== 1) {
+	const getMediaSectionAssertOnlyOne = (): MediaSection => {
+		if (mediaSections.length !== 1) {
 			throw new Error('Expected only one video section');
 		}
 
-		return videoSections[0];
+		return mediaSections[0];
 	};
 
 	return {
-		addVideoSection,
-		getVideoSections,
-		isCurrentByteInVideoSection,
-		isByteInVideoSection,
-		getCurrentVideoSection,
-		getVideoSectionAssertOnlyOne,
+		addMediaSection,
+		getMediaSections,
+		isCurrentByteInMediaSection,
+		isByteInMediaSection,
+		getCurrentMediaSection,
+		getMediaSectionAssertOnlyOne,
+		mediaSections,
 	};
 };
+
+export type MediaSectionState = ReturnType<typeof mediaSectionState>;

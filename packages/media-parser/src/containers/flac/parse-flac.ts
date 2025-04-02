@@ -21,9 +21,9 @@ export const parseFlac = ({
 	iterator: BufferIterator;
 	state: ParserState;
 }): Promise<ParseResult> => {
-	const videoSectionState =
-		state.videoSection.isCurrentByteInVideoSection(iterator);
-	if (videoSectionState === 'in-section') {
+	const mediaSectionState =
+		state.mediaSection.isCurrentByteInMediaSection(iterator);
+	if (mediaSectionState === 'in-section') {
 		if (maySkipVideoData({state})) {
 			return Promise.resolve(makeSkip(state.contentLength));
 		}
@@ -47,7 +47,7 @@ export const parseFlac = ({
 	iterator.stopReadingBits();
 	const size = iterator.getUint24();
 	if (isLastMetadata) {
-		state.videoSection.addVideoSection({
+		state.mediaSection.addMediaSection({
 			start: iterator.counter.getOffset() + size,
 			size: state.contentLength - iterator.counter.getOffset() - size,
 		});

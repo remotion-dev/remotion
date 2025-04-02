@@ -5,6 +5,7 @@ import {Log} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {Mp3Info} from '../../state/mp3';
 import type {ParserState} from '../../state/parser-state';
+import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {
 	getAverageMpegFrameLength,
 	getMpegFrameLength,
@@ -304,7 +305,7 @@ export const parseMpegHeader = async ({
 			state.mp3Info.setMp3Info(info);
 			await registerAudioTrack({
 				container: 'mp3',
-				state,
+				workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 				track: {
 					type: 'audio',
 					codec: 'mp3',
@@ -317,6 +318,11 @@ export const parseMpegHeader = async ({
 					trackId: 0,
 					trakBox: null,
 				},
+				registerAudioSampleCallback:
+					state.callbacks.registerAudioSampleCallback,
+				tracks: state.callbacks.tracks,
+				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
 			});
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
@@ -356,7 +362,8 @@ export const parseMpegHeader = async ({
 				trackId: 0,
 				type: 'key',
 			},
-			state,
+			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
+			callbacks: state.callbacks,
 		});
 	}
 };

@@ -2,6 +2,7 @@ import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
 import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
+import {withResolvers} from './with-resolvers';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -112,9 +113,7 @@ export const parseMediaOnWorkerImplementation = async <
 	post(worker, convertToWorkerPayload(params));
 
 	const {promise, resolve, reject} =
-		Promise.withResolvers<
-			ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>
-		>();
+		withResolvers<ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>>();
 
 	const onAbort = () => {
 		post(worker, {type: 'request-abort'});

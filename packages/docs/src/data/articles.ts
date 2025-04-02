@@ -3087,6 +3087,15 @@ export const articles = [
 		slug: 'miscellaneous/parse-media-vs-get-video-metadata',
 	},
 	{
+		id: 'miscellaneous/pexels',
+		title: 'Timeouts with Pexels videos',
+		relativePath: 'docs/miscellaneous/pexels.mdx',
+		compId: 'articles-docs-miscellaneous-pexels',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'miscellaneous/pexels',
+	},
+	{
 		id: 'miscellaneous/render-in-browser',
 		title: 'Can I render videos in the browser?',
 		relativePath: 'docs/miscellaneous/render-in-browser.mdx',
@@ -5513,6 +5522,15 @@ export const articles = [
 		crumb: 'Common mistakes',
 		noAi: false,
 		slug: 'troubleshooting/nextjs-image',
+	},
+	{
+		id: 'no-frame-found-at-position',
+		title: 'No frame found at position error message',
+		relativePath: 'docs/troubleshooting/no-frame-found-at-position.mdx',
+		compId: 'articles-docs-troubleshooting-no-frame-found-at-position',
+		crumb: 'Troubleshooting',
+		noAi: false,
+		slug: 'troubleshooting/no-frame-found-at-position',
 	},
 	{
 		id: 'stuck-render',

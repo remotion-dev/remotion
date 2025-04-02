@@ -9,7 +9,7 @@ export const getKeyframesFromIsoBaseMedia = (
 	state: ParserState,
 ): MediaParserKeyframe[] => {
 	const {videoTracks} = getTracksFromIsoBaseMedia(state);
-	const structure = state.getIsoStructure();
+	const structure = state.structure.getIsoStructure();
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
 	const tfraBoxes = getTfraBoxes(structure);

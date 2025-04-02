@@ -1117,6 +1117,8 @@ module.exports = {
 				'troubleshooting/subpixel-rendering',
 				'troubleshooting/could-not-find-executable-to-run',
 				'troubleshooting/stuck-render',
+				'troubleshooting/no-frame-found-at-position',
+				'troubleshooting/font-loading-errors',
 			],
 		},
 		{
@@ -1214,6 +1216,7 @@ module.exports = {
 				'standalone',
 				'miscellaneous/emojis',
 				'media-fragments',
+				'react-native',
 			],
 		},
 		{
@@ -1228,6 +1231,7 @@ module.exports = {
 				'miscellaneous/absolute-paths',
 				'miscellaneous/live-streaming',
 				'miscellaneous/parse-media-vs-get-video-metadata',
+				'miscellaneous/pexels',
 				'compare/motion-canvas',
 			],
 		},

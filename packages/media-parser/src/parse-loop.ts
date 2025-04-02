@@ -7,11 +7,14 @@ import {performSeek} from './perform-seek';
 import {runParseIteration} from './run-parse-iteration';
 import type {ParserState} from './state/parser-state';
 import type {ThrottledState} from './throttled-progress';
-import {workOnSeekRequest} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 const fetchMoreData = async (state: ParserState) => {
 	await state.controller._internals.checkForAbortAndPause();
-	const result = await state.currentReader.reader.read();
+	const result = await state.currentReader.getCurrent().reader.read();
 	if (result.value) {
 		state.iterator.addData(result.value);
 	}
@@ -32,7 +35,7 @@ export const parseLoop = async ({
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
-		await workOnSeekRequest(state);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 
 		const offsetBefore = state.iterator.counter.getOffset();
 
@@ -63,7 +66,7 @@ export const parseLoop = async ({
 
 			if (
 				iterationWithThisOffset > 300 &&
-				state.getStructure().type !== 'm3u'
+				state.structure.getStructure().type !== 'm3u'
 			) {
 				throw new Error(
 					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
@@ -95,8 +98,19 @@ export const parseLoop = async ({
 					const seekStart = Date.now();
 					await performSeek({
 						seekTo: skip.skipTo,
-						state,
 						userInitiated: false,
+						controller: state.controller,
+						mediaSection: state.mediaSection,
+						iterator: state.iterator,
+						logLevel: state.logLevel,
+						mode: state.mode,
+						contentLength: state.contentLength,
+						seekInfiniteLoop: state.seekInfiniteLoop,
+						currentReader: state.currentReader,
+						readerInterface: state.readerInterface,
+						fields: state.fields,
+						src: state.src,
+						discardReadBytes: state.discardReadBytes,
 					});
 					state.timings.timeSeeking += Date.now() - seekStart;
 				}

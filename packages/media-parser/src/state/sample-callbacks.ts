@@ -98,7 +98,6 @@ export const sampleCallback = ({
 						);
 					} else {
 						await callback(audioSample);
-						// TODO: work on seek request
 					}
 				}
 			}
@@ -131,7 +130,6 @@ export const sampleCallback = ({
 						);
 					} else {
 						await callback(videoSample);
-						// TODO: work on seek request
 					}
 				}
 			}
@@ -179,3 +177,5 @@ export const sampleCallback = ({
 		hasVideoTrackHandlers,
 	};
 };
+
+export type SampleCallbacks = ReturnType<typeof sampleCallback>;

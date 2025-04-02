@@ -114,11 +114,17 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 };
 
 export const isoBaseMediaHasTracks = (state: ParserState) => {
-	return Boolean(getMoovBoxFromState(state));
+	return Boolean(
+		getMoovBoxFromState({
+			structureState: state.structure,
+			isoState: state.iso,
+			mp4HeaderSegment: state.mp4HeaderSegment,
+		}),
+	);
 };
 
 export const getHasTracks = (state: ParserState): boolean => {
-	const structure = state.getStructure();
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return matroskaHasTracks(state);
 	}
@@ -213,7 +219,11 @@ export const getTracksFromMoovBox = (moovBox: MoovBox) => {
 };
 
 export const getTracksFromIsoBaseMedia = (state: ParserState) => {
-	const moovBox = getMoovBoxFromState(state);
+	const moovBox = getMoovBoxFromState({
+		structureState: state.structure,
+		isoState: state.iso,
+		mp4HeaderSegment: state.mp4HeaderSegment,
+	});
 	if (!moovBox) {
 		return {
 			videoTracks: [],
@@ -248,7 +258,7 @@ export const defaultHasallTracks = (parserState: ParserState): boolean => {
 };
 
 export const getTracks = (state: ParserState): AllTracks => {
-	const structure = state.getStructure();
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getCategorizedTracksFromMatroska(state);
 	}

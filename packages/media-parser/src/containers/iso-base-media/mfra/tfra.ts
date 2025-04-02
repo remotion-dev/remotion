@@ -1,7 +1,7 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {BaseBox} from '../base-type';
 
-type TfraEntry = {
+export type TfraEntry = {
 	time: number;
 	moofOffset: number;
 	trafNumber: number;

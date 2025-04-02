@@ -23,6 +23,7 @@ import type {IsoBaseMediaStructure} from '../parse-result';
 import type {Reader, ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
+import {currentReader} from './current-reader';
 import {emittedState} from './emitted-fields';
 import {flacState} from './flac-state';
 import {imagesState} from './images';
@@ -37,7 +38,7 @@ import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {timingsState} from './timings';
 import {transportStreamState} from './transport-stream';
-import {videoSectionState} from './video-section';
+import {mediaSectionState} from './video-section';
 import {webmState} from './webm';
 export type InternalStats = {
 	skippedBytes: number;
@@ -112,6 +113,7 @@ export const makeParserState = ({
 	const images = imagesState();
 	const timings = timingsState();
 	const seekInfiniteLoop = seekInfiniteLoopDetectionState();
+	const currentReaderState = currentReader(initialReaderInstance);
 
 	const errored: Error | null = null;
 
@@ -135,7 +137,13 @@ export const makeParserState = ({
 		riff: riffSpecificState(),
 		transportStream: transportStreamState(),
 		webm: webmState(),
-		iso: isoBaseMediaState(),
+		iso: isoBaseMediaState({
+			contentLength,
+			controller,
+			readerInterface,
+			src,
+			logLevel,
+		}),
 		mp3Info,
 		aac: aacState(),
 		flac: flacState(),
@@ -161,7 +169,7 @@ export const makeParserState = ({
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		keyframes,
-		...structure,
+		structure,
 		onAudioTrack,
 		onVideoTrack,
 		emittedFields,
@@ -169,7 +177,7 @@ export const makeParserState = ({
 		slowDurationAndFps,
 		contentLength,
 		images,
-		videoSection: videoSectionState(),
+		mediaSection: mediaSectionState(),
 		logLevel,
 		iterator,
 		controller,
@@ -187,7 +195,7 @@ export const makeParserState = ({
 		fieldsInReturnValue,
 		mimeType,
 		errored: errored as Error | null,
-		currentReader: initialReaderInstance,
+		currentReader: currentReaderState,
 		seekInfiniteLoop,
 	};
 };

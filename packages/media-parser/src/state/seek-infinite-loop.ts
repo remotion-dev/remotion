@@ -25,3 +25,7 @@ export const seekInfiniteLoopDetectionState = () => {
 		},
 	};
 };
+
+export type SeekInfiniteLoop = ReturnType<
+	typeof seekInfiniteLoopDetectionState
+>;

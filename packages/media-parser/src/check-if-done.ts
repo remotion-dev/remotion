@@ -20,7 +20,7 @@ export const checkIfDone = async (state: ParserState) => {
 
 	if (state.iterator.counter.getOffset() === state.contentLength) {
 		if (
-			state.getStructure().type === 'm3u' &&
+			state.structure.getStructure().type === 'm3u' &&
 			!state.m3u.getAllChunksProcessedOverall()
 		) {
 			return false;

@@ -13,7 +13,7 @@ export const parseFlacUnkownBlock = ({
 }): Promise<ParseResult> => {
 	iterator.discard(size);
 
-	state.getFlacStructure().boxes.push({
+	state.structure.getFlacStructure().boxes.push({
 		type: 'flac-header',
 	});
 
