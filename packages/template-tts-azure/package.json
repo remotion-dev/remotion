@@ -30,7 +30,7 @@
     "eslint": "9.19.0",
     "prettier": "3.3.3",
     "ts-node": "10.9.1",
-    "typescript": "5.5.4",
+    "typescript": "5.8.2",
     "zod": "3.22.3"
   }
 }

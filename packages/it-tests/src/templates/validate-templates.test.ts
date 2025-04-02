@@ -55,7 +55,7 @@ describe('Templates should be valid', () => {
 			expect(body.name).toStartWith('template-');
 
 			if (!template.shortName.includes('JavaScript')) {
-				expect(body.devDependencies['typescript']).toInclude('5.5.4');
+				expect(body.devDependencies['typescript']).toInclude('5.8.2');
 
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =

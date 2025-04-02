@@ -44,7 +44,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	Log.verbose(
 		logLevel,
-		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src.name}`,
+		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src instanceof File ? src.name : src.toString()}`,
 	);
 
 	const {

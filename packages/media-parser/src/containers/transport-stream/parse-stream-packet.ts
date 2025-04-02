@@ -108,7 +108,7 @@ export const parseStream = async ({
 	structure: TransportStreamStructure;
 }): Promise<void> => {
 	const {iterator} = state;
-	let restOfPacket = getRestOfPacket(iterator);
+	let restOfPacket: Uint8Array = getRestOfPacket(iterator);
 	const offset = iterator.counter.getOffset();
 
 	if (transportStreamEntry.streamType === 27) {
