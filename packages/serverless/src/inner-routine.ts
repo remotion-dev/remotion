@@ -90,7 +90,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 						}
 
 						await responseWriter.write(
-							Buffer.from(JSON.stringify(payload.payload)),
+							new TextEncoder().encode(JSON.stringify(payload.payload)),
 						);
 						return;
 					}
@@ -173,14 +173,16 @@ export const innerHandler = async <Provider extends CloudProvider>({
 				insideFunctionSpecifics,
 			});
 
-			await responseWriter.write(Buffer.from(JSON.stringify(response)));
+			await responseWriter.write(
+				new TextEncoder().encode(JSON.stringify(response)),
+			);
 			await responseWriter.end();
 			return;
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.log({err});
 			await responseWriter.write(
-				Buffer.from(
+				new TextEncoder().encode(
 					JSON.stringify({type: 'error', message: (err as Error).message}),
 				),
 			);
@@ -211,7 +213,9 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			insideFunctionSpecifics,
 		});
 
-		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.write(
+			new TextEncoder().encode(JSON.stringify(response)),
+		);
 		await responseWriter.end();
 		return;
 	}
@@ -239,7 +243,9 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			},
 		});
 
-		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.write(
+			new TextEncoder().encode(JSON.stringify(response)),
+		);
 		await responseWriter.end();
 		return;
 	}
@@ -315,7 +321,9 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		}
 
 		const response = await infoHandler(params);
-		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.write(
+			new TextEncoder().encode(JSON.stringify(response)),
+		);
 		await responseWriter.end();
 		return;
 	}
@@ -340,7 +348,9 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			insideFunctionSpecifics,
 		});
 
-		await responseWriter.write(Buffer.from(JSON.stringify(response)));
+		await responseWriter.write(
+			new TextEncoder().encode(JSON.stringify(response)),
+		);
 		await responseWriter.end();
 
 		return;
@@ -377,7 +387,7 @@ export const innerRoutine = async <Provider extends CloudProvider>({
 			stack: (err as Error).stack as string,
 		};
 
-		await responseWriter.write(Buffer.from(JSON.stringify(res)));
+		await responseWriter.write(new TextEncoder().encode(JSON.stringify(res)));
 		await responseWriter.end();
 	}
 };

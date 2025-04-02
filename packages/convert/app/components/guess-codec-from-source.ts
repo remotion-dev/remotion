@@ -47,7 +47,9 @@ export const guessContainerFromSource = (
 	source: Source,
 ): MediaParserContainer => {
 	if (source.type === 'file') {
-		return guessFromExtension(source.file.name);
+		return guessFromExtension(
+			source.file instanceof File ? source.file.name : source.file.toString(),
+		);
 	}
 
 	if (source.type === 'url') {

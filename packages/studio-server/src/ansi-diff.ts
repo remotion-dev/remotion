@@ -116,7 +116,7 @@ export class AnsiDiff {
 			this._moveTo(last.remainder, last.y + last.height);
 		}
 
-		return Buffer.concat(this._out);
+		return Buffer.concat(this._out.map((buf) => Uint8Array.from(buf)));
 	}
 
 	_clearDown(y: number) {

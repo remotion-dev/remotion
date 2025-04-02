@@ -40,7 +40,7 @@ export const openDirectoryInFinder = (
 		),
 	);
 
-	const stderrChunks: Buffer[] = [];
+	const stderrChunks: Uint8Array[] = [];
 	p.stderr.on('data', (d) => stderrChunks.push(d));
 
 	return new Promise<void>((resolve, reject) => {
@@ -48,7 +48,9 @@ export const openDirectoryInFinder = (
 			if (code === 0) {
 				resolve();
 			} else {
-				const message = Buffer.concat(stderrChunks).toString('utf-8');
+				const message = new TextDecoder('utf-8').decode(
+					Buffer.concat(stderrChunks.map((buf) => Uint8Array.from(buf))),
+				);
 				reject(new Error(message));
 			}
 		});

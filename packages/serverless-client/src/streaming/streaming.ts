@@ -50,11 +50,11 @@ export type StreamingPayload<Provider extends CloudProvider> =
 	  }
 	| {
 			type: typeof videoChunkRendered;
-			payload: Buffer;
+			payload: Uint8Array;
 	  }
 	| {
 			type: typeof audioChunkRendered;
-			payload: Buffer;
+			payload: Uint8Array;
 	  }
 	| {
 			type: typeof errorOccurred;
@@ -138,7 +138,7 @@ export const makeStreamPayload = <Provider extends CloudProvider>({
 	const body =
 		formatMap[message.type] === 'json'
 			? new TextEncoder().encode(JSON.stringify(message.payload))
-			: (message.payload as Buffer);
+			: (message.payload as Uint8Array);
 
 	return makeStreamPayloadMessage({
 		body,
