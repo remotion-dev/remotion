@@ -142,6 +142,7 @@ export const iteratorOverSegmentFiles = async ({
 							},
 				reader: readerInterface,
 				mp4HeaderSegment,
+				makeSamplesStartAtZero: false,
 			});
 			if (chunk.isHeader) {
 				if (data.structure.type !== 'iso-base-media') {

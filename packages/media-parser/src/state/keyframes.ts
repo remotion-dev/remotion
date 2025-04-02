@@ -5,6 +5,12 @@ export const keyframesState = () => {
 
 	return {
 		addKeyframe: (keyframe: MediaParserKeyframe) => {
+			if (
+				keyframes.find((k) => k.positionInBytes === keyframe.positionInBytes)
+			) {
+				return;
+			}
+
 			keyframes.push(keyframe);
 		},
 		getKeyframes: (): MediaParserKeyframe[] => {

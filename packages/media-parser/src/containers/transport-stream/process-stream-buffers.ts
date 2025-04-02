@@ -1,5 +1,11 @@
+import {combineUint8Arrays} from '../../combine-uint8-arrays';
+import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {ParserState} from '../../state/parser-state';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
+import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {FindNthSubarrayIndexNotFound} from './find-separator';
+import {findNthSubarrayIndex} from './find-separator';
 import {filterStreamsBySupportedTypes} from './get-tracks';
 import {handleAacPacket} from './handle-aac-packet';
 import {handleAvcPacket} from './handle-avc-packet';
@@ -7,27 +13,102 @@ import type {PacketPes} from './parse-pes';
 import {findProgramMapTableOrThrow, getStreamForId} from './traversal';
 
 export type TransportStreamPacketBuffer = {
-	buffer: Uint8Array;
 	pesHeader: PacketPes;
 	offset: number;
+	getBuffer: () => Uint8Array;
+	addBuffer: (buffer: Uint8Array) => void;
+	get2ndSubArrayIndex: () => number;
+};
+
+export const makeTransportStreamPacketBuffer = ({
+	buffers,
+	pesHeader,
+	offset,
+}: {
+	buffers: Uint8Array | null;
+	pesHeader: PacketPes;
+	offset: number;
+}): TransportStreamPacketBuffer => {
+	let currentBuf = buffers ? [buffers] : [];
+	let subarrayIndex: number | null = null;
+
+	const getBuffer = () => {
+		if (currentBuf.length === 0) {
+			return new Uint8Array();
+		}
+
+		if (currentBuf.length === 1) {
+			return currentBuf[0];
+		}
+
+		currentBuf = [combineUint8Arrays(currentBuf)];
+		return currentBuf[0];
+	};
+
+	let fastFind: FindNthSubarrayIndexNotFound | null = null;
+
+	return {
+		pesHeader,
+		offset,
+		getBuffer,
+		addBuffer: (buffer: Uint8Array) => {
+			currentBuf.push(buffer);
+			subarrayIndex = null;
+		},
+		get2ndSubArrayIndex: () => {
+			if (subarrayIndex === null) {
+				const result = findNthSubarrayIndex({
+					array: getBuffer(),
+					subarray: new Uint8Array([0, 0, 1, 9]),
+					n: 2,
+					startIndex: fastFind?.index ?? 0,
+					startCount: fastFind?.count ?? 0,
+				});
+				if (result.type === 'found') {
+					subarrayIndex = result.index;
+					fastFind = null;
+				} else {
+					fastFind = result;
+					return -1;
+				}
+			}
+
+			return subarrayIndex;
+		},
+	};
 };
 
 export type StreamBufferMap = Map<number, TransportStreamPacketBuffer>;
 
 export const processStreamBuffer = async ({
 	streamBuffer,
-	state,
 	programId,
 	structure,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
+	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	state: ParserState;
 	programId: number;
 	structure: TransportStreamStructure;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
 	const stream = getStreamForId(structure, programId);
 	if (!stream) {
 		throw new Error('No stream found');
+	}
+
+	// 2 = ITU-T Rec. H.262 | ISO/IEC 13818-2 Video or ISO/IEC 11172-2 constrained parameter video stream
+	if (stream.streamType === 2) {
+		throw new Error('H.262 video stream not supported');
 	}
 
 	// 27 = AVC / H.264 Video
@@ -35,45 +116,68 @@ export const processStreamBuffer = async ({
 		await handleAvcPacket({
 			programId,
 			streamBuffer,
-			state,
+			sampleCallbacks,
+			logLevel,
+			onVideoTrack,
 			offset: streamBuffer.offset,
+			transportStream,
+			makeSamplesStartAtZero,
 		});
 	}
 	// 15 = AAC / ADTS
 	else if (stream.streamType === 15) {
 		await handleAacPacket({
 			streamBuffer,
-			state,
 			programId,
 			offset: streamBuffer.offset,
+			sampleCallbacks,
+			logLevel,
+			onAudioTrack,
+			transportStream,
+			makeSamplesStartAtZero,
 		});
 	}
 
-	if (!state.callbacks.tracks.hasAllTracks()) {
-		const tracksRegistered = state.callbacks.tracks.getTracks().length;
+	if (!sampleCallbacks.tracks.hasAllTracks()) {
+		const tracksRegistered = sampleCallbacks.tracks.getTracks().length;
 		const {streams} = findProgramMapTableOrThrow(structure);
 		if (filterStreamsBySupportedTypes(streams).length === tracksRegistered) {
-			state.callbacks.tracks.setIsDone(state.logLevel);
+			sampleCallbacks.tracks.setIsDone(logLevel);
 		}
 	}
 };
 
 export const processFinalStreamBuffers = async ({
-	state,
 	structure,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	onVideoTrack,
+	transportStream,
+	makeSamplesStartAtZero,
 }: {
-	state: ParserState;
 	structure: TransportStreamStructure;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
-	for (const [programId, buffer] of state.transportStream.streamBuffers) {
-		if (buffer.buffer.byteLength > 0) {
+	for (const [programId, buffer] of transportStream.streamBuffers) {
+		if (buffer.getBuffer().byteLength > 0) {
 			await processStreamBuffer({
 				streamBuffer: buffer,
-				state,
 				programId,
 				structure,
+				sampleCallbacks,
+				logLevel,
+				onAudioTrack,
+				onVideoTrack,
+				transportStream,
+				makeSamplesStartAtZero,
 			});
-			state.transportStream.streamBuffers.delete(programId);
+			transportStream.streamBuffers.delete(programId);
 		}
 	}
 };

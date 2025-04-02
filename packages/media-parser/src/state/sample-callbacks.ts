@@ -13,7 +13,7 @@ import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
 import {needsToIterateOverSamples} from './need-samples-for-fields';
-import type {SlowDurationAndFpsState} from './slow-duration-fps';
+import type {SlowDurationAndFpsState} from './samples-observed/slow-duration-fps';
 import type {StructureState} from './structure';
 
 export const sampleCallback = ({
@@ -134,22 +134,22 @@ export const sampleCallback = ({
 				}
 			}
 
+			if (videoSample.type === 'key') {
+				keyframes.addKeyframe({
+					trackId,
+					decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
+					positionInBytes: videoSample.offset,
+					presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
+					sizeInBytes: videoSample.data.length,
+				});
+			}
+
 			if (
 				needsToIterateOverSamples({
 					fields,
 					emittedFields,
 				})
 			) {
-				if (fields.slowKeyframes && videoSample.type === 'key') {
-					keyframes.addKeyframe({
-						trackId,
-						decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
-						positionInBytes: videoSample.offset,
-						presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
-						sizeInBytes: videoSample.data.length,
-					});
-				}
-
 				slowDurationAndFpsState.addVideoSample(videoSample);
 			}
 		},

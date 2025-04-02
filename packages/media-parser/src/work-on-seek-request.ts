@@ -10,10 +10,12 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
+import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
+import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import {type MediaSectionState} from './state/video-section';
 
 const turnSeekIntoByte = async ({
@@ -24,6 +26,8 @@ const turnSeekIntoByte = async ({
 	structureState,
 	mp4HeaderSegment,
 	isoState,
+	transportStream,
+	tracksState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -32,10 +36,12 @@ const turnSeekIntoByte = async ({
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	isoState: IsoBaseMediaState;
+	transportStream: TransportStreamState;
+	tracksState: TracksState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
-		Log.trace(logLevel, 'No video sections defined, cannot seek yet');
+		Log.trace(logLevel, 'No media sections defined, cannot seek yet');
 		return {
 			type: 'valid-but-must-wait',
 		};
@@ -47,6 +53,8 @@ const turnSeekIntoByte = async ({
 			mp4HeaderSegment,
 			mediaSectionState,
 			isoState,
+			transportStream,
+			tracksState,
 		});
 		if (!seekingInfo) {
 			Log.trace(logLevel, 'No seeking info, cannot seek yet');
@@ -61,6 +69,7 @@ const turnSeekIntoByte = async ({
 			logLevel,
 			currentPosition: iterator.counter.getOffset(),
 			isoState,
+			transportStream,
 		});
 
 		return seekingByte;
@@ -89,11 +98,13 @@ export type WorkOnSeekRequestOptions = {
 	readerInterface: ReaderInterface;
 	mediaSection: MediaSectionState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	transportStream: TransportStreamState;
 	mode: ParseMediaMode;
 	seekInfiniteLoop: SeekInfiniteLoop;
 	currentReader: CurrentReader;
 	discardReadBytes: (force: boolean) => Promise<void>;
 	fields: Partial<AllOptions<ParseMediaFields>>;
+	tracksState: TracksState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -115,6 +126,8 @@ export const getWorkOnSeekRequestOptions = (
 		currentReader: state.currentReader,
 		discardReadBytes: state.discardReadBytes,
 		fields: state.fields,
+		transportStream: state.transportStream,
+		tracksState: state.callbacks.tracks,
 	};
 };
 
@@ -135,6 +148,8 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		currentReader,
 		discardReadBytes,
 		fields,
+		transportStream,
+		tracksState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -150,6 +165,8 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		structureState,
 		mp4HeaderSegment,
 		isoState,
+		transportStream,
+		tracksState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

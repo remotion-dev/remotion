@@ -2,7 +2,6 @@ import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {iteratorOverSegmentFiles} from './iterate-over-segment-files';
 import type {M3uStructure} from './types';
 
@@ -72,7 +71,6 @@ export const runOverM3u = async ({
 
 						const onAudioSample = await registerAudioTrack({
 							container: 'm3u8',
-							workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 							track: {
 								...track,
 								trackId,
@@ -109,7 +107,6 @@ export const runOverM3u = async ({
 
 						const onVideoSample = await registerVideoTrack({
 							container: 'm3u8',
-							workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 							track: {
 								...track,
 								trackId,
