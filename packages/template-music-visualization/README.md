@@ -7,10 +7,30 @@
 
 This template allows you to create stunning music visualization videos. Perfect for sharing song previews, album teasers, or music snippets on social media with beautiful visual effects synchronized to your audio.
 
-## Getting started
+## Commands
 
+**Install Dependencies**
+
+```console
+npm install
 ```
+
+**Start Preview**
+
+```console
 npx remotion studio
+```
+
+**Render video**
+
+```console
+npx remotion render
+```
+
+**Upgrade Remotion**
+
+```console
+npx remotion upgrade
 ```
 
 ## Customization
