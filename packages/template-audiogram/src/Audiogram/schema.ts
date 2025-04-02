@@ -41,9 +41,6 @@ export const audiogramSchema = z.object({
       message: "Subtitles file must be a .srt or .json file",
     }),
   captionsTextColor: zColor(),
-  captionsLinePerPage: z.number().int().min(0),
-  captionsLineHeight: z.number().int().min(0),
-  captionsZoomMeasurerSize: z.number().int().min(0),
   onlyDisplayCurrentSentence: z.boolean(),
   // audio settings
   audioFileUrl: z.string(),
