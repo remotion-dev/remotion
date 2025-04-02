@@ -64,27 +64,25 @@ export const createOverwriteableCliOutput = (options: {
 	const diff = new StudioServerInternals.AnsiDiff();
 
 	options.cancelSignal?.(() => {
-		process.stdout.write(new Uint8Array(diff.finish()));
+		process.stdout.write(diff.finish() as never as Uint8Array);
 	});
 
 	return {
 		update: (up: string, newline: boolean): boolean => {
 			if (options.indent) {
 				return process.stdout.write(
-					new Uint8Array(
-						diff.update(
-							up
-								.split('\n')
-								.filter((a) => a.trim())
-								.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
-								.join('\n') + (newline ? '\n' : ''),
-						),
-					),
+					diff.update(
+						up
+							.split('\n')
+							.filter((a) => a.trim())
+							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
+							.join('\n') + (newline ? '\n' : ''),
+					) as never as Uint8Array,
 				);
 			}
 
 			return process.stdout.write(
-				new Uint8Array(diff.update(up + (newline ? '\n' : ''))),
+				diff.update(up + (newline ? '\n' : '')) as never as Uint8Array,
 			);
 		},
 	};
