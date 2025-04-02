@@ -1,6 +1,22 @@
 import { visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { useWindowedAudioDataIfPossible } from "../helpers/use-windowed-audio-data-if-possible";
+import { AudioVizContainer } from "./AudioVizContainer";
+import { BASE_SIZE } from "./constants";
+
+const Bar: React.FC<{ height: number; color: string }> = ({
+  height,
+  color,
+}) => {
+  const barStyle: React.CSSProperties = {
+    borderRadius: `${BASE_SIZE * 0.25}px`,
+    width: `${BASE_SIZE * 0.5}px`,
+    height: `${height}px`,
+    backgroundColor: color,
+  };
+
+  return <div style={barStyle} />;
+};
 
 export const Spectrum: React.FC<{
   readonly barColor: string;
@@ -28,7 +44,7 @@ export const Spectrum: React.FC<{
   });
 
   if (!audioData) {
-    return <div className="audio-viz" />;
+    return <AudioVizContainer />;
   }
 
   const frequencyData = visualizeAudio({
@@ -53,20 +69,10 @@ export const Spectrum: React.FC<{
     : frequencyDataSubset;
 
   return (
-    <div className="audio-viz">
+    <AudioVizContainer>
       {frequenciesToDisplay.map((v, i) => {
-        return (
-          <div
-            key={i}
-            className="bar"
-            style={{
-              minWidth: "1px",
-              backgroundColor: barColor,
-              height: `${300 * Math.sqrt(v)}%`,
-            }}
-          />
-        );
+        return <Bar key={i} height={300 * Math.sqrt(v)} color={barColor} />;
       })}
-    </div>
+    </AudioVizContainer>
   );
 };
