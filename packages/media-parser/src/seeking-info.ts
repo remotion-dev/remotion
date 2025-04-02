@@ -1,6 +1,7 @@
 import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import type {TfraBox} from './containers/iso-base-media/mfra/tfra';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
+import type {PacketPes} from './containers/transport-stream/parse-pes';
 import type {MediaSection} from './state/video-section';
 
 export type IsoBaseMediaSeekingInfo = {
@@ -20,6 +21,8 @@ export type WavSeekingInfo = {
 
 export type TransportStreamSeekingInfo = {
 	type: 'transport-stream-seeking-info';
+	observedPesHeaders: PacketPes[];
+	ptsStartOffset: number;
 };
 
 export type SeekingInfo =

@@ -1,12 +1,15 @@
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-from-mp4';
 import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-info-from-mp4';
+import {getSeekingInfoFromTransportStream} from './containers/transport-stream/get-seeking-info';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingInfoFromWav} from './containers/wav/get-seeking-info';
 import type {LogLevel} from './log';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingInfo} from './seeking-info';
+import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {StructureState} from './state/structure';
+import {getLastKeyFrameBeforeTimeInSeconds} from './state/transport-stream/observed-pes-header';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import type {MediaSectionState} from './state/video-section';
 import type {SeekResolution} from './work-on-seek-request';
@@ -16,11 +19,15 @@ export const getSeekingInfo = ({
 	mp4HeaderSegment,
 	mediaSectionState,
 	isoState,
+	transportStream,
+	tracksState,
 }: {
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	mediaSectionState: MediaSectionState;
 	isoState: IsoBaseMediaState;
+	transportStream: TransportStreamState;
+	tracksState: TracksState;
 }): SeekingInfo | null => {
 	const structure = structureState.getStructureOrNull();
 
@@ -45,9 +52,7 @@ export const getSeekingInfo = ({
 	}
 
 	if (structure.type === 'transport-stream') {
-		return {
-			type: 'transport-stream-seeking-info',
-		};
+		return getSeekingInfoFromTransportStream(transportStream, tracksState);
 	}
 
 	throw new Error(
@@ -88,10 +93,18 @@ export const getSeekingByte = ({
 	}
 
 	if (info.type === 'transport-stream-seeking-info') {
+		const lastKeyframeBeforeTimeInSeconds = getLastKeyFrameBeforeTimeInSeconds({
+			observedPesHeaders: info.observedPesHeaders,
+			timeInSeconds: time,
+			ptsStartOffset: info.ptsStartOffset,
+		});
+
+		const byte = lastKeyframeBeforeTimeInSeconds?.offset ?? 0;
+
 		transportStream.resetBeforeSeek();
 		return Promise.resolve({
 			type: 'do-seek',
-			byte: 0,
+			byte,
 		});
 	}
 

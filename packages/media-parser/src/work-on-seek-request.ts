@@ -10,6 +10,7 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
+import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
@@ -26,6 +27,7 @@ const turnSeekIntoByte = async ({
 	mp4HeaderSegment,
 	isoState,
 	transportStream,
+	tracksState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -35,6 +37,7 @@ const turnSeekIntoByte = async ({
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;
+	tracksState: TracksState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -50,6 +53,8 @@ const turnSeekIntoByte = async ({
 			mp4HeaderSegment,
 			mediaSectionState,
 			isoState,
+			transportStream,
+			tracksState,
 		});
 		if (!seekingInfo) {
 			Log.trace(logLevel, 'No seeking info, cannot seek yet');
@@ -99,6 +104,7 @@ export type WorkOnSeekRequestOptions = {
 	currentReader: CurrentReader;
 	discardReadBytes: (force: boolean) => Promise<void>;
 	fields: Partial<AllOptions<ParseMediaFields>>;
+	tracksState: TracksState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -121,6 +127,7 @@ export const getWorkOnSeekRequestOptions = (
 		discardReadBytes: state.discardReadBytes,
 		fields: state.fields,
 		transportStream: state.transportStream,
+		tracksState: state.callbacks.tracks,
 	};
 };
 
@@ -142,6 +149,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		discardReadBytes,
 		fields,
 		transportStream,
+		tracksState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -158,6 +166,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		mp4HeaderSegment,
 		isoState,
 		transportStream,
+		tracksState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

@@ -33,8 +33,8 @@ import {m3uState} from './m3u-state';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
+import {samplesObservedState} from './samples-observed/slow-duration-fps';
 import {seekInfiniteLoopDetectionState} from './seek-infinite-loop';
-import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {timingsState} from './timings';
 import {transportStreamState} from './transport-stream/transport-stream';
@@ -110,7 +110,7 @@ export const makeParserState = ({
 	const structure = structureState();
 	const keyframes = keyframesState();
 	const emittedFields = emittedState();
-	const slowDurationAndFps = slowDurationAndFpsState();
+	const slowDurationAndFps = samplesObservedState();
 	const mp3Info = makeMp3State();
 	const images = imagesState();
 	const timings = timingsState();

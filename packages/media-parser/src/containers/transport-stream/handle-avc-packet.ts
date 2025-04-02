@@ -96,6 +96,8 @@ export const handleAvcPacket = async ({
 		});
 	}
 
+	const type = getKeyFrameOrDeltaFromAvcInfo(avc);
+
 	// sample for webcodecs needs to be in nano seconds
 	const sample: AudioOrVideoSample = {
 		cts:
@@ -110,10 +112,16 @@ export const handleAvcPacket = async ({
 		duration: undefined,
 		data: streamBuffer.getBuffer(),
 		trackId: programId,
-		type: getKeyFrameOrDeltaFromAvcInfo(avc),
+		type,
 		offset,
 		timescale: MPEG_TIMESCALE,
 	};
+
+	if (type === 'key') {
+		transportStream.observedPesHeaders.markPtsAsKeyframe(
+			streamBuffer.pesHeader.pts,
+		);
+	}
 
 	await emitVideoSample({
 		trackId: programId,

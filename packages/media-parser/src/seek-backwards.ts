@@ -24,9 +24,7 @@ export const seekBackwards = async ({
 	currentReader: CurrentReader;
 }) => {
 	// (a) data has not been discarded yet
-	const howManyBytesNotYetDiscarded = iterator.counter.getDiscardedOffset();
-	const howManyBytesWeCanGoBack =
-		iterator.counter.getOffset() - howManyBytesNotYetDiscarded;
+	const howManyBytesWeCanGoBack = iterator.counter.getDiscardedOffset();
 
 	if (iterator.counter.getOffset() - howManyBytesWeCanGoBack <= seekTo) {
 		iterator.skipTo(seekTo);
@@ -37,7 +35,7 @@ export const seekBackwards = async ({
 	const time = Date.now();
 	Log.verbose(
 		logLevel,
-		`Seeking in video from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available`,
+		`Seeking in video from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available.`,
 	);
 
 	const {reader: newReader} = await readerInterface.read({

@@ -1,4 +1,4 @@
-export const startOffsetStore = () => {
+export const ptsStartOffsetStore = () => {
 	const offsets: Record<number, number> = {};
 
 	return {
@@ -8,3 +8,5 @@ export const startOffsetStore = () => {
 		},
 	};
 };
+
+export type PtsStartOffsetState = ReturnType<typeof ptsStartOffsetStore>;

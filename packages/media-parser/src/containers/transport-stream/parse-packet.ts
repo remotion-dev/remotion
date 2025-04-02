@@ -67,8 +67,9 @@ export const parsePacket = ({
 		payloadUnitStartIndicator && pat?.streams.find((e) => e.pid === programId);
 
 	if (isPes) {
-		const packetPes = parsePes(iterator);
+		const packetPes = parsePes({iterator, offset});
 		transportStream.nextPesHeaderStore.setNextPesHeader(packetPes);
+		transportStream.observedPesHeaders.addPesHeader(packetPes);
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField
 	}
