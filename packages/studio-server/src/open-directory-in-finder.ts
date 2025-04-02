@@ -48,9 +48,9 @@ export const openDirectoryInFinder = (
 			if (code === 0) {
 				resolve();
 			} else {
-				const message = new TextDecoder('utf-8').decode(
-					Buffer.concat(stderrChunks.map((buf) => Uint8Array.from(buf))),
-				);
+				const message = Buffer.concat(
+					stderrChunks.map((buf) => Uint8Array.from(buf)),
+				).toString('utf8');
 				reject(new Error(message));
 			}
 		});
