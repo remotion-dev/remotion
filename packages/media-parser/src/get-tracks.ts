@@ -126,7 +126,10 @@ export const isoBaseMediaHasTracks = (state: ParserState) => {
 export const getHasTracks = (state: ParserState): boolean => {
 	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
-		return matroskaHasTracks(state);
+		return matroskaHasTracks({
+			structureState: state.structure,
+			webmState: state.webm,
+		});
 	}
 
 	if (structure.type === 'iso-base-media') {
@@ -170,7 +173,8 @@ const getCategorizedTracksFromMatroska = (state: ParserState): AllTracks => {
 	const otherTracks: OtherTrack[] = [];
 
 	const {resolved} = getTracksFromMatroska({
-		state,
+		structureState: state.structure,
+		webmState: state.webm,
 	});
 
 	for (const track of resolved) {

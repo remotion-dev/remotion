@@ -1,6 +1,7 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {expectSegment} from './segments';
+import {selectStatesForProcessing} from './state-for-processing';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
@@ -12,7 +13,9 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 	const isInsideCluster = state.webm.isInsideCluster(iterator);
 
 	const results = await expectSegment({
-		state,
+		iterator,
+		logLevel: state.logLevel,
+		statesForProcessing: selectStatesForProcessing(state),
 		isInsideSegment,
 	});
 	if (results === null) {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {ParserState} from '../../state/parser-state';
 import type {SegmentSection} from '../../state/webm';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
@@ -10,19 +11,23 @@ import {
 	type PossibleEbml,
 	type TrackEntry,
 } from './segments/all-segments';
+import {type WebmRequiredStatesForProcessing} from './state-for-processing';
 
 export type MatroskaSegment = PossibleEbml;
 
 export type OnTrackEntrySegment = (trackEntry: TrackEntry) => void;
 
 export const expectSegment = async ({
-	state,
+	statesForProcessing,
 	isInsideSegment,
+	iterator,
+	logLevel,
 }: {
-	state: ParserState;
+	iterator: BufferIterator;
+	logLevel: LogLevel;
+	statesForProcessing: WebmRequiredStatesForProcessing | null;
 	isInsideSegment: SegmentSection | null;
 }): Promise<MatroskaSegment | null> => {
-	const {iterator} = state;
 	if (iterator.bytesRemaining() === 0) {
 		throw new Error('has no bytes');
 	}
@@ -48,7 +53,7 @@ export const expectSegment = async ({
 	const bytesRemainingNow = iterator.bytesRemaining();
 
 	Log.trace(
-		state.logLevel,
+		logLevel,
 		'Segment ID:',
 		ebmlMap[segmentId as keyof typeof ebmlMap]?.name,
 		'Size:' + size,
@@ -56,7 +61,11 @@ export const expectSegment = async ({
 	);
 
 	if (segmentId === matroskaElements.Segment) {
-		state.webm.addSegment({
+		if (!statesForProcessing) {
+			throw new Error('States for processing are required');
+		}
+
+		statesForProcessing.webmState.addSegment({
 			start: offset,
 			size,
 		});
@@ -73,7 +82,11 @@ export const expectSegment = async ({
 			throw new Error('Expected to be inside segment');
 		}
 
-		state.webm.addCluster({
+		if (!statesForProcessing) {
+			throw new Error('States for processing are required');
+		}
+
+		statesForProcessing.webmState.addCluster({
 			start: offset,
 			size,
 			segment: isInsideSegment.index,
@@ -95,8 +108,9 @@ export const expectSegment = async ({
 	const segment = await parseSegment({
 		segmentId,
 		length: size,
-		state,
 		headerReadSoFar: iterator.counter.getOffset() - offset,
+		statesForProcessing,
+		iterator,
 	});
 
 	return segment;
@@ -105,23 +119,33 @@ export const expectSegment = async ({
 const parseSegment = async ({
 	segmentId,
 	length,
-	state,
+	iterator,
 	headerReadSoFar,
+	statesForProcessing,
 }: {
 	segmentId: string;
 	length: number;
-	state: ParserState;
+	iterator: BufferIterator;
 	headerReadSoFar: number;
+	statesForProcessing: WebmRequiredStatesForProcessing | null;
 }): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
 	if (length < 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
 	}
 
-	state.iterator.counter.decrement(headerReadSoFar);
+	iterator.counter.decrement(headerReadSoFar);
 
-	const offset = state.iterator.counter.getOffset();
-	const ebml = await parseEbml(state);
-	const remapped = await postprocessEbml({offset, ebml, state});
+	const offset = iterator.counter.getOffset();
+	const ebml = await parseEbml(iterator, statesForProcessing);
+	if (!statesForProcessing) {
+		return ebml;
+	}
+
+	const remapped = await postprocessEbml({
+		offset,
+		ebml,
+		statesForProcessing,
+	});
 
 	return remapped;
 };
