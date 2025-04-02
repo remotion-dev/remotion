@@ -1,24 +1,20 @@
 import React from "react";
-import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
-import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
+import { AbsoluteFill, Audio, Sequence, useVideoConfig } from "remotion";
 
 import { Spectrum } from "./Spectrum";
-import { AudiogramCompositionSchemaType } from "./schema";
+import { AudiogramCompositionSchemaType } from "../helpers/schema";
 import { Waveform } from "./Waveform";
 import { BassOverlay } from "./BassOverlay";
-
-loadFont("normal", {
-  weights: ["500", "700"],
-});
+import { SongInfo } from "./SongInfo";
+import { FONT_FAMILY } from "../helpers/font";
 
 const containerStyle: React.CSSProperties = {
   flexDirection: "column",
   justifyContent: "flex-end",
   color: "white",
-  backgroundColor: "black",
   padding: 48,
   gap: 32,
-  fontFamily,
+  fontFamily: FONT_FAMILY,
 };
 
 const visualizerContainerStyle: React.CSSProperties = {
@@ -28,24 +24,6 @@ const visualizerContainerStyle: React.CSSProperties = {
   borderRadius: 32,
   padding: 32,
   marginTop: 32,
-};
-
-const imageContainerStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 40,
-  background: "rgba(255, 255, 255, 0.02)",
-  padding: 32,
-  borderRadius: 32,
-  boxShadow: "0 -4px 24px rgba(0,0,0,0.2)",
-};
-
-const imageStyle: React.CSSProperties = {
-  width: 280,
-  height: 280,
-  objectFit: "cover",
-  borderRadius: 20,
-  boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
 };
 
 export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
@@ -88,37 +66,12 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
               />
             ) : null}
           </div>
-
-          <div style={imageContainerStyle}>
-            <Img style={imageStyle} src={coverImageUrl} />
-
-            <div>
-              <div
-                style={{
-                  fontSize: "5.5rem",
-                  fontWeight: "700",
-                  marginBottom: 16,
-                  lineHeight: "1.1",
-                  color: textColor,
-                  letterSpacing: "-0.02em",
-                  textShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                }}
-              >
-                {songName}
-              </div>
-              <div
-                style={{
-                  fontSize: "3.5rem",
-                  fontWeight: "500",
-                  opacity: 0.9,
-                  color: textColor,
-                  textShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                }}
-              >
-                {artistName}
-              </div>
-            </div>
-          </div>
+          <SongInfo
+            coverImageUrl={coverImageUrl}
+            songName={songName}
+            artistName={artistName}
+            textColor={textColor}
+          />
         </AbsoluteFill>
       </Sequence>
     </AbsoluteFill>

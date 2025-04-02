@@ -1,7 +1,7 @@
 import { Composition, staticFile } from "remotion";
 import { Visualizer } from "./Visualizer/Main";
-import { visualizerCompositionSchema } from "./Visualizer/schema";
-import { getAudioDurationInSeconds } from "@remotion/media-utils";
+import { visualizerCompositionSchema } from "./helpers/schema";
+import { parseMedia } from "@remotion/media-parser";
 
 const FPS = 30;
 
@@ -25,8 +25,8 @@ export const RemotionRoot: React.FC = () => {
           textColor: "white",
           // visualizer settings
           visualizer: {
-            bassOverlay: true,
             type: "oscilloscope",
+            bassOverlay: true,
             color: "#0b84f3",
             windowInSeconds: 1,
             amplitude: 1.3,
@@ -34,17 +34,18 @@ export const RemotionRoot: React.FC = () => {
         }}
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
-          const durationInSeconds = await getAudioDurationInSeconds(
-            props.audioFileUrl,
-          );
+          const { slowDurationInSeconds } = await parseMedia({
+            src: props.audioFileUrl,
+            fields: {
+              slowDurationInSeconds: true,
+            },
+            acknowledgeRemotionLicense: true,
+          });
 
           return {
             durationInFrames: Math.floor(
-              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
+              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
             ),
-            props: {
-              ...props,
-            },
             fps: FPS,
           };
         }}
