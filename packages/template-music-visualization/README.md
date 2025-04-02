@@ -10,7 +10,7 @@ This template allows you to create stunning music visualization videos. Perfect 
 ## Getting started
 
 ```
-npm run dev
+npx remotion studio
 ```
 
 ## Customization
