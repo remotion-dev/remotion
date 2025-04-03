@@ -11,7 +11,7 @@ import type {SamplePosition} from './get-sample-positions';
 
 // example video: mehmet.mov
 
-export const getSamplePositionsFromLpcm = (
+export const getGroupedSamplesPositionsFromMp4 = (
 	trakBox: TrakBox,
 ): SamplePosition[] => {
 	const stscBox = getStscBox(trakBox);

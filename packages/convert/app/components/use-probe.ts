@@ -119,6 +119,7 @@ export const useProbe = ({
 			onImages: (i) => {
 				setImages(i);
 			},
+			acknowledgeRemotionLicense: true,
 		})
 			.then(() => {})
 			.catch((err) => {

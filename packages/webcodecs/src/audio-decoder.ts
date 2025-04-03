@@ -39,7 +39,7 @@ export const createAudioDecoder = ({
 	}
 
 	if (config.codec === 'pcm-s16') {
-		return getWaveAudioDecoder({onFrame, track});
+		return getWaveAudioDecoder({onFrame, track, sampleFormat: 's16'});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer({
