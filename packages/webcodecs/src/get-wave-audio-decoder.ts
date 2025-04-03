@@ -8,17 +8,17 @@ import type {
 export const getWaveAudioDecoder = ({
 	onFrame,
 	track,
-}: Pick<
-	CreateAudioDecoderInit,
-	'onFrame' | 'track'
->): WebCodecsAudioDecoder => {
+	sampleFormat,
+}: Pick<CreateAudioDecoderInit, 'onFrame' | 'track'> & {
+	sampleFormat: AudioSampleFormat;
+}): WebCodecsAudioDecoder => {
 	let queue = Promise.resolve();
 
 	const processSample = async (audioSample: AudioOrVideoSample) => {
 		await onFrame(
 			new AudioData({
 				data: audioSample.data,
-				format: 's16',
+				format: sampleFormat,
 				numberOfChannels: track.numberOfChannels,
 				numberOfFrames: audioSample.data.byteLength / 2,
 				sampleRate: track.sampleRate,

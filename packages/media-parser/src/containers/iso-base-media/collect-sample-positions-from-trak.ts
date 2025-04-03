@@ -1,7 +1,7 @@
-import {isLpcmAudioCodec} from '../../get-audio-codec';
+import {isIn24AudioCodec, isLpcmAudioCodec} from '../../get-audio-codec';
 import {getTimescaleAndDuration} from '../../get-fps';
 import {getSamplePositions} from '../../get-sample-positions';
-import {getSamplePositionsFromLpcm} from '../../get-sample-positions-from-lpcm';
+import {getGroupedSamplesPositionsFromMp4} from '../../get-sample-positions-from-mp4';
 import type {TrakBox} from './trak/trak';
 import {
 	getCttsBox,
@@ -15,9 +15,10 @@ import {
 export const collectSamplePositionsFromTrak = (trakBox: TrakBox) => {
 	const isLpcm = isLpcmAudioCodec(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
+	const isIn24 = isIn24AudioCodec(trakBox);
 
-	if (isLpcm) {
-		return getSamplePositionsFromLpcm(trakBox);
+	if (isLpcm || isIn24) {
+		return getGroupedSamplesPositionsFromMp4(trakBox);
 	}
 
 	const stszBox = getStszBox(trakBox);
