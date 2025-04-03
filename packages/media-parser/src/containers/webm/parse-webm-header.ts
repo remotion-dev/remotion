@@ -1,5 +1,6 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
+import {getByteForSeek} from './get-byte-for-cues';
 import {expectSegment} from './segments';
 import {selectStatesForProcessing} from './state-for-processing';
 
@@ -8,6 +9,7 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 	const structure = state.structure.getMatroskaStructure();
 
 	const {iterator} = state;
+	const offset = iterator.counter.getOffset();
 
 	const isInsideSegment = state.webm.isInsideSegment(iterator);
 	const isInsideCluster = state.webm.isInsideCluster(iterator);
@@ -18,6 +20,13 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 		statesForProcessing: selectStatesForProcessing(state),
 		isInsideSegment,
 	});
+	if (results?.type === 'SeekHead') {
+		const position = getByteForSeek({seekHeadSegment: results, offset});
+		if (position !== null) {
+			state.webm.cues.triggerLoad(position);
+		}
+	}
+
 	if (results === null) {
 		return null;
 	}

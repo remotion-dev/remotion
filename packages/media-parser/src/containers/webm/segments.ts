@@ -2,7 +2,7 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {SegmentSection} from '../../state/webm';
+import type {SegmentSection} from '../../state/matroska/webm';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
 import {

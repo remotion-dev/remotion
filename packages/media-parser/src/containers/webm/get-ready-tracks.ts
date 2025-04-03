@@ -1,6 +1,6 @@
 import type {Track} from '../../get-tracks';
+import type {WebmState} from '../../state/matroska/webm';
 import type {StructureState} from '../../state/structure';
-import type {WebmState} from '../../state/webm';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {
 	getTrack,

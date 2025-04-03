@@ -1,8 +1,8 @@
 import type {LogLevel} from '../../log';
+import type {WebmState} from '../../state/matroska/webm';
 import type {ParserState} from '../../state/parser-state';
 import type {SampleCallbacks} from '../../state/sample-callbacks';
 import type {StructureState} from '../../state/structure';
-import type {WebmState} from '../../state/webm';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 
 export type WebmRequiredStatesForProcessing = {

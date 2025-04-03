@@ -1,6 +1,6 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
+import type {WebmState} from '../../state/matroska/webm';
 import type {StructureState} from '../../state/structure';
-import type {WebmState} from '../../state/webm';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';

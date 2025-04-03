@@ -4,6 +4,7 @@ import type {LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
 import {expectSegment} from './segments';
+import type {PossibleEbml} from './segments/all-segments';
 
 export const fetchWebmCues = async ({
 	src,
@@ -39,5 +40,5 @@ export const fetchWebmCues = async ({
 
 	iterator.destroy();
 
-	return segment?.value ?? null;
+	return (segment?.value ?? null) as PossibleEbml[] | null;
 };

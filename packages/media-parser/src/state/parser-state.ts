@@ -30,6 +30,7 @@ import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
 import {m3uState} from './m3u-state';
+import {webmState} from './matroska/webm';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
 import {sampleCallback} from './sample-callbacks';
@@ -39,7 +40,6 @@ import {structureState} from './structure';
 import {timingsState} from './timings';
 import {transportStreamState} from './transport-stream/transport-stream';
 import {mediaSectionState} from './video-section';
-import {webmState} from './webm';
 export type InternalStats = {
 	skippedBytes: number;
 	finalCursorOffset: number;
@@ -138,7 +138,7 @@ export const makeParserState = ({
 	return {
 		riff: riffSpecificState(),
 		transportStream: transportStreamState(),
-		webm: webmState(),
+		webm: webmState({controller, logLevel, readerInterface, src}),
 		iso: isoBaseMediaState({
 			contentLength,
 			controller,

@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {fetchWebmCues} from '../../containers/webm/fetch-web-cues';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {nodeReader} from '../../node';
+import {parseMedia} from '../../parse-media';
 
 test('get webm cues', async () => {
 	const fields = await fetchWebmCues({
@@ -148,4 +149,15 @@ test('get webm cues', async () => {
 			],
 		},
 	]);
+});
+
+test('should use them for seeking', async () => {
+	await parseMedia({
+		src: exampleVideos.stretchedVp8,
+		acknowledgeRemotionLicense: true,
+		reader: nodeReader,
+		onVideoTrack: (track) => {
+			return (sample) => {};
+		},
+	});
 });
