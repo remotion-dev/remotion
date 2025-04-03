@@ -127,6 +127,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {Empty} from './Empty';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
+import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TransitionRounding} from './TransitionRounding';
@@ -1575,6 +1576,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={900}
+			/>
+			<Composition
+				id="premount-on-transition-series"
+				component={PremountOnTransitionSeries}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={500}
 			/>
 		</>
 	);
