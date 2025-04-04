@@ -35,5 +35,6 @@ export const getSeekingInfoFromMp4 = ({
 		moofBoxes,
 		tfraBoxes,
 		mediaSections: mediaSectionState.getMediaSections(),
+		mfraAlreadyLoaded: isoState.mfra.getIfAlreadyLoaded(),
 	};
 };

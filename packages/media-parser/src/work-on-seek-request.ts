@@ -68,6 +68,8 @@ const turnSeekIntoByte = async ({
 			isoState,
 			transportStream,
 			tracksState,
+			keyframesState: keyframes,
+			webmState,
 		});
 
 		if (!seekingInfo) {
@@ -86,7 +88,6 @@ const turnSeekIntoByte = async ({
 			transportStream,
 			webmState,
 			mediaSection: mediaSectionState,
-			keyframes,
 		});
 
 		return seekingByte;

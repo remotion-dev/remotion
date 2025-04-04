@@ -2,8 +2,7 @@ import type {LogLevel} from '../../../log';
 import {Log} from '../../../log';
 import type {MediaParserKeyframe} from '../../../options';
 import type {WebmSeekingInfo} from '../../../seeking-info';
-import type {KeyframesState} from '../../../state/keyframes';
-import type {LazyCuesLoaded} from '../../../state/matroska/lazy-cues-fetch';
+import type {LazyCuesLoadedOrNull} from '../../../state/matroska/lazy-cues-fetch';
 import type {WebmState} from '../../../state/matroska/webm';
 import type {MediaSectionState} from '../../../state/video-section';
 import type {SeekResolution} from '../../../work-on-seek-request';
@@ -69,7 +68,7 @@ const getByteFromCues = ({
 	info,
 	logLevel,
 }: {
-	cuesResponse: LazyCuesLoaded;
+	cuesResponse: LazyCuesLoadedOrNull;
 	time: number;
 	info: WebmSeekingInfo;
 	logLevel: LogLevel;
@@ -102,14 +101,12 @@ export const getSeekingByteFromMatroska = async ({
 	info,
 	logLevel,
 	mediaSection,
-	keyframes,
 }: {
 	time: number;
 	webmState: WebmState;
 	info: WebmSeekingInfo;
 	logLevel: LogLevel;
 	mediaSection: MediaSectionState;
-	keyframes: KeyframesState;
 }): Promise<SeekResolution> => {
 	if (!info.track) {
 		Log.trace(logLevel, 'No video track found, cannot seek yet');
@@ -118,11 +115,13 @@ export const getSeekingByteFromMatroska = async ({
 		};
 	}
 
-	const cuesResponse = (await webmState.cues.getLoadedCues()) as LazyCuesLoaded;
+	const cuesResponse =
+		info.loadedCues ??
+		((await webmState.cues.getLoadedCues()) as LazyCuesLoadedOrNull);
 
 	// Check if we have already read keyframes
 	const byteFromObservedKeyframe = findKeyframeBeforeTime({
-		keyframes: keyframes.getKeyframes(),
+		keyframes: info.keyframes,
 		time,
 	});
 

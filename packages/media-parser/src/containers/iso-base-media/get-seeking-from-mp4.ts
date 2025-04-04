@@ -84,7 +84,9 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 			}
 		}
 
-		const atom = await isoState.mfra.triggerLoad();
+		const atom = await (info.mfraAlreadyLoaded
+			? Promise.resolve(info.mfraAlreadyLoaded)
+			: isoState.mfra.triggerLoad());
 		if (atom) {
 			const moofOffset = findBestSegmentFromTfra({
 				mfra: atom,
