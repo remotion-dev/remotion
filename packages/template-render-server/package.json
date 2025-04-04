@@ -1,0 +1,36 @@
+{
+  "name": "template-render-server",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "tsx watch server",
+    "start": "tsx server",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "@remotion/renderer": "workspace:*",
+    "@remotion/bundler": "workspace:*",
+    "express": "4.21.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/express": "^5.0.1",
+    "@types/react": "19.0.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.3.3",
+    "tsx": "4.19.0",
+    "typescript": "5.8.2"
+  },
+  "private": true
+}
