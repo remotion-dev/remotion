@@ -10,11 +10,15 @@ export type MatroskaCue = {
 export const formatCues = (cues: PossibleEbml[]) => {
 	const matroskaCues: MatroskaCue[] = [];
 	for (const cue of cues) {
+		if (cue.type === 'Crc32') {
+			continue;
+		}
+
 		if (cue.type !== 'CuePoint') {
 			throw new Error('Expected CuePoint');
 		}
 
-		const cueTime = cue.value.find((cue) => cue.type === 'CueTime');
+		const cueTime = cue.value.find((_cue) => _cue.type === 'CueTime');
 		if (!cueTime) {
 			throw new Error('Expected CueTime');
 		}
@@ -44,15 +48,12 @@ export const formatCues = (cues: PossibleEbml[]) => {
 		const cueRelativePosition = cueTrackPositions.value.find(
 			(_c) => _c.type === 'CueRelativePosition',
 		);
-		if (!cueRelativePosition) {
-			throw new Error('Expected CueRelativePosition');
-		}
 
 		const matroskaCue: MatroskaCue = {
 			trackId: cueTrack.value.value,
 			timeInTimescale: cueTimeValue,
 			clusterPositionInSegment: cueClusterPosition.value.value,
-			relativePosition: cueRelativePosition.value.value,
+			relativePosition: cueRelativePosition?.value.value ?? 0,
 		};
 
 		matroskaCues.push(matroskaCue);
