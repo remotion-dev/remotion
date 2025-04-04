@@ -65,7 +65,7 @@ const turnSeekIntoByte = async ({
 
 		const seekingByte = await getSeekingByte({
 			info: seekingInfo,
-			time: seek.time,
+			time: seek.timeInSeconds,
 			logLevel,
 			currentPosition: iterator.counter.getOffset(),
 			isoState,
