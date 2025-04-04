@@ -18,8 +18,8 @@ test('should process a basic seek request', async () => {
 			reader: nodeReader,
 			onVideoTrack: () => {
 				controller._experimentalSeek({
-					type: 'keyframe-before-time-in-seconds',
-					time: 10.6,
+					type: 'keyframe-before-time',
+					timeInSeconds: 10.6,
 				});
 				return (s) => {
 					firstSample = s;

@@ -18,8 +18,8 @@ test('should seek transport stream', async () => {
 				samples++;
 				if (samples === 20) {
 					controller._experimentalSeek({
-						type: 'keyframe-before-time-in-seconds',
-						time: 10,
+						type: 'keyframe-before-time',
+						timeInSeconds: 10,
 					});
 					expect(sample.dts).toBe(316666.6666666666);
 				}

@@ -152,10 +152,16 @@ test('get webm cues', async () => {
 });
 
 test('should use them for seeking', async () => {
+	const controller = mediaParserController();
+	controller._experimentalSeek({
+		type: 'keyframe-before-time',
+		timeInSeconds: 20,
+	});
 	await parseMedia({
 		src: exampleVideos.stretchedVp8,
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
+		controller,
 		onVideoTrack: (track) => {
 			return (sample) => {};
 		},

@@ -47,7 +47,7 @@ const turnSeekIntoByte = async ({
 		};
 	}
 
-	if (seek.type === 'keyframe-before-time-in-seconds') {
+	if (seek.type === 'keyframe-before-time') {
 		const seekingInfo = getSeekingInfo({
 			structureState,
 			mp4HeaderSegment,
