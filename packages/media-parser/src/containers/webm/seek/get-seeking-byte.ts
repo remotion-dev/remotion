@@ -41,20 +41,6 @@ const findBiggestCueBeforeTime = ({
 	return biggestCueBeforeTime;
 };
 
-const getStartOfClusterToSeekTo = ({
-	biggestCueBeforeTime,
-	segmentOffset,
-}: {
-	biggestCueBeforeTime: MatroskaCue | undefined;
-	segmentOffset: number;
-}): number | null => {
-	if (biggestCueBeforeTime) {
-		return biggestCueBeforeTime.clusterPositionInSegment + segmentOffset;
-	}
-
-	return null;
-};
-
 const findKeyframeBeforeTime = ({
 	keyframes,
 	time,
@@ -103,12 +89,11 @@ const getByteFromCues = ({
 		track: info.track!,
 	});
 
-	const startOfClusterToSeekTo = getStartOfClusterToSeekTo({
-		biggestCueBeforeTime,
-		segmentOffset,
-	});
+	if (!biggestCueBeforeTime) {
+		return null;
+	}
 
-	return startOfClusterToSeekTo;
+	return biggestCueBeforeTime.clusterPositionInSegment + segmentOffset;
 };
 
 export const getSeekingByteFromMatroska = async ({
@@ -134,11 +119,14 @@ export const getSeekingByteFromMatroska = async ({
 	}
 
 	const cuesResponse = (await webmState.cues.getLoadedCues()) as LazyCuesLoaded;
+
+	// Check if we have already read keyframes
 	const byteFromObservedKeyframe = findKeyframeBeforeTime({
 		keyframes: keyframes.getKeyframes(),
 		time,
 	});
 
+	// Check if we have `Cues`
 	const byteFromCues = getByteFromCues({
 		cuesResponse,
 		time,
@@ -146,7 +134,11 @@ export const getSeekingByteFromMatroska = async ({
 		logLevel,
 	});
 
+	// Fallback: back to the beginning
 	const byteFromFirstMediaSection = webmState.getFirstCluster()?.start ?? null;
+
+	// Optimization possibility for later:
+	// Don't seek back, if the last seen time is smaller than the time we want to seek to
 
 	const seekPossibilities = [
 		byteFromCues,
