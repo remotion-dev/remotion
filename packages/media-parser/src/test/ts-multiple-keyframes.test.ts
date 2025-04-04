@@ -24,8 +24,8 @@ test('Should be able to seek back based on already observed keyframes', async ()
 					const timeInSeconds = sample.timestamp / sample.timescale;
 					if (timeInSeconds === 5.8058) {
 						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 3,
+							type: 'keyframe-before-time',
+							timeInSeconds: 3,
 						});
 					}
 
@@ -33,8 +33,8 @@ test('Should be able to seek back based on already observed keyframes', async ()
 						expect(timeInSeconds).toBe(2.9029);
 						expect(sample.type).toBe('key');
 						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 2,
+							type: 'keyframe-before-time',
+							timeInSeconds: 2,
 						});
 					}
 

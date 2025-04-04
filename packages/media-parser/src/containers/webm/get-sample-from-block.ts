@@ -1,5 +1,6 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
-import type {ParserState} from '../../state/parser-state';
+import type {WebmState} from '../../state/matroska/webm';
+import type {StructureState} from '../../state/structure';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';
@@ -27,22 +28,24 @@ type SampleResult =
 const addAvcToTrackIfNecessary = ({
 	partialVideoSample,
 	codec,
-	state,
+	structureState,
+	webmState,
 	trackNumber,
 }: {
 	partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
 	codec: string;
-	state: ParserState;
+	structureState: StructureState;
+	webmState: WebmState;
 	trackNumber: number;
 }) => {
 	if (
 		codec === 'V_MPEG4/ISO/AVC' &&
-		getTracksFromMatroska({state}).missingInfo.length > 0
+		getTracksFromMatroska({structureState, webmState}).missingInfo.length > 0
 	) {
 		const parsed = parseAvc(partialVideoSample.data);
 		for (const parse of parsed) {
 			if (parse.type === 'avc-profile') {
-				state.webm.setAvcProfileForTrackNumber(trackNumber, parse);
+				webmState.setAvcProfileForTrackNumber(trackNumber, parse);
 			}
 		}
 	}
@@ -50,8 +53,9 @@ const addAvcToTrackIfNecessary = ({
 
 export const getSampleFromBlock = (
 	ebml: BlockSegment | SimpleBlockSegment,
-	state: ParserState,
+	webmState: WebmState,
 	offset: number,
+	structureState: StructureState,
 ): SampleResult => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
 	const trackNumber = iterator.getVint();
@@ -68,11 +72,11 @@ export const getSampleFromBlock = (
 			: matroskaElements.Block,
 	);
 
-	const {codec, trackTimescale} = state.webm.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} = webmState.getTrackInfoByNumber(trackNumber);
 
-	const clusterOffset = state.webm.getTimestampOffsetForByteOffset(offset);
+	const clusterOffset = webmState.getTimestampOffsetForByteOffset(offset);
 
-	const timescale = state.webm.getTimescale();
+	const timescale = webmState.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error('Could not find offset for byte offset ' + offset);
@@ -118,7 +122,8 @@ export const getSampleFromBlock = (
 		addAvcToTrackIfNecessary({
 			codec,
 			partialVideoSample,
-			state,
+			structureState,
+			webmState,
 			trackNumber,
 		});
 

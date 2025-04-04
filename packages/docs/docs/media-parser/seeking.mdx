@@ -20,8 +20,8 @@ const controller = mediaParserController();
 // You can make a seek even before starting a parse
 // This will be considered before emitting the first sample
 controller._experimentalSeek({
-  type: 'keyframe-before-time-in-seconds',
-  time: 5,
+  type: 'keyframe-before-time',
+  timeInSeconds: 5,
 });
 
 await parseMedia({
@@ -31,8 +31,8 @@ await parseMedia({
     return () => {
       // You can also seek inmidst a parse.
       controller._experimentalSeek({
-        type: 'keyframe-before-time-in-seconds',
-        time: 10,
+        type: 'keyframe-before-time',
+        timeInSeconds: 10,
       });
     };
   },
@@ -41,7 +41,7 @@ await parseMedia({
 
 ## Types of seek
 
-### `keyframe-before-time-in-seconds`
+### `keyframe-before-time`
 
 This will seek to the last keyframe that comes before a certain time. If there is a keyframe at exactly this time, it will seek to this one.
 
@@ -53,8 +53,8 @@ import {mediaParserController} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 controller._experimentalSeek({
-  type: 'keyframe-before-time-in-seconds',
-  time: 5,
+  type: 'keyframe-before-time',
+  timeInSeconds: 5,
 });
 ```
 
@@ -69,3 +69,12 @@ import {DisallowForwardSeekingFields} from './DisallowForwardSeekingFields';
 The reason for this is that all samples need to be iterated over for these fields to be calculated. By seeking forward, some samples would be skipped which would skew the results.
 
 An error will be thrown if you attempt to do this.
+
+## How smart is seeking?
+
+The efficiency of seeking depends on the container format.
+
+- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in case of fragmented files.
+- **WebM**: Will use `Cues` and observed keyframes.
+- **WAV**: Will predict the sample number based on the sample rate and block align.
+- **Transport Stream**: Not smart - can only use the previously observed PES headers.

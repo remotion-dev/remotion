@@ -1,12 +1,17 @@
-import type {AvcProfileInfo} from '../containers/avc/parse-avc';
-import type {OnTrackEntrySegment} from '../containers/webm/segments';
-import type {TrackInfo} from '../containers/webm/segments/track-entry';
+import type {AvcProfileInfo} from '../../containers/avc/parse-avc';
+import type {OnTrackEntrySegment} from '../../containers/webm/segments';
+import type {TrackInfo} from '../../containers/webm/segments/track-entry';
 import {
 	getTrackCodec,
 	getTrackId,
 	getTrackTimestampScale,
-} from '../containers/webm/traversal';
-import type {BufferIterator} from '../iterator/buffer-iterator';
+} from '../../containers/webm/traversal';
+import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {LogLevel} from '../../log';
+import type {ParseMediaSrc} from '../../options';
+import type {ReaderInterface} from '../../readers/reader';
+import {lazyCuesFetch} from './lazy-cues-fetch';
 
 export type SegmentSection = {
 	start: number;
@@ -20,7 +25,17 @@ export type ClusterSection = {
 	segment: number;
 };
 
-export const webmState = () => {
+export const webmState = ({
+	controller,
+	logLevel,
+	readerInterface,
+	src,
+}: {
+	controller: MediaParserController;
+	logLevel: LogLevel;
+	readerInterface: ReaderInterface;
+	src: ParseMediaSrc;
+}) => {
 	const trackEntries: Record<number, TrackInfo> = {};
 
 	const onTrackEntrySegment: OnTrackEntrySegment = (trackEntry) => {
@@ -104,12 +119,19 @@ export const webmState = () => {
 		return avcProfilesMap[trackNumber] ?? null;
 	};
 
+	const cues = lazyCuesFetch({
+		controller,
+		logLevel,
+		readerInterface,
+		src,
+	});
+
 	return {
+		cues,
 		onTrackEntrySegment,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		setTimestampOffset,
 		getTimestampOffsetForByteOffset,
-		timescale,
 		getTimescale,
 		setTimescale,
 		addSegment: (seg: Omit<SegmentSection, 'index'>) => {
@@ -120,7 +142,15 @@ export const webmState = () => {
 			segments.push(segment);
 		},
 		addCluster: (cluster: ClusterSection) => {
-			clusters.push(cluster);
+			const exists = clusters.some(
+				(existingCluster) => existingCluster.start === cluster.start,
+			);
+			if (!exists) {
+				clusters.push(cluster);
+			}
+		},
+		getFirstCluster: () => {
+			return clusters.find((cluster) => cluster.segment === 0);
 		},
 		isInsideSegment: (iterator: BufferIterator): SegmentSection | null => {
 			const offset = iterator.counter.getOffset();
@@ -135,9 +165,8 @@ export const webmState = () => {
 
 			return insideClusters[0] ?? null;
 		},
-		isInsideCluster: (iterator: BufferIterator): ClusterSection | null => {
+		isInsideCluster: (offset: number): ClusterSection | null => {
 			for (const cluster of clusters) {
-				const offset = iterator.counter.getOffset();
 				if (offset >= cluster.start && offset <= cluster.start + cluster.size) {
 					return cluster;
 				}

@@ -11,8 +11,8 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 	const controller = mediaParserController();
 
 	controller._experimentalSeek({
-		type: 'keyframe-before-time-in-seconds',
-		time: 20,
+		type: 'keyframe-before-time',
+		timeInSeconds: 20,
 	});
 	let samples = 0;
 
@@ -37,15 +37,15 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 						expect(sample.type).toBe('key');
 
 						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 0,
+							type: 'keyframe-before-time',
+							timeInSeconds: 0,
 						});
 					}
 
 					if (sample.dts === 0) {
 						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 10,
+							type: 'keyframe-before-time',
+							timeInSeconds: 10,
 						});
 					}
 
