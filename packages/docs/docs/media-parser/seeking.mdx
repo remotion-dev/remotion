@@ -69,3 +69,12 @@ import {DisallowForwardSeekingFields} from './DisallowForwardSeekingFields';
 The reason for this is that all samples need to be iterated over for these fields to be calculated. By seeking forward, some samples would be skipped which would skew the results.
 
 An error will be thrown if you attempt to do this.
+
+## How smart is seeking?
+
+The efficiency of seeking depends on the container format.
+
+- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in case of fragmented files.
+- **WebM**: Will use `Cues` and observed keyframes.
+- **WAV**: Will predict the sample number based on the sample rate and block align.
+- **Transport Stream**: Not smart - can only use the previously observed PES headers.
