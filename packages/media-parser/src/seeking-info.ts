@@ -25,7 +25,13 @@ export type TransportStreamSeekingInfo = {
 	ptsStartOffset: number;
 };
 
+export type WebmSeekingInfo = {
+	type: 'webm-seeking-info';
+	track: null | {timescale: number; trackId: number};
+};
+
 export type SeekingInfo =
 	| IsoBaseMediaSeekingInfo
 	| WavSeekingInfo
-	| TransportStreamSeekingInfo;
+	| TransportStreamSeekingInfo
+	| WebmSeekingInfo;

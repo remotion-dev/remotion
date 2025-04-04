@@ -1,5 +1,5 @@
-import {fetchWebmCues} from '../../containers/webm/fetch-web-cues';
-import type {PossibleEbml} from '../../containers/webm/segments/all-segments';
+import {fetchWebmCues} from '../../containers/webm/seek/fetch-web-cues';
+import type {MatroskaCue} from '../../containers/webm/seek/format-cues';
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
@@ -17,12 +17,19 @@ export const lazyCuesFetch = ({
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 }) => {
-	let prom: Promise<PossibleEbml[] | null> | null = null;
+	let prom: Promise<MatroskaCue[] | null> | null = null;
+	let sOffset: number | null = null;
 
-	const triggerLoad = (position: number) => {
+	const triggerLoad = (position: number, segmentOffset: number) => {
 		if (prom) {
 			return prom;
 		}
+
+		if (sOffset && sOffset !== segmentOffset) {
+			throw new Error('Segment offset mismatch');
+		}
+
+		sOffset = segmentOffset;
 
 		Log.verbose(logLevel, 'Cues box found, trying to lazy load cues');
 
@@ -40,7 +47,28 @@ export const lazyCuesFetch = ({
 		return prom;
 	};
 
+	const getLoadedCues = async () => {
+		if (!prom) {
+			return null;
+		}
+
+		const cues = await prom;
+		if (!cues) {
+			return null;
+		}
+
+		if (!sOffset) {
+			throw new Error('Segment offset not set');
+		}
+
+		return {
+			cues,
+			segmentOffset: sOffset,
+		};
+	};
+
 	return {
 		triggerLoad,
+		getLoadedCues,
 	};
 };

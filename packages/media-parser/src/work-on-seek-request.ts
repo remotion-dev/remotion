@@ -1,7 +1,8 @@
 import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
 import type {AllOptions, ParseMediaFields} from './fields';
-import {getSeekingByte, getSeekingInfo} from './get-seeking-info';
+import {getSeekingByte} from './get-seeking-byte';
+import {getSeekingInfo} from './get-seeking-info';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
@@ -12,6 +13,8 @@ import type {ReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
+import type {KeyframesState} from './state/keyframes';
+import type {WebmState} from './state/matroska/webm';
 import type {ParserState} from './state/parser-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
@@ -28,6 +31,8 @@ const turnSeekIntoByte = async ({
 	isoState,
 	transportStream,
 	tracksState,
+	webmState,
+	keyframes,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -38,6 +43,8 @@ const turnSeekIntoByte = async ({
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;
 	tracksState: TracksState;
+	webmState: WebmState;
+	keyframes: KeyframesState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -70,6 +77,9 @@ const turnSeekIntoByte = async ({
 			currentPosition: iterator.counter.getOffset(),
 			isoState,
 			transportStream,
+			webmState,
+			mediaSection: mediaSectionState,
+			keyframes,
 		});
 
 		return seekingByte;
@@ -105,6 +115,8 @@ export type WorkOnSeekRequestOptions = {
 	discardReadBytes: (force: boolean) => Promise<void>;
 	fields: Partial<AllOptions<ParseMediaFields>>;
 	tracksState: TracksState;
+	webmState: WebmState;
+	keyframes: KeyframesState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -128,6 +140,8 @@ export const getWorkOnSeekRequestOptions = (
 		fields: state.fields,
 		transportStream: state.transportStream,
 		tracksState: state.callbacks.tracks,
+		webmState: state.webm,
+		keyframes: state.keyframes,
 	};
 };
 
@@ -150,6 +164,8 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		fields,
 		transportStream,
 		tracksState,
+		webmState,
+		keyframes,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -167,6 +183,8 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		isoState,
 		transportStream,
 		tracksState,
+		webmState,
+		keyframes,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

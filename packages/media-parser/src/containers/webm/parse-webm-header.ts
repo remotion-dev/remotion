@@ -12,18 +12,19 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 	const offset = iterator.counter.getOffset();
 
 	const isInsideSegment = state.webm.isInsideSegment(iterator);
-	const isInsideCluster = state.webm.isInsideCluster(iterator);
+	const isInsideCluster = state.webm.isInsideCluster(offset);
 
 	const results = await expectSegment({
 		iterator,
 		logLevel: state.logLevel,
 		statesForProcessing: selectStatesForProcessing(state),
 		isInsideSegment,
+		mediaSectionState: state.mediaSection,
 	});
 	if (results?.type === 'SeekHead') {
 		const position = getByteForSeek({seekHeadSegment: results, offset});
 		if (position !== null) {
-			state.webm.cues.triggerLoad(position);
+			state.webm.cues.triggerLoad(position, offset);
 		}
 	}
 

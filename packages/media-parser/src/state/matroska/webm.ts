@@ -142,7 +142,15 @@ export const webmState = ({
 			segments.push(segment);
 		},
 		addCluster: (cluster: ClusterSection) => {
-			clusters.push(cluster);
+			const exists = clusters.some(
+				(existingCluster) => existingCluster.start === cluster.start,
+			);
+			if (!exists) {
+				clusters.push(cluster);
+			}
+		},
+		getFirstCluster: () => {
+			return clusters.find((cluster) => cluster.segment === 0);
 		},
 		isInsideSegment: (iterator: BufferIterator): SegmentSection | null => {
 			const offset = iterator.counter.getOffset();
@@ -157,9 +165,8 @@ export const webmState = ({
 
 			return insideClusters[0] ?? null;
 		},
-		isInsideCluster: (iterator: BufferIterator): ClusterSection | null => {
+		isInsideCluster: (offset: number): ClusterSection | null => {
 			for (const cluster of clusters) {
-				const offset = iterator.counter.getOffset();
 				if (offset >= cluster.start && offset <= cluster.start + cluster.size) {
 					return cluster;
 				}

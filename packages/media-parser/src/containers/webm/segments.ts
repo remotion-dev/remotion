@@ -3,6 +3,7 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {SegmentSection} from '../../state/matroska/webm';
+import type {MediaSectionState} from '../../state/video-section';
 import {parseEbml, postprocessEbml} from './parse-ebml';
 import type {ClusterSegment, MainSegment} from './segments/all-segments';
 import {
@@ -22,11 +23,13 @@ export const expectSegment = async ({
 	isInsideSegment,
 	iterator,
 	logLevel,
+	mediaSectionState,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	statesForProcessing: WebmRequiredStatesForProcessing | null;
 	isInsideSegment: SegmentSection | null;
+	mediaSectionState: MediaSectionState | null;
 }): Promise<MatroskaSegment | null> => {
 	if (iterator.bytesRemaining() === 0) {
 		throw new Error('has no bytes');
@@ -84,6 +87,13 @@ export const expectSegment = async ({
 
 		if (!statesForProcessing) {
 			throw new Error('States for processing are required');
+		}
+
+		if (mediaSectionState) {
+			mediaSectionState.addMediaSection({
+				start: offset,
+				size,
+			});
 		}
 
 		statesForProcessing.webmState.addCluster({
