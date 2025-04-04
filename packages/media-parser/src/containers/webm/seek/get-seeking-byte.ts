@@ -3,6 +3,7 @@ import {Log} from '../../../log';
 import type {MediaParserKeyframe} from '../../../options';
 import type {WebmSeekingInfo} from '../../../seeking-info';
 import type {KeyframesState} from '../../../state/keyframes';
+import type {LazyCuesLoaded} from '../../../state/matroska/lazy-cues-fetch';
 import type {WebmState} from '../../../state/matroska/webm';
 import type {MediaSectionState} from '../../../state/video-section';
 import type {SeekResolution} from '../../../work-on-seek-request';
@@ -42,20 +43,13 @@ const findBiggestCueBeforeTime = ({
 
 const getStartOfClusterToSeekTo = ({
 	biggestCueBeforeTime,
-	webmState,
 	segmentOffset,
 }: {
 	biggestCueBeforeTime: MatroskaCue | undefined;
-	webmState: WebmState;
 	segmentOffset: number;
 }): number | null => {
 	if (biggestCueBeforeTime) {
 		return biggestCueBeforeTime.clusterPositionInSegment + segmentOffset;
-	}
-
-	const hasMediaSectionWithIndex = webmState.getFirstCluster();
-	if (hasMediaSectionWithIndex) {
-		return hasMediaSectionWithIndex.start;
 	}
 
 	return null;
@@ -80,7 +74,41 @@ const findKeyframeBeforeTime = ({
 		}
 	}
 
-	return keyframeBeforeTime;
+	return keyframeBeforeTime?.positionInBytes ?? null;
+};
+
+const getByteFromCues = ({
+	cuesResponse,
+	time,
+	info,
+	logLevel,
+}: {
+	cuesResponse: LazyCuesLoaded;
+	time: number;
+	info: WebmSeekingInfo;
+	logLevel: LogLevel;
+}) => {
+	if (!cuesResponse) {
+		Log.trace(logLevel, 'Has no Matroska cues at the moment, cannot use them');
+		return null;
+	}
+
+	const {cues, segmentOffset} = cuesResponse;
+
+	Log.trace(logLevel, 'Has Matroska cues. Will use them to perform a seek.');
+
+	const biggestCueBeforeTime = findBiggestCueBeforeTime({
+		cues,
+		time,
+		track: info.track!,
+	});
+
+	const startOfClusterToSeekTo = getStartOfClusterToSeekTo({
+		biggestCueBeforeTime,
+		segmentOffset,
+	});
+
+	return startOfClusterToSeekTo;
 };
 
 export const getSeekingByteFromMatroska = async ({
@@ -105,45 +133,31 @@ export const getSeekingByteFromMatroska = async ({
 		};
 	}
 
-	const cuesResponse = await webmState.cues.getLoadedCues();
-	if (!cuesResponse) {
-		Log.trace(logLevel, 'Has no Matroska Cues at the moment, continuing...');
-		return {
-			type: 'valid-but-must-wait',
-		};
-	}
-
-	const {cues, segmentOffset} = cuesResponse;
-
-	Log.trace(logLevel, 'Has Matroska cues. Will use them to perform a seek.');
-
-	const biggestCueBeforeTime = findBiggestCueBeforeTime({
-		cues,
-		time,
-		track: info.track!,
-	});
-
-	const keyframeBeforeTime = findKeyframeBeforeTime({
+	const cuesResponse = (await webmState.cues.getLoadedCues()) as LazyCuesLoaded;
+	const byteFromObservedKeyframe = findKeyframeBeforeTime({
 		keyframes: keyframes.getKeyframes(),
 		time,
 	});
 
-	const startOfClusterToSeekTo = getStartOfClusterToSeekTo({
-		biggestCueBeforeTime,
-		webmState,
-		segmentOffset,
+	const byteFromCues = getByteFromCues({
+		cuesResponse,
+		time,
+		info,
+		logLevel,
 	});
 
-	const byteToSeekTo =
-		keyframeBeforeTime && startOfClusterToSeekTo
-			? Math.max(startOfClusterToSeekTo, keyframeBeforeTime.positionInBytes)
-			: startOfClusterToSeekTo
-				? startOfClusterToSeekTo
-				: keyframeBeforeTime
-					? keyframeBeforeTime.positionInBytes
-					: null;
+	const byteFromFirstMediaSection = webmState.getFirstCluster()?.start ?? null;
 
-	if (!byteToSeekTo) {
+	const seekPossibilities = [
+		byteFromCues,
+		byteFromObservedKeyframe,
+		byteFromFirstMediaSection,
+	].filter((n) => n !== null);
+
+	const byteToSeekTo =
+		seekPossibilities.length === 0 ? null : Math.max(...seekPossibilities);
+
+	if (byteToSeekTo === null) {
 		// dont know what to do
 		return {
 			type: 'invalid',

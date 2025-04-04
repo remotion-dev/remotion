@@ -55,6 +55,12 @@ const turnSeekIntoByte = async ({
 	}
 
 	if (seek.type === 'keyframe-before-time') {
+		if (seek.timeInSeconds < 0) {
+			throw new Error(
+				`Cannot seek to a negative time: ${JSON.stringify(seek)}`,
+			);
+		}
+
 		const seekingInfo = getSeekingInfo({
 			structureState,
 			mp4HeaderSegment,
@@ -63,6 +69,7 @@ const turnSeekIntoByte = async ({
 			transportStream,
 			tracksState,
 		});
+
 		if (!seekingInfo) {
 			Log.trace(logLevel, 'No seeking info, cannot seek yet');
 			return {

@@ -36,3 +36,29 @@ test('should process a basic seek request', async () => {
 		expect(timeInSeconds).toBe(10.5);
 	}
 });
+
+test('should not be able to seek into a negative time', async () => {
+	const controller = mediaParserController();
+	controller._experimentalSeek({
+		type: 'keyframe-before-time',
+		timeInSeconds: -1,
+	});
+
+	try {
+		await parseMedia({
+			src: exampleVideos.bigBuckBunny,
+			controller,
+			reader: nodeReader,
+			acknowledgeRemotionLicense: true,
+			fields: {
+				durationInSeconds: true,
+			},
+		});
+
+		throw new Error('should not complete');
+	} catch (err) {
+		expect((err as Error).message).toBe(
+			'Cannot seek to a negative time: {"type":"keyframe-before-time","timeInSeconds":-1}',
+		);
+	}
+});

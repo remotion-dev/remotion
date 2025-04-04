@@ -123,4 +123,71 @@ test('should use them for seeking', async () => {
 	]);
 });
 
-test.todo('should not be able to seek into a negative time');
+test('should work if there are no cues', async () => {
+	const controller = mediaParserController();
+
+	controller._experimentalSeek({
+		type: 'keyframe-before-time',
+		timeInSeconds: 10,
+	});
+
+	let samples = 0;
+
+	try {
+		await parseMedia({
+			src: exampleVideos.unevendim,
+			acknowledgeRemotionLicense: true,
+			reader: nodeReader,
+			controller,
+			onVideoTrack: () => {
+				return (s) => {
+					if (samples === 213) {
+						controller._experimentalSeek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 5,
+						});
+						expect(s.timestamp / s.timescale).toBe(7.227);
+					}
+
+					if (samples === 214) {
+						expect(s.timestamp / s.timescale).toBe(3.408);
+						controller._experimentalSeek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 0,
+						});
+					}
+
+					if (samples === 215) {
+						expect(s.timestamp / s.timescale).toBe(0);
+						controller.abort();
+					}
+
+					samples++;
+				};
+			},
+		});
+	} catch (error) {
+		if (!hasBeenAborted(error)) {
+			throw error;
+		}
+	}
+
+	const seeks = controller._internals.performedSeeksSignal.getPerformedSeeks();
+	expect(seeks).toEqual([
+		{
+			from: 157,
+			to: 145,
+			type: 'user-initiated',
+		},
+		{
+			from: 658442,
+			to: 311967,
+			type: 'user-initiated',
+		},
+		{
+			from: 400111,
+			to: 145,
+			type: 'user-initiated',
+		},
+	]);
+});

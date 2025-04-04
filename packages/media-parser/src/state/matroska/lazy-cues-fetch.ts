@@ -72,3 +72,8 @@ export const lazyCuesFetch = ({
 		getLoadedCues,
 	};
 };
+
+export type LazyCuesFetch = ReturnType<typeof lazyCuesFetch>;
+export type LazyCuesLoaded = Awaited<
+	ReturnType<LazyCuesFetch['getLoadedCues']>
+>;
