@@ -114,6 +114,8 @@ export const parseMediaOnWorkerImplementation = async <
 
 	post(worker, convertToWorkerPayload(params));
 
+	let workerTerminated = false;
+
 	const {promise, resolve, reject} =
 		withResolvers<ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>>();
 
@@ -135,7 +137,16 @@ export const parseMediaOnWorkerImplementation = async <
 	};
 
 	const seekingHintPromises: WithResolvers<SeekingInfo | null>[] = [];
+	let finalSeekingHints: SeekingInfo | null = null;
 	controller?._internals.attachSeekingHintResolution(() => {
+		if (finalSeekingHints) {
+			return Promise.resolve(finalSeekingHints);
+		}
+
+		if (workerTerminated) {
+			return Promise.reject(new Error('Worker terminated'));
+		}
+
 		const prom = withResolvers<SeekingInfo | null>();
 		post(worker, {type: 'request-get-seeking-hints'});
 		seekingHintPromises.push(prom);
@@ -148,6 +159,13 @@ export const parseMediaOnWorkerImplementation = async <
 		const data = message.data as WorkerResponsePayload;
 		if (data.type === 'response-done') {
 			resolve(data.payload);
+			if (data.seekingHints) {
+				finalSeekingHints = data.seekingHints;
+				for (const prom of seekingHintPromises) {
+					prom.resolve(finalSeekingHints);
+				}
+			}
+
 			return;
 		}
 
@@ -158,9 +176,18 @@ export const parseMediaOnWorkerImplementation = async <
 			const error = deserializeError(data);
 			reject(error);
 
-			// Reject all .getSeekingHints() promises
-			for (const prom of seekingHintPromises) {
-				prom.reject(error);
+			// If aborted, we send the seeking hints we got,
+			// otherwise we reject all .getSeekingHints() promises
+			if (data.errorName === 'MediaParserAbortError') {
+				finalSeekingHints = data.seekingHints;
+				for (const prom of seekingHintPromises) {
+					prom.resolve(finalSeekingHints);
+				}
+			} else {
+				// Reject all .getSeekingHints() promises
+				for (const prom of seekingHintPromises) {
+					prom.reject(error);
+				}
 			}
 
 			return;
@@ -422,6 +449,7 @@ export const parseMediaOnWorkerImplementation = async <
 		controller?.removeEventListener('pause', onPause);
 		controller?.removeEventListener('seek', onSeek);
 
+		workerTerminated = true;
 		worker.terminate();
 	}
 

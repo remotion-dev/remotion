@@ -130,6 +130,7 @@ export const convertMedia = async function <
 	selectM3uStream,
 	selectM3uAssociatedPlaylists,
 	expectedDurationInSeconds,
+	seekingHints,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -153,6 +154,7 @@ export const convertMedia = async function <
 	resize?: ResizeOperation;
 	apiKey?: string | null;
 	fields?: F;
+	seekingHints?: ParseMediaOptions<F>['seekingHints'];
 } & ParseMediaCallbacks): Promise<ConvertMediaResult> {
 	if (controller._internals.signal.aborted) {
 		return Promise.reject(new MediaParserAbortError('Aborted'));
@@ -336,6 +338,7 @@ export const convertMedia = async function <
 			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
 		makeSamplesStartAtZero: false,
 		mp4HeaderSegment: null,
+		seekingHints: seekingHints ?? null,
 	})
 		.then(() => {
 			return state.waitForFinish();

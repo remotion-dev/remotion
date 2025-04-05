@@ -68,6 +68,8 @@ const startParsing = async (
 		logLevel: userLogLevel,
 		progressIntervalInMs,
 		mp4HeaderSegment,
+		seekingHints,
+		makeSamplesStartAtZero,
 	} = payload;
 
 	const {
@@ -429,14 +431,23 @@ const startParsing = async (
 					}
 				: null,
 			onDiscardedData: null,
-			makeSamplesStartAtZero: true,
+			makeSamplesStartAtZero: makeSamplesStartAtZero ?? true,
+			seekingHints: seekingHints ?? null,
 		});
 		post({
 			type: 'response-done',
 			payload: ret,
+			seekingHints: await controller.getSeekingHints(),
 		});
 	} catch (e) {
-		post(serializeError(e as Error, logLevel));
+		const seekingHintsRes = await controller.getSeekingHints();
+		post(
+			serializeError({
+				error: e as Error,
+				logLevel,
+				seekingHints: seekingHintsRes,
+			}),
+		);
 	}
 };
 

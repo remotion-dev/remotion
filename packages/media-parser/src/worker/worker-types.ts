@@ -96,6 +96,7 @@ type RequestAbort = {
 type ResponseDone = {
 	type: 'response-done';
 	payload: ParseMediaResult<Options<ParseMediaFields>>;
+	seekingHints: SeekingInfo | null;
 };
 
 type ResponseGetSeekingHints = {
@@ -144,6 +145,7 @@ type IsAnUnsupportedFileTypeError = BaseError & {
 
 type MediaParserAbortError = BaseError & {
 	errorName: 'MediaParserAbortError';
+	seekingHints: SeekingInfo | null;
 };
 
 type AnyError =

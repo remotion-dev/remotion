@@ -81,5 +81,29 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 				type: 'user-initiated',
 			},
 		]);
+		const hints = await controller.getSeekingHints();
+		if (!hints) {
+			throw new Error('No hints');
+		}
+
+		if (hints.type !== 'iso-base-media-seeking-info') {
+			throw new Error('unexpected hint type');
+		}
+
+		expect(hints.moovBox.boxSize).toEqual(1236);
+		expect(hints.mediaSections).toEqual([
+			{
+				size: 10430,
+				start: 2052,
+			},
+			{
+				size: 47147,
+				start: 1215224,
+			},
+			{
+				size: 29819,
+				start: 802836,
+			},
+		]);
 	}
 });
