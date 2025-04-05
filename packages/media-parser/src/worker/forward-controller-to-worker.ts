@@ -16,6 +16,24 @@ export const forwardMediaParserControllerToWorker = (
 			return;
 		}
 
+		if (message.type === 'request-get-seeking-hints') {
+			controller
+				.getSeekingHints()
+				.then((hints) => {
+					postMessage({
+						type: 'response-get-seeking-hints',
+						payload: hints,
+					});
+				})
+				.catch((error) => {
+					postMessage({
+						type: 'response-error',
+						payload: error,
+					});
+				});
+			return;
+		}
+
 		if (message.type === 'request-resume') {
 			controller.resume();
 			return;

@@ -20,6 +20,8 @@ export const lazyCuesFetch = ({
 	let prom: Promise<MatroskaCue[] | null> | null = null;
 	let sOffset: number | null = null;
 
+	let result: MatroskaCue[] | null = null;
+
 	const triggerLoad = (position: number, segmentOffset: number) => {
 		if (prom) {
 			return prom;
@@ -41,6 +43,7 @@ export const lazyCuesFetch = ({
 			src,
 		}).then((cues) => {
 			Log.verbose(logLevel, 'Cues loaded');
+			result = cues;
 			return cues;
 		});
 
@@ -67,13 +70,29 @@ export const lazyCuesFetch = ({
 		};
 	};
 
+	const getIfAlreadyLoaded = () => {
+		if (result) {
+			if (!sOffset) {
+				throw new Error('Segment offset not set');
+			}
+
+			return {
+				cues: result,
+				segmentOffset: sOffset,
+			};
+		}
+
+		return null;
+	};
+
 	return {
 		triggerLoad,
 		getLoadedCues,
+		getIfAlreadyLoaded,
 	};
 };
 
 export type LazyCuesFetch = ReturnType<typeof lazyCuesFetch>;
-export type LazyCuesLoaded = Awaited<
+export type LazyCuesLoadedOrNull = Awaited<
 	ReturnType<LazyCuesFetch['getLoadedCues']>
 >;

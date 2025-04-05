@@ -6,7 +6,7 @@ import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
 import type {ReaderInterface} from './readers/reader';
 import {withResolvers} from './with-resolvers';
-import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
+import {forwardMediaParserControllerToWorker} from './worker/forward-controller-to-worker';
 import {serializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -68,6 +68,8 @@ const startParsing = async (
 		logLevel: userLogLevel,
 		progressIntervalInMs,
 		mp4HeaderSegment,
+		seekingHints,
+		makeSamplesStartAtZero,
 	} = payload;
 
 	const {
@@ -429,14 +431,23 @@ const startParsing = async (
 					}
 				: null,
 			onDiscardedData: null,
-			makeSamplesStartAtZero: true,
+			makeSamplesStartAtZero: makeSamplesStartAtZero ?? true,
+			seekingHints: seekingHints ?? null,
 		});
 		post({
 			type: 'response-done',
 			payload: ret,
+			seekingHints: await controller.getSeekingHints(),
 		});
 	} catch (e) {
-		post(serializeError(e as Error, logLevel));
+		const seekingHintsRes = await controller.getSeekingHints();
+		post(
+			serializeError({
+				error: e as Error,
+				logLevel,
+				seekingHints: seekingHintsRes,
+			}),
+		);
 	}
 };
 

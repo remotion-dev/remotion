@@ -19,6 +19,7 @@ export const lazyMfraLoad = ({
 	logLevel: LogLevel;
 }) => {
 	let prom: Promise<IsoBaseMediaBox[] | null> | null = null;
+	let result: IsoBaseMediaBox[] | null = null;
 
 	const triggerLoad = () => {
 		if (prom) {
@@ -35,12 +36,22 @@ export const lazyMfraLoad = ({
 			logLevel,
 		}).then((boxes) => {
 			Log.verbose(logLevel, 'Lazily found mfra atom.');
+			result = boxes;
 			return boxes;
 		});
 		return prom;
 	};
 
+	const getIfAlreadyLoaded = () => {
+		if (result) {
+			return result;
+		}
+
+		return null;
+	};
+
 	return {
 		triggerLoad,
+		getIfAlreadyLoaded,
 	};
 };

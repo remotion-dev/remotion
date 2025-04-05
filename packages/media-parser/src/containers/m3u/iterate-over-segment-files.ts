@@ -1,6 +1,6 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import {mediaParserController} from '../../controller/media-parser-controller';
-import {forwardMediaParserController} from '../../forward-controller';
+import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {parseMedia} from '../../parse-media';
@@ -43,7 +43,7 @@ export const iteratorOverSegmentFiles = async ({
 	let rejector = (_e: Error) => {};
 
 	const childController = mediaParserController();
-	const forwarded = forwardMediaParserController({
+	const forwarded = forwardMediaParserControllerPauseResume({
 		childController,
 		parentController,
 	});

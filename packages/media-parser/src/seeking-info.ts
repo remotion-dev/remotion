@@ -2,6 +2,8 @@ import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import type {TfraBox} from './containers/iso-base-media/mfra/tfra';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {PacketPes} from './containers/transport-stream/parse-pes';
+import type {MediaParserKeyframe} from './options';
+import type {LazyCuesLoadedOrNull} from './state/matroska/lazy-cues-fetch';
 import type {MediaSection} from './state/video-section';
 
 export type IsoBaseMediaSeekingInfo = {
@@ -10,6 +12,7 @@ export type IsoBaseMediaSeekingInfo = {
 	moofBoxes: IsoBaseMediaBox[];
 	tfraBoxes: TfraBox[];
 	mediaSections: MediaSection[];
+	mfraAlreadyLoaded: IsoBaseMediaBox[] | null;
 };
 
 export type WavSeekingInfo = {
@@ -28,6 +31,8 @@ export type TransportStreamSeekingInfo = {
 export type WebmSeekingInfo = {
 	type: 'webm-seeking-info';
 	track: null | {timescale: number; trackId: number};
+	keyframes: MediaParserKeyframe[];
+	loadedCues: LazyCuesLoadedOrNull;
 };
 
 export type SeekingInfo =

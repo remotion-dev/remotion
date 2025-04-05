@@ -4,7 +4,6 @@ import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byt
 import type {LogLevel} from './log';
 import type {SeekingInfo} from './seeking-info';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
-import type {KeyframesState} from './state/keyframes';
 import type {WebmState} from './state/matroska/webm';
 import {getLastKeyFrameBeforeTimeInSeconds} from './state/transport-stream/observed-pes-header';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
@@ -20,7 +19,6 @@ export const getSeekingByte = ({
 	transportStream,
 	webmState,
 	mediaSection,
-	keyframes,
 }: {
 	info: SeekingInfo;
 	time: number;
@@ -30,7 +28,6 @@ export const getSeekingByte = ({
 	transportStream: TransportStreamState;
 	webmState: WebmState;
 	mediaSection: MediaSectionState;
-	keyframes: KeyframesState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-info') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -56,7 +53,6 @@ export const getSeekingByte = ({
 			webmState,
 			logLevel,
 			mediaSection,
-			keyframes,
 		});
 	}
 
