@@ -1,7 +1,9 @@
 import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
+import type {SeekingInfo} from './seeking-info';
 import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
+import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
 import {deserializeError} from './worker/serialize-error';
 import type {
@@ -132,18 +134,36 @@ export const parseMediaOnWorkerImplementation = async <
 		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
 	};
 
+	const seekingHintPromises: WithResolvers<SeekingInfo | null>[] = [];
+	controller?._internals.attachSeekingHintResolution(() => {
+		const prom = withResolvers<SeekingInfo | null>();
+		post(worker, {type: 'request-get-seeking-hints'});
+		seekingHintPromises.push(prom);
+		return prom.promise;
+	});
+
 	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
 		if (data.type === 'response-done') {
 			resolve(data.payload);
+			return;
 		}
 
 		if (data.type === 'response-error') {
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			cleanup();
-			reject(deserializeError(data));
+			// Reject main loop
+			const error = deserializeError(data);
+			reject(error);
+
+			// Reject all .getSeekingHints() promises
+			for (const prom of seekingHintPromises) {
+				prom.reject(error);
+			}
+
+			return;
 		}
 
 		if (data.type === 'response-on-callback-request') {
@@ -371,7 +391,22 @@ export const parseMediaOnWorkerImplementation = async <
 						nonce: data.nonce,
 					});
 				});
+			return;
 		}
+
+		if (data.type === 'response-get-seeking-hints') {
+			const firstPromise = seekingHintPromises.shift();
+			if (!firstPromise) {
+				throw new Error('No seeking hint promise found');
+			}
+
+			firstPromise.resolve(data.payload);
+			return;
+		}
+
+		throw new Error(
+			`Unknown response type: ${JSON.stringify(data satisfies never)}`,
+		);
 	}
 
 	worker.addEventListener('message', onMessage);

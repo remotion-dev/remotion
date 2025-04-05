@@ -22,6 +22,7 @@ import type {
 	SerializeableOptionalParseMediaParams,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
+import type {SeekingInfo} from '../seeking-info';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
@@ -84,6 +85,10 @@ type RequestResume = {
 	type: 'request-resume';
 };
 
+type RequestGetSeekingHints = {
+	type: 'request-get-seeking-hints';
+};
+
 type RequestAbort = {
 	type: 'request-abort';
 };
@@ -91,6 +96,11 @@ type RequestAbort = {
 type ResponseDone = {
 	type: 'response-done';
 	payload: ParseMediaResult<Options<ParseMediaFields>>;
+};
+
+type ResponseGetSeekingHints = {
+	type: 'response-get-seeking-hints';
+	payload: SeekingInfo;
 };
 
 type BaseError = {
@@ -338,10 +348,12 @@ export type WorkerRequestPayload =
 	| RequestPause
 	| RequestAbort
 	| RequestSeek
+	| RequestGetSeekingHints
 	| AcknowledgeCallback
 	| SignalErrorInCallback;
 
 export type WorkerResponsePayload =
 	| ResponseDone
 	| ResponseError
-	| ResponseOnCallbackRequest;
+	| ResponseOnCallbackRequest
+	| ResponseGetSeekingHints;

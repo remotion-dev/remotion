@@ -1,4 +1,5 @@
 import {MediaParserAbortError} from '../errors';
+import type {SeekingInfo} from '../seeking-info';
 import {MediaParserEmitter} from './emitter';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
@@ -15,6 +16,7 @@ export type MediaParserController = {
 	_experimentalSeek: SeekSignal['seek'];
 	addEventListener: MediaParserEmitter['addEventListener'];
 	removeEventListener: MediaParserEmitter['removeEventListener'];
+	getSeekingHints: () => Promise<SeekingInfo | null>;
 	/**
 	 * @deprecated Not public API
 	 */
@@ -24,6 +26,9 @@ export type MediaParserController = {
 		seekSignal: SeekSignal;
 		markAsReadyToEmitEvents: () => void;
 		performedSeeksSignal: PerformedSeeksSignal;
+		attachSeekingHintResolution: (
+			callback: () => Promise<SeekingInfo | null>,
+		) => void;
 	};
 };
 
@@ -42,6 +47,30 @@ export const mediaParserController = (): MediaParserController => {
 		await pauseSignal.waitUntilResume();
 	};
 
+	let seekingHintResolution: (() => Promise<SeekingInfo | null>) | null = null;
+
+	const getSeekingHints = () => {
+		if (!seekingHintResolution) {
+			throw new Error(
+				'The mediaParserController() was not yet used in a parseMedia() call',
+			);
+		}
+
+		return seekingHintResolution();
+	};
+
+	const attachSeekingHintResolution = (
+		callback: () => Promise<SeekingInfo | null>,
+	) => {
+		if (seekingHintResolution) {
+			throw new Error(
+				'The mediaParserController() was used in multiple parseMedia() calls. Create a separate controller for each call.',
+			);
+		}
+
+		seekingHintResolution = callback;
+	};
+
 	return {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		abort: (reason?: any) => {
@@ -53,12 +82,14 @@ export const mediaParserController = (): MediaParserController => {
 		resume: pauseSignal.resume,
 		addEventListener: emitter.addEventListener,
 		removeEventListener: emitter.removeEventListener,
+		getSeekingHints,
 		_internals: {
 			signal: abortController.signal,
 			checkForAbortAndPause,
 			seekSignal,
 			markAsReadyToEmitEvents: emitter.markAsReady,
 			performedSeeksSignal,
+			attachSeekingHintResolution,
 		},
 	};
 };

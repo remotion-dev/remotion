@@ -1,6 +1,7 @@
 import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
 import type {Options, ParseMediaFields} from './fields';
+import {getSeekingInfo} from './get-seeking-info';
 import {Log} from './log';
 import type {
 	InternalParseMedia,
@@ -95,6 +96,20 @@ export const internalParseMedia: InternalParseMedia = async function <
 		initialReaderInstance: readerInstance,
 		makeSamplesStartAtZero,
 	});
+	controller._internals.attachSeekingHintResolution(() =>
+		Promise.resolve(
+			getSeekingInfo({
+				tracksState: state.callbacks.tracks,
+				keyframesState: state.keyframes,
+				webmState: state.webm,
+				structureState: state.structure,
+				mp4HeaderSegment: state.mp4HeaderSegment,
+				mediaSectionState: state.mediaSection,
+				isoState: state.iso,
+				transportStream: state.transportStream,
+			}),
+		),
+	);
 
 	if (
 		!hasAudioTrackHandlers &&
