@@ -24,6 +24,7 @@ export const getSeekingHintsFromMatroska = (
 			: null,
 		keyframes,
 		loadedCues,
+		timestampMap: webmState.getTimeStampMapForSeekingHints(),
 	};
 };
 
@@ -36,4 +37,5 @@ export const setSeekingHintsForWebm = ({
 }) => {
 	state.webm.cues.setFromSeekingHints(hints);
 	state.keyframes.setFromSeekingHints(hints);
+	state.webm.setTimeStampMapForSeekingHints(hints.timestampMap);
 };

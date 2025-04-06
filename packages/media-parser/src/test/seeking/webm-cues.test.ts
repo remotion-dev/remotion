@@ -38,10 +38,10 @@ test('get webm cues', async () => {
 	]);
 });
 
-test('should use them for seeking', async () => {
-	const controller = mediaParserController();
+const controller1 = mediaParserController();
 
-	controller._experimentalSeek({
+test('should use them for seeking', async () => {
+	controller1._experimentalSeek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 10,
 	});
@@ -53,41 +53,42 @@ test('should use them for seeking', async () => {
 			src: exampleVideos.stretchedVp8,
 			acknowledgeRemotionLicense: true,
 			reader: nodeReader,
-			controller,
+			controller: controller1,
 			onVideoTrack: () => {
 				return (s) => {
 					samples++;
+					const timeInSeconds = s.timestamp / s.timescale;
 					if (samples === 1) {
-						expect(s.timestamp / s.timescale).toBe(9.603);
-						controller._experimentalSeek({
+						expect(timeInSeconds).toBe(9.603);
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
 					}
 
 					if (samples === 2) {
-						expect(s.timestamp / s.timescale).toBe(4.803);
-						controller._experimentalSeek({
+						expect(timeInSeconds).toBe(4.803);
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 0,
 						});
 					}
 
 					if (samples === 3) {
-						expect(s.timestamp / s.timescale).toBe(0.003);
-						controller._experimentalSeek({
+						expect(timeInSeconds).toBe(0.003);
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
 					}
 
 					if (samples === 4) {
-						expect(s.timestamp / s.timescale).toBe(4.803);
-						controller._experimentalSeek({
+						expect(timeInSeconds).toBe(4.803);
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
-						controller.abort();
+						controller1.abort();
 					}
 				};
 			},
@@ -98,7 +99,7 @@ test('should use them for seeking', async () => {
 		}
 	}
 
-	const seeks = controller._internals.performedSeeksSignal.getPerformedSeeks();
+	const seeks = controller1._internals.performedSeeksSignal.getPerformedSeeks();
 	expect(seeks).toEqual([
 		{
 			from: 4552,
@@ -123,9 +124,94 @@ test('should use them for seeking', async () => {
 	]);
 });
 
+test('should be able to use precomputed seeking hints', async () => {
+	let samples = 0;
+
+	const controller2 = mediaParserController();
+	controller2._experimentalSeek({
+		type: 'keyframe-before-time',
+		timeInSeconds: 10,
+	});
+
+	try {
+		await parseMedia({
+			src: exampleVideos.stretchedVp8,
+			acknowledgeRemotionLicense: true,
+			reader: nodeReader,
+			controller: controller2,
+			seekingHints: await controller1.getSeekingHints(),
+			onVideoTrack: () => {
+				return (s) => {
+					samples++;
+					const timeInSeconds = s.timestamp / s.timescale;
+					if (samples === 1) {
+						expect(timeInSeconds).toBe(9.603);
+						controller2._experimentalSeek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 5,
+						});
+					}
+
+					if (samples === 2) {
+						expect(timeInSeconds).toBe(4.803);
+						controller2._experimentalSeek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 0,
+						});
+					}
+
+					if (samples === 3) {
+						expect(timeInSeconds).toBe(0.003);
+						controller2._experimentalSeek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 5,
+						});
+					}
+
+					if (samples === 4) {
+						expect(timeInSeconds).toBe(4.803);
+						controller2._experimentalSeek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 5,
+						});
+						controller2.abort();
+					}
+				};
+			},
+		});
+	} catch (error) {
+		if (!hasBeenAborted(error)) {
+			throw error;
+		}
+	}
+
+	const seeks = controller2._internals.performedSeeksSignal.getPerformedSeeks();
+	expect(seeks).toEqual([
+		{
+			from: 4552,
+			to: 10318915,
+			type: 'user-initiated',
+		},
+		{
+			from: 10539613,
+			to: 5081929,
+			type: 'user-initiated',
+		},
+		{
+			from: 5279894,
+			to: 4540,
+			type: 'user-initiated',
+		},
+		{
+			from: 325902,
+			to: 5081929,
+			type: 'user-initiated',
+		},
+	]);
+});
+
 test('should work if there are no cues', async () => {
 	const controller = mediaParserController();
-
 	controller._experimentalSeek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 10,

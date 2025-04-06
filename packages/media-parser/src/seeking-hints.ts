@@ -35,6 +35,7 @@ export type WebmSeekingHints = {
 	track: null | {timescale: number; trackId: number};
 	keyframes: MediaParserKeyframe[];
 	loadedCues: LazyCuesLoadedOrNull;
+	timestampMap: Map<number, number>;
 };
 
 export type SeekingHints =
