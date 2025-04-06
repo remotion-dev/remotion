@@ -15,7 +15,7 @@ Seeking hints are produced from previous `parseMedia()` calls.
 To get seeking hints, you can call `getSeekingHints()` on the controller.
 
 ```tsx twoslash title="Getting seeking hints"
-import {mediaParserController} from '@remotion/media-parser';
+import {mediaParserController, parseMedia} from '@remotion/media-parser';
 
 const controller = mediaParserController();
 
@@ -38,10 +38,10 @@ const hints = await controller.getSeekingHints();
 Once you have obtained seeking hints from a previous parse, you can pass them to a new `parseMedia()`, `parseMediaOnWebWorker()`, `parseMediaOnServerWorker()`, `downloadAndParseMedia()` or `convertMedia()` call.
 
 ```tsx twoslash title="Using seeking hints from a previous parse"
-import {parseMedia} from '@remotion/media-parser';
+import {parseMedia, mediaParserController} from '@remotion/media-parser';
 
 const controller = mediaParserController();
-const hints = await controller.getSeekingHints();
+const seekingHints = await controller.getSeekingHints();
 
 // ---cut---
 
