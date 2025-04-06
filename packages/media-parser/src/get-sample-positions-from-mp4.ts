@@ -11,9 +11,13 @@ import type {SamplePosition} from './get-sample-positions';
 
 // example video: mehmet.mov
 
-export const getGroupedSamplesPositionsFromMp4 = (
-	trakBox: TrakBox,
-): SamplePosition[] => {
+export const getGroupedSamplesPositionsFromMp4 = ({
+	trakBox,
+	bigEndian,
+}: {
+	trakBox: TrakBox;
+	bigEndian: boolean;
+}): SamplePosition[] => {
 	const stscBox = getStscBox(trakBox);
 	const stszBox = getStszBox(trakBox);
 	const stcoBox = getStcoBox(trakBox);
@@ -54,6 +58,8 @@ export const getGroupedSamplesPositionsFromMp4 = (
 			size: stszBox.sampleSize * stscEntry.samplesPerChunk,
 			duration: stscEntry.samplesPerChunk,
 			isKeyframe: true,
+			bigEndian,
+			chunkSize: stszBox.sampleSize,
 		});
 		timestamp += stscEntry.samplesPerChunk;
 	}

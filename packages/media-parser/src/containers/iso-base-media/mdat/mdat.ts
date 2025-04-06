@@ -9,6 +9,7 @@ import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
+import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
 	state: ParserState,
@@ -81,10 +82,14 @@ export const parseMdatSection = async (
 		return null;
 	}
 
-	const bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
-
-	const {cts, dts, duration, isKeyframe, offset} =
+	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =
 		samplesWithIndex.samplePosition;
+	const _bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
+	const bytes = postprocessBytes({
+		bytes: _bytes,
+		bigEndian,
+		chunkSize,
+	});
 
 	if (samplesWithIndex.track.type === 'audio') {
 		await emitAudioSample({
