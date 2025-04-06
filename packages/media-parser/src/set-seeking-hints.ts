@@ -5,7 +5,13 @@ import {setSeekingHintsForWebm} from './containers/webm/seek/seeking-hints';
 import type {SeekingHints} from './seeking-hints';
 import type {ParserState} from './state/parser-state';
 
-export const setSeekingHints = (hints: SeekingHints, state: ParserState) => {
+export const setSeekingHints = ({
+	hints,
+	state,
+}: {
+	hints: SeekingHints;
+	state: ParserState;
+}) => {
 	if (hints.type === 'iso-base-media-seeking-hints') {
 		setSeekingHintsForMp4({hints, state});
 		return;

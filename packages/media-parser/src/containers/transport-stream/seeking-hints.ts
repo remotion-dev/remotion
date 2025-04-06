@@ -6,13 +6,13 @@ import type {TransportStreamState} from '../../state/transport-stream/transport-
 export const getSeekingHintsFromTransportStream = (
 	transportStream: TransportStreamState,
 	tracksState: TracksState,
-): TransportStreamSeekingHints => {
+): TransportStreamSeekingHints | null => {
 	const firstVideoTrack = tracksState
 		.getTracks()
 		.find((t) => t.type === 'video');
 
 	if (!firstVideoTrack) {
-		throw new Error('No video track found');
+		return null;
 	}
 
 	return {

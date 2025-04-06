@@ -5,6 +5,7 @@ import {
 	knownIdsWithTwoLength,
 } from '../containers/webm/segments/all-segments';
 import {detectFileType} from '../file-types';
+import {Log} from '../log';
 import {bufferManager} from './buffer-manager';
 import {makeOffsetCounter} from './offset-counter';
 
@@ -236,16 +237,18 @@ export const getArrayBufferIterator = (
 	};
 
 	const peekB = (length: number) => {
-		// eslint-disable-next-line no-console
-		console.log(
+		Log.info(
+			'info',
 			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
 		);
 		counter.decrement(length);
 	};
 
 	const peekD = (length: number) => {
-		// eslint-disable-next-line no-console
-		console.log([...getSlice(length)].map((b) => b));
+		Log.info(
+			'info',
+			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
+		);
 		counter.decrement(length);
 	};
 

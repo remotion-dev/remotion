@@ -28,7 +28,9 @@ export const makeTracksSectionState = (
 		addTrack: (track: Track) => {
 			tracks.push(track);
 		},
-		getTracks: () => tracks,
+		getTracks: () => {
+			return tracks;
+		},
 		ensureHasTracksAtEnd: (fields: Options<ParseMediaFields>) => {
 			if (canSkipTracksState.canSkipTracks()) {
 				return;

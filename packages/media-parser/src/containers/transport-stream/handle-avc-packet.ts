@@ -46,7 +46,6 @@ export const handleAvcPacket = async ({
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
-
 	if (!isTrackRegistered) {
 		const spsAndPps = getSpsAndPps(avc);
 		const dimensions = getDimensionsFromSps(spsAndPps.sps.spsData);

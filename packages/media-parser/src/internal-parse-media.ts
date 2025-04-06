@@ -11,6 +11,7 @@ import type {
 import {parseLoop} from './parse-loop';
 import {printTimings} from './print-timings';
 import {warnIfRemotionLicenseNotAcknowledged} from './remotion-license-acknowledge';
+import {setSeekingHints} from './set-seeking-hints';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
 
@@ -35,6 +36,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
 	mp4HeaderSegment,
 	makeSamplesStartAtZero,
+	seekingHints,
 	...more
 }: InternalParseMediaOptions<F>) {
 	controller._internals.markAsReadyToEmitEvents();
@@ -96,6 +98,11 @@ export const internalParseMedia: InternalParseMedia = async function <
 		initialReaderInstance: readerInstance,
 		makeSamplesStartAtZero,
 	});
+
+	if (seekingHints) {
+		setSeekingHints({hints: seekingHints, state});
+	}
+
 	controller._internals.attachSeekingHintResolution(() =>
 		Promise.resolve(
 			getSeekingHints({
