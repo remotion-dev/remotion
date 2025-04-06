@@ -35,7 +35,10 @@ export const parseMdatSection = async (
 			endOfMdat,
 			state,
 		});
-		state.iso.moov.setMoovBox(moov);
+		state.iso.moov.setMoovBox({
+			moovBox: moov,
+			precomputed: false,
+		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
 		state.structure.getIsoStructure().boxes.push(moov);
 

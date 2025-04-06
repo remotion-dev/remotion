@@ -61,6 +61,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		structureState: parserState.structure,
 		isoState: parserState.iso,
 		mp4HeaderSegment: parserState.mp4HeaderSegment,
+		mayUsePrecomputedMoovBox: true,
 	});
 	if (!moovBox) {
 		return null;

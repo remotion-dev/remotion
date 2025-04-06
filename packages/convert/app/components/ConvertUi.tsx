@@ -5,6 +5,7 @@ import type {
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserController,
 	MediaParserTracks,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
@@ -75,6 +76,7 @@ const ConvertUI = ({
 	rotation,
 	dimensions,
 	m3uStreams,
+	probeController,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -100,6 +102,7 @@ const ConvertUI = ({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly probeController: MediaParserController;
 }) => {
 	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src, action),
@@ -188,103 +191,109 @@ const ConvertUI = ({
 			waveform.setDuration(durationInSeconds);
 		}
 
-		convertMedia({
-			src: src.type === 'url' ? src.url : src.file,
-			onVideoFrame: ({frame}) => {
-				const flipped = flipVideoFrame({
-					frame,
-					horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
-					vertical: flipVertical && enableRotateOrMirror === 'mirror',
-				});
-				if (videoFrames % 15 === 0) {
-					convertProgressRef.current?.draw(flipped);
-				}
+		probeController
+			.getSeekingHints()
+			.then((seekingHints) => {
+				return convertMedia({
+					src: src.type === 'url' ? src.url : src.file,
+					seekingHints,
+					onVideoFrame: ({frame}) => {
+						const flipped = flipVideoFrame({
+							frame,
+							horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
+							vertical: flipVertical && enableRotateOrMirror === 'mirror',
+						});
+						if (videoFrames % 15 === 0) {
+							convertProgressRef.current?.draw(flipped);
+						}
 
-				videoFrames++;
-				return flipped;
-			},
-			onAudioData: ({audioData}) => {
-				waveform.add(audioData);
-				return audioData;
-			},
-			expectedDurationInSeconds: durationInSeconds,
-			rotate: userRotation,
-			logLevel,
-			onProgress: (s) => {
-				setState({
-					type: 'in-progress',
+						videoFrames++;
+						return flipped;
+					},
+					onAudioData: ({audioData}) => {
+						waveform.add(audioData);
+						return audioData;
+					},
+					expectedDurationInSeconds: durationInSeconds,
+					rotate: userRotation,
+					logLevel,
+					onProgress: (s) => {
+						setState({
+							type: 'in-progress',
+							controller,
+							state: s,
+						});
+					},
+					container: outputContainer,
 					controller,
-					state: s,
+					fields: {
+						name: true,
+					},
+					onName: (n) => {
+						setName(n);
+					},
+					onAudioTrack: ({track}) => {
+						const options = supportedConfigs?.audioTrackOptions.find((trk) => {
+							return trk.trackId === track.trackId;
+						});
+						if (!options) {
+							throw new Error('Found no options for audio track');
+						}
+
+						const operation = getActualAudioConfigIndex({
+							enableConvert,
+							audioConfigIndexSelection: audioOperationSelection,
+							trackNumber: track.trackId,
+							operations: options.operations,
+						});
+
+						MediaParserInternals.Log.info(
+							'info',
+							`Selected operation for audio track ${track.trackId}`,
+							operation,
+						);
+
+						return operation;
+					},
+					onVideoTrack: ({track}) => {
+						const options = supportedConfigs?.videoTrackOptions.find((trk) => {
+							return trk.trackId === track.trackId;
+						});
+						if (!options) {
+							throw new Error('Found no options for video track');
+						}
+
+						const operation = getActualVideoOperation({
+							enableConvert,
+							videoConfigIndexSelection: videoOperationSelection,
+							trackNumber: track.trackId,
+							operations: options.operations,
+						});
+
+						MediaParserInternals.Log.info(
+							'info',
+							`Selected operation for video track ${track.trackId}`,
+							operation,
+						);
+						return operation;
+					},
+					selectM3uStream: ({streams}) => {
+						return selectedM3uId ?? streams[0].id;
+					},
+					selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
+						if (selectAssociatedPlaylistId === null) {
+							return defaultSelectM3uAssociatedPlaylists({associatedPlaylists});
+						}
+
+						return associatedPlaylists.filter(
+							(playlist) => selectAssociatedPlaylistId === playlist.id,
+						);
+					},
+					// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
+					apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
 				});
-			},
-			container: outputContainer,
-			controller,
-			fields: {
-				name: true,
-			},
-			onName: (n) => {
-				setName(n);
-			},
-			onAudioTrack: ({track}) => {
-				const options = supportedConfigs?.audioTrackOptions.find((trk) => {
-					return trk.trackId === track.trackId;
-				});
-				if (!options) {
-					throw new Error('Found no options for audio track');
-				}
+			})
 
-				const operation = getActualAudioConfigIndex({
-					enableConvert,
-					audioConfigIndexSelection: audioOperationSelection,
-					trackNumber: track.trackId,
-					operations: options.operations,
-				});
-
-				MediaParserInternals.Log.info(
-					'info',
-					`Selected operation for audio track ${track.trackId}`,
-					operation,
-				);
-
-				return operation;
-			},
-			onVideoTrack: ({track}) => {
-				const options = supportedConfigs?.videoTrackOptions.find((trk) => {
-					return trk.trackId === track.trackId;
-				});
-				if (!options) {
-					throw new Error('Found no options for video track');
-				}
-
-				const operation = getActualVideoOperation({
-					enableConvert,
-					videoConfigIndexSelection: videoOperationSelection,
-					trackNumber: track.trackId,
-					operations: options.operations,
-				});
-
-				MediaParserInternals.Log.info(
-					'info',
-					`Selected operation for video track ${track.trackId}`,
-					operation,
-				);
-				return operation;
-			},
-			selectM3uStream: ({streams}) => {
-				return selectedM3uId ?? streams[0].id;
-			},
-			selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
-				if (selectAssociatedPlaylistId === null) {
-					return defaultSelectM3uAssociatedPlaylists({associatedPlaylists});
-				}
-
-				return associatedPlaylists.filter(
-					(playlist) => selectAssociatedPlaylistId === playlist.id,
-				);
-			},
-			// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
-			apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
-		})
 			.then(({save, finalState}) => {
 				setState({
 					type: 'done',
@@ -323,6 +332,7 @@ const ConvertUI = ({
 		videoOperationSelection,
 		selectedM3uId,
 		selectAssociatedPlaylistId,
+		probeController,
 	]);
 
 	const dimissError = useCallback(() => {

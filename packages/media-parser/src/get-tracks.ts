@@ -119,6 +119,7 @@ export const isoBaseMediaHasTracks = (state: ParserState) => {
 			structureState: state.structure,
 			isoState: state.iso,
 			mp4HeaderSegment: state.mp4HeaderSegment,
+			mayUsePrecomputedMoovBox: false,
 		}),
 	);
 };
@@ -227,6 +228,7 @@ export const getTracksFromIsoBaseMedia = (state: ParserState) => {
 		structureState: state.structure,
 		isoState: state.iso,
 		mp4HeaderSegment: state.mp4HeaderSegment,
+		mayUsePrecomputedMoovBox: false,
 	});
 	if (!moovBox) {
 		return {

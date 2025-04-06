@@ -10,9 +10,9 @@ When Media Parser wants to seek to a specific position in the media file, it can
 
 With Seeking Hints, you can provide a hint to the media parsing process upfront about the structure to the file, so that seeking can be short-circuited without needing to figure out the position.
 
-Seeking hints are produced from previous `parseMedia()` calls.
+Seeking hints are produced from previous [`parseMedia()`](/docs/media-parser/parse-media) calls.
 
-To get seeking hints, you can call `getSeekingHints()` on the controller.
+To get seeking hints, you can call [`getSeekingHints()`](/docs/media-parser/media-parser-controller#getseekinghints) on the controller.
 
 ```tsx twoslash title="Getting seeking hints"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
@@ -61,11 +61,3 @@ await parseMedia({
 - Seeking hints are available for `parseMediaOnWebWorker()` and `parseMediaOnServerWorker()`.
 - A `mediaParserController` can only be attached to 1 `parseMedia()` call.
 - Seeking hints can be passed to `convertMedia()`.
-
-## TODO
-
-- Document in mediaParserController() that it can only be attached to 1 at a time
-- Test that mediaParserController() cannot be attached to multiple parseMedia() calls at the same time
-- Actually use seeking hints
-- Document parseMedia() option
-- Document convertMedia() option

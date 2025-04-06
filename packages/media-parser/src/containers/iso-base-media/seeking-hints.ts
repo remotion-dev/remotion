@@ -24,6 +24,7 @@ export const getSeekingHintsFromMp4 = ({
 		isoState,
 		mp4HeaderSegment,
 		structureState,
+		mayUsePrecomputedMoovBox: true,
 	});
 	const moofBoxes = deduplicateMoofBoxesByOffset([
 		...isoState.moof.getMoofBoxes(),
@@ -55,10 +56,14 @@ export const setSeekingHintsForMp4 = ({
 	hints: IsoBaseMediaSeekingHints;
 	state: ParserState;
 }) => {
-	state.iso.moov.setMoovBox(hints.moovBox);
+	state.iso.moov.setMoovBox({
+		moovBox: hints.moovBox,
+		precomputed: true,
+	});
 	state.iso.mfra.setFromSeekingHints(hints);
 	state.iso.moof.setMoofBoxes(hints.moofBoxes);
 	state.iso.tfra.setTfraBoxes(hints.tfraBoxes);
+
 	for (const mediaSection of hints.mediaSections) {
 		state.mediaSection.addMediaSection(mediaSection);
 	}

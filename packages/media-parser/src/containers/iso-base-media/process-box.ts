@@ -240,7 +240,11 @@ export const processBox = async ({
 			return null;
 		}
 
-		if (isoState && isoState.moov.getMoovBox()) {
+		if (
+			isoState &&
+			isoState.moov.getMoovBoxAndPrecomputed() &&
+			!isoState.moov.getMoovBoxAndPrecomputed()?.precomputed
+		) {
 			Log.verbose(logLevel, 'Moov box already parsed, skipping');
 			iterator.discard(boxSize - 8);
 			return null;

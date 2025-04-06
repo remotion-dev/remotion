@@ -8,6 +8,8 @@ crumb: '@remotion/media-parser'
 
 Pass `mediaParserController()` to [`controller`](/docs/media-parser/parse-media#controller) to steer the `parseMedia()` function.
 
+Each `mediaParserController` can only be attached to 1 [`parseMedia()`](/docs/media-parser/parse-media) call.
+
 ```tsx twoslash title="Use mediaParserController()"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 
