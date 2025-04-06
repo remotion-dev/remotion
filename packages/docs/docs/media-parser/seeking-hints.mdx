@@ -59,5 +59,5 @@ await parseMedia({
 - The data structure of the seeking hints is not part of the public API and may change at any time.
 - After the parse, seeking hints are only available if the parse was successful or aborted, not when it failed.
 - Seeking hints are available for [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker).
-- A `mediaParserController` can only be attached to 1 [`parseMedia()`](/docs/media-parser/parse-media) call.
+- A [`mediaParserController()`](/docs/media-parser/media-parser-controller) can only be attached to 1 [`parseMedia()`](/docs/media-parser/parse-media) call.
 - Seeking hints can be passed to [`convertMedia()`](/docs/webcodecs/convert-media).
