@@ -1,5 +1,7 @@
 import type {AnySegment, IsoBaseMediaStructure} from '../../parse-result';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {MoofBox} from '../../state/iso-base-media/precomputed-moof';
+import {toMoofBox} from '../../state/iso-base-media/precomputed-moof';
 import type {StructureState} from '../../state/structure';
 import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
 import type {FtypBox} from './ftyp';
@@ -49,10 +51,10 @@ export const getMoovBoxFromState = ({
 	isoState: IsoBaseMediaState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }): MoovBox | null => {
-	const got = isoState.moov.getMoovBox();
+	const got = isoState.moov.getMoovBoxAndPrecomputed();
 
 	if (got) {
-		return got;
+		return got.moovBox;
 	}
 
 	if (mp4HeaderSegment) {
@@ -64,11 +66,11 @@ export const getMoovBoxFromState = ({
 	return getMoovFromFromIsoStructure(structure);
 };
 
-export const getMoofBoxes = (main: AnySegment[]): IsoBaseMediaBox[] => {
+export const getMoofBoxes = (main: AnySegment[]): MoofBox[] => {
 	const moofBoxes = main.filter(
 		(s) => s.type === 'regular-box' && s.boxType === 'moof',
 	);
-	return moofBoxes as IsoBaseMediaBox[];
+	return (moofBoxes as IsoBaseMediaBox[]).map((m) => toMoofBox(m));
 };
 
 export const getMvhdBox = (moovBox: MoovBox): MvhdBox | null => {

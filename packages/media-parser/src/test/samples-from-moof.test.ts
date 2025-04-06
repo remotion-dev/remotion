@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import type {AnySegment} from '../parse-result';
 import {getSamplesFromMoof} from '../samples-from-moof';
+import {toMoofBox} from '../state/iso-base-media/precomputed-moof';
 
 if (process.platform !== 'win32') {
 	const defaultSamples: AnySegment = {
@@ -2205,7 +2206,7 @@ if (process.platform !== 'win32') {
 
 	test('Should be able to parse video sample positions from a moof atom', () => {
 		const samples = getSamplesFromMoof({
-			moofBox: defaultSamples,
+			moofBox: toMoofBox(defaultSamples),
 			trackId: 1,
 		});
 
@@ -2373,7 +2374,7 @@ if (process.platform !== 'win32') {
 
 	test('Should be able to parse audio sample positions from a moof atom', () => {
 		const samplesFromMoof = getSamplesFromMoof({
-			moofBox: defaultSamples,
+			moofBox: toMoofBox(defaultSamples),
 			trackId: 2,
 		});
 

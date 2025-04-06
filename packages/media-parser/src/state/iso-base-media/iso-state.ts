@@ -5,6 +5,8 @@ import type {ReaderInterface} from '../../readers/reader';
 import {cachedSamplePositionsState} from './cached-sample-positions';
 import {lazyMfraLoad} from './lazy-mfra-load';
 import {moovState} from './moov-box';
+import {precomputedMoofState} from './precomputed-moof';
+import {precomputedTfraState} from './precomputed-tfra';
 
 export const isoBaseMediaState = ({
 	contentLength,
@@ -29,6 +31,8 @@ export const isoBaseMediaState = ({
 			src,
 			logLevel,
 		}),
+		moof: precomputedMoofState(),
+		tfra: precomputedTfraState(),
 	};
 };
 

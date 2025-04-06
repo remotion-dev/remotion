@@ -3,7 +3,7 @@ export const ptsStartOffsetStore = () => {
 
 	return {
 		getOffset: (trackId: number) => offsets[trackId] || 0,
-		setOffset: (trackId: number, newOffset: number) => {
+		setOffset: ({newOffset, trackId}: {trackId: number; newOffset: number}) => {
 			offsets[trackId] = newOffset;
 		},
 	};

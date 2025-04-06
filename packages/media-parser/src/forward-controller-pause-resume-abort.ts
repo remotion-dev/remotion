@@ -1,7 +1,7 @@
 import type {CallbackListener} from './controller/emitter';
 import type {MediaParserController} from './controller/media-parser-controller';
 
-export const forwardMediaParserController = ({
+export const forwardMediaParserControllerPauseResume = ({
 	parentController,
 	childController,
 }: {

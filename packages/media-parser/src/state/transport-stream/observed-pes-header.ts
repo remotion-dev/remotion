@@ -1,25 +1,42 @@
 import {MPEG_TIMESCALE} from '../../containers/transport-stream/handle-avc-packet';
 import type {PacketPes} from '../../containers/transport-stream/parse-pes';
+import type {TransportStreamSeekingHints} from '../../seeking-hints';
 
 export const makeObservedPesHeader = () => {
 	const pesHeaders: PacketPes[] = [];
 	const confirmedAsKeyframe: number[] = [];
 
+	const addPesHeader = (pesHeader: PacketPes) => {
+		if (pesHeaders.find((p) => p.offset === pesHeader.offset)) {
+			return;
+		}
+
+		pesHeaders.push(pesHeader);
+	};
+
+	const markPtsAsKeyframe = (pts: number) => {
+		confirmedAsKeyframe.push(pts);
+	};
+
+	const getPesKeyframeHeaders = () => {
+		return pesHeaders.filter((p) => confirmedAsKeyframe.includes(p.pts));
+	};
+
+	const setPesKeyframesFromSeekingHints = (
+		hints: TransportStreamSeekingHints,
+	) => {
+		for (const pesHeader of hints.observedPesHeaders) {
+			addPesHeader(pesHeader);
+			markPtsAsKeyframe(pesHeader.pts);
+		}
+	};
+
 	const state = {
 		pesHeaders,
-		addPesHeader: (pesHeader: PacketPes) => {
-			if (pesHeaders.find((p) => p.offset === pesHeader.offset)) {
-				return;
-			}
-
-			pesHeaders.push(pesHeader);
-		},
-		markPtsAsKeyframe: (pts: number) => {
-			confirmedAsKeyframe.push(pts);
-		},
-		getPesKeyframeHeaders: () => {
-			return pesHeaders.filter((p) => confirmedAsKeyframe.includes(p.pts));
-		},
+		addPesHeader,
+		markPtsAsKeyframe,
+		getPesKeyframeHeaders,
+		setPesKeyframesFromSeekingHints,
 	};
 
 	return state;

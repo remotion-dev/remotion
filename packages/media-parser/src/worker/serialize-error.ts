@@ -7,12 +7,18 @@ import {
 } from '../errors';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {SeekingHints} from '../seeking-hints';
 import type {ResponseError} from './worker-types';
 
-export const serializeError = (
-	error: Error,
-	logLevel: LogLevel,
-): ResponseError => {
+export const serializeError = ({
+	error,
+	logLevel,
+	seekingHints,
+}: {
+	error: Error;
+	logLevel: LogLevel;
+	seekingHints: SeekingHints | null;
+}): ResponseError => {
 	if (error instanceof IsAGifError) {
 		return {
 			type: 'response-error',
@@ -57,6 +63,7 @@ export const serializeError = (
 			errorName: 'MediaParserAbortError',
 			errorMessage: error.message,
 			errorStack: error.stack ?? '',
+			seekingHints,
 		};
 	}
 

@@ -61,7 +61,7 @@ export const webmState = ({
 		};
 	};
 
-	const timestampMap = new Map<number, number>();
+	let timestampMap = new Map<number, number>();
 
 	const getTimestampOffsetForByteOffset = (byteOffset: number) => {
 		const entries = Array.from(timestampMap.entries());
@@ -126,12 +126,24 @@ export const webmState = ({
 		src,
 	});
 
+	const getTimeStampMapForSeekingHints = () => {
+		return timestampMap;
+	};
+
+	const setTimeStampMapForSeekingHints = (
+		newTimestampMap: Map<number, number>,
+	) => {
+		timestampMap = newTimestampMap;
+	};
+
 	return {
 		cues,
 		onTrackEntrySegment,
 		getTrackInfoByNumber: (id: number) => trackEntries[id],
 		setTimestampOffset,
 		getTimestampOffsetForByteOffset,
+		getTimeStampMapForSeekingHints,
+		setTimeStampMapForSeekingHints,
 		getTimescale,
 		setTimescale,
 		addSegment: (seg: Omit<SegmentSection, 'index'>) => {

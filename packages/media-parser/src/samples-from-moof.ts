@@ -5,7 +5,7 @@ import {
 	getTrunBoxes,
 } from './containers/iso-base-media/traversal';
 import type {SamplePosition} from './get-sample-positions';
-import type {AnySegment} from './parse-result';
+import type {MoofBox} from './state/iso-base-media/precomputed-moof';
 
 const getSamplesFromTraf = (
 	trafSegment: IsoBaseMediaBox,
@@ -86,23 +86,16 @@ export const getSamplesFromMoof = ({
 	moofBox,
 	trackId,
 }: {
-	moofBox: AnySegment;
+	moofBox: MoofBox;
 	trackId: number;
 }) => {
-	if (moofBox.type !== 'regular-box') {
-		throw new Error('Expected moof-box');
-	}
-
-	const trafs = moofBox.children.filter(
-		(c) => c.type === 'regular-box' && c.boxType === 'traf',
-	) as IsoBaseMediaBox[];
-
-	const mapped = trafs.map((traf) => {
+	const mapped = moofBox.trafBoxes.map((traf) => {
 		const tfhdBox = getTfhdBox(traf);
+		if (!tfhdBox || tfhdBox.trackId !== trackId) {
+			return [];
+		}
 
-		return tfhdBox?.trackId === trackId
-			? getSamplesFromTraf(traf, moofBox.offset)
-			: [];
+		return getSamplesFromTraf(traf, moofBox.offset);
 	});
 
 	return mapped.flat(1);

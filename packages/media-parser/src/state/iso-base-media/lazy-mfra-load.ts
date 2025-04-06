@@ -4,6 +4,7 @@ import type {MediaParserController} from '../../controller/media-parser-controll
 import {Log, type LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
+import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 
 export const lazyMfraLoad = ({
 	contentLength,
@@ -19,6 +20,7 @@ export const lazyMfraLoad = ({
 	logLevel: LogLevel;
 }) => {
 	let prom: Promise<IsoBaseMediaBox[] | null> | null = null;
+	let result: IsoBaseMediaBox[] | null = null;
 
 	const triggerLoad = () => {
 		if (prom) {
@@ -35,12 +37,27 @@ export const lazyMfraLoad = ({
 			logLevel,
 		}).then((boxes) => {
 			Log.verbose(logLevel, 'Lazily found mfra atom.');
+			result = boxes;
 			return boxes;
 		});
 		return prom;
 	};
 
+	const getIfAlreadyLoaded = () => {
+		if (result) {
+			return result;
+		}
+
+		return null;
+	};
+
+	const setFromSeekingHints = (hints: IsoBaseMediaSeekingHints) => {
+		result = hints.mfraAlreadyLoaded;
+	};
+
 	return {
 		triggerLoad,
+		getIfAlreadyLoaded,
+		setFromSeekingHints,
 	};
 };

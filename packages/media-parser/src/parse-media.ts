@@ -56,5 +56,6 @@ export const parseMedia: ParseMedia = (options) => {
 		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
 		apiName: 'parseMedia()',
 		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
+		seekingHints: options.seekingHints ?? null,
 	});
 };

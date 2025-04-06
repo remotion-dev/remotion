@@ -46,7 +46,6 @@ export const handleAvcPacket = async ({
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
-
 	if (!isTrackRegistered) {
 		const spsAndPps = getSpsAndPps(avc);
 		const dimensions = getDimensionsFromSps(spsAndPps.sps.spsData);
@@ -59,7 +58,10 @@ export const handleAvcPacket = async ({
 					streamBuffer.pesHeader.dts ?? Infinity,
 				)
 			: 0;
-		transportStream.startOffset.setOffset(programId, startOffset);
+		transportStream.startOffset.setOffset({
+			trackId: programId,
+			newOffset: startOffset,
+		});
 
 		const track: Track = {
 			m3uStreamFormat: null,

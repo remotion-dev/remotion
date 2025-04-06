@@ -5,6 +5,7 @@ import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
+import type {WebmSeekingHints} from '../../seeking-hints';
 
 export const lazyCuesFetch = ({
 	controller,
@@ -19,6 +20,8 @@ export const lazyCuesFetch = ({
 }) => {
 	let prom: Promise<MatroskaCue[] | null> | null = null;
 	let sOffset: number | null = null;
+
+	let result: MatroskaCue[] | null = null;
 
 	const triggerLoad = (position: number, segmentOffset: number) => {
 		if (prom) {
@@ -41,6 +44,7 @@ export const lazyCuesFetch = ({
 			src,
 		}).then((cues) => {
 			Log.verbose(logLevel, 'Cues loaded');
+			result = cues;
 			return cues;
 		});
 
@@ -67,13 +71,35 @@ export const lazyCuesFetch = ({
 		};
 	};
 
+	const getIfAlreadyLoaded = () => {
+		if (result) {
+			if (!sOffset) {
+				throw new Error('Segment offset not set');
+			}
+
+			return {
+				cues: result,
+				segmentOffset: sOffset,
+			};
+		}
+
+		return null;
+	};
+
+	const setFromSeekingHints = (hints: WebmSeekingHints) => {
+		result = hints.loadedCues?.cues ?? null;
+		sOffset = hints.loadedCues?.segmentOffset ?? null;
+	};
+
 	return {
 		triggerLoad,
 		getLoadedCues,
+		getIfAlreadyLoaded,
+		setFromSeekingHints,
 	};
 };
 
 export type LazyCuesFetch = ReturnType<typeof lazyCuesFetch>;
-export type LazyCuesLoaded = Awaited<
+export type LazyCuesLoadedOrNull = Awaited<
 	ReturnType<LazyCuesFetch['getLoadedCues']>
 >;

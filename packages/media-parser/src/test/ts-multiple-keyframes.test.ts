@@ -9,11 +9,11 @@ beforeAll(async () => {
 	await getRemoteExampleVideo('tsKeyframes');
 });
 
+const controller1 = mediaParserController();
+
 test('Should be able to seek back based on already observed keyframes', async () => {
 	const keyframes = 0;
 	let samples = 0;
-
-	const controller = mediaParserController();
 
 	try {
 		await parseMedia({
@@ -23,7 +23,7 @@ test('Should be able to seek back based on already observed keyframes', async ()
 					samples++;
 					const timeInSeconds = sample.timestamp / sample.timescale;
 					if (timeInSeconds === 5.8058) {
-						controller._experimentalSeek({
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 3,
 						});
@@ -32,7 +32,7 @@ test('Should be able to seek back based on already observed keyframes', async ()
 					if (samples === 176) {
 						expect(timeInSeconds).toBe(2.9029);
 						expect(sample.type).toBe('key');
-						controller._experimentalSeek({
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 2,
 						});
@@ -41,11 +41,11 @@ test('Should be able to seek back based on already observed keyframes', async ()
 					if (samples === 177) {
 						expect(timeInSeconds).toBe(1.9352666666666665);
 						expect(sample.type).toBe('key');
-						controller.abort();
+						controller1.abort();
 					}
 				};
 			},
-			controller,
+			controller: controller1,
 			reader: nodeReader,
 			acknowledgeRemotionLicense: true,
 		});
@@ -58,7 +58,7 @@ test('Should be able to seek back based on already observed keyframes', async ()
 	}
 
 	const performedSeeks =
-		controller._internals.performedSeeksSignal.getPerformedSeeks();
+		controller1._internals.performedSeeksSignal.getPerformedSeeks();
 
 	expect(samples).toBe(177);
 	expect(performedSeeks).toEqual([
@@ -70,6 +70,51 @@ test('Should be able to seek back based on already observed keyframes', async ()
 		{
 			from: 470940,
 			to: 239136,
+			type: 'user-initiated',
+		},
+	]);
+});
+
+test('should be able to use seeking hints from previous parse', async () => {
+	const hints = await controller1.getSeekingHints();
+	expect(hints?.type).toEqual('transport-stream-seeking-hints');
+
+	const controller2 = mediaParserController();
+	controller2._experimentalSeek({
+		type: 'keyframe-before-time',
+		timeInSeconds: 3,
+	});
+
+	try {
+		await parseMedia({
+			src: await getRemoteExampleVideo('tsKeyframes'),
+			seekingHints: hints,
+			acknowledgeRemotionLicense: true,
+			reader: nodeReader,
+			controller: controller2,
+			onVideoTrack: () => {
+				return (sample) => {
+					const timeInSeconds = sample.timestamp / sample.timescale;
+					expect(timeInSeconds).toBe(2.9029);
+					expect(sample.type).toBe('key');
+					controller2.abort();
+				};
+			},
+		});
+
+		throw new Error('should not reach here');
+	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+	}
+
+	const performedSeeks =
+		controller2._internals.performedSeeksSignal.getPerformedSeeks();
+	expect(performedSeeks).toEqual([
+		{
+			from: 11092,
+			to: 440672,
 			type: 'user-initiated',
 		},
 	]);
