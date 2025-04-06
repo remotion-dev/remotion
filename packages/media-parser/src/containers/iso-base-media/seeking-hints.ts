@@ -24,7 +24,6 @@ export const getSeekingHintsFromMp4 = ({
 		isoState,
 		mp4HeaderSegment,
 		structureState,
-		mayUsePrecomputedMoovBox: true,
 	});
 	const moofBoxes = deduplicateMoofBoxesByOffset([
 		...isoState.moof.getMoofBoxes(),

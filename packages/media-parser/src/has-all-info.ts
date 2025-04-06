@@ -149,13 +149,13 @@ export const hasAllInfo = ({state}: {state: ParserState}) => {
 		return false;
 	}
 
-	if (!maySkipVideoData({state})) {
-		return false;
+	if (maySkipVideoData({state})) {
+		return true;
 	}
 
-	if (!state.callbacks.canSkipTracksState.canSkipTracks()) {
-		return false;
+	if (state.callbacks.canSkipTracksState.canSkipTracks()) {
+		return true;
 	}
 
-	return true;
+	return false;
 };
