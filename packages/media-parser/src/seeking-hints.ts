@@ -3,13 +3,14 @@ import type {TfraBox} from './containers/iso-base-media/mfra/tfra';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {PacketPes} from './containers/transport-stream/parse-pes';
 import type {MediaParserKeyframe} from './options';
+import type {MoofBox} from './state/iso-base-media/precomputed-moof';
 import type {LazyCuesLoadedOrNull} from './state/matroska/lazy-cues-fetch';
 import type {MediaSection} from './state/video-section';
 
 export type IsoBaseMediaSeekingHints = {
 	type: 'iso-base-media-seeking-hints';
 	moovBox: MoovBox;
-	moofBoxes: IsoBaseMediaBox[];
+	moofBoxes: MoofBox[];
 	tfraBoxes: TfraBox[];
 	mediaSections: MediaSection[];
 	mfraAlreadyLoaded: IsoBaseMediaBox[] | null;

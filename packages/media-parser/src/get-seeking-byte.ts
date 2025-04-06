@@ -1,4 +1,4 @@
-import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-from-mp4';
+import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
 import type {LogLevel} from './log';

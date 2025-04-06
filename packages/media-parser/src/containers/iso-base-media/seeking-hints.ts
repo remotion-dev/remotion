@@ -1,6 +1,8 @@
 import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import {deduplicateMoofBoxesByOffset} from '../../state/iso-base-media/precomputed-moof';
+import {deduplicateTfraBoxesByOffset} from '../../state/iso-base-media/precomputed-tfra';
 import type {ParserState} from '../../state/parser-state';
 import type {StructureState} from '../../state/structure';
 import type {MediaSectionState} from '../../state/video-section';
@@ -23,8 +25,14 @@ export const getSeekingHintsFromMp4 = ({
 		mp4HeaderSegment,
 		structureState,
 	});
-	const moofBoxes = getMoofBoxes(structure.boxes);
-	const tfraBoxes = getTfraBoxes(structure);
+	const moofBoxes = deduplicateMoofBoxesByOffset([
+		...isoState.moof.getMoofBoxes(),
+		...getMoofBoxes(structure.boxes),
+	]);
+	const tfraBoxes = deduplicateTfraBoxesByOffset([
+		...isoState.tfra.getTfraBoxes(),
+		...getTfraBoxes(structure),
+	]);
 
 	if (!moovAtom) {
 		return null;
@@ -49,6 +57,8 @@ export const setSeekingHintsForMp4 = ({
 }) => {
 	state.iso.moov.setMoovBox(hints.moovBox);
 	state.iso.mfra.setFromSeekingHints(hints);
+	state.iso.moof.setMoofBoxes(hints.moofBoxes);
+	state.iso.tfra.setTfraBoxes(hints.tfraBoxes);
 	for (const mediaSection of hints.mediaSections) {
 		state.mediaSection.addMediaSection(mediaSection);
 	}

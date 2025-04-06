@@ -5,12 +5,12 @@ import {hasBeenAborted} from '../../errors';
 import {parseMedia} from '../../parse-media';
 import {nodeReader} from '../../readers/from-node';
 
+const controller1 = mediaParserController();
+
 test('seek moof, should make use of the mfra atom if available', async () => {
 	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
 
-	const controller = mediaParserController();
-
-	controller._experimentalSeek({
+	controller1._experimentalSeek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 20,
 	});
@@ -21,7 +21,7 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 			src: video,
 			reader: nodeReader,
 			acknowledgeRemotionLicense: true,
-			controller,
+			controller: controller1,
 			fields: {
 				internalStats: true,
 			},
@@ -36,21 +36,21 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 					if (sample.cts === 19533333.333333336) {
 						expect(sample.type).toBe('key');
 
-						controller._experimentalSeek({
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 0,
 						});
 					}
 
 					if (sample.dts === 0) {
-						controller._experimentalSeek({
+						controller1._experimentalSeek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 10,
 						});
 					}
 
 					if (sample.dts === 9700000) {
-						controller.abort();
+						controller1.abort();
 					}
 				};
 			},
@@ -63,7 +63,7 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 
 		expect(hasBeenAborted(err)).toBe(true);
 		expect(
-			controller._internals.performedSeeksSignal.getPerformedSeeks(),
+			controller1._internals.performedSeeksSignal.getPerformedSeeks(),
 		).toEqual([
 			{
 				from: 2052,
@@ -81,7 +81,7 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 				type: 'user-initiated',
 			},
 		]);
-		const hints = await controller.getSeekingHints();
+		const hints = await controller1.getSeekingHints();
 		if (!hints) {
 			throw new Error('No hints');
 		}
@@ -106,4 +106,45 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 			},
 		]);
 	}
+});
+
+test('should use seeking hints from previous parse', async () => {
+	const controller2 = mediaParserController();
+	controller2._experimentalSeek({
+		type: 'keyframe-before-time',
+		timeInSeconds: 20,
+	});
+	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
+	const hints = await controller1.getSeekingHints();
+
+	try {
+		await parseMedia({
+			src: video,
+			reader: nodeReader,
+			acknowledgeRemotionLicense: true,
+			controller: controller2,
+			seekingHints: hints,
+			onVideoTrack: () => {
+				return (sample) => {
+					const timeInSeconds = sample.timestamp / sample.timescale;
+					expect(timeInSeconds).toBe(19.533333333333335);
+					expect(sample.type).toBe('key');
+					controller2.abort();
+				};
+			},
+		});
+	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+	}
+
+	const performedSeeks =
+		controller2._internals.performedSeeksSignal.getPerformedSeeks();
+	// Wow, jumping straight ahead
+	expect(performedSeeks[0]).toEqual({
+		from: 0,
+		to: 1215224,
+		type: 'user-initiated',
+	});
 });
