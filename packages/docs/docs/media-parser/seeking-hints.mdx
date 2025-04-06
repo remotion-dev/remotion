@@ -35,7 +35,7 @@ const hints = await controller.getSeekingHints();
 
 ## Using seeking hints
 
-Once you have obtained seeking hints from a previous parse, you can pass them to a new `parseMedia()`, `parseMediaOnWebWorker()`, `parseMediaOnServerWorker()`, `downloadAndParseMedia()` or `convertMedia()` call.
+Once you have obtained seeking hints from a previous parse, you can pass them to a new [`parseMedia()`](/docs/media-parser/parse-media), [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker), [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker), [`downloadAndParseMedia()`](/docs/media-parser/download-and-parse-media) or [`convertMedia()`](/docs/webcodecs/convert-media) call.
 
 ```tsx twoslash title="Using seeking hints from a previous parse"
 import {parseMedia, mediaParserController} from '@remotion/media-parser';
@@ -58,6 +58,6 @@ await parseMedia({
 - Seeking hints can be fetched at any time also during the parsing process, not only at the end.
 - The data structure of the seeking hints is not part of the public API and may change at any time.
 - After the parse, seeking hints are only available if the parse was successful or aborted, not when it failed.
-- Seeking hints are available for `parseMediaOnWebWorker()` and `parseMediaOnServerWorker()`.
-- A `mediaParserController` can only be attached to 1 `parseMedia()` call.
-- Seeking hints can be passed to `convertMedia()`.
+- Seeking hints are available for [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker).
+- A `mediaParserController` can only be attached to 1 [`parseMedia()`](/docs/media-parser/parse-media) call.
+- Seeking hints can be passed to [`convertMedia()`](/docs/webcodecs/convert-media).
