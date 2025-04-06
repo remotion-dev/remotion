@@ -50,19 +50,19 @@ export type WaveProbe = {
 export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 	const response = await fetchWithCorsCatch(src, {
 		headers: {
-			range: 'bytes=0-256',
+			range: 'bytes=0-1024',
 		},
 	});
 
 	if (response.status === 416) {
 		throw new Error(
-			`Tried to read bytes 0-256 from ${src}, but the response status code was 416 "Range Not Satisfiable". Is the file at least 256 bytes long?`,
+			`Tried to read bytes 0-1024 from ${src}, but the response status code was 416 "Range Not Satisfiable". Is the file at least 256 bytes long?`,
 		);
 	}
 
 	if (response.status !== 206) {
 		throw new Error(
-			`Tried to read bytes 0-256 from ${src}, but the response status code was ${response.status} (expected was 206). This means the server might not support returning a partial response.`,
+			`Tried to read bytes 0-1024 from ${src}, but the response status code was ${response.status} (expected was 206). This means the server might not support returning a partial response.`,
 		);
 	}
 
@@ -101,7 +101,6 @@ export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 
 	const numberOfChannels = getUint16(uintArray, 22);
 	const sampleRate = getUint32(uintArray, 24);
-	// const byteRate = toUint32(uintArray.slice(28, 32));
 	const blockAlign = getUint16(uintArray, 32);
 	const bitsPerSample = getUint16(uintArray, 34);
 	let offset = 36;
@@ -121,7 +120,7 @@ export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 
 	if (shouldBeData !== 'data') {
 		throw new Error(
-			'getPartialAudioData() requires a WAVE file, but the bytes 36-39 are not "data". ',
+			`getPartialAudioData() requires a WAVE file, but the bytes ${offset}-${offset + 4} are not "data". `,
 		);
 	}
 
