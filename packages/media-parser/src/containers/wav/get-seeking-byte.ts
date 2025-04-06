@@ -11,7 +11,7 @@ export const getSeekingByteFromWav = ({
 	time: number;
 }): Promise<SeekResolution> => {
 	const bytesPerSecond = info.sampleRate * info.blockAlign;
-	const durationInSeconds = info.mediaSections.size / bytesPerSecond;
+	const durationInSeconds = info.mediaSection.size / bytesPerSecond;
 
 	const timeRoundedDown =
 		Math.floor(
@@ -22,6 +22,6 @@ export const getSeekingByteFromWav = ({
 
 	return Promise.resolve({
 		type: 'do-seek',
-		byte: byteOffset + info.mediaSections.start,
+		byte: byteOffset + info.mediaSection.start,
 	});
 };

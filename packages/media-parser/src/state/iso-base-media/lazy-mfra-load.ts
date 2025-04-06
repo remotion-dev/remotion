@@ -4,6 +4,7 @@ import type {MediaParserController} from '../../controller/media-parser-controll
 import {Log, type LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
+import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 
 export const lazyMfraLoad = ({
 	contentLength,
@@ -50,8 +51,13 @@ export const lazyMfraLoad = ({
 		return null;
 	};
 
+	const setFromSeekingHints = (hints: IsoBaseMediaSeekingHints) => {
+		result = hints.mfraAlreadyLoaded;
+	};
+
 	return {
 		triggerLoad,
 		getIfAlreadyLoaded,
+		setFromSeekingHints,
 	};
 };

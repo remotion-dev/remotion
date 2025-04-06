@@ -1,7 +1,7 @@
 import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
 import type {Options, ParseMediaFields} from './fields';
-import {getSeekingInfo} from './get-seeking-hints';
+import {getSeekingHints} from './get-seeking-hints';
 import {Log} from './log';
 import type {
 	InternalParseMedia,
@@ -98,7 +98,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	});
 	controller._internals.attachSeekingHintResolution(() =>
 		Promise.resolve(
-			getSeekingInfo({
+			getSeekingHints({
 				tracksState: state.callbacks.tracks,
 				keyframesState: state.keyframes,
 				webmState: state.webm,

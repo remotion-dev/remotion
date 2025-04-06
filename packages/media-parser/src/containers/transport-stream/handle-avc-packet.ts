@@ -59,7 +59,10 @@ export const handleAvcPacket = async ({
 					streamBuffer.pesHeader.dts ?? Infinity,
 				)
 			: 0;
-		transportStream.startOffset.setOffset(programId, startOffset);
+		transportStream.startOffset.setOffset({
+			trackId: programId,
+			newOffset: startOffset,
+		});
 
 		const track: Track = {
 			m3uStreamFormat: null,

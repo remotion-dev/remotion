@@ -19,13 +19,14 @@ export type WavSeekingHints = {
 	type: 'wav-seeking-hints';
 	sampleRate: number;
 	blockAlign: number;
-	mediaSections: MediaSection;
+	mediaSection: MediaSection;
 };
 
 export type TransportStreamSeekingHints = {
 	type: 'transport-stream-seeking-hints';
 	observedPesHeaders: PacketPes[];
 	ptsStartOffset: number;
+	firstVideoTrackId: number;
 };
 
 export type WebmSeekingHints = {

@@ -5,6 +5,7 @@ import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
+import type {WebmSeekingHints} from '../../seeking-hints';
 
 export const lazyCuesFetch = ({
 	controller,
@@ -85,10 +86,16 @@ export const lazyCuesFetch = ({
 		return null;
 	};
 
+	const setFromSeekingHints = (hints: WebmSeekingHints) => {
+		result = hints.loadedCues?.cues ?? null;
+		sOffset = hints.loadedCues?.segmentOffset ?? null;
+	};
+
 	return {
 		triggerLoad,
 		getLoadedCues,
 		getIfAlreadyLoaded,
+		setFromSeekingHints,
 	};
 };
 

@@ -1,7 +1,7 @@
-import {getSeekingInfoFromMp4} from './containers/iso-base-media/get-seeking-hints-from-mp4';
-import {getSeekingInfoFromTransportStream} from './containers/transport-stream/get-seeking-hints';
-import {getSeekingInfoFromWav} from './containers/wav/get-seeking-hints';
-import {getSeekingInfoFromMatroska} from './containers/webm/seek/get-seeking-hints';
+import {getSeekingHintsFromMp4} from './containers/iso-base-media/seeking-hints';
+import {getSeekingHintsFromTransportStream} from './containers/transport-stream/seeking-hints';
+import {getSeekingHintsFromWav} from './containers/wav/seeking-hints';
+import {getSeekingHintsFromMatroska} from './containers/webm/seek/seeking-hints';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingHints} from './seeking-hints';
 import type {TracksState} from './state/has-tracks-section';
@@ -12,7 +12,7 @@ import type {StructureState} from './state/structure';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import type {MediaSectionState} from './state/video-section';
 
-export const getSeekingInfo = ({
+export const getSeekingHints = ({
 	structureState,
 	mp4HeaderSegment,
 	mediaSectionState,
@@ -38,7 +38,7 @@ export const getSeekingInfo = ({
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getSeekingInfoFromMp4({
+		return getSeekingHintsFromMp4({
 			structureState,
 			isoState,
 			mp4HeaderSegment,
@@ -47,18 +47,18 @@ export const getSeekingInfo = ({
 	}
 
 	if (structure.type === 'wav') {
-		return getSeekingInfoFromWav({
+		return getSeekingHintsFromWav({
 			structure,
 			mediaSectionState,
 		});
 	}
 
 	if (structure.type === 'matroska') {
-		return getSeekingInfoFromMatroska(tracksState, keyframesState, webmState);
+		return getSeekingHintsFromMatroska(tracksState, keyframesState, webmState);
 	}
 
 	if (structure.type === 'transport-stream') {
-		return getSeekingInfoFromTransportStream(transportStream, tracksState);
+		return getSeekingHintsFromTransportStream(transportStream, tracksState);
 	}
 
 	throw new Error(

@@ -2,7 +2,7 @@ import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
 import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte} from './get-seeking-byte';
-import {getSeekingInfo} from './get-seeking-hints';
+import {getSeekingHints} from './get-seeking-hints';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
@@ -61,7 +61,7 @@ const turnSeekIntoByte = async ({
 			);
 		}
 
-		const seekingInfo = getSeekingInfo({
+		const seekingHints = getSeekingHints({
 			structureState,
 			mp4HeaderSegment,
 			mediaSectionState,
@@ -72,7 +72,7 @@ const turnSeekIntoByte = async ({
 			webmState,
 		});
 
-		if (!seekingInfo) {
+		if (!seekingHints) {
 			Log.trace(logLevel, 'No seeking info, cannot seek yet');
 			return {
 				type: 'valid-but-must-wait',
@@ -80,7 +80,7 @@ const turnSeekIntoByte = async ({
 		}
 
 		const seekingByte = await getSeekingByte({
-			info: seekingInfo,
+			info: seekingHints,
 			time: seek.timeInSeconds,
 			logLevel,
 			currentPosition: iterator.counter.getOffset(),
