@@ -5,6 +5,7 @@ import {
 import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
 import type {ReaderInterface} from './readers/reader';
+import type {SeekingHints} from './seeking-hints';
 import {withResolvers} from './with-resolvers';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller-to-worker';
 import {serializeError} from './worker/serialize-error';
@@ -440,7 +441,11 @@ const startParsing = async (
 			seekingHints: await controller.getSeekingHints(),
 		});
 	} catch (e) {
-		const seekingHintsRes = await controller.getSeekingHints();
+		let seekingHintsRes: SeekingHints | null = null;
+		try {
+			seekingHintsRes = await controller.getSeekingHints();
+		} catch {}
+
 		post(
 			serializeError({
 				error: e as Error,

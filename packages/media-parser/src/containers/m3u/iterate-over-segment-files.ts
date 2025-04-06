@@ -37,34 +37,36 @@ export const iteratorOverSegmentFiles = async ({
 }) => {
 	const playlist = getPlaylist(structure, playlistUrl);
 	const chunks = getChunks(playlist);
-
 	let resolver: (run: ExistingM3uRun | null) => void = onInitialProgress;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let rejector = (_e: Error) => {};
 
-	const childController = mediaParserController();
-	const forwarded = forwardMediaParserControllerPauseResume({
-		childController,
-		parentController,
-	});
-
-	const makeContinuationFn = (): ExistingM3uRun => {
-		return {
-			continue() {
-				const {promise, reject, resolve} =
-					withResolvers<ExistingM3uRun | null>();
-				resolver = resolve;
-				rejector = reject;
-				childController.resume();
-				return promise;
-			},
-			abort() {
-				childController.abort();
-			},
-		};
-	};
-
 	for (const chunk of chunks) {
+		resolver = onInitialProgress;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		rejector = (_e: Error) => {};
+		const childController = mediaParserController();
+		const forwarded = forwardMediaParserControllerPauseResume({
+			childController,
+			parentController,
+		});
+
+		const makeContinuationFn = (): ExistingM3uRun => {
+			return {
+				continue() {
+					const {promise, reject, resolve} =
+						withResolvers<ExistingM3uRun | null>();
+					resolver = resolve;
+					rejector = reject;
+					childController.resume();
+					return promise;
+				},
+				abort() {
+					childController.abort();
+				},
+			};
+		};
+
 		const isLastChunk = chunk === chunks[chunks.length - 1];
 		await childController._internals.checkForAbortAndPause();
 		const src = readerInterface.createAdjacentFileSource(

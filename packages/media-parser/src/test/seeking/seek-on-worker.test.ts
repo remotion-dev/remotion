@@ -36,7 +36,7 @@ test('seek should also work on worker', async () => {
 	}
 
 	const hints = await controller.getSeekingHints();
-	expect(hints?.type).toEqual('iso-base-media-seeking-info');
+	expect(hints?.type).toEqual('iso-base-media-seeking-hints');
 });
 
 test('should be able to seek forward and then backwards', async () => {
