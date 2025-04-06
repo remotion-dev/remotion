@@ -1,4 +1,4 @@
-import type {WavSeekingInfo} from '../../seeking-info';
+import type {WavSeekingHints} from '../../seeking-hints';
 import type {MediaSectionState} from '../../state/video-section';
 import type {WavFmt, WavStructure} from './types';
 
@@ -8,7 +8,7 @@ export const getSeekingInfoFromWav = ({
 }: {
 	structure: WavStructure;
 	mediaSectionState: MediaSectionState;
-}): WavSeekingInfo | null => {
+}): WavSeekingHints | null => {
 	const fmtBox = structure.boxes.find((box) => box.type === 'wav-fmt') as
 		| WavFmt
 		| undefined;
@@ -23,7 +23,7 @@ export const getSeekingInfoFromWav = ({
 	}
 
 	return {
-		type: 'wav-seeking-info',
+		type: 'wav-seeking-hints',
 		sampleRate: fmtBox.sampleRate,
 		blockAlign: fmtBox.blockAlign,
 		mediaSections: mediaSection[0],

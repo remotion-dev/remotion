@@ -2,7 +2,7 @@ import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-se
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
 import type {LogLevel} from './log';
-import type {SeekingInfo} from './seeking-info';
+import type {SeekingHints} from './seeking-hints';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {WebmState} from './state/matroska/webm';
 import {getLastKeyFrameBeforeTimeInSeconds} from './state/transport-stream/observed-pes-header';
@@ -20,7 +20,7 @@ export const getSeekingByte = ({
 	webmState,
 	mediaSection,
 }: {
-	info: SeekingInfo;
+	info: SeekingHints;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
@@ -29,7 +29,7 @@ export const getSeekingByte = ({
 	webmState: WebmState;
 	mediaSection: MediaSectionState;
 }): Promise<SeekResolution> => {
-	if (info.type === 'iso-base-media-seeking-info') {
+	if (info.type === 'iso-base-media-seeking-hints') {
 		return getSeekingByteFromIsoBaseMedia({
 			info,
 			time,
@@ -39,14 +39,14 @@ export const getSeekingByte = ({
 		});
 	}
 
-	if (info.type === 'wav-seeking-info') {
+	if (info.type === 'wav-seeking-hints') {
 		return getSeekingByteFromWav({
 			info,
 			time,
 		});
 	}
 
-	if (info.type === 'webm-seeking-info') {
+	if (info.type === 'webm-seeking-hints') {
 		return getSeekingByteFromMatroska({
 			info,
 			time,
@@ -56,7 +56,7 @@ export const getSeekingByte = ({
 		});
 	}
 
-	if (info.type === 'transport-stream-seeking-info') {
+	if (info.type === 'transport-stream-seeking-hints') {
 		const lastKeyframeBeforeTimeInSeconds = getLastKeyFrameBeforeTimeInSeconds({
 			observedPesHeaders: info.observedPesHeaders,
 			timeInSeconds: time,

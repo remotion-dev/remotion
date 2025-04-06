@@ -1,7 +1,7 @@
 import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
 import type {Options, ParseMediaFields} from './fields';
-import {getSeekingInfo} from './get-seeking-info';
+import {getSeekingInfo} from './get-seeking-hints';
 import {Log} from './log';
 import type {
 	InternalParseMedia,

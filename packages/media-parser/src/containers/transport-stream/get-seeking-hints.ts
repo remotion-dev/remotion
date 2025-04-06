@@ -1,11 +1,11 @@
-import type {TransportStreamSeekingInfo} from '../../seeking-info';
+import type {TransportStreamSeekingHints} from '../../seeking-hints';
 import type {TracksState} from '../../state/has-tracks-section';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 
 export const getSeekingInfoFromTransportStream = (
 	transportStream: TransportStreamState,
 	tracksState: TracksState,
-): TransportStreamSeekingInfo => {
+): TransportStreamSeekingHints => {
 	const firstVideoTrack = tracksState
 		.getTracks()
 		.find((t) => t.type === 'video');
@@ -15,7 +15,7 @@ export const getSeekingInfoFromTransportStream = (
 	}
 
 	return {
-		type: 'transport-stream-seeking-info',
+		type: 'transport-stream-seeking-hints',
 		observedPesHeaders:
 			transportStream.observedPesHeaders.getPesKeyframeHeaders(),
 		ptsStartOffset: transportStream.startOffset.getOffset(

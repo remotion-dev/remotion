@@ -1,7 +1,7 @@
 import {getTracksFromMoovBox} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {IsoBaseMediaSeekingInfo} from '../../seeking-info';
+import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import {
 	getCurrentMediaSection,
@@ -23,7 +23,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	currentPosition,
 	isoState,
 }: {
-	info: IsoBaseMediaSeekingInfo;
+	info: IsoBaseMediaSeekingHints;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;

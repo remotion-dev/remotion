@@ -2,7 +2,7 @@ import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
 import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte} from './get-seeking-byte';
-import {getSeekingInfo} from './get-seeking-info';
+import {getSeekingInfo} from './get-seeking-hints';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';

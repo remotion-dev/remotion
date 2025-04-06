@@ -20,7 +20,7 @@ import type {
 	MediaParserStructureUnstable,
 } from './parse-result';
 import type {ReaderInterface} from './readers/reader';
-import type {SeekingInfo} from './seeking-info';
+import type {SeekingHints} from './seeking-hints';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
@@ -225,7 +225,7 @@ export type SerializeableOptionalParseMediaParams<
 	acknowledgeRemotionLicense: boolean;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	makeSamplesStartAtZero: boolean;
-	seekingHints: SeekingInfo | null;
+	seekingHints: SeekingHints | null;
 };
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =

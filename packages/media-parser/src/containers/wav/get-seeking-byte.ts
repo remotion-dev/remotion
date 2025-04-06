@@ -1,4 +1,4 @@
-import type {WavSeekingInfo} from '../../seeking-info';
+import type {WavSeekingHints} from '../../seeking-hints';
 import type {SeekResolution} from '../../work-on-seek-request';
 
 export const WAVE_SAMPLES_PER_SECOND = 25;
@@ -7,7 +7,7 @@ export const getSeekingByteFromWav = ({
 	info,
 	time,
 }: {
-	info: WavSeekingInfo;
+	info: WavSeekingHints;
 	time: number;
 }): Promise<SeekResolution> => {
 	const bytesPerSecond = info.sampleRate * info.blockAlign;

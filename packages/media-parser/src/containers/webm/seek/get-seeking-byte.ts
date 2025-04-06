@@ -1,7 +1,7 @@
 import type {LogLevel} from '../../../log';
 import {Log} from '../../../log';
 import type {MediaParserKeyframe} from '../../../options';
-import type {WebmSeekingInfo} from '../../../seeking-info';
+import type {WebmSeekingHints} from '../../../seeking-hints';
 import type {LazyCuesLoadedOrNull} from '../../../state/matroska/lazy-cues-fetch';
 import type {WebmState} from '../../../state/matroska/webm';
 import type {MediaSectionState} from '../../../state/video-section';
@@ -10,7 +10,7 @@ import type {MatroskaCue} from './format-cues';
 
 const toSeconds = (
 	timeInTimescale: number,
-	track: NonNullable<WebmSeekingInfo['track']>,
+	track: NonNullable<WebmSeekingHints['track']>,
 ) => {
 	return (timeInTimescale / track.timescale) * 1000;
 };
@@ -22,7 +22,7 @@ const findBiggestCueBeforeTime = ({
 }: {
 	cues: MatroskaCue[];
 	time: number;
-	track: NonNullable<WebmSeekingInfo['track']>;
+	track: NonNullable<WebmSeekingHints['track']>;
 }): MatroskaCue | undefined => {
 	let biggestCueBeforeTime: MatroskaCue | undefined;
 	for (const cue of cues) {
@@ -70,7 +70,7 @@ const getByteFromCues = ({
 }: {
 	cuesResponse: LazyCuesLoadedOrNull;
 	time: number;
-	info: WebmSeekingInfo;
+	info: WebmSeekingHints;
 	logLevel: LogLevel;
 }) => {
 	if (!cuesResponse) {
@@ -104,7 +104,7 @@ export const getSeekingByteFromMatroska = async ({
 }: {
 	time: number;
 	webmState: WebmState;
-	info: WebmSeekingInfo;
+	info: WebmSeekingHints;
 	logLevel: LogLevel;
 	mediaSection: MediaSectionState;
 }): Promise<SeekResolution> => {

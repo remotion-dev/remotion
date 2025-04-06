@@ -86,7 +86,7 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 			throw new Error('No hints');
 		}
 
-		if (hints.type !== 'iso-base-media-seeking-info') {
+		if (hints.type !== 'iso-base-media-seeking-hints') {
 			throw new Error('unexpected hint type');
 		}
 

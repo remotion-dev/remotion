@@ -22,7 +22,7 @@ import type {
 	SerializeableOptionalParseMediaParams,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
-import type {SeekingInfo} from '../seeking-info';
+import type {SeekingHints} from '../seeking-hints';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
@@ -96,12 +96,12 @@ type RequestAbort = {
 type ResponseDone = {
 	type: 'response-done';
 	payload: ParseMediaResult<Options<ParseMediaFields>>;
-	seekingHints: SeekingInfo | null;
+	seekingHints: SeekingHints | null;
 };
 
 type ResponseGetSeekingHints = {
 	type: 'response-get-seeking-hints';
-	payload: SeekingInfo;
+	payload: SeekingHints;
 };
 
 type BaseError = {
@@ -145,7 +145,7 @@ type IsAnUnsupportedFileTypeError = BaseError & {
 
 type MediaParserAbortError = BaseError & {
 	errorName: 'MediaParserAbortError';
-	seekingHints: SeekingInfo | null;
+	seekingHints: SeekingHints | null;
 };
 
 type AnyError =

@@ -1,5 +1,5 @@
 import {MediaParserAbortError} from '../errors';
-import type {SeekingInfo} from '../seeking-info';
+import type {SeekingHints} from '../seeking-hints';
 import {MediaParserEmitter} from './emitter';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
@@ -16,7 +16,7 @@ export type MediaParserController = {
 	_experimentalSeek: SeekSignal['seek'];
 	addEventListener: MediaParserEmitter['addEventListener'];
 	removeEventListener: MediaParserEmitter['removeEventListener'];
-	getSeekingHints: () => Promise<SeekingInfo | null>;
+	getSeekingHints: () => Promise<SeekingHints | null>;
 	/**
 	 * @deprecated Not public API
 	 */
@@ -27,7 +27,7 @@ export type MediaParserController = {
 		markAsReadyToEmitEvents: () => void;
 		performedSeeksSignal: PerformedSeeksSignal;
 		attachSeekingHintResolution: (
-			callback: () => Promise<SeekingInfo | null>,
+			callback: () => Promise<SeekingHints | null>,
 		) => void;
 	};
 };
@@ -47,7 +47,7 @@ export const mediaParserController = (): MediaParserController => {
 		await pauseSignal.waitUntilResume();
 	};
 
-	let seekingHintResolution: (() => Promise<SeekingInfo | null>) | null = null;
+	let seekingHintResolution: (() => Promise<SeekingHints | null>) | null = null;
 
 	const getSeekingHints = () => {
 		if (!seekingHintResolution) {
@@ -60,7 +60,7 @@ export const mediaParserController = (): MediaParserController => {
 	};
 
 	const attachSeekingHintResolution = (
-		callback: () => Promise<SeekingInfo | null>,
+		callback: () => Promise<SeekingHints | null>,
 	) => {
 		if (seekingHintResolution) {
 			throw new Error(

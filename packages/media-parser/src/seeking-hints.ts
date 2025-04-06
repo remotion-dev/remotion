@@ -6,8 +6,8 @@ import type {MediaParserKeyframe} from './options';
 import type {LazyCuesLoadedOrNull} from './state/matroska/lazy-cues-fetch';
 import type {MediaSection} from './state/video-section';
 
-export type IsoBaseMediaSeekingInfo = {
-	type: 'iso-base-media-seeking-info';
+export type IsoBaseMediaSeekingHints = {
+	type: 'iso-base-media-seeking-hints';
 	moovBox: MoovBox;
 	moofBoxes: IsoBaseMediaBox[];
 	tfraBoxes: TfraBox[];
@@ -15,28 +15,28 @@ export type IsoBaseMediaSeekingInfo = {
 	mfraAlreadyLoaded: IsoBaseMediaBox[] | null;
 };
 
-export type WavSeekingInfo = {
-	type: 'wav-seeking-info';
+export type WavSeekingHints = {
+	type: 'wav-seeking-hints';
 	sampleRate: number;
 	blockAlign: number;
 	mediaSections: MediaSection;
 };
 
-export type TransportStreamSeekingInfo = {
-	type: 'transport-stream-seeking-info';
+export type TransportStreamSeekingHints = {
+	type: 'transport-stream-seeking-hints';
 	observedPesHeaders: PacketPes[];
 	ptsStartOffset: number;
 };
 
-export type WebmSeekingInfo = {
-	type: 'webm-seeking-info';
+export type WebmSeekingHints = {
+	type: 'webm-seeking-hints';
 	track: null | {timescale: number; trackId: number};
 	keyframes: MediaParserKeyframe[];
 	loadedCues: LazyCuesLoadedOrNull;
 };
 
-export type SeekingInfo =
-	| IsoBaseMediaSeekingInfo
-	| WavSeekingInfo
-	| TransportStreamSeekingInfo
-	| WebmSeekingInfo;
+export type SeekingHints =
+	| IsoBaseMediaSeekingHints
+	| WavSeekingHints
+	| TransportStreamSeekingHints
+	| WebmSeekingHints;

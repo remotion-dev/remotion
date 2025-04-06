@@ -1,7 +1,7 @@
 import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
-import type {SeekingInfo} from './seeking-info';
+import type {SeekingHints} from './seeking-hints';
 import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
 import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
@@ -136,8 +136,8 @@ export const parseMediaOnWorkerImplementation = async <
 		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
 	};
 
-	const seekingHintPromises: WithResolvers<SeekingInfo | null>[] = [];
-	let finalSeekingHints: SeekingInfo | null = null;
+	const seekingHintPromises: WithResolvers<SeekingHints | null>[] = [];
+	let finalSeekingHints: SeekingHints | null = null;
 	controller?._internals.attachSeekingHintResolution(() => {
 		if (finalSeekingHints) {
 			return Promise.resolve(finalSeekingHints);
@@ -147,7 +147,7 @@ export const parseMediaOnWorkerImplementation = async <
 			return Promise.reject(new Error('Worker terminated'));
 		}
 
-		const prom = withResolvers<SeekingInfo | null>();
+		const prom = withResolvers<SeekingHints | null>();
 		post(worker, {type: 'request-get-seeking-hints'});
 		seekingHintPromises.push(prom);
 		return prom.promise;

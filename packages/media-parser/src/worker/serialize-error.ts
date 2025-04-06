@@ -7,7 +7,7 @@ import {
 } from '../errors';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
-import type {SeekingInfo} from '../seeking-info';
+import type {SeekingHints} from '../seeking-hints';
 import type {ResponseError} from './worker-types';
 
 export const serializeError = ({
@@ -17,7 +17,7 @@ export const serializeError = ({
 }: {
 	error: Error;
 	logLevel: LogLevel;
-	seekingHints: SeekingInfo | null;
+	seekingHints: SeekingHints | null;
 }): ResponseError => {
 	if (error instanceof IsAGifError) {
 		return {
