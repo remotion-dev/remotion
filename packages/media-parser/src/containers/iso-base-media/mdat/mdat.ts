@@ -84,9 +84,8 @@ export const parseMdatSection = async (
 
 	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =
 		samplesWithIndex.samplePosition;
-	const _bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
 	const bytes = postprocessBytes({
-		bytes: _bytes,
+		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
 		bigEndian,
 		chunkSize,
 	});
