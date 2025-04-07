@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "My Remotion video",
   "scripts": {
-    "dev": "tsx watch server",
-    "start": "tsx server",
+    "start": "ts-node server",
     "lint": "eslint . && tsc",
     "remotion:build": "remotion bundle",
     "remotion:upgrade": "remotion upgrade",
@@ -30,7 +29,7 @@
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
     "prettier": "3.3.3",
-    "tsx": "4.19.0",
+    "ts-node": "10.9.1",
     "typescript": "5.8.2"
   },
   "private": true
