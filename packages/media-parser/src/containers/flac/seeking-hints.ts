@@ -1,25 +1,27 @@
-import type {MediaParserKeyframe} from '../../options';
+import type {AudioSampleOffset} from '../../state/audio-sample-map';
 import type {FlacState} from '../../state/flac-state';
-import type {KeyframesState} from '../../state/keyframes';
 import type {ParserState} from '../../state/parser-state';
+import type {MediaSection, MediaSectionState} from '../../state/video-section';
 
 export type FlacSeekingHints = {
 	type: 'flac-seeking-hints';
-	keyframes: MediaParserKeyframe[];
+	audioSampleMap: AudioSampleOffset[];
 	blockingBitStrategy: number | null;
+	mediaSection: MediaSection;
 };
 
 export const getSeekingHintsForFlac = ({
-	keyframes,
 	flacState,
+	mediaSectionState,
 }: {
-	keyframes: KeyframesState;
 	flacState: FlacState;
+	mediaSectionState: MediaSectionState;
 }): FlacSeekingHints => {
 	return {
 		type: 'flac-seeking-hints',
-		keyframes: keyframes.getKeyframes(),
+		audioSampleMap: flacState.audioSamples.getSamples(),
 		blockingBitStrategy: flacState.getBlockingBitStrategy() ?? null,
+		mediaSection: mediaSectionState.getMediaSections()[0],
 	};
 };
 
@@ -34,5 +36,5 @@ export const setSeekingHintsForFlac = ({
 		state.flac.setBlockingBitStrategy(hints.blockingBitStrategy);
 	}
 
-	state.keyframes.setFromSeekingHints(hints.keyframes);
+	state.flac.audioSamples.setFromSeekingHints(hints.audioSampleMap);
 };

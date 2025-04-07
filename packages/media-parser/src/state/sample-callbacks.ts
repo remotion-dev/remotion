@@ -102,6 +102,7 @@ export const sampleCallback = ({
 				}
 			}
 
+			console.log(audioSample.timestamp / audioSample.timescale);
 			if (needsToIterateOverSamples({emittedFields, fields})) {
 				slowDurationAndFpsState.addAudioSample(audioSample);
 			}

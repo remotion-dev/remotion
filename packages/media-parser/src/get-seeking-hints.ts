@@ -68,7 +68,6 @@ export const getSeekingHints = ({
 	if (structure.type === 'flac') {
 		return getSeekingHintsForFlac({
 			flacState,
-			keyframes: keyframesState,
 		});
 	}
 
