@@ -2985,6 +2985,9 @@ importers:
       '@remotion/eslint-config-flat':
         specifier: workspace:*
         version: link:../eslint-config-flat
+      '@remotion/eslint-plugin':
+        specifier: workspace:*
+        version: link:../eslint-plugin
       '@types/express':
         specifier: ^5.0.1
         version: 5.0.1
@@ -3003,6 +3006,9 @@ importers:
       ts-node:
         specifier: 10.9.1
         version: 10.9.1(@types/node@20.12.14)(typescript@5.8.2)
+      tsx:
+        specifier: 4.19.3
+        version: 4.19.3
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -31242,6 +31248,17 @@ packages:
       tslib: 1.14.1
       typescript: 5.8.2
     dev: false
+
+  /tsx@4.19.3:
+    resolution: {integrity: sha512-4H8vUNGNjQ4V2EOoGw005+c+dGuPSnhpPBPHBtsZdGZBk/iJb4kguGlPWaZTZ3q5nMtFOEsY0nRDlh9PJyd6SQ==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+    dependencies:
+      esbuild: 0.25.0
+      get-tsconfig: 4.8.1
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: true
 
   /tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
