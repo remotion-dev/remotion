@@ -29,7 +29,7 @@
     "@types/react": "19.0.0",
     "eslint": "9.19.0",
     "prettier": "3.3.3",
-    "ts-node": "10.9.1",
+    "tsx": "4.19.3",
     "typescript": "5.8.2",
     "zod": "3.22.3"
   }
