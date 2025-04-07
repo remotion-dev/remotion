@@ -3315,6 +3315,9 @@ importers:
       '@remotion/eslint-config-flat':
         specifier: workspace:*
         version: link:../eslint-config-flat
+      '@remotion/eslint-plugin':
+        specifier: workspace:*
+        version: link:../eslint-plugin
       '@types/md5':
         specifier: 2.3.0
         version: 2.3.0
