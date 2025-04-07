@@ -1,4 +1,4 @@
-# Remotion video
+# Remotion Render Server Template
 
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
@@ -9,9 +9,15 @@
   </a>
 </p>
 
-Welcome to your Remotion project!
+This template provides an Express.js server that allows you to start new video render jobs, track the progress of ongoing renders, and cancel running render jobs.
 
-## Commands
+The server exposes the following main endpoints:
+
+- `POST /render` - Start a new render job
+- `GET /renders/:id` - Get the status of a render
+- `DELETE /renders/:id` - Cancel a running render
+
+## Getting Started
 
 **Install Dependencies**
 
@@ -19,22 +25,33 @@ Welcome to your Remotion project!
 npm install
 ```
 
-**Start Preview**
+**Start the Render Server**
 
 ```console
 npm run dev
 ```
 
-**Render video**
+This will start the Express server that handles render requests in watch mode for development.
+
+**Run in Production**
 
 ```console
-npx remotion render
+npm start
 ```
 
-**Upgrade Remotion**
+**Run Remotion Studio**
 
 ```console
-npx remotion upgrade
+npm run remotion:studio
+```
+
+## Docker Support
+
+The template includes Docker support out of the box. Build and run the container using:
+
+```console
+docker build -t remotion-render-server .
+docker run -d -p 3000:3000 remotion-render-server
 ```
 
 ## Docs

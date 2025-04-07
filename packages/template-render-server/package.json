@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "tsx watch server",
     "start": "tsx server",
-    "build": "remotion bundle",
-    "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
+    "remotion:build": "remotion bundle",
+    "remotion:upgrade": "remotion upgrade",
     "remotion:studio": "remotion studio"
   },
   "repository": {},
