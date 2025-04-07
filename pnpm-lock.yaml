@@ -2945,9 +2945,9 @@ importers:
       prettier:
         specifier: 3.3.3
         version: 3.3.3
-      ts-node:
-        specifier: 10.9.1
-        version: 10.9.1(@types/node@20.12.14)(typescript@5.8.2)
+      tsx:
+        specifier: 4.19.3
+        version: 4.19.3
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3003,9 +3003,6 @@ importers:
       prettier:
         specifier: 3.3.3
         version: 3.3.3
-      ts-node:
-        specifier: 10.9.1
-        version: 10.9.1(@types/node@20.12.14)(typescript@5.8.2)
       tsx:
         specifier: 4.19.3
         version: 4.19.3
@@ -3333,9 +3330,9 @@ importers:
       prettier:
         specifier: 3.3.3
         version: 3.3.3
-      ts-node:
-        specifier: 10.9.1
-        version: 10.9.1(@types/node@20.12.14)(typescript@5.8.2)
+      tsx:
+        specifier: 4.19.3
+        version: 4.19.3
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3415,9 +3412,9 @@ importers:
       prettier:
         specifier: 3.3.3
         version: 3.3.3
-      ts-node:
-        specifier: 10.9.1
-        version: 10.9.1(@types/node@20.12.14)(typescript@5.8.2)
+      tsx:
+        specifier: 4.19.3
+        version: 4.19.3
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -7619,13 +7616,6 @@ packages:
     dev: false
     optional: true
 
-  /@cspotcode/source-map-support@0.8.1:
-    resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.9
-    dev: true
-
   /@csstools/cascade-layer-name-parser@1.0.2(@csstools/css-parser-algorithms@2.1.1)(@csstools/css-tokenizer@2.1.1):
     resolution: {integrity: sha512-xm7Mgwej/wBfLoK0K5LfntmPJzoULayl1XZY9JYgQgT29JiqNw++sLnx95u5y9zCihblzkyaRYJrsRMhIBzRdg==}
     engines: {node: ^14 || ^16 || >=18}
@@ -11645,13 +11635,6 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  /@jridgewell/trace-mapping@0.3.9:
-    resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
-    dependencies:
-      '@jridgewell/resolve-uri': 3.1.0
-      '@jridgewell/sourcemap-codec': 1.5.0
-    dev: true
-
   /@js-sdsl/ordered-map@4.4.2:
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
     dev: false
@@ -15276,22 +15259,6 @@ packages:
     resolution: {integrity: sha512-KM/TuJa9fugo67dTGx+ktIqf3fVc077J6jwHu845Hex4EQf7LABlNonP/mohDKT0cmncdtlYVHHF74xR/YpThg==}
     dev: true
 
-  /@tsconfig/node10@1.0.11:
-    resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
-    dev: true
-
-  /@tsconfig/node12@1.0.11:
-    resolution: {integrity: sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==}
-    dev: true
-
-  /@tsconfig/node14@1.0.3:
-    resolution: {integrity: sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==}
-    dev: true
-
-  /@tsconfig/node16@1.0.4:
-    resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
-    dev: true
-
   /@tweenjs/tween.js@23.1.3:
     resolution: {integrity: sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA==}
 
@@ -16943,10 +16910,6 @@ packages:
     dependencies:
       delegates: 1.0.0
       readable-stream: 3.6.0
-    dev: true
-
-  /arg@4.1.3:
-    resolution: {integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==}
     dev: true
 
   /arg@5.0.2:
@@ -18672,10 +18635,6 @@ packages:
       - ts-node
     dev: true
 
-  /create-require@1.1.1:
-    resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
-    dev: true
-
   /cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
     engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
@@ -19381,11 +19340,6 @@ packages:
   /diff-sequences@29.6.3:
     resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dev: true
-
-  /diff@4.0.2:
-    resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
-    engines: {node: '>=0.3.1'}
     dev: true
 
   /diff@5.2.0:
@@ -24432,10 +24386,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       semver: 7.5.3
-    dev: true
-
-  /make-error@1.3.6:
-    resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
     dev: true
 
   /makeerror@1.0.12:
@@ -31127,37 +31077,6 @@ packages:
       code-block-writer: 10.1.1
     dev: false
 
-  /ts-node@10.9.1(@types/node@20.12.14)(typescript@5.8.2):
-    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': '>=1.2.50'
-      '@swc/wasm': '>=1.2.50'
-      '@types/node': '*'
-      typescript: '>=2.7'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      '@swc/wasm':
-        optional: true
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.11
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.4
-      '@types/node': 20.12.14
-      acorn: 8.14.0
-      acorn-walk: 8.3.2
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      typescript: 5.8.2
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-    dev: true
-
   /ts-toolbelt@6.15.5:
     resolution: {integrity: sha512-FZIXf1ksVyLcfr7M317jbB67XFJhOO1YqdTcuGaq9q5jLUoTikukZ+98TPjKiP2jC5CgmYdWWYs0s2nLSU0/1A==}
     dev: false
@@ -31973,10 +31892,6 @@ packages:
       diff: 5.2.0
       kleur: 4.1.5
       sade: 1.8.1
-
-  /v8-compile-cache-lib@3.0.1:
-    resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
-    dev: true
 
   /v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
@@ -33031,11 +32946,6 @@ packages:
     resolution: {integrity: sha512-phENi2PLiHnHb6QBVot+dJnaAZ0xosj7p3fWl+znIjBDlnMI2PsZCJZ306BPTFOaHf5qdDEI8x5qFrSOBN5vrw==}
     dependencies:
       buffer-crc32: 0.2.13
-    dev: true
-
-  /yn@3.1.1:
-    resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
-    engines: {node: '>=6'}
     dev: true
 
   /yocto-queue@0.1.0:
