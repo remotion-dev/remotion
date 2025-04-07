@@ -1,5 +1,4 @@
 import type {MediaParserKeyframe} from '../options';
-import type {WebmSeekingHints} from '../seeking-hints';
 
 export const keyframesState = () => {
 	const keyframes: MediaParserKeyframe[] = [];
@@ -16,8 +15,8 @@ export const keyframesState = () => {
 		return keyframes;
 	};
 
-	const setFromSeekingHints = (hints: WebmSeekingHints) => {
-		for (const keyframe of hints.keyframes) {
+	const setFromSeekingHints = (keyframesFromHints: MediaParserKeyframe[]) => {
+		for (const keyframe of keyframesFromHints) {
 			addKeyframe(keyframe);
 		}
 	};

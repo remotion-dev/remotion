@@ -1,3 +1,4 @@
+import type {FlacSeekingHints} from './containers/flac/seeking-hints';
 import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import type {TfraBox} from './containers/iso-base-media/mfra/tfra';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
@@ -42,4 +43,5 @@ export type SeekingHints =
 	| IsoBaseMediaSeekingHints
 	| WavSeekingHints
 	| TransportStreamSeekingHints
-	| WebmSeekingHints;
+	| WebmSeekingHints
+	| FlacSeekingHints;

@@ -114,6 +114,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 				mediaSectionState: state.mediaSection,
 				isoState: state.iso,
 				transportStream: state.transportStream,
+				flacState: state.flac,
 			}),
 		),
 	);

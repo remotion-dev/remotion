@@ -11,6 +11,7 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
+import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
@@ -33,6 +34,7 @@ const turnSeekIntoByte = async ({
 	tracksState,
 	webmState,
 	keyframes,
+	flacState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -45,6 +47,7 @@ const turnSeekIntoByte = async ({
 	tracksState: TracksState;
 	webmState: WebmState;
 	keyframes: KeyframesState;
+	flacState: FlacState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -70,6 +73,7 @@ const turnSeekIntoByte = async ({
 			tracksState,
 			keyframesState: keyframes,
 			webmState,
+			flacState,
 		});
 
 		if (!seekingHints) {
@@ -125,6 +129,7 @@ export type WorkOnSeekRequestOptions = {
 	tracksState: TracksState;
 	webmState: WebmState;
 	keyframes: KeyframesState;
+	flacState: FlacState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -150,6 +155,7 @@ export const getWorkOnSeekRequestOptions = (
 		tracksState: state.callbacks.tracks,
 		webmState: state.webm,
 		keyframes: state.keyframes,
+		flacState: state.flac,
 	};
 };
 
@@ -174,6 +180,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		tracksState,
 		webmState,
 		keyframes,
+		flacState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -193,6 +200,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		tracksState,
 		webmState,
 		keyframes,
+		flacState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

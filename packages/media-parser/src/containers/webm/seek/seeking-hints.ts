@@ -36,6 +36,6 @@ export const setSeekingHintsForWebm = ({
 	state: ParserState;
 }) => {
 	state.webm.cues.setFromSeekingHints(hints);
-	state.keyframes.setFromSeekingHints(hints);
+	state.keyframes.setFromSeekingHints(hints.keyframes);
 	state.webm.setTimeStampMapForSeekingHints(hints.timestampMap);
 };

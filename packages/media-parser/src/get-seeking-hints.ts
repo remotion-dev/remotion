@@ -1,9 +1,11 @@
+import {getSeekingHintsForFlac} from './containers/flac/seeking-hints';
 import {getSeekingHintsFromMp4} from './containers/iso-base-media/seeking-hints';
 import {getSeekingHintsFromTransportStream} from './containers/transport-stream/seeking-hints';
 import {getSeekingHintsFromWav} from './containers/wav/seeking-hints';
 import {getSeekingHintsFromMatroska} from './containers/webm/seek/seeking-hints';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingHints} from './seeking-hints';
+import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
@@ -21,6 +23,7 @@ export const getSeekingHints = ({
 	tracksState,
 	keyframesState,
 	webmState,
+	flacState,
 }: {
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
@@ -30,6 +33,7 @@ export const getSeekingHints = ({
 	tracksState: TracksState;
 	keyframesState: KeyframesState;
 	webmState: WebmState;
+	flacState: FlacState;
 }): SeekingHints | null => {
 	const structure = structureState.getStructureOrNull();
 
@@ -59,6 +63,13 @@ export const getSeekingHints = ({
 
 	if (structure.type === 'transport-stream') {
 		return getSeekingHintsFromTransportStream(transportStream, tracksState);
+	}
+
+	if (structure.type === 'flac') {
+		return getSeekingHintsForFlac({
+			flacState,
+			keyframes: keyframesState,
+		});
 	}
 
 	throw new Error(

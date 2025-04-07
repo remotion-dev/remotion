@@ -8,3 +8,5 @@ export const flacState = () => {
 		getBlockingBitStrategy: () => blockingBitStrategy,
 	};
 };
+
+export type FlacState = ReturnType<typeof flacState>;
