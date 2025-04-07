@@ -28,7 +28,15 @@ npm install
 **Start the Render Server**
 
 ```console
-npm run start
+npm run dev
+```
+
+This will start the Express server that handles render requests in watch mode for development.
+
+**Run in Production**
+
+```console
+npm start
 ```
 
 **Run Remotion Studio**
@@ -37,7 +45,13 @@ npm run start
 npm run remotion:studio
 ```
 
-**Upgrade all Remotion packages**
+**Render the example video locally**
+
+```
+npx remotion render
+```
+
+**Upgrade all Remotion packages:**
 
 ```
 npx remotion upgrade
