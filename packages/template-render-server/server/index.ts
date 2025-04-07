@@ -2,6 +2,9 @@ import express from "express";
 import { cancelRenderJob, createRenderJob, renderJobs } from "./render-worker";
 import { bundle } from "@remotion/bundler";
 import path from "node:path";
+import { ensureBrowser } from "@remotion/renderer";
+
+const { PORT = 3000, REMOTION_SERVE_URL } = process.env;
 
 function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   const app = express();
@@ -45,18 +48,21 @@ function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
 }
 
 async function main() {
-  // TODO: ability to provide serveUrl via env variable
-  const remotionBundleUrl = await bundle({
-    entryPoint: path.resolve("remotion/index.ts"),
-    onProgress(progress) {
-      console.info(`Bundling remotion composition: ${progress}%`);
-    },
-  });
+  await ensureBrowser();
+
+  const remotionBundleUrl = REMOTION_SERVE_URL
+    ? REMOTION_SERVE_URL
+    : await bundle({
+        entryPoint: path.resolve("remotion/index.ts"),
+        onProgress(progress) {
+          console.info(`Bundling remotion composition: ${progress}%`);
+        },
+      });
 
   const app = setupApp({ remotionBundleUrl });
 
-  app.listen(3000, () => {
-    console.info("Server is running on port 3000");
+  app.listen(PORT, () => {
+    console.info(`Server is running on port ${PORT}`);
   });
 }
 
