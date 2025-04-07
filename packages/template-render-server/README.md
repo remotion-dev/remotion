@@ -28,21 +28,19 @@ npm install
 **Start the Render Server**
 
 ```console
-npm run dev
-```
-
-This will start the Express server that handles render requests in watch mode for development.
-
-**Run in Production**
-
-```console
-npm start
+npm run start
 ```
 
 **Run Remotion Studio**
 
 ```console
 npm run remotion:studio
+```
+
+**Upgrade all Remotion packages**
+
+```
+npx remotion upgrade
 ```
 
 ## Docker Support
