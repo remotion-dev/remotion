@@ -49,7 +49,8 @@
 		"@remotion/compositor-linux-arm64-musl": "workspace:*",
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@remotion/compositor-linux-x64-musl": "workspace:*",
-		"@remotion/compositor-win32-x64-msvc": "workspace:*"
+		"@remotion/compositor-win32-x64-msvc": "workspace:*",
+		"bufferutil": "4.0.9"
 	},
 	"keywords": [
 		"remotion",
