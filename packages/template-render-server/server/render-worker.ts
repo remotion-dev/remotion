@@ -8,7 +8,10 @@ export type RenderJob = {
   id: string;
   progress: number;
   status: "pending" | "processing" | "completed" | "failed" | "cancelled";
+  videoUrl?: string;
 };
+
+const { PORT = 3000 } = process.env;
 
 export const rendersDir = path.resolve("renders");
 
@@ -65,6 +68,7 @@ renderEvents.on("start-render", async ({ jobId, remotionBundleUrl }) => {
       id: jobId,
       progress: 100,
       status: "completed",
+      videoUrl: `http://localhost:${PORT}/renders/${jobId}.mp4`,
     });
   } catch (error) {
     console.error(error);

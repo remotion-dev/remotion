@@ -9,6 +9,9 @@ const { PORT = 3000, REMOTION_SERVE_URL } = process.env;
 function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   const app = express();
 
+  // server /renders static files
+  app.use("/renders", express.static(path.resolve("renders")));
+
   app.post("/renders", async (req, res) => {
     const jobId = createRenderJob(remotionBundleUrl);
 
