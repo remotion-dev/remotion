@@ -43,7 +43,8 @@ await parseMedia({
 
 ### `keyframe-before-time`
 
-This will seek to the last keyframe that comes before a certain time. If there is a keyframe at exactly this time, it will seek to this one.
+This will seek to the last keyframe that comes before the time you specified.  
+If there is a keyframe at exactly this time, it will seek to this one.
 
 Remember that if you want to decode a video, you always have to start at a keyframe. If you are not interested in the frames before `time`, you still need to decode them, but you may discard them.
 

@@ -32,10 +32,11 @@ export const parseLoop = async ({
 	onError: ParseMediaOnError;
 }) => {
 	let iterationWithThisOffset = 0;
+
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
-		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state), false);
 
 		const offsetBefore = state.iterator.counter.getOffset();
 
@@ -86,6 +87,9 @@ export const parseLoop = async ({
 						skip.skipTo - state.iterator.counter.getOffset(),
 					);
 					if (skip.skipTo === state.contentLength) {
+						state.iterator.discard(
+							skip.skipTo - state.iterator.counter.getOffset(),
+						);
 						Log.verbose(
 							state.logLevel,
 							'Skipped to end of file, not fetching.',
@@ -144,5 +148,11 @@ export const parseLoop = async ({
 		} else {
 			iterationWithThisOffset = 0;
 		}
+	}
+
+	await workOnSeekRequest(getWorkOnSeekRequestOptions(state), true);
+
+	if (!(state.iterator.counter.getOffset() !== state.contentLength)) {
+		await parseLoop({state, throttledState, onError});
 	}
 };

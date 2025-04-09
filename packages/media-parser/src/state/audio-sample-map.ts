@@ -1,6 +1,7 @@
 export type AudioSampleOffset = {
 	timeInSeconds: number;
 	offset: number;
+	durationInSeconds: number;
 };
 
 export const audioSampleMapState = () => {

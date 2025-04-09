@@ -35,6 +35,7 @@ test('should read MP3 file', async () => {
 	} = await parseMedia({
 		src: exampleVideos.music,
 		reader: nodeReader,
+
 		fields: {
 			tracks: true,
 			durationInSeconds: true,

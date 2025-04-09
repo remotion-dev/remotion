@@ -12,8 +12,6 @@ import {getSampleRate} from './get-sample-rate';
 
 // https://www.rfc-editor.org/rfc/rfc9639.html#section-9.1.1
 
-const FLAC_TIMESCALE = 1000000;
-
 function calculateCRC8(data: Uint8Array) {
 	const polynomial = 0x07; // x^8 + x^2 + x^1 + x^0
 	let crc = 0x00; // Initialize CRC to 0
@@ -116,10 +114,10 @@ const emitSample = async ({
 	}
 
 	const timestamp = (num * streamInfo.maximumBlockSize) / streamInfo.sampleRate;
-	const timeInSeconds = timestamp / FLAC_TIMESCALE;
 	state.flac.audioSamples.addSample({
-		timeInSeconds,
+		timeInSeconds: timestamp,
 		offset,
+		durationInSeconds: duration,
 	});
 
 	await emitAudioSample({
@@ -133,7 +131,7 @@ const emitSample = async ({
 				timestamp,
 				type: 'key',
 				offset,
-				timescale: FLAC_TIMESCALE,
+				timescale: 1,
 				trackId: 0,
 			},
 			timescale: 1,

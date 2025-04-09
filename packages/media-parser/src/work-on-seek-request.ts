@@ -35,6 +35,7 @@ const turnSeekIntoByte = async ({
 	webmState,
 	keyframes,
 	flacState,
+	endOfFile,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -48,6 +49,7 @@ const turnSeekIntoByte = async ({
 	webmState: WebmState;
 	keyframes: KeyframesState;
 	flacState: FlacState;
+	endOfFile: boolean;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -92,6 +94,7 @@ const turnSeekIntoByte = async ({
 			transportStream,
 			webmState,
 			mediaSection: mediaSectionState,
+			endOfFile,
 		});
 
 		return seekingByte;
@@ -159,7 +162,10 @@ export const getWorkOnSeekRequestOptions = (
 	};
 };
 
-export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
+export const workOnSeekRequest = async (
+	options: WorkOnSeekRequestOptions,
+	endOfFile: boolean,
+) => {
 	const {
 		logLevel,
 		controller,
@@ -201,6 +207,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		webmState,
 		keyframes,
 		flacState,
+		endOfFile,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
@@ -248,7 +255,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 				logLevel,
 				`Seek request has changed while seeking, seeking again`,
 			);
-			await workOnSeekRequest(options);
+			await workOnSeekRequest(options, false);
 		}
 
 		return;
