@@ -71,10 +71,10 @@ describe('Templates should be valid', () => {
 
 			const scripts = body.scripts;
 			expect(scripts.dev).toMatch(
-				/(remotion\sstudio)|(ts-node src\/studio)|(next dev)|(react-router dev)/,
+				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(ts-node\ssrc\/render)|(react-router build)|(next\sbuild)/,
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)/,
 			);
 		});
 
