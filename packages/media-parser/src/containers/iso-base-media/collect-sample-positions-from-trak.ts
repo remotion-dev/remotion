@@ -1,7 +1,7 @@
-import {isIn24AudioCodec, isLpcmAudioCodec} from '../../get-audio-codec';
 import {getTimescaleAndDuration} from '../../get-fps';
 import {getSamplePositions} from '../../get-sample-positions';
 import {getGroupedSamplesPositionsFromMp4} from '../../get-sample-positions-from-mp4';
+import {shouldGroupAudioSamples} from './should-group-audio-samples';
 import type {TrakBox} from './trak/trak';
 import {
 	getCttsBox,
@@ -13,12 +13,14 @@ import {
 } from './traversal';
 
 export const collectSamplePositionsFromTrak = (trakBox: TrakBox) => {
-	const isLpcm = isLpcmAudioCodec(trakBox);
+	const shouldGroupSamples = shouldGroupAudioSamples(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
-	const isIn24 = isIn24AudioCodec(trakBox);
 
-	if (isLpcm || isIn24) {
-		return getGroupedSamplesPositionsFromMp4(trakBox);
+	if (shouldGroupSamples) {
+		return getGroupedSamplesPositionsFromMp4({
+			trakBox,
+			bigEndian: shouldGroupSamples.bigEndian,
+		});
 	}
 
 	const stszBox = getStszBox(trakBox);

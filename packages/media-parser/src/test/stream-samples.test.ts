@@ -74,6 +74,8 @@ test('Stream samples', async () => {
 				isKeyframe: true,
 				offset: 1637,
 				size: 4834,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 0,
@@ -83,6 +85,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 6471,
 				size: 437,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 1,
@@ -92,6 +96,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 7868,
 				size: 698,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 2,
@@ -101,6 +107,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 10486,
 				size: 595,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 3,
@@ -110,6 +118,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 12041,
 				size: 548,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 4,
@@ -119,6 +129,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 14509,
 				size: 611,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 5,
@@ -128,6 +140,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 16080,
 				size: 701,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 6,
@@ -137,6 +151,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 17741,
 				size: 535,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				chunk: 7,
@@ -145,6 +161,8 @@ test('Stream samples', async () => {
 				duration: 512,
 				isKeyframe: false,
 				offset: 20196,
+				bigEndian: false,
+				chunkSize: null,
 				size: 776,
 			},
 			{
@@ -155,6 +173,8 @@ test('Stream samples', async () => {
 				isKeyframe: false,
 				offset: 21932,
 				size: 586,
+				bigEndian: false,
+				chunkSize: null,
 			},
 		],
 	});
@@ -189,6 +209,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 0,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 8566,
@@ -198,6 +220,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 1152,
 				chunk: 1,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 9526,
@@ -207,6 +231,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 2304,
 				chunk: 1,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 11081,
@@ -216,6 +242,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 3456,
 				chunk: 2,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 12589,
@@ -225,6 +253,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 4608,
 				chunk: 3,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 13549,
@@ -234,6 +264,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 5760,
 				chunk: 3,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 15120,
@@ -243,6 +275,8 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 6912,
 				chunk: 4,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 16781,
@@ -252,9 +286,13 @@ test('Stream samples', async () => {
 				duration: 1152,
 				cts: 8064,
 				chunk: 5,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 18276,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 9216,
@@ -264,6 +302,8 @@ test('Stream samples', async () => {
 			},
 			{
 				offset: 19236,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 10368,
@@ -273,6 +313,8 @@ test('Stream samples', async () => {
 			},
 			{
 				offset: 20972,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 11520,
@@ -282,6 +324,8 @@ test('Stream samples', async () => {
 			},
 			{
 				offset: 22518,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 12672,
@@ -291,6 +335,8 @@ test('Stream samples', async () => {
 			},
 			{
 				offset: 23478,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 13824,
@@ -300,6 +346,8 @@ test('Stream samples', async () => {
 			},
 			{
 				offset: 24438,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 14976,
@@ -309,6 +357,8 @@ test('Stream samples', async () => {
 			},
 			{
 				offset: 25398,
+				bigEndian: false,
+				chunkSize: null,
 				size: 960,
 				isKeyframe: true,
 				dts: 16128,

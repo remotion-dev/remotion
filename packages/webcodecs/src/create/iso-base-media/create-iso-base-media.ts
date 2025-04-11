@@ -202,6 +202,8 @@ export const createIsoBaseMedia = async ({
 				((chunk.duration ?? 0) / 1_000_000) * currentTrack.timescale,
 			),
 			size: chunk.data.length,
+			bigEndian: false,
+			chunkSize: null,
 		};
 		lastChunkWasVideo = isVideo;
 
