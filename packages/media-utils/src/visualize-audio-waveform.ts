@@ -1,11 +1,11 @@
 import type {Bar} from './get-waveform-portion';
 import {getWaveformPortion} from './get-waveform-portion';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 
 const cache: {[key: string]: Bar[]} = {};
 
 export type VisualizeAudioWaveformOptions = {
-	audioData: AudioData;
+	audioData: MediaUtilsAudioData;
 	frame: number;
 	fps: number;
 	windowInSeconds: number;

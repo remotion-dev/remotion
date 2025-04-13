@@ -1,7 +1,7 @@
 // Adapted from node-fft project by Joshua Wong and Ben Bryan
 // https://github.com/vail-systems/node-fft
 
-import type {AudioData} from '../types';
+import type {MediaUtilsAudioData} from '../types';
 import {toInt16} from './to-int-16';
 
 const getMax = (array: Float32Array) => {
@@ -20,7 +20,7 @@ const cache: {
 	[key: string]: number;
 } = {};
 
-export const getMaxPossibleMagnitude = (metadata: AudioData) => {
+export const getMaxPossibleMagnitude = (metadata: MediaUtilsAudioData) => {
 	if (cache[metadata.resultId]) {
 		return cache[metadata.resultId];
 	}
