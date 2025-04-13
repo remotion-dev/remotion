@@ -1,9 +1,9 @@
 import {fetchWithCorsCatch} from './fetch-with-cors-catch';
 import {isRemoteAsset} from './is-remote-asset';
 import {pLimit} from './p-limit';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 
-const metadataCache: {[key: string]: AudioData} = {};
+const metadataCache: {[key: string]: MediaUtilsAudioData} = {};
 
 const limit = pLimit(3);
 
@@ -11,7 +11,10 @@ type Options = {
 	sampleRate?: number;
 };
 
-const fn = async (src: string, options?: Options): Promise<AudioData> => {
+const fn = async (
+	src: string,
+	options?: Options,
+): Promise<MediaUtilsAudioData> => {
 	if (metadataCache[src]) {
 		return metadataCache[src];
 	}
@@ -35,7 +38,7 @@ const fn = async (src: string, options?: Options): Promise<AudioData> => {
 			return wave.getChannelData(channel);
 		});
 
-	const metadata: AudioData = {
+	const metadata: MediaUtilsAudioData = {
 		channelWaveforms,
 		sampleRate: wave.sampleRate,
 		durationInSeconds: wave.duration,

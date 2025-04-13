@@ -2,12 +2,12 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {OptimizeFor} from './fft/get-visualization';
 import {getVisualization} from './fft/get-visualization';
 import {getMaxPossibleMagnitude} from './fft/max-value-cached';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 
 const cache: {[key: string]: number[]} = {};
 
 type MandatoryVisualizeAudioOptions = {
-	audioData: AudioData;
+	audioData: MediaUtilsAudioData;
 	frame: number;
 	fps: number;
 	numberOfSamples: number;

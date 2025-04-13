@@ -1,4 +1,4 @@
-export type AudioData = {
+export type MediaUtilsAudioData = {
 	channelWaveforms: Float32Array[];
 	sampleRate: number;
 	durationInSeconds: number;
@@ -6,6 +6,11 @@ export type AudioData = {
 	resultId: string;
 	isRemote: boolean;
 };
+
+/**
+ * @deprecated renamed to MediaUtilsAudioData instead
+ */
+export type AudioData = MediaUtilsAudioData;
 
 export type VideoMetadata = {
 	durationInSeconds: number;
