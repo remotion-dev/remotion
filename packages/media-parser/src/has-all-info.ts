@@ -72,7 +72,7 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'tracks') {
-			return Boolean(structure && getHasTracks(state));
+			return Boolean(structure && getHasTracks(state, true));
 		}
 
 		if (key === 'keyframes') {

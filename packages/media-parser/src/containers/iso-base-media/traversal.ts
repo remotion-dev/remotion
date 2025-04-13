@@ -46,14 +46,16 @@ export const getMoovBoxFromState = ({
 	structureState,
 	isoState,
 	mp4HeaderSegment,
+	mayUsePrecomputed,
 }: {
 	structureState: StructureState;
 	isoState: IsoBaseMediaState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	mayUsePrecomputed: boolean;
 }): MoovBox | null => {
 	const got = isoState.moov.getMoovBoxAndPrecomputed();
 
-	if (got) {
+	if (got && (mayUsePrecomputed || !got.precomputed)) {
 		return got.moovBox;
 	}
 

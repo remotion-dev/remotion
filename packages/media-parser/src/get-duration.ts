@@ -61,6 +61,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		structureState: parserState.structure,
 		isoState: parserState.iso,
 		mp4HeaderSegment: parserState.mp4HeaderSegment,
+		mayUsePrecomputed: true,
 	});
 	if (!moovBox) {
 		return null;
@@ -82,7 +83,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return mvhdBox.durationInSeconds;
 	}
 
-	const tracks = getTracks(parserState);
+	const tracks = getTracks(parserState, true);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -169,7 +170,7 @@ export const hasDuration = (parserState: ParserState): boolean => {
 		return false;
 	}
 
-	return getHasTracks(parserState);
+	return getHasTracks(parserState, true);
 };
 
 // `slowDuration` goes through everything, and therefore is false

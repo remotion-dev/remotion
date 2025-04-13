@@ -15,7 +15,7 @@ import type {ParserState} from './state/parser-state';
 export const getAudioCodec = (
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
-	const tracks = getTracks(parserState);
+	const tracks = getTracks(parserState, true);
 	const allTracks =
 		tracks.audioTracks.length +
 		tracks.otherTracks.length +
@@ -38,7 +38,7 @@ export const getAudioCodec = (
 };
 
 export const hasAudioCodec = (state: ParserState): boolean => {
-	return getHasTracks(state);
+	return getHasTracks(state, true);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({
