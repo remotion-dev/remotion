@@ -1,8 +1,10 @@
 import {getTracksFromMoovBox} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
+import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {StructureState} from '../../state/structure';
 import {
 	getCurrentMediaSection,
 	isByteInMediaSection,
@@ -14,7 +16,7 @@ import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
 import {findBestSegmentFromTfra} from './mfra/find-best-segment-from-tfra';
 import type {TrakBox} from './trak/trak';
-import {getTkhdBox} from './traversal';
+import {getMoovBoxFromState, getTkhdBox} from './traversal';
 
 export const getSeekingByteFromIsoBaseMedia = async ({
 	info,
@@ -22,12 +24,16 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	logLevel,
 	currentPosition,
 	isoState,
+	mp4HeaderSegment,
+	structure,
 }: {
 	info: IsoBaseMediaSeekingHints;
 	time: number;
 	logLevel: LogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	structure: StructureState;
 }): Promise<SeekResolution> => {
 	const tracks = getTracksFromMoovBox(info.moovBox);
 	const allTracks = [
@@ -35,6 +41,22 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 		...tracks.audioTracks,
 		...tracks.otherTracks,
 	];
+
+	const hasMoov = Boolean(
+		getMoovBoxFromState({
+			mp4HeaderSegment,
+			structureState: structure,
+			isoState,
+			mayUsePrecomputed: false,
+		}),
+	);
+
+	if (!hasMoov) {
+		Log.trace(logLevel, 'No moov box found, must wait');
+		return {
+			type: 'valid-but-must-wait',
+		};
+	}
 
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
 
