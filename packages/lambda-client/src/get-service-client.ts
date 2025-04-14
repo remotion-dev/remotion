@@ -155,16 +155,19 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 					endpoint: customCredentials.endpoint,
 					requestHandler: lambdaOptions,
 					forcePathStyle: customCredentials.forcePathStyle,
+					maxAttempts: service === 'lambda' ? 1 : undefined,
 				})
 			: getEnvVariable('REMOTION_SKIP_AWS_CREDENTIALS_CHECK')
 				? new Client({
 						region,
 						requestHandler: lambdaOptions,
+						maxAttempts: service === 'lambda' ? 1 : undefined,
 					})
 				: new Client({
 						region,
 						credentials: getCredentials(),
 						requestHandler: lambdaOptions,
+						maxAttempts: service === 'lambda' ? 1 : undefined,
 					});
 
 		if (getEnvVariable('REMOTION_DISABLE_AWS_CLIENT_CACHE')) {
