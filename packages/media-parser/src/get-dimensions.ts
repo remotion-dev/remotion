@@ -21,7 +21,7 @@ export const getDimensions = (
 		return null;
 	}
 
-	const {videoTracks} = getTracks(state);
+	const {videoTracks} = getTracks(state, true);
 	if (!videoTracks.length) {
 		return null;
 	}

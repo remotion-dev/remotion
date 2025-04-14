@@ -23,12 +23,12 @@ import type {ParserState} from './state/parser-state';
 export const getVideoCodec = (
 	state: ParserState,
 ): MediaParserVideoCodec | null => {
-	const track = getTracks(state);
+	const track = getTracks(state, true);
 	return track.videoTracks[0]?.codecWithoutConfig ?? null;
 };
 
 export const hasVideoCodec = (state: ParserState): boolean => {
-	return getHasTracks(state);
+	return getHasTracks(state, true);
 };
 
 export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {

@@ -88,6 +88,8 @@ const turnSeekIntoByte = async ({
 			transportStream,
 			webmState,
 			mediaSection: mediaSectionState,
+			mp4HeaderSegment,
+			structure: structureState,
 		});
 
 		return seekingByte;

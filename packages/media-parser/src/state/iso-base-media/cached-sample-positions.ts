@@ -15,7 +15,7 @@ export type FlatSample = {
 };
 
 export const calculateFlatSamples = (state: ParserState) => {
-	const tracks = getTracks(state);
+	const tracks = getTracks(state, true);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,

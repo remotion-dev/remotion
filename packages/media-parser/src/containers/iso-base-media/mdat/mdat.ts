@@ -28,9 +28,9 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
-	const alreadyHas = getHasTracks(state);
+	const alreadyHasMoov = getHasTracks(state, true);
 
-	if (!alreadyHas) {
+	if (!alreadyHasMoov) {
 		const moov = await getMoovAtom({
 			endOfMdat,
 			state,
@@ -40,8 +40,8 @@ export const parseMdatSection = async (
 			precomputed: false,
 		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
-		state.structure.getIsoStructure().boxes.push(moov);
 
+		state.structure.getIsoStructure().boxes.push(moov);
 		return parseMdatSection(state);
 	}
 
