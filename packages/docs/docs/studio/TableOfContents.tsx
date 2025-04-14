@@ -56,6 +56,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'seek()'}</strong>
 					<div>Jump to a position in the timeline</div>
 				</TOCItem>
+				<TOCItem link="/docs/studio/go-to-composition">
+					<strong>{'goToComposition()'}</strong>
+					<div>Select a composition in the composition selector</div>
+				</TOCItem>
 				<TOCItem link="/docs/studio/focus-default-props-path">
 					<strong>{'focusDefaultPropsPath()'}</strong>
 					<div>Scrolls to a specific field in the default props editor</div>

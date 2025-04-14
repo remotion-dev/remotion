@@ -547,6 +547,7 @@ module.exports = {
 				'studio/pause',
 				'studio/toggle',
 				'studio/seek',
+				'studio/go-to-composition',
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
