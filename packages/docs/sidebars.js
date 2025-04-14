@@ -543,6 +543,9 @@ module.exports = {
 				'studio/delete-static-file',
 				'studio/restart-studio',
 				'studio/save-default-props',
+				'studio/play',
+				'studio/pause',
+				'studio/toggle',
 				'studio/seek',
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
@@ -716,7 +719,6 @@ module.exports = {
 			label: '@remotion/fonts',
 			link: {
 				type: 'doc',
-
 				id: 'fonts-api/fonts-api',
 			},
 			items: ['fonts-api/load-font'],
