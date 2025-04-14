@@ -1378,6 +1378,9 @@ importers:
       '@aws-sdk/lib-storage':
         specifier: 3.738.0
         version: 3.738.0(@aws-sdk/client-s3@3.738.0)
+      '@aws-sdk/middleware-flexible-checksums':
+        specifier: 3.735.0
+        version: 3.735.0
       '@aws-sdk/s3-request-presigner':
         specifier: 3.738.0
         version: 3.738.0
@@ -30512,7 +30515,7 @@ packages:
         optional: true
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
@@ -30550,7 +30553,7 @@ packages:
         optional: true
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
@@ -30589,7 +30592,7 @@ packages:
         optional: true
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
