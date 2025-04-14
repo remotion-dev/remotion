@@ -1,3 +1,4 @@
+import {createRef} from 'react';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -106,6 +107,13 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
 
+// needs to be in core package so gets deduplicated in studio
+const compositionSelectorRef = createRef<{
+	expandComposition: (compName: string) => void;
+	selectComposition: (compName: string) => void;
+	toggleFolder: (folderName: string, parentName: string | null) => void;
+}>();
+
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
@@ -174,6 +182,7 @@ export const Internals = {
 	useLogLevel,
 	playbackLogging,
 	timeValueRef,
+	compositionSelectorRef,
 } as const;
 
 export type {

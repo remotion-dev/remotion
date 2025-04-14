@@ -45,7 +45,7 @@ export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
-	const {seek} = PlayerInternals.usePlayer();
+	const {seek, play, pause, toggle} = PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
 	const ref = useRef<HTMLButtonElement>(null);
 
@@ -69,8 +69,11 @@ export const TimeValue: React.FC = () => {
 				ref.current?.click();
 			},
 			seek,
+			play,
+			pause,
+			toggle,
 		}),
-		[seek],
+		[seek, play, pause, toggle],
 	);
 
 	useEffect(() => {
