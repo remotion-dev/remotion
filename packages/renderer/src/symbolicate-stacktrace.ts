@@ -31,8 +31,8 @@ function extractSourceMapUrl(fileContents: string): string | null {
 
 export const getSourceMapFromRemoteUrl = async (url: string) => {
 	if (!url.endsWith('.js.map')) {
-		throw new Error(
-			`The URL ${url} does not seem to be a valid source map URL.`,
+		return Promise.reject(
+			new Error(`The URL ${url} does not seem to be a valid source map URL.`),
 		);
 	}
 
@@ -92,9 +92,13 @@ const fetchUrl = async (url: string) => {
 			downloaded += d;
 		});
 		res.on('end', () => {
+			res.destroy();
 			resolve(downloaded);
 		});
-		res.on('error', (err) => reject(err));
+		res.on('error', (err) => {
+			res.destroy();
+			return reject(err);
+		});
 	});
 };
 

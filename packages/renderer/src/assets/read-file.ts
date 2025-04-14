@@ -22,7 +22,7 @@ const readFileWithoutRedirect = (
 ): Promise<http.IncomingMessage> => {
 	return new Promise<http.IncomingMessage>((resolve, reject) => {
 		const client = getClient(url);
-		client(
+		const req = client(
 			url,
 			// Bun 1.1.16 does not support the `headers` option
 			typeof Bun === 'undefined'
@@ -34,9 +34,13 @@ const readFileWithoutRedirect = (
 					}
 				: {},
 			(res) => {
+				req.destroy();
 				resolve(res);
 			},
-		).on('error', (err) => {
+		);
+
+		req.on('error', (err) => {
+			req.destroy();
 			return reject(err);
 		});
 	});
