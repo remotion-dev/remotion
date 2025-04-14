@@ -28,7 +28,6 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
-	const alreadyHasParsedMdat = getHasTracks(state, false);
 	const alreadyHasMoov = getHasTracks(state, true);
 
 	if (!alreadyHasMoov) {
