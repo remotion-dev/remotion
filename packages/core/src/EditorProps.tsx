@@ -1,3 +1,4 @@
+import type {SyntheticEvent} from 'react';
 import React, {
 	createContext,
 	useCallback,
@@ -38,6 +39,9 @@ export const editorPropsProviderRef = React.createRef<{
 export const timeValueRef = React.createRef<{
 	goToFrame: () => void;
 	seek: (newFrame: number) => void;
+	play: (e?: SyntheticEvent | PointerEvent) => void;
+	pause: () => void;
+	toggle: (e?: SyntheticEvent | PointerEvent) => void;
 }>();
 
 export const EditorPropsProvider: React.FC<{
