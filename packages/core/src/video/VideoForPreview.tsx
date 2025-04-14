@@ -143,8 +143,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
 
+	const preloadedSrc = usePreload(src as string);
+
 	const actualSrc = useAppendVideoFragment({
-		actualSrc: usePreload(src as string),
+		actualSrc: preloadedSrc,
 		actualFrom,
 		duration,
 		fps,

@@ -4,12 +4,15 @@ import {
 	AbsoluteFill,
 	CalculateMetadataFunction,
 	OffthreadVideo,
+	prefetch,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 
 const fps = 30;
-const src = staticFile('bigbuckbunny.mp4');
+const src = staticFile('bigbuckbunny.mp4') + '#t=lol';
+
+prefetch(src);
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
