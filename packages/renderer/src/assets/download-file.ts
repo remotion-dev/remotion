@@ -109,7 +109,11 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 					return resolveAndFlag({sizeInBytes: downloaded, to});
 				});
 				writeStream.on('error', (err) => rejectAndFlag(err));
-				response.on('error', (err) => rejectAndFlag(err));
+				response.on('error', (err) => {
+					closeConnection();
+
+					rejectAndFlag(err);
+				});
 				response.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
 				response.on('data', (d) => {
 					refreshTimeout();
@@ -135,13 +139,11 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 					}
 
 					writeStream.close();
+					closeConnection();
 				});
 			})
 			.catch((err) => {
 				rejectAndFlag(err);
-			})
-			.finally(() => {
-				closeConnection();
 			});
 	});
 };
