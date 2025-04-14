@@ -6,6 +6,7 @@ export {
 } from './api/delete-static-file';
 export {focusDefaultPropsPath} from './api/focus-default-props-path';
 export {getStaticFiles, StaticFile} from './api/get-static-files';
+export {goToComposition} from './api/go-to-composition';
 export {UpdateDefaultPropsFunction} from './api/helpers/calc-new-props';
 export {pause} from './api/pause';
 export {play} from './api/play';

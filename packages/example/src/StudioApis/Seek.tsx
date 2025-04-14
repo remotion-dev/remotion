@@ -1,4 +1,4 @@
-import {pause, play, seek, toggle} from '@remotion/studio';
+import {goToComposition, pause, play, seek, toggle} from '@remotion/studio';
 import React, {useCallback} from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -27,6 +27,10 @@ export const Seek: React.FC = () => {
 		play();
 	}, []);
 
+	const onSeventhClick = useCallback(() => {
+		goToComposition('freeze-example');
+	}, []);
+
 	return (
 		<AbsoluteFill>
 			<button onClick={onClick}>Seek</button>
@@ -35,6 +39,7 @@ export const Seek: React.FC = () => {
 			<button onClick={onFourthClick}>Toggle</button>
 			<button onClick={onFifthClick}>Pause</button>
 			<button onClick={onSixthClick}>Play</button>
+			<button onClick={onSeventhClick}>Go to Composition</button>
 		</AbsoluteFill>
 	);
 };
