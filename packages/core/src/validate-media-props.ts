@@ -1,9 +1,9 @@
 import type {RemotionAudioProps} from './audio/index.js';
 import type {RemotionVideoProps} from './video/index.js';
-import type {OffthreadVideoProps} from './video/props.js';
+import type {RemotionOffthreadVideoProps} from './video/props.js';
 
 export const validateMediaProps = (
-	props: RemotionVideoProps | RemotionAudioProps | OffthreadVideoProps,
+	props: RemotionVideoProps | RemotionAudioProps | RemotionOffthreadVideoProps,
 	component: 'Video' | 'Audio',
 ) => {
 	if (
