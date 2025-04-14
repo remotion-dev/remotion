@@ -20,6 +20,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@aws-sdk/s3-request-presigner": "3.738.0",
+		"@aws-sdk/middleware-flexible-checksums": "3.735.0",
 		"@aws-sdk/client-lambda": "3.738.0",
 		"@aws-sdk/client-s3": "3.738.0",
 		"@aws-sdk/client-sts": "3.738.0",
