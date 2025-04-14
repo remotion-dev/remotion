@@ -47,10 +47,13 @@ export type WaveProbe = {
 	durationInSeconds: number;
 };
 
-export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
+export const probeWaveFile = async (
+	src: string,
+	probeSize = 1024,
+): Promise<WaveProbe> => {
 	const response = await fetchWithCorsCatch(src, {
 		headers: {
-			range: 'bytes=0-1024',
+			range: `bytes=0-${probeSize - 1}`,
 		},
 	});
 
@@ -112,6 +115,10 @@ export const probeWaveFile = async (src: string): Promise<WaveProbe> => {
 		const listSize = getUint32(uintArray, 40);
 		offset += listSize;
 		offset += 8;
+	}
+
+	if (offset + 4 > probeSize) {
+		return probeWaveFile(src, offset + 4);
 	}
 
 	const shouldBeData = new TextDecoder().decode(
