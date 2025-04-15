@@ -243,7 +243,7 @@ export const createMatroskaMedia = async ({
 				}
 			});
 		},
-		getBlob: async () => {
+		getBlob: () => {
 			return w.getBlob();
 		},
 		remove: async () => {
