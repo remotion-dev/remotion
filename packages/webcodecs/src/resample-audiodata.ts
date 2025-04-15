@@ -60,8 +60,6 @@ export const resampleAudioData = ({
 		});
 	}
 
-	console.log(JSON.stringify(srcChannels));
-
 	const data = new DataType(newNumberOfFrames * numberOfChannels);
 	const chunkSize = numberOfFrames / newNumberOfFrames;
 
@@ -85,7 +83,6 @@ export const resampleAudioData = ({
 					(chunk as Int32Array<ArrayBuffer>).reduce((a, b) => a + b, 0) /
 					chunk.length;
 
-				console.log({newFrameIndex, channelIndex, average});
 				data[newFrameIndex + channelIndex * newNumberOfFrames] = average;
 			}
 		} else {
