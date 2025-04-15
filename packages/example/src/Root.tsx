@@ -38,7 +38,6 @@ import {HlsDemo} from './Hls/HlsDemo';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Layers} from './Layers';
-import './LoadFontBasedOnInfo';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
@@ -122,6 +121,7 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
@@ -546,6 +546,14 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 				/>
+				<Folder name="edge-blur">
+					<Still
+						width={1000}
+						height={1500}
+						component={EdgeBlur}
+						id="edge-blur"
+					></Still>
+				</Folder>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
