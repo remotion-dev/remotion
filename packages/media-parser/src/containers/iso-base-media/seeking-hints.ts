@@ -49,20 +49,17 @@ export const getSeekingHintsFromMp4 = ({
 	};
 };
 
-export const setSeekingHintsForMp4 = ({
-	hints,
-	state,
-}: {
+// eslint-disable-next-line no-empty-pattern
+export const setSeekingHintsForMp4 = ({}: {
 	hints: IsoBaseMediaSeekingHints;
 	state: ParserState;
 }) => {
-	state.iso.moov.setMoovBox({
-		moovBox: hints.moovBox,
-		precomputed: true,
-	});
+	// state.iso.moov.setMoovBox({
+	//	moovBox: hints.moovBox,
+	//	precomputed: true,
+	// });
 	// 	state.iso.mfra.setFromSeekingHints(hints);
 	// state.iso.moof.setMoofBoxes(hints.moofBoxes);
-
 	// TODO: Make use of these seeking hints and make tests pass
 	/*
 	//	state.iso.tfra.setTfraBoxes(hints.tfraBoxes);

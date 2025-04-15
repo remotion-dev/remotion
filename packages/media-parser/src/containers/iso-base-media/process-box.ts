@@ -277,6 +277,7 @@ export const processBox = async ({
 			logLevel,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
+
 		if (transformedTrack && transformedTrack.type === 'video') {
 			await registerVideoTrack({
 				track: transformedTrack,
