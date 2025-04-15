@@ -57,7 +57,7 @@ async function getFiles(
 	return _files.flat(1);
 }
 
-const limit = LambdaClientInternals.pLimit(15);
+const limit = LambdaClientInternals.pLimit(5);
 
 export const uploadDir = async ({
 	bucket,
