@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 20
           cache: "pnpm"
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2.0.1
         with:
           bun-version: 1.2.5
       - name: Install
@@ -57,7 +57,7 @@ jobs:
         with:
           node-version: 20
           cache: "pnpm"
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2.0.1
         with:
           bun-version: 1.2.5
       - name: Install
@@ -92,7 +92,7 @@ jobs:
         with:
           node-version: 16
           cache: "pnpm"
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2.0.1
         with:
           bun-version: 1.2.5
       - name: Install
@@ -137,7 +137,7 @@ jobs:
         with:
           node-version: 20
           cache: "pnpm"
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2.0.1
         with:
           bun-version: 1.2.5
       - name: Install
@@ -181,7 +181,7 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2.0.1
         with:
           bun-version: 1.2.5
       - name: Install
