@@ -523,9 +523,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-}): Promise<{
-	type: 'success';
-}> => {
+}): Promise<void> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -697,9 +695,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		sendTelemetryEvent(params.apiKey ?? null, params.logLevel);
 
 		if (!params.webhook || webhookInvoked) {
-			return {
-				type: 'success',
-			};
+			return;
 		}
 
 		try {
@@ -754,10 +750,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		runCleanupTasks();
-
-		return {
-			type: 'success',
-		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
