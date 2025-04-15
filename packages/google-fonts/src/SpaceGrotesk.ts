@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Space Grotesk',
 	importName: 'SpaceGrotesk',
-	version: 'v16',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vietnamese:

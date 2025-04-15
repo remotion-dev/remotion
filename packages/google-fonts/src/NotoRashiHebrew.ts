@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Rashi Hebrew',
 	importName: 'NotoRashiHebrew',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Rashi+Hebrew:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'greek-ext': 'U+1F00-1FFF',
@@ -124,7 +124,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'hebrew' | 'latin' | 'latin-ext';
+		subsets: 'greek-ext' | 'hebrew' | 'latin' | 'latin-ext';
 	};
 };
 

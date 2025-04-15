@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tilt Warp',
 	importName: 'TiltWarp',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Tilt+Warp:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:

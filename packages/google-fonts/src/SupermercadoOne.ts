@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Supermercado One',
 	importName: 'SupermercadoOne',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Supermercado+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -28,7 +28,7 @@ export const fontFamily = 'Supermercado One' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

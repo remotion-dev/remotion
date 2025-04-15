@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gowun Dodum',
 	importName: 'GowunDodum',
-	version: 'v7',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Gowun+Dodum:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

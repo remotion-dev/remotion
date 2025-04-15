@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Linden Hill',
 	importName: 'LindenHill',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Linden+Hill:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -36,11 +36,11 @@ export const fontFamily = 'Linden Hill' as const;
 type Variants = {
 	italic: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Barcode ThreeNine Extended',
 	importName: 'LibreBarcode39Extended',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Extended:ital,wght@0,400',
 	unicodeRanges: {
 		latin:

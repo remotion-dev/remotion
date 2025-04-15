@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Old Mincho',
 	importName: 'ZenOldMincho',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:ital,wght@0,400;0,500;0,600;0,700;0,900',
 	unicodeRanges: {
 		'[2]':

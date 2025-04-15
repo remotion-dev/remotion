@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hubballi',
 	importName: 'Hubballi',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Hubballi:ital,wght@0,400',
 	unicodeRanges: {
 		kannada:

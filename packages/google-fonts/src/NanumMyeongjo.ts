@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nanum Myeongjo',
 	importName: 'NanumMyeongjo',
-	version: 'v22',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:ital,wght@0,400;0,700;0,800',
 	unicodeRanges: {
 		'[0]':

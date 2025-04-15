@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chathura',
 	importName: 'Chathura',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Chathura:ital,wght@0,100;0,300;0,400;0,700;0,800',
 	unicodeRanges: {
 		telugu:

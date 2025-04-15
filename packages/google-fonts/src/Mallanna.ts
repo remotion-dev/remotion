@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mallanna',
 	importName: 'Mallanna',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Mallanna:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:

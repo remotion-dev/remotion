@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Khudawadi',
 	importName: 'NotoSansKhudawadi',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Khudawadi:ital,wght@0,400',
 	unicodeRanges: {
 		khudawadi: 'U+0964-0965, U+200C-200D, U+25CC, U+A830-A839, U+112B0-112FF',

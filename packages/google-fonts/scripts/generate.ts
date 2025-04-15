@@ -2,8 +2,7 @@ import fs, {mkdirSync} from 'node:fs';
 import path from 'path';
 
 import {FontInfo, extractInfoFromCss} from './extract-info-from-css';
-import {filteredFonts} from './filtered-fonts';
-import {Font} from './google-fonts';
+import {Font, googleFonts} from './google-fonts';
 import {
 	getCssLink,
 	quote,
@@ -106,9 +105,21 @@ if (!fs.existsSync(CSS_CACHE_DIR)) {
 	await fs.promises.mkdir(CSS_CACHE_DIR, {recursive: true});
 }
 
+let incompatibleFonts: string[] = [];
+
 // Batch convert
-for (const font of filteredFonts) {
-	await generate(font);
+for (const font of googleFonts) {
+	try {
+		await generate(font);
+	} catch (e) {
+		console.log('Incompatible font', font.family);
+		incompatibleFonts.push(font.family);
+	}
 }
+
+await Bun.write(
+	__dirname + '/incompatible-fonts.ts',
+	`export const incompatibleFonts = ${JSON.stringify(incompatibleFonts, null, 2)};`,
+);
 
 console.log('- Generated fonts in ' + (Date.now() - date) + 'ms');

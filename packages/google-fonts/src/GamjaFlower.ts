@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gamja Flower',
 	importName: 'GamjaFlower',
-	version: 'v22',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Gamja+Flower:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

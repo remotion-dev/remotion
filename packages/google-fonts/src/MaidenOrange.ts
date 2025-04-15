@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Maiden Orange',
 	importName: 'MaidenOrange',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Maiden+Orange:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -28,7 +28,7 @@ export const fontFamily = 'Maiden Orange' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

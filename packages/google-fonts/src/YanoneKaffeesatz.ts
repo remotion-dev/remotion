@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yanone Kaffeesatz',
 	importName: 'YanoneKaffeesatz',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -120,7 +120,14 @@ export const fontFamily = 'Yanone Kaffeesatz' as const;
 type Variants = {
 	normal: {
 		weights: '200' | '300' | '400' | '500' | '600' | '700';
-		subsets: 'cyrillic' | 'latin' | 'latin-ext' | 'vietnamese';
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'symbols'
+			| 'vietnamese';
 	};
 };
 

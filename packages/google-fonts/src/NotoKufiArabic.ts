@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Kufi Arabic',
 	importName: 'NotoKufiArabic',
-	version: 'v17',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
@@ -135,7 +135,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'arabic';
+		subsets: 'arabic' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

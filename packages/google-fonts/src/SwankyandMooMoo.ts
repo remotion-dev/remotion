@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Swanky and Moo Moo',
 	importName: 'SwankyandMooMoo',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Swanky+and+Moo+Moo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -28,7 +28,7 @@ export const fontFamily = 'Swanky and Moo Moo' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

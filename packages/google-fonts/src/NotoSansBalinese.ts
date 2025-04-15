@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Balinese',
 	importName: 'NotoSansBalinese',
-	version: 'v24',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Balinese:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		balinese: 'U+001D, U+1B00-1B7F, U+200C-200D, U+25CC',

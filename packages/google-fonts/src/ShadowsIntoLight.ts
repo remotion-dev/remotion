@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shadows Into Light',
 	importName: 'ShadowsIntoLight',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Shadows+Into+Light:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -28,7 +28,7 @@ export const fontFamily = 'Shadows Into Light' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

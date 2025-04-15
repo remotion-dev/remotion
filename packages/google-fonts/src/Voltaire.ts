@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Voltaire',
 	importName: 'Voltaire',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Voltaire:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:

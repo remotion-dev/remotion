@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bakbak One',
 	importName: 'BakbakOne',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Bakbak+One:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:

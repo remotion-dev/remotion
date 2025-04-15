@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pragati Narrow',
 	importName: 'PragatiNarrow',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Pragati+Narrow:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:

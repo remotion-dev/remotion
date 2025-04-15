@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Khmer',
 	importName: 'Khmer',
-	version: 'v29',
+	version: 'v35',
 	url: 'https://fonts.googleapis.com/css2?family=Khmer:ital,wght@0,400',
 	unicodeRanges: {
 		khmer:

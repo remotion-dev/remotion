@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Medefaidrin',
 	importName: 'NotoSansMedefaidrin',
-	version: 'v23',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Medefaidrin:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		medefaidrin: 'U+16E40-16E9A',

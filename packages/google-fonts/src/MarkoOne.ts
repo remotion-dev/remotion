@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Marko One',
 	importName: 'MarkoOne',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Marko+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:

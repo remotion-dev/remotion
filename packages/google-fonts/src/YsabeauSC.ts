@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ysabeau SC',
 	importName: 'YsabeauSC',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Ysabeau+SC:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -200,6 +200,8 @@ type Variants = {
 			| 'greek'
 			| 'latin'
 			| 'latin-ext'
+			| 'math'
+			| 'symbols'
 			| 'vietnamese';
 	};
 };

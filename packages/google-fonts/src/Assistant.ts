@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Assistant',
 	importName: 'Assistant',
-	version: 'v19',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Assistant:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		hebrew:

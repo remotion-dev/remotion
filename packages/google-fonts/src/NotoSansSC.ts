@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans SC',
 	importName: 'NotoSansSC',
-	version: 'v36',
+	version: 'v37',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'[4]':

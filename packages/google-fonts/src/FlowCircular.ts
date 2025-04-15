@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Flow Circular',
 	importName: 'FlowCircular',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Flow+Circular:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':

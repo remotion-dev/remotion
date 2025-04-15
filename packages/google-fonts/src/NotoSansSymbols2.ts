@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Symbols Two',
 	importName: 'NotoSansSymbols2',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2:ital,wght@0,400',
 	unicodeRanges: {
 		braille: 'U+2800-28FF',

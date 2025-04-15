@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Kaku Gothic New',
 	importName: 'ZenKakuGothicNew',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:ital,wght@0,300;0,400;0,500;0,700;0,900',
 	unicodeRanges: {
 		'[2]':

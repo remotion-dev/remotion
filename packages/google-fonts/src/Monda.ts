@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Monda',
 	importName: 'Monda',
-	version: 'v16',
-	url: 'https://fonts.googleapis.com/css2?family=Monda:ital,wght@0,400;0,700',
+	version: 'v18',
+	url: 'https://fonts.googleapis.com/css2?family=Monda:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vietnamese:
 			'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB',
@@ -16,6 +16,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspvPho7vA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjsphPho.woff2',
+			},
+			'500': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspvPho7vA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjsphPho.woff2',
+			},
+			'600': {
 				vietnamese:
 					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
 				'latin-ext':
@@ -39,7 +55,7 @@ export const fontFamily = 'Monda' as const;
 
 type Variants = {
 	normal: {
-		weights: '400' | '700';
+		weights: '400' | '500' | '600' | '700';
 		subsets: 'latin' | 'latin-ext' | 'vietnamese';
 	};
 };

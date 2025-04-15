@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ramabhadra',
 	importName: 'Ramabhadra',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Ramabhadra:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Almarai',
 	importName: 'Almarai',
-	version: 'v12',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Almarai:ital,wght@0,300;0,400;0,700;0,800',
 	unicodeRanges: {
 		arabic:
@@ -46,7 +46,7 @@ export const fontFamily = 'Almarai' as const;
 type Variants = {
 	normal: {
 		weights: '300' | '400' | '700' | '800';
-		subsets: 'arabic';
+		subsets: 'arabic' | 'latin';
 	};
 };
 

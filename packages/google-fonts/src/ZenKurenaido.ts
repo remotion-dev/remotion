@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Kurenaido',
 	importName: 'ZenKurenaido',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Kurenaido:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':

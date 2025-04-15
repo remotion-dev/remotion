@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rammetto One',
 	importName: 'RammettoOne',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Rammetto+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':

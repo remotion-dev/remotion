@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Blaka Ink',
 	importName: 'BlakaInk',
-	version: 'v8',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Blaka+Ink:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:

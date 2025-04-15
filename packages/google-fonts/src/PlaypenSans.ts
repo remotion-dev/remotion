@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Playpen Sans',
 	importName: 'PlaypenSans',
-	version: 'v3',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Playpen+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'[1]':
@@ -259,7 +259,7 @@ export const fontFamily = 'Playpen Sans' as const;
 type Variants = {
 	normal: {
 		weights: '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800';
-		subsets: 'latin' | 'latin-ext' | 'math' | 'symbols' | 'vietnamese';
+		subsets: 'emoji' | 'latin' | 'latin-ext' | 'math' | 'vietnamese';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Turkic',
 	importName: 'NotoSansOldTurkic',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Turkic:ital,wght@0,400',
 	unicodeRanges: {
 		'old-turkic': 'U+205A, U+2E30, U+10C00-10C48',

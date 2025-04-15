@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alatsi',
 	importName: 'Alatsi',
-	version: 'v11',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Alatsi:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':

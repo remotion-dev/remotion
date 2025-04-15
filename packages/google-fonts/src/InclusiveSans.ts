@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Inclusive Sans',
 	importName: 'InclusiveSans',
-	version: 'v1',
-	url: 'https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,400;1,400',
+	version: 'v2',
+	url: 'https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		vietnamese:
 			'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB',
@@ -15,23 +15,87 @@ export const getInfo = () => ({
 	},
 	fonts: {
 		italic: {
+			'300': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQqeKD4i.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQueKD4i.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQWeKA.woff2',
+			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/inclusivesans/v2/0nk-C9biPuwflXcJ46P4PGWE0-73swm22da-7KxKuFilrVZhW0LosQ.woff2',
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQqeKD4i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inclusivesans/v2/0nk-C9biPuwflXcJ46P4PGWE0-73swm22da-7KxKuFilrVZgW0LosQ.woff2',
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQueKD4i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inclusivesans/v2/0nk-C9biPuwflXcJ46P4PGWE0-73swm22da-7KxKuFilrVZuW0I.woff2',
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQWeKA.woff2',
+			},
+			'500': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQqeKD4i.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQueKD4i.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQWeKA.woff2',
+			},
+			'600': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQqeKD4i.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQueKD4i.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQWeKA.woff2',
+			},
+			'700': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQqeKD4i.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQueKD4i.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkzC9biPuwflXcJ46P4PGWE0-73mQWeKA.woff2',
 			},
 		},
 		normal: {
+			'300': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-79qQeGLA.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-78qQeGLA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-7yqQc.woff2',
+			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/inclusivesans/v2/0nk8C9biPuwflXcJ46P4PGWE08T-gfZusL0kQqtfcBt95mZsQ0Y.woff2',
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-79qQeGLA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inclusivesans/v2/0nk8C9biPuwflXcJ46P4PGWE08T-gfZusL0kQqtfcBt952ZsQ0Y.woff2',
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-78qQeGLA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inclusivesans/v2/0nk8C9biPuwflXcJ46P4PGWE08T-gfZusL0kQqtfcBt96WZs.woff2',
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-7yqQc.woff2',
+			},
+			'500': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-79qQeGLA.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-78qQeGLA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-7yqQc.woff2',
+			},
+			'600': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-79qQeGLA.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-78qQeGLA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-7yqQc.woff2',
+			},
+			'700': {
+				vietnamese:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-79qQeGLA.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-78qQeGLA.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/inclusivesans/v2/0nkxC9biPuwflXcJ46P4PGWE0-7yqQc.woff2',
 			},
 		},
 	},
@@ -41,11 +105,11 @@ export const fontFamily = 'Inclusive Sans' as const;
 
 type Variants = {
 	italic: {
-		weights: '400';
+		weights: '300' | '400' | '500' | '600' | '700';
 		subsets: 'latin' | 'latin-ext' | 'vietnamese';
 	};
 	normal: {
-		weights: '400';
+		weights: '300' | '400' | '500' | '600' | '700';
 		subsets: 'latin' | 'latin-ext' | 'vietnamese';
 	};
 };

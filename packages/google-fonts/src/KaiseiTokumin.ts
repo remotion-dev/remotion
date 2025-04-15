@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kaisei Tokumin',
 	importName: 'KaiseiTokumin',
-	version: 'v8',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:ital,wght@0,400;0,500;0,700;0,800',
 	unicodeRanges: {
 		'[0]':

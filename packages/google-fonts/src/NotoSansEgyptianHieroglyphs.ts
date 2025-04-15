@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Egyptian Hieroglyphs',
 	importName: 'NotoSansEgyptianHieroglyphs',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Egyptian+Hieroglyphs:ital,wght@0,400',
 	unicodeRanges: {
 		'egyptian-hieroglyphs': 'U+13000-13455, U+13460-143FA',

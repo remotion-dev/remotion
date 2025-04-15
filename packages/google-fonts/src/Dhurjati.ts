@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dhurjati',
 	importName: 'Dhurjati',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Dhurjati:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:

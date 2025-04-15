@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Psalter Pahlavi',
 	importName: 'NotoSansPsalterPahlavi',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Psalter+Pahlavi:ital,wght@0,400',
 	unicodeRanges: {
 		'psalter-pahlavi': 'U+0640, U+200C-200D, U+25CC, U+10B80-10BAF',

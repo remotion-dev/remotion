@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'GFS Didot',
 	importName: 'GFSDidot',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=GFS+Didot:ital,wght@0,400',
 	unicodeRanges: {
 		greek:

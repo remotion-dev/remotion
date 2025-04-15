@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Franklin',
 	importName: 'LibreFranklin',
-	version: 'v14',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -254,7 +254,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'latin' | 'latin-ext' | 'vietnamese';
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
 	};
 	normal: {
 		weights:
@@ -267,7 +267,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'latin' | 'latin-ext' | 'vietnamese';
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
 	};
 };
 

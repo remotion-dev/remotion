@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sahitya',
 	importName: 'Sahitya',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Sahitya:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -40,7 +40,7 @@ export const fontFamily = 'Sahitya' as const;
 type Variants = {
 	normal: {
 		weights: '400' | '700';
-		subsets: 'devanagari' | 'latin';
+		subsets: 'devanagari' | 'latin' | 'latin-ext';
 	};
 };
 

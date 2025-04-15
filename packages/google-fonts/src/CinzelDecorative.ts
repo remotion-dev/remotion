@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cinzel Decorative',
 	importName: 'CinzelDecorative',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Cinzel+Decorative:ital,wght@0,400;0,700;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -40,7 +40,7 @@ export const fontFamily = 'Cinzel Decorative' as const;
 type Variants = {
 	normal: {
 		weights: '400' | '700' | '900';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

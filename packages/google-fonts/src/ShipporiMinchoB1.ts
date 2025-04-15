@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shippori Mincho BOne',
 	importName: 'ShipporiMinchoB1',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'[0]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Mandaic',
 	importName: 'NotoSansMandaic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mandaic:ital,wght@0,400',
 	unicodeRanges: {
 		mandaic: 'U+0640, U+0840-085F, U+200C-200D, U+25CC',

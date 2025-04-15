@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Akshar',
 	importName: 'Akshar',
-	version: 'v9',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Akshar:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:

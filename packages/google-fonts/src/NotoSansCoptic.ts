@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Coptic',
 	importName: 'NotoSansCoptic',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Coptic:ital,wght@0,400',
 	unicodeRanges: {
 		coptic:

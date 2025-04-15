@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nanum Pen Script',
 	importName: 'NanumPenScript',
-	version: 'v19',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Nanum+Pen+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

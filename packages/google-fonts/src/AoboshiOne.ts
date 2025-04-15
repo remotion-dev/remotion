@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aoboshi One',
 	importName: 'AoboshiOne',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Aoboshi+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':

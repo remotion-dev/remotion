@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Brahmi',
 	importName: 'NotoSansBrahmi',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Brahmi:ital,wght@0,400',
 	unicodeRanges: {
 		brahmi: 'U+200C-200D, U+25CC, U+11000-1107F',
@@ -37,7 +37,7 @@ export const fontFamily = 'Noto Sans Brahmi' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'brahmi' | 'latin' | 'latin-ext';
+		subsets: 'brahmi' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

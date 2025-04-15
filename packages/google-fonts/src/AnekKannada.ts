@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Kannada',
 	importName: 'AnekKannada',
-	version: 'v5',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Kannada:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		kannada:

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'BIZ UDPMincho',
 	importName: 'BIZUDPMincho',
-	version: 'v9',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=BIZ+UDPMincho:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'[0]':

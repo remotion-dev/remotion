@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Khula',
 	importName: 'Khula',
-	version: 'v12',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Khula:ital,wght@0,300;0,400;0,600;0,700;0,800',
 	unicodeRanges: {
 		devanagari:

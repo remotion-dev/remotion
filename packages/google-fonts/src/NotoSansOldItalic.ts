@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Italic',
 	importName: 'NotoSansOldItalic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Italic:ital,wght@0,400',
 	unicodeRanges: {
 		'old-italic': 'U+10300-1032F',

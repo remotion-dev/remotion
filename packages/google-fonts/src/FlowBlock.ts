@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Flow Block',
 	importName: 'FlowBlock',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Flow+Block:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':

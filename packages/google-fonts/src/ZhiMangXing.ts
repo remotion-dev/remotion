@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zhi Mang Xing',
 	importName: 'ZhiMangXing',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing:ital,wght@0,400',
 	unicodeRanges: {
 		'[5]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Inscriptional Pahlavi',
 	importName: 'NotoSansInscriptionalPahlavi',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Inscriptional+Pahlavi:ital,wght@0,400',
 	unicodeRanges: {
 		'inscriptional-pahlavi': 'U+10B60-10B7F',

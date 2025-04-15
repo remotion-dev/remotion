@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Barcode EANOneThree Text',
 	importName: 'LibreBarcodeEAN13Text',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Barcode+EAN13+Text:ital,wght@0,400',
 	unicodeRanges: {
 		latin:

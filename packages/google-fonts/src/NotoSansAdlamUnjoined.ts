@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Adlam Unjoined',
 	importName: 'NotoSansAdlamUnjoined',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Adlam+Unjoined:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		adlam:

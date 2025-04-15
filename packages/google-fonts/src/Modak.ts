@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Modak',
 	importName: 'Modak',
-	version: 'v18',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Modak:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dela Gothic One',
 	importName: 'DelaGothicOne',
-	version: 'v15',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

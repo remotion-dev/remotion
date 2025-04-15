@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Song Myung',
 	importName: 'SongMyung',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Song+Myung:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -370,7 +370,7 @@ export const fontFamily = 'Song Myung' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'korean' | 'latin';
+		subsets: 'korean';
 	};
 };
 

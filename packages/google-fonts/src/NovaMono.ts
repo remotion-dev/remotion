@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Mono',
 	importName: 'NovaMono',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		greek:
@@ -32,7 +32,7 @@ export const fontFamily = 'Nova Mono' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'greek' | 'latin';
+		subsets: 'greek' | 'latin' | 'latin-ext';
 	};
 };
 

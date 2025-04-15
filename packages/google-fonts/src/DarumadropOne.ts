@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Darumadrop One',
 	importName: 'DarumadropOne',
-	version: 'v10',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Darumadrop+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':

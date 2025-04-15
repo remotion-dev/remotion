@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Stylish',
 	importName: 'Stylish',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Stylish:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -366,7 +366,7 @@ export const fontFamily = 'Stylish' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'korean' | 'latin';
+		subsets: 'korean';
 	};
 };
 

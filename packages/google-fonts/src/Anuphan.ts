@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anuphan',
 	importName: 'Anuphan',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Anuphan:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -88,7 +88,7 @@ export const fontFamily = 'Anuphan' as const;
 type Variants = {
 	normal: {
 		weights: '100' | '200' | '300' | '400' | '500' | '600' | '700';
-		subsets: 'cyrillic-ext' | 'latin' | 'latin-ext' | 'thai' | 'vietnamese';
+		subsets: 'latin' | 'latin-ext' | 'thai' | 'vietnamese';
 	};
 };
 

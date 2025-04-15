@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hi Melody',
 	importName: 'HiMelody',
-	version: 'v15',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Hi+Melody:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

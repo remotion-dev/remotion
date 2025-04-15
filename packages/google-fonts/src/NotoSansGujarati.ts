@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Gujarati',
 	importName: 'NotoSansGujarati',
-	version: 'v23',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		gujarati:
@@ -135,7 +135,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'gujarati' | 'latin' | 'latin-ext';
+		subsets: 'gujarati' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Khojki',
 	importName: 'NotoSansKhojki',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Khojki:ital,wght@0,400',
 	unicodeRanges: {
 		khojki: 'U+0AE6-0AEF, U+200C-200D, U+25CC, U+A830-A839, U+11200-1124F',

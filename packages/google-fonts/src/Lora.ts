@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lora',
 	importName: 'Lora',
-	version: 'v32',
+	version: 'v35',
 	url: 'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -148,11 +148,25 @@ export const fontFamily = 'Lora' as const;
 type Variants = {
 	italic: {
 		weights: '400' | '500' | '600' | '700';
-		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'symbols'
+			| 'vietnamese';
 	};
 	normal: {
 		weights: '400' | '500' | '600' | '700';
-		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'symbols'
+			| 'vietnamese';
 	};
 };
 

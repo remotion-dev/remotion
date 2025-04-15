@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Glagolitic',
 	importName: 'NotoSansGlagolitic',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Glagolitic:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -42,7 +42,13 @@ export const fontFamily = 'Noto Sans Glagolitic' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'cyrillic-ext' | 'glagolitic' | 'latin' | 'latin-ext';
+		subsets:
+			| 'cyrillic-ext'
+			| 'glagolitic'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'symbols';
 	};
 };
 

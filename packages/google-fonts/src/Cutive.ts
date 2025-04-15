@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cutive',
 	importName: 'Cutive',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Cutive:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':

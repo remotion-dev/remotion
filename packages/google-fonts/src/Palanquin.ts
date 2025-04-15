@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Palanquin',
 	importName: 'Palanquin',
-	version: 'v13',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Palanquin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Grantha',
 	importName: 'NotoSerifGrantha',
-	version: 'v19',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Grantha:ital,wght@0,400',
 	unicodeRanges: {
 		grantha:

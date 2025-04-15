@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ma Shan Zheng',
 	importName: 'MaShanZheng',
-	version: 'v10',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng:ital,wght@0,400',
 	unicodeRanges: {
 		'[5]':

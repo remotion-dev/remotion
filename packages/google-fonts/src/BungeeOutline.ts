@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bungee Outline',
 	importName: 'BungeeOutline',
-	version: 'v20',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Bungee+Outline:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:

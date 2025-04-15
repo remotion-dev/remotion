@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nabla',
 	importName: 'Nabla',
-	version: 'v10',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Nabla:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':

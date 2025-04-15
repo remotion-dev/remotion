@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Miriam Libre',
 	importName: 'MiriamLibre',
-	version: 'v14',
-	url: 'https://fonts.googleapis.com/css2?family=Miriam+Libre:ital,wght@0,400;0,700',
+	version: 'v16',
+	url: 'https://fonts.googleapis.com/css2?family=Miriam+Libre:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		hebrew:
 			'U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F',
@@ -16,6 +16,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
+				hebrew:
+					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_fZZP-fes.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_faZP-fes.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_fZ5P-.woff2',
+			},
+			'500': {
+				hebrew:
+					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_fZZP-fes.woff2',
+				'latin-ext':
+					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_faZP-fes.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_fZ5P-.woff2',
+			},
+			'600': {
 				hebrew:
 					'https://fonts.gstatic.com/s/miriamlibre/v16/DdTh798HsHwubBAqfkcBTL_fZZP-fes.woff2',
 				'latin-ext':
@@ -39,7 +55,7 @@ export const fontFamily = 'Miriam Libre' as const;
 
 type Variants = {
 	normal: {
-		weights: '400' | '700';
+		weights: '400' | '500' | '600' | '700';
 		subsets: 'hebrew' | 'latin' | 'latin-ext';
 	};
 };

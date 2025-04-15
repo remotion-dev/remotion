@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pinyon Script',
 	importName: 'PinyonScript',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Pinyon+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:

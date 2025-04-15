@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gothic AOne',
 	importName: 'GothicA1',
-	version: 'v13',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Gothic+A1:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'[0]':
@@ -2021,7 +2021,15 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'korean' | 'latin';
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'greek'
+			| 'greek-ext'
+			| 'korean'
+			| 'latin'
+			| 'latin-ext'
+			| 'vietnamese';
 	};
 };
 

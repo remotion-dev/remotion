@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yuji Boku',
 	importName: 'YujiBoku',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Yuji+Boku:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chokokutai',
 	importName: 'Chokokutai',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Chokokutai:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':

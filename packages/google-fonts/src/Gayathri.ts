@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gayathri',
 	importName: 'Gayathri',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Gayathri:ital,wght@0,100;0,400;0,700',
 	unicodeRanges: {
 		malayalam:

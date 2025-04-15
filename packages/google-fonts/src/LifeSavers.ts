@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Life Savers',
 	importName: 'LifeSavers',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Life+Savers:ital,wght@0,400;0,700;0,800',
 	unicodeRanges: {
 		'latin-ext':

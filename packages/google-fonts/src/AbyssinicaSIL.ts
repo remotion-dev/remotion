@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Abyssinica SIL',
 	importName: 'AbyssinicaSIL',
-	version: 'v5',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Abyssinica+SIL:ital,wght@0,400',
 	unicodeRanges: {
 		ethiopic:

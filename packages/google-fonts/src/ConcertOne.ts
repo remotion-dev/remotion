@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Concert One',
 	importName: 'ConcertOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Concert+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':

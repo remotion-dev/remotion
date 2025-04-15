@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yusei Magic',
 	importName: 'YuseiMagic',
-	version: 'v12',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Yusei+Magic:ital,wght@0,400',
 	unicodeRanges: {
 		'[1]':

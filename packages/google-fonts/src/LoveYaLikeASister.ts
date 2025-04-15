@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Love Ya Like A Sister',
 	importName: 'LoveYaLikeASister',
-	version: 'v20',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -28,7 +28,7 @@ export const fontFamily = 'Love Ya Like A Sister' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

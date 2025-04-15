@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Englebert',
 	importName: 'Englebert',
-	version: 'v21',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Englebert:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':

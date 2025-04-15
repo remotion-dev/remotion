@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hind Guntur',
 	importName: 'HindGuntur',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Hind+Guntur:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		telugu:

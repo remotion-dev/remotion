@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Elsie Swash Caps',
 	importName: 'ElsieSwashCaps',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Elsie+Swash+Caps:ital,wght@0,400;0,900',
 	unicodeRanges: {
 		'latin-ext':

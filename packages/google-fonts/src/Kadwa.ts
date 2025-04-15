@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kadwa',
 	importName: 'Kadwa',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Kadwa:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -40,7 +40,7 @@ export const fontFamily = 'Kadwa' as const;
 type Variants = {
 	normal: {
 		weights: '400' | '700';
-		subsets: 'devanagari' | 'latin';
+		subsets: 'devanagari' | 'latin' | 'latin-ext';
 	};
 };
 

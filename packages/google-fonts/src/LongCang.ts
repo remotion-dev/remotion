@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Long Cang',
 	importName: 'LongCang',
-	version: 'v17',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Long+Cang:ital,wght@0,400',
 	unicodeRanges: {
 		'[5]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lekton',
 	importName: 'Lekton',
-	version: 'v17',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Lekton:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		'latin-ext':

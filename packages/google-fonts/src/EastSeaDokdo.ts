@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'East Sea Dokdo',
 	importName: 'EastSeaDokdo',
-	version: 'v22',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=East+Sea+Dokdo:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

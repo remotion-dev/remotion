@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Kaithi',
 	importName: 'NotoSansKaithi',
-	version: 'v20',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Kaithi:ital,wght@0,400',
 	unicodeRanges: {
 		kaithi:

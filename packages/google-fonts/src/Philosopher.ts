@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Philosopher',
 	importName: 'Philosopher',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -77,11 +77,11 @@ export const fontFamily = 'Philosopher' as const;
 type Variants = {
 	italic: {
 		weights: '400' | '700';
-		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'vietnamese';
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
 	};
 	normal: {
 		weights: '400' | '700';
-		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'vietnamese';
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
 	};
 };
 

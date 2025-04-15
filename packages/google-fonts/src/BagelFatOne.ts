@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bagel Fat One',
 	importName: 'BagelFatOne',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Bagel+Fat+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Liu Jian Mao Cao',
 	importName: 'LiuJianMaoCao',
-	version: 'v20',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao:ital,wght@0,400',
 	unicodeRanges: {
 		'[5]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Syloti Nagri',
 	importName: 'NotoSansSylotiNagri',
-	version: 'v20',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Syloti+Nagri:ital,wght@0,400',
 	unicodeRanges: {
 		'syloti-nagri':

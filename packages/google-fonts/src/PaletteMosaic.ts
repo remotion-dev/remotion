@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Palette Mosaic',
 	importName: 'PaletteMosaic',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Palette+Mosaic:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':

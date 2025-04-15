@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cute Font',
 	importName: 'CuteFont',
-	version: 'v22',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Cute+Font:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':

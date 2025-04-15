@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sawarabi Gothic',
 	importName: 'SawarabiGothic',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Sawarabi+Gothic:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':

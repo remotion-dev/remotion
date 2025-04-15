@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Reggae One',
 	importName: 'ReggaeOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Reggae+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

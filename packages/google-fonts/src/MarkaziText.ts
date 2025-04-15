@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Markazi Text',
 	importName: 'MarkaziText',
-	version: 'v23',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Markazi+Text:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:

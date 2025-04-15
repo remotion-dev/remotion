@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gupter',
 	importName: 'Gupter',
-	version: 'v14',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Gupter:ital,wght@0,400;0,500;0,700',
 	unicodeRanges: {
 		latin:

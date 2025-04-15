@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Black Han Sans',
 	importName: 'BlackHanSans',
-	version: 'v17',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Black+Han+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Great Vibes',
 	importName: 'GreatVibes',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Great+Vibes:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -42,7 +42,13 @@ export const fontFamily = 'Great Vibes' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'latin-ext' | 'vietnamese';
+		subsets:
+			| 'cyrillic'
+			| 'cyrillic-ext'
+			| 'greek-ext'
+			| 'latin'
+			| 'latin-ext'
+			| 'vietnamese';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Raleway Dots',
 	importName: 'RalewayDots',
-	version: 'v16',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Raleway+Dots:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':

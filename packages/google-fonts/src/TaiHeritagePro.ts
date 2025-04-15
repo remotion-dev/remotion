@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tai Heritage Pro',
 	importName: 'TaiHeritagePro',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Tai+Heritage+Pro:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'tai-viet': 'U+200C-200D, U+25CC, U+A78B-A78C, U+AA80-AADF',

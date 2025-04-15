@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mochiy Pop P One',
 	importName: 'MochiyPopPOne',
-	version: 'v9',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Mochiy+Pop+P+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

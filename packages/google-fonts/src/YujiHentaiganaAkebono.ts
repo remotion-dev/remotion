@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yuji Hentaigana Akebono',
 	importName: 'YujiHentaiganaAkebono',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Yuji+Hentaigana+Akebono:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':

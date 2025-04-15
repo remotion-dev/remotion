@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Train One',
 	importName: 'TrainOne',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Train+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':

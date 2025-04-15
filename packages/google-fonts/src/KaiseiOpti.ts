@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kaisei Opti',
 	importName: 'KaiseiOpti',
-	version: 'v8',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Kaisei+Opti:ital,wght@0,400;0,500;0,700',
 	unicodeRanges: {
 		'[0]':

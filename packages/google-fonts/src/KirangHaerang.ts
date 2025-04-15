@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kirang Haerang',
 	importName: 'KirangHaerang',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Kirang+Haerang:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':

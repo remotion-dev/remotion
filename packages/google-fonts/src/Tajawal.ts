@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tajawal',
 	importName: 'Tajawal',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Tajawal:ital,wght@0,200;0,300;0,400;0,500;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
