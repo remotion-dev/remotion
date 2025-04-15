@@ -846,8 +846,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 				);
 			}
 		}
-
-		throw err;
 	} finally {
 		if (instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
