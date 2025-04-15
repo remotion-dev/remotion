@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Roboto Flex',
 	importName: 'RobotoFlex',
-	version: 'v9',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Roboto+Flex:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -36,6 +36,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Roboto Flex' as const;

@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bassa-vah', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Bassa Vah' as const;

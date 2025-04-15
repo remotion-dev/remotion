@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'M PLUS One',
 	importName: 'MPLUS1',
-	version: 'v7',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=M+PLUS+1:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'[0]':
@@ -2408,6 +2408,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'M PLUS One' as const;

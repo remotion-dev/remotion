@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chakma', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Chakma' as const;

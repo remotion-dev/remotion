@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'RocknRoll One',
 	importName: 'RocknRollOne',
-	version: 'v10',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=RocknRoll+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -498,6 +498,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'RocknRoll One' as const;
@@ -505,7 +506,7 @@ export const fontFamily = 'RocknRoll One' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'cyrillic' | 'japanese' | 'latin' | 'latin-ext';
+		subsets: 'japanese' | 'latin' | 'latin-ext';
 	};
 };
 

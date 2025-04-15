@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Harmattan',
 	importName: 'Harmattan',
-	version: 'v19',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Harmattan:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Harmattan' as const;

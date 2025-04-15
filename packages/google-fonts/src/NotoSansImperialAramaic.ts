@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Imperial Aramaic',
 	importName: 'NotoSansImperialAramaic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Imperial+Aramaic:ital,wght@0,400',
 	unicodeRanges: {
 		'imperial-aramaic': 'U+10840-1085F',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['imperial-aramaic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Imperial Aramaic' as const;

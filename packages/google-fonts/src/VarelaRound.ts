@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Varela Round' as const;

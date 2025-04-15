@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sogdian'],
 });
 
 export const fontFamily = 'Noto Sans Sogdian' as const;

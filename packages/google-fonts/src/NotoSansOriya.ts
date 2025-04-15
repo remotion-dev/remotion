@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Oriya',
 	importName: 'NotoSansOriya',
-	version: 'v27',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Oriya:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		oriya:
@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'oriya'],
 });
 
 export const fontFamily = 'Noto Sans Oriya' as const;

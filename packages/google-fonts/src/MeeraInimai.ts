@@ -20,6 +20,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'tamil'],
 });
 
 export const fontFamily = 'Meera Inimai' as const;

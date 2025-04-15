@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Asset',
 	importName: 'Asset',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Asset:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Asset' as const;
@@ -38,7 +39,7 @@ export const fontFamily = 'Asset' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'cyrillic-ext' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kannada', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Padyakke Expanded One' as const;

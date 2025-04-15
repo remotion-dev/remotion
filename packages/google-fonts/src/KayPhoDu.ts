@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kayah-li', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kay Pho Du' as const;

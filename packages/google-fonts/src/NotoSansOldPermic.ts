@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext', 'old-permic'],
 });
 
 export const fontFamily = 'Noto Sans Old Permic' as const;

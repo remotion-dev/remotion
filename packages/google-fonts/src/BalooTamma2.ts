@@ -69,6 +69,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kannada', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Baloo Tamma Two' as const;

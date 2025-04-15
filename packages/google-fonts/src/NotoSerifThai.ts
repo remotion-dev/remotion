@@ -79,6 +79,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'thai'],
 });
 
 export const fontFamily = 'Noto Serif Thai' as const;

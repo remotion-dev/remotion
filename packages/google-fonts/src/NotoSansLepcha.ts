@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'lepcha'],
 });
 
 export const fontFamily = 'Noto Sans Lepcha' as const;

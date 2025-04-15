@@ -44,6 +44,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kawi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Kawi' as const;

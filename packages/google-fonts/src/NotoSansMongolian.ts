@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Mongolian',
 	importName: 'NotoSansMongolian',
-	version: 'v17',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mongolian:ital,wght@0,400',
 	unicodeRanges: {
 		'[90]':
@@ -123,6 +123,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'mongolian', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Mongolian' as const;
@@ -130,7 +131,7 @@ export const fontFamily = 'Noto Sans Mongolian' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'latin-ext' | 'mongolian';
+		subsets: 'latin' | 'latin-ext' | 'math' | 'mongolian' | 'symbols';
 	};
 };
 

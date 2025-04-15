@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'samaritan'],
 });
 
 export const fontFamily = 'Noto Sans Samaritan' as const;

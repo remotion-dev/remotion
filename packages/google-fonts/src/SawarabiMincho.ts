@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sawarabi Mincho',
 	importName: 'SawarabiMincho',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Sawarabi+Mincho:ital,wght@0,400',
 	unicodeRanges: {
 		'[5]':
@@ -461,6 +461,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Sawarabi Mincho' as const;

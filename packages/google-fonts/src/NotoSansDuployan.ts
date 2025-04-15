@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Duployan',
 	importName: 'NotoSansDuployan',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Duployan:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		duployan:
@@ -33,6 +33,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['duployan', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Duployan' as const;

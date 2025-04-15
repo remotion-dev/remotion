@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kiwi Maru',
 	importName: 'KiwiMaru',
-	version: 'v14',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Kiwi+Maru:ital,wght@0,300;0,400;0,500',
 	unicodeRanges: {
 		'[0]':
@@ -997,6 +997,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kiwi Maru' as const;

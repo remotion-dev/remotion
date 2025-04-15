@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Sundanese',
 	importName: 'NotoSansSundanese',
-	version: 'v24',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Sundanese:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		sundanese: 'U+1B80-1BBF, U+1CC0-1CC7, U+200C-200D, U+2010, U+25CC',
@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sundanese'],
 });
 
 export const fontFamily = 'Noto Sans Sundanese' as const;

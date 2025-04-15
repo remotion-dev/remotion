@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['myanmar'],
 });
 
 export const fontFamily = 'Noto Sans Myanmar' as const;

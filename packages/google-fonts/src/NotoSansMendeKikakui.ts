@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'mende-kikakui'],
 });
 
 export const fontFamily = 'Noto Sans Mende Kikakui' as const;

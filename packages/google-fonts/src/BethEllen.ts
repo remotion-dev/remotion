@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Beth Ellen',
 	importName: 'BethEllen',
-	version: 'v17',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Beth+Ellen:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -17,6 +17,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin'],
 });
 
 export const fontFamily = 'Beth Ellen' as const;

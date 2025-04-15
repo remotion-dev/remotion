@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gidugu',
 	importName: 'Gidugu',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Gidugu:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu'],
 });
 
 export const fontFamily = 'Gidugu' as const;
@@ -32,7 +33,7 @@ export const fontFamily = 'Gidugu' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'telugu';
+		subsets: 'latin' | 'latin-ext' | 'telugu';
 	};
 };
 

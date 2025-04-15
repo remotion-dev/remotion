@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Traditional Nushu',
 	importName: 'NotoTraditionalNushu',
-	version: 'v17',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Traditional+Nushu:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		nushu: 'U+2003, U+3000, U+3002, U+4E00, U+FE12, U+16FE1, U+1B170-1B2FB',
@@ -56,6 +56,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nushu'],
 });
 
 export const fontFamily = 'Noto Traditional Nushu' as const;

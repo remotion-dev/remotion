@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Gurmukhi',
 	importName: 'NotoSansGurmukhi',
-	version: 'v26',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		gurmukhi:
@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gurmukhi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Gurmukhi' as const;

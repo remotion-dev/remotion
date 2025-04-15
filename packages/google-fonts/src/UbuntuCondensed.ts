@@ -35,6 +35,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'latin',
+		'latin-ext',
+	],
 });
 
 export const fontFamily = 'Ubuntu Condensed' as const;

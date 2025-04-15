@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gugi',
 	importName: 'Gugi',
-	version: 'v15',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Gugi:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -358,6 +358,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin'],
 });
 
 export const fontFamily = 'Gugi' as const;

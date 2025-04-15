@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin'],
 });
 
 export const fontFamily = 'Vibes' as const;

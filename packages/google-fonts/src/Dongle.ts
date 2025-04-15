@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dongle',
 	importName: 'Dongle',
-	version: 'v12',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Dongle:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		'[0]':
@@ -775,6 +775,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Dongle' as const;

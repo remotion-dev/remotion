@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext', 'thai'],
 });
 
 export const fontFamily = 'IBM Plex Sans Thai' as const;

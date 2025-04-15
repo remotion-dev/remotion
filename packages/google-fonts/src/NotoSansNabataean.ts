@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nabataean'],
 });
 
 export const fontFamily = 'Noto Sans Nabataean' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['deseret', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Deseret' as const;

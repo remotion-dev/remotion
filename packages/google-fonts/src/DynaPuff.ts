@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'DynaPuff' as const;

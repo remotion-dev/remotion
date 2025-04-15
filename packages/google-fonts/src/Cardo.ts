@@ -50,6 +50,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek', 'greek-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Cardo' as const;

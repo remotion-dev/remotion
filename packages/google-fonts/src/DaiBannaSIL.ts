@@ -98,6 +98,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'new-tai-lue'],
 });
 
 export const fontFamily = 'Dai Banna SIL' as const;

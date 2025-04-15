@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fredoka',
 	importName: 'Fredoka',
-	version: 'v14',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Fredoka:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		hebrew:
@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Fredoka' as const;

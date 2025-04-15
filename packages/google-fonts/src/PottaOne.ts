@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Potta One',
 	importName: 'PottaOne',
-	version: 'v16',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Potta+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':
@@ -469,6 +469,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Potta One' as const;

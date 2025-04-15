@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['ahom', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Ahom' as const;

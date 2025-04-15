@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mogra',
 	importName: 'Mogra',
-	version: 'v19',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Mogra:ital,wght@0,400',
 	unicodeRanges: {
 		gujarati:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Mogra' as const;

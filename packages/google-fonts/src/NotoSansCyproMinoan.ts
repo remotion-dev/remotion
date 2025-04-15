@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cypro-minoan', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Cypro Minoan' as const;

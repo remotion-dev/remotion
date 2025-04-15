@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hatran', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Hatran' as const;

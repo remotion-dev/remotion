@@ -28,6 +28,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'vietnamese'],
 });
 
 export const fontFamily = 'Prata' as const;

@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bamum', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Bamum' as const;

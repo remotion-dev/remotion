@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Hebrew',
 	importName: 'NotoSerifHebrew',
-	version: 'v25',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		hebrew:
@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Hebrew' as const;

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oi',
 	importName: 'Oi',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Oi:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -38,6 +38,16 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'arabic',
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'latin',
+		'latin-ext',
+		'tamil',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Oi' as const;
@@ -46,6 +56,7 @@ type Variants = {
 	normal: {
 		weights: '400';
 		subsets:
+			| 'arabic'
 			| 'cyrillic'
 			| 'cyrillic-ext'
 			| 'greek'

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Bangla',
 	importName: 'AnekBangla',
-	version: 'v5',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Bangla:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		bengali:
@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Anek Bangla' as const;

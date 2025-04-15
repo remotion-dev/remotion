@@ -33,6 +33,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'myanmar'],
 });
 
 export const fontFamily = 'Padauk' as const;

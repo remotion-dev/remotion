@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ruslan Display',
 	importName: 'RuslanDisplay',
-	version: 'v24',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Ruslan+Display:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Ruslan Display' as const;
@@ -37,7 +38,7 @@ export const fontFamily = 'Ruslan Display' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'cyrillic' | 'latin' | 'latin-ext';
+		subsets: 'cyrillic' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

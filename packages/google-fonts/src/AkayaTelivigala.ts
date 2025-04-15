@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Akaya Telivigala',
 	importName: 'AkayaTelivigala',
-	version: 'v22',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Akaya+Telivigala:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu'],
 });
 
 export const fontFamily = 'Akaya Telivigala' as const;

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Marchen',
 	importName: 'NotoSansMarchen',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Marchen:ital,wght@0,400',
 	unicodeRanges: {
 		marchen: 'U+25CC, U+11C70-11CBF',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'marchen'],
 });
 
 export const fontFamily = 'Noto Sans Marchen' as const;

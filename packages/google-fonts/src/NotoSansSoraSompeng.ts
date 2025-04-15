@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sora-sompeng'],
 });
 
 export const fontFamily = 'Noto Sans Sora Sompeng' as const;

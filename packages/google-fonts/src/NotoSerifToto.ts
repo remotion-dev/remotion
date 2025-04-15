@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Toto',
 	importName: 'NotoSerifToto',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Toto:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		toto: 'U+1E290-1E2AE',
@@ -44,6 +44,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'toto'],
 });
 
 export const fontFamily = 'Noto Serif Toto' as const;

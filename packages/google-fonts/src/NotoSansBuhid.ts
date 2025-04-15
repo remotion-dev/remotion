@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['buhid', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Buhid' as const;

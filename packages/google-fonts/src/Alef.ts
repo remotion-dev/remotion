@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alef',
 	importName: 'Alef',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Alef:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		hebrew:
@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Alef' as const;
@@ -39,7 +40,7 @@ export const fontFamily = 'Alef' as const;
 type Variants = {
 	normal: {
 		weights: '400' | '700';
-		subsets: 'hebrew' | 'latin';
+		subsets: 'hebrew' | 'latin' | 'latin-ext';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Chorasmian',
 	importName: 'NotoSansChorasmian',
-	version: 'v1',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Chorasmian:ital,wght@0,400',
 	unicodeRanges: {
 		chorasmian: 'U+10FB0-10FCB',
@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chorasmian', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Chorasmian' as const;
@@ -37,7 +38,7 @@ export const fontFamily = 'Noto Sans Chorasmian' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'chorasmian' | 'latin' | 'latin-ext';
+		subsets: 'chorasmian' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

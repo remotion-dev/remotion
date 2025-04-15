@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'old-south-arabian'],
 });
 
 export const fontFamily = 'Noto Sans Old South Arabian' as const;

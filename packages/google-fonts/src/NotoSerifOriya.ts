@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'oriya'],
 });
 
 export const fontFamily = 'Noto Serif Oriya' as const;

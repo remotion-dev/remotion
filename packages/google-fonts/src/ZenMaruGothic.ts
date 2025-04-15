@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Maru Gothic',
 	importName: 'ZenMaruGothic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:ital,wght@0,300;0,400;0,500;0,700;0,900',
 	unicodeRanges: {
 		'[2]':
@@ -1481,6 +1481,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Zen Maru Gothic' as const;

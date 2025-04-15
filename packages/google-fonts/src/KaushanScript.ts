@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kaushan Script',
 	importName: 'KaushanScript',
-	version: 'v16',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Kaushan+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kaushan Script' as const;

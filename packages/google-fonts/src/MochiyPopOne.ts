@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mochiy Pop One',
 	importName: 'MochiyPopOne',
-	version: 'v9',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Mochiy+Pop+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -483,6 +483,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin'],
 });
 
 export const fontFamily = 'Mochiy Pop One' as const;

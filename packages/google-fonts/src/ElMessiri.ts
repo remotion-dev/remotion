@@ -58,6 +58,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'cyrillic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'El Messiri' as const;

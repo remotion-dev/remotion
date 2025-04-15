@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Heebo',
 	importName: 'Heebo',
-	version: 'v22',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Heebo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		hebrew:
@@ -119,6 +119,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Heebo' as const;
@@ -135,7 +136,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'hebrew' | 'latin';
+		subsets: 'hebrew' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

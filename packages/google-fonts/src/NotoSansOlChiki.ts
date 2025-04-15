@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'ol-chiki'],
 });
 
 export const fontFamily = 'Noto Sans Ol Chiki' as const;

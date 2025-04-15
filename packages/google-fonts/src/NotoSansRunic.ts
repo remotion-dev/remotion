@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'runic'],
 });
 
 export const fontFamily = 'Noto Sans Runic' as const;

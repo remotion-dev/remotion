@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'pahawh-hmong'],
 });
 
 export const fontFamily = 'Noto Sans Pahawh Hmong' as const;

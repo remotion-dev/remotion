@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kurale',
 	importName: 'Kurale',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Kurale:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kurale' as const;

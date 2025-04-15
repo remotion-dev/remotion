@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Reem Kufi Fun',
 	importName: 'ReemKufiFun',
-	version: 'v7',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -59,6 +59,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Reem Kufi Fun' as const;

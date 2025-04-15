@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Climate Crisis',
 	importName: 'ClimateCrisis',
-	version: 'v7',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Climate+Crisis:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Climate Crisis' as const;

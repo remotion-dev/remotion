@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans TC',
 	importName: 'NotoSansTC',
-	version: 'v35',
+	version: 'v36',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'[0]':
@@ -2128,6 +2128,13 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'chinese-traditional',
+		'cyrillic',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Noto Sans TC' as const;

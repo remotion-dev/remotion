@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gurmukhi', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Braah One' as const;

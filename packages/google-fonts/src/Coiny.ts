@@ -28,6 +28,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil', 'vietnamese'],
 });
 
 export const fontFamily = 'Coiny' as const;

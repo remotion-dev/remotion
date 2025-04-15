@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jomhuria',
 	importName: 'Jomhuria',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Jomhuria:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Jomhuria' as const;
@@ -28,7 +29,7 @@ export const fontFamily = 'Jomhuria' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'arabic' | 'latin' | 'latin-ext';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 
