@@ -16,3 +16,11 @@ test('should downsample audio data', async ({page}) => {
 test('should upsample audio data', async ({page}) => {
 	await runTest(__dirname + '/upsample-audiodata.ts', page);
 });
+
+test('should resample audio data with uneven sample count', async ({page}) => {
+	await runTest(__dirname + '/uneven-audio-sample.ts', page);
+});
+
+test('should resample audio data with interleaved format', async ({page}) => {
+	await runTest(__dirname + '/interleaved-downsample.ts', page);
+});

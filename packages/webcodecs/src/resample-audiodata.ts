@@ -1,3 +1,30 @@
+const getDataTypeForAudioFormat = (format: AudioSampleFormat) => {
+	switch (format) {
+		case 'f32':
+			return Float32Array;
+		case 'f32-planar':
+			return Float32Array;
+		case 's16':
+			return Int16Array;
+		case 's16-planar':
+			return Int16Array;
+		case 'u8':
+			return Uint8Array;
+		case 'u8-planar':
+			return Uint8Array;
+		case 's32':
+			return Int32Array;
+		case 's32-planar':
+			return Int32Array;
+		default:
+			throw new Error(`Unsupported audio format: ${format satisfies never}`);
+	}
+};
+
+const isPlanarFormat = (format: AudioSampleFormat) => {
+	return format.includes('-planar');
+};
+
 export const resampleAudioData = ({
 	audioData,
 	newSampleRate,
@@ -13,29 +40,78 @@ export const resampleAudioData = ({
 	const ratio = currentSampleRate / newSampleRate;
 	const newNumberOfFrames = Math.floor(numberOfFrames / ratio);
 
-	// TODO: Float32Array hardcoded
-	const src = new Float32Array(numberOfChannels * numberOfFrames);
-	audioData.clone().copyTo(src, {
-		// TODO: Plane index hardcoded
-		planeIndex: 0,
-	});
+	if (!audioData.format) {
+		throw new Error('AudioData format is not set');
+	}
 
-	const data = new Float32Array(newNumberOfFrames * numberOfChannels);
+	const DataType = getDataTypeForAudioFormat(audioData.format);
+
+	const isPlanar = isPlanarFormat(audioData.format);
+	const planes = isPlanar ? numberOfChannels : 1;
+	const srcChannels = new Array(planes)
+		.fill(true)
+		.map(
+			() => new DataType((isPlanar ? 1 : numberOfChannels) * numberOfFrames),
+		);
+
+	for (let i = 0; i < planes; i++) {
+		audioData.clone().copyTo(srcChannels[i], {
+			planeIndex: i,
+		});
+	}
+
+	console.log(JSON.stringify(srcChannels));
+
+	const data = new DataType(newNumberOfFrames * numberOfChannels);
 	const chunkSize = numberOfFrames / newNumberOfFrames;
 
-	for (let i = 0; i < newNumberOfFrames; i++) {
-		const start = Math.floor(i * chunkSize);
+	for (
+		let newFrameIndex = 0;
+		newFrameIndex < newNumberOfFrames;
+		newFrameIndex++
+	) {
+		const start = Math.floor(newFrameIndex * chunkSize);
 		const end = Math.max(Math.floor(start + chunkSize), start + 1);
-		const chunk = src.slice(start, end);
-		const average = chunk.reduce((a, b) => a + b, 0) / chunk.length;
-		for (let j = 0; j < numberOfChannels; j++) {
-			data[i * numberOfChannels + j] = average;
+
+		if (isPlanar) {
+			for (
+				let channelIndex = 0;
+				channelIndex < numberOfChannels;
+				channelIndex++
+			) {
+				const chunk = srcChannels[channelIndex].slice(start, end);
+
+				const average =
+					(chunk as Int32Array<ArrayBuffer>).reduce((a, b) => a + b, 0) /
+					chunk.length;
+
+				console.log({newFrameIndex, channelIndex, average});
+				data[newFrameIndex + channelIndex * newNumberOfFrames] = average;
+			}
+		} else {
+			const sampleCountAvg = end - start;
+
+			for (
+				let channelIndex = 0;
+				channelIndex < numberOfChannels;
+				channelIndex++
+			) {
+				const items = [];
+				for (let k = 0; k < sampleCountAvg; k++) {
+					const num =
+						srcChannels[0][(start + k) * numberOfChannels + channelIndex];
+					items.push(num);
+				}
+
+				const average = items.reduce((a, b) => a + b, 0) / items.length;
+				data[newFrameIndex * numberOfChannels + channelIndex] = average;
+			}
 		}
 	}
 
 	const newAudioData = new AudioData({
 		data,
-		format: audioData.format as AudioSampleFormat,
+		format: audioData.format,
 		numberOfChannels,
 		numberOfFrames: newNumberOfFrames,
 		sampleRate: newSampleRate,

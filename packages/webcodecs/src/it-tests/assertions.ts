@@ -13,13 +13,31 @@ export const assertJson = (value: unknown, expected: unknown) => {
 };
 
 export const audioDataToSerializable = (audioData: AudioData) => {
-	const target = new Float32Array(audioData.numberOfFrames);
-	audioData.clone().copyTo(target, {
-		planeIndex: 0,
-	});
+	if (!audioData.format) {
+		throw new Error('AudioData format is not set');
+	}
+
+	const isPlanar = audioData.format.includes('planar');
+	const planes = isPlanar ? audioData.numberOfChannels : 1;
+
+	const planesArray = new Array(planes)
+		.fill(true)
+		.map(
+			() =>
+				new Float32Array(
+					audioData.numberOfFrames *
+						(isPlanar ? 1 : audioData.numberOfChannels),
+				),
+		);
+
+	for (let i = 0; i < planes; i++) {
+		audioData.clone().copyTo(planesArray[i], {
+			planeIndex: i,
+		});
+	}
 
 	return {
-		data: Array.from(target),
+		data: planesArray.map((plane) => Array.from(plane)),
 		format: audioData.format,
 		numberOfChannels: audioData.numberOfChannels,
 		numberOfFrames: audioData.numberOfFrames,
