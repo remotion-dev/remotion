@@ -432,9 +432,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-}): Promise<{
-	type: 'success';
-}> => {
+}): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -457,9 +455,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				instance = browserInstance;
 			},
 		});
-		return {
-			type: 'success',
-		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			// eslint-disable-next-line no-console
@@ -511,8 +506,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				},
 			},
 		});
-
-		throw err;
 	} finally {
 		if (shouldKeepBrowserOpen && instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
