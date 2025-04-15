@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Miriam Libre' as const;

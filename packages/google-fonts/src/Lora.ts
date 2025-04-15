@@ -141,6 +141,15 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Lora' as const;

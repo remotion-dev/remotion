@@ -489,6 +489,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Hachi Maru Pop' as const;

@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Anek Gujarati' as const;

@@ -80,6 +80,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil'],
 });
 
 export const fontFamily = 'Anek Tamil' as const;

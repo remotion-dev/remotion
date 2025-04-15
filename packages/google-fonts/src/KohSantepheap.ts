@@ -44,6 +44,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer', 'latin'],
 });
 
 export const fontFamily = 'Koh Santepheap' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kdam Thmor Pro' as const;

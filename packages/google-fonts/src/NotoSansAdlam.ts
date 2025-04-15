@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['adlam', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Adlam' as const;

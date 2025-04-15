@@ -108,6 +108,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek-ext', 'hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Rashi Hebrew' as const;

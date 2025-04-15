@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khojki', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Khojki' as const;

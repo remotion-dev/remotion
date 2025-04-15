@@ -17,6 +17,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['lycian'],
 });
 
 export const fontFamily = 'Noto Sans Lycian' as const;

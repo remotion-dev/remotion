@@ -20,6 +20,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer', 'latin'],
 });
 
 export const fontFamily = 'Angkor' as const;

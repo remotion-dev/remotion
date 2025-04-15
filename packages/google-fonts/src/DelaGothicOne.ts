@@ -503,6 +503,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'greek',
+		'japanese',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Dela Gothic One' as const;

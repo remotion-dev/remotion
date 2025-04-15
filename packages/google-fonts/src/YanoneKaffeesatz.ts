@@ -113,6 +113,15 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Yanone Kaffeesatz' as const;

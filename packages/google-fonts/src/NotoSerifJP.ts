@@ -2255,6 +2255,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Noto Serif JP' as const;

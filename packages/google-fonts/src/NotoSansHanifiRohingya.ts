@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hanifi-rohingya', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Hanifi Rohingya' as const;

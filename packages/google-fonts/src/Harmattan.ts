@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Harmattan' as const;

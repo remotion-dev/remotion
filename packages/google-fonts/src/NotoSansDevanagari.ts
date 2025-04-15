@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Devanagari' as const;

@@ -101,6 +101,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Atkinson Hyperlegible Mono' as const;

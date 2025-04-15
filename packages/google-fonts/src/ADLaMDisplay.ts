@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['adlam', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'ADLaM Display' as const;

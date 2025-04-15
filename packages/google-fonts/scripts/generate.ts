@@ -56,6 +56,7 @@ const generate = async (font: Font) => {
 		importName: importName,
 		url: url,
 		version: font.version,
+		subsets: font.subsets,
 	});
 
 	let output = `import { loadFonts } from "./base";

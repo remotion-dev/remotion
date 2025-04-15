@@ -74,6 +74,15 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'hebrew',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Bona Nova' as const;

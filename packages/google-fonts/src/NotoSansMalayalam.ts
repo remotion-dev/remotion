@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'malayalam'],
 });
 
 export const fontFamily = 'Noto Sans Malayalam' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'ottoman-siyaq-numbers'],
 });
 
 export const fontFamily = 'Noto Serif Ottoman Siyaq' as const;

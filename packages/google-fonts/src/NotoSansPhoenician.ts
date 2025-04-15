@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'phoenician'],
 });
 
 export const fontFamily = 'Noto Sans Phoenician' as const;

@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['javanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Javanese' as const;

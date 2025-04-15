@@ -265,6 +265,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Chokokutai' as const;

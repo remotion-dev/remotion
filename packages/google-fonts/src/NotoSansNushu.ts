@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nushu'],
 });
 
 export const fontFamily = 'Noto Sans Nushu' as const;

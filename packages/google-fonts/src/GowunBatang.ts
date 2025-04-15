@@ -583,6 +583,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Gowun Batang' as const;

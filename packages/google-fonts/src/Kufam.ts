@@ -141,6 +141,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Kufam' as const;

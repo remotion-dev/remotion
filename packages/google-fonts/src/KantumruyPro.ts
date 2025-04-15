@@ -130,6 +130,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kantumruy Pro' as const;

@@ -907,6 +907,17 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'chinese-hongkong',
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'latin',
+		'latin-ext',
+		'lisu',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'LXGW WenKai Mono TC' as const;

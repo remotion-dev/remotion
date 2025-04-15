@@ -163,6 +163,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Work Sans' as const;

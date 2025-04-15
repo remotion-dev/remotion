@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['egyptian-hieroglyphs', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Egyptian Hieroglyphs' as const;

@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['coptic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Coptic' as const;

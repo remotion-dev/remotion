@@ -35,6 +35,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic-ext',
+		'glagolitic',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+	],
 });
 
 export const fontFamily = 'Noto Sans Glagolitic' as const;

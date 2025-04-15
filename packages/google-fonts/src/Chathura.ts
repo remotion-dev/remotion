@@ -45,6 +45,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'telugu'],
 });
 
 export const fontFamily = 'Chathura' as const;

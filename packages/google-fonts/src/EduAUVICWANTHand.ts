@@ -39,6 +39,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Edu AU VIC WA NT Hand' as const;

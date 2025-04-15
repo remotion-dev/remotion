@@ -391,6 +391,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Gowun Dodum' as const;

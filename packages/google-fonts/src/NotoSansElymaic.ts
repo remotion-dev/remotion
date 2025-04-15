@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['elymaic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Elymaic' as const;

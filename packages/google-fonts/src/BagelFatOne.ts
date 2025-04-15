@@ -379,6 +379,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Bagel Fat One' as const;

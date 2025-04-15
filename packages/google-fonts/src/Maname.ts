@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sinhala', 'vietnamese'],
 });
 
 export const fontFamily = 'Maname' as const;

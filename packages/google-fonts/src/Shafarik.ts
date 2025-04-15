@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'glagolitic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Shafarik' as const;

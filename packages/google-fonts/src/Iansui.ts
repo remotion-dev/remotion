@@ -444,6 +444,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chinese-hongkong', 'latin', 'latin-ext', 'symbols2'],
 });
 
 export const fontFamily = 'Iansui' as const;

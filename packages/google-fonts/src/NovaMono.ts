@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Nova Mono' as const;

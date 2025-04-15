@@ -483,6 +483,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin'],
 });
 
 export const fontFamily = 'Mochiy Pop One' as const;

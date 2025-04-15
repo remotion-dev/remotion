@@ -2426,6 +2426,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'japanese',
+		'latin',
+		'latin-ext',
+	],
 });
 
 export const fontFamily = 'Murecho' as const;

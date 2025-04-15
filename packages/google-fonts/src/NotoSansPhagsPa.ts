@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'phags-pa', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans PhagsPa' as const;

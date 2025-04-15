@@ -754,6 +754,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek-ext', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Klee One' as const;

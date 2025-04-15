@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['inscriptional-parthian', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Inscriptional Parthian' as const;

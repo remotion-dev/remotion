@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['grantha', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Grantha' as const;

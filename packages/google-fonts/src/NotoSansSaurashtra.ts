@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'saurashtra'],
 });
 
 export const fontFamily = 'Noto Sans Saurashtra' as const;

@@ -128,6 +128,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic-ext',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Afacad' as const;

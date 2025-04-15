@@ -363,6 +363,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean'],
 });
 
 export const fontFamily = 'Song Myung' as const;

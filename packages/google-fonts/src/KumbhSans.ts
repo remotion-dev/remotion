@@ -99,6 +99,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Kumbh Sans' as const;

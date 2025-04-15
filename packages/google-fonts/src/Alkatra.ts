@@ -69,6 +69,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'devanagari', 'latin', 'latin-ext', 'oriya'],
 });
 
 export const fontFamily = 'Alkatra' as const;

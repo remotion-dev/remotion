@@ -38,6 +38,15 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'hebrew',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+	],
 });
 
 export const fontFamily = 'Rubik Maps' as const;

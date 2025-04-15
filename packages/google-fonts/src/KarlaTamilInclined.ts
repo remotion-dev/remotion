@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['tamil'],
 });
 
 export const fontFamily = 'Karla Tamil Inclined' as const;

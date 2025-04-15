@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Asset' as const;

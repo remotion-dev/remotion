@@ -116,6 +116,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Rasa' as const;

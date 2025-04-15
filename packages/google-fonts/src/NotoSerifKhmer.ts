@@ -88,6 +88,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Khmer' as const;

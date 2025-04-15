@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tagalog'],
 });
 
 export const fontFamily = 'Noto Sans Tagalog' as const;

@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'symbols', 'znamenny'],
 });
 
 export const fontFamily = 'Noto Znamenny Musical Notation' as const;

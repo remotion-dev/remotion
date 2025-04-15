@@ -64,6 +64,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Naskh Arabic' as const;

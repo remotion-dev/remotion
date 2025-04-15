@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'mandaic'],
 });
 
 export const fontFamily = 'Noto Sans Mandaic' as const;

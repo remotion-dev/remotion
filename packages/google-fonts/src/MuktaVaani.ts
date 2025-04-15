@@ -73,6 +73,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Mukta Vaani' as const;

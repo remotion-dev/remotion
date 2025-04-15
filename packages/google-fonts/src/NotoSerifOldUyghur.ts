@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'old-uyghur'],
 });
 
 export const fontFamily = 'Noto Serif Old Uyghur' as const;

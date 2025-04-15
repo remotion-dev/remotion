@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'syloti-nagri'],
 });
 
 export const fontFamily = 'Noto Sans Syloti Nagri' as const;

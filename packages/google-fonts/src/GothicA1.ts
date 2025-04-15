@@ -2005,6 +2005,16 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'korean',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Gothic AOne' as const;

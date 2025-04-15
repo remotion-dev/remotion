@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Alef' as const;

@@ -15,6 +15,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['math'],
 });
 
 export const fontFamily = 'Noto Sans Math' as const;

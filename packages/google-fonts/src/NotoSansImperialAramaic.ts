@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['imperial-aramaic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Imperial Aramaic' as const;

@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kurale' as const;

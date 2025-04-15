@@ -497,6 +497,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Zen Antique Soft' as const;

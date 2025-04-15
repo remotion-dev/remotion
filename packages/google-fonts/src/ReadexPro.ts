@@ -79,6 +79,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Readex Pro' as const;

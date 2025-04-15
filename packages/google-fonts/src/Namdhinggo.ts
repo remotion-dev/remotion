@@ -56,6 +56,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'limbu'],
 });
 
 export const fontFamily = 'Namdhinggo' as const;

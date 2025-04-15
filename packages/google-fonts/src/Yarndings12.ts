@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Yarndings OneTwo' as const;

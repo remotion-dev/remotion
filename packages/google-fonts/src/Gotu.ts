@@ -28,6 +28,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Gotu' as const;

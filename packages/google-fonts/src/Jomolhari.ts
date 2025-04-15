@@ -20,6 +20,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'tibetan'],
 });
 
 export const fontFamily = 'Jomolhari' as const;

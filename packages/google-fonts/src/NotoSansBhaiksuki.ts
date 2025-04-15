@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bhaiksuki', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Bhaiksuki' as const;

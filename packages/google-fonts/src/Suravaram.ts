@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'telugu'],
 });
 
 export const fontFamily = 'Suravaram' as const;

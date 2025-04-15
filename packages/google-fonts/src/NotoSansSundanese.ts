@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sundanese'],
 });
 
 export const fontFamily = 'Noto Sans Sundanese' as const;

@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sinhala'],
 });
 
 export const fontFamily = 'Abhaya Libre' as const;

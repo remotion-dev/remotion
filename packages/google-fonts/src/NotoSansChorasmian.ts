@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chorasmian', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Chorasmian' as const;

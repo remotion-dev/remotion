@@ -252,6 +252,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['emoji', 'latin', 'latin-ext', 'math', 'vietnamese'],
 });
 
 export const fontFamily = 'Playpen Sans' as const;

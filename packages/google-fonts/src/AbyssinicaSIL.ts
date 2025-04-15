@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['ethiopic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Abyssinica SIL' as const;

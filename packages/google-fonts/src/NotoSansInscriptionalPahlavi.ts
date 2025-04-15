@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['inscriptional-pahlavi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Inscriptional Pahlavi' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'wancho'],
 });
 
 export const fontFamily = 'Noto Sans Wancho' as const;

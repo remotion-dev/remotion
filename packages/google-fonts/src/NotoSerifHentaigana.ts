@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kana-extended', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Hentaigana' as const;

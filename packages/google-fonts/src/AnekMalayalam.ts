@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'malayalam'],
 });
 
 export const fontFamily = 'Anek Malayalam' as const;

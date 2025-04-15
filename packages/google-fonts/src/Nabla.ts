@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext', 'math', 'vietnamese'],
 });
 
 export const fontFamily = 'Nabla' as const;

@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nag-mundari'],
 });
 
 export const fontFamily = 'Noto Sans Nag Mundari' as const;

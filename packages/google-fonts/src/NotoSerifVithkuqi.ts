@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vithkuqi'],
 });
 
 export const fontFamily = 'Noto Serif Vithkuqi' as const;

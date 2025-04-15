@@ -469,6 +469,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Potta One' as const;

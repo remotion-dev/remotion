@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Press Start TwoP' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'soyombo'],
 });
 
 export const fontFamily = 'Noto Sans Soyombo' as const;

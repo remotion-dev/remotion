@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer'],
 });
 
 export const fontFamily = 'Content' as const;

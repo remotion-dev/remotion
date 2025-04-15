@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['georgian', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Georgian' as const;

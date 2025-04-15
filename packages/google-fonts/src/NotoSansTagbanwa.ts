@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tagbanwa'],
 });
 
 export const fontFamily = 'Noto Sans Tagbanwa' as const;

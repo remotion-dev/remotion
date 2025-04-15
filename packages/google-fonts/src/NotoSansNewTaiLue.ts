@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'new-tai-lue'],
 });
 
 export const fontFamily = 'Noto Sans New Tai Lue' as const;

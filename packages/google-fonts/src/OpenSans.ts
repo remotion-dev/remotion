@@ -282,6 +282,18 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'hebrew',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Open Sans' as const;

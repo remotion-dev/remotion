@@ -119,6 +119,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Gujarati' as const;

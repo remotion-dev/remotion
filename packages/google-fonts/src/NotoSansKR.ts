@@ -2505,6 +2505,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'korean', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Noto Sans KR' as const;

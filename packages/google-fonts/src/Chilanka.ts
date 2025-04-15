@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'malayalam'],
 });
 
 export const fontFamily = 'Chilanka' as const;

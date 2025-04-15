@@ -2408,6 +2408,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'M PLUS Two' as const;

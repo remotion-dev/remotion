@@ -201,6 +201,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cherokee', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Genos' as const;

@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext', 'thai', 'vietnamese'],
 });
 
 export const fontFamily = 'Pattaya' as const;

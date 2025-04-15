@@ -440,6 +440,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chinese-hongkong', 'cyrillic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Chocolate Classical Sans' as const;

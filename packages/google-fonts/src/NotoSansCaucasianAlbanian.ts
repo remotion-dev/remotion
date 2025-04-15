@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['caucasian-albanian', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Caucasian Albanian' as const;

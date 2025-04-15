@@ -73,6 +73,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Frank Ruhl Libre' as const;

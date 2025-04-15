@@ -61,6 +61,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext', 'math', 'symbols', 'vietnamese'],
 });
 
 export const fontFamily = 'David Libre' as const;

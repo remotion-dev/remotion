@@ -99,6 +99,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Onest' as const;

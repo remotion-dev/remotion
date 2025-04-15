@@ -65,6 +65,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tifinagh'],
 });
 
 export const fontFamily = 'Akatab' as const;

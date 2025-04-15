@@ -65,6 +65,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math'],
 });
 
 export const fontFamily = 'Kalnia' as const;

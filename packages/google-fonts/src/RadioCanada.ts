@@ -121,6 +121,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['canadian-aboriginal', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Radio Canada' as const;

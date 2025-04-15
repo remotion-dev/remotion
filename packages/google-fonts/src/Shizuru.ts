@@ -109,6 +109,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin'],
 });
 
 export const fontFamily = 'Shizuru' as const;

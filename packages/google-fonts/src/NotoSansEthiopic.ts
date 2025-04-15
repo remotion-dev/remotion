@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['ethiopic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Ethiopic' as const;

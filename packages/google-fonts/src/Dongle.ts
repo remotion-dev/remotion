@@ -775,6 +775,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Dongle' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khudawadi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Khudawadi' as const;

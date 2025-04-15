@@ -28,6 +28,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Comforter Brush' as const;

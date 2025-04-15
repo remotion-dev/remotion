@@ -158,6 +158,15 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic-ext',
+		'georgian',
+		'greek-ext',
+		'latin',
+		'latin-ext',
+		'math',
+		'symbols',
+	],
 });
 
 export const fontFamily = 'Noto Sans Georgian' as const;

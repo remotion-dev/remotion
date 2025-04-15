@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sinhala'],
 });
 
 export const fontFamily = 'Noto Serif Sinhala' as const;

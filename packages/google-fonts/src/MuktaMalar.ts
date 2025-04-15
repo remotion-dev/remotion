@@ -72,6 +72,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil'],
 });
 
 export const fontFamily = 'Mukta Malar' as const;

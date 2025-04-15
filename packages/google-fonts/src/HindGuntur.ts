@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu'],
 });
 
 export const fontFamily = 'Hind Guntur' as const;

@@ -38,6 +38,16 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'arabic',
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'latin',
+		'latin-ext',
+		'tamil',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Oi' as const;

@@ -119,6 +119,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Arabic' as const;

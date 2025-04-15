@@ -153,6 +153,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Jost' as const;

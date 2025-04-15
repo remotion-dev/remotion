@@ -119,6 +119,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Heebo' as const;

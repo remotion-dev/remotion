@@ -374,6 +374,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Orbit' as const;

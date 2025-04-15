@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'IBM Plex Sans Devanagari' as const;

@@ -162,6 +162,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil'],
 });
 
 export const fontFamily = 'Noto Serif Tamil' as const;

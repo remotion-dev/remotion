@@ -140,6 +140,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Playfair Display' as const;

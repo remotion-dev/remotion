@@ -1844,6 +1844,13 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'chinese-simplified',
+		'cyrillic',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Noto Serif SC' as const;

@@ -58,6 +58,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Caveat' as const;

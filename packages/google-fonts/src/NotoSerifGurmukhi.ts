@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gurmukhi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Gurmukhi' as const;

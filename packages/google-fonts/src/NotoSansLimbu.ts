@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'limbu'],
 });
 
 export const fontFamily = 'Noto Sans Limbu' as const;

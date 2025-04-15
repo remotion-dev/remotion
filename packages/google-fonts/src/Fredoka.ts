@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Fredoka' as const;

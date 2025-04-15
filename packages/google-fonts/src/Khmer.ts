@@ -17,6 +17,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer'],
 });
 
 export const fontFamily = 'Khmer' as const;

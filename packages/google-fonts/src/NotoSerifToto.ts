@@ -44,6 +44,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'toto'],
 });
 
 export const fontFamily = 'Noto Serif Toto' as const;

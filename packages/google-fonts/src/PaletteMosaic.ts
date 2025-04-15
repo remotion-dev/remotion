@@ -109,6 +109,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin'],
 });
 
 export const fontFamily = 'Palette Mosaic' as const;

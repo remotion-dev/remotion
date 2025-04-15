@@ -42,6 +42,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Annapurna SIL' as const;

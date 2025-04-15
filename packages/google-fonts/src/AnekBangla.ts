@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Anek Bangla' as const;

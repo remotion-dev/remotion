@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Ruslan Display' as const;

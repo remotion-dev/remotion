@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'siddham'],
 });
 
 export const fontFamily = 'Noto Sans Siddham' as const;

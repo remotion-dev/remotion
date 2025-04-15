@@ -59,6 +59,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Markazi Text' as const;

@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tirhuta'],
 });
 
 export const fontFamily = 'Noto Sans Tirhuta' as const;

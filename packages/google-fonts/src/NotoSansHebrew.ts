@@ -128,6 +128,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'greek-ext', 'hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Hebrew' as const;

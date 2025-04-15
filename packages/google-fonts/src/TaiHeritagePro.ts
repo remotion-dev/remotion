@@ -38,6 +38,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tai-viet', 'vietnamese'],
 });
 
 export const fontFamily = 'Tai Heritage Pro' as const;

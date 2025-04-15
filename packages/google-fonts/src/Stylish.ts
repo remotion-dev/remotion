@@ -359,6 +359,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean'],
 });
 
 export const fontFamily = 'Stylish' as const;

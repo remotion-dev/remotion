@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'miao'],
 });
 
 export const fontFamily = 'Noto Sans Miao' as const;

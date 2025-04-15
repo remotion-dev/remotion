@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['batak', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Batak' as const;

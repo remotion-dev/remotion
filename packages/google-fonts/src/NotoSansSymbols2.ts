@@ -33,6 +33,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'braille',
+		'latin',
+		'latin-ext',
+		'math',
+		'mayan-numerals',
+		'symbols',
+	],
 });
 
 export const fontFamily = 'Noto Sans Symbols Two' as const;

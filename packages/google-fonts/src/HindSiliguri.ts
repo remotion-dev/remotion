@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Hind Siliguri' as const;

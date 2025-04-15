@@ -79,6 +79,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cham', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Cham' as const;

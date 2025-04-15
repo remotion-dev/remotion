@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khojki', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Khojki' as const;

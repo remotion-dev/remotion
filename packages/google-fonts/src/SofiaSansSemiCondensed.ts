@@ -238,6 +238,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Sofia Sans Semi Condensed' as const;

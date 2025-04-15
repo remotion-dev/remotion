@@ -60,6 +60,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Anonymous Pro' as const;

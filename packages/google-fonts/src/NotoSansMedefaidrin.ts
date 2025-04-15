@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'medefaidrin'],
 });
 
 export const fontFamily = 'Noto Sans Medefaidrin' as const;

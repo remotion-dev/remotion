@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'IBM Plex Sans Arabic' as const;

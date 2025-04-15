@@ -18,6 +18,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['lao'],
 });
 
 export const fontFamily = 'Phetsarath' as const;

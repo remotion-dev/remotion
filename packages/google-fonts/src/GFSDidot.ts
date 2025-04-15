@@ -17,6 +17,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek'],
 });
 
 export const fontFamily = 'GFS Didot' as const;

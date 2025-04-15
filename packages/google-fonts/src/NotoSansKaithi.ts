@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kaithi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Kaithi' as const;

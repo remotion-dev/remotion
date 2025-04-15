@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'TinyFive' as const;

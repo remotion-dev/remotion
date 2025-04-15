@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin'],
 });
 
 export const fontFamily = 'Galada' as const;

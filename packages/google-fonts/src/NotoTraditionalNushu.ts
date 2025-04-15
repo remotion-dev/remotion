@@ -56,6 +56,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nushu'],
 });
 
 export const fontFamily = 'Noto Traditional Nushu' as const;

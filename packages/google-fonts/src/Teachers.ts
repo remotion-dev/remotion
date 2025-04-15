@@ -98,6 +98,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Teachers' as const;

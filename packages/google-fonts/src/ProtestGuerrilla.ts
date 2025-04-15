@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'symbols', 'vietnamese'],
 });
 
 export const fontFamily = 'Protest Guerrilla' as const;

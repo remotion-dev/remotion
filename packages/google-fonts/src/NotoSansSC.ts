@@ -2048,6 +2048,13 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'chinese-simplified',
+		'cyrillic',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Noto Sans SC' as const;

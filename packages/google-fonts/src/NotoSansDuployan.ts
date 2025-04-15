@@ -33,6 +33,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['duployan', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Duployan' as const;

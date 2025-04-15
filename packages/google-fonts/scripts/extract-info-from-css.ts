@@ -48,6 +48,7 @@ export type FontInfo = {
 	url: string;
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
+	subsets: string[];
 };
 
 export const extractInfoFromCss = ({
@@ -56,12 +57,14 @@ export const extractInfoFromCss = ({
 	importName,
 	url,
 	version,
+	subsets,
 }: {
 	contents: string;
 	fontFamily: string;
 	importName: string;
 	url: string;
 	version: string;
+	subsets: string[];
 }): FontInfo => {
 	let remainingContents = contents;
 
@@ -97,6 +100,7 @@ export const extractInfoFromCss = ({
 		url,
 		unicodeRanges,
 		fonts,
+		subsets,
 	};
 	return info;
 };

@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Gidole' as const;

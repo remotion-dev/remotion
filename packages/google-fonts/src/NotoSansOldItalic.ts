@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'old-italic'],
 });
 
 export const fontFamily = 'Noto Sans Old Italic' as const;

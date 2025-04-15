@@ -92,6 +92,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Moderustic' as const;

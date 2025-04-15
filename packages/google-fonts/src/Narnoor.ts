@@ -74,6 +74,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gunjala-gondi', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Narnoor' as const;

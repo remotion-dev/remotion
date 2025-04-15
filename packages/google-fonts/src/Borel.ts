@@ -30,6 +30,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'symbols', 'vietnamese'],
 });
 
 export const fontFamily = 'Borel' as const;

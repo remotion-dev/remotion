@@ -163,6 +163,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['emoji'],
 });
 
 export const fontFamily = 'Noto Emoji' as const;

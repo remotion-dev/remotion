@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'signwriting'],
 });
 
 export const fontFamily = 'Noto Sans SignWriting' as const;

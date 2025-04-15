@@ -33,6 +33,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'malayalam'],
 });
 
 export const fontFamily = 'Gayathri' as const;

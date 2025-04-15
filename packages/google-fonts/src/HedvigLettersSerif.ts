@@ -27,6 +27,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Hedvig Letters Serif' as const;

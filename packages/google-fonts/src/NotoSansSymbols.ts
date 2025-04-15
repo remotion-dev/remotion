@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Symbols' as const;

@@ -2128,6 +2128,13 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'chinese-traditional',
+		'cyrillic',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Noto Sans TC' as const;

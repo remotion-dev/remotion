@@ -69,6 +69,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Baloo Da Two' as const;

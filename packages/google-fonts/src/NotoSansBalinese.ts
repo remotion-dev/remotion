@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['balinese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Balinese' as const;

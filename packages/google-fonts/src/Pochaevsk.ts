@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin'],
 });
 
 export const fontFamily = 'Pochaevsk' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'marchen'],
 });
 
 export const fontFamily = 'Noto Sans Marchen' as const;

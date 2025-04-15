@@ -38,6 +38,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'nyiakeng-puachue-hmong'],
 });
 
 export const fontFamily = 'Noto Serif NP Hmong' as const;

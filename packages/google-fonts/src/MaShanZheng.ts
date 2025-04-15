@@ -381,6 +381,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chinese-simplified', 'latin'],
 });
 
 export const fontFamily = 'Ma Shan Zheng' as const;

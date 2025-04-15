@@ -2208,6 +2208,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['chinese-hongkong', 'cyrillic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Noto Sans HK' as const;

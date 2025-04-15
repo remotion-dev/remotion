@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['dogra', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Dogra' as const;

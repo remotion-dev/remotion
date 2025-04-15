@@ -123,6 +123,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'math', 'mongolian', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Mongolian' as const;
