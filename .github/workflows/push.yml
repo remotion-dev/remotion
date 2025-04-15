@@ -69,6 +69,8 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
+      - name: Install deps
+        run: bunx playwright install --with-deps
       - name: Test Webcodecs
         run: |
           bun run testwebcodecs
