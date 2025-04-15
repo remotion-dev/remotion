@@ -1230,6 +1230,7 @@ module.exports = {
 				'miscellaneous/render-in-browser',
 				'miscellaneous/automatic-duration',
 				'miscellaneous/vercel-functions',
+				'miscellaneous/nextjs',
 				'miscellaneous/render-on-edge',
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',

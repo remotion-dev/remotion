@@ -3105,6 +3105,15 @@ export const articles = [
 		slug: 'miscellaneous/live-streaming',
 	},
 	{
+		id: 'miscellaneous/nextjs',
+		title: 'Using @remotion/renderer in Next.js',
+		relativePath: 'docs/miscellaneous/nextjs.mdx',
+		compId: 'articles-docs-miscellaneous-nextjs',
+		crumb: 'FAQ',
+		noAi: false,
+		slug: 'miscellaneous/nextjs',
+	},
+	{
 		id: 'miscellaneous/parse-media-vs-get-video-metadata',
 		title: 'parseMedia() vs. getVideoMetadata()',
 		relativePath: 'docs/miscellaneous/parse-media-vs-get-video-metadata.mdx',
