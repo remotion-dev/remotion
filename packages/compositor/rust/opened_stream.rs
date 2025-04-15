@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next:: Rational;
+use ffmpeg_next::{ ffi::AVSEEK_FLAG_ANY,  Rational};
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
@@ -200,11 +200,19 @@ impl OpenedStream {
                 Err(err) => {
                     if err.to_string().contains("Operation not permitted") {
                         _print_verbose(&format!(
-                            "Seeking into a part of the file that contains executable code."
+                            "Could not perform seek. Got 'Operation not permitted' error."
                         ))?;
-                        _print_verbose(&format!("FFmpeg is unwilling to execute it."))?;
-
-                        Ok(())
+                        _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
+                        match self.input.seek(
+                            self.stream_index as i32,
+                            0,
+                            target_position,
+                            0,
+                            AVSEEK_FLAG_ANY ,
+                        ) {
+                            Ok(_) => Ok(()),
+                            Err(err) => Err(err)
+                        }
                     } else {
                         Err(err)
                     }
