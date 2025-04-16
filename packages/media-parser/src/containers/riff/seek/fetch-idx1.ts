@@ -54,5 +54,10 @@ export const fetchIdx1 = async ({
 	}
 
 	// only store video chunks, those end with "dc", e.g. "01dc"
-	return box.entries.filter((entry) => entry.id.endsWith('dc'));
+	return {
+		entries: box.entries.filter((entry) => entry.id.endsWith('dc')),
+		videoTrackIndex: box.videoTrackIndex,
+	};
 };
+
+export type FetchIdx1Result = Awaited<ReturnType<typeof fetchIdx1>>;

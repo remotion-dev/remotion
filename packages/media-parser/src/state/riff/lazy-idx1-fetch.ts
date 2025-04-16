@@ -1,4 +1,4 @@
-import type {Idx1Entry} from '../../containers/riff/riff-box';
+import type {FetchIdx1Result} from '../../containers/riff/seek/fetch-idx1';
 import {fetchIdx1} from '../../containers/riff/seek/fetch-idx1';
 import type {RiffSeekingHints} from '../../containers/riff/seeking-hints';
 import type {MediaParserController} from '../../controller/media-parser-controller';
@@ -17,8 +17,8 @@ export const lazyIdx1Fetch = ({
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 }) => {
-	let prom: Promise<Idx1Entry[]> | null = null;
-	let result: Idx1Entry[] | null = null;
+	let prom: Promise<FetchIdx1Result> | null = null;
+	let result: FetchIdx1Result | null = null;
 
 	const triggerLoad = (position: number) => {
 		if (result) {

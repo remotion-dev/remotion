@@ -56,8 +56,6 @@ export const sampleCallback = ({
 
 	const tracksState = makeTracksSectionState(canSkipTracksState, src);
 
-	const samplesForTrack: Record<number, number> = {};
-
 	return {
 		registerVideoSampleCallback: async (
 			id: number,
@@ -81,14 +79,9 @@ export const sampleCallback = ({
 				throw new Error('Aborted');
 			}
 
-			if (typeof samplesForTrack[trackId] === 'undefined') {
-				samplesForTrack[trackId] = 0;
-			}
-
 			const callback = audioSampleCallbacks[trackId];
 
 			if (audioSample.data.length > 0) {
-				samplesForTrack[trackId]++;
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
 					if (seekSignal.getSeek()) {
@@ -106,20 +99,12 @@ export const sampleCallback = ({
 				samplesObserved.addAudioSample(audioSample);
 			}
 		},
-		getSamplesForTrack: (trackId: number) => {
-			return samplesForTrack[trackId] ?? 0;
-		},
 		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 
-			if (typeof samplesForTrack[trackId] === 'undefined') {
-				samplesForTrack[trackId] = 0;
-			}
-
 			if (videoSample.data.length > 0) {
-				samplesForTrack[trackId]++;
 				const callback = videoSampleCallbacks[trackId];
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {

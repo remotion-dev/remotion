@@ -14,14 +14,31 @@ export const parseIdx1 = ({
 	const offset = iterator.counter.getOffset();
 	const entries: Idx1Entry[] = [];
 
-	let index = 0;
+	const sampleCounts: Record<number, number> = {};
+
+	let videoTrackIndex: number | null = null;
+
 	while (iterator.counter.getOffset() < offset + size) {
 		const chunkId = iterator.getByteString(4, false);
 		const flags = iterator.getUint32Le();
 		const moffset = iterator.getUint32Le();
 		const msize = iterator.getUint32Le();
 
+		const chunk = chunkId.match(/^([0-9]{2})(wb|dc)$/);
 		const isVideo = chunkId.endsWith('dc');
+		if (isVideo) {
+			videoTrackIndex = chunk ? parseInt(chunk[1], 10) : null;
+		}
+
+		const trackId = chunk ? parseInt(chunk[1], 10) : null;
+		if (trackId === null) {
+			continue;
+		}
+
+		if (!sampleCounts[trackId]) {
+			sampleCounts[trackId] = 0;
+		}
+
 		const isKeyFrame = (flags & AVIIF_KEYFRAME) !== 0;
 
 		if (isKeyFrame) {
@@ -30,13 +47,11 @@ export const parseIdx1 = ({
 				id: chunkId,
 				offset: moffset,
 				size: msize,
-				index,
+				sampleCounts: {...sampleCounts},
 			});
 		}
 
-		if (isVideo) {
-			index++;
-		}
+		sampleCounts[trackId]++;
 	}
 
 	box.expectNoMoreBytes();
@@ -44,5 +59,6 @@ export const parseIdx1 = ({
 	return {
 		type: 'idx1-box',
 		entries,
+		videoTrackIndex,
 	};
 };

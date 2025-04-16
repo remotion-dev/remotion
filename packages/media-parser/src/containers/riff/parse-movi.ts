@@ -42,7 +42,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.callbacks.getSamplesForTrack(trackId);
+		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -57,25 +57,27 @@ export const handleChunk = async ({
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 
+		const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				cts: timestamp,
+				dts: timestamp,
+				data,
+				duration: undefined,
+				timestamp,
+				trackId,
+				type: keyOrDelta,
+				offset,
+				timescale: samplesPerSecond,
+			},
+			timescale: 1,
+		});
+		state.riff.sampleCounter.onVideoSample(trackId, videoSample);
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		await emitVideoSample({
 			trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					cts: timestamp,
-					dts: timestamp,
-					data,
-					duration: undefined,
-					timestamp,
-					trackId,
-					type: keyOrDelta,
-					offset,
-					timescale: samplesPerSecond,
-				},
-				timescale: 1,
-			}),
+			videoSample,
 			callbacks: state.callbacks,
 		});
 
@@ -89,11 +91,27 @@ export const handleChunk = async ({
 
 		const samplesPerSecond = strh.rate / strh.scale;
 		// TODO: continue here
-		const nthSample = state.callbacks.getSamplesForTrack(trackId);
+		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
 		const data = iterator.getSlice(ckSize);
+
+		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				cts: timestamp,
+				dts: timestamp,
+				data,
+				duration: undefined,
+				timestamp,
+				trackId,
+				type: 'key',
+				offset,
+				timescale: samplesPerSecond,
+			},
+			timescale: 1,
+		});
+		state.riff.sampleCounter.onAudioSample(trackId, audioSample);
 
 		// In example.avi, we have samples with 0 data
 		// Chrome fails on these
@@ -103,20 +121,7 @@ export const handleChunk = async ({
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 		await emitAudioSample({
 			trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					cts: timestamp,
-					dts: timestamp,
-					data,
-					duration: undefined,
-					timestamp,
-					trackId,
-					type: 'key',
-					offset,
-					timescale: samplesPerSecond,
-				},
-				timescale: 1,
-			}),
+			audioSample,
 			callbacks: state.callbacks,
 		});
 	}

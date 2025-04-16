@@ -13,10 +13,40 @@ test('fetch-idx', async () => {
 		logLevel: 'info',
 	});
 
-	expect(result).toEqual([
-		{flags: 16, id: '00dc', offset: 4, size: 4599, index: 0},
-		{flags: 16, id: '00dc', offset: 193318, size: 4796, index: 250},
-		{flags: 16, id: '00dc', offset: 385260, size: 4651, index: 500},
-		{flags: 16, id: '00dc', offset: 570490, size: 4097, index: 750},
-	]);
+	expect(result).toEqual({
+		entries: [
+			{flags: 16, id: '00dc', offset: 4, size: 4599, sampleCounts: {0: 0}},
+			{
+				flags: 16,
+				id: '00dc',
+				offset: 193318,
+				size: 4796,
+				sampleCounts: {
+					'0': 250,
+					'1': 392,
+				},
+			},
+			{
+				flags: 16,
+				id: '00dc',
+				offset: 385260,
+				size: 4651,
+				sampleCounts: {
+					'0': 500,
+					'1': 783,
+				},
+			},
+			{
+				flags: 16,
+				id: '00dc',
+				offset: 570490,
+				size: 4097,
+				sampleCounts: {
+					'0': 750,
+					'1': 1173,
+				},
+			},
+		],
+		videoTrackIndex: 0,
+	});
 });

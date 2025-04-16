@@ -2,13 +2,14 @@ import type {ParserState} from '../../state/parser-state';
 import type {RiffState} from '../../state/riff';
 import type {StructureState} from '../../state/structure';
 import type {MediaSectionState} from '../../state/video-section';
-import type {Idx1Entry, ListBox} from './riff-box';
+import type {ListBox} from './riff-box';
+import type {FetchIdx1Result} from './seek/fetch-idx1';
 import {getStrhBox, getStrlBoxes} from './traversal';
 
 export type RiffSeekingHints = {
 	type: 'riff-seeking-hints';
 	hasIndex: boolean;
-	idx1Entries: Idx1Entry[] | null;
+	idx1Entries: FetchIdx1Result | null;
 	samplesPerSecond: number | null;
 	moviOffset: number | null;
 };

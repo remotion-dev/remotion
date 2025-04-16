@@ -85,6 +85,7 @@ export type IsftBox = {
 export type Idx1Box = {
 	type: 'idx1-box';
 	entries: Idx1Entry[];
+	videoTrackIndex: number | null;
 };
 
 export type Idx1Entry = {
@@ -92,7 +93,7 @@ export type Idx1Entry = {
 	flags: number;
 	offset: number;
 	size: number;
-	index: number;
+	sampleCounts: Record<number, number>;
 };
 
 export type RiffBox =

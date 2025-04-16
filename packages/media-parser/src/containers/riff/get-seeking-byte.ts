@@ -23,6 +23,10 @@ export const getSeekingByteForRiff = async ({
 		};
 	}
 
+	if (idx1Entries.videoTrackIndex === null) {
+		throw new Error('videoTrackIndex is null');
+	}
+
 	if (info.samplesPerSecond === null) {
 		throw new Error('samplesPerSecond is null');
 	}
@@ -31,12 +35,16 @@ export const getSeekingByteForRiff = async ({
 
 	let bestEntry: Idx1Entry | null = null;
 
-	for (const entry of idx1Entries) {
-		if (entry.index > index) {
+	for (const entry of idx1Entries.entries) {
+		if (entry.sampleCounts[idx1Entries.videoTrackIndex] > index) {
 			continue;
 		}
 
-		if (bestEntry && entry.index < bestEntry.index) {
+		if (
+			bestEntry &&
+			entry.sampleCounts[idx1Entries.videoTrackIndex] <
+				bestEntry.sampleCounts[idx1Entries.videoTrackIndex]
+		) {
 			continue;
 		}
 
@@ -50,6 +58,8 @@ export const getSeekingByteForRiff = async ({
 	if (info.moviOffset === null) {
 		throw new Error('moviOffset is null');
 	}
+
+	riffState.sampleCounter.setSamplesFromSeek(bestEntry.sampleCounts);
 
 	return {
 		type: 'do-seek',
