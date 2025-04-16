@@ -160,7 +160,7 @@ test('should be fast to only get duration', async () => {
 		},
 	});
 	expect(internalStats).toEqual({
-		skippedBytes: 2646212,
+		skippedBytes: 2646106,
 		finalCursorOffset: 2646044,
 	});
 });

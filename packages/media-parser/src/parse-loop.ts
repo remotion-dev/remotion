@@ -36,7 +36,7 @@ export const parseLoop = async ({
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
-		await workOnSeekRequest(getWorkOnSeekRequestOptions(state), false);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 
 		const offsetBefore = state.iterator.counter.getOffset();
 
@@ -148,11 +148,5 @@ export const parseLoop = async ({
 		} else {
 			iterationWithThisOffset = 0;
 		}
-	}
-
-	await workOnSeekRequest(getWorkOnSeekRequestOptions(state), true);
-
-	if (!(state.iterator.counter.getOffset() !== state.contentLength)) {
-		await parseLoop({state, throttledState, onError});
 	}
 };

@@ -38,7 +38,7 @@ export const emitAvailableInfo = async ({
 	} = state;
 
 	for (const key of keys) {
-		await workOnSeekRequest(getWorkOnSeekRequestOptions(state), false);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
 				await callbackFunctions.onStructure?.(state.structure.getStructure());
@@ -485,5 +485,5 @@ export const emitAvailableInfo = async ({
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 
-	await workOnSeekRequest(getWorkOnSeekRequestOptions(state), false);
+	await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 };

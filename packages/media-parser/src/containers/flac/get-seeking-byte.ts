@@ -4,11 +4,9 @@ import type {FlacSeekingHints} from './seeking-hints';
 export const getSeekingByteForFlac = ({
 	time,
 	seekingHints,
-	endOfFile,
 }: {
 	time: number;
 	seekingHints: FlacSeekingHints;
-	endOfFile: boolean;
 }) => {
 	let bestAudioSample: AudioSampleOffset | undefined;
 	for (const hint of seekingHints.audioSampleMap) {
@@ -16,7 +14,7 @@ export const getSeekingByteForFlac = ({
 			continue;
 		}
 
-		if (hint.timeInSeconds + hint.durationInSeconds < time && !endOfFile) {
+		if (hint.timeInSeconds + hint.durationInSeconds < time) {
 			continue;
 		}
 

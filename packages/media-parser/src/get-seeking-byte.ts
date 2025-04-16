@@ -22,7 +22,6 @@ export const getSeekingByte = ({
 	transportStream,
 	webmState,
 	mediaSection,
-	endOfFile,
 	mp4HeaderSegment,
 	structure,
 }: {
@@ -34,7 +33,6 @@ export const getSeekingByte = ({
 	transportStream: TransportStreamState;
 	webmState: WebmState;
 	mediaSection: MediaSectionState;
-	endOfFile: boolean;
 	structure: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }): Promise<SeekResolution> => {
@@ -71,7 +69,6 @@ export const getSeekingByte = ({
 		const byte = getSeekingByteForFlac({
 			seekingHints: info,
 			time,
-			endOfFile,
 		});
 		if (byte) {
 			return Promise.resolve({
