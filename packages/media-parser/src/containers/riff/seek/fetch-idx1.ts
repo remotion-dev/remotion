@@ -49,5 +49,9 @@ export const fetchIdx1 = async ({
 	});
 
 	iterator.destroy();
-	return box;
+	if (box === null || box.type !== 'idx1-box') {
+		throw new Error('Expected idx1-box');
+	}
+
+	return box.entries;
 };

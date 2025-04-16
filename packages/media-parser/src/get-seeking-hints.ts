@@ -11,6 +11,7 @@ import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
 import type {WebmState} from './state/matroska/webm';
+import type {RiffState} from './state/riff';
 import type {SamplesObservedState} from './state/samples-observed/slow-duration-fps';
 import type {StructureState} from './state/structure';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
@@ -27,6 +28,7 @@ export const getSeekingHints = ({
 	webmState,
 	flacState,
 	samplesObserved,
+	riffState,
 }: {
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
@@ -38,6 +40,7 @@ export const getSeekingHints = ({
 	webmState: WebmState;
 	flacState: FlacState;
 	samplesObserved: SamplesObservedState;
+	riffState: RiffState;
 }): SeekingHints | null => {
 	const structure = structureState.getStructureOrNull();
 
@@ -77,7 +80,7 @@ export const getSeekingHints = ({
 	}
 
 	if (structure.type === 'riff') {
-		return getSeekingHintsForRiff({structureState});
+		return getSeekingHintsForRiff({structureState, riffState});
 	}
 
 	throw new Error(

@@ -17,6 +17,7 @@ import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
 import type {WebmState} from './state/matroska/webm';
 import type {ParserState} from './state/parser-state';
+import type {RiffState} from './state/riff';
 import type {SamplesObservedState} from './state/samples-observed/slow-duration-fps';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
@@ -37,6 +38,7 @@ const turnSeekIntoByte = async ({
 	keyframes,
 	flacState,
 	samplesObserved,
+	riffState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -51,6 +53,7 @@ const turnSeekIntoByte = async ({
 	keyframes: KeyframesState;
 	flacState: FlacState;
 	samplesObserved: SamplesObservedState;
+	riffState: RiffState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -68,6 +71,7 @@ const turnSeekIntoByte = async ({
 		}
 
 		const seekingHints = getSeekingHints({
+			riffState,
 			samplesObserved,
 			structureState,
 			mp4HeaderSegment,
@@ -137,6 +141,7 @@ export type WorkOnSeekRequestOptions = {
 	keyframes: KeyframesState;
 	flacState: FlacState;
 	samplesObserved: SamplesObservedState;
+	riffState: RiffState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -164,6 +169,7 @@ export const getWorkOnSeekRequestOptions = (
 		keyframes: state.keyframes,
 		flacState: state.flac,
 		samplesObserved: state.samplesObserved,
+		riffState: state.riff,
 	};
 };
 
@@ -190,6 +196,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		keyframes,
 		flacState,
 		samplesObserved,
+		riffState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -211,6 +218,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		keyframes,
 		flacState,
 		samplesObserved,
+		riffState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

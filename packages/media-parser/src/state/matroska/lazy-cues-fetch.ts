@@ -24,6 +24,10 @@ export const lazyCuesFetch = ({
 	let result: MatroskaCue[] | null = null;
 
 	const triggerLoad = (position: number, segmentOffset: number) => {
+		if (result) {
+			return Promise.resolve(result);
+		}
+
 		if (prom) {
 			return prom;
 		}
@@ -56,6 +60,17 @@ export const lazyCuesFetch = ({
 			return null;
 		}
 
+		if (result) {
+			if (!sOffset) {
+				throw new Error('Segment offset not set');
+			}
+
+			return {
+				cues: result,
+				segmentOffset: sOffset,
+			};
+		}
+
 		const cues = await prom;
 		if (!cues) {
 			return null;
@@ -73,7 +88,7 @@ export const lazyCuesFetch = ({
 
 	const getIfAlreadyLoaded = () => {
 		if (result) {
-			if (!sOffset) {
+			if (sOffset === null) {
 				throw new Error('Segment offset not set');
 			}
 

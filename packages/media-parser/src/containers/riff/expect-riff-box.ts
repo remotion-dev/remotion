@@ -76,6 +76,10 @@ export const expectRiffBox = async ({
 			size: ckSize - 4,
 		});
 
+		stateIfExpectingSideEffects.riff.lazyIdx1.triggerLoad(
+			iterator.counter.getOffset() + ckSize - 4,
+		);
+
 		return null;
 	}
 

@@ -40,7 +40,7 @@ export const setSeekingHints = ({
 	}
 
 	if (hints.type === 'riff-seeking-hints') {
-		setSeekingHintsForRiff();
+		setSeekingHintsForRiff({hints, state});
 		return;
 	}
 
