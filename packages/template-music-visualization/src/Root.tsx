@@ -25,11 +25,12 @@ export const RemotionRoot: React.FC = () => {
           textColor: "white",
           // visualizer settings
           visualizer: {
-            type: "oscilloscope",
+            type: "spectrum" as const,
             bassOverlay: true,
             color: "#0b84f3",
-            windowInSeconds: 1,
-            amplitude: 1.3,
+            linesToDisplay: 65,
+            mirrorWave: false,
+            numberOfSamples: "512" as const,
           },
         }}
         // Determine the length of the video based on the duration of the audio file
