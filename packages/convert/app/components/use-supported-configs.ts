@@ -15,6 +15,7 @@ export const useSupportedConfigs = ({
 	userRotation,
 	inputContainer,
 	resizeOperation,
+	sampleRate,
 }: {
 	outputContainer: ConvertMediaContainer;
 	tracks: MediaParserTracks | null;
@@ -22,6 +23,7 @@ export const useSupportedConfigs = ({
 	userRotation: number;
 	resizeOperation: ResizeOperation | null;
 	inputContainer: MediaParserContainer | null;
+	sampleRate: number | null;
 }) => {
 	const [state, setState] = useState<
 		Record<ConvertMediaContainer, SupportedConfigs | null>
@@ -40,6 +42,7 @@ export const useSupportedConfigs = ({
 			userRotation,
 			inputContainer,
 			resizeOperation,
+			sampleRate,
 		}).then((supportedConfigs) => {
 			setState((prev) => ({
 				...prev,
@@ -53,6 +56,7 @@ export const useSupportedConfigs = ({
 		tracks,
 		userRotation,
 		resizeOperation,
+		sampleRate,
 	]);
 
 	return state[outputContainer];

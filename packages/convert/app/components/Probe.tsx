@@ -100,6 +100,7 @@ export const Probe: React.FC<{
 		location,
 		keyframes,
 		images,
+		sampleRate,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -204,6 +205,7 @@ export const Probe: React.FC<{
 									metadata={metadata}
 									isHdr={isHdr}
 									location={location}
+									sampleRate={sampleRate}
 								/>
 							) : selectedTrack.type === 'video' ? (
 								<VideoTrackOverview

@@ -5938,6 +5938,15 @@ export const articles = [
 		slug: 'webcodecs/convert-a-video',
 	},
 	{
+		id: 'convert-audiodata',
+		title: 'convertAudioData()',
+		relativePath: 'docs/webcodecs/convert-audiodata.mdx',
+		compId: 'articles-docs-webcodecs-convert-audiodata',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/convert-audiodata',
+	},
+	{
 		id: 'convert-media',
 		title: 'convertMedia()',
 		relativePath: 'docs/webcodecs/convert-media.mdx',
@@ -6035,6 +6044,15 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 		noAi: false,
 		slug: 'webcodecs/pause-resume-abort',
+	},
+	{
+		id: 'resample-audio-16khz',
+		title: 'Resample audio to 16kHz',
+		relativePath: 'docs/webcodecs/resample-audio-16khz.mdx',
+		compId: 'articles-docs-webcodecs-resample-audio-16khz',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/resample-audio-16khz',
 	},
 	{
 		id: 'resize-a-video',

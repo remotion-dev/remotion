@@ -48,6 +48,7 @@ import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {M3uStreamSelector} from './M3uStreamSelector';
 import {MirrorComponents} from './MirrorComponents';
 import {PauseResumeAndCancel} from './PauseResumeAndCancel';
+import {ResampleUi} from './ResampleUi';
 import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
@@ -138,6 +139,26 @@ const ConvertUI = ({
 			.map(([section]) => section as ConvertSections);
 	}, [action]);
 
+	const [resampleUserPreferenceActive, setResampleUserPreferenceActive] =
+		useState(false);
+	const [resampleRate, setResampleRate] = useState<number>(16000);
+
+	const canResample = useMemo(() => {
+		return outputContainer === 'wav';
+	}, [outputContainer]);
+
+	const actualResampleRate = useMemo(() => {
+		if (!canResample) {
+			return null;
+		}
+
+		if (!resampleUserPreferenceActive) {
+			return null;
+		}
+
+		return resampleRate;
+	}, [resampleRate, canResample, resampleUserPreferenceActive]);
+
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer,
 		tracks,
@@ -145,6 +166,7 @@ const ConvertUI = ({
 		userRotation,
 		inputContainer,
 		resizeOperation,
+		sampleRate: actualResampleRate,
 	});
 
 	const isH264Reencode = supportedConfigs?.videoTrackOptions.some((o) => {
@@ -307,8 +329,7 @@ const ConvertUI = ({
 					return;
 				}
 
-				// eslint-disable-next-line no-console
-				console.error(e);
+				MediaParserInternals.Log.error(logLevel, e);
 				setState({type: 'error', error: e as Error});
 			});
 
@@ -502,7 +523,7 @@ const ConvertUI = ({
 								>
 									Convert
 								</ConvertUiSection>
-								{enableConvert && currentVideoCodec ? (
+								{enableConvert ? (
 									<>
 										<div className="h-2" />
 										<ConvertForm
@@ -572,6 +593,32 @@ const ConvertUI = ({
 										canPixelManipulate={canPixelManipulate}
 										rotation={userRotation}
 										setRotation={setRotation}
+									/>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'resample') {
+						if (!canResample) {
+							return null;
+						}
+
+						return (
+							<div key="resample">
+								<ConvertUiSection
+									active={resampleUserPreferenceActive}
+									setActive={setResampleUserPreferenceActive}
+								>
+									Resample
+								</ConvertUiSection>
+								{resampleUserPreferenceActive ? (
+									<ResampleUi
+										sampleRate={resampleRate}
+										setSampleRate={setResampleRate}
+										currentSampleRate={
+											tracks?.audioTracks[0]?.sampleRate ?? null
+										}
 									/>
 								) : null}
 							</div>
