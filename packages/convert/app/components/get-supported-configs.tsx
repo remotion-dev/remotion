@@ -177,6 +177,7 @@ export const getSupportedConfigs = async ({
 					type: 'reencode',
 					audioCodec,
 					bitrate,
+					sampleRate: null,
 				});
 			}
 		}

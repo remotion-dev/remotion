@@ -1,18 +1,28 @@
 // A "passthrough" audio encoder, AudioData is already in WAV
 import type {AudioEncoderInit, WebCodecsAudioEncoder} from './audio-encoder';
+import {convertAudioData} from './convert-audiodata';
 
 export const getWaveAudioEncoder = ({
 	onChunk,
 	controller,
-}: Pick<AudioEncoderInit, 'onChunk' | 'controller'>): WebCodecsAudioEncoder => {
+	config,
+}: Pick<
+	AudioEncoderInit,
+	'onChunk' | 'controller' | 'config'
+>): WebCodecsAudioEncoder => {
 	return {
 		close: () => {
 			return Promise.resolve();
 		},
-		encodeFrame: (audioData) => {
+		encodeFrame: (unconvertedAudioData) => {
 			if (controller._internals.signal.aborted) {
 				return Promise.resolve();
 			}
+
+			const audioData = convertAudioData({
+				audioData: unconvertedAudioData,
+				newSampleRate: config.sampleRate,
+			});
 
 			const chunk: EncodedAudioChunk = {
 				timestamp: audioData.timestamp,

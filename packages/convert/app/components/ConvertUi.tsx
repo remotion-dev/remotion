@@ -502,7 +502,7 @@ const ConvertUI = ({
 								>
 									Convert
 								</ConvertUiSection>
-								{enableConvert && currentVideoCodec ? (
+								{enableConvert ? (
 									<>
 										<div className="h-2" />
 										<ConvertForm
