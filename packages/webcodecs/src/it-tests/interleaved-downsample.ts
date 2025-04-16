@@ -1,4 +1,4 @@
-import {resampleAudioData} from '../resample-audiodata';
+import {convertAudioData} from '../convert-audiodata';
 import {assertJson, audioDataToSerializable} from './assertions';
 
 const audioData = new AudioData({
@@ -11,7 +11,7 @@ const audioData = new AudioData({
 });
 
 assertJson(
-	audioDataToSerializable(resampleAudioData({audioData, newSampleRate: 22050})),
+	audioDataToSerializable(convertAudioData({audioData, newSampleRate: 22050})),
 	{
 		data: [[2, 2, 6, 6, 10, 10]],
 		format: 's32',

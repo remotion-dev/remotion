@@ -1,4 +1,4 @@
-import {getDataTypeForAudioFormat} from '../resample-audiodata';
+import {getDataTypeForAudioFormat} from '../audio-data/data-types';
 
 export const assertIs = (value: unknown, expected: unknown) => {
 	if (value !== expected) {

@@ -1,10 +1,10 @@
-import {resampleAudioData} from '../resample-audiodata';
+import {convertAudioData} from '../convert-audiodata';
 import {assertJson, audioDataToSerializable} from './assertions';
 
 // s32 to f32
 assertJson(
 	audioDataToSerializable(
-		resampleAudioData({
+		convertAudioData({
 			audioData: new AudioData({
 				data: new Int32Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				format: 's32',
@@ -34,7 +34,7 @@ assertJson(
 
 assertJson(
 	audioDataToSerializable(
-		resampleAudioData({
+		convertAudioData({
 			audioData: new AudioData({
 				data: new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				format: 'f32',

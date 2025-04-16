@@ -1,8 +1,8 @@
-import {resampleAudioData} from '../resample-audiodata';
+import {convertAudioData} from '../convert-audiodata';
 
 try {
 	// float32 must be within range of -1 to 1
-	resampleAudioData({
+	convertAudioData({
 		audioData: new AudioData({
 			data: new Float32Array([1, 2, 3, 4]),
 			format: 'f32-planar',
@@ -27,7 +27,7 @@ try {
 
 try {
 	// result in 0 samples
-	resampleAudioData({
+	convertAudioData({
 		audioData: new AudioData({
 			data: new Float32Array([1, 2, 3, 4]),
 			format: 'f32-planar',
@@ -53,7 +53,7 @@ try {
 
 try {
 	// chrome sample rate limits
-	resampleAudioData({
+	convertAudioData({
 		audioData: new AudioData({
 			data: new Int32Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 			format: 's32',

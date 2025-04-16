@@ -1,29 +1,5 @@
-export const getDataTypeForAudioFormat = (format: AudioSampleFormat) => {
-	switch (format) {
-		case 'f32':
-			return Float32Array;
-		case 'f32-planar':
-			return Float32Array;
-		case 's16':
-			return Int16Array;
-		case 's16-planar':
-			return Int16Array;
-		case 'u8':
-			return Uint8Array;
-		case 'u8-planar':
-			return Uint8Array;
-		case 's32':
-			return Int32Array;
-		case 's32-planar':
-			return Int32Array;
-		default:
-			throw new Error(`Unsupported audio format: ${format satisfies never}`);
-	}
-};
-
-const isPlanarFormat = (format: AudioSampleFormat) => {
-	return format.includes('-planar');
-};
+import {getDataTypeForAudioFormat} from './audio-data/data-types';
+import {isPlanarFormat} from './audio-data/is-planar-format';
 
 const validateRange = (format: AudioSampleFormat, value: number) => {
 	if (format === 'f32' || format === 'f32-planar') {
@@ -33,22 +9,27 @@ const validateRange = (format: AudioSampleFormat, value: number) => {
 	}
 };
 
-export const resampleAudioData = ({
-	audioData,
-	newSampleRate,
-	format = audioData.format,
-}: {
+export type ConvertAudioDataOptions = {
 	audioData: AudioData;
-	newSampleRate: number;
+	newSampleRate?: number;
 	format?: AudioSampleFormat | null;
-}) => {
+};
+/**
+ * Converts an `AudioData` object to a new `AudioData` object with a different sample rate or format.
+ * @see [Documentation](https://remotion.dev/docs/webcodecs/convert-audiodata)
+ */
+export const convertAudioData = ({
+	audioData,
+	newSampleRate = audioData.sampleRate,
+	format = audioData.format,
+}: ConvertAudioDataOptions) => {
 	const {
 		numberOfChannels,
 		sampleRate: currentSampleRate,
-		numberOfFrames,
+		numberOfFrames: currentNumberOfFrames,
 	} = audioData;
 	const ratio = currentSampleRate / newSampleRate;
-	const newNumberOfFrames = Math.floor(numberOfFrames / ratio);
+	const newNumberOfFrames = Math.floor(currentNumberOfFrames / ratio);
 
 	if (newNumberOfFrames === 0) {
 		throw new Error(
@@ -64,6 +45,13 @@ export const resampleAudioData = ({
 		throw new Error('AudioData format is not set');
 	}
 
+	if (
+		format === audioData.format &&
+		newNumberOfFrames === currentNumberOfFrames
+	) {
+		return audioData.clone();
+	}
+
 	const DataType = getDataTypeForAudioFormat(format);
 
 	const isPlanar = isPlanarFormat(format);
@@ -71,7 +59,8 @@ export const resampleAudioData = ({
 	const srcChannels = new Array(planes)
 		.fill(true)
 		.map(
-			() => new DataType((isPlanar ? 1 : numberOfChannels) * numberOfFrames),
+			() =>
+				new DataType((isPlanar ? 1 : numberOfChannels) * currentNumberOfFrames),
 		);
 
 	for (let i = 0; i < planes; i++) {
@@ -82,7 +71,7 @@ export const resampleAudioData = ({
 	}
 
 	const data = new DataType(newNumberOfFrames * numberOfChannels);
-	const chunkSize = numberOfFrames / newNumberOfFrames;
+	const chunkSize = currentNumberOfFrames / newNumberOfFrames;
 
 	for (
 		let newFrameIndex = 0;

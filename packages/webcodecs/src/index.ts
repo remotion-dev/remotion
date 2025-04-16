@@ -13,6 +13,7 @@ export {canCopyAudioTrack} from './can-copy-audio-track';
 export {canCopyVideoTrack} from './can-copy-video-track';
 export {canReencodeAudioTrack} from './can-reencode-audio-track';
 export {canReencodeVideoTrack} from './can-reencode-video-track';
+export {convertAudioData, ConvertAudioDataOptions} from './convert-audiodata';
 export {convertMedia} from './convert-media';
 export type {
 	ConvertMediaOnAudioData,
