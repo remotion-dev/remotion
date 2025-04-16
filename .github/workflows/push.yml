@@ -46,7 +46,7 @@ jobs:
         run: |
           cd packages/lambda && bun test src/test/integration --run
   webcodecs-tests:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     name: Webcodecs tests
     steps:
       - uses: actions/checkout@v4
@@ -159,7 +159,7 @@ jobs:
             node_version: 16
           - os: windows-latest
             node_version: 16
-          - os: macos-latest
+          - os: macos-13
             node_version: 16
           - os: macos-14
             node_version: 16

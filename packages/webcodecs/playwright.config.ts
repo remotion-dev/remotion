@@ -10,11 +10,9 @@ export default defineConfig({
 			name: 'firefox',
 			use: {...devices['Desktop Firefox']},
 		},
-		process.env.CI
-			? null
-			: {
-					name: 'webkit',
-					use: {...devices['Desktop Safari']},
-				},
+		{
+			name: 'webkit',
+			use: {...devices['Desktop Safari']},
+		},
 	].filter(Boolean) as Project[],
 });
