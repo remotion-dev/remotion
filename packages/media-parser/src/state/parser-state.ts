@@ -158,7 +158,7 @@ export const makeParserState = ({
 			fields,
 			keyframes,
 			emittedFields,
-			samplesObservedState: samplesObserved,
+			samplesObserved,
 			structure,
 			src,
 			seekSignal: controller._internals.seekSignal,

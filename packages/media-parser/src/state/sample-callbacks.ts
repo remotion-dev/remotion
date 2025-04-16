@@ -23,7 +23,7 @@ export const sampleCallback = ({
 	fields,
 	keyframes,
 	emittedFields,
-	samplesObservedState,
+	samplesObserved,
 	structure,
 	src,
 	seekSignal,
@@ -35,7 +35,7 @@ export const sampleCallback = ({
 	fields: Options<ParseMediaFields>;
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
-	samplesObservedState: SamplesObservedState;
+	samplesObserved: SamplesObservedState;
 	structure: StructureState;
 	src: ParseMediaSrc;
 	seekSignal: SeekSignal;
@@ -103,7 +103,7 @@ export const sampleCallback = ({
 			}
 
 			if (needsToIterateOverSamples({emittedFields, fields})) {
-				samplesObservedState.addAudioSample(audioSample);
+				samplesObserved.addAudioSample(audioSample);
 			}
 		},
 		getSamplesForTrack: (trackId: number) => {
@@ -150,7 +150,7 @@ export const sampleCallback = ({
 					emittedFields,
 				})
 			) {
-				samplesObservedState.addVideoSample(videoSample);
+				samplesObserved.addVideoSample(videoSample);
 			}
 		},
 		canSkipTracksState,
