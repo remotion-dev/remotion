@@ -2,6 +2,7 @@ import type {FlacSeekingHints} from './containers/flac/seeking-hints';
 import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import type {TfraBox} from './containers/iso-base-media/mfra/tfra';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
+import type {RiffSeekingHints} from './containers/riff/seeking-hints';
 import type {PacketPes} from './containers/transport-stream/parse-pes';
 import type {MediaParserKeyframe} from './options';
 import type {MoofBox} from './state/iso-base-media/precomputed-moof';
@@ -44,4 +45,5 @@ export type SeekingHints =
 	| WavSeekingHints
 	| TransportStreamSeekingHints
 	| WebmSeekingHints
-	| FlacSeekingHints;
+	| FlacSeekingHints
+	| RiffSeekingHints;

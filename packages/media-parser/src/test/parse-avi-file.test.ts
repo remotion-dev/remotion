@@ -181,6 +181,7 @@ test('AVI file', async () => {
 			{
 				children: [
 					{
+						hasIndex: true,
 						microSecPerFrame: 33333,
 						maxBytesPerSecond: 17454,
 						paddingGranularity: 0,

@@ -1,5 +1,6 @@
 import {getSeekingHintsForFlac} from './containers/flac/seeking-hints';
 import {getSeekingHintsFromMp4} from './containers/iso-base-media/seeking-hints';
+import {getSeekingHintsForRiff} from './containers/riff/seeking-hints';
 import {getSeekingHintsFromTransportStream} from './containers/transport-stream/seeking-hints';
 import {getSeekingHintsFromWav} from './containers/wav/seeking-hints';
 import {getSeekingHintsFromMatroska} from './containers/webm/seek/seeking-hints';
@@ -73,6 +74,10 @@ export const getSeekingHints = ({
 			flacState,
 			samplesObserved,
 		});
+	}
+
+	if (structure.type === 'riff') {
+		return getSeekingHintsForRiff({structureState});
 	}
 
 	throw new Error(

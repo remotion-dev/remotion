@@ -22,6 +22,7 @@ export type AvihBox = {
 	suggestedBufferSize: number;
 	width: number;
 	height: number;
+	hasIndex: boolean;
 };
 
 export type FccType = 'vids' | 'auds';
