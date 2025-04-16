@@ -88,6 +88,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
+		// TODO: continue here
 		const nthSample = state.callbacks.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;

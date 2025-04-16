@@ -47,8 +47,12 @@ export const getSeekingByteForRiff = async ({
 		throw new Error('No best entry');
 	}
 
+	if (info.moviOffset === null) {
+		throw new Error('moviOffset is null');
+	}
+
 	return {
 		type: 'do-seek',
-		byte: bestEntry.offset,
+		byte: bestEntry.offset + info.moviOffset - 4,
 	};
 };

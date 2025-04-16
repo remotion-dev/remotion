@@ -80,7 +80,11 @@ export const getSeekingHints = ({
 	}
 
 	if (structure.type === 'riff') {
-		return getSeekingHintsForRiff({structureState, riffState});
+		return getSeekingHintsForRiff({
+			structureState,
+			riffState,
+			mediaSectionState,
+		});
 	}
 
 	throw new Error(
