@@ -22,15 +22,16 @@ export const getWaveAudioEncoder = ({
 			const audioData = convertAudioData({
 				audioData: unconvertedAudioData,
 				newSampleRate: config.sampleRate,
+				format: 's16',
 			});
+			unconvertedAudioData.close();
 
 			const chunk: EncodedAudioChunk = {
 				timestamp: audioData.timestamp,
 				duration: audioData.duration,
 				type: 'key',
-				copyTo: (destination) =>
-					audioData.copyTo(destination, {planeIndex: 0, format: 's16'}),
-				byteLength: audioData.allocationSize({planeIndex: 0, format: 's16'}),
+				copyTo: (destination) => audioData.copyTo(destination, {planeIndex: 0}),
+				byteLength: audioData.allocationSize({planeIndex: 0}),
 			};
 
 			return onChunk(chunk);

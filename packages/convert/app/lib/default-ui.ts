@@ -96,7 +96,12 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	);
 };
 
-export type ConvertSections = 'convert' | 'rotate' | 'mirror' | 'resize';
+export type ConvertSections =
+	| 'convert'
+	| 'rotate'
+	| 'mirror'
+	| 'resize'
+	| 'resample';
 
 export const getOrderOfSections = (
 	action: RouteAction,
@@ -107,6 +112,7 @@ export const getOrderOfSections = (
 			resize: 1,
 			mirror: 2,
 			convert: 3,
+			resample: 4,
 		};
 	}
 
@@ -116,6 +122,7 @@ export const getOrderOfSections = (
 			resize: 1,
 			rotate: 2,
 			mirror: 3,
+			resample: 4,
 		};
 	}
 
@@ -125,6 +132,7 @@ export const getOrderOfSections = (
 			resize: 1,
 			rotate: 2,
 			mirror: 3,
+			resample: 4,
 		};
 	}
 
@@ -134,6 +142,7 @@ export const getOrderOfSections = (
 			resize: 1,
 			rotate: 2,
 			convert: 3,
+			resample: 4,
 		};
 	}
 
@@ -147,6 +156,7 @@ export const getOrderOfSections = (
 			rotate: 1,
 			mirror: 2,
 			convert: 3,
+			resample: 4,
 		};
 	}
 
