@@ -6046,6 +6046,15 @@ export const articles = [
 		slug: 'webcodecs/pause-resume-abort',
 	},
 	{
+		id: 'resample-audio-16khz',
+		title: 'Resample audio to 16kHz',
+		relativePath: 'docs/webcodecs/resample-audio-16khz.mdx',
+		compId: 'articles-docs-webcodecs-resample-audio-16khz',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/resample-audio-16khz',
+	},
+	{
 		id: 'resize-a-video',
 		title: 'Resize a video',
 		relativePath: 'docs/webcodecs/resizing.mdx',

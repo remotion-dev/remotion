@@ -51,3 +51,24 @@ const newAudioData = convertAudioData({audioData, newSampleRate: 22050});
 - The new sample rate must be between 3000 and 768000.
 - If no conversion is needed (same sample rate and format), the original `AudioData` is cloned.
 - No cleanup is done on either the input or output `AudioData` (call [`close()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData/close) on them yourself).
+
+## API
+
+Takes an object with the following properties:
+
+### `audioData`
+
+The [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object to convert.
+
+### `newSampleRate?`
+
+The new sample rate. Must be between 3000 and 768000 (only Chrome enforces this technically, but Remotion will throw an error always).
+
+### `newFormat?`
+
+The new format.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/convert-audiodata.ts)
+- [convertMedia()](/docs/webcodecs/convert-media)
