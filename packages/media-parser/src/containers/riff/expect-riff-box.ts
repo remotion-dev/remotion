@@ -12,6 +12,41 @@ export type RiffResult = {
 	box: RiffBox | null;
 };
 
+const postProcessRiffBox = async (state: ParserState, box: RiffBox) => {
+	if (box.type === 'strh-box') {
+		if (box.strf.type === 'strf-box-audio' && state.onAudioTrack) {
+			const audioTrack = makeAviAudioTrack({
+				index: state.riff.getNextTrackIndex(),
+				strf: box.strf,
+			});
+			await registerAudioTrack({
+				track: audioTrack,
+				container: 'avi',
+				registerAudioSampleCallback:
+					state.callbacks.registerAudioSampleCallback,
+				tracks: state.callbacks.tracks,
+				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
+			});
+		}
+
+		if (state.onVideoTrack && box.strf.type === 'strf-box-video') {
+			const videoTrack = makeAviVideoTrack({
+				strh: box,
+				index: state.riff.getNextTrackIndex(),
+				strf: box.strf,
+			});
+			registerVideoTrackWhenProfileIsAvailable({
+				state,
+				track: videoTrack,
+				container: 'avi',
+			});
+		}
+
+		state.riff.incrementNextTrackIndex();
+	}
+};
+
 export const expectRiffBox = async (
 	state: ParserState,
 ): Promise<RiffBox | null> => {
@@ -47,38 +82,7 @@ export const expectRiffBox = async (
 		state,
 	});
 
-	if (box.type === 'strh-box') {
-		if (box.strf.type === 'strf-box-audio' && state.onAudioTrack) {
-			const audioTrack = makeAviAudioTrack({
-				index: state.riff.getNextTrackIndex(),
-				strf: box.strf,
-			});
-			await registerAudioTrack({
-				track: audioTrack,
-				container: 'avi',
-				registerAudioSampleCallback:
-					state.callbacks.registerAudioSampleCallback,
-				tracks: state.callbacks.tracks,
-				logLevel: state.logLevel,
-				onAudioTrack: state.onAudioTrack,
-			});
-		}
-
-		if (state.onVideoTrack && box.strf.type === 'strf-box-video') {
-			const videoTrack = makeAviVideoTrack({
-				strh: box,
-				index: state.riff.getNextTrackIndex(),
-				strf: box.strf,
-			});
-			registerVideoTrackWhenProfileIsAvailable({
-				state,
-				track: videoTrack,
-				container: 'avi',
-			});
-		}
-
-		state.riff.incrementNextTrackIndex();
-	}
+	await postProcessRiffBox(state, box);
 
 	return box;
 };

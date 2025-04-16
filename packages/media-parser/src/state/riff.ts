@@ -35,3 +35,5 @@ export const riffSpecificState = () => {
 		},
 	};
 };
+
+export type RiffState = ReturnType<typeof riffSpecificState>;
