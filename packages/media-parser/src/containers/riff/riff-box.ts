@@ -82,6 +82,18 @@ export type IsftBox = {
 	software: string;
 };
 
+export type Idx1Box = {
+	type: 'idx1-box';
+	entries: Idx1Entry[];
+};
+
+export type Idx1Entry = {
+	id: string;
+	flags: number;
+	offset: number;
+	size: number;
+};
+
 export type RiffBox =
 	| RiffRegularBox
 	| RiffHeader
@@ -90,6 +102,7 @@ export type RiffBox =
 	| StrhBox
 	| StrfBoxVideo
 	| StrfBoxAudio
+	| Idx1Box
 	| IsftBox;
 
 export type RiffStructure = {

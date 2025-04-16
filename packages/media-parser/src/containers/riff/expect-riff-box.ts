@@ -1,3 +1,4 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import {
 	registerAudioTrack,
 	registerVideoTrackWhenProfileIsAvailable,
@@ -47,12 +48,15 @@ export const postProcessRiffBox = async (state: ParserState, box: RiffBox) => {
 	}
 };
 
-export const expectRiffBox = async (
-	state: ParserState,
-): Promise<RiffBox | null> => {
-	const {iterator} = state;
+export const expectRiffBox = async ({
+	iterator,
+	stateIfExpectingSideEffects,
+}: {
+	iterator: BufferIterator;
+	stateIfExpectingSideEffects: ParserState | null;
+}): Promise<RiffBox | null> => {
 	// Need at least 16 bytes to read LIST,size,movi,size
-	if (state.iterator.bytesRemaining() < 16) {
+	if (iterator.bytesRemaining() < 16) {
 		return null;
 	}
 
@@ -63,7 +67,11 @@ export const expectRiffBox = async (
 
 	if (isMoviAtom(iterator, ckId)) {
 		iterator.discard(4);
-		state.mediaSection.addMediaSection({
+		if (!stateIfExpectingSideEffects) {
+			throw new Error('No state if expecting side effects');
+		}
+
+		stateIfExpectingSideEffects.mediaSection.addMediaSection({
 			start: iterator.counter.getOffset(),
 			size: ckSize - 4,
 		});
@@ -79,7 +87,8 @@ export const expectRiffBox = async (
 	const box = await parseRiffBox({
 		id: ckId,
 		size: ckSize,
-		state,
+		iterator,
+		stateIfExpectingSideEffects,
 	});
 
 	return box;
