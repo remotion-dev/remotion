@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fanwood Text',
 	importName: 'FanwoodText',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Fanwood+Text:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Fanwood Text' as const;
@@ -36,11 +37,11 @@ export const fontFamily = 'Fanwood Text' as const;
 type Variants = {
 	italic: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

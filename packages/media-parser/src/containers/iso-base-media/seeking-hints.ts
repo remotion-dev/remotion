@@ -24,6 +24,7 @@ export const getSeekingHintsFromMp4 = ({
 		isoState,
 		mp4HeaderSegment,
 		structureState,
+		mayUsePrecomputed: true,
 	});
 	const moofBoxes = deduplicateMoofBoxesByOffset([
 		...isoState.moof.getMoofBoxes(),
@@ -48,22 +49,23 @@ export const getSeekingHintsFromMp4 = ({
 	};
 };
 
-export const setSeekingHintsForMp4 = ({
-	hints,
-	state,
-}: {
+// eslint-disable-next-line no-empty-pattern
+export const setSeekingHintsForMp4 = ({}: {
 	hints: IsoBaseMediaSeekingHints;
 	state: ParserState;
 }) => {
-	state.iso.moov.setMoovBox({
-		moovBox: hints.moovBox,
-		precomputed: true,
-	});
-	state.iso.mfra.setFromSeekingHints(hints);
-	state.iso.moof.setMoofBoxes(hints.moofBoxes);
-	state.iso.tfra.setTfraBoxes(hints.tfraBoxes);
+	// state.iso.moov.setMoovBox({
+	//	moovBox: hints.moovBox,
+	//	precomputed: true,
+	// });
+	// 	state.iso.mfra.setFromSeekingHints(hints);
+	// state.iso.moof.setMoofBoxes(hints.moofBoxes);
+	// TODO: Make use of these seeking hints and make tests pass
+	/*
+	//	state.iso.tfra.setTfraBoxes(hints.tfraBoxes);
 
 	for (const mediaSection of hints.mediaSections) {
-		state.mediaSection.addMediaSection(mediaSection);
+		// state.mediaSection.addMediaSection(mediaSection);
 	}
+	*/
 };

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Poor Story',
 	importName: 'PoorStory',
-	version: 'v20',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Poor+Story:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -379,6 +379,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin'],
 });
 
 export const fontFamily = 'Poor Story' as const;

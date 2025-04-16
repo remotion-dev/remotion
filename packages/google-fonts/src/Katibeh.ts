@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Katibeh',
 	importName: 'Katibeh',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Katibeh:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Katibeh' as const;

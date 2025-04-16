@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Roboto Serif',
 	importName: 'RobotoSerif',
-	version: 'v13',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -238,6 +238,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Roboto Serif' as const;

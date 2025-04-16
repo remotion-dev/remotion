@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'rejang'],
 });
 
 export const fontFamily = 'Noto Sans Rejang' as const;

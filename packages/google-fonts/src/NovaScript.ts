@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Script',
 	importName: 'NovaScript',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Nova Script' as const;
@@ -28,7 +29,7 @@ export const fontFamily = 'Nova Script' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

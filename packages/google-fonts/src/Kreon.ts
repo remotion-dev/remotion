@@ -45,6 +45,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kreon' as const;

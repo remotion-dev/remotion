@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hachi Maru Pop',
 	importName: 'HachiMaruPop',
-	version: 'v19',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -489,6 +489,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Hachi Maru Pop' as const;

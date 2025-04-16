@@ -80,6 +80,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'greek', 'greek-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Eczar' as const;

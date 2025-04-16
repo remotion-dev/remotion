@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shippori Antique',
 	importName: 'ShipporiAntique',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Shippori+Antique:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -490,6 +490,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Shippori Antique' as const;

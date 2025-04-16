@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mirza',
 	importName: 'Mirza',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Mirza:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Mirza' as const;

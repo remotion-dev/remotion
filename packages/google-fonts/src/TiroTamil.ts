@@ -34,6 +34,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil'],
 });
 
 export const fontFamily = 'Tiro Tamil' as const;

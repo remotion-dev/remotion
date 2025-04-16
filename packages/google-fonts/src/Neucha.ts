@@ -20,6 +20,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin'],
 });
 
 export const fontFamily = 'Neucha' as const;

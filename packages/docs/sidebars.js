@@ -543,7 +543,11 @@ module.exports = {
 				'studio/delete-static-file',
 				'studio/restart-studio',
 				'studio/save-default-props',
+				'studio/play',
+				'studio/pause',
+				'studio/toggle',
 				'studio/seek',
+				'studio/go-to-composition',
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
@@ -716,7 +720,6 @@ module.exports = {
 			label: '@remotion/fonts',
 			link: {
 				type: 'doc',
-
 				id: 'fonts-api/fonts-api',
 			},
 			items: ['fonts-api/load-font'],
@@ -933,6 +936,7 @@ module.exports = {
 						'lambda/troubleshooting/unrecognizedclientexception',
 						'lambda/troubleshooting/bucket-disallows-acl',
 						'lambda/troubleshooting/security-token',
+						'lambda/troubleshooting/chrome-133-situation',
 					],
 				},
 				{
@@ -1226,6 +1230,7 @@ module.exports = {
 				'miscellaneous/render-in-browser',
 				'miscellaneous/automatic-duration',
 				'miscellaneous/vercel-functions',
+				'miscellaneous/nextjs',
 				'miscellaneous/render-on-edge',
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',

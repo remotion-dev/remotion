@@ -9,6 +9,7 @@ import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
+import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
 	state: ParserState,
@@ -28,9 +29,9 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
-	const alreadyHas = getHasTracks(state);
+	const alreadyHasMoov = getHasTracks(state, true);
 
-	if (!alreadyHas) {
+	if (!alreadyHasMoov) {
 		const moov = await getMoovAtom({
 			endOfMdat,
 			state,
@@ -40,8 +41,8 @@ export const parseMdatSection = async (
 			precomputed: false,
 		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
-		state.structure.getIsoStructure().boxes.push(moov);
 
+		state.structure.getIsoStructure().boxes.push(moov);
 		return parseMdatSection(state);
 	}
 
@@ -84,10 +85,13 @@ export const parseMdatSection = async (
 		return null;
 	}
 
-	const bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
-
-	const {cts, dts, duration, isKeyframe, offset} =
+	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =
 		samplesWithIndex.samplePosition;
+	const bytes = postprocessBytes({
+		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
+		bigEndian,
+		chunkSize,
+	});
 
 	if (samplesWithIndex.track.type === 'audio') {
 		await emitAudioSample({

@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Fjalla One' as const;

@@ -40,6 +40,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Alumni Sans Collegiate One' as const;

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gurajada',
 	importName: 'Gurajada',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Gurajada:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu'],
 });
 
 export const fontFamily = 'Gurajada' as const;
@@ -32,7 +33,7 @@ export const fontFamily = 'Gurajada' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'telugu';
+		subsets: 'latin' | 'latin-ext' | 'telugu';
 	};
 };
 

@@ -95,6 +95,8 @@ const turnSeekIntoByte = async ({
 			webmState,
 			mediaSection: mediaSectionState,
 			endOfFile,
+			mp4HeaderSegment,
+			structure: structureState,
 		});
 
 		return seekingByte;

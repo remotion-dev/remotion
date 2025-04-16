@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Dogra',
 	importName: 'NotoSerifDogra',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Dogra:ital,wght@0,400',
 	unicodeRanges: {
 		dogra:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['dogra', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Dogra' as const;

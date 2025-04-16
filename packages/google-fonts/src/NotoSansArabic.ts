@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Arabic',
 	importName: 'NotoSansArabic',
-	version: 'v18',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
@@ -119,6 +119,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Arabic' as const;
@@ -135,7 +136,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'arabic';
+		subsets: 'arabic' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yeon Sung',
 	importName: 'YeonSung',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Yeon+Sung:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -383,6 +383,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin'],
 });
 
 export const fontFamily = 'Yeon Sung' as const;

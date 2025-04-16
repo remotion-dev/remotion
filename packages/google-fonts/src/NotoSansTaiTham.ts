@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tai-tham'],
 });
 
 export const fontFamily = 'Noto Sans Tai Tham' as const;

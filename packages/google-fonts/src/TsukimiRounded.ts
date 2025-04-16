@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tsukimi Rounded',
 	importName: 'TsukimiRounded',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Tsukimi+Rounded:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'[3]':
@@ -477,6 +477,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Tsukimi Rounded' as const;

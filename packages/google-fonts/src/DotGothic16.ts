@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'DotGothicOneSix',
 	importName: 'DotGothic16',
-	version: 'v17',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=DotGothic16:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -501,6 +501,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'DotGothicOneSix' as const;

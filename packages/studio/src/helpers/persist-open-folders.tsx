@@ -1,3 +1,5 @@
+import {createContext} from 'react';
+
 export const openFolderKey = ({
 	folderName,
 	parentName,
@@ -34,3 +36,15 @@ export const loadExpandedFolders = (
 
 	return JSON.parse(item);
 };
+
+export type ExpandedFoldersRef = {
+	toggleFolder: (folderName: string, parentName: string | null) => void;
+	foldersExpanded: ExpandedFoldersState;
+	setFoldersExpanded: (foldersExpanded: ExpandedFoldersState) => void;
+};
+
+export const ExpandedFoldersContext = createContext<ExpandedFoldersRef>({
+	toggleFolder: () => {},
+	foldersExpanded: {},
+	setFoldersExpanded: () => {},
+});

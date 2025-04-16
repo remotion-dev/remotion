@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Fleur De Leah' as const;

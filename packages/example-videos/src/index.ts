@@ -106,6 +106,7 @@ export const exampleVideos = {
 		'public',
 		'demo-track.mp3',
 	),
+	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
 };
 
 export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';

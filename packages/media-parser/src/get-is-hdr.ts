@@ -11,11 +11,11 @@ const isVideoTrackHdr = (track: VideoTrack) => {
 };
 
 export const getIsHdr = (state: ParserState): boolean => {
-	const {videoTracks} = getTracks(state);
+	const {videoTracks} = getTracks(state, true);
 
 	return videoTracks.some((track) => isVideoTrackHdr(track));
 };
 
 export const hasHdr = (state: ParserState): boolean => {
-	return getHasTracks(state);
+	return getHasTracks(state, true);
 };

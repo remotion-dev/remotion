@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'mayan-numerals'],
 });
 
 export const fontFamily = 'Noto Sans Mayan Numerals' as const;

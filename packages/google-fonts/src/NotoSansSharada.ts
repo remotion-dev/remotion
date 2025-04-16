@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sharada'],
 });
 
 export const fontFamily = 'Noto Sans Sharada' as const;

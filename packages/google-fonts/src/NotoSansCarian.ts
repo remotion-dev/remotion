@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['carian', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Carian' as const;

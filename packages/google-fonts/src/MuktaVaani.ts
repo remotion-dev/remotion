@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mukta Vaani',
 	importName: 'MuktaVaani',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Mukta+Vaani:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		gujarati:
@@ -73,6 +73,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Mukta Vaani' as const;

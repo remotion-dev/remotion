@@ -63,6 +63,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Blinker' as const;

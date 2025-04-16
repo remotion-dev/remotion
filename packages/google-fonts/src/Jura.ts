@@ -109,6 +109,16 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'kayah-li',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Jura' as const;

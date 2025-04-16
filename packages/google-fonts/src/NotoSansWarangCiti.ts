@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'warang-citi'],
 });
 
 export const fontFamily = 'Noto Sans Warang Citi' as const;

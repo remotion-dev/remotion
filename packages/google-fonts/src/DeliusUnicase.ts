@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin'],
 });
 
 export const fontFamily = 'Delius Unicase' as const;

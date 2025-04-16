@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'masaram-gondi'],
 });
 
 export const fontFamily = 'Noto Sans Masaram Gondi' as const;

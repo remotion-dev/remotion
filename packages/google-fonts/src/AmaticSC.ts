@@ -44,6 +44,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'hebrew', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Amatic SC' as const;

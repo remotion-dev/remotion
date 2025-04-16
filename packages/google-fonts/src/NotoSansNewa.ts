@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'newa'],
 });
 
 export const fontFamily = 'Noto Sans Newa' as const;

@@ -2223,6 +2223,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: true,
 				size: 58926,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 62383,
@@ -2232,6 +2234,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 61381,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 123764,
@@ -2241,6 +2245,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 72911,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 196675,
@@ -2250,6 +2256,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 44270,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 240945,
@@ -2259,6 +2267,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 33770,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 274715,
@@ -2268,6 +2278,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 24302,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 299017,
@@ -2277,6 +2289,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 22624,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 321641,
@@ -2286,6 +2300,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 18746,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 340387,
@@ -2295,6 +2311,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 23021,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 363408,
@@ -2304,6 +2322,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 25599,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 389007,
@@ -2313,6 +2333,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 32479,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 421486,
@@ -2322,6 +2344,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 34806,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 456292,
@@ -2331,6 +2355,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 35461,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 491753,
@@ -2340,6 +2366,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 36204,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				offset: 527957,
@@ -2349,6 +2377,8 @@ if (process.platform !== 'win32') {
 				isKeyframe: false,
 				size: 35638,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 327,
@@ -2358,6 +2388,8 @@ if (process.platform !== 'win32') {
 				offset: 572709,
 				size: 34739,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 		]);
 
@@ -2369,6 +2401,8 @@ if (process.platform !== 'win32') {
 			offset: 5481634,
 			size: 45308,
 			chunk: 0,
+			bigEndian: false,
+			chunkSize: null,
 		});
 	});
 
@@ -2390,6 +2424,8 @@ if (process.platform !== 'win32') {
 				offset: 563595,
 				size: 4,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 1024,
@@ -2399,6 +2435,8 @@ if (process.platform !== 'win32') {
 				offset: 563599,
 				size: 391,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 2048,
@@ -2408,6 +2446,8 @@ if (process.platform !== 'win32') {
 				offset: 563990,
 				size: 490,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 3072,
@@ -2417,6 +2457,8 @@ if (process.platform !== 'win32') {
 				offset: 564480,
 				size: 463,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 4096,
@@ -2426,6 +2468,8 @@ if (process.platform !== 'win32') {
 				offset: 564943,
 				size: 4,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 5120,
@@ -2435,6 +2479,8 @@ if (process.platform !== 'win32') {
 				offset: 564947,
 				size: 441,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 6144,
@@ -2444,6 +2490,8 @@ if (process.platform !== 'win32') {
 				offset: 565388,
 				size: 493,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 7168,
@@ -2453,6 +2501,8 @@ if (process.platform !== 'win32') {
 				offset: 565881,
 				size: 437,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 8192,
@@ -2462,6 +2512,8 @@ if (process.platform !== 'win32') {
 				offset: 566318,
 				size: 431,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 9216,
@@ -2471,6 +2523,8 @@ if (process.platform !== 'win32') {
 				offset: 566749,
 				size: 463,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 10240,
@@ -2480,6 +2534,8 @@ if (process.platform !== 'win32') {
 				offset: 567212,
 				size: 456,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 11264,
@@ -2489,6 +2545,8 @@ if (process.platform !== 'win32') {
 				offset: 567668,
 				size: 408,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 12288,
@@ -2498,6 +2556,8 @@ if (process.platform !== 'win32') {
 				offset: 568076,
 				size: 394,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 13312,
@@ -2507,6 +2567,8 @@ if (process.platform !== 'win32') {
 				offset: 568470,
 				size: 455,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 			{
 				cts: 14336,
@@ -2516,6 +2578,8 @@ if (process.platform !== 'win32') {
 				offset: 568925,
 				size: 376,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			},
 		]);
 
@@ -2527,6 +2591,8 @@ if (process.platform !== 'win32') {
 			offset: 5532567,
 			size: 698,
 			chunk: 0,
+			bigEndian: false,
+			chunkSize: null,
 		});
 	});
 }

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Red Hat Mono',
 	importName: 'RedHatMono',
-	version: 'v11',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Red+Hat+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -77,6 +77,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Red Hat Mono' as const;

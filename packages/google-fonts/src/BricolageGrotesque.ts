@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bricolage Grotesque',
 	importName: 'BricolageGrotesque',
-	version: 'v2',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		vietnamese:
@@ -73,6 +73,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Bricolage Grotesque' as const;
@@ -80,7 +81,7 @@ export const fontFamily = 'Bricolage Grotesque' as const;
 type Variants = {
 	normal: {
 		weights: '200' | '300' | '400' | '500' | '600' | '700' | '800';
-		subsets: 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
+		subsets: 'latin' | 'latin-ext' | 'vietnamese';
 	};
 };
 

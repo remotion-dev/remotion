@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amiko',
 	importName: 'Amiko',
-	version: 'v12',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Amiko:ital,wght@0,400;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -41,6 +41,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Amiko' as const;

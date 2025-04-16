@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Nag Mundari',
 	importName: 'NotoSansNagMundari',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Nag+Mundari:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'nag-mundari': 'U+1E4D0-1E4F9',
@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nag-mundari'],
 });
 
 export const fontFamily = 'Noto Sans Nag Mundari' as const;

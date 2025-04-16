@@ -207,6 +207,17 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'arabic',
+		'armenian',
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'hebrew',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Handjet' as const;

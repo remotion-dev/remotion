@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aref Ruqaa Ink',
 	importName: 'ArefRuqaaInk',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa+Ink:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		arabic:
@@ -33,6 +33,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Aref Ruqaa Ink' as const;

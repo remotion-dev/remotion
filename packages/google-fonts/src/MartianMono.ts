@@ -98,6 +98,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Martian Mono' as const;

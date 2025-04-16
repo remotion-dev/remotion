@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Ole' as const;

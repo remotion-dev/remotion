@@ -8,7 +8,7 @@ import {getMoofBoxes, getTfraBoxes} from './traversal';
 export const getKeyframesFromIsoBaseMedia = (
 	state: ParserState,
 ): MediaParserKeyframe[] => {
-	const {videoTracks} = getTracksFromIsoBaseMedia(state);
+	const {videoTracks} = getTracksFromIsoBaseMedia(state, true);
 	const structure = state.structure.getIsoStructure();
 
 	const moofBoxes = getMoofBoxes(structure.boxes);

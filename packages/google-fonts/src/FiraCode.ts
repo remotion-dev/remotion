@@ -91,6 +91,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'latin',
+		'latin-ext',
+	],
 });
 
 export const fontFamily = 'Fira Code' as const;

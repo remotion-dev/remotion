@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Domine',
 	importName: 'Domine',
-	version: 'v20',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Domine:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -39,6 +39,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Domine' as const;

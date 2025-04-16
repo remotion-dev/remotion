@@ -39,6 +39,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin'],
 });
 
 export const fontFamily = 'Averia Libre' as const;

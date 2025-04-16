@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Batak',
 	importName: 'NotoSansBatak',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Batak:ital,wght@0,400',
 	unicodeRanges: {
 		batak: 'U+1BC0-1BFF, U+200C-200D, U+25CC',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['batak', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Batak' as const;

@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu'],
 });
 
 export const fontFamily = 'Noto Sans Telugu' as const;

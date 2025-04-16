@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Sogdian',
 	importName: 'NotoSansOldSogdian',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Sogdian:ital,wght@0,400',
 	unicodeRanges: {
 		'old-sogdian': 'U+10F00-10F27',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'old-sogdian'],
 });
 
 export const fontFamily = 'Noto Sans Old Sogdian' as const;

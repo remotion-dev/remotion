@@ -3,9 +3,11 @@ import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-se
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
 import type {LogLevel} from './log';
+import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingHints} from './seeking-hints';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {WebmState} from './state/matroska/webm';
+import type {StructureState} from './state/structure';
 import {getLastKeyFrameBeforeTimeInSeconds} from './state/transport-stream/observed-pes-header';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import type {MediaSectionState} from './state/video-section';
@@ -21,6 +23,8 @@ export const getSeekingByte = ({
 	webmState,
 	mediaSection,
 	endOfFile,
+	mp4HeaderSegment,
+	structure,
 }: {
 	info: SeekingHints;
 	time: number;
@@ -31,6 +35,8 @@ export const getSeekingByte = ({
 	webmState: WebmState;
 	mediaSection: MediaSectionState;
 	endOfFile: boolean;
+	structure: StructureState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-hints') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -39,6 +45,8 @@ export const getSeekingByte = ({
 			logLevel,
 			currentPosition,
 			isoState,
+			mp4HeaderSegment,
+			structure,
 		});
 	}
 

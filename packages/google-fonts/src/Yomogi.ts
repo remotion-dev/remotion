@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yomogi',
 	importName: 'Yomogi',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Yomogi:ital,wght@0,400',
 	unicodeRanges: {
 		'[1]':
@@ -501,6 +501,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Yomogi' as const;

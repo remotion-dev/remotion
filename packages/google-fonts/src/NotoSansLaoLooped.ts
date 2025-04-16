@@ -79,6 +79,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['lao', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Lao Looped' as const;

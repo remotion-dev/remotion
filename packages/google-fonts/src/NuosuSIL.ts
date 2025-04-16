@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'yi'],
 });
 
 export const fontFamily = 'Nuosu SIL' as const;

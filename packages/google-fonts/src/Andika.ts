@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Andika',
 	importName: 'Andika',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -70,6 +70,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Andika' as const;

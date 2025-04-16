@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gothic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Gothic' as const;

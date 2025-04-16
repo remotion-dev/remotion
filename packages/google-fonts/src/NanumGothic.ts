@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nanum Gothic',
 	importName: 'NanumGothic',
-	version: 'v23',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Nanum+Gothic:ital,wght@0,400;0,700;0,800',
 	unicodeRanges: {
 		'[0]':
@@ -751,6 +751,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin'],
 });
 
 export const fontFamily = 'Nanum Gothic' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'multani'],
 });
 
 export const fontFamily = 'Noto Sans Multani' as const;

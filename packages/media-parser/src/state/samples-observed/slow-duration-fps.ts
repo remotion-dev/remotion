@@ -34,10 +34,6 @@ export const samplesObservedState = () => {
 			audioDuration = timeBetweenSamplesAudio * audioSamples.size;
 		}
 
-		if (videoDuration === null && audioDuration === null) {
-			throw new Error('No samples');
-		}
-
 		return Math.max(videoDuration ?? 0, audioDuration ?? 0);
 	};
 

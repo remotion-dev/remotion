@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'yezidi'],
 });
 
 export const fontFamily = 'Noto Serif Yezidi' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'shavian'],
 });
 
 export const fontFamily = 'Noto Sans Shavian' as const;

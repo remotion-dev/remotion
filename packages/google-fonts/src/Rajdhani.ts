@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rajdhani',
 	importName: 'Rajdhani',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Rajdhani:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Rajdhani' as const;

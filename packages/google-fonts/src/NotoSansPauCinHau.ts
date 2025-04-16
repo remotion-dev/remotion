@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'pau-cin-hau'],
 });
 
 export const fontFamily = 'Noto Sans Pau Cin Hau' as const;

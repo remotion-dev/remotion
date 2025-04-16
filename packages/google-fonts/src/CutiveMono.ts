@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cutive Mono',
 	importName: 'CutiveMono',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Cutive+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Cutive Mono' as const;

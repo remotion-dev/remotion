@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Symbols',
 	importName: 'NotoSansSymbols',
-	version: 'v41',
+	version: 'v44',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		symbols:
@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'symbols'],
 });
 
 export const fontFamily = 'Noto Sans Symbols' as const;

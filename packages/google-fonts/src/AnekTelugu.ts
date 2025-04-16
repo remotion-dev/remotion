@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Telugu',
 	importName: 'AnekTelugu',
-	version: 'v8',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Telugu:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		telugu:
@@ -81,6 +81,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu'],
 });
 
 export const fontFamily = 'Anek Telugu' as const;

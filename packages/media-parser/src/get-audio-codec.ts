@@ -15,7 +15,7 @@ import type {ParserState} from './state/parser-state';
 export const getAudioCodec = (
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
-	const tracks = getTracks(parserState);
+	const tracks = getTracks(parserState, true);
 	const allTracks =
 		tracks.audioTracks.length +
 		tracks.otherTracks.length +
@@ -38,7 +38,7 @@ export const getAudioCodec = (
 };
 
 export const hasAudioCodec = (state: ParserState): boolean => {
-	return getHasTracks(state);
+	return getHasTracks(state, true);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({
@@ -215,6 +215,10 @@ export const isIn24AudioCodec = (trak: TrakBox): boolean => {
 	return getAudioCodecFromTrak(trak)?.format === 'in24';
 };
 
+export const isTwosAudioCodec = (trak: TrakBox): boolean => {
+	return getAudioCodecFromTrak(trak)?.format === 'twos';
+};
+
 export const getAudioCodecFromIso = (moov: MoovBox) => {
 	const traks = getTraks(moov);
 	const trakBox = traks.find(
@@ -242,10 +246,17 @@ export const getAudioCodecStringFromTrak = (
 		};
 	}
 
+	if (codec.format === 'twos') {
+		return {
+			codecString: 'pcm-s16',
+			description: codec.description,
+		};
+	}
+
 	if (codec.format === 'in24') {
 		return {
 			codecString: 'pcm-s24',
-			description: undefined,
+			description: codec.description,
 		};
 	}
 

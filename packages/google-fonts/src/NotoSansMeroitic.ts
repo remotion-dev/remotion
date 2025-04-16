@@ -30,6 +30,13 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'latin',
+		'latin-ext',
+		'meroitic',
+		'meroitic-cursive',
+		'meroitic-hieroglyphs',
+	],
 });
 
 export const fontFamily = 'Noto Sans Meroitic' as const;

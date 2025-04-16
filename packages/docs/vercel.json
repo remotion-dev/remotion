@@ -233,6 +233,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/ask-in-public",
+			"destination": "https://www.remotion.dev/docs/ask-in-public",
+			"permanent": false
+		},
+		{
 			"source": "/native",
 			"destination": "https://remotion.dev/docs/react-native",
 			"permanent": false

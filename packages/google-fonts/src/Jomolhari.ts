@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jomolhari',
 	importName: 'Jomolhari',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Jomolhari:ital,wght@0,400',
 	unicodeRanges: {
 		tibetan: 'U+0F00-0FFF, U+200C-200D, U+25CC, U+3008-300B',
@@ -20,6 +20,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'tibetan'],
 });
 
 export const fontFamily = 'Jomolhari' as const;

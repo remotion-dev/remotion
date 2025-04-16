@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yuji Hentaigana Akari',
 	importName: 'YujiHentaiganaAkari',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Yuji+Hentaigana+Akari:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':
@@ -133,6 +133,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Yuji Hentaigana Akari' as const;

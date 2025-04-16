@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'ogham'],
 });
 
 export const fontFamily = 'Noto Sans Ogham' as const;

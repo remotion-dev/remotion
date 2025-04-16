@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'New Tegomin',
 	importName: 'NewTegomin',
-	version: 'v10',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=New+Tegomin:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -483,6 +483,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'New Tegomin' as const;

@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'syriac'],
 });
 
 export const fontFamily = 'Noto Sans Syriac' as const;

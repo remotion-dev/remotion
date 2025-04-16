@@ -88,6 +88,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['armenian', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Armenian' as const;

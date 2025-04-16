@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'thaana'],
 });
 
 export const fontFamily = 'Noto Sans Thaana' as const;

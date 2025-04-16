@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Abhaya Libre',
 	importName: 'AbhayaLibre',
-	version: 'v14',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Abhaya+Libre:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		sinhala:
@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sinhala'],
 });
 
 export const fontFamily = 'Abhaya Libre' as const;

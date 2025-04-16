@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tangut'],
 });
 
 export const fontFamily = 'Noto Serif Tangut' as const;

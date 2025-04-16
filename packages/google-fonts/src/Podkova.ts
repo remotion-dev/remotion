@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Podkova',
 	importName: 'Podkova',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Podkova:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -80,6 +80,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Podkova' as const;

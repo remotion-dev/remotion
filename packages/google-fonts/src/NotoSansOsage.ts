@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'osage'],
 });
 
 export const fontFamily = 'Noto Sans Osage' as const;

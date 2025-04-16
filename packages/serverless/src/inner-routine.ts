@@ -203,7 +203,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			);
 		}
 
-		const response = await launchHandler({
+		await launchHandler({
 			params,
 			options: {
 				expectedBucketOwner: currentUserId,
@@ -213,9 +213,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			insideFunctionSpecifics,
 		});
 
-		await responseWriter.write(
-			new TextEncoder().encode(JSON.stringify(response)),
-		);
+		await responseWriter.write(new TextEncoder().encode(JSON.stringify({})));
 		await responseWriter.end();
 		return;
 	}

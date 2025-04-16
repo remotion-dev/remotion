@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Monomaniac One',
 	importName: 'MonomaniacOne',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Monomaniac+One:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':
@@ -229,6 +229,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Monomaniac One' as const;

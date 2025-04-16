@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Moulpali',
 	importName: 'Moulpali',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Moulpali:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -20,6 +20,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer', 'latin'],
 });
 
 export const fontFamily = 'Moulpali' as const;

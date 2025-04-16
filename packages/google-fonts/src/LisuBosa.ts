@@ -130,6 +130,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'lisu'],
 });
 
 export const fontFamily = 'Lisu Bosa' as const;

@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tai-le'],
 });
 
 export const fontFamily = 'Noto Sans Tai Le' as const;

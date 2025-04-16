@@ -379,6 +379,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Moirai One' as const;

@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin'],
 });
 
 export const fontFamily = 'IM Fell French Canon' as const;

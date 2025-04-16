@@ -1,4 +1,4 @@
-import type {AudioData} from '@remotion/media-utils';
+import type {MediaUtilsAudioData} from '@remotion/media-utils';
 import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
@@ -54,7 +54,7 @@ export const AudioWaveform: React.FC<{
 	doesVolumeChange,
 	playbackRate,
 }) => {
-	const [metadata, setMetadata] = useState<AudioData | null>(null);
+	const [metadata, setMetadata] = useState<MediaUtilsAudioData | null>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const mountState = useRef({isMounted: true});
 	const vidConf = Internals.useUnsafeVideoConfig();

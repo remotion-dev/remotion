@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Cham',
 	importName: 'NotoSansCham',
-	version: 'v29',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Cham:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		cham: 'U+200C-200D, U+2010, U+25CC, U+AA00-AA5F',
@@ -79,6 +79,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cham', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Cham' as const;

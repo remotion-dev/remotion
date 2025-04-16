@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Peddana',
 	importName: 'Peddana',
-	version: 'v20',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Peddana:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'telugu'],
 });
 
 export const fontFamily = 'Peddana' as const;

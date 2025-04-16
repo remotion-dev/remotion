@@ -72,6 +72,8 @@ const getSamplesFromTraf = (
 				isKeyframe: keyframe,
 				size,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			};
 			samples.push(samplePosition);
 			offset += size;

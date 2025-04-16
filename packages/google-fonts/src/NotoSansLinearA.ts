@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'linear-a'],
 });
 
 export const fontFamily = 'Noto Sans Linear A' as const;

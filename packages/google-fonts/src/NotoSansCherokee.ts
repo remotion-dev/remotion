@@ -89,6 +89,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cherokee', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Cherokee' as const;

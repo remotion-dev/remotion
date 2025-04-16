@@ -35,6 +35,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Fragment Mono' as const;

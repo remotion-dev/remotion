@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gaegu',
 	importName: 'Gaegu',
-	version: 'v17',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Gaegu:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		'[0]':
@@ -727,6 +727,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin'],
 });
 
 export const fontFamily = 'Gaegu' as const;

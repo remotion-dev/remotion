@@ -1,7 +1,7 @@
 import {NoReactInternals} from 'remotion/no-react';
 import type {SampleOutputRange} from './get-wave-form-samples';
 import {getWaveformSamples} from './get-wave-form-samples';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 import {validateChannel} from './validate-channel';
 
 type Bar = {
@@ -27,7 +27,7 @@ const concatArrays = (arrays: Float32Array[]): Float32Array => {
 };
 
 export type GetWaveformPortion = {
-	audioData: AudioData;
+	audioData: MediaUtilsAudioData;
 	startTimeInSeconds: number;
 	durationInSeconds: number;
 	numberOfSamples: number;

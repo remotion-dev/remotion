@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gabriela',
 	importName: 'Gabriela',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Gabriela:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -28,6 +28,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Gabriela' as const;

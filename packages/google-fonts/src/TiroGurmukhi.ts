@@ -35,6 +35,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gurmukhi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Tiro Gurmukhi' as const;

@@ -35,6 +35,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Tiro Devanagari Hindi' as const;

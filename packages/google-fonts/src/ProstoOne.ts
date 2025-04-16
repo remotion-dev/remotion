@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Prosto One' as const;

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bad Script',
 	importName: 'BadScript',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Bad+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Bad Script' as const;
@@ -39,7 +40,7 @@ export const fontFamily = 'Bad Script' as const;
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'cyrillic' | 'latin';
+		subsets: 'cyrillic' | 'cyrillic-ext' | 'latin' | 'latin-ext' | 'vietnamese';
 	};
 };
 

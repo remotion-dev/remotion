@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tangsa'],
 });
 
 export const fontFamily = 'Noto Sans Tangsa' as const;

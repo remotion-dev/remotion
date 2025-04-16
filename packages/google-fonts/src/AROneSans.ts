@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'AR One Sans',
 	importName: 'AROneSans',
-	version: 'v2',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=AR+One+Sans:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'AR One Sans' as const;

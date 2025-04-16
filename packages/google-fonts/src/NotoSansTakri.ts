@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'takri'],
 });
 
 export const fontFamily = 'Noto Sans Takri' as const;

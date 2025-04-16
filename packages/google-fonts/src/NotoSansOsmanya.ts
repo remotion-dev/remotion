@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'osmanya'],
 });
 
 export const fontFamily = 'Noto Sans Osmanya' as const;

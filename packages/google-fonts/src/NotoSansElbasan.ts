@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['elbasan', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Elbasan' as const;

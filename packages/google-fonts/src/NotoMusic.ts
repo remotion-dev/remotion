@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'music'],
 });
 
 export const fontFamily = 'Noto Music' as const;

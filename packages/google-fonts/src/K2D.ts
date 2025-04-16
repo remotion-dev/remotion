@@ -155,6 +155,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'thai', 'vietnamese'],
 });
 
 export const fontFamily = 'KTwoD' as const;

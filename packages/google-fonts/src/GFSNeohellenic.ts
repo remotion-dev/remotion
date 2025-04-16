@@ -31,6 +31,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek'],
 });
 
 export const fontFamily = 'GFS Neohellenic' as const;
