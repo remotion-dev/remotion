@@ -87,6 +87,7 @@ export const getSupportedConfigs = async ({
 	userRotation,
 	inputContainer,
 	resizeOperation,
+	sampleRate,
 }: {
 	tracks: MediaParserTracks;
 	container: ConvertMediaContainer;
@@ -95,6 +96,7 @@ export const getSupportedConfigs = async ({
 	userRotation: number;
 	inputContainer: MediaParserContainer;
 	resizeOperation: ResizeOperation | null;
+	sampleRate: number | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
 
@@ -170,6 +172,7 @@ export const getSupportedConfigs = async ({
 				audioCodec,
 				track,
 				bitrate,
+				sampleRate,
 			});
 
 			if (canReencode) {
@@ -177,6 +180,7 @@ export const getSupportedConfigs = async ({
 					type: 'reencode',
 					audioCodec,
 					bitrate,
+					sampleRate,
 				});
 			}
 		}

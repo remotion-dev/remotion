@@ -34,6 +34,7 @@ for (const track of tracks.audioTracks) {
     track,
     audioCodec: 'opus',
     bitrate: 128000,
+    sampleRate: null,
   });
 }
 ```
@@ -51,10 +52,11 @@ await convertMedia({
       track,
       audioCodec: 'opus',
       bitrate: 128000,
+      sampleRate: null,
     });
 
     if (canReencode) {
-      return {type: 'reencode', audioCodec: 'opus', bitrate: 128000};
+      return {type: 'reencode', audioCodec: 'opus', bitrate: 128000, sampleRate: null};
     }
 
     return {type: 'drop'};
@@ -77,6 +79,12 @@ _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs" />
 _number_
 
 The bitrate with which you'd like to re-encode the audio track.
+
+### `sampleRate`
+
+_number | null_
+
+The sample rate with which you'd like to re-encode the audio track. If the sampleRate is `null`, the sample rate of the original track will be used.
 
 ## Return value
 
