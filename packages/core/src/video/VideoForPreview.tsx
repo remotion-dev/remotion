@@ -160,7 +160,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	useState(() =>
 		playbackLogging({
 			logLevel,
-			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${window.navigator.userAgent}`,
+			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
 			tag: 'video',
 			mountTime,
 		}),
