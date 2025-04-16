@@ -1,5 +1,5 @@
 import type {ParserState} from '../../state/parser-state';
-import {expectRiffBox} from './expect-riff-box';
+import {expectRiffBox, postProcessRiffBox} from './expect-riff-box';
 import type {RiffBox} from './riff-box';
 
 export const parseListBox = async ({
@@ -22,9 +22,12 @@ export const parseListBox = async ({
 
 	while (iterator.counter.getOffset() < maxOffset) {
 		const box = await expectRiffBox(state);
+
 		if (box === null) {
 			throw new Error('Unexpected result');
 		}
+
+		await postProcessRiffBox(state, box);
 
 		boxes.push(box);
 	}

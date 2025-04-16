@@ -12,7 +12,7 @@ export type RiffResult = {
 	box: RiffBox | null;
 };
 
-const postProcessRiffBox = async (state: ParserState, box: RiffBox) => {
+export const postProcessRiffBox = async (state: ParserState, box: RiffBox) => {
 	if (box.type === 'strh-box') {
 		if (box.strf.type === 'strf-box-audio' && state.onAudioTrack) {
 			const audioTrack = makeAviAudioTrack({
@@ -81,8 +81,6 @@ export const expectRiffBox = async (
 		size: ckSize,
 		state,
 	});
-
-	await postProcessRiffBox(state, box);
 
 	return box;
 };
