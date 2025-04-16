@@ -99,6 +99,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'getAvailableVideoCodecs()'}</strong>
 					<div>Get the video codecs that can fit in a container.</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/convert-audiodata">
+					<strong>{'convertAudioData()'}</strong>
+					<div>
+						Change the format or sample rate of an <code>AudioData</code>
+						object.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

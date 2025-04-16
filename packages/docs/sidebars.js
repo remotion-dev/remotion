@@ -675,6 +675,7 @@ module.exports = {
 				'webcodecs/get-default-video-codec',
 				'webcodecs/get-available-audio-codecs',
 				'webcodecs/get-available-video-codecs',
+				'webcodecs/convert-audiodata',
 			],
 		},
 		{

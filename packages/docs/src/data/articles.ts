@@ -5938,6 +5938,15 @@ export const articles = [
 		slug: 'webcodecs/convert-a-video',
 	},
 	{
+		id: 'convert-audiodata',
+		title: 'convertAudioData()',
+		relativePath: 'docs/webcodecs/convert-audiodata.mdx',
+		compId: 'articles-docs-webcodecs-convert-audiodata',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/convert-audiodata',
+	},
+	{
 		id: 'convert-media',
 		title: 'convertMedia()',
 		relativePath: 'docs/webcodecs/convert-media.mdx',
