@@ -18,6 +18,7 @@ import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
+import {VERSION} from '../version.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
@@ -159,7 +160,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	useState(() =>
 		playbackLogging({
 			logLevel,
-			message: `Mounting video with source = ${actualSrc}`,
+			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
 			tag: 'video',
 			mountTime,
 		}),

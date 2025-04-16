@@ -2,6 +2,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -110,7 +111,7 @@ const useBufferManager = (
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [blocks]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (blocks.length === 0) {
 			onResumeCallbacks.forEach((c) => c());
 			playbackLogging({
