@@ -1,4 +1,4 @@
-const getDataTypeForAudioFormat = (format: AudioSampleFormat) => {
+export const getDataTypeForAudioFormat = (format: AudioSampleFormat) => {
 	switch (format) {
 		case 'f32':
 			return Float32Array;
@@ -28,9 +28,11 @@ const isPlanarFormat = (format: AudioSampleFormat) => {
 export const resampleAudioData = ({
 	audioData,
 	newSampleRate,
+	format = audioData.format,
 }: {
 	audioData: AudioData;
 	newSampleRate: number;
+	format?: AudioSampleFormat | null;
 }) => {
 	const {
 		numberOfChannels,
@@ -40,13 +42,13 @@ export const resampleAudioData = ({
 	const ratio = currentSampleRate / newSampleRate;
 	const newNumberOfFrames = Math.floor(numberOfFrames / ratio);
 
-	if (!audioData.format) {
+	if (!format) {
 		throw new Error('AudioData format is not set');
 	}
 
-	const DataType = getDataTypeForAudioFormat(audioData.format);
+	const DataType = getDataTypeForAudioFormat(format);
 
-	const isPlanar = isPlanarFormat(audioData.format);
+	const isPlanar = isPlanarFormat(format);
 	const planes = isPlanar ? numberOfChannels : 1;
 	const srcChannels = new Array(planes)
 		.fill(true)
@@ -57,6 +59,7 @@ export const resampleAudioData = ({
 	for (let i = 0; i < planes; i++) {
 		audioData.clone().copyTo(srcChannels[i], {
 			planeIndex: i,
+			format,
 		});
 	}
 
@@ -108,7 +111,7 @@ export const resampleAudioData = ({
 
 	const newAudioData = new AudioData({
 		data,
-		format: audioData.format,
+		format,
 		numberOfChannels,
 		numberOfFrames: newNumberOfFrames,
 		sampleRate: newSampleRate,

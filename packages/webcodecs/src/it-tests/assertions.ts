@@ -1,3 +1,5 @@
+import {getDataTypeForAudioFormat} from '../resample-audiodata';
+
 export const assertIs = (value: unknown, expected: unknown) => {
 	if (value !== expected) {
 		throw new Error(`Expected ${expected}, got ${value}`);
@@ -19,12 +21,13 @@ export const audioDataToSerializable = (audioData: AudioData) => {
 
 	const isPlanar = audioData.format.includes('planar');
 	const planes = isPlanar ? audioData.numberOfChannels : 1;
+	const DataType = getDataTypeForAudioFormat(audioData.format);
 
 	const planesArray = new Array(planes)
 		.fill(true)
 		.map(
 			() =>
-				new Float32Array(
+				new DataType(
 					audioData.numberOfFrames *
 						(isPlanar ? 1 : audioData.numberOfChannels),
 				),
