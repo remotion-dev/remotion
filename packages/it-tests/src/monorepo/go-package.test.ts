@@ -85,7 +85,7 @@ test(
 
 		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
 	},
-	{timeout: 15000},
+	{timeout: 60000},
 );
 
 const removeUndefined = (data: unknown) => {

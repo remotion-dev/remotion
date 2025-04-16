@@ -32,6 +32,7 @@ export const parseLoop = async ({
 	onError: ParseMediaOnError;
 }) => {
 	let iterationWithThisOffset = 0;
+
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
@@ -86,6 +87,9 @@ export const parseLoop = async ({
 						skip.skipTo - state.iterator.counter.getOffset(),
 					);
 					if (skip.skipTo === state.contentLength) {
+						state.iterator.discard(
+							skip.skipTo - state.iterator.counter.getOffset(),
+						);
 						Log.verbose(
 							state.logLevel,
 							'Skipped to end of file, not fetching.',
@@ -144,5 +148,27 @@ export const parseLoop = async ({
 		} else {
 			iterationWithThisOffset = 0;
 		}
+	}
+
+	state.samplesObserved.setLastSampleObserved();
+
+	// After the last sample, you might queue a last seek again.
+	if (state.controller._internals.seekSignal.getSeek()) {
+		Log.verbose(
+			state.logLevel,
+			'Reached end of samples, but there is a pending seek. Trying to seek...',
+		);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
+		if (state.controller._internals.seekSignal.getSeek()) {
+			throw new Error(
+				'Failed to seek to the end of the file. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
+			);
+		}
+
+		await parseLoop({
+			onError,
+			throttledState,
+			state,
+		});
 	}
 };

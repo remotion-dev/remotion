@@ -11,11 +11,13 @@ import type {IsoBaseMediaStructure} from './parse-result';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
+import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
 import type {WebmState} from './state/matroska/webm';
 import type {ParserState} from './state/parser-state';
+import type {SamplesObservedState} from './state/samples-observed/slow-duration-fps';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
@@ -33,6 +35,8 @@ const turnSeekIntoByte = async ({
 	tracksState,
 	webmState,
 	keyframes,
+	flacState,
+	samplesObserved,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -45,6 +49,8 @@ const turnSeekIntoByte = async ({
 	tracksState: TracksState;
 	webmState: WebmState;
 	keyframes: KeyframesState;
+	flacState: FlacState;
+	samplesObserved: SamplesObservedState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -62,6 +68,7 @@ const turnSeekIntoByte = async ({
 		}
 
 		const seekingHints = getSeekingHints({
+			samplesObserved,
 			structureState,
 			mp4HeaderSegment,
 			mediaSectionState,
@@ -70,6 +77,7 @@ const turnSeekIntoByte = async ({
 			tracksState,
 			keyframesState: keyframes,
 			webmState,
+			flacState,
 		});
 
 		if (!seekingHints) {
@@ -127,6 +135,8 @@ export type WorkOnSeekRequestOptions = {
 	tracksState: TracksState;
 	webmState: WebmState;
 	keyframes: KeyframesState;
+	flacState: FlacState;
+	samplesObserved: SamplesObservedState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -152,6 +162,8 @@ export const getWorkOnSeekRequestOptions = (
 		tracksState: state.callbacks.tracks,
 		webmState: state.webm,
 		keyframes: state.keyframes,
+		flacState: state.flac,
+		samplesObserved: state.samplesObserved,
 	};
 };
 
@@ -176,6 +188,8 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		tracksState,
 		webmState,
 		keyframes,
+		flacState,
+		samplesObserved,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -195,6 +209,8 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		tracksState,
 		webmState,
 		keyframes,
+		flacState,
+		samplesObserved,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

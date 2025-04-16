@@ -1,3 +1,4 @@
+import {getSeekingByteForFlac} from './containers/flac/get-seeking-byte';
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
@@ -61,6 +62,23 @@ export const getSeekingByte = ({
 			webmState,
 			logLevel,
 			mediaSection,
+		});
+	}
+
+	if (info.type === 'flac-seeking-hints') {
+		const byte = getSeekingByteForFlac({
+			seekingHints: info,
+			time,
+		});
+		if (byte) {
+			return Promise.resolve({
+				type: 'do-seek',
+				byte,
+			});
+		}
+
+		return Promise.resolve({
+			type: 'valid-but-must-wait',
 		});
 	}
 

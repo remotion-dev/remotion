@@ -5,6 +5,8 @@ export const samplesObservedState = () => {
 	let largestVideoSample: number | undefined;
 	let smallestAudioSample: number | undefined;
 	let largestAudioSample: number | undefined;
+	let lastSampleObserved = false;
+
 	const videoSamples: Map<number, number> = new Map();
 	const audioSamples: Map<number, number> = new Map();
 
@@ -110,6 +112,12 @@ export const samplesObservedState = () => {
 		return (videoSizesInBytes * 8) / videoDuration;
 	};
 
+	const getLastSampleObserved = () => lastSampleObserved;
+
+	const setLastSampleObserved = () => {
+		lastSampleObserved = true;
+	};
+
 	return {
 		addVideoSample,
 		addAudioSample,
@@ -118,7 +126,9 @@ export const samplesObservedState = () => {
 		getSlowNumberOfFrames,
 		getAudioBitrate,
 		getVideoBitrate,
+		getLastSampleObserved,
+		setLastSampleObserved,
 	};
 };
 
-export type SlowDurationAndFpsState = ReturnType<typeof samplesObservedState>;
+export type SamplesObservedState = ReturnType<typeof samplesObservedState>;

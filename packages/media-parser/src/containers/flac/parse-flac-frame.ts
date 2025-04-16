@@ -114,6 +114,11 @@ const emitSample = async ({
 	}
 
 	const timestamp = (num * streamInfo.maximumBlockSize) / streamInfo.sampleRate;
+	state.flac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset,
+		durationInSeconds: duration,
+	});
 
 	await emitAudioSample({
 		trackId: 0,
@@ -126,7 +131,7 @@ const emitSample = async ({
 				timestamp,
 				type: 'key',
 				offset,
-				timescale: 1000000,
+				timescale: 1,
 				trackId: 0,
 			},
 			timescale: 1,
