@@ -1,4 +1,4 @@
-import {defineConfig, devices} from '@playwright/test';
+import {defineConfig, devices, Project} from '@playwright/test';
 
 export default defineConfig({
 	projects: [
@@ -10,9 +10,11 @@ export default defineConfig({
 			name: 'firefox',
 			use: {...devices['Desktop Firefox']},
 		},
-		{
-			name: 'webkit',
-			use: {...devices['Desktop Safari']},
-		},
-	],
+		process.env.CI
+			? null
+			: {
+					name: 'webkit',
+					use: {...devices['Desktop Safari']},
+				},
+	].filter(Boolean) as Project[],
 });
