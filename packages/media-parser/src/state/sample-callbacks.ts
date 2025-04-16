@@ -13,7 +13,7 @@ import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
 import {needsToIterateOverSamples} from './need-samples-for-fields';
-import type {SlowDurationAndFpsState} from './samples-observed/slow-duration-fps';
+import type {SamplesObservedState} from './samples-observed/slow-duration-fps';
 import type {StructureState} from './structure';
 
 export const sampleCallback = ({
@@ -23,7 +23,7 @@ export const sampleCallback = ({
 	fields,
 	keyframes,
 	emittedFields,
-	slowDurationAndFpsState,
+	samplesObservedState,
 	structure,
 	src,
 	seekSignal,
@@ -35,7 +35,7 @@ export const sampleCallback = ({
 	fields: Options<ParseMediaFields>;
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
-	slowDurationAndFpsState: SlowDurationAndFpsState;
+	samplesObservedState: SamplesObservedState;
 	structure: StructureState;
 	src: ParseMediaSrc;
 	seekSignal: SeekSignal;
@@ -103,7 +103,7 @@ export const sampleCallback = ({
 			}
 
 			if (needsToIterateOverSamples({emittedFields, fields})) {
-				slowDurationAndFpsState.addAudioSample(audioSample);
+				samplesObservedState.addAudioSample(audioSample);
 			}
 		},
 		getSamplesForTrack: (trackId: number) => {
@@ -150,7 +150,7 @@ export const sampleCallback = ({
 					emittedFields,
 				})
 			) {
-				slowDurationAndFpsState.addVideoSample(videoSample);
+				samplesObservedState.addVideoSample(videoSample);
 			}
 		},
 		canSkipTracksState,

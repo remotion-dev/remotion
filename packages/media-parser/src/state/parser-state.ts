@@ -110,7 +110,7 @@ export const makeParserState = ({
 	const structure = structureState();
 	const keyframes = keyframesState();
 	const emittedFields = emittedState();
-	const slowDurationAndFps = samplesObservedState();
+	const samplesObserved = samplesObservedState();
 	const mp3Info = makeMp3State();
 	const images = imagesState();
 	const timings = timingsState();
@@ -158,7 +158,7 @@ export const makeParserState = ({
 			fields,
 			keyframes,
 			emittedFields,
-			slowDurationAndFpsState: slowDurationAndFps,
+			samplesObservedState: samplesObserved,
 			structure,
 			src,
 			seekSignal: controller._internals.seekSignal,
@@ -176,7 +176,7 @@ export const makeParserState = ({
 		onVideoTrack,
 		emittedFields,
 		fields,
-		slowDurationAndFps,
+		samplesObserved,
 		contentLength,
 		images,
 		mediaSection: mediaSectionState(),

@@ -17,6 +17,7 @@ import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
 import type {WebmState} from './state/matroska/webm';
 import type {ParserState} from './state/parser-state';
+import type {SamplesObservedState} from './state/samples-observed/slow-duration-fps';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {StructureState} from './state/structure';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
@@ -35,6 +36,7 @@ const turnSeekIntoByte = async ({
 	webmState,
 	keyframes,
 	flacState,
+	samplesObserved,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -48,6 +50,7 @@ const turnSeekIntoByte = async ({
 	webmState: WebmState;
 	keyframes: KeyframesState;
 	flacState: FlacState;
+	samplesObserved: SamplesObservedState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -65,6 +68,7 @@ const turnSeekIntoByte = async ({
 		}
 
 		const seekingHints = getSeekingHints({
+			samplesObserved,
 			structureState,
 			mp4HeaderSegment,
 			mediaSectionState,
@@ -132,6 +136,7 @@ export type WorkOnSeekRequestOptions = {
 	webmState: WebmState;
 	keyframes: KeyframesState;
 	flacState: FlacState;
+	samplesObserved: SamplesObservedState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -158,6 +163,7 @@ export const getWorkOnSeekRequestOptions = (
 		webmState: state.webm,
 		keyframes: state.keyframes,
 		flacState: state.flac,
+		samplesObserved: state.samplesObserved,
 	};
 };
 
@@ -183,6 +189,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		webmState,
 		keyframes,
 		flacState,
+		samplesObserved,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -203,6 +210,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		webmState,
 		keyframes,
 		flacState,
+		samplesObserved,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

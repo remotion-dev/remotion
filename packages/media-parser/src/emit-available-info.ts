@@ -75,7 +75,7 @@ export const emitAvailableInfo = async ({
 			) {
 				const slowDurationInSeconds =
 					getDuration(state) ??
-					state.slowDurationAndFps.getSlowDurationInSeconds();
+					state.samplesObserved.getSlowDurationInSeconds();
 				await callbackFunctions.onSlowDurationInSeconds?.(
 					slowDurationInSeconds,
 				);
@@ -120,7 +120,7 @@ export const emitAvailableInfo = async ({
 		// must be handled after fps
 		if (key === 'slowFps') {
 			if (hasInfo.slowFps && !emittedFields.slowFps) {
-				const slowFps = state.slowDurationAndFps.getFps();
+				const slowFps = state.samplesObserved.getFps();
 				await callbackFunctions.onSlowFps?.(slowFps);
 				if (fieldsInReturnValue.slowFps) {
 					returnValue.slowFps = slowFps;
@@ -360,11 +360,11 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowNumberOfFrames') {
 			if (!emittedFields.slowNumberOfFrames && hasInfo.slowNumberOfFrames) {
 				await callbackFunctions.onSlowNumberOfFrames?.(
-					state.slowDurationAndFps.getSlowNumberOfFrames(),
+					state.samplesObserved.getSlowNumberOfFrames(),
 				);
 				if (fieldsInReturnValue.slowNumberOfFrames) {
 					returnValue.slowNumberOfFrames =
-						state.slowDurationAndFps.getSlowNumberOfFrames();
+						state.samplesObserved.getSlowNumberOfFrames();
 				}
 
 				emittedFields.slowNumberOfFrames = true;
@@ -376,11 +376,11 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowAudioBitrate') {
 			if (!emittedFields.slowAudioBitrate && hasInfo.slowAudioBitrate) {
 				await callbackFunctions.onSlowAudioBitrate?.(
-					state.slowDurationAndFps.getAudioBitrate(),
+					state.samplesObserved.getAudioBitrate(),
 				);
 				if (fieldsInReturnValue.slowAudioBitrate) {
 					returnValue.slowAudioBitrate =
-						state.slowDurationAndFps.getAudioBitrate();
+						state.samplesObserved.getAudioBitrate();
 				}
 
 				emittedFields.slowAudioBitrate = true;
@@ -392,11 +392,11 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowVideoBitrate') {
 			if (!emittedFields.slowVideoBitrate && hasInfo.slowVideoBitrate) {
 				await callbackFunctions.onSlowVideoBitrate?.(
-					state.slowDurationAndFps.getVideoBitrate(),
+					state.samplesObserved.getVideoBitrate(),
 				);
 				if (fieldsInReturnValue.slowVideoBitrate) {
 					returnValue.slowVideoBitrate =
-						state.slowDurationAndFps.getVideoBitrate();
+						state.samplesObserved.getVideoBitrate();
 				}
 
 				emittedFields.slowVideoBitrate = true;

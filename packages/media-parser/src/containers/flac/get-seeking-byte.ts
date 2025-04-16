@@ -14,7 +14,10 @@ export const getSeekingByteForFlac = ({
 			continue;
 		}
 
-		if (hint.timeInSeconds + hint.durationInSeconds < time) {
+		if (
+			hint.timeInSeconds + hint.durationInSeconds < time &&
+			!seekingHints.lastSampleObserved
+		) {
 			continue;
 		}
 
