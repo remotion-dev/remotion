@@ -68,11 +68,24 @@ export const lazyIdx1Fetch = ({
 		}
 	};
 
+	const waitForLoaded = () => {
+		if (result) {
+			return Promise.resolve(result);
+		}
+
+		if (prom) {
+			return prom;
+		}
+
+		return Promise.resolve(null);
+	};
+
 	return {
 		triggerLoad,
 		getLoadedIdx1,
 		getIfAlreadyLoaded,
 		setFromSeekingHints,
+		waitForLoaded,
 	};
 };
 

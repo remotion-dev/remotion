@@ -102,6 +102,7 @@ const turnSeekIntoByte = async ({
 			mediaSection: mediaSectionState,
 			mp4HeaderSegment,
 			structure: structureState,
+			riffState,
 		});
 
 		return seekingByte;

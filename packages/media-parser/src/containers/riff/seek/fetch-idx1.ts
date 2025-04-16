@@ -53,5 +53,6 @@ export const fetchIdx1 = async ({
 		throw new Error('Expected idx1-box');
 	}
 
-	return box.entries;
+	// only store video chunks, those end with "dc", e.g. "01dc"
+	return box.entries.filter((entry) => entry.id.endsWith('dc'));
 };

@@ -92,6 +92,7 @@ export type Idx1Entry = {
 	flags: number;
 	offset: number;
 	size: number;
+	index: number;
 };
 
 export type RiffBox =
