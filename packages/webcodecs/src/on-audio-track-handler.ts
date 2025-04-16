@@ -7,7 +7,12 @@ import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 
 export type AudioOperation =
-	| {type: 'reencode'; bitrate: number; audioCodec: ConvertMediaAudioCodec}
+	| {
+			type: 'reencode';
+			bitrate: number;
+			audioCodec: ConvertMediaAudioCodec;
+			sampleRate: number | null;
+	  }
 	| {type: 'copy'}
 	| {type: 'fail'}
 	| {type: 'drop'};

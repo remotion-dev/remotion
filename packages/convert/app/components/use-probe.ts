@@ -57,6 +57,7 @@ export const useProbe = ({
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);
+	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
 	const [m3u, setM3u] = useState<M3uStream[] | null>(null);
 	const [done, setDone] = useState(false);
@@ -120,6 +121,9 @@ export const useProbe = ({
 			onKeyframes: (k) => {
 				setKeyframes(k);
 			},
+			onSampleRate(s) {
+				setSampleRate(s);
+			},
 			onImages: (i) => {
 				setImages(i);
 			},
@@ -180,6 +184,7 @@ export const useProbe = ({
 			images,
 			m3u,
 			controller,
+			sampleRate,
 		};
 	}, [
 		tracks,
@@ -202,5 +207,6 @@ export const useProbe = ({
 		images,
 		m3u,
 		controller,
+		sampleRate,
 	]);
 };

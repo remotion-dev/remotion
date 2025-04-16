@@ -675,6 +675,7 @@ module.exports = {
 				'webcodecs/get-default-video-codec',
 				'webcodecs/get-available-audio-codecs',
 				'webcodecs/get-available-video-codecs',
+				'webcodecs/convert-audiodata',
 			],
 		},
 		{
@@ -1040,6 +1041,7 @@ module.exports = {
 				'webcodecs/rotate-a-video',
 				'webcodecs/resize-a-video',
 				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/resample-audio-16khz',
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
 				'webcodecs/telemetry',
