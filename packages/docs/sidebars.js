@@ -1041,6 +1041,7 @@ module.exports = {
 				'webcodecs/rotate-a-video',
 				'webcodecs/resize-a-video',
 				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/resample-audio-16khz',
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
 				'webcodecs/telemetry',

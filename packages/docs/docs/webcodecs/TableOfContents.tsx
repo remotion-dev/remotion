@@ -26,6 +26,10 @@ export const WebCodecsGuide: React.FC = () => {
 					<strong>Fix a MediaRecorder video</strong>
 					<div>Fix missing video duration and poor seeking performance</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/resample-audio-16khz">
+					<strong>Resample audio to 16kHz</strong>
+					<div>Resample an audio track to 16kHz for use with Whisper</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
