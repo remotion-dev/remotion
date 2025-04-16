@@ -28,3 +28,7 @@ test('should resample audio data with interleaved format', async ({page}) => {
 test('should resample audio data with format conversion', async ({page}) => {
 	await runTest(__dirname + '/format-conversion.ts', page);
 });
+
+test('should handle edge cases', async ({page}) => {
+	await runTest(__dirname + '/edge-cases.ts', page);
+});

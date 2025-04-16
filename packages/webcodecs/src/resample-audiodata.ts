@@ -25,6 +25,14 @@ const isPlanarFormat = (format: AudioSampleFormat) => {
 	return format.includes('-planar');
 };
 
+const validateRange = (format: AudioSampleFormat, value: number) => {
+	if (format === 'f32' || format === 'f32-planar') {
+		if (value < -1 || value > 1) {
+			throw new Error('All values in a Float32 array must be between -1 and 1');
+		}
+	}
+};
+
 export const resampleAudioData = ({
 	audioData,
 	newSampleRate,
@@ -41,6 +49,16 @@ export const resampleAudioData = ({
 	} = audioData;
 	const ratio = currentSampleRate / newSampleRate;
 	const newNumberOfFrames = Math.floor(numberOfFrames / ratio);
+
+	if (newNumberOfFrames === 0) {
+		throw new Error(
+			'Cannot resample - the given sample rate would result in less than 1 sample',
+		);
+	}
+
+	if (newSampleRate < 3000 || newSampleRate > 768000) {
+		throw new Error('newSampleRate must be between 3000 and 768000');
+	}
 
 	if (!format) {
 		throw new Error('AudioData format is not set');
@@ -83,8 +101,11 @@ export const resampleAudioData = ({
 				const chunk = srcChannels[channelIndex].slice(start, end);
 
 				const average =
-					(chunk as Int32Array<ArrayBuffer>).reduce((a, b) => a + b, 0) /
-					chunk.length;
+					(chunk as Int32Array<ArrayBuffer>).reduce((a, b) => {
+						return a + b;
+					}, 0) / chunk.length;
+
+				validateRange(format, average);
 
 				data[newFrameIndex + channelIndex * newNumberOfFrames] = average;
 			}
@@ -104,6 +125,9 @@ export const resampleAudioData = ({
 				}
 
 				const average = items.reduce((a, b) => a + b, 0) / items.length;
+
+				validateRange(format, average);
+
 				data[newFrameIndex * numberOfChannels + channelIndex] = average;
 			}
 		}

@@ -6,7 +6,7 @@ assertJson(
 	audioDataToSerializable(
 		resampleAudioData({
 			audioData: new AudioData({
-				data: new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+				data: new Int32Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 				format: 's32',
 				numberOfChannels: 1,
 				numberOfFrames: 10,
@@ -19,7 +19,10 @@ assertJson(
 	),
 	{
 		data: [
-			[0.49609375, 0.5, 0.50390625, 0.505859375, 0.5068359375, 0.50830078125],
+			[
+				4.656612873077393e-10, 9.313225746154785e-10, 1.862645149230957e-9,
+				2.7939677238464355e-9, 3.259629011154175e-9, 4.190951585769653e-9,
+			],
 		],
 		format: 'f32',
 		numberOfChannels: 1,
