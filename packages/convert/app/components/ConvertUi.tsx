@@ -329,8 +329,7 @@ const ConvertUI = ({
 					return;
 				}
 
-				// eslint-disable-next-line no-console
-				console.error(e);
+				MediaParserInternals.Log.error(logLevel, e);
 				setState({type: 'error', error: e as Error});
 			});
 
