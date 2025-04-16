@@ -11,6 +11,9 @@
 		"testssr": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
+		"testlambda": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
 		"testwebcodecs": {
 			"dependsOn": ["@remotion/webcodecs#make"]
 		},
