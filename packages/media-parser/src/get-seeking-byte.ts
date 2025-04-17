@@ -1,3 +1,4 @@
+import {getSeekingByteForAac} from './containers/aac/get-seeking-byte';
 import {getSeekingByteForFlac} from './containers/flac/get-seeking-byte';
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-byte';
 import {getSeekingByteForMp3} from './containers/mp3/get-seeking-byte';
@@ -120,5 +121,14 @@ export const getSeekingByte = ({
 		);
 	}
 
-	throw new Error(`Unknown seeking info type: ${info as never}`);
+	if (info.type === 'aac-seeking-hints') {
+		return Promise.resolve(
+			getSeekingByteForAac({
+				time,
+				seekingHints: info,
+			}),
+		);
+	}
+
+	throw new Error(`Unknown seeking info type: ${info satisfies never}`);
 };

@@ -1,3 +1,4 @@
+import {getSeekingHintsForAac} from './containers/aac/seeking-hints';
 import {getSeekingHintsForFlac} from './containers/flac/seeking-hints';
 import {getSeekingHintsFromMp4} from './containers/iso-base-media/seeking-hints';
 import {getSeekingHintsForMp3} from './containers/mp3/seeking-hints';
@@ -7,6 +8,7 @@ import {getSeekingHintsFromWav} from './containers/wav/seeking-hints';
 import {getSeekingHintsFromMatroska} from './containers/webm/seek/seeking-hints';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingHints} from './seeking-hints';
+import type {AacState} from './state/aac-state';
 import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
@@ -33,6 +35,7 @@ export const getSeekingHints = ({
 	riffState,
 	mp3State,
 	contentLength,
+	aacState,
 }: {
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
@@ -46,6 +49,7 @@ export const getSeekingHints = ({
 	samplesObserved: SamplesObservedState;
 	riffState: RiffState;
 	mp3State: Mp3State;
+	aacState: AacState;
 	contentLength: number;
 }): SeekingHints | null => {
 	const structure = structureState.getStructureOrNull();
@@ -99,6 +103,13 @@ export const getSeekingHints = ({
 			samplesObserved,
 			mediaSectionState,
 			contentLength,
+		});
+	}
+
+	if (structure.type === 'aac') {
+		return getSeekingHintsForAac({
+			aacState,
+			samplesObserved,
 		});
 	}
 

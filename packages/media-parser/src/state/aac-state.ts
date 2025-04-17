@@ -1,3 +1,5 @@
+import {audioSampleMapState} from './audio-sample-map';
+
 type AacSamplePosition = {
 	offset: number;
 	index: number;
@@ -6,6 +8,9 @@ type AacSamplePosition = {
 
 export const aacState = () => {
 	const samples: AacSamplePosition[] = [];
+
+	// seems redunant, we could deduplicate this
+	const audioSamples = audioSampleMapState();
 
 	return {
 		addSample: ({offset, size}: {offset: number; size: number}) => {
@@ -17,5 +22,8 @@ export const aacState = () => {
 			return samples[samples.length - 1];
 		},
 		getSamples: () => samples,
+		audioSamples,
 	};
 };
+
+export type AacState = ReturnType<typeof aacState>;

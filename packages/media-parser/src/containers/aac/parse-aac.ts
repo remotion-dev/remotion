@@ -85,6 +85,12 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {index} = state.aac.addSample({offset: startOffset, size: frameLength});
 	const timestamp = (1024 / sampleRate) * index;
 
+	state.aac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset: startOffset,
+		durationInSeconds: duration,
+	});
+
 	// One ADTS frame contains 1024 samples
 	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
 		sample: {
