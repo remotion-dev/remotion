@@ -276,20 +276,21 @@ export const parseMpegHeader = async ({
 	iterator.counter.decrement(offsetNow - initialOffset);
 	const data = iterator.getSlice(frameLength);
 
-	let isInfoTag = false;
-
 	if (state.callbacks.tracks.getTracks().length === 0) {
 		const info: Mp3Info = {
 			layer,
 			mpegVersion,
 			sampleRate,
-			startOfMpegStream: initialOffset,
 		};
 		const asText = new TextDecoder().decode(data);
 		if (asText.includes('VBRI')) {
 			throw new Error(
 				'MP3 files with VBRI are currently unsupported because we have no sample file. Submit this file at remotion.dev/report if you would like us to support this file.',
 			);
+		}
+
+		if (asText.includes('Info')) {
+			return;
 		}
 
 		const isVbr = asText.includes('Xing');
@@ -301,20 +302,18 @@ export const parseMpegHeader = async ({
 			state.mp3.setCbrMp3Info({
 				type: 'variable',
 			});
-		}
-
-		isInfoTag = isVbr || asText.includes('Info');
-
-		if (isInfoTag) {
 			return;
 		}
 
-		state.mp3.setCbrMp3Info({
-			bitrateInKbit,
-			type: 'constant',
-		});
+		if (!state.mp3.getCbrMp3Info()) {
+			state.mp3.setCbrMp3Info({
+				bitrateInKbit,
+				type: 'constant',
+			});
+		}
 
 		state.mp3.setMp3Info(info);
+
 		await registerAudioTrack({
 			container: 'mp3',
 			track: {
@@ -335,6 +334,7 @@ export const parseMpegHeader = async ({
 			onAudioTrack: state.onAudioTrack,
 		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
+
 		state.mediaSection.addMediaSection({
 			start: initialOffset,
 			size: state.contentLength - initialOffset,
@@ -354,7 +354,8 @@ export const parseMpegHeader = async ({
 	}
 
 	const nthFrame = Math.round(
-		(initialOffset - mp3Info.startOfMpegStream) / avgLength,
+		(initialOffset - state.mediaSection.getMediaSectionAssertOnlyOne().start) /
+			avgLength,
 	);
 
 	const durationInSeconds = samplesPerFrame / sampleRate;

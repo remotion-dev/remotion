@@ -4,7 +4,6 @@ export type Mp3Info = {
 	sampleRate: number;
 	mpegVersion: 1 | 2;
 	layer: number;
-	startOfMpegStream: number;
 };
 
 export type Mp3BitrateInfo =

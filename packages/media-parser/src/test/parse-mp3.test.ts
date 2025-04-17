@@ -227,16 +227,18 @@ test('should read video fields', async () => {
 				slowDurationInSeconds: true,
 				slowNumberOfFrames: true,
 			},
+
 			acknowledgeRemotionLicense: true,
 		},
 	);
 	expect(slowFps).toEqual(0);
-	expect(slowDurationInSeconds).toEqual(125.07428544892417);
+	expect(slowDurationInSeconds).toEqual(125.17877551020408);
 	expect(slowNumberOfFrames).toEqual(0);
 	expect(fps).toEqual(null);
 });
 
 test('should read short mp3 file', async () => {
+	let samples = 0;
 	const {durationInSeconds} = await parseMedia({
 		src: exampleVideos.shortmp3,
 		reader: nodeReader,
@@ -245,10 +247,13 @@ test('should read short mp3 file', async () => {
 			durationInSeconds: true,
 		},
 		onAudioTrack: () => {
-			return () => {};
+			return () => {
+				samples++;
+			};
 		},
 		acknowledgeRemotionLicense: true,
 	});
+	expect(samples).toBe(41);
 	expect(durationInSeconds).toBe(0.984);
 });
 
