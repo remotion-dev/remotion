@@ -323,6 +323,10 @@ export const parseMpegHeader = async ({
 				onAudioTrack: state.onAudioTrack,
 			});
 			state.callbacks.tracks.setIsDone(state.logLevel);
+			state.mediaSection.addMediaSection({
+				start: initialOffset,
+				size: state.contentLength - initialOffset,
+			});
 		}
 	}
 
@@ -360,6 +364,11 @@ export const parseMpegHeader = async ({
 			type: 'key',
 		};
 
+		state.mp3.audioSamples.addSample({
+			timeInSeconds,
+			offset: initialOffset,
+			durationInSeconds,
+		});
 		await state.callbacks.onAudioSample(0, audioSample);
 	}
 };
