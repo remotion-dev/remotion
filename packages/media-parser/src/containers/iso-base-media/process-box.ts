@@ -98,7 +98,7 @@ export const processBox = async ({
 
 	if (boxType === 'mdat') {
 		if (!onlyIfMdatAtomExpected) {
-			throw new Error('State is required');
+			return null;
 		}
 
 		const {mediaSectionState} = onlyIfMdatAtomExpected;

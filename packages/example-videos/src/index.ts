@@ -108,6 +108,8 @@ export const exampleVideos = {
 		'demo-track.mp3',
 	),
 	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
+	subsequentMdat: path.join(__dirname, '..', 'videos', 'subsequent-mdats.mp4'),
+	garbageAtEnd: path.join(__dirname, '..', 'videos', 'garbage-at-end.mp4'),
 };
 
 export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';
