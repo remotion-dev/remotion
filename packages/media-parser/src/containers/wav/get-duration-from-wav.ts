@@ -20,11 +20,3 @@ export const getDurationFromWav = (state: ParserState) => {
 		dataBox.dataSize / (fmt.sampleRate * fmt.blockAlign);
 	return durationInSeconds;
 };
-
-export const hasDurationFromWav = (state: ParserState) => {
-	try {
-		return getDurationFromWav(state);
-	} catch {
-		return false;
-	}
-};

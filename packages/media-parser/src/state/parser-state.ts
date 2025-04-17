@@ -111,7 +111,7 @@ export const makeParserState = ({
 	const keyframes = keyframesState();
 	const emittedFields = emittedState();
 	const samplesObserved = samplesObservedState();
-	const mp3Info = makeMp3State();
+	const mp3 = makeMp3State();
 	const images = imagesState();
 	const timings = timingsState();
 	const seekInfiniteLoop = seekInfiniteLoopDetectionState();
@@ -146,7 +146,7 @@ export const makeParserState = ({
 			src,
 			logLevel,
 		}),
-		mp3Info,
+		mp3,
 		aac: aacState(),
 		flac: flacState(),
 		m3u: m3uState(logLevel),

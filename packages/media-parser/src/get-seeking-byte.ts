@@ -1,5 +1,6 @@
 import {getSeekingByteForFlac} from './containers/flac/get-seeking-byte';
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-byte';
+import {getSeekingByteForMp3} from './containers/mp3/get-seeking-byte';
 import {getSeekingByteForRiff} from './containers/riff/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
@@ -108,6 +109,15 @@ export const getSeekingByte = ({
 			time,
 			riffState,
 		});
+	}
+
+	if (info.type === 'mp3-seeking-hints') {
+		return Promise.resolve(
+			getSeekingByteForMp3({
+				info,
+				time,
+			}),
+		);
 	}
 
 	throw new Error(`Unknown seeking info type: ${info as never}`);
