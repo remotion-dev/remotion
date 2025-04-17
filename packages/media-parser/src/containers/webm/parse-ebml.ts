@@ -1,4 +1,3 @@
-import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
@@ -211,11 +210,11 @@ export const postprocessEbml = async ({
 		const sample = getSampleFromBlock(ebml, webmState, offset, structureState);
 
 		if (sample.type === 'video-sample') {
-			await emitVideoSample({
-				trackId: sample.videoSample.trackId,
-				videoSample: sample.videoSample,
-				callbacks,
-			});
+			await callbacks.onVideoSample(
+				sample.videoSample.trackId,
+				sample.videoSample,
+			);
+
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -224,11 +223,10 @@ export const postprocessEbml = async ({
 		}
 
 		if (sample.type === 'audio-sample') {
-			await emitAudioSample({
-				trackId: sample.audioSample.trackId,
-				audioSample: sample.audioSample,
-				callbacks,
-			});
+			await callbacks.onAudioSample(
+				sample.audioSample.trackId,
+				sample.audioSample,
+			);
 
 			return {
 				type: 'Block',
@@ -273,11 +271,11 @@ export const postprocessEbml = async ({
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
-			await emitVideoSample({
-				trackId: sample.partialVideoSample.trackId,
-				videoSample: completeFrame,
-				callbacks,
-			});
+
+			await callbacks.onVideoSample(
+				sample.partialVideoSample.trackId,
+				completeFrame,
+			);
 		}
 
 		return {

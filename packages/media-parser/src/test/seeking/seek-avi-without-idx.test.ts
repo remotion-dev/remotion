@@ -4,6 +4,33 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import type {SeekingHints} from '../../seeking-hints';
+
+const expectedSeekingHints: SeekingHints = {
+	type: 'riff-seeking-hints',
+	hasIndex: false,
+	idx1Entries: null,
+	samplesPerSecond: 30,
+	moviOffset: 9984,
+	observedKeyframes: [
+		{
+			trackId: 0,
+			decodingTimeInSeconds: 0,
+			positionInBytes: 9984,
+			presentationTimeInSeconds: 0,
+			sizeInBytes: 4599,
+			sampleCounts: {'0': 0},
+		},
+		{
+			trackId: 0,
+			decodingTimeInSeconds: 8.333333333333334,
+			positionInBytes: 203298,
+			presentationTimeInSeconds: 8.333333333333334,
+			sizeInBytes: 4796,
+			sampleCounts: {'0': 250, '1': 782},
+		},
+	],
+};
 
 test('seek avi', async () => {
 	const controller = mediaParserController();
@@ -25,7 +52,7 @@ test('seek avi', async () => {
 				return (sample) => {
 					samples++;
 					if (samples === 1) {
-						expect(sample.timestamp / sample.timescale).toBe(8.333333333333334);
+						expect(sample.timestamp / sample.timescale).toBe(0);
 						expect(sample.type).toBe('key');
 						controller._experimentalSeek({
 							timeInSeconds: 20,
@@ -34,49 +61,28 @@ test('seek avi', async () => {
 					}
 
 					if (samples === 2) {
-						expect(sample.timestamp / sample.timescale).toBe(
-							16.666666666666668,
-						);
-						expect(sample.type).toBe('key');
-					}
-
-					if (samples === 3) {
-						expect(sample.timestamp / sample.timescale).toBe(16.7);
-						expect(sample.type).toBe('delta');
-						controller._experimentalSeek({
-							timeInSeconds: 0,
-							type: 'keyframe-before-time',
-						});
-					}
-
-					if (samples === 4) {
 						expect(sample.timestamp / sample.timescale).toBe(0);
 						expect(sample.type).toBe('key');
-
-						controller._experimentalSeek({
-							timeInSeconds: 40,
-							type: 'keyframe-before-time',
-						});
 					}
 
-					if (samples === 5) {
-						expect(sample.timestamp / sample.timescale).toBe(25);
-						expect(sample.type).toBe('key');
-					}
-
-					if (samples === 155) {
-						expect(sample.timestamp / sample.timescale).toBe(30);
+					if (samples === 300) {
+						expect(sample.timestamp / sample.timescale).toBe(9.933333333333334);
 						expect(sample.type).toBe('delta');
 
 						controller._experimentalSeek({
-							timeInSeconds: 100,
+							timeInSeconds: 10,
 							type: 'keyframe-before-time',
 						});
 					}
 
-					if (samples === 156) {
-						expect(sample.timestamp / sample.timescale).toBe(25);
+					if (samples === 301) {
+						expect(sample.timestamp / sample.timescale).toBe(8.333333333333334);
 						expect(sample.type).toBe('key');
+					}
+
+					if (samples === 302) {
+						expect(sample.timestamp / sample.timescale).toBe(8.366666666666667);
+						expect(sample.type).toBe('delta');
 						controller.abort();
 					}
 				};
@@ -89,5 +95,60 @@ test('seek avi', async () => {
 		}
 	}
 
-	expect(samples).toBe(156);
+	expect(samples).toBe(302);
+
+	const performedSeeks =
+		controller._internals.performedSeeksSignal.getPerformedSeeks();
+
+	expect(performedSeeks).toEqual([
+		{
+			from: 14592,
+			to: 9984,
+			type: 'user-initiated',
+		},
+		{
+			from: 14592,
+			to: 9984,
+			type: 'user-initiated',
+		},
+		{
+			from: 243356,
+			to: 203298,
+			type: 'user-initiated',
+		},
+	]);
+
+	const seekingHints = await controller.getSeekingHints();
+	expect(seekingHints).toEqual(expectedSeekingHints);
+});
+
+test('should be able to use seeking hints', async () => {
+	const controller = mediaParserController();
+
+	let samples = 0;
+	controller._experimentalSeek({
+		timeInSeconds: 10,
+		type: 'keyframe-before-time',
+	});
+
+	await parseMedia({
+		src: exampleVideos.aviWithoutIdx,
+		acknowledgeRemotionLicense: true,
+		controller,
+		reader: nodeReader,
+		seekingHints: expectedSeekingHints,
+		onVideoTrack: () => {
+			return (sample) => {
+				samples++;
+				if (samples === 1) {
+					expect(sample.timestamp / sample.timescale).toBe(8.333333333333334);
+					expect(sample.type).toBe('key');
+					controller._experimentalSeek({
+						timeInSeconds: 20,
+						type: 'keyframe-before-time',
+					});
+				}
+			};
+		},
+	});
 });

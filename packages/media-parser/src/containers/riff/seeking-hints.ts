@@ -1,7 +1,6 @@
-import type {MediaParserKeyframe} from '../../options';
-import type {KeyframesState} from '../../state/keyframes';
 import type {ParserState} from '../../state/parser-state';
 import type {RiffState} from '../../state/riff';
+import type {RiffKeyframe} from '../../state/riff/riff-keyframes';
 import type {StructureState} from '../../state/structure';
 import type {MediaSectionState} from '../../state/video-section';
 import {riffHasIndex} from './has-index';
@@ -14,19 +13,17 @@ export type RiffSeekingHints = {
 	idx1Entries: FetchIdx1Result | null;
 	samplesPerSecond: number | null;
 	moviOffset: number | null;
-	observedKeyframes: MediaParserKeyframe[];
+	observedKeyframes: RiffKeyframe[];
 };
 
 export const getSeekingHintsForRiff = ({
 	structureState,
 	riffState,
 	mediaSectionState,
-	keyframesState,
 }: {
 	structureState: StructureState;
 	riffState: RiffState;
 	mediaSectionState: MediaSectionState;
-	keyframesState: KeyframesState;
 }): RiffSeekingHints => {
 	const structure = structureState.getRiffStructure();
 	const strl = getStrlBoxes(structure);
@@ -54,7 +51,7 @@ export const getSeekingHintsForRiff = ({
 		idx1Entries: riffState.lazyIdx1.getIfAlreadyLoaded(),
 		samplesPerSecond,
 		moviOffset: mediaSectionState.getMediaSections()[0]?.start ?? null,
-		observedKeyframes: keyframesState.getKeyframes(),
+		observedKeyframes: riffState.sampleCounter.riffKeys.getKeyframes(),
 	};
 };
 
@@ -66,4 +63,7 @@ export const setSeekingHintsForRiff = ({
 	state: ParserState;
 }) => {
 	state.riff.lazyIdx1.setFromSeekingHints(hints);
+	state.riff.sampleCounter.riffKeys.setFromSeekingHints(
+		hints.observedKeyframes,
+	);
 };

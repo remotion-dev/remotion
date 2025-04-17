@@ -1,5 +1,4 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {emitAudioSample, emitVideoSample} from '../../../emit-audio-sample';
 import {getHasTracks} from '../../../get-tracks';
 import type {Skip} from '../../../skip';
 import {makeSkip} from '../../../skip';
@@ -94,24 +93,25 @@ export const parseMdatSection = async (
 	});
 
 	if (samplesWithIndex.track.type === 'audio') {
-		await emitAudioSample({
-			trackId: samplesWithIndex.track.trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					data: bytes,
-					timestamp: cts,
-					duration,
-					cts,
-					dts,
-					trackId: samplesWithIndex.track.trackId,
-					type: isKeyframe ? 'key' : 'delta',
-					offset,
-					timescale: samplesWithIndex.track.timescale,
-				},
+		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				data: bytes,
+				timestamp: cts,
+				duration,
+				cts,
+				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: isKeyframe ? 'key' : 'delta',
+				offset,
 				timescale: samplesWithIndex.track.timescale,
-			}),
-			callbacks: state.callbacks,
+			},
+			timescale: samplesWithIndex.track.timescale,
 		});
+
+		await state.callbacks.onAudioSample(
+			samplesWithIndex.track.trackId,
+			audioSample,
+		);
 	}
 
 	if (samplesWithIndex.track.type === 'video') {
@@ -128,24 +128,25 @@ export const parseMdatSection = async (
 			isRecoveryPoint = seiType === 6;
 		}
 
-		await emitVideoSample({
-			trackId: samplesWithIndex.track.trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					data: bytes,
-					timestamp: cts,
-					duration,
-					cts,
-					dts,
-					trackId: samplesWithIndex.track.trackId,
-					type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
-					offset,
-					timescale: samplesWithIndex.track.timescale,
-				},
+		const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				data: bytes,
+				timestamp: cts,
+				duration,
+				cts,
+				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
+				offset,
 				timescale: samplesWithIndex.track.timescale,
-			}),
-			callbacks: state.callbacks,
+			},
+			timescale: samplesWithIndex.track.timescale,
 		});
+
+		await state.callbacks.onVideoSample(
+			samplesWithIndex.track.trackId,
+			videoSample,
+		);
 	}
 
 	return null;

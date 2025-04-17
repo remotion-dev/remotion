@@ -1,6 +1,5 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
@@ -98,14 +97,12 @@ export const handleAacPacket = async ({
 		timescale: MPEG_TIMESCALE,
 	};
 
-	await emitAudioSample({
-		trackId: programId,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample,
-			timescale: MPEG_TIMESCALE,
-		}),
-		callbacks: sampleCallbacks,
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample,
+		timescale: MPEG_TIMESCALE,
 	});
+
+	await sampleCallbacks.onAudioSample(programId, audioSample);
 
 	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

@@ -1,3 +1,4 @@
+import {findLastKeyframe} from '../../find-last-keyframe';
 import type {RiffState} from '../../state/riff';
 import type {SeekResolution} from '../../work-on-seek-request';
 import type {Idx1Entry} from './riff-box';
@@ -17,9 +18,22 @@ export const getSeekingByteForRiff = async ({
 		: Promise.resolve(null));
 
 	if (idx1Entries === null) {
-		// TODO
+		const lastKeyframe = findLastKeyframe({
+			keyframes: info.observedKeyframes,
+			timeInSeconds: time,
+		});
+
+		if (lastKeyframe === null) {
+			return {
+				type: 'valid-but-must-wait',
+			};
+		}
+
+		riffState.sampleCounter.setSamplesFromSeek(lastKeyframe.sampleCounts);
+
 		return {
-			type: 'valid-but-must-wait',
+			type: 'do-seek',
+			byte: lastKeyframe.positionInBytes,
 		};
 	}
 
