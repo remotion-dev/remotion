@@ -7,6 +7,7 @@ import type {ParserState} from '../../state/parser-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getAverageMpegFrameLength} from './get-frame-length';
 import {parseMp3PacketHeader} from './parse-packet-header';
+import {parseXing} from './parse-xing';
 
 export const parseMpegHeader = async ({
 	state,
@@ -63,12 +64,14 @@ export const parseMpegHeader = async ({
 
 		const isVbr = asText.includes('Xing');
 		if (isVbr) {
+			const xingData = parseXing(data);
 			Log.verbose(
 				state.logLevel,
 				'MP3 has variable bit rate. Requiring whole file to be read',
 			);
 			state.mp3.setMp3BitrateInfo({
 				type: 'variable',
+				xingData,
 			});
 			return;
 		}

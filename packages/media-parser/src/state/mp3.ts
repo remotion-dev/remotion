@@ -1,3 +1,4 @@
+import type {XingData} from '../containers/mp3/parse-xing';
 import {audioSampleMapState} from './audio-sample-map';
 
 export type Mp3Info = {
@@ -13,6 +14,7 @@ export type Mp3BitrateInfo =
 	  }
 	| {
 			type: 'variable';
+			xingData: XingData;
 	  };
 
 export const makeMp3State = () => {
