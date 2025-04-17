@@ -1,5 +1,4 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitVideoSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
@@ -125,14 +124,12 @@ export const handleAvcPacket = async ({
 		);
 	}
 
-	await emitVideoSample({
-		trackId: programId,
-		videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample,
-			timescale: MPEG_TIMESCALE,
-		}),
-		callbacks: sampleCallbacks,
+	const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample,
+		timescale: MPEG_TIMESCALE,
 	});
+
+	await sampleCallbacks.onVideoSample(programId, videoSample);
 
 	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

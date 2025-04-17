@@ -1,5 +1,4 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import {
 	getArrayBufferIterator,
 	type BufferIterator,
@@ -120,24 +119,22 @@ const emitSample = async ({
 		durationInSeconds: duration,
 	});
 
-	await emitAudioSample({
-		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample: {
-				data,
-				duration,
-				cts: timestamp,
-				dts: timestamp,
-				timestamp,
-				type: 'key',
-				offset,
-				timescale: 1,
-				trackId: 0,
-			},
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			data,
+			duration,
+			cts: timestamp,
+			dts: timestamp,
+			timestamp,
+			type: 'key',
+			offset,
 			timescale: 1,
-		}),
-		callbacks: state.callbacks,
+			trackId: 0,
+		},
+		timescale: 1,
 	});
+
+	await state.callbacks.onAudioSample(0, audioSample);
 
 	iterator.destroy();
 };

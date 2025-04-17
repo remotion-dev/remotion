@@ -3,7 +3,7 @@ import {makeSkip} from '../../skip';
 import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {getCurrentMediaSection} from '../../state/video-section';
-import {expectRiffBox} from './expect-riff-box';
+import {expectRiffBox, postProcessRiffBox} from './expect-riff-box';
 import {parseMediaSection} from './parse-video-section';
 
 export const parseRiffBody = async (
@@ -35,8 +35,12 @@ export const parseRiffBody = async (
 		return null;
 	}
 
-	const box = await expectRiffBox(state);
+	const box = await expectRiffBox({
+		iterator: state.iterator,
+		stateIfExpectingSideEffects: state,
+	});
 	if (box !== null) {
+		await postProcessRiffBox(state, box);
 		const structure = state.structure.getRiffStructure();
 		structure.boxes.push(box);
 	}

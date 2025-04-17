@@ -136,7 +136,7 @@ export const makeParserState = ({
 	});
 
 	return {
-		riff: riffSpecificState(),
+		riff: riffSpecificState({controller, logLevel, readerInterface, src}),
 		transportStream: transportStreamState(),
 		webm: webmState({controller, logLevel, readerInterface, src}),
 		iso: isoBaseMediaState({

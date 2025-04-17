@@ -57,6 +57,7 @@ export const exampleVideos = {
 	matroskaH265Aac: path.join(examplePackage, 'public', 'matroska-h265-aac.mkv'),
 	opusWebm: path.join(examplePackage, 'public', 'opus.webm'),
 	avi: path.join(examplePackage, 'public', 'example.avi'),
+	aviWithoutIdx: path.join(examplePackage, 'public', 'example-without-idx.avi'),
 	opus51Webm: path.join(examplePackage, 'public', 'vp8-opus-5-1-channels.webm'),
 	profColrTyp: path.join(__dirname, '..', 'videos', 'prof-color-type.mp4'),
 	chirp: path.join(examplePackage, 'public', 'chirp.wav'),

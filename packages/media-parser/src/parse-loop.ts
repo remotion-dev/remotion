@@ -161,7 +161,7 @@ export const parseLoop = async ({
 		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 		if (state.controller._internals.seekSignal.getSeek()) {
 			throw new Error(
-				'Failed to seek to the end of the file. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
+				'Reached the end of the file even though a seek was requested. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
 			);
 		}
 

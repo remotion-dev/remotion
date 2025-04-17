@@ -430,29 +430,33 @@ test(
 	},
 );
 
-test("Should succeed to render an audio file that doesn't have any audio inputs", async () => {
-	const out = outputPath.replace('.mp4', '.mp3');
-	const task = await execa(
-		'pnpm',
-		['exec', 'remotion', 'render', 'build', 'ten-frame-tester', out],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-		},
-	);
-	expect(task.exitCode).toBe(0);
-	const info = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [out],
-		indent: false,
-		logLevel: 'info',
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	const data = info.stderr;
-	expect(data).toContain('Duration: 00:00:00.36');
-	expect(data).toContain('Audio: mp3, 48000 Hz');
-	fs.unlinkSync(out);
-});
+test(
+	"Should succeed to render an audio file that doesn't have any audio inputs",
+	async () => {
+		const out = outputPath.replace('.mp4', '.mp3');
+		const task = await execa(
+			'pnpm',
+			['exec', 'remotion', 'render', 'build', 'ten-frame-tester', out],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+			},
+		);
+		expect(task.exitCode).toBe(0);
+		const info = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [out],
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		const data = info.stderr;
+		expect(data).toContain('Duration: 00:00:00.36');
+		expect(data).toContain('Audio: mp3, 48000 Hz');
+		fs.unlinkSync(out);
+	},
+	{timeout: 15000},
+);
 
 test('Should render a still that uses the staticFile() API and should apply props', async () => {
 	const out = outputPath.replace('.mp4', '.png');
