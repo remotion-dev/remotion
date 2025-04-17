@@ -30,6 +30,7 @@ export const parseIsoBaseMedia = async (
 		onlyIfMdatAtomExpected: {
 			mediaSectionState: state.mediaSection,
 		},
+		contentLength: state.contentLength,
 	});
 	if (result) {
 		state.structure.getIsoStructure().boxes.push(result);

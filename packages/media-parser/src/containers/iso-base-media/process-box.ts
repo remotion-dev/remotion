@@ -56,11 +56,13 @@ export const processBox = async ({
 	logLevel,
 	onlyIfMoovAtomExpected,
 	onlyIfMdatAtomExpected,
+	contentLength,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 	onlyIfMdatAtomExpected: OnlyIfMdatAtomExpected | null;
+	contentLength: number;
 }): Promise<BoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
@@ -87,14 +89,16 @@ export const processBox = async ({
 		);
 	}
 
+	const maxSize = contentLength - startOff;
 	const boxType = iterator.getByteString(4, false);
-	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
-	Log.trace(logLevel, 'Found box', boxType, boxSize);
+	const boxSizeUnlimited =
+		boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
+	const boxSize = Math.min(boxSizeUnlimited, maxSize);
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
 		if (!onlyIfMdatAtomExpected) {
-			throw new Error('State is required');
+			return null;
 		}
 
 		const {mediaSectionState} = onlyIfMdatAtomExpected;
@@ -144,6 +148,7 @@ export const processBox = async ({
 			size: boxSize,
 			iterator,
 			logLevel,
+			contentLength,
 		});
 	}
 
@@ -202,6 +207,7 @@ export const processBox = async ({
 			size: boxSize,
 			iterator,
 			logLevel,
+			contentLength,
 		});
 	}
 
@@ -256,6 +262,7 @@ export const processBox = async ({
 			onlyIfMoovAtomExpected,
 			iterator,
 			logLevel,
+			contentLength,
 		});
 
 		tracks.setIsDone(logLevel);
@@ -275,6 +282,7 @@ export const processBox = async ({
 			offsetAtStart: fileOffset,
 			iterator,
 			logLevel,
+			contentLength,
 		});
 		const transformedTrack = makeBaseMediaTrack(box);
 
@@ -381,6 +389,7 @@ export const processBox = async ({
 			size: boxSize - 8,
 			logLevel,
 			onlyIfMoovAtomExpected,
+			contentLength,
 		});
 
 		return {

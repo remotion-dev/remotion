@@ -16,11 +16,13 @@ export const parseMebx = async ({
 	size,
 	iterator,
 	logLevel,
+	contentLength,
 }: {
 	offset: number;
 	size: number;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	contentLength: number;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit
 	iterator.discard(6);
@@ -32,6 +34,7 @@ export const parseMebx = async ({
 		size: size - 8,
 		logLevel,
 		onlyIfMoovAtomExpected: null,
+		contentLength,
 	});
 
 	return {

@@ -15,11 +15,13 @@ export const parseStsd = async ({
 	size,
 	iterator,
 	logLevel,
+	contentLength,
 }: {
 	offset: number;
 	size: number;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	contentLength: number;
 }): Promise<StsdBox> => {
 	const version = iterator.getUint8();
 	if (version !== 0) {
@@ -37,6 +39,7 @@ export const parseStsd = async ({
 		maxBytes: bytesRemainingInBox,
 		logLevel,
 		iterator,
+		contentLength,
 	});
 
 	if (boxes.length !== numberOfEntries) {

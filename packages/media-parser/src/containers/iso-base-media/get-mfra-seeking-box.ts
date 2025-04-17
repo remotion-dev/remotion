@@ -47,5 +47,6 @@ export const getMfraSeekingBox = async ({
 		logLevel,
 		size: parentSize - 8,
 		onlyIfMoovAtomExpected: null,
+		contentLength,
 	});
 };
