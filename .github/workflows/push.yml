@@ -70,7 +70,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
       - name: Install deps
-        run: bunx playwright install --with-deps
+        run: cd packages/webcodecs && bunx playwright install --with-deps
       - name: Test Webcodecs
         run: |
           bun run testwebcodecs
