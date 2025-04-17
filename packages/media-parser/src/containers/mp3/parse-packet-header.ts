@@ -275,13 +275,33 @@ export const isMp3PacketHeaderHere = (iterator: BufferIterator) => {
 	iterator.startReadingBits();
 
 	try {
-		innerParseMp3PacketHeader(iterator);
+		const res = innerParseMp3PacketHeader(iterator);
 		iterator.stopReadingBits();
 		iterator.counter.decrement(iterator.counter.getOffset() - offset);
-		return true;
+		return res;
 	} catch {
 		iterator.stopReadingBits();
 		iterator.counter.decrement(iterator.counter.getOffset() - offset);
 		return false;
 	}
+};
+
+export const isMp3PacketHeaderHereAndInNext = (iterator: BufferIterator) => {
+	const offset = iterator.counter.getOffset();
+	const res = isMp3PacketHeaderHere(iterator);
+	if (!res) {
+		return false;
+	}
+
+	// cannot check here because we don't have enough data, let's hope for the best
+	if (iterator.bytesRemaining() <= res.frameLength) {
+		return true;
+	}
+
+	iterator.counter.increment(res.frameLength);
+
+	const isHere = isMp3PacketHeaderHere(iterator);
+
+	iterator.counter.decrement(iterator.counter.getOffset() - offset);
+	return isHere;
 };

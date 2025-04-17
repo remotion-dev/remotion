@@ -70,18 +70,18 @@ test('seek mp3', async () => {
 
 	expect(performedSeeks).toEqual([
 		{
+			from: 3903,
+			to: 401666,
+			type: 'user-initiated',
+		},
+		{
 			from: 403054,
-			to: 402009,
+			to: 1001966,
 			type: 'user-initiated',
 		},
 		{
 			from: 1003871,
-			to: 1002826,
-			type: 'user-initiated',
-		},
-		{
-			from: 1203446,
-			to: 1202401,
+			to: 1201370,
 			type: 'user-initiated',
 		},
 		{
@@ -90,8 +90,8 @@ test('seek mp3', async () => {
 			type: 'user-initiated',
 		},
 		{
-			from: 2264018,
-			to: 2262973,
+			from: 3903,
+			to: 2262074,
 			type: 'user-initiated',
 		},
 	]);
@@ -101,5 +101,5 @@ test('seek mp3', async () => {
 		throw new Error('Invalid seeking hints');
 	}
 
-	expect(seekingHints.audioSampleMap.length).toEqual(2164);
+	expect(seekingHints.audioSampleMap.length).toEqual(5);
 });

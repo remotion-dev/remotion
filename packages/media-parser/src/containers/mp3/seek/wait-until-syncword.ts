@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
-import {isMp3PacketHeaderHere} from '../parse-packet-header';
+import {isMp3PacketHeaderHereAndInNext} from '../parse-packet-header';
 
 export const discardUntilSyncword = ({
 	iterator,
@@ -20,7 +20,7 @@ export const discardUntilSyncword = ({
 		}
 
 		iterator.counter.decrement(2);
-		if (isMp3PacketHeaderHere(iterator)) {
+		if (isMp3PacketHeaderHereAndInNext(iterator)) {
 			break;
 		} else {
 			iterator.counter.increment(2);
