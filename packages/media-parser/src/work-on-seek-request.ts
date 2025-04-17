@@ -41,6 +41,7 @@ const turnSeekIntoByte = async ({
 	samplesObserved,
 	riffState,
 	mp3State,
+	contentLength,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -57,6 +58,7 @@ const turnSeekIntoByte = async ({
 	samplesObserved: SamplesObservedState;
 	riffState: RiffState;
 	mp3State: Mp3State;
+	contentLength: number;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 	if (mediaSections.length === 0) {
@@ -86,6 +88,7 @@ const turnSeekIntoByte = async ({
 			webmState,
 			flacState,
 			mp3State,
+			contentLength,
 		});
 
 		if (!seekingHints) {
@@ -228,6 +231,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		samplesObserved,
 		riffState,
 		mp3State,
+		contentLength,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

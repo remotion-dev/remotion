@@ -118,6 +118,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 				samplesObserved: state.samplesObserved,
 				riffState: state.riff,
 				mp3State: state.mp3,
+				contentLength: state.contentLength,
 			}),
 		),
 	);

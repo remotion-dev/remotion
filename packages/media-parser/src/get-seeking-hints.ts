@@ -32,6 +32,7 @@ export const getSeekingHints = ({
 	samplesObserved,
 	riffState,
 	mp3State,
+	contentLength,
 }: {
 	structureState: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
@@ -45,6 +46,7 @@ export const getSeekingHints = ({
 	samplesObserved: SamplesObservedState;
 	riffState: RiffState;
 	mp3State: Mp3State;
+	contentLength: number;
 }): SeekingHints | null => {
 	const structure = structureState.getStructureOrNull();
 
@@ -95,6 +97,8 @@ export const getSeekingHints = ({
 		return getSeekingHintsForMp3({
 			mp3State,
 			samplesObserved,
+			mediaSectionState,
+			contentLength,
 		});
 	}
 

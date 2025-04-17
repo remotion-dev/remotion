@@ -1,5 +1,6 @@
 import type {AudioSampleOffset} from '../../state/audio-sample-map';
 import type {SeekResolution} from '../../work-on-seek-request';
+import {getApproximateByteFromBitrate} from './seek/get-approximate-byte-from-bitrate';
 import type {Mp3SeekingHints} from './seeking-hints';
 
 export const getSeekingByteForMp3 = ({
@@ -10,6 +11,31 @@ export const getSeekingByteForMp3 = ({
 	info: Mp3SeekingHints;
 }): SeekResolution => {
 	let bestAudioSample: AudioSampleOffset | undefined;
+
+	if (
+		info.mp3BitrateInfo === null ||
+		info.mp3Info === null ||
+		info.mediaSection === null
+	) {
+		return {
+			type: 'valid-but-must-wait',
+		};
+	}
+
+	const approximateByte = getApproximateByteFromBitrate({
+		mp3BitrateInfo: info.mp3BitrateInfo,
+		timeInSeconds: time,
+		mp3Info: info.mp3Info,
+		mediaSection: info.mediaSection,
+		contentLength: info.contentLength,
+	});
+	if (approximateByte) {
+		return {
+			type: 'do-seek',
+			byte: approximateByte,
+		};
+	}
+
 	for (const hint of info.audioSampleMap) {
 		if (hint.timeInSeconds > time) {
 			continue;

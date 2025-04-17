@@ -26,8 +26,8 @@ export const makeMp3State = () => {
 		setMp3Info: (info: Mp3Info) => {
 			mp3Info = info;
 		},
-		getCbrMp3Info: () => bitrateInfo,
-		setCbrMp3Info: (info: Mp3BitrateInfo) => {
+		getMp3BitrateInfo: () => bitrateInfo,
+		setMp3BitrateInfo: (info: Mp3BitrateInfo) => {
 			bitrateInfo = info;
 		},
 		audioSamples,

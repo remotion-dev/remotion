@@ -4,8 +4,8 @@ import {getSamplesPerMpegFrame} from './samples-per-mpeg-file';
 
 export const getDurationFromMp3 = (state: ParserState): number | null => {
 	const mp3Info = state.mp3.getMp3Info();
-	const mp3CbrInfo = state.mp3.getCbrMp3Info();
-	if (!mp3Info || !mp3CbrInfo) {
+	const mp3BitrateInfo = state.mp3.getMp3BitrateInfo();
+	if (!mp3Info || !mp3BitrateInfo) {
 		return null;
 	}
 
@@ -15,7 +15,7 @@ export const getDurationFromMp3 = (state: ParserState): number | null => {
 	});
 
 	// TODO
-	if (mp3CbrInfo.type === 'variable') {
+	if (mp3BitrateInfo.type === 'variable') {
 		throw new Error('Cannot get duration of VBR MP3 file');
 	}
 
@@ -27,7 +27,7 @@ export const getDurationFromMp3 = (state: ParserState): number | null => {
 
 	// we ignore that fact for now
 	const frameLengthInBytes = getMpegFrameLength({
-		bitrateKbit: mp3CbrInfo.bitrateInKbit,
+		bitrateKbit: mp3BitrateInfo.bitrateInKbit,
 		padding: false,
 		samplesPerFrame,
 		samplingFrequency: mp3Info.sampleRate,
