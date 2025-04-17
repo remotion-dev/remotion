@@ -7,14 +7,18 @@ export type Mp3Info = {
 	startOfMpegStream: number;
 };
 
-export type Mp3CbrInfo = {
-	bitrateKbit: number;
-};
+export type Mp3BitrateInfo =
+	| {
+			type: 'constant';
+			bitrateInKbit: number;
+	  }
+	| {
+			type: 'variable';
+	  };
 
 export const makeMp3State = () => {
 	let mp3Info: Mp3Info | null = null;
-	// cbr  = constant bit rate
-	let cbrMp3Info: Mp3CbrInfo | null = null;
+	let bitrateInfo: Mp3BitrateInfo | null = null;
 
 	const audioSamples = audioSampleMapState();
 
@@ -23,9 +27,9 @@ export const makeMp3State = () => {
 		setMp3Info: (info: Mp3Info) => {
 			mp3Info = info;
 		},
-		getCbrMp3Info: () => cbrMp3Info,
-		setCbrMp3Info: (info: Mp3CbrInfo) => {
-			cbrMp3Info = info;
+		getCbrMp3Info: () => bitrateInfo,
+		setCbrMp3Info: (info: Mp3BitrateInfo) => {
+			bitrateInfo = info;
 		},
 		audioSamples,
 	};

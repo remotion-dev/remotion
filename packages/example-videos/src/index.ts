@@ -88,6 +88,7 @@ export const exampleVideos = {
 	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
 	syncsafe: path.join(__dirname, '..', 'videos', 'syncsafe-id3.mp3'),
 	separatedAudio: path.join(__dirname, '..', 'videos', 'separated-audio.m3u8'),
+	mp3infosection: path.join(__dirname, '..', 'videos', 'mp3-infosection.mp3'),
 	mp3vbr: path.join(__dirname, '..', 'videos', 'vbr.mp3'),
 	multipleAudio: path.join(
 		__dirname,

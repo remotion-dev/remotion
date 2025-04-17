@@ -231,16 +231,16 @@ export const parseMpegHeader = async ({
 	}
 
 	const bitrateIndex = iterator.getBits(4);
-	const bitrateKbit = getBitrateKB({
+	const bitrateInKbit = getBitrateKB({
 		bits: bitrateIndex,
 		mpegVersion,
 		level: audioVersionId as Level,
 	});
-	if (bitrateKbit === 'bad') {
+	if (bitrateInKbit === 'bad') {
 		throw new Error('Invalid bitrate');
 	}
 
-	if (bitrateKbit === 'free') {
+	if (bitrateInKbit === 'free') {
 		throw new Error('Free bitrate not supported');
 	}
 
@@ -263,7 +263,7 @@ export const parseMpegHeader = async ({
 	const samplesPerFrame = getSamplesPerMpegFrame({mpegVersion, layer});
 
 	const frameLength = getMpegFrameLength({
-		bitrateKbit,
+		bitrateKbit: bitrateInKbit,
 		padding,
 		samplesPerFrame,
 		samplingFrequency: sampleRate,
@@ -286,89 +286,98 @@ export const parseMpegHeader = async ({
 			startOfMpegStream: initialOffset,
 		};
 		const asText = new TextDecoder().decode(data);
+		if (asText.includes('VBRI')) {
+			throw new Error(
+				'MP3 files with VBRI are currently unsupported because we have no sample file. Submit this file at remotion.dev/report if you would like us to support this file.',
+			);
+		}
 
-		const isVbr = asText.includes('Xing') || asText.includes('VBRI');
-		isInfoTag = isVbr || asText.includes('Info');
+		const isVbr = asText.includes('Xing');
 		if (isVbr) {
 			Log.verbose(
 				state.logLevel,
 				'MP3 has variable bit rate. Requiring whole file to be read',
 			);
-		} else {
 			state.mp3.setCbrMp3Info({
-				bitrateKbit,
+				type: 'variable',
 			});
 		}
 
-		if (!isInfoTag) {
-			state.mp3.setMp3Info(info);
-			await registerAudioTrack({
-				container: 'mp3',
-				track: {
-					type: 'audio',
-					codec: 'mp3',
-					codecPrivate: null,
-					codecWithoutConfig: 'mp3',
-					description: undefined,
-					numberOfChannels,
-					sampleRate,
-					timescale: 1_000_000,
-					trackId: 0,
-					trakBox: null,
-				},
-				registerAudioSampleCallback:
-					state.callbacks.registerAudioSampleCallback,
-				tracks: state.callbacks.tracks,
-				logLevel: state.logLevel,
-				onAudioTrack: state.onAudioTrack,
-			});
-			state.callbacks.tracks.setIsDone(state.logLevel);
-			state.mediaSection.addMediaSection({
-				start: initialOffset,
-				size: state.contentLength - initialOffset,
-			});
+		isInfoTag = isVbr || asText.includes('Info');
+
+		if (isInfoTag) {
+			return;
 		}
+
+		state.mp3.setCbrMp3Info({
+			bitrateInKbit,
+			type: 'constant',
+		});
+
+		state.mp3.setMp3Info(info);
+		await registerAudioTrack({
+			container: 'mp3',
+			track: {
+				type: 'audio',
+				codec: 'mp3',
+				codecPrivate: null,
+				codecWithoutConfig: 'mp3',
+				description: undefined,
+				numberOfChannels,
+				sampleRate,
+				timescale: 1_000_000,
+				trackId: 0,
+				trakBox: null,
+			},
+			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+			tracks: state.callbacks.tracks,
+			logLevel: state.logLevel,
+			onAudioTrack: state.onAudioTrack,
+		});
+		state.callbacks.tracks.setIsDone(state.logLevel);
+		state.mediaSection.addMediaSection({
+			start: initialOffset,
+			size: state.contentLength - initialOffset,
+		});
 	}
 
 	const avgLength = getAverageMpegFrameLength({
-		bitrateKbit,
+		bitrateKbit: bitrateInKbit,
 		layer,
 		samplesPerFrame,
 		samplingFrequency: sampleRate,
 	});
 
-	if (!isInfoTag) {
-		const mp3Info = state.mp3.getMp3Info();
-		if (!mp3Info) {
-			throw new Error('No MP3 info');
-		}
-
-		const nthFrame = Math.round(
-			(initialOffset - mp3Info.startOfMpegStream) / avgLength,
-		);
-
-		const durationInSeconds = samplesPerFrame / sampleRate;
-		const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
-		const timestamp = Math.round(timeInSeconds * 1_000_000);
-		const duration = Math.round(durationInSeconds * 1_000_000);
-
-		const audioSample: AudioOrVideoSample = {
-			data,
-			cts: timestamp,
-			dts: timestamp,
-			duration,
-			offset: initialOffset,
-			timescale: 1_000_000,
-			timestamp,
-			trackId: 0,
-			type: 'key',
-		};
-
-		state.mp3.audioSamples.addSample({
-			timeInSeconds,
-			offset: initialOffset,
-			durationInSeconds,
-		});
-		await state.callbacks.onAudioSample(0, audioSample);
+	const mp3Info = state.mp3.getMp3Info();
+	if (!mp3Info) {
+		throw new Error('No MP3 info');
 	}
+
+	const nthFrame = Math.round(
+		(initialOffset - mp3Info.startOfMpegStream) / avgLength,
+	);
+
+	const durationInSeconds = samplesPerFrame / sampleRate;
+	const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
+	const timestamp = Math.round(timeInSeconds * 1_000_000);
+	const duration = Math.round(durationInSeconds * 1_000_000);
+
+	const audioSample: AudioOrVideoSample = {
+		data,
+		cts: timestamp,
+		dts: timestamp,
+		duration,
+		offset: initialOffset,
+		timescale: 1_000_000,
+		timestamp,
+		trackId: 0,
+		type: 'key',
+	};
+
+	state.mp3.audioSamples.addSample({
+		timeInSeconds,
+		offset: initialOffset,
+		durationInSeconds,
+	});
+	await state.callbacks.onAudioSample(0, audioSample);
 };

@@ -35,7 +35,6 @@ test('should read MP3 file', async () => {
 	} = await parseMedia({
 		src: exampleVideos.music,
 		reader: nodeReader,
-
 		fields: {
 			tracks: true,
 			durationInSeconds: true,
@@ -232,7 +231,7 @@ test('should read video fields', async () => {
 		},
 	);
 	expect(slowFps).toEqual(0);
-	expect(slowDurationInSeconds).toEqual(125.17877551020408);
+	expect(slowDurationInSeconds).toEqual(125.07428544892417);
 	expect(slowNumberOfFrames).toEqual(0);
 	expect(fps).toEqual(null);
 });

@@ -13,5 +13,5 @@ test('different mp3 file with no id3 in front', async () => {
 		},
 	});
 
-	expect(slowDurationInSeconds).toBe(239.0204081632653);
+	expect(slowDurationInSeconds).toBe(238.83755144902645);
 });

@@ -13,8 +13,14 @@ export const getDurationFromMp3 = (state: ParserState): number | null => {
 		layer: mp3Info.layer,
 		mpegVersion: mp3Info.mpegVersion,
 	});
+
+	// TODO
+	if (mp3CbrInfo.type === 'variable') {
+		throw new Error('Cannot get duration of VBR MP3 file');
+	}
+
 	const frameLengthInBytes = getMpegFrameLength({
-		bitrateKbit: mp3CbrInfo.bitrateKbit,
+		bitrateKbit: mp3CbrInfo.bitrateInKbit,
 		padding: false,
 		samplesPerFrame,
 		samplingFrequency: mp3Info.sampleRate,
