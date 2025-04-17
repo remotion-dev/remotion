@@ -5,6 +5,7 @@ import {
 } from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {makeAviAudioTrack, makeAviVideoTrack} from './get-tracks-from-avi';
+import {riffHasIndex} from './has-index';
 import {isMoviAtom} from './is-movi';
 import {parseRiffBox} from './parse-riff-box';
 import type {RiffBox} from './riff-box';
@@ -76,9 +77,13 @@ export const expectRiffBox = async ({
 			size: ckSize - 4,
 		});
 
-		stateIfExpectingSideEffects.riff.lazyIdx1.triggerLoad(
-			iterator.counter.getOffset() + ckSize - 4,
-		);
+		if (
+			riffHasIndex(stateIfExpectingSideEffects.structure.getRiffStructure())
+		) {
+			stateIfExpectingSideEffects.riff.lazyIdx1.triggerLoad(
+				iterator.counter.getOffset() + ckSize - 4,
+			);
+		}
 
 		return null;
 	}

@@ -84,6 +84,7 @@ export const getSeekingHints = ({
 			structureState,
 			riffState,
 			mediaSectionState,
+			keyframesState,
 		});
 	}
 

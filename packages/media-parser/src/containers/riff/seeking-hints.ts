@@ -1,8 +1,10 @@
+import type {MediaParserKeyframe} from '../../options';
+import type {KeyframesState} from '../../state/keyframes';
 import type {ParserState} from '../../state/parser-state';
 import type {RiffState} from '../../state/riff';
 import type {StructureState} from '../../state/structure';
 import type {MediaSectionState} from '../../state/video-section';
-import type {ListBox} from './riff-box';
+import {riffHasIndex} from './has-index';
 import type {FetchIdx1Result} from './seek/fetch-idx1';
 import {getStrhBox, getStrlBoxes} from './traversal';
 
@@ -12,16 +14,19 @@ export type RiffSeekingHints = {
 	idx1Entries: FetchIdx1Result | null;
 	samplesPerSecond: number | null;
 	moviOffset: number | null;
+	observedKeyframes: MediaParserKeyframe[];
 };
 
 export const getSeekingHintsForRiff = ({
 	structureState,
 	riffState,
 	mediaSectionState,
+	keyframesState,
 }: {
 	structureState: StructureState;
 	riffState: RiffState;
 	mediaSectionState: MediaSectionState;
+	keyframesState: KeyframesState;
 }): RiffSeekingHints => {
 	const structure = structureState.getRiffStructure();
 	const strl = getStrlBoxes(structure);
@@ -45,15 +50,11 @@ export const getSeekingHintsForRiff = ({
 
 	return {
 		type: 'riff-seeking-hints',
-		hasIndex:
-			(
-				structure.boxes.find(
-					(b) => b.type === 'list-box' && b.listType === 'hdrl',
-				) as ListBox | undefined
-			)?.children.find((box) => box.type === 'avih-box')?.hasIndex ?? false,
+		hasIndex: riffHasIndex(structure),
 		idx1Entries: riffState.lazyIdx1.getIfAlreadyLoaded(),
 		samplesPerSecond,
 		moviOffset: mediaSectionState.getMediaSections()[0]?.start ?? null,
+		observedKeyframes: keyframesState.getKeyframes(),
 	};
 };
 
