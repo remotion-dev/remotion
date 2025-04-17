@@ -123,9 +123,11 @@ const audioTags = [
 export const processIsoFormatBox = async ({
 	iterator,
 	logLevel,
+	contentLength,
 }: {
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	contentLength: number;
 }): Promise<FormatBoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -179,6 +181,7 @@ export const processIsoFormatBox = async ({
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				onlyIfMoovAtomExpected: null,
+				contentLength,
 			});
 
 			return {
@@ -223,6 +226,7 @@ export const processIsoFormatBox = async ({
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				onlyIfMoovAtomExpected: null,
+				contentLength,
 			});
 
 			return {
@@ -270,6 +274,7 @@ export const processIsoFormatBox = async ({
 				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
 				onlyIfMoovAtomExpected: null,
+				contentLength,
 			});
 
 			return {
@@ -325,6 +330,7 @@ export const processIsoFormatBox = async ({
 						iterator,
 						logLevel,
 						size: bytesRemainingInBox,
+						contentLength,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);
 
@@ -361,10 +367,12 @@ export const parseIsoFormatBoxes = async ({
 	maxBytes,
 	logLevel,
 	iterator,
+	contentLength,
 }: {
 	maxBytes: number;
 	logLevel: LogLevel;
 	iterator: BufferIterator;
+	contentLength: number;
 }): Promise<Sample[]> => {
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
@@ -376,6 +384,7 @@ export const parseIsoFormatBoxes = async ({
 		const {sample} = await processIsoFormatBox({
 			iterator,
 			logLevel,
+			contentLength,
 		});
 
 		if (sample) {

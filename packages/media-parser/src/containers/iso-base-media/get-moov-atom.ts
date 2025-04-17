@@ -107,6 +107,7 @@ export const getMoovAtom = async ({
 				registerAudioSampleCallback: () => Promise.resolve(),
 			},
 			onlyIfMdatAtomExpected: null,
+			contentLength: state.contentLength - endOfMdat,
 		});
 		if (box) {
 			boxes.push(box);

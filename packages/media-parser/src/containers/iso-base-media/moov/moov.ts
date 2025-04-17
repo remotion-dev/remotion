@@ -16,18 +16,21 @@ export const parseMoov = async ({
 	onlyIfMoovAtomExpected,
 	iterator,
 	logLevel,
+	contentLength,
 }: {
 	offset: number;
 	size: number;
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	contentLength: number;
 }): Promise<MoovBox> => {
 	const children = await getIsoBaseMediaChildren({
 		onlyIfMoovAtomExpected,
 		size: size - 8,
 		iterator,
 		logLevel,
+		contentLength,
 	});
 
 	return {
