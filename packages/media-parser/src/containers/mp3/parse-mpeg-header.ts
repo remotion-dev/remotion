@@ -4,10 +4,10 @@ import {Log} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {Mp3Info} from '../../state/mp3';
 import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
-import {getAverageMpegFrameLength} from './get-frame-length';
 import {parseMp3PacketHeader} from './parse-packet-header';
 import {parseXing} from './parse-xing';
+import {getAudioSampleFromCbr} from './seek/audio-sample-from-cbr';
+import {getAudioSampleFromVbr} from './seek/audio-sample-from-vbr';
 
 export const parseMpegHeader = async ({
 	state,
@@ -112,39 +112,30 @@ export const parseMpegHeader = async ({
 		});
 	}
 
-	const avgLength = getAverageMpegFrameLength({
-		bitrateKbit: bitrateInKbit,
-		layer,
-		samplesPerFrame,
-		samplingFrequency: sampleRate,
-	});
-
-	const mp3Info = state.mp3.getMp3Info();
-	if (!mp3Info) {
-		throw new Error('No MP3 info');
+	const bitrateInfo = state.mp3.getMp3BitrateInfo();
+	if (!bitrateInfo) {
+		throw new Error('No bitrate info');
 	}
 
-	const nthFrame = Math.round(
-		(initialOffset - state.mediaSection.getMediaSectionAssertOnlyOne().start) /
-			avgLength,
-	);
+	const sample =
+		bitrateInfo.type === 'constant'
+			? getAudioSampleFromCbr({
+					bitrateInKbit,
+					data,
+					initialOffset,
+					layer,
+					sampleRate,
+					samplesPerFrame,
+					state,
+				})
+			: getAudioSampleFromVbr({
+					data,
+					info: bitrateInfo,
+					mp3Info: state.mp3.getMp3Info(),
+					position: initialOffset,
+				});
 
-	const durationInSeconds = samplesPerFrame / sampleRate;
-	const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
-	const timestamp = Math.round(timeInSeconds * 1_000_000);
-	const duration = Math.round(durationInSeconds * 1_000_000);
-
-	const audioSample: AudioOrVideoSample = {
-		data,
-		cts: timestamp,
-		dts: timestamp,
-		duration,
-		offset: initialOffset,
-		timescale: 1_000_000,
-		timestamp,
-		trackId: 0,
-		type: 'key',
-	};
+	const {audioSample, timeInSeconds, durationInSeconds} = sample;
 
 	state.mp3.audioSamples.addSample({
 		timeInSeconds,

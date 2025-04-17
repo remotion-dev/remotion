@@ -22,13 +22,18 @@ export const getSeekPointFromXing = ({
 		samplesPerFrame,
 	});
 
+	const totalSamples = timeInSeconds * xingData.sampleRate;
+	// -1 frame so we are sure to be before the target
+	const oneFrameSubtracted = totalSamples - samplesPerFrame;
+	const timeToTarget = Math.max(0, oneFrameSubtracted / xingData.sampleRate);
+
 	if (!xingData.fileSize || !xingData.tableOfContents) {
 		throw new Error('Cannot seek of VBR MP3 file');
 	}
 
 	return getSeekPointInBytes({
 		fileSize: xingData.fileSize,
-		percentBetween0And100: (timeInSeconds / duration) * 100,
+		percentBetween0And100: (timeToTarget / duration) * 100,
 		tableOfContents: xingData.tableOfContents,
 	});
 };

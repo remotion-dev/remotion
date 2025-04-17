@@ -1,6 +1,7 @@
 import type {SeekResolution} from '../../work-on-seek-request';
 import {getApproximateByteFromBitrate} from './seek/get-approximate-byte-from-bitrate';
 import {getByteFromObservedSamples} from './seek/get-byte-from-observed-samples';
+import {getSeekPointFromXing} from './seek/get-seek-point-from-xing';
 import type {Mp3SeekingHints} from './seeking-hints';
 
 export const getSeekingByteForMp3 = ({
@@ -32,9 +33,20 @@ export const getSeekingByteForMp3 = ({
 		timeInSeconds: time,
 	});
 
-	const candidates = [approximateByte, bestAudioSample?.offset ?? null].filter(
-		(b) => b !== null,
-	);
+	const xingSeekPoint =
+		info.mp3BitrateInfo.type === 'variable'
+			? getSeekPointFromXing({
+					mp3Info: info.mp3Info,
+					timeInSeconds: time,
+					xingData: info.mp3BitrateInfo.xingData,
+				})
+			: null;
+
+	const candidates = [
+		approximateByte,
+		bestAudioSample?.offset ?? null,
+		xingSeekPoint,
+	].filter((b) => b !== null);
 	if (candidates.length === 0) {
 		return {
 			type: 'valid-but-must-wait',

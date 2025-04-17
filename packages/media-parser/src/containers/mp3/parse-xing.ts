@@ -132,3 +132,34 @@ export const getSeekPointInBytes = ({
 
 	return Math.floor(seekPoint);
 };
+
+export const getTimeFromPosition = ({
+	position,
+	fileSize,
+	tableOfContents,
+	durationInSeconds,
+}: {
+	position: number;
+	fileSize: number;
+	tableOfContents: number[];
+	durationInSeconds: number;
+}) => {
+	// Convert position to a value between 0-256
+	const positionNormalized = (position / fileSize) * 256;
+
+	// Find the closest indices in the table of contents
+	let index = 0;
+	while (index < 99 && tableOfContents[index + 1] <= positionNormalized) {
+		index++;
+	}
+
+	const fa = tableOfContents[index];
+	const fb = index < 99 ? tableOfContents[index + 1] : 256;
+
+	// Interpolate between the two points
+	const percentWithinSegment = (positionNormalized - fa) / (fb - fa);
+	const percentBetween0And100 = index + percentWithinSegment;
+
+	// Convert percentage to time
+	return (percentBetween0And100 / 100) * durationInSeconds;
+};

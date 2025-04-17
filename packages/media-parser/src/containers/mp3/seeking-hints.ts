@@ -36,6 +36,7 @@ export const getSeekingHintsForMp3 = ({
 	};
 };
 
+// TODO: could set xing data in the hints
 export const setSeekingHintsForMp3 = ({
 	hints,
 	state,

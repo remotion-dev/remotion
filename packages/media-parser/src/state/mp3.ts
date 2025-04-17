@@ -7,15 +7,17 @@ export type Mp3Info = {
 	layer: number;
 };
 
+export type VariableMp3BitrateInfo = {
+	type: 'variable';
+	xingData: XingData;
+};
+
 export type Mp3BitrateInfo =
 	| {
 			type: 'constant';
 			bitrateInKbit: number;
 	  }
-	| {
-			type: 'variable';
-			xingData: XingData;
-	  };
+	| VariableMp3BitrateInfo;
 
 export const makeMp3State = () => {
 	let mp3Info: Mp3Info | null = null;
