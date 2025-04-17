@@ -59,6 +59,10 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const data = iterator.getSlice(frameLength);
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
+		state.mediaSection.addMediaSection({
+			start: startOffset,
+			size: state.contentLength - startOffset,
+		});
 		await registerAudioTrack({
 			container: 'aac',
 			track: {

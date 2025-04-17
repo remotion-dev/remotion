@@ -52,7 +52,7 @@ export const setSeekingHints = ({
 	}
 
 	if (hints.type === 'aac-seeking-hints') {
-		setSeekingHintsForAac({hints, state});
+		setSeekingHintsForAac();
 		return;
 	}
 

@@ -1,6 +1,5 @@
 import type {AacState} from '../../state/aac-state';
 import type {AudioSampleOffset} from '../../state/audio-sample-map';
-import type {ParserState} from '../../state/parser-state';
 import type {SamplesObservedState} from '../../state/samples-observed/slow-duration-fps';
 
 export type AacSeekingHints = {
@@ -23,12 +22,5 @@ export const getSeekingHintsForAac = ({
 	};
 };
 
-export const setSeekingHintsForAac = ({
-	hints,
-	state,
-}: {
-	hints: AacSeekingHints;
-	state: ParserState;
-}) => {
-	state.aac.audioSamples.setFromSeekingHints(hints.audioSampleMap);
-};
+// TODO: Implement this and maintain index
+export const setSeekingHintsForAac = () => {};

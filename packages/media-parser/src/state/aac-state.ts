@@ -14,8 +14,9 @@ export const aacState = () => {
 
 	return {
 		addSample: ({offset, size}: {offset: number; size: number}) => {
-			if (samples.find((s) => s.offset === offset)) {
-				throw new Error('Duplicate sample');
+			const index = samples.findIndex((s) => s.offset === offset);
+			if (index !== -1) {
+				return samples[index];
 			}
 
 			samples.push({offset, index: samples.length, size});
