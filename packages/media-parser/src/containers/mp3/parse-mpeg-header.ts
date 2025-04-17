@@ -295,13 +295,13 @@ export const parseMpegHeader = async ({
 				'MP3 has variable bit rate. Requiring whole file to be read',
 			);
 		} else {
-			state.mp3Info.setCbrMp3Info({
+			state.mp3.setCbrMp3Info({
 				bitrateKbit,
 			});
 		}
 
 		if (!isInfoTag) {
-			state.mp3Info.setMp3Info(info);
+			state.mp3.setMp3Info(info);
 			await registerAudioTrack({
 				container: 'mp3',
 				track: {
@@ -334,7 +334,7 @@ export const parseMpegHeader = async ({
 	});
 
 	if (!isInfoTag) {
-		const mp3Info = state.mp3Info.getMp3Info();
+		const mp3Info = state.mp3.getMp3Info();
 		if (!mp3Info) {
 			throw new Error('No MP3 info');
 		}

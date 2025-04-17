@@ -1,3 +1,5 @@
+import {audioSampleMapState} from './audio-sample-map';
+
 export type Mp3Info = {
 	sampleRate: number;
 	mpegVersion: 1 | 2;
@@ -14,6 +16,8 @@ export const makeMp3State = () => {
 	// cbr  = constant bit rate
 	let cbrMp3Info: Mp3CbrInfo | null = null;
 
+	const audioSamples = audioSampleMapState();
+
 	return {
 		getMp3Info: () => mp3Info,
 		setMp3Info: (info: Mp3Info) => {
@@ -23,5 +27,8 @@ export const makeMp3State = () => {
 		setCbrMp3Info: (info: Mp3CbrInfo) => {
 			cbrMp3Info = info;
 		},
+		audioSamples,
 	};
 };
+
+export type Mp3State = ReturnType<typeof makeMp3State>;

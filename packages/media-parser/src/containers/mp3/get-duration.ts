@@ -3,8 +3,8 @@ import {getMpegFrameLength} from './get-frame-length';
 import {getSamplesPerMpegFrame} from './samples-per-mpeg-file';
 
 export const getDurationFromMp3 = (state: ParserState): number | null => {
-	const mp3Info = state.mp3Info.getMp3Info();
-	const mp3CbrInfo = state.mp3Info.getCbrMp3Info();
+	const mp3Info = state.mp3.getMp3Info();
+	const mp3CbrInfo = state.mp3.getCbrMp3Info();
 	if (!mp3Info || !mp3CbrInfo) {
 		return null;
 	}
