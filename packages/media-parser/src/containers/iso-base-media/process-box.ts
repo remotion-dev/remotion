@@ -89,18 +89,11 @@ export const processBox = async ({
 		);
 	}
 
+	const maxSize = contentLength - startOff;
 	const boxType = iterator.getByteString(4, false);
-	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
-	const maxSize = contentLength - iterator.counter.getOffset();
-	Log.trace(
-		logLevel,
-		'Found box',
-		boxType,
-		boxSize,
-		maxSize,
-		iterator.counter.getOffset(),
-		contentLength,
-	);
+	const boxSizeUnlimited =
+		boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
+	const boxSize = Math.min(boxSizeUnlimited, maxSize);
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
