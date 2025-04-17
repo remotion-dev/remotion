@@ -244,6 +244,13 @@ export const parseMpegHeader = async ({
 		throw new Error('Free bitrate not supported');
 	}
 
+	const cbrMp3Info = state.mp3.getCbrMp3Info();
+	if (cbrMp3Info && cbrMp3Info.type === 'constant') {
+		if (bitrateInKbit !== cbrMp3Info.bitrateInKbit) {
+			throw new Error('Bitrate mismatch');
+		}
+	}
+
 	const samplingFrequencyIndex = iterator.getBits(2);
 
 	const sampleRate = getSamplingFrequency({
@@ -380,5 +387,6 @@ export const parseMpegHeader = async ({
 		offset: initialOffset,
 		durationInSeconds,
 	});
+
 	await state.callbacks.onAudioSample(0, audioSample);
 };
