@@ -1,3 +1,4 @@
+import type {AacSeekingHints} from './containers/aac/seeking-hints';
 import type {FlacSeekingHints} from './containers/flac/seeking-hints';
 import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
 import type {TfraBox} from './containers/iso-base-media/mfra/tfra';
@@ -48,4 +49,5 @@ export type SeekingHints =
 	| WebmSeekingHints
 	| FlacSeekingHints
 	| RiffSeekingHints
-	| Mp3SeekingHints;
+	| Mp3SeekingHints
+	| AacSeekingHints;

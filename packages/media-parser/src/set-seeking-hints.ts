@@ -1,3 +1,4 @@
+import {setSeekingHintsForAac} from './containers/aac/seeking-hints';
 import {setSeekingHintsForFlac} from './containers/flac/seeking-hints';
 import {setSeekingHintsForMp4} from './containers/iso-base-media/seeking-hints';
 import {setSeekingHintsForMp3} from './containers/mp3/seeking-hints';
@@ -47,6 +48,11 @@ export const setSeekingHints = ({
 
 	if (hints.type === 'mp3-seeking-hints') {
 		setSeekingHintsForMp3({hints, state});
+		return;
+	}
+
+	if (hints.type === 'aac-seeking-hints') {
+		setSeekingHintsForAac();
 		return;
 	}
 

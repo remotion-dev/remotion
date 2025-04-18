@@ -6,6 +6,10 @@ slug: /media-parser/seeking-hints
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+This feature is experimental and not yet ready for production use.
+:::
+
 When Media Parser wants to seek to a specific position in the media file, it can be expensive to find out where to go.
 
 With Seeking Hints, you can provide a hint to the media parsing process upfront about the structure to the file, so that seeking can be short-circuited without needing to figure out the position.

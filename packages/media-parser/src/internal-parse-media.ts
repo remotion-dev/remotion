@@ -119,6 +119,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 				riffState: state.riff,
 				mp3State: state.mp3,
 				contentLength: state.contentLength,
+				aacState: state.aac,
 			}),
 		),
 	);

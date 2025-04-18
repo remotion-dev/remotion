@@ -10,6 +10,7 @@ import type {ParseMediaMode, ParseMediaSrc} from './options';
 import type {IsoBaseMediaStructure} from './parse-result';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
+import type {AacState} from './state/aac-state';
 import type {CurrentReader} from './state/current-reader';
 import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
@@ -42,6 +43,7 @@ const turnSeekIntoByte = async ({
 	riffState,
 	mp3State,
 	contentLength,
+	aacState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -58,6 +60,7 @@ const turnSeekIntoByte = async ({
 	samplesObserved: SamplesObservedState;
 	riffState: RiffState;
 	mp3State: Mp3State;
+	aacState: AacState;
 	contentLength: number;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
@@ -89,6 +92,7 @@ const turnSeekIntoByte = async ({
 			flacState,
 			mp3State,
 			contentLength,
+			aacState,
 		});
 
 		if (!seekingHints) {
@@ -151,6 +155,7 @@ export type WorkOnSeekRequestOptions = {
 	samplesObserved: SamplesObservedState;
 	riffState: RiffState;
 	mp3State: Mp3State;
+	aacState: AacState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -180,6 +185,7 @@ export const getWorkOnSeekRequestOptions = (
 		samplesObserved: state.samplesObserved,
 		riffState: state.riff,
 		mp3State: state.mp3,
+		aacState: state.aac,
 	};
 };
 
@@ -208,6 +214,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		samplesObserved,
 		riffState,
 		mp3State,
+		aacState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -232,6 +239,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		riffState,
 		mp3State,
 		contentLength,
+		aacState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
