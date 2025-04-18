@@ -15,3 +15,4 @@ install-toolchain.mjs
 toolchains
 toolchains.mjs
 *.ts
+!*.d.ts
