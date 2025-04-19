@@ -10,7 +10,7 @@
     "typecheck": "react-router typegen && tsc",
     "remotion:studio": "remotion studio",
     "remotion:renderlambda": "remotion lambda render remotion-react-router-example LogoAnimation out/logo-animation-lambda-rendered.mp4",
-    "remotion:deploy": "ts-node app/deploy.ts"
+    "remotion:deploy": "tsx app/deploy.ts"
   },
   "sideEffects": [
     "*.css"
@@ -49,7 +49,7 @@
     "dotenv": "16.0.3",
     "eslint": "9.19.0",
     "prettier": "3.3.3",
-    "ts-node": "10.9.1",
+    "tsx": "4.19.3",
     "typescript": "5.8.2"
   }
 }
