@@ -1,4 +1,5 @@
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {
@@ -23,5 +24,17 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 				originalScriptCode,
 			},
 		}),
+	});
+};
+
+export const openOriginalPositionInEditor = async (
+	originalPosition: OriginalPosition,
+) => {
+	await openInEditor({
+		originalColumnNumber: originalPosition.column,
+		originalFileName: originalPosition.source,
+		originalFunctionName: null,
+		originalLineNumber: originalPosition.line,
+		originalScriptCode: null,
 	});
 };
