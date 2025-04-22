@@ -23,9 +23,6 @@ type JobState =
   | {
       status: "failed";
       error: Error;
-    }
-  | {
-      status: "cancelled";
     };
 
 const compositionId = "HelloWorld";
