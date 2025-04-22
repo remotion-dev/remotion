@@ -19,10 +19,18 @@ function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
 
   // Host renders on /renders
   app.use("/renders", express.static(rendersDir));
+  app.use(express.json());
 
   // Endpoint to create a new job
   app.post("/renders", async (req, res) => {
-    const jobId = queue.createJob();
+    const titleText = req.body?.titleText || "Hello, world!";
+
+    if (typeof titleText !== "string") {
+      res.status(400).json({ message: "titleText must be a string" });
+      return;
+    }
+
+    const jobId = queue.createJob({ titleText });
 
     res.json({ jobId });
   });

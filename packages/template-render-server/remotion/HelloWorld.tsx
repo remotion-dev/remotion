@@ -12,14 +12,14 @@ import { Title } from "./HelloWorld/Title";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
 
-export const myCompSchema = z.object({
+export const helloWorldCompSchema = z.object({
   titleText: z.string(),
   titleColor: zColor(),
   logoColor1: zColor(),
   logoColor2: zColor(),
 });
 
-export const HelloWorld: React.FC<z.infer<typeof myCompSchema>> = ({
+export const HelloWorld: React.FC<z.infer<typeof helloWorldCompSchema>> = ({
   titleText: propOne,
   titleColor: propTwo,
   logoColor1,

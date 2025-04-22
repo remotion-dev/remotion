@@ -1,5 +1,5 @@
 import { Composition } from "remotion";
-import { HelloWorld, myCompSchema } from "./HelloWorld";
+import { HelloWorld, helloWorldCompSchema } from "./HelloWorld";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -17,7 +17,7 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         // You can override these props for each render:
         // https://www.remotion.dev/docs/parametrized-rendering
-        schema={myCompSchema}
+        schema={helloWorldCompSchema}
         defaultProps={{
           titleText: "Render Server Template",
           titleColor: "#000000",

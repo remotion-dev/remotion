@@ -6,23 +6,31 @@ import {
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 
+interface JobData {
+  titleText: string;
+}
+
 type JobState =
   | {
       status: "queued";
+      data: JobData;
       cancel: () => void;
     }
   | {
       status: "in-progress";
       progress: number;
+      data: JobData;
       cancel: () => void;
     }
   | {
       status: "completed";
       videoUrl: string;
+      data: JobData;
     }
   | {
       status: "failed";
       error: Error;
+      data: JobData;
     };
 
 const compositionId = "HelloWorld";
@@ -51,12 +59,18 @@ export const makeRenderQueue = ({
       progress: 0,
       status: "in-progress",
       cancel: cancel,
+      data: job.data,
     });
 
     try {
+      const inputProps = {
+        titleText: job.data.titleText,
+      };
+
       const composition = await selectComposition({
         serveUrl,
         id: compositionId,
+        inputProps,
       });
 
       await renderMedia({
@@ -70,6 +84,7 @@ export const makeRenderQueue = ({
             progress: progress.progress,
             status: "in-progress",
             cancel: cancel,
+            data: job.data,
           });
         },
         outputLocation: path.join(rendersDir, `${jobId}.mp4`),
@@ -78,19 +93,28 @@ export const makeRenderQueue = ({
       jobs.set(jobId, {
         status: "completed",
         videoUrl: `http://localhost:${port}/renders/${jobId}.mp4`,
+        data: job.data,
       });
     } catch (error) {
       console.error(error);
       jobs.set(jobId, {
         status: "failed",
         error: error as Error,
+        data: job.data,
       });
     }
   };
 
-  const queueRender = async ({ jobId }: { jobId: string }) => {
+  const queueRender = async ({
+    jobId,
+    data,
+  }: {
+    jobId: string;
+    data: JobData;
+  }) => {
     jobs.set(jobId, {
       status: "queued",
+      data,
       cancel: () => {
         jobs.delete(jobId);
       },
@@ -101,10 +125,10 @@ export const makeRenderQueue = ({
     });
   };
 
-  function createJob() {
+  function createJob(data: JobData) {
     const jobId = randomUUID();
 
-    queueRender({ jobId });
+    queueRender({ jobId, data });
 
     return jobId;
   }
