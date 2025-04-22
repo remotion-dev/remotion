@@ -1,5 +1,5 @@
 import express from "express";
-import { cancelRenderJob, createRenderJob, renderJobs } from "./render-worker";
+import { makeRenderQueue } from "./render-worker";
 import { bundle } from "@remotion/bundler";
 import path from "node:path";
 import { ensureBrowser } from "@remotion/renderer";
@@ -9,40 +9,49 @@ const { PORT = 3000, REMOTION_SERVE_URL } = process.env;
 function setupApp({ remotionBundleUrl }: { remotionBundleUrl: string }) {
   const app = express();
 
-  // server /renders static files
-  app.use("/renders", express.static(path.resolve("renders")));
+  const rendersDir = path.resolve("renders");
 
+  const queue = makeRenderQueue({
+    port: Number(PORT),
+    serveUrl: remotionBundleUrl,
+    rendersDir,
+  });
+
+  // Host renders on /renders
+  app.use("/renders", express.static(rendersDir));
+
+  // Endpoint to create a new job
   app.post("/renders", async (req, res) => {
-    const jobId = createRenderJob(remotionBundleUrl);
+    const jobId = queue.createJob();
 
     res.json({ jobId });
   });
 
-  // get a job status
+  // Endpoint to get a job status
   app.get("/renders/:jobId", (req, res) => {
     const jobId = req.params.jobId;
-    const job = renderJobs.get(jobId);
+    const job = queue.jobs.get(jobId);
 
     res.json(job);
   });
 
-  // cancel a job
+  // Endpoint to cancel a job
   app.delete("/renders/:jobId", (req, res) => {
     const jobId = req.params.jobId;
 
-    const job = renderJobs.get(jobId);
+    const job = queue.jobs.get(jobId);
 
     if (!job) {
       res.status(404).json({ message: "Job not found" });
       return;
     }
 
-    if (job.status !== "pending" && job.status !== "processing") {
+    if (job.status !== "queued" && job.status !== "in-progress") {
       res.status(400).json({ message: "Job is not cancellable" });
       return;
     }
 
-    cancelRenderJob(jobId);
+    job.cancel();
 
     res.json({ message: "Job cancelled" });
   });
@@ -58,7 +67,7 @@ async function main() {
     : await bundle({
         entryPoint: path.resolve("remotion/index.ts"),
         onProgress(progress) {
-          console.info(`Bundling remotion composition: ${progress}%`);
+          console.info(`Bundling Remotion project: ${progress}%`);
         },
       });
 

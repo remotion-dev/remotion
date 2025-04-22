@@ -1,95 +1,119 @@
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import {
+  makeCancelSignal,
+  renderMedia,
+  selectComposition,
+} from "@remotion/renderer";
 import { randomUUID } from "node:crypto";
-import { EventEmitter } from "node:events";
-import { makeCancelSignal } from "@remotion/renderer";
 import path from "node:path";
 
-export type RenderJob = {
-  id: string;
-  progress: number;
-  status: "pending" | "processing" | "completed" | "failed" | "cancelled";
-  videoUrl?: string;
-};
-
-const { PORT = 3000 } = process.env;
-
-export const rendersDir = path.resolve("renders");
-
-export const renderJobs = new Map<string, RenderJob>();
+type JobState =
+  | {
+      status: "queued";
+      cancel: () => void;
+    }
+  | {
+      status: "in-progress";
+      progress: number;
+      cancel: () => void;
+    }
+  | {
+      status: "completed";
+      videoUrl: string;
+    }
+  | {
+      status: "failed";
+      error: Error;
+    }
+  | {
+      status: "cancelled";
+    };
 
 const compositionId = "HelloWorld";
 
-const renderEvents = new EventEmitter();
+export const makeRenderQueue = ({
+  port,
+  serveUrl,
+  rendersDir,
+}: {
+  port: number;
+  serveUrl: string;
+  rendersDir: string;
+}) => {
+  const jobs = new Map<string, JobState>();
+  let queue: Promise<unknown> = Promise.resolve();
 
-renderEvents.on("start-render", async ({ jobId, remotionBundleUrl }) => {
-  renderJobs.set(jobId, {
-    id: jobId,
-    progress: 0,
-    status: "pending",
-  });
+  const processRender = async (jobId: string) => {
+    const job = jobs.get(jobId);
+    if (!job) {
+      throw new Error(`Render job ${jobId} not found`);
+    }
 
-  const composition = await selectComposition({
-    serveUrl: remotionBundleUrl,
-    id: compositionId,
-  });
+    const { cancel, cancelSignal } = makeCancelSignal();
 
-  const { cancel, cancelSignal } = makeCancelSignal();
+    jobs.set(jobId, {
+      progress: 0,
+      status: "in-progress",
+      cancel: cancel,
+    });
 
-  const cancelHandler = (jobIdToCancel: string) => {
-    if (jobId !== jobIdToCancel) return;
+    try {
+      const composition = await selectComposition({
+        serveUrl,
+        id: compositionId,
+      });
 
-    console.info(`Cancelling ${jobId} render...`);
+      await renderMedia({
+        cancelSignal,
+        serveUrl,
+        composition,
+        codec: "h264",
+        onProgress: (progress) => {
+          console.info(`${jobId} render progress:`, progress.progress);
+          jobs.set(jobId, {
+            progress: progress.progress,
+            status: "in-progress",
+            cancel: cancel,
+          });
+        },
+        outputLocation: path.join(rendersDir, `${jobId}.mp4`),
+      });
 
-    cancel();
+      jobs.set(jobId, {
+        status: "completed",
+        videoUrl: `http://localhost:${port}/renders/${jobId}.mp4`,
+      });
+    } catch (error) {
+      console.error(error);
+      jobs.set(jobId, {
+        status: "failed",
+        error: error as Error,
+      });
+    }
   };
 
-  try {
-    const renderPromise = renderMedia({
-      cancelSignal,
-      serveUrl: remotionBundleUrl,
-      composition,
-      codec: "h264",
-      onProgress: (progress) => {
-        console.info(`${jobId} render progress:`, progress.progress);
-        renderJobs.set(jobId, {
-          id: jobId,
-          progress: progress.progress,
-          status: "processing",
-        });
+  const queueRender = async ({ jobId }: { jobId: string }) => {
+    jobs.set(jobId, {
+      status: "queued",
+      cancel: () => {
+        jobs.delete(jobId);
       },
-      outputLocation: path.join(rendersDir, `${jobId}.mp4`),
     });
 
-    // setup cancel handler
-    renderEvents.on("cancel-render", cancelHandler);
+    queue = queue.then(() => {
+      processRender(jobId);
+    });
+  };
 
-    await renderPromise;
-    renderJobs.set(jobId, {
-      id: jobId,
-      progress: 100,
-      status: "completed",
-      videoUrl: `http://localhost:${PORT}/renders/${jobId}.mp4`,
-    });
-  } catch (error) {
-    console.error(error);
-    renderJobs.set(jobId, {
-      id: jobId,
-      progress: 100,
-      status: "failed",
-    });
-  } finally {
-    renderEvents.off("cancel-render", cancelHandler);
+  function createJob() {
+    const jobId = randomUUID();
+
+    queueRender({ jobId });
+
+    return jobId;
   }
-});
 
-export function createRenderJob(remotionBundleUrl: string) {
-  const jobId = randomUUID();
-
-  renderEvents.emit("start-render", { jobId, remotionBundleUrl });
-
-  return jobId;
-}
-
-export function cancelRenderJob(jobId: string) {
-  renderEvents.emit("cancel-render", jobId);
-}
+  return {
+    createJob,
+    jobs,
+  };
+};
