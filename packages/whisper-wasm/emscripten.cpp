@@ -7,7 +7,6 @@
 #include <thread>
 
 std::thread g_worker;
-std::vector<struct whisper_context *> g_contexts(4, nullptr);
 
 static inline int mpow2(int n) {
     int p = 1;
@@ -234,15 +233,13 @@ void progress_callback(struct whisper_context * ctx, struct whisper_state * stat
     printf("remotion_progress:%d%%\n", progress);
 }
 
+std::vector<struct whisper_context *> g_contexts(1, nullptr);
+
+
 EMSCRIPTEN_BINDINGS(whisper) {
     emscripten::function("full_default", emscripten::optional_override([](const std::string & path_model, const emscripten::val & audio, const std::string & model, const std::string & lang, int nthreads, bool translate) {
-        for (size_t i = 0; i < g_contexts.size(); ++i) {
-            if (g_contexts[i] == nullptr) {
-                g_contexts[i] = whisper_init_from_file_with_params(path_model.c_str(), whisper_context_default_params());
-            }
-        }
 
-        auto index = 0;
+        g_contexts[0] = whisper_init_from_file_with_params(path_model.c_str(), whisper_context_default_params());
 
         struct whisper_full_params params = whisper_full_default_params(whisper_sampling_strategy::WHISPER_SAMPLING_GREEDY);
 
@@ -287,14 +284,16 @@ EMSCRIPTEN_BINDINGS(whisper) {
 
         // Run the worker
         {
-            g_worker = std::thread([index, params, pcm = std::move(pcmf32)]() {
-                whisper_reset_timings(g_contexts[index]);
-                whisper_full(g_contexts[index], params, pcm.data(), pcm.size());
-                const int n_segments = whisper_full_n_segments(g_contexts[index]);
-                output_json(g_contexts[index], true, 0, n_segments);
-                whisper_free(g_contexts[index]);
+            g_worker = std::thread([params, pcm = std::move(pcmf32)]() {
+                whisper_reset_timings(g_contexts[0]);
+                whisper_full(g_contexts[0], params, pcm.data(), pcm.size());
+                const int n_segments = whisper_full_n_segments(g_contexts[0]);
+                output_json(g_contexts[0], true, 0, n_segments);
+                whisper_free(g_contexts[0]);
+                g_contexts[0] = nullptr;
             });
         }
+
         return 0;
     }));
 }
