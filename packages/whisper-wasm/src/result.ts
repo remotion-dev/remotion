@@ -38,7 +38,7 @@ type TranscriptionItem = {
 	text: string;
 };
 
-type WordLevelToken = {
+export type WordLevelToken = {
 	t_dtw: number;
 	text: string;
 	timestamps: Timestamps;
@@ -47,7 +47,7 @@ type WordLevelToken = {
 	p: number;
 };
 
-type TranscriptionItemWithTimestamp = TranscriptionItem & {
+export type TranscriptionItemWithTimestamp = TranscriptionItem & {
 	tokens: WordLevelToken[];
 };
 

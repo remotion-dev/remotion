@@ -6,8 +6,8 @@ import {type WhisperModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
 import {loadMod} from './load-mod/load-mod';
-import {modelState, printHandler} from './print-handler';
-import type {TranscriptionJson} from './result';
+import {printHandler} from './print-handler';
+import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
 import {simulateProgress} from './simulate-progress';
 
 const SAMPLE_RATE = 16000;
@@ -21,6 +21,23 @@ declare global {
 		remotion_wasm_moduleOverrides?: Record<string, (...args: any[]) => void>;
 	}
 }
+
+interface WithResolvers<T> {
+	promise: Promise<T>;
+	resolve: (value: T | PromiseLike<T>) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	reject: (reason?: any) => void;
+}
+
+const withResolvers = function <T>() {
+	let resolve: WithResolvers<T>['resolve'];
+	let reject: WithResolvers<T>['reject'];
+	const promise = new Promise<T>((res, rej) => {
+		resolve = res;
+		reject = rej;
+	});
+	return {promise, resolve: resolve!, reject: reject!};
+};
 
 const getAudioContext = () => {
 	if (!context) {
@@ -87,7 +104,7 @@ export type TranscribeParams = {
 	file: Blob;
 	model: WhisperModel;
 	onProgress?: (p: number) => void;
-	onTranscribeChunk?: (start: string, end: string, text: string) => void;
+	onUpdate?: (json: TranscriptionItemWithTimestamp[]) => void;
 	threads?: number;
 };
 
@@ -105,25 +122,20 @@ export const transcribe = async ({
 	file,
 	model,
 	onProgress,
-	onTranscribeChunk,
 	threads,
+	onUpdate,
 }: TranscribeParams): Promise<TranscriptionJson> => {
 	checkForHeaders();
 
-	// Emscripten creates moduleOverrides from global Module object
-
-	// var Module = typeof Module != 'undefined' ? Module : {};
-	// var moduleOverrides = Object.assign({}, Module);
-
-	window.remotion_wasm_moduleOverrides = {
-		print: printHandler,
-		printErr: printHandler,
-	};
-	const Mod = await loadMod();
+	if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
+		return Promise.reject(
+			new Error(`Thread limit exceeded: max ${MAX_THREADS_ALLOWED} allowed.`),
+		);
+	}
 
 	const audioDurationInSeconds = file.size / SAMPLE_RATE / 2;
+
 	const {
-		// @ts-expect-error
 		abort: abortProgress,
 		onDone: onProgressDone,
 		progressStepReceived,
@@ -131,10 +143,55 @@ export const transcribe = async ({
 	} = simulateProgress({
 		audioDurationInSeconds,
 		onProgress: (p) => {
-			console.log('progress', p);
 			onProgress?.(p);
 		},
 	});
+
+	const {
+		promise,
+		resolve: _resolve,
+		reject: _reject,
+	} = withResolvers<TranscriptionJson>();
+
+	const resolve = (value: TranscriptionJson) => {
+		_resolve(value);
+		abortProgress();
+	};
+
+	const reject = (reason: Error) => {
+		_reject(reason);
+		abortProgress();
+	};
+
+	const handler = printHandler({
+		onProgress: (p: number) => {
+			if (p === 0) {
+				startProgress();
+			} else if (p === 100) {
+				onProgressDone();
+			} else {
+				progressStepReceived();
+			}
+		},
+		onDone: resolve,
+		onBusy: () => {
+			reject(new Error('Another transcription is already in progress'));
+		},
+		onUpdate: (json: TranscriptionJson) => {
+			onUpdate?.(json.transcription);
+		},
+	});
+
+	// Emscripten creates moduleOverrides from global Module object
+
+	// var Module = typeof Module != 'undefined' ? Module : {};
+	// var moduleOverrides = Object.assign({}, Module);
+	window.remotion_wasm_moduleOverrides = {
+		print: handler,
+		printErr: handler,
+	};
+
+	const Mod = await loadMod();
 
 	delete window.remotion_wasm_moduleOverrides;
 
@@ -150,41 +207,20 @@ export const transcribe = async ({
 
 	storeFS(Mod, fileName, result);
 
-	if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
-		throw new Error(
-			`Thread limit exceeded: max ${MAX_THREADS_ALLOWED} allowed.`,
-		);
-	}
-
 	const data = await audioProcessor(file);
 	if (!data) {
 		throw new Error('No audio data.');
 	}
 
-	return new Promise((resolve) => {
-		modelState.transcriptionProgressPlayback = (p) => {
-			if (p === 0) {
-				startProgress();
-			} else if (p === 100) {
-				onProgressDone();
-			} else {
-				progressStepReceived();
-			}
-		};
+	Mod.full_default(
+		fileName,
+		data,
+		model,
+		// TODO: unhardcode
+		'en',
+		threads ?? DEFAULT_THREADS,
+		false,
+	);
 
-		modelState.transcriptionChunkPlayback = onTranscribeChunk ?? null;
-
-		modelState.resolver = (transcript) => {
-			resolve(transcript);
-		};
-
-		Mod.full_default(
-			fileName,
-			data,
-			model,
-			'en',
-			threads ?? DEFAULT_THREADS,
-			false,
-		);
-	});
+	return promise;
 };
