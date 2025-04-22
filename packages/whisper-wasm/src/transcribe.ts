@@ -173,6 +173,7 @@ export const transcribe = async ({
 		};
 
 		modelState.transcriptionChunkPlayback = onTranscribeChunk ?? null;
+
 		modelState.resolver = (transcript) => {
 			resolve(transcript);
 		};

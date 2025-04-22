@@ -11,10 +11,8 @@ export const modelState: ModelState = {
 const RESULT_TOKEN = 'remotion_final:';
 const PROGRESS_TOKEN = 'remotion_progress:';
 const UPDATE_TOKEN = 'remotion_update:';
-
+const FREE_TOKEN = 'remotion_free:';
 export const printHandler = (text: string) => {
-	console.log({text});
-
 	const chunkMatch = text.match(
 		/^\[(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\]\s*(.+)$/,
 	);
@@ -34,16 +32,16 @@ export const printHandler = (text: string) => {
 	if (text.startsWith(PROGRESS_TOKEN)) {
 		const value = parseInt(text.slice(PROGRESS_TOKEN.length), 10);
 		modelState.transcriptionProgressPlayback?.(value);
-	}
-
-	if (text.startsWith(RESULT_TOKEN)) {
+	} else if (text.startsWith(RESULT_TOKEN)) {
 		const json = JSON.parse(text.slice(RESULT_TOKEN.length));
 
 		modelState.resolver?.(json);
-	}
-
-	if (text.startsWith(UPDATE_TOKEN)) {
+	} else if (text.startsWith(UPDATE_TOKEN)) {
 		const json = JSON.parse(text.slice(UPDATE_TOKEN.length));
 		console.log('update', json);
+	} else if (text.startsWith(FREE_TOKEN)) {
+		console.log('free');
+	} else {
+		console.log({text});
 	}
 };
