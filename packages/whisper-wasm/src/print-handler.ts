@@ -10,6 +10,7 @@ export const modelState: ModelState = {
 
 const RESULT_TOKEN = 'remotion_final:';
 const PROGRESS_TOKEN = 'remotion_progress:';
+const UPDATE_TOKEN = 'remotion_update:';
 
 export const printHandler = (text: string) => {
 	console.log({text});
@@ -39,5 +40,10 @@ export const printHandler = (text: string) => {
 		const json = JSON.parse(text.slice(RESULT_TOKEN.length));
 
 		modelState.resolver?.(json);
+	}
+
+	if (text.startsWith(UPDATE_TOKEN)) {
+		const json = JSON.parse(text.slice(UPDATE_TOKEN.length));
+		console.log('update', json);
 	}
 };

@@ -65,7 +65,9 @@ std::string to_timestamp(int64_t t, bool comma) {
 
 static bool output_json(
              struct whisper_context * ctx,
-                               bool   full) {
+                               bool   final,
+                               int    first_segment,
+                               int    n_segments) {
     int indent = 0;
     std::string output;
 
@@ -173,82 +175,62 @@ static bool output_json(
         end_obj(false);
         start_arr("transcription");
 
-            const int n_segments = whisper_full_n_segments(ctx);
-            for (int i = 0; i < n_segments; ++i) {
-                const char * text = whisper_full_get_segment_text(ctx, i);
+        for (int i = first_segment; i < n_segments; ++i) {
+            const char * text = whisper_full_get_segment_text(ctx, i);
 
-                const int64_t t0 = whisper_full_get_segment_t0(ctx, i);
-                const int64_t t1 = whisper_full_get_segment_t1(ctx, i);
+            const int64_t t0 = whisper_full_get_segment_t0(ctx, i);
+            const int64_t t1 = whisper_full_get_segment_t1(ctx, i);
 
-                start_obj(nullptr);
-                    times_o(t0, t1, false);
-                    value_s("text", text, false);
+            start_obj(nullptr);
+                times_o(t0, t1, false);
+                value_s("text", text, false);
 
-                    if (full) {
-                        start_arr("tokens");
-                        const int n = whisper_full_n_tokens(ctx, i);
-                        for (int j = 0; j < n; ++j) {
-                            auto token = whisper_full_get_token_data(ctx, i, j);
-                            start_obj(nullptr);
-                                value_s("text", whisper_token_to_str(ctx, token.id), false);
-                                if(token.t0 > -1 && token.t1 > -1) {
-                                    // If we have per-token timestamps, write them out
-                                    times_o(token.t0, token.t1, false);
-                                }
-                                value_i("id", token.id, false);
-                                value_f("p", token.p, false);
-                                value_f("t_dtw", token.t_dtw, true);
-                            end_obj(j == (n - 1));
+                start_arr("tokens");
+                const int n = whisper_full_n_tokens(ctx, i);
+                for (int j = 0; j < n; ++j) {
+                    auto token = whisper_full_get_token_data(ctx, i, j);
+                    start_obj(nullptr);
+                        value_s("text", whisper_token_to_str(ctx, token.id), false);
+                        if(token.t0 > -1 && token.t1 > -1) {
+                            // If we have per-token timestamps, write them out
+                            times_o(token.t0, token.t1, false);
                         }
-                        end_arr(true);
-                    }
+                        value_i("id", token.id, false);
+                        value_f("p", token.p, false);
+                        value_f("t_dtw", token.t_dtw, true);
+                    end_obj(j == (n - 1));
+                }
+                end_arr(true);
 
-                end_obj(i == (n_segments - 1));
-            }
+            end_obj(i == (n_segments - 1));
+        }
 
         end_arr(true);
     end_obj(true);
 
-    printf("remotion_final:%s\n", output.c_str());
-
+    if (final) {
+        printf("remotion_final:%s\n", output.c_str());
+    } else {
+        printf("remotion_update:%s\n", output.c_str());
+    }
 
     return true;
 }
 
 
 void whisper_print_segment_callback(struct whisper_context * ctx, struct whisper_state * /*state*/, int n_new, void * user_data) {
-
     const int n_segments = whisper_full_n_segments(ctx);
-
-    std::string speaker = "";
-
-    int64_t t0 = 0;
-    int64_t t1 = 0;
-
-    // print the last n_new segments
     const int s0 = n_segments - n_new;
 
     if (s0 == 0) {
         printf("\n");
     }
 
-    for (int i = s0; i < n_segments; i++) {
-        t0 = whisper_full_get_segment_t0(ctx, i);
-        t1 = whisper_full_get_segment_t1(ctx, i);
-
-        printf("[%s -----> %s]  ", to_timestamp(t0, false).c_str(), to_timestamp(t1, false).c_str());
-
-        const char * text = whisper_full_get_segment_text(ctx, i);
-
-        printf("%s%s", speaker.c_str(), text);
-
-        printf("\n");
-        fflush(stdout);
-    }
+    output_json(ctx, false, s0, n_segments);
 }
 
 // Define the progress callback function
-void progress_callback(struct whisper_context * ctx, struct whisper_state * state, int progress, void * user_data) {
+void progress_callback(struct whisper_context * ctx, struct whisper_state * state, int progress, void * user_data) {    
     printf("remotion_progress:%d%%\n", progress);
 }
 
@@ -325,7 +307,8 @@ EMSCRIPTEN_BINDINGS(whisper) {
             g_worker = std::thread([index, params, pcm = std::move(pcmf32)]() {
                whisper_reset_timings(g_contexts[index]);
                 whisper_full(g_contexts[index], params, pcm.data(), pcm.size());
-                output_json(g_contexts[index], true);
+                const int n_segments = whisper_full_n_segments(g_contexts[index]);
+                output_json(g_contexts[index], true, 0, n_segments);
             });
         }
 
