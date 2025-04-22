@@ -1,5 +1,4 @@
 /* eslint-disable new-cap */
-/* eslint-disable no-console */
 
 import type {MainModule} from '../main';
 import {checkForHeaders} from './check-for-headers';
@@ -47,7 +46,6 @@ const audioDecoder = async (audioBuffer: AudioBuffer) => {
 
 	const renderedBuffer = await offlineContext.startRendering();
 	const audio = renderedBuffer.getChannelData(0);
-	console.log(`Audio loaded, size: ${audio.length}`);
 
 	return audio;
 };

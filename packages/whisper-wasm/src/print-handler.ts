@@ -12,8 +12,6 @@ const RESULT_TOKEN = 'remotion_final:';
 const PROGRESS_TOKEN = 'remotion_progress:';
 
 export const printHandler = (text: string) => {
-	console.log({text});
-
 	const chunkMatch = text.match(
 		/^\[(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\]\s*(.+)$/,
 	);
@@ -36,13 +34,8 @@ export const printHandler = (text: string) => {
 	}
 
 	if (text.startsWith(RESULT_TOKEN)) {
-		try {
-			console.log({t: text.slice(RESULT_TOKEN.length)});
-			const json = JSON.parse(text.slice(RESULT_TOKEN.length));
+		const json = JSON.parse(text.slice(RESULT_TOKEN.length));
 
-			modelState.resolver?.(json);
-		} catch (e) {
-			console.error(e);
-		}
+		modelState.resolver?.(json);
 	}
 };
