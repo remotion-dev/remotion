@@ -14,17 +14,20 @@ export const parseTrak = async ({
 	offsetAtStart,
 	iterator,
 	logLevel,
+	contentLength,
 }: {
 	size: number;
 	offsetAtStart: number;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
+	contentLength: number;
 }): Promise<TrakBox> => {
 	const children = await getIsoBaseMediaChildren({
 		onlyIfMoovAtomExpected: null,
 		size: size - 8,
 		iterator,
 		logLevel,
+		contentLength,
 	});
 
 	return {

@@ -59,6 +59,10 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const data = iterator.getSlice(frameLength);
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
+		state.mediaSection.addMediaSection({
+			start: startOffset,
+			size: state.contentLength - startOffset,
+		});
 		await registerAudioTrack({
 			container: 'aac',
 			track: {
@@ -84,6 +88,12 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const duration = 1024 / sampleRate;
 	const {index} = state.aac.addSample({offset: startOffset, size: frameLength});
 	const timestamp = (1024 / sampleRate) * index;
+
+	state.aac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset: startOffset,
+		durationInSeconds: duration,
+	});
 
 	// One ADTS frame contains 1024 samples
 	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({

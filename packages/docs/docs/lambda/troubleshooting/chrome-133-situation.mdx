@@ -6,28 +6,28 @@ sidebar_label: Chrome 133 situation
 crumb: 'Lambda'
 ---
 
-From Remotion version v4.0.274, there has been an inadvertent change that breaks some workflows on Lambda that expect Chrome to have been compiled proprietary video codecs
+:::note
+Resolved in Remotion version v4.0.289.
+:::
+
+From Remotion version v4.0.274 - v4.0.288, there has been an inadvertent change that breaks some workflows on Lambda that expect Chrome to have been compiled proprietary video codecs.
 
 ## When you are affected
 
 You are affected if you:
 
-- are on Remotion version 4.0.274 or higher
+- are on Remotion version 4.0.274 - 4.0.288 (inclusive)
 - are using Remotion Lambda
 - are using the [getVideoMetadata()](/docs/get-video-metadata) API from [@remotion/media-utils](/docs/media-utils) or the `<Video>` tag with an MP4 file
+
+## Solution
+
+Upgrade to Remotion version v4.0.289 or higher.
 
 ## Workarounds
 
 - Option 1: Revert to Remotion version 4.0.273
 - Option 2: Replace [getVideoMetadata()](/docs/renderer/get-video-metadata) with [parseMedia()](/docs/media-parser/parse-media) and `<Video>` with `<OffthreadVideo>` if you can. We recommend both of these in general.
-
-## Solution
-
-We need to swap the Chrome binary with one that supports proprietary codecs.
-
-This is not easy as there no official binaries for arm64 on Amazon Linux 2023 and we obtained ours through a vendor, which we are contacting.
-
-If we cannot get a binary from a vendor, we’ll compile one ourselves and release it in a future Remotion update.
 
 ## Apologies
 

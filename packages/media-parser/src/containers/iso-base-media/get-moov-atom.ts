@@ -69,7 +69,7 @@ export const getMoovAtom = async ({
 
 	const iterator: BufferIterator = getArrayBufferIterator(
 		new Uint8Array([]),
-		state.contentLength,
+		state.contentLength - endOfMdat,
 	);
 
 	while (true) {
@@ -107,6 +107,7 @@ export const getMoovAtom = async ({
 				registerAudioSampleCallback: () => Promise.resolve(),
 			},
 			onlyIfMdatAtomExpected: null,
+			contentLength: state.contentLength - endOfMdat,
 		});
 		if (box) {
 			boxes.push(box);
