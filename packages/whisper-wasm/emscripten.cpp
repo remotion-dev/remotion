@@ -222,27 +222,7 @@ void progress_callback(struct whisper_context * ctx, struct whisper_state * stat
 }
 
 EMSCRIPTEN_BINDINGS(whisper) {
-
-    emscripten::function("init", emscripten::optional_override([](const std::string & path_model) {
-        if (g_worker.joinable()) {
-            g_worker.join();
-        }
-
-        for (size_t i = 0; i < g_contexts.size(); ++i) {
-            if (g_contexts[i] == nullptr) {
-                g_contexts[i] = whisper_init_from_file_with_params(path_model.c_str(), whisper_context_default_params());
-                if (g_contexts[i] != nullptr) {
-                    return i + 1;
-                } else {
-                    return (size_t) 0;
-                }
-            }
-        }
-
-        return (size_t) 0;
-    }));
-
-        emscripten::function("free", emscripten::optional_override([](size_t index) {
+    emscripten::function("free", emscripten::optional_override([](size_t index) {
         if (g_worker.joinable()) {
             g_worker.join();
         }
@@ -255,20 +235,18 @@ EMSCRIPTEN_BINDINGS(whisper) {
         }
     }));
 
-    emscripten::function("full_default", emscripten::optional_override([](size_t index, const emscripten::val & audio, const std::string & model, const std::string & lang, int nthreads, bool translate) {
+    emscripten::function("full_default", emscripten::optional_override([](const std::string & path_model, const emscripten::val & audio, const std::string & model, const std::string & lang, int nthreads, bool translate) {
         if (g_worker.joinable()) {
             g_worker.join();
         }
 
-        --index;
-
-        if (index >= g_contexts.size()) {
-            return -1;
+        for (size_t i = 0; i < g_contexts.size(); ++i) {
+            if (g_contexts[i] == nullptr) {
+                g_contexts[i] = whisper_init_from_file_with_params(path_model.c_str(), whisper_context_default_params());
+            }
         }
 
-        if (g_contexts[index] == nullptr) {
-            return -2;
-        }
+        auto index = 0;
 
         struct whisper_full_params params = whisper_full_default_params(whisper_sampling_strategy::WHISPER_SAMPLING_GREEDY);
 
@@ -317,8 +295,6 @@ EMSCRIPTEN_BINDINGS(whisper) {
                 output_json(g_contexts[index], true);
             });
         }
-
-           
 
         return 0;
     }));

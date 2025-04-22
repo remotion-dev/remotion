@@ -131,6 +131,7 @@ export const transcribe = async ({
 	} = simulateProgress({
 		audioDurationInSeconds,
 		onProgress: (p) => {
+			console.log('progress', p);
 			onProgress?.(p);
 		},
 	});
@@ -177,13 +178,12 @@ export const transcribe = async ({
 		};
 
 		Mod.full_default(
-			instance as number,
+			fileName,
 			data,
 			model,
 			'en',
 			threads ?? DEFAULT_THREADS,
 			false,
-			fileName,
 		);
 	});
 };
