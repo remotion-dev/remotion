@@ -2989,7 +2989,7 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin
       '@types/express':
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1
       '@types/react':
         specifier: 19.0.0
