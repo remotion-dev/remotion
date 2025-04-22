@@ -194,9 +194,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A template that provides an Express.js server starting, tracking, and canceling Remotion renders.',
 		promoVideo: {
-			muxId: 'ccgoUm00vQBSZV01xKYTNMtxMiPiVJYyAFl1DSwuPBXb00',
-			height: 1920,
-			width: 1080,
+			muxId: 'JhsWde00fJ6L00SUrIwOZv2XOl7j00DgT5kED01FVVOUJTU',
+			width: 1920,
+			height: 1080,
 		},
 		cliId: 'render-server' as const,
 		type: 'video' as const,
