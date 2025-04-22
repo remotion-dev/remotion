@@ -216,6 +216,37 @@ static bool output_json(
 }
 
 
+void whisper_print_segment_callback(struct whisper_context * ctx, struct whisper_state * /*state*/, int n_new, void * user_data) {
+
+    const int n_segments = whisper_full_n_segments(ctx);
+
+    std::string speaker = "";
+
+    int64_t t0 = 0;
+    int64_t t1 = 0;
+
+    // print the last n_new segments
+    const int s0 = n_segments - n_new;
+
+    if (s0 == 0) {
+        printf("\n");
+    }
+
+    for (int i = s0; i < n_segments; i++) {
+        t0 = whisper_full_get_segment_t0(ctx, i);
+        t1 = whisper_full_get_segment_t1(ctx, i);
+
+        printf("[%s -----> %s]  ", to_timestamp(t0, false).c_str(), to_timestamp(t1, false).c_str());
+
+        const char * text = whisper_full_get_segment_text(ctx, i);
+
+        printf("%s%s", speaker.c_str(), text);
+
+        printf("\n");
+        fflush(stdout);
+    }
+}
+
 // Define the progress callback function
 void progress_callback(struct whisper_context * ctx, struct whisper_state * state, int progress, void * user_data) {
     printf("remotion_progress:%d%%\n", progress);
@@ -250,9 +281,12 @@ EMSCRIPTEN_BINDINGS(whisper) {
 
         struct whisper_full_params params = whisper_full_default_params(whisper_sampling_strategy::WHISPER_SAMPLING_GREEDY);
 
-        params.print_realtime   = true;
-        params.print_progress   = true;
-        params.print_timestamps = true;
+        std::vector<float> pcmf32;
+
+        params.print_realtime   = false;
+        params.new_segment_callback = whisper_print_segment_callback;
+        params.print_progress   = false;
+        params.print_timestamps = false;
         params.print_special    = false;
         params.translate        = translate;
         params.token_timestamps = true;
@@ -261,7 +295,6 @@ EMSCRIPTEN_BINDINGS(whisper) {
         params.offset_ms        = 0;
         params.progress_callback = progress_callback; // Assigning the callback
 
-        std::vector<float> pcmf32;
         const int n = audio["length"].as<int>();
 
         emscripten::val heap = emscripten::val::module_property("HEAPU8");
@@ -289,12 +322,15 @@ EMSCRIPTEN_BINDINGS(whisper) {
 
         // Run the worker
         {
-            g_worker = std::thread([index, params, pcmf32 = std::move(pcmf32)]() {
+            g_worker = std::thread([index, params, pcm = std::move(pcmf32)]() {
                whisper_reset_timings(g_contexts[index]);
-                whisper_full(g_contexts[index], params, pcmf32.data(), pcmf32.size());
+                whisper_full(g_contexts[index], params, pcm.data(), pcm.size());
                 output_json(g_contexts[index], true);
             });
         }
+
+        printf("quitting\n");
+
 
         return 0;
     }));
