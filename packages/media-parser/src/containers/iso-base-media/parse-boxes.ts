@@ -1,6 +1,5 @@
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {parseMdatSection} from './mdat/mdat';
 import {processBox} from './process-box';
 
@@ -23,7 +22,6 @@ export const parseIsoBaseMedia = async (
 		onlyIfMoovAtomExpected: {
 			tracks: state.callbacks.tracks,
 			isoState: state.iso,
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			onAudioTrack: state.onAudioTrack,
 			onVideoTrack: state.onVideoTrack,
 			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
@@ -32,6 +30,7 @@ export const parseIsoBaseMedia = async (
 		onlyIfMdatAtomExpected: {
 			mediaSectionState: state.mediaSection,
 		},
+		contentLength: state.contentLength,
 	});
 	if (result) {
 		state.structure.getIsoStructure().boxes.push(result);

@@ -1,5 +1,4 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {emitAudioSample, emitVideoSample} from '../../../emit-audio-sample';
 import {getHasTracks} from '../../../get-tracks';
 import type {Skip} from '../../../skip';
 import {makeSkip} from '../../../skip';
@@ -8,8 +7,8 @@ import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
-import {getWorkOnSeekRequestOptions} from '../../../work-on-seek-request';
 import {getMoovAtom} from '../get-moov-atom';
+import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
 	state: ParserState,
@@ -29,17 +28,20 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
-	const alreadyHas = getHasTracks(state);
+	const alreadyHasMoov = getHasTracks(state, true);
 
-	if (!alreadyHas) {
+	if (!alreadyHasMoov) {
 		const moov = await getMoovAtom({
 			endOfMdat,
 			state,
 		});
-		state.iso.moov.setMoovBox(moov);
+		state.iso.moov.setMoovBox({
+			moovBox: moov,
+			precomputed: false,
+		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
-		state.structure.getIsoStructure().boxes.push(moov);
 
+		state.structure.getIsoStructure().boxes.push(moov);
 		return parseMdatSection(state);
 	}
 
@@ -82,31 +84,34 @@ export const parseMdatSection = async (
 		return null;
 	}
 
-	const bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
-
-	const {cts, dts, duration, isKeyframe, offset} =
+	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =
 		samplesWithIndex.samplePosition;
+	const bytes = postprocessBytes({
+		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
+		bigEndian,
+		chunkSize,
+	});
 
 	if (samplesWithIndex.track.type === 'audio') {
-		await emitAudioSample({
-			trackId: samplesWithIndex.track.trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					data: bytes,
-					timestamp: cts,
-					duration,
-					cts,
-					dts,
-					trackId: samplesWithIndex.track.trackId,
-					type: isKeyframe ? 'key' : 'delta',
-					offset,
-					timescale: samplesWithIndex.track.timescale,
-				},
+		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				data: bytes,
+				timestamp: cts,
+				duration,
+				cts,
+				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: isKeyframe ? 'key' : 'delta',
+				offset,
 				timescale: samplesWithIndex.track.timescale,
-			}),
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			callbacks: state.callbacks,
+			},
+			timescale: samplesWithIndex.track.timescale,
 		});
+
+		await state.callbacks.onAudioSample(
+			samplesWithIndex.track.trackId,
+			audioSample,
+		);
 	}
 
 	if (samplesWithIndex.track.type === 'video') {
@@ -123,25 +128,25 @@ export const parseMdatSection = async (
 			isRecoveryPoint = seiType === 6;
 		}
 
-		await emitVideoSample({
-			trackId: samplesWithIndex.track.trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					data: bytes,
-					timestamp: cts,
-					duration,
-					cts,
-					dts,
-					trackId: samplesWithIndex.track.trackId,
-					type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
-					offset,
-					timescale: samplesWithIndex.track.timescale,
-				},
+		const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				data: bytes,
+				timestamp: cts,
+				duration,
+				cts,
+				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
+				offset,
 				timescale: samplesWithIndex.track.timescale,
-			}),
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			callbacks: state.callbacks,
+			},
+			timescale: samplesWithIndex.track.timescale,
 		});
+
+		await state.callbacks.onVideoSample(
+			samplesWithIndex.track.trackId,
+			videoSample,
+		);
 	}
 
 	return null;

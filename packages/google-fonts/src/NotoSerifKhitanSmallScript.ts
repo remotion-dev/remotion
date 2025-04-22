@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khitan-small-script', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Serif Khitan Small Script' as const;

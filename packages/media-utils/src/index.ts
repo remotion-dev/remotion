@@ -11,7 +11,11 @@ export {getVideoMetadata} from './get-video-metadata';
 export {getWaveformPortion} from './get-waveform-portion';
 export {WaveProbe, probeWaveFile} from './probe-wave-file';
 export * from './types';
-export type {AudioData, VideoMetadata as VideoData} from './types';
+export type {
+	AudioData,
+	MediaUtilsAudioData,
+	VideoMetadata as VideoData,
+} from './types';
 export {useAudioData} from './use-audio-data';
 export {
 	UseWindowedAudioDataOptions,

@@ -33,7 +33,7 @@ export const NewLanding: React.FC<{
 					<br />
 					<br />
 					<br />
-					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 relative">
+					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip md:overflow-x-visible relative">
 						<WriteInReact />
 						<br />
 						<IfYouKnowReact />

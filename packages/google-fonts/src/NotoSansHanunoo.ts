@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hanunoo', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Hanunoo' as const;

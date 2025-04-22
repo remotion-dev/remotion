@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gujarati', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Shrikhand' as const;

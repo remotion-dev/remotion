@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Naskh Arabic',
 	importName: 'NotoNaskhArabic',
-	version: 'v33',
+	version: 'v34',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -64,6 +64,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'math', 'symbols'],
 });
 
 export const fontFamily = 'Noto Naskh Arabic' as const;
@@ -71,7 +72,7 @@ export const fontFamily = 'Noto Naskh Arabic' as const;
 type Variants = {
 	normal: {
 		weights: '400' | '500' | '600' | '700';
-		subsets: 'arabic' | 'latin' | 'latin-ext';
+		subsets: 'arabic' | 'latin' | 'latin-ext' | 'math' | 'symbols';
 	};
 };
 

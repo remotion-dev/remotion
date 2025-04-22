@@ -13,7 +13,7 @@ import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
 import {needsToIterateOverSamples} from './need-samples-for-fields';
-import type {SlowDurationAndFpsState} from './slow-duration-fps';
+import type {SamplesObservedState} from './samples-observed/slow-duration-fps';
 import type {StructureState} from './structure';
 
 export const sampleCallback = ({
@@ -23,7 +23,7 @@ export const sampleCallback = ({
 	fields,
 	keyframes,
 	emittedFields,
-	slowDurationAndFpsState,
+	samplesObserved,
 	structure,
 	src,
 	seekSignal,
@@ -35,7 +35,7 @@ export const sampleCallback = ({
 	fields: Options<ParseMediaFields>;
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
-	slowDurationAndFpsState: SlowDurationAndFpsState;
+	samplesObserved: SamplesObservedState;
 	structure: StructureState;
 	src: ParseMediaSrc;
 	seekSignal: SeekSignal;
@@ -55,8 +55,6 @@ export const sampleCallback = ({
 	});
 
 	const tracksState = makeTracksSectionState(canSkipTracksState, src);
-
-	const samplesForTrack: Record<number, number> = {};
 
 	return {
 		registerVideoSampleCallback: async (
@@ -81,14 +79,9 @@ export const sampleCallback = ({
 				throw new Error('Aborted');
 			}
 
-			if (typeof samplesForTrack[trackId] === 'undefined') {
-				samplesForTrack[trackId] = 0;
-			}
-
 			const callback = audioSampleCallbacks[trackId];
 
 			if (audioSample.data.length > 0) {
-				samplesForTrack[trackId]++;
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
 					if (seekSignal.getSeek()) {
@@ -103,23 +96,15 @@ export const sampleCallback = ({
 			}
 
 			if (needsToIterateOverSamples({emittedFields, fields})) {
-				slowDurationAndFpsState.addAudioSample(audioSample);
+				samplesObserved.addAudioSample(audioSample);
 			}
-		},
-		getSamplesForTrack: (trackId: number) => {
-			return samplesForTrack[trackId] ?? 0;
 		},
 		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 
-			if (typeof samplesForTrack[trackId] === 'undefined') {
-				samplesForTrack[trackId] = 0;
-			}
-
 			if (videoSample.data.length > 0) {
-				samplesForTrack[trackId]++;
 				const callback = videoSampleCallbacks[trackId];
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {
@@ -134,23 +119,23 @@ export const sampleCallback = ({
 				}
 			}
 
+			if (videoSample.type === 'key') {
+				keyframes.addKeyframe({
+					trackId,
+					decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
+					positionInBytes: videoSample.offset,
+					presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
+					sizeInBytes: videoSample.data.length,
+				});
+			}
+
 			if (
 				needsToIterateOverSamples({
 					fields,
 					emittedFields,
 				})
 			) {
-				if (fields.slowKeyframes && videoSample.type === 'key') {
-					keyframes.addKeyframe({
-						trackId,
-						decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
-						positionInBytes: videoSample.offset,
-						presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
-						sizeInBytes: videoSample.data.length,
-					});
-				}
-
-				slowDurationAndFpsState.addVideoSample(videoSample);
+				samplesObserved.addVideoSample(videoSample);
 			}
 		},
 		canSkipTracksState,

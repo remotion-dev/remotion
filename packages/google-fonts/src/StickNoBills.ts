@@ -73,6 +73,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'sinhala'],
 });
 
 export const fontFamily = 'Stick No Bills' as const;

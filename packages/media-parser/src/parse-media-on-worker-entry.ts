@@ -1,7 +1,10 @@
 import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
+import type {SeekingHints} from './seeking-hints';
 import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
+import type {WithResolvers} from './with-resolvers';
+import {withResolvers} from './with-resolvers';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -111,10 +114,10 @@ export const parseMediaOnWorkerImplementation = async <
 
 	post(worker, convertToWorkerPayload(params));
 
+	let workerTerminated = false;
+
 	const {promise, resolve, reject} =
-		Promise.withResolvers<
-			ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>
-		>();
+		withResolvers<ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>>();
 
 	const onAbort = () => {
 		post(worker, {type: 'request-abort'});
@@ -133,18 +136,61 @@ export const parseMediaOnWorkerImplementation = async <
 		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
 	};
 
+	const seekingHintPromises: WithResolvers<SeekingHints | null>[] = [];
+	let finalSeekingHints: SeekingHints | null = null;
+	controller?._internals.attachSeekingHintResolution(() => {
+		if (finalSeekingHints) {
+			return Promise.resolve(finalSeekingHints);
+		}
+
+		if (workerTerminated) {
+			return Promise.reject(new Error('Worker terminated'));
+		}
+
+		const prom = withResolvers<SeekingHints | null>();
+		post(worker, {type: 'request-get-seeking-hints'});
+		seekingHintPromises.push(prom);
+		return prom.promise;
+	});
+
 	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
 		if (data.type === 'response-done') {
 			resolve(data.payload);
+			if (data.seekingHints) {
+				finalSeekingHints = data.seekingHints;
+				for (const prom of seekingHintPromises) {
+					prom.resolve(finalSeekingHints);
+				}
+			}
+
+			return;
 		}
 
 		if (data.type === 'response-error') {
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			cleanup();
-			reject(deserializeError(data));
+			// Reject main loop
+			const error = deserializeError(data);
+			reject(error);
+
+			// If aborted, we send the seeking hints we got,
+			// otherwise we reject all .getSeekingHints() promises
+			if (data.errorName === 'MediaParserAbortError') {
+				finalSeekingHints = data.seekingHints;
+				for (const prom of seekingHintPromises) {
+					prom.resolve(finalSeekingHints);
+				}
+			} else {
+				// Reject all .getSeekingHints() promises
+				for (const prom of seekingHintPromises) {
+					prom.reject(error);
+				}
+			}
+
+			return;
 		}
 
 		if (data.type === 'response-on-callback-request') {
@@ -372,7 +418,22 @@ export const parseMediaOnWorkerImplementation = async <
 						nonce: data.nonce,
 					});
 				});
+			return;
 		}
+
+		if (data.type === 'response-get-seeking-hints') {
+			const firstPromise = seekingHintPromises.shift();
+			if (!firstPromise) {
+				throw new Error('No seeking hint promise found');
+			}
+
+			firstPromise.resolve(data.payload);
+			return;
+		}
+
+		throw new Error(
+			`Unknown response type: ${JSON.stringify(data satisfies never)}`,
+		);
 	}
 
 	worker.addEventListener('message', onMessage);
@@ -388,6 +449,7 @@ export const parseMediaOnWorkerImplementation = async <
 		controller?.removeEventListener('pause', onPause);
 		controller?.removeEventListener('seek', onSeek);
 
+		workerTerminated = true;
 		worker.terminate();
 	}
 

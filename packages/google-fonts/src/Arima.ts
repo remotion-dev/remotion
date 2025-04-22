@@ -128,6 +128,15 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'greek',
+		'greek-ext',
+		'latin',
+		'latin-ext',
+		'malayalam',
+		'tamil',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'Arima' as const;

@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gunjala-gondi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Gunjala Gondi' as const;

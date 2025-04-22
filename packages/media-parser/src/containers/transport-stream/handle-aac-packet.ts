@@ -1,27 +1,38 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
+import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
+import type {
+	AudioOrVideoSample,
+	OnAudioTrack,
+} from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const handleAacPacket = async ({
 	streamBuffer,
-	state,
 	programId,
 	offset,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	state: ParserState;
 	programId: number;
 	offset: number;
+	sampleCallbacks: SampleCallbacks;
+	logLevel: LogLevel;
+	onAudioTrack: OnAudioTrack | null;
+	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
-	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
+	const adtsHeader = readAdtsHeader(streamBuffer.getBuffer());
 	if (!adtsHeader) {
 		throw new Error('Invalid ADTS header - too short');
 	}
@@ -29,11 +40,22 @@ export const handleAacPacket = async ({
 	const {channelConfiguration, codecPrivate, sampleRate, audioObjectType} =
 		adtsHeader;
 
-	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
+	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
 	if (!isTrackRegistered) {
+		const startOffset = makeSamplesStartAtZero
+			? Math.min(
+					streamBuffer.pesHeader.pts,
+					streamBuffer.pesHeader.dts ?? Infinity,
+				)
+			: 0;
+		transportStream.startOffset.setOffset({
+			trackId: programId,
+			newOffset: startOffset,
+		});
+
 		const track: Track = {
 			type: 'audio',
 			codecPrivate,
@@ -50,33 +72,37 @@ export const handleAacPacket = async ({
 		await registerAudioTrack({
 			track,
 			container: 'transport-stream',
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
-			tracks: state.callbacks.tracks,
-			logLevel: state.logLevel,
-			onAudioTrack: state.onAudioTrack,
+			registerAudioSampleCallback: sampleCallbacks.registerAudioSampleCallback,
+			tracks: sampleCallbacks.tracks,
+			logLevel,
+			onAudioTrack,
 		});
 	}
 
 	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts,
-		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
-		timestamp: streamBuffer.pesHeader.pts,
+		cts:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
+		dts:
+			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
+			transportStream.startOffset.getOffset(programId),
+		timestamp:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
-		data: new Uint8Array(streamBuffer.buffer),
+		data: streamBuffer.getBuffer(),
 		trackId: programId,
 		type: 'key',
 		offset,
 		timescale: MPEG_TIMESCALE,
 	};
 
-	await emitAudioSample({
-		trackId: programId,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample,
-			timescale: MPEG_TIMESCALE,
-		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-		callbacks: state.callbacks,
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample,
+		timescale: MPEG_TIMESCALE,
 	});
+
+	await sampleCallbacks.onAudioSample(programId, audioSample);
+
+	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

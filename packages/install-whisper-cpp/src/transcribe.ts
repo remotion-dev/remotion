@@ -242,7 +242,7 @@ const transcribeToTemporaryFile = async ({
 			if (stderr.includes('must be 16 kHz')) {
 				reject(
 					new Error(
-						'wav file must be 16 kHz - use this command to make it so: "ffmpeg -i input.wav -ar 16000 output.wav -y"',
+						'wav file must be 16 kHz - See https://www.remotion.dev/docs/webcodecs/resample-audio-16khz#on-the-server on how to convert your audio to a 16-bit, 16KHz, WAVE file',
 					),
 				);
 			}

@@ -56,6 +56,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil'],
 });
 
 export const fontFamily = 'Hind Madurai' as const;

@@ -1,3 +1,4 @@
+import {withResolvers} from '../with-resolvers';
 import type {Seek} from './seek-signal';
 
 type MediaParserEventMap = {
@@ -29,7 +30,7 @@ export class MediaParserEmitter {
 	#markAsReady: () => void;
 
 	constructor() {
-		const {promise, resolve} = Promise.withResolvers<void>();
+		const {promise, resolve} = withResolvers<void>();
 		this.readyPromise = promise;
 		this.#markAsReady = resolve;
 	}

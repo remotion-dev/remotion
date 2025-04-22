@@ -543,7 +543,11 @@ module.exports = {
 				'studio/delete-static-file',
 				'studio/restart-studio',
 				'studio/save-default-props',
+				'studio/play',
+				'studio/pause',
+				'studio/toggle',
 				'studio/seek',
+				'studio/go-to-composition',
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
@@ -671,6 +675,7 @@ module.exports = {
 				'webcodecs/get-default-video-codec',
 				'webcodecs/get-available-audio-codecs',
 				'webcodecs/get-available-video-codecs',
+				'webcodecs/convert-audiodata',
 			],
 		},
 		{
@@ -728,7 +733,6 @@ module.exports = {
 			label: '@remotion/fonts',
 			link: {
 				type: 'doc',
-
 				id: 'fonts-api/fonts-api',
 			},
 			items: ['fonts-api/load-font'],
@@ -945,6 +949,7 @@ module.exports = {
 						'lambda/troubleshooting/unrecognizedclientexception',
 						'lambda/troubleshooting/bucket-disallows-acl',
 						'lambda/troubleshooting/security-token',
+						'lambda/troubleshooting/chrome-133-situation',
 					],
 				},
 				{
@@ -1048,6 +1053,7 @@ module.exports = {
 				'webcodecs/rotate-a-video',
 				'webcodecs/resize-a-video',
 				'webcodecs/fix-mediarecorder-video',
+				'webcodecs/resample-audio-16khz',
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
 				'webcodecs/telemetry',
@@ -1130,6 +1136,7 @@ module.exports = {
 				'troubleshooting/could-not-find-executable-to-run',
 				'troubleshooting/stuck-render',
 				'troubleshooting/no-frame-found-at-position',
+				'troubleshooting/font-loading-errors',
 			],
 		},
 		{
@@ -1237,6 +1244,7 @@ module.exports = {
 				'miscellaneous/render-in-browser',
 				'miscellaneous/automatic-duration',
 				'miscellaneous/vercel-functions',
+				'miscellaneous/nextjs',
 				'miscellaneous/render-on-edge',
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',

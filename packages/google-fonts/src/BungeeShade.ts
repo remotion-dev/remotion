@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bungee Shade',
 	importName: 'BungeeShade',
-	version: 'v13',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Bungee+Shade:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Bungee Shade' as const;

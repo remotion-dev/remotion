@@ -45,7 +45,7 @@ type DeprecatedOffthreadVideoProps = {
 	imageFormat?: never;
 };
 
-export type OffthreadVideoProps = {
+export type RemotionOffthreadVideoProps = {
 	src: string;
 	className?: string;
 	name?: string;

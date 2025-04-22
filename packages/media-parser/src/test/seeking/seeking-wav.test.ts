@@ -8,8 +8,8 @@ test('seeking in a wav', async () => {
 	const controller = mediaParserController();
 
 	controller._experimentalSeek({
-		type: 'keyframe-before-time-in-seconds',
-		time: 10,
+		type: 'keyframe-before-time',
+		timeInSeconds: 10,
 	});
 
 	let samples = 0;
@@ -28,16 +28,16 @@ test('seeking in a wav', async () => {
 				if (samples === 1) {
 					expect(sample.timestamp).toBe(10000000);
 					controller._experimentalSeek({
-						type: 'keyframe-before-time-in-seconds',
-						time: 0,
+						type: 'keyframe-before-time',
+						timeInSeconds: 0,
 					});
 				}
 
 				if (samples === 2) {
 					expect(sample.timestamp).toBe(0);
 					controller._experimentalSeek({
-						type: 'keyframe-before-time-in-seconds',
-						time: 28,
+						type: 'keyframe-before-time',
+						timeInSeconds: 28,
 					});
 				}
 
@@ -45,8 +45,8 @@ test('seeking in a wav', async () => {
 					expect(sample.timestamp).toBe(28000000);
 					// out of bounds
 					controller._experimentalSeek({
-						type: 'keyframe-before-time-in-seconds',
-						time: 40,
+						type: 'keyframe-before-time',
+						timeInSeconds: 40,
 					});
 				}
 

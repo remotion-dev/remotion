@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Hebrew',
 	importName: 'NotoSansHebrew',
-	version: 'v43',
+	version: 'v46',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -128,6 +128,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic-ext', 'greek-ext', 'hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Hebrew' as const;
@@ -144,7 +145,7 @@ type Variants = {
 			| '700'
 			| '800'
 			| '900';
-		subsets: 'hebrew' | 'latin' | 'latin-ext';
+		subsets: 'cyrillic-ext' | 'greek-ext' | 'hebrew' | 'latin' | 'latin-ext';
 	};
 };
 

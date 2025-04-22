@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Manjari',
 	importName: 'Manjari',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Manjari:ital,wght@0,100;0,400;0,700',
 	unicodeRanges: {
 		malayalam:
@@ -41,6 +41,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'malayalam'],
 });
 
 export const fontFamily = 'Manjari' as const;

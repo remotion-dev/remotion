@@ -23,6 +23,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nko'],
 });
 
 export const fontFamily = 'Noto Sans NKo' as const;

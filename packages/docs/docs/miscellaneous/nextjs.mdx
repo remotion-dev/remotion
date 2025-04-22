@@ -1,0 +1,40 @@
+---
+image: /generated/articles-docs-miscellaneous-nextjs.png
+sidebar_label: Rendering in Next.js
+title: Using @remotion/renderer in Next.js
+crumb: 'FAQ'
+---
+
+The [`@remotion/renderer`](/docs/renderer) package has dependencies on a headless browser and FFmpeg, which makes using it in Next.js a bit tricky.
+
+## While deploying to Vercel
+
+Since Remotion requires a headless browser, it is not currently possible to deploy the renderer to
+Vercel, since the headless browser does not fit in the maximum function size.
+
+**Recommendation**: Use [Remotion Lambda](/docs/lambda) for serverless workflows on Vercel.
+
+## While self-hosting Next.js
+
+If you are not deploying to Vercel and are sure that you are not running into function size limits, you may be able to use the renderer in Next.js (not officially supported).
+
+```js title="next.config.js"
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  serverExternalPackages: ['@remotion/renderer'],
+};
+
+module.exports = nextConfig;
+```
+
+Also be aware of the following:
+
+- You cannot use `@remotion/bundler` inside an API route, because it includes Webpack, and it's not possible to bundle Webpack with Webpack.  
+  Instead, use `@remotion/bundler` to create a bundle outside the API route and then use the resulting folder in your API route.
+
+- The `@remotion/renderer` package requires an FFmpeg binary from `node_modules`. Because an API route is being bundled, you might need to override the Webpack configuration to ensure the `remotion` binary is being included in it.
+
+## See also
+
+- [Can I render videos using Vercel Serverless functions?](/docs/miscellaneous/vercel-functions)

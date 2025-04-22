@@ -8,8 +8,8 @@ test('should not calculate slow fps, slow duration, slow keyframes etc. if there
 	const controller = mediaParserController();
 
 	controller._experimentalSeek({
-		type: 'keyframe-before-time-in-seconds',
-		time: 30,
+		type: 'keyframe-before-time',
+		timeInSeconds: 30,
 	});
 
 	try {

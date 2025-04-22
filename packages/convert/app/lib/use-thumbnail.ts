@@ -39,6 +39,7 @@ export const useThumbnailAndWaveform = ({
 			controller,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
+			acknowledgeRemotionLicense: true,
 			onDurationInSeconds: (dur) => {
 				if (dur !== null) {
 					waveform.setDuration(dur);

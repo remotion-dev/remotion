@@ -7,8 +7,8 @@ export type SeekSignal = {
 };
 
 type SeekToTime = {
-	type: 'keyframe-before-time-in-seconds';
-	time: number;
+	type: 'keyframe-before-time';
+	timeInSeconds: number;
 };
 
 type SeekToByte = {

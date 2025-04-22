@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Lydian',
 	importName: 'NotoSansLydian',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Lydian:ital,wght@0,400',
 	unicodeRanges: {
 		lydian: 'U+2E31, U+10920-1093F',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'lydian'],
 });
 
 export const fontFamily = 'Noto Sans Lydian' as const;

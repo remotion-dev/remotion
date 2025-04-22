@@ -1,11 +1,17 @@
 import type {MoovBox} from '../../containers/iso-base-media/moov/moov';
 
+type MoovBoxAndPrecomputed = {
+	moovBox: MoovBox;
+	precomputed: boolean;
+};
+
 export const moovState = () => {
-	let moovBox: MoovBox | null = null;
+	let moovBox: MoovBoxAndPrecomputed | null = null;
+
 	return {
-		setMoovBox: (moov: MoovBox) => {
+		setMoovBox: (moov: MoovBoxAndPrecomputed) => {
 			moovBox = moov;
 		},
-		getMoovBox: () => moovBox,
+		getMoovBoxAndPrecomputed: () => moovBox,
 	};
 };

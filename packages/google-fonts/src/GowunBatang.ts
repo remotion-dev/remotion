@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gowun Batang',
 	importName: 'GowunBatang',
-	version: 'v7',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Gowun+Batang:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'[0]':
@@ -583,6 +583,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Gowun Batang' as const;

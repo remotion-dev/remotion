@@ -4,6 +4,7 @@ import type {
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserController,
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
@@ -56,13 +57,17 @@ export const useProbe = ({
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);
+	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
 	const [m3u, setM3u] = useState<M3uStream[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
+	const [controller] = useState<MediaParserController>(() =>
+		mediaParserController(),
+	);
+
 	const getStart = useCallback(() => {
-		const controller = mediaParserController();
 		parseMediaOnWebWorker({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
@@ -116,9 +121,13 @@ export const useProbe = ({
 			onKeyframes: (k) => {
 				setKeyframes(k);
 			},
+			onSampleRate(s) {
+				setSampleRate(s);
+			},
 			onImages: (i) => {
 				setImages(i);
 			},
+			acknowledgeRemotionLicense: true,
 		})
 			.then(() => {})
 			.catch((err) => {
@@ -144,7 +153,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [src, logLevel, onProgress]);
+	}, [src, logLevel, onProgress, controller]);
 
 	useEffect(() => {
 		const start = getStart();
@@ -174,6 +183,8 @@ export const useProbe = ({
 			unrotatedDimensions,
 			images,
 			m3u,
+			controller,
+			sampleRate,
 		};
 	}, [
 		tracks,
@@ -195,5 +206,7 @@ export const useProbe = ({
 		unrotatedDimensions,
 		images,
 		m3u,
+		controller,
+		sampleRate,
 	]);
 };

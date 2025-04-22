@@ -69,6 +69,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'telugu', 'vietnamese'],
 });
 
 export const fontFamily = 'Baloo Tammudu Two' as const;

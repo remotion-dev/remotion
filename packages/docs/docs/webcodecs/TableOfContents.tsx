@@ -26,6 +26,10 @@ export const WebCodecsGuide: React.FC = () => {
 					<strong>Fix a MediaRecorder video</strong>
 					<div>Fix missing video duration and poor seeking performance</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/resample-audio-16khz">
+					<strong>Resample audio to 16kHz</strong>
+					<div>Resample an audio track to 16kHz for use with Whisper</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
@@ -98,6 +102,13 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/webcodecs/get-available-video-codecs">
 					<strong>{'getAvailableVideoCodecs()'}</strong>
 					<div>Get the video codecs that can fit in a container.</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/convert-audiodata">
+					<strong>{'convertAudioData()'}</strong>
+					<div>
+						Change the format or sample rate of an <code>AudioData</code>
+						object.
+					</div>
 				</TOCItem>
 			</Grid>
 		</div>

@@ -4,7 +4,10 @@ import fs from 'node:fs';
 const chunk = 1024 * 1024 * 5; // 5MB
 
 const md5 = (data: Buffer) =>
-	crypto.createHash('md5').update(data).digest('hex');
+	crypto
+		.createHash('md5')
+		.update(data as never as Uint8Array)
+		.digest('hex');
 
 export const getEtagOfFile = (
 	filePath: string,

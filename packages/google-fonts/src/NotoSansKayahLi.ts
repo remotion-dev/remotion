@@ -48,6 +48,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['kayah-li', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Kayah Li' as const;

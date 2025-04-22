@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Diphylleia',
 	importName: 'Diphylleia',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Diphylleia:ital,wght@0,400',
 	unicodeRanges: {
 		'[0]':
@@ -379,6 +379,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Diphylleia' as const;

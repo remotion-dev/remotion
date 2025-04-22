@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kalam',
 	importName: 'Kalam',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Kalam:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -41,6 +41,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Kalam' as const;

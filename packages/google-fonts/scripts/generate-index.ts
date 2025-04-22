@@ -25,6 +25,7 @@ export type FontInfo = {
   url: string;
   unicodeRanges: Record<string, string>;
   fonts: Record<string, Record<string, Record<string, string>>>;
+	subsets: string[];
 }
 
 export type GoogleFont = {

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'manichaean'],
 });
 
 export const fontFamily = 'Noto Sans Manichaean' as const;

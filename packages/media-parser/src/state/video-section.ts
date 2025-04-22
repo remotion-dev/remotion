@@ -57,10 +57,25 @@ export const mediaSectionState = () => {
 				section.start < existingSection.start + existingSection.size &&
 				section.start + section.size > existingSection.start,
 		);
-
-		if (!overlaps) {
-			mediaSections.push(section);
+		if (overlaps) {
+			return;
 		}
+
+		// Remove any existing sections that are encompassed by the new section
+		// Needed by Matroska because we need to define a 1 byte media section
+		// when seeking into a Cluster we have not seen yet
+		for (let i = mediaSections.length - 1; i >= 0; i--) {
+			const existingSection = mediaSections[i];
+			if (
+				section.start <= existingSection.start &&
+				section.start + section.size >=
+					existingSection.start + existingSection.size
+			) {
+				mediaSections.splice(i, 1);
+			}
+		}
+
+		mediaSections.push(section);
 	};
 
 	const getMediaSections = () => {
@@ -92,6 +107,7 @@ export const mediaSectionState = () => {
 		isByteInMediaSection,
 		getCurrentMediaSection,
 		getMediaSectionAssertOnlyOne,
+		mediaSections,
 	};
 };
 

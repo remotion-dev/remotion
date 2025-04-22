@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hind Siliguri',
 	importName: 'HindSiliguri',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Hind+Siliguri:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		bengali:
@@ -57,6 +57,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Hind Siliguri' as const;

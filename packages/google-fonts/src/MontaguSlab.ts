@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Montagu Slab',
 	importName: 'MontaguSlab',
-	version: 'v12',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Montagu+Slab:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -73,6 +73,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Montagu Slab' as const;

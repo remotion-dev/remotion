@@ -143,7 +143,7 @@ export const createFunction = async ({
 		await LambdaClientInternals.getLambdaClient(region).send(
 			new CreateFunctionCommand({
 				Code: {
-					ZipFile: readFileSync(zipFile),
+					ZipFile: new Uint8Array(readFileSync(zipFile)),
 				},
 				FunctionName: functionName,
 				Handler: 'index.handler',

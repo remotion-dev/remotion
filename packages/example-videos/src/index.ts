@@ -1,6 +1,12 @@
 import path from 'node:path';
 
 const examplePackage = path.join(__dirname, '..', '..', 'example');
+const musicVisualizationPackage = path.join(
+	__dirname,
+	'..',
+	'..',
+	'template-music-visualization',
+);
 const docsPackage = path.join(__dirname, '..', '..', 'docs');
 const lambdaPackage = path.join(__dirname, '..', '..', 'lambda');
 
@@ -51,11 +57,13 @@ export const exampleVideos = {
 	matroskaH265Aac: path.join(examplePackage, 'public', 'matroska-h265-aac.mkv'),
 	opusWebm: path.join(examplePackage, 'public', 'opus.webm'),
 	avi: path.join(examplePackage, 'public', 'example.avi'),
+	aviWithoutIdx: path.join(examplePackage, 'public', 'example-without-idx.avi'),
 	opus51Webm: path.join(examplePackage, 'public', 'vp8-opus-5-1-channels.webm'),
 	profColrTyp: path.join(__dirname, '..', 'videos', 'prof-color-type.mp4'),
 	chirp: path.join(examplePackage, 'public', 'chirp.wav'),
 	iphonelivefoto: path.join(__dirname, '..', 'videos', 'mehmet.mov'),
 	transportstream: path.join(__dirname, '..', 'videos', '0.ts'),
+	h262: path.join(__dirname, '..', 'videos', 'h262.ts'),
 	gif: path.join(examplePackage, 'public', 'giphy.gif'),
 	png: path.join(docsPackage, 'static', 'img', 'logo.png'),
 	jpeg: path.join(docsPackage, 'static', 'img', 'freelancers', 'ray.jpeg'),
@@ -80,6 +88,7 @@ export const exampleVideos = {
 	unevendim: path.join(__dirname, '..', 'videos', 'unevendim.webm'),
 	syncsafe: path.join(__dirname, '..', 'videos', 'syncsafe-id3.mp3'),
 	separatedAudio: path.join(__dirname, '..', 'videos', 'separated-audio.m3u8'),
+	mp3infosection: path.join(__dirname, '..', 'videos', 'mp3-infosection.mp3'),
 	mp3vbr: path.join(__dirname, '..', 'videos', 'vbr.mp3'),
 	multipleAudio: path.join(
 		__dirname,
@@ -94,6 +103,14 @@ export const exampleVideos = {
 		'local-playlist',
 		'output.m3u8',
 	),
+	mp3nomagicword: path.join(
+		musicVisualizationPackage,
+		'public',
+		'demo-track.mp3',
+	),
+	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
+	subsequentMdat: path.join(__dirname, '..', 'videos', 'subsequent-mdats.mp4'),
+	garbageAtEnd: path.join(__dirname, '..', 'videos', 'garbage-at-end.mp4'),
 };
 
 export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';

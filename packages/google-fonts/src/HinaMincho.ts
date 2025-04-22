@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hina Mincho',
 	importName: 'HinaMincho',
-	version: 'v12',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Hina+Mincho:ital,wght@0,400',
 	unicodeRanges: {
 		'[1]':
@@ -501,6 +501,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'japanese', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Hina Mincho' as const;

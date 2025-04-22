@@ -19,6 +19,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'tibetan'],
 });
 
 export const fontFamily = 'Uchen' as const;

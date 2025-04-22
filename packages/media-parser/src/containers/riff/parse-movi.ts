@@ -1,7 +1,5 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample, emitVideoSample} from '../../emit-audio-sample';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import type {RiffStructure, StrhBox} from './riff-box';
@@ -35,7 +33,7 @@ export const handleChunk = async ({
 	ckSize: number;
 }) => {
 	const {iterator} = state;
-	const offset = iterator.counter.getOffset();
+	const offset = iterator.counter.getOffset() - 8;
 
 	const videoChunk = ckId.match(/^([0-9]{2})dc$/);
 	if (videoChunk) {
@@ -43,7 +41,7 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.callbacks.getSamplesForTrack(trackId);
+		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
@@ -58,28 +56,25 @@ export const handleChunk = async ({
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 
+		const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				cts: timestamp,
+				dts: timestamp,
+				data,
+				duration: undefined,
+				timestamp,
+				trackId,
+				type: keyOrDelta,
+				offset,
+				timescale: samplesPerSecond,
+			},
+			timescale: 1,
+		});
+		state.riff.sampleCounter.onVideoSample(trackId, videoSample);
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		await emitVideoSample({
-			trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					cts: timestamp,
-					dts: timestamp,
-					data,
-					duration: undefined,
-					timestamp,
-					trackId,
-					type: keyOrDelta,
-					offset,
-					timescale: samplesPerSecond,
-				},
-				timescale: 1,
-			}),
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			callbacks: state.callbacks,
-		});
+		await state.callbacks.onVideoSample(trackId, videoSample);
 
 		return;
 	}
@@ -90,11 +85,27 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.callbacks.getSamplesForTrack(trackId);
+		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 
 		const data = iterator.getSlice(ckSize);
+
+		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				cts: timestamp,
+				dts: timestamp,
+				data,
+				duration: undefined,
+				timestamp,
+				trackId,
+				type: 'key',
+				offset,
+				timescale: samplesPerSecond,
+			},
+			timescale: 1,
+		});
+		state.riff.sampleCounter.onAudioSample(trackId, audioSample);
 
 		// In example.avi, we have samples with 0 data
 		// Chrome fails on these
@@ -102,25 +113,8 @@ export const handleChunk = async ({
 		// We must also NOT pass a duration because if the the next sample is 0,
 		// this sample would be longer. Chrome will pad it with silence.
 		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		await emitAudioSample({
-			trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					cts: timestamp,
-					dts: timestamp,
-					data,
-					duration: undefined,
-					timestamp,
-					trackId,
-					type: 'key',
-					offset,
-					timescale: samplesPerSecond,
-				},
-				timescale: 1,
-			}),
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-			callbacks: state.callbacks,
-		});
+
+		await state.callbacks.onAudioSample(trackId, audioSample);
 	}
 };
 

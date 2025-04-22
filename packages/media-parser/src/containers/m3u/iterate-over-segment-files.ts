@@ -1,12 +1,13 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import {mediaParserController} from '../../controller/media-parser-controller';
-import {forwardMediaParserController} from '../../forward-controller';
+import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {parseMedia} from '../../parse-media';
 import type {ReaderInterface} from '../../readers/reader';
 import type {ExistingM3uRun, M3uState} from '../../state/m3u-state';
 import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
+import {withResolvers} from '../../with-resolvers';
 import {getChunks} from './get-chunks';
 import {getPlaylist} from './get-playlist';
 import type {M3uStructure} from './types';
@@ -36,34 +37,36 @@ export const iteratorOverSegmentFiles = async ({
 }) => {
 	const playlist = getPlaylist(structure, playlistUrl);
 	const chunks = getChunks(playlist);
-
 	let resolver: (run: ExistingM3uRun | null) => void = onInitialProgress;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let rejector = (_e: Error) => {};
 
-	const childController = mediaParserController();
-	const forwarded = forwardMediaParserController({
-		childController,
-		parentController,
-	});
-
-	const makeContinuationFn = (): ExistingM3uRun => {
-		return {
-			continue() {
-				const {promise, reject, resolve} =
-					Promise.withResolvers<ExistingM3uRun | null>();
-				resolver = resolve;
-				rejector = reject;
-				childController.resume();
-				return promise;
-			},
-			abort() {
-				childController.abort();
-			},
-		};
-	};
-
 	for (const chunk of chunks) {
+		resolver = onInitialProgress;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		rejector = (_e: Error) => {};
+		const childController = mediaParserController();
+		const forwarded = forwardMediaParserControllerPauseResume({
+			childController,
+			parentController,
+		});
+
+		const makeContinuationFn = (): ExistingM3uRun => {
+			return {
+				continue() {
+					const {promise, reject, resolve} =
+						withResolvers<ExistingM3uRun | null>();
+					resolver = resolve;
+					rejector = reject;
+					childController.resume();
+					return promise;
+				},
+				abort() {
+					childController.abort();
+				},
+			};
+		};
+
 		const isLastChunk = chunk === chunks[chunks.length - 1];
 		await childController._internals.checkForAbortAndPause();
 		const src = readerInterface.createAdjacentFileSource(
@@ -141,6 +144,7 @@ export const iteratorOverSegmentFiles = async ({
 							},
 				reader: readerInterface,
 				mp4HeaderSegment,
+				makeSamplesStartAtZero: false,
 			});
 			if (chunk.isHeader) {
 				if (data.structure.type !== 'iso-base-media') {

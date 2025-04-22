@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'makasar'],
 });
 
 export const fontFamily = 'Noto Serif Makasar' as const;

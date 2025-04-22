@@ -12,8 +12,8 @@ test('should be able to seek forward and then backwards', async () => {
 
 	try {
 		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMedia({
@@ -29,8 +29,8 @@ test('should be able to seek forward and then backwards', async () => {
 							10.5,
 						);
 						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 0,
+							type: 'keyframe-before-time',
+							timeInSeconds: 0,
 						});
 					}
 

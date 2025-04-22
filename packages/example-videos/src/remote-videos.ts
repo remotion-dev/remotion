@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import {$} from 'bun';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,6 +9,8 @@ export const remoteExampleVideos = {
 		'https://remotion-video-submissions.s3.ap-northeast-1.amazonaws.com/6048e3e4-ffbb-43a5-b6b5-75643365646a',
 	webmNoCodecPrivate:
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/webm-no-codecprivate.webm',
+	tsKeyframes:
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/ts-keyframes.ts',
 };
 
 const rootDir = path.join(__dirname, '..');
@@ -18,6 +19,7 @@ const cacheDir = path.join(rootDir, 'node_modules', '.videos');
 export const getRemoteExampleVideo = async (
 	videoName: keyof typeof remoteExampleVideos,
 ) => {
+	const {$} = await import('bun');
 	const url = remoteExampleVideos[videoName];
 	const name = new URL(url).pathname.split('/').pop() as string;
 	const location = path.join(cacheDir, name);

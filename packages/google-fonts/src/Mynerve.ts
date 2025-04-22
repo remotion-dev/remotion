@@ -29,6 +29,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Mynerve' as const;

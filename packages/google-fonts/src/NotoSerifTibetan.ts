@@ -88,6 +88,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tibetan'],
 });
 
 export const fontFamily = 'Noto Serif Tibetan' as const;

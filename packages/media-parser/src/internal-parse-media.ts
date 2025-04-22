@@ -1,6 +1,7 @@
 import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
 import type {Options, ParseMediaFields} from './fields';
+import {getSeekingHints} from './get-seeking-hints';
 import {Log} from './log';
 import type {
 	InternalParseMedia,
@@ -10,6 +11,7 @@ import type {
 import {parseLoop} from './parse-loop';
 import {printTimings} from './print-timings';
 import {warnIfRemotionLicenseNotAcknowledged} from './remotion-license-acknowledge';
+import {setSeekingHints} from './set-seeking-hints';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
 
@@ -33,6 +35,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 	selectM3uStream: selectM3uStreamFn,
 	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
 	mp4HeaderSegment,
+	makeSamplesStartAtZero,
+	seekingHints,
 	...more
 }: InternalParseMediaOptions<F>) {
 	controller._internals.markAsReadyToEmitEvents();
@@ -44,7 +48,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 
 	Log.verbose(
 		logLevel,
-		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src.name}`,
+		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src instanceof File ? src.name : src.toString()}`,
 	);
 
 	const {
@@ -92,7 +96,33 @@ export const internalParseMedia: InternalParseMedia = async function <
 		fieldsInReturnValue: _fieldsInReturnValue ?? {},
 		mimeType: contentType,
 		initialReaderInstance: readerInstance,
+		makeSamplesStartAtZero,
 	});
+
+	if (seekingHints) {
+		setSeekingHints({hints: seekingHints, state});
+	}
+
+	controller._internals.attachSeekingHintResolution(() =>
+		Promise.resolve(
+			getSeekingHints({
+				tracksState: state.callbacks.tracks,
+				keyframesState: state.keyframes,
+				webmState: state.webm,
+				structureState: state.structure,
+				mp4HeaderSegment: state.mp4HeaderSegment,
+				mediaSectionState: state.mediaSection,
+				isoState: state.iso,
+				transportStream: state.transportStream,
+				flacState: state.flac,
+				samplesObserved: state.samplesObserved,
+				riffState: state.riff,
+				mp3State: state.mp3,
+				contentLength: state.contentLength,
+				aacState: state.aac,
+			}),
+		),
+	);
 
 	if (
 		!hasAudioTrackHandlers &&

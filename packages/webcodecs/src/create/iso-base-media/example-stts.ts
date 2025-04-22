@@ -8,6 +8,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 0,
 		cts: 6000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 0,
 	},
 	{
@@ -17,6 +19,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 3000,
 		cts: 18000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 0,
 	},
 	{
@@ -26,6 +30,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 6000,
 		cts: 12000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 0,
 	},
 	{
@@ -35,6 +41,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 9000,
 		cts: 9000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 1,
 	},
 	{
@@ -44,6 +52,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 12000,
 		cts: 15000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 2,
 	},
 	{
@@ -53,6 +63,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 15000,
 		cts: 24000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 3,
 	},
 	{
@@ -62,6 +74,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 18000,
 		cts: 21000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 4,
 	},
 	{
@@ -71,6 +85,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 21000,
 		cts: 33000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 5,
 	},
 	{
@@ -80,6 +96,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 24000,
 		cts: 27000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 6,
 	},
 	{
@@ -89,6 +107,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 27000,
 		cts: 30000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 7,
 	},
 	{
@@ -98,6 +118,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 30000,
 		cts: 39000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 8,
 	},
 	{
@@ -107,6 +129,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 33000,
 		cts: 36000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 9,
 	},
 	{
@@ -116,6 +140,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 36000,
 		cts: 42000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 10,
 	},
 	{
@@ -125,6 +151,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 39000,
 		cts: 54000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 11,
 	},
 	{
@@ -134,6 +162,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 42000,
 		cts: 48000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 12,
 	},
 	{
@@ -143,6 +173,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 45000,
 		cts: 45000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 13,
 	},
 	{
@@ -152,6 +184,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 48000,
 		cts: 51000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 14,
 	},
 	{
@@ -161,6 +195,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 51000,
 		cts: 63000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 15,
 	},
 	{
@@ -170,6 +206,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 54000,
 		cts: 57000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 16,
 	},
 	{
@@ -179,6 +217,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 57000,
 		cts: 60000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 17,
 	},
 	{
@@ -188,6 +228,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 60000,
 		cts: 66000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 18,
 	},
 	{
@@ -197,6 +239,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 63000,
 		cts: 72000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 19,
 	},
 	{
@@ -206,6 +250,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 66000,
 		cts: 69000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 20,
 	},
 	{
@@ -215,6 +261,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 69000,
 		cts: 78000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 21,
 	},
 	{
@@ -224,6 +272,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 72000,
 		cts: 75000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 22,
 	},
 	{
@@ -233,6 +283,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 75000,
 		cts: 81000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 23,
 	},
 	{
@@ -242,6 +294,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 78000,
 		cts: 84000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 24,
 	},
 	{
@@ -251,6 +305,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 81000,
 		cts: 87000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 25,
 	},
 	{
@@ -260,6 +316,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 84000,
 		cts: 93000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 26,
 	},
 	{
@@ -269,6 +327,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 87000,
 		cts: 90000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 27,
 	},
 	{
@@ -278,6 +338,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 90000,
 		cts: 105000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 28,
 	},
 	{
@@ -287,6 +349,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 93000,
 		cts: 99000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 29,
 	},
 	{
@@ -296,6 +360,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 96000,
 		cts: 96000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 30,
 	},
 	{
@@ -305,6 +371,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 99000,
 		cts: 102000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 31,
 	},
 	{
@@ -314,6 +382,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 102000,
 		cts: 117000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 32,
 	},
 	{
@@ -323,6 +393,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 105000,
 		cts: 111000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 33,
 	},
 	{
@@ -332,6 +404,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 108000,
 		cts: 108000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 34,
 	},
 	{
@@ -341,6 +415,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 111000,
 		cts: 114000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 35,
 	},
 	{
@@ -350,6 +426,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 114000,
 		cts: 123000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 36,
 	},
 	{
@@ -359,6 +437,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 117000,
 		cts: 120000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 37,
 	},
 	{
@@ -368,6 +448,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 120000,
 		cts: 126000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 38,
 	},
 	{
@@ -377,6 +459,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 123000,
 		cts: 132000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 39,
 	},
 	{
@@ -386,6 +470,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 126000,
 		cts: 129000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 40,
 	},
 	{
@@ -395,6 +481,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 129000,
 		cts: 135000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 41,
 	},
 	{
@@ -404,6 +492,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 132000,
 		cts: 138000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 42,
 	},
 	{
@@ -413,6 +503,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 135000,
 		cts: 150000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 43,
 	},
 	{
@@ -422,6 +514,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 138000,
 		cts: 144000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 44,
 	},
 	{
@@ -431,6 +525,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 141000,
 		cts: 141000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 45,
 	},
 	{
@@ -440,6 +536,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 144000,
 		cts: 147000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 46,
 	},
 	{
@@ -449,6 +547,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 147000,
 		cts: 162000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 47,
 	},
 	{
@@ -458,6 +558,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 150000,
 		cts: 156000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 48,
 	},
 	{
@@ -467,6 +569,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 153000,
 		cts: 153000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 49,
 	},
 	{
@@ -476,6 +580,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 156000,
 		cts: 159000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 50,
 	},
 	{
@@ -485,6 +591,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 159000,
 		cts: 165000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 51,
 	},
 	{
@@ -494,6 +602,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 162000,
 		cts: 168000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 52,
 	},
 	{
@@ -503,6 +613,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 165000,
 		cts: 177000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 53,
 	},
 	{
@@ -512,6 +624,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 168000,
 		cts: 171000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 54,
 	},
 	{
@@ -521,6 +635,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 171000,
 		cts: 174000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 55,
 	},
 	{
@@ -530,6 +646,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 174000,
 		cts: 183000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 56,
 	},
 	{
@@ -539,6 +657,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 177000,
 		cts: 180000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 57,
 	},
 	{
@@ -548,6 +668,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 180000,
 		cts: 186000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 58,
 	},
 	{
@@ -557,6 +679,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 183000,
 		cts: 192000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 59,
 	},
 	{
@@ -566,6 +690,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 186000,
 		cts: 189000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 60,
 	},
 	{
@@ -575,6 +701,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 189000,
 		cts: 195000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 61,
 	},
 	{
@@ -584,6 +712,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 192000,
 		cts: 204000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 62,
 	},
 	{
@@ -593,6 +723,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 195000,
 		cts: 198000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 63,
 	},
 	{
@@ -602,6 +734,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 198000,
 		cts: 201000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 64,
 	},
 	{
@@ -611,6 +745,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 201000,
 		cts: 207000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 65,
 	},
 	{
@@ -620,6 +756,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 204000,
 		cts: 219000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 66,
 	},
 	{
@@ -629,6 +767,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 207000,
 		cts: 213000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 67,
 	},
 	{
@@ -638,6 +778,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 210000,
 		cts: 210000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 68,
 	},
 	{
@@ -647,6 +789,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 213000,
 		cts: 216000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 69,
 	},
 	{
@@ -656,6 +800,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 216000,
 		cts: 231000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 70,
 	},
 	{
@@ -665,6 +811,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 219000,
 		cts: 225000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 71,
 	},
 	{
@@ -674,6 +822,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 222000,
 		cts: 222000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 72,
 	},
 	{
@@ -683,6 +833,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 225000,
 		cts: 228000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 73,
 	},
 	{
@@ -692,6 +844,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 228000,
 		cts: 243000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 74,
 	},
 	{
@@ -701,6 +855,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 231000,
 		cts: 237000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 75,
 	},
 	{
@@ -710,6 +866,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 234000,
 		cts: 234000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 76,
 	},
 	{
@@ -719,6 +877,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 237000,
 		cts: 240000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 77,
 	},
 	{
@@ -728,6 +888,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 240000,
 		cts: 246000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 78,
 	},
 	{
@@ -737,6 +899,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 243000,
 		cts: 258000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 79,
 	},
 	{
@@ -746,6 +910,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 246000,
 		cts: 252000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 80,
 	},
 	{
@@ -755,6 +921,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 249000,
 		cts: 249000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 81,
 	},
 	{
@@ -764,6 +932,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 252000,
 		cts: 255000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 82,
 	},
 	{
@@ -773,6 +943,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 255000,
 		cts: 270000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 83,
 	},
 	{
@@ -782,6 +954,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 258000,
 		cts: 264000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 84,
 	},
 	{
@@ -791,6 +965,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 261000,
 		cts: 261000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 85,
 	},
 	{
@@ -800,6 +976,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 264000,
 		cts: 267000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 86,
 	},
 	{
@@ -809,6 +987,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 267000,
 		cts: 273000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 87,
 	},
 	{
@@ -818,6 +998,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 270000,
 		cts: 279000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 88,
 	},
 	{
@@ -827,6 +1009,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 273000,
 		cts: 276000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 89,
 	},
 	{
@@ -836,6 +1020,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 276000,
 		cts: 282000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 90,
 	},
 	{
@@ -845,6 +1031,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 279000,
 		cts: 285000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 91,
 	},
 	{
@@ -854,6 +1042,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 282000,
 		cts: 297000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 92,
 	},
 	{
@@ -863,6 +1053,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 285000,
 		cts: 291000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 93,
 	},
 	{
@@ -872,6 +1064,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 288000,
 		cts: 288000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 94,
 	},
 	{
@@ -881,6 +1075,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 291000,
 		cts: 294000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 95,
 	},
 	{
@@ -890,6 +1086,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 294000,
 		cts: 303000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 96,
 	},
 	{
@@ -899,6 +1097,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 297000,
 		cts: 300000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 97,
 	},
 	{
@@ -908,6 +1108,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 300000,
 		cts: 306000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 98,
 	},
 	{
@@ -917,6 +1119,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 303000,
 		cts: 318000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 99,
 	},
 	{
@@ -926,6 +1130,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 306000,
 		cts: 312000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 100,
 	},
 	{
@@ -935,6 +1141,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 309000,
 		cts: 309000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 101,
 	},
 	{
@@ -944,6 +1152,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 312000,
 		cts: 315000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 102,
 	},
 	{
@@ -953,6 +1163,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 315000,
 		cts: 324000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 103,
 	},
 	{
@@ -962,6 +1174,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 318000,
 		cts: 321000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 104,
 	},
 	{
@@ -971,6 +1185,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 321000,
 		cts: 330000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 105,
 	},
 	{
@@ -980,6 +1196,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 324000,
 		cts: 327000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 106,
 	},
 	{
@@ -989,6 +1207,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 327000,
 		cts: 339000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 107,
 	},
 	{
@@ -998,6 +1218,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 330000,
 		cts: 333000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 108,
 	},
 	{
@@ -1007,6 +1229,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 333000,
 		cts: 336000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 109,
 	},
 	{
@@ -1016,6 +1240,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 336000,
 		cts: 345000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 110,
 	},
 	{
@@ -1025,6 +1251,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 339000,
 		cts: 342000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 111,
 	},
 	{
@@ -1034,6 +1262,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 342000,
 		cts: 351000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 112,
 	},
 	{
@@ -1043,6 +1273,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 345000,
 		cts: 348000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 113,
 	},
 	{
@@ -1052,6 +1284,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 348000,
 		cts: 357000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 114,
 	},
 	{
@@ -1061,6 +1295,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 351000,
 		cts: 354000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 115,
 	},
 	{
@@ -1070,6 +1306,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 354000,
 		cts: 363000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 116,
 	},
 	{
@@ -1079,6 +1317,8 @@ export const exampleVideoSamplePositions: SamplePosition[] = [
 		dts: 357000,
 		cts: 360000,
 		duration: 3000,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 ];
@@ -1091,6 +1331,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 0,
 		cts: 0,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 0,
 	},
 	{
@@ -1100,6 +1342,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 1024,
 		cts: 1024,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 0,
 	},
 	{
@@ -1109,6 +1353,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 2048,
 		cts: 2048,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 1,
 	},
 	{
@@ -1118,6 +1364,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 3072,
 		cts: 3072,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 1,
 	},
 	{
@@ -1127,6 +1375,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 4096,
 		cts: 4096,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 2,
 	},
 	{
@@ -1136,6 +1386,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 5120,
 		cts: 5120,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 3,
 	},
 	{
@@ -1145,6 +1397,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 6144,
 		cts: 6144,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 3,
 	},
 	{
@@ -1154,6 +1408,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 7168,
 		cts: 7168,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 4,
 	},
 	{
@@ -1163,6 +1419,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 8192,
 		cts: 8192,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 5,
 	},
 	{
@@ -1172,6 +1430,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 9216,
 		cts: 9216,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 5,
 	},
 	{
@@ -1181,6 +1441,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 10240,
 		cts: 10240,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 6,
 	},
 	{
@@ -1190,6 +1452,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 11264,
 		cts: 11264,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 7,
 	},
 	{
@@ -1199,6 +1463,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 12288,
 		cts: 12288,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 7,
 	},
 	{
@@ -1208,6 +1474,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 13312,
 		cts: 13312,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 8,
 	},
 	{
@@ -1217,6 +1485,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 14336,
 		cts: 14336,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 8,
 	},
 	{
@@ -1226,6 +1496,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 15360,
 		cts: 15360,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 9,
 	},
 	{
@@ -1235,6 +1507,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 16384,
 		cts: 16384,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 10,
 	},
 	{
@@ -1244,6 +1518,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 17408,
 		cts: 17408,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 10,
 	},
 	{
@@ -1253,6 +1529,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 18432,
 		cts: 18432,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 11,
 	},
 	{
@@ -1262,6 +1540,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 19456,
 		cts: 19456,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 12,
 	},
 	{
@@ -1271,6 +1551,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 20480,
 		cts: 20480,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 12,
 	},
 	{
@@ -1280,6 +1562,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 21504,
 		cts: 21504,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 13,
 	},
 	{
@@ -1289,6 +1573,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 22528,
 		cts: 22528,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 14,
 	},
 	{
@@ -1298,6 +1584,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 23552,
 		cts: 23552,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 14,
 	},
 	{
@@ -1307,6 +1595,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 24576,
 		cts: 24576,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 15,
 	},
 	{
@@ -1316,6 +1606,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 25600,
 		cts: 25600,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 16,
 	},
 	{
@@ -1325,6 +1617,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 26624,
 		cts: 26624,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 16,
 	},
 	{
@@ -1334,6 +1628,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 27648,
 		cts: 27648,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 17,
 	},
 	{
@@ -1343,6 +1639,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 28672,
 		cts: 28672,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 17,
 	},
 	{
@@ -1352,6 +1650,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 29696,
 		cts: 29696,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 18,
 	},
 	{
@@ -1361,6 +1661,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 30720,
 		cts: 30720,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 19,
 	},
 	{
@@ -1370,6 +1672,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 31744,
 		cts: 31744,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 19,
 	},
 	{
@@ -1379,6 +1683,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 32768,
 		cts: 32768,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 20,
 	},
 	{
@@ -1388,6 +1694,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 33792,
 		cts: 33792,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 21,
 	},
 	{
@@ -1397,6 +1705,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 34816,
 		cts: 34816,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 21,
 	},
 	{
@@ -1406,6 +1716,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 35840,
 		cts: 35840,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 22,
 	},
 	{
@@ -1415,6 +1727,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 36864,
 		cts: 36864,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 23,
 	},
 	{
@@ -1424,6 +1738,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 37888,
 		cts: 37888,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 23,
 	},
 	{
@@ -1433,6 +1749,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 38912,
 		cts: 38912,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 24,
 	},
 	{
@@ -1442,6 +1760,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 39936,
 		cts: 39936,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 24,
 	},
 	{
@@ -1451,6 +1771,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 40960,
 		cts: 40960,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 25,
 	},
 	{
@@ -1460,6 +1782,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 41984,
 		cts: 41984,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 26,
 	},
 	{
@@ -1469,6 +1793,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 43008,
 		cts: 43008,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 26,
 	},
 	{
@@ -1478,6 +1804,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 44032,
 		cts: 44032,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 27,
 	},
 	{
@@ -1487,6 +1815,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 45056,
 		cts: 45056,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 28,
 	},
 	{
@@ -1496,6 +1826,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 46080,
 		cts: 46080,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 28,
 	},
 	{
@@ -1505,6 +1837,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 47104,
 		cts: 47104,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 29,
 	},
 	{
@@ -1514,6 +1848,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 48128,
 		cts: 48128,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 30,
 	},
 	{
@@ -1523,6 +1859,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 49152,
 		cts: 49152,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 30,
 	},
 	{
@@ -1532,6 +1870,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 50176,
 		cts: 50176,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 31,
 	},
 	{
@@ -1541,6 +1881,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 51200,
 		cts: 51200,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 32,
 	},
 	{
@@ -1550,6 +1892,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 52224,
 		cts: 52224,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 32,
 	},
 	{
@@ -1559,6 +1903,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 53248,
 		cts: 53248,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 33,
 	},
 	{
@@ -1568,6 +1914,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 54272,
 		cts: 54272,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 33,
 	},
 	{
@@ -1577,6 +1925,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 55296,
 		cts: 55296,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 34,
 	},
 	{
@@ -1586,6 +1936,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 56320,
 		cts: 56320,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 35,
 	},
 	{
@@ -1595,6 +1947,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 57344,
 		cts: 57344,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 35,
 	},
 	{
@@ -1604,6 +1958,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 58368,
 		cts: 58368,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 36,
 	},
 	{
@@ -1613,6 +1969,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 59392,
 		cts: 59392,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 37,
 	},
 	{
@@ -1622,6 +1980,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 60416,
 		cts: 60416,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 37,
 	},
 	{
@@ -1631,6 +1991,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 61440,
 		cts: 61440,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 38,
 	},
 	{
@@ -1640,6 +2002,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 62464,
 		cts: 62464,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 39,
 	},
 	{
@@ -1649,6 +2013,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 63488,
 		cts: 63488,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 39,
 	},
 	{
@@ -1658,6 +2024,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 64512,
 		cts: 64512,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 40,
 	},
 	{
@@ -1667,6 +2035,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 65536,
 		cts: 65536,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 40,
 	},
 	{
@@ -1676,6 +2046,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 66560,
 		cts: 66560,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 41,
 	},
 	{
@@ -1685,6 +2057,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 67584,
 		cts: 67584,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 42,
 	},
 	{
@@ -1694,6 +2068,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 68608,
 		cts: 68608,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 42,
 	},
 	{
@@ -1703,6 +2079,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 69632,
 		cts: 69632,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 43,
 	},
 	{
@@ -1712,6 +2090,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 70656,
 		cts: 70656,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 44,
 	},
 	{
@@ -1721,6 +2101,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 71680,
 		cts: 71680,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 44,
 	},
 	{
@@ -1730,6 +2112,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 72704,
 		cts: 72704,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 45,
 	},
 	{
@@ -1739,6 +2123,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 73728,
 		cts: 73728,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 46,
 	},
 	{
@@ -1748,6 +2134,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 74752,
 		cts: 74752,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 46,
 	},
 	{
@@ -1757,6 +2145,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 75776,
 		cts: 75776,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 47,
 	},
 	{
@@ -1766,6 +2156,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 76800,
 		cts: 76800,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 48,
 	},
 	{
@@ -1775,6 +2167,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 77824,
 		cts: 77824,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 48,
 	},
 	{
@@ -1784,6 +2178,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 78848,
 		cts: 78848,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 49,
 	},
 	{
@@ -1793,6 +2189,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 79872,
 		cts: 79872,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 49,
 	},
 	{
@@ -1802,6 +2200,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 80896,
 		cts: 80896,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 50,
 	},
 	{
@@ -1811,6 +2211,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 81920,
 		cts: 81920,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 51,
 	},
 	{
@@ -1820,6 +2222,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 82944,
 		cts: 82944,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 51,
 	},
 	{
@@ -1829,6 +2233,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 83968,
 		cts: 83968,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 52,
 	},
 	{
@@ -1838,6 +2244,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 84992,
 		cts: 84992,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 53,
 	},
 	{
@@ -1847,6 +2255,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 86016,
 		cts: 86016,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 53,
 	},
 	{
@@ -1856,6 +2266,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 87040,
 		cts: 87040,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 54,
 	},
 	{
@@ -1865,6 +2277,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 88064,
 		cts: 88064,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 55,
 	},
 	{
@@ -1874,6 +2288,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 89088,
 		cts: 89088,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 55,
 	},
 	{
@@ -1883,6 +2299,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 90112,
 		cts: 90112,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 56,
 	},
 	{
@@ -1892,6 +2310,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 91136,
 		cts: 91136,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 56,
 	},
 	{
@@ -1901,6 +2321,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 92160,
 		cts: 92160,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 57,
 	},
 	{
@@ -1910,6 +2332,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 93184,
 		cts: 93184,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 58,
 	},
 	{
@@ -1919,6 +2343,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 94208,
 		cts: 94208,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 58,
 	},
 	{
@@ -1928,6 +2354,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 95232,
 		cts: 95232,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 59,
 	},
 	{
@@ -1937,6 +2365,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 96256,
 		cts: 96256,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 60,
 	},
 	{
@@ -1946,6 +2376,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 97280,
 		cts: 97280,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 60,
 	},
 	{
@@ -1955,6 +2387,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 98304,
 		cts: 98304,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 61,
 	},
 	{
@@ -1964,6 +2398,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 99328,
 		cts: 99328,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 62,
 	},
 	{
@@ -1973,6 +2409,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 100352,
 		cts: 100352,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 62,
 	},
 	{
@@ -1982,6 +2420,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 101376,
 		cts: 101376,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 63,
 	},
 	{
@@ -1991,6 +2431,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 102400,
 		cts: 102400,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 64,
 	},
 	{
@@ -2000,6 +2442,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 103424,
 		cts: 103424,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 64,
 	},
 	{
@@ -2009,6 +2453,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 104448,
 		cts: 104448,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 65,
 	},
 	{
@@ -2018,6 +2464,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 105472,
 		cts: 105472,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 65,
 	},
 	{
@@ -2027,6 +2475,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 106496,
 		cts: 106496,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 66,
 	},
 	{
@@ -2036,6 +2486,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 107520,
 		cts: 107520,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 67,
 	},
 	{
@@ -2045,6 +2497,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 108544,
 		cts: 108544,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 67,
 	},
 	{
@@ -2054,6 +2508,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 109568,
 		cts: 109568,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 68,
 	},
 	{
@@ -2063,6 +2519,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 110592,
 		cts: 110592,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 69,
 	},
 	{
@@ -2072,6 +2530,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 111616,
 		cts: 111616,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 69,
 	},
 	{
@@ -2081,6 +2541,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 112640,
 		cts: 112640,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 70,
 	},
 	{
@@ -2090,6 +2552,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 113664,
 		cts: 113664,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 71,
 	},
 	{
@@ -2099,6 +2563,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 114688,
 		cts: 114688,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 71,
 	},
 	{
@@ -2108,6 +2574,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 115712,
 		cts: 115712,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 72,
 	},
 	{
@@ -2117,6 +2585,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 116736,
 		cts: 116736,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 72,
 	},
 	{
@@ -2126,6 +2596,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 117760,
 		cts: 117760,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 73,
 	},
 	{
@@ -2135,6 +2607,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 118784,
 		cts: 118784,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 74,
 	},
 	{
@@ -2144,6 +2618,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 119808,
 		cts: 119808,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 74,
 	},
 	{
@@ -2153,6 +2629,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 120832,
 		cts: 120832,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 75,
 	},
 	{
@@ -2162,6 +2640,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 121856,
 		cts: 121856,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 76,
 	},
 	{
@@ -2171,6 +2651,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 122880,
 		cts: 122880,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 76,
 	},
 	{
@@ -2180,6 +2662,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 123904,
 		cts: 123904,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 77,
 	},
 	{
@@ -2189,6 +2673,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 124928,
 		cts: 124928,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 78,
 	},
 	{
@@ -2198,6 +2684,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 125952,
 		cts: 125952,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 78,
 	},
 	{
@@ -2207,6 +2695,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 126976,
 		cts: 126976,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 79,
 	},
 	{
@@ -2216,6 +2706,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 128000,
 		cts: 128000,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 80,
 	},
 	{
@@ -2225,6 +2717,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 129024,
 		cts: 129024,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 80,
 	},
 	{
@@ -2234,6 +2728,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 130048,
 		cts: 130048,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 81,
 	},
 	{
@@ -2243,6 +2739,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 131072,
 		cts: 131072,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 81,
 	},
 	{
@@ -2252,6 +2750,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 132096,
 		cts: 132096,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 82,
 	},
 	{
@@ -2261,6 +2761,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 133120,
 		cts: 133120,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 83,
 	},
 	{
@@ -2270,6 +2772,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 134144,
 		cts: 134144,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 83,
 	},
 	{
@@ -2279,6 +2783,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 135168,
 		cts: 135168,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 84,
 	},
 	{
@@ -2288,6 +2794,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 136192,
 		cts: 136192,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 85,
 	},
 	{
@@ -2297,6 +2805,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 137216,
 		cts: 137216,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 85,
 	},
 	{
@@ -2306,6 +2816,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 138240,
 		cts: 138240,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 86,
 	},
 	{
@@ -2315,6 +2827,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 139264,
 		cts: 139264,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 87,
 	},
 	{
@@ -2324,6 +2838,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 140288,
 		cts: 140288,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 87,
 	},
 	{
@@ -2333,6 +2849,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 141312,
 		cts: 141312,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 88,
 	},
 	{
@@ -2342,6 +2860,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 142336,
 		cts: 142336,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 88,
 	},
 	{
@@ -2351,6 +2871,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 143360,
 		cts: 143360,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 89,
 	},
 	{
@@ -2360,6 +2882,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 144384,
 		cts: 144384,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 90,
 	},
 	{
@@ -2369,6 +2893,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 145408,
 		cts: 145408,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 90,
 	},
 	{
@@ -2378,6 +2904,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 146432,
 		cts: 146432,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 91,
 	},
 	{
@@ -2387,6 +2915,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 147456,
 		cts: 147456,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 92,
 	},
 	{
@@ -2396,6 +2926,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 148480,
 		cts: 148480,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 92,
 	},
 	{
@@ -2405,6 +2937,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 149504,
 		cts: 149504,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 93,
 	},
 	{
@@ -2414,6 +2948,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 150528,
 		cts: 150528,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 94,
 	},
 	{
@@ -2423,6 +2959,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 151552,
 		cts: 151552,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 94,
 	},
 	{
@@ -2432,6 +2970,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 152576,
 		cts: 152576,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 95,
 	},
 	{
@@ -2441,6 +2981,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 153600,
 		cts: 153600,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 96,
 	},
 	{
@@ -2450,6 +2992,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 154624,
 		cts: 154624,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 96,
 	},
 	{
@@ -2459,6 +3003,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 155648,
 		cts: 155648,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 97,
 	},
 	{
@@ -2468,6 +3014,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 156672,
 		cts: 156672,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 97,
 	},
 	{
@@ -2477,6 +3025,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 157696,
 		cts: 157696,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 98,
 	},
 	{
@@ -2486,6 +3036,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 158720,
 		cts: 158720,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 99,
 	},
 	{
@@ -2495,6 +3047,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 159744,
 		cts: 159744,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 99,
 	},
 	{
@@ -2504,6 +3058,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 160768,
 		cts: 160768,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 100,
 	},
 	{
@@ -2513,6 +3069,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 161792,
 		cts: 161792,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 101,
 	},
 	{
@@ -2522,6 +3080,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 162816,
 		cts: 162816,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 101,
 	},
 	{
@@ -2531,6 +3091,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 163840,
 		cts: 163840,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 102,
 	},
 	{
@@ -2540,6 +3102,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 164864,
 		cts: 164864,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 103,
 	},
 	{
@@ -2549,6 +3113,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 165888,
 		cts: 165888,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 103,
 	},
 	{
@@ -2558,6 +3124,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 166912,
 		cts: 166912,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 104,
 	},
 	{
@@ -2567,6 +3135,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 167936,
 		cts: 167936,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 104,
 	},
 	{
@@ -2576,6 +3146,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 168960,
 		cts: 168960,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 105,
 	},
 	{
@@ -2585,6 +3157,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 169984,
 		cts: 169984,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 106,
 	},
 	{
@@ -2594,6 +3168,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 171008,
 		cts: 171008,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 106,
 	},
 	{
@@ -2603,6 +3179,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 172032,
 		cts: 172032,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 107,
 	},
 	{
@@ -2612,6 +3190,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 173056,
 		cts: 173056,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 108,
 	},
 	{
@@ -2621,6 +3201,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 174080,
 		cts: 174080,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 108,
 	},
 	{
@@ -2630,6 +3212,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 175104,
 		cts: 175104,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 109,
 	},
 	{
@@ -2639,6 +3223,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 176128,
 		cts: 176128,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 110,
 	},
 	{
@@ -2648,6 +3234,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 177152,
 		cts: 177152,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 110,
 	},
 	{
@@ -2657,6 +3245,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 178176,
 		cts: 178176,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 111,
 	},
 	{
@@ -2666,6 +3256,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 179200,
 		cts: 179200,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 112,
 	},
 	{
@@ -2675,6 +3267,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 180224,
 		cts: 180224,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 112,
 	},
 	{
@@ -2684,6 +3278,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 181248,
 		cts: 181248,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 113,
 	},
 	{
@@ -2693,6 +3289,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 182272,
 		cts: 182272,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 113,
 	},
 	{
@@ -2702,6 +3300,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 183296,
 		cts: 183296,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 114,
 	},
 	{
@@ -2711,6 +3311,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 184320,
 		cts: 184320,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 115,
 	},
 	{
@@ -2720,6 +3322,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 185344,
 		cts: 185344,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 115,
 	},
 	{
@@ -2729,6 +3333,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 186368,
 		cts: 186368,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 116,
 	},
 	{
@@ -2738,6 +3344,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 187392,
 		cts: 187392,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 	{
@@ -2747,6 +3355,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 188416,
 		cts: 188416,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 	{
@@ -2756,6 +3366,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 189440,
 		cts: 189440,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 	{
@@ -2765,6 +3377,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 190464,
 		cts: 190464,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 	{
@@ -2774,6 +3388,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 191488,
 		cts: 191488,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 	{
@@ -2783,6 +3399,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 192512,
 		cts: 192512,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 	{
@@ -2792,6 +3410,8 @@ export const exampleAudioSamplePositions: SamplePosition[] = [
 		dts: 193536,
 		cts: 193536,
 		duration: 1024,
+		bigEndian: false,
+		chunkSize: null,
 		chunk: 117,
 	},
 ];

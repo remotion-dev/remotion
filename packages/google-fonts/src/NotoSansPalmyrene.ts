@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'palmyrene'],
 });
 
 export const fontFamily = 'Noto Sans Palmyrene' as const;

@@ -20,8 +20,8 @@ test('handle seek infinite loop better', async () => {
 			onVideoTrack: () => {
 				return () => {
 					controller._experimentalSeek({
-						type: 'keyframe-before-time-in-seconds',
-						time: 10,
+						type: 'keyframe-before-time',
+						timeInSeconds: 10,
 					});
 				};
 			},
@@ -29,7 +29,7 @@ test('handle seek infinite loop better', async () => {
 		});
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Seeking infinite loop detected: Seeked to byte 0x30 10 times in a row with no position change in the file. Check your usage of .seek().',
+			'Seeking infinite loop detected: Seeked to byte 0x30 10 times in a row in the last 2 seconds. Check your usage of .seek().',
 		);
 	}
 });

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Limbu',
 	importName: 'NotoSansLimbu',
-	version: 'v22',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Limbu:ital,wght@0,400',
 	unicodeRanges: {
 		limbu: 'U+0964-0965, U+1900-194F, U+200C-200D, U+25CC',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'limbu'],
 });
 
 export const fontFamily = 'Noto Sans Limbu' as const;

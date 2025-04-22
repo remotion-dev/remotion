@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Klee One',
 	importName: 'KleeOne',
-	version: 'v7',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Klee+One:ital,wght@0,400;0,600',
 	unicodeRanges: {
 		'[0]':
@@ -754,6 +754,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek-ext', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Klee One' as const;

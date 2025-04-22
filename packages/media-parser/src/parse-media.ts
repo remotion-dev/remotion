@@ -55,5 +55,7 @@ export const parseMedia: ParseMedia = (options) => {
 		onError: () => ({action: 'fail'}),
 		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
 		apiName: 'parseMedia()',
+		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
+		seekingHints: options.seekingHints ?? null,
 	});
 };

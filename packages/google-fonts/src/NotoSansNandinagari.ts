@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'nandinagari'],
 });
 
 export const fontFamily = 'Noto Sans Nandinagari' as const;

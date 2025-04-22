@@ -18,7 +18,7 @@ export const getKeyframes = (
 export const hasKeyframes = (parserState: ParserState) => {
 	const structure = parserState.structure.getStructure();
 	if (structure.type === 'iso-base-media') {
-		return getHasTracks(parserState);
+		return getHasTracks(parserState, true);
 	}
 
 	// Has, but will be null

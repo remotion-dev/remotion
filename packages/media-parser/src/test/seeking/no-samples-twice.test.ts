@@ -21,8 +21,8 @@ test('should not count samples twice', async () => {
 				samples++;
 				if (samples === 100) {
 					controller._experimentalSeek({
-						type: 'keyframe-before-time-in-seconds',
-						time: 0,
+						type: 'keyframe-before-time',
+						timeInSeconds: 0,
 					});
 				}
 			};

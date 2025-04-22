@@ -173,13 +173,13 @@ const VideoAppsShowcase: React.FC = () => {
 	return (
 		<div ref={containerRef}>
 			<SectionTitle>Use Cases</SectionTitle>
-			<div className={'flex justify-center mb-4'}>
+			<div className={'grid justify-center grid-flow-col grid-rows-1 gap-2.5 justify-self-center mb-4 w-[90vw] md:w-auto'}>
 				{tabs.map((tab, index) => (
 					<button
 						key={tab}
 						type="button"
 						data-active={index === activeTab}
-						className={`bg-transparent border-none lg:mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
+						className={`bg-transparent border-none m-0 p-0 lg:mx-3 my-4 cursor-pointer text-base fontbrand font-bold transition-colors text-muted data-[active=true]:text-brand`}
 						onClick={() => setActiveTab(index)}
 					>
 						{tab}

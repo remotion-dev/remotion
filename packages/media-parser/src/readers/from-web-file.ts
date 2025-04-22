@@ -55,7 +55,7 @@ export const webFileReadContent: ReadContent = ({src, range, controller}) => {
 					},
 				},
 				contentLength: src.size,
-				name: src.name,
+				name: src instanceof File ? src.name : src.toString(),
 				supportsContentRange: true,
 				contentType: src.type,
 				needsContentRange: true,

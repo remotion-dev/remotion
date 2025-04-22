@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['gurmukhi', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Langar' as const;

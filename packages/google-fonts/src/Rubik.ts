@@ -220,6 +220,14 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'arabic',
+		'cyrillic',
+		'cyrillic-ext',
+		'hebrew',
+		'latin',
+		'latin-ext',
+	],
 });
 
 export const fontFamily = 'Rubik' as const;

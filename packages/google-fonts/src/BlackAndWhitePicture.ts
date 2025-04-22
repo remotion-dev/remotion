@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Black And White Picture',
 	importName: 'BlackAndWhitePicture',
-	version: 'v24',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Black+And+White+Picture:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -363,6 +363,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['korean', 'latin'],
 });
 
 export const fontFamily = 'Black And White Picture' as const;

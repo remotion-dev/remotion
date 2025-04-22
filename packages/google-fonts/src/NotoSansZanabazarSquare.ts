@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'zanabazar-square'],
 });
 
 export const fontFamily = 'Noto Sans Zanabazar Square' as const;

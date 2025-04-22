@@ -9,11 +9,13 @@ export const getIsoBaseMediaChildren = async ({
 	iterator,
 	logLevel,
 	onlyIfMoovAtomExpected,
+	contentLength,
 }: {
 	size: number;
 	iterator: BufferIterator;
 	logLevel: LogLevel;
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
+	contentLength: number;
 }): Promise<IsoBaseMediaBox[]> => {
 	const boxes: IsoBaseMediaBox[] = [];
 	const initial = iterator.counter.getOffset();
@@ -24,6 +26,7 @@ export const getIsoBaseMediaChildren = async ({
 			logLevel,
 			onlyIfMoovAtomExpected,
 			onlyIfMdatAtomExpected: null,
+			contentLength,
 		});
 		if (!parsed) {
 			throw new Error('Expected box');

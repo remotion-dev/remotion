@@ -13,8 +13,8 @@ test('should be able to set the start seek', async () => {
 
 	try {
 		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMedia({

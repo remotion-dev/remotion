@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil-supplement'],
 });
 
 export const fontFamily = 'Noto Sans Tamil Supplement' as const;

@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['buginese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Buginese' as const;

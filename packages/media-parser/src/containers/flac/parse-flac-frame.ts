@@ -1,12 +1,10 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import {
 	getArrayBufferIterator,
 	type BufferIterator,
 } from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {getBlockSize} from './get-block-size';
 import {getChannelCount} from './get-channel-count';
 import {getSampleRate} from './get-sample-rate';
@@ -115,26 +113,28 @@ const emitSample = async ({
 	}
 
 	const timestamp = (num * streamInfo.maximumBlockSize) / streamInfo.sampleRate;
-
-	await emitAudioSample({
-		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample: {
-				data,
-				duration,
-				cts: timestamp,
-				dts: timestamp,
-				timestamp,
-				type: 'key',
-				offset,
-				timescale: 1000000,
-				trackId: 0,
-			},
-			timescale: 1,
-		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-		callbacks: state.callbacks,
+	state.flac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset,
+		durationInSeconds: duration,
 	});
+
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			data,
+			duration,
+			cts: timestamp,
+			dts: timestamp,
+			timestamp,
+			type: 'key',
+			offset,
+			timescale: 1,
+			trackId: 0,
+		},
+		timescale: 1,
+	});
+
+	await state.callbacks.onAudioSample(0, audioSample);
 
 	iterator.destroy();
 };

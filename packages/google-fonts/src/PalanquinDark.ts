@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Palanquin Dark',
 	importName: 'PalanquinDark',
-	version: 'v14',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Palanquin+Dark:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -49,6 +49,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Palanquin Dark' as const;

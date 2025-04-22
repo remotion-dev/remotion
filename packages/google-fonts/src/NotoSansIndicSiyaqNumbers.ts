@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['indic-siyaq-numbers', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Indic Siyaq Numbers' as const;

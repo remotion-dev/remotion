@@ -68,6 +68,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tamil', 'vietnamese'],
 });
 
 export const fontFamily = 'Baloo Thambi Two' as const;

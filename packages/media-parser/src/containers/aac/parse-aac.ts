@@ -4,11 +4,9 @@ import {
 	mapAudioObjectTypeToCodecString,
 } from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 
 export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
@@ -61,8 +59,11 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const data = iterator.getSlice(frameLength);
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
+		state.mediaSection.addMediaSection({
+			start: startOffset,
+			size: state.contentLength - startOffset,
+		});
 		await registerAudioTrack({
-			workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
 			container: 'aac',
 			track: {
 				codec: mapAudioObjectTypeToCodecString(audioObjectType),
@@ -88,26 +89,29 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {index} = state.aac.addSample({offset: startOffset, size: frameLength});
 	const timestamp = (1024 / sampleRate) * index;
 
-	// One ADTS frame contains 1024 samples
-	await emitAudioSample({
-		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample: {
-				duration,
-				type: 'key',
-				data,
-				offset: startOffset,
-				timescale: 1000000,
-				trackId: 0,
-				cts: timestamp,
-				dts: timestamp,
-				timestamp,
-			},
-			timescale: 1,
-		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-		callbacks: state.callbacks,
+	state.aac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset: startOffset,
+		durationInSeconds: duration,
 	});
+
+	// One ADTS frame contains 1024 samples
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			duration,
+			type: 'key',
+			data,
+			offset: startOffset,
+			timescale: 1000000,
+			trackId: 0,
+			cts: timestamp,
+			dts: timestamp,
+			timestamp,
+		},
+		timescale: 1,
+	});
+
+	await state.callbacks.onAudioSample(0, audioSample);
 
 	return Promise.resolve(null);
 };

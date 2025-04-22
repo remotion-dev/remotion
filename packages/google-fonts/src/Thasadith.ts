@@ -56,6 +56,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'thai', 'vietnamese'],
 });
 
 export const fontFamily = 'Thasadith' as const;

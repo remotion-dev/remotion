@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'old-hungarian'],
 });
 
 export const fontFamily = 'Noto Sans Old Hungarian' as const;

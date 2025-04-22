@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'mahajani'],
 });
 
 export const fontFamily = 'Noto Sans Mahajani' as const;

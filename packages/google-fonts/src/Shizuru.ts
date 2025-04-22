@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shizuru',
 	importName: 'Shizuru',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Shizuru:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':
@@ -109,6 +109,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['japanese', 'latin'],
 });
 
 export const fontFamily = 'Shizuru' as const;

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.282",
+	"version": "4.0.289",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -14,12 +14,15 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
-		"test": "bun test src",
+		"test": "bun test src/test",
+		"testwebcodecs": "playwright test src/it-tests",
 		"watch": "tsc -w",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/test",
+		"!dist/it-tests"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
@@ -32,6 +35,8 @@
 		"@types/dom-webcodecs": "0.1.11",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"playwright": "1.51.1",
+		"@playwright/test": "1.51.1",
 		"eslint": "9.19.0"
 	},
 	"keywords": [],

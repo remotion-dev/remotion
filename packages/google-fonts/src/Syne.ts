@@ -52,6 +52,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Syne' as const;

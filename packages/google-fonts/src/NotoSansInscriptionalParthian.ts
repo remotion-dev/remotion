@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Inscriptional Parthian',
 	importName: 'NotoSansInscriptionalParthian',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Inscriptional+Parthian:ital,wght@0,400',
 	unicodeRanges: {
 		'inscriptional-parthian': 'U+10B40-10B5F',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['inscriptional-parthian', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Noto Sans Inscriptional Parthian' as const;

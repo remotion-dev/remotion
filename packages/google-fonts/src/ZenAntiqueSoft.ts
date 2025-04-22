@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Antique Soft',
 	importName: 'ZenAntiqueSoft',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Antique+Soft:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -497,6 +497,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Zen Antique Soft' as const;

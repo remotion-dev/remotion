@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'M PLUS Rounded Onec',
 	importName: 'MPLUSRounded1c',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:ital,wght@0,100;0,300;0,400;0,500;0,700;0,800;0,900',
 	unicodeRanges: {
 		'[0]':
@@ -2037,6 +2037,17 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: [
+		'cyrillic',
+		'cyrillic-ext',
+		'greek',
+		'greek-ext',
+		'hebrew',
+		'japanese',
+		'latin',
+		'latin-ext',
+		'vietnamese',
+	],
 });
 
 export const fontFamily = 'M PLUS Rounded Onec' as const;

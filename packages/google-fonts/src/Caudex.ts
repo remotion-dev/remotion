@@ -60,6 +60,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['greek', 'greek-ext', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Caudex' as const;

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'BIZ UDGothic',
 	importName: 'BIZUDGothic',
-	version: 'v9',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=BIZ+UDGothic:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'[0]':
@@ -754,6 +754,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'greek-ext', 'japanese', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'BIZ UDGothic' as const;

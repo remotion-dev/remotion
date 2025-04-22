@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Emoji',
 	importName: 'NotoEmoji',
-	version: 'v47',
+	version: 'v53',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Emoji:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'[0]': 'U+1f1e6-1f1ff',
@@ -163,6 +163,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['emoji'],
 });
 
 export const fontFamily = 'Noto Emoji' as const;

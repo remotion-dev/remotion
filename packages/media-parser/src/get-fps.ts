@@ -104,6 +104,7 @@ const getFpsFromIsoMaseMedia = (state: ParserState) => {
 		structureState: state.structure,
 		isoState: state.iso,
 		mp4HeaderSegment: state.mp4HeaderSegment,
+		mayUsePrecomputed: true,
 	});
 	if (!moovBox) {
 		return null;

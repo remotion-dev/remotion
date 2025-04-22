@@ -1,8 +1,6 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
-import {getWorkOnSeekRequestOptions} from '../../work-on-seek-request';
 import {WAVE_SAMPLES_PER_SECOND} from './get-seeking-byte';
 import type {WavFmt} from './types';
 
@@ -37,24 +35,23 @@ export const parseMediaSection = async ({
 		(offset - videoSection.start) / (fmtBox.sampleRate * fmtBox.blockAlign);
 
 	const data = iterator.getSlice(toRead);
-	await emitAudioSample({
-		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample: {
-				cts: timestamp,
-				dts: timestamp,
-				data,
-				duration,
-				timestamp,
-				trackId: 0,
-				type: 'key',
-				offset,
-				timescale: 1_000_000,
-			},
-			timescale: 1,
-		}),
-		workOnSeekRequestOptions: getWorkOnSeekRequestOptions(state),
-		callbacks: state.callbacks,
+
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			cts: timestamp,
+			dts: timestamp,
+			data,
+			duration,
+			timestamp,
+			trackId: 0,
+			type: 'key',
+			offset,
+			timescale: 1_000_000,
+		},
+		timescale: 1,
 	});
+
+	await state.callbacks.onAudioSample(0, audioSample);
+
 	return null;
 };

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'David Libre',
 	importName: 'DavidLibre',
-	version: 'v14',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=David+Libre:ital,wght@0,400;0,500;0,700',
 	unicodeRanges: {
 		hebrew:
@@ -61,6 +61,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['hebrew', 'latin', 'latin-ext', 'math', 'symbols', 'vietnamese'],
 });
 
 export const fontFamily = 'David Libre' as const;
@@ -68,7 +69,13 @@ export const fontFamily = 'David Libre' as const;
 type Variants = {
 	normal: {
 		weights: '400' | '500' | '700';
-		subsets: 'hebrew' | 'latin' | 'latin-ext' | 'vietnamese';
+		subsets:
+			| 'hebrew'
+			| 'latin'
+			| 'latin-ext'
+			| 'math'
+			| 'symbols'
+			| 'vietnamese';
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Old Uyghur',
 	importName: 'NotoSerifOldUyghur',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Old+Uyghur:ital,wght@0,400',
 	unicodeRanges: {
 		'old-uyghur': 'U+0640, U+10AF2, U+10F70-10F89',
@@ -24,6 +24,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'old-uyghur'],
 });
 
 export const fontFamily = 'Noto Serif Old Uyghur' as const;

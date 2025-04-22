@@ -32,6 +32,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['cyrillic', 'cyrillic-ext', 'hebrew', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Rubik Glitch' as const;

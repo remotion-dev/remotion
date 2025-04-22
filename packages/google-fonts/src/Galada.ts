@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Galada',
 	importName: 'Galada',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Galada:ital,wght@0,400',
 	unicodeRanges: {
 		bengali:
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['bengali', 'latin'],
 });
 
 export const fontFamily = 'Galada' as const;

@@ -69,6 +69,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['arabic', 'latin', 'latin-ext', 'vietnamese'],
 });
 
 export const fontFamily = 'Baloo Bhaijaan Two' as const;

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Content',
 	importName: 'Content',
-	version: 'v24',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Content:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		khmer:
@@ -21,6 +21,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['khmer'],
 });
 
 export const fontFamily = 'Content' as const;

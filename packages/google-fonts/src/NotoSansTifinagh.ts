@@ -25,6 +25,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'tifinagh'],
 });
 
 export const fontFamily = 'Noto Sans Tifinagh' as const;

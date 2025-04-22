@@ -1,7 +1,7 @@
-import {isLpcmAudioCodec} from '../../get-audio-codec';
 import {getTimescaleAndDuration} from '../../get-fps';
 import {getSamplePositions} from '../../get-sample-positions';
-import {getSamplePositionsFromLpcm} from '../../get-sample-positions-from-lpcm';
+import {getGroupedSamplesPositionsFromMp4} from '../../get-sample-positions-from-mp4';
+import {shouldGroupAudioSamples} from './should-group-audio-samples';
 import type {TrakBox} from './trak/trak';
 import {
 	getCttsBox,
@@ -13,11 +13,14 @@ import {
 } from './traversal';
 
 export const collectSamplePositionsFromTrak = (trakBox: TrakBox) => {
-	const isLpcm = isLpcmAudioCodec(trakBox);
+	const shouldGroupSamples = shouldGroupAudioSamples(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
-	if (isLpcm) {
-		return getSamplePositionsFromLpcm(trakBox);
+	if (shouldGroupSamples) {
+		return getGroupedSamplesPositionsFromMp4({
+			trakBox,
+			bigEndian: shouldGroupSamples.bigEndian,
+		});
 	}
 
 	const stszBox = getStszBox(trakBox);

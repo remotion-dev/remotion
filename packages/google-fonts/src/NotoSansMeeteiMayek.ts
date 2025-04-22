@@ -88,6 +88,7 @@ export const getInfo = () => ({
 			},
 		},
 	},
+	subsets: ['latin', 'latin-ext', 'meetei-mayek'],
 });
 
 export const fontFamily = 'Noto Sans Meetei Mayek' as const;

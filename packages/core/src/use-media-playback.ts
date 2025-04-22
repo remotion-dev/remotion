@@ -152,7 +152,8 @@ export const useMediaPlayback = ({
 
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 
-		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
+		const playerBufferingNotStateButLive = buffering.buffering.current;
+		if (playerBufferingNotStateButLive && !isMediaTagBufferingOrStalled) {
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
@@ -164,6 +165,7 @@ export const useMediaPlayback = ({
 	}, [
 		isBuffering,
 		isMediaTagBuffering,
+		buffering,
 		isPlayerBuffering,
 		isPremounting,
 		logLevel,

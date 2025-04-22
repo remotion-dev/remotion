@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.282",
+	"version": "4.0.289",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"generate": "bun scripts/generate.ts && bun scripts/generate-index.ts",
-		"prepublishOnly": "bun ensure-generation.ts",
+		"generate": "bun --env-file=.env scripts/update-font-db.ts",
+		"prepublishOnly": "bun run generate",
 		"formatting": "prettier src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -29,6 +29,9 @@
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
+			"42dotSans": [
+				"dist/cjs/42dotSans.d.ts"
+			],
 			"ABeeZee": [
 				"dist/cjs/ABeeZee.d.ts"
 			],
@@ -68,11 +71,20 @@
 			"AdventPro": [
 				"dist/cjs/AdventPro.d.ts"
 			],
+			"Afacad": [
+				"dist/cjs/Afacad.d.ts"
+			],
+			"AfacadFlux": [
+				"dist/cjs/AfacadFlux.d.ts"
+			],
 			"Agbalumo": [
 				"dist/cjs/Agbalumo.d.ts"
 			],
 			"Agdasima": [
 				"dist/cjs/Agdasima.d.ts"
+			],
+			"AguDisplay": [
+				"dist/cjs/AguDisplay.d.ts"
 			],
 			"AguafinaScript": [
 				"dist/cjs/AguafinaScript.d.ts"
@@ -254,11 +266,17 @@
 			"Angkor": [
 				"dist/cjs/Angkor.d.ts"
 			],
+			"AnnapurnaSIL": [
+				"dist/cjs/AnnapurnaSIL.d.ts"
+			],
 			"AnnieUseYourTelescope": [
 				"dist/cjs/AnnieUseYourTelescope.d.ts"
 			],
 			"AnonymousPro": [
 				"dist/cjs/AnonymousPro.d.ts"
+			],
+			"Anta": [
+				"dist/cjs/Anta.d.ts"
 			],
 			"Antic": [
 				"dist/cjs/Antic.d.ts"
@@ -271,6 +289,9 @@
 			],
 			"Anton": [
 				"dist/cjs/Anton.d.ts"
+			],
+			"AntonSC": [
+				"dist/cjs/AntonSC.d.ts"
 			],
 			"Antonio": [
 				"dist/cjs/Antonio.d.ts"
@@ -329,6 +350,9 @@
 			"Arsenal": [
 				"dist/cjs/Arsenal.d.ts"
 			],
+			"ArsenalSC": [
+				"dist/cjs/ArsenalSC.d.ts"
+			],
 			"Artifika": [
 				"dist/cjs/Artifika.d.ts"
 			],
@@ -364,6 +388,12 @@
 			],
 			"AtkinsonHyperlegible": [
 				"dist/cjs/AtkinsonHyperlegible.d.ts"
+			],
+			"AtkinsonHyperlegibleMono": [
+				"dist/cjs/AtkinsonHyperlegibleMono.d.ts"
+			],
+			"AtkinsonHyperlegibleNext": [
+				"dist/cjs/AtkinsonHyperlegibleNext.d.ts"
 			],
 			"Atma": [
 				"dist/cjs/Atma.d.ts"
@@ -427,6 +457,9 @@
 			],
 			"BadScript": [
 				"dist/cjs/BadScript.d.ts"
+			],
+			"BadeenDisplay": [
+				"dist/cjs/BadeenDisplay.d.ts"
 			],
 			"BagelFatOne": [
 				"dist/cjs/BagelFatOne.d.ts"
@@ -506,6 +539,9 @@
 			"Baskervville": [
 				"dist/cjs/Baskervville.d.ts"
 			],
+			"BaskervvilleSC": [
+				"dist/cjs/BaskervvilleSC.d.ts"
+			],
 			"Battambang": [
 				"dist/cjs/Battambang.d.ts"
 			],
@@ -523,6 +559,9 @@
 			],
 			"BebasNeue": [
 				"dist/cjs/BebasNeue.d.ts"
+			],
+			"Beiruti": [
+				"dist/cjs/Beiruti.d.ts"
 			],
 			"Belanosima": [
 				"dist/cjs/Belanosima.d.ts"
@@ -566,23 +605,14 @@
 			"BhuTukaExpandedOne": [
 				"dist/cjs/BhuTukaExpandedOne.d.ts"
 			],
-			"BigShouldersDisplay": [
-				"dist/cjs/BigShouldersDisplay.d.ts"
+			"BigShoulders": [
+				"dist/cjs/BigShoulders.d.ts"
 			],
-			"BigShouldersInlineDisplay": [
-				"dist/cjs/BigShouldersInlineDisplay.d.ts"
+			"BigShouldersInline": [
+				"dist/cjs/BigShouldersInline.d.ts"
 			],
-			"BigShouldersInlineText": [
-				"dist/cjs/BigShouldersInlineText.d.ts"
-			],
-			"BigShouldersStencilDisplay": [
-				"dist/cjs/BigShouldersStencilDisplay.d.ts"
-			],
-			"BigShouldersStencilText": [
-				"dist/cjs/BigShouldersStencilText.d.ts"
-			],
-			"BigShouldersText": [
-				"dist/cjs/BigShouldersText.d.ts"
+			"BigShouldersStencil": [
+				"dist/cjs/BigShouldersStencil.d.ts"
 			],
 			"BigelowRules": [
 				"dist/cjs/BigelowRules.d.ts"
@@ -638,11 +668,20 @@
 			"BodoniModa": [
 				"dist/cjs/BodoniModa.d.ts"
 			],
+			"BodoniModaSC": [
+				"dist/cjs/BodoniModaSC.d.ts"
+			],
 			"Bokor": [
 				"dist/cjs/Bokor.d.ts"
 			],
+			"Boldonse": [
+				"dist/cjs/Boldonse.d.ts"
+			],
 			"BonaNova": [
 				"dist/cjs/BonaNova.d.ts"
+			],
+			"BonaNovaSC": [
+				"dist/cjs/BonaNovaSC.d.ts"
 			],
 			"Bonbon": [
 				"dist/cjs/Bonbon.d.ts"
@@ -713,11 +752,17 @@
 			"BungeeSpice": [
 				"dist/cjs/BungeeSpice.d.ts"
 			],
+			"BungeeTint": [
+				"dist/cjs/BungeeTint.d.ts"
+			],
 			"Butcherman": [
 				"dist/cjs/Butcherman.d.ts"
 			],
 			"ButterflyKids": [
 				"dist/cjs/ButterflyKids.d.ts"
+			],
+			"Bytesized": [
+				"dist/cjs/Bytesized.d.ts"
 			],
 			"Cabin": [
 				"dist/cjs/Cabin.d.ts"
@@ -727,6 +772,9 @@
 			],
 			"CabinSketch": [
 				"dist/cjs/CabinSketch.d.ts"
+			],
+			"CactusClassicalSerif": [
+				"dist/cjs/CactusClassicalSerif.d.ts"
 			],
 			"CaesarDressing": [
 				"dist/cjs/CaesarDressing.d.ts"
@@ -883,6 +931,9 @@
 			],
 			"ChivoMono": [
 				"dist/cjs/ChivoMono.d.ts"
+			],
+			"ChocolateClassicalSans": [
+				"dist/cjs/ChocolateClassicalSans.d.ts"
 			],
 			"Chokokutai": [
 				"dist/cjs/Chokokutai.d.ts"
@@ -1049,6 +1100,9 @@
 			"DancingScript": [
 				"dist/cjs/DancingScript.d.ts"
 			],
+			"Danfo": [
+				"dist/cjs/Danfo.d.ts"
+			],
 			"Dangrek": [
 				"dist/cjs/Dangrek.d.ts"
 			],
@@ -1136,6 +1190,9 @@
 			"DotGothic16": [
 				"dist/cjs/DotGothic16.d.ts"
 			],
+			"Doto": [
+				"dist/cjs/Doto.d.ts"
+			],
 			"DrSugiyama": [
 				"dist/cjs/DrSugiyama.d.ts"
 			],
@@ -1165,6 +1222,21 @@
 			],
 			"Eczar": [
 				"dist/cjs/Eczar.d.ts"
+			],
+			"EduAUVICWANTArrows": [
+				"dist/cjs/EduAUVICWANTArrows.d.ts"
+			],
+			"EduAUVICWANTDots": [
+				"dist/cjs/EduAUVICWANTDots.d.ts"
+			],
+			"EduAUVICWANTGuides": [
+				"dist/cjs/EduAUVICWANTGuides.d.ts"
+			],
+			"EduAUVICWANTHand": [
+				"dist/cjs/EduAUVICWANTHand.d.ts"
+			],
+			"EduAUVICWANTPre": [
+				"dist/cjs/EduAUVICWANTPre.d.ts"
 			],
 			"EduNSWACTFoundation": [
 				"dist/cjs/EduNSWACTFoundation.d.ts"
@@ -1258,6 +1330,9 @@
 			],
 			"Explora": [
 				"dist/cjs/Explora.d.ts"
+			],
+			"FacultyGlyphic": [
+				"dist/cjs/FacultyGlyphic.d.ts"
 			],
 			"Fahkwang": [
 				"dist/cjs/Fahkwang.d.ts"
@@ -1391,6 +1466,9 @@
 			"Freehand": [
 				"dist/cjs/Freehand.d.ts"
 			],
+			"Freeman": [
+				"dist/cjs/Freeman.d.ts"
+			],
 			"Fresca": [
 				"dist/cjs/Fresca.d.ts"
 			],
@@ -1406,6 +1484,15 @@
 			"Fuggles": [
 				"dist/cjs/Fuggles.d.ts"
 			],
+			"FunnelDisplay": [
+				"dist/cjs/FunnelDisplay.d.ts"
+			],
+			"FunnelSans": [
+				"dist/cjs/FunnelSans.d.ts"
+			],
+			"Fustat": [
+				"dist/cjs/Fustat.d.ts"
+			],
 			"FuzzyBubbles": [
 				"dist/cjs/FuzzyBubbles.d.ts"
 			],
@@ -1414,6 +1501,9 @@
 			],
 			"GFSNeohellenic": [
 				"dist/cjs/GFSNeohellenic.d.ts"
+			],
+			"GaMaamli": [
+				"dist/cjs/GaMaamli.d.ts"
 			],
 			"Gabarito": [
 				"dist/cjs/Gabarito.d.ts"
@@ -1451,6 +1541,12 @@
 			"Gayathri": [
 				"dist/cjs/Gayathri.d.ts"
 			],
+			"Geist": [
+				"dist/cjs/Geist.d.ts"
+			],
+			"GeistMono": [
+				"dist/cjs/GeistMono.d.ts"
+			],
 			"Gelasio": [
 				"dist/cjs/Gelasio.d.ts"
 			],
@@ -1486,6 +1582,9 @@
 			],
 			"GideonRoman": [
 				"dist/cjs/GideonRoman.d.ts"
+			],
+			"Gidole": [
+				"dist/cjs/Gidole.d.ts"
 			],
 			"Gidugu": [
 				"dist/cjs/Gidugu.d.ts"
@@ -1646,6 +1745,12 @@
 			"HeadlandOne": [
 				"dist/cjs/HeadlandOne.d.ts"
 			],
+			"HedvigLettersSans": [
+				"dist/cjs/HedvigLettersSans.d.ts"
+			],
+			"HedvigLettersSerif": [
+				"dist/cjs/HedvigLettersSerif.d.ts"
+			],
 			"Heebo": [
 				"dist/cjs/Heebo.d.ts"
 			],
@@ -1673,6 +1778,9 @@
 			"HindMadurai": [
 				"dist/cjs/HindMadurai.d.ts"
 			],
+			"HindMysuru": [
+				"dist/cjs/HindMysuru.d.ts"
+			],
 			"HindSiliguri": [
 				"dist/cjs/HindSiliguri.d.ts"
 			],
@@ -1688,8 +1796,17 @@
 			"Homenaje": [
 				"dist/cjs/Homenaje.d.ts"
 			],
+			"Honk": [
+				"dist/cjs/Honk.d.ts"
+			],
+			"HostGrotesk": [
+				"dist/cjs/HostGrotesk.d.ts"
+			],
 			"Hubballi": [
 				"dist/cjs/Hubballi.d.ts"
+			],
+			"HubotSans": [
+				"dist/cjs/HubotSans.d.ts"
 			],
 			"Hurricane": [
 				"dist/cjs/Hurricane.d.ts"
@@ -1756,6 +1873,9 @@
 			],
 			"IMFellGreatPrimerSC": [
 				"dist/cjs/IMFellGreatPrimerSC.d.ts"
+			],
+			"Iansui": [
+				"dist/cjs/Iansui.d.ts"
 			],
 			"IbarraRealNova": [
 				"dist/cjs/IbarraRealNova.d.ts"
@@ -1835,14 +1955,65 @@
 			"Itim": [
 				"dist/cjs/Itim.d.ts"
 			],
+			"Jacquard12": [
+				"dist/cjs/Jacquard12.d.ts"
+			],
+			"Jacquard12Charted": [
+				"dist/cjs/Jacquard12Charted.d.ts"
+			],
+			"Jacquard24": [
+				"dist/cjs/Jacquard24.d.ts"
+			],
+			"Jacquard24Charted": [
+				"dist/cjs/Jacquard24Charted.d.ts"
+			],
+			"JacquardaBastarda9": [
+				"dist/cjs/JacquardaBastarda9.d.ts"
+			],
+			"JacquardaBastarda9Charted": [
+				"dist/cjs/JacquardaBastarda9Charted.d.ts"
+			],
 			"JacquesFrancois": [
 				"dist/cjs/JacquesFrancois.d.ts"
 			],
 			"JacquesFrancoisShadow": [
 				"dist/cjs/JacquesFrancoisShadow.d.ts"
 			],
+			"Jaini": [
+				"dist/cjs/Jaini.d.ts"
+			],
+			"JainiPurva": [
+				"dist/cjs/JainiPurva.d.ts"
+			],
 			"Jaldi": [
 				"dist/cjs/Jaldi.d.ts"
+			],
+			"Jaro": [
+				"dist/cjs/Jaro.d.ts"
+			],
+			"Jersey10": [
+				"dist/cjs/Jersey10.d.ts"
+			],
+			"Jersey10Charted": [
+				"dist/cjs/Jersey10Charted.d.ts"
+			],
+			"Jersey15": [
+				"dist/cjs/Jersey15.d.ts"
+			],
+			"Jersey15Charted": [
+				"dist/cjs/Jersey15Charted.d.ts"
+			],
+			"Jersey20": [
+				"dist/cjs/Jersey20.d.ts"
+			],
+			"Jersey20Charted": [
+				"dist/cjs/Jersey20Charted.d.ts"
+			],
+			"Jersey25": [
+				"dist/cjs/Jersey25.d.ts"
+			],
+			"Jersey25Charted": [
+				"dist/cjs/Jersey25Charted.d.ts"
 			],
 			"JetBrainsMono": [
 				"dist/cjs/JetBrainsMono.d.ts"
@@ -1925,6 +2096,12 @@
 			"Kalam": [
 				"dist/cjs/Kalam.d.ts"
 			],
+			"Kalnia": [
+				"dist/cjs/Kalnia.d.ts"
+			],
+			"KalniaGlaze": [
+				"dist/cjs/KalniaGlaze.d.ts"
+			],
 			"Kameron": [
 				"dist/cjs/Kameron.d.ts"
 			],
@@ -1939,6 +2116,12 @@
 			],
 			"Karla": [
 				"dist/cjs/Karla.d.ts"
+			],
+			"KarlaTamilInclined": [
+				"dist/cjs/KarlaTamilInclined.d.ts"
+			],
+			"KarlaTamilUpright": [
+				"dist/cjs/KarlaTamilUpright.d.ts"
 			],
 			"Karma": [
 				"dist/cjs/Karma.d.ts"
@@ -2003,6 +2186,9 @@
 			"Kodchasan": [
 				"dist/cjs/Kodchasan.d.ts"
 			],
+			"KodeMono": [
+				"dist/cjs/KodeMono.d.ts"
+			],
 			"KohSantepheap": [
 				"dist/cjs/KohSantepheap.d.ts"
 			],
@@ -2056,6 +2242,12 @@
 			],
 			"Kurale": [
 				"dist/cjs/Kurale.d.ts"
+			],
+			"LXGWWenKaiMonoTC": [
+				"dist/cjs/LXGWWenKaiMonoTC.d.ts"
+			],
+			"LXGWWenKaiTC": [
+				"dist/cjs/LXGWWenKaiTC.d.ts"
 			],
 			"LaBelleAurore": [
 				"dist/cjs/LaBelleAurore.d.ts"
@@ -2198,6 +2390,9 @@
 			"LisuBosa": [
 				"dist/cjs/LisuBosa.d.ts"
 			],
+			"Liter": [
+				"dist/cjs/Liter.d.ts"
+			],
 			"Literata": [
 				"dist/cjs/Literata.d.ts"
 			],
@@ -2297,6 +2492,9 @@
 			"Mada": [
 				"dist/cjs/Mada.d.ts"
 			],
+			"MadimiOne": [
+				"dist/cjs/MadimiOne.d.ts"
+			],
 			"Magra": [
 				"dist/cjs/Magra.d.ts"
 			],
@@ -2317,6 +2515,9 @@
 			],
 			"Mallanna": [
 				"dist/cjs/Mallanna.d.ts"
+			],
+			"Maname": [
+				"dist/cjs/Maname.d.ts"
 			],
 			"Mandali": [
 				"dist/cjs/Mandali.d.ts"
@@ -2375,6 +2576,9 @@
 			"MateSC": [
 				"dist/cjs/MateSC.d.ts"
 			],
+			"Matemasie": [
+				"dist/cjs/Matemasie.d.ts"
+			],
 			"MavenPro": [
 				"dist/cjs/MavenPro.d.ts"
 			],
@@ -2429,6 +2633,12 @@
 			"Michroma": [
 				"dist/cjs/Michroma.d.ts"
 			],
+			"Micro5": [
+				"dist/cjs/Micro5.d.ts"
+			],
+			"Micro5Charted": [
+				"dist/cjs/Micro5Charted.d.ts"
+			],
 			"Milonga": [
 				"dist/cjs/Milonga.d.ts"
 			],
@@ -2471,6 +2681,9 @@
 			"ModernAntiqua": [
 				"dist/cjs/ModernAntiqua.d.ts"
 			],
+			"Moderustic": [
+				"dist/cjs/Moderustic.d.ts"
+			],
 			"Mogra": [
 				"dist/cjs/Mogra.d.ts"
 			],
@@ -2486,11 +2699,17 @@
 			"Molle": [
 				"dist/cjs/Molle.d.ts"
 			],
+			"MonaSans": [
+				"dist/cjs/MonaSans.d.ts"
+			],
 			"Monda": [
 				"dist/cjs/Monda.d.ts"
 			],
 			"Monofett": [
 				"dist/cjs/Monofett.d.ts"
+			],
+			"Monomakh": [
+				"dist/cjs/Monomakh.d.ts"
 			],
 			"MonomaniacOne": [
 				"dist/cjs/MonomaniacOne.d.ts"
@@ -2519,8 +2738,8 @@
 			"MontserratAlternates": [
 				"dist/cjs/MontserratAlternates.d.ts"
 			],
-			"MontserratSubrayada": [
-				"dist/cjs/MontserratSubrayada.d.ts"
+			"MontserratUnderline": [
+				"dist/cjs/MontserratUnderline.d.ts"
 			],
 			"MooLahLah": [
 				"dist/cjs/MooLahLah.d.ts"
@@ -2597,6 +2816,9 @@
 			"Nabla": [
 				"dist/cjs/Nabla.d.ts"
 			],
+			"Namdhinggo": [
+				"dist/cjs/Namdhinggo.d.ts"
+			],
 			"NanumBrushScript": [
 				"dist/cjs/NanumBrushScript.d.ts"
 			],
@@ -2615,6 +2837,9 @@
 			"Narnoor": [
 				"dist/cjs/Narnoor.d.ts"
 			],
+			"NationalPark": [
+				"dist/cjs/NationalPark.d.ts"
+			],
 			"Neonderthaw": [
 				"dist/cjs/Neonderthaw.d.ts"
 			],
@@ -2626,6 +2851,9 @@
 			],
 			"Neuton": [
 				"dist/cjs/Neuton.d.ts"
+			],
+			"NewAmsterdam": [
+				"dist/cjs/NewAmsterdam.d.ts"
 			],
 			"NewRocker": [
 				"dist/cjs/NewRocker.d.ts"
@@ -3212,6 +3440,9 @@
 			"NotoSerifHebrew": [
 				"dist/cjs/NotoSerifHebrew.d.ts"
 			],
+			"NotoSerifHentaigana": [
+				"dist/cjs/NotoSerifHentaigana.d.ts"
+			],
 			"NotoSerifJP": [
 				"dist/cjs/NotoSerifJP.d.ts"
 			],
@@ -3278,6 +3509,9 @@
 			"NotoSerifTibetan": [
 				"dist/cjs/NotoSerifTibetan.d.ts"
 			],
+			"NotoSerifTodhri": [
+				"dist/cjs/NotoSerifTodhri.d.ts"
+			],
 			"NotoSerifToto": [
 				"dist/cjs/NotoSerifToto.d.ts"
 			],
@@ -3289,6 +3523,9 @@
 			],
 			"NotoTraditionalNushu": [
 				"dist/cjs/NotoTraditionalNushu.d.ts"
+			],
+			"NotoZnamennyMusicalNotation": [
+				"dist/cjs/NotoZnamennyMusicalNotation.d.ts"
 			],
 			"NovaCut": [
 				"dist/cjs/NovaCut.d.ts"
@@ -3337,6 +3574,9 @@
 			],
 			"Oi": [
 				"dist/cjs/Oi.d.ts"
+			],
+			"Ojuju": [
+				"dist/cjs/Ojuju.d.ts"
 			],
 			"OldStandardTT": [
 				"dist/cjs/OldStandardTT.d.ts"
@@ -3461,6 +3701,9 @@
 			"Parisienne": [
 				"dist/cjs/Parisienne.d.ts"
 			],
+			"Parkinsans": [
+				"dist/cjs/Parkinsans.d.ts"
+			],
 			"PasseroOne": [
 				"dist/cjs/PasseroOne.d.ts"
 			],
@@ -3512,6 +3755,9 @@
 			"Petrona": [
 				"dist/cjs/Petrona.d.ts"
 			],
+			"Phetsarath": [
+				"dist/cjs/Phetsarath.d.ts"
+			],
 			"Philosopher": [
 				"dist/cjs/Philosopher.d.ts"
 			],
@@ -3536,6 +3782,9 @@
 			"Plaster": [
 				"dist/cjs/Plaster.d.ts"
 			],
+			"Platypi": [
+				"dist/cjs/Platypi.d.ts"
+			],
 			"Play": [
 				"dist/cjs/Play.d.ts"
 			],
@@ -3557,8 +3806,14 @@
 			"PlusJakartaSans": [
 				"dist/cjs/PlusJakartaSans.d.ts"
 			],
+			"Pochaevsk": [
+				"dist/cjs/Pochaevsk.d.ts"
+			],
 			"Podkova": [
 				"dist/cjs/Podkova.d.ts"
+			],
+			"PoetsenOne": [
+				"dist/cjs/PoetsenOne.d.ts"
 			],
 			"PoiretOne": [
 				"dist/cjs/PoiretOne.d.ts"
@@ -3574,6 +3829,12 @@
 			],
 			"Pompiere": [
 				"dist/cjs/Pompiere.d.ts"
+			],
+			"Ponnala": [
+				"dist/cjs/Ponnala.d.ts"
+			],
+			"Ponomar": [
+				"dist/cjs/Ponomar.d.ts"
 			],
 			"PontanoSans": [
 				"dist/cjs/PontanoSans.d.ts"
@@ -3622,6 +3883,18 @@
 			],
 			"ProstoOne": [
 				"dist/cjs/ProstoOne.d.ts"
+			],
+			"ProtestGuerrilla": [
+				"dist/cjs/ProtestGuerrilla.d.ts"
+			],
+			"ProtestRevolution": [
+				"dist/cjs/ProtestRevolution.d.ts"
+			],
+			"ProtestRiot": [
+				"dist/cjs/ProtestRiot.d.ts"
+			],
+			"ProtestStrike": [
+				"dist/cjs/ProtestStrike.d.ts"
 			],
 			"ProzaLibre": [
 				"dist/cjs/ProzaLibre.d.ts"
@@ -3676,6 +3949,9 @@
 			],
 			"RadioCanada": [
 				"dist/cjs/RadioCanada.d.ts"
+			],
+			"RadioCanadaBig": [
+				"dist/cjs/RadioCanadaBig.d.ts"
 			],
 			"Radley": [
 				"dist/cjs/Radley.d.ts"
@@ -3749,6 +4025,15 @@
 			"RedactedScript": [
 				"dist/cjs/RedactedScript.d.ts"
 			],
+			"RedditMono": [
+				"dist/cjs/RedditMono.d.ts"
+			],
+			"RedditSans": [
+				"dist/cjs/RedditSans.d.ts"
+			],
+			"RedditSansCondensed": [
+				"dist/cjs/RedditSansCondensed.d.ts"
+			],
 			"Redressed": [
 				"dist/cjs/Redressed.d.ts"
 			],
@@ -3766,6 +4051,9 @@
 			],
 			"ReggaeOne": [
 				"dist/cjs/ReggaeOne.d.ts"
+			],
+			"RethinkSans": [
+				"dist/cjs/RethinkSans.d.ts"
 			],
 			"Revalia": [
 				"dist/cjs/Revalia.d.ts"
@@ -3851,6 +4139,9 @@
 			"RubikBeastly": [
 				"dist/cjs/RubikBeastly.d.ts"
 			],
+			"RubikBrokenFax": [
+				"dist/cjs/RubikBrokenFax.d.ts"
+			],
 			"RubikBubbles": [
 				"dist/cjs/RubikBubbles.d.ts"
 			],
@@ -3863,14 +4154,29 @@
 			"RubikDistressed": [
 				"dist/cjs/RubikDistressed.d.ts"
 			],
+			"RubikDoodleShadow": [
+				"dist/cjs/RubikDoodleShadow.d.ts"
+			],
+			"RubikDoodleTriangles": [
+				"dist/cjs/RubikDoodleTriangles.d.ts"
+			],
 			"RubikGemstones": [
 				"dist/cjs/RubikGemstones.d.ts"
 			],
 			"RubikGlitch": [
 				"dist/cjs/RubikGlitch.d.ts"
 			],
+			"RubikGlitchPop": [
+				"dist/cjs/RubikGlitchPop.d.ts"
+			],
 			"RubikIso": [
 				"dist/cjs/RubikIso.d.ts"
+			],
+			"RubikLines": [
+				"dist/cjs/RubikLines.d.ts"
+			],
+			"RubikMaps": [
+				"dist/cjs/RubikMaps.d.ts"
 			],
 			"RubikMarkerHatch": [
 				"dist/cjs/RubikMarkerHatch.d.ts"
@@ -3892,6 +4198,9 @@
 			],
 			"RubikPuddles": [
 				"dist/cjs/RubikPuddles.d.ts"
+			],
+			"RubikScribble": [
+				"dist/cjs/RubikScribble.d.ts"
 			],
 			"RubikSprayPaint": [
 				"dist/cjs/RubikSprayPaint.d.ts"
@@ -3938,6 +4247,9 @@
 			"STIXTwoText": [
 				"dist/cjs/STIXTwoText.d.ts"
 			],
+			"SUSE": [
+				"dist/cjs/SUSE.d.ts"
+			],
 			"Sacramento": [
 				"dist/cjs/Sacramento.d.ts"
 			],
@@ -3970,6 +4282,9 @@
 			],
 			"Sancreek": [
 				"dist/cjs/Sancreek.d.ts"
+			],
+			"SankofaDisplay": [
+				"dist/cjs/SankofaDisplay.d.ts"
 			],
 			"Sansita": [
 				"dist/cjs/Sansita.d.ts"
@@ -4022,6 +4337,12 @@
 			"SecularOne": [
 				"dist/cjs/SecularOne.d.ts"
 			],
+			"Sedan": [
+				"dist/cjs/Sedan.d.ts"
+			],
+			"SedanSC": [
+				"dist/cjs/SedanSC.d.ts"
+			],
 			"SedgwickAve": [
 				"dist/cjs/SedgwickAve.d.ts"
 			],
@@ -4045,6 +4366,9 @@
 			],
 			"ShadowsIntoLightTwo": [
 				"dist/cjs/ShadowsIntoLightTwo.d.ts"
+			],
+			"Shafarik": [
+				"dist/cjs/Shafarik.d.ts"
 			],
 			"Shalimar": [
 				"dist/cjs/Shalimar.d.ts"
@@ -4120,6 +4444,12 @@
 			],
 			"SixCaps": [
 				"dist/cjs/SixCaps.d.ts"
+			],
+			"Sixtyfour": [
+				"dist/cjs/Sixtyfour.d.ts"
+			],
+			"SixtyfourConvergence": [
+				"dist/cjs/SixtyfourConvergence.d.ts"
 			],
 			"Skranji": [
 				"dist/cjs/Skranji.d.ts"
@@ -4199,6 +4529,9 @@
 			"SortsMillGoudy": [
 				"dist/cjs/SortsMillGoudy.d.ts"
 			],
+			"SourGummy": [
+				"dist/cjs/SourGummy.d.ts"
+			],
 			"SourceCodePro": [
 				"dist/cjs/SourceCodePro.d.ts"
 			],
@@ -4216,6 +4549,15 @@
 			],
 			"SpecialElite": [
 				"dist/cjs/SpecialElite.d.ts"
+			],
+			"SpecialGothic": [
+				"dist/cjs/SpecialGothic.d.ts"
+			],
+			"SpecialGothicCondensedOne": [
+				"dist/cjs/SpecialGothicCondensedOne.d.ts"
+			],
+			"SpecialGothicExpandedOne": [
+				"dist/cjs/SpecialGothicExpandedOne.d.ts"
 			],
 			"Spectral": [
 				"dist/cjs/Spectral.d.ts"
@@ -4340,6 +4682,9 @@
 			"SyneTactile": [
 				"dist/cjs/SyneTactile.d.ts"
 			],
+			"TacOne": [
+				"dist/cjs/TacOne.d.ts"
+			],
 			"TaiHeritagePro": [
 				"dist/cjs/TaiHeritagePro.d.ts"
 			],
@@ -4360,6 +4705,9 @@
 			],
 			"Taviraj": [
 				"dist/cjs/Taviraj.d.ts"
+			],
+			"Teachers": [
+				"dist/cjs/Teachers.d.ts"
 			],
 			"Teko": [
 				"dist/cjs/Teko.d.ts"
@@ -4412,6 +4760,9 @@
 			"Tinos": [
 				"dist/cjs/Tinos.d.ts"
 			],
+			"Tiny5": [
+				"dist/cjs/Tiny5.d.ts"
+			],
 			"TiroBangla": [
 				"dist/cjs/TiroBangla.d.ts"
 			],
@@ -4454,6 +4805,9 @@
 			"TrainOne": [
 				"dist/cjs/TrainOne.d.ts"
 			],
+			"Triodion": [
+				"dist/cjs/Triodion.d.ts"
+			],
 			"Trirong": [
 				"dist/cjs/Trirong.d.ts"
 			],
@@ -4492,6 +4846,12 @@
 			],
 			"UbuntuMono": [
 				"dist/cjs/UbuntuMono.d.ts"
+			],
+			"UbuntuSans": [
+				"dist/cjs/UbuntuSans.d.ts"
+			],
+			"UbuntuSansMono": [
+				"dist/cjs/UbuntuSansMono.d.ts"
 			],
 			"Uchen": [
 				"dist/cjs/Uchen.d.ts"
@@ -4613,9 +4973,6 @@
 			"Waterfall": [
 				"dist/cjs/Waterfall.d.ts"
 			],
-			"Wavefont": [
-				"dist/esm/Wavefont.d.ts"
-			],
 			"Wellfleet": [
 				"dist/cjs/Wellfleet.d.ts"
 			],
@@ -4628,8 +4985,17 @@
 			"WindSong": [
 				"dist/cjs/WindSong.d.ts"
 			],
+			"WinkyRough": [
+				"dist/cjs/WinkyRough.d.ts"
+			],
+			"WinkySans": [
+				"dist/cjs/WinkySans.d.ts"
+			],
 			"WireOne": [
 				"dist/cjs/WireOne.d.ts"
+			],
+			"Wittgenstein": [
+				"dist/cjs/Wittgenstein.d.ts"
 			],
 			"WixMadeforDisplay": [
 				"dist/cjs/WixMadeforDisplay.d.ts"
@@ -4639,6 +5005,9 @@
 			],
 			"WorkSans": [
 				"dist/cjs/WorkSans.d.ts"
+			],
+			"Workbench": [
+				"dist/cjs/Workbench.d.ts"
 			],
 			"XanhMono": [
 				"dist/cjs/XanhMono.d.ts"
@@ -4651,6 +5020,18 @@
 			],
 			"Yantramanav": [
 				"dist/cjs/Yantramanav.d.ts"
+			],
+			"Yarndings12": [
+				"dist/cjs/Yarndings12.d.ts"
+			],
+			"Yarndings12Charted": [
+				"dist/cjs/Yarndings12Charted.d.ts"
+			],
+			"Yarndings20": [
+				"dist/cjs/Yarndings20.d.ts"
+			],
+			"Yarndings20Charted": [
+				"dist/cjs/Yarndings20Charted.d.ts"
 			],
 			"YatraOne": [
 				"dist/cjs/YatraOne.d.ts"
@@ -4714,6 +5095,9 @@
 			],
 			"ZCOOLXiaoWei": [
 				"dist/cjs/ZCOOLXiaoWei.d.ts"
+			],
+			"Zain": [
+				"dist/cjs/Zain.d.ts"
 			],
 			"ZenAntique": [
 				"dist/cjs/ZenAntique.d.ts"

@@ -12,8 +12,8 @@ test('seek should also work on worker', async () => {
 
 	try {
 		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMediaOnServerWorker({
@@ -34,6 +34,9 @@ test('seek should also work on worker', async () => {
 			(firstSample?.timestamp ?? 0) / (firstSample?.timescale ?? 1);
 		expect(timeInSeconds).toBe(10.5);
 	}
+
+	const hints = await controller.getSeekingHints();
+	expect(hints?.type).toEqual('iso-base-media-seeking-hints');
 });
 
 test('should be able to seek forward and then backwards', async () => {
@@ -43,8 +46,8 @@ test('should be able to seek forward and then backwards', async () => {
 
 	try {
 		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMediaOnServerWorker({
@@ -59,8 +62,8 @@ test('should be able to seek forward and then backwards', async () => {
 							10.5,
 						);
 						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 0,
+							type: 'keyframe-before-time',
+							timeInSeconds: 0,
 						});
 					}
 

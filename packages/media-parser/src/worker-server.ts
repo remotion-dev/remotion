@@ -5,7 +5,9 @@ import {
 import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
 import type {ReaderInterface} from './readers/reader';
-import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
+import type {SeekingHints} from './seeking-hints';
+import {withResolvers} from './with-resolvers';
+import {forwardMediaParserControllerToWorker} from './worker/forward-controller-to-worker';
 import {serializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -23,8 +25,7 @@ const controller = mediaParserController();
 
 const executeCallback = (payload: ResponseCallbackPayload) => {
 	const nonce = crypto.randomUUID();
-	const {promise, resolve, reject} =
-		Promise.withResolvers<AcknowledgePayload>();
+	const {promise, resolve, reject} = withResolvers<AcknowledgePayload>();
 
 	const cb = (msg: MessageEvent) => {
 		const data = msg.data as WorkerRequestPayload;
@@ -68,6 +69,8 @@ const startParsing = async (
 		logLevel: userLogLevel,
 		progressIntervalInMs,
 		mp4HeaderSegment,
+		seekingHints,
+		makeSamplesStartAtZero,
 	} = payload;
 
 	const {
@@ -429,13 +432,27 @@ const startParsing = async (
 					}
 				: null,
 			onDiscardedData: null,
+			makeSamplesStartAtZero: makeSamplesStartAtZero ?? true,
+			seekingHints: seekingHints ?? null,
 		});
 		post({
 			type: 'response-done',
 			payload: ret,
+			seekingHints: await controller.getSeekingHints(),
 		});
 	} catch (e) {
-		post(serializeError(e as Error, logLevel));
+		let seekingHintsRes: SeekingHints | null = null;
+		try {
+			seekingHintsRes = await controller.getSeekingHints();
+		} catch {}
+
+		post(
+			serializeError({
+				error: e as Error,
+				logLevel,
+				seekingHints: seekingHintsRes,
+			}),
+		);
 	}
 };
 
