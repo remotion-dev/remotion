@@ -1,7 +1,5 @@
-/* eslint-disable no-console */
-
 import type {WhisperModel} from './constants';
-import {MODELS} from './constants';
+import {MODELS, SIZES} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {putObject} from './db/put-object';
 import {fetchRemote} from './download-model';
@@ -21,18 +19,22 @@ export const downloadWhisperModel = async ({
 	onProgress,
 }: DownloadWhisperModelParams): Promise<DownloadWhisperModelResult> => {
 	if (!model || !MODELS.includes(model)) {
-		throw new Error(
-			`Invalid model name. Supported models: ${MODELS.join(', ')}.`,
+		return Promise.reject(
+			new Error(`Invalid model name. Supported models: ${MODELS.join(', ')}.`),
 		);
 	}
 
 	if (!window.indexedDB) {
-		throw new Error('IndexedDB is not available in this environment.');
+		return Promise.reject(
+			new Error('IndexedDB is not available in this environment.'),
+		);
 	}
 
 	if (!navigator.storage || !navigator.storage.estimate) {
-		throw new Error(
-			'navigator.storage.estimate() API is not available in this environment',
+		return Promise.reject(
+			new Error(
+				'navigator.storage.estimate() API is not available in this environment',
+			),
 		);
 	}
 
@@ -47,8 +49,28 @@ export const downloadWhisperModel = async ({
 	}
 
 	const estimate = await navigator.storage.estimate();
-	console.log('Estimate quota:', estimate.quota);
-	console.log('Estimate usage:', estimate.usage);
+
+	if (estimate.quota === undefined) {
+		return Promise.reject(
+			new Error('navigator.storage.estimate() API returned undefined quota.'),
+		);
+	}
+
+	if (estimate.usage === undefined) {
+		return Promise.reject(
+			new Error('navigator.storage.estimate() API returned undefined usage.'),
+		);
+	}
+
+	const remaining = estimate.quota - estimate.usage;
+
+	if (remaining < SIZES[model]) {
+		return Promise.reject(
+			new Error(
+				`Not enough space to download the model. IndexedDB quota: ${estimate.quota} bytes, usage: ${estimate.usage} bytes, remaining: ${remaining} bytes, model size: ${SIZES[model]} bytes`,
+			),
+		);
+	}
 
 	const data = await fetchRemote({url, onProgress});
 	await putObject({key: url, value: data});

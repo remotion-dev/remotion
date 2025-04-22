@@ -12,3 +12,12 @@ export const MODELS = [
 ] as const;
 
 export type WhisperModel = (typeof MODELS)[number];
+
+export const SIZES: {[key in WhisperModel]: number} = {
+	tiny: 77691713,
+	'tiny.en': 77704715,
+	base: 147951465,
+	'base.en': 147964211,
+	small: 487601967,
+	'small.en': 487614201,
+};
