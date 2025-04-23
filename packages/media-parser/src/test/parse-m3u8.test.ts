@@ -56,7 +56,6 @@ test('parse m3u8', async () => {
 			m3uStreams: true,
 		},
 		acknowledgeRemotionLicense: true,
-		logLevel: 'verbose',
 	});
 
 	expect(durationInSeconds).toBe(5.06667);

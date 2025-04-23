@@ -1,4 +1,5 @@
 import {
+	fetchClearPreloadCache,
 	fetchCreateAdjacentFileSource,
 	fetchPreload,
 	fetchReadContent,
@@ -69,6 +70,18 @@ export const universalReader: ReaderInterface = {
 			src.toString().startsWith('blob:')
 		) {
 			return fetchPreload({range, src, logLevel});
+		}
+	},
+	clearPreloadCache: ({src, range, logLevel}) => {
+		if (src instanceof Blob) {
+			return;
+		}
+
+		if (
+			src.toString().startsWith('http') ||
+			src.toString().startsWith('blob:')
+		) {
+			return fetchClearPreloadCache({src, range, logLevel});
 		}
 	},
 };

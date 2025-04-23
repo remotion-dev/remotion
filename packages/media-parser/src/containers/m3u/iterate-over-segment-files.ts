@@ -57,6 +57,10 @@ export const iteratorOverSegmentFiles = async ({
 				nextChunk.url,
 				playlistUrl,
 			);
+			m3uState.trackPreloadRequest({
+				src: nextChunkSource,
+				range: null,
+			});
 			readerInterface.preload({
 				logLevel,
 				range: null,

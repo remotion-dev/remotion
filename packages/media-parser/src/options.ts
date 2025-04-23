@@ -244,6 +244,7 @@ type ParseMediaSampleCallbacks = {
 export type ParseMediaMode = 'query' | 'download';
 
 export type ParseMediaSrc = string | Blob | URL;
+export type ParseMediaRange = [number, number] | number | null;
 
 export type OnDiscardedData = (data: Uint8Array) => Promise<void>;
 

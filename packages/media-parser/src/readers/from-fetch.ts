@@ -4,9 +4,11 @@ import type {MediaParserController} from '../controller/media-parser-controller'
 import {MediaParserAbortError} from '../errors';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {ParseMediaRange} from '../options';
 import {getLengthAndReader} from './fetch/get-body-and-reader';
 import {resolveUrl} from './fetch/resolve-url';
 import type {
+	ClearPreloadCache,
 	CreateAdjacentFileSource,
 	PreloadContent,
 	ReadContent,
@@ -89,7 +91,7 @@ const makeFetchRequest = async ({
 	src,
 	controller,
 }: {
-	range: [number, number] | number | null;
+	range: ParseMediaRange;
 	src: string | URL;
 	controller: MediaParserController | null;
 }) => {
@@ -203,7 +205,7 @@ const cacheKey = ({
 	range,
 }: {
 	src: string | URL;
-	range: [number, number] | number | null;
+	range: ParseMediaRange;
 }) => {
 	return `${src}-${JSON.stringify(range)}`;
 };
@@ -214,7 +216,7 @@ const makeFetchRequestOrGetCached = ({
 	controller,
 	logLevel,
 }: {
-	range: [number, number] | number | null;
+	range: ParseMediaRange;
 	src: string | URL;
 	controller: MediaParserController | null;
 	logLevel: LogLevel;
@@ -294,6 +296,20 @@ export const fetchPreload: PreloadContent = ({src, range, logLevel}) => {
 	});
 };
 
+export const fetchClearPreloadCache: ClearPreloadCache = ({
+	src,
+	range,
+	logLevel,
+}) => {
+	if (typeof src !== 'string' && src instanceof URL === false) {
+		throw new Error('src must be a string when using `fetchReader`');
+	}
+
+	const key = cacheKey({src, range});
+	Log.verbose(logLevel, `Clearing preload cache for ${key}`);
+	prefetchCache.delete(key);
+};
+
 export const fetchReadWholeAsText: ReadWholeAsText = async (src) => {
 	if (typeof src !== 'string' && src instanceof URL === false) {
 		throw new Error('src must be a string when using `fetchReader`');
@@ -323,4 +339,5 @@ export const fetchReader: ReaderInterface = {
 	readWholeAsText: fetchReadWholeAsText,
 	createAdjacentFileSource: fetchCreateAdjacentFileSource,
 	preload: fetchPreload,
+	clearPreloadCache: fetchClearPreloadCache,
 };

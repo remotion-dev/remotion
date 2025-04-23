@@ -157,6 +157,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 	state.iterator?.destroy();
 	state.callbacks.tracks.ensureHasTracksAtEnd(state.fields);
 	state.m3u.abortM3UStreamRuns();
+	const requests = state.m3u.getPreloadRequests();
+	for (const request of requests) {
+		readerInterface.clearPreloadCache({...request, logLevel});
+	}
 
 	if (state.errored) {
 		throw state.errored;

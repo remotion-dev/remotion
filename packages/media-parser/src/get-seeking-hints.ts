@@ -113,7 +113,13 @@ export const getSeekingHints = ({
 		});
 	}
 
+	if (structure.type === 'm3u') {
+		return {
+			type: 'm3u8-seeking-hints',
+		};
+	}
+
 	throw new Error(
-		`Seeking is not supported for this format: ${structure.type}`,
+		`Seeking is not supported for this format: ${structure satisfies never}`,
 	);
 };

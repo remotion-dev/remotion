@@ -83,4 +83,7 @@ export const webFileReader: ReaderInterface = {
 	preload: () => {
 		// doing nothing, it's just for when fetching over the network
 	},
+	clearPreloadCache: () => {
+		// doing nothing, it's just for when fetching over the network
+	},
 };
