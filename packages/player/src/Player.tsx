@@ -73,6 +73,7 @@ export type PlayerProps<
 	readonly showPosterWhenEnded?: boolean;
 	readonly showPosterWhenUnplayed?: boolean;
 	readonly showPosterWhenBuffering?: boolean;
+	readonly showPosterWhenBufferingAndPaused?: boolean;
 	readonly inFrame?: number | null;
 	readonly outFrame?: number | null;
 	readonly initiallyShowControls?: number | boolean;
@@ -138,6 +139,7 @@ const PlayerFn = <
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
+		showPosterWhenBufferingAndPaused,
 		initialFrame,
 		renderPoster,
 		inFrame,
@@ -433,6 +435,9 @@ const PlayerFn = <
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
 							showPosterWhenBuffering={Boolean(showPosterWhenBuffering)}
+							showPosterWhenBufferingAndPaused={Boolean(
+								showPosterWhenBufferingAndPaused,
+							)}
 							renderPoster={renderPoster}
 							inFrame={inFrame ?? null}
 							outFrame={outFrame ?? null}

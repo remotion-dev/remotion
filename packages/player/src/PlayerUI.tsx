@@ -76,6 +76,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly showPosterWhenEnded: boolean;
 		readonly showPosterWhenUnplayed: boolean;
 		readonly showPosterWhenBuffering: boolean;
+		readonly showPosterWhenBufferingAndPaused: boolean;
 		readonly inFrame: number | null;
 		readonly outFrame: number | null;
 		readonly initiallyShowControls: number | boolean;
@@ -115,6 +116,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
+		showPosterWhenBufferingAndPaused,
 		inFrame,
 		outFrame,
 		initiallyShowControls,
@@ -612,6 +614,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
 			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
+			showPosterWhenBufferingAndPaused &&
+				showBufferIndicator &&
+				!player.isPlaying(),
 		].some(Boolean);
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;
