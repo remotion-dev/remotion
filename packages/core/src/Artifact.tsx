@@ -31,7 +31,7 @@ export const Artifact: React.FC<{
 				content: btoa(new TextDecoder('utf8').decode(content)),
 				filename,
 				frame,
-				binary: true,
+				contentType: 'binary',
 			});
 		} else {
 			registerRenderAsset({
@@ -40,7 +40,7 @@ export const Artifact: React.FC<{
 				content,
 				filename,
 				frame,
-				binary: false,
+				contentType: 'text',
 			});
 		}
 
