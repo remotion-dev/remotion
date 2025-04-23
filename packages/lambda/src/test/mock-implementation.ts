@@ -16,20 +16,27 @@ import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';
 import {mockUploadDir} from './mocks/upload-dir';
 
-let browsersOpen = 0;
+const browsersOpen: Map<string, boolean> = new Map();
 export const getBrowserInstance: GetBrowserInstance = async ({logLevel}) => {
+	const instance = await openBrowser('chrome');
+	browsersOpen.set(instance.id, true);
 	Log.verbose(
 		{logLevel, indent: false},
-		`Opening new browser instance. ${browsersOpen} browsers open`,
+		`Opening new browser instance. ${browsersOpen.size} browsers open`,
 	);
-	browsersOpen++;
-	return {instance: await openBrowser('chrome'), configurationString: 'chrome'};
+	return {instance, configurationString: 'chrome'};
 };
 
 const paramsArray: InvokeWebhookParams[] = [];
 
 export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
+		browsersOpen.delete(launchedBrowser.instance.id);
+
+		Log.verbose(
+			{logLevel: 'verbose', indent: false},
+			`Closing browser instance ${launchedBrowser.instance.id}. ${browsersOpen.size} browsers open`,
+		);
 		launchedBrowser.instance.close({silent: false});
 	},
 	getCurrentRegionInFunction: () => 'eu-central-1',

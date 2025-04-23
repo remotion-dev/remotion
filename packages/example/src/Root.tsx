@@ -1470,7 +1470,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1000}
 					width={1000}
-					durationInFrames={10}
+					durationInFrames={100}
 				/>
 			</Folder>
 			<Folder name="MediaErrorHandling">

@@ -41,7 +41,8 @@ export type Template = {
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
-		| 'code-hike';
+		| 'code-hike'
+		| 'render-server';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -183,6 +184,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-javascript',
 		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Render Server (Express.js)',
+		shortName: 'Render Server',
+		org: 'remotion-dev',
+		repoName: 'template-render-server',
+		description: 'An Express.js server for rendering videos with Remotion',
+		longerDescription:
+			'A template that provides an Express.js server starting, tracking, and canceling Remotion renders.',
+		promoVideo: {
+			muxId: 'JhsWde00fJ6L00SUrIwOZv2XOl7j00DgT5kED01FVVOUJTU',
+			width: 1920,
+			height: 1080,
+		},
+		cliId: 'render-server' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-render-server',
+		allowEnableTailwind: false,
 	},
 	{
 		homePageLabel: 'React Router 7',
