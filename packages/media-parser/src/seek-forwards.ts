@@ -66,6 +66,7 @@ export const seekForward = async ({
 		src,
 		range: seekTo,
 		controller,
+		logLevel,
 	});
 	iterator.skipTo(seekTo);
 	await discardReadBytes(true);

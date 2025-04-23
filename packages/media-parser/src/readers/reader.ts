@@ -1,4 +1,5 @@
 import type {MediaParserController} from '../controller/media-parser-controller';
+import type {LogLevel} from '../log';
 import type {ParseMediaSrc} from '../options';
 
 export type Reader = {
@@ -18,9 +19,16 @@ export type ReadContent = (options: {
 	src: ParseMediaSrc;
 	range: [number, number] | number | null;
 	controller: MediaParserController;
+	logLevel: LogLevel;
 }) => Promise<ReadResult>;
 
 export type ReadWholeAsText = (src: ParseMediaSrc) => Promise<string>;
+
+export type PreloadContent = (options: {
+	src: ParseMediaSrc;
+	range: [number, number] | number | null;
+	logLevel: LogLevel;
+}) => void;
 
 export type CreateAdjacentFileSource = (
 	relativePath: string,
@@ -31,4 +39,5 @@ export type ReaderInterface = {
 	read: ReadContent;
 	readWholeAsText: ReadWholeAsText;
 	createAdjacentFileSource: CreateAdjacentFileSource;
+	preload: PreloadContent;
 };

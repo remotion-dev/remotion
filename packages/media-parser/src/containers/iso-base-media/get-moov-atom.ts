@@ -35,6 +35,7 @@ export const getMoovAtom = async ({
 		src: state.src,
 		range: endOfMdat,
 		controller: state.controller,
+		logLevel: state.logLevel,
 	});
 
 	const onAudioTrack: OnAudioTrack | null = state.onAudioTrack

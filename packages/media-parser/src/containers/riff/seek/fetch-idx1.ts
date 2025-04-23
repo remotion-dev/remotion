@@ -29,6 +29,7 @@ export const fetchIdx1 = async ({
 		controller,
 		range: position,
 		src,
+		logLevel,
 	});
 
 	const iterator = getArrayBufferIterator(new Uint8Array(), Infinity);

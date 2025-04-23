@@ -1,10 +1,14 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-eq-null */
+import type {MediaParserController} from '../controller/media-parser-controller';
 import {MediaParserAbortError} from '../errors';
+import type {LogLevel} from '../log';
+import {Log} from '../log';
 import {getLengthAndReader} from './fetch/get-body-and-reader';
 import {resolveUrl} from './fetch/resolve-url';
 import type {
 	CreateAdjacentFileSource,
+	PreloadContent,
 	ReadContent,
 	ReaderInterface,
 	ReadWholeAsText,
@@ -37,6 +41,8 @@ export function parseContentRange(input: string): ParsedContentRange | null {
 
 	return range;
 }
+
+const prefetchCache = new Map<string, ReturnType<typeof makeFetchRequest>>();
 
 const validateContentRangeAndDetectIfSupported = ({
 	requestedRange,
@@ -78,15 +84,15 @@ const validateContentRangeAndDetectIfSupported = ({
 	return {supportsContentRange: true};
 };
 
-export const fetchReadContent: ReadContent = async ({
-	src,
+const makeFetchRequest = async ({
 	range,
+	src,
 	controller,
+}: {
+	range: [number, number] | number | null;
+	src: string | URL;
+	controller: MediaParserController | null;
 }) => {
-	if (typeof src !== 'string' && src instanceof URL === false) {
-		throw new Error('src must be a string when using `fetchReader`');
-	}
-
 	const resolvedUrl = resolveUrl(src);
 
 	const resolvedUrlString = resolvedUrl.toString();
@@ -152,26 +158,27 @@ export const fetchReadContent: ReadContent = async ({
 		statusCode: res.status,
 	});
 
-	controller._internals.signal.addEventListener(
-		'abort',
-		() => {
-			ownController.abort(new MediaParserAbortError('Aborted by user'));
-		},
-		{once: true},
-	);
+	if (controller) {
+		controller._internals.signal.addEventListener(
+			'abort',
+			() => {
+				ownController.abort(new MediaParserAbortError('Aborted by user'));
+			},
+			{once: true},
+		);
+	}
 
 	if (
 		res.status.toString().startsWith('4') ||
 		res.status.toString().startsWith('5')
 	) {
 		throw new Error(
-			`Server returned status code ${res.status} for ${src} and range ${requestedRange}`,
+			`Server returned status code ${res.status} for ${resolvedUrl} and range ${requestedRange}`,
 		);
 	}
 
 	const contentDisposition = res.headers.get('content-disposition');
 	const name = contentDisposition?.match(/filename="([^"]+)"/)?.[1];
-	const fallbackName = src.toString().split('/').pop() as string;
 
 	const {contentLength, needsContentRange, reader} = await getLengthAndReader({
 		canLiveWithoutContentLength,
@@ -179,6 +186,72 @@ export const fetchReadContent: ReadContent = async ({
 		ownController,
 		requestedWithoutRange: requestWithoutRange,
 	});
+	const contentType = res.headers.get('content-type');
+
+	return {
+		contentLength,
+		needsContentRange,
+		reader,
+		name,
+		contentType,
+		supportsContentRange,
+	};
+};
+
+const cacheKey = ({
+	src,
+	range,
+}: {
+	src: string | URL;
+	range: [number, number] | number | null;
+}) => {
+	return `${src}-${JSON.stringify(range)}`;
+};
+
+const makeFetchRequestOrGetCached = ({
+	range,
+	src,
+	controller,
+	logLevel,
+}: {
+	range: [number, number] | number | null;
+	src: string | URL;
+	controller: MediaParserController | null;
+	logLevel: LogLevel;
+}) => {
+	const key = cacheKey({src, range});
+	const cached = prefetchCache.get(key);
+	if (cached) {
+		Log.verbose(logLevel, `Reading from preload cache for ${key}`);
+		return cached;
+	}
+
+	Log.verbose(logLevel, `Preloading ${key}`);
+	const result = makeFetchRequest({range, src, controller});
+	prefetchCache.set(key, result);
+	return result;
+};
+
+export const fetchReadContent: ReadContent = async ({
+	src,
+	range,
+	controller,
+	logLevel,
+}) => {
+	if (typeof src !== 'string' && src instanceof URL === false) {
+		throw new Error('src must be a string when using `fetchReader`');
+	}
+
+	const fallbackName = src.toString().split('/').pop() as string;
+
+	const {
+		reader,
+		contentLength,
+		needsContentRange,
+		name,
+		supportsContentRange,
+		contentType,
+	} = await makeFetchRequestOrGetCached({range, src, controller, logLevel});
 
 	if (controller) {
 		controller._internals.signal.addEventListener(
@@ -195,11 +268,30 @@ export const fetchReadContent: ReadContent = async ({
 	return {
 		reader,
 		contentLength,
-		contentType: res.headers.get('content-type'),
+		contentType,
 		name: name ?? fallbackName,
 		supportsContentRange,
 		needsContentRange,
 	};
+};
+
+export const fetchPreload: PreloadContent = ({src, range, logLevel}) => {
+	if (typeof src !== 'string' && src instanceof URL === false) {
+		throw new Error('src must be a string when using `fetchReader`');
+	}
+
+	const key = cacheKey({src, range});
+
+	if (prefetchCache.has(key)) {
+		return prefetchCache.get(key);
+	}
+
+	makeFetchRequestOrGetCached({
+		range,
+		src,
+		controller: null,
+		logLevel,
+	});
 };
 
 export const fetchReadWholeAsText: ReadWholeAsText = async (src) => {
@@ -230,4 +322,5 @@ export const fetchReader: ReaderInterface = {
 	read: fetchReadContent,
 	readWholeAsText: fetchReadWholeAsText,
 	createAdjacentFileSource: fetchCreateAdjacentFileSource,
+	preload: fetchPreload,
 };

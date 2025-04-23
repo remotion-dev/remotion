@@ -42,6 +42,7 @@ export const seekBackwards = async ({
 		src,
 		range: seekTo,
 		controller,
+		logLevel,
 	});
 
 	iterator.replaceData(new Uint8Array([]), seekTo);

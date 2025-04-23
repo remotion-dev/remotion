@@ -27,6 +27,7 @@ export const getMfraSeekingBox = async ({
 		controller,
 		readerInterface,
 		src,
+		logLevel,
 	});
 	if (!parentSize) {
 		return null;
@@ -38,6 +39,7 @@ export const getMfraSeekingBox = async ({
 		readerInterface,
 		src,
 		parentSize,
+		logLevel,
 	});
 
 	mfraAtom.discard(8);

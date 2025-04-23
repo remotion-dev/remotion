@@ -1,5 +1,6 @@
 import {
 	fetchCreateAdjacentFileSource,
+	fetchPreload,
 	fetchReadContent,
 	fetchReadWholeAsText,
 } from './from-fetch';
@@ -57,5 +58,17 @@ export const universalReader: ReaderInterface = {
 		}
 
 		return nodeCreateAdjacentFileSource(relativePath, src);
+	},
+	preload: ({src, range, logLevel}) => {
+		if (src instanceof Blob) {
+			return;
+		}
+
+		if (
+			src.toString().startsWith('http') ||
+			src.toString().startsWith('blob:')
+		) {
+			return fetchPreload({range, src, logLevel});
+		}
 	},
 };

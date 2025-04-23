@@ -58,7 +58,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentType,
 		supportsContentRange,
 		needsContentRange,
-	} = await readerInterface.read({src, range: null, controller});
+	} = await readerInterface.read({src, range: null, controller, logLevel});
 
 	if (contentLength === null) {
 		throw new Error(

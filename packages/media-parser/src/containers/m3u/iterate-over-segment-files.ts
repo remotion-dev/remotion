@@ -51,6 +51,19 @@ export const iteratorOverSegmentFiles = async ({
 			parentController,
 		});
 
+		const nextChunk = chunks[chunks.indexOf(chunk) + 1];
+		if (nextChunk) {
+			const nextChunkSource = readerInterface.createAdjacentFileSource(
+				nextChunk.url,
+				playlistUrl,
+			);
+			readerInterface.preload({
+				logLevel,
+				range: null,
+				src: nextChunkSource,
+			});
+		}
+
 		const makeContinuationFn = (): ExistingM3uRun => {
 			return {
 				continue() {

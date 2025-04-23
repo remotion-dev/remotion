@@ -25,6 +25,7 @@ export const fetchWebmCues = async ({
 		controller,
 		range: position,
 		src,
+		logLevel,
 	});
 	const {value} = await result.reader.reader.read();
 	if (!value) {

@@ -80,4 +80,7 @@ export const webFileReader: ReaderInterface = {
 	read: webFileReadContent,
 	readWholeAsText: webFileReadWholeAsText,
 	createAdjacentFileSource: webFileCreateAdjacentFileSource,
+	preload: () => {
+		// doing nothing, it's just for when fetching over the network
+	},
 };
