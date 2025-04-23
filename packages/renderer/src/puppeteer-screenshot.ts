@@ -12,7 +12,7 @@ export const screenshot = (options: {
 	width: number;
 	height: number;
 	scale: number;
-}): Promise<Buffer | string> => {
+}): Promise<Buffer> => {
 	if (options.jpegQuality) {
 		assert.ok(
 			typeof options.jpegQuality === 'number',

@@ -133,14 +133,25 @@ export type AudioOrVideoAsset = {
 	audioStartFrame: number;
 };
 
+type DiscriminatedArtifact =
+	| {
+			contentType: 'binary';
+			content: string;
+	  }
+	| {
+			contentType: 'text';
+			content: string;
+	  }
+	| {
+			contentType: 'thumbnail';
+	  };
+
 export type ArtifactAsset = {
 	type: 'artifact';
 	id: string;
 	filename: string;
-	content: string | Uint8Array;
 	frame: number;
-	binary: boolean;
-};
+} & DiscriminatedArtifact;
 
 export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
 
