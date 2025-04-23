@@ -81,6 +81,7 @@ export class HeadlessBrowser extends EventEmitter {
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
+	id: string;
 
 	runner: BrowserRunner;
 
@@ -100,6 +101,8 @@ export class HeadlessBrowser extends EventEmitter {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.connection = connection;
+
+		this.id = crypto.randomUUID();
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
