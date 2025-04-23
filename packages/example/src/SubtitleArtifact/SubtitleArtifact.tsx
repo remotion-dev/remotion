@@ -13,5 +13,7 @@ export const SubtitleArtifact: React.FC = () => {
 		/>
 	) : frame === 1 ? (
 		<Artifact content="Hello World" filename="hello.txt" />
+	) : frame === 2 ? (
+		<Artifact content={Artifact.Thumbnail} filename="thumbnail.png" />
 	) : null;
 };

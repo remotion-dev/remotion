@@ -44,8 +44,7 @@ export const collectAssets = async ({
 		}
 
 		if (asset.contentType === 'thumbnail') {
-			// TODO: handle thumbnail
-			throw new Error('handle this');
+			return asset;
 		}
 
 		return asset satisfies never;

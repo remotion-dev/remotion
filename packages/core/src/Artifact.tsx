@@ -4,10 +4,14 @@ import {RenderAssetManager} from './RenderAssetManager';
 import {getRemotionEnvironment} from './get-remotion-environment';
 import {useCurrentFrame} from './use-current-frame';
 
+const ArtifactThumbnail = Symbol('Thumbnail');
+
 export const Artifact: React.FC<{
 	readonly filename: string;
-	readonly content: string | Uint8Array;
-}> = ({filename, content}) => {
+	readonly content: string | Uint8Array | typeof ArtifactThumbnail;
+}> & {
+	Thumbnail: typeof ArtifactThumbnail;
+} = ({filename, content}) => {
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
 
@@ -32,6 +36,14 @@ export const Artifact: React.FC<{
 				filename,
 				frame,
 				contentType: 'binary',
+			});
+		} else if (content === ArtifactThumbnail) {
+			registerRenderAsset({
+				type: 'artifact',
+				id,
+				filename,
+				frame,
+				contentType: 'thumbnail',
 			});
 		} else {
 			registerRenderAsset({
@@ -59,3 +71,5 @@ export const Artifact: React.FC<{
 
 	return null;
 };
+
+Artifact.Thumbnail = ArtifactThumbnail;

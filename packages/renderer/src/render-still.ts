@@ -325,7 +325,10 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	const artifactAssets = onlyArtifact(collectedAssets);
+	const artifactAssets = onlyArtifact({
+		assets: collectedAssets,
+		frameBuffer: buffer,
+	});
 	const previousArtifactAssets = [];
 
 	for (const artifact of artifactAssets) {

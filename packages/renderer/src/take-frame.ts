@@ -75,9 +75,5 @@ export const takeFrame = async ({
 		scale,
 	});
 
-	if (wantsBuffer) {
-		return {buffer: buf, collectedAssets};
-	}
-
-	return {buffer: null, collectedAssets};
+	return {buffer: buf, collectedAssets};
 };
