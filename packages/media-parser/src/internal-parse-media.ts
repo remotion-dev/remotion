@@ -1,5 +1,6 @@
 import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
+import type {makeFetchRequest} from './fetch';
 import type {Options, ParseMediaFields} from './fields';
 import {getSeekingHints} from './get-seeking-hints';
 import {Log} from './log';
@@ -51,6 +52,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src instanceof File ? src.name : src.toString()}`,
 	);
 
+	const prefetchCache = new Map<string, ReturnType<typeof makeFetchRequest>>();
+
 	const {
 		reader: readerInstance,
 		contentLength,
@@ -58,7 +61,13 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentType,
 		supportsContentRange,
 		needsContentRange,
-	} = await readerInterface.read({src, range: null, controller, logLevel});
+	} = await readerInterface.read({
+		src,
+		range: null,
+		controller,
+		logLevel,
+		prefetchCache,
+	});
 
 	if (contentLength === null) {
 		throw new Error(
@@ -97,6 +106,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		mimeType: contentType,
 		initialReaderInstance: readerInstance,
 		makeSamplesStartAtZero,
+		prefetchCache,
 	});
 
 	if (seekingHints) {
@@ -157,10 +167,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	state.iterator?.destroy();
 	state.callbacks.tracks.ensureHasTracksAtEnd(state.fields);
 	state.m3u.abortM3UStreamRuns();
-	const requests = state.m3u.getPreloadRequests();
-	for (const request of requests) {
-		readerInterface.clearPreloadCache({...request, logLevel});
-	}
+	prefetchCache.clear();
 
 	if (state.errored) {
 		throw state.errored;

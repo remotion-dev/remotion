@@ -4,6 +4,7 @@ import type {
 	SelectM3uStreamFn,
 } from '../containers/m3u/select-stream';
 import type {MediaParserController} from '../controller/media-parser-controller';
+import type {PrefetchCache} from '../fetch';
 import type {Options, ParseMediaFields} from '../fields';
 import {getFieldsFromCallback} from '../get-fields-from-callbacks';
 import {
@@ -72,6 +73,7 @@ export const makeParserState = ({
 	mimeType,
 	initialReaderInstance,
 	makeSamplesStartAtZero,
+	prefetchCache,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -94,6 +96,7 @@ export const makeParserState = ({
 	mimeType: string | null;
 	initialReaderInstance: Reader;
 	makeSamplesStartAtZero: boolean;
+	prefetchCache: PrefetchCache;
 }) => {
 	let skippedBytes: number = 0;
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
@@ -136,15 +139,28 @@ export const makeParserState = ({
 	});
 
 	return {
-		riff: riffSpecificState({controller, logLevel, readerInterface, src}),
+		riff: riffSpecificState({
+			controller,
+			logLevel,
+			readerInterface,
+			src,
+			prefetchCache,
+		}),
 		transportStream: transportStreamState(),
-		webm: webmState({controller, logLevel, readerInterface, src}),
+		webm: webmState({
+			controller,
+			logLevel,
+			readerInterface,
+			src,
+			prefetchCache,
+		}),
 		iso: isoBaseMediaState({
 			contentLength,
 			controller,
 			readerInterface,
 			src,
 			logLevel,
+			prefetchCache,
 		}),
 		mp3,
 		aac: aacState(),
@@ -200,6 +216,7 @@ export const makeParserState = ({
 		currentReader: currentReaderState,
 		seekInfiniteLoop,
 		makeSamplesStartAtZero,
+		prefetchCache,
 	};
 };
 

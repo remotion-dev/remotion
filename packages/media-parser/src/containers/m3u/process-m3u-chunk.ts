@@ -108,6 +108,7 @@ export const processM3uChunk = ({
 		m3uState: state.m3u,
 		parentController: state.controller,
 		readerInterface: state.readerInterface,
+		prefetchCache: state.prefetchCache,
 	});
 
 	run.catch((err) => {

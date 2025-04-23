@@ -5,7 +5,6 @@ import type {
 import {sampleSorter} from '../containers/m3u/sample-sorter';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
-import type {ParseMediaRange, ParseMediaSrc} from '../options';
 import type {IsoBaseMediaStructure} from '../parse-result';
 import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
 
@@ -22,11 +21,6 @@ export type M3uStreamOrInitialUrl =
 export type ExistingM3uRun = {
 	continue: () => Promise<ExistingM3uRun | null>;
 	abort: () => void;
-};
-
-type PreloadRequest = {
-	src: ParseMediaSrc;
-	range: ParseMediaRange;
 };
 
 export const m3uState = (logLevel: LogLevel) => {
@@ -77,8 +71,6 @@ export const m3uState = (logLevel: LogLevel) => {
 	const getMp4HeaderSegment = (playlistUrl: string) => {
 		return mp4HeaderSegments[playlistUrl];
 	};
-
-	const preloadRequests: PreloadRequest[] = [];
 
 	return {
 		setSelectedMainPlaylist: (stream: M3uStreamOrInitialUrl) => {
@@ -169,10 +161,6 @@ export const m3uState = (logLevel: LogLevel) => {
 		sampleSorter: sampleSorter({logLevel, getAllChunksProcessedForPlaylist}),
 		setMp4HeaderSegment,
 		getMp4HeaderSegment,
-		trackPreloadRequest: (request: PreloadRequest) => {
-			preloadRequests.push(request);
-		},
-		getPreloadRequests: () => preloadRequests,
 	};
 };
 

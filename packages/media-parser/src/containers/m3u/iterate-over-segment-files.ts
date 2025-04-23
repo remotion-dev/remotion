@@ -1,5 +1,6 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import {mediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import type {LogLevel} from '../../log';
@@ -23,6 +24,7 @@ export const iteratorOverSegmentFiles = async ({
 	parentController,
 	onInitialProgress,
 	readerInterface,
+	prefetchCache,
 }: {
 	structure: M3uStructure;
 	onVideoTrack: null | ((track: VideoTrack) => Promise<OnVideoSample | null>);
@@ -34,6 +36,7 @@ export const iteratorOverSegmentFiles = async ({
 	parentController: MediaParserController;
 	onInitialProgress: (run: ExistingM3uRun | null) => void;
 	readerInterface: ReaderInterface;
+	prefetchCache: PrefetchCache;
 }) => {
 	const playlist = getPlaylist(structure, playlistUrl);
 	const chunks = getChunks(playlist);
@@ -57,14 +60,11 @@ export const iteratorOverSegmentFiles = async ({
 				nextChunk.url,
 				playlistUrl,
 			);
-			m3uState.trackPreloadRequest({
-				src: nextChunkSource,
-				range: null,
-			});
 			readerInterface.preload({
 				logLevel,
 				range: null,
 				src: nextChunkSource,
+				prefetchCache,
 			});
 		}
 

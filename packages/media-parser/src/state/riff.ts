@@ -1,4 +1,5 @@
 import type {MediaParserController} from '../controller/media-parser-controller';
+import type {PrefetchCache} from '../fetch';
 import type {LogLevel} from '../log';
 import type {ParseMediaSrc} from '../options';
 import type {ReaderInterface} from '../readers/reader';
@@ -13,11 +14,13 @@ export const riffSpecificState = ({
 	logLevel,
 	readerInterface,
 	src,
+	prefetchCache,
 }: {
 	controller: MediaParserController;
 	logLevel: LogLevel;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
+	prefetchCache: PrefetchCache;
 }) => {
 	let avcProfile: SpsAndPps | null = null;
 	let nextTrackIndex = 0;
@@ -42,6 +45,7 @@ export const riffSpecificState = ({
 		logLevel,
 		readerInterface,
 		src,
+		prefetchCache,
 	});
 
 	const sampleCounter = riffSampleCounter();

@@ -1,5 +1,6 @@
 import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
+import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte} from './get-seeking-byte';
 import {getSeekingHints} from './get-seeking-hints';
@@ -156,6 +157,7 @@ export type WorkOnSeekRequestOptions = {
 	riffState: RiffState;
 	mp3State: Mp3State;
 	aacState: AacState;
+	prefetchCache: PrefetchCache;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -186,6 +188,7 @@ export const getWorkOnSeekRequestOptions = (
 		riffState: state.riff,
 		mp3State: state.mp3,
 		aacState: state.aac,
+		prefetchCache: state.prefetchCache,
 	};
 };
 
@@ -215,6 +218,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		riffState,
 		mp3State,
 		aacState,
+		prefetchCache,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -259,6 +263,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			src,
 			discardReadBytes,
 			fields,
+			prefetchCache,
 		});
 		return;
 	}
@@ -279,6 +284,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			src,
 			discardReadBytes,
 			fields,
+			prefetchCache,
 		});
 		const {hasChanged} =
 			controller._internals.seekSignal.clearSeekIfStillSame(seek);

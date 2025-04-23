@@ -2,6 +2,7 @@ import type {FetchIdx1Result} from '../../containers/riff/seek/fetch-idx1';
 import {fetchIdx1} from '../../containers/riff/seek/fetch-idx1';
 import type {RiffSeekingHints} from '../../containers/riff/seeking-hints';
 import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import type {LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
@@ -11,11 +12,13 @@ export const lazyIdx1Fetch = ({
 	logLevel,
 	readerInterface,
 	src,
+	prefetchCache,
 }: {
 	controller: MediaParserController;
 	logLevel: LogLevel;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
+	prefetchCache: PrefetchCache;
 }) => {
 	let prom: Promise<FetchIdx1Result> | null = null;
 	let result: FetchIdx1Result | null = null;
@@ -35,6 +38,7 @@ export const lazyIdx1Fetch = ({
 			position,
 			readerInterface,
 			src,
+			prefetchCache,
 		}).then((entries) => {
 			prom = null;
 			result = entries;

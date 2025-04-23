@@ -1,4 +1,5 @@
 import type {MediaParserController} from '../../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
 import type {LogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
@@ -14,18 +15,21 @@ export const fetchWebmCues = async ({
 	controller,
 	position,
 	logLevel,
+	prefetchCache,
 }: {
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;
 	controller: MediaParserController;
 	position: number;
 	logLevel: LogLevel;
+	prefetchCache: PrefetchCache;
 }): Promise<MatroskaCue[] | null> => {
 	const result = await readerInterface.read({
 		controller,
 		range: position,
 		src,
 		logLevel,
+		prefetchCache,
 	});
 	const {value} = await result.reader.reader.read();
 	if (!value) {

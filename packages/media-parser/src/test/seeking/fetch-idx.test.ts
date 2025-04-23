@@ -11,6 +11,7 @@ test('fetch-idx', async () => {
 		position: 0xac246,
 		readerInterface: nodeReader,
 		logLevel: 'info',
+		prefetchCache: new Map(),
 	});
 
 	expect(result).toEqual({

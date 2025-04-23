@@ -8,7 +8,6 @@ import type {ParseMediaRange} from '../options';
 import {getLengthAndReader} from './fetch/get-body-and-reader';
 import {resolveUrl} from './fetch/resolve-url';
 import type {
-	ClearPreloadCache,
 	CreateAdjacentFileSource,
 	PreloadContent,
 	ReadContent,
@@ -43,8 +42,6 @@ export function parseContentRange(input: string): ParsedContentRange | null {
 
 	return range;
 }
-
-const prefetchCache = new Map<string, ReturnType<typeof makeFetchRequest>>();
 
 const validateContentRangeAndDetectIfSupported = ({
 	requestedRange,
@@ -86,7 +83,7 @@ const validateContentRangeAndDetectIfSupported = ({
 	return {supportsContentRange: true};
 };
 
-const makeFetchRequest = async ({
+export const makeFetchRequest = async ({
 	range,
 	src,
 	controller,
@@ -210,16 +207,20 @@ const cacheKey = ({
 	return `${src}-${JSON.stringify(range)}`;
 };
 
+export type PrefetchCache = Map<string, ReturnType<typeof makeFetchRequest>>;
+
 const makeFetchRequestOrGetCached = ({
 	range,
 	src,
 	controller,
 	logLevel,
+	prefetchCache,
 }: {
 	range: ParseMediaRange;
 	src: string | URL;
 	controller: MediaParserController | null;
 	logLevel: LogLevel;
+	prefetchCache: PrefetchCache;
 }) => {
 	const key = cacheKey({src, range});
 	const cached = prefetchCache.get(key);
@@ -239,6 +240,7 @@ export const fetchReadContent: ReadContent = async ({
 	range,
 	controller,
 	logLevel,
+	prefetchCache,
 }) => {
 	if (typeof src !== 'string' && src instanceof URL === false) {
 		throw new Error('src must be a string when using `fetchReader`');
@@ -253,7 +255,16 @@ export const fetchReadContent: ReadContent = async ({
 		name,
 		supportsContentRange,
 		contentType,
-	} = await makeFetchRequestOrGetCached({range, src, controller, logLevel});
+	} = await makeFetchRequestOrGetCached({
+		range,
+		src,
+		controller,
+		logLevel,
+		prefetchCache,
+	});
+
+	const key = cacheKey({src, range});
+	prefetchCache.delete(key);
 
 	if (controller) {
 		controller._internals.signal.addEventListener(
@@ -277,7 +288,12 @@ export const fetchReadContent: ReadContent = async ({
 	};
 };
 
-export const fetchPreload: PreloadContent = ({src, range, logLevel}) => {
+export const fetchPreload: PreloadContent = ({
+	src,
+	range,
+	logLevel,
+	prefetchCache,
+}) => {
 	if (typeof src !== 'string' && src instanceof URL === false) {
 		throw new Error('src must be a string when using `fetchReader`');
 	}
@@ -293,21 +309,8 @@ export const fetchPreload: PreloadContent = ({src, range, logLevel}) => {
 		src,
 		controller: null,
 		logLevel,
+		prefetchCache,
 	});
-};
-
-export const fetchClearPreloadCache: ClearPreloadCache = ({
-	src,
-	range,
-	logLevel,
-}) => {
-	if (typeof src !== 'string' && src instanceof URL === false) {
-		throw new Error('src must be a string when using `fetchReader`');
-	}
-
-	const key = cacheKey({src, range});
-	Log.verbose(logLevel, `Clearing preload cache for ${key}`);
-	prefetchCache.delete(key);
 };
 
 export const fetchReadWholeAsText: ReadWholeAsText = async (src) => {
@@ -339,5 +342,4 @@ export const fetchReader: ReaderInterface = {
 	readWholeAsText: fetchReadWholeAsText,
 	createAdjacentFileSource: fetchCreateAdjacentFileSource,
 	preload: fetchPreload,
-	clearPreloadCache: fetchClearPreloadCache,
 };

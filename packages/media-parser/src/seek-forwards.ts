@@ -1,5 +1,6 @@
 import type {MediaParserController} from './controller/media-parser-controller';
 import {disallowForwardSeekIfSamplesAreNeeded} from './disallow-forward-seek-if-samples-are-needed';
+import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
@@ -19,6 +20,7 @@ export const seekForward = async ({
 	src,
 	controller,
 	discardReadBytes,
+	prefetchCache,
 }: {
 	seekTo: number;
 	userInitiated: boolean;
@@ -30,6 +32,7 @@ export const seekForward = async ({
 	src: ParseMediaSrc;
 	controller: MediaParserController;
 	discardReadBytes: (force: boolean) => Promise<void>;
+	prefetchCache: PrefetchCache;
 }): Promise<void> => {
 	if (userInitiated) {
 		disallowForwardSeekIfSamplesAreNeeded({
@@ -67,6 +70,7 @@ export const seekForward = async ({
 		range: seekTo,
 		controller,
 		logLevel,
+		prefetchCache,
 	});
 	iterator.skipTo(seekTo);
 	await discardReadBytes(true);

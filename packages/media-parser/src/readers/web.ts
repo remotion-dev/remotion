@@ -1,5 +1,4 @@
 import {
-	fetchClearPreloadCache,
 	fetchCreateAdjacentFileSource,
 	fetchPreload,
 	fetchReadContent,
@@ -34,18 +33,11 @@ export const webReader: ReaderInterface = {
 
 		return fetchReadWholeAsText(src);
 	},
-	preload: ({range, src, logLevel}) => {
+	preload: ({range, src, logLevel, prefetchCache}) => {
 		if (src instanceof Blob) {
 			return;
 		}
 
-		return fetchPreload({range, src, logLevel});
-	},
-	clearPreloadCache: ({src, range, logLevel}) => {
-		if (src instanceof Blob) {
-			return;
-		}
-
-		return fetchClearPreloadCache({src, range, logLevel});
+		return fetchPreload({range, src, logLevel, prefetchCache});
 	},
 };
