@@ -56,5 +56,10 @@ export const setSeekingHints = ({
 		return;
 	}
 
+	if (hints.type === 'm3u8-seeking-hints') {
+		// TODO: Implement
+		return;
+	}
+
 	throw new Error(`Unknown seeking hints type: ${hints satisfies never}`);
 };

@@ -14,6 +14,7 @@ test('get webm cues', async () => {
 		controller: mediaParserController(),
 		readerInterface: nodeReader,
 		logLevel: 'info',
+		prefetchCache: new Map(),
 	});
 
 	expect(cues).toEqual([

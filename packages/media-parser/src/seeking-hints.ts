@@ -42,6 +42,10 @@ export type WebmSeekingHints = {
 	timestampMap: Map<number, number>;
 };
 
+export type M3u8SeekingHints = {
+	type: 'm3u8-seeking-hints';
+};
+
 export type SeekingHints =
 	| IsoBaseMediaSeekingHints
 	| WavSeekingHints
@@ -50,4 +54,5 @@ export type SeekingHints =
 	| FlacSeekingHints
 	| RiffSeekingHints
 	| Mp3SeekingHints
-	| AacSeekingHints;
+	| AacSeekingHints
+	| M3u8SeekingHints;

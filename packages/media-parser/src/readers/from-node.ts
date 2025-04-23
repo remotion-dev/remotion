@@ -96,4 +96,7 @@ export const nodeReader: ReaderInterface = {
 	read: nodeReadContent,
 	readWholeAsText: nodeReadWholeAsText,
 	createAdjacentFileSource: nodeCreateAdjacentFileSource,
+	preload: () => {
+		// doing nothing, it's just for when fetching over the network
+	},
 };

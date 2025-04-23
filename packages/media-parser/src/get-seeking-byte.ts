@@ -130,5 +130,11 @@ export const getSeekingByte = ({
 		);
 	}
 
+	if (info.type === 'm3u8-seeking-hints') {
+		return Promise.resolve({
+			type: 'invalid',
+		});
+	}
+
 	throw new Error(`Unknown seeking info type: ${info satisfies never}`);
 };

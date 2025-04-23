@@ -1,4 +1,5 @@
 import type {MediaParserController} from '../../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
 import {Log, type LogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
@@ -11,12 +12,14 @@ export const fetchIdx1 = async ({
 	controller,
 	position,
 	logLevel,
+	prefetchCache,
 }: {
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;
 	controller: MediaParserController;
 	position: number;
 	logLevel: LogLevel;
+	prefetchCache: PrefetchCache;
 }) => {
 	Log.verbose(
 		logLevel,
@@ -29,6 +32,8 @@ export const fetchIdx1 = async ({
 		controller,
 		range: position,
 		src,
+		logLevel,
+		prefetchCache,
 	});
 
 	const iterator = getArrayBufferIterator(new Uint8Array(), Infinity);

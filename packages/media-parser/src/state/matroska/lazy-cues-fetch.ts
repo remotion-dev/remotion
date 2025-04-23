@@ -1,6 +1,7 @@
 import {fetchWebmCues} from '../../containers/webm/seek/fetch-web-cues';
 import type {MatroskaCue} from '../../containers/webm/seek/format-cues';
 import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ParseMediaSrc} from '../../options';
@@ -12,11 +13,13 @@ export const lazyCuesFetch = ({
 	logLevel,
 	readerInterface,
 	src,
+	prefetchCache,
 }: {
 	controller: MediaParserController;
 	logLevel: LogLevel;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
+	prefetchCache: PrefetchCache;
 }) => {
 	let prom: Promise<MatroskaCue[] | null> | null = null;
 	let sOffset: number | null = null;
@@ -46,6 +49,7 @@ export const lazyCuesFetch = ({
 			position,
 			readerInterface,
 			src,
+			prefetchCache,
 		}).then((cues) => {
 			Log.verbose(logLevel, 'Cues loaded');
 			result = cues;
