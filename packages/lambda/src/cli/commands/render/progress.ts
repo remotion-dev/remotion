@@ -219,7 +219,7 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
 						url: artifact.s3Url,
-						fallback: artifact.filename,
+						fallback: artifact.s3Key,
 						text: artifact.s3Key,
 					}),
 				),
