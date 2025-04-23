@@ -21,7 +21,7 @@ test(
 			frameRange: [0, 9],
 			imageFormat: 'png',
 			framesPerLambda: 5,
-			logLevel: 'error',
+			logLevel: 'verbose',
 			region: 'eu-central-1',
 			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
