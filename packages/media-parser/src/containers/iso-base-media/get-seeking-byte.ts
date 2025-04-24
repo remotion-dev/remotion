@@ -59,7 +59,6 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	}
 
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
-	const firstAudioTrack = allTracks.find((t) => t.type === 'audio');
 
 	if (!firstVideoTrack) {
 		throw new Error('No video track found');

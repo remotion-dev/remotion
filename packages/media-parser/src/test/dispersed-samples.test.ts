@@ -14571,52 +14571,20 @@ test('calculate jump marks', () => {
 			jumpToOffset: 118034714,
 		},
 		{
-			afterSampleWithOffset: 118163187,
+			afterSampleWithOffset: 118290414,
 			jumpToOffset: 27718418,
 		},
 		{
-			afterSampleWithOffset: 55012227,
-			jumpToOffset: 118163540,
+			afterSampleWithOffset: 82288651,
+			jumpToOffset: 118290729,
 		},
 		{
-			afterSampleWithOffset: 118291103,
-			jumpToOffset: 55063301,
-		},
-		{
-			afterSampleWithOffset: 82387606,
-			jumpToOffset: 118291429,
-		},
-		{
-			afterSampleWithOffset: 118419335,
-			jumpToOffset: 82430246,
-		},
-		{
-			afterSampleWithOffset: 109666699,
-			jumpToOffset: 118419702,
-		},
-		{
-			afterSampleWithOffset: 118547164,
-			jumpToOffset: 109712569,
+			afterSampleWithOffset: 118545681,
+			jumpToOffset: 82313219,
 		},
 		{
 			afterSampleWithOffset: 117978962,
-			jumpToOffset: 118547529,
-		},
-		{
-			afterSampleWithOffset: 118585953,
-			jumpToOffset: 118589626,
-		},
-		{
-			afterSampleWithOffset: 120989117,
-			jumpToOffset: 118586320,
-		},
-		{
-			afterSampleWithOffset: 120989117,
-			jumpToOffset: 118586320,
-		},
-		{
-			afterSampleWithOffset: 118589301,
-			jumpToOffset: 120989485,
+			jumpToOffset: 118546040,
 		},
 	]);
 });
