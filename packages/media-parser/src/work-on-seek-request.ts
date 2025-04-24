@@ -65,6 +65,7 @@ const turnSeekIntoByte = async ({
 	contentLength: number;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
+
 	if (mediaSections.length === 0) {
 		Log.trace(logLevel, 'No media sections defined, cannot seek yet');
 		return {

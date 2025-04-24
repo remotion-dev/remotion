@@ -6,7 +6,7 @@ import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {parseMedia} from '../../parse-media';
 import type {ReaderInterface} from '../../readers/reader';
-import type {ExistingM3uRun, M3uState} from '../../state/m3u-state';
+import type {M3uRun, M3uState} from '../../state/m3u-state';
 import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
 import {withResolvers} from '../../with-resolvers';
 import {getChunks} from './get-chunks';
@@ -34,13 +34,13 @@ export const iteratorOverSegmentFiles = async ({
 	playlistUrl: string;
 	logLevel: LogLevel;
 	parentController: MediaParserController;
-	onInitialProgress: (run: ExistingM3uRun | null) => void;
+	onInitialProgress: (run: M3uRun | null) => void;
 	readerInterface: ReaderInterface;
 	prefetchCache: PrefetchCache;
 }) => {
 	const playlist = getPlaylist(structure, playlistUrl);
 	const chunks = getChunks(playlist);
-	let resolver: (run: ExistingM3uRun | null) => void = onInitialProgress;
+	let resolver: (run: M3uRun | null) => void = onInitialProgress;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let rejector = (_e: Error) => {};
 
@@ -68,11 +68,10 @@ export const iteratorOverSegmentFiles = async ({
 			});
 		}
 
-		const makeContinuationFn = (): ExistingM3uRun => {
+		const makeContinuationFn = (): M3uRun => {
 			return {
 				continue() {
-					const {promise, reject, resolve} =
-						withResolvers<ExistingM3uRun | null>();
+					const {promise, reject, resolve} = withResolvers<M3uRun | null>();
 					resolver = resolve;
 					rejector = reject;
 					childController.resume();

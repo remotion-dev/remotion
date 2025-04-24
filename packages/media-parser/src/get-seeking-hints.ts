@@ -1,6 +1,7 @@
 import {getSeekingHintsForAac} from './containers/aac/seeking-hints';
 import {getSeekingHintsForFlac} from './containers/flac/seeking-hints';
 import {getSeekingHintsFromMp4} from './containers/iso-base-media/seeking-hints';
+import {getSeekingHintsForM3u} from './containers/m3u/seeking-hints';
 import {getSeekingHintsForMp3} from './containers/mp3/seeking-hints';
 import {getSeekingHintsForRiff} from './containers/riff/seeking-hints';
 import {getSeekingHintsFromTransportStream} from './containers/transport-stream/seeking-hints';
@@ -114,9 +115,7 @@ export const getSeekingHints = ({
 	}
 
 	if (structure.type === 'm3u') {
-		return {
-			type: 'm3u8-seeking-hints',
-		};
+		return getSeekingHintsForM3u({structureState});
 	}
 
 	throw new Error(

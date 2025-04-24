@@ -1,6 +1,7 @@
 import {getSeekingByteForAac} from './containers/aac/get-seeking-byte';
 import {getSeekingByteForFlac} from './containers/flac/get-seeking-byte';
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-byte';
+import {getSeekingByteForM3u8} from './containers/m3u/get-seeking-byte';
 import {getSeekingByteForMp3} from './containers/mp3/get-seeking-byte';
 import {getSeekingByteForRiff} from './containers/riff/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
@@ -131,9 +132,12 @@ export const getSeekingByte = ({
 	}
 
 	if (info.type === 'm3u8-seeking-hints') {
-		return Promise.resolve({
-			type: 'invalid',
-		});
+		return Promise.resolve(
+			getSeekingByteForM3u8({
+				time,
+				seekingHints: info,
+			}),
+		);
 	}
 
 	throw new Error(`Unknown seeking info type: ${info satisfies never}`);

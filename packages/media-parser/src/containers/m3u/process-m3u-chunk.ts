@@ -1,4 +1,5 @@
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
+import type {M3uRun} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
 import {withResolvers} from '../../with-resolvers';
 import {iteratorOverSegmentFiles} from './iterate-over-segment-files';
@@ -17,14 +18,13 @@ export const processM3uChunk = ({
 	audioDone: boolean;
 	videoDone: boolean;
 }) => {
-	const {promise, reject, resolve} = withResolvers<void>();
+	const {promise, reject, resolve} = withResolvers<M3uRun | null>();
 
 	const run = iteratorOverSegmentFiles({
 		playlistUrl,
 		structure,
 		onInitialProgress: (newRun) => {
-			state.m3u.setM3uStreamRun(playlistUrl, newRun);
-			resolve();
+			resolve(newRun);
 		},
 		logLevel: state.logLevel,
 		onDoneWithTracks() {

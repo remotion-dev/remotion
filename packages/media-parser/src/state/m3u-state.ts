@@ -18,8 +18,8 @@ export type M3uStreamOrInitialUrl =
 			url: string;
 	  };
 
-export type ExistingM3uRun = {
-	continue: () => Promise<ExistingM3uRun | null>;
+export type M3uRun = {
+	continue: () => Promise<M3uRun | null>;
 	abort: () => void;
 };
 
@@ -34,7 +34,7 @@ export const m3uState = (logLevel: LogLevel) => {
 	let readyToIterateOverM3u = false;
 	const allChunksProcessed: Record<string, boolean> = {};
 
-	const m3uStreamRuns: Record<string, ExistingM3uRun> = {};
+	const m3uStreamRuns: Record<string, M3uRun> = {};
 	const tracksDone: Record<string, boolean> = {};
 
 	const getMainPlaylistUrl = () => {
@@ -124,7 +124,7 @@ export const m3uState = (logLevel: LogLevel) => {
 			hasFinishedManifest = true;
 		},
 		hasFinishedManifest: () => hasFinishedManifest,
-		setM3uStreamRun: (playlistUrl: string, run: ExistingM3uRun | null) => {
+		setM3uStreamRun: (playlistUrl: string, run: M3uRun | null) => {
 			if (!run) {
 				delete m3uStreamRuns[playlistUrl];
 				return;

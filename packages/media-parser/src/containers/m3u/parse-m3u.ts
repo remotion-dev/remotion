@@ -26,6 +26,11 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 			throw new Error('Expected src to be a string');
 		}
 
+		state.mediaSection.addMediaSection({
+			start: 0,
+			size: state.contentLength,
+		});
+
 		await afterManifestFetch({
 			structure,
 			m3uState: state.m3u,

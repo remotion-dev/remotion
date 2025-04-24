@@ -45,11 +45,13 @@ export const runOverM3u = async ({
 
 	Log.trace(logLevel, 'Starting new M3U parsing process for', playlistUrl);
 
-	await processM3uChunk({
+	const newRun = await processM3uChunk({
 		playlistUrl,
 		state,
 		structure,
 		audioDone,
 		videoDone,
 	});
+
+	state.m3u.setM3uStreamRun(playlistUrl, newRun);
 };
