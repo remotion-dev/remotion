@@ -1,4 +1,5 @@
-import {expect, test} from 'bun:test';
+import {getPrivateExampleVideo} from '@remotion/example-videos';
+import {beforeAll, expect, test} from 'bun:test';
 import {calculateJumpMarks} from '../containers/iso-base-media/mdat/calculate-jump-marks';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
@@ -14589,6 +14590,10 @@ test('calculate jump marks', () => {
 	]);
 });
 
+beforeAll(async () => {
+	await getPrivateExampleVideo('dispersedFrames');
+});
+
 test('dispersed samples', async () => {
 	const progresses: Record<number, number> = {};
 
@@ -14605,8 +14610,15 @@ test('dispersed samples', async () => {
 	const videoSamples: number[] = [];
 	const audioSamples: number[] = [];
 
+	const file = await getPrivateExampleVideo('dispersedFrames');
+
+	if (file === null) {
+		console.log('Skipping, no access to private example video');
+		return;
+	}
+
 	await parseMedia({
-		src: '/Users/jonathanburger/Downloads/2fb63507-8a57-45fc-8f0c-fca00198d89a.mp4',
+		src: file,
 		reader: nodeReader,
 		fields: {
 			tracks: true,
