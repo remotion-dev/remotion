@@ -14613,6 +14613,7 @@ test('dispersed samples', async () => {
 	const file = await getPrivateExampleVideo('dispersedFrames');
 
 	if (file === null) {
+		// eslint-disable-next-line no-console
 		console.log('Skipping, no access to private example video');
 		return;
 	}

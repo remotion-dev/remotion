@@ -58,9 +58,10 @@ export const getPrivateExampleVideo = async (
 	const credentials = {
 		accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 		secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-		endpoint: 'https://s3.eu-central-1.amazonaws.com',
+		endpoint: 'https://remotion-assets.s3-accelerate.amazonaws.com',
 		bucket: 'remotion-assets',
 		region: 'eu-central-1',
+		useAccelerateEndpoint: true,
 	};
 	const client = new S3Client(credentials);
 
