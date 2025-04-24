@@ -14568,24 +14568,24 @@ test('calculate jump marks', () => {
 	const jumpMarks = calculateJumpMarks(flatSamples, 120989485);
 	expect(jumpMarks).toEqual([
 		{
-			afterSampleWithOffset: 27655256,
-			jumpToOffset: 118034714,
+			afterSampleWithOffset: 27_655_256,
+			jumpToOffset: 118_034_714,
 		},
 		{
-			afterSampleWithOffset: 118290414,
-			jumpToOffset: 27718418,
+			afterSampleWithOffset: 118_290_414,
+			jumpToOffset: 27_718_418,
 		},
 		{
-			afterSampleWithOffset: 82288651,
-			jumpToOffset: 118290729,
+			afterSampleWithOffset: 82_288_651,
+			jumpToOffset: 118_290_729,
 		},
 		{
-			afterSampleWithOffset: 118545681,
-			jumpToOffset: 82313219,
+			afterSampleWithOffset: 118_545_681,
+			jumpToOffset: 82_313_219,
 		},
 		{
-			afterSampleWithOffset: 117978962,
-			jumpToOffset: 118546040,
+			afterSampleWithOffset: 117_978_962,
+			jumpToOffset: 118_546_040,
 		},
 	]);
 });
@@ -14602,7 +14602,7 @@ test('dispersed samples', async () => {
 		const minProgress = Math.min(...progressValues);
 		const maxProgress = Math.max(...progressValues);
 		const spread = maxProgress - minProgress;
-		if (spread > 10.5) {
+		if (spread > 8.5) {
 			throw new Error('Progress spread is too high');
 		}
 	};

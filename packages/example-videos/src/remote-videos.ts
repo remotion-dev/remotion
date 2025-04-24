@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import {S3Client} from 'bun';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -69,6 +68,9 @@ export const getPrivateExampleVideo = async (
 		region: 'eu-central-1',
 		useAccelerateEndpoint: true,
 	};
+
+	const {S3Client} = await import('bun');
+
 	const client = new S3Client(credentials);
 
 	const file = client.file(privateExampleVideos[videoName]);
