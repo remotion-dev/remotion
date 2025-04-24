@@ -9,7 +9,9 @@
 
 import type {MinimalFlatSampleForTesting} from '../../../state/iso-base-media/cached-sample-positions';
 
-const MAX_SPREAD_IN_SECONDS = 10;
+// In WebCodecs, we require the tracks to deviate by at most 10 seconds
+// Therefore, we need to emit them to be less than 10 seconds apart
+const MAX_SPREAD_IN_SECONDS = 8;
 
 export type JumpMark = {
 	afterSampleWithOffset: number;

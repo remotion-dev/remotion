@@ -14567,24 +14567,24 @@ test('calculate jump marks', () => {
 	const jumpMarks = calculateJumpMarks(flatSamples, 120989485);
 	expect(jumpMarks).toEqual([
 		{
-			afterSampleWithOffset: 34444159,
+			afterSampleWithOffset: 27655256,
 			jumpToOffset: 118034714,
 		},
 		{
-			afterSampleWithOffset: 118354529,
-			jumpToOffset: 34521550,
+			afterSampleWithOffset: 118290414,
+			jumpToOffset: 27718418,
 		},
 		{
-			afterSampleWithOffset: 102695930,
-			jumpToOffset: 118354917,
+			afterSampleWithOffset: 82288651,
+			jumpToOffset: 118290729,
 		},
 		{
-			afterSampleWithOffset: 120989117,
-			jumpToOffset: 102752226,
+			afterSampleWithOffset: 118545681,
+			jumpToOffset: 82313219,
 		},
 		{
 			afterSampleWithOffset: 117978962,
-			jumpToOffset: 120989485,
+			jumpToOffset: 118546040,
 		},
 	]);
 });
@@ -14597,13 +14597,13 @@ test('dispersed samples', async () => {
 		const minProgress = Math.min(...progressValues);
 		const maxProgress = Math.max(...progressValues);
 		const spread = maxProgress - minProgress;
-		if (spread > 10.5) {
+		if (spread > 8.5) {
 			throw new Error('Progress spread is too high');
 		}
 	};
 
-	const videoSamples = [];
-	const audioSamples = [];
+	const videoSamples: number[] = [];
+	const audioSamples: number[] = [];
 
 	await parseMedia({
 		src: '/Users/jonathanburger/Downloads/2fb63507-8a57-45fc-8f0c-fca00198d89a.mp4',
