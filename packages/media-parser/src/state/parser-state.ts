@@ -34,7 +34,7 @@ import {m3uState} from './m3u-state';
 import {webmState} from './matroska/webm';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
-import {sampleCallback} from './sample-callbacks';
+import {callbacksState} from './sample-callbacks';
 import {samplesObservedState} from './samples-observed/slow-duration-fps';
 import {seekInfiniteLoopDetectionState} from './seek-infinite-loop';
 import {structureState} from './structure';
@@ -167,7 +167,7 @@ export const makeParserState = ({
 		flac: flacState(),
 		m3u: m3uState(logLevel),
 		timings,
-		callbacks: sampleCallback({
+		callbacks: callbacksState({
 			controller,
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,

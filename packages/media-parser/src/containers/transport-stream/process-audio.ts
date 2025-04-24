@@ -1,6 +1,6 @@
 import type {LogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
@@ -43,7 +43,7 @@ export const processAudio = async ({
 }: {
 	transportStreamEntry: TransportStreamEntry;
 	structure: TransportStreamStructure;
-	sampleCallbacks: SampleCallbacks;
+	sampleCallbacks: CallbacksState;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;

@@ -4,7 +4,7 @@ import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {TracksState} from '../../state/has-tracks-section';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {CallbacksState} from '../../state/sample-callbacks';
 import type {MediaSectionState} from '../../state/video-section';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
 import type {BoxAndNext} from './base-media-box';
@@ -43,8 +43,8 @@ export type OnlyIfMoovAtomExpected = {
 	isoState: IsoBaseMediaState | null;
 	onVideoTrack: OnVideoTrack | null;
 	onAudioTrack: OnAudioTrack | null;
-	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
-	registerAudioSampleCallback: SampleCallbacks['registerAudioSampleCallback'];
+	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
+	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 };
 
 export type OnlyIfMdatAtomExpected = {

@@ -143,6 +143,9 @@ export const makeVideoTrackHandler =
 		const videoDecoderConfig =
 			await getVideoDecoderConfigWithHardwareAcceleration(track);
 
+		Log.verbose(logLevel, 'Video encoder config', videoEncoderConfig);
+		Log.verbose(logLevel, 'Video decoder config', videoDecoderConfig ?? track);
+
 		if (videoEncoderConfig === null) {
 			abortConversion(
 				new Error(
