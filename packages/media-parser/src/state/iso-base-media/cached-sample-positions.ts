@@ -53,7 +53,7 @@ export const calculateFlatSamples = (state: ParserState) => {
 
 export const cachedSamplePositionsState = () => {
 	const cachedForMdatStart: Record<string, FlatSample[]> = {};
-	let jumpMarks: JumpMark[] = [];
+	const jumpMarksForMdatStart: Record<string, JumpMark[]> = {};
 
 	return {
 		getSamples: (mdatStart: number) => {
@@ -66,11 +66,11 @@ export const cachedSamplePositionsState = () => {
 		setSamples: (mdatStart: number, samples: FlatSample[]) => {
 			cachedForMdatStart[mdatStart] = samples;
 		},
-		setJumpMarks: (marks: JumpMark[]) => {
-			jumpMarks = marks;
+		setJumpMarks: (mdatStart: number, marks: JumpMark[]) => {
+			jumpMarksForMdatStart[mdatStart] = marks;
 		},
-		getJumpMarks: () => {
-			return jumpMarks;
+		getJumpMarks: (mdatStart: number) => {
+			return jumpMarksForMdatStart[mdatStart];
 		},
 	};
 };

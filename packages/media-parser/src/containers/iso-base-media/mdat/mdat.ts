@@ -50,7 +50,7 @@ export const parseMdatSection = async (
 		const flattedSamples = calculateFlatSamples(state);
 
 		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
-		state.iso.flatSamples.setJumpMarks(calcedJumpMarks);
+		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
 		state.iso.flatSamples.setSamples(
 			mediaSection.start,
 			flattedSamples.flat(1),
@@ -60,7 +60,7 @@ export const parseMdatSection = async (
 	const flatSamples = state.iso.flatSamples.getSamples(
 		mediaSection.start,
 	) as FlatSample[];
-	const jumpMarks = state.iso.flatSamples.getJumpMarks();
+	const jumpMarks = state.iso.flatSamples.getJumpMarks(mediaSection.start);
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {

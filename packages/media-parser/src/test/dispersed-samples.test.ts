@@ -14602,8 +14602,8 @@ test('dispersed samples', async () => {
 		}
 	};
 
-	let videoSamples = 0;
-	let audioSamples = 0;
+	const videoSamples = [];
+	const audioSamples = [];
 
 	await parseMedia({
 		src: '/Users/jonathanburger/Downloads/2fb63507-8a57-45fc-8f0c-fca00198d89a.mp4',
@@ -14615,15 +14615,18 @@ test('dispersed samples', async () => {
 		onVideoTrack: () => (v) => {
 			progresses[v.trackId] = v.dts / v.timescale;
 			verifyProgressSpread();
-			videoSamples++;
+			videoSamples.push(v.dts);
 		},
 		onAudioTrack: () => (a) => {
 			progresses[a.trackId] = a.dts / a.timescale;
 			verifyProgressSpread();
-			audioSamples++;
+			audioSamples.push(a.dts);
 		},
 	});
 
-	expect(audioSamples).toBe(1520);
-	expect(videoSamples).toBe(2118);
+	expect(audioSamples.length).toBe(1520);
+	expect(videoSamples.length).toBe(2118);
+	// unique
+	expect(new Set(audioSamples).size).toBe(audioSamples.length);
+	expect(new Set(videoSamples).size).toBe(videoSamples.length);
 });

@@ -12,6 +12,7 @@ export const keyframesState = () => {
 	};
 
 	const getKeyframes = (): MediaParserKeyframe[] => {
+		keyframes.sort((a, b) => a.positionInBytes - b.positionInBytes);
 		return keyframes;
 	};
 
