@@ -124,6 +124,7 @@ export const makeIoSynchronizer = ({
 					`inputs: ${JSON.stringify(inputs)}`,
 					`last output: ${lastOutput}`,
 					`wanted: ${unemitted} unemitted items, ${unprocessed} unprocessed items, minimum progress ${minimumProgress}`,
+					`Report this at https://remotion.dev/report`,
 				].join('\n'),
 			ms: 10000,
 			controller,
