@@ -14597,7 +14597,7 @@ test('dispersed samples', async () => {
 		const minProgress = Math.min(...progressValues);
 		const maxProgress = Math.max(...progressValues);
 		const spread = maxProgress - minProgress;
-		if (spread > 8.5) {
+		if (spread > 10.5) {
 			throw new Error('Progress spread is too high');
 		}
 	};

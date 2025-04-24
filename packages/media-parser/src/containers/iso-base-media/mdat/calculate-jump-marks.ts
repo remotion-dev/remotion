@@ -124,8 +124,14 @@ export const calculateJumpMarks = (
 			firstSampleAboveMinProgress !== indexToVisit + 1
 		) {
 			addJumpMark({firstSampleAboveMinProgress});
+			indexToVisit = firstSampleAboveMinProgress;
 		} else {
-			increaseIndex();
+			while (true) {
+				increaseIndex();
+				if (!visited.has(getKey(allSamplesSortedByOffset[indexToVisit]))) {
+					break;
+				}
+			}
 		}
 	};
 
