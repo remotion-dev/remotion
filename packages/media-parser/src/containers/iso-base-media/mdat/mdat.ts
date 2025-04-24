@@ -49,7 +49,8 @@ export const parseMdatSection = async (
 	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
 		const flattedSamples = calculateFlatSamples(state);
 
-		calculateJumpMarks(flattedSamples);
+		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
+		state.iso.flatSamples.setJumpMarks(calcedJumpMarks);
 		state.iso.flatSamples.setSamples(
 			mediaSection.start,
 			flattedSamples.flat(1),
@@ -59,6 +60,7 @@ export const parseMdatSection = async (
 	const flatSamples = state.iso.flatSamples.getSamples(
 		mediaSection.start,
 	) as FlatSample[];
+	const jumpMarks = state.iso.flatSamples.getJumpMarks();
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {
@@ -151,6 +153,11 @@ export const parseMdatSection = async (
 			samplesWithIndex.track.trackId,
 			videoSample,
 		);
+	}
+
+	const jump = jumpMarks.find((j) => j.afterSampleWithOffset === offset);
+	if (jump) {
+		return makeSkip(jump.jumpToOffset);
 	}
 
 	return null;

@@ -1,4 +1,4 @@
-import {test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {calculateJumpMarks} from '../containers/iso-base-media/mdat/calculate-jump-marks';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
@@ -14564,12 +14564,47 @@ const flatSamples: MinimalFlatSampleForTesting[][] = [
 ];
 
 test('calculate jump marks', () => {
-	const jumpMarks = calculateJumpMarks(flatSamples);
-
-	console.log(jumpMarks);
+	const jumpMarks = calculateJumpMarks(flatSamples, 120989485);
+	expect(jumpMarks).toEqual([
+		{
+			afterSampleWithOffset: 34444159,
+			jumpToOffset: 118034714,
+		},
+		{
+			afterSampleWithOffset: 118354529,
+			jumpToOffset: 34521550,
+		},
+		{
+			afterSampleWithOffset: 102695930,
+			jumpToOffset: 118354917,
+		},
+		{
+			afterSampleWithOffset: 120989117,
+			jumpToOffset: 102752226,
+		},
+		{
+			afterSampleWithOffset: 117978962,
+			jumpToOffset: 120989485,
+		},
+	]);
 });
 
 test('dispersed samples', async () => {
+	const progresses: Record<number, number> = {};
+
+	const verifyProgressSpread = () => {
+		const progressValues = Object.values(progresses);
+		const minProgress = Math.min(...progressValues);
+		const maxProgress = Math.max(...progressValues);
+		const spread = maxProgress - minProgress;
+		if (spread > 10.5) {
+			throw new Error('Progress spread is too high');
+		}
+	};
+
+	let videoSamples = 0;
+	let audioSamples = 0;
+
 	await parseMedia({
 		src: '/Users/jonathanburger/Downloads/2fb63507-8a57-45fc-8f0c-fca00198d89a.mp4',
 		reader: nodeReader,
@@ -14577,6 +14612,18 @@ test('dispersed samples', async () => {
 			tracks: true,
 		},
 		acknowledgeRemotionLicense: true,
-		onVideoTrack: () => () => undefined,
+		onVideoTrack: () => (v) => {
+			progresses[v.trackId] = v.dts / v.timescale;
+			verifyProgressSpread();
+			videoSamples++;
+		},
+		onAudioTrack: () => (a) => {
+			progresses[a.trackId] = a.dts / a.timescale;
+			verifyProgressSpread();
+			audioSamples++;
+		},
 	});
+
+	expect(audioSamples).toBe(1520);
+	expect(videoSamples).toBe(2118);
 });

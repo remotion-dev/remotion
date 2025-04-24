@@ -48,6 +48,7 @@ const findBestJump = ({
 
 export const calculateJumpMarks = (
 	samplePositionTracks: MinimalFlatSampleForTesting[][],
+	endOfMdat: number,
 ) => {
 	const progresses: Record<number, number> = {};
 	for (const track of samplePositionTracks) {
@@ -64,22 +65,29 @@ export const calculateJumpMarks = (
 
 	const visited = new Set<string>();
 
+	let rollOverToProcess = false;
+
 	const increaseIndex = () => {
 		indexToVisit++;
 		if (indexToVisit >= allSamplesSortedByOffset.length) {
+			rollOverToProcess = true;
 			indexToVisit = 0;
 		}
 	};
 
+	let lastVisitedSample: MinimalFlatSampleForTesting | null = null;
+
 	const addJumpMark = ({
-		currentSamplePosition,
 		firstSampleAboveMinProgress,
 	}: {
-		currentSamplePosition: MinimalFlatSampleForTesting;
 		firstSampleAboveMinProgress: number;
 	}) => {
+		if (!lastVisitedSample) {
+			throw new Error('no last visited sample');
+		}
+
 		const jumpMark: JumpMark = {
-			afterSampleWithOffset: currentSamplePosition.samplePosition.offset,
+			afterSampleWithOffset: lastVisitedSample.samplePosition.offset,
 			jumpToOffset:
 				allSamplesSortedByOffset[firstSampleAboveMinProgress].samplePosition
 					.offset,
@@ -90,7 +98,19 @@ export const calculateJumpMarks = (
 		jumpMarks.push(jumpMark);
 	};
 
-	const considerJump = (currentSamplePosition: MinimalFlatSampleForTesting) => {
+	const addFinalJumpIfNecessary = () => {
+		if (indexToVisit === allSamplesSortedByOffset.length - 1) {
+			return;
+		}
+
+		jumpMarks.push({
+			afterSampleWithOffset:
+				allSamplesSortedByOffset[indexToVisit].samplePosition.offset,
+			jumpToOffset: endOfMdat,
+		});
+	};
+
+	const considerJump = () => {
 		const firstSampleAboveMinProgress = findBestJump({
 			allSamplesSortedByOffset,
 			visited,
@@ -101,27 +121,41 @@ export const calculateJumpMarks = (
 			firstSampleAboveMinProgress > -1 &&
 			firstSampleAboveMinProgress !== indexToVisit + 1
 		) {
-			addJumpMark({currentSamplePosition, firstSampleAboveMinProgress});
+			addJumpMark({firstSampleAboveMinProgress});
 		} else {
 			increaseIndex();
 		}
 	};
 
 	while (true) {
-		if (visited.size === allSamplesSortedByOffset.length) {
-			break;
-		}
-
 		const currentSamplePosition = allSamplesSortedByOffset[indexToVisit];
 
 		const sampleKey = getKey(currentSamplePosition);
 		if (visited.has(sampleKey)) {
-			considerJump(currentSamplePosition);
-
+			considerJump();
 			continue;
 		}
 
 		visited.add(sampleKey);
+
+		if (rollOverToProcess) {
+			if (!lastVisitedSample) {
+				throw new Error('no last visited sample');
+			}
+
+			jumpMarks.push({
+				afterSampleWithOffset: lastVisitedSample.samplePosition.offset,
+				jumpToOffset: currentSamplePosition.samplePosition.offset,
+			});
+			rollOverToProcess = false;
+		}
+
+		lastVisitedSample = currentSamplePosition;
+
+		if (visited.size === allSamplesSortedByOffset.length) {
+			addFinalJumpIfNecessary();
+			break;
+		}
 
 		progresses[currentSamplePosition.track.trackId] =
 			currentSamplePosition.samplePosition.dts /
@@ -135,7 +169,7 @@ export const calculateJumpMarks = (
 		const spread = maxProgress - minProgress;
 
 		if (spread > MAX_SPREAD_IN_SECONDS) {
-			considerJump(currentSamplePosition);
+			considerJump();
 		} else {
 			increaseIndex();
 		}

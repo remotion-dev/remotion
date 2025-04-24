@@ -1,4 +1,5 @@
 import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
+import type {JumpMark} from '../../containers/iso-base-media/mdat/calculate-jump-marks';
 import type {TrakBox} from '../../containers/iso-base-media/trak/trak';
 import {
 	getMoofBoxes,
@@ -52,6 +53,7 @@ export const calculateFlatSamples = (state: ParserState) => {
 
 export const cachedSamplePositionsState = () => {
 	const cachedForMdatStart: Record<string, FlatSample[]> = {};
+	let jumpMarks: JumpMark[] = [];
 
 	return {
 		getSamples: (mdatStart: number) => {
@@ -63,6 +65,12 @@ export const cachedSamplePositionsState = () => {
 		},
 		setSamples: (mdatStart: number, samples: FlatSample[]) => {
 			cachedForMdatStart[mdatStart] = samples;
+		},
+		setJumpMarks: (marks: JumpMark[]) => {
+			jumpMarks = marks;
+		},
+		getJumpMarks: () => {
+			return jumpMarks;
 		},
 	};
 };
