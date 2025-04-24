@@ -14,6 +14,17 @@ export type FlatSample = {
 	samplePosition: SamplePosition;
 };
 
+export type MinimalFlatSampleForTesting = {
+	track: {
+		trackId: number;
+		timescale: number;
+	};
+	samplePosition: {
+		dts: number;
+		offset: number;
+	};
+};
+
 export const calculateFlatSamples = (state: ParserState) => {
 	const tracks = getTracks(state, true);
 	const allTracks = [
@@ -22,22 +33,20 @@ export const calculateFlatSamples = (state: ParserState) => {
 		...tracks.otherTracks,
 	];
 
-	const flatSamples = allTracks
-		.map((track) => {
-			const {samplePositions} = getSamplePositionsFromTrack({
-				trakBox: track.trakBox as TrakBox,
-				moofBoxes: getMoofBoxes(state.structure.getIsoStructure().boxes),
-				tfraBoxes: getTfraBoxes(state.structure.getIsoStructure()),
-			});
+	const flatSamples = allTracks.map((track) => {
+		const {samplePositions} = getSamplePositionsFromTrack({
+			trakBox: track.trakBox as TrakBox,
+			moofBoxes: getMoofBoxes(state.structure.getIsoStructure().boxes),
+			tfraBoxes: getTfraBoxes(state.structure.getIsoStructure()),
+		});
 
-			return samplePositions.map((samplePosition) => {
-				return {
-					track,
-					samplePosition,
-				};
-			});
-		})
-		.flat(1);
+		return samplePositions.map((samplePosition) => {
+			return {
+				track,
+				samplePosition,
+			};
+		});
+	});
 	return flatSamples;
 };
 

@@ -8,6 +8,7 @@ import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
+import {calculateJumpMarks} from './calculate-jump-marks';
 import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
@@ -46,9 +47,12 @@ export const parseMdatSection = async (
 	}
 
 	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
+		const flattedSamples = calculateFlatSamples(state);
+
+		calculateJumpMarks(flattedSamples);
 		state.iso.flatSamples.setSamples(
 			mediaSection.start,
-			calculateFlatSamples(state),
+			flattedSamples.flat(1),
 		);
 	}
 
