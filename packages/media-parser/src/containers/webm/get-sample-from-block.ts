@@ -1,7 +1,13 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
+import type {LogLevel} from '../../log';
+import {registerVideoTrack} from '../../register-track';
 import type {WebmState} from '../../state/matroska/webm';
+import type {CallbacksState} from '../../state/sample-callbacks';
 import type {StructureState} from '../../state/structure';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {
+	AudioOrVideoSample,
+	OnVideoTrack,
+} from '../../webcodec-sample-types';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
@@ -25,38 +31,87 @@ type SampleResult =
 			type: 'no-sample';
 	  };
 
-const addAvcToTrackIfNecessary = ({
+const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	partialVideoSample,
 	codec,
 	structureState,
 	webmState,
 	trackNumber,
+	logLevel,
+	callbacks,
+	onVideoTrack,
 }: {
 	partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
 	codec: string;
 	structureState: StructureState;
 	webmState: WebmState;
 	trackNumber: number;
+	logLevel: LogLevel;
+	callbacks: CallbacksState;
+	onVideoTrack: OnVideoTrack | null;
 }) => {
-	if (
-		codec === 'V_MPEG4/ISO/AVC' &&
-		getTracksFromMatroska({structureState, webmState}).missingInfo.length > 0
-	) {
-		const parsed = parseAvc(partialVideoSample.data);
-		for (const parse of parsed) {
-			if (parse.type === 'avc-profile') {
-				webmState.setAvcProfileForTrackNumber(trackNumber, parse);
+	if (codec !== 'V_MPEG4/ISO/AVC') {
+		return;
+	}
+
+	const missingTracks = getTracksFromMatroska({
+		structureState,
+		webmState,
+	}).missingInfo;
+
+	if (missingTracks.length === 0) {
+		return;
+	}
+
+	const parsed = parseAvc(partialVideoSample.data);
+	for (const parse of parsed) {
+		if (parse.type === 'avc-profile') {
+			webmState.setAvcProfileForTrackNumber(trackNumber, parse);
+			const track = missingTracks.find((t) => t.trackId === trackNumber);
+			if (!track) {
+				throw new Error('Could not find track ' + trackNumber);
 			}
+
+			const resolvedTracks = getTracksFromMatroska({
+				structureState,
+				webmState,
+			}).resolved;
+			const resolvedTrack = resolvedTracks.find(
+				(t) => t.trackId === trackNumber,
+			);
+			if (!resolvedTrack) {
+				throw new Error('Could not find track ' + trackNumber);
+			}
+
+			await registerVideoTrack({
+				track: resolvedTrack,
+				container: 'webm',
+				logLevel,
+				onVideoTrack,
+				registerVideoSampleCallback: callbacks.registerVideoSampleCallback,
+				tracks: callbacks.tracks,
+			});
 		}
 	}
 };
 
-export const getSampleFromBlock = (
-	ebml: BlockSegment | SimpleBlockSegment,
-	webmState: WebmState,
-	offset: number,
-	structureState: StructureState,
-): SampleResult => {
+export const getSampleFromBlock = async ({
+	ebml,
+	webmState,
+	offset,
+	structureState,
+	callbacks,
+	logLevel,
+	onVideoTrack,
+}: {
+	ebml: BlockSegment | SimpleBlockSegment;
+	webmState: WebmState;
+	offset: number;
+	structureState: StructureState;
+	callbacks: CallbacksState;
+	logLevel: LogLevel;
+	onVideoTrack: OnVideoTrack | null;
+}): Promise<SampleResult> => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
 	const trackNumber = iterator.getVint();
 	if (trackNumber === null) {
@@ -119,12 +174,15 @@ export const getSampleFromBlock = (
 			};
 		}
 
-		addAvcToTrackIfNecessary({
+		await addAvcToTrackAndActivateTrackIfNecessary({
 			codec,
 			partialVideoSample,
 			structureState,
 			webmState,
 			trackNumber,
+			callbacks,
+			logLevel,
+			onVideoTrack,
 		});
 
 		const sample: AudioOrVideoSample = {

@@ -2,7 +2,10 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
-import {getTrack} from './make-track';
+import {
+	getTrack,
+	NO_CODEC_PRIVATE_SHOULD_BE_DERIVED_FROM_SPS,
+} from './make-track';
 import type {PossibleEbml} from './segments/all-segments';
 import {ebmlMap} from './segments/all-segments';
 import type {WebmRequiredStatesForProcessing} from './state-for-processing';
@@ -191,14 +194,16 @@ export const postprocessEbml = async ({
 		}
 
 		if (track && track.type === 'video') {
-			await registerVideoTrack({
-				track,
-				container: 'webm',
-				logLevel,
-				onVideoTrack,
-				registerVideoSampleCallback: callbacks.registerVideoSampleCallback,
-				tracks: callbacks.tracks,
-			});
+			if (track.codec !== NO_CODEC_PRIVATE_SHOULD_BE_DERIVED_FROM_SPS) {
+				await registerVideoTrack({
+					track,
+					container: 'webm',
+					logLevel,
+					onVideoTrack,
+					registerVideoSampleCallback: callbacks.registerVideoSampleCallback,
+					tracks: callbacks.tracks,
+				});
+			}
 		}
 	}
 
@@ -207,7 +212,15 @@ export const postprocessEbml = async ({
 	}
 
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
-		const sample = getSampleFromBlock(ebml, webmState, offset, structureState);
+		const sample = await getSampleFromBlock({
+			ebml,
+			webmState,
+			offset,
+			structureState,
+			callbacks,
+			logLevel,
+			onVideoTrack,
+		});
 
 		if (sample.type === 'video-sample') {
 			await callbacks.onVideoSample(
@@ -264,7 +277,15 @@ export const postprocessEbml = async ({
 		const sample =
 			block.value.length === 0
 				? null
-				: getSampleFromBlock(block, webmState, offset, structureState);
+				: await getSampleFromBlock({
+						ebml: block,
+						webmState,
+						offset,
+						structureState,
+						callbacks,
+						logLevel,
+						onVideoTrack,
+					});
 
 		if (sample && sample.type === 'partial-video-sample') {
 			const completeFrame: AudioOrVideoSample = {
