@@ -59,6 +59,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 	}
 
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
+	const firstAudioTrack = allTracks.find((t) => t.type === 'audio');
 
 	if (!firstVideoTrack) {
 		throw new Error('No video track found');
@@ -84,7 +85,10 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 			'Fragmented MP4 - Checking if we have seeking info for this time range',
 		);
 		for (const positions of samplePositionsArray) {
-			const {min, max} = getSamplePositionBounds(positions, timescale);
+			const {min, max} = getSamplePositionBounds(
+				positions,
+				firstVideoTrack.timescale,
+			);
 			if (min <= time && time <= max) {
 				Log.trace(
 					logLevel,
@@ -93,7 +97,7 @@ export const getSeekingByteFromIsoBaseMedia = async ({
 				const kf = findKeyframeBeforeTime({
 					samplePositions: positions,
 					time,
-					timescale,
+					timescale: firstVideoTrack.timescale,
 					logLevel,
 					mediaSections: info.mediaSections,
 				});

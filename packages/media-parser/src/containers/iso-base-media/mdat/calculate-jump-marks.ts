@@ -31,9 +31,7 @@ const findBestJump = ({
 	visited: Set<string>;
 	progresses: Record<number, number>;
 }) => {
-	const progressValues = Object.values(progresses);
-
-	const minProgress = Math.min(...progressValues);
+	const minProgress = Math.min(...Object.values(progresses));
 
 	const trackNumberWithLowestProgress = Object.entries(progresses).find(
 		([, progress]) => progress === minProgress,
@@ -56,9 +54,6 @@ export const calculateJumpMarks = (
 	for (const track of samplePositionTracks) {
 		progresses[track[0].track.trackId] = 0;
 	}
-
-	let videoProgress = 0;
-	let audioProgress = 0;
 
 	const jumpMarks: JumpMark[] = [];
 
@@ -172,12 +167,6 @@ export const calculateJumpMarks = (
 			currentSamplePosition.samplePosition.dts /
 			currentSamplePosition.track.timescale;
 
-		if (currentSamplePosition.track.type === 'video') {
-			videoProgress = timestamp;
-		} else {
-			audioProgress = timestamp;
-		}
-
 		progresses[currentSamplePosition.track.trackId] = timestamp;
 
 		const progressValues = Object.values(progresses);
@@ -187,7 +176,13 @@ export const calculateJumpMarks = (
 
 		const spread = maxProgress - minProgress;
 
-		if (spread > MAX_SPREAD_IN_SECONDS || audioProgress > videoProgress) {
+		if (visited.size === allSamplesSortedByOffset.length) {
+			addFinalJumpIfNecessary();
+			break;
+		}
+
+		// Also don't allow audio progress to go more
+		if (spread > MAX_SPREAD_IN_SECONDS) {
 			considerJump();
 		} else {
 			increaseIndex();
