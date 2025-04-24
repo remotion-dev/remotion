@@ -57,6 +57,9 @@ export const calculateJumpMarks = (
 		progresses[track[0].track.trackId] = 0;
 	}
 
+	let videoProgress = 0;
+	let audioProgress = 0;
+
 	const jumpMarks: JumpMark[] = [];
 
 	const allSamplesSortedByOffset = samplePositionTracks
@@ -165,9 +168,17 @@ export const calculateJumpMarks = (
 			break;
 		}
 
-		progresses[currentSamplePosition.track.trackId] =
+		const timestamp =
 			currentSamplePosition.samplePosition.dts /
 			currentSamplePosition.track.timescale;
+
+		if (currentSamplePosition.track.type === 'video') {
+			videoProgress = timestamp;
+		} else {
+			audioProgress = timestamp;
+		}
+
+		progresses[currentSamplePosition.track.trackId] = timestamp;
 
 		const progressValues = Object.values(progresses);
 
@@ -176,7 +187,7 @@ export const calculateJumpMarks = (
 
 		const spread = maxProgress - minProgress;
 
-		if (spread > MAX_SPREAD_IN_SECONDS) {
+		if (spread > MAX_SPREAD_IN_SECONDS || audioProgress > videoProgress) {
 			considerJump();
 		} else {
 			increaseIndex();

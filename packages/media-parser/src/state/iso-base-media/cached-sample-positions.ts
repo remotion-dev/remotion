@@ -19,6 +19,7 @@ export type MinimalFlatSampleForTesting = {
 	track: {
 		trackId: number;
 		timescale: number;
+		type: 'audio' | 'video' | 'other';
 	};
 	samplePosition: {
 		dts: number;
