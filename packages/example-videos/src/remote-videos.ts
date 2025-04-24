@@ -55,6 +55,12 @@ export const getPrivateExampleVideo = async (
 		return null;
 	}
 
+	const location = path.join(cacheDir, privateExampleVideos[videoName]);
+
+	if (fs.existsSync(location)) {
+		return location;
+	}
+
 	const credentials = {
 		accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 		secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -65,7 +71,6 @@ export const getPrivateExampleVideo = async (
 	};
 	const client = new S3Client(credentials);
 
-	const location = path.join(cacheDir, privateExampleVideos[videoName]);
 	const file = client.file(privateExampleVideos[videoName]);
 	const stream = file.stream();
 	const size = await client.size(privateExampleVideos[videoName], credentials);
