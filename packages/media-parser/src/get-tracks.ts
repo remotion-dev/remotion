@@ -24,7 +24,10 @@ import {
 	getTracksFromMatroska,
 	matroskaHasTracks,
 } from './containers/webm/get-ready-tracks';
+import type {IsoBaseMediaStructure} from './parse-result';
+import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
+import type {StructureState} from './state/structure';
 
 type SampleAspectRatio = {
 	numerator: number;
@@ -229,14 +232,21 @@ export const getTracksFromMoovBox = (moovBox: MoovBox) => {
 	};
 };
 
-export const getTracksFromIsoBaseMedia = (
-	state: ParserState,
-	mayUsePrecomputed: boolean,
-) => {
+export const getTracksFromIsoBaseMedia = ({
+	mayUsePrecomputed,
+	structure,
+	isoState,
+	mp4HeaderSegment,
+}: {
+	structure: StructureState;
+	isoState: IsoBaseMediaState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	mayUsePrecomputed: boolean;
+}) => {
 	const moovBox = getMoovBoxFromState({
-		structureState: state.structure,
-		isoState: state.iso,
-		mp4HeaderSegment: state.mp4HeaderSegment,
+		structureState: structure,
+		isoState,
+		mp4HeaderSegment,
 		mayUsePrecomputed,
 	});
 	if (!moovBox) {
@@ -282,7 +292,12 @@ export const getTracks = (
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getTracksFromIsoBaseMedia(state, mayUsePrecomputed);
+		return getTracksFromIsoBaseMedia({
+			isoState: state.iso,
+			mp4HeaderSegment: state.mp4HeaderSegment,
+			structure: state.structure,
+			mayUsePrecomputed,
+		});
 	}
 
 	if (structure.type === 'riff') {

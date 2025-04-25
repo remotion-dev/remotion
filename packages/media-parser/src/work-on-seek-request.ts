@@ -233,7 +233,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		return;
 	}
 
-	Log.trace(logLevel, `Has seek request: ${JSON.stringify(seek)}`);
+	Log.trace(logLevel, `Has seek request for ${src}: ${JSON.stringify(seek)}`);
 	const resolution = await turnSeekIntoByte({
 		seek,
 		mediaSectionState: mediaSection,

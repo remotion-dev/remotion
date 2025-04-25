@@ -9,6 +9,7 @@ import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
 import {withResolvers} from '../../with-resolvers';
 import {getChunks} from './get-chunks';
 import {getPlaylist} from './get-playlist';
+import {getChunkToSeekTo} from './seek/get-chunk-to-seek-to';
 import type {M3uStructure} from './types';
 
 export const processM3uChunk = ({
@@ -100,16 +101,42 @@ export const processM3uChunk = ({
 				};
 			};
 
-	const iteratorOverSegmentFiles = async () => {
+	// This function will run through the whole playlist step by step, and pause itself
+	// On the next run it will continue
+	const pausableIterator = async () => {
 		const playlist = getPlaylist(structure, playlistUrl);
 		const chunks = getChunks(playlist);
+		let seekToSecondsToProcess = state.m3u.getSeekToSecondsToProcess();
+		let chunkIndex = null;
+		if (seekToSecondsToProcess !== null) {
+			chunkIndex = getChunkToSeekTo({
+				chunks,
+				seekToSecondsToProcess,
+			});
+			state.m3u.setSeekToSecondsToProcess(null);
+		}
 
 		const currentPromise = {
 			resolver: (() => undefined) as (run: M3uRun | null) => void,
 			rejector: reject,
 		};
 
+		const requiresHeaderToBeFetched = chunks[0].isHeader;
+
 		for (const chunk of chunks) {
+			const mp4HeaderSegment = state.m3u.getMp4HeaderSegment(playlistUrl);
+			if (requiresHeaderToBeFetched && mp4HeaderSegment && chunk.isHeader) {
+				continue;
+			}
+
+			if (
+				chunkIndex !== null &&
+				chunks.indexOf(chunk) < chunkIndex &&
+				!chunk.isHeader
+			) {
+				continue;
+			}
+
 			currentPromise.resolver = (newRun: M3uRun | null) => {
 				state.m3u.setM3uStreamRun(playlistUrl, newRun);
 				resolve();
@@ -117,6 +144,14 @@ export const processM3uChunk = ({
 
 			currentPromise.rejector = reject;
 			const childController = mediaParserController();
+			if (seekToSecondsToProcess !== null && !chunk.isHeader) {
+				childController._experimentalSeek({
+					type: 'keyframe-before-time',
+					timeInSeconds: seekToSecondsToProcess,
+				});
+				seekToSecondsToProcess = null;
+			}
+
 			const forwarded = forwardMediaParserControllerPauseResume({
 				childController,
 				parentController: state.controller,
@@ -161,11 +196,10 @@ export const processM3uChunk = ({
 			);
 
 			try {
-				const mp4HeaderSegment = state.m3u.getMp4HeaderSegment(playlistUrl);
 				const data = await parseMedia({
 					src,
 					acknowledgeRemotionLicense: true,
-					logLevel: state.logLevel,
+					logLevel: 'trace',
 					controller: childController,
 					progressIntervalInMs: 0,
 					onParseProgress: () => {
@@ -260,7 +294,7 @@ export const processM3uChunk = ({
 		currentPromise.resolver(null);
 	};
 
-	const run = iteratorOverSegmentFiles();
+	const run = pausableIterator();
 
 	run.catch((err) => {
 		reject(err);
