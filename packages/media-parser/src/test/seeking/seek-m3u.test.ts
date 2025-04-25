@@ -30,7 +30,7 @@ test.only('seek m3u, video and audio', async () => {
 
 	controller._experimentalSeek({
 		type: 'keyframe-before-time',
-		timeInSeconds: 4.5,
+		timeInSeconds: 5.5,
 	});
 
 	await parseMedia({
@@ -40,12 +40,12 @@ test.only('seek m3u, video and audio', async () => {
 		reader: nodeReader,
 		onVideoTrack: () => {
 			return (sample) => {
-				console.log(sample.dts / sample.timescale);
+				console.log('video', sample.dts / sample.timescale);
 			};
 		},
 		onAudioTrack: () => {
 			return (sample) => {
-				console.log(sample.dts / sample.timescale);
+				console.log('audio', sample.dts / sample.timescale);
 			};
 		},
 	});

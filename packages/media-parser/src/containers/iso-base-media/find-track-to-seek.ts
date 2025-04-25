@@ -41,7 +41,6 @@ export const findTrackToSeek = (
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
 
 	const struc = structure.getIsoStructure();
-	console.log({struc});
 	if (!firstVideoTrack) {
 		return findAnyTrackWithSamplePositions(allTracks, struc);
 	}

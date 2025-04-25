@@ -33,11 +33,6 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			throw new Error('No moov box found');
 		}
 
-		state.mediaSection.addMediaSection({
-			start: 0,
-			size: contentLength,
-		});
-
 		const tracks = getTracksFromMoovBox(moovAtom);
 		for (const track of tracks.videoTracks) {
 			await registerVideoTrack({

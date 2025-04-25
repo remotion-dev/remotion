@@ -138,7 +138,6 @@ export const getSeekingByte = ({
 		return Promise.resolve(
 			getSeekingByteForM3u8({
 				time,
-				seekingHints: info,
 				currentPosition,
 				m3uState,
 				logLevel,

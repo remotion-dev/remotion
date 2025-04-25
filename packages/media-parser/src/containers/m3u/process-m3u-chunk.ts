@@ -145,12 +145,10 @@ export const processM3uChunk = ({
 			currentPromise.rejector = reject;
 			const childController = mediaParserController();
 			if (seekToSecondsToProcess !== null && !chunk.isHeader) {
-				/*
 				childController._experimentalSeek({
 					type: 'keyframe-before-time',
 					timeInSeconds: seekToSecondsToProcess,
 				});
-				*/
 				seekToSecondsToProcess = null;
 			}
 
@@ -201,7 +199,7 @@ export const processM3uChunk = ({
 				const data = await parseMedia({
 					src,
 					acknowledgeRemotionLicense: true,
-					logLevel: 'trace',
+					logLevel: state.logLevel,
 					controller: childController,
 					progressIntervalInMs: 0,
 					onParseProgress: () => {

@@ -115,7 +115,7 @@ export const getSeekingHints = ({
 	}
 
 	if (structure.type === 'm3u') {
-		return getSeekingHintsForM3u({structureState});
+		return getSeekingHintsForM3u();
 	}
 
 	throw new Error(
