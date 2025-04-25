@@ -118,11 +118,13 @@ export const processM3uChunk = ({
 		let chunkIndex = null;
 
 		if (seekToSecondsToProcess !== null) {
-			chunkIndex =
+			chunkIndex = Math.max(
+				0,
 				getChunkToSeekTo({
 					chunks,
 					seekToSecondsToProcess: seekToSecondsToProcess.targetTime,
-				}) - chunksToSubtract;
+				}) - chunksToSubtract,
+			);
 		}
 
 		const currentPromise = {
@@ -235,8 +237,8 @@ export const processM3uChunk = ({
 										}
 
 										state.m3u.setHasEmittedAudioTrack(playlistUrl, callback);
-										return (sample) => {
-											considerSeekBasedOnChunk({
+										return async (sample) => {
+											await considerSeekBasedOnChunk({
 												sample,
 												callback,
 												parentController: state.controller,
@@ -244,6 +246,7 @@ export const processM3uChunk = ({
 												m3uState: state.m3u,
 												playlistUrl,
 												subtractChunks: chunksToSubtract,
+												chunkIndex,
 											});
 										};
 									}
@@ -252,8 +255,8 @@ export const processM3uChunk = ({
 										return null;
 									}
 
-									return (sample) => {
-										considerSeekBasedOnChunk({
+									return async (sample) => {
+										await considerSeekBasedOnChunk({
 											sample,
 											m3uState: state.m3u,
 											playlistUrl,
@@ -261,6 +264,7 @@ export const processM3uChunk = ({
 											parentController: state.controller,
 											childController,
 											subtractChunks: chunksToSubtract,
+											chunkIndex,
 										});
 									};
 								},
@@ -283,8 +287,8 @@ export const processM3uChunk = ({
 										}
 
 										state.m3u.setHasEmittedVideoTrack(playlistUrl, callback);
-										return (sample) => {
-											considerSeekBasedOnChunk({
+										return async (sample) => {
+											await considerSeekBasedOnChunk({
 												sample,
 												m3uState: state.m3u,
 												playlistUrl,
@@ -292,6 +296,7 @@ export const processM3uChunk = ({
 												parentController: state.controller,
 												childController,
 												subtractChunks: chunksToSubtract,
+												chunkIndex,
 											});
 										};
 									}
@@ -300,8 +305,8 @@ export const processM3uChunk = ({
 										return null;
 									}
 
-									return (sample) => {
-										considerSeekBasedOnChunk({
+									return async (sample) => {
+										await considerSeekBasedOnChunk({
 											sample,
 											m3uState: state.m3u,
 											playlistUrl,
@@ -309,6 +314,7 @@ export const processM3uChunk = ({
 											parentController: state.controller,
 											childController,
 											subtractChunks: chunksToSubtract,
+											chunkIndex,
 										});
 									};
 								},

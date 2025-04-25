@@ -10,6 +10,7 @@ export const considerSeekBasedOnChunk = async ({
 	m3uState,
 	playlistUrl,
 	subtractChunks,
+	chunkIndex,
 }: {
 	sample: AudioOrVideoSample;
 	callback: (sample: AudioOrVideoSample) => void | Promise<void>;
@@ -18,6 +19,7 @@ export const considerSeekBasedOnChunk = async ({
 	playlistUrl: string;
 	m3uState: M3uState;
 	subtractChunks: number;
+	chunkIndex: number | null;
 }) => {
 	const pendingSeek = m3uState.getSeekToSecondsToProcess(playlistUrl);
 	// If there is not even a seek to consider, just call the callback
@@ -32,7 +34,11 @@ export const considerSeekBasedOnChunk = async ({
 	);
 
 	// Already too far, now we should go to the previous chunk
-	if (timestamp > pendingSeek.targetTime) {
+	if (
+		timestamp > pendingSeek.targetTime &&
+		chunkIndex !== null &&
+		chunkIndex > 0
+	) {
 		m3uState.setNextSeekShouldSubtractChunks(playlistUrl, subtractChunks + 1);
 		parentController._experimentalSeek({
 			type: 'keyframe-before-time',

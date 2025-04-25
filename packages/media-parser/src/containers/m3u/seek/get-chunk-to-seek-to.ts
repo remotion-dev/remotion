@@ -16,5 +16,5 @@ export const getChunkToSeekTo = ({
 		duration += chunks[i].duration;
 	}
 
-	return chunks.length - 1;
+	return Math.max(0, chunks.length - 1);
 };
