@@ -26,7 +26,7 @@ export const processM3uChunk = ({
 }) => {
 	const {promise, reject, resolve} = withResolvers<void>();
 
-	const onAudioTrack = audioDone
+	const onGlobalAudioTrack = audioDone
 		? null
 		: async (track: AudioTrack): Promise<OnAudioSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
@@ -63,7 +63,7 @@ export const processM3uChunk = ({
 				};
 			};
 
-	const onVideoTrack = videoDone
+	const onGlobalVideoTrack = videoDone
 		? null
 		: async (track: VideoTrack): Promise<OnVideoSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
@@ -103,18 +103,19 @@ export const processM3uChunk = ({
 	const iteratorOverSegmentFiles = async () => {
 		const playlist = getPlaylist(structure, playlistUrl);
 		const chunks = getChunks(playlist);
-		let resolver: (run: M3uRun | null) => void = () => undefined;
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		let rejector = (_e: Error) => {};
+
+		const currentPromise = {
+			resolver: (() => undefined) as (run: M3uRun | null) => void,
+			rejector: reject,
+		};
 
 		for (const chunk of chunks) {
-			resolver = (newRun: M3uRun | null) => {
+			currentPromise.resolver = (newRun: M3uRun | null) => {
 				state.m3u.setM3uStreamRun(playlistUrl, newRun);
 				resolve();
 			};
 
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			rejector = (_e: Error) => {};
+			currentPromise.rejector = reject;
 			const childController = mediaParserController();
 			const forwarded = forwardMediaParserControllerPauseResume({
 				childController,
@@ -138,15 +139,13 @@ export const processM3uChunk = ({
 			const makeContinuationFn = (): M3uRun => {
 				return {
 					continue() {
-						const {
-							promise: promise_,
-							reject: reject_,
-							resolve: resolve_,
-						} = withResolvers<M3uRun | null>();
-						resolver = resolve_;
-						rejector = reject_;
+						const resolver = withResolvers<M3uRun | null>();
+						currentPromise.resolver = resolver.resolve;
+						currentPromise.rejector = resolver.reject;
+
 						childController.resume();
-						return promise_;
+
+						return resolver.promise;
 					},
 					abort() {
 						childController.abort();
@@ -171,7 +170,7 @@ export const processM3uChunk = ({
 					progressIntervalInMs: 0,
 					onParseProgress: () => {
 						childController.pause();
-						resolver(makeContinuationFn());
+						currentPromise.resolver(makeContinuationFn());
 					},
 					fields: chunk.isHeader ? {structure: true} : undefined,
 					onTracks: () => {
@@ -186,13 +185,13 @@ export const processM3uChunk = ({
 						}
 					},
 					onAudioTrack:
-						onAudioTrack === null
+						onGlobalAudioTrack === null
 							? null
 							: async ({track}) => {
 									const callbackOrFalse =
 										state.m3u.hasEmittedAudioTrack(playlistUrl);
 									if (callbackOrFalse === false) {
-										const callback = await onAudioTrack(track);
+										const callback = await onGlobalAudioTrack(track);
 
 										if (!callback) {
 											state.m3u.setHasEmittedAudioTrack(playlistUrl, null);
@@ -208,13 +207,13 @@ export const processM3uChunk = ({
 									return callbackOrFalse;
 								},
 					onVideoTrack:
-						onVideoTrack === null
+						onGlobalVideoTrack === null
 							? null
 							: async ({track}) => {
 									const callbackOrFalse =
 										state.m3u.hasEmittedVideoTrack(playlistUrl);
 									if (callbackOrFalse === false) {
-										const callback = await onVideoTrack({
+										const callback = await onGlobalVideoTrack({
 											...track,
 											m3uStreamFormat:
 												chunk.isHeader || mp4HeaderSegment ? 'mp4' : 'ts',
@@ -237,6 +236,7 @@ export const processM3uChunk = ({
 					mp4HeaderSegment,
 					makeSamplesStartAtZero: false,
 				});
+
 				if (chunk.isHeader) {
 					if (data.structure.type !== 'iso-base-media') {
 						throw new Error('Expected an mp4 file');
@@ -245,7 +245,7 @@ export const processM3uChunk = ({
 					state.m3u.setMp4HeaderSegment(playlistUrl, data.structure);
 				}
 			} catch (e) {
-				rejector(e as Error);
+				currentPromise.rejector(e as Error);
 				throw e;
 			}
 
@@ -253,11 +253,11 @@ export const processM3uChunk = ({
 
 			if (!isLastChunk) {
 				childController.pause();
-				resolver(makeContinuationFn());
+				currentPromise.resolver(makeContinuationFn());
 			}
 		}
 
-		resolver(null);
+		currentPromise.resolver(null);
 	};
 
 	const run = iteratorOverSegmentFiles();
