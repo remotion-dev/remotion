@@ -19,6 +19,7 @@ import {
 	streamWriter,
 } from '@remotion/serverless';
 import {makeStreamer} from '@remotion/streaming';
+import {Log} from '../../cli/log';
 import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from './mock-implementation';
 
@@ -52,6 +53,11 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 		params.receivedStreamingPayload(message);
 	});
 
+	Log.verbose(
+		{indent: false, logLevel: params.payload.logLevel},
+		'Called Lambda function',
+		params.payload,
+	);
 	await innerHandler<AwsProvider>({
 		params: params.payload,
 		responseWriter: {
