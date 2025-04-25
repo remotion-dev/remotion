@@ -77,7 +77,9 @@ export const parseLoop = async ({
 			try {
 				await triggerInfoEmit(state);
 
+				Log.trace(state.logLevel, 'pause check');
 				await state.controller._internals.checkForAbortAndPause();
+				Log.trace(state.logLevel, 'pause check done');
 				const skip = await runParseIteration({
 					state,
 				});

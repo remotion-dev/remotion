@@ -10,6 +10,7 @@ import type {LogLevel} from './log';
 import type {IsoBaseMediaStructure} from './parse-result';
 import type {SeekingHints} from './seeking-hints';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
+import type {M3uState} from './state/m3u-state';
 import type {WebmState} from './state/matroska/webm';
 import type {RiffState} from './state/riff';
 import type {StructureState} from './state/structure';
@@ -30,6 +31,7 @@ export const getSeekingByte = ({
 	mp4HeaderSegment,
 	structure,
 	riffState,
+	m3uState,
 }: {
 	info: SeekingHints;
 	time: number;
@@ -42,6 +44,7 @@ export const getSeekingByte = ({
 	structure: StructureState;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 	riffState: RiffState;
+	m3uState: M3uState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-hints') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -136,6 +139,9 @@ export const getSeekingByte = ({
 			getSeekingByteForM3u8({
 				time,
 				seekingHints: info,
+				currentPosition,
+				m3uState,
+				logLevel,
 			}),
 		);
 	}

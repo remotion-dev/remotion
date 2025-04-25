@@ -12,7 +12,10 @@ export const getSeekingHintsForM3u = ({
 		(b) => b.type === 'm3u-playlist',
 	) as M3uPlaylist[];
 	console.log(
-		playlists.map((b) => b.boxes.filter((b) => b.type === 'm3u-extinf')),
+		playlists.map((b) => ({
+			a: JSON.stringify(b.boxes),
+			i: b.boxes.filter((b) => b.type === 'm3u-extinf'),
+		})),
 	);
 
 	return {

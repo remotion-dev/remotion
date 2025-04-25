@@ -17,6 +17,7 @@ import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
+import type {M3uState} from './state/m3u-state';
 import type {WebmState} from './state/matroska/webm';
 import type {Mp3State} from './state/mp3';
 import type {ParserState} from './state/parser-state';
@@ -45,6 +46,7 @@ const turnSeekIntoByte = async ({
 	mp3State,
 	contentLength,
 	aacState,
+	m3uState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
@@ -63,6 +65,7 @@ const turnSeekIntoByte = async ({
 	mp3State: Mp3State;
 	aacState: AacState;
 	contentLength: number;
+	m3uState: M3uState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 
@@ -116,6 +119,7 @@ const turnSeekIntoByte = async ({
 			mp4HeaderSegment,
 			structure: structureState,
 			riffState,
+			m3uState,
 		});
 
 		return seekingByte;
@@ -158,6 +162,7 @@ export type WorkOnSeekRequestOptions = {
 	riffState: RiffState;
 	mp3State: Mp3State;
 	aacState: AacState;
+	m3uState: M3uState;
 	prefetchCache: PrefetchCache;
 };
 
@@ -189,6 +194,7 @@ export const getWorkOnSeekRequestOptions = (
 		riffState: state.riff,
 		mp3State: state.mp3,
 		aacState: state.aac,
+		m3uState: state.m3u,
 		prefetchCache: state.prefetchCache,
 	};
 };
@@ -220,6 +226,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		mp3State,
 		aacState,
 		prefetchCache,
+		m3uState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
@@ -245,6 +252,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		mp3State,
 		contentLength,
 		aacState,
+		m3uState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

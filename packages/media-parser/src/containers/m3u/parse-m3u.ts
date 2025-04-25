@@ -5,7 +5,9 @@ import {runOverM3u} from './run-over-m3u';
 
 export const parseM3u = async ({state}: {state: ParserState}) => {
 	const structure = state.structure.getM3uStructure();
+	console.log('parse m3u');
 	if (state.m3u.isReadyToIterateOverM3u()) {
+		console.log('is ready to iterate over m3u');
 		const selectedPlaylists = state.m3u.getSelectedPlaylists();
 
 		const whichPlaylistToRunOver =
@@ -28,7 +30,9 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 
 		state.mediaSection.addMediaSection({
 			start: 0,
-			size: state.contentLength,
+			// We do a pseudo-seek when seeking m3u, which will be the same byte
+			// as we are currently in, which in most cases is the end of the file.
+			size: state.contentLength + 1,
 		});
 
 		await afterManifestFetch({

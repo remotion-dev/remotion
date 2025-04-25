@@ -111,6 +111,11 @@ export const m3uState = (logLevel: LogLevel) => {
 		setAllChunksProcessed: (src: string) => {
 			allChunksProcessed[src] = true;
 		},
+		clearAllChunksProcessed: () => {
+			Object.keys(allChunksProcessed).forEach((key) => {
+				delete allChunksProcessed[key];
+			});
+		},
 		getAllChunksProcessedForPlaylist,
 		getAllChunksProcessedOverall: () => {
 			if (!selectedMainPlaylist) {
@@ -139,6 +144,11 @@ export const m3uState = (logLevel: LogLevel) => {
 		},
 		getTrackDone: (playlistUrl: string) => {
 			return tracksDone[playlistUrl];
+		},
+		clearTracksDone: () => {
+			Object.keys(tracksDone).forEach((key) => {
+				delete tracksDone[key];
+			});
 		},
 		getM3uStreamRun: (playlistUrl: string) =>
 			m3uStreamRuns[playlistUrl] ?? null,
