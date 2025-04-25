@@ -23,11 +23,6 @@ export const runParseIteration = async ({
 	}
 
 	if (state.iterator.bytesRemaining() === 0) {
-		console.log(
-			state.src,
-			state.iterator.bytesRemaining(),
-			state.iterator.counter.getOffset(),
-		);
 		return Promise.reject(new Error('no bytes'));
 	}
 

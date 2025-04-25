@@ -22,6 +22,7 @@ export const clearM3uStateInPrepareForSeek = ({
 	}
 
 	m3uState.clearAllChunksProcessed();
+	m3uState.sampleSorter.clearSamples();
 };
 
 export const getSeekingByteForM3u8 = ({

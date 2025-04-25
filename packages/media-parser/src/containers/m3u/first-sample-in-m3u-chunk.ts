@@ -2,7 +2,7 @@ import type {MediaParserController} from '../../controller/media-parser-controll
 import type {M3uState} from '../../state/m3u-state';
 import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 
-export const considerSeekBasedOnChunk = ({
+export const considerSeekBasedOnChunk = async ({
 	sample,
 	parentController,
 	childController,
@@ -22,7 +22,7 @@ export const considerSeekBasedOnChunk = ({
 	const pendingSeek = m3uState.getSeekToSecondsToProcess(playlistUrl);
 	// If there is not even a seek to consider, just call the callback
 	if (pendingSeek === null) {
-		callback(sample);
+		await callback(sample);
 		return;
 	}
 

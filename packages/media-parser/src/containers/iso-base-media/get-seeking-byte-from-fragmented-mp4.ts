@@ -58,19 +58,25 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	);
 
 	for (const positions of samplePositionsArray) {
-		const {min, max} = getSamplePositionBounds(positions, firstTrack.timescale);
-		if (min <= time && time <= max) {
+		const {min, max} = getSamplePositionBounds(
+			positions.samples,
+			firstTrack.timescale,
+		);
+
+		if (min <= time && (positions.isLastFragment || time <= max)) {
 			Log.trace(
 				logLevel,
 				`Fragmented MP4 - Found that we have seeking info for this time range: ${min} <= ${time} <= ${max}`,
 			);
+
 			const kf = findKeyframeBeforeTime({
-				samplePositions: positions,
+				samplePositions: positions.samples,
 				time,
 				timescale: firstTrack.timescale,
 				logLevel,
 				mediaSections: info.mediaSections,
 			});
+
 			if (kf) {
 				return {
 					type: 'do-seek',

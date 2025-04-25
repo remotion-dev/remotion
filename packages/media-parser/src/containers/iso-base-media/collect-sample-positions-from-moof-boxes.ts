@@ -12,15 +12,24 @@ export const collectSamplePositionsFromMoofBoxes = ({
 	tfraBoxes: TfraBox[];
 	tkhdBox: TkhdBox;
 }) => {
-	const isComplete =
-		tfraBoxes.length > 0 &&
-		tfraBoxes.every((t) => t.entries.length === moofBoxes.length);
+	// In a fragmented MP4, the tfra boxes are present, then the number of tfra and moof boxes must be the same
 
-	const samplePositions = moofBoxes.map((m) => {
-		return getSamplesFromMoof({
-			moofBox: m,
-			trackId: tkhdBox.trackId,
-		});
+	// In a m3u8, there are no tfra, and only 1 moof
+	const isComplete =
+		tfraBoxes.length === 0 ||
+		(tfraBoxes.length > 0 &&
+			tfraBoxes.every((t) => t.entries.length === moofBoxes.length));
+
+	const samplePositions = moofBoxes.map((m, index) => {
+		const isLastFragment = index === moofBoxes.length - 1 && isComplete;
+
+		return {
+			isLastFragment,
+			samples: getSamplesFromMoof({
+				moofBox: m,
+				trackId: tkhdBox.trackId,
+			}),
+		};
 	});
 
 	return {samplePositions, isComplete};

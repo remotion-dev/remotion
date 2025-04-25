@@ -95,6 +95,27 @@ test('seek m3u, video and audio', async () => {
 		}
 
 		if (samples === 2) {
+			expect(mediaType).toBe('video');
+			expect(sample.dts / sample.timescale).toBe(9.148333333333333);
+			controller._experimentalSeek({
+				type: 'keyframe-before-time',
+				timeInSeconds: 1,
+			});
+		}
+
+		if (samples === 3) {
+			expect(mediaType).toBe('video');
+			expect(sample.dts / sample.timescale).toBe(0.036666666666666674);
+		}
+
+		if (samples === 4) {
+			expect(mediaType).toBe('audio');
+			expect(sample.dts / sample.timescale).toBe(0.9813333333333333);
+		}
+
+		if (samples === 5) {
+			expect(mediaType).toBe('video');
+			expect(sample.dts / sample.timescale).toBe(0.07333333333333335);
 			controller.abort();
 		}
 
@@ -107,7 +128,6 @@ test('seek m3u, video and audio', async () => {
 			acknowledgeRemotionLicense: true,
 			controller,
 			reader: nodeReader,
-			logLevel: 'trace',
 			onVideoTrack: () => {
 				return (sample) => {
 					expectSample(sample, 'video');
