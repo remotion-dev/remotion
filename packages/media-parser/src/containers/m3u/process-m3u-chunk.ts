@@ -24,20 +24,9 @@ export const processM3uChunk = ({
 	audioDone: boolean;
 	videoDone: boolean;
 }) => {
-	const {promise, reject, resolve} = withResolvers<M3uRun | null>();
+	const {promise, reject, resolve} = withResolvers<void>();
 
-	const _onInitialProgress = (newRun: M3uRun | null) => {
-		resolve(newRun);
-	};
-
-	const _onDoneWithTracks = () => {
-		const allDone = state.m3u.setTracksDone(playlistUrl);
-		if (allDone) {
-			state.callbacks.tracks.setIsDone(state.logLevel);
-		}
-	};
-
-	const _onAudioTrack = audioDone
+	const onAudioTrack = audioDone
 		? null
 		: async (track: AudioTrack): Promise<OnAudioSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
@@ -74,7 +63,7 @@ export const processM3uChunk = ({
 				};
 			};
 
-	const _onVideoTrack = videoDone
+	const onVideoTrack = videoDone
 		? null
 		: async (track: VideoTrack): Promise<OnVideoSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
@@ -114,12 +103,16 @@ export const processM3uChunk = ({
 	const iteratorOverSegmentFiles = async () => {
 		const playlist = getPlaylist(structure, playlistUrl);
 		const chunks = getChunks(playlist);
-		let resolver: (run: M3uRun | null) => void = _onInitialProgress;
+		let resolver: (run: M3uRun | null) => void = () => undefined;
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		let rejector = (_e: Error) => {};
 
 		for (const chunk of chunks) {
-			resolver = _onInitialProgress;
+			resolver = (newRun: M3uRun | null) => {
+				state.m3u.setM3uStreamRun(playlistUrl, newRun);
+				resolve();
+			};
+
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			rejector = (_e: Error) => {};
 			const childController = mediaParserController();
@@ -184,18 +177,22 @@ export const processM3uChunk = ({
 					onTracks: () => {
 						if (!state.m3u.hasEmittedDoneWithTracks(playlistUrl)) {
 							state.m3u.setHasEmittedDoneWithTracks(playlistUrl);
-							_onDoneWithTracks();
+							const allDone = state.m3u.setTracksDone(playlistUrl);
+							if (allDone) {
+								state.callbacks.tracks.setIsDone(state.logLevel);
+							}
+
 							return null;
 						}
 					},
 					onAudioTrack:
-						_onAudioTrack === null
+						onAudioTrack === null
 							? null
 							: async ({track}) => {
 									const callbackOrFalse =
 										state.m3u.hasEmittedAudioTrack(playlistUrl);
 									if (callbackOrFalse === false) {
-										const callback = await _onAudioTrack(track);
+										const callback = await onAudioTrack(track);
 
 										if (!callback) {
 											state.m3u.setHasEmittedAudioTrack(playlistUrl, null);
@@ -211,13 +208,13 @@ export const processM3uChunk = ({
 									return callbackOrFalse;
 								},
 					onVideoTrack:
-						_onVideoTrack === null
+						onVideoTrack === null
 							? null
 							: async ({track}) => {
 									const callbackOrFalse =
 										state.m3u.hasEmittedVideoTrack(playlistUrl);
 									if (callbackOrFalse === false) {
-										const callback = await _onVideoTrack({
+										const callback = await onVideoTrack({
 											...track,
 											m3uStreamFormat:
 												chunk.isHeader || mp4HeaderSegment ? 'mp4' : 'ts',

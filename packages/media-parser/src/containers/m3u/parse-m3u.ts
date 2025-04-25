@@ -5,9 +5,7 @@ import {runOverM3u} from './run-over-m3u';
 
 export const parseM3u = async ({state}: {state: ParserState}) => {
 	const structure = state.structure.getM3uStructure();
-	console.log('parse m3u');
 	if (state.m3u.isReadyToIterateOverM3u()) {
-		console.log('is ready to iterate over m3u');
 		const selectedPlaylists = state.m3u.getSelectedPlaylists();
 
 		const whichPlaylistToRunOver =

@@ -30,8 +30,6 @@ export const getSeekingByteForM3u8 = ({
 
 	m3uState.clearAllChunksProcessed();
 
-	console.log({selectedPlaylists, seekingHints, time});
-
 	return {
 		type: 'do-seek',
 		byte: currentPosition,

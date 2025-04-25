@@ -15,7 +15,6 @@ export const runOverM3u = async ({
 	playlistUrl: string;
 	logLevel: LogLevel;
 }) => {
-	console.log('---');
 	const tracksDone = state.m3u.getTrackDone(playlistUrl);
 	const hasAudioStreamToConsider =
 		state.m3u.sampleSorter.hasAudioStreamToConsider(playlistUrl);
@@ -27,7 +26,6 @@ export const runOverM3u = async ({
 
 	const bothDone = audioDone && videoDone;
 	if (bothDone) {
-		console.log('both done');
 		state.m3u.setAllChunksProcessed(playlistUrl);
 		return;
 	}
@@ -36,9 +34,7 @@ export const runOverM3u = async ({
 
 	if (existingRun) {
 		Log.trace(logLevel, 'Existing M3U parsing process found for', playlistUrl);
-		console.log('existing run');
 		const run = await existingRun.continue();
-		console.log('existing run, continued');
 		state.m3u.setM3uStreamRun(playlistUrl, run);
 		if (!run) {
 			state.m3u.setAllChunksProcessed(playlistUrl);
@@ -49,13 +45,11 @@ export const runOverM3u = async ({
 
 	Log.trace(logLevel, 'Starting new M3U parsing process for', playlistUrl);
 
-	const newRun = await processM3uChunk({
+	await processM3uChunk({
 		playlistUrl,
 		state,
 		structure,
 		audioDone,
 		videoDone,
 	});
-
-	state.m3u.setM3uStreamRun(playlistUrl, newRun);
 };
