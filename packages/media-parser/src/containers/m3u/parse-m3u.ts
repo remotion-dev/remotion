@@ -41,6 +41,8 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 			logLevel: state.logLevel,
 			selectAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
 			readerInterface: state.readerInterface,
+			onAudioTrack: state.onAudioTrack,
+			canSkipTracks: state.callbacks.canSkipTracksState,
 		});
 		return null;
 	}

@@ -19,9 +19,11 @@ export type SelectM3uAssociatedPlaylistsFn = (
 export const selectAssociatedPlaylists = async ({
 	playlists,
 	fn,
+	skipAudioTracks,
 }: {
 	playlists: M3uAssociatedPlaylist[];
 	fn: SelectM3uAssociatedPlaylistsFn;
+	skipAudioTracks: boolean;
 }): Promise<M3uAssociatedPlaylist[]> => {
 	if (playlists.length < 1) {
 		return Promise.resolve([]);
@@ -32,15 +34,22 @@ export const selectAssociatedPlaylists = async ({
 		throw new Error('Expected an array of associated playlists');
 	}
 
+	const selectedStreams: M3uAssociatedPlaylist[] = [];
 	for (const stream of streams) {
+		if (stream.isAudio && skipAudioTracks) {
+			continue;
+		}
+
 		if (!playlists.find((playlist) => playlist.src === stream.src)) {
 			throw new Error(
 				`The associated playlist ${JSON.stringify(streams)} cannot be selected because it was not in the list of selectable playlists`,
 			);
 		}
+
+		selectedStreams.push(stream);
 	}
 
-	return streams;
+	return selectedStreams;
 };
 
 export const defaultSelectM3uAssociatedPlaylists: SelectM3uAssociatedPlaylistsFn =

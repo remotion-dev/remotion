@@ -68,22 +68,29 @@ export const makeCanSkipTracksState = ({
 	fields: Options<ParseMediaFields>;
 	structure: StructureState;
 }) => {
+	const doFieldsNeedTracks = () => {
+		const keys = Object.keys(
+			fields ?? {},
+		) as (keyof Options<ParseMediaFields>)[];
+
+		const selectedKeys = keys.filter((k) => fields[k]);
+
+		return selectedKeys.some((k) =>
+			needsTracksForField({
+				field: k,
+				structure: structure.getStructureOrNull(),
+			}),
+		);
+	};
+
 	return {
+		doFieldsNeedTracks,
 		canSkipTracks: () => {
 			if (hasAudioTrackHandlers || hasVideoTrackHandlers) {
 				return false;
 			}
 
-			const keys = Object.keys(
-				fields ?? {},
-			) as (keyof Options<ParseMediaFields>)[];
-			const selectedKeys = keys.filter((k) => fields[k]);
-			return !selectedKeys.some((k) =>
-				needsTracksForField({
-					field: k,
-					structure: structure.getStructureOrNull(),
-				}),
-			);
+			return !doFieldsNeedTracks();
 		},
 	};
 };
