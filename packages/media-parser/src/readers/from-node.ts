@@ -1,6 +1,5 @@
 import {createReadStream, promises, statSync} from 'fs';
 import {dirname, join, relative, sep} from 'path';
-import {Readable} from 'stream';
 import type {
 	CreateAdjacentFileSource,
 	ReadContent,
@@ -36,9 +35,28 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 
 	const stats = statSync(src);
 
-	const reader = Readable.toWeb(
-		stream,
-	).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+	let readerCancelled = false;
+	const reader = new ReadableStream({
+		start(c) {
+			if (readerCancelled) {
+				return;
+			}
+
+			stream.on('data', (chunk) => {
+				c.enqueue(chunk);
+			});
+			stream.on('end', () => {
+				c.close();
+			});
+			stream.on('error', (err) => {
+				c.error(err);
+			});
+		},
+		cancel() {
+			readerCancelled = true;
+			stream.destroy();
+		},
+	}).getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
 	if (controller) {
 		controller._internals.signal.addEventListener(

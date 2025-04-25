@@ -13,7 +13,7 @@ export type MediaParserController = {
 	abort: (reason?: any) => void;
 	pause: PauseSignal['pause'];
 	resume: PauseSignal['resume'];
-	_experimentalSeek: SeekSignal['seek'];
+	seek: SeekSignal['seek'];
 	addEventListener: MediaParserEmitter['addEventListener'];
 	removeEventListener: MediaParserEmitter['removeEventListener'];
 	getSeekingHints: () => Promise<SeekingHints | null>;
@@ -41,7 +41,12 @@ export const mediaParserController = (): MediaParserController => {
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
-			throw new MediaParserAbortError('Aborted');
+			const err = new MediaParserAbortError('Aborted');
+			if (abortController.signal.reason) {
+				err.cause = abortController.signal.reason;
+			}
+
+			throw err;
 		}
 
 		await pauseSignal.waitUntilResume();
@@ -77,7 +82,7 @@ export const mediaParserController = (): MediaParserController => {
 			abortController.abort(reason);
 			emitter.dispatchAbort(reason);
 		},
-		_experimentalSeek: seekSignal.seek,
+		seek: seekSignal.seek,
 		pause: pauseSignal.pause,
 		resume: pauseSignal.resume,
 		addEventListener: emitter.addEventListener,

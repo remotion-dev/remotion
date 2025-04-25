@@ -42,7 +42,7 @@ test('get webm cues', async () => {
 const controller1 = mediaParserController();
 
 test('should use them for seeking', async () => {
-	controller1._experimentalSeek({
+	controller1.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 10,
 	});
@@ -61,7 +61,7 @@ test('should use them for seeking', async () => {
 					const timeInSeconds = s.timestamp / s.timescale;
 					if (samples === 1) {
 						expect(timeInSeconds).toBe(9.603);
-						controller1._experimentalSeek({
+						controller1.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -69,7 +69,7 @@ test('should use them for seeking', async () => {
 
 					if (samples === 2) {
 						expect(timeInSeconds).toBe(4.803);
-						controller1._experimentalSeek({
+						controller1.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 0,
 						});
@@ -77,7 +77,7 @@ test('should use them for seeking', async () => {
 
 					if (samples === 3) {
 						expect(timeInSeconds).toBe(0.003);
-						controller1._experimentalSeek({
+						controller1.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -85,7 +85,7 @@ test('should use them for seeking', async () => {
 
 					if (samples === 4) {
 						expect(timeInSeconds).toBe(4.803);
-						controller1._experimentalSeek({
+						controller1.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -129,7 +129,7 @@ test('should be able to use precomputed seeking hints', async () => {
 	let samples = 0;
 
 	const controller2 = mediaParserController();
-	controller2._experimentalSeek({
+	controller2.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 10,
 	});
@@ -147,7 +147,7 @@ test('should be able to use precomputed seeking hints', async () => {
 					const timeInSeconds = s.timestamp / s.timescale;
 					if (samples === 1) {
 						expect(timeInSeconds).toBe(9.603);
-						controller2._experimentalSeek({
+						controller2.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -155,7 +155,7 @@ test('should be able to use precomputed seeking hints', async () => {
 
 					if (samples === 2) {
 						expect(timeInSeconds).toBe(4.803);
-						controller2._experimentalSeek({
+						controller2.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 0,
 						});
@@ -163,7 +163,7 @@ test('should be able to use precomputed seeking hints', async () => {
 
 					if (samples === 3) {
 						expect(timeInSeconds).toBe(0.003);
-						controller2._experimentalSeek({
+						controller2.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -171,7 +171,7 @@ test('should be able to use precomputed seeking hints', async () => {
 
 					if (samples === 4) {
 						expect(timeInSeconds).toBe(4.803);
-						controller2._experimentalSeek({
+						controller2.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -213,7 +213,7 @@ test('should be able to use precomputed seeking hints', async () => {
 
 test('should work if there are no cues', async () => {
 	const controller = mediaParserController();
-	controller._experimentalSeek({
+	controller.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 10,
 	});
@@ -229,7 +229,7 @@ test('should work if there are no cues', async () => {
 			onVideoTrack: () => {
 				return (s) => {
 					if (samples === 213) {
-						controller._experimentalSeek({
+						controller.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 5,
 						});
@@ -238,7 +238,7 @@ test('should work if there are no cues', async () => {
 
 					if (samples === 214) {
 						expect(s.timestamp / s.timescale).toBe(3.408);
-						controller._experimentalSeek({
+						controller.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 0,
 						});

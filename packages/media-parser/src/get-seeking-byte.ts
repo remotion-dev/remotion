@@ -1,14 +1,16 @@
 import {getSeekingByteForAac} from './containers/aac/get-seeking-byte';
 import {getSeekingByteForFlac} from './containers/flac/get-seeking-byte';
 import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-seeking-byte';
+import {getSeekingByteForM3u8} from './containers/m3u/get-seeking-byte';
 import {getSeekingByteForMp3} from './containers/mp3/get-seeking-byte';
 import {getSeekingByteForRiff} from './containers/riff/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
 import type {LogLevel} from './log';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {M3uPlaylistContext} from './options';
 import type {SeekingHints} from './seeking-hints';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
+import type {M3uState} from './state/m3u-state';
 import type {WebmState} from './state/matroska/webm';
 import type {RiffState} from './state/riff';
 import type {StructureState} from './state/structure';
@@ -26,9 +28,10 @@ export const getSeekingByte = ({
 	transportStream,
 	webmState,
 	mediaSection,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	structure,
 	riffState,
+	m3uState,
 }: {
 	info: SeekingHints;
 	time: number;
@@ -39,8 +42,9 @@ export const getSeekingByte = ({
 	webmState: WebmState;
 	mediaSection: MediaSectionState;
 	structure: StructureState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	riffState: RiffState;
+	m3uState: M3uState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-hints') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -49,8 +53,8 @@ export const getSeekingByte = ({
 			logLevel,
 			currentPosition,
 			isoState,
-			mp4HeaderSegment,
 			structure,
+			m3uPlaylistContext,
 		});
 	}
 
@@ -131,9 +135,14 @@ export const getSeekingByte = ({
 	}
 
 	if (info.type === 'm3u8-seeking-hints') {
-		return Promise.resolve({
-			type: 'invalid',
-		});
+		return Promise.resolve(
+			getSeekingByteForM3u8({
+				time,
+				currentPosition,
+				m3uState,
+				logLevel,
+			}),
+		);
 	}
 
 	throw new Error(`Unknown seeking info type: ${info satisfies never}`);

@@ -1,12 +1,13 @@
 import {getSeekingHintsForAac} from './containers/aac/seeking-hints';
 import {getSeekingHintsForFlac} from './containers/flac/seeking-hints';
 import {getSeekingHintsFromMp4} from './containers/iso-base-media/seeking-hints';
+import {getSeekingHintsForM3u} from './containers/m3u/seeking-hints';
 import {getSeekingHintsForMp3} from './containers/mp3/seeking-hints';
 import {getSeekingHintsForRiff} from './containers/riff/seeking-hints';
 import {getSeekingHintsFromTransportStream} from './containers/transport-stream/seeking-hints';
 import {getSeekingHintsFromWav} from './containers/wav/seeking-hints';
 import {getSeekingHintsFromMatroska} from './containers/webm/seek/seeking-hints';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {M3uPlaylistContext} from './options';
 import type {SeekingHints} from './seeking-hints';
 import type {AacState} from './state/aac-state';
 import type {FlacState} from './state/flac-state';
@@ -23,7 +24,7 @@ import type {MediaSectionState} from './state/video-section';
 
 export const getSeekingHints = ({
 	structureState,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	mediaSectionState,
 	isoState,
 	transportStream,
@@ -38,7 +39,7 @@ export const getSeekingHints = ({
 	aacState,
 }: {
 	structureState: StructureState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	mediaSectionState: MediaSectionState;
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;
@@ -62,7 +63,7 @@ export const getSeekingHints = ({
 		return getSeekingHintsFromMp4({
 			structureState,
 			isoState,
-			mp4HeaderSegment,
+			mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
 			mediaSectionState,
 		});
 	}
@@ -114,9 +115,7 @@ export const getSeekingHints = ({
 	}
 
 	if (structure.type === 'm3u') {
-		return {
-			type: 'm3u8-seeking-hints',
-		};
+		return getSeekingHintsForM3u();
 	}
 
 	throw new Error(

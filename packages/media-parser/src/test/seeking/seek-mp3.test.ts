@@ -6,7 +6,7 @@ import {parseMedia} from '../../parse-media';
 
 test('seek mp3', async () => {
 	const controller = mediaParserController();
-	controller._experimentalSeek({
+	controller.seek({
 		timeInSeconds: 10,
 		type: 'keyframe-before-time',
 	});
@@ -24,7 +24,7 @@ test('seek mp3', async () => {
 				if (samples === 1) {
 					expect(sample.timestamp / sample.timescale).toBe(9.978776);
 					expect(sample.type).toBe('key');
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 25,
 						type: 'keyframe-before-time',
 					});
@@ -32,7 +32,7 @@ test('seek mp3', async () => {
 
 				if (samples === 2) {
 					expect(sample.timestamp / sample.timescale).toBe(24.999184);
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 30,
 						type: 'keyframe-before-time',
 					});
@@ -41,7 +41,7 @@ test('seek mp3', async () => {
 				if (samples === 3) {
 					expect(sample.timestamp / sample.timescale).toBe(29.988571);
 					expect(sample.type).toBe('key');
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 0.0,
 						type: 'keyframe-before-time',
 					});
@@ -50,7 +50,7 @@ test('seek mp3', async () => {
 				if (samples === 4) {
 					expect(sample.timestamp / sample.timescale).toBe(0);
 					expect(sample.type).toBe('key');
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 100,
 						type: 'keyframe-before-time',
 					});

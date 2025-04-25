@@ -82,6 +82,7 @@ export type M3uMediaInfo = {
 	default: boolean;
 	channels: number | null;
 	uri: string;
+	mediaType: string | null;
 };
 
 export type M3uTextValue = {
