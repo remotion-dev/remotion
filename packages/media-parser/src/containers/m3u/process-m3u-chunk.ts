@@ -7,10 +7,15 @@ import {type M3uRun} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
 import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
 import {withResolvers} from '../../with-resolvers';
+import {considerSeekBasedOnChunk} from './first-sample-in-m3u-chunk';
 import {getChunks} from './get-chunks';
 import {getPlaylist} from './get-playlist';
 import {getChunkToSeekTo} from './seek/get-chunk-to-seek-to';
 import type {M3uStructure} from './types';
+
+export type PendingSeek = {
+	pending: number | null;
+};
 
 export const processM3uChunk = ({
 	playlistUrl,
@@ -27,7 +32,6 @@ export const processM3uChunk = ({
 }) => {
 	const {promise, reject, resolve} = withResolvers<void>();
 
-	console.log({playlistUrl, audioDone});
 	const onGlobalAudioTrack = audioDone
 		? null
 		: async (track: AudioTrack): Promise<OnAudioSample | null> => {
@@ -107,15 +111,15 @@ export const processM3uChunk = ({
 	const pausableIterator = async () => {
 		const playlist = getPlaylist(structure, playlistUrl);
 		const chunks = getChunks(playlist);
-		let seekToSecondsToProcess =
+		const seekToSecondsToProcess =
 			state.m3u.getSeekToSecondsToProcess(playlistUrl);
 		let chunkIndex = null;
+
 		if (seekToSecondsToProcess !== null) {
 			chunkIndex = getChunkToSeekTo({
 				chunks,
 				seekToSecondsToProcess,
 			});
-			state.m3u.setSeekToSecondsToProcess(playlistUrl, null);
 		}
 
 		const currentPromise = {
@@ -146,13 +150,6 @@ export const processM3uChunk = ({
 
 			currentPromise.rejector = reject;
 			const childController = mediaParserController();
-			if (seekToSecondsToProcess !== null && !chunk.isHeader) {
-				childController._experimentalSeek({
-					type: 'keyframe-before-time',
-					timeInSeconds: seekToSecondsToProcess,
-				});
-				seekToSecondsToProcess = null;
-			}
 
 			const forwarded = forwardMediaParserControllerPauseResume({
 				childController,
@@ -236,11 +233,29 @@ export const processM3uChunk = ({
 
 										state.m3u.setHasEmittedAudioTrack(playlistUrl, callback);
 										return (sample) => {
-											return callback(sample);
+											considerSeekBasedOnChunk({
+												sample,
+												callback,
+												controller: childController,
+												m3uState: state.m3u,
+												playlistUrl,
+											});
 										};
 									}
 
-									return callbackOrFalse;
+									if (callbackOrFalse === null) {
+										return null;
+									}
+
+									return (sample) => {
+										considerSeekBasedOnChunk({
+											sample,
+											m3uState: state.m3u,
+											playlistUrl,
+											callback: callbackOrFalse,
+											controller: childController,
+										});
+									};
 								},
 					onVideoTrack:
 						onGlobalVideoTrack === null
@@ -262,11 +277,29 @@ export const processM3uChunk = ({
 
 										state.m3u.setHasEmittedVideoTrack(playlistUrl, callback);
 										return (sample) => {
-											return callback(sample);
+											considerSeekBasedOnChunk({
+												sample,
+												m3uState: state.m3u,
+												playlistUrl,
+												callback,
+												controller: childController,
+											});
 										};
 									}
 
-									return callbackOrFalse;
+									if (callbackOrFalse === null) {
+										return null;
+									}
+
+									return (sample) => {
+										considerSeekBasedOnChunk({
+											sample,
+											m3uState: state.m3u,
+											playlistUrl,
+											callback: callbackOrFalse,
+											controller: childController,
+										});
+									};
 								},
 					reader: state.readerInterface,
 					mp4HeaderSegment,

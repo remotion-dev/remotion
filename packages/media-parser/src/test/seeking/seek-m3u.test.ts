@@ -18,7 +18,6 @@ test.only('seek m3u, only video', async () => {
 		acknowledgeRemotionLicense: true,
 		controller,
 		reader: nodeReader,
-		logLevel: 'trace',
 		onVideoTrack: () => {
 			return (sample) => {
 				console.log(sample.dts);
@@ -31,6 +30,8 @@ test.only('seek m3u, only video', async () => {
 				}
 
 				if (samples === 1) {
+					expect(sample.dts / sample.timescale).toBe(1.99);
+
 					controller.abort();
 				}
 
