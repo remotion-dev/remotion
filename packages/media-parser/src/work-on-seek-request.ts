@@ -128,13 +128,6 @@ const turnSeekIntoByte = async ({
 		return seekingByte;
 	}
 
-	if (seek.type === 'byte') {
-		return {
-			type: 'do-seek',
-			byte: seek.byte,
-		};
-	}
-
 	throw new Error(
 		`Cannot process seek request for ${seek}: ${JSON.stringify(seek)}`,
 	);
