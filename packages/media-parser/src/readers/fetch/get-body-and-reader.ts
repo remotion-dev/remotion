@@ -32,8 +32,12 @@ export const getLengthAndReader = async ({
 					return;
 				}
 
-				controller.enqueue(encoded);
-				controller.close();
+				try {
+					controller.enqueue(encoded);
+					controller.close();
+				} catch {
+					// sometimes on windows after aborting on node 16: Invalid state: ReadableStreamDefaultController is not in a state where chunk can be enqueued
+				}
 			},
 		});
 
