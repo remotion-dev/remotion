@@ -185,7 +185,7 @@ export const m3uState = (logLevel: LogLevel) => {
 			seekToSecondsToProcess[playlistUrl] = m3uSeek;
 		},
 		getSeekToSecondsToProcess: (playlistUrl: string) =>
-			seekToSecondsToProcess[playlistUrl],
+			seekToSecondsToProcess[playlistUrl] ?? null,
 		setNextSeekShouldSubtractChunks: (playlistUrl: string, chunks: number) => {
 			nextSeekShouldSubtractChunks[playlistUrl] = chunks;
 		},
