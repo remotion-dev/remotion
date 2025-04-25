@@ -27,6 +27,7 @@ export const processM3uChunk = ({
 }) => {
 	const {promise, reject, resolve} = withResolvers<void>();
 
+	console.log({playlistUrl, audioDone});
 	const onGlobalAudioTrack = audioDone
 		? null
 		: async (track: AudioTrack): Promise<OnAudioSample | null> => {
@@ -106,14 +107,15 @@ export const processM3uChunk = ({
 	const pausableIterator = async () => {
 		const playlist = getPlaylist(structure, playlistUrl);
 		const chunks = getChunks(playlist);
-		let seekToSecondsToProcess = state.m3u.getSeekToSecondsToProcess();
+		let seekToSecondsToProcess =
+			state.m3u.getSeekToSecondsToProcess(playlistUrl);
 		let chunkIndex = null;
 		if (seekToSecondsToProcess !== null) {
 			chunkIndex = getChunkToSeekTo({
 				chunks,
 				seekToSecondsToProcess,
 			});
-			state.m3u.setSeekToSecondsToProcess(null);
+			state.m3u.setSeekToSecondsToProcess(playlistUrl, null);
 		}
 
 		const currentPromise = {

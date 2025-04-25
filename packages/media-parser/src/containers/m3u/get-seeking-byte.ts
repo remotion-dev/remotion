@@ -23,9 +23,8 @@ export const getSeekingByteForM3u8 = ({
 
 		Log.trace(logLevel, 'Clearing M3U stream run for', playlistUrl);
 		m3uState.setM3uStreamRun(playlistUrl, null);
+		m3uState.setSeekToSecondsToProcess(playlistUrl, time);
 	}
-
-	m3uState.setSeekToSecondsToProcess(time);
 
 	m3uState.clearAllChunksProcessed();
 

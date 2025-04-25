@@ -32,11 +32,15 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 }): Promise<SeekResolution> => {
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
 
-	if (!firstVideoTrack) {
-		return Promise.reject(new Error('No video track found'));
+	// If there is both video and audio, seek based on video, but if not then audio is also okay
+	const firstTrack =
+		firstVideoTrack ?? allTracks.find((t) => t.type === 'audio');
+
+	if (!firstTrack) {
+		throw new Error('no video and no audio tracks');
 	}
 
-	const tkhdBox = getTkhdBox(firstVideoTrack.trakBox as TrakBox);
+	const tkhdBox = getTkhdBox(firstTrack.trakBox as TrakBox);
 	if (!tkhdBox) {
 		throw new Error('Expected tkhd box in trak box');
 	}
@@ -52,11 +56,9 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 		logLevel,
 		'Fragmented MP4 - Checking if we have seeking info for this time range',
 	);
+
 	for (const positions of samplePositionsArray) {
-		const {min, max} = getSamplePositionBounds(
-			positions,
-			firstVideoTrack.timescale,
-		);
+		const {min, max} = getSamplePositionBounds(positions, firstTrack.timescale);
 		if (min <= time && time <= max) {
 			Log.trace(
 				logLevel,
@@ -65,7 +67,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			const kf = findKeyframeBeforeTime({
 				samplePositions: positions,
 				time,
-				timescale: firstVideoTrack.timescale,
+				timescale: firstTrack.timescale,
 				logLevel,
 				mediaSections: info.mediaSections,
 			});
@@ -81,12 +83,13 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	const atom = await (info.mfraAlreadyLoaded
 		? Promise.resolve(info.mfraAlreadyLoaded)
 		: isoState.mfra.triggerLoad());
+
 	if (atom) {
 		const moofOffset = findBestSegmentFromTfra({
 			mfra: atom,
 			time,
-			firstVideoTrack,
-			timescale: firstVideoTrack.timescale,
+			firstTrack,
+			timescale: firstTrack.timescale,
 		});
 
 		if (

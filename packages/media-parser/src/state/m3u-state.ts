@@ -31,7 +31,7 @@ export const m3uState = (logLevel: LogLevel) => {
 	const hasEmittedDoneWithTracks: Record<string, boolean> = {};
 	let hasFinishedManifest = false;
 
-	let seekToSecondsToProcess: number | null = null;
+	const seekToSecondsToProcess: Record<string, number | null> = {};
 
 	let readyToIterateOverM3u = false;
 	const allChunksProcessed: Record<string, boolean> = {};
@@ -173,10 +173,14 @@ export const m3uState = (logLevel: LogLevel) => {
 		sampleSorter: sampleSorter({logLevel, getAllChunksProcessedForPlaylist}),
 		setMp4HeaderSegment,
 		getMp4HeaderSegment,
-		setSeekToSecondsToProcess: (seconds: number | null) => {
-			seekToSecondsToProcess = seconds;
+		setSeekToSecondsToProcess: (
+			playlistUrl: string,
+			seconds: number | null,
+		) => {
+			seekToSecondsToProcess[playlistUrl] = seconds;
 		},
-		getSeekToSecondsToProcess: () => seekToSecondsToProcess,
+		getSeekToSecondsToProcess: (playlistUrl: string) =>
+			seekToSecondsToProcess[playlistUrl],
 	};
 };
 
