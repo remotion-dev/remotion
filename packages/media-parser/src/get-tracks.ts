@@ -24,7 +24,7 @@ import {
 	getTracksFromMatroska,
 	matroskaHasTracks,
 } from './containers/webm/get-ready-tracks';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {M3uPlaylistContext} from './options';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
 import type {StructureState} from './state/structure';
@@ -124,7 +124,7 @@ export const isoBaseMediaHasTracks = (
 		getMoovBoxFromState({
 			structureState: state.structure,
 			isoState: state.iso,
-			mp4HeaderSegment: state.mp4HeaderSegment,
+			mp4HeaderSegment: state.m3uPlaylistContext?.mp4HeaderSegment ?? null,
 			mayUsePrecomputed,
 		}),
 	);
@@ -236,17 +236,17 @@ export const getTracksFromIsoBaseMedia = ({
 	mayUsePrecomputed,
 	structure,
 	isoState,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 }: {
 	structure: StructureState;
 	isoState: IsoBaseMediaState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	mayUsePrecomputed: boolean;
 }) => {
 	const moovBox = getMoovBoxFromState({
 		structureState: structure,
 		isoState,
-		mp4HeaderSegment,
+		mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		mayUsePrecomputed,
 	});
 	if (!moovBox) {
@@ -294,7 +294,7 @@ export const getTracks = (
 	if (structure.type === 'iso-base-media') {
 		return getTracksFromIsoBaseMedia({
 			isoState: state.iso,
-			mp4HeaderSegment: state.mp4HeaderSegment,
+			m3uPlaylistContext: state.m3uPlaylistContext,
 			structure: state.structure,
 			mayUsePrecomputed,
 		});

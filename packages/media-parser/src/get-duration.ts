@@ -60,7 +60,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const moovBox = getMoovBoxFromState({
 		structureState: parserState.structure,
 		isoState: parserState.iso,
-		mp4HeaderSegment: parserState.mp4HeaderSegment,
+		mp4HeaderSegment: parserState.m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		mayUsePrecomputed: true,
 	});
 	if (!moovBox) {

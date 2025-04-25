@@ -7,8 +7,11 @@ import {getSeekingHints} from './get-seeking-hints';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
-import type {ParseMediaMode, ParseMediaSrc} from './options';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {
+	M3uPlaylistContext,
+	ParseMediaMode,
+	ParseMediaSrc,
+} from './options';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {AacState} from './state/aac-state';
@@ -34,7 +37,7 @@ const turnSeekIntoByte = async ({
 	logLevel,
 	iterator,
 	structureState,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	isoState,
 	transportStream,
 	tracksState,
@@ -53,7 +56,7 @@ const turnSeekIntoByte = async ({
 	logLevel: LogLevel;
 	iterator: BufferIterator;
 	structureState: StructureState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;
 	tracksState: TracksState;
@@ -87,7 +90,6 @@ const turnSeekIntoByte = async ({
 			riffState,
 			samplesObserved,
 			structureState,
-			mp4HeaderSegment,
 			mediaSectionState,
 			isoState,
 			transportStream,
@@ -98,6 +100,7 @@ const turnSeekIntoByte = async ({
 			mp3State,
 			contentLength,
 			aacState,
+			m3uPlaylistContext,
 		});
 
 		if (!seekingHints) {
@@ -116,7 +119,7 @@ const turnSeekIntoByte = async ({
 			transportStream,
 			webmState,
 			mediaSection: mediaSectionState,
-			mp4HeaderSegment,
+			m3uPlaylistContext,
 			structure: structureState,
 			riffState,
 			m3uState,
@@ -147,7 +150,7 @@ export type WorkOnSeekRequestOptions = {
 	contentLength: number;
 	readerInterface: ReaderInterface;
 	mediaSection: MediaSectionState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	transportStream: TransportStreamState;
 	mode: ParseMediaMode;
 	seekInfiniteLoop: SeekInfiniteLoop;
@@ -179,7 +182,7 @@ export const getWorkOnSeekRequestOptions = (
 		contentLength: state.contentLength,
 		readerInterface: state.readerInterface,
 		mediaSection: state.mediaSection,
-		mp4HeaderSegment: state.mp4HeaderSegment,
+		m3uPlaylistContext: state.m3uPlaylistContext,
 		mode: state.mode,
 		seekInfiniteLoop: state.seekInfiniteLoop,
 		currentReader: state.currentReader,
@@ -204,7 +207,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		logLevel,
 		controller,
 		mediaSection,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		isoState,
 		iterator,
 		structureState,
@@ -240,7 +243,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		logLevel,
 		iterator,
 		structureState,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		isoState,
 		transportStream,
 		tracksState,

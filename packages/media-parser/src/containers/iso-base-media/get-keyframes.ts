@@ -10,7 +10,7 @@ export const getKeyframesFromIsoBaseMedia = (
 ): MediaParserKeyframe[] => {
 	const {videoTracks} = getTracksFromIsoBaseMedia({
 		isoState: state.iso,
-		mp4HeaderSegment: state.mp4HeaderSegment,
+		m3uPlaylistContext: state.m3uPlaylistContext,
 		structure: state.structure,
 		mayUsePrecomputed: true,
 	});

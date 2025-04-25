@@ -7,7 +7,7 @@ import {getSeekingHintsForRiff} from './containers/riff/seeking-hints';
 import {getSeekingHintsFromTransportStream} from './containers/transport-stream/seeking-hints';
 import {getSeekingHintsFromWav} from './containers/wav/seeking-hints';
 import {getSeekingHintsFromMatroska} from './containers/webm/seek/seeking-hints';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {M3uPlaylistContext} from './options';
 import type {SeekingHints} from './seeking-hints';
 import type {AacState} from './state/aac-state';
 import type {FlacState} from './state/flac-state';
@@ -24,7 +24,7 @@ import type {MediaSectionState} from './state/video-section';
 
 export const getSeekingHints = ({
 	structureState,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	mediaSectionState,
 	isoState,
 	transportStream,
@@ -39,7 +39,7 @@ export const getSeekingHints = ({
 	aacState,
 }: {
 	structureState: StructureState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	mediaSectionState: MediaSectionState;
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;
@@ -63,7 +63,7 @@ export const getSeekingHints = ({
 		return getSeekingHintsFromMp4({
 			structureState,
 			isoState,
-			mp4HeaderSegment,
+			mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
 			mediaSectionState,
 		});
 	}

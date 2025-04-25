@@ -7,7 +7,7 @@ import {getSeekingByteForRiff} from './containers/riff/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
 import type {LogLevel} from './log';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {M3uPlaylistContext} from './options';
 import type {SeekingHints} from './seeking-hints';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {M3uState} from './state/m3u-state';
@@ -28,7 +28,7 @@ export const getSeekingByte = ({
 	transportStream,
 	webmState,
 	mediaSection,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	structure,
 	riffState,
 	m3uState,
@@ -42,7 +42,7 @@ export const getSeekingByte = ({
 	webmState: WebmState;
 	mediaSection: MediaSectionState;
 	structure: StructureState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	riffState: RiffState;
 	m3uState: M3uState;
 }): Promise<SeekResolution> => {
@@ -53,8 +53,8 @@ export const getSeekingByte = ({
 			logLevel,
 			currentPosition,
 			isoState,
-			mp4HeaderSegment,
 			structure,
+			m3uPlaylistContext,
 		});
 	}
 

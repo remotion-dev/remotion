@@ -216,6 +216,11 @@ type ReaderParams = {
 	reader: ReaderInterface;
 };
 
+export type M3uPlaylistContext = {
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	isLastChunkInPlaylist: boolean;
+};
+
 export type SerializeableOptionalParseMediaParams<
 	F extends Options<ParseMediaFields>,
 > = {
@@ -223,7 +228,7 @@ export type SerializeableOptionalParseMediaParams<
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	makeSamplesStartAtZero: boolean;
 	seekingHints: SeekingHints | null;
 };

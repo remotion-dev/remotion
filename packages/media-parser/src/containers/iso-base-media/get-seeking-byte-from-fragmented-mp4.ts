@@ -22,6 +22,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	currentPosition,
 	isoState,
 	allTracks,
+	isLastChunkInPlaylist,
 }: {
 	info: IsoBaseMediaSeekingHints;
 	time: number;
@@ -29,6 +30,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
 	allTracks: (VideoTrack | AudioTrack | OtherTrack)[];
+	isLastChunkInPlaylist: boolean;
 }): Promise<SeekResolution> => {
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
 
@@ -63,7 +65,10 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			firstTrack.timescale,
 		);
 
-		if (min <= time && (positions.isLastFragment || time <= max)) {
+		if (
+			min <= time &&
+			(positions.isLastFragment || isLastChunkInPlaylist || time <= max)
+		) {
 			Log.trace(
 				logLevel,
 				`Fragmented MP4 - Found that we have seeking info for this time range: ${min} <= ${time} <= ${max}`,

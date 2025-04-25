@@ -1,7 +1,7 @@
 import {getTracksFromIsoBaseMedia} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
-import type {IsoBaseMediaStructure} from '../../parse-result';
+import type {M3uPlaylistContext} from '../../options';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {StructureState} from '../../state/structure';
@@ -17,7 +17,7 @@ export const getSeekingByteFromIsoBaseMedia = ({
 	logLevel,
 	currentPosition,
 	isoState,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	structure,
 }: {
 	info: IsoBaseMediaSeekingHints;
@@ -25,12 +25,12 @@ export const getSeekingByteFromIsoBaseMedia = ({
 	logLevel: LogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	structure: StructureState;
 }): Promise<SeekResolution> => {
 	const tracks = getTracksFromIsoBaseMedia({
 		isoState,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		structure,
 		mayUsePrecomputed: false,
 	});
@@ -42,10 +42,10 @@ export const getSeekingByteFromIsoBaseMedia = ({
 
 	const hasMoov = Boolean(
 		getMoovBoxFromState({
-			mp4HeaderSegment,
 			structureState: structure,
 			isoState,
 			mayUsePrecomputed: false,
+			mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		}),
 	);
 
@@ -64,6 +64,7 @@ export const getSeekingByteFromIsoBaseMedia = ({
 			currentPosition,
 			isoState,
 			allTracks,
+			isLastChunkInPlaylist: m3uPlaylistContext?.isLastChunkInPlaylist ?? false,
 		});
 	}
 

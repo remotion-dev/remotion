@@ -1,5 +1,4 @@
 import {mediaParserController} from '../../controller/media-parser-controller';
-import {hasBeenAborted} from '../../errors';
 import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {parseMedia} from '../../parse-media';
@@ -314,8 +313,11 @@ export const processM3uChunk = ({
 									};
 								},
 					reader: state.readerInterface,
-					mp4HeaderSegment,
 					makeSamplesStartAtZero: false,
+					m3uPlaylistContext: {
+						mp4HeaderSegment,
+						isLastChunkInPlaylist: isLastChunk,
+					},
 				});
 
 				if (chunk.isHeader) {
@@ -326,12 +328,6 @@ export const processM3uChunk = ({
 					state.m3u.setMp4HeaderSegment(playlistUrl, data.structure);
 				}
 			} catch (e) {
-				// TODO: Sometimes this is legit
-				if (hasBeenAborted(e)) {
-					currentPromise.resolver(null);
-					return;
-				}
-
 				currentPromise.rejector(e as Error);
 				throw e;
 			}
@@ -350,12 +346,6 @@ export const processM3uChunk = ({
 	const run = pausableIterator();
 
 	run.catch((err) => {
-		// TODO: Sometimes this is legit
-		if (hasBeenAborted(err)) {
-			resolve();
-			return;
-		}
-
 		reject(err);
 	});
 

@@ -153,7 +153,7 @@ export const getMetadataFromIsoBase = (
 	const moov = getMoovBoxFromState({
 		structureState: state.structure,
 		isoState: state.iso,
-		mp4HeaderSegment: state.mp4HeaderSegment,
+		mp4HeaderSegment: state.m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		mayUsePrecomputed: true,
 	});
 	if (!moov) {
