@@ -67,7 +67,14 @@ export const getSeekingByteFromIsoBaseMedia = ({
 		});
 	}
 
-	const {track, samplePositions} = findTrackToSeek(allTracks);
+	const trackWithSamplePositions = findTrackToSeek(allTracks, structure);
+	if (!trackWithSamplePositions) {
+		return Promise.resolve({
+			type: 'valid-but-must-wait',
+		});
+	}
+
+	const {track, samplePositions} = trackWithSamplePositions;
 
 	const keyframe = findKeyframeBeforeTime({
 		samplePositions,

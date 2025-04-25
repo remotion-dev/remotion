@@ -145,10 +145,12 @@ export const processM3uChunk = ({
 			currentPromise.rejector = reject;
 			const childController = mediaParserController();
 			if (seekToSecondsToProcess !== null && !chunk.isHeader) {
+				/*
 				childController._experimentalSeek({
 					type: 'keyframe-before-time',
 					timeInSeconds: seekToSecondsToProcess,
 				});
+				*/
 				seekToSecondsToProcess = null;
 			}
 
