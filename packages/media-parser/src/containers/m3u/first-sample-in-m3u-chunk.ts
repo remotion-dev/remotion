@@ -4,16 +4,20 @@ import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 
 export const considerSeekBasedOnChunk = ({
 	sample,
-	controller,
+	parentController,
+	childController,
 	callback,
 	m3uState,
 	playlistUrl,
+	subtractChunks,
 }: {
 	sample: AudioOrVideoSample;
 	callback: (sample: AudioOrVideoSample) => void | Promise<void>;
-	controller: MediaParserController;
+	parentController: MediaParserController;
+	childController: MediaParserController;
 	playlistUrl: string;
 	m3uState: M3uState;
+	subtractChunks: number;
 }) => {
 	const pendingSeek = m3uState.getSeekToSecondsToProcess(playlistUrl);
 	// If there is not even a seek to consider, just call the callback
@@ -28,14 +32,21 @@ export const considerSeekBasedOnChunk = ({
 	);
 
 	// Already too far, now we should go to the previous chunk
-	if (timestamp > pendingSeek) {
-		throw new Error('too far');
+	if (timestamp > pendingSeek.targetTime) {
+		m3uState.setNextSeekShouldSubtractChunks(playlistUrl, subtractChunks + 1);
+		parentController._experimentalSeek({
+			type: 'keyframe-before-time',
+			timeInSeconds: pendingSeek.targetTime,
+		});
+
+		return;
 	}
 
 	// We are good, we have not gone too far! Don't emit sample and seek and clear pending seek
-	controller._experimentalSeek({
+	childController._experimentalSeek({
 		type: 'keyframe-before-time',
-		timeInSeconds: pendingSeek,
+		timeInSeconds: pendingSeek.targetTime,
 	});
+	m3uState.setNextSeekShouldSubtractChunks(playlistUrl, 0);
 	m3uState.setSeekToSecondsToProcess(playlistUrl, null);
 };

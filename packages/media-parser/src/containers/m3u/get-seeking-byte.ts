@@ -3,6 +3,27 @@ import {Log} from '../../log';
 import type {M3uState} from '../../state/m3u-state';
 import type {SeekResolution} from '../../work-on-seek-request';
 
+export const clearM3uStateInPrepareForSeek = ({
+	m3uState,
+	logLevel,
+}: {
+	m3uState: M3uState;
+	logLevel: LogLevel;
+}) => {
+	const selectedPlaylists = m3uState.getSelectedPlaylists();
+	for (const playlistUrl of selectedPlaylists) {
+		const streamRun = m3uState.getM3uStreamRun(playlistUrl);
+		if (streamRun) {
+			streamRun.abort();
+		}
+
+		Log.trace(logLevel, 'Clearing M3U stream run for', playlistUrl);
+		m3uState.setM3uStreamRun(playlistUrl, null);
+	}
+
+	m3uState.clearAllChunksProcessed();
+};
+
 export const getSeekingByteForM3u8 = ({
 	time,
 	currentPosition,
@@ -14,19 +35,13 @@ export const getSeekingByteForM3u8 = ({
 	m3uState: M3uState;
 	logLevel: LogLevel;
 }): SeekResolution => {
+	clearM3uStateInPrepareForSeek({m3uState, logLevel});
 	const selectedPlaylists = m3uState.getSelectedPlaylists();
 	for (const playlistUrl of selectedPlaylists) {
-		const streamRun = m3uState.getM3uStreamRun(playlistUrl);
-		if (streamRun) {
-			streamRun.abort();
-		}
-
-		Log.trace(logLevel, 'Clearing M3U stream run for', playlistUrl);
-		m3uState.setM3uStreamRun(playlistUrl, null);
-		m3uState.setSeekToSecondsToProcess(playlistUrl, time);
+		m3uState.setSeekToSecondsToProcess(playlistUrl, {
+			targetTime: time,
+		});
 	}
-
-	m3uState.clearAllChunksProcessed();
 
 	return {
 		type: 'do-seek',

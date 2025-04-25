@@ -41,7 +41,12 @@ export const mediaParserController = (): MediaParserController => {
 
 	const checkForAbortAndPause = async () => {
 		if (abortController.signal.aborted) {
-			throw new MediaParserAbortError('Aborted');
+			const err = new MediaParserAbortError('Aborted');
+			if (abortController.signal.reason) {
+				err.cause = abortController.signal.reason;
+			}
+
+			throw err;
 		}
 
 		await pauseSignal.waitUntilResume();

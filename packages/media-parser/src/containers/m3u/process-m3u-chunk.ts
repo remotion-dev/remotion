@@ -1,4 +1,5 @@
 import {mediaParserController} from '../../controller/media-parser-controller';
+import {hasBeenAborted} from '../../errors';
 import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
 import type {AudioTrack, VideoTrack} from '../../get-tracks';
 import {parseMedia} from '../../parse-media';
@@ -113,13 +114,16 @@ export const processM3uChunk = ({
 		const chunks = getChunks(playlist);
 		const seekToSecondsToProcess =
 			state.m3u.getSeekToSecondsToProcess(playlistUrl);
+		const chunksToSubtract =
+			state.m3u.getNextSeekShouldSubtractChunks(playlistUrl);
 		let chunkIndex = null;
 
 		if (seekToSecondsToProcess !== null) {
-			chunkIndex = getChunkToSeekTo({
-				chunks,
-				seekToSecondsToProcess,
-			});
+			chunkIndex =
+				getChunkToSeekTo({
+					chunks,
+					seekToSecondsToProcess: seekToSecondsToProcess.targetTime,
+				}) - chunksToSubtract;
 		}
 
 		const currentPromise = {
@@ -236,9 +240,11 @@ export const processM3uChunk = ({
 											considerSeekBasedOnChunk({
 												sample,
 												callback,
-												controller: childController,
+												parentController: state.controller,
+												childController,
 												m3uState: state.m3u,
 												playlistUrl,
+												subtractChunks: chunksToSubtract,
 											});
 										};
 									}
@@ -253,7 +259,9 @@ export const processM3uChunk = ({
 											m3uState: state.m3u,
 											playlistUrl,
 											callback: callbackOrFalse,
-											controller: childController,
+											parentController: state.controller,
+											childController,
+											subtractChunks: chunksToSubtract,
 										});
 									};
 								},
@@ -282,7 +290,9 @@ export const processM3uChunk = ({
 												m3uState: state.m3u,
 												playlistUrl,
 												callback,
-												controller: childController,
+												parentController: state.controller,
+												childController,
+												subtractChunks: chunksToSubtract,
 											});
 										};
 									}
@@ -297,7 +307,9 @@ export const processM3uChunk = ({
 											m3uState: state.m3u,
 											playlistUrl,
 											callback: callbackOrFalse,
-											controller: childController,
+											parentController: state.controller,
+											childController,
+											subtractChunks: chunksToSubtract,
 										});
 									};
 								},
@@ -314,6 +326,12 @@ export const processM3uChunk = ({
 					state.m3u.setMp4HeaderSegment(playlistUrl, data.structure);
 				}
 			} catch (e) {
+				// TODO: Sometimes this is legit
+				if (hasBeenAborted(e)) {
+					currentPromise.resolver(null);
+					return;
+				}
+
 				currentPromise.rejector(e as Error);
 				throw e;
 			}
@@ -332,6 +350,12 @@ export const processM3uChunk = ({
 	const run = pausableIterator();
 
 	run.catch((err) => {
+		// TODO: Sometimes this is legit
+		if (hasBeenAborted(err)) {
+			resolve();
+			return;
+		}
+
 		reject(err);
 	});
 

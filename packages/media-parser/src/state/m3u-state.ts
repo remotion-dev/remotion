@@ -23,6 +23,10 @@ export type M3uRun = {
 	abort: () => void;
 };
 
+type M3uSeek = {
+	targetTime: number;
+};
+
 export const m3uState = (logLevel: LogLevel) => {
 	let selectedMainPlaylist: M3uStreamOrInitialUrl | null = null;
 	let associatedPlaylists: M3uAssociatedPlaylist[] | null = null;
@@ -31,7 +35,8 @@ export const m3uState = (logLevel: LogLevel) => {
 	const hasEmittedDoneWithTracks: Record<string, boolean> = {};
 	let hasFinishedManifest = false;
 
-	const seekToSecondsToProcess: Record<string, number | null> = {};
+	const seekToSecondsToProcess: Record<string, M3uSeek | null> = {};
+	const nextSeekShouldSubtractChunks: Record<string, number> = {};
 
 	let readyToIterateOverM3u = false;
 	const allChunksProcessed: Record<string, boolean> = {};
@@ -175,12 +180,17 @@ export const m3uState = (logLevel: LogLevel) => {
 		getMp4HeaderSegment,
 		setSeekToSecondsToProcess: (
 			playlistUrl: string,
-			seconds: number | null,
+			m3uSeek: M3uSeek | null,
 		) => {
-			seekToSecondsToProcess[playlistUrl] = seconds;
+			seekToSecondsToProcess[playlistUrl] = m3uSeek;
 		},
 		getSeekToSecondsToProcess: (playlistUrl: string) =>
 			seekToSecondsToProcess[playlistUrl],
+		setNextSeekShouldSubtractChunks: (playlistUrl: string, chunks: number) => {
+			nextSeekShouldSubtractChunks[playlistUrl] = chunks;
+		},
+		getNextSeekShouldSubtractChunks: (playlistUrl: string) =>
+			nextSeekShouldSubtractChunks[playlistUrl] ?? 0,
 	};
 };
 
