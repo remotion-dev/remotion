@@ -22,7 +22,7 @@ export const getBrowserInstance: GetBrowserInstance = async ({logLevel}) => {
 	browsersOpen.set(instance.id, true);
 	Log.verbose(
 		{logLevel, indent: false},
-		`Opening new browser instance. ${browsersOpen.size} browsers open`,
+		`Opening new browser instance ${instance.id}. ${browsersOpen.size} browsers open`,
 	);
 	return {instance, configurationString: 'chrome'};
 };
