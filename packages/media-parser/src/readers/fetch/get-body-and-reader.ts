@@ -28,6 +28,10 @@ export const getLengthAndReader = async ({
 
 		const stream = new ReadableStream({
 			start(controller) {
+				if (ownController.signal.aborted) {
+					return;
+				}
+
 				controller.enqueue(encoded);
 				controller.close();
 			},
