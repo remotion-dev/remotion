@@ -1,7 +1,9 @@
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ReaderInterface} from '../../readers/reader';
+import type {CanSkipTracksState} from '../../state/can-skip-tracks';
 import type {M3uState} from '../../state/m3u-state';
+import type {OnAudioTrack} from '../../webcodec-sample-types';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
 import {getM3uStreams, isIndependentSegments} from './get-streams';
 import type {
@@ -19,6 +21,8 @@ export const afterManifestFetch = async ({
 	logLevel,
 	selectAssociatedPlaylistsFn,
 	readerInterface,
+	onAudioTrack,
+	canSkipTracks,
 }: {
 	structure: M3uStructure;
 	m3uState: M3uState;
@@ -27,6 +31,8 @@ export const afterManifestFetch = async ({
 	selectAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
 	logLevel: LogLevel;
 	readerInterface: ReaderInterface;
+	onAudioTrack: OnAudioTrack | null;
+	canSkipTracks: CanSkipTracksState;
 }) => {
 	const independentSegments = isIndependentSegments(structure);
 	if (!independentSegments) {
@@ -58,9 +64,13 @@ export const afterManifestFetch = async ({
 		stream: selectedPlaylist,
 	});
 
+	const skipAudioTracks =
+		onAudioTrack === null && canSkipTracks.doFieldsNeedTracks() === false;
+
 	const associatedPlaylists = await selectAssociatedPlaylists({
 		playlists: selectedPlaylist.associatedPlaylists,
 		fn: selectAssociatedPlaylistsFn,
+		skipAudioTracks,
 	});
 	m3uState.setAssociatedPlaylists(associatedPlaylists);
 

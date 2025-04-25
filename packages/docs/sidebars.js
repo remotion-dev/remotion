@@ -1019,6 +1019,7 @@ module.exports = {
 				'media-parser/format-support',
 				'media-parser/runtime-support',
 				'media-parser/pause-resume-abort',
+				'media-parser/seeking',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
 				'media-parser/stream-selection',

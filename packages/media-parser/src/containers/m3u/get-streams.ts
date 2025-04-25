@@ -14,6 +14,7 @@ export type M3uAssociatedPlaylist = {
 	channels: number | null;
 	src: string;
 	id: number;
+	isAudio: boolean;
 };
 
 export type M3uStream = {
@@ -82,6 +83,7 @@ export const getM3uStreams = ({
 							originalSrc,
 						),
 						id: associatedPlaylists.length,
+						isAudio: true,
 					});
 				}
 			}

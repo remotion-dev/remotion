@@ -12,7 +12,7 @@ export const forwardMediaParserControllerToWorker = (
 		}
 
 		if (message.type === 'request-seek') {
-			controller._experimentalSeek(message.payload);
+			controller.seek(message.payload);
 			return;
 		}
 

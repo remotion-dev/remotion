@@ -337,7 +337,7 @@ export const convertMedia = async function <
 		selectM3uAssociatedPlaylists:
 			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
 		makeSamplesStartAtZero: false,
-		mp4HeaderSegment: null,
+		m3uPlaylistContext: null,
 		seekingHints: seekingHints ?? null,
 	})
 		.then(() => {

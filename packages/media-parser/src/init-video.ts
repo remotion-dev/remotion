@@ -26,9 +26,11 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 		return;
 	}
 
-	if (state.mp4HeaderSegment) {
+	if (state.m3uPlaylistContext?.mp4HeaderSegment) {
 		Log.verbose(state.logLevel, 'Detected ISO Base Media segment');
-		const moovAtom = getMoovFromFromIsoStructure(state.mp4HeaderSegment);
+		const moovAtom = getMoovFromFromIsoStructure(
+			state.m3uPlaylistContext.mp4HeaderSegment,
+		);
 		if (!moovAtom) {
 			throw new Error('No moov box found');
 		}

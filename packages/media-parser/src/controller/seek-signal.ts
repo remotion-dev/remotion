@@ -11,12 +11,7 @@ type SeekToTime = {
 	timeInSeconds: number;
 };
 
-type SeekToByte = {
-	type: 'byte';
-	byte: number;
-};
-
-export type Seek = SeekToTime | SeekToByte;
+export type Seek = SeekToTime;
 
 export const makeSeekSignal = (emitter: MediaParserEmitter): SeekSignal => {
 	let seek: Seek | undefined;
