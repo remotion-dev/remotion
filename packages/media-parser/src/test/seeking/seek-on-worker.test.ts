@@ -11,7 +11,7 @@ test('seek should also work on worker', async () => {
 	let firstSample: AudioOrVideoSample | undefined;
 
 	try {
-		controller._experimentalSeek({
+		controller.seek({
 			type: 'keyframe-before-time',
 			timeInSeconds: 10.6,
 		});
@@ -45,7 +45,7 @@ test('should be able to seek forward and then backwards', async () => {
 	let samples = 0;
 
 	try {
-		controller._experimentalSeek({
+		controller.seek({
 			type: 'keyframe-before-time',
 			timeInSeconds: 10.6,
 		});
@@ -61,7 +61,7 @@ test('should be able to seek forward and then backwards', async () => {
 						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
 							10.5,
 						);
-						controller._experimentalSeek({
+						controller.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 0,
 						});

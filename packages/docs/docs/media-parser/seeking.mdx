@@ -17,7 +17,7 @@ const controller = mediaParserController();
 
 // You can make a seek even before starting a parse
 // This will be considered before emitting the first sample
-controller._experimentalSeek({
+controller.seek({
   type: 'keyframe-before-time',
   timeInSeconds: 5,
 });
@@ -28,7 +28,7 @@ await parseMedia({
   onVideoTrack: () => {
     return () => {
       // You can also seek inmidst a parse.
-      controller._experimentalSeek({
+      controller.seek({
         type: 'keyframe-before-time',
         timeInSeconds: 10,
       });
@@ -51,7 +51,7 @@ import {mediaParserController} from '@remotion/media-parser';
 
 const controller = mediaParserController();
 
-controller._experimentalSeek({
+controller.seek({
   type: 'keyframe-before-time',
   timeInSeconds: 5,
 });

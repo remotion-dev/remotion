@@ -9,7 +9,7 @@ import type {AudioOrVideoSample} from '../../webcodec-sample-types';
 test('seek m3u, only video', async () => {
 	const controller = mediaParserController();
 
-	controller._experimentalSeek({
+	controller.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 4.5,
 	});
@@ -25,7 +25,7 @@ test('seek m3u, only video', async () => {
 				return (sample) => {
 					if (samples === 0) {
 						expect(sample.dts / sample.timescale).toBe(4.021666666666667);
-						controller._experimentalSeek({
+						controller.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 2,
 						});
@@ -33,7 +33,7 @@ test('seek m3u, only video', async () => {
 
 					if (samples === 1) {
 						expect(sample.dts / sample.timescale).toBe(1.18);
-						controller._experimentalSeek({
+						controller.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 2.05,
 						});
@@ -41,7 +41,7 @@ test('seek m3u, only video', async () => {
 
 					if (samples === 2) {
 						expect(sample.dts / sample.timescale).toBe(2.0283333333333333);
-						controller._experimentalSeek({
+						controller.seek({
 							type: 'keyframe-before-time',
 							timeInSeconds: 2.0,
 						});
@@ -69,7 +69,7 @@ test('seek m3u, only video', async () => {
 test('seek m3u, video and audio', async () => {
 	const controller = mediaParserController();
 
-	controller._experimentalSeek({
+	controller.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 5.5,
 	});
@@ -88,7 +88,7 @@ test('seek m3u, video and audio', async () => {
 		if (samples === 1) {
 			expect(mediaType).toBe('audio');
 			expect(sample.dts / sample.timescale).toBe(5.482666666666666);
-			controller._experimentalSeek({
+			controller.seek({
 				type: 'keyframe-before-time',
 				timeInSeconds: 100,
 			});
@@ -97,7 +97,7 @@ test('seek m3u, video and audio', async () => {
 		if (samples === 2) {
 			expect(mediaType).toBe('video');
 			expect(sample.dts / sample.timescale).toBe(9.148333333333333);
-			controller._experimentalSeek({
+			controller.seek({
 				type: 'keyframe-before-time',
 				timeInSeconds: 1,
 			});

@@ -7,7 +7,7 @@ import {parseMedia} from '../../parse-media';
 test('should not calculate slow fps, slow duration, slow keyframes etc. if there was seeking inbetween', async () => {
 	const controller = mediaParserController();
 
-	controller._experimentalSeek({
+	controller.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 30,
 	});
