@@ -42,11 +42,17 @@ export const getGroupedSamplesPositionsFromMp4 = ({
 
 	let timestamp = 0;
 
+	const stscKeys = Array.from(stscBox.entries.keys());
 	for (let i = 0; i < stcoBox.entries.length; i++) {
 		const entry = stcoBox.entries[i];
 		const chunk = i + 1;
-		const stscEntry = stscBox.entries.findLast((e) => e.firstChunk <= chunk);
-		if (!stscEntry) {
+		const stscEntry = stscKeys.findLast((e) => e <= chunk);
+		if (stscEntry === undefined) {
+			throw new Error('should not be');
+		}
+
+		const samplesPerChunk = stscBox.entries.get(stscEntry);
+		if (samplesPerChunk === undefined) {
 			throw new Error('should not be');
 		}
 
@@ -55,13 +61,13 @@ export const getGroupedSamplesPositionsFromMp4 = ({
 			cts: timestamp,
 			dts: timestamp,
 			offset: Number(entry),
-			size: stszBox.sampleSize * stscEntry.samplesPerChunk,
-			duration: stscEntry.samplesPerChunk,
+			size: stszBox.sampleSize * samplesPerChunk,
+			duration: samplesPerChunk,
 			isKeyframe: true,
 			bigEndian,
 			chunkSize: stszBox.sampleSize,
 		});
-		timestamp += stscEntry.samplesPerChunk;
+		timestamp += samplesPerChunk;
 	}
 
 	return samples;
