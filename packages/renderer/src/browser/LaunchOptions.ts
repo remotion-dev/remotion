@@ -24,4 +24,5 @@ export interface LaunchOptions {
 	indent: boolean;
 	defaultViewport: Viewport;
 	userDataDir: string;
+	timeout: number;
 }
