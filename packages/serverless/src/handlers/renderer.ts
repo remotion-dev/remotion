@@ -89,6 +89,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 	});
 
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Waiting for browser instance`,
+	);
+
 	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
