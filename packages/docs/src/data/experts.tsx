@@ -244,9 +244,8 @@ export const experts: Expert[] = [
 					to user goals. For back-end work, I deploy cloud resources in
 					repeatable patterns and shape easy-to-use, transparent APIs.
 					<br />
-					<br />
-					I’m available for one-off consulting sessions with your whole team, or
-					for longer engagements working inside your codebase.
+					<br />I{"'"}m available for one-off consulting sessions with your
+					whole team, or for longer engagements working inside your codebase.
 				</p>
 			</div>
 		),
@@ -268,9 +267,9 @@ export const experts: Expert[] = [
 				<a target={'_blank'} href="https://www.romrif.com/">
 					Romrif
 				</a>
-				!<br />I build Websites & Videos with Remotion. I&apos;m alway
-				interested in the latest Tech and love building stuff. Feel free to
-				contact me - I&apos;m available for hire.
+				!<br />I build Websites & Videos with Remotion. I{"'"}m alway interested
+				in the latest Tech and love building stuff. Feel free to contact me - I
+				{"'"}m available for hire.
 			</div>
 		),
 	},
@@ -458,13 +457,39 @@ export const experts: Expert[] = [
 		since: new Date('2024-03-17').getTime(),
 		description: (
 			<div>
-				I’ve been coding and building cool projects since 5th grade (software
-				and hardware both) across multiple technologies. Currently I’m building{' '}
+				I{"'"}ve been coding and building cool projects since 5th grade
+				(software and hardware both) across multiple technologies. Currently I
+				{"'"}m building{' '}
 				<a target={'_blank'} href="https://www.typeframes.com/">
 					Typeframes
 				</a>{' '}
 				using Remotion, it is a tool to create videos. I build products in
-				public on X. I’d love to hear your story.
+				public on X. I{"'"}d love to hear your story.
+			</div>
+		),
+	},
+	{
+		slug: 'andrei-terteci',
+		name: 'Andrei Terteci',
+		image: '/img/freelancers/andrei.png',
+		website: null,
+		x: 'andrei_terteci',
+		github: null,
+		linkedin: 'in/andrei-terteci-935331151/',
+		email: 'hello@andreiterteci.com',
+		videocall: 'remotion-expert-andrei-terteci',
+		since: new Date('2024-03-17').getTime(),
+		description: (
+			<div>
+				I made{' '}
+				<a target={'_blank'} href="https://www.krumzi.com/">
+					Krumzi
+				</a>{' '}
+				- using Remotion. <br />I{"'"}m a full-stack developer with 5+ years of
+				experience, specializing in building SaaS products. I mostly work with
+				React and Next.js, and for the past 2 years, I{"'"}ve been using
+				Remotion to build video-based products. I focus on shipping fast,
+				delivering value, and creating things people actually enjoy using.
 			</div>
 		),
 	},

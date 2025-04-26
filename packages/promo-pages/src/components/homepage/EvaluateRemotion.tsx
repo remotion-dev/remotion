@@ -25,6 +25,7 @@ const EvaluateRemotionSection: React.FC = () => {
 			'/img/freelancers/stephen.png',
 			'/img/freelancers/umungo.png',
 			'/img/freelancers/yehor.jpeg',
+			'/img/freelancers/andrei.png',
 			// Add more avatar paths here
 		];
 
