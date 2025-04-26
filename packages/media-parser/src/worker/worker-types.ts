@@ -117,6 +117,10 @@ type GenericError = BaseError & {
 	errorName: 'Error';
 };
 
+type NotReadableError = BaseError & {
+	errorName: 'NotReadableError';
+};
+
 type IsAGifError = BaseError & {
 	errorName: 'IsAGifError';
 	mimeType: string | null;
@@ -159,7 +163,9 @@ type AnyError =
 	| IsAPdfError
 	| IsAnUnsupportedFileTypeError
 	| MediaParserAbortError
-	| AbortError;
+	// browser native errors
+	| AbortError
+	| NotReadableError;
 
 export type ResponseError = {
 	type: 'response-error';

@@ -76,6 +76,15 @@ export const serializeError = ({
 		};
 	}
 
+	if (error.name === 'NotReadableError') {
+		return {
+			type: 'response-error',
+			errorName: 'NotReadableError',
+			errorMessage: error.message,
+			errorStack: error.stack ?? '',
+		};
+	}
+
 	if (error.name !== 'Error') {
 		Log.warn(
 			logLevel,
@@ -128,6 +137,9 @@ export const deserializeError = (error: ResponseError): Error => {
 		case 'Error':
 			return new Error(error.errorMessage);
 		case 'AbortError':
+			return new Error(error.errorMessage);
+		// TODO: Document 2GB limit
+		case 'NotReadableError':
 			return new Error(error.errorMessage);
 		default:
 			throw new Error(`Unknown error name: ${error satisfies never}`);

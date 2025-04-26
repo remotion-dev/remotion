@@ -1,7 +1,7 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks} from '../../../get-tracks';
-import type {Skip} from '../../../skip';
-import {makeSkip} from '../../../skip';
+import type {FetchMoreData, Skip} from '../../../skip';
+import {makeFetchMoreData, makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
@@ -13,7 +13,7 @@ import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
 	state: ParserState,
-): Promise<Skip | null> => {
+): Promise<Skip | FetchMoreData | null> => {
 	const mediaSection = getCurrentMediaSection({
 		offset: state.iterator.counter.getOffset(),
 		mediaSections: state.mediaSection.getMediaSections(),
@@ -86,8 +86,20 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
+	// Corrupt file: Sample is beyond the end of the file. Don't process it.
+	if (
+		samplesWithIndex.samplePosition.offset +
+			samplesWithIndex.samplePosition.size >
+		state.contentLength
+	) {
+		return makeSkip(endOfMdat);
+	}
+
+	// Need to fetch more data
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {
-		return null;
+		return makeFetchMoreData(
+			samplesWithIndex.samplePosition.size - iterator.bytesRemaining(),
+		);
 	}
 
 	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =

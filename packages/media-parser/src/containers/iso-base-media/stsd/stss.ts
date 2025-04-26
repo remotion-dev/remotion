@@ -5,7 +5,7 @@ export interface StssBox extends BaseBox {
 	type: 'stss-box';
 	version: number;
 	flags: number[];
-	sampleNumber: number[];
+	sampleNumber: Set<number>;
 }
 
 export const parseStss = ({
@@ -25,9 +25,9 @@ export const parseStss = ({
 	const flags = iterator.getSlice(3);
 	const sampleCount = iterator.getUint32();
 
-	const sampleNumber: number[] = [];
+	const sampleNumber: Set<number> = new Set();
 	for (let i = 0; i < sampleCount; i++) {
-		sampleNumber.push(iterator.getUint32());
+		sampleNumber.add(iterator.getUint32());
 	}
 
 	const bytesRemainingInBox = boxSize - (iterator.counter.getOffset() - offset);
