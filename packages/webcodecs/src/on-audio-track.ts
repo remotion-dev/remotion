@@ -115,6 +115,9 @@ export const makeAudioTrackHandler =
 			description: track.description,
 		});
 
+		Log.verbose(logLevel, 'Audio encoder config', audioEncoderConfig);
+		Log.verbose(logLevel, 'Audio decoder config', audioDecoderConfig ?? track);
+
 		if (!audioEncoderConfig) {
 			abortConversion(
 				new Error(

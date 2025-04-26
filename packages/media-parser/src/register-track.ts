@@ -5,7 +5,7 @@ import {Log} from './log';
 import type {MediaParserContainer} from './options';
 import type {TracksState} from './state/has-tracks-section';
 import type {ParserState} from './state/parser-state';
-import type {SampleCallbacks} from './state/sample-callbacks';
+import type {CallbacksState} from './state/sample-callbacks';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
 
 export const registerVideoTrack = async ({
@@ -20,7 +20,7 @@ export const registerVideoTrack = async ({
 	container: MediaParserContainer;
 	logLevel: LogLevel;
 	onVideoTrack: OnVideoTrack | null;
-	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
+	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
 	tracks: TracksState;
 }) => {
 	if (tracks.getTracks().find((t) => t.trackId === track.trackId)) {
@@ -61,7 +61,7 @@ export const registerAudioTrack = async ({
 	tracks: TracksState;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
-	registerAudioSampleCallback: SampleCallbacks['registerAudioSampleCallback'];
+	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 }) => {
 	if (tracks.getTracks().find((t) => t.trackId === track.trackId)) {
 		Log.trace(logLevel, `Track ${track.trackId} already registered, skipping`);

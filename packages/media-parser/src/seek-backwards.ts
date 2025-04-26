@@ -30,6 +30,7 @@ export const seekBackwards = async ({
 	const howManyBytesWeCanGoBack = iterator.counter.getDiscardedOffset();
 
 	if (iterator.counter.getOffset() - howManyBytesWeCanGoBack <= seekTo) {
+		Log.verbose(logLevel, `Seeking back to ${seekTo}`);
 		iterator.skipTo(seekTo);
 		return;
 	}

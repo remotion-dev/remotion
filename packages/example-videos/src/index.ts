@@ -111,6 +111,16 @@ export const exampleVideos = {
 	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
 	subsequentMdat: path.join(__dirname, '..', 'videos', 'subsequent-mdats.mp4'),
 	garbageAtEnd: path.join(__dirname, '..', 'videos', 'garbage-at-end.mp4'),
+	webmCodecDerivedFromSps: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'webm-codec-from-sps.webm',
+	),
 };
 
-export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';
+export {
+	getPrivateExampleVideo,
+	getRemoteExampleVideo,
+	remoteExampleVideos,
+} from './remote-videos';

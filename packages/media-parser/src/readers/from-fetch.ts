@@ -229,7 +229,7 @@ const makeFetchRequestOrGetCached = ({
 		return cached;
 	}
 
-	Log.verbose(logLevel, `Preloading ${key}`);
+	Log.verbose(logLevel, `Fetching ${key}`);
 	const result = makeFetchRequest({range, src, controller});
 	prefetchCache.set(key, result);
 	return result;

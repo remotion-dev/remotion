@@ -68,7 +68,7 @@ const startParsing = async (
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
 		progressIntervalInMs,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		seekingHints,
 		makeSamplesStartAtZero,
 	} = payload;
@@ -369,7 +369,7 @@ const startParsing = async (
 						return res.value;
 					}
 				: defaultSelectM3uStreamFn,
-			mp4HeaderSegment: mp4HeaderSegment ?? null,
+			m3uPlaylistContext: m3uPlaylistContext ?? null,
 			selectM3uAssociatedPlaylists: postM3uAssociatedPlaylistsSelection
 				? async (playlists) => {
 						const res = await executeCallback({

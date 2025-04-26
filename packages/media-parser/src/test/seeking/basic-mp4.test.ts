@@ -17,7 +17,7 @@ test('should process a basic seek request', async () => {
 			controller,
 			reader: nodeReader,
 			onVideoTrack: () => {
-				controller._experimentalSeek({
+				controller.seek({
 					type: 'keyframe-before-time',
 					timeInSeconds: 10.6,
 				});
@@ -39,7 +39,7 @@ test('should process a basic seek request', async () => {
 
 test('should not be able to seek into a negative time', async () => {
 	const controller = mediaParserController();
-	controller._experimentalSeek({
+	controller.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: -1,
 	});

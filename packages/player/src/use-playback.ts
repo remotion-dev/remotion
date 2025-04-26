@@ -29,7 +29,6 @@ export const usePlayback = ({
 	const frame = Internals.Timeline.useTimelinePosition();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
-	const buffering = useRef<null | number>(null);
 
 	// requestAnimationFrame() does not work if the tab is not active.
 	// This means that audio will keep playing even if it has ended.
@@ -52,21 +51,6 @@ export const usePlayback = ({
 	});
 
 	//	complete code for media session API
-
-	useEffect(() => {
-		const onBufferClear = context.listenForBuffering(() => {
-			buffering.current = performance.now();
-		});
-
-		const onResumeClear = context.listenForResume(() => {
-			buffering.current = null;
-		});
-
-		return () => {
-			onBufferClear.remove();
-			onResumeClear.remove();
-		};
-	}, [context]);
 
 	useEffect(() => {
 		if (!config) {
@@ -107,6 +91,10 @@ export const usePlayback = ({
 		};
 
 		const callback = () => {
+			if (hasBeenStopped) {
+				return;
+			}
+
 			const time = performance.now() - startedTime;
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
@@ -139,22 +127,16 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!hasBeenStopped) {
-				queueNextFrame();
-			}
+			queueNextFrame();
 		};
 
 		const queueNextFrame = () => {
-			if (buffering.current) {
+			if (context.buffering.current) {
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
-					if (hasBeenStopped) {
-						return;
-					}
-
 					startedTime = performance.now();
 					framesAdvanced = 0;
-					callback();
+					queueNextFrame();
 				});
 				return;
 			}
@@ -165,9 +147,10 @@ export const usePlayback = ({
 					// Note: Most likely, this will not be 1000 / fps, but the browser will throttle it to ~1/sec.
 					id: setTimeout(callback, 1000 / config.fps),
 				};
-			} else {
-				reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
+				return;
 			}
+
+			reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
 		};
 
 		queueNextFrame();
@@ -202,7 +185,6 @@ export const usePlayback = ({
 		moveToBeginningWhenEnded,
 		isBackgroundedRef,
 		getCurrentFrame,
-		buffering,
 		context,
 	]);
 

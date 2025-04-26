@@ -36,5 +36,6 @@ export const parseM3uMediaDirective = (str: string): M3uMediaInfo => {
 		language: map.LANGUAGE || null,
 		name: map.NAME || null,
 		uri: map.URI,
+		mediaType: map.TYPE || null,
 	};
 };

@@ -16,7 +16,7 @@ import {needsToIterateOverSamples} from './need-samples-for-fields';
 import type {SamplesObservedState} from './samples-observed/slow-duration-fps';
 import type {StructureState} from './structure';
 
-export const sampleCallback = ({
+export const callbacksState = ({
 	controller,
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
@@ -163,4 +163,4 @@ export const sampleCallback = ({
 	};
 };
 
-export type SampleCallbacks = ReturnType<typeof sampleCallback>;
+export type CallbacksState = ReturnType<typeof callbacksState>;

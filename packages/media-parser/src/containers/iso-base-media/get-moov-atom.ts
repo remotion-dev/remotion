@@ -19,7 +19,7 @@ export const getMoovAtom = async ({
 	state: ParserState;
 	endOfMdat: number;
 }): Promise<MoovBox> => {
-	const headerSegment = state.mp4HeaderSegment;
+	const headerSegment = state.m3uPlaylistContext?.mp4HeaderSegment;
 	if (headerSegment) {
 		const segment = getMoovFromFromIsoStructure(headerSegment);
 		if (!segment) {

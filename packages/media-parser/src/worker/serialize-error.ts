@@ -67,6 +67,15 @@ export const serializeError = ({
 		};
 	}
 
+	if (error.name === 'AbortError') {
+		return {
+			type: 'response-error',
+			errorName: 'AbortError',
+			errorMessage: error.message,
+			errorStack: error.stack ?? '',
+		};
+	}
+
 	if (error.name !== 'Error') {
 		Log.warn(
 			logLevel,
@@ -116,7 +125,11 @@ export const deserializeError = (error: ResponseError): Error => {
 			});
 		case 'MediaParserAbortError':
 			return new MediaParserAbortError(error.errorMessage);
-		default:
+		case 'Error':
 			return new Error(error.errorMessage);
+		case 'AbortError':
+			return new Error(error.errorMessage);
+		default:
+			throw new Error(`Unknown error name: ${error satisfies never}`);
 	}
 };

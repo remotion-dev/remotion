@@ -14,13 +14,13 @@ import {
 import {Log, type LogLevel} from '../log';
 import type {
 	AllParseMediaFields,
+	M3uPlaylistContext,
 	OnDiscardedData,
 	ParseMediaCallbacks,
 	ParseMediaMode,
 	ParseMediaResult,
 	ParseMediaSrc,
 } from '../options';
-import type {IsoBaseMediaStructure} from '../parse-result';
 import type {Reader, ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
@@ -34,7 +34,7 @@ import {m3uState} from './m3u-state';
 import {webmState} from './matroska/webm';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
-import {sampleCallback} from './sample-callbacks';
+import {callbacksState} from './sample-callbacks';
 import {samplesObservedState} from './samples-observed/slow-duration-fps';
 import {seekInfiniteLoopDetectionState} from './seek-infinite-loop';
 import {structureState} from './structure';
@@ -65,7 +65,7 @@ export const makeParserState = ({
 	onDiscardedData,
 	selectM3uStreamFn,
 	selectM3uAssociatedPlaylistsFn,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	contentType,
 	name,
 	callbacks,
@@ -88,7 +88,7 @@ export const makeParserState = ({
 	onDiscardedData: OnDiscardedData | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	contentType: string | null;
 	name: string;
 	callbacks: ParseMediaCallbacks;
@@ -167,7 +167,7 @@ export const makeParserState = ({
 		flac: flacState(),
 		m3u: m3uState(logLevel),
 		timings,
-		callbacks: sampleCallback({
+		callbacks: callbacksState({
 			controller,
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
@@ -205,7 +205,7 @@ export const makeParserState = ({
 		discardReadBytes,
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		contentType,
 		name,
 		returnValue,
