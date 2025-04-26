@@ -86,6 +86,16 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
+	// Corrupt file: Sample is beyond the end of the file. Don't process it.
+	if (
+		samplesWithIndex.samplePosition.offset +
+			samplesWithIndex.samplePosition.size >
+		state.contentLength
+	) {
+		return makeSkip(endOfMdat);
+	}
+
+	// Need to fetch more data
 	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {
 		return null;
 	}
