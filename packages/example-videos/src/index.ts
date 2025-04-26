@@ -119,4 +119,8 @@ export const exampleVideos = {
 	),
 };
 
-export {getRemoteExampleVideo, remoteExampleVideos} from './remote-videos';
+export {
+	getPrivateExampleVideo,
+	getRemoteExampleVideo,
+	remoteExampleVideos,
+} from './remote-videos';

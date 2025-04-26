@@ -8,6 +8,7 @@ import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
+import {calculateJumpMarks} from './calculate-jump-marks';
 import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
@@ -46,15 +47,20 @@ export const parseMdatSection = async (
 	}
 
 	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
+		const flattedSamples = calculateFlatSamples(state);
+
+		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
+		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
 		state.iso.flatSamples.setSamples(
 			mediaSection.start,
-			calculateFlatSamples(state),
+			flattedSamples.flat(1),
 		);
 	}
 
 	const flatSamples = state.iso.flatSamples.getSamples(
 		mediaSection.start,
 	) as FlatSample[];
+	const jumpMarks = state.iso.flatSamples.getJumpMarks(mediaSection.start);
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {
@@ -147,6 +153,11 @@ export const parseMdatSection = async (
 			samplesWithIndex.track.trackId,
 			videoSample,
 		);
+	}
+
+	const jump = jumpMarks.find((j) => j.afterSampleWithOffset === offset);
+	if (jump) {
+		return makeSkip(jump.jumpToOffset);
 	}
 
 	return null;
