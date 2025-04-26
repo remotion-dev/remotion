@@ -485,12 +485,11 @@ export const experts: Expert[] = [
 				<a target={'_blank'} href="https://www.krumzi.com/">
 					Krumzi
 				</a>{' '}
-				- using Remotion. <br />
-				I'm a full-stack developer with 5+ years of experience, specializing in
-				building SaaS products. I mostly work with React and Next.js, and for
-				the past 2 years, I’ve been using Remotion to build video-based
-				products. I focus on shipping fast, delivering value, and creating
-				things people actually enjoy using.
+				- using Remotion. <br />I{"'"}m a full-stack developer with 5+ years of
+				experience, specializing in building SaaS products. I mostly work with
+				React and Next.js, and for the past 2 years, I{"'"}ve been using
+				Remotion to build video-based products. I focus on shipping fast,
+				delivering value, and creating things people actually enjoy using.
 			</div>
 		),
 	},
