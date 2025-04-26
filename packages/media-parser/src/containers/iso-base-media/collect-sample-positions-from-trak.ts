@@ -1,6 +1,6 @@
 import {getTimescaleAndDuration} from '../../get-fps';
-import {getSamplePositions} from '../../get-sample-positions';
 import {getGroupedSamplesPositionsFromMp4} from '../../get-sample-positions-from-mp4';
+import type {GroupOfSamplePositions} from './sample-positions';
 import {shouldGroupAudioSamples} from './should-group-audio-samples';
 import type {TrakBox} from './trak/trak';
 import {
@@ -12,15 +12,20 @@ import {
 	getSttsBox,
 } from './traversal';
 
-export const collectSamplePositionsFromTrak = (trakBox: TrakBox) => {
+export const collectSamplePositionsFromTrak = (
+	trakBox: TrakBox,
+): GroupOfSamplePositions => {
 	const shouldGroupSamples = shouldGroupAudioSamples(trakBox);
 	const timescaleAndDuration = getTimescaleAndDuration(trakBox);
 
 	if (shouldGroupSamples) {
-		return getGroupedSamplesPositionsFromMp4({
-			trakBox,
-			bigEndian: shouldGroupSamples.bigEndian,
-		});
+		return {
+			boxes: getGroupedSamplesPositionsFromMp4({
+				trakBox,
+				bigEndian: shouldGroupSamples.bigEndian,
+			}),
+			type: 'array',
+		};
 	}
 
 	const stszBox = getStszBox(trakBox);
@@ -50,14 +55,8 @@ export const collectSamplePositionsFromTrak = (trakBox: TrakBox) => {
 		throw new Error('Expected timescale and duration in trak box');
 	}
 
-	const samplePositions = getSamplePositions({
-		stcoBox,
-		stscBox,
-		stszBox,
-		stssBox,
-		sttsBox,
-		cttsBox,
-	});
-
-	return samplePositions;
+	return {
+		type: 'map',
+		boxes: {stszBox, stssBox, stcoBox, stscBox, sttsBox, cttsBox},
+	};
 };

@@ -1,8 +1,9 @@
-import type {SamplePosition} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {StructureState} from '../../state/structure';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
+import type {GroupOfSamplePositions} from './sample-positions';
+import {hasNoSamplePositionsGroup} from './sample-positions';
 import type {TrakBox} from './trak/trak';
 import {getMoofBoxes, getTfraBoxes} from './traversal';
 
@@ -18,7 +19,7 @@ export const findAnyTrackWithSamplePositions = (
 				tfraBoxes: getTfraBoxes(struc),
 			});
 
-			if (samplePositions.length === 0) {
+			if (hasNoSamplePositionsGroup(samplePositions)) {
 				continue;
 			}
 
@@ -31,7 +32,7 @@ export const findAnyTrackWithSamplePositions = (
 
 type TrackWithSamplePositions = {
 	track: VideoTrack | AudioTrack;
-	samplePositions: SamplePosition[];
+	samplePositions: GroupOfSamplePositions[];
 };
 
 export const findTrackToSeek = (
@@ -51,7 +52,7 @@ export const findTrackToSeek = (
 		tfraBoxes: getTfraBoxes(struc),
 	});
 
-	if (samplePositions.length === 0) {
+	if (hasNoSamplePositionsGroup(samplePositions)) {
 		return findAnyTrackWithSamplePositions(allTracks, struc);
 	}
 

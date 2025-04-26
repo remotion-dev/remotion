@@ -14,6 +14,7 @@ import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {findBestSegmentFromTfra} from './mfra/find-best-segment-from-tfra';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
+import {turnIntoOld} from './turn-sample-positions-into-array';
 
 export const getSeekingByteFromFragmentedMp4 = async ({
 	info,
@@ -61,7 +62,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 
 	for (const positions of samplePositionsArray) {
 		const {min, max} = getSamplePositionBounds(
-			positions.samples,
+			turnIntoOld(positions.samples),
 			firstTrack.timescale,
 		);
 
@@ -75,7 +76,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			);
 
 			const kf = findKeyframeBeforeTime({
-				samplePositions: positions.samples,
+				samplePositions: [positions.samples],
 				time,
 				timescale: firstTrack.timescale,
 				logLevel,

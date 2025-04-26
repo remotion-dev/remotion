@@ -7,6 +7,7 @@ import {
 	getMvhdBox,
 	getTfraBoxes,
 } from './containers/iso-base-media/traversal';
+import {turnGroupIntoOld} from './containers/iso-base-media/turn-sample-positions-into-array';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
 import {getDurationFromAvi} from './containers/riff/get-duration';
@@ -105,7 +106,9 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 			return null;
 		}
 
-		const highest = samplePositions
+		const old = turnGroupIntoOld(samplePositions);
+
+		const highest = old
 			?.map((sp) => (sp.cts + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
 

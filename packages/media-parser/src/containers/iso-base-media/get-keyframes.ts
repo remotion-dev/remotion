@@ -2,6 +2,7 @@ import {getTracksFromIsoBaseMedia} from '../../get-tracks';
 import type {MediaParserKeyframe} from '../../options';
 import type {ParserState} from '../../state/parser-state';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
+import {getKeyframesFromGroupOfSamplePositions} from './sample-positions';
 import type {TrakBox} from './trak/trak';
 import {getMoofBoxes, getTfraBoxes} from './traversal';
 
@@ -32,6 +33,8 @@ export const getKeyframesFromIsoBaseMedia = (
 		}
 
 		const keyframes = samplePositions
+			.map((s) => getKeyframesFromGroupOfSamplePositions(s))
+			.flat()
 			.filter((k) => {
 				return k.isKeyframe;
 			})
