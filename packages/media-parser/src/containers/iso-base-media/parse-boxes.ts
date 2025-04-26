@@ -32,8 +32,12 @@ export const parseIsoBaseMedia = async (
 		},
 		contentLength: state.contentLength,
 	});
-	if (result) {
-		state.structure.getIsoStructure().boxes.push(result);
+	if (result.type === 'fetch-more-data') {
+		return result.bytesNeeded;
+	}
+
+	if (result.type === 'box') {
+		state.structure.getIsoStructure().boxes.push(result.box);
 	}
 
 	return null;

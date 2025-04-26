@@ -111,8 +111,8 @@ export const getMoovAtom = async ({
 			onlyIfMdatAtomExpected: null,
 			contentLength: state.contentLength - endOfMdat,
 		});
-		if (box) {
-			boxes.push(box);
+		if (box.type === 'box') {
+			boxes.push(box.box);
 		}
 
 		if (iterator.counter.getOffset() + endOfMdat > state.contentLength) {

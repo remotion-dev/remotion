@@ -78,17 +78,40 @@ export const parseLoop = async ({
 				await triggerInfoEmit(state);
 
 				await state.controller._internals.checkForAbortAndPause();
-				const skip = await runParseIteration({
+				const result = await runParseIteration({
 					state,
 				});
 
-				if (skip !== null) {
-					state.increaseSkippedBytes(
-						skip.skipTo - state.iterator.counter.getOffset(),
+				if (result !== null && result.action === 'fetch-more-data') {
+					Log.verbose(
+						state.logLevel,
+						`Need to fetch ${result.bytesNeeded} more bytes before we can continue`,
 					);
-					if (skip.skipTo === state.contentLength) {
+					const startBytesRemaining = state.iterator.bytesRemaining();
+					while (true) {
+						const done = await fetchMoreData(state);
+						if (done) {
+							break;
+						}
+
+						if (
+							state.iterator.bytesRemaining() - startBytesRemaining >=
+							result.bytesNeeded
+						) {
+							break;
+						}
+					}
+
+					continue;
+				}
+
+				if (result !== null && result.action === 'skip') {
+					state.increaseSkippedBytes(
+						result.skipTo - state.iterator.counter.getOffset(),
+					);
+					if (result.skipTo === state.contentLength) {
 						state.iterator.discard(
-							skip.skipTo - state.iterator.counter.getOffset(),
+							result.skipTo - state.iterator.counter.getOffset(),
 						);
 						Log.verbose(
 							state.logLevel,
@@ -99,7 +122,7 @@ export const parseLoop = async ({
 
 					const seekStart = Date.now();
 					await performSeek({
-						seekTo: skip.skipTo,
+						seekTo: result.skipTo,
 						userInitiated: false,
 						controller: state.controller,
 						mediaSection: state.mediaSection,
