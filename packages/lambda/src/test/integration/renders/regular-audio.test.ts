@@ -17,7 +17,7 @@ test(
 			imageFormat: 'none',
 			region: 'eu-central-1',
 			inputProps: {playbackRate: 2},
-			framesPerLambda: 30,
+			framesPerLambda: 40,
 			logLevel: 'verbose',
 		});
 

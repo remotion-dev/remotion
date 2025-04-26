@@ -17,11 +17,14 @@ import {mockReadDirectory} from './mocks/mock-read-dir';
 import {mockUploadDir} from './mocks/upload-dir';
 
 const browsersOpen: Map<string, boolean> = new Map();
-export const getBrowserInstance: GetBrowserInstance = async ({logLevel}) => {
-	const instance = await openBrowser('chrome');
+export const getBrowserInstance: GetBrowserInstance = async ({
+	logLevel,
+	indent,
+}) => {
+	const instance = await openBrowser('chrome', {logLevel});
 	browsersOpen.set(instance.id, true);
 	Log.verbose(
-		{logLevel, indent: false},
+		{logLevel, indent},
 		`Opening new browser instance ${instance.id}. ${browsersOpen.size} browsers open`,
 	);
 	return {instance, configurationString: 'chrome'};
