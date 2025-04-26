@@ -5,7 +5,6 @@ import {
 	getMoofBoxes,
 	getTfraBoxes,
 } from '../../containers/iso-base-media/traversal';
-import {turnGroupIntoOld} from '../../containers/iso-base-media/turn-sample-positions-into-array';
 import type {SamplePosition} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
@@ -43,9 +42,7 @@ export const calculateFlatSamples = (state: ParserState) => {
 			tfraBoxes: getTfraBoxes(state.structure.getIsoStructure()),
 		});
 
-		const old = turnGroupIntoOld(samplePositions);
-
-		return old.map((samplePosition) => {
+		return samplePositions.map((samplePosition) => {
 			return {
 				track,
 				samplePosition,

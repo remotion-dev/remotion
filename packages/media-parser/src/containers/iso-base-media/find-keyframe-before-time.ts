@@ -2,10 +2,6 @@ import type {SamplePosition} from '../../get-sample-positions';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {MediaSection} from '../../state/video-section';
-import {
-	groupGetKeyframesFromGroupOfSamplePositions,
-	type GroupOfSamplePositions,
-} from './sample-positions';
 
 export const findKeyframeBeforeTime = ({
 	samplePositions,
@@ -14,7 +10,7 @@ export const findKeyframeBeforeTime = ({
 	mediaSections,
 	logLevel,
 }: {
-	samplePositions: GroupOfSamplePositions[];
+	samplePositions: SamplePosition[];
 	time: number;
 	timescale: number;
 	mediaSections: MediaSection[];
@@ -23,9 +19,7 @@ export const findKeyframeBeforeTime = ({
 	let videoByte = 0;
 	let videoSample: SamplePosition | null = null;
 
-	for (const sample of groupGetKeyframesFromGroupOfSamplePositions(
-		samplePositions,
-	)) {
+	for (const sample of samplePositions) {
 		const ctsInSeconds = sample.cts / timescale;
 		const dtsInSeconds = sample.dts / timescale;
 
