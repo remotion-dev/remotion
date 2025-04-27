@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Special Gothic Condensed One',
 	importName: 'SpecialGothicCondensedOne',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Special+Gothic+Condensed+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/specialgothiccondensedone/v1/R70Njzwei_mJM7OsFDzX7EL9NBO6IPvd-Avolzh49w7PYZJ15Ltx.woff2',
+					'https://fonts.gstatic.com/s/specialgothiccondensedone/v2/R70Njzwei_mJM7OsFDzX7EL9NBO6IPvd-Avolzh49w7PYZJ15Ltx.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/specialgothiccondensedone/v1/R70Njzwei_mJM7OsFDzX7EL9NBO6IPvd-Avolzh49w7PYZx15A.woff2',
+					'https://fonts.gstatic.com/s/specialgothiccondensedone/v2/R70Njzwei_mJM7OsFDzX7EL9NBO6IPvd-Avolzh49w7PYZx15A.woff2',
 			},
 		},
 	},

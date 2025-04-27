@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Special Gothic',
 	importName: 'SpecialGothic',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Special+Gothic:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/specialgothic/v1/1q2fY5WcG0Fg_v0fHc8BvIZ251ToXoCZgg.woff2',
+					'https://fonts.gstatic.com/s/specialgothic/v2/1q2fY5WcG0Fg_v0fHc8BvIZ251ToXoCZgg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/specialgothic/v1/1q2fY5WcG0Fg_v0fHc8BvIZ251TmXoA.woff2',
+					'https://fonts.gstatic.com/s/specialgothic/v2/1q2fY5WcG0Fg_v0fHc8BvIZ251TmXoA.woff2',
 			},
 		},
 	},
