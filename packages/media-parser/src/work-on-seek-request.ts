@@ -1,48 +1,131 @@
+import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
-import {getSeekingByte, getSeekingInfo} from './get-seeking-info';
+import type {PrefetchCache} from './fetch';
+import type {AllOptions, ParseMediaFields} from './fields';
+import {getSeekingByte} from './get-seeking-byte';
+import {getSeekingHints} from './get-seeking-hints';
+import type {BufferIterator} from './iterator/buffer-iterator';
+import type {LogLevel} from './log';
 import {Log} from './log';
+import type {
+	M3uPlaylistContext,
+	ParseMediaMode,
+	ParseMediaSrc,
+} from './options';
 import {performSeek} from './perform-seek';
+import type {ReaderInterface} from './readers/reader';
+import type {AacState} from './state/aac-state';
+import type {CurrentReader} from './state/current-reader';
+import type {FlacState} from './state/flac-state';
+import type {TracksState} from './state/has-tracks-section';
+import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
+import type {KeyframesState} from './state/keyframes';
+import type {M3uState} from './state/m3u-state';
+import type {WebmState} from './state/matroska/webm';
+import type {Mp3State} from './state/mp3';
 import type {ParserState} from './state/parser-state';
+import type {RiffState} from './state/riff';
+import type {SamplesObservedState} from './state/samples-observed/slow-duration-fps';
+import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
+import type {StructureState} from './state/structure';
+import type {TransportStreamState} from './state/transport-stream/transport-stream';
+import {type MediaSectionState} from './state/video-section';
 
-const turnSeekIntoByte = ({
+const turnSeekIntoByte = async ({
 	seek,
-	state,
+	mediaSectionState,
+	logLevel,
+	iterator,
+	structureState,
+	m3uPlaylistContext,
+	isoState,
+	transportStream,
+	tracksState,
+	webmState,
+	keyframes,
+	flacState,
+	samplesObserved,
+	riffState,
+	mp3State,
+	contentLength,
+	aacState,
+	m3uState,
 }: {
 	seek: Seek;
-	state: ParserState;
-}): SeekResolution => {
-	const videoSections = state.videoSection.getVideoSections();
-	if (videoSections.length === 0) {
-		Log.trace(state.logLevel, 'No video sections defined, cannot seek yet');
+	mediaSectionState: MediaSectionState;
+	logLevel: LogLevel;
+	iterator: BufferIterator;
+	structureState: StructureState;
+	m3uPlaylistContext: M3uPlaylistContext | null;
+	isoState: IsoBaseMediaState;
+	transportStream: TransportStreamState;
+	tracksState: TracksState;
+	webmState: WebmState;
+	keyframes: KeyframesState;
+	flacState: FlacState;
+	samplesObserved: SamplesObservedState;
+	riffState: RiffState;
+	mp3State: Mp3State;
+	aacState: AacState;
+	contentLength: number;
+	m3uState: M3uState;
+}): Promise<SeekResolution> => {
+	const mediaSections = mediaSectionState.getMediaSections();
+
+	if (mediaSections.length === 0) {
+		Log.trace(logLevel, 'No media sections defined, cannot seek yet');
 		return {
 			type: 'valid-but-must-wait',
 		};
 	}
 
-	if (seek.type === 'keyframe-before-time-in-seconds') {
-		const seekingInfo = getSeekingInfo(state);
-		if (!seekingInfo) {
-			Log.trace(state.logLevel, 'No seeking info, cannot seek yet');
+	if (seek.type === 'keyframe-before-time') {
+		if (seek.timeInSeconds < 0) {
+			throw new Error(
+				`Cannot seek to a negative time: ${JSON.stringify(seek)}`,
+			);
+		}
+
+		const seekingHints = getSeekingHints({
+			riffState,
+			samplesObserved,
+			structureState,
+			mediaSectionState,
+			isoState,
+			transportStream,
+			tracksState,
+			keyframesState: keyframes,
+			webmState,
+			flacState,
+			mp3State,
+			contentLength,
+			aacState,
+			m3uPlaylistContext,
+		});
+
+		if (!seekingHints) {
+			Log.trace(logLevel, 'No seeking info, cannot seek yet');
 			return {
 				type: 'valid-but-must-wait',
 			};
 		}
 
-		const seekingByte = getSeekingByte({
-			info: seekingInfo,
-			time: seek.time,
-			logLevel: state.logLevel,
-			currentPosition: state.iterator.counter.getOffset(),
+		const seekingByte = await getSeekingByte({
+			info: seekingHints,
+			time: seek.timeInSeconds,
+			logLevel,
+			currentPosition: iterator.counter.getOffset(),
+			isoState,
+			transportStream,
+			webmState,
+			mediaSection: mediaSectionState,
+			m3uPlaylistContext,
+			structure: structureState,
+			riffState,
+			m3uState,
 		});
 
 		return seekingByte;
-	}
-
-	if (seek.type === 'byte') {
-		return {
-			type: 'do-seek',
-			byte: seek.byte,
-		};
 	}
 
 	throw new Error(
@@ -50,35 +133,172 @@ const turnSeekIntoByte = ({
 	);
 };
 
-export const workOnSeekRequest = async (state: ParserState) => {
-	const seek = state.controller._internals.seekSignal.getSeek();
+export type WorkOnSeekRequestOptions = {
+	logLevel: LogLevel;
+	controller: MediaParserController;
+	isoState: IsoBaseMediaState;
+	iterator: BufferIterator;
+	structureState: StructureState;
+	src: ParseMediaSrc;
+	contentLength: number;
+	readerInterface: ReaderInterface;
+	mediaSection: MediaSectionState;
+	m3uPlaylistContext: M3uPlaylistContext | null;
+	transportStream: TransportStreamState;
+	mode: ParseMediaMode;
+	seekInfiniteLoop: SeekInfiniteLoop;
+	currentReader: CurrentReader;
+	discardReadBytes: (force: boolean) => Promise<void>;
+	fields: Partial<AllOptions<ParseMediaFields>>;
+	tracksState: TracksState;
+	webmState: WebmState;
+	keyframes: KeyframesState;
+	flacState: FlacState;
+	samplesObserved: SamplesObservedState;
+	riffState: RiffState;
+	mp3State: Mp3State;
+	aacState: AacState;
+	m3uState: M3uState;
+	prefetchCache: PrefetchCache;
+};
+
+export const getWorkOnSeekRequestOptions = (
+	state: ParserState,
+): WorkOnSeekRequestOptions => {
+	return {
+		logLevel: state.logLevel,
+		controller: state.controller,
+		isoState: state.iso,
+		iterator: state.iterator,
+		structureState: state.structure,
+		src: state.src,
+		contentLength: state.contentLength,
+		readerInterface: state.readerInterface,
+		mediaSection: state.mediaSection,
+		m3uPlaylistContext: state.m3uPlaylistContext,
+		mode: state.mode,
+		seekInfiniteLoop: state.seekInfiniteLoop,
+		currentReader: state.currentReader,
+		discardReadBytes: state.discardReadBytes,
+		fields: state.fields,
+		transportStream: state.transportStream,
+		tracksState: state.callbacks.tracks,
+		webmState: state.webm,
+		keyframes: state.keyframes,
+		flacState: state.flac,
+		samplesObserved: state.samplesObserved,
+		riffState: state.riff,
+		mp3State: state.mp3,
+		aacState: state.aac,
+		m3uState: state.m3u,
+		prefetchCache: state.prefetchCache,
+	};
+};
+
+export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
+	const {
+		logLevel,
+		controller,
+		mediaSection,
+		m3uPlaylistContext,
+		isoState,
+		iterator,
+		structureState,
+		src,
+		contentLength,
+		readerInterface,
+		mode,
+		seekInfiniteLoop,
+		currentReader,
+		discardReadBytes,
+		fields,
+		transportStream,
+		tracksState,
+		webmState,
+		keyframes,
+		flacState,
+		samplesObserved,
+		riffState,
+		mp3State,
+		aacState,
+		prefetchCache,
+		m3uState,
+	} = options;
+	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
 		return;
 	}
 
-	Log.trace(state.logLevel, `Has seek request: ${JSON.stringify(seek)}`);
-	const resolution = turnSeekIntoByte({seek, state});
-	Log.trace(state.logLevel, `Seek action: ${JSON.stringify(resolution)}`);
+	Log.trace(logLevel, `Has seek request for ${src}: ${JSON.stringify(seek)}`);
+	const resolution = await turnSeekIntoByte({
+		seek,
+		mediaSectionState: mediaSection,
+		logLevel,
+		iterator,
+		structureState,
+		m3uPlaylistContext,
+		isoState,
+		transportStream,
+		tracksState,
+		webmState,
+		keyframes,
+		flacState,
+		samplesObserved,
+		riffState,
+		mp3State,
+		contentLength,
+		aacState,
+		m3uState,
+	});
+	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
 	if (resolution.type === 'intermediary-seek') {
 		await performSeek({
-			state,
 			seekTo: resolution.byte,
 			userInitiated: false,
+			controller,
+			mediaSection,
+			iterator,
+			logLevel,
+			mode,
+			contentLength,
+			seekInfiniteLoop,
+			currentReader,
+			readerInterface,
+			src,
+			discardReadBytes,
+			fields,
+			prefetchCache,
 		});
 		return;
 	}
 
 	if (resolution.type === 'do-seek') {
-		await performSeek({state, seekTo: resolution.byte, userInitiated: true});
+		await performSeek({
+			seekTo: resolution.byte,
+			userInitiated: true,
+			controller,
+			mediaSection,
+			iterator,
+			logLevel,
+			mode,
+			contentLength,
+			seekInfiniteLoop,
+			currentReader,
+			readerInterface,
+			src,
+			discardReadBytes,
+			fields,
+			prefetchCache,
+		});
 		const {hasChanged} =
-			state.controller._internals.seekSignal.clearSeekIfStillSame(seek);
+			controller._internals.seekSignal.clearSeekIfStillSame(seek);
 		if (hasChanged) {
 			Log.trace(
-				state.logLevel,
+				logLevel,
 				`Seek request has changed while seeking, seeking again`,
 			);
-			await workOnSeekRequest(state);
+			await workOnSeekRequest(options);
 		}
 
 		return;
@@ -91,10 +311,7 @@ export const workOnSeekRequest = async (state: ParserState) => {
 	}
 
 	if (resolution.type === 'valid-but-must-wait') {
-		Log.trace(
-			state.logLevel,
-			'Seek request is valid but cannot be processed yet',
-		);
+		Log.trace(logLevel, 'Seek request is valid but cannot be processed yet');
 	}
 };
 

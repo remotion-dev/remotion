@@ -36,11 +36,13 @@ export type Template = {
 		| 'tts'
 		| 'google-tts'
 		| 'audiogram'
+		| 'music-visualization'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
-		| 'code-hike';
+		| 'code-hike'
+		| 'render-server';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -184,6 +186,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: true,
 	},
 	{
+		homePageLabel: 'Render Server (Express.js)',
+		shortName: 'Render Server',
+		org: 'remotion-dev',
+		repoName: 'template-render-server',
+		description: 'An Express.js server for rendering videos with Remotion',
+		longerDescription:
+			'A template that provides an Express.js server starting, tracking, and canceling Remotion renders.',
+		promoVideo: {
+			muxId: 'JhsWde00fJ6L00SUrIwOZv2XOl7j00DgT5kED01FVVOUJTU',
+			width: 1920,
+			height: 1080,
+		},
+		cliId: 'render-server' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-render-server',
+		allowEnableTailwind: false,
+	},
+	{
 		homePageLabel: 'React Router 7',
 		shortName: 'React Router',
 		org: 'remotion-dev',
@@ -297,7 +320,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
 		promoVideo: {
-			muxId: 'nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU',
+			muxId: '7RwHiqZX5k5radAqZpGq7x02jJhi5j4OD8BMiM1z7nmE',
 			height: 1080,
 			width: 1080,
 		},
@@ -307,6 +330,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: 'https://template-audiogram-1nrh.vercel.app',
 		templateInMonorepo: 'template-audiogram',
+		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Music Visualization',
+		shortName: 'Music Visualization',
+		org: 'remotion-dev',
+		repoName: 'template-music-visualization',
+		description: 'Text and waveform visualization for podcasts',
+		longerDescription:
+			'A template that turns music snippets into videos that can be posted on Social Media.',
+		promoVideo: {
+			muxId: '8msABU02zPeFOGdvUWChssvsLVJZgFNWGWaVKA9hNAlw',
+			height: 1080,
+			width: 1080,
+		},
+		cliId: 'music-visualization' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-music-visualization',
 		allowEnableTailwind: true,
 	},
 	{

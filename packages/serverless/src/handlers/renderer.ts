@@ -89,6 +89,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 	});
 
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Waiting for browser instance`,
+	);
+
 	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
@@ -363,7 +368,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		);
 		await onStream({
 			type: 'audio-chunk-rendered',
-			payload: fs.readFileSync(audioOutputLocation),
+			payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
 		});
 		audioChunkTimer.end();
 	}
@@ -377,7 +382,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
-			payload: fs.readFileSync(videoOutputLocation),
+			payload: new Uint8Array(fs.readFileSync(videoOutputLocation)),
 		});
 		videoChunkTimer.end();
 	}
@@ -432,9 +437,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-}): Promise<{
-	type: 'success';
-}> => {
+}): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -457,9 +460,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				instance = browserInstance;
 			},
 		});
-		return {
-			type: 'success',
-		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			// eslint-disable-next-line no-console
@@ -511,8 +511,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				},
 			},
 		});
-
-		throw err;
 	} finally {
 		if (shouldKeepBrowserOpen && instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({

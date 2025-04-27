@@ -1,9 +1,13 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitVideoSample} from '../../emit-audio-sample';
 import type {Track} from '../../get-tracks';
+import type {LogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {CallbacksState} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
+import type {
+	AudioOrVideoSample,
+	OnVideoTrack,
+} from '../../webcodec-sample-types';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
@@ -21,25 +25,42 @@ export const MPEG_TIMESCALE = 90000;
 export const handleAvcPacket = async ({
 	streamBuffer,
 	programId,
-	state,
 	offset,
+	sampleCallbacks,
+	logLevel,
+	onVideoTrack,
+	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
-	state: ParserState;
 	offset: number;
+	sampleCallbacks: CallbacksState;
+	logLevel: LogLevel;
+	onVideoTrack: OnVideoTrack | null;
+	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
-	const avc = parseAvc(streamBuffer.buffer);
-	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
+	const avc = parseAvc(streamBuffer.getBuffer());
+	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
-
 	if (!isTrackRegistered) {
 		const spsAndPps = getSpsAndPps(avc);
 		const dimensions = getDimensionsFromSps(spsAndPps.sps.spsData);
 		const sampleAspectRatio = getSampleAspectRatioFromSps(
 			spsAndPps.sps.spsData,
 		);
+		const startOffset = makeSamplesStartAtZero
+			? Math.min(
+					streamBuffer.pesHeader.pts,
+					streamBuffer.pesHeader.dts ?? Infinity,
+				)
+			: 0;
+		transportStream.startOffset.setOffset({
+			trackId: programId,
+			newOffset: startOffset,
+		});
 
 		const track: Track = {
 			m3uStreamFormat: null,
@@ -66,28 +87,49 @@ export const handleAvcPacket = async ({
 			color: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
-		await registerVideoTrack({track, state, container: 'transport-stream'});
+		await registerVideoTrack({
+			track,
+			container: 'transport-stream',
+			logLevel,
+			onVideoTrack,
+			registerVideoSampleCallback: sampleCallbacks.registerVideoSampleCallback,
+			tracks: sampleCallbacks.tracks,
+		});
 	}
+
+	const type = getKeyFrameOrDeltaFromAvcInfo(avc);
 
 	// sample for webcodecs needs to be in nano seconds
 	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts,
-		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
-		timestamp: streamBuffer.pesHeader.pts,
+		cts:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
+		dts:
+			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
+			transportStream.startOffset.getOffset(programId),
+		timestamp:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
-		data: new Uint8Array(streamBuffer.buffer),
+		data: streamBuffer.getBuffer(),
 		trackId: programId,
-		type: getKeyFrameOrDeltaFromAvcInfo(avc),
+		type,
 		offset,
 		timescale: MPEG_TIMESCALE,
 	};
 
-	await emitVideoSample({
-		trackId: programId,
-		videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-			sample,
-			MPEG_TIMESCALE,
-		),
-		state,
+	if (type === 'key') {
+		transportStream.observedPesHeaders.markPtsAsKeyframe(
+			streamBuffer.pesHeader.pts,
+		);
+	}
+
+	const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample,
+		timescale: MPEG_TIMESCALE,
 	});
+
+	await sampleCallbacks.onVideoSample(programId, videoSample);
+
+	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

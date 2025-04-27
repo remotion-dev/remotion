@@ -104,7 +104,7 @@ export const makeAudioTrackHandler =
 
 		const audioEncoderConfig = await getAudioEncoderConfig({
 			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
+			sampleRate: audioOperation.sampleRate ?? track.sampleRate,
 			codec: audioOperation.audioCodec,
 			bitrate: audioOperation.bitrate,
 		});
@@ -114,6 +114,9 @@ export const makeAudioTrackHandler =
 			sampleRate: track.sampleRate,
 			description: track.description,
 		});
+
+		Log.verbose(logLevel, 'Audio encoder config', audioEncoderConfig);
+		Log.verbose(logLevel, 'Audio decoder config', audioDecoderConfig ?? track);
 
 		if (!audioEncoderConfig) {
 			abortConversion(
@@ -137,7 +140,8 @@ export const makeAudioTrackHandler =
 			audioOperation.audioCodec === 'aac'
 				? MediaParserInternals.createAacCodecPrivate({
 						audioObjectType: 2,
-						sampleRate: audioEncoderConfig.sampleRate,
+						sampleRate:
+							audioOperation.sampleRate ?? audioEncoderConfig.sampleRate,
 						channelConfiguration: audioEncoderConfig.numberOfChannels,
 						codecPrivate: null,
 					})
@@ -150,7 +154,7 @@ export const makeAudioTrackHandler =
 					? 'pcm-s16'
 					: audioOperation.audioCodec,
 			numberOfChannels: audioEncoderConfig.numberOfChannels,
-			sampleRate: audioEncoderConfig.sampleRate,
+			sampleRate: audioOperation.sampleRate ?? audioEncoderConfig.sampleRate,
 			codecPrivate,
 			timescale: track.timescale,
 		});

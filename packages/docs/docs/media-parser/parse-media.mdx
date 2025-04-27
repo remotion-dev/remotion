@@ -149,6 +149,18 @@ The interval in milliseconds at which the [`onParseProgress`](#onparseprogress) 
 Default `100`. Set to `0` for unthrottled and synchronous updates.  
 Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
+### `makeSamplesStartAtZero`
+
+_boolean_
+
+If this is set to true, the timestamps of the samples returned will be recalculated so they start at 0 instead of the timestamps that are contained in the file. Default `true`.
+
+### `seekingHints?`
+
+An object that contains hints about the structure of the media file.
+
+See [Seeking Hints](/docs/media-parser/seeking-hints) for more information.
+
 ### `logLevel?`
 
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  

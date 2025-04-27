@@ -2,7 +2,7 @@ import type {ParserState} from '../../state/parser-state';
 import type {WavData, WavFmt} from './types';
 
 export const getDurationFromWav = (state: ParserState) => {
-	const structure = state.getWavStructure();
+	const structure = state.structure.getWavStructure();
 
 	const fmt = structure.boxes.find((b) => b.type === 'wav-fmt') as
 		| WavFmt
@@ -19,12 +19,4 @@ export const getDurationFromWav = (state: ParserState) => {
 	const durationInSeconds =
 		dataBox.dataSize / (fmt.sampleRate * fmt.blockAlign);
 	return durationInSeconds;
-};
-
-export const hasDurationFromWav = (state: ParserState) => {
-	try {
-		return getDurationFromWav(state);
-	} catch {
-		return false;
-	}
 };

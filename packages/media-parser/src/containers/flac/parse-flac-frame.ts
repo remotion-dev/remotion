@@ -1,5 +1,4 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import {emitAudioSample} from '../../emit-audio-sample';
 import {
 	getArrayBufferIterator,
 	type BufferIterator,
@@ -101,7 +100,7 @@ const emitSample = async ({
 	const {blockSize, num, sampleRate} = parsed;
 
 	const duration = blockSize / sampleRate;
-	const structure = state.getFlacStructure();
+	const structure = state.structure.getFlacStructure();
 	const streamInfo = structure.boxes.find(
 		(box) => box.type === 'flac-streaminfo',
 	);
@@ -114,25 +113,28 @@ const emitSample = async ({
 	}
 
 	const timestamp = (num * streamInfo.maximumBlockSize) / streamInfo.sampleRate;
-
-	await emitAudioSample({
-		trackId: 0,
-		audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-			{
-				data,
-				duration,
-				cts: timestamp,
-				dts: timestamp,
-				timestamp,
-				type: 'key',
-				offset,
-				timescale: 1_000_000,
-				trackId: 0,
-			},
-			1,
-		),
-		state,
+	state.flac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset,
+		durationInSeconds: duration,
 	});
+
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			data,
+			duration,
+			cts: timestamp,
+			dts: timestamp,
+			timestamp,
+			type: 'key',
+			offset,
+			timescale: 1,
+			trackId: 0,
+		},
+		timescale: 1,
+	});
+
+	await state.callbacks.onAudioSample(0, audioSample);
 
 	iterator.destroy();
 };
@@ -175,7 +177,7 @@ export const parseFlacFrame = async ({
 
 	iterator.stopReadingBits();
 
-	const structure = state.getFlacStructure();
+	const structure = state.structure.getFlacStructure();
 
 	const minimumFrameSize =
 		structure.boxes.find((b) => b.type === 'flac-streaminfo')

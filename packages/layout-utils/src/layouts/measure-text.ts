@@ -124,8 +124,9 @@ export const measureText = ({
 	fontVariantNumeric,
 	validateFontIsLoaded,
 	additionalStyles,
+	textTransform,
 }: Word): Dimensions => {
-	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${JSON.stringify(additionalStyles)}`;
+	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${textTransform}-${JSON.stringify(additionalStyles)}`;
 
 	if (wordCache.has(key)) {
 		return wordCache.get(key) as Dimensions;
@@ -139,6 +140,7 @@ export const measureText = ({
 		fontWeight,
 		letterSpacing,
 		additionalStyles,
+		textTransform,
 	});
 
 	if (validateFontIsLoaded && text.trim().length > 0) {
@@ -153,6 +155,7 @@ export const measureText = ({
 			fontWeight,
 			letterSpacing,
 			additionalStyles,
+			textTransform,
 		});
 
 		const sameAsFallbackFont =

@@ -28,7 +28,7 @@ export class ResponseStream extends Writable {
 			this.queue.push({PayloadChunk: {Payload: data}, InvokeComplete: false});
 		}
 
-		this.response.push(Buffer.from(chunk, encoding));
+		this.response.push(Buffer.from(chunk, encoding) as never as Uint8Array);
 
 		callback();
 	}

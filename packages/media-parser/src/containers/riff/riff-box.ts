@@ -22,6 +22,7 @@ export type AvihBox = {
 	suggestedBufferSize: number;
 	width: number;
 	height: number;
+	hasIndex: boolean;
 };
 
 export type FccType = 'vids' | 'auds';
@@ -81,6 +82,20 @@ export type IsftBox = {
 	software: string;
 };
 
+export type Idx1Box = {
+	type: 'idx1-box';
+	entries: Idx1Entry[];
+	videoTrackIndex: number | null;
+};
+
+export type Idx1Entry = {
+	id: string;
+	flags: number;
+	offset: number;
+	size: number;
+	sampleCounts: Record<number, number>;
+};
+
 export type RiffBox =
 	| RiffRegularBox
 	| RiffHeader
@@ -89,6 +104,7 @@ export type RiffBox =
 	| StrhBox
 	| StrfBoxVideo
 	| StrfBoxAudio
+	| Idx1Box
 	| IsftBox;
 
 export type RiffStructure = {

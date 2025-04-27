@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/docs"
 	},
 	"name": "docs",
-	"version": "4.0.280",
+	"version": "4.0.290",
 	"private": true,
 	"scripts": {
 		"formatting": "prettier src --check",
@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"@algora/sdk": "^0.1.2",
-		"@aws-sdk/s3-request-presigner": "3.738.0",
+		"@aws-sdk/s3-request-presigner": "3.787.0",
 		"@babel/plugin-transform-modules-commonjs": "^7.15.4",
 		"@docusaurus/core": "3.7.0",
 		"@docusaurus/plugin-content-blog": "3.7.0",
@@ -86,7 +86,7 @@
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
-		"next": "15.2.3",
+		"next": "15.2.4",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remark-shiki-twoslash": "^3.1.3",
@@ -103,7 +103,7 @@
 		"@types/hls.js": "^0.13.3",
 		"@types/unist": "^2.0.0",
 		"@types/node": "20.12.14",
-		"@types/bun": "1.2.5",
+		"@types/bun": "1.2.8",
 		"lodash.sortby": "^4.7.0",
 		"url-loader": "^4.1.1",
 		"openai": "4.67.1"

@@ -26,10 +26,26 @@ export const getLengthAndReader = async ({
 		const buffer = await res.arrayBuffer();
 		const encoded = new Uint8Array(buffer);
 
+		let streamCancelled = false;
 		const stream = new ReadableStream({
 			start(controller) {
-				controller.enqueue(encoded);
-				controller.close();
+				if (ownController.signal.aborted) {
+					return;
+				}
+
+				if (streamCancelled) {
+					return;
+				}
+
+				try {
+					controller.enqueue(encoded);
+					controller.close();
+				} catch {
+					// sometimes on windows after aborting on node 16		: Invalid state: ReadableStreamDefaultController is not in a state where chunk can be enqueued
+				}
+			},
+			cancel() {
+				streamCancelled = true;
 			},
 		});
 

@@ -22,7 +22,7 @@ export const simulateLambdaRender = async (
 		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
-		logLevel: 'error',
+		logLevel: input.logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes: null,
 		port: null,
 		remotionRoot: path.dirname(exampleBuild),

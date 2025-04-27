@@ -4,7 +4,7 @@ export type {ThreeDReducedInstruction} from './3d-svg';
 
 export {threeDIntoSvgPath} from './3d-svg';
 export {extrudeAndTransformElement, extrudeElement} from './extrude-element';
-export {transformPath} from './map-face';
+export {transformPath, type FaceType} from './map-face';
 export {
 	aroundCenterPoint,
 	interpolateMatrix4d,

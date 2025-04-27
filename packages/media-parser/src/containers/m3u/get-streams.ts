@@ -14,6 +14,7 @@ export type M3uAssociatedPlaylist = {
 	channels: number | null;
 	src: string;
 	id: number;
+	isAudio: boolean;
 };
 
 export type M3uStream = {
@@ -82,6 +83,7 @@ export const getM3uStreams = ({
 							originalSrc,
 						),
 						id: associatedPlaylists.length,
+						isAudio: true,
 					});
 				}
 			}
@@ -122,7 +124,7 @@ export const getM3uStreams = ({
 };
 
 export const m3uHasStreams = (state: ParserState): boolean => {
-	const structure = state.getStructureOrNull();
+	const structure = state.structure.getStructureOrNull();
 
 	if (!structure) {
 		return false;

@@ -146,8 +146,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const premounting = useMemo(() => {
+		// || is intentional, ?? would not trigger on `false`
 		return (
-			parentSequence?.premounting ??
+			parentSequence?.premounting ||
 			Boolean(other._remotionInternalIsPremounting)
 		);
 	}, [other._remotionInternalIsPremounting, parentSequence?.premounting]);

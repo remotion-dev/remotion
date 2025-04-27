@@ -46,7 +46,7 @@ export const parseList = ({
 		metadata,
 	};
 
-	state.getWavStructure().boxes.push(wavList);
+	state.structure.getWavStructure().boxes.push(wavList);
 
 	box.expectNoMoreBytes();
 

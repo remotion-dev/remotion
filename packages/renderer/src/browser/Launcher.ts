@@ -25,9 +25,8 @@ export const launchChrome = async ({
 	indent,
 	logLevel,
 	userDataDir,
+	timeout,
 }: LaunchOptions): Promise<HeadlessBrowser> => {
-	const timeout = 60000;
-
 	const browser = await HeadlessBrowser.create({
 		defaultViewport,
 		args,

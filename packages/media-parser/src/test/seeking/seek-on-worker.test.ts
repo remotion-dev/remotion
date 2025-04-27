@@ -11,9 +11,9 @@ test('seek should also work on worker', async () => {
 	let firstSample: AudioOrVideoSample | undefined;
 
 	try {
-		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+		controller.seek({
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMediaOnServerWorker({
@@ -34,6 +34,9 @@ test('seek should also work on worker', async () => {
 			(firstSample?.timestamp ?? 0) / (firstSample?.timescale ?? 1);
 		expect(timeInSeconds).toBe(10.5);
 	}
+
+	const hints = await controller.getSeekingHints();
+	expect(hints?.type).toEqual('iso-base-media-seeking-hints');
 });
 
 test('should be able to seek forward and then backwards', async () => {
@@ -42,9 +45,9 @@ test('should be able to seek forward and then backwards', async () => {
 	let samples = 0;
 
 	try {
-		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+		controller.seek({
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMediaOnServerWorker({
@@ -58,9 +61,9 @@ test('should be able to seek forward and then backwards', async () => {
 						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
 							10.5,
 						);
-						controller._experimentalSeek({
-							type: 'keyframe-before-time-in-seconds',
-							time: 0,
+						controller.seek({
+							type: 'keyframe-before-time',
+							timeInSeconds: 0,
 						});
 					}
 

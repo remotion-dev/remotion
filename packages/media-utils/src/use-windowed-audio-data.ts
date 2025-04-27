@@ -12,7 +12,7 @@ import {getPartialWaveData} from './get-partial-wave-data';
 import {isRemoteAsset} from './is-remote-asset';
 import type {WaveProbe} from './probe-wave-file';
 import {probeWaveFile} from './probe-wave-file';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 
 type WaveformMap = Record<number, Float32Array>;
 
@@ -25,7 +25,7 @@ export type UseWindowedAudioDataOptions = {
 };
 
 export type UseWindowedAudioDataReturnValue = {
-	audioData: AudioData | null;
+	audioData: MediaUtilsAudioData | null;
 	dataOffsetInSeconds: number;
 };
 
@@ -196,7 +196,7 @@ export const useWindowedAudioData = ({
 		});
 	}, [fetchAndSetWaveformData, waveProbe, windowsToFetch]);
 
-	const currentAudioData = useMemo((): AudioData | null => {
+	const currentAudioData = useMemo((): MediaUtilsAudioData | null => {
 		if (!waveProbe) {
 			return null;
 		}

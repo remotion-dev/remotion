@@ -5,6 +5,7 @@ import {
 	knownIdsWithTwoLength,
 } from '../containers/webm/segments/all-segments';
 import {detectFileType} from '../file-types';
+import {Log} from '../log';
 import {bufferManager} from './buffer-manager';
 import {makeOffsetCounter} from './offset-counter';
 
@@ -98,14 +99,15 @@ export const getArrayBufferIterator = (
 			const eight = getUint8();
 
 			return (
-				(eight << 56) |
-				(seven << 48) |
-				(six << 40) |
-				(five << 32) |
-				(four << 24) |
-				(three << 16) |
-				(two << 8) |
-				one
+				((eight << 56) |
+					(seven << 48) |
+					(six << 40) |
+					(five << 32) |
+					(four << 24) |
+					(three << 16) |
+					(two << 8) |
+					one) >>>
+				0
 			);
 		}
 
@@ -133,9 +135,9 @@ export const getArrayBufferIterator = (
 	};
 
 	const getFourByteNumber = () => {
-		return (
-			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8()
-		);
+		const unsigned =
+			(getUint8() << 24) | (getUint8() << 16) | (getUint8() << 8) | getUint8();
+		return unsigned >>> 0;
 	};
 
 	const getPaddedFourByteNumber = () => {
@@ -236,16 +238,18 @@ export const getArrayBufferIterator = (
 	};
 
 	const peekB = (length: number) => {
-		// eslint-disable-next-line no-console
-		console.log(
+		Log.info(
+			'info',
 			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
 		);
 		counter.decrement(length);
 	};
 
 	const peekD = (length: number) => {
-		// eslint-disable-next-line no-console
-		console.log([...getSlice(length)].map((b) => b));
+		Log.info(
+			'info',
+			[...getSlice(length)].map((b) => b.toString(16).padStart(2, '0')),
+		);
 		counter.decrement(length);
 	};
 

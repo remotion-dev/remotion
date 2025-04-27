@@ -20,6 +20,7 @@ import type {
 	MediaParserStructureUnstable,
 } from './parse-result';
 import type {ReaderInterface} from './readers/reader';
+import type {SeekingHints} from './seeking-hints';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
 import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
@@ -215,6 +216,11 @@ type ReaderParams = {
 	reader: ReaderInterface;
 };
 
+export type M3uPlaylistContext = {
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	isLastChunkInPlaylist: boolean;
+};
+
 export type SerializeableOptionalParseMediaParams<
 	F extends Options<ParseMediaFields>,
 > = {
@@ -222,7 +228,9 @@ export type SerializeableOptionalParseMediaParams<
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
+	makeSamplesStartAtZero: boolean;
+	seekingHints: SeekingHints | null;
 };
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =
@@ -241,6 +249,7 @@ type ParseMediaSampleCallbacks = {
 export type ParseMediaMode = 'query' | 'download';
 
 export type ParseMediaSrc = string | Blob | URL;
+export type ParseMediaRange = [number, number] | number | null;
 
 export type OnDiscardedData = (data: Uint8Array) => Promise<void>;
 

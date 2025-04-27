@@ -55,7 +55,7 @@ describe('Templates should be valid', () => {
 			expect(body.name).toStartWith('template-');
 
 			if (!template.shortName.includes('JavaScript')) {
-				expect(body.devDependencies['typescript']).toInclude('5.5.4');
+				expect(body.devDependencies['typescript']).toInclude('5.8.2');
 
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =
@@ -71,10 +71,10 @@ describe('Templates should be valid', () => {
 
 			const scripts = body.scripts;
 			expect(scripts.dev).toMatch(
-				/(remotion\sstudio)|(ts-node src\/studio)|(next dev)|(react-router dev)/,
+				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(ts-node\ssrc\/render)|(react-router build)|(next\sbuild)/,
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)/,
 			);
 		});
 
@@ -169,7 +169,11 @@ describe('Templates should be valid', () => {
 			]);
 			expect(contents).toInclude('npx remotion upgrade');
 			expect(contents).toInclude('npx remotion render');
-			expect(contents).toInclude('npm run dev');
+
+			expect(
+				contents?.includes('npm run dev') ||
+					contents?.includes('npx remotion studio'),
+			).toBe(true);
 		});
 		it(`${template.shortName} should be registered in tsconfig.json`, async () => {
 			const tsconfig = path.join(process.cwd(), '..', '..', 'tsconfig.json');

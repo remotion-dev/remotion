@@ -1,9 +1,12 @@
 dist/test/**
 src
 .eslintrc
+eslint.config.mjs
 tsconfig.tsbuildinfo
 *.tgz
 .turbo
 ensure-version-match.js
 tsconfig.json
 .prettierrc.js
+*.ts
+!*.d.ts

@@ -128,7 +128,12 @@ const aviToMp4ReEncode = (): TestStructure => {
 						};
 					}
 
-					return {type: 'reencode', audioCodec: 'aac', bitrate: 128000};
+					return {
+						type: 'reencode',
+						audioCodec: 'aac',
+						bitrate: 128000,
+						sampleRate: null,
+					};
 				},
 			});
 		},

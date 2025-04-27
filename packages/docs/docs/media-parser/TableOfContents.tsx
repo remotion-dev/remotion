@@ -28,6 +28,10 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<strong>Pause, resume and abort</strong>
 					<div>Steer the parsing process</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/seeking">
+					<strong>Seeking</strong>
+					<div>Seek to a different position in a media file</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/format-support">
 					<strong>Format support</strong>
 					<div>What you can parse</div>

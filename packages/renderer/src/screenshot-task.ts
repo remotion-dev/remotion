@@ -21,22 +21,19 @@ export const screenshotTask = async ({
 	width: number;
 	height: number;
 	scale: number;
-}): Promise<Buffer | string> => {
+}): Promise<Buffer> => {
 	const client = page._client();
 	const target = page.target();
-
-	const perfTarget = startPerfMeasure('activate-target');
 
 	await client.send('Target.activateTarget', {
 		targetId: target._targetId,
 	});
-	stopPerfMeasure(perfTarget);
 
-	const shouldSetDefaultBackground = omitBackground;
-	if (shouldSetDefaultBackground)
+	if (omitBackground) {
 		await client.send('Emulation.setDefaultBackgroundColorOverride', {
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
+	}
 
 	const cap = startPerfMeasure('capture');
 	try {
@@ -84,14 +81,15 @@ export const screenshotTask = async ({
 		}
 
 		stopPerfMeasure(cap);
-		if (shouldSetDefaultBackground)
+		if (omitBackground) {
 			await client.send('Emulation.setDefaultBackgroundColorOverride');
-
-		const saveMarker = startPerfMeasure('save');
+		}
 
 		const buffer = Buffer.from(result.data, 'base64');
-		if (path) await fs.promises.writeFile(path, buffer);
-		stopPerfMeasure(saveMarker);
+		if (path) {
+			await fs.promises.writeFile(path, buffer as never as Uint8Array);
+		}
+
 		return buffer;
 	} catch (err) {
 		if ((err as Error).message.includes('Unable to capture screenshot')) {

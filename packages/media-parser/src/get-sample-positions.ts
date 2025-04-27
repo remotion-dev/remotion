@@ -13,6 +13,8 @@ export type SamplePosition = {
 	cts: number;
 	duration: number;
 	chunk: number;
+	bigEndian: boolean;
+	chunkSize: number | null;
 };
 
 export const getSamplePositions = ({
@@ -54,11 +56,9 @@ export const getSamplePositions = ({
 	let samplesPerChunk = 1;
 
 	for (let i = 0; i < chunks.length; i++) {
-		const hasEntry = stscBox.entries.find(
-			(entry) => entry.firstChunk === i + 1,
-		);
-		if (hasEntry) {
-			samplesPerChunk = hasEntry.samplesPerChunk;
+		const hasEntry = stscBox.entries.get(i + 1);
+		if (hasEntry !== undefined) {
+			samplesPerChunk = hasEntry;
 		}
 
 		let offsetInThisChunk = 0;
@@ -70,7 +70,7 @@ export const getSamplePositions = ({
 					: stszBox.entries[samples.length];
 
 			const isKeyframe = stssBox
-				? stssBox.sampleNumber.includes(samples.length + 1)
+				? stssBox.sampleNumber.has(samples.length + 1)
 				: true;
 
 			const delta = sttsDeltas[samples.length];
@@ -85,6 +85,8 @@ export const getSamplePositions = ({
 				cts,
 				duration: delta,
 				chunk: i,
+				bigEndian: false,
+				chunkSize: null,
 			});
 			dts += delta;
 			offsetInThisChunk += size;

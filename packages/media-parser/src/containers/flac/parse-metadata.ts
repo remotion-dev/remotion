@@ -32,7 +32,7 @@ export const parseVorbisComment = ({
 		box.fields.push({key: key.toLowerCase(), value, trackId: null});
 	}
 
-	state.getFlacStructure().boxes.push(box);
+	state.structure.getFlacStructure().boxes.push(box);
 
 	expectNoMoreBytes();
 

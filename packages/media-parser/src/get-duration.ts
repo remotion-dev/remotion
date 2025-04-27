@@ -55,9 +55,14 @@ export const isMatroska = (boxes: AnySegment[]) => {
 };
 
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
-	const structure = parserState.getIsoStructure();
+	const structure = parserState.structure.getIsoStructure();
 
-	const moovBox = getMoovBoxFromState(parserState);
+	const moovBox = getMoovBoxFromState({
+		structureState: parserState.structure,
+		isoState: parserState.iso,
+		mp4HeaderSegment: parserState.m3uPlaylistContext?.mp4HeaderSegment ?? null,
+		mayUsePrecomputed: true,
+	});
 	if (!moovBox) {
 		return null;
 	}
@@ -78,7 +83,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return mvhdBox.durationInSeconds;
 	}
 
-	const tracks = getTracks(parserState);
+	const tracks = getTracks(parserState, true);
 	const allTracks = [
 		...tracks.videoTracks,
 		...tracks.audioTracks,
@@ -117,7 +122,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 };
 
 export const getDuration = (parserState: ParserState): number | null => {
-	const structure = parserState.getStructure();
+	const structure = parserState.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getDurationFromMatroska(structure.boxes);
 	}
@@ -160,12 +165,12 @@ export const getDuration = (parserState: ParserState): number | null => {
 // `duration` just grabs from metadata, and otherwise returns null
 // Therefore just checking if we have tracks
 export const hasDuration = (parserState: ParserState): boolean => {
-	const structure = parserState.getStructureOrNull();
+	const structure = parserState.structure.getStructureOrNull();
 	if (structure === null) {
 		return false;
 	}
 
-	return getHasTracks(parserState);
+	return getHasTracks(parserState, true);
 };
 
 // `slowDuration` goes through everything, and therefore is false

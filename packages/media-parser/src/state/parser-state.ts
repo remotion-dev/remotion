@@ -4,6 +4,7 @@ import type {
 	SelectM3uStreamFn,
 } from '../containers/m3u/select-stream';
 import type {MediaParserController} from '../controller/media-parser-controller';
+import type {PrefetchCache} from '../fetch';
 import type {Options, ParseMediaFields} from '../fields';
 import {getFieldsFromCallback} from '../get-fields-from-callbacks';
 import {
@@ -13,32 +14,33 @@ import {
 import {Log, type LogLevel} from '../log';
 import type {
 	AllParseMediaFields,
+	M3uPlaylistContext,
 	OnDiscardedData,
 	ParseMediaCallbacks,
 	ParseMediaMode,
 	ParseMediaResult,
 	ParseMediaSrc,
 } from '../options';
-import type {IsoBaseMediaStructure} from '../parse-result';
 import type {Reader, ReaderInterface} from '../readers/reader';
 import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
+import {currentReader} from './current-reader';
 import {emittedState} from './emitted-fields';
 import {flacState} from './flac-state';
 import {imagesState} from './images';
 import {isoBaseMediaState} from './iso-base-media/iso-state';
 import {keyframesState} from './keyframes';
 import {m3uState} from './m3u-state';
+import {webmState} from './matroska/webm';
 import {makeMp3State} from './mp3';
 import {riffSpecificState} from './riff';
-import {sampleCallback} from './sample-callbacks';
+import {callbacksState} from './sample-callbacks';
+import {samplesObservedState} from './samples-observed/slow-duration-fps';
 import {seekInfiniteLoopDetectionState} from './seek-infinite-loop';
-import {slowDurationAndFpsState} from './slow-duration-fps';
 import {structureState} from './structure';
 import {timingsState} from './timings';
-import {transportStreamState} from './transport-stream';
-import {videoSectionState} from './video-section';
-import {webmState} from './webm';
+import {transportStreamState} from './transport-stream/transport-stream';
+import {mediaSectionState} from './video-section';
 export type InternalStats = {
 	skippedBytes: number;
 	finalCursorOffset: number;
@@ -63,13 +65,15 @@ export const makeParserState = ({
 	onDiscardedData,
 	selectM3uStreamFn,
 	selectM3uAssociatedPlaylistsFn,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	contentType,
 	name,
 	callbacks,
 	fieldsInReturnValue,
 	mimeType,
 	initialReaderInstance,
+	makeSamplesStartAtZero,
+	prefetchCache,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -84,13 +88,15 @@ export const makeParserState = ({
 	onDiscardedData: OnDiscardedData | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	contentType: string | null;
 	name: string;
 	callbacks: ParseMediaCallbacks;
 	fieldsInReturnValue: Options<ParseMediaFields>;
 	mimeType: string | null;
 	initialReaderInstance: Reader;
+	makeSamplesStartAtZero: boolean;
+	prefetchCache: PrefetchCache;
 }) => {
 	let skippedBytes: number = 0;
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
@@ -107,11 +113,12 @@ export const makeParserState = ({
 	const structure = structureState();
 	const keyframes = keyframesState();
 	const emittedFields = emittedState();
-	const slowDurationAndFps = slowDurationAndFpsState();
-	const mp3Info = makeMp3State();
+	const samplesObserved = samplesObservedState();
+	const mp3 = makeMp3State();
 	const images = imagesState();
 	const timings = timingsState();
 	const seekInfiniteLoop = seekInfiniteLoopDetectionState();
+	const currentReaderState = currentReader(initialReaderInstance);
 
 	const errored: Error | null = null;
 
@@ -132,23 +139,42 @@ export const makeParserState = ({
 	});
 
 	return {
-		riff: riffSpecificState(),
+		riff: riffSpecificState({
+			controller,
+			logLevel,
+			readerInterface,
+			src,
+			prefetchCache,
+		}),
 		transportStream: transportStreamState(),
-		webm: webmState(),
-		iso: isoBaseMediaState(),
-		mp3Info,
+		webm: webmState({
+			controller,
+			logLevel,
+			readerInterface,
+			src,
+			prefetchCache,
+		}),
+		iso: isoBaseMediaState({
+			contentLength,
+			controller,
+			readerInterface,
+			src,
+			logLevel,
+			prefetchCache,
+		}),
+		mp3,
 		aac: aacState(),
 		flac: flacState(),
 		m3u: m3uState(logLevel),
 		timings,
-		callbacks: sampleCallback({
+		callbacks: callbacksState({
 			controller,
 			hasAudioTrackHandlers,
 			hasVideoTrackHandlers,
 			fields,
 			keyframes,
 			emittedFields,
-			slowDurationAndFpsState: slowDurationAndFps,
+			samplesObserved,
 			structure,
 			src,
 			seekSignal: controller._internals.seekSignal,
@@ -161,15 +187,15 @@ export const makeParserState = ({
 		getSkipBytes: () => skippedBytes,
 		increaseSkippedBytes,
 		keyframes,
-		...structure,
+		structure,
 		onAudioTrack,
 		onVideoTrack,
 		emittedFields,
 		fields,
-		slowDurationAndFps,
+		samplesObserved,
 		contentLength,
 		images,
-		videoSection: videoSectionState(),
+		mediaSection: mediaSectionState(),
 		logLevel,
 		iterator,
 		controller,
@@ -179,7 +205,7 @@ export const makeParserState = ({
 		discardReadBytes,
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		contentType,
 		name,
 		returnValue,
@@ -187,8 +213,10 @@ export const makeParserState = ({
 		fieldsInReturnValue,
 		mimeType,
 		errored: errored as Error | null,
-		currentReader: initialReaderInstance,
+		currentReader: currentReaderState,
 		seekInfiniteLoop,
+		makeSamplesStartAtZero,
+		prefetchCache,
 	};
 };
 

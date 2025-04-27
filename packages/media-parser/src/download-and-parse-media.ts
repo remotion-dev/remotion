@@ -26,7 +26,7 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		selectM3uAssociatedPlaylists:
 			options.selectM3uAssociatedPlaylists ??
 			defaultSelectM3uAssociatedPlaylists,
-		mp4HeaderSegment: options.mp4HeaderSegment ?? null,
+		m3uPlaylistContext: options.m3uPlaylistContext ?? null,
 		onDiscardedData: async (data) => {
 			await content.write(data);
 		},
@@ -73,6 +73,8 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		},
 		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
 		apiName: 'parseAndDownloadMedia()',
+		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
+		seekingHints: options.seekingHints ?? null,
 	});
 	await content.finish();
 	return returnValue;

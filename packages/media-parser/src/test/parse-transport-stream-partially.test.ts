@@ -22,6 +22,7 @@ test('Should be able to parse only header of Transport Stream', async () => {
 		skippedBytes: 1913464,
 	});
 });
+
 test('Should be able to parse only tracks of Transport Stream', async () => {
 	const parsed = await parseMedia({
 		src: exampleVideos.transportstream,

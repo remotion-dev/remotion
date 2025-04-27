@@ -12,9 +12,9 @@ test('should be able to set the start seek', async () => {
 	let firstSample: AudioOrVideoSample | undefined;
 
 	try {
-		controller._experimentalSeek({
-			type: 'keyframe-before-time-in-seconds',
-			time: 10.6,
+		controller.seek({
+			type: 'keyframe-before-time',
+			timeInSeconds: 10.6,
 		});
 
 		await parseMedia({

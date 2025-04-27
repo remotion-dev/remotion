@@ -40,7 +40,11 @@ export const createAudioEncoder = ({
 	}
 
 	if (codec === 'wav') {
-		return getWaveAudioEncoder({onChunk, controller});
+		return getWaveAudioEncoder({
+			onChunk,
+			controller,
+			config: audioEncoderConfig,
+		});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer({

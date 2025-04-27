@@ -13,6 +13,10 @@ A high value for `combineTokensWithinMilliseconds` will fit many words on 1 page
 
 This function is safe to use in the browser, Node.js and Bun.
 
+:::note
+This API expects the whitespace to be included in the `text` field **before each word**.
+:::
+
 ```tsx twoslash title="Create pages from captions"
 import {createTikTokStyleCaptions, Caption} from '@remotion/captions';
 
@@ -120,8 +124,9 @@ A page consists of:
 
 ## Whitespace sensitivity
 
-The `text` field is white-space sensitive. You should include spaces in it, as none are added automatically.  
-While rendering, apply the `white-space: pre` CSS property to the container of the caption to ensure that the spaces are preserved.
+The [`text`](/docs/captions/caption#text) field is whitespace sensitive. You should include spaces in it, ideally before each word.
+
+While rendering, apply the [`white-space: pre`](https://developer.mozilla.org/en-US/docs/Web/CSS/white-space) CSS property to the container of the caption to ensure that the spaces are preserved.
 
 ## See also
 

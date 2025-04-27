@@ -16,9 +16,12 @@ export const sampleSorter = ({
 	const streamsWithTracks: string[] = [];
 	const audioCallbacks: Record<string, OnAudioSample> = {};
 	const videoCallbacks: Record<string, OnVideoSample> = {};
-	const latestSample: Record<string, number> = {};
+	let latestSample: Record<string, number> = {};
 
 	return {
+		clearSamples: () => {
+			latestSample = {};
+		},
 		addToStreamWithTrack: (src: string) => {
 			streamsWithTracks.push(src);
 		},

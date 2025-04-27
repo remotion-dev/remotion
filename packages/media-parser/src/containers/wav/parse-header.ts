@@ -18,7 +18,7 @@ export const parseHeader = ({
 		fileSize,
 	};
 
-	state.getWavStructure().boxes.push(header);
+	state.structure.getWavStructure().boxes.push(header);
 
 	return Promise.resolve(null);
 };

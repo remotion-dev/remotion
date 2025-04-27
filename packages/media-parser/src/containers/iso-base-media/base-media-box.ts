@@ -36,8 +36,6 @@ export interface RegularBox extends BaseBox {
 	type: 'regular-box';
 }
 
-export type BoxAndNext = IsoBaseMediaBox | null;
-
 export type IsoBaseMediaBox =
 	| RegularBox
 	| FtypBox

@@ -1,21 +1,42 @@
+import type {MediaParserController} from './controller/media-parser-controller';
 import {disallowForwardSeekIfSamplesAreNeeded} from './disallow-forward-seek-if-samples-are-needed';
+import type {PrefetchCache} from './fetch';
+import type {AllOptions, ParseMediaFields} from './fields';
+import type {BufferIterator} from './iterator/buffer-iterator';
+import type {LogLevel} from './log';
 import {Log} from './log';
-import type {ParserState} from './state/parser-state';
+import type {ParseMediaSrc} from './options';
+import type {ReaderInterface} from './readers/reader';
+import type {CurrentReader} from './state/current-reader';
 
 export const seekForward = async ({
-	state,
 	seekTo,
 	userInitiated,
+	iterator,
+	fields,
+	logLevel,
+	currentReader,
+	readerInterface,
+	src,
+	controller,
+	discardReadBytes,
+	prefetchCache,
 }: {
-	state: ParserState;
 	seekTo: number;
 	userInitiated: boolean;
-}) => {
-	const {iterator} = state;
-
+	iterator: BufferIterator;
+	fields: Partial<AllOptions<ParseMediaFields>>;
+	logLevel: LogLevel;
+	currentReader: CurrentReader;
+	readerInterface: ReaderInterface;
+	src: ParseMediaSrc;
+	controller: MediaParserController;
+	discardReadBytes: (force: boolean) => Promise<void>;
+	prefetchCache: PrefetchCache;
+}): Promise<void> => {
 	if (userInitiated) {
 		disallowForwardSeekIfSamplesAreNeeded({
-			state,
+			fields,
 			seekTo,
 			previousPosition: iterator.counter.getOffset(),
 		});
@@ -25,7 +46,7 @@ export const seekForward = async ({
 		iterator.bytesRemaining() >= seekTo - iterator.counter.getOffset();
 
 	Log.verbose(
-		state.logLevel,
+		logLevel,
 		`Performing seek from ${iterator.counter.getOffset()} to ${seekTo}`,
 	);
 
@@ -33,28 +54,30 @@ export const seekForward = async ({
 
 	if (alreadyHasBuffer) {
 		iterator.skipTo(seekTo);
-		Log.verbose(state.logLevel, `Already read ahead enough, skipping forward`);
-		return state.currentReader;
+		Log.verbose(logLevel, `Already read ahead enough, skipping forward`);
+		return;
 	}
 
 	// (b) starting byte has not been fetched yet, making new reader
 	const time = Date.now();
 	Log.verbose(
-		state.logLevel,
+		logLevel,
 		`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available`,
 	);
 
-	const {reader: newReader} = await state.readerInterface.read({
-		src: state.src,
+	const {reader: newReader} = await readerInterface.read({
+		src,
 		range: seekTo,
-		controller: state.controller,
+		controller,
+		logLevel,
+		prefetchCache,
 	});
 	iterator.skipTo(seekTo);
-	await state.discardReadBytes(true);
+	await discardReadBytes(true);
 
 	Log.verbose(
-		state.logLevel,
+		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,
 	);
-	state.currentReader = newReader;
+	currentReader.setCurrent(newReader);
 };

@@ -7,12 +7,18 @@ import {
 } from '../errors';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import type {SeekingHints} from '../seeking-hints';
 import type {ResponseError} from './worker-types';
 
-export const serializeError = (
-	error: Error,
-	logLevel: LogLevel,
-): ResponseError => {
+export const serializeError = ({
+	error,
+	logLevel,
+	seekingHints,
+}: {
+	error: Error;
+	logLevel: LogLevel;
+	seekingHints: SeekingHints | null;
+}): ResponseError => {
 	if (error instanceof IsAGifError) {
 		return {
 			type: 'response-error',
@@ -55,6 +61,25 @@ export const serializeError = (
 		return {
 			type: 'response-error',
 			errorName: 'MediaParserAbortError',
+			errorMessage: error.message,
+			errorStack: error.stack ?? '',
+			seekingHints,
+		};
+	}
+
+	if (error.name === 'AbortError') {
+		return {
+			type: 'response-error',
+			errorName: 'AbortError',
+			errorMessage: error.message,
+			errorStack: error.stack ?? '',
+		};
+	}
+
+	if (error.name === 'NotReadableError') {
+		return {
+			type: 'response-error',
+			errorName: 'NotReadableError',
 			errorMessage: error.message,
 			errorStack: error.stack ?? '',
 		};
@@ -109,7 +134,14 @@ export const deserializeError = (error: ResponseError): Error => {
 			});
 		case 'MediaParserAbortError':
 			return new MediaParserAbortError(error.errorMessage);
-		default:
+		case 'Error':
 			return new Error(error.errorMessage);
+		case 'AbortError':
+			return new Error(error.errorMessage);
+		// TODO: Document 2GB limit
+		case 'NotReadableError':
+			return new Error(error.errorMessage);
+		default:
+			throw new Error(`Unknown error name: ${error satisfies never}`);
 	}
 };

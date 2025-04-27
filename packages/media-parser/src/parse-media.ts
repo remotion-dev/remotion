@@ -48,12 +48,14 @@ export const parseMedia: ParseMedia = (options) => {
 		selectM3uAssociatedPlaylists:
 			options.selectM3uAssociatedPlaylists ??
 			defaultSelectM3uAssociatedPlaylists,
-		mp4HeaderSegment: options.mp4HeaderSegment ?? null,
+		m3uPlaylistContext: options.m3uPlaylistContext ?? null,
 		src: options.src,
 		mode: 'query',
 		onDiscardedData: null,
 		onError: () => ({action: 'fail'}),
 		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
 		apiName: 'parseMedia()',
+		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
+		seekingHints: options.seekingHints ?? null,
 	});
 };

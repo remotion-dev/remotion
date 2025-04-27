@@ -26,20 +26,28 @@ export const collectAssets = async ({
 			return asset;
 		}
 
-		if (typeof asset.content !== 'string') {
-			throw new Error(
-				`Expected string content for artifact ${asset.id}, but got ${asset.content}`,
-			);
+		if (asset.contentType === 'binary' || asset.contentType === 'text') {
+			if (typeof asset.content !== 'string') {
+				throw new Error(
+					`Expected string content for artifact ${asset.id}, but got ${asset.content}`,
+				);
+			}
+
+			const stringOrUintArray =
+				asset.contentType === 'binary'
+					? new TextEncoder().encode(atob(asset.content as string))
+					: asset.content;
+			return {
+				...asset,
+				content: stringOrUintArray,
+			} as ArtifactAsset;
 		}
 
-		const stringOrUintArray = asset.binary
-			? new TextEncoder().encode(atob(asset.content as string))
-			: asset.content;
+		if (asset.contentType === 'thumbnail') {
+			return asset;
+		}
 
-		return {
-			...asset,
-			content: stringOrUintArray,
-		} as ArtifactAsset;
+		return asset satisfies never;
 	});
 
 	return fixedArtifacts;

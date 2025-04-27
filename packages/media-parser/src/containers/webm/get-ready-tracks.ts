@@ -1,5 +1,6 @@
 import type {Track} from '../../get-tracks';
-import type {ParserState} from '../../state/parser-state';
+import type {WebmState} from '../../state/matroska/webm';
+import type {StructureState} from '../../state/structure';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {
 	getTrack,
@@ -13,13 +14,13 @@ export type ResolvedAndUnresolvedTracks = {
 };
 
 export const getTracksFromMatroska = ({
-	state,
+	structureState,
+	webmState,
 }: {
-	state: ParserState;
+	structureState: StructureState;
+	webmState: WebmState;
 }): ResolvedAndUnresolvedTracks => {
-	const webmState = state.webm;
-
-	const structure = state.getMatroskaStructure();
+	const structure = structureState.getMatroskaStructure();
 	const mainSegment = getMainSegment(structure.boxes);
 	if (!mainSegment) {
 		throw new Error('No main segment');
@@ -70,8 +71,14 @@ export const getTracksFromMatroska = ({
 	return {missingInfo, resolved: resolvedTracks};
 };
 
-export const matroskaHasTracks = (state: ParserState) => {
-	const structure = state.getMatroskaStructure();
+export const matroskaHasTracks = ({
+	structureState,
+	webmState,
+}: {
+	structureState: StructureState;
+	webmState: WebmState;
+}) => {
+	const structure = structureState.getMatroskaStructure();
 	const mainSegment = getMainSegment(structure.boxes);
 	if (!mainSegment) {
 		return false;
@@ -80,7 +87,8 @@ export const matroskaHasTracks = (state: ParserState) => {
 	return (
 		getTracksSegment(mainSegment) !== null &&
 		getTracksFromMatroska({
-			state,
+			structureState,
+			webmState,
 		}).missingInfo.length === 0
 	);
 };

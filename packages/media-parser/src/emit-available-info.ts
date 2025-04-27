@@ -15,7 +15,10 @@ import {getTracks} from './get-tracks';
 import {getVideoCodec} from './get-video-codec';
 import {getMetadata} from './metadata/get-metadata';
 import type {ParserState} from './state/parser-state';
-import {workOnSeekRequest} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 export const emitAvailableInfo = async ({
 	hasInfo,
@@ -35,12 +38,12 @@ export const emitAvailableInfo = async ({
 	} = state;
 
 	for (const key of keys) {
-		await workOnSeekRequest(state);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 		if (key === 'structure') {
 			if (hasInfo.structure && !emittedFields.structure) {
-				await callbackFunctions.onStructure?.(state.getStructure());
+				await callbackFunctions.onStructure?.(state.structure.getStructure());
 				if (fieldsInReturnValue.structure) {
-					returnValue.structure = state.getStructure();
+					returnValue.structure = state.structure.getStructure();
 				}
 
 				emittedFields.structure = true;
@@ -72,7 +75,7 @@ export const emitAvailableInfo = async ({
 			) {
 				const slowDurationInSeconds =
 					getDuration(state) ??
-					state.slowDurationAndFps.getSlowDurationInSeconds();
+					state.samplesObserved.getSlowDurationInSeconds();
 				await callbackFunctions.onSlowDurationInSeconds?.(
 					slowDurationInSeconds,
 				);
@@ -117,7 +120,7 @@ export const emitAvailableInfo = async ({
 		// must be handled after fps
 		if (key === 'slowFps') {
 			if (hasInfo.slowFps && !emittedFields.slowFps) {
-				const slowFps = state.slowDurationAndFps.getFps();
+				const slowFps = state.samplesObserved.getFps();
 				await callbackFunctions.onSlowFps?.(slowFps);
 				if (fieldsInReturnValue.slowFps) {
 					returnValue.slowFps = slowFps;
@@ -218,7 +221,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'tracks') {
 			if (!emittedFields.tracks && hasInfo.tracks) {
-				const {videoTracks, audioTracks} = getTracks(state);
+				const {videoTracks, audioTracks} = getTracks(state, true);
 				await callbackFunctions.onTracks?.({videoTracks, audioTracks});
 				if (fieldsInReturnValue.tracks) {
 					returnValue.tracks = {videoTracks, audioTracks};
@@ -299,7 +302,7 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'container') {
 			if (!returnValue.container && hasInfo.container) {
-				const container = getContainer(state.getStructure());
+				const container = getContainer(state.structure.getStructure());
 				await callbackFunctions.onContainer?.(container);
 				if (fieldsInReturnValue.container) {
 					returnValue.container = container;
@@ -357,11 +360,11 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowNumberOfFrames') {
 			if (!emittedFields.slowNumberOfFrames && hasInfo.slowNumberOfFrames) {
 				await callbackFunctions.onSlowNumberOfFrames?.(
-					state.slowDurationAndFps.getSlowNumberOfFrames(),
+					state.samplesObserved.getSlowNumberOfFrames(),
 				);
 				if (fieldsInReturnValue.slowNumberOfFrames) {
 					returnValue.slowNumberOfFrames =
-						state.slowDurationAndFps.getSlowNumberOfFrames();
+						state.samplesObserved.getSlowNumberOfFrames();
 				}
 
 				emittedFields.slowNumberOfFrames = true;
@@ -373,11 +376,11 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowAudioBitrate') {
 			if (!emittedFields.slowAudioBitrate && hasInfo.slowAudioBitrate) {
 				await callbackFunctions.onSlowAudioBitrate?.(
-					state.slowDurationAndFps.getAudioBitrate(),
+					state.samplesObserved.getAudioBitrate(),
 				);
 				if (fieldsInReturnValue.slowAudioBitrate) {
 					returnValue.slowAudioBitrate =
-						state.slowDurationAndFps.getAudioBitrate();
+						state.samplesObserved.getAudioBitrate();
 				}
 
 				emittedFields.slowAudioBitrate = true;
@@ -389,11 +392,11 @@ export const emitAvailableInfo = async ({
 		if (key === 'slowVideoBitrate') {
 			if (!emittedFields.slowVideoBitrate && hasInfo.slowVideoBitrate) {
 				await callbackFunctions.onSlowVideoBitrate?.(
-					state.slowDurationAndFps.getVideoBitrate(),
+					state.samplesObserved.getVideoBitrate(),
 				);
 				if (fieldsInReturnValue.slowVideoBitrate) {
 					returnValue.slowVideoBitrate =
-						state.slowDurationAndFps.getVideoBitrate();
+						state.samplesObserved.getVideoBitrate();
 				}
 
 				emittedFields.slowVideoBitrate = true;
@@ -464,7 +467,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'm3uStreams') {
 			if (!emittedFields.m3uStreams && hasInfo.m3uStreams) {
 				const streams = getM3uStreams({
-					structure: state.getStructureOrNull(),
+					structure: state.structure.getStructureOrNull(),
 					originalSrc: state.src,
 					readerInterface: state.readerInterface,
 				});
@@ -482,5 +485,5 @@ export const emitAvailableInfo = async ({
 		throw new Error(`Unhandled key: ${key satisfies never}`);
 	}
 
-	await workOnSeekRequest(state);
+	await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 };

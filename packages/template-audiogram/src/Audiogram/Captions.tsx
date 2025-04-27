@@ -1,13 +1,15 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  continueRender,
-  delayRender,
-  useCurrentFrame,
-  useCurrentScale,
-} from "remotion";
+import React, { useMemo, useRef } from "react";
+import { useCurrentFrame } from "remotion";
 import { Word } from "./Word";
 import { Caption } from "@remotion/captions";
 import { msToFrame } from "../helpers/ms-to-frame";
+import { getSentenceToDisplay } from "./sentence-to-display";
+import {
+  filterCurrentlyDisplayedLines,
+  layoutText,
+} from "./get-number-of-lines-for-text";
+import { CAPTIONS_FONT_SIZE } from "./constants";
+import { FONT_FAMILY } from "./font";
 
 const useWindowedFrameCaptions = ({
   captions,
@@ -31,69 +33,44 @@ export const PaginatedCaptions: React.FC<{
   readonly endFrame: number;
   readonly linesPerPage: number;
   readonly subtitlesTextColor: string;
-  readonly subtitlesZoomMeasurerSize: number;
-  readonly subtitlesLineHeight: number;
   readonly onlyDisplayCurrentSentence: boolean;
+  readonly textBoxWidth: number;
 }> = ({
   startFrame,
   endFrame,
   captions,
-  linesPerPage,
   subtitlesTextColor: transcriptionColor,
-  subtitlesZoomMeasurerSize,
-  subtitlesLineHeight,
   onlyDisplayCurrentSentence,
+  textBoxWidth,
 }) => {
   const frame = useCurrentFrame();
   const windowRef = useRef<HTMLDivElement>(null);
-  const [handle] = useState(() => delayRender());
   const windowedFrameSubs = useWindowedFrameCaptions({
     captions,
     windowStart: startFrame,
     windowEnd: endFrame,
   });
-  const currentScale = useCurrentScale();
 
-  const [lineOffset, setLineOffset] = useState(0);
-
-  const currentAndFollowingSentences = useMemo(() => {
-    // If we don't want to only display the current sentence, return all the words
-    if (!onlyDisplayCurrentSentence) return windowedFrameSubs;
-
-    const indexOfCurrentSentence =
-      windowedFrameSubs.findLastIndex((w, i) => {
-        const nextWord = windowedFrameSubs[i + 1];
-
-        return (
-          nextWord &&
-          (w.text.endsWith("?") ||
-            w.text.endsWith(".") ||
-            w.text.endsWith("!")) &&
-          msToFrame(nextWord.startMs) < frame
-        );
-      }) + 1;
-
-    return windowedFrameSubs.slice(indexOfCurrentSentence);
+  const currentSentence = useMemo(() => {
+    return getSentenceToDisplay({
+      frame,
+      onlyDisplayCurrentSentence,
+      windowedFrameSubs,
+    });
   }, [frame, onlyDisplayCurrentSentence, windowedFrameSubs]);
 
-  useEffect(() => {
-    const linesRendered =
-      (windowRef.current?.getBoundingClientRect().height as number) /
-      (subtitlesLineHeight * currentScale);
-    const linesToOffset = Math.max(0, linesRendered - linesPerPage);
-    setLineOffset(linesToOffset);
-    continueRender(handle);
-  }, [
-    currentScale,
-    frame,
-    handle,
-    linesPerPage,
-    subtitlesLineHeight,
-    subtitlesZoomMeasurerSize,
-  ]);
+  const lines = useMemo(() => {
+    return layoutText({
+      captions: currentSentence,
+      textBoxWidth,
+      fontFamily: FONT_FAMILY,
+      fontSize: CAPTIONS_FONT_SIZE,
+    });
+  }, [currentSentence, textBoxWidth]);
 
-  const currentFrameSentences = currentAndFollowingSentences.filter((word) => {
-    return msToFrame(word.startMs) < frame;
+  const currentlyShownLines = filterCurrentlyDisplayedLines({
+    lines,
+    frame,
   });
 
   return (
@@ -104,23 +81,22 @@ export const PaginatedCaptions: React.FC<{
         paddingBottom: "20px",
       }}
     >
-      <div
-        ref={windowRef}
-        style={{
-          transform: `translateY(-${lineOffset * subtitlesLineHeight}px)`,
-        }}
-      >
-        {currentFrameSentences.map((item) => (
-          <span
-            key={item.startMs + item.endMs}
-            id={String(item.startMs + item.endMs)}
-          >
-            <Word
-              frame={frame}
-              item={item}
-              transcriptionColor={transcriptionColor}
-            />
-          </span>
+      <div ref={windowRef}>
+        {currentlyShownLines.map((line) => (
+          <div key={line.map((item) => item.text).join(" ")}>
+            {line.map((item) => (
+              <span
+                key={item.startMs + item.endMs}
+                id={String(item.startMs + item.endMs)}
+              >
+                <Word
+                  frame={frame}
+                  item={item}
+                  transcriptionColor={transcriptionColor}
+                />
+              </span>
+            ))}
+          </div>
         ))}
       </div>
     </div>

@@ -1,23 +1,44 @@
 import type {AudioOrVideoSample} from './webcodec-sample-types';
 
-export const convertAudioOrVideoSampleToWebCodecsTimestamps = (
-	sample: AudioOrVideoSample,
-	timescale: number,
-): AudioOrVideoSample => {
+const TARGET_TIMESCALE = 1_000_000;
+
+const fixFloat = (value: number) => {
+	if (value % 1 < 0.0000001) {
+		return Math.floor(value);
+	}
+
+	if (value % 1 > 0.9999999) {
+		return Math.ceil(value);
+	}
+
+	return value;
+};
+
+export const convertAudioOrVideoSampleToWebCodecsTimestamps = ({
+	sample,
+	timescale,
+}: {
+	sample: AudioOrVideoSample;
+	timescale: number;
+}): AudioOrVideoSample => {
+	if (timescale === TARGET_TIMESCALE) {
+		return sample;
+	}
+
 	const {cts, dts, timestamp} = sample;
 
 	return {
-		cts: (cts * 1_000_000) / timescale,
-		dts: (dts * 1_000_000) / timescale,
-		timestamp: (timestamp * 1_000_000) / timescale,
+		cts: fixFloat(cts * (TARGET_TIMESCALE / timescale)),
+		dts: fixFloat(dts * (TARGET_TIMESCALE / timescale)),
+		timestamp: fixFloat(timestamp * (TARGET_TIMESCALE / timescale)),
 		duration:
 			sample.duration === undefined
 				? undefined
-				: (sample.duration * 1_000_000) / timescale,
+				: fixFloat(sample.duration * (TARGET_TIMESCALE / timescale)),
 		data: sample.data,
 		trackId: sample.trackId,
 		type: sample.type,
 		offset: sample.offset,
-		timescale: 1_000_000,
+		timescale: TARGET_TIMESCALE,
 	};
 };

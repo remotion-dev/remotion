@@ -1,5 +1,5 @@
 import type {SamplePosition} from '../../get-sample-positions';
-import type {IsoBaseMediaBox} from './base-media-box';
+import type {MoofBox} from '../../state/iso-base-media/precomputed-moof';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {collectSamplePositionsFromTrak} from './collect-sample-positions-from-trak';
 import type {TfraBox} from './mfra/tfra';
@@ -12,7 +12,7 @@ export const getSamplePositionsFromTrack = ({
 	tfraBoxes,
 }: {
 	trakBox: TrakBox;
-	moofBoxes: IsoBaseMediaBox[];
+	moofBoxes: MoofBox[];
 	tfraBoxes: TfraBox[];
 }): {samplePositions: SamplePosition[]; isComplete: boolean} => {
 	const tkhdBox = getTkhdBox(trakBox);
@@ -28,7 +28,7 @@ export const getSamplePositionsFromTrack = ({
 		});
 
 		return {
-			samplePositions: samplePositions.flat(1),
+			samplePositions: samplePositions.map((s) => s.samples).flat(1),
 			isComplete,
 		};
 	}

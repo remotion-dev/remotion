@@ -4,9 +4,11 @@ import {Blank} from './icons/blank';
 import {CodeHike} from './icons/code-hike';
 import {Cubes} from './icons/cubes';
 import {JSIcon} from './icons/js';
+import {MusicIcon} from './icons/music';
 import {NextIcon} from './icons/next';
 import {OverlayIcon} from './icons/overlay';
 import {RemixIcon} from './icons/remix';
+import {RenderServerIcon} from './icons/render-server';
 import {SkiaIcon} from './icons/skia';
 import {Stargazer} from './icons/stargazer';
 import {StillIcon} from './icons/still';
@@ -38,6 +40,10 @@ export const IconForTemplate: React.FC<{
 				}}
 			/>
 		);
+	}
+
+	if (template.cliId === 'render-server') {
+		return <RenderServerIcon style={{height: scale * 36}} />;
 	}
 
 	if (template.cliId === 'javascript') {
@@ -103,6 +109,16 @@ export const IconForTemplate: React.FC<{
 	if (template.cliId === 'skia') {
 		return (
 			<SkiaIcon
+				style={{
+					height: scale * 32,
+				}}
+			/>
+		);
+	}
+
+	if (template.cliId === 'music-visualization') {
+		return (
+			<MusicIcon
 				style={{
 					height: scale * 32,
 				}}

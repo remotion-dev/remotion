@@ -7,11 +7,14 @@ import {performSeek} from './perform-seek';
 import {runParseIteration} from './run-parse-iteration';
 import type {ParserState} from './state/parser-state';
 import type {ThrottledState} from './throttled-progress';
-import {workOnSeekRequest} from './work-on-seek-request';
+import {
+	getWorkOnSeekRequestOptions,
+	workOnSeekRequest,
+} from './work-on-seek-request';
 
 const fetchMoreData = async (state: ParserState) => {
 	await state.controller._internals.checkForAbortAndPause();
-	const result = await state.currentReader.reader.read();
+	const result = await state.currentReader.getCurrent().reader.read();
 	if (result.value) {
 		state.iterator.addData(result.value);
 	}
@@ -29,10 +32,11 @@ export const parseLoop = async ({
 	onError: ParseMediaOnError;
 }) => {
 	let iterationWithThisOffset = 0;
+
 	while (!(await checkIfDone(state))) {
 		await state.controller._internals.checkForAbortAndPause();
 
-		await workOnSeekRequest(state);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
 
 		const offsetBefore = state.iterator.counter.getOffset();
 
@@ -63,7 +67,7 @@ export const parseLoop = async ({
 
 			if (
 				iterationWithThisOffset > 300 &&
-				state.getStructure().type !== 'm3u'
+				state.structure.getStructure().type !== 'm3u'
 			) {
 				throw new Error(
 					'Infinite loop detected. The parser is not progressing. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
@@ -73,18 +77,42 @@ export const parseLoop = async ({
 			try {
 				await triggerInfoEmit(state);
 
-				const start = Date.now();
 				await state.controller._internals.checkForAbortAndPause();
-				const skip = await runParseIteration({
+				const result = await runParseIteration({
 					state,
 				});
-				state.timings.timeIterating += Date.now() - start;
 
-				if (skip !== null) {
-					state.increaseSkippedBytes(
-						skip.skipTo - state.iterator.counter.getOffset(),
+				if (result !== null && result.action === 'fetch-more-data') {
+					Log.verbose(
+						state.logLevel,
+						`Need to fetch ${result.bytesNeeded} more bytes before we can continue`,
 					);
-					if (skip.skipTo === state.contentLength) {
+					const startBytesRemaining = state.iterator.bytesRemaining();
+					while (true) {
+						const done = await fetchMoreData(state);
+						if (done) {
+							break;
+						}
+
+						if (
+							state.iterator.bytesRemaining() - startBytesRemaining >=
+							result.bytesNeeded
+						) {
+							break;
+						}
+					}
+
+					continue;
+				}
+
+				if (result !== null && result.action === 'skip') {
+					state.increaseSkippedBytes(
+						result.skipTo - state.iterator.counter.getOffset(),
+					);
+					if (result.skipTo === state.contentLength) {
+						state.iterator.discard(
+							result.skipTo - state.iterator.counter.getOffset(),
+						);
 						Log.verbose(
 							state.logLevel,
 							'Skipped to end of file, not fetching.',
@@ -94,9 +122,21 @@ export const parseLoop = async ({
 
 					const seekStart = Date.now();
 					await performSeek({
-						seekTo: skip.skipTo,
-						state,
+						seekTo: result.skipTo,
 						userInitiated: false,
+						controller: state.controller,
+						mediaSection: state.mediaSection,
+						iterator: state.iterator,
+						logLevel: state.logLevel,
+						mode: state.mode,
+						contentLength: state.contentLength,
+						seekInfiniteLoop: state.seekInfiniteLoop,
+						currentReader: state.currentReader,
+						readerInterface: state.readerInterface,
+						fields: state.fields,
+						src: state.src,
+						discardReadBytes: state.discardReadBytes,
+						prefetchCache: state.prefetchCache,
 					});
 					state.timings.timeSeeking += Date.now() - seekStart;
 				}
@@ -131,7 +171,28 @@ export const parseLoop = async ({
 			iterationWithThisOffset++;
 		} else {
 			iterationWithThisOffset = 0;
-			state.seekInfiniteLoop.reset();
 		}
+	}
+
+	state.samplesObserved.setLastSampleObserved();
+
+	// After the last sample, you might queue a last seek again.
+	if (state.controller._internals.seekSignal.getSeek()) {
+		Log.verbose(
+			state.logLevel,
+			'Reached end of samples, but there is a pending seek. Trying to seek...',
+		);
+		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
+		if (state.controller._internals.seekSignal.getSeek()) {
+			throw new Error(
+				'Reached the end of the file even though a seek was requested. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
+			);
+		}
+
+		await parseLoop({
+			onError,
+			throttledState,
+			state,
+		});
 	}
 };

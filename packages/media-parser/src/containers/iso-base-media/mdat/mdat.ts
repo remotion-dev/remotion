@@ -1,57 +1,66 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {emitAudioSample, emitVideoSample} from '../../../emit-audio-sample';
 import {getHasTracks} from '../../../get-tracks';
-import type {Skip} from '../../../skip';
-import {makeSkip} from '../../../skip';
+import type {FetchMoreData, Skip} from '../../../skip';
+import {makeFetchMoreData, makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
-import {getCurrentVideoSection} from '../../../state/video-section';
+import {getCurrentMediaSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
+import {calculateJumpMarks} from './calculate-jump-marks';
+import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
 	state: ParserState,
-): Promise<Skip | null> => {
-	const videoSection = getCurrentVideoSection({
+): Promise<Skip | FetchMoreData | null> => {
+	const mediaSection = getCurrentMediaSection({
 		offset: state.iterator.counter.getOffset(),
-		videoSections: state.videoSection.getVideoSections(),
+		mediaSections: state.mediaSection.getMediaSections(),
 	});
-	if (!videoSection) {
+	if (!mediaSection) {
 		throw new Error('No video section defined');
 	}
 
-	const endOfMdat = videoSection.size + videoSection.start;
+	const endOfMdat = mediaSection.size + mediaSection.start;
 
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
 		return makeSkip(endOfMdat);
 	}
 
-	const alreadyHas = getHasTracks(state);
+	const alreadyHasMoov = getHasTracks(state, true);
 
-	if (!alreadyHas) {
+	if (!alreadyHasMoov) {
 		const moov = await getMoovAtom({
 			endOfMdat,
 			state,
 		});
-		state.iso.moov.setMoovBox(moov);
+		state.iso.moov.setMoovBox({
+			moovBox: moov,
+			precomputed: false,
+		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
-		state.getIsoStructure().boxes.push(moov);
 
+		state.structure.getIsoStructure().boxes.push(moov);
 		return parseMdatSection(state);
 	}
 
-	if (!state.iso.flatSamples.getSamples(videoSection.start)) {
+	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
+		const flattedSamples = calculateFlatSamples(state);
+
+		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
+		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
 		state.iso.flatSamples.setSamples(
-			videoSection.start,
-			calculateFlatSamples(state),
+			mediaSection.start,
+			flattedSamples.flat(1),
 		);
 	}
 
 	const flatSamples = state.iso.flatSamples.getSamples(
-		videoSection.start,
+		mediaSection.start,
 	) as FlatSample[];
+	const jumpMarks = state.iso.flatSamples.getJumpMarks(mediaSection.start);
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.find((sample) => {
@@ -77,34 +86,50 @@ export const parseMdatSection = async (
 		return makeSkip(endOfMdat);
 	}
 
-	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {
-		return null;
+	// Corrupt file: Sample is beyond the end of the file. Don't process it.
+	if (
+		samplesWithIndex.samplePosition.offset +
+			samplesWithIndex.samplePosition.size >
+		state.contentLength
+	) {
+		return makeSkip(endOfMdat);
 	}
 
-	const bytes = iterator.getSlice(samplesWithIndex.samplePosition.size);
+	// Need to fetch more data
+	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {
+		return makeFetchMoreData(
+			samplesWithIndex.samplePosition.size - iterator.bytesRemaining(),
+		);
+	}
 
-	const {cts, dts, duration, isKeyframe, offset} =
+	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =
 		samplesWithIndex.samplePosition;
+	const bytes = postprocessBytes({
+		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
+		bigEndian,
+		chunkSize,
+	});
 
 	if (samplesWithIndex.track.type === 'audio') {
-		await emitAudioSample({
-			trackId: samplesWithIndex.track.trackId,
-			audioSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
-					data: bytes,
-					timestamp: cts,
-					duration,
-					cts,
-					dts,
-					trackId: samplesWithIndex.track.trackId,
-					type: isKeyframe ? 'key' : 'delta',
-					offset,
-					timescale: samplesWithIndex.track.timescale,
-				},
-				samplesWithIndex.track.timescale,
-			),
-			state,
+		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				data: bytes,
+				timestamp: cts,
+				duration,
+				cts,
+				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: isKeyframe ? 'key' : 'delta',
+				offset,
+				timescale: samplesWithIndex.track.timescale,
+			},
+			timescale: samplesWithIndex.track.timescale,
 		});
+
+		await state.callbacks.onAudioSample(
+			samplesWithIndex.track.trackId,
+			audioSample,
+		);
 	}
 
 	if (samplesWithIndex.track.type === 'video') {
@@ -121,24 +146,30 @@ export const parseMdatSection = async (
 			isRecoveryPoint = seiType === 6;
 		}
 
-		await emitVideoSample({
-			trackId: samplesWithIndex.track.trackId,
-			videoSample: convertAudioOrVideoSampleToWebCodecsTimestamps(
-				{
-					data: bytes,
-					timestamp: cts,
-					duration,
-					cts,
-					dts,
-					trackId: samplesWithIndex.track.trackId,
-					type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
-					offset,
-					timescale: samplesWithIndex.track.timescale,
-				},
-				samplesWithIndex.track.timescale,
-			),
-			state,
+		const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+			sample: {
+				data: bytes,
+				timestamp: cts,
+				duration,
+				cts,
+				dts,
+				trackId: samplesWithIndex.track.trackId,
+				type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
+				offset,
+				timescale: samplesWithIndex.track.timescale,
+			},
+			timescale: samplesWithIndex.track.timescale,
 		});
+
+		await state.callbacks.onVideoSample(
+			samplesWithIndex.track.trackId,
+			videoSample,
+		);
+	}
+
+	const jump = jumpMarks.find((j) => j.afterSampleWithOffset === offset);
+	if (jump) {
+		return makeSkip(jump.jumpToOffset);
 	}
 
 	return null;

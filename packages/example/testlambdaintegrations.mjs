@@ -10,6 +10,18 @@ const functionName = execSync(
 	.trim()
 	.split(' ')[0];
 
+console.log('=== Golang ===');
+execSync(`go run main.go`, {
+	env: {
+		// eslint-disable-next-line no-undef
+		...process.env,
+		REMOTION_APP_REGION: 'eu-central-1',
+		REMOTION_APP_FUNCTION_NAME: functionName,
+		REMOTION_APP_SERVE_URL: 'testbed-v6',
+	},
+	cwd: '../lambda-go-example',
+	stdio: 'inherit',
+});
 console.log('=== Ruby (Still) ===');
 execSync(`bundle install --path=vendor/bundle`, {
 	cwd: '../lambda-ruby-example',
@@ -40,18 +52,6 @@ execSync(`bundle exec ruby test_render_spec_media.rb`, {
 	stdio: 'inherit',
 });
 
-console.log('=== Golang ===');
-execSync(`go run main.go`, {
-	env: {
-		// eslint-disable-next-line no-undef
-		...process.env,
-		REMOTION_APP_REGION: 'eu-central-1',
-		REMOTION_APP_FUNCTION_NAME: functionName,
-		REMOTION_APP_SERVE_URL: 'testbed-v6',
-	},
-	cwd: '../lambda-go-example',
-	stdio: 'inherit',
-});
 console.log('=== PHP ===');
 execSync(`php src/render.php`, {
 	env: {

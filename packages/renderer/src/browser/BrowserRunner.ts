@@ -59,7 +59,7 @@ export const makeBrowserRunner = async ({
 	const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
 	const stdio: ('ignore' | 'pipe')[] = dumpio
 		? ['ignore', 'pipe', 'pipe']
-		: ['pipe', 'ignore', 'pipe'];
+		: ['pipe', 'pipe', 'pipe'];
 
 	const proc = childProcess.spawn(executablePath, processArguments, {
 		// On non-windows platforms, `detached: true` makes child process a
@@ -264,15 +264,19 @@ function waitForWSEndpoint({
 	indent: boolean;
 }): Promise<string> {
 	const browserStderr = browserProcess.stderr;
+	const browserStdout = browserProcess.stdout;
 	assert(browserStderr, '`browserProcess` does not have stderr.');
+	assert(browserStdout, '`browserProcess` does not have stdout.');
 
-	let stderrString = '';
+	let stdioString = '';
 
 	return new Promise((resolve, reject) => {
-		browserStderr.addListener('data', onData);
+		browserStderr.addListener('data', onStdIoData);
+		browserStdout.addListener('data', onStdIoData);
 		browserStderr.addListener('close', onClose);
 		const listeners = [
-			() => browserStderr.removeListener('data', onData),
+			() => browserStderr.removeListener('data', onStdIoData),
+			() => browserStdout.removeListener('data', onStdIoData),
 			() => browserStderr.removeListener('close', onClose),
 			addEventListener(browserProcess, 'exit', (code, signal) => {
 				Log.verbose(
@@ -297,7 +301,7 @@ function waitForWSEndpoint({
 					[
 						'Failed to launch the browser process!',
 						error ? error.stack : null,
-						stderrString,
+						stdioString,
 						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]
 						.filter(truthy)
@@ -310,14 +314,14 @@ function waitForWSEndpoint({
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderrString}`,
+					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stdioString}`,
 				),
 			);
 		}
 
-		function onData(data: Buffer) {
-			stderrString += data.toString('utf8');
-			const match = stderrString.match(/DevTools listening on (ws:\/\/.*)/);
+		function onStdIoData(data: Buffer) {
+			stdioString += data.toString('utf8');
+			const match = stdioString.match(/DevTools listening on (ws:\/\/.*)/);
 			if (!match) {
 				return;
 			}
