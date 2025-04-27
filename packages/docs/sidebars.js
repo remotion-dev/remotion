@@ -608,7 +608,11 @@ module.exports = {
 				type: 'doc',
 				id: 'zod-types/index',
 			},
-			items: ['zod-types/z-color', 'zod-types/z-textarea'],
+			items: [
+				'zod-types/z-color',
+				'zod-types/z-textarea',
+				'zod-types/z-matrix',
+			],
 		},
 		{
 			type: 'category',
