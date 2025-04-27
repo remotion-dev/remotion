@@ -1,9 +1,9 @@
 import { Composition, staticFile } from "remotion";
 import { Audiogram } from "./Audiogram/Main";
 import { audiogramSchema } from "./Audiogram/schema";
-import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { getSubtitles } from "./helpers/fetch-captions";
 import { FPS } from "./helpers/ms-to-frame";
+import { parseMedia } from "@remotion/media-parser";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -41,13 +41,17 @@ export const RemotionRoot: React.FC = () => {
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
           const captions = await getSubtitles(props.captionsFileName);
-          const durationInSeconds = await getAudioDurationInSeconds(
-            props.audioFileUrl,
-          );
+          const { slowDurationInSeconds } = await parseMedia({
+            src: props.audioFileUrl,
+            acknowledgeRemotionLicense: true,
+            fields: {
+              slowDurationInSeconds: true,
+            },
+          });
 
           return {
             durationInFrames: Math.floor(
-              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
+              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
             ),
             props: {
               ...props,
