@@ -16,7 +16,13 @@ import {deepEqual} from './deep-equal';
 import {useLocalState} from './local-state';
 import type {JSONPath} from './zod-types';
 
-export const ZodArrayEditor: React.FC<{
+const rowStyle: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'row',
+	width: '100%',
+};
+
+export const ZodMatrixEditor: React.FC<{
 	readonly schema: z.ZodTypeAny;
 	readonly jsonPath: JSONPath;
 	readonly value: unknown[];
@@ -55,6 +61,7 @@ export const ZodArrayEditor: React.FC<{
 	const suffix = useMemo(() => {
 		return expanded ? ' [' : ' [...] ';
 	}, [expanded]);
+
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -62,14 +69,24 @@ export const ZodArrayEditor: React.FC<{
 
 	const zodTypes = useZodTypesIfPossible();
 
-	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
-	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
-		throw new Error('expected object');
-	}
-
 	const isDefaultValue = useMemo(() => {
 		return deepEqual(localValue.value, defaultValue);
 	}, [defaultValue, localValue]);
+
+	const dimensions = Math.sqrt(localValue.value.length);
+
+	if (!Number.isInteger(dimensions)) {
+		throw new Error('Invalid matrix');
+	}
+
+	const chunkedItems = useMemo(() => {
+		return localValue.value.reduce<number[][]>((acc, item, index) => {
+			const chunkIndex = Math.floor(index / dimensions);
+			acc[chunkIndex] = acc[chunkIndex] || [];
+			acc[chunkIndex].push(item as number);
+			return acc;
+		}, [] as number[][]);
+	}, [localValue.value, dimensions]);
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
@@ -99,34 +116,43 @@ export const ZodArrayEditor: React.FC<{
 			{expanded ? (
 				<RevisionContextProvider>
 					<SchemaVerticalGuide isRoot={false}>
-						{localValue.value.map((child, i) => {
+						{chunkedItems.map((row, rowIndex) => {
 							return (
-								// eslint-disable-next-line react/no-array-index-key
-								<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
-									<ZodArrayItemEditor
-										onChange={onChange}
-										value={child}
-										def={def}
-										index={i}
-										jsonPath={jsonPath}
-										defaultValue={
-											defaultValue?.[i] ??
-											createZodValues(def.type, z, zodTypes)
-										}
-										onSave={onSave}
-										showSaveButton={showSaveButton}
-										saving={saving}
-										saveDisabledByParent={saveDisabledByParent}
-										mayPad={mayPad}
-										mayRemove
-									/>
-									<SchemaArrayItemSeparationLine
-										schema={schema}
-										index={i}
-										onChange={onChange}
-										isLast={i === localValue.value.length - 1}
-										showAddButton
-									/>
+								<React.Fragment
+									// eslint-disable-next-line react/no-array-index-key
+									key={`${rowIndex}${localValue.keyStabilityRevision}`}
+								>
+									<div style={rowStyle}>
+										{row.map((item, _index) => {
+											const actualIndex = rowIndex * dimensions + _index;
+
+											return (
+												<div
+													// eslint-disable-next-line react/no-array-index-key
+													key={`${_index}${localValue.keyStabilityRevision}`}
+													style={{flex: 1}}
+												>
+													<ZodArrayItemEditor
+														onChange={onChange}
+														value={item}
+														def={def}
+														index={actualIndex}
+														jsonPath={jsonPath}
+														defaultValue={
+															defaultValue?.[actualIndex] ??
+															createZodValues(def.type, z, zodTypes)
+														}
+														onSave={onSave}
+														showSaveButton={showSaveButton}
+														saving={saving}
+														saveDisabledByParent={saveDisabledByParent}
+														mayPad={mayPad}
+														mayRemove={false}
+													/>
+												</div>
+											);
+										})}
+									</div>
 								</React.Fragment>
 							);
 						})}

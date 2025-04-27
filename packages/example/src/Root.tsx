@@ -110,6 +110,7 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
@@ -1212,6 +1213,7 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					schema={z.object({
+						matrix: zMatrix(),
 						union: z.array(
 							z.discriminatedUnion('type', [
 								z.object({
@@ -1231,6 +1233,7 @@ export const Index: React.FC = () => {
 						),
 					})}
 					defaultProps={{
+						matrix: [0, 1, 1, 0],
 						union: [
 							{type: 'boat' as const, depth: 10},
 							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
@@ -1306,6 +1309,7 @@ export const Index: React.FC = () => {
 						delay: 5.2,
 						color: '#df822a',
 						list: [{name: 'first', age: 12}],
+						matrix: [0, 1, 1, 0],
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 						superSchema: [
