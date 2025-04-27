@@ -1309,6 +1309,7 @@ export const Index: React.FC = () => {
 						delay: 5.2,
 						color: '#df822a',
 						list: [{name: 'first', age: 12}],
+						matrix: [0, 1, 1, 0],
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 						superSchema: [
