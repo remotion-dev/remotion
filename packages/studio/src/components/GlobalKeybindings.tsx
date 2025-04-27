@@ -3,6 +3,7 @@ import {useContext, useEffect} from 'react';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
+import {askAiModalRef} from './AskAiModal';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export const GlobalKeybindings: React.FC = () => {
@@ -41,6 +42,17 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
+		const cmdJKey = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'j',
+			callback: () => {
+				askAiModalRef.current?.toggle();
+			},
+			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: true,
+			commandCtrlKey: true,
+			preventDefault: true,
+		});
 
 		const cKey = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -74,6 +86,7 @@ export const GlobalKeybindings: React.FC = () => {
 			cKey.unregister();
 			questionMark.unregister();
 			cmdKKey.unregister();
+			cmdJKey.unregister();
 		};
 	}, [keybindings, setCheckerboard, setSelectedModal]);
 
