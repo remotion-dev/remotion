@@ -6127,6 +6127,15 @@ export const articles = [
 		slug: 'zod-types/z-color',
 	},
 	{
+		id: 'zod-types/z-matrix',
+		title: 'zMatrix()',
+		relativePath: 'docs/zod-types/z-matrix.mdx',
+		compId: 'articles-docs-zod-types-z-matrix',
+		crumb: null,
+		noAi: false,
+		slug: 'zod-types/z-matrix',
+	},
+	{
 		id: 'zod-types/z-textarea',
 		title: 'zTextarea()',
 		relativePath: 'docs/zod-types/z-textarea.mdx',

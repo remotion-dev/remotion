@@ -16,6 +16,7 @@ import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
+import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
 import {TableOfContents as AnimationUtilsTableOfContents} from '../TableOfContents/animation-utils';
 import {TableOfContents as BundlerTableOfContents} from '../TableOfContents/bundler';
 import {TableOfContents as CloudrunTableOfContents} from '../TableOfContents/cloudrun';
@@ -32,7 +33,6 @@ import {TableOfContents as RemotionTableOfContents} from '../TableOfContents/rem
 import {TableOfContents as RiveTableOfContents} from '../TableOfContents/rive';
 import {TableOfContents as ShapesTableOfContents} from '../TableOfContents/shapes';
 import {TableOfContents as TransitionsTableOfContents} from '../TableOfContents/transitions';
-import {TableOfContents as ZodTypesTableOfContents} from '../TableOfContents/zod-types';
 import {Grid} from './Grid';
 import {TOCItem} from './TOCItem';
 
