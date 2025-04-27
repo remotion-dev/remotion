@@ -14,6 +14,7 @@
   "dependencies": {
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
+    "@remotion/media-parser": "workspace:*",
     "@remotion/captions": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
