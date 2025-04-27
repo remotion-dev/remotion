@@ -41,7 +41,7 @@ export const GlobalPropsEditorUpdateButton: React.FC<{
 				Internals.PROPS_UPDATED_EXTERNALLY,
 				{
 					detail: {
-						resetUnsaved: false,
+						resetUnsaved: true,
 					},
 				},
 			),
