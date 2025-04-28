@@ -345,23 +345,6 @@ export const ResolveCompositionConfig: React.FC<
 	]);
 
 	useEffect(() => {
-		if (shouldIgnoreUpdate) {
-			// We already have the current state, we just saved it back
-			// to the file
-			return;
-		}
-
-		window.dispatchEvent(
-			new CustomEvent<{resetUnsaved: boolean}>(PROPS_UPDATED_EXTERNALLY, {
-				detail: {
-					resetUnsaved: true,
-				},
-			}),
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fastRefreshes]);
-
-	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
 			const combinedProps = {
 				...(renderModalComposition.defaultProps ?? {}),
