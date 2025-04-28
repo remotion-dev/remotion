@@ -107,7 +107,6 @@ export const PlayPause: React.FC<{
 					durationInFrames: getCurrentDuration(),
 					frame: 0,
 				});
-			} else if (e.shiftKey) {
 				frameBack(getCurrentFps());
 				ensureFrameIsInViewport({
 					direction: 'fit-left',
@@ -135,7 +134,6 @@ export const PlayPause: React.FC<{
 					durationInFrames: getCurrentDuration() - 1,
 					frame: getCurrentDuration() - 1,
 				});
-			} else if (e.shiftKey) {
 				frameForward(getCurrentFps());
 				ensureFrameIsInViewport({
 					direction: 'fit-right',

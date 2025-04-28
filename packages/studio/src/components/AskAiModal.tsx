@@ -1,7 +1,9 @@
 import React, {
 	createRef,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
+	useRef,
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -26,20 +28,60 @@ export const askAiModalRef = createRef<AskAiModalRef>();
 
 export const AskAiModal: React.FC = () => {
 	const [state, setState] = useState<State>('never-opened');
+	const iframe = useRef<HTMLIFrameElement>(null);
 
 	useImperativeHandle(
 		askAiModalRef,
 		() => ({
 			toggle: () => {
-				setState(state === 'visible' ? 'hidden' : 'visible');
+				setState((s) => {
+					if (s === 'visible') {
+						iframe.current?.blur();
+						iframe.current?.contentWindow?.blur();
+					}
+
+					return s === 'visible' ? 'hidden' : 'visible';
+				});
 			},
 		}),
-		[state],
+		[],
 	);
+
+	useEffect(() => {
+		const onMessage = (event: MessageEvent) => {
+			const json =
+				typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+			if (json.type === 'cmd-i') {
+				askAiModalRef.current?.toggle();
+			}
+		};
+
+		window.addEventListener('message', onMessage);
+
+		return () => {
+			window.removeEventListener('message', onMessage);
+		};
+	}, []);
 
 	const onQuit = useCallback(() => {
 		setState('hidden');
 	}, [setState]);
+
+	// When re-toggling the modal, focus the text box
+	useEffect(() => {
+		if (!iframe.current) {
+			return;
+		}
+
+		if (state === 'visible') {
+			iframe.current.contentWindow?.postMessage(
+				{
+					type: 'focus',
+				},
+				'*',
+			);
+		}
+	}, [state]);
 
 	if (state === 'never-opened') {
 		return null;
@@ -47,16 +89,13 @@ export const AskAiModal: React.FC = () => {
 
 	return (
 		<AbsoluteFill style={{display: state === 'visible' ? 'block' : 'none'}}>
-			<ModalContainer
-				noZIndex={state === 'hidden'}
-				onOutsideClick={onQuit}
-				onEscape={onQuit}
-			>
+			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 				<ModalHeader title="Ask AI" onClose={onQuit} />
 				<iframe
+					ref={iframe}
 					frameBorder={0}
 					style={container}
-					src="https://remotion.dev/ai-embed"
+					src="http://localhost:3001/ai-embed"
 				/>
 			</ModalContainer>
 		</AbsoluteFill>
