@@ -209,7 +209,11 @@ const InnerComposition = <
 
 	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 
@@ -230,7 +234,11 @@ const InnerComposition = <
 
 	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 

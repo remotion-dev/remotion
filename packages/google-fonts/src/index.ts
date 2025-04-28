@@ -1306,6 +1306,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./CairoPlay') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Cal Sans',
+		importName: 'CalSans',
+		load: () => import('./CalSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Caladea',
 		importName: 'Caladea',
 		load: () => import('./Caladea') as Promise<GoogleFont>,
@@ -1399,6 +1404,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Carter One',
 		importName: 'CarterOne',
 		load: () => import('./CarterOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cascadia Code',
+		importName: 'CascadiaCode',
+		load: () => import('./CascadiaCode') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cascadia Mono',
+		importName: 'CascadiaMono',
+		load: () => import('./CascadiaMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Castoro',
@@ -1621,6 +1636,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./ComicNeue') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Comic Relief',
+		importName: 'ComicRelief',
+		load: () => import('./ComicRelief') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Coming Soon',
 		importName: 'ComingSoon',
 		load: () => import('./ComingSoon') as Promise<GoogleFont>,
@@ -1669,6 +1689,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Copse',
 		importName: 'Copse',
 		load: () => import('./Copse') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Coral Pixels',
+		importName: 'CoralPixels',
+		load: () => import('./CoralPixels') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Corben',
@@ -3499,6 +3524,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Kameron',
 		importName: 'Kameron',
 		load: () => import('./Kameron') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Kanchenjunga',
+		importName: 'Kanchenjunga',
+		load: () => import('./Kanchenjunga') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Kanit',
@@ -7137,6 +7167,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./SankofaDisplay') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Sansation',
+		importName: 'Sansation',
+		load: () => import('./Sansation') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Sansita',
 		importName: 'Sansita',
 		load: () => import('./Sansita') as Promise<GoogleFont>,
@@ -7802,6 +7837,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./TacOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Tagesschrift',
+		importName: 'Tagesschrift',
+		load: () => import('./Tagesschrift') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Tai Heritage Pro',
 		importName: 'TaiHeritagePro',
 		load: () => import('./TaiHeritagePro') as Promise<GoogleFont>,
@@ -8040,6 +8080,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Tsukimi Rounded',
 		importName: 'TsukimiRounded',
 		load: () => import('./TsukimiRounded') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Tuffy',
+		importName: 'Tuffy',
+		load: () => import('./Tuffy') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Tulpen One',

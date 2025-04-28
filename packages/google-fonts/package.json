@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.290",
+	"version": "4.0.291",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -788,6 +788,9 @@
 			"CairoPlay": [
 				"dist/cjs/CairoPlay.d.ts"
 			],
+			"CalSans": [
+				"dist/cjs/CalSans.d.ts"
+			],
 			"Caladea": [
 				"dist/cjs/Caladea.d.ts"
 			],
@@ -844,6 +847,12 @@
 			],
 			"CarterOne": [
 				"dist/cjs/CarterOne.d.ts"
+			],
+			"CascadiaCode": [
+				"dist/cjs/CascadiaCode.d.ts"
+			],
+			"CascadiaMono": [
+				"dist/cjs/CascadiaMono.d.ts"
 			],
 			"Castoro": [
 				"dist/cjs/Castoro.d.ts"
@@ -977,6 +986,9 @@
 			"ComicNeue": [
 				"dist/cjs/ComicNeue.d.ts"
 			],
+			"ComicRelief": [
+				"dist/cjs/ComicRelief.d.ts"
+			],
 			"ComingSoon": [
 				"dist/cjs/ComingSoon.d.ts"
 			],
@@ -1006,6 +1018,9 @@
 			],
 			"Copse": [
 				"dist/cjs/Copse.d.ts"
+			],
+			"CoralPixels": [
+				"dist/cjs/CoralPixels.d.ts"
 			],
 			"Corben": [
 				"dist/cjs/Corben.d.ts"
@@ -2104,6 +2119,9 @@
 			],
 			"Kameron": [
 				"dist/cjs/Kameron.d.ts"
+			],
+			"Kanchenjunga": [
+				"dist/cjs/Kanchenjunga.d.ts"
 			],
 			"Kanit": [
 				"dist/cjs/Kanit.d.ts"
@@ -4286,6 +4304,9 @@
 			"SankofaDisplay": [
 				"dist/cjs/SankofaDisplay.d.ts"
 			],
+			"Sansation": [
+				"dist/cjs/Sansation.d.ts"
+			],
 			"Sansita": [
 				"dist/cjs/Sansita.d.ts"
 			],
@@ -4685,6 +4706,9 @@
 			"TacOne": [
 				"dist/cjs/TacOne.d.ts"
 			],
+			"Tagesschrift": [
+				"dist/cjs/Tagesschrift.d.ts"
+			],
 			"TaiHeritagePro": [
 				"dist/cjs/TaiHeritagePro.d.ts"
 			],
@@ -4828,6 +4852,9 @@
 			],
 			"TsukimiRounded": [
 				"dist/cjs/TsukimiRounded.d.ts"
+			],
+			"Tuffy": [
+				"dist/cjs/Tuffy.d.ts"
 			],
 			"TulpenOne": [
 				"dist/cjs/TulpenOne.d.ts"
