@@ -1,5 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import type {VisualControlHook} from '../../visual-controls/VisualControls';
 import {
 	SetVisualControlsContext,
@@ -13,15 +14,12 @@ import {useLocalState} from '../RenderModal/SchemaEditor/local-state';
 import {applyVisualControlChange} from '../RenderQueue/actions';
 import {useZodIfPossible} from '../get-zod-if-possible';
 
-const container: React.CSSProperties = {
-	marginBottom: 10,
-};
-
 export const VisualControlHandle: React.FC<{
 	readonly value: VisualControlValue;
 	readonly keyName: string;
 	readonly hook: VisualControlHook;
-}> = ({value, keyName, hook}) => {
+	readonly originalFileName: OriginalPosition | null;
+}> = ({value, keyName, hook, originalFileName}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -62,22 +60,20 @@ export const VisualControlHandle: React.FC<{
 	);
 
 	return (
-		<div style={container}>
-			<RevisionContextProvider>
-				<ZodSwitch
-					mayPad
-					schema={value.schema}
-					showSaveButton
-					saving={false}
-					saveDisabledByParent={false}
-					onSave={onSave}
-					jsonPath={[keyName]}
-					value={localValue.value}
-					defaultValue={value.valueInCode}
-					setValue={onChange}
-					onRemove={null}
-				/>
-			</RevisionContextProvider>
-		</div>
+		<RevisionContextProvider>
+			<ZodSwitch
+				mayPad
+				schema={value.schema}
+				showSaveButton={originalFileName !== null}
+				saving={false}
+				saveDisabledByParent={false}
+				onSave={onSave}
+				jsonPath={[keyName]}
+				value={localValue.value}
+				defaultValue={value.valueInCode}
+				setValue={onChange}
+				onRemove={null}
+			/>
+		</RevisionContextProvider>
 	);
 };

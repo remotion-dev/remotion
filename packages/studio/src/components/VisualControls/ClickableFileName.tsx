@@ -1,15 +1,17 @@
 import {useCallback, useMemo, useState} from 'react';
+import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {getOriginalSourceAttribution} from '../Timeline/TimelineStack/source-attribution';
-import {useOriginalFileName} from './get-original-stack-trace';
 
 const label: React.CSSProperties = {
 	fontSize: 13,
 };
 
-export const ClickableFileName = ({stack}: {readonly stack: string}) => {
-	const originalFileName = useOriginalFileName(stack);
-
+export const ClickableFileName = ({
+	originalFileName,
+}: {
+	readonly originalFileName: OriginalPosition | null;
+}) => {
 	const [titleHovered, setTitleHovered] = useState(false);
 	const hoverEffect = titleHovered && originalFileName;
 

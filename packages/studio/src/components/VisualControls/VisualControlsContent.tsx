@@ -4,12 +4,15 @@ import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ClickableFileName} from './ClickableFileName';
+import {useOriginalFileName} from './get-original-stack-trace';
 import {VisualControlHandle} from './VisualControlHandle';
 
 const Control: React.FC<{
 	readonly hook: VisualControlHook;
 }> = ({hook}) => {
 	const {handles} = useContext(VisualControlsContext);
+
+	const originalFileName = useOriginalFileName(hook.stack);
 
 	const handle = handles[hook.id];
 
@@ -19,8 +22,8 @@ const Control: React.FC<{
 
 	return (
 		<div key={hook.id}>
-			<ClickableFileName stack={hook.stack} />
-			<Spacing block y={1} />
+			<ClickableFileName originalFileName={originalFileName} />
+			<Spacing block y={0.5} />
 			{Object.entries(handle).map(([key, value]) => {
 				return (
 					<VisualControlHandle
@@ -28,6 +31,7 @@ const Control: React.FC<{
 						keyName={key}
 						value={value}
 						hook={hook}
+						originalFileName={originalFileName}
 					/>
 				);
 			})}

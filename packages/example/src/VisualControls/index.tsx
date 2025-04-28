@@ -1,6 +1,6 @@
 import {makeTransform, matrix3d} from '@remotion/animation-utils';
 import {useVisualControls} from '@remotion/studio';
-import {zMatrix} from '@remotion/zod-types';
+import {zMatrix, zTextarea} from '@remotion/zod-types';
 import {AbsoluteFill} from 'remotion';
 
 export const VisualControls = () => {
@@ -17,6 +17,9 @@ export const VisualControls = () => {
 		[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as const,
 		zMatrix(),
 	);
+	const val3 = visualControl(`my-matrix-3`, 1234);
+	const val4 = visualControl(`value 🍋`, 'hi there');
+	const val5 = visualControl(`text 🍋`, 'hi there', zTextarea());
 
 	return (
 		<AbsoluteFill
@@ -26,6 +29,7 @@ export const VisualControls = () => {
 			}}
 		>
 			<p>{matrix.join(', ')}</p>
+			<p>{val5}</p>
 		</AbsoluteFill>
 	);
 };
