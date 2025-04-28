@@ -2137,6 +2137,9 @@ importers:
       '@remotion/studio-shared':
         specifier: workspace:*
         version: link:../studio-shared
+      ast-types:
+        specifier: 0.16.1
+        version: 0.16.1
       memfs:
         specifier: 3.4.3
         version: 3.4.3
@@ -16773,7 +16776,7 @@ packages:
     resolution: {integrity: sha512-6t10qk83GOG8p0vKmaCr8eiilZwO171AvbROMtvvNiwrTly62t+7XkA8RdIIVbpMhCASAsxgAzdRSwh6nw/5Dg==}
     engines: {node: '>=4'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.8.1
     dev: false
 
   /astring@1.8.6:

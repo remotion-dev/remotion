@@ -27,6 +27,7 @@
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
 		"recast": "0.23.9",
+		"ast-types": "0.16.1",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",

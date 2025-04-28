@@ -28,7 +28,7 @@ export {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from './api-requests';
-export type {RecastCodemod} from './codemods';
+export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';

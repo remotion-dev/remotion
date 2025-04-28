@@ -16,10 +16,13 @@ import type {
 	VariableDeclarator,
 } from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
+import {applyVisualControl} from './apply-visual-control';
 
 export type Change = {
 	description: string;
 };
+
+export type ApplyCodeModReturnType = {newAst: File; changesMade: Change[]};
 
 export const applyCodemod = ({
 	file,
@@ -27,8 +30,12 @@ export const applyCodemod = ({
 }: {
 	file: File;
 	codeMod: RecastCodemod;
-}): {newAst: File; changesMade: Change[]} => {
+}): ApplyCodeModReturnType => {
 	const changesMade: Change[] = [];
+
+	if (codeMod.type === 'apply-visual-control') {
+		return applyVisualControl({file, transformation: codeMod, changesMade});
+	}
 
 	const body = file.program.body.map((node) => {
 		return mapAll(node, codeMod, changesMade);

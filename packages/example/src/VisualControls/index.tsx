@@ -7,7 +7,13 @@ export const VisualControls = () => {
 	const {visualControl} = useVisualControls();
 
 	const matrix = visualControl(
-		'william',
+		'my-matrix',
+		[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as const,
+		zMatrix(),
+	);
+
+	const matrix2 = visualControl(
+		`my-matrix-2`,
 		[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as const,
 		zMatrix(),
 	);

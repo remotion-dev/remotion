@@ -1,3 +1,13 @@
+type VisualControlChange = {
+	id: string;
+	newValueSerialized: string;
+};
+
+export type ApplyVisualControlCodemod = {
+	type: 'apply-visual-control';
+	changes: VisualControlChange[];
+};
+
 export type RecastCodemod =
 	| {
 			type: 'duplicate-composition';
@@ -17,4 +27,5 @@ export type RecastCodemod =
 	| {
 			type: 'delete-composition';
 			idToDelete: string;
-	  };
+	  }
+	| ApplyVisualControlCodemod;

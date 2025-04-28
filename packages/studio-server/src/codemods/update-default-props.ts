@@ -1,6 +1,6 @@
 import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import * as tsParser from 'recast/parsers/babel-ts';
+import {parseAst} from './parse-ast';
 
 export const updateDefaultProps = async ({
 	input,
@@ -13,9 +13,7 @@ export const updateDefaultProps = async ({
 	newDefaultProps: Record<string, unknown>;
 	enumPaths: EnumPath[];
 }): Promise<Promise<Promise<Promise<string>>>> => {
-	const ast = recast.parse(input, {
-		parser: tsParser,
-	});
+	const ast = parseAst(input);
 
 	recast.types.visit(ast, {
 		visitJSXElement(path) {
