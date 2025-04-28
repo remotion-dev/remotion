@@ -26,14 +26,8 @@ export default () => {
 
 				if (json.type === 'focus') {
 					setTimeout(() => {
-						ref.current?.contentWindow?.postMessage(
-							'focus',
-							'https://crawlchat.app',
-						);
-						ref.current?.contentWindow?.postMessage(
-							'dark-mode',
-							'https://crawlchat.app',
-						);
+						ref.current?.contentWindow?.postMessage('focus', '*');
+						ref.current?.contentWindow?.postMessage('dark-mode', '*');
 					}, 100);
 				}
 			} catch {}

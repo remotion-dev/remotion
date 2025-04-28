@@ -46,13 +46,13 @@ export const ModalContainer: React.FC<{
 			role="dialog"
 			aria-modal="true"
 		>
-			{noZIndex ? (
+			<HigherZIndex
+				disabled={noZIndex}
+				onOutsideClick={onOutsideClick}
+				onEscape={onEscape}
+			>
 				<div style={panel}>{children}</div>
-			) : (
-				<HigherZIndex onOutsideClick={onOutsideClick} onEscape={onEscape}>
-					<div style={panel}>{children}</div>
-				</HigherZIndex>
-			)}
+			</HigherZIndex>
 		</div>
 	);
 };

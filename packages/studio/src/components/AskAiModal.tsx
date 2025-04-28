@@ -99,7 +99,7 @@ export const AskAiModal: React.FC = () => {
 					ref={iframe}
 					frameBorder={0}
 					style={container}
-					src="http://localhost:3001/ai-embed"
+					src="https://www.remotion.dev/ai-embed"
 				/>
 			</ModalContainer>
 		</AbsoluteFill>
