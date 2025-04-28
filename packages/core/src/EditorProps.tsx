@@ -18,7 +18,7 @@ export type EditorPropsContextType = {
 			| Record<string, unknown>
 			| ((oldProps: Record<string, unknown>) => Record<string, unknown>);
 	}) => void;
-	resetUnsaved: () => void;
+	resetUnsaved: (compositionId: string) => void;
 };
 
 export const EditorPropsContext = createContext<EditorPropsContextType>({
@@ -72,8 +72,16 @@ export const EditorPropsProvider: React.FC<{
 		[],
 	);
 
-	const resetUnsaved = useCallback(() => {
-		setProps({});
+	const resetUnsaved = useCallback((compositionId: string) => {
+		setProps((prev) => {
+			if (prev[compositionId]) {
+				const newProps = {...prev};
+				delete newProps[compositionId];
+				return newProps;
+			}
+
+			return prev;
+		});
 	}, []);
 
 	useImperativeHandle(editorPropsProviderRef, () => {

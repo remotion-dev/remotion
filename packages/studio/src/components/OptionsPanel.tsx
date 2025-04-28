@@ -151,7 +151,7 @@ export const OptionsPanel: React.FC<{
 	const reset = useCallback(
 		(e: Event) => {
 			if ((e as CustomEvent).detail.resetUnsaved) {
-				resetUnsaved();
+				resetUnsaved((e as CustomEvent).detail.resetUnsaved);
 			}
 		},
 		[resetUnsaved],
