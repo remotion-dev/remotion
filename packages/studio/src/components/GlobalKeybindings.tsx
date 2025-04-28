@@ -41,9 +41,9 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
-		const cmdShiftIKey = keybindings.registerKeybinding({
+		const cmdJKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'i',
+			key: 'j',
 			callback: () => {
 				askAiModalRef.current?.toggle();
 			},
@@ -85,7 +85,7 @@ export const GlobalKeybindings: React.FC = () => {
 			cKey.unregister();
 			questionMark.unregister();
 			cmdKKey.unregister();
-			cmdShiftIKey.unregister();
+			cmdJKey.unregister();
 		};
 	}, [keybindings, setCheckerboard, setSelectedModal]);
 

@@ -12,12 +12,12 @@ export default () => {
 				if (json.type === 'keydown') {
 					// CrawlChat sends Cmd+shift+k event
 					if (
-						(json.data.key === 'i' && json.data.metaKey) ||
+						(json.data.key === 'j' && json.data.metaKey) ||
 						json.data.key === 'Escape'
 					) {
 						window.parent.postMessage(
 							{
-								type: 'cmd-i',
+								type: 'cmd-j',
 							},
 							'*',
 						);

@@ -51,7 +51,7 @@ export const AskAiModal: React.FC = () => {
 		const onMessage = (event: MessageEvent) => {
 			const json =
 				typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-			if (json.type === 'cmd-i') {
+			if (json.type === 'cmd-j') {
 				askAiModalRef.current?.toggle();
 			}
 		};
@@ -89,7 +89,11 @@ export const AskAiModal: React.FC = () => {
 
 	return (
 		<AbsoluteFill style={{display: state === 'visible' ? 'block' : 'none'}}>
-			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+			<ModalContainer
+				noZIndex={state === 'hidden'}
+				onOutsideClick={onQuit}
+				onEscape={onQuit}
+			>
 				<ModalHeader title="Ask AI" onClose={onQuit} />
 				<iframe
 					ref={iframe}

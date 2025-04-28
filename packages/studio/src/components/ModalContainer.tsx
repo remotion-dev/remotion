@@ -39,7 +39,6 @@ export const ModalContainer: React.FC<{
 	readonly children: React.ReactNode;
 	readonly noZIndex?: boolean;
 }> = ({children, onEscape, onOutsideClick, noZIndex}) => {
-	const Comp = noZIndex ? React.Fragment : HigherZIndex;
 	return (
 		<div
 			className="css-reset"
@@ -47,9 +46,13 @@ export const ModalContainer: React.FC<{
 			role="dialog"
 			aria-modal="true"
 		>
-			<Comp onOutsideClick={onOutsideClick} onEscape={onEscape}>
+			{noZIndex ? (
 				<div style={panel}>{children}</div>
-			</Comp>
+			) : (
+				<HigherZIndex onOutsideClick={onOutsideClick} onEscape={onEscape}>
+					<div style={panel}>{children}</div>
+				</HigherZIndex>
+			)}
 		</div>
 	);
 };

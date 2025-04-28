@@ -633,7 +633,7 @@ export const useMenuStructure = (
 							askAiModalRef.current?.toggle();
 						},
 						leftItem: null,
-						keyHint: `${cmdOrCtrlCharacter}+I`,
+						keyHint: `${cmdOrCtrlCharacter}+J`,
 						subMenu: null,
 						type: 'item' as const,
 						quickSwitcherLabel: 'Ask AI',
