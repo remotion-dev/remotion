@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
+import {AskAiModal} from './AskAiModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -121,6 +122,7 @@ export const Modals: React.FC<{
 					initialMode={modalContextType.mode}
 				/>
 			)}
+			<AskAiModal />
 		</>
 	);
 };
