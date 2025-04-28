@@ -118,12 +118,10 @@ export const VisualControlsProvider: React.FC<{
 
 	const setControl = useCallback(
 		(hook: VisualControlHook, key: string, value: VisualControlValue) => {
-			const currentSaved =
-				imperativeHandles.current?.[hook.id]?.[key]?.valueInCode;
 			const currentUnsaved =
 				imperativeHandles.current?.[hook.id]?.[key]?.unsavedValue;
 
-			if (currentSaved === value.valueInCode) {
+			if (currentUnsaved === value.valueInCode) {
 				return {
 					same: true,
 					currentValue: getVisualControlEditedValue({
