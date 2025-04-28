@@ -7,3 +7,9 @@ export const parseAst = (input: string) => {
 		parser: tsParser,
 	}) as File;
 };
+
+export const serializeAst = (ast: File) => {
+	return recast.print(ast, {
+		parser: tsParser,
+	}).code;
+};

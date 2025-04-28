@@ -1,6 +1,6 @@
 import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import {parseAst} from './parse-ast';
+import {parseAst, serializeAst} from './parse-ast';
 
 export const updateDefaultProps = async ({
 	input,
@@ -146,7 +146,7 @@ export const updateDefaultProps = async ({
 		);
 	}
 
-	const finalfile = recast.print(ast).code;
+	const finalfile = serializeAst(ast);
 
 	const prettified = await format(finalfile, {
 		...prettierConfig,

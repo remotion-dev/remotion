@@ -1,4 +1,4 @@
-type VisualControlChange = {
+export type VisualControlChange = {
 	id: string;
 	newValueSerialized: string;
 };

@@ -19,6 +19,7 @@ import type {
 	RecastCodemod,
 	RenderJob,
 	RequiredChromiumOptions,
+	VisualControlChange,
 } from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {callApi} from '../call-api';
@@ -389,5 +390,18 @@ export const canUpdateDefaultProps = (
 
 	return callApi('/api/can-update-default-props', {
 		compositionId,
+	});
+};
+
+export const applyVisualControlChange = ({
+	fileName,
+	changes,
+}: {
+	fileName: string;
+	changes: VisualControlChange[];
+}) => {
+	return callApi('/api/apply-visual-control-change', {
+		fileName,
+		changes,
 	});
 };

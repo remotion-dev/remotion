@@ -4,6 +4,8 @@ export {
 	ApiRoutes,
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
+	ApplyVisualControlRequest,
+	ApplyVisualControlResponse,
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse,
 	CancelRenderRequest,
@@ -78,3 +80,5 @@ export {
 	SymbolicatedStackFrame,
 } from './stack-types';
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
+
+export type {VisualControlChange} from './codemods';
