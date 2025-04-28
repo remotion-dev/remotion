@@ -43,13 +43,22 @@ export const VisualControlHandle: React.FC<{
 		savedValue: value.valueInCode,
 	});
 
+	const disableSave =
+		window.remotion_isReadOnlyStudio ||
+		originalFileName === null ||
+		originalFileName.source === null;
+
 	const onSave: UpdaterFunction<unknown> = useCallback(
 		(updater) => {
+			if (disableSave) {
+				return;
+			}
+
 			const val = updater(value.valueInCode);
 
 			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			applyVisualControlChange({
-				fileName: 'src/VisualControls/index.tsx',
+				fileName: originalFileName.source as string,
 				changes: [
 					{
 						id: keyName,
@@ -60,15 +69,17 @@ export const VisualControlHandle: React.FC<{
 				showNotification(`Could not save visual control: ${e.message}`, 3000);
 			});
 		},
-		[fastRefreshes, keyName, value.valueInCode],
+		[fastRefreshes, keyName, value.valueInCode, originalFileName, disableSave],
 	);
+
+	console.log('value', localValue.value, 'default', value.valueInCode);
 
 	return (
 		<RevisionContextProvider>
 			<ZodSwitch
 				mayPad
 				schema={value.schema}
-				showSaveButton={originalFileName !== null}
+				showSaveButton={!disableSave}
 				saving={false}
 				saveDisabledByParent={false}
 				onSave={onSave}

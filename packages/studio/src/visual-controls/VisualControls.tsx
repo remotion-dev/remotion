@@ -8,11 +8,14 @@ import React, {
 import type {ZodTypeAny} from 'zod';
 import {getVisualControlEditedValue} from './get-current-edited-value';
 
-export type VisualControlValue = {
+export type VisualControlValueWithoutUnsaved = {
 	valueInCode: unknown;
-	unsavedValue: unknown;
 	schema: ZodTypeAny;
 	stack: string;
+};
+
+export type VisualControlValue = VisualControlValueWithoutUnsaved & {
+	unsavedValue: unknown;
 };
 
 export type VisualControlHook = {
@@ -40,8 +43,8 @@ export type SetVisualControlsContextType = {
 	setControl: (
 		hook: VisualControlHook,
 		key: string,
-		value: VisualControlValue,
-	) => {same: boolean; currentValue: unknown};
+		value: VisualControlValueWithoutUnsaved,
+	) => {changed: boolean; currentValue: unknown};
 	updateHandles: () => void;
 	updateValue: (hook: VisualControlHook, key: string, value: unknown) => void;
 };
@@ -117,20 +120,19 @@ export const VisualControlsProvider: React.FC<{
 	}, [hooks, handles]);
 
 	const setControl = useCallback(
-		(hook: VisualControlHook, key: string, value: VisualControlValue) => {
+		(
+			hook: VisualControlHook,
+			key: string,
+			value: VisualControlValueWithoutUnsaved,
+		) => {
 			const currentUnsaved =
 				imperativeHandles.current?.[hook.id]?.[key]?.unsavedValue;
+			const currentSavedState =
+				imperativeHandles.current?.[hook.id]?.[key]?.valueInCode;
 
-			if (currentUnsaved === value.valueInCode) {
-				return {
-					same: true,
-					currentValue: getVisualControlEditedValue({
-						hook,
-						key,
-						handles: imperativeHandles.current,
-					}),
-				};
-			}
+			const changedSavedValue = value.valueInCode !== currentSavedState;
+			const changedUnsavedValue =
+				currentUnsaved === undefined && value.valueInCode !== undefined;
 
 			imperativeHandles.current = {
 				...imperativeHandles.current,
@@ -139,12 +141,13 @@ export const VisualControlsProvider: React.FC<{
 					[key]: {
 						...value,
 						unsavedValue: currentUnsaved ?? value.valueInCode,
+						valueInCode: value.valueInCode,
 					},
 				},
 			};
 
 			return {
-				same: false,
+				changed: changedSavedValue || changedUnsavedValue,
 				currentValue: getVisualControlEditedValue({
 					hook,
 					key,

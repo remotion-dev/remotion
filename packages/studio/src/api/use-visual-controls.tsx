@@ -22,7 +22,7 @@ export const useVisualControls = (): UseVisualControls => {
 
 	const {handles} = useContext(VisualControlsContext);
 
-	const changed = useRef(false);
+	const changedRef = useRef(false);
 
 	const [stack] = useState(() => {
 		return new Error().stack as string;
@@ -47,9 +47,9 @@ export const useVisualControls = (): UseVisualControls => {
 	}, [hook, removeHook]);
 
 	useEffect(() => {
-		if (changed.current) {
+		if (changedRef.current) {
 			updateHandles();
-			changed.current = false;
+			changedRef.current = false;
 		}
 	}, [updateHandles]);
 
@@ -66,15 +66,14 @@ export const useVisualControls = (): UseVisualControls => {
 					return value;
 				}
 
-				const {same, currentValue} = setControl(hook, key, {
+				const {changed, currentValue} = setControl(hook, key, {
 					valueInCode: value,
-					unsavedValue: value,
 					schema: schema ?? getZodSchemaFromPrimitive(value, z),
 					stack: new Error().stack as string,
 				});
 
-				if (!same) {
-					changed.current = true;
+				if (changed) {
+					changedRef.current = true;
 				}
 
 				return currentValue as T;
