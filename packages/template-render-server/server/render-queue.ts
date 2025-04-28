@@ -77,6 +77,7 @@ export const makeRenderQueue = ({
         cancelSignal,
         serveUrl,
         composition,
+        inputProps,
         codec: "h264",
         onProgress: (progress) => {
           console.info(`${jobId} render progress:`, progress.progress);
