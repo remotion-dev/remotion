@@ -8,6 +8,7 @@ import {
 	type VisualControlValue,
 } from '../../visual-controls/VisualControls';
 import {getVisualControlEditedValue} from '../../visual-controls/get-current-edited-value';
+import {showNotification} from '../Notifications/NotificationCenter';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {ZodSwitch} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {useLocalState} from '../RenderModal/SchemaEditor/local-state';
@@ -45,6 +46,7 @@ export const VisualControlHandle: React.FC<{
 	const onSave: UpdaterFunction<unknown> = useCallback(
 		(updater) => {
 			const val = updater(value.valueInCode);
+
 			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
 			applyVisualControlChange({
 				fileName: 'src/VisualControls/index.tsx',
@@ -54,6 +56,8 @@ export const VisualControlHandle: React.FC<{
 						newValueSerialized: JSON.stringify(val),
 					},
 				],
+			}).catch((e) => {
+				showNotification(`Could not save visual control: ${e.message}`, 3000);
 			});
 		},
 		[fastRefreshes, keyName, value.valueInCode],

@@ -12,42 +12,34 @@ export const applyVisualControlHandler: ApiHandler<
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse
 > = ({input: {fileName, changes}, remotionRoot}) => {
-	try {
-		const absolutePath = path.resolve(remotionRoot, fileName);
-		const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
-		if (fileRelativeToRoot.startsWith('..')) {
-			throw new Error(
-				'Cannot apply visual control change to a file outside the project',
-			);
-		}
-
-		const fileContents = readFileSync(absolutePath, 'utf-8');
-		const ast = parseAst(fileContents);
-
-		const {newAst, changesMade} = applyCodemod({
-			file: ast,
-			codeMod: {
-				type: 'apply-visual-control',
-				changes,
-			},
-		});
-
-		if (changesMade.length === 0) {
-			throw new Error('No changes were made to the file');
-		}
-
-		const output = serializeAst(newAst);
-
-		writeFileSync(absolutePath, output);
-
-		return Promise.resolve({
-			success: true,
-		});
-	} catch (err) {
-		return Promise.resolve({
-			success: false,
-			reason: (err as Error).message,
-			stack: (err as Error).stack as string,
-		});
+	const absolutePath = path.resolve(remotionRoot, fileName);
+	const fileRelativeToRoot = path.relative(remotionRoot, absolutePath);
+	if (fileRelativeToRoot.startsWith('..')) {
+		throw new Error(
+			'Cannot apply visual control change to a file outside the project',
+		);
 	}
+
+	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const ast = parseAst(fileContents);
+
+	const {newAst, changesMade} = applyCodemod({
+		file: ast,
+		codeMod: {
+			type: 'apply-visual-control',
+			changes,
+		},
+	});
+
+	if (changesMade.length === 0) {
+		throw new Error('No changes were made to the file');
+	}
+
+	const output = serializeAst(newAst);
+
+	writeFileSync(absolutePath, output);
+
+	return Promise.resolve({
+		success: true,
+	});
 };

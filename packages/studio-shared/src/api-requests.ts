@@ -135,7 +135,7 @@ export type ApplyVisualControlRequest = {
 };
 
 export type ApplyVisualControlResponse = {
-	success: boolean;
+	success: true;
 };
 
 export type UpdateDefaultPropsResponse =

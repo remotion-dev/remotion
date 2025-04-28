@@ -1,4 +1,8 @@
-import type {File} from '@babel/types';
+import type {
+	AssignmentExpression,
+	ExpressionStatement,
+	File,
+} from '@babel/types';
 import type {ApplyVisualControlCodemod} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import {visit} from 'ast-types';
@@ -55,8 +59,14 @@ export const applyVisualControl = ({
 					continue;
 				}
 
-				node.arguments[1] = parseAst(change.newValueSerialized).program
-					.body[0] as unknown as ExpressionKind;
+				const parsed = (
+					(
+						parseAst('a = ' + change.newValueSerialized).program
+							.body[0] as unknown as ExpressionStatement
+					).expression as AssignmentExpression
+				).right as ExpressionKind;
+
+				node.arguments[1] = parsed;
 
 				changesMade.push({
 					description: `Applied visual control ${change.id}`,
