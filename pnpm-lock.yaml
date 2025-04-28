@@ -962,6 +962,9 @@ importers:
       '@remotion/animated-emoji':
         specifier: workspace:*
         version: link:../animated-emoji
+      '@remotion/animation-utils':
+        specifier: workspace:*
+        version: link:../animation-utils
       '@remotion/babel-loader':
         specifier: workspace:*
         version: link:../babel-loader

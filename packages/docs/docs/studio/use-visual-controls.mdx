@@ -1,0 +1,42 @@
+---
+title: useVisualControls()
+crumb: '@remotion/studio'
+---
+
+# useVisualControls()
+
+Creates a control in the right sidebar of the [Remotion Studio](/docs/studio) that allows you to change a value.
+
+Useful for if you have a hardcoded constant that you want to find the optimal value for.
+
+## Example
+
+Consider you have a value `rotation` that you want to find the optimal value for:
+
+```tsx twoslash title="Root.tsx"
+import {useVideoConfig} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const rotation = 180;
+
+  return <div style={{rotate: `${rotation}deg`}}>Hello</div>;
+};
+```
+
+Instead of changing the value of `rotation` in the code, you can create a control in the right sidebar of the [Remotion Studio](/docs/studio) that allows you to change the value:
+
+```tsx twoslash title="Root.tsx"
+import {useVisualControls} from '@remotion/studio';
+
+const MyComp: React.FC = () => {
+  const {visualControl} = useVisualControls();
+
+  const rotation = visualControl('rotation', 180);
+
+  return <div style={{rotate: `${rotation}deg`}}>Hello</div>;
+};
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/studio/src/api/use-visual-controls.ts)

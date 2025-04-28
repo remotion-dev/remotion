@@ -11,14 +11,15 @@ import {getZodSchemaFromPrimitive} from './get-zod-schema-from-primitive';
 
 type VisualControl = <T>(key: string, value: T, schema?: z.ZodTypeAny) => T;
 
-type UseVisualControl = {
+type UseVisualControls = {
 	visualControl: VisualControl;
 };
 
-export const useVisualControl = (): UseVisualControl => {
+export const useVisualControls = (): UseVisualControls => {
 	const {addHook, removeHook, setControl, updateHandles} = useContext(
 		SetVisualControlsContext,
 	);
+
 	const {handles} = useContext(VisualControlsContext);
 
 	const changed = useRef(false);
@@ -79,6 +80,6 @@ export const useVisualControl = (): UseVisualControl => {
 				return currentValue as T;
 			},
 		}),
-		[handles, hook, setControl, z],
+		[hook, setControl, handles, z],
 	);
 };
