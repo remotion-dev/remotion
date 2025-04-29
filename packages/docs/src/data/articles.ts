@@ -4974,6 +4974,15 @@ export const articles = [
 		slug: 'studio/update-default-props',
 	},
 	{
+		id: 'studio/visual-control',
+		title: 'visualControl()',
+		relativePath: 'docs/studio/visual-control.mdx',
+		compId: 'articles-docs-studio-visual-control',
+		crumb: '@remotion/studio',
+		noAi: false,
+		slug: 'studio/visual-control',
+	},
+	{
 		id: 'studio/watch-public-folder',
 		title: 'watchPublicFolder()',
 		relativePath: 'docs/studio/watch-public-folder.mdx',
