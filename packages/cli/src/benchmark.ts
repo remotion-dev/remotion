@@ -295,7 +295,7 @@ export const benchmarkCommand = async (
 	const puppeteerInstance = await browserInstance;
 
 	const serializedInputPropsWithCustomSchema =
-		NoReactInternals.serializeJSONWithDate({
+		NoReactInternals.serializeJSONWithSpecialTypes({
 			data: inputProps ?? {},
 			indent: undefined,
 			staticBase: null,
@@ -480,7 +480,7 @@ export const benchmarkCommand = async (
 					preferLossless: false,
 					server: undefined,
 					serializedResolvedPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: composition.props,
 							indent: undefined,
 							staticBase: null,

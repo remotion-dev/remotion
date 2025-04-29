@@ -226,7 +226,7 @@ const renderContent = (Root: React.FC) => {
 				numberOfAudioTags={0}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
-					props: NoReactInternals.deserializeJSONWithCustomFields(
+					props: NoReactInternals.deserializeJSONWithSpecialTypes(
 						bundleMode.serializedResolvedPropsWithSchema,
 					),
 					durationInFrames: bundleMode.compositionDurationInFrames,
@@ -379,13 +379,13 @@ if (typeof window !== 'undefined') {
 				return {
 					...data,
 					serializedResolvedPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: props,
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
 					serializedDefaultPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: defaultProps,
 							indent: undefined,
 							staticBase: null,
@@ -444,13 +444,13 @@ if (typeof window !== 'undefined') {
 		return {
 			...data,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					data: props,
 					indent: undefined,
 					staticBase: null,
 				}).serializedString,
 			serializedDefaultPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					data: defaultProps,
 					indent: undefined,
 					staticBase: null,

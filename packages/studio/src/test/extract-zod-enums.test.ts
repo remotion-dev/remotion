@@ -1,27 +1,33 @@
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import * as zodTypes from '@remotion/zod-types';
 import {expect, test} from 'bun:test';
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import {zMatrix} from '@remotion/zod-types';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {z} from 'zod';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 
 test('Extract Zod enums', () => {
 	expect(
-		extractEnumJsonPaths(
-			z.object({
+		extractEnumJsonPaths({
+			schema: z.object({
 				enums: z.enum(['a', 'b', 'c']),
 			}),
-			z,
-			[],
-		),
+			zodRuntime: z,
+			currentPath: [],
+			zodTypes,
+		}),
 	).toStrictEqual([['enums']]);
 });
 
 test('Extract Zod enums #2', () => {
 	expect(
-		extractEnumJsonPaths(
-			z.object({
+		extractEnumJsonPaths({
+			schema: z.object({
 				enums: z.enum(['a', 'b', 'c']),
 				nested: z.object({
 					second: z.enum(['a', 'b', 'c']),
+					matrix: zMatrix(),
 				}),
 				arrays: z.array(z.enum(['a', 'b', 'c'])),
 				union: z.object({hi: z.enum(['a'])}).or(z.object({abc: z.enum(['b'])})),
@@ -42,12 +48,14 @@ test('Extract Zod enums #2', () => {
 					.default({}),
 				branded: z.object({a: z.enum(['a'])}).brand('branded'),
 			}),
-			z,
-			[],
-		),
+			zodRuntime: z,
+			currentPath: [],
+			zodTypes,
+		}),
 	).toStrictEqual([
 		['enums'],
 		['nested', 'second'],
+		['nested', 'matrix'],
 		['arrays', '[]'],
 		['union', 'hi'],
 		['union', 'abc'],

@@ -166,7 +166,7 @@ export const stillCommand = async ({
 			chromiumOptions,
 			envVariables,
 			serializedInputPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					indent: undefined,
 					staticBase: null,
 					data: inputProps,

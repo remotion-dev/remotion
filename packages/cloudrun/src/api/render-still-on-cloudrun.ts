@@ -121,7 +121,7 @@ const internalRenderStillOnCloudRun = async ({
 		composition,
 		serveUrl,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},

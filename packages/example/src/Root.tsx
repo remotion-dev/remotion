@@ -130,6 +130,7 @@ import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TransitionRounding} from './TransitionRounding';
+import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 
 class Vector2 {
@@ -1573,6 +1574,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="voice-visualization"
 					component={VoiceVisualization}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={900}
+				/>
+			</Folder>
+			<Folder name="visual-controls">
+				<Composition
+					id="visual-controls"
+					component={VisualControls}
 					width={1080}
 					height={1080}
 					fps={30}

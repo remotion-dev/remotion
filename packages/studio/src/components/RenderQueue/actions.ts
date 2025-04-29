@@ -19,6 +19,7 @@ import type {
 	RecastCodemod,
 	RenderJob,
 	RequiredChromiumOptions,
+	VisualControlChange,
 } from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {callApi} from '../call-api';
@@ -73,7 +74,7 @@ export const addStillRenderJob = ({
 		delayRenderTimeout,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
@@ -147,7 +148,7 @@ export const addSequenceRenderJob = ({
 		envVariables,
 		concurrency,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
@@ -272,7 +273,7 @@ export const addVideoRenderJob = ({
 		chromiumOptions,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
@@ -367,7 +368,7 @@ export const callUpdateDefaultPropsApi = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: NoReactInternals.serializeJSONWithDate({
+		defaultProps: NoReactInternals.serializeJSONWithSpecialTypes({
 			data: defaultProps,
 			indent: undefined,
 			staticBase: window.remotion_staticBase,
@@ -389,5 +390,18 @@ export const canUpdateDefaultProps = (
 
 	return callApi('/api/can-update-default-props', {
 		compositionId,
+	});
+};
+
+export const applyVisualControlChange = ({
+	fileName,
+	changes,
+}: {
+	fileName: string;
+	changes: VisualControlChange[];
+}) => {
+	return callApi('/api/apply-visual-control-change', {
+		fileName,
+		changes,
 	});
 };
