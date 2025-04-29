@@ -55,7 +55,6 @@ export const handleRequest = async <Req, Res>({
 			}),
 		);
 	} catch (err) {
-		console.error(err);
 		response.end(
 			JSON.stringify({
 				success: false,
