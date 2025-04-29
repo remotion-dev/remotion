@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -96,14 +96,8 @@ export const VisualControlHandle: React.FC<{
 						],
 					});
 				})
-				.then(() => {
-					console.log('saved');
-				})
 				.catch((e) => {
 					showNotification(`Could not save visual control: ${e.message}`, 3000);
-				})
-				.finally(() => {
-					setSaving(false);
 				});
 		},
 		[
@@ -118,7 +112,9 @@ export const VisualControlHandle: React.FC<{
 		],
 	);
 
-	console.log({saving});
+	useEffect(() => {
+		setSaving(false);
+	}, [fastRefreshes]);
 
 	return (
 		<>

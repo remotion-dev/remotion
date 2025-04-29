@@ -63,14 +63,6 @@ export const stringifyDefaultProps = ({
 			/* Don't replace with arrow function! This function uses `this` */
 			const item = this[key];
 
-			console.log({
-				path,
-				enumPaths,
-				match: doesMatchPath(path, enumPaths),
-				item,
-				key,
-				value,
-			});
 			if (typeof item === 'string' && doesMatchPath(path, enumPaths)) {
 				return `${item}__ADD_AS_CONST__`;
 			}

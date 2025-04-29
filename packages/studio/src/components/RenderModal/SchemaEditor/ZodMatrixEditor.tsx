@@ -90,28 +90,21 @@ export const ZodMatrixEditor: React.FC<{
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
+			<SchemaLabel
+				onReset={reset}
+				isDefaultValue={isDefaultValue}
+				jsonPath={jsonPath}
+				onRemove={onRemove}
+				suffix={suffix}
+				onSave={() => {
+					onSave(() => localValue.value, false, false);
 				}}
-			>
-				<SchemaLabel
-					onReset={reset}
-					isDefaultValue={isDefaultValue}
-					jsonPath={jsonPath}
-					onRemove={onRemove}
-					suffix={suffix}
-					onSave={() => {
-						onSave(() => localValue.value, false, false);
-					}}
-					saveDisabledByParent={saveDisabledByParent}
-					saving={saving}
-					showSaveButton={showSaveButton}
-					valid={localValue.zodValidation.success}
-					handleClick={() => setExpanded(!expanded)}
-				/>
-			</div>
+				saveDisabledByParent={saveDisabledByParent}
+				saving={saving}
+				showSaveButton={showSaveButton}
+				valid={localValue.zodValidation.success}
+				handleClick={() => setExpanded(!expanded)}
+			/>
 
 			{expanded ? (
 				<RevisionContextProvider>
