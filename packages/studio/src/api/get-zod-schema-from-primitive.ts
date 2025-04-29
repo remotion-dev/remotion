@@ -9,5 +9,12 @@ export const getZodSchemaFromPrimitive = (value: unknown, z: ZodType) => {
 		return z.number();
 	}
 
-	throw new Error('Unknown primitive type');
+	let stringified;
+	try {
+		stringified = JSON.stringify(value);
+	} catch {}
+
+	throw new Error(
+		`visualControl(): Specify a schema for this value: ${stringified ?? '[non-serializable value]'}. See https://remotion.dev/docs/studio/visual-control`,
+	);
 };

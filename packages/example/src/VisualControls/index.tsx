@@ -10,6 +10,7 @@ export const VisualControls = () => {
 		zMatrix(),
 	);
 
+	// Is being tested against
 	const matrix2 = visualControl(`my-matrix-2`, 123);
 	const val3 = visualControl('my-matrix-4', 1234);
 	const val4 = visualControl(`value 🍋`, 'hi there');
