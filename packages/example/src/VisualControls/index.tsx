@@ -18,7 +18,6 @@ export const VisualControls = () => {
 			}}
 		>
 			<p>{matrix.join(', ')}</p>
-			<p>{val5}</p>
 		</AbsoluteFill>
 	);
 };
