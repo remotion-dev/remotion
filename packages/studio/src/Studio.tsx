@@ -5,7 +5,6 @@ import {Editor} from './components/Editor';
 import {EditorContexts} from './components/EditorContexts';
 import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
 import {injectCSS} from './helpers/inject-css';
-import {VisualControlsProvider} from './visual-controls/VisualControls';
 
 const getServerDisconnectedDomElement = () => {
 	return document.getElementById('server-disconnected-overlay');
@@ -38,15 +37,13 @@ export const Studio: React.FC<{
 			currentCompositionMetadata={null}
 		>
 			<EditorContexts readOnlyStudio={readOnly}>
-				<VisualControlsProvider>
-					<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-					{readOnly
-						? null
-						: createPortal(
-								<ServerDisconnected />,
-								getServerDisconnectedDomElement() as HTMLElement,
-							)}
-				</VisualControlsProvider>
+				<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+				{readOnly
+					? null
+					: createPortal(
+							<ServerDisconnected />,
+							getServerDisconnectedDomElement() as HTMLElement,
+						)}
 			</EditorContexts>
 		</Internals.RemotionRoot>
 	);

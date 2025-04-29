@@ -11,8 +11,8 @@ export const getOriginalSourceAttribution = (
 	const last = split[split.length - 1];
 	if (last.startsWith('index')) {
 		const lastTwo = split[split.length - 2];
-		return `${lastTwo}/${last}:${originalLocation.line}`;
+		return `${lastTwo}/${last}:${originalLocation.line}:${originalLocation.column}`;
 	}
 
-	return `${last}:${originalLocation.line}`;
+	return `${last}:${originalLocation.line}:${originalLocation.column}`;
 };

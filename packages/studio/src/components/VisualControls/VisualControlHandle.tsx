@@ -28,6 +28,7 @@ export const VisualControlHandle: React.FC<{
 	const state = useContext(VisualControlsContext);
 	const {updateValue} = useContext(SetVisualControlsContext);
 	const {fastRefreshes} = useContext(Internals.NonceContext);
+	const {increaseNonce} = useContext(Internals.SetNonceContext);
 
 	const currentValue = getVisualControlEditedValue({
 		handles: state.handles,
@@ -38,7 +39,10 @@ export const VisualControlHandle: React.FC<{
 
 	const {localValue, RevisionContextProvider, onChange} = useLocalState({
 		schema: value.schema,
-		setValue: (updater) => updateValue(keyName, updater(currentValue)),
+		setValue: (updater) => {
+			updateValue(keyName, updater(currentValue));
+			increaseNonce();
+		},
 		unsavedValue: currentValue,
 		savedValue: value.valueInCode,
 	});

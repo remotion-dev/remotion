@@ -12,9 +12,19 @@ export type TNonceContext = {
 	fastRefreshes: number;
 };
 
+export type TSetNonceContext = {
+	increaseNonce: () => void;
+};
+
 export const NonceContext = createContext<TNonceContext>({
 	getNonce: () => 0,
 	fastRefreshes: 0,
+});
+
+export const SetNonceContext = createContext<TSetNonceContext>({
+	increaseNonce: () => {
+		throw new Error('increaseNonce is not implemented');
+	},
 });
 
 export const useNonce = (): number => {

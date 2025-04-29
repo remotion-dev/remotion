@@ -44,7 +44,7 @@ import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
-import {NonceContext} from './nonce.js';
+import {NonceContext, SetNonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -156,6 +156,7 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	NonceContext,
+	SetNonceContext,
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,

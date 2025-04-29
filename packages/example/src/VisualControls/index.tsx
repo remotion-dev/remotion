@@ -6,7 +6,7 @@ import {AbsoluteFill} from 'remotion';
 export const VisualControls = () => {
 	const matrix = visualControl(
 		'my-matrix',
-		[2.1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		[1.73,-2.64,0,0,0,1,0,0,1.26,0,1,0,0,0,0,1],
 		zMatrix(),
 	);
 
@@ -15,7 +15,7 @@ export const VisualControls = () => {
 		[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as const,
 		zMatrix(),
 	);
-	const val3 = visualControl(`my-matrix-3`, 1234);
+	const val3 = visualControl(`my-matrix-4`, 1234);
 	const val4 = visualControl(`value 🍋`, 'hi there');
 	const val5 = visualControl(`text 🍋`, 'hi there', zTextarea());
 

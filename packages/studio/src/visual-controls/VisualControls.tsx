@@ -2,13 +2,14 @@ import React, {
 	createContext,
 	createRef,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import {getRemotionEnvironment} from 'remotion';
+import {getRemotionEnvironment, Internals} from 'remotion';
 import type {z, ZodTypeAny} from 'zod';
 import {getZodSchemaFromPrimitive} from '../api/get-zod-schema-from-primitive';
 import {useZodIfPossible} from '../components/get-zod-if-possible';
@@ -80,6 +81,7 @@ export const VisualControlsProvider: React.FC<{
 	const [handles, setHandles] = useState<Record<string, VisualControlValue>>(
 		{},
 	);
+	const {increaseNonce} = useContext(Internals.SetNonceContext);
 
 	const state: VisualControlsContextType = useMemo(() => {
 		return {
@@ -190,7 +192,7 @@ export const VisualControlsProvider: React.FC<{
 		return () => {
 			clearInterval(interval);
 		};
-	}, [updateHandles]);
+	}, [increaseNonce, updateHandles]);
 
 	const setState: SetVisualControlsContextType = useMemo(() => {
 		return {
@@ -200,13 +202,6 @@ export const VisualControlsProvider: React.FC<{
 			visualControl,
 		};
 	}, [setControl, updateHandles, updateValue, visualControl]);
-
-	useEffect(() => {
-		if (changedRef.current) {
-			updateHandles();
-			changedRef.current = false;
-		}
-	}, [updateHandles]);
 
 	return (
 		<VisualControlsTabActivatedContext.Provider
