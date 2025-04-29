@@ -1,7 +1,7 @@
 import {makeTransform, matrix3d} from '@remotion/animation-utils';
 import {visualControl} from '@remotion/studio';
-import {zMatrix, zTextarea} from '@remotion/zod-types';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {zMatrix} from '@remotion/zod-types';
+import {AbsoluteFill} from 'remotion';
 
 export const VisualControls = () => {
 	const matrix = visualControl(
@@ -9,14 +9,6 @@ export const VisualControls = () => {
 		[9.63, 0.83, 1.3, 0, 0, 2.79, 0, 0, 1.26, 0.35, 1, 0, 0, 0, 0, 1] as const,
 		zMatrix(),
 	);
-
-	// Is being tested against
-	const matrix2 = visualControl(`my-matrix-2`, 123);
-	const val3 = visualControl('my-matrix-4', 1234);
-	const val4 = visualControl(`value 🍋`, 'hi there');
-	const val5 = visualControl(`text 🍋`, 'hi there', zTextarea());
-
-	const val6 = visualControl('file', staticFile('clip001.mkv'));
 
 	return (
 		<AbsoluteFill
