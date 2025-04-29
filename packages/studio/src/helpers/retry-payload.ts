@@ -46,7 +46,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: null,
@@ -97,7 +97,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			initialStillImageFormat: defaults.stillImageFormat,
@@ -152,7 +152,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: job.startFrame,

@@ -1,6 +1,9 @@
+import type {EnumPath} from './stringify-default-props';
+
 export type VisualControlChange = {
 	id: string;
 	newValueSerialized: string;
+	enumPaths: EnumPath[];
 };
 
 export type ApplyVisualControlCodemod = {

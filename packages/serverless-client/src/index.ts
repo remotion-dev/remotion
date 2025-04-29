@@ -118,7 +118,7 @@ export {interpolate, random};
 
 export const {
 	ENABLE_V5_BREAKING_CHANGES,
-	serializeJSONWithDate,
+	serializeJSONWithSpecialTypes,
 	validateFps,
 	validateDimension,
 	validateDurationInFrames,

@@ -1,5 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	SetVisualControlsContext,
 	VisualControlsContext,
@@ -9,9 +10,10 @@ import {getVisualControlEditedValue} from '../../visual-controls/get-current-edi
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {ZodSwitch} from '../RenderModal/SchemaEditor/ZodSwitch';
+import {extractEnumJsonPaths} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
 import {useLocalState} from '../RenderModal/SchemaEditor/local-state';
 import {applyVisualControlChange} from '../RenderQueue/actions';
-import {useZodIfPossible} from '../get-zod-if-possible';
+import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {Spacing} from '../layout';
 import {ClickableFileName} from './ClickableFileName';
 import {useOriginalFileName} from './get-original-stack-trace';
@@ -24,6 +26,8 @@ export const VisualControlHandle: React.FC<{
 	if (!z) {
 		throw new Error('expected zod');
 	}
+
+	const zodTypes = useZodTypesIfPossible();
 
 	const state = useContext(VisualControlsContext);
 	const {updateValue} = useContext(SetVisualControlsContext);
@@ -61,19 +65,39 @@ export const VisualControlHandle: React.FC<{
 			const val = updater(value.valueInCode);
 
 			window.remotion_ignoreFastRefreshUpdate = fastRefreshes + 1;
+			const enumPaths = extractEnumJsonPaths({
+				schema: value.schema,
+				zodRuntime: z,
+				currentPath: [],
+				zodTypes,
+			});
 			applyVisualControlChange({
 				fileName: originalFileName.source as string,
 				changes: [
 					{
 						id: keyName,
-						newValueSerialized: JSON.stringify(val),
+						newValueSerialized: NoReactInternals.serializeJSONWithSpecialTypes({
+							data: val as Record<string, unknown>,
+							indent: 2,
+							staticBase: window.remotion_staticBase,
+						}).serializedString,
+						enumPaths,
 					},
 				],
 			}).catch((e) => {
 				showNotification(`Could not save visual control: ${e.message}`, 3000);
 			});
 		},
-		[fastRefreshes, keyName, value.valueInCode, originalFileName, disableSave],
+		[
+			disableSave,
+			value.valueInCode,
+			value.schema,
+			fastRefreshes,
+			z,
+			originalFileName,
+			keyName,
+			zodTypes,
+		],
 	);
 
 	return (

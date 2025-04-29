@@ -3,7 +3,10 @@ import type {
 	ExpressionStatement,
 	File,
 } from '@babel/types';
-import type {ApplyVisualControlCodemod} from '@remotion/studio-shared';
+import {
+	stringifyDefaultProps,
+	type ApplyVisualControlCodemod,
+} from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import {visit} from 'ast-types';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
@@ -61,8 +64,9 @@ export const applyVisualControl = ({
 
 				const parsed = (
 					(
-						parseAst('a = ' + change.newValueSerialized).program
-							.body[0] as unknown as ExpressionStatement
+						parseAst(
+							`a = ${stringifyDefaultProps({props: JSON.parse(change.newValueSerialized), enumPaths: change.enumPaths})}`,
+						).program.body[0] as unknown as ExpressionStatement
 					).expression as AssignmentExpression
 				).right as ExpressionKind;
 

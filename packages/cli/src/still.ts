@@ -139,7 +139,7 @@ export const still = async (
 		envVariables,
 		height,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				indent: undefined,
 				staticBase: null,

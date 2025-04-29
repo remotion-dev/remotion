@@ -74,7 +74,7 @@ export const addStillRenderJob = ({
 		delayRenderTimeout,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
@@ -148,7 +148,7 @@ export const addSequenceRenderJob = ({
 		envVariables,
 		concurrency,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
@@ -273,7 +273,7 @@ export const addVideoRenderJob = ({
 		chromiumOptions,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
@@ -368,7 +368,7 @@ export const callUpdateDefaultPropsApi = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: NoReactInternals.serializeJSONWithDate({
+		defaultProps: NoReactInternals.serializeJSONWithSpecialTypes({
 			data: defaultProps,
 			indent: undefined,
 			staticBase: window.remotion_staticBase,

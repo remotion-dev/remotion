@@ -23,10 +23,12 @@ test('Should be able to create visual control', () => {
 				{
 					id: 'my-matrix',
 					newValueSerialized: '123',
+					enumPaths: [],
 				},
 				{
 					id: 'my-matrix-2',
 					newValueSerialized: '"456" as const',
+					enumPaths: [],
 				},
 			],
 		},

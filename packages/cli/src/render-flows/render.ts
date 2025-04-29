@@ -518,7 +518,7 @@ export const renderVideoFlow = async ({
 			onFrameBuffer: null,
 			logLevel,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					indent: undefined,
 					staticBase: null,
 					data: config.props,
@@ -608,7 +608,7 @@ export const renderVideoFlow = async ({
 		onBrowserLog: null,
 		onStart: () => undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: config.props,
 				indent: undefined,
 				staticBase: null,

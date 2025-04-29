@@ -18,7 +18,7 @@ import {
 	getExpectedOutName,
 	internalGetOrCreateBucket,
 	overallProgressKey,
-	serializeJSONWithDate,
+	serializeJSONWithSpecialTypes,
 	ServerlessRoutines,
 	validateDownloadBehavior,
 	validateOutname,
@@ -312,7 +312,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		port: null,
 		server,
 		logLevel: params.logLevel,
-		serializedResolvedPropsWithCustomSchema: serializeJSONWithDate({
+		serializedResolvedPropsWithCustomSchema: serializeJSONWithSpecialTypes({
 			indent: undefined,
 			staticBase: null,
 			data: composition.props,

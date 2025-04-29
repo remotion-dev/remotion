@@ -165,7 +165,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		serveUrl,
 		codec: actualCodec,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},

@@ -18,8 +18,8 @@ import {
 	DELAY_RENDER_RETRY_TOKEN,
 } from './delay-render';
 import {
-	deserializeJSONWithCustomFields,
-	serializeJSONWithDate,
+	deserializeJSONWithSpecialTypes,
+	serializeJSONWithSpecialTypes,
 } from './input-props-serialization';
 import {DATE_TOKEN, FILE_TOKEN} from './input-props-serialization.js';
 import {colorNames, processColor} from './interpolate-colors';
@@ -41,10 +41,10 @@ export const NoReactInternals = {
 	validateDurationInFrames,
 	validateDefaultAndInputProps,
 	validateFrame,
-	serializeJSONWithDate,
+	serializeJSONWithSpecialTypes,
 	bundleName: 'bundle.js',
 	bundleMapName: 'bundle.js.map',
-	deserializeJSONWithCustomFields,
+	deserializeJSONWithSpecialTypes,
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_RETRY_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
