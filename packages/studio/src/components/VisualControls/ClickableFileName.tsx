@@ -7,13 +7,26 @@ const label: React.CSSProperties = {
 	fontSize: 13,
 };
 
+export type OriginalFileNameState =
+	| {
+			type: 'loaded';
+			originalFileName: OriginalPosition;
+	  }
+	| {
+			type: 'error';
+			error: Error;
+	  }
+	| {
+			type: 'loading';
+	  };
+
 export const ClickableFileName = ({
 	originalFileName,
 }: {
-	readonly originalFileName: OriginalPosition | null;
+	readonly originalFileName: OriginalFileNameState;
 }) => {
 	const [titleHovered, setTitleHovered] = useState(false);
-	const hoverEffect = titleHovered && originalFileName;
+	const hoverEffect = titleHovered && originalFileName.type === 'loaded';
 
 	const onTitlePointerEnter = useCallback(() => {
 		setTitleHovered(true);
@@ -26,17 +39,17 @@ export const ClickableFileName = ({
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...label,
-			cursor: originalFileName ? 'pointer' : undefined,
+			cursor: originalFileName.type === 'loaded' ? 'pointer' : undefined,
 			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
 		};
 	}, [originalFileName, hoverEffect]);
 
 	const onClick = useCallback(async () => {
-		if (!originalFileName) {
+		if (originalFileName.type !== 'loaded') {
 			return;
 		}
 
-		await openOriginalPositionInEditor(originalFileName);
+		await openOriginalPositionInEditor(originalFileName.originalFileName);
 	}, [originalFileName]);
 
 	return (
@@ -46,9 +59,11 @@ export const ClickableFileName = ({
 			onPointerEnter={onTitlePointerEnter}
 			onPointerLeave={onTitlePointerLeave}
 		>
-			{originalFileName
-				? getOriginalSourceAttribution(originalFileName)
-				: 'Loading...'}
+			{originalFileName.type === 'loaded'
+				? getOriginalSourceAttribution(originalFileName.originalFileName)
+				: originalFileName.type === 'loading'
+					? 'Loading...'
+					: 'Error loading'}
 		</span>
 	);
 };

@@ -32,18 +32,21 @@ function replacerWithPath(
 }
 
 const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
-	return enumPaths.some((p) =>
-		path1.every((item, index) => {
-			if (p[index] === '[]' && !Number.isNaN(Number(item))) {
-				return true;
-			}
+	return enumPaths.some(
+		(p) =>
+			// especially 0 for root!
+			path1.length === p.length &&
+			path1.every((item, index) => {
+				if (p[index] === '[]' && !Number.isNaN(Number(item))) {
+					return true;
+				}
 
-			if (p[index] === '{}' && typeof item === 'string') {
-				return true;
-			}
+				if (p[index] === '{}' && typeof item === 'string') {
+					return true;
+				}
 
-			return item === p[index];
-		}),
+				return item === p[index];
+			}),
 	);
 };
 
@@ -60,6 +63,14 @@ export const stringifyDefaultProps = ({
 			/* Don't replace with arrow function! This function uses `this` */
 			const item = this[key];
 
+			console.log({
+				path,
+				enumPaths,
+				match: doesMatchPath(path, enumPaths),
+				item,
+				key,
+				value,
+			});
 			if (typeof item === 'string' && doesMatchPath(path, enumPaths)) {
 				return `${item}__ADD_AS_CONST__`;
 			}

@@ -1,4 +1,4 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {
@@ -34,6 +34,8 @@ export const VisualControlHandle: React.FC<{
 	const {fastRefreshes} = useContext(Internals.NonceContext);
 	const {increaseNonce} = useContext(Internals.SetNonceContext);
 
+	const [saving, setSaving] = useState(false);
+
 	const currentValue = getVisualControlEditedValue({
 		handles: state.handles,
 		key: keyName,
@@ -52,14 +54,16 @@ export const VisualControlHandle: React.FC<{
 	});
 
 	const disableSave =
-		window.remotion_isReadOnlyStudio ||
-		originalFileName === null ||
-		originalFileName.source === null;
+		window.remotion_isReadOnlyStudio || originalFileName.type !== 'loaded';
 
 	const onSave: UpdaterFunction<unknown> = useCallback(
 		(updater) => {
 			if (disableSave) {
 				return;
+			}
+
+			if (originalFileName.type !== 'loaded') {
+				throw new Error('Original file name is not loaded');
 			}
 
 			const val = updater(value.valueInCode);
@@ -71,22 +75,36 @@ export const VisualControlHandle: React.FC<{
 				currentPath: [],
 				zodTypes,
 			});
-			applyVisualControlChange({
-				fileName: originalFileName.source as string,
-				changes: [
-					{
-						id: keyName,
-						newValueSerialized: NoReactInternals.serializeJSONWithSpecialTypes({
-							data: val as Record<string, unknown>,
-							indent: 2,
-							staticBase: window.remotion_staticBase,
-						}).serializedString,
-						enumPaths,
-					},
-				],
-			}).catch((e) => {
-				showNotification(`Could not save visual control: ${e.message}`, 3000);
-			});
+
+			setSaving(true);
+
+			Promise.resolve()
+				.then(() => {
+					return applyVisualControlChange({
+						fileName: originalFileName.originalFileName.source as string,
+						changes: [
+							{
+								id: keyName,
+								newValueSerialized:
+									NoReactInternals.serializeJSONWithSpecialTypes({
+										data: val as Record<string, unknown>,
+										indent: 2,
+										staticBase: window.remotion_staticBase,
+									}).serializedString,
+								enumPaths,
+							},
+						],
+					});
+				})
+				.then(() => {
+					console.log('saved');
+				})
+				.catch((e) => {
+					showNotification(`Could not save visual control: ${e.message}`, 3000);
+				})
+				.finally(() => {
+					setSaving(false);
+				});
 		},
 		[
 			disableSave,
@@ -100,6 +118,8 @@ export const VisualControlHandle: React.FC<{
 		],
 	);
 
+	console.log({saving});
+
 	return (
 		<>
 			<ClickableFileName originalFileName={originalFileName} />
@@ -109,7 +129,7 @@ export const VisualControlHandle: React.FC<{
 					mayPad
 					schema={value.schema}
 					showSaveButton={!disableSave}
-					saving={false}
+					saving={saving}
 					saveDisabledByParent={false}
 					onSave={onSave}
 					jsonPath={[keyName]}

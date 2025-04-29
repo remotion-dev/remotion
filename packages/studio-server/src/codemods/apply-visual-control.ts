@@ -7,13 +7,14 @@ import {
 	stringifyDefaultProps,
 	type ApplyVisualControlCodemod,
 } from '@remotion/studio-shared';
-import type {namedTypes} from 'ast-types';
-import {visit} from 'ast-types';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
+import * as recast from 'recast';
 import {parseAst} from './parse-ast';
 import type {ApplyCodeModReturnType, Change} from './recast-mods';
 
-const expectString = (node: ExpressionKind | namedTypes.SpreadElement) => {
+const expectString = (
+	node: ExpressionKind | recast.types.namedTypes.SpreadElement,
+) => {
 	if (node.type === 'StringLiteral') {
 		return node.value;
 	}
@@ -40,7 +41,7 @@ export const applyVisualControl = ({
 	transformation: ApplyVisualControlCodemod;
 	changesMade: Change[];
 }): ApplyCodeModReturnType => {
-	visit(file.program, {
+	recast.types.visit(file.program, {
 		visitCallExpression: ({node}) => {
 			if (node.type !== 'CallExpression') {
 				throw new Error('Expected a call expression');

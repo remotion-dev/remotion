@@ -1,10 +1,10 @@
 import {useEffect, useState} from 'react';
-import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {getOriginalLocationFromStack} from '../Timeline/TimelineStack/get-stack';
+import type {OriginalFileNameState} from './ClickableFileName';
 
-export const useOriginalFileName = (stack: string) => {
+export const useOriginalFileName = (stack: string): OriginalFileNameState => {
 	const [originalFileName, setOriginalFileName] =
-		useState<OriginalPosition | null>(null);
+		useState<OriginalFileNameState>({type: 'loading'});
 
 	useEffect(() => {
 		if (!stack) {
@@ -13,7 +13,14 @@ export const useOriginalFileName = (stack: string) => {
 
 		getOriginalLocationFromStack(stack, 'visual-control')
 			.then((frame) => {
-				setOriginalFileName(frame);
+				if (frame === null) {
+					setOriginalFileName({
+						type: 'error',
+						error: new Error('No frame found'),
+					});
+				} else {
+					setOriginalFileName({type: 'loaded', originalFileName: frame});
+				}
 			})
 			.catch((err) => {
 				// eslint-disable-next-line no-console

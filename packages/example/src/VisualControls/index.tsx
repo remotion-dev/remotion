@@ -6,7 +6,7 @@ import {AbsoluteFill, staticFile} from 'remotion';
 export const VisualControls = () => {
 	const matrix = visualControl(
 		'my-matrix',
-		[4.13,-1.6,0,0,0,1,0,0,1.26,0.35,1,0,0,0,0,1],
+		[7.96,0.34,0,0,0,2.79,0,0,1.26,0.35,1,0,0,0,0,1] as const,
 		zMatrix(),
 	);
 
