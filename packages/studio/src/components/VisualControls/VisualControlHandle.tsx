@@ -32,7 +32,7 @@ export const VisualControlHandle: React.FC<{
 	const state = useContext(VisualControlsContext);
 	const {updateValue} = useContext(SetVisualControlsContext);
 	const {fastRefreshes} = useContext(Internals.NonceContext);
-	const {increaseNonce} = useContext(Internals.SetNonceContext);
+	const {increaseManualRefreshes} = useContext(Internals.SetNonceContext);
 
 	const [saving, setSaving] = useState(false);
 
@@ -47,7 +47,7 @@ export const VisualControlHandle: React.FC<{
 		schema: value.schema,
 		setValue: (updater) => {
 			updateValue(keyName, updater(currentValue));
-			increaseNonce();
+			increaseManualRefreshes();
 		},
 		unsavedValue: currentValue,
 		savedValue: value.valueInCode,

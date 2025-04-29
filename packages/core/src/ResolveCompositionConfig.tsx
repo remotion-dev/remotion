@@ -69,7 +69,13 @@ export const ResolveCompositionConfig: React.FC<
 		useState<string | null>(null);
 	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
-	const {fastRefreshes} = useContext(NonceContext);
+	const {fastRefreshes, manualRefreshes} = useContext(NonceContext);
+
+	// don't do anything, this component should should re-render if the value changes
+	if (manualRefreshes) {
+		/** */
+	}
+
 	const selectedComposition = useMemo(() => {
 		return compositions.find(
 			(c) =>

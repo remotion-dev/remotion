@@ -551,6 +551,7 @@ module.exports = {
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
+				'studio/visual-control',
 			],
 		},
 		{

@@ -68,6 +68,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'reevaluateComposition()'}</strong>
 					<div>Re-runs calculateMetadata() on the current composition</div>
 				</TOCItem>
+				<TOCItem link="/docs/studio/visual-control">
+					<strong>{'visualControl()'}</strong>
+					<div>Create a control in the right sidebar of the Studio</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

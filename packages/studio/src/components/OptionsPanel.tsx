@@ -184,6 +184,14 @@ export const OptionsPanel: React.FC<{
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
 				<Tabs>
+					{visualControlsTabActivated ? (
+						<Tab
+							selected={panel === 'visual-controls'}
+							onClick={onVisualControlsSelected}
+						>
+							Controls
+						</Tab>
+					) : null}
 					{composition ? (
 						<Tab
 							selected={panel === 'input-props'}
@@ -205,14 +213,6 @@ export const OptionsPanel: React.FC<{
 							selected={panel === 'renders'}
 						/>
 					)}
-					{visualControlsTabActivated ? (
-						<Tab
-							selected={panel === 'visual-controls'}
-							onClick={onVisualControlsSelected}
-						>
-							Controls
-						</Tab>
-					) : null}
 				</Tabs>
 			</div>
 			{panel === `input-props` && composition ? (
@@ -227,7 +227,7 @@ export const OptionsPanel: React.FC<{
 					setSaving={setSaving}
 					readOnlyStudio={readOnlyStudio}
 				/>
-			) : panel === 'visual-controls' ? (
+			) : panel === 'visual-controls' && visualControlsTabActivated ? (
 				<VisualControlsContent />
 			) : readOnlyStudio ? null : (
 				<RenderQueue />

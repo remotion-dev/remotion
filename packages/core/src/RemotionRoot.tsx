@@ -55,6 +55,7 @@ export const RemotionRoot: React.FC<{
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
+	const [manualRefreshes, setManualRefreshes] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
@@ -117,13 +118,14 @@ export const RemotionRoot: React.FC<{
 		return {
 			getNonce: () => counter++,
 			fastRefreshes,
+			manualRefreshes,
 		};
-	}, [fastRefreshes]);
+	}, [fastRefreshes, manualRefreshes]);
 
 	const setNonceContext = useMemo((): TSetNonceContext => {
 		return {
-			increaseNonce: () => {
-				setFastRefreshes((i) => i + 1);
+			increaseManualRefreshes: () => {
+				setManualRefreshes((i) => i + 1);
 			},
 		};
 	}, []);

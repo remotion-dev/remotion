@@ -2,14 +2,13 @@ import React, {
 	createContext,
 	createRef,
 	useCallback,
-	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import {getRemotionEnvironment, Internals} from 'remotion';
+import {getRemotionEnvironment} from 'remotion';
 import type {z, ZodTypeAny} from 'zod';
 import {getZodSchemaFromPrimitive} from '../api/get-zod-schema-from-primitive';
 import {useZodIfPossible} from '../components/get-zod-if-possible';
@@ -37,10 +36,6 @@ export const VisualControlsTabActivatedContext =
 	createContext<VisualControlsTabActivated>(false);
 
 export type SetVisualControlsContextType = {
-	setControl: (
-		key: string,
-		value: VisualControlValueWithoutUnsaved,
-	) => {changed: boolean; currentValue: unknown};
 	updateHandles: () => void;
 	updateValue: (key: string, value: unknown) => void;
 	visualControl: <T>(key: string, value: T, schema?: z.ZodTypeAny) => T;
@@ -59,9 +54,6 @@ export const visualControlRef = createRef<VisualControlRef>();
 
 export const SetVisualControlsContext =
 	createContext<SetVisualControlsContextType>({
-		setControl: () => {
-			throw new Error('addControl is not implemented');
-		},
 		updateHandles: () => {
 			throw new Error('updateHandles is not implemented');
 		},
@@ -81,7 +73,6 @@ export const VisualControlsProvider: React.FC<{
 	const [handles, setHandles] = useState<Record<string, VisualControlValue>>(
 		{},
 	);
-	const {increaseNonce} = useContext(Internals.SetNonceContext);
 
 	const state: VisualControlsContextType = useMemo(() => {
 		return {
@@ -163,7 +154,6 @@ export const VisualControlsProvider: React.FC<{
 		(key: string, value: unknown) => {
 			imperativeHandles.current = {
 				...imperativeHandles.current,
-
 				[key]: {
 					...imperativeHandles.current[key],
 					unsavedValue: value,
@@ -179,6 +169,7 @@ export const VisualControlsProvider: React.FC<{
 			globalVisualControl: visualControl,
 		};
 	}, [visualControl]);
+
 	useEffect(() => {
 		const callback = () => {
 			if (imperativeHandles.current) {
@@ -192,7 +183,7 @@ export const VisualControlsProvider: React.FC<{
 		return () => {
 			clearInterval(interval);
 		};
-	}, [increaseNonce, updateHandles]);
+	}, [updateHandles]);
 
 	const setState: SetVisualControlsContextType = useMemo(() => {
 		return {
