@@ -1,11 +1,9 @@
 import {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {LIGHT_COLOR} from '../../helpers/colors';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
+import {SCHEMA_EDITOR_FIELDSET_PADDING} from '../RenderModal/SchemaEditor/Fieldset';
 import {getOriginalSourceAttribution} from '../Timeline/TimelineStack/source-attribution';
-
-const label: React.CSSProperties = {
-	fontSize: 13,
-};
 
 export type OriginalFileNameState =
 	| {
@@ -19,6 +17,11 @@ export type OriginalFileNameState =
 	| {
 			type: 'loading';
 	  };
+
+const container: React.CSSProperties = {
+	paddingLeft: SCHEMA_EDITOR_FIELDSET_PADDING,
+	paddingTop: SCHEMA_EDITOR_FIELDSET_PADDING / 2,
+};
 
 export const ClickableFileName = ({
 	originalFileName,
@@ -38,9 +41,10 @@ export const ClickableFileName = ({
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
-			...label,
+			fontSize: 12,
 			cursor: originalFileName.type === 'loaded' ? 'pointer' : undefined,
 			borderBottom: hoverEffect ? '1px solid #fff' : 'none',
+			color: hoverEffect ? '#fff' : LIGHT_COLOR,
 		};
 	}, [originalFileName, hoverEffect]);
 
@@ -53,17 +57,19 @@ export const ClickableFileName = ({
 	}, [originalFileName]);
 
 	return (
-		<span
-			style={style}
-			onClick={onClick}
-			onPointerEnter={onTitlePointerEnter}
-			onPointerLeave={onTitlePointerLeave}
-		>
-			{originalFileName.type === 'loaded'
-				? getOriginalSourceAttribution(originalFileName.originalFileName)
-				: originalFileName.type === 'loading'
-					? 'Loading...'
-					: 'Error loading'}
-		</span>
+		<div style={container}>
+			<span
+				style={style}
+				onClick={onClick}
+				onPointerEnter={onTitlePointerEnter}
+				onPointerLeave={onTitlePointerLeave}
+			>
+				{originalFileName.type === 'loaded'
+					? getOriginalSourceAttribution(originalFileName.originalFileName)
+					: originalFileName.type === 'loading'
+						? 'Loading...'
+						: 'Error loading'}
+			</span>
+		</div>
 	);
 };

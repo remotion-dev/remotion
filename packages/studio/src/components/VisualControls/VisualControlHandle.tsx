@@ -15,7 +15,7 @@ import {useLocalState} from '../RenderModal/SchemaEditor/local-state';
 import {applyVisualControlChange} from '../RenderQueue/actions';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {Spacing} from '../layout';
-import {ClickableFileName} from './ClickableFileName';
+import {VisualControlHandleHeader} from './VisualControlHandleHeader';
 import {useOriginalFileName} from './get-original-stack-trace';
 
 export const VisualControlHandle: React.FC<{
@@ -118,7 +118,7 @@ export const VisualControlHandle: React.FC<{
 
 	return (
 		<>
-			<ClickableFileName originalFileName={originalFileName} />
+			<VisualControlHandleHeader originalFileName={originalFileName} />
 			<Spacing block y={0.5} />
 			<RevisionContextProvider>
 				<ZodSwitch
