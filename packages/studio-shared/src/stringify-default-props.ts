@@ -64,6 +64,11 @@ export const stringifyDefaultProps = ({
 				return `${item}__ADD_AS_CONST__`;
 			}
 
+			// For zMatrix()
+			if (doesMatchPath(path, enumPaths)) {
+				return `__REMOVEQUOTE__${JSON.stringify(item)}__ADD_AS_LITERAL_CONST__`;
+			}
+
 			if (
 				typeof item === 'string' &&
 				item.startsWith(NoReactInternals.FILE_TOKEN)
@@ -88,6 +93,7 @@ export const stringifyDefaultProps = ({
 		.replace(/"__REMOVEQUOTE__/g, '')
 		.replace(/__REMOVEQUOTE__"/g, '')
 		.replace(/__ADD_AS_CONST__"/g, '" as const')
+		.replace(/__ADD_AS_LITERAL_CONST__"/g, ' as const')
 		.replace(/__WRAP_IN_STATIC_FILE_START__/g, 'staticFile("')
 		.replace(/__WRAP_IN_STATIC_FILE_END__/g, '")')
 		.replace(/__WRAP_IN_DATE_START__/g, 'new Date("')
