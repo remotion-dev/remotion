@@ -1,11 +1,17 @@
 import React, {
 	createContext,
+	createRef,
 	useCallback,
+	useEffect,
+	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import type {ZodTypeAny} from 'zod';
+import {getRemotionEnvironment} from 'remotion';
+import type {z, ZodTypeAny} from 'zod';
+import {getZodSchemaFromPrimitive} from '../api/get-zod-schema-from-primitive';
+import {useZodIfPossible} from '../components/get-zod-if-possible';
 import {getVisualControlEditedValue} from './get-current-edited-value';
 
 export type VisualControlValueWithoutUnsaved = {
@@ -18,17 +24,9 @@ export type VisualControlValue = VisualControlValueWithoutUnsaved & {
 	unsavedValue: unknown;
 };
 
-export type VisualControlHook = {
-	id: number;
-	stack: string;
-};
-
-type Handle = Record<string, VisualControlValue>;
-
-export type Handles = Record<number, Handle>;
+export type Handles = Record<string, VisualControlValue>;
 
 export type VisualControlsContextType = {
-	hooks: VisualControlHook[];
 	handles: Handles;
 };
 
@@ -38,34 +36,28 @@ export const VisualControlsTabActivatedContext =
 	createContext<VisualControlsTabActivated>(false);
 
 export type SetVisualControlsContextType = {
-	addHook: (hook: VisualControlHook) => void;
-	removeHook: (hook: VisualControlHook) => void;
 	setControl: (
-		hook: VisualControlHook,
 		key: string,
 		value: VisualControlValueWithoutUnsaved,
 	) => {changed: boolean; currentValue: unknown};
 	updateHandles: () => void;
-	updateValue: (hook: VisualControlHook, key: string, value: unknown) => void;
-};
-
-export const makeHook = (stack: string): VisualControlHook => {
-	return {id: Math.random(), stack};
+	updateValue: (key: string, value: unknown) => void;
+	visualControl: <T>(key: string, value: T, schema?: z.ZodTypeAny) => T;
 };
 
 export const VisualControlsContext = createContext<VisualControlsContextType>({
-	hooks: [],
 	handles: {},
 });
 
+export type VisualControlRef = {
+	// May not call it visualControl, because we rely on stacktrace names
+	globalVisualControl: <T>(key: string, value: T, schema?: z.ZodTypeAny) => T;
+};
+
+export const visualControlRef = createRef<VisualControlRef>();
+
 export const SetVisualControlsContext =
 	createContext<SetVisualControlsContextType>({
-		addHook: () => {
-			throw new Error('addControl is not implemented');
-		},
-		removeHook: () => {
-			throw new Error('removeControl is not implemented');
-		},
 		setControl: () => {
 			throw new Error('addControl is not implemented');
 		},
@@ -75,60 +67,30 @@ export const SetVisualControlsContext =
 		updateValue: () => {
 			throw new Error('updateValue is not implemented');
 		},
+		visualControl: () => {
+			throw new Error('visualControl is not implemented');
+		},
 	});
 
 export const VisualControlsProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [hooks, setHooks] = useState<VisualControlHook[]>([]);
+	const imperativeHandles = useRef<Record<string, VisualControlValue>>({});
 
-	const imperativeHandles = useRef<
-		Record<number, Record<string, VisualControlValue>>
-	>({});
-
-	const [handles, setHandles] = useState<
-		Record<number, Record<string, VisualControlValue>>
-	>({});
-	const [tabActivated, setTabActivated] = useState<boolean>(false);
-
-	const addHook = useCallback(
-		(hook: VisualControlHook) => {
-			setHooks((prev) => {
-				if (prev.find((c) => c.id === hook.id)) {
-					return prev;
-				}
-
-				return [...prev, hook];
-			});
-			setTabActivated(true);
-		},
-		[setHooks],
-	);
-
-	const removeHook = useCallback(
-		(hook: VisualControlHook) => {
-			setHooks((prev) => prev.filter((c) => c !== hook));
-		},
-		[setHooks],
+	const [handles, setHandles] = useState<Record<string, VisualControlValue>>(
+		{},
 	);
 
 	const state: VisualControlsContextType = useMemo(() => {
 		return {
-			hooks,
 			handles,
 		};
-	}, [hooks, handles]);
+	}, [handles]);
 
 	const setControl = useCallback(
-		(
-			hook: VisualControlHook,
-			key: string,
-			value: VisualControlValueWithoutUnsaved,
-		) => {
-			const currentUnsaved =
-				imperativeHandles.current?.[hook.id]?.[key]?.unsavedValue;
-			const currentSavedState =
-				imperativeHandles.current?.[hook.id]?.[key]?.valueInCode;
+		(key: string, value: VisualControlValueWithoutUnsaved) => {
+			const currentUnsaved = imperativeHandles.current?.[key]?.unsavedValue;
+			const currentSavedState = imperativeHandles.current?.[key]?.valueInCode;
 
 			const changedSavedValue = value.valueInCode !== currentSavedState;
 			const changedUnsavedValue =
@@ -136,26 +98,57 @@ export const VisualControlsProvider: React.FC<{
 
 			imperativeHandles.current = {
 				...imperativeHandles.current,
-				[hook.id]: {
-					...imperativeHandles.current[hook.id],
-					[key]: {
-						...value,
-						unsavedValue: currentUnsaved ?? value.valueInCode,
-						valueInCode: value.valueInCode,
-					},
+				[key]: {
+					...value,
+					unsavedValue: currentUnsaved ?? value.valueInCode,
+					valueInCode: value.valueInCode,
 				},
 			};
 
 			return {
 				changed: changedSavedValue || changedUnsavedValue,
 				currentValue: getVisualControlEditedValue({
-					hook,
 					key,
 					handles: imperativeHandles.current,
 				}),
 			};
 		},
 		[],
+	);
+
+	const z = useZodIfPossible();
+
+	const changedRef = useRef(false);
+
+	const visualControl = useCallback(
+		// eslint-disable-next-line prefer-arrow-callback
+		function <T>(key: string, value: T, schema?: z.ZodTypeAny): T {
+			// eslint-disable-next-line no-constant-condition
+			if (handles && false) {
+				/** Intentional: State is managed imperatively */
+			}
+
+			if (!getRemotionEnvironment().isStudio) {
+				return value;
+			}
+
+			if (!z) {
+				return value;
+			}
+
+			const {changed, currentValue} = setControl(key, {
+				valueInCode: value,
+				schema: schema ?? getZodSchemaFromPrimitive(value, z),
+				stack: new Error().stack as string,
+			});
+
+			if (changed) {
+				changedRef.current = true;
+			}
+
+			return currentValue as T;
+		},
+		[setControl, handles, z],
 	);
 
 	const updateHandles = useCallback(() => {
@@ -165,15 +158,13 @@ export const VisualControlsProvider: React.FC<{
 	}, []);
 
 	const updateValue = useCallback(
-		(hook: VisualControlHook, key: string, value: unknown) => {
+		(key: string, value: unknown) => {
 			imperativeHandles.current = {
 				...imperativeHandles.current,
-				[hook.id]: {
-					...imperativeHandles.current[hook.id],
-					[key]: {
-						...imperativeHandles.current[hook.id][key],
-						unsavedValue: value,
-					},
+
+				[key]: {
+					...imperativeHandles.current[key],
+					unsavedValue: value,
 				},
 			};
 			updateHandles();
@@ -181,18 +172,46 @@ export const VisualControlsProvider: React.FC<{
 		[updateHandles],
 	);
 
+	useImperativeHandle(visualControlRef, () => {
+		return {
+			globalVisualControl: visualControl,
+		};
+	}, [visualControl]);
+	useEffect(() => {
+		const callback = () => {
+			if (imperativeHandles.current) {
+				updateHandles();
+				changedRef.current = false;
+			}
+		};
+
+		const interval = setInterval(callback, 100);
+
+		return () => {
+			clearInterval(interval);
+		};
+	}, [updateHandles]);
+
 	const setState: SetVisualControlsContextType = useMemo(() => {
 		return {
-			addHook,
-			removeHook,
 			setControl,
 			updateHandles,
 			updateValue,
+			visualControl,
 		};
-	}, [addHook, removeHook, setControl, updateHandles, updateValue]);
+	}, [setControl, updateHandles, updateValue, visualControl]);
+
+	useEffect(() => {
+		if (changedRef.current) {
+			updateHandles();
+			changedRef.current = false;
+		}
+	}, [updateHandles]);
 
 	return (
-		<VisualControlsTabActivatedContext.Provider value={tabActivated}>
+		<VisualControlsTabActivatedContext.Provider
+			value={Object.keys(state.handles).length > 0}
+		>
 			<VisualControlsContext.Provider value={state}>
 				<SetVisualControlsContext.Provider value={setState}>
 					{children}

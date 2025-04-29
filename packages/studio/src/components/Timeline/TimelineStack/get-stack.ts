@@ -60,7 +60,7 @@ export const getOriginalLocationFromStack = async (
 	const location =
 		type === 'sequence'
 			? getLocationOfSequence(stack)
-			: getLocationOfFunctionCall(stack, 'useVisualControls');
+			: getLocationOfFunctionCall(stack, 'visualControl');
 
 	if (!location) {
 		return null;

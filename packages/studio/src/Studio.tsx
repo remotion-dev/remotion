@@ -37,8 +37,8 @@ export const Studio: React.FC<{
 			onlyRenderComposition={null}
 			currentCompositionMetadata={null}
 		>
-			<VisualControlsProvider>
-				<EditorContexts readOnlyStudio={readOnly}>
+			<EditorContexts readOnlyStudio={readOnly}>
+				<VisualControlsProvider>
 					<Editor readOnlyStudio={readOnly} Root={rootComponent} />
 					{readOnly
 						? null
@@ -46,8 +46,8 @@ export const Studio: React.FC<{
 								<ServerDisconnected />,
 								getServerDisconnectedDomElement() as HTMLElement,
 							)}
-				</EditorContexts>
-			</VisualControlsProvider>
+				</VisualControlsProvider>
+			</EditorContexts>
 		</Internals.RemotionRoot>
 	);
 };

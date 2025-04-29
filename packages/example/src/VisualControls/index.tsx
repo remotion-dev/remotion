@@ -1,19 +1,17 @@
 import {makeTransform, matrix3d} from '@remotion/animation-utils';
-import {useVisualControls} from '@remotion/studio';
+import {visualControl} from '@remotion/studio';
 import {zMatrix, zTextarea} from '@remotion/zod-types';
 import {AbsoluteFill} from 'remotion';
 
 export const VisualControls = () => {
-	const {visualControl} = useVisualControls();
-
 	const matrix = visualControl(
 		'my-matrix',
-		[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as const,
+		[2.1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
 		zMatrix(),
 	);
 
 	const matrix2 = visualControl(
-		`my-matrix-2`,
+		`my-matrix-3`,
 		[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] as const,
 		zMatrix(),
 	);

@@ -1,14 +1,12 @@
-import type {Handles, VisualControlHook} from './VisualControls';
+import type {Handles} from './VisualControls';
 
 export const getVisualControlEditedValue = ({
 	handles,
-	hook,
 	key,
 }: {
 	handles: Handles;
-	hook: VisualControlHook;
 	key: string;
 }): unknown => {
 	// TODO: What if z.null()
-	return handles?.[hook.id]?.[key]?.unsavedValue ?? null;
+	return handles?.[key]?.unsavedValue ?? null;
 };

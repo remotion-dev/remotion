@@ -1,43 +1,7 @@
 import React, {useContext} from 'react';
-import type {VisualControlHook} from '../../visual-controls/VisualControls';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
-import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {ClickableFileName} from './ClickableFileName';
-import {useOriginalFileName} from './get-original-stack-trace';
 import {VisualControlHandle} from './VisualControlHandle';
-
-const Control: React.FC<{
-	readonly hook: VisualControlHook;
-}> = ({hook}) => {
-	const {handles} = useContext(VisualControlsContext);
-
-	const originalFileName = useOriginalFileName(hook.stack);
-
-	const handle = handles[hook.id];
-
-	if (!handle) {
-		return null;
-	}
-
-	return (
-		<div key={hook.id}>
-			<ClickableFileName originalFileName={originalFileName} />
-			<Spacing block y={0.5} />
-			{Object.entries(handle).map(([key, value]) => {
-				return (
-					<VisualControlHandle
-						key={key}
-						keyName={key}
-						value={value}
-						hook={hook}
-						originalFileName={originalFileName}
-					/>
-				);
-			})}
-		</div>
-	);
-};
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -45,13 +9,13 @@ const container: React.CSSProperties = {
 };
 
 export const VisualControlsContent = () => {
-	const {hooks: controls} = useContext(VisualControlsContext);
+	const {handles} = useContext(VisualControlsContext);
 
 	return (
 		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			{controls.map((hook) => (
-				<Control key={hook.id} hook={hook} />
-			))}
+			{Object.entries(handles).map(([key, value]) => {
+				return <VisualControlHandle key={key} keyName={key} value={value} />;
+			})}
 		</div>
 	);
 };

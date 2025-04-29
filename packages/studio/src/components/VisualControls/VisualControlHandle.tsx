@@ -1,7 +1,5 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
-import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import type {VisualControlHook} from '../../visual-controls/VisualControls';
 import {
 	SetVisualControlsContext,
 	VisualControlsContext,
@@ -14,13 +12,14 @@ import {ZodSwitch} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {useLocalState} from '../RenderModal/SchemaEditor/local-state';
 import {applyVisualControlChange} from '../RenderQueue/actions';
 import {useZodIfPossible} from '../get-zod-if-possible';
+import {Spacing} from '../layout';
+import {ClickableFileName} from './ClickableFileName';
+import {useOriginalFileName} from './get-original-stack-trace';
 
 export const VisualControlHandle: React.FC<{
 	readonly value: VisualControlValue;
 	readonly keyName: string;
-	readonly hook: VisualControlHook;
-	readonly originalFileName: OriginalPosition | null;
-}> = ({value, keyName, hook, originalFileName}) => {
+}> = ({value, keyName}) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
@@ -32,13 +31,14 @@ export const VisualControlHandle: React.FC<{
 
 	const currentValue = getVisualControlEditedValue({
 		handles: state.handles,
-		hook,
 		key: keyName,
 	});
 
+	const originalFileName = useOriginalFileName(value.stack);
+
 	const {localValue, RevisionContextProvider, onChange} = useLocalState({
 		schema: value.schema,
-		setValue: (updater) => updateValue(hook, keyName, updater(currentValue)),
+		setValue: (updater) => updateValue(keyName, updater(currentValue)),
 		unsavedValue: currentValue,
 		savedValue: value.valueInCode,
 	});
@@ -72,23 +72,25 @@ export const VisualControlHandle: React.FC<{
 		[fastRefreshes, keyName, value.valueInCode, originalFileName, disableSave],
 	);
 
-	console.log('value', localValue.value, 'default', value.valueInCode);
-
 	return (
-		<RevisionContextProvider>
-			<ZodSwitch
-				mayPad
-				schema={value.schema}
-				showSaveButton={!disableSave}
-				saving={false}
-				saveDisabledByParent={false}
-				onSave={onSave}
-				jsonPath={[keyName]}
-				value={localValue.value}
-				defaultValue={value.valueInCode}
-				setValue={onChange}
-				onRemove={null}
-			/>
-		</RevisionContextProvider>
+		<>
+			<ClickableFileName originalFileName={originalFileName} />
+			<Spacing block y={0.5} />
+			<RevisionContextProvider>
+				<ZodSwitch
+					mayPad
+					schema={value.schema}
+					showSaveButton={!disableSave}
+					saving={false}
+					saveDisabledByParent={false}
+					onSave={onSave}
+					jsonPath={[keyName]}
+					value={localValue.value}
+					defaultValue={value.valueInCode}
+					setValue={onChange}
+					onRemove={null}
+				/>
+			</RevisionContextProvider>
+		</>
 	);
 };
