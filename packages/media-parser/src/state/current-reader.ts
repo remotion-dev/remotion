@@ -5,7 +5,6 @@ export const currentReader = (initialReader: Reader) => {
 	return {
 		getCurrent: () => current,
 		setCurrent: (newReader: Reader) => {
-			current.abort();
 			current = newReader;
 		},
 	};

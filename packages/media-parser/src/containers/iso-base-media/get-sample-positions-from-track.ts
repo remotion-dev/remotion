@@ -2,18 +2,17 @@ import type {SamplePosition} from '../../get-sample-positions';
 import type {MoofBox} from '../../state/iso-base-media/precomputed-moof';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {collectSamplePositionsFromTrak} from './collect-sample-positions-from-trak';
-import type {TfraBox} from './mfra/tfra';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox} from './traversal';
 
 export const getSamplePositionsFromTrack = ({
 	trakBox,
 	moofBoxes,
-	tfraBoxes,
+	moofComplete,
 }: {
 	trakBox: TrakBox;
 	moofBoxes: MoofBox[];
-	tfraBoxes: TfraBox[];
+	moofComplete: boolean;
 }): {samplePositions: SamplePosition[]; isComplete: boolean} => {
 	const tkhdBox = getTkhdBox(trakBox);
 	if (!tkhdBox) {
@@ -21,15 +20,15 @@ export const getSamplePositionsFromTrack = ({
 	}
 
 	if (moofBoxes.length > 0) {
-		const {isComplete, samplePositions} = collectSamplePositionsFromMoofBoxes({
+		const {samplePositions} = collectSamplePositionsFromMoofBoxes({
 			moofBoxes,
-			tfraBoxes,
 			tkhdBox,
+			isComplete: moofComplete,
 		});
 
 		return {
 			samplePositions: samplePositions.map((s) => s.samples).flat(1),
-			isComplete,
+			isComplete: moofComplete,
 		};
 	}
 

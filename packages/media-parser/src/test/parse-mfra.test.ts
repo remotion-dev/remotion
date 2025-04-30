@@ -22,8 +22,10 @@ test('should parse mfra atoms', async () => {
 		},
 	});
 
-	expect(getTfraBoxes(structure as IsoBaseMediaStructure).length).toBe(2);
-	expect(getTfraBoxes(structure as IsoBaseMediaStructure)[0]).toEqual({
+	expect(getTfraBoxes((structure as IsoBaseMediaStructure).boxes).length).toBe(
+		2,
+	);
+	expect(getTfraBoxes((structure as IsoBaseMediaStructure).boxes)[0]).toEqual({
 		offset: 8731723,
 		boxSize: 1240,
 		type: 'tfra-box',

@@ -24,8 +24,8 @@ test('non-zero duration', async () => {
 	expect(durationInSeconds).toBe(null);
 
 	expect(internalStats).toEqual({
-		skippedBytes: 0,
-		finalCursorOffset: 8734219,
+		skippedBytes: 81479,
+		finalCursorOffset: 8652740,
 	});
 });
 

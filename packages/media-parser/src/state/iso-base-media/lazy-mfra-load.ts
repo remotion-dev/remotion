@@ -42,6 +42,7 @@ export const lazyMfraLoad = ({
 		}).then((boxes) => {
 			Log.verbose(logLevel, 'Lazily found mfra atom.');
 			result = boxes;
+
 			return boxes;
 		});
 		return prom;

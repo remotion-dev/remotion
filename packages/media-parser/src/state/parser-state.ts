@@ -138,6 +138,8 @@ export const makeParserState = ({
 		callbacks,
 	});
 
+	const mediaSection = mediaSectionState();
+
 	return {
 		riff: riffSpecificState({
 			controller,
@@ -195,7 +197,7 @@ export const makeParserState = ({
 		samplesObserved,
 		contentLength,
 		images,
-		mediaSection: mediaSectionState(),
+		mediaSection,
 		logLevel,
 		iterator,
 		controller,

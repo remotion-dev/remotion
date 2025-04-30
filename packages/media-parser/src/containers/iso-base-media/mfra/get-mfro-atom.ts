@@ -27,6 +27,7 @@ export const getMfroAtom = async ({
 		logLevel,
 		prefetchCache,
 	});
+
 	const {value} = await result.reader.reader.read();
 	if (!value) {
 		return null;

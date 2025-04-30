@@ -65,6 +65,8 @@ export const seekForward = async ({
 		`Skipping over video data from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available`,
 	);
 
+	await currentReader.getCurrent().abort();
+
 	const {reader: newReader} = await readerInterface.read({
 		src,
 		range: seekTo,

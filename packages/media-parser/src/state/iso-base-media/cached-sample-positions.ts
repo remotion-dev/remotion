@@ -1,3 +1,4 @@
+import {areSamplesComplete} from '../../containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
 import type {JumpMark} from '../../containers/iso-base-media/mdat/calculate-jump-marks';
 import type {TrakBox} from '../../containers/iso-base-media/trak/trak';
@@ -9,6 +10,7 @@ import type {SamplePosition} from '../../get-sample-positions';
 import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
 import type {ParserState} from '../parser-state';
+import {deduplicateTfraBoxesByOffset} from './precomputed-tfra';
 
 export type FlatSample = {
 	track: VideoTrack | AudioTrack | OtherTrack;
@@ -27,7 +29,13 @@ export type MinimalFlatSampleForTesting = {
 	};
 };
 
-export const calculateFlatSamples = (state: ParserState) => {
+export const calculateFlatSamples = ({
+	state,
+	mediaSectionStart,
+}: {
+	state: ParserState;
+	mediaSectionStart: number;
+}) => {
 	const tracks = getTracks(state, true);
 	const allTracks = [
 		...tracks.videoTracks,
@@ -35,11 +43,25 @@ export const calculateFlatSamples = (state: ParserState) => {
 		...tracks.otherTracks,
 	];
 
+	const moofBoxes = getMoofBoxes(state.structure.getIsoStructure().boxes);
+	const tfraBoxes = deduplicateTfraBoxesByOffset([
+		...state.iso.tfra.getTfraBoxes(),
+		...getTfraBoxes(state.structure.getIsoStructure().boxes),
+	]);
+	const moofComplete = areSamplesComplete({moofBoxes, tfraBoxes});
+	const relevantMoofBox = moofBoxes.find(
+		(moofBox) => moofBox.offset + moofBox.size + 8 === mediaSectionStart,
+	);
+
+	if (moofBoxes.length > 0 && !relevantMoofBox) {
+		throw new Error('No relevant moof box found');
+	}
+
 	const flatSamples = allTracks.map((track) => {
 		const {samplePositions} = getSamplePositionsFromTrack({
 			trakBox: track.trakBox as TrakBox,
-			moofBoxes: getMoofBoxes(state.structure.getIsoStructure().boxes),
-			tfraBoxes: getTfraBoxes(state.structure.getIsoStructure()),
+			moofBoxes: relevantMoofBox ? [relevantMoofBox] : [],
+			moofComplete,
 		});
 
 		return samplePositions.map((samplePosition) => {
@@ -58,11 +80,7 @@ export const cachedSamplePositionsState = () => {
 
 	return {
 		getSamples: (mdatStart: number) => {
-			if (cachedForMdatStart[mdatStart]) {
-				return cachedForMdatStart[mdatStart];
-			}
-
-			return null;
+			return cachedForMdatStart[mdatStart] ?? null;
 		},
 		setSamples: (mdatStart: number, samples: FlatSample[]) => {
 			cachedForMdatStart[mdatStart] = samples;

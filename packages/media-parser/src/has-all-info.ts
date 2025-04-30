@@ -39,7 +39,8 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'slowDurationInSeconds') {
-			return Boolean(structure && hasSlowDuration(state));
+			const res = Boolean(structure && hasSlowDuration(state));
+			return res;
 		}
 
 		if (

@@ -8,6 +8,7 @@ import {
 	isByteInMediaSection,
 } from '../../state/video-section';
 import type {SeekResolution} from '../../work-on-seek-request';
+import {areSamplesComplete} from './are-samples-complete';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
@@ -47,11 +48,16 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 		throw new Error('Expected tkhd box in trak box');
 	}
 
+	const isComplete = areSamplesComplete({
+		moofBoxes: info.moofBoxes,
+		tfraBoxes: info.tfraBoxes,
+	});
+
 	const {samplePositions: samplePositionsArray} =
 		collectSamplePositionsFromMoofBoxes({
 			moofBoxes: info.moofBoxes,
-			tfraBoxes: info.tfraBoxes,
 			tkhdBox,
+			isComplete,
 		});
 
 	Log.trace(

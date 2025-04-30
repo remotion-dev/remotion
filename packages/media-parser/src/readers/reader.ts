@@ -5,7 +5,7 @@ import type {PrefetchCache} from './from-fetch';
 
 export type Reader = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
-	abort: () => void;
+	abort: () => Promise<void>;
 };
 
 type ReadResult = {
