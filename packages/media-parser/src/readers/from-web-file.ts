@@ -49,9 +49,13 @@ export const webFileReadContent: ReadContent = ({src, range, controller}) => {
 			resolve({
 				reader: {
 					reader: streamReader,
-					abort() {
-						streamReader.cancel();
-						ownController.abort();
+					async abort() {
+						try {
+							await streamReader.cancel();
+							ownController.abort();
+						} catch {}
+
+						return Promise.resolve();
 					},
 				},
 				contentLength: src.size,

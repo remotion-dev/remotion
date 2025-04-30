@@ -53,8 +53,9 @@ export const getLengthAndReader = async ({
 			contentLength: encoded.byteLength,
 			reader: {
 				reader: stream.getReader(),
-				abort() {
+				abort: () => {
 					ownController.abort();
+					return Promise.resolve();
 				},
 			},
 			needsContentRange: false,
@@ -72,6 +73,7 @@ export const getLengthAndReader = async ({
 			reader,
 			abort: () => {
 				ownController.abort();
+				return Promise.resolve();
 			},
 		},
 		contentLength,

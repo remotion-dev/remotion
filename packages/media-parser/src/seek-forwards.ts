@@ -79,5 +79,5 @@ export const seekForward = async ({
 		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,
 	);
-	currentReader.setCurrent(newReader);
+	await currentReader.setCurrent(newReader);
 };

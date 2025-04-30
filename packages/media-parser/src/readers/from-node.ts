@@ -22,7 +22,6 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 				: typeof range === 'number'
 					? Infinity
 					: range[1],
-		signal: ownController.signal,
 	});
 
 	controller._internals.signal.addEventListener(
@@ -71,8 +70,14 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 	return Promise.resolve({
 		reader: {
 			reader,
-			abort: () => {
-				ownController.abort();
+			abort: async () => {
+				try {
+					stream.destroy();
+					ownController.abort();
+					await reader.cancel();
+				} catch (e) {
+					console.error(e);
+				}
 			},
 		},
 		contentLength: stats.size,
