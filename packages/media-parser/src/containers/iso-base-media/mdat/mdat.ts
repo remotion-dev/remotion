@@ -5,6 +5,7 @@ import type {FetchMoreData, Skip} from '../../../skip';
 import {makeFetchMoreData, makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
+import {getLastMoofBox} from '../../../state/iso-base-media/last-moof-box';
 import {maySkipVideoData} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
@@ -27,17 +28,23 @@ export const parseMdatSection = async (
 
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
-		const lastMediaSection = [...state.mediaSection.getMediaSections()].sort(
-			(a, b) => a.start - b.start,
-		)[state.mediaSection.getMediaSections().length - 1];
+		const mfra = state.iso.mfra.getIfAlreadyLoaded();
 
-		Log.verbose(
-			state.logLevel,
-			'Skipping to last media section',
-			lastMediaSection.start + lastMediaSection.size,
-		);
+		if (mfra) {
+			const lastMoof = getLastMoofBox(mfra);
+			if (lastMoof && lastMoof > endOfMdat) {
+				Log.verbose(
+					state.logLevel,
+					'Skipping to last moof',
+					lastMoof,
+					'end of mdat',
+					endOfMdat,
+				);
+				return makeSkip(lastMoof);
+			}
+		}
 
-		return makeSkip(lastMediaSection.start + lastMediaSection.size);
+		return makeSkip(endOfMdat);
 	}
 
 	const alreadyHasMoov = getHasTracks(state, true);

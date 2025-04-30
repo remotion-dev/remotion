@@ -148,7 +148,7 @@ test('should use seeking hints from previous parse', async () => {
 		controller2._internals.performedSeeksSignal.getPerformedSeeks();
 	// Wow, jumping straight ahead
 	expect(performedSeeks[0]).toEqual({
-		from: 2044,
+		from: 2052,
 		to: 1214780,
 		type: 'user-initiated',
 	});
