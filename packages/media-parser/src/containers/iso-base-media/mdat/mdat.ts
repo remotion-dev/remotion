@@ -1,5 +1,6 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import {getHasTracks} from '../../../get-tracks';
+import {Log} from '../../../log';
 import type {FetchMoreData, Skip} from '../../../skip';
 import {makeFetchMoreData, makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
@@ -26,7 +27,17 @@ export const parseMdatSection = async (
 
 	// don't need mdat at all, can skip
 	if (maySkipVideoData({state})) {
-		return makeSkip(endOfMdat);
+		const lastMediaSection = [...state.mediaSection.getMediaSections()].sort(
+			(a, b) => a.start - b.start,
+		)[state.mediaSection.getMediaSections().length - 1];
+
+		Log.verbose(
+			state.logLevel,
+			'Skipping to last media section',
+			lastMediaSection.start + lastMediaSection.size,
+		);
+
+		return makeSkip(lastMediaSection.start + lastMediaSection.size);
 	}
 
 	const alreadyHasMoov = getHasTracks(state, true);
@@ -47,7 +58,10 @@ export const parseMdatSection = async (
 	}
 
 	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
-		const flattedSamples = calculateFlatSamples(state);
+		const flattedSamples = calculateFlatSamples({
+			state,
+			mediaSectionStart: mediaSection.start,
+		});
 
 		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
 		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
@@ -66,7 +80,6 @@ export const parseMdatSection = async (
 	const samplesWithIndex = flatSamples.find((sample) => {
 		return sample.samplePosition.offset === iterator.counter.getOffset();
 	});
-
 	if (!samplesWithIndex) {
 		// There are various reasons why in mdat we find weird stuff:
 		// - iphonevideo.hevc has a fake hoov atom which is not mapped
@@ -83,6 +96,14 @@ export const parseMdatSection = async (
 
 		// guess we reached the end!
 		// iphonevideo.mov has extra padding here, so let's make sure to jump ahead
+
+		Log.verbose(
+			state.logLevel,
+			'Could not find sample at offset',
+			iterator.counter.getOffset(),
+			'skipping to end of mdat',
+		);
+
 		return makeSkip(endOfMdat);
 	}
 
@@ -92,6 +113,14 @@ export const parseMdatSection = async (
 			samplesWithIndex.samplePosition.size >
 		state.contentLength
 	) {
+		Log.verbose(
+			state.logLevel,
+			"Sample is beyond the end of the file. Don't process it.",
+			samplesWithIndex.samplePosition.offset +
+				samplesWithIndex.samplePosition.size,
+			endOfMdat,
+		);
+
 		return makeSkip(endOfMdat);
 	}
 
@@ -138,6 +167,7 @@ export const parseMdatSection = async (
 		// https://github.com/remotion-dev/remotion/issues/4680
 		// In Chrome, we may not treat recovery points as keyframes
 		// otherwise "a keyframe is required after flushing"
+
 		const nalUnitType = bytes[4] & 0b00011111;
 		let isRecoveryPoint = false;
 		// SEI (Supplemental enhancement information)
@@ -169,6 +199,12 @@ export const parseMdatSection = async (
 
 	const jump = jumpMarks.find((j) => j.afterSampleWithOffset === offset);
 	if (jump) {
+		Log.verbose(
+			state.logLevel,
+			'Found jump mark',
+			jump.jumpToOffset,
+			'skipping to jump mark',
+		);
 		return makeSkip(jump.jumpToOffset);
 	}
 

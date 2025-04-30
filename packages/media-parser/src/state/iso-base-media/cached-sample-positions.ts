@@ -53,14 +53,14 @@ export const calculateFlatSamples = ({
 		(moofBox) => moofBox.offset + moofBox.size + 8 === mediaSectionStart,
 	);
 
-	if (!relevantMoofBox) {
+	if (moofBoxes.length > 0 && !relevantMoofBox) {
 		throw new Error('No relevant moof box found');
 	}
 
 	const flatSamples = allTracks.map((track) => {
 		const {samplePositions} = getSamplePositionsFromTrack({
 			trakBox: track.trakBox as TrakBox,
-			moofBoxes: [relevantMoofBox],
+			moofBoxes: relevantMoofBox ? [relevantMoofBox] : [],
 			moofComplete,
 		});
 

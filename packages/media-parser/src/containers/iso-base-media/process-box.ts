@@ -464,7 +464,7 @@ export const processBox = async ({
 	}
 
 	if (boxType === 'moof') {
-		onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
+		await onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
 	}
 
 	if (

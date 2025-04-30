@@ -3,6 +3,7 @@ import type {PrefetchCache} from '../../fetch';
 import type {LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
+import type {MediaSectionState} from '../video-section';
 import {cachedSamplePositionsState} from './cached-sample-positions';
 import {lazyMfraLoad} from './lazy-mfra-load';
 import {moovState} from './moov-box';
@@ -16,6 +17,7 @@ export const isoBaseMediaState = ({
 	src,
 	logLevel,
 	prefetchCache,
+	mediaSectionState,
 }: {
 	contentLength: number;
 	controller: MediaParserController;
@@ -23,6 +25,7 @@ export const isoBaseMediaState = ({
 	src: ParseMediaSrc;
 	logLevel: LogLevel;
 	prefetchCache: PrefetchCache;
+	mediaSectionState: MediaSectionState;
 }) => {
 	return {
 		flatSamples: cachedSamplePositionsState(),
@@ -34,6 +37,7 @@ export const isoBaseMediaState = ({
 			src,
 			logLevel,
 			prefetchCache,
+			mediaSectionState,
 		}),
 		moof: precomputedMoofState(),
 		tfra: precomputedTfraState(),
