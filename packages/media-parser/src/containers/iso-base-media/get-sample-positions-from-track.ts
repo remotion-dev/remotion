@@ -1,5 +1,6 @@
 import type {SamplePosition} from '../../get-sample-positions';
 import type {MoofBox} from '../../state/iso-base-media/precomputed-moof';
+import {areSamplesComplete} from './are-samples-complete';
 import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-from-moof-boxes';
 import {collectSamplePositionsFromTrak} from './collect-sample-positions-from-trak';
 import type {TfraBox} from './mfra/tfra';
@@ -21,10 +22,15 @@ export const getSamplePositionsFromTrack = ({
 	}
 
 	if (moofBoxes.length > 0) {
-		const {isComplete, samplePositions} = collectSamplePositionsFromMoofBoxes({
+		const isComplete = areSamplesComplete({
 			moofBoxes,
 			tfraBoxes,
+		});
+
+		const {samplePositions} = collectSamplePositionsFromMoofBoxes({
+			moofBoxes,
 			tkhdBox,
+			isComplete,
 		});
 
 		return {

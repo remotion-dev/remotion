@@ -139,14 +139,14 @@ export const processBox = async ({
 	if (boxType === 'ftyp') {
 		return {
 			type: 'box',
-			box: await parseFtyp({iterator, size: boxSize, offset: fileOffset}),
+			box: parseFtyp({iterator, size: boxSize, offset: fileOffset}),
 		};
 	}
 
 	if (boxType === 'colr') {
 		return {
 			type: 'box',
-			box: await parseColorParameterBox({
+			box: parseColorParameterBox({
 				iterator,
 				size: boxSize,
 			}),
@@ -156,28 +156,28 @@ export const processBox = async ({
 	if (boxType === 'mvhd') {
 		return {
 			type: 'box',
-			box: await parseMvhd({iterator, offset: fileOffset, size: boxSize}),
+			box: parseMvhd({iterator, offset: fileOffset, size: boxSize}),
 		};
 	}
 
 	if (boxType === 'tkhd') {
 		return {
 			type: 'box',
-			box: await parseTkhd({iterator, offset: fileOffset, size: boxSize}),
+			box: parseTkhd({iterator, offset: fileOffset, size: boxSize}),
 		};
 	}
 
 	if (boxType === 'trun') {
 		return {
 			type: 'box',
-			box: await parseTrun({iterator, offset: fileOffset, size: boxSize}),
+			box: parseTrun({iterator, offset: fileOffset, size: boxSize}),
 		};
 	}
 
 	if (boxType === 'tfdt') {
 		return {
 			type: 'box',
-			box: await parseTfdt({iterator, size: boxSize, offset: fileOffset}),
+			box: parseTfdt({iterator, size: boxSize, offset: fileOffset}),
 		};
 	}
 

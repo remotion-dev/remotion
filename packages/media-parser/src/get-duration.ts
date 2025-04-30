@@ -1,4 +1,5 @@
 import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
+import {areSamplesComplete} from './containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
@@ -63,12 +64,17 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		mp4HeaderSegment: parserState.m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		mayUsePrecomputed: true,
 	});
+
 	if (!moovBox) {
 		return null;
 	}
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
 	const tfraBoxes = getTfraBoxes(structure);
+	if (!areSamplesComplete({moofBoxes, tfraBoxes})) {
+		return null;
+	}
+
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -89,8 +95,10 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		...tracks.audioTracks,
 		...tracks.otherTracks,
 	];
+
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
+
 		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
@@ -177,7 +185,11 @@ export const hasDuration = (parserState: ParserState): boolean => {
 // Unless it it somewhere in the metadata and is non-null
 export const hasSlowDuration = (parserState: ParserState): boolean => {
 	try {
-		return hasDuration(parserState) && getDuration(parserState) !== null;
+		if (!hasDuration(parserState)) {
+			return false;
+		}
+
+		return getDuration(parserState) !== null;
 	} catch {
 		return false;
 	}
