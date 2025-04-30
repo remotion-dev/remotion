@@ -23,10 +23,12 @@ test('if metadata is available, it should not use duration from metadata even in
 	expect(slowDurationInSeconds).toBe(22947.121);
 	expect(internalStats.skippedBytes).toBe(152932);
 	expect(internalStats.finalCursorOffset).toBe(18436532);
-});
 
-test('if metadata is available, it should not use duration from metadata even in case of using the "slow" fields', async () => {
-	const {durationInSeconds, internalStats, fps} = await parseMedia({
+	const {
+		durationInSeconds,
+		internalStats: internalStats2,
+		fps,
+	} = await parseMedia({
 		src: await getRemoteExampleVideo('largeStsd'),
 		acknowledgeRemotionLicense: true,
 		fields: {
@@ -39,6 +41,6 @@ test('if metadata is available, it should not use duration from metadata even in
 
 	expect(durationInSeconds).toBe(22947.121);
 	expect(fps).toBe(23.976024846723483);
-	expect(internalStats.skippedBytes).toBe(152940);
-	expect(internalStats.finalCursorOffset).toBe(18436524);
+	expect(internalStats2.skippedBytes).toBe(152940);
+	expect(internalStats2.finalCursorOffset).toBe(18436524);
 });
