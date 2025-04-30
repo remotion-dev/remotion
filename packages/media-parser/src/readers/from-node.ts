@@ -75,9 +75,7 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 					stream.destroy();
 					ownController.abort();
 					await reader.cancel();
-				} catch (e) {
-					console.error(e);
-				}
+				} catch {}
 			},
 		},
 		contentLength: stats.size,
