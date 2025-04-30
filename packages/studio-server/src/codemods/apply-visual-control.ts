@@ -42,17 +42,19 @@ export const applyVisualControl = ({
 	changesMade: Change[];
 }): ApplyCodeModReturnType => {
 	recast.types.visit(file.program, {
-		visitCallExpression: ({node}) => {
+		visitCallExpression(path) {
+			const {node} = path;
+
 			if (node.type !== 'CallExpression') {
 				throw new Error('Expected a call expression');
 			}
 
 			if (node.callee.type !== 'Identifier') {
-				return false;
+				return this.traverse(path);
 			}
 
 			if (node.callee.name !== 'visualControl') {
-				return false;
+				return this.traverse(path);
 			}
 
 			const firstArgument = node.arguments[0];
@@ -78,7 +80,7 @@ export const applyVisualControl = ({
 				});
 			}
 
-			return false;
+			return this.traverse(path);
 		},
 	});
 
