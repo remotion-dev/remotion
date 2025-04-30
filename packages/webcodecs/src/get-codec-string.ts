@@ -13,10 +13,8 @@ export const getCodecStringForEncoder = ({
 	height: number;
 	width: number;
 }) => {
-	console.log(chooseCorrectAvc1Profile({fps, height, width}));
 	if (codec === 'h264') {
-		return 'avc1.640033';
-		// return chooseCorrectAvc1Profile({fps, height, width});
+		return chooseCorrectAvc1Profile({fps, height, width}); // return chooseCorrectAvc1Profile({fps, height, width});
 	}
 
 	if (codec === 'h265') {
