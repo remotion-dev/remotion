@@ -120,7 +120,7 @@ export const emitAvailableInfo = async ({
 		// must be handled after fps
 		if (key === 'slowFps') {
 			if (hasInfo.slowFps && !emittedFields.slowFps) {
-				const slowFps = state.samplesObserved.getFps();
+				const slowFps = getFps(state) ?? state.samplesObserved.getFps();
 				await callbackFunctions.onSlowFps?.(slowFps);
 				if (fieldsInReturnValue.slowFps) {
 					returnValue.slowFps = slowFps;
