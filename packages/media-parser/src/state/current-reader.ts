@@ -4,8 +4,7 @@ export const currentReader = (initialReader: Reader) => {
 	let current = initialReader;
 	return {
 		getCurrent: () => current,
-		setCurrent: async (newReader: Reader) => {
-			await current.abort();
+		setCurrent: (newReader: Reader) => {
 			current = newReader;
 		},
 	};

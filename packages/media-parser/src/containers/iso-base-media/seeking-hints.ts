@@ -33,7 +33,7 @@ export const getSeekingHintsFromMp4 = ({
 	]);
 	const tfraBoxes = deduplicateTfraBoxesByOffset([
 		...isoState.tfra.getTfraBoxes(),
-		...getTfraBoxes(structure),
+		...getTfraBoxes(structure.boxes),
 	]);
 
 	if (!moovAtom) {

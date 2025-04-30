@@ -42,6 +42,8 @@ export const seekBackwards = async ({
 		`Seeking in video from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available.`,
 	);
 
+	await currentReader.getCurrent().abort();
+
 	const {reader: newReader} = await readerInterface.read({
 		src,
 		range: seekTo,
@@ -56,5 +58,5 @@ export const seekBackwards = async ({
 		logLevel,
 		`Re-reading took ${Date.now() - time}ms. New position: ${iterator.counter.getOffset()}`,
 	);
-	await currentReader.setCurrent(newReader);
+	currentReader.setCurrent(newReader);
 };

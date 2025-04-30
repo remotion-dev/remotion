@@ -7,6 +7,7 @@ import {
 	getMoovBoxFromState,
 	getMvhdBox,
 	getTfraBoxes,
+	getTfraBoxesFromMfraBoxChildren,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
@@ -15,6 +16,7 @@ import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
 import type {DurationSegment} from './containers/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
+import {deduplicateTfraBoxesByOffset} from './state/iso-base-media/precomputed-tfra';
 import type {ParserState} from './state/parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -70,7 +72,12 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	}
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
-	const tfraBoxes = getTfraBoxes(structure);
+	const mfra = parserState.iso.mfra.getIfAlreadyLoaded();
+	const tfraBoxes = deduplicateTfraBoxesByOffset([
+		...(mfra ? getTfraBoxesFromMfraBoxChildren(mfra) : []),
+		...getTfraBoxes(structure.boxes),
+	]);
+
 	if (!areSamplesComplete({moofBoxes, tfraBoxes})) {
 		return null;
 	}
@@ -102,7 +109,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
-			tfraBoxes,
+			moofComplete: areSamplesComplete({moofBoxes, tfraBoxes}),
 		});
 
 		if (!isComplete) {
