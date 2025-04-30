@@ -6,7 +6,6 @@ import {Log, type LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
-import type {MediaSectionState} from '../video-section';
 
 export const lazyMfraLoad = ({
 	contentLength,
@@ -15,7 +14,6 @@ export const lazyMfraLoad = ({
 	src,
 	logLevel,
 	prefetchCache,
-	mediaSectionState,
 }: {
 	contentLength: number;
 	controller: MediaParserController;
@@ -23,7 +21,6 @@ export const lazyMfraLoad = ({
 	src: ParseMediaSrc;
 	logLevel: LogLevel;
 	prefetchCache: PrefetchCache;
-	mediaSectionState: MediaSectionState;
 }) => {
 	let prom: Promise<IsoBaseMediaBox[] | null> | null = null;
 	let result: IsoBaseMediaBox[] | null = null;

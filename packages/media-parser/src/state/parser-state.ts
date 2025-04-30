@@ -163,7 +163,6 @@ export const makeParserState = ({
 			src,
 			logLevel,
 			prefetchCache,
-			mediaSectionState: mediaSection,
 		}),
 		mp3,
 		aac: aacState(),
