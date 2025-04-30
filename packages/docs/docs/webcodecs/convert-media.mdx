@@ -55,6 +55,12 @@ Pass the expected duration of the output video in seconds, so that the size of t
 
 If the size is exceeded (for videos which are around 1 hour or longer), the render may fail in the end.
 
+### `expectedFrameRate?`
+
+_number_
+
+Pass the expected frame rate of the output video, so that the size of the MP4 metadata section can be estimated well. If the value is not passed, 60 will be used as a conservative fallback.
+
 ### `videoCodec?`
 
 _string_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs"/>

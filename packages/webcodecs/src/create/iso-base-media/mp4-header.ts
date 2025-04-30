@@ -20,16 +20,19 @@ export const createPaddedMoovAtom = ({
 	timescale,
 	expectedDurationInSeconds,
 	logLevel,
+	expectedFrameRate,
 }: {
 	durationInUnits: number;
 	trackInfo: IsoBaseMediaTrackData[];
 	timescale: number;
 	expectedDurationInSeconds: number | null;
 	logLevel: LogLevel;
+	expectedFrameRate: number | null;
 }) => {
-	const headerLength = calculateAReasonableMp4HeaderLength(
+	const headerLength = calculateAReasonableMp4HeaderLength({
 		expectedDurationInSeconds,
-	);
+		expectedFrameRate,
+	});
 	if (expectedDurationInSeconds !== null) {
 		Log.verbose(
 			logLevel,
