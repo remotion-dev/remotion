@@ -29,8 +29,10 @@ Only returns a non-null value if the duration is stored in the metadata.
 
 _number_
 
-The duration of the video in seconds, but it is guaranteed to return a value.  
-If needed, the entire video file is read to determine the duration.
+The duration of the media in seconds, but it is guaranteed to return a value.
+
+If needed, the entire video file is read to determine the duration.  
+However, if the duration is stored in the metadata, it will be used, so it will not read the entire file.
 
 ### `name`
 
@@ -72,8 +74,10 @@ Only returns a non-null value if the frame rate is stored in the metadata.
 
 _number_
 
-The frame rate of the video, but it is guaranteed to return a value.  
+The frame rate of the video, but it is guaranteed to return a value.
+
 If needed, the entire video file is read to determine the frame rate.
+However, if the frame rate is stored in the metadata, it will be used, so it will not read the entire file.
 
 ### `videoCodec`
 
