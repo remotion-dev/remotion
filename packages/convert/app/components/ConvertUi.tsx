@@ -61,6 +61,7 @@ const ConvertUI = ({
 	tracks,
 	setSrc,
 	durationInSeconds,
+	fps,
 	logLevel,
 	action,
 	enableRotateOrMirror,
@@ -88,6 +89,7 @@ const ConvertUI = ({
 	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
+	readonly fps: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: MediaParserContainer | null;
 	readonly logLevel: LogLevel;
@@ -237,6 +239,7 @@ const ConvertUI = ({
 						return audioData;
 					},
 					expectedDurationInSeconds: durationInSeconds,
+					expectedFrameRate: fps,
 					rotate: userRotation,
 					logLevel,
 					onProgress: (s) => {
@@ -339,6 +342,7 @@ const ConvertUI = ({
 	}, [
 		onWaveformBars,
 		durationInSeconds,
+		fps,
 		src,
 		userRotation,
 		logLevel,

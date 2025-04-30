@@ -103,6 +103,7 @@ export const FileAvailable: React.FC<{
 										unrotatedDimensions={probeResult.unrotatedDimensions}
 										dimensions={probeResult.dimensions}
 										durationInSeconds={probeResult.durationInSeconds ?? null}
+										fps={probeResult.fps ?? null}
 										logLevel="verbose"
 										action={routeAction}
 										enableRotateOrMirror={enableRotateOrMirrow}

@@ -31,6 +31,7 @@ export const canReencodeVideoTrack = async ({
 	});
 	const videoDecoderConfig =
 		await getVideoDecoderConfigWithHardwareAcceleration(track);
+	console.log({videoEncoderConfig, videoDecoderConfig});
 
 	return Boolean(videoDecoderConfig && videoEncoderConfig);
 };
