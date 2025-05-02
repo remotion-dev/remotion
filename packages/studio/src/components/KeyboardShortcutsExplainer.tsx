@@ -292,7 +292,7 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={left}>
 							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
 							<Spacing x={0.3} />
-							<kbd style={key}>J</kbd>
+							<kbd style={key}>I</kbd>
 						</div>
 						<div style={right}>Ask AI</div>
 					</Row>

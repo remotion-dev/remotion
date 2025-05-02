@@ -51,7 +51,7 @@ export const AskAiModal: React.FC = () => {
 		const onMessage = (event: MessageEvent) => {
 			const json =
 				typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-			if (json.type === 'cmd-j') {
+			if (json.type === 'cmd-i') {
 				askAiModalRef.current?.toggle();
 			}
 		};
