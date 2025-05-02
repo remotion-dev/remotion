@@ -69,7 +69,8 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 					customCredentials?.endpoint
 						? `(S3 Endpoint = ${customCredentials?.endpoint})`
 						: ''
-				}. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
+				} - got a 403 error when heading the file. Check your credentials and permissions. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
+				{cause: err},
 			);
 		}
 
