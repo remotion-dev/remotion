@@ -120,6 +120,7 @@ export {
 export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
+export {DownloadBehavior} from './download-behavior.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
