@@ -97,6 +97,7 @@ export const useMediaPlayback = ({
 		isPremounting,
 		logLevel,
 		mountTime,
+		src: src ?? null,
 	});
 
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
