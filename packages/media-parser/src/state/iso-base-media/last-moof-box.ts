@@ -22,3 +22,12 @@ export const getLastMoofBox = (boxes: IsoBaseMediaBox[]) => {
 		return null;
 	}
 };
+
+export const getMaxFirstMoofOffset = (boxes: IsoBaseMediaBox[]) => {
+	const tfras = boxes.filter((b) => b.type === 'tfra-box') as TfraBox[];
+	const firstMoofOffsets = tfras.map((f) => {
+		return f.entries[0].moofOffset;
+	});
+
+	return Math.max(...firstMoofOffsets.filter(truthy));
+};

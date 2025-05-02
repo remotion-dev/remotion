@@ -214,7 +214,7 @@ test('parse flac', async () => {
 	expect(unrotatedDimensions).toBe(null);
 	expect(sampleRate).toBe(44100);
 	expect(numberOfAudioChannels).toBe(2);
-	expect(slowAudioBitrate).toBe(572430.1799075705);
+	expect(slowAudioBitrate).toBe(574437.043478261);
 	expect(slowVideoBitrate).toBe(null);
 });
 

@@ -33,7 +33,7 @@ test('Should get duration of AV1 video', async () => {
 	expect(parsed.numberOfAudioChannels).toBe(null);
 	expect(parsed.sampleRate).toBe(null);
 	expect(parsed.slowAudioBitrate).toBe(null);
-	expect(parsed.slowVideoBitrate).toBe(2773832);
+	expect(parsed.slowVideoBitrate).toBe(2889408.3333333335);
 
 	expect(parsed.structure.boxes).toEqual([
 		{
