@@ -5,8 +5,14 @@ import type {FetchMoreData, Skip} from '../../../skip';
 import {makeFetchMoreData, makeSkip} from '../../../skip';
 import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
-import {getLastMoofBox} from '../../../state/iso-base-media/last-moof-box';
-import {maySkipVideoData} from '../../../state/may-skip-video-data';
+import {
+	getLastMoofBox,
+	getMaxFirstMoofOffset,
+} from '../../../state/iso-base-media/last-moof-box';
+import {
+	maySkipOverSamplesInTheMiddle,
+	maySkipVideoData,
+} from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
 import {getMoovAtom} from '../get-moov-atom';
@@ -33,18 +39,36 @@ export const parseMdatSection = async (
 		if (mfra) {
 			const lastMoof = getLastMoofBox(mfra);
 			if (lastMoof && lastMoof > endOfMdat) {
-				Log.verbose(
-					state.logLevel,
-					'Skipping to last moof',
-					lastMoof,
-					'end of mdat',
-					endOfMdat,
-				);
+				Log.verbose(state.logLevel, 'Skipping to last moof', lastMoof);
 				return makeSkip(lastMoof);
 			}
 		}
 
 		return makeSkip(endOfMdat);
+	}
+
+	// if we only need the first and last sample, we may skip over the samples in the middle
+	// this logic skips the samples in the middle for a fragmented mp4
+	if (maySkipOverSamplesInTheMiddle({state})) {
+		const mfra = state.iso.mfra.getIfAlreadyLoaded();
+		if (mfra) {
+			const lastMoof = getLastMoofBox(mfra);
+
+			// we require that all moof boxes of both tracks have been processed, for correct duration calculation
+			const firstMax = getMaxFirstMoofOffset(mfra);
+
+			const mediaSectionsBiggerThanMoof = state.mediaSection
+				.getMediaSections()
+				.filter((m) => m.start > firstMax).length;
+
+			if (mediaSectionsBiggerThanMoof > 1 && lastMoof && lastMoof > endOfMdat) {
+				Log.verbose(
+					state.logLevel,
+					'Skipping to last moof because only first and last samples are needed',
+				);
+				return makeSkip(lastMoof);
+			}
+		}
 	}
 
 	const alreadyHasMoov = getHasTracks(state, true);

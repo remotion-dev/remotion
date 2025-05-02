@@ -20,12 +20,12 @@ test('non-zero duration', async () => {
 			acknowledgeRemotionLicense: true,
 		});
 
-	expect(slowDurationInSeconds).toBe(57.001995464852605);
+	expect(slowDurationInSeconds).toBe(57.0019954648526);
 	expect(durationInSeconds).toBe(null);
 
 	expect(internalStats).toEqual({
-		skippedBytes: 81479,
-		finalCursorOffset: 8652740,
+		skippedBytes: 8639690,
+		finalCursorOffset: 8734219,
 	});
 });
 

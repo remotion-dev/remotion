@@ -11,42 +11,39 @@ export const samplesObservedState = () => {
 	const audioSamples: Map<number, number> = new Map();
 
 	const getSlowVideoDurationInSeconds = () => {
-		let videoDuration: number | null = null;
+		return (largestVideoSample ?? 0) - (smallestVideoSample ?? 0);
+	};
 
-		if (smallestVideoSample !== undefined && largestVideoSample !== undefined) {
-			const startingTimestampDifference =
-				largestVideoSample - smallestVideoSample;
-			const timeBetweenSamples =
-				startingTimestampDifference / (videoSamples.size - 1);
-			videoDuration = timeBetweenSamples * videoSamples.size;
-		}
-
-		return videoDuration;
+	const getSlowAudioDurationInSeconds = () => {
+		return (largestAudioSample ?? 0) - (smallestAudioSample ?? 0);
 	};
 
 	const getSlowDurationInSeconds = () => {
-		const videoDuration = getSlowVideoDurationInSeconds();
-		let audioDuration: number | null = null;
+		const smallestSample = Math.min(
+			smallestAudioSample ?? Infinity,
+			smallestVideoSample ?? Infinity,
+		);
+		const largestSample = Math.max(
+			largestAudioSample ?? 0,
+			largestVideoSample ?? 0,
+		);
 
-		if (smallestAudioSample !== undefined && largestAudioSample !== undefined) {
-			const startingTimestampDifferenceAudio =
-				largestAudioSample - smallestAudioSample;
-			const timeBetweenSamplesAudio =
-				startingTimestampDifferenceAudio / (audioSamples.size - 1);
-			audioDuration = timeBetweenSamplesAudio * audioSamples.size;
+		if (smallestSample === Infinity || largestSample === Infinity) {
+			return 0;
 		}
 
-		return Math.max(videoDuration ?? 0, audioDuration ?? 0);
+		return largestSample - smallestSample;
 	};
 
 	const addVideoSample = (videoSample: AudioOrVideoSample) => {
 		videoSamples.set(videoSample.cts, videoSample.data.byteLength);
 		const presentationTimeInSeconds = videoSample.cts / videoSample.timescale;
+		const duration = (videoSample.duration ?? 0) / videoSample.timescale;
 		if (
 			largestVideoSample === undefined ||
 			presentationTimeInSeconds > largestVideoSample
 		) {
-			largestVideoSample = presentationTimeInSeconds;
+			largestVideoSample = presentationTimeInSeconds + duration;
 		}
 
 		if (
@@ -60,11 +57,12 @@ export const samplesObservedState = () => {
 	const addAudioSample = (audioSample: AudioOrVideoSample) => {
 		audioSamples.set(audioSample.cts, audioSample.data.byteLength);
 		const presentationTimeInSeconds = audioSample.cts / audioSample.timescale;
+		const duration = (audioSample.duration ?? 0) / audioSample.timescale;
 		if (
 			largestAudioSample === undefined ||
 			presentationTimeInSeconds > largestAudioSample
 		) {
-			largestAudioSample = presentationTimeInSeconds;
+			largestAudioSample = presentationTimeInSeconds + duration;
 		}
 
 		if (
@@ -76,18 +74,19 @@ export const samplesObservedState = () => {
 	};
 
 	const getFps = () => {
-		const videoDuration = getSlowVideoDurationInSeconds() ?? 0;
+		const videoDuration =
+			(largestVideoSample ?? 0) - (smallestVideoSample ?? 0);
 		if (videoDuration === 0) {
 			return 0;
 		}
 
-		return videoSamples.size / videoDuration;
+		return (videoSamples.size - 1) / videoDuration;
 	};
 
 	const getSlowNumberOfFrames = () => videoSamples.size;
 
 	const getAudioBitrate = () => {
-		const audioDuration = getSlowDurationInSeconds();
+		const audioDuration = getSlowAudioDurationInSeconds();
 		if (audioDuration === 0 || audioSamples.size === 0) {
 			return null;
 		}
@@ -100,7 +99,7 @@ export const samplesObservedState = () => {
 	};
 
 	const getVideoBitrate = () => {
-		const videoDuration = getSlowDurationInSeconds();
+		const videoDuration = getSlowVideoDurationInSeconds();
 		if (videoDuration === 0 || videoSamples.size === 0) {
 			return null;
 		}
@@ -128,6 +127,7 @@ export const samplesObservedState = () => {
 		getVideoBitrate,
 		getLastSampleObserved,
 		setLastSampleObserved,
+		getAmountOfSamplesObserved: () => videoSamples.size + audioSamples.size,
 	};
 };
 

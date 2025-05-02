@@ -117,6 +117,12 @@ export const exampleVideos = {
 		'videos',
 		'webm-codec-from-sps.webm',
 	),
+	fragmentedMp4WithNoDurationMetadata: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'fragmented-mp4-with-no-duration-metadata.mp4',
+	),
 };
 
 export {

@@ -43,5 +43,30 @@ export const needsToIterateOverSamples = ({
 }) => {
 	const keys = Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[];
 	const selectedKeys = keys.filter((k) => fields[k]);
+
 	return selectedKeys.some((k) => fieldsNeedSamplesMap[k] && !emittedFields[k]);
+};
+
+// For duration, we only need the first and last sample
+const fieldsNeedEverySampleMap: Record<
+	keyof Options<ParseMediaFields>,
+	boolean
+> = {
+	...fieldsNeedSamplesMap,
+	slowDurationInSeconds: false,
+};
+
+export const needsToIterateOverEverySample = ({
+	fields,
+	emittedFields,
+}: {
+	fields: Options<ParseMediaFields>;
+	emittedFields: AllOptions<ParseMediaFields>;
+}) => {
+	const keys = Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[];
+	const selectedKeys = keys.filter((k) => fields[k]);
+
+	return selectedKeys.some(
+		(k) => fieldsNeedEverySampleMap[k] && !emittedFields[k],
+	);
 };
