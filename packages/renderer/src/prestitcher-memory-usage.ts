@@ -1,5 +1,5 @@
-import {getAvailableMemory} from './get-available-memory';
 import type {LogLevel} from './log-level';
+import {getAvailableMemory} from './memory/get-available-memory';
 
 const estimateMemoryUsageForPrestitcher = ({
 	width,
