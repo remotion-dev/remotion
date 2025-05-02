@@ -53,6 +53,18 @@ Must match the regex `/^([0-9a-zA-Z-!_.*'()/:&$@=;+,?]+)/g`.
 
 A `string` or `Uint8Array` that is the content of the file that will be emitted. Don't consider an `Uint8Array` to be faster, because it needs to be serialized.
 
+### `downloadBehavior?`<AvailableFrom v="4.0.296" />
+
+Only applies to serverless rendering.
+
+How the output file should behave when accessed through the output link in the browser.  
+Either:
+
+- `{"type": "play-in-browser"}` - the default. The video will play in the browser.
+- `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
+
+The default behavior is the same download behavior you defined for the main rendering output.
+
 ## `Artifact.Thumbnail`<AvailableFrom v="4.0.290" />
 
 A special symbol that if you pass it to the [`content`](/docs/artifact#content) prop, it will [emit the image data of the current frame as an artifact](/docs/artifacts#emitting-thumbnails).

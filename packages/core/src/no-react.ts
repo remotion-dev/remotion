@@ -3,6 +3,7 @@ export type {
 	AudioOrVideoAsset,
 	TRenderAsset,
 } from './CompositionManager';
+export {DownloadBehavior} from './download-behavior';
 export {
 	EasingFunction,
 	ExtrapolateType,
@@ -11,6 +12,7 @@ export {
 } from './interpolate';
 export {random, RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
+
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,

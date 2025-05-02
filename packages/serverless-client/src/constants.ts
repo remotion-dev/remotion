@@ -14,6 +14,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {DownloadBehavior} from 'remotion';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
@@ -83,15 +84,6 @@ export const serverlessCodecs = [
 
 export type ServerlessCodec = (typeof serverlessCodecs)[number];
 export type Privacy = 'public' | 'private' | 'no-acl';
-
-export type DownloadBehavior =
-	| {
-			type: 'play-in-browser';
-	  }
-	| {
-			type: 'download';
-			fileName: string | null;
-	  };
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];

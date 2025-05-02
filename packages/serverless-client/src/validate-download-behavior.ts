@@ -1,4 +1,4 @@
-import type {DownloadBehavior} from './constants';
+import type {DownloadBehavior} from 'remotion/no-react';
 
 export const validateDownloadBehavior = (downloadBehavior: unknown) => {
 	if (downloadBehavior === null || downloadBehavior === undefined) {

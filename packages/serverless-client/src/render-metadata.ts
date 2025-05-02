@@ -4,8 +4,8 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {DownloadBehavior} from 'remotion';
 import type {
-	DownloadBehavior,
 	OutNameInputWithoutCredentials,
 	Privacy,
 	SerializedInputProps,

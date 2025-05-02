@@ -35,6 +35,7 @@ export const onlyArtifact = ({
 					frame: artifact.frame,
 					content: artifact.content,
 					filename: artifact.filename,
+					downloadBehavior: artifact.downloadBehavior,
 				};
 			}
 
@@ -50,6 +51,7 @@ export const onlyArtifact = ({
 					frame: artifact.frame,
 					content: new Uint8Array(frameBuffer),
 					filename: artifact.filename,
+					downloadBehavior: artifact.downloadBehavior,
 				};
 			}
 

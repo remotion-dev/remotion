@@ -414,7 +414,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				region,
 				privacy: params.privacy,
 				expectedBucketOwner: options.expectedBucketOwner,
-				downloadBehavior: params.downloadBehavior,
+				downloadBehavior: artifact.downloadBehavior ?? params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
 			})
