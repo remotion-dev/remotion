@@ -59,8 +59,24 @@ _Available from v3.2.23_
 
 You can upload the file to another S3-compatible provider.
 
-- List of working providers (non-exhaustive): [Supabase](/docs/lambda/supabase), [Cloudflare](/docs/lambda/r2), DigitalOcean Spaces
-- List of unsupported providers (non-exhaustive): Azure Blob Storage (not S3 compatible)
+- List of working providers (non-exhaustive):
+
+  - ✅ [Supabase](/docs/lambda/supabase)
+  - ✅ [Cloudflare](/docs/lambda/r2)
+  - ✅ DigitalOcean Spaces
+  - ✅ Google Cloud Storage  
+    Notes about Google Cloud Storage:
+
+    - GCP does support allowing underscores for bucket names, but we validate against it. Do not use underscores in your bucket name.
+    - The bucket needs to have uniform access control and NOT fine-grained access.
+    - To get your `accessKeyId` and `secretAccessKey`, create a service account that has Cloud Storage read + write permissions. Then run the following command:
+
+    ```sh
+    gcloud storage hmac create insert_google_service_account_email --project=insert_project_id
+    ```
+
+- List of unsupported providers (non-exhaustive):
+  - Azure Blob Storage (not S3 compatible)
 
 You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
 
