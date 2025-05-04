@@ -1,3 +1,4 @@
+import {getRemotionEnvironment} from 'remotion';
 import {
 	visualControlRef,
 	type VisualControlRef,
@@ -8,6 +9,10 @@ export const visualControl: VisualControlRef['globalVisualControl'] = (
 	value,
 	schema,
 ) => {
+	if (getRemotionEnvironment().isRendering) {
+		return value;
+	}
+
 	if (!visualControlRef.current) {
 		throw new Error('visualControlRef is not set');
 	}
