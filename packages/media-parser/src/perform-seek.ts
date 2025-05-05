@@ -1,4 +1,5 @@
 import type {MediaParserController} from './controller/media-parser-controller';
+import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
@@ -27,6 +28,7 @@ export const performSeek = async ({
 	src,
 	discardReadBytes,
 	fields,
+	prefetchCache,
 }: {
 	seekTo: number;
 	userInitiated: boolean;
@@ -42,6 +44,7 @@ export const performSeek = async ({
 	fields: Partial<AllOptions<ParseMediaFields>>;
 	src: ParseMediaSrc;
 	discardReadBytes: (force: boolean) => Promise<void>;
+	prefetchCache: PrefetchCache;
 }): Promise<void> => {
 	const byteInMediaSection = isByteInMediaSection({
 		position: seekTo,
@@ -109,6 +112,7 @@ export const performSeek = async ({
 			src,
 			controller,
 			discardReadBytes,
+			prefetchCache,
 		});
 	} else {
 		await seekBackwards({
@@ -119,6 +123,7 @@ export const performSeek = async ({
 			currentReader,
 			readerInterface,
 			src,
+			prefetchCache,
 		});
 	}
 

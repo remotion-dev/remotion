@@ -65,11 +65,7 @@ export const CanvasOrLoading: React.FC<{
 	const content = (
 		<>
 			<ZoomPersistor />
-			<Canvas
-				isRefreshing={resolved?.type === 'success-and-refreshing'}
-				size={size}
-				canvasContent={canvasContent}
-			/>
+			<Canvas size={size} canvasContent={canvasContent} />
 			{resolved?.type === 'success-and-refreshing' ? (
 				<RefreshCompositionOverlay />
 			) : null}

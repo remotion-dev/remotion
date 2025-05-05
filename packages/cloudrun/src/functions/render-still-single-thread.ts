@@ -71,7 +71,7 @@ export const renderStillSingleThread = async (
 			serializedInputPropsWithCustomSchema:
 				body.serializedInputPropsWithCustomSchema,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					data: composition.props,
 					indent: undefined,
 					staticBase: null,

@@ -31,18 +31,20 @@ import {serveStatic} from './preview-server/serve-static';
 
 const editorGuess = guessEditor();
 
-const static404 = (response: ServerResponse) => {
+const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
 	response.end(
 		'The static/ prefix has been changed, this URL is no longer valid.',
 	);
+	return Promise.resolve();
 };
 
-const output404 = (response: ServerResponse) => {
+const output404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
 	response.end(
 		'The outputs/ prefix has been changed, this URL is no longer valid.',
 	);
+	return Promise.resolve();
 };
 
 const handleFallback = async ({
@@ -124,11 +126,11 @@ const handleFileSource = async ({
 	remotionRoot: string;
 	search: string;
 	response: ServerResponse;
-}) => {
+}): Promise<void> => {
 	if (method === 'OPTIONS') {
 		response.writeHead(200);
 		response.end();
-		return;
+		return Promise.resolve();
 	}
 
 	if (!search.startsWith('?')) {
@@ -144,7 +146,8 @@ const handleFileSource = async ({
 	const data = await getFileSource(remotionRoot, decodeURIComponent(f));
 	response.writeHead(200);
 	response.write(data);
-	return response.end();
+	response.end();
+	return Promise.resolve();
 };
 
 const handleOpenInEditor = async (
@@ -207,7 +210,7 @@ const handleAddAsset = ({
 	res: ServerResponse;
 	search: string;
 	publicDir: string;
-}): void => {
+}): Promise<void> => {
 	try {
 		const query = new URLSearchParams(search);
 
@@ -235,9 +238,14 @@ const handleAddAsset = ({
 		res.statusCode = 500;
 		res.end(JSON.stringify({error: (err as Error).message}));
 	}
+
+	return Promise.resolve();
 };
 
-const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
+const handleFavicon = (
+	_: IncomingMessage,
+	response: ServerResponse,
+): Promise<void> => {
 	const filePath = path.join(__dirname, '..', 'web', 'favicon.png');
 	const stat = statSync(filePath);
 
@@ -248,9 +256,13 @@ const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 
 	const readStream = createReadStream(filePath);
 	readStream.pipe(response);
+	return Promise.resolve();
 };
 
-const handleBeep = (_: IncomingMessage, response: ServerResponse) => {
+const handleBeep = (
+	_: IncomingMessage,
+	response: ServerResponse,
+): Promise<void> => {
 	const filePath = path.join(__dirname, '..', 'web', 'beep.wav');
 	const stat = statSync(filePath);
 
@@ -261,9 +273,13 @@ const handleBeep = (_: IncomingMessage, response: ServerResponse) => {
 
 	const readStream = createReadStream(filePath);
 	readStream.pipe(response);
+	return Promise.resolve();
 };
 
-const handleWasm = (_: IncomingMessage, response: ServerResponse) => {
+const handleWasm = (
+	_: IncomingMessage,
+	response: ServerResponse,
+): Promise<void> => {
 	const filePath = path.resolve(
 		require.resolve('source-map'),
 		'..',
@@ -280,6 +296,7 @@ const handleWasm = (_: IncomingMessage, response: ServerResponse) => {
 
 	const readStream = createReadStream(filePath);
 	readStream.pipe(response);
+	return Promise.resolve();
 };
 
 export const handleRoutes = ({
@@ -322,7 +339,7 @@ export const handleRoutes = ({
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
-}) => {
+}): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
 	if (url.pathname === '/api/file-source') {

@@ -2,6 +2,7 @@ import type {IsoBaseMediaBox} from '../../containers/iso-base-media/base-media-b
 
 export type MoofBox = {
 	offset: number;
+	size: number;
 	trafBoxes: IsoBaseMediaBox[];
 };
 
@@ -27,6 +28,7 @@ export const toMoofBox = (box: IsoBaseMediaBox): MoofBox => {
 		trafBoxes: box.children.filter(
 			(c) => c.type === 'regular-box' && c.boxType === 'traf',
 		) as IsoBaseMediaBox[],
+		size: box.boxSize,
 	};
 };
 

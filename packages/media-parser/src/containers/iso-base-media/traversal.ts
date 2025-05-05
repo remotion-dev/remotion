@@ -309,8 +309,18 @@ export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
 	return trunBoxes as TrunBox[];
 };
 
-export const getTfraBoxes = (structure: IsoBaseMediaStructure): TfraBox[] => {
-	const mfraBox = structure.boxes.find(
+export const getTfraBoxesFromMfraBoxChildren = (
+	mfraBoxChildren: IsoBaseMediaBox[],
+): TfraBox[] => {
+	const tfraBoxes = mfraBoxChildren.filter(
+		(b) => b.type === 'tfra-box',
+	) as TfraBox[];
+
+	return tfraBoxes;
+};
+
+export const getTfraBoxes = (structure: IsoBaseMediaBox[]): TfraBox[] => {
+	const mfraBox = structure.find(
 		(b) => b.type === 'regular-box' && b.boxType === 'mfra',
 	) as RegularBox | null;
 
@@ -318,9 +328,5 @@ export const getTfraBoxes = (structure: IsoBaseMediaStructure): TfraBox[] => {
 		return [];
 	}
 
-	const tfraBoxes = mfraBox.children.filter(
-		(b) => b.type === 'tfra-box',
-	) as TfraBox[];
-
-	return tfraBoxes;
+	return getTfraBoxesFromMfraBoxChildren(mfraBox.children);
 };

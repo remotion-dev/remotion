@@ -126,6 +126,7 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
+	Log.verbose({indent, logLevel}, 'Ensuring browser executable');
 	await internalEnsureBrowser({
 		browserExecutable,
 		logLevel,
@@ -133,6 +134,7 @@ export const internalOpenBrowser = async ({
 		onBrowserDownload,
 		chromeMode,
 	});
+	Log.verbose({indent, logLevel}, 'Ensured browser is available.');
 
 	const executablePath = getLocalBrowserExecutable({
 		preferredBrowserExecutable: browserExecutable,
@@ -152,7 +154,7 @@ export const internalOpenBrowser = async ({
 
 	if (chromiumOptions.userAgent) {
 		Log.verbose(
-			{indent, logLevel: 'verbose', tag: 'openBrowser()'},
+			{indent, logLevel, tag: 'openBrowser()'},
 			`Using custom user agent: ${chromiumOptions.userAgent}`,
 		);
 	}
@@ -166,6 +168,7 @@ export const internalOpenBrowser = async ({
 		logLevel,
 		indent,
 		userDataDir,
+		timeout: 25000,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',

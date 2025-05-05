@@ -36,8 +36,17 @@ export const GlobalPropsEditorUpdateButton: React.FC<{
 
 	const onReset = useCallback(() => {
 		window.remotion_ignoreFastRefreshUpdate = null;
-		window.dispatchEvent(new CustomEvent(Internals.PROPS_UPDATED_EXTERNALLY));
-	}, []);
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: string | null}>(
+				Internals.PROPS_UPDATED_EXTERNALLY,
+				{
+					detail: {
+						resetUnsaved: compositionId,
+					},
+				},
+			),
+		);
+	}, [compositionId]);
 
 	return (
 		<div style={container}>

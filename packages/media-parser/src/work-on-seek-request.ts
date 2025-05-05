@@ -1,13 +1,17 @@
 import type {MediaParserController} from './controller/media-parser-controller';
 import type {Seek} from './controller/seek-signal';
+import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte} from './get-seeking-byte';
 import {getSeekingHints} from './get-seeking-hints';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
-import type {ParseMediaMode, ParseMediaSrc} from './options';
-import type {IsoBaseMediaStructure} from './parse-result';
+import type {
+	M3uPlaylistContext,
+	ParseMediaMode,
+	ParseMediaSrc,
+} from './options';
 import {performSeek} from './perform-seek';
 import type {ReaderInterface} from './readers/reader';
 import type {AacState} from './state/aac-state';
@@ -16,6 +20,7 @@ import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {KeyframesState} from './state/keyframes';
+import type {M3uState} from './state/m3u-state';
 import type {WebmState} from './state/matroska/webm';
 import type {Mp3State} from './state/mp3';
 import type {ParserState} from './state/parser-state';
@@ -32,7 +37,7 @@ const turnSeekIntoByte = async ({
 	logLevel,
 	iterator,
 	structureState,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	isoState,
 	transportStream,
 	tracksState,
@@ -44,13 +49,14 @@ const turnSeekIntoByte = async ({
 	mp3State,
 	contentLength,
 	aacState,
+	m3uState,
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
 	logLevel: LogLevel;
 	iterator: BufferIterator;
 	structureState: StructureState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;
 	tracksState: TracksState;
@@ -62,8 +68,10 @@ const turnSeekIntoByte = async ({
 	mp3State: Mp3State;
 	aacState: AacState;
 	contentLength: number;
+	m3uState: M3uState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
+
 	if (mediaSections.length === 0) {
 		Log.trace(logLevel, 'No media sections defined, cannot seek yet');
 		return {
@@ -82,7 +90,6 @@ const turnSeekIntoByte = async ({
 			riffState,
 			samplesObserved,
 			structureState,
-			mp4HeaderSegment,
 			mediaSectionState,
 			isoState,
 			transportStream,
@@ -93,6 +100,7 @@ const turnSeekIntoByte = async ({
 			mp3State,
 			contentLength,
 			aacState,
+			m3uPlaylistContext,
 		});
 
 		if (!seekingHints) {
@@ -111,19 +119,13 @@ const turnSeekIntoByte = async ({
 			transportStream,
 			webmState,
 			mediaSection: mediaSectionState,
-			mp4HeaderSegment,
+			m3uPlaylistContext,
 			structure: structureState,
 			riffState,
+			m3uState,
 		});
 
 		return seekingByte;
-	}
-
-	if (seek.type === 'byte') {
-		return {
-			type: 'do-seek',
-			byte: seek.byte,
-		};
 	}
 
 	throw new Error(
@@ -141,7 +143,7 @@ export type WorkOnSeekRequestOptions = {
 	contentLength: number;
 	readerInterface: ReaderInterface;
 	mediaSection: MediaSectionState;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
 	transportStream: TransportStreamState;
 	mode: ParseMediaMode;
 	seekInfiniteLoop: SeekInfiniteLoop;
@@ -156,6 +158,8 @@ export type WorkOnSeekRequestOptions = {
 	riffState: RiffState;
 	mp3State: Mp3State;
 	aacState: AacState;
+	m3uState: M3uState;
+	prefetchCache: PrefetchCache;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -171,7 +175,7 @@ export const getWorkOnSeekRequestOptions = (
 		contentLength: state.contentLength,
 		readerInterface: state.readerInterface,
 		mediaSection: state.mediaSection,
-		mp4HeaderSegment: state.mp4HeaderSegment,
+		m3uPlaylistContext: state.m3uPlaylistContext,
 		mode: state.mode,
 		seekInfiniteLoop: state.seekInfiniteLoop,
 		currentReader: state.currentReader,
@@ -186,6 +190,8 @@ export const getWorkOnSeekRequestOptions = (
 		riffState: state.riff,
 		mp3State: state.mp3,
 		aacState: state.aac,
+		m3uState: state.m3u,
+		prefetchCache: state.prefetchCache,
 	};
 };
 
@@ -194,7 +200,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		logLevel,
 		controller,
 		mediaSection,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		isoState,
 		iterator,
 		structureState,
@@ -215,20 +221,22 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		riffState,
 		mp3State,
 		aacState,
+		prefetchCache,
+		m3uState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (!seek) {
 		return;
 	}
 
-	Log.trace(logLevel, `Has seek request: ${JSON.stringify(seek)}`);
+	Log.trace(logLevel, `Has seek request for ${src}: ${JSON.stringify(seek)}`);
 	const resolution = await turnSeekIntoByte({
 		seek,
 		mediaSectionState: mediaSection,
 		logLevel,
 		iterator,
 		structureState,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		isoState,
 		transportStream,
 		tracksState,
@@ -240,6 +248,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		mp3State,
 		contentLength,
 		aacState,
+		m3uState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 
@@ -259,6 +268,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			src,
 			discardReadBytes,
 			fields,
+			prefetchCache,
 		});
 		return;
 	}
@@ -279,6 +289,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			src,
 			discardReadBytes,
 			fields,
+			prefetchCache,
 		});
 		const {hasChanged} =
 			controller._internals.seekSignal.clearSeekIfStillSame(seek);

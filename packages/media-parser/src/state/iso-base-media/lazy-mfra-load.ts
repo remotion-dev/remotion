@@ -1,6 +1,7 @@
 import type {IsoBaseMediaBox} from '../../containers/iso-base-media/base-media-box';
 import {getMfraSeekingBox} from '../../containers/iso-base-media/get-mfra-seeking-box';
 import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import {Log, type LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
@@ -12,12 +13,14 @@ export const lazyMfraLoad = ({
 	readerInterface,
 	src,
 	logLevel,
+	prefetchCache,
 }: {
 	contentLength: number;
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 	logLevel: LogLevel;
+	prefetchCache: PrefetchCache;
 }) => {
 	let prom: Promise<IsoBaseMediaBox[] | null> | null = null;
 	let result: IsoBaseMediaBox[] | null = null;
@@ -35,9 +38,11 @@ export const lazyMfraLoad = ({
 			readerInterface,
 			src,
 			logLevel,
+			prefetchCache,
 		}).then((boxes) => {
 			Log.verbose(logLevel, 'Lazily found mfra atom.');
 			result = boxes;
+
 			return boxes;
 		});
 		return prom;

@@ -1,6 +1,5 @@
 import {createReadStream, promises, statSync} from 'fs';
 import {dirname, join, relative, sep} from 'path';
-import {Readable} from 'stream';
 import type {
 	CreateAdjacentFileSource,
 	ReadContent,
@@ -23,7 +22,6 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 				: typeof range === 'number'
 					? Infinity
 					: range[1],
-		signal: ownController.signal,
 	});
 
 	controller._internals.signal.addEventListener(
@@ -36,9 +34,28 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 
 	const stats = statSync(src);
 
-	const reader = Readable.toWeb(
-		stream,
-	).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+	let readerCancelled = false;
+	const reader = new ReadableStream({
+		start(c) {
+			if (readerCancelled) {
+				return;
+			}
+
+			stream.on('data', (chunk) => {
+				c.enqueue(chunk);
+			});
+			stream.on('end', () => {
+				c.close();
+			});
+			stream.on('error', (err) => {
+				c.error(err);
+			});
+		},
+		cancel() {
+			readerCancelled = true;
+			stream.destroy();
+		},
+	}).getReader() as ReadableStreamDefaultReader<Uint8Array>;
 
 	if (controller) {
 		controller._internals.signal.addEventListener(
@@ -53,8 +70,12 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 	return Promise.resolve({
 		reader: {
 			reader,
-			abort: () => {
-				ownController.abort();
+			abort: async () => {
+				try {
+					stream.destroy();
+					ownController.abort();
+					await reader.cancel();
+				} catch {}
 			},
 		},
 		contentLength: stats.size,
@@ -96,4 +117,7 @@ export const nodeReader: ReaderInterface = {
 	read: nodeReadContent,
 	readWholeAsText: nodeReadWholeAsText,
 	createAdjacentFileSource: nodeCreateAdjacentFileSource,
+	preload: () => {
+		// doing nothing, it's just for when fetching over the network
+	},
 };

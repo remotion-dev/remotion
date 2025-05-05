@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ranga',
 	importName: 'Ranga',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Ranga:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/ranga/v21/C8ct4cYisGb28q6EJj0pwg.woff2',
+					'https://fonts.gstatic.com/s/ranga/v22/C8ct4cYisGb28q6EJj0pwg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ranga/v21/C8ct4cYisGb28q6LJj0pwg.woff2',
+					'https://fonts.gstatic.com/s/ranga/v22/C8ct4cYisGb28q6LJj0pwg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ranga/v21/C8ct4cYisGb28q6FJj0.woff2',
+					'https://fonts.gstatic.com/s/ranga/v22/C8ct4cYisGb28q6FJj0.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/ranga/v21/C8cg4cYisGb28qY-AygX43y9ZA.woff2',
+					'https://fonts.gstatic.com/s/ranga/v22/C8cg4cYisGb28qY-AygX43y9ZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ranga/v21/C8cg4cYisGb28qY-AygY43y9ZA.woff2',
+					'https://fonts.gstatic.com/s/ranga/v22/C8cg4cYisGb28qY-AygY43y9ZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ranga/v21/C8cg4cYisGb28qY-AygW43w.woff2',
+					'https://fonts.gstatic.com/s/ranga/v22/C8cg4cYisGb28qY-AygW43w.woff2',
 			},
 		},
 	},

@@ -1,11 +1,17 @@
 import type {z} from 'zod';
-import type {ZodType} from '../../get-zod-if-possible';
+import type {ZodType, ZodTypesType} from '../../get-zod-if-possible';
 
-export const extractEnumJsonPaths = (
-	schema: Zod.ZodTypeAny,
-	zodRuntime: ZodType,
-	currentPath: (string | number)[],
-): (string | number)[][] => {
+export const extractEnumJsonPaths = ({
+	schema,
+	zodRuntime,
+	currentPath,
+	zodTypes,
+}: {
+	schema: Zod.ZodTypeAny;
+	zodRuntime: ZodType;
+	zodTypes: ZodTypesType | null;
+	currentPath: (string | number)[];
+}): (string | number)[][] => {
 	const def = schema._def;
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 
@@ -15,25 +21,34 @@ export const extractEnumJsonPaths = (
 			const keys = Object.keys(shape);
 			return keys
 				.map((key) => {
-					return extractEnumJsonPaths(shape[key], zodRuntime, [
-						...currentPath,
-						key,
-					]);
+					return extractEnumJsonPaths({
+						schema: shape[key],
+						zodRuntime,
+						currentPath: [...currentPath, key],
+						zodTypes,
+					});
 				})
 				.flat(1);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodArray: {
-			return extractEnumJsonPaths((def as z.ZodArrayDef).type, zodRuntime, [
-				...currentPath,
-				'[]',
-			]);
+			return extractEnumJsonPaths({
+				schema: (def as z.ZodArrayDef).type,
+				zodRuntime,
+				currentPath: [...currentPath, '[]'],
+				zodTypes,
+			});
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodUnion: {
 			return (def as z.ZodUnionDef).options
 				.map((option) => {
-					return extractEnumJsonPaths(option, zodRuntime, currentPath);
+					return extractEnumJsonPaths({
+						schema: option,
+						zodRuntime,
+						currentPath,
+						zodTypes,
+					});
 				})
 				.flat(1);
 		}
@@ -41,7 +56,12 @@ export const extractEnumJsonPaths = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodDiscriminatedUnion: {
 			return (def as z.ZodDiscriminatedUnionDef<string>).options
 				.map((op) => {
-					return extractEnumJsonPaths(op, zodRuntime, currentPath);
+					return extractEnumJsonPaths({
+						schema: op,
+						zodRuntime,
+						currentPath,
+						zodTypes,
+					});
 				})
 				.flat(1);
 		}
@@ -51,18 +71,37 @@ export const extractEnumJsonPaths = (
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodEffects: {
-			return extractEnumJsonPaths(
-				(def as z.ZodEffectsDef).schema,
+			if (
+				zodTypes &&
+				schema._def.description ===
+					zodTypes.ZodZypesInternals.REMOTION_MATRIX_BRAND
+			) {
+				return [currentPath];
+			}
+
+			return extractEnumJsonPaths({
+				schema: (def as z.ZodEffectsDef).schema,
 				zodRuntime,
 				currentPath,
-			);
+				zodTypes,
+			});
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodIntersection: {
 			const {left, right} = def as z.ZodIntersectionDef;
-			const leftValue = extractEnumJsonPaths(left, zodRuntime, currentPath);
+			const leftValue = extractEnumJsonPaths({
+				schema: left,
+				zodRuntime,
+				currentPath,
+				zodTypes,
+			});
 
-			const rightValue = extractEnumJsonPaths(right, zodRuntime, currentPath);
+			const rightValue = extractEnumJsonPaths({
+				schema: right,
+				zodRuntime,
+				currentPath,
+				zodTypes,
+			});
 
 			return [...leftValue, ...rightValue];
 		}
@@ -70,17 +109,23 @@ export const extractEnumJsonPaths = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodTuple: {
 			return (def as z.ZodTupleDef).items
 				.map((item, i) =>
-					extractEnumJsonPaths(item, zodRuntime, [...currentPath, i]),
+					extractEnumJsonPaths({
+						schema: item,
+						zodRuntime,
+						currentPath: [...currentPath, i],
+						zodTypes,
+					}),
 				)
 				.flat(1);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodRecord: {
-			const values = extractEnumJsonPaths(
-				(def as z.ZodRecordDef).valueType,
+			const values = extractEnumJsonPaths({
+				schema: (def as z.ZodRecordDef).valueType,
 				zodRuntime,
-				[...currentPath, '{}'],
-			);
+				currentPath: [...currentPath, '{}'],
+				zodTypes,
+			});
 			return values;
 		}
 
@@ -98,32 +143,44 @@ export const extractEnumJsonPaths = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodOptional: {
 			const defType = def as z.ZodOptionalDef;
-			const value = extractEnumJsonPaths(
-				defType.innerType,
+			const value = extractEnumJsonPaths({
+				schema: defType.innerType,
 				zodRuntime,
 				currentPath,
-			);
+				zodTypes,
+			});
 			return value;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodNullable: {
 			const defType = def as z.ZodNullableDef;
-			const value = extractEnumJsonPaths(
-				defType.innerType,
+			const value = extractEnumJsonPaths({
+				schema: defType.innerType,
 				zodRuntime,
 				currentPath,
-			);
+				zodTypes,
+			});
 			return value;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodDefault: {
 			const defType = def as z.ZodDefaultDef;
-			return extractEnumJsonPaths(defType.innerType, zodRuntime, currentPath);
+			return extractEnumJsonPaths({
+				schema: defType.innerType,
+				zodRuntime,
+				currentPath,
+				zodTypes,
+			});
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodCatch: {
 			const defType = def as z.ZodCatchDef;
-			return extractEnumJsonPaths(defType.innerType, zodRuntime, currentPath);
+			return extractEnumJsonPaths({
+				schema: defType.innerType,
+				zodRuntime,
+				currentPath,
+				zodTypes,
+			});
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodPromise: {
@@ -133,14 +190,24 @@ export const extractEnumJsonPaths = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBranded: {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const defType = def as z.ZodBrandedDef<any>;
-			const value = extractEnumJsonPaths(defType.type, zodRuntime, currentPath);
+			const value = extractEnumJsonPaths({
+				schema: defType.type,
+				zodRuntime,
+				currentPath,
+				zodTypes,
+			});
 			return value;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodPipeline: {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const defType = def as z.ZodPipelineDef<any, any>;
-			const value = extractEnumJsonPaths(defType.out, zodRuntime, currentPath);
+			const value = extractEnumJsonPaths({
+				schema: defType.out,
+				zodRuntime,
+				currentPath,
+				zodTypes,
+			});
 			return value;
 		}
 

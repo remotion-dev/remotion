@@ -1,4 +1,5 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import type {LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
@@ -14,12 +15,14 @@ export const isoBaseMediaState = ({
 	readerInterface,
 	src,
 	logLevel,
+	prefetchCache,
 }: {
 	contentLength: number;
 	controller: MediaParserController;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 	logLevel: LogLevel;
+	prefetchCache: PrefetchCache;
 }) => {
 	return {
 		flatSamples: cachedSamplePositionsState(),
@@ -30,6 +33,7 @@ export const isoBaseMediaState = ({
 			readerInterface,
 			src,
 			logLevel,
+			prefetchCache,
 		}),
 		moof: precomputedMoofState(),
 		tfra: precomputedTfraState(),

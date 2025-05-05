@@ -16,40 +16,45 @@ export const findKeyframeBeforeTime = ({
 	mediaSections: MediaSection[];
 	logLevel: LogLevel;
 }) => {
-	let byte = 0;
-	let sam: SamplePosition | null = null;
+	let videoByte = 0;
+	let videoSample: SamplePosition | null = null;
 
 	for (const sample of samplePositions) {
 		const ctsInSeconds = sample.cts / timescale;
 		const dtsInSeconds = sample.dts / timescale;
 
-		if (
-			(ctsInSeconds <= time || dtsInSeconds <= time) &&
-			byte <= sample.offset &&
-			sample.isKeyframe
-		) {
-			byte = sample.offset;
-			sam = sample;
+		if (!sample.isKeyframe) {
+			continue;
+		}
+
+		if (!(ctsInSeconds <= time || dtsInSeconds <= time)) {
+			continue;
+		}
+
+		if (videoByte <= sample.offset) {
+			videoByte = sample.offset;
+			videoSample = sample;
 		}
 	}
 
-	if (!sam) {
+	if (!videoSample) {
 		throw new Error('No sample found');
 	}
 
 	const mediaSection = mediaSections.find(
 		(section) =>
-			sam.offset >= section.start && sam.offset < section.start + section.size,
+			videoSample.offset >= section.start &&
+			videoSample.offset < section.start + section.size,
 	);
 
 	if (!mediaSection) {
 		Log.trace(
 			logLevel,
 			'Found a sample, but the offset has not yet been marked as a video section yet. Not yet able to seek, but probably once we have started reading the next box.',
-			sam,
+			videoSample,
 		);
 		return null;
 	}
 
-	return sam.offset;
+	return videoSample.offset;
 };

@@ -1,21 +1,48 @@
-import {needsToIterateOverSamples} from './need-samples-for-fields';
+import {
+	needsToIterateOverEverySample,
+	needsToIterateOverSamples,
+} from './need-samples-for-fields';
 import type {ParserState} from './parser-state';
 
-export const maySkipVideoData = ({state}: {state: ParserState}) => {
-	const hasAllTracksAndNoCallbacks =
-		state.callbacks.tracks.hasAllTracks() &&
-		Object.values(state.callbacks.videoSampleCallbacks).length === 0 &&
-		Object.values(state.callbacks.audioSampleCallbacks).length === 0;
-
+const getHasCallbacks = (state: ParserState) => {
 	const hasNoTrackHandlers =
 		!state.callbacks.hasAudioTrackHandlers &&
 		!state.callbacks.hasVideoTrackHandlers;
 
-	const noCallbacksNeeded = hasNoTrackHandlers || hasAllTracksAndNoCallbacks;
+	if (hasNoTrackHandlers) {
+		return false;
+	}
+
+	const hasAllTracksAndNoCallbacks =
+		!state.callbacks.tracks.hasAllTracks() ||
+		Object.values(state.callbacks.videoSampleCallbacks).length > 0 ||
+		Object.values(state.callbacks.audioSampleCallbacks).length > 0;
+
+	return hasAllTracksAndNoCallbacks;
+};
+
+export const maySkipVideoData = ({state}: {state: ParserState}) => {
+	const hasCallbacks = getHasCallbacks(state);
 
 	return (
-		noCallbacksNeeded &&
+		!hasCallbacks &&
 		!needsToIterateOverSamples({
+			emittedFields: state.emittedFields,
+			fields: state.fields,
+		})
+	);
+};
+
+export const maySkipOverSamplesInTheMiddle = ({
+	state,
+}: {
+	state: ParserState;
+}) => {
+	const hasCallbacks = getHasCallbacks(state);
+
+	return (
+		!hasCallbacks &&
+		!needsToIterateOverEverySample({
 			emittedFields: state.emittedFields,
 			fields: state.fields,
 		})

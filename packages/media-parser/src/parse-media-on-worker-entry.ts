@@ -174,6 +174,7 @@ export const parseMediaOnWorkerImplementation = async <
 			cleanup();
 			// Reject main loop
 			const error = deserializeError(data);
+			error.stack = data.errorStack;
 			reject(error);
 
 			// If aborted, we send the seeking hints we got,

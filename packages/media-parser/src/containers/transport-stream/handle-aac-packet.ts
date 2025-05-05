@@ -3,7 +3,7 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import type {Track} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
 	AudioOrVideoSample,
@@ -26,7 +26,7 @@ export const handleAacPacket = async ({
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
 	offset: number;
-	sampleCallbacks: SampleCallbacks;
+	sampleCallbacks: CallbacksState;
 	logLevel: LogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	transportStream: TransportStreamState;

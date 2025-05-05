@@ -19,7 +19,7 @@ export const getMoovAtom = async ({
 	state: ParserState;
 	endOfMdat: number;
 }): Promise<MoovBox> => {
-	const headerSegment = state.mp4HeaderSegment;
+	const headerSegment = state.m3uPlaylistContext?.mp4HeaderSegment;
 	if (headerSegment) {
 		const segment = getMoovFromFromIsoStructure(headerSegment);
 		if (!segment) {
@@ -35,6 +35,8 @@ export const getMoovAtom = async ({
 		src: state.src,
 		range: endOfMdat,
 		controller: state.controller,
+		logLevel: state.logLevel,
+		prefetchCache: state.prefetchCache,
 	});
 
 	const onAudioTrack: OnAudioTrack | null = state.onAudioTrack
@@ -109,8 +111,8 @@ export const getMoovAtom = async ({
 			onlyIfMdatAtomExpected: null,
 			contentLength: state.contentLength - endOfMdat,
 		});
-		if (box) {
-			boxes.push(box);
+		if (box.type === 'box') {
+			boxes.push(box.box);
 		}
 
 		if (iterator.counter.getOffset() + endOfMdat > state.contentLength) {

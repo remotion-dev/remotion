@@ -368,7 +368,7 @@ export const renderStillFlow = async ({
 		onBrowserLog: null,
 		logLevel,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: config.props,

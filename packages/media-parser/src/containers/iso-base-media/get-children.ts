@@ -28,11 +28,11 @@ export const getIsoBaseMediaChildren = async ({
 			onlyIfMdatAtomExpected: null,
 			contentLength,
 		});
-		if (!parsed) {
+		if (parsed.type !== 'box') {
 			throw new Error('Expected box');
 		}
 
-		boxes.push(parsed);
+		boxes.push(parsed.box);
 	}
 
 	if (iterator.counter.getOffset() > size + initial) {

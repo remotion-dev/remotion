@@ -118,6 +118,7 @@ const audioTags = [
 	'.mp3',
 	'mp4a',
 	'ac-3',
+	'Opus',
 ];
 
 export const processIsoFormatBox = async ({

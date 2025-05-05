@@ -33,4 +33,5 @@ export type MediaFnGeneratorInput = {
 	filename: string;
 	progressTracker: ProgressTracker;
 	expectedDurationInSeconds: number | null;
+	expectedFrameRate: number | null;
 };

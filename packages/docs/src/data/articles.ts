@@ -4974,6 +4974,15 @@ export const articles = [
 		slug: 'studio/update-default-props',
 	},
 	{
+		id: 'studio/visual-control',
+		title: 'visualControl()',
+		relativePath: 'docs/studio/visual-control.mdx',
+		compId: 'articles-docs-studio-visual-control',
+		crumb: '@remotion/studio',
+		noAi: false,
+		slug: 'studio/visual-control',
+	},
+	{
 		id: 'studio/watch-public-folder',
 		title: 'watchPublicFolder()',
 		relativePath: 'docs/studio/watch-public-folder.mdx',
@@ -6152,6 +6161,15 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'zod-types/z-color',
+	},
+	{
+		id: 'zod-types/z-matrix',
+		title: 'zMatrix()',
+		relativePath: 'docs/zod-types/z-matrix.mdx',
+		compId: 'articles-docs-zod-types-z-matrix',
+		crumb: null,
+		noAi: false,
+		slug: 'zod-types/z-matrix',
 	},
 	{
 		id: 'zod-types/z-textarea',

@@ -15,7 +15,7 @@ type Client = {
 
 export type LiveEventsServer = {
 	sendEventToClient: (event: EventSourceEvent) => void;
-	router: (request: IncomingMessage, response: ServerResponse) => void;
+	router: (request: IncomingMessage, response: ServerResponse) => Promise<void>;
 	closeConnections: () => Promise<void>;
 };
 
@@ -28,7 +28,10 @@ let printPortMessageTimeout: Timer | null = null;
 export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 	let clients: Client[] = [];
 
-	const router = (request: IncomingMessage, response: ServerResponse) => {
+	const router = (
+		request: IncomingMessage,
+		response: ServerResponse,
+	): Promise<void> => {
 		const headers: OutgoingHttpHeaders = {
 			'content-type': 'text/event-stream;charset=utf-8',
 			connection: 'keep-alive',
@@ -39,7 +42,7 @@ export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 		response.write('\n');
 		if (request.method === 'OPTIONS') {
 			response.end();
-			return;
+			return Promise.resolve();
 		}
 
 		const clientId = String(Math.random());
@@ -69,6 +72,8 @@ export const makeLiveEventsRouter = (logLevel: LogLevel): LiveEventsServer => {
 				}, 2500);
 			}
 		});
+
+		return Promise.resolve();
 	};
 
 	const sendEventToClient = (event: EventSourceEvent) => {

@@ -26,13 +26,14 @@ export const getSeekingHintsFromMp4 = ({
 		structureState,
 		mayUsePrecomputed: true,
 	});
+
 	const moofBoxes = deduplicateMoofBoxesByOffset([
 		...isoState.moof.getMoofBoxes(),
 		...getMoofBoxes(structure.boxes),
 	]);
 	const tfraBoxes = deduplicateTfraBoxesByOffset([
 		...isoState.tfra.getTfraBoxes(),
-		...getTfraBoxes(structure),
+		...getTfraBoxes(structure.boxes),
 	]);
 
 	if (!moovAtom) {

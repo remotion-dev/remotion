@@ -1,5 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import {areSamplesComplete} from '../containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from '../containers/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from '../containers/iso-base-media/trak/trak';
 import {parseMedia} from '../parse-media';
@@ -61,7 +62,7 @@ test('Stream samples', async () => {
 		getSamplePositionsFromTrack({
 			trakBox: trakBox as TrakBox,
 			moofBoxes: [],
-			tfraBoxes: [],
+			moofComplete: areSamplesComplete({moofBoxes: [], tfraBoxes: []}),
 		}),
 	).toEqual({
 		isComplete: true,
@@ -197,7 +198,7 @@ test('Stream samples', async () => {
 		getSamplePositionsFromTrack({
 			trakBox: trakBox2 as TrakBox,
 			moofBoxes: [],
-			tfraBoxes: [],
+			moofComplete: areSamplesComplete({moofBoxes: [], tfraBoxes: []}),
 		}),
 	).toEqual({
 		samplePositions: [

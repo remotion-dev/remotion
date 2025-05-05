@@ -5,11 +5,11 @@ import type {
 	LogLevel,
 } from '@remotion/renderer';
 
+import type {DownloadBehavior} from '@remotion/serverless-client';
 import {
 	inspectErrors,
 	type CloudProvider,
 	type CustomCredentials,
-	type DownloadBehavior,
 	type PostRenderData,
 	type Privacy,
 	type ProviderSpecifics,

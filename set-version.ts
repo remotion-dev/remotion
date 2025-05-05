@@ -5,6 +5,7 @@ import {
 	lstatSync,
 	readFileSync,
 	readdirSync,
+	unlinkSync,
 	writeFileSync,
 } from 'fs';
 import path from 'path';
@@ -43,6 +44,16 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 		dir,
 		'package.json',
 	);
+	const tsconfigBuildPath = path.join(
+		process.cwd(),
+		'packages',
+		dir,
+		'tsconfig.tsbuildinfo',
+	);
+	if (existsSync(tsconfigBuildPath)) {
+		unlinkSync(tsconfigBuildPath);
+	}
+
 	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 	packageJson.version = version;
 	writeFileSync(

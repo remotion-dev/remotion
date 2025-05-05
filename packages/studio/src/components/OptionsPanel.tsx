@@ -11,14 +11,16 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {VisualControlsTabActivatedContext} from '../visual-controls/VisualControls';
 import {GlobalPropsEditorUpdateButton} from './GlobalPropsEditorUpdateButton';
 import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
+import {VisualControlsContent} from './VisualControls/VisualControlsContent';
 
-type OptionsSidebarPanel = 'input-props' | 'renders';
+type OptionsSidebarPanel = 'input-props' | 'renders' | 'visual-controls';
 
 const localStorageKey = 'remotion.sidebarPanel';
 
@@ -30,6 +32,10 @@ const getSelectedPanel = (readOnlyStudio: boolean): OptionsSidebarPanel => {
 	const panel = localStorage.getItem(localStorageKey);
 	if (panel === 'renders') {
 		return 'renders';
+	}
+
+	if (panel === 'visual-controls') {
+		return 'visual-controls';
 	}
 
 	return 'input-props';
@@ -59,6 +65,10 @@ export const OptionsPanel: React.FC<{
 
 	const isMobileLayout = useMobileLayout();
 
+	const visualControlsTabActivated = useContext(
+		VisualControlsTabActivatedContext,
+	);
+
 	const container: React.CSSProperties = useMemo(
 		() => ({
 			height: '100%',
@@ -82,6 +92,11 @@ export const OptionsPanel: React.FC<{
 	const onRendersSelected = useCallback(() => {
 		setPanel('renders');
 		persistSelectedOptionsSidebarPanel('renders');
+	}, []);
+
+	const onVisualControlsSelected = useCallback(() => {
+		setPanel('visual-controls');
+		persistSelectedOptionsSidebarPanel('visual-controls');
 	}, []);
 
 	useImperativeHandle(optionsSidebarTabs, () => {
@@ -151,7 +166,7 @@ export const OptionsPanel: React.FC<{
 	const reset = useCallback(
 		(e: Event) => {
 			if ((e as CustomEvent).detail.resetUnsaved) {
-				resetUnsaved();
+				resetUnsaved((e as CustomEvent).detail.resetUnsaved);
 			}
 		},
 		[resetUnsaved],
@@ -169,6 +184,14 @@ export const OptionsPanel: React.FC<{
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
 				<Tabs>
+					{visualControlsTabActivated ? (
+						<Tab
+							selected={panel === 'visual-controls'}
+							onClick={onVisualControlsSelected}
+						>
+							Controls
+						</Tab>
+					) : null}
 					{composition ? (
 						<Tab
 							selected={panel === 'input-props'}
@@ -204,6 +227,8 @@ export const OptionsPanel: React.FC<{
 					setSaving={setSaving}
 					readOnlyStudio={readOnlyStudio}
 				/>
+			) : panel === 'visual-controls' && visualControlsTabActivated ? (
+				<VisualControlsContent />
 			) : readOnlyStudio ? null : (
 				<RenderQueue />
 			)}

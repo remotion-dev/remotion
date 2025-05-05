@@ -22,7 +22,7 @@ export const serializeOrThrow = (
 	propsType: PropsType,
 ) => {
 	try {
-		const payload = NoReactInternals.serializeJSONWithDate({
+		const payload = NoReactInternals.serializeJSONWithSpecialTypes({
 			indent: undefined,
 			staticBase: null,
 			data: inputProps,

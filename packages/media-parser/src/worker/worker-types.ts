@@ -109,8 +109,16 @@ type BaseError = {
 	errorMessage: string;
 };
 
+type AbortError = BaseError & {
+	errorName: 'AbortError';
+};
+
 type GenericError = BaseError & {
 	errorName: 'Error';
+};
+
+type NotReadableError = BaseError & {
+	errorName: 'NotReadableError';
 };
 
 type IsAGifError = BaseError & {
@@ -154,7 +162,10 @@ type AnyError =
 	| IsAnImageError
 	| IsAPdfError
 	| IsAnUnsupportedFileTypeError
-	| MediaParserAbortError;
+	| MediaParserAbortError
+	// browser native errors
+	| AbortError
+	| NotReadableError;
 
 export type ResponseError = {
 	type: 'response-error';

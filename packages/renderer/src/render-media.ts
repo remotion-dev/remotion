@@ -940,7 +940,7 @@ export const renderMedia = ({
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -968,7 +968,7 @@ export const renderMedia = ({
 		onCtrlCExit: () => undefined,
 		server: undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props ?? {},

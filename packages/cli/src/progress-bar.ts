@@ -196,20 +196,23 @@ const makeRenderingProgress = ({
 		.join(' ');
 };
 
+const ARTIFACTS_SHOWN = 5;
+
 const makeArtifactProgress = (artifactState: ArtifactProgress) => {
 	const {received} = artifactState;
 	if (received.length === 0) {
 		return null;
 	}
 
-	return received
+	const artifacts = received
+		.slice(0, ARTIFACTS_SHOWN)
 		.map((artifact) => {
 			return [
 				chalk.blue((artifact.alreadyExisted ? '○' : '+').padEnd(LABEL_WIDTH)),
 				chalk.blue(
 					makeHyperlink({
 						url: 'file://' + artifact.absoluteOutputDestination,
-						fallback: artifact.absoluteOutputDestination,
+						fallback: artifact.relativeOutputDestination,
 						text: artifact.relativeOutputDestination,
 					}),
 				),
@@ -218,6 +221,18 @@ const makeArtifactProgress = (artifactState: ArtifactProgress) => {
 		})
 		.filter(truthy)
 		.join('\n');
+
+	const moreSizeCombined = received
+		.slice(ARTIFACTS_SHOWN)
+		.reduce((acc, artifact) => acc + artifact.sizeInBytes, 0);
+
+	const more =
+		received.length > ARTIFACTS_SHOWN
+			? chalk.gray(
+					`${' '.repeat(LABEL_WIDTH)} ${received.length - ARTIFACTS_SHOWN} more artifact${received.length - ARTIFACTS_SHOWN === 1 ? '' : 's'} ${formatBytes(moreSizeCombined)}`,
+				)
+			: null;
+	return [artifacts, more].filter(truthy).join('\n');
 };
 
 export const getRightLabelWidth = (totalFrames: number) => {

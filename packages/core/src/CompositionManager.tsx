@@ -23,6 +23,7 @@ import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import type {DownloadBehavior} from './download-behavior.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 
 export type TComposition<
@@ -133,14 +134,26 @@ export type AudioOrVideoAsset = {
 	audioStartFrame: number;
 };
 
+type DiscriminatedArtifact =
+	| {
+			contentType: 'binary';
+			content: string;
+	  }
+	| {
+			contentType: 'text';
+			content: string;
+	  }
+	| {
+			contentType: 'thumbnail';
+	  };
+
 export type ArtifactAsset = {
 	type: 'artifact';
 	id: string;
 	filename: string;
-	content: string | Uint8Array;
 	frame: number;
-	binary: boolean;
-};
+	downloadBehavior: DownloadBehavior | null;
+} & DiscriminatedArtifact;
 
 export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
 

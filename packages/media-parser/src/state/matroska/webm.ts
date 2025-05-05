@@ -7,6 +7,7 @@ import {
 	getTrackTimestampScale,
 } from '../../containers/webm/traversal';
 import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
@@ -30,11 +31,13 @@ export const webmState = ({
 	logLevel,
 	readerInterface,
 	src,
+	prefetchCache,
 }: {
 	controller: MediaParserController;
 	logLevel: LogLevel;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
+	prefetchCache: PrefetchCache;
 }) => {
 	const trackEntries: Record<number, TrackInfo> = {};
 
@@ -124,6 +127,7 @@ export const webmState = ({
 		logLevel,
 		readerInterface,
 		src,
+		prefetchCache,
 	});
 
 	const getTimeStampMapForSeekingHints = () => {

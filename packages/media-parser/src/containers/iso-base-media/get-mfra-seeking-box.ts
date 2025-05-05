@@ -1,4 +1,5 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
+import type {PrefetchCache} from '../../fetch';
 import type {LogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
@@ -13,6 +14,7 @@ export type MfraSeekingBoxOptions = {
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 	logLevel: LogLevel;
+	prefetchCache: PrefetchCache;
 };
 
 export const getMfraSeekingBox = async ({
@@ -21,12 +23,15 @@ export const getMfraSeekingBox = async ({
 	readerInterface,
 	src,
 	logLevel,
+	prefetchCache,
 }: MfraSeekingBoxOptions): Promise<IsoBaseMediaBox[] | null> => {
 	const parentSize = await getMfroAtom({
 		contentLength,
 		controller,
 		readerInterface,
 		src,
+		logLevel,
+		prefetchCache,
 	});
 	if (!parentSize) {
 		return null;
@@ -38,6 +43,8 @@ export const getMfraSeekingBox = async ({
 		readerInterface,
 		src,
 		parentSize,
+		logLevel,
+		prefetchCache,
 	});
 
 	mfraAtom.discard(8);

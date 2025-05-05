@@ -83,7 +83,7 @@ export const startServer = async (options: {
 				});
 			})
 			.then(() => {
-				handleRoutes({
+				return handleRoutes({
 					staticHash: options.staticHash,
 					staticHashPrefix: options.staticHashPrefix,
 					outputHash: options.outputHash,

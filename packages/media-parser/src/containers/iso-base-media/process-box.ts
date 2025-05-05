@@ -2,12 +2,14 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
+import type {FetchMoreData} from '../../skip';
+import {makeFetchMoreData} from '../../skip';
 import type {TracksState} from '../../state/has-tracks-section';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
-import type {SampleCallbacks} from '../../state/sample-callbacks';
+import type {CallbacksState} from '../../state/sample-callbacks';
 import type {MediaSectionState} from '../../state/video-section';
 import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
-import type {BoxAndNext} from './base-media-box';
+import type {IsoBaseMediaBox} from './base-media-box';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {getIsoBaseMediaChildren} from './get-children';
@@ -43,13 +45,26 @@ export type OnlyIfMoovAtomExpected = {
 	isoState: IsoBaseMediaState | null;
 	onVideoTrack: OnVideoTrack | null;
 	onAudioTrack: OnAudioTrack | null;
-	registerVideoSampleCallback: SampleCallbacks['registerVideoSampleCallback'];
-	registerAudioSampleCallback: SampleCallbacks['registerAudioSampleCallback'];
+	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
+	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 };
 
 export type OnlyIfMdatAtomExpected = {
 	mediaSectionState: MediaSectionState;
 };
+
+type ProcessBoxResult =
+	| {
+			type: 'box';
+			box: IsoBaseMediaBox;
+	  }
+	| {
+			type: 'nothing';
+	  }
+	| {
+			type: 'fetch-more-data';
+			bytesNeeded: FetchMoreData;
+	  };
 
 export const processBox = async ({
 	iterator,
@@ -63,7 +78,7 @@ export const processBox = async ({
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 	onlyIfMdatAtomExpected: OnlyIfMdatAtomExpected | null;
 	contentLength: number;
-}): Promise<BoxAndNext> => {
+}): Promise<ProcessBoxResult> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -73,8 +88,11 @@ export const processBox = async ({
 
 	if (boxSizeRaw === 0) {
 		return {
-			type: 'void-box',
-			boxSize: 0,
+			type: 'box',
+			box: {
+				type: 'void-box',
+				boxSize: 0,
+			},
 		};
 	}
 
@@ -98,7 +116,7 @@ export const processBox = async ({
 
 	if (boxType === 'mdat') {
 		if (!onlyIfMdatAtomExpected) {
-			return null;
+			return {type: 'nothing'};
 		}
 
 		const {mediaSectionState} = onlyIfMdatAtomExpected;
@@ -107,132 +125,189 @@ export const processBox = async ({
 			start: iterator.counter.getOffset(),
 		});
 
-		return null;
+		return {type: 'nothing'};
 	}
 
 	if (bytesRemaining < boxSize) {
 		returnToCheckpoint();
-		return null;
+		return {
+			type: 'fetch-more-data',
+			bytesNeeded: makeFetchMoreData(boxSize - bytesRemaining),
+		};
 	}
 
 	if (boxType === 'ftyp') {
-		return parseFtyp({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: parseFtyp({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'colr') {
-		return parseColorParameterBox({
-			iterator,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseColorParameterBox({
+				iterator,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'mvhd') {
-		return parseMvhd({iterator, offset: fileOffset, size: boxSize});
+		return {
+			type: 'box',
+			box: parseMvhd({iterator, offset: fileOffset, size: boxSize}),
+		};
 	}
 
 	if (boxType === 'tkhd') {
-		return parseTkhd({iterator, offset: fileOffset, size: boxSize});
+		return {
+			type: 'box',
+			box: parseTkhd({iterator, offset: fileOffset, size: boxSize}),
+		};
 	}
 
 	if (boxType === 'trun') {
-		return parseTrun({iterator, offset: fileOffset, size: boxSize});
+		return {
+			type: 'box',
+			box: parseTrun({iterator, offset: fileOffset, size: boxSize}),
+		};
 	}
 
 	if (boxType === 'tfdt') {
-		return parseTfdt({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: parseTfdt({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'stsd') {
-		return parseStsd({
-			offset: fileOffset,
-			size: boxSize,
-			iterator,
-			logLevel,
-			contentLength,
-		});
+		return {
+			type: 'box',
+			box: await parseStsd({
+				offset: fileOffset,
+				size: boxSize,
+				iterator,
+				logLevel,
+				contentLength,
+			}),
+		};
 	}
 
 	if (boxType === 'stsz') {
-		return parseStsz({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseStsz({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'stco' || boxType === 'co64') {
-		return parseStco({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-			mode64Bit: boxType === 'co64',
-		});
+		return {
+			type: 'box',
+			box: await parseStco({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+				mode64Bit: boxType === 'co64',
+			}),
+		};
 	}
 
 	if (boxType === 'pasp') {
-		return parsePasp({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parsePasp({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'stss') {
-		return parseStss({
-			iterator,
-			offset: fileOffset,
-			boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseStss({
+				iterator,
+				offset: fileOffset,
+				boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'ctts') {
-		return parseCtts({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseCtts({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'stsc') {
-		return parseStsc({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseStsc({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'mebx') {
-		return parseMebx({
-			offset: fileOffset,
-			size: boxSize,
-			iterator,
-			logLevel,
-			contentLength,
-		});
+		return {
+			type: 'box',
+			box: await parseMebx({
+				offset: fileOffset,
+				size: boxSize,
+				iterator,
+				logLevel,
+				contentLength,
+			}),
+		};
 	}
 
 	if (boxType === 'hdlr') {
-		return parseHdlr({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: await parseHdlr({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'keys') {
-		return parseKeys({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: await parseKeys({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'ilst') {
-		return parseIlstBox({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseIlstBox({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'tfra') {
-		return parseTfraBox({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseTfraBox({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'moov') {
@@ -243,7 +318,7 @@ export const processBox = async ({
 		const {tracks, isoState} = onlyIfMoovAtomExpected;
 		if (tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
-			return null;
+			return {type: 'nothing'};
 		}
 
 		if (
@@ -253,7 +328,7 @@ export const processBox = async ({
 		) {
 			Log.verbose(logLevel, 'Moov box already parsed, skipping');
 			iterator.discard(boxSize - 8);
-			return null;
+			return {type: 'nothing'};
 		}
 
 		const box = await parseMoov({
@@ -267,7 +342,7 @@ export const processBox = async ({
 
 		tracks.setIsDone(logLevel);
 
-		return box;
+		return {type: 'box', box};
 	}
 
 	if (boxType === 'trak') {
@@ -310,65 +385,86 @@ export const processBox = async ({
 			});
 		}
 
-		return box;
+		return {type: 'box', box};
 	}
 
 	if (boxType === 'stts') {
-		return parseStts({
-			data: iterator,
-			size: boxSize,
-			fileOffset,
-		});
+		return {
+			type: 'box',
+			box: await parseStts({
+				data: iterator,
+				size: boxSize,
+				fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'avcC') {
-		return parseAvcc({
-			data: iterator,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseAvcc({
+				data: iterator,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'av1C') {
-		return parseAv1C({
-			data: iterator,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseAv1C({
+				data: iterator,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'hvcC') {
-		return parseHvcc({
-			data: iterator,
-			size: boxSize,
-			offset: fileOffset,
-		});
+		return {
+			type: 'box',
+			box: await parseHvcc({
+				data: iterator,
+				size: boxSize,
+				offset: fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'tfhd') {
-		return getTfhd({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await getTfhd({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'mdhd') {
-		return parseMdhd({
-			data: iterator,
-			size: boxSize,
-			fileOffset,
-		});
+		return {
+			type: 'box',
+			box: await parseMdhd({
+				data: iterator,
+				size: boxSize,
+				fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'esds') {
-		return parseEsds({
-			data: iterator,
-			size: boxSize,
-			fileOffset,
-		});
+		return {
+			type: 'box',
+			box: await parseEsds({
+				data: iterator,
+				size: boxSize,
+				fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'moof') {
-		onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
+		await onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
 	}
 
 	if (
@@ -393,21 +489,27 @@ export const processBox = async ({
 		});
 
 		return {
-			type: 'regular-box',
-			boxType,
-			boxSize,
-			children,
-			offset: fileOffset,
+			type: 'box',
+			box: {
+				type: 'regular-box',
+				boxType,
+				boxSize,
+				children,
+				offset: fileOffset,
+			},
 		};
 	}
 
 	iterator.discard(boxSize - 8);
 
 	return {
-		type: 'regular-box',
-		boxType,
-		boxSize,
-		children: [],
-		offset: fileOffset,
+		type: 'box',
+		box: {
+			type: 'regular-box',
+			boxType,
+			boxSize,
+			children: [],
+			offset: fileOffset,
+		},
 	};
 };

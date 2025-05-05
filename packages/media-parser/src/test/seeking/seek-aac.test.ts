@@ -6,7 +6,7 @@ import {parseMedia} from '../../parse-media';
 
 test('seek aac', async () => {
 	const controller = mediaParserController();
-	controller._experimentalSeek({
+	controller.seek({
 		timeInSeconds: 3,
 		type: 'keyframe-before-time',
 	});
@@ -22,7 +22,7 @@ test('seek aac', async () => {
 				samples++;
 				if (samples === 1) {
 					expect(s.timestamp / s.timescale).toBe(2.995374149659864);
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 10,
 						type: 'keyframe-before-time',
 					});
@@ -30,7 +30,7 @@ test('seek aac', async () => {
 
 				if (samples === 2) {
 					expect(s.timestamp / s.timescale).toBe(9.984580498866213);
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 5,
 						type: 'keyframe-before-time',
 					});
@@ -38,7 +38,7 @@ test('seek aac', async () => {
 
 				if (samples === 3) {
 					expect(s.timestamp / s.timescale).toBe(4.992290249433107);
-					controller._experimentalSeek({
+					controller.seek({
 						timeInSeconds: 1000,
 						type: 'keyframe-before-time',
 					});

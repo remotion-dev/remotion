@@ -6,7 +6,7 @@ import {parseMedia} from '../../parse-media';
 
 test('seek mp3 cbr', async () => {
 	const controller = mediaParserController();
-	controller._experimentalSeek({
+	controller.seek({
 		type: 'keyframe-before-time',
 		timeInSeconds: 60,
 	});
@@ -23,7 +23,7 @@ test('seek mp3 cbr', async () => {
 				samples++;
 				if (samples === 1) {
 					expect(sample.timestamp / sample.timescale).toBe(59.95102);
-					controller._experimentalSeek({
+					controller.seek({
 						type: 'keyframe-before-time',
 						timeInSeconds: 10000000,
 					});

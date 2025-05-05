@@ -87,6 +87,10 @@ const ControlsOnly: React.FC<{
 	readonly setShowPosterWhenBuffering: React.Dispatch<
 		React.SetStateAction<boolean>
 	>;
+	readonly showPosterWhenBufferingAndPaused: boolean;
+	readonly setShowPosterWhenBufferingAndPaused: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	readonly hideControlsWhenPointerDoesntMove: boolean;
 	readonly setHideControlsWhenPointerDoesntMove: React.Dispatch<
 		React.SetStateAction<boolean>
@@ -118,6 +122,8 @@ const ControlsOnly: React.FC<{
 	showPosterWhenPaused,
 	setShowPosterWhenBuffering,
 	showPosterWhenBuffering,
+	setShowPosterWhenBufferingAndPaused,
+	showPosterWhenBufferingAndPaused,
 	inFrame,
 	outFrame,
 	setInFrame,
@@ -432,6 +438,13 @@ const ControlsOnly: React.FC<{
 			>
 				showPosterWhenBuffering = {String(showPosterWhenBuffering)}
 			</button>
+			<button
+				type="button"
+				onClick={() => setShowPosterWhenBufferingAndPaused((l) => !l)}
+			>
+				showPosterWhenBufferingAndPaused ={' '}
+				{String(showPosterWhenBufferingAndPaused)}
+			</button>
 			<br />
 			<button
 				type="button"
@@ -559,6 +572,7 @@ const PlayerOnly: React.FC<
 		readonly showPosterWhenEnded: boolean;
 		readonly showPosterWhenUnplayed: boolean;
 		readonly showPosterWhenBuffering: boolean;
+		readonly showPosterWhenBufferingAndPaused: boolean;
 		readonly inFrame: number | null;
 		readonly outFrame: number | null;
 		readonly alwaysShowControls: boolean;
@@ -580,6 +594,7 @@ const PlayerOnly: React.FC<
 	showPosterWhenEnded,
 	showPosterWhenUnplayed,
 	showPosterWhenBuffering,
+	showPosterWhenBufferingAndPaused,
 	inFrame,
 	outFrame,
 	alwaysShowControls,
@@ -656,6 +671,7 @@ const PlayerOnly: React.FC<
 			showPosterWhenEnded={showPosterWhenEnded}
 			showPosterWhenPaused={showPosterWhenPaused}
 			showPosterWhenBuffering={showPosterWhenBuffering}
+			showPosterWhenBufferingAndPaused={showPosterWhenBufferingAndPaused}
 			inFrame={inFrame}
 			outFrame={outFrame}
 			alwaysShowControls={alwaysShowControls}
@@ -693,6 +709,10 @@ export default ({
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const [showPosterWhenUnplayed, setshowPosterWhenUnplayed] = useState(true);
 	const [showPosterWhenBuffering, setShowPosterWhenBuffering] = useState(true);
+	const [
+		showPosterWhenBufferingAndPaused,
+		setShowPosterWhenBufferingAndPaused,
+	] = useState(false);
 	const [showPosterWhenEnded, setShowPosterWhenEnded] = useState(true);
 	const [showPosterWhenPaused, setShowPosterWhenPaused] = useState(true);
 	const [inFrame, setInFrame] = useState<number | null>(null);
@@ -734,6 +754,7 @@ export default ({
 				showPosterWhenPaused={showPosterWhenPaused}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showPosterWhenBuffering={showPosterWhenBuffering}
+				showPosterWhenBufferingAndPaused={showPosterWhenBufferingAndPaused}
 				showVolumeControls={showVolumeControls}
 				showPlaybackRateControl={showPlaybackRateControl}
 				inFrame={inFrame}
@@ -762,7 +783,11 @@ export default ({
 				setShowPosterWhenEnded={setShowPosterWhenEnded}
 				setShowPosterWhenPaused={setShowPosterWhenPaused}
 				showPosterWhenBuffering={showPosterWhenBuffering}
+				showPosterWhenBufferingAndPaused={showPosterWhenBufferingAndPaused}
 				setShowPosterWhenBuffering={setShowPosterWhenBuffering}
+				setShowPosterWhenBufferingAndPaused={
+					setShowPosterWhenBufferingAndPaused
+				}
 				setAlwaysShowControls={setAlwaysShowControls}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showPosterWhenEnded={showPosterWhenEnded}

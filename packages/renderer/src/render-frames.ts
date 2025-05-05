@@ -728,13 +728,13 @@ export const renderFrames = (
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
 			}).serializedString,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props,

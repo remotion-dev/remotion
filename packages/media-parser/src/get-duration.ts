@@ -1,4 +1,5 @@
 import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
+import {areSamplesComplete} from './containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
@@ -6,6 +7,7 @@ import {
 	getMoovBoxFromState,
 	getMvhdBox,
 	getTfraBoxes,
+	getTfraBoxesFromMfraBoxChildren,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
@@ -14,6 +16,7 @@ import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
 import type {DurationSegment} from './containers/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
+import {deduplicateTfraBoxesByOffset} from './state/iso-base-media/precomputed-tfra';
 import type {ParserState} from './state/parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -60,15 +63,25 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const moovBox = getMoovBoxFromState({
 		structureState: parserState.structure,
 		isoState: parserState.iso,
-		mp4HeaderSegment: parserState.mp4HeaderSegment,
+		mp4HeaderSegment: parserState.m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		mayUsePrecomputed: true,
 	});
+
 	if (!moovBox) {
 		return null;
 	}
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
-	const tfraBoxes = getTfraBoxes(structure);
+	const mfra = parserState.iso.mfra.getIfAlreadyLoaded();
+	const tfraBoxes = deduplicateTfraBoxesByOffset([
+		...(mfra ? getTfraBoxesFromMfraBoxChildren(mfra) : []),
+		...getTfraBoxes(structure.boxes),
+	]);
+
+	if (!areSamplesComplete({moofBoxes, tfraBoxes})) {
+		return null;
+	}
+
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -89,12 +102,14 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		...tracks.audioTracks,
 		...tracks.otherTracks,
 	];
+
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
+
 		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
 			trakBox: t.trakBox as TrakBox,
 			moofBoxes,
-			tfraBoxes,
+			moofComplete: areSamplesComplete({moofBoxes, tfraBoxes}),
 		});
 
 		if (!isComplete) {
@@ -177,7 +192,11 @@ export const hasDuration = (parserState: ParserState): boolean => {
 // Unless it it somewhere in the metadata and is non-null
 export const hasSlowDuration = (parserState: ParserState): boolean => {
 	try {
-		return hasDuration(parserState) && getDuration(parserState) !== null;
+		if (!hasDuration(parserState)) {
+			return false;
+		}
+
+		return getDuration(parserState) !== null;
 	} catch {
 		return false;
 	}

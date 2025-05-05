@@ -17,7 +17,7 @@ test('should seek transport stream', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 20) {
-					controller._experimentalSeek({
+					controller.seek({
 						type: 'keyframe-before-time',
 						timeInSeconds: 10,
 					});

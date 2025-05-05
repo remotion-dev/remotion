@@ -228,7 +228,7 @@ export const renderCommand = async ({
 				height,
 				indent,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						indent: undefined,
 						staticBase: null,
 						data: inputProps,

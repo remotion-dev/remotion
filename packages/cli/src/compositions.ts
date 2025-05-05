@@ -137,7 +137,7 @@ export const listCompositionsCommand = async (
 		chromiumOptions,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: null,
 				indent: undefined,

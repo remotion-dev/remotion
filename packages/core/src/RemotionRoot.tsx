@@ -13,8 +13,8 @@ import {continueRender, delayRender} from './delay-render.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext} from './log-level-context.js';
 import type {LogLevel} from './log.js';
-import type {TNonceContext} from './nonce.js';
-import {NonceContext} from './nonce.js';
+import type {TNonceContext, TSetNonceContext} from './nonce.js';
+import {NonceContext, SetNonceContext} from './nonce.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {random} from './random.js';
 import type {
@@ -55,6 +55,7 @@ export const RemotionRoot: React.FC<{
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
+	const [manualRefreshes, setManualRefreshes] = useState(0);
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
@@ -117,8 +118,17 @@ export const RemotionRoot: React.FC<{
 		return {
 			getNonce: () => counter++,
 			fastRefreshes,
+			manualRefreshes,
 		};
-	}, [fastRefreshes]);
+	}, [fastRefreshes, manualRefreshes]);
+
+	const setNonceContext = useMemo((): TSetNonceContext => {
+		return {
+			increaseManualRefreshes: () => {
+				setManualRefreshes((i) => i + 1);
+			},
+		};
+	}, []);
 
 	useEffect(() => {
 		if (typeof __webpack_module__ !== 'undefined') {
@@ -139,23 +149,25 @@ export const RemotionRoot: React.FC<{
 	return (
 		<LogLevelContext.Provider value={logging}>
 			<NonceContext.Provider value={nonceContext}>
-				<TimelineContext.Provider value={timelineContextValue}>
-					<SetTimelineContext.Provider value={setTimelineContextValue}>
-						<EditorPropsProvider>
-							<PrefetchProvider>
-								<CompositionManagerProvider
-									numberOfAudioTags={numberOfAudioTags}
-									onlyRenderComposition={onlyRenderComposition}
-									currentCompositionMetadata={currentCompositionMetadata}
-								>
-									<DurationsContextProvider>
-										<BufferingProvider>{children}</BufferingProvider>
-									</DurationsContextProvider>
-								</CompositionManagerProvider>
-							</PrefetchProvider>
-						</EditorPropsProvider>
-					</SetTimelineContext.Provider>
-				</TimelineContext.Provider>
+				<SetNonceContext.Provider value={setNonceContext}>
+					<TimelineContext.Provider value={timelineContextValue}>
+						<SetTimelineContext.Provider value={setTimelineContextValue}>
+							<EditorPropsProvider>
+								<PrefetchProvider>
+									<CompositionManagerProvider
+										numberOfAudioTags={numberOfAudioTags}
+										onlyRenderComposition={onlyRenderComposition}
+										currentCompositionMetadata={currentCompositionMetadata}
+									>
+										<DurationsContextProvider>
+											<BufferingProvider>{children}</BufferingProvider>
+										</DurationsContextProvider>
+									</CompositionManagerProvider>
+								</PrefetchProvider>
+							</EditorPropsProvider>
+						</SetTimelineContext.Provider>
+					</TimelineContext.Provider>
+				</SetNonceContext.Provider>
 			</NonceContext.Provider>
 		</LogLevelContext.Provider>
 	);

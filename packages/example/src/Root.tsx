@@ -110,6 +110,7 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
@@ -129,6 +130,7 @@ import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TransitionRounding} from './TransitionRounding';
+import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWasm} from './WhisperWasm';
 
@@ -1213,6 +1215,7 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					schema={z.object({
+						matrix: zMatrix(),
 						union: z.array(
 							z.discriminatedUnion('type', [
 								z.object({
@@ -1232,6 +1235,7 @@ export const Index: React.FC = () => {
 						),
 					})}
 					defaultProps={{
+						matrix: [0, 1, 1, 0],
 						union: [
 							{type: 'boat' as const, depth: 10},
 							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
@@ -1307,6 +1311,7 @@ export const Index: React.FC = () => {
 						delay: 5.2,
 						color: '#df822a',
 						list: [{name: 'first', age: 12}],
+						matrix: [0, 1, 1, 0],
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 						superSchema: [
@@ -1471,7 +1476,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1000}
 					width={1000}
-					durationInFrames={10}
+					durationInFrames={100}
 				/>
 			</Folder>
 			<Folder name="MediaErrorHandling">
@@ -1570,6 +1575,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="voice-visualization"
 					component={VoiceVisualization}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={900}
+				/>
+			</Folder>
+			<Folder name="visual-controls">
+				<Composition
+					id="visual-controls"
+					component={VisualControls}
 					width={1080}
 					height={1080}
 					fps={30}

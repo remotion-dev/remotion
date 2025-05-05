@@ -1,4 +1,5 @@
 import type {MediaParserController} from './controller/media-parser-controller';
+import type {PrefetchCache} from './fetch';
 import type {BufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
 import {Log} from './log';
@@ -14,6 +15,7 @@ export const seekBackwards = async ({
 	controller,
 	logLevel,
 	currentReader,
+	prefetchCache,
 }: {
 	iterator: BufferIterator;
 	seekTo: number;
@@ -22,11 +24,13 @@ export const seekBackwards = async ({
 	controller: MediaParserController;
 	logLevel: LogLevel;
 	currentReader: CurrentReader;
+	prefetchCache: PrefetchCache;
 }) => {
 	// (a) data has not been discarded yet
 	const howManyBytesWeCanGoBack = iterator.counter.getDiscardedOffset();
 
 	if (iterator.counter.getOffset() - howManyBytesWeCanGoBack <= seekTo) {
+		Log.verbose(logLevel, `Seeking back to ${seekTo}`);
 		iterator.skipTo(seekTo);
 		return;
 	}
@@ -38,10 +42,14 @@ export const seekBackwards = async ({
 		`Seeking in video from position ${iterator.counter.getOffset()} -> ${seekTo}. Re-reading because this portion is not available.`,
 	);
 
+	await currentReader.getCurrent().abort();
+
 	const {reader: newReader} = await readerInterface.read({
 		src,
 		range: seekTo,
 		controller,
+		logLevel,
+		prefetchCache,
 	});
 
 	iterator.replaceData(new Uint8Array([]), seekTo);

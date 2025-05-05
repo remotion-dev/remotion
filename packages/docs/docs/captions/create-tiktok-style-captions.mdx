@@ -14,7 +14,7 @@ A high value for `combineTokensWithinMilliseconds` will fit many words on 1 page
 This function is safe to use in the browser, Node.js and Bun.
 
 :::note
-This API expects the whitespace to be included in the `text` field **before each word**.
+This API expects the whitespace to be included in the `text` field **before each word. Spaces are used as delimiters, and omitting them will cause the entire text to merge into a single line or page, resulting in poorly formatted captions.**.
 :::
 
 ```tsx twoslash title="Create pages from captions"

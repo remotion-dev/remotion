@@ -1,5 +1,6 @@
 import {mediaParserController} from './controller/media-parser-controller';
 import {emitAllInfo, triggerInfoEmit} from './emit-all-info';
+import type {makeFetchRequest} from './fetch';
 import type {Options, ParseMediaFields} from './fields';
 import {getSeekingHints} from './get-seeking-hints';
 import {Log} from './log';
@@ -34,7 +35,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	apiName,
 	selectM3uStream: selectM3uStreamFn,
 	selectM3uAssociatedPlaylists: selectM3uAssociatedPlaylistsFn,
-	mp4HeaderSegment,
+	m3uPlaylistContext,
 	makeSamplesStartAtZero,
 	seekingHints,
 	...more
@@ -51,6 +52,8 @@ export const internalParseMedia: InternalParseMedia = async function <
 		`Reading ${typeof src === 'string' ? src : src instanceof URL ? src.toString() : src instanceof File ? src.name : src.toString()}`,
 	);
 
+	const prefetchCache = new Map<string, ReturnType<typeof makeFetchRequest>>();
+
 	const {
 		reader: readerInstance,
 		contentLength,
@@ -58,7 +61,13 @@ export const internalParseMedia: InternalParseMedia = async function <
 		contentType,
 		supportsContentRange,
 		needsContentRange,
-	} = await readerInterface.read({src, range: null, controller});
+	} = await readerInterface.read({
+		src,
+		range: null,
+		controller,
+		logLevel,
+		prefetchCache,
+	});
 
 	if (contentLength === null) {
 		throw new Error(
@@ -89,7 +98,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		onDiscardedData,
 		selectM3uStreamFn,
 		selectM3uAssociatedPlaylistsFn,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
 		contentType,
 		name,
 		callbacks: more,
@@ -97,6 +106,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		mimeType: contentType,
 		initialReaderInstance: readerInstance,
 		makeSamplesStartAtZero,
+		prefetchCache,
 	});
 
 	if (seekingHints) {
@@ -110,7 +120,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 				keyframesState: state.keyframes,
 				webmState: state.webm,
 				structureState: state.structure,
-				mp4HeaderSegment: state.mp4HeaderSegment,
+				m3uPlaylistContext: state.m3uPlaylistContext,
 				mediaSectionState: state.mediaSection,
 				isoState: state.iso,
 				transportStream: state.transportStream,
@@ -157,6 +167,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	state.iterator?.destroy();
 	state.callbacks.tracks.ensureHasTracksAtEnd(state.fields);
 	state.m3u.abortM3UStreamRuns();
+	prefetchCache.clear();
 
 	if (state.errored) {
 		throw state.errored;

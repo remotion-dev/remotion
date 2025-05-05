@@ -152,10 +152,10 @@ const innerSelectComposition = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: NoReactInternals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithSpecialTypes(
 				res.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				res.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
@@ -322,7 +322,7 @@ export const selectComposition = async (
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},

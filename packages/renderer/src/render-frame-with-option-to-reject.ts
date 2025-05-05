@@ -12,7 +12,6 @@ import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
@@ -137,8 +136,6 @@ export const renderFrameWithOptionToReject = async ({
 		);
 	}
 
-	const id = startPerfMeasure('save');
-
 	const {buffer, collectedAssets} = await takeFrame({
 		frame,
 		freePage: page,
@@ -172,8 +169,6 @@ export const renderFrameWithOptionToReject = async ({
 		onFrameBuffer(buffer, frame);
 	}
 
-	stopPerfMeasure(id);
-
 	const onlyAvailableAssets = assets.filter(truthy);
 
 	const previousAudioRenderAssets = onlyAvailableAssets
@@ -185,7 +180,10 @@ export const renderFrameWithOptionToReject = async ({
 		.flat(2);
 
 	const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
-	const artifactAssets = onlyArtifact(collectedAssets);
+	const artifactAssets = onlyArtifact({
+		assets: collectedAssets,
+		frameBuffer: buffer,
+	});
 
 	for (const artifact of artifactAssets) {
 		for (const previousArtifact of previousArtifactAssets) {

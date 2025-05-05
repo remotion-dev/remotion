@@ -325,7 +325,10 @@ const innerRenderStill = async ({
 		timeoutInMilliseconds,
 	});
 
-	const artifactAssets = onlyArtifact(collectedAssets);
+	const artifactAssets = onlyArtifact({
+		assets: collectedAssets,
+		frameBuffer: buffer,
+	});
 	const previousArtifactAssets = [];
 
 	for (const artifact of artifactAssets) {
@@ -476,7 +479,7 @@ export const renderStill = (
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				staticBase: null,
 				indent: undefined,
 				data: inputProps ?? {},
@@ -494,7 +497,7 @@ export const renderStill = (
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props ?? {},

@@ -19,7 +19,7 @@ test('handle seek infinite loop better', async () => {
 			},
 			onVideoTrack: () => {
 				return () => {
-					controller._experimentalSeek({
+					controller.seek({
 						type: 'keyframe-before-time',
 						timeInSeconds: 10,
 					});

@@ -16,6 +16,7 @@ export {saveDefaultProps} from './api/save-default-props';
 export {seek} from './api/seek';
 export {toggle} from './api/toggle';
 export {updateDefaultProps} from './api/update-default-props';
+export {visualControl} from './api/visual-control';
 export {watchPublicFolder} from './api/watch-public-folder';
 export {watchStaticFile} from './api/watch-static-file';
 export {writeStaticFile} from './api/write-static-file';

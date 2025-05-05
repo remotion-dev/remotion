@@ -551,6 +551,7 @@ module.exports = {
 				'studio/update-default-props',
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
+				'studio/visual-control',
 			],
 		},
 		{
@@ -608,7 +609,11 @@ module.exports = {
 				type: 'doc',
 				id: 'zod-types/index',
 			},
-			items: ['zod-types/z-color', 'zod-types/z-textarea'],
+			items: [
+				'zod-types/z-color',
+				'zod-types/z-textarea',
+				'zod-types/z-matrix',
+			],
 		},
 		{
 			type: 'category',
@@ -1031,6 +1036,7 @@ module.exports = {
 				'media-parser/format-support',
 				'media-parser/runtime-support',
 				'media-parser/pause-resume-abort',
+				'media-parser/seeking',
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
 				'media-parser/stream-selection',

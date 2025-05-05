@@ -8,7 +8,10 @@ import {
 } from './CanUseRemotionHooks.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
-import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import {
+	PROPS_UPDATED_EXTERNALLY,
+	useResolvedVideoConfig,
+} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
@@ -168,6 +171,7 @@ const InnerComposition = <
 
 		validateCompositionId(id);
 		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
+
 		registerComposition<Schema, Props>({
 			durationInFrames: durationInFrames ?? undefined,
 			fps: fps ?? undefined,
@@ -205,11 +209,25 @@ const InnerComposition = <
 		unregisterComposition,
 	]);
 
+	useEffect(() => {
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: string | null}>(PROPS_UPDATED_EXTERNALLY, {
+				detail: {
+					resetUnsaved: id,
+				},
+			}),
+		);
+	}, [defaultProps, id]);
+
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 
@@ -230,7 +248,11 @@ const InnerComposition = <
 
 	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 

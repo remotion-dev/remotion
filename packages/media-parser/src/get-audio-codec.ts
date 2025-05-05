@@ -305,6 +305,10 @@ const getAudioCodecFromAudioCodecInfo = (
 		return 'ac3';
 	}
 
+	if (codec.format === 'Opus') {
+		return 'opus';
+	}
+
 	if (codec.format === 'mp4a') {
 		if (codec.primarySpecificator === 0x40) {
 			return 'aac';

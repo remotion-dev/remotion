@@ -1,3 +1,16 @@
+import type {EnumPath} from './stringify-default-props';
+
+export type VisualControlChange = {
+	id: string;
+	newValueSerialized: string;
+	enumPaths: EnumPath[];
+};
+
+export type ApplyVisualControlCodemod = {
+	type: 'apply-visual-control';
+	changes: VisualControlChange[];
+};
+
 export type RecastCodemod =
 	| {
 			type: 'duplicate-composition';
@@ -17,4 +30,5 @@ export type RecastCodemod =
 	| {
 			type: 'delete-composition';
 			idToDelete: string;
-	  };
+	  }
+	| ApplyVisualControlCodemod;
