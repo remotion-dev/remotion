@@ -45,6 +45,10 @@ export const nodeReadContent: ReadContent = ({src, range, controller}) => {
 				c.enqueue(chunk);
 			});
 			stream.on('end', () => {
+				if (readerCancelled) {
+					return;
+				}
+
 				c.close();
 			});
 			stream.on('error', (err) => {
