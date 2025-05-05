@@ -49,11 +49,13 @@ export const AskAiModal: React.FC = () => {
 
 	useEffect(() => {
 		const onMessage = (event: MessageEvent) => {
-			const json =
-				typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-			if (json.type === 'cmd-i') {
-				askAiModalRef.current?.toggle();
-			}
+			try {
+				const json =
+					typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+				if (json.type === 'cmd-i') {
+					askAiModalRef.current?.toggle();
+				}
+			} catch {}
 		};
 
 		window.addEventListener('message', onMessage);
