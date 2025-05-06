@@ -128,7 +128,6 @@ export const parseIlstBox = ({
 				continue;
 			}
 
-			console.log({index});
 			iterator.discard(metadataSize - 8);
 			continue;
 		}
