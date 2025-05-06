@@ -1,3 +1,7 @@
+import type {
+	CanUseWhisperWasmResult,
+	canUseWhisperWasm as originalCanUseWhisperWasm,
+} from './can-use-whisper-wasm';
 import type {deleteModel as originalDeleteModel} from './delete-model';
 import type {
 	DownloadWhisperModelParams,
@@ -34,7 +38,14 @@ export const deleteModel: typeof originalDeleteModel = () => {
 	);
 };
 
+export const canUseWhisperWasm: typeof originalCanUseWhisperWasm = () => {
+	throw new Error(
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+	);
+};
+
 export type {
+	CanUseWhisperWasmResult,
 	DownloadWhisperModelParams,
 	DownloadWhisperModelResult,
 	TranscribeParams,

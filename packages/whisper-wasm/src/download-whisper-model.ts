@@ -1,3 +1,4 @@
+import {canUseWhisperWasm} from './can-use-whisper-wasm';
 import type {WhisperModel} from './constants';
 import {MODELS, SIZES} from './constants';
 import {getObject} from './db/get-object-from-db';
@@ -18,6 +19,18 @@ export const downloadWhisperModel = async ({
 	model,
 	onProgress,
 }: DownloadWhisperModelParams): Promise<DownloadWhisperModelResult> => {
+	const {supported, reasons} = canUseWhisperWasm();
+
+	if (!supported) {
+		return Promise.reject(
+			new Error(
+				`Whisper Wasm is not supported in this environment. Reasons: ${reasons.join(
+					', ',
+				)}`,
+			),
+		);
+	}
+
 	if (!model || !MODELS.includes(model)) {
 		return Promise.reject(
 			new Error(`Invalid model name. Supported models: ${MODELS.join(', ')}.`),
