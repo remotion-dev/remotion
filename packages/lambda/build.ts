@@ -2,7 +2,6 @@ import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-arm64-gnu';
 import fs, {cpSync, readdirSync} from 'node:fs';
 import path from 'node:path';
-import {FUNCTION_ZIP_ARM64} from './src/shared/function-zip-path';
 
 import zl from 'zip-lib';
 
@@ -57,7 +56,7 @@ fs.cpSync(
 	`${outdir}/mappings.wasm`,
 );
 
-await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
+await zl.archiveFolder(outdir, 'remotionlambda-arm64.zip');
 
 fs.rmSync(outdir, {recursive: true});
 console.log('Bundled Lambda');
