@@ -8,6 +8,7 @@ import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {z} from 'zod';
+import type {Privacy} from '../defaults';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayload,
@@ -34,7 +35,7 @@ type OptionalParameters = {
 	cloudRunUrl: string | null;
 	serviceName: string | null;
 	inputProps: Record<string, unknown>;
-	privacy: 'public' | 'private';
+	privacy: Privacy;
 	forceBucketName: string | null;
 	outName: string | null;
 	envVariables: Record<string, string>;
