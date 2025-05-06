@@ -113,7 +113,7 @@ export const parseIlstBox = ({
 		const index = iterator.getAtom();
 
 		// this can be of a different type
-		if (!index.startsWith('�')) {
+		if (!index.startsWith('�') && !index.startsWith('\u0000')) {
 			// "skip" as a number
 			if (index === 'skip') {
 				iterator.discard(metadataSize - 8);
@@ -128,6 +128,7 @@ export const parseIlstBox = ({
 				continue;
 			}
 
+			console.log({index});
 			iterator.discard(metadataSize - 8);
 			continue;
 		}

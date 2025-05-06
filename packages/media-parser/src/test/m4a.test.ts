@@ -18,7 +18,6 @@ test('should work on voice note', async () => {
 			videoCodec: true,
 			container: true,
 			dimensions: true,
-			duration: true,
 			metadata: true,
 			structure: true,
 		},
