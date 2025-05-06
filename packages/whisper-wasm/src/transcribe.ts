@@ -2,7 +2,7 @@
 
 import type {MainModule} from '../main';
 import {checkForHeaders} from './check-for-headers';
-import {type WhisperModel} from './constants';
+import type {WhisperLanguage, WhisperModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
 import {loadMod} from './load-mod/load-mod';
@@ -103,6 +103,7 @@ const audioProcessor = (file: Blob) => {
 export type TranscribeParams = {
 	file: Blob;
 	model: WhisperModel;
+	language?: WhisperLanguage;
 	onProgress?: (p: number) => void;
 	onUpdate?: (json: TranscriptionItemWithTimestamp[]) => void;
 	threads?: number;
@@ -121,6 +122,7 @@ const storeFS = (mod: MainModule, fname: string, buf: any) => {
 export const transcribe = async ({
 	file,
 	model,
+	language = 'auto',
 	onProgress,
 	threads,
 	onUpdate,
@@ -216,8 +218,7 @@ export const transcribe = async ({
 		fileName,
 		data,
 		model,
-		// TODO: unhardcode
-		'en',
+		language,
 		threads ?? DEFAULT_THREADS,
 		false,
 	);
