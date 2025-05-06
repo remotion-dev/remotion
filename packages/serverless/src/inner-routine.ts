@@ -183,7 +183,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			console.log({err});
 			await responseWriter.write(
 				new TextEncoder().encode(
-					JSON.stringify({type: 'error', message: (err as Error).message}),
+					JSON.stringify({type: 'error', message: (err as Error).stack}),
 				),
 			);
 			return;
