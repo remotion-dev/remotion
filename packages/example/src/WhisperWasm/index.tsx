@@ -38,14 +38,15 @@ export const WhisperWasm = () => {
 		const transcription = await transcribe({
 			model,
 			file: blob,
+			logLevel: 'verbose',
 			onProgress(p) {
 				console.log({p});
 			},
 			onTranscribedChunks(transcription) {
-				console.log({transcription});
+				console.log('New transcription chunk', transcription);
 			},
 		});
-		console.log({transcription});
+		console.log('Final transcription', transcription);
 	}, []);
 
 	useEffect(() => {

@@ -6,6 +6,8 @@ import type {WhisperLanguage, WhisperModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
 import {loadMod} from './load-mod/load-mod';
+import type {LogLevel} from './log';
+import {Log} from './log';
 import {printHandler} from './print-handler';
 import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
 import {simulateProgress} from './simulate-progress';
@@ -109,6 +111,7 @@ export type TranscribeParams = {
 		transcription: TranscriptionItemWithTimestamp[],
 	) => void;
 	threads?: number;
+	logLevel?: LogLevel;
 };
 
 const storeFS = (mod: MainModule, fname: string, buf: any) => {
@@ -128,10 +131,23 @@ export const transcribe = async ({
 	onProgress,
 	threads,
 	onTranscribedChunks,
+	logLevel = 'info',
 }: TranscribeParams): Promise<TranscriptionJson> => {
+	Log.info(
+		logLevel,
+		`Starting transcription with model: ${model}, language: ${language}, threads: ${
+			threads ?? DEFAULT_THREADS
+		}`,
+	);
 	checkForHeaders();
 
 	if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
+		Log.warn(
+			logLevel,
+			`Thread limit exceeded: Used ${
+				threads ?? DEFAULT_THREADS
+			}, max ${MAX_THREADS_ALLOWED} allowed.`,
+		);
 		return Promise.reject(
 			new Error(`Thread limit exceeded: max ${MAX_THREADS_ALLOWED} allowed.`),
 		);
@@ -160,14 +176,17 @@ export const transcribe = async ({
 	const resolve = (value: TranscriptionJson) => {
 		_resolve(value);
 		abortProgress();
+		Log.info(logLevel, 'Transcription completed successfully.');
 	};
 
 	const reject = (reason: Error) => {
 		_reject(reason);
 		abortProgress();
+		Log.error('Transcription failed:', reason);
 	};
 
 	const handler = printHandler({
+		logLevel,
 		onProgress: (p: number) => {
 			if (p === 0) {
 				startProgress();
@@ -207,15 +226,21 @@ export const transcribe = async ({
 		);
 	}
 
+	Log.info(logLevel, `Model ${model} loaded successfully.`);
+
 	const fileName = `${model}.bin`;
 
 	storeFS(Mod, fileName, result);
 
 	const data = await audioProcessor(file);
 	if (!data) {
+		Log.error('No audio data after processing.');
 		throw new Error('No audio data.');
 	}
 
+	Log.info(logLevel, 'Audio processing completed.');
+
+	Log.info(logLevel, 'Starting main transcription process...');
 	Mod.full_default(
 		fileName,
 		data,

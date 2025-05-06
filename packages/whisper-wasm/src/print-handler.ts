@@ -1,3 +1,5 @@
+import type {LogLevel} from './log';
+import {Log} from './log';
 import type {TranscriptionJson} from './result';
 
 const RESULT_TOKEN = 'remotion_final:';
@@ -10,13 +12,17 @@ export const printHandler = ({
 	onDone,
 	onBusy,
 	onUpdate,
+	logLevel,
 }: {
 	onProgress: (value: number) => void;
 	onBusy: () => void;
 	onDone: (value: TranscriptionJson) => void;
 	onUpdate: (value: TranscriptionJson) => void;
+	logLevel: LogLevel;
 }) => {
 	return (text: string) => {
+		Log.verbose(logLevel, text);
+
 		if (text.startsWith(PROGRESS_TOKEN)) {
 			const value = parseInt(text.slice(PROGRESS_TOKEN.length), 10);
 			onProgress(value);
@@ -28,8 +34,6 @@ export const printHandler = ({
 			onUpdate(json);
 		} else if (text.startsWith(BUSY_TOKEN)) {
 			onBusy();
-		} else {
-			console.log({text});
 		}
 	};
 };
