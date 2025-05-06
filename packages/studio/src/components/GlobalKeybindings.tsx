@@ -4,12 +4,15 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ModalsContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
+import {useCompositionNavigation} from './CompositionSelector';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
+	const {navigateToNextComposition, navigateToPreviousComposition} =
+		useCompositionNavigation();
 
 	useEffect(() => {
 		const nKey = keybindings.registerKeybinding({
@@ -80,14 +83,42 @@ export const GlobalKeybindings: React.FC = () => {
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
+		const pageDown = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'PageDown',
+			callback: navigateToNextComposition,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		const pageUp = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'PageUp',
+			callback: navigateToPreviousComposition,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
 		return () => {
 			nKey.unregister();
 			cKey.unregister();
 			questionMark.unregister();
 			cmdKKey.unregister();
 			cmdIKey.unregister();
+			pageDown.unregister();
+			pageUp.unregister();
 		};
-	}, [keybindings, setCheckerboard, setSelectedModal]);
+	}, [
+		keybindings,
+		setCheckerboard,
+		setSelectedModal,
+		navigateToNextComposition,
+		navigateToPreviousComposition,
+	]);
 
 	return null;
 };

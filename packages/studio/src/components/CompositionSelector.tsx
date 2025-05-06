@@ -17,6 +17,50 @@ import {
 } from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
+export const useCompositionNavigation = () => {
+	const {compositions, canvasContent} = useContext(Internals.CompositionManager);
+	const selectComposition = useSelectComposition();
+
+	const navigateToNextComposition = useCallback(() => {
+		if (!canvasContent || canvasContent.type !== 'composition' || compositions.length <= 1) {
+			return;
+		}
+
+		const currentIndex = compositions.findIndex(
+			(c) => c.id === canvasContent.compositionId
+		);
+		if (currentIndex === -1) {
+			return;
+		}
+
+		const nextIndex = (currentIndex + 1) % compositions.length;
+		const nextComposition = compositions[nextIndex];
+		selectComposition(nextComposition, true);
+	}, [canvasContent, compositions, selectComposition]);
+
+	const navigateToPreviousComposition = useCallback(() => {
+		if (!canvasContent || canvasContent.type !== 'composition' || compositions.length <= 1) {
+			return;
+		}
+
+		const currentIndex = compositions.findIndex(
+			(c) => c.id === canvasContent.compositionId
+		);
+		if (currentIndex === -1) {
+			return;
+		}
+
+		const previousIndex = (currentIndex - 1 + compositions.length) % compositions.length;
+		const previousComposition = compositions[previousIndex];
+		selectComposition(previousComposition, true);
+	}, [canvasContent, compositions, selectComposition]);
+
+	return {
+		navigateToNextComposition,
+		navigateToPreviousComposition
+	};
+};
+
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
