@@ -215,7 +215,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		imageFormat,
 		composition,
-		privacy,
+		privacy: privacy ?? 'public',
 		envVariables,
 		frame: stillFrame,
 		jpegQuality,
