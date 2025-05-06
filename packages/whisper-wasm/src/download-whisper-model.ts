@@ -1,6 +1,7 @@
+import {canDownloadModel} from './can-download-model';
 import {canUseWhisperWasm} from './can-use-whisper-wasm';
 import type {WhisperModel} from './constants';
-import {MODELS, SIZES} from './constants';
+import {MODELS} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {putObject} from './db/put-object';
 import {fetchRemote} from './download-model';
@@ -19,12 +20,12 @@ export const downloadWhisperModel = async ({
 	model,
 	onProgress,
 }: DownloadWhisperModelParams): Promise<DownloadWhisperModelResult> => {
-	const {supported, reasons} = canUseWhisperWasm();
+	const usabilityCheck = canUseWhisperWasm();
 
-	if (!supported) {
+	if (!usabilityCheck.supported) {
 		return Promise.reject(
 			new Error(
-				`Whisper Wasm is not supported in this environment. Reasons: ${reasons.join(
+				`Whisper Wasm is not supported in this environment. Reasons: ${usabilityCheck.reasons.join(
 					', ',
 				)}`,
 			),
@@ -37,52 +38,20 @@ export const downloadWhisperModel = async ({
 		);
 	}
 
-	if (!window.indexedDB) {
-		return Promise.reject(
-			new Error('IndexedDB is not available in this environment.'),
-		);
-	}
-
-	if (!navigator.storage || !navigator.storage.estimate) {
-		return Promise.reject(
-			new Error(
-				'navigator.storage.estimate() API is not available in this environment',
-			),
-		);
-	}
-
 	const url = getModelUrl(model);
 
-	const result = await getObject({key: url});
-	if (result) {
+	const existingModel = await getObject({key: url});
+	if (existingModel) {
 		onProgress(1);
 		return {
 			alreadyDownloaded: true,
 		};
 	}
 
-	const estimate = await navigator.storage.estimate();
+	const downloadCheck = await canDownloadModel(model);
 
-	if (estimate.quota === undefined) {
-		return Promise.reject(
-			new Error('navigator.storage.estimate() API returned undefined quota.'),
-		);
-	}
-
-	if (estimate.usage === undefined) {
-		return Promise.reject(
-			new Error('navigator.storage.estimate() API returned undefined usage.'),
-		);
-	}
-
-	const remaining = estimate.quota - estimate.usage;
-
-	if (remaining < SIZES[model]) {
-		return Promise.reject(
-			new Error(
-				`Not enough space to download the model. IndexedDB quota: ${estimate.quota} bytes, usage: ${estimate.usage} bytes, remaining: ${remaining} bytes, model size: ${SIZES[model]} bytes`,
-			),
-		);
+	if (!downloadCheck.canDownload) {
+		return Promise.reject(new Error(downloadCheck.reason));
 	}
 
 	const data = await fetchRemote({url, onProgress});
