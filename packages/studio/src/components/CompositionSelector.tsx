@@ -18,16 +18,22 @@ import {
 import {useSelectComposition} from './InitialCompositionLoader';
 
 export const useCompositionNavigation = () => {
-	const {compositions, canvasContent} = useContext(Internals.CompositionManager);
+	const {compositions, canvasContent} = useContext(
+		Internals.CompositionManager,
+	);
 	const selectComposition = useSelectComposition();
 
 	const navigateToNextComposition = useCallback(() => {
-		if (!canvasContent || canvasContent.type !== 'composition' || compositions.length <= 1) {
+		if (
+			!canvasContent ||
+			canvasContent.type !== 'composition' ||
+			compositions.length <= 1
+		) {
 			return;
 		}
 
 		const currentIndex = compositions.findIndex(
-			(c) => c.id === canvasContent.compositionId
+			(c) => c.id === canvasContent.compositionId,
 		);
 		if (currentIndex === -1) {
 			return;
@@ -39,25 +45,30 @@ export const useCompositionNavigation = () => {
 	}, [canvasContent, compositions, selectComposition]);
 
 	const navigateToPreviousComposition = useCallback(() => {
-		if (!canvasContent || canvasContent.type !== 'composition' || compositions.length <= 1) {
+		if (
+			!canvasContent ||
+			canvasContent.type !== 'composition' ||
+			compositions.length <= 1
+		) {
 			return;
 		}
 
 		const currentIndex = compositions.findIndex(
-			(c) => c.id === canvasContent.compositionId
+			(c) => c.id === canvasContent.compositionId,
 		);
 		if (currentIndex === -1) {
 			return;
 		}
 
-		const previousIndex = (currentIndex - 1 + compositions.length) % compositions.length;
+		const previousIndex =
+			(currentIndex - 1 + compositions.length) % compositions.length;
 		const previousComposition = compositions[previousIndex];
 		selectComposition(previousComposition, true);
 	}, [canvasContent, compositions, selectComposition]);
 
 	return {
 		navigateToNextComposition,
-		navigateToPreviousComposition
+		navigateToPreviousComposition,
 	};
 };
 
