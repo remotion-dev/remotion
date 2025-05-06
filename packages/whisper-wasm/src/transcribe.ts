@@ -105,7 +105,9 @@ export type TranscribeParams = {
 	model: WhisperModel;
 	language?: WhisperLanguage;
 	onProgress?: (p: number) => void;
-	onUpdate?: (json: TranscriptionItemWithTimestamp[]) => void;
+	onTranscribedChunks?: (
+		transcription: TranscriptionItemWithTimestamp[],
+	) => void;
 	threads?: number;
 };
 
@@ -125,7 +127,7 @@ export const transcribe = async ({
 	language = 'auto',
 	onProgress,
 	threads,
-	onUpdate,
+	onTranscribedChunks,
 }: TranscribeParams): Promise<TranscriptionJson> => {
 	checkForHeaders();
 
@@ -180,7 +182,7 @@ export const transcribe = async ({
 			reject(new Error('Another transcription is already in progress'));
 		},
 		onUpdate: (json: TranscriptionJson) => {
-			onUpdate?.(json.transcription);
+			onTranscribedChunks?.(json.transcription);
 		},
 	});
 

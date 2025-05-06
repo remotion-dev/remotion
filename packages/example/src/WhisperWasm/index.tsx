@@ -8,6 +8,10 @@ import {WhisperModel} from '@remotion/whisper-wasm/src/constants';
 import {useCallback, useEffect, useState} from 'react';
 import {staticFile} from 'remotion';
 
+const audioFileUrl = staticFile('16khz.wav');
+
+const model = 'base';
+
 export const WhisperWasm = () => {
 	const [loadedModels, setLoadedModels] = useState<WhisperModel[]>([]);
 
@@ -18,7 +22,7 @@ export const WhisperWasm = () => {
 
 	const onClick = useCallback(async () => {
 		const {alreadyDownloaded} = await downloadWhisperModel({
-			model: 'tiny.en',
+			model,
 			onProgress: (progress) => {
 				console.log(progress);
 			},
@@ -29,13 +33,16 @@ export const WhisperWasm = () => {
 	}, [fetchModels]);
 
 	const onClickTranscribe = useCallback(async () => {
-		const file = await fetch(staticFile('16khz.wav'));
+		const file = await fetch(audioFileUrl);
 		const blob = await file.blob();
 		const transcription = await transcribe({
-			model: 'tiny.en',
+			model,
 			file: blob,
 			onProgress(p) {
 				console.log({p});
+			},
+			onTranscribedChunks(transcription) {
+				console.log({transcription});
 			},
 		});
 		console.log({transcription});
@@ -46,9 +53,23 @@ export const WhisperWasm = () => {
 	}, [fetchModels]);
 
 	return (
-		<div>
-			<button onClick={onClick}>Download</button>
-			<button onClick={onClickTranscribe}>Transcribe</button>
+		<div className="flex flex-col gap-2">
+			<button
+				style={{
+					background: 'white',
+				}}
+				onClick={onClick}
+			>
+				Download
+			</button>
+			<button
+				style={{
+					background: 'white',
+				}}
+				onClick={onClickTranscribe}
+			>
+				Transcribe
+			</button>
 			<div>
 				{loadedModels.map((model) => (
 					<div key={model}>
