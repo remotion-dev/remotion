@@ -14,6 +14,7 @@ import type {
 } from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
+import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {validateRuntimePreference} from '../shared/get-layers';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
@@ -86,12 +87,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 	const created = await params.fullClientSpecifics.createFunction({
 		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
 		region: params.region,
-		// Very delicate!
-		// this will output to
-		// - dist/esm/index.mjs
-		// - dist/api/deploy-function.js
-		// It only works because both are two levels deep
-		zipFile: '../../remotionlambda-arm64.zip',
+		zipFile: FUNCTION_ZIP_ARM64,
 		functionName,
 		accountId,
 		memorySizeInMb: params.memorySizeInMb,
