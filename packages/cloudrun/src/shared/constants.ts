@@ -14,7 +14,7 @@ export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
 };
 
-export type Privacy = 'public' | 'private';
+export type Privacy = 'public' | 'private' | 'no-acl';
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_TIMEOUT = 300;

@@ -1,6 +1,7 @@
 import type {Dirent} from 'fs';
 import {createReadStream, promises as fs} from 'fs';
 import path from 'path';
+import type {Privacy} from '../defaults';
 import {makeStorageKey} from '../shared/make-storage-key';
 import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 
@@ -33,12 +34,14 @@ export const uploadDir = async ({
 	onProgress,
 	keyPrefix,
 	toUpload,
+	privacy,
 }: {
 	bucket: string;
 	localDir: string;
 	keyPrefix: string;
 	onProgress: (progress: UploadDirProgress) => void;
 	toUpload: string[];
+	privacy: Privacy;
 }) => {
 	async function getFiles(
 		directory: string,
@@ -96,7 +99,9 @@ export const uploadDir = async ({
 					cloudStorageClient
 						.bucket(bucket)
 						.file(destination)
-						.createWriteStream({public: true}),
+						.createWriteStream({
+							public: privacy === 'public',
+						}),
 				)
 				.on('error', (error) => reject(error))
 				.on('progress', (p) => {

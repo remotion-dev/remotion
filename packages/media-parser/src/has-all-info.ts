@@ -125,7 +125,11 @@ export const getAvailableInfo = ({
 			return m3uHasStreams(state);
 		}
 
-		throw new Error(`Unknown key: ${key satisfies never}`);
+		throw new Error(
+			`Unknown field passed: ${key satisfies never}. Available fields: ${Object.keys(
+				state.fields,
+			).join(', ')}`,
+		);
 	});
 
 	const entries: [keyof Options<ParseMediaFields>, boolean][] = [];
