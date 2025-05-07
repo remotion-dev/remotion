@@ -51,7 +51,7 @@ export const WhisperWasm = () => {
 			onProgress(p) {
 				console.log({p});
 			},
-			onTranscribedChunks(transcription) {
+			onTranscriptionChunk(transcription) {
 				console.log('New transcription chunk', transcription);
 			},
 		});
