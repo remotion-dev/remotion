@@ -3,6 +3,7 @@ import {
 	deleteModel,
 	downloadWhisperModel,
 	getLoadedModels,
+	resampleTo16Khz,
 	transcribe,
 } from '@remotion/whisper-wasm';
 import {useCallback, useEffect, useState} from 'react';
@@ -35,9 +36,17 @@ export const WhisperWasm = () => {
 	const onClickTranscribe = useCallback(async () => {
 		const file = await fetch(audioFileUrl);
 		const blob = await file.blob();
+
+		const channelWaveform = await resampleTo16Khz({
+			file: blob,
+			onProgress(progress) {
+				console.log('Resampling progress:', progress);
+			},
+		});
+
 		const {transcription} = await transcribe({
 			model,
-			file: blob,
+			channelWaveform,
 			logLevel: 'verbose',
 			onProgress(p) {
 				console.log({p});

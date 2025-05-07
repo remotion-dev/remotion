@@ -9,14 +9,11 @@ import {loadMod} from './load-mod/load-mod';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {printHandler} from './print-handler';
+import {EXPECTED_SAMPLE_RATE} from './resample-to-16khz';
 import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
 import {simulateProgress} from './simulate-progress';
-
-const SAMPLE_RATE = 16000;
 const MAX_THREADS_ALLOWED = 16;
 const DEFAULT_THREADS = 4;
-
-let context: AudioContext | undefined;
 
 declare global {
 	interface Window {
@@ -41,69 +38,8 @@ const withResolvers = function <T>() {
 	return {promise, resolve: resolve!, reject: reject!};
 };
 
-const getAudioContext = () => {
-	if (!context) {
-		context = new AudioContext({
-			sampleRate: SAMPLE_RATE,
-		});
-	}
-
-	return context;
-};
-
-const audioDecoder = async (audioBuffer: AudioBuffer) => {
-	const offlineContext = new OfflineAudioContext(
-		audioBuffer.numberOfChannels,
-		audioBuffer.length,
-		audioBuffer.sampleRate,
-	);
-
-	const source = offlineContext.createBufferSource();
-	source.buffer = audioBuffer;
-	source.connect(offlineContext.destination);
-	source.start(0);
-
-	const renderedBuffer = await offlineContext.startRendering();
-	const audio = renderedBuffer.getChannelData(0);
-
-	return audio;
-};
-
-const audioProcessor = (file: Blob) => {
-	return new Promise((resolve, reject) => {
-		if (!window) {
-			reject();
-			return;
-		}
-
-		if (!file) {
-			reject(new Error('File is empty'));
-			return;
-		}
-
-		const innerContext = getAudioContext();
-		const reader = new FileReader();
-
-		reader.onload = async () => {
-			try {
-				const buffer = new Uint8Array(reader.result as ArrayBuffer);
-				const audioBuffer = await innerContext.decodeAudioData(
-					buffer.buffer as ArrayBuffer,
-				);
-				const processedAudio = await audioDecoder(audioBuffer);
-				resolve(processedAudio);
-			} catch (error) {
-				reject(error);
-			}
-		};
-
-		reader.onerror = () => reject(new Error('File reading failed'));
-		reader.readAsArrayBuffer(file);
-	});
-};
-
 export type TranscribeParams = {
-	file: Blob;
+	channelWaveform: Float32Array;
 	model: WhisperWasmModel;
 	language?: WhisperWasmLanguage;
 	onProgress?: (p: number) => void;
@@ -125,7 +61,7 @@ const storeFS = (mod: MainModule, fname: string, buf: any) => {
 };
 
 export const transcribe = async ({
-	file,
+	channelWaveform,
 	model,
 	language = 'auto',
 	onProgress,
@@ -133,6 +69,11 @@ export const transcribe = async ({
 	onTranscribedChunks,
 	logLevel = 'info',
 }: TranscribeParams): Promise<TranscriptionJson> => {
+	if (!channelWaveform || channelWaveform.length === 0) {
+		Log.error(logLevel, 'No audio data provided or audio data is empty.');
+		throw new Error('No audio data provided or audio data is empty.');
+	}
+
 	Log.info(
 		logLevel,
 		`Starting transcription with model: ${model}, language: ${language}, threads: ${
@@ -153,7 +94,7 @@ export const transcribe = async ({
 		);
 	}
 
-	const audioDurationInSeconds = file.size / SAMPLE_RATE / 2;
+	const audioDurationInSeconds = channelWaveform.length / EXPECTED_SAMPLE_RATE;
 
 	const {
 		abort: abortProgress,
@@ -232,18 +173,10 @@ export const transcribe = async ({
 
 	storeFS(Mod, fileName, result);
 
-	const data = await audioProcessor(file);
-	if (!data) {
-		Log.error('No audio data after processing.');
-		throw new Error('No audio data.');
-	}
-
-	Log.info(logLevel, 'Audio processing completed.');
-
 	Log.info(logLevel, 'Starting main transcription process...');
 	Mod.full_default(
 		fileName,
-		data,
+		channelWaveform,
 		model,
 		language,
 		threads ?? DEFAULT_THREADS,

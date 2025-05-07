@@ -12,6 +12,10 @@ import type {
 } from './download-whisper-model';
 import type {getLoadedModels as originalGetLoadedModels} from './get-loaded-models';
 import type {
+	resampleTo16Khz as originalResampleTo16Khz,
+	ResampleTo16KhzParams,
+} from './resample-to-16khz';
+import type {
 	transcribe as originalTranscribe,
 	TranscribeParams,
 } from './transcribe';
@@ -46,10 +50,17 @@ export const canUseWhisperWasm: typeof originalCanUseWhisperWasm = () => {
 	);
 };
 
+export const resampleTo16Khz: typeof originalResampleTo16Khz = () => {
+	throw new Error(
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+	);
+};
+
 export type {
 	CanUseWhisperWasmResult,
 	DownloadWhisperModelParams,
 	DownloadWhisperModelResult,
+	ResampleTo16KhzParams,
 	TranscribeParams,
 	WhisperWasmLanguage,
 	WhisperWasmModel,
