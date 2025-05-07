@@ -1,7 +1,5 @@
 /* eslint-disable new-cap */
-
 import type {MainModule} from '../main';
-import {checkForHeaders} from './check-for-headers';
 import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {getModelUrl} from './get-model-url';
@@ -80,7 +78,6 @@ export const transcribe = async ({
 			threads ?? DEFAULT_THREADS
 		}`,
 	);
-	checkForHeaders();
 
 	if ((threads ?? DEFAULT_THREADS) > MAX_THREADS_ALLOWED) {
 		Log.warn(

@@ -11,6 +11,7 @@ export enum WhisperWasmUnsupportedReason {
 	UsageUndefined = 'usage-undefined',
 	NotEnoughSpace = 'not-enough-space',
 	ErrorEstimatingStorage = 'error-estimating-storage',
+	NotCrossOriginIsolated = 'not-cross-origin-isolated',
 }
 
 export interface CanUseWhisperWasmResult {
@@ -28,6 +29,15 @@ export const canUseWhisperWasm = async (
 			reason: WhisperWasmUnsupportedReason.WindowUndefined,
 			detailedReason:
 				'`window` is not defined. This module can only be used in a browser environment.',
+		};
+	}
+
+	if (!window.crossOriginIsolated) {
+		return {
+			supported: false,
+			reason: WhisperWasmUnsupportedReason.NotCrossOriginIsolated,
+			detailedReason:
+				'The document is not cross-origin isolated (window.crossOriginIsolated = false). This prevents the usage of SharedArrayBuffer, which is required by `@remotion/whisper-wasm`. Make sure the document is served with the HTTP header `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`: https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated',
 		};
 	}
 
