@@ -66,10 +66,13 @@ export const useCompositionNavigation = () => {
 		selectComposition(previousComposition, true);
 	}, [canvasContent, compositions, selectComposition]);
 
-	return {
-		navigateToNextComposition,
-		navigateToPreviousComposition,
-	};
+	return useMemo(
+		() => ({
+			navigateToNextComposition,
+			navigateToPreviousComposition,
+		}),
+		[navigateToNextComposition, navigateToPreviousComposition],
+	);
 };
 
 const container: React.CSSProperties = {
