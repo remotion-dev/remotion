@@ -12,39 +12,52 @@ import {TableOfContents} from './whisper-wasm';
 
 ## Example usage
 
-```tsx twoslash title="app.tsx"
-import {downloadWhisperModel, transcribe} from '@remotion/whisper-wasm';
-import {useEffect, useState} from 'react';
+```tsx twoslash
+import {useState} from 'react';
+import {transcribe, canUseWhisperWasm, resampleTo16Khz, downloadWhisperModel, type WhisperWasmModel} from '@remotion/whisper-wasm';
 
-export default function Home() {
-  const [downloadProgress, setDownloadProgress] = useState(0);
-  const [transcriptionProgress, setTranscriptionProgress] = useState(0);
-  const [text, setText] = useState('');
+export default function MyApp() {
+  const [text, setText] = useState<string | null>(null);
 
-  useEffect(() => {
-    downloadWhisperModel({model: 'tiny.en', onProgress: setDownloadProgress});
-  }, []);
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const onTranscribeChunk = (start: string, end: string, text: string) => {
-    console.log(`transcribed ${text} for time ${start} to ${end}`)
+    setText('Processing...');
+
+    const modelToUse: WhisperWasmModel = 'tiny.en';
+
+    const {supported, detailedReason, reason} = await canUseWhisperWasm(modelToUse);
+    if (!supported) {
+      setText(`Whisper WASM is not supported in this environment: ${detailedReason}`);
+      return;
+    }
+
+    setText('Downloading model...');
+    await downloadWhisperModel({
+      model: modelToUse,
+      onProgress: (p) => setText(`Downloading model (${Math.round(p * 100)}%)...`),
+    });
+
+    setText('Resampling audio...');
+    const channelWaveform = await resampleTo16Khz({
+      file,
+      onProgress: (p) => setText(`Resampling audio (${Math.round(p * 100)}%)...`),
+    });
+
+    setText('Transcribing...');
+    const {transcription} = await transcribe({
+      channelWaveform,
+      model: modelToUse,
+      onProgress: (p) => setText(`Transcribing (${Math.round(p * 100)}%)...`),
+    });
+    setText(transcription.map((t) => t.text).join(' '));
   };
 
   return (
     <div>
-      <input
-        type="file"
-        accept=".wav"
-        onChange={(e) =>
-          e.target.files &&
-          transcribe({
-            file: e.target.files[0],
-            onProgress: setTranscriptionProgress,
-            onTranscribeChunk
-          }).then((result) => console.log(result))
-        }
-      />
-
-      <progress value={transcriptionProgress} max={100} />
+      <input type="file" accept="audio/*" onChange={handleFileChange} />
+      {text && <p>{text}</p>}
     </div>
   );
 }

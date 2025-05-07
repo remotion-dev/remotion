@@ -722,6 +722,8 @@ module.exports = {
 			items: [
 				'whisper-wasm/download-whisper-model',
 				'whisper-wasm/transcribe',
+				'whisper-wasm/resample-to-16khz',
+				'whisper-wasm/can-use-whisper-wasm',
 			],
 		},
 		{
