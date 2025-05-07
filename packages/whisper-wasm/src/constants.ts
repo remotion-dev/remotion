@@ -11,7 +11,7 @@ export const MODELS = [
 	'small.en',
 ] as const;
 
-export type WhisperModel = (typeof MODELS)[number];
+export type WhisperWasmModel = (typeof MODELS)[number];
 
 export const LANGUAGES = [
 	// whisper allows passing 'auto' to auto-detect the language
@@ -220,9 +220,9 @@ export const LANGUAGES = [
 	'cantonese',
 ] as const;
 
-export type WhisperLanguage = (typeof LANGUAGES)[number];
+export type WhisperWasmLanguage = (typeof LANGUAGES)[number];
 
-export const SIZES: {[key in WhisperModel]: number} = {
+export const SIZES: {[key in WhisperWasmModel]: number} = {
 	tiny: 77691713,
 	'tiny.en': 77704715,
 	base: 147951465,

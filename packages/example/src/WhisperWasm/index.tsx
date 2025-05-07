@@ -1,10 +1,10 @@
 import {
+	type WhisperWasmModel,
 	deleteModel,
 	downloadWhisperModel,
 	getLoadedModels,
 	transcribe,
 } from '@remotion/whisper-wasm';
-import {WhisperModel} from '@remotion/whisper-wasm/src/constants';
 import {useCallback, useEffect, useState} from 'react';
 import {staticFile} from 'remotion';
 
@@ -13,7 +13,7 @@ const audioFileUrl = staticFile('16khz.wav');
 const model = 'base';
 
 export const WhisperWasm = () => {
-	const [loadedModels, setLoadedModels] = useState<WhisperModel[]>([]);
+	const [loadedModels, setLoadedModels] = useState<WhisperWasmModel[]>([]);
 
 	const fetchModels = useCallback(async () => {
 		const models = await getLoadedModels();
@@ -35,7 +35,7 @@ export const WhisperWasm = () => {
 	const onClickTranscribe = useCallback(async () => {
 		const file = await fetch(audioFileUrl);
 		const blob = await file.blob();
-		const transcription = await transcribe({
+		const {transcription} = await transcribe({
 			model,
 			file: blob,
 			logLevel: 'verbose',

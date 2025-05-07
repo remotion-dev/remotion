@@ -1,11 +1,9 @@
 import type {
-	CanDownloadModelResult,
-	canDownloadModel as originalCanDownloadModel,
-} from './can-download-model';
-import type {
 	CanUseWhisperWasmResult,
 	canUseWhisperWasm as originalCanUseWhisperWasm,
+	WhisperWasmUnsupportedReason,
 } from './can-use-whisper-wasm';
+import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
 import type {deleteModel as originalDeleteModel} from './delete-model';
 import type {
 	DownloadWhisperModelParams,
@@ -48,16 +46,12 @@ export const canUseWhisperWasm: typeof originalCanUseWhisperWasm = () => {
 	);
 };
 
-export const canDownloadModel: typeof originalCanDownloadModel = () => {
-	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
-	);
-};
-
 export type {
-	CanDownloadModelResult,
 	CanUseWhisperWasmResult,
 	DownloadWhisperModelParams,
 	DownloadWhisperModelResult,
 	TranscribeParams,
+	WhisperWasmLanguage,
+	WhisperWasmModel,
+	WhisperWasmUnsupportedReason,
 };

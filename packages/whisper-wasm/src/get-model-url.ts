@@ -1,6 +1,6 @@
-import type {WhisperModel} from './constants';
+import type {WhisperWasmModel} from './constants';
 
-export const getModelUrl = (model: WhisperModel) => {
+export const getModelUrl = (model: WhisperWasmModel) => {
 	return `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-${model}.bin`;
 };
 
