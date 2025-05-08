@@ -64,20 +64,22 @@ export type MediaParserAudioCodec =
 	| 'aiff';
 
 export type VideoTrack = {
+	// WebCodecs
+	codec: string;
+	description: Uint8Array | undefined;
+	codedWidth: number;
+	codedHeight: number;
+	displayAspectWidth: number;
+	displayAspectHeight: number;
+	// Non-WebCodecs
 	type: 'video';
 	trackId: number;
-	description: Uint8Array | undefined;
 	timescale: number;
-	codec: string;
 	codecEnum: MediaParserVideoCodec;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
-	displayAspectWidth: number;
-	displayAspectHeight: number;
-	codedWidth: number;
-	codedHeight: number;
 	rotation: number;
 	trakBox: TrakBox | null;
 	codecPrivate: Uint8Array | null;
@@ -86,14 +88,16 @@ export type VideoTrack = {
 };
 
 export type AudioTrack = {
+	// WebCodecs
+	codec: string;
+	sampleRate: number;
+	description: Uint8Array | undefined;
+	numberOfChannels: number;
+	// Non-WebCodecs
 	type: 'audio';
 	trackId: number;
 	timescale: number;
-	codec: string;
 	codecEnum: MediaParserAudioCodec;
-	numberOfChannels: number;
-	sampleRate: number;
-	description: Uint8Array | undefined;
 	trakBox: TrakBox | null;
 	codecPrivate: Uint8Array | null;
 };
