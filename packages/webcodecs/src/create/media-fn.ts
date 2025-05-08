@@ -1,7 +1,8 @@
 import type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
 	MediaParserInternalTypes,
 	MediaParserLogLevel,
+	MediaParserVideoSample,
 } from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 import type {ProgressTracker} from './progress-tracker';
@@ -10,7 +11,7 @@ export type MediaFn = {
 	getBlob: () => Promise<Blob>;
 	remove: () => Promise<void>;
 	addSample: (options: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 		codecPrivate: Uint8Array | null;

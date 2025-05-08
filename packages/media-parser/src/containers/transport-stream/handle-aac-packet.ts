@@ -6,7 +6,7 @@ import {registerAudioTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
 	OnAudioTrack,
 } from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
@@ -81,7 +81,7 @@ export const handleAacPacket = async ({
 		});
 	}
 
-	const sample: AudioOrVideoSample = {
+	const sample: MediaParserAudioSample = {
 		cts:
 			streamBuffer.pesHeader.pts -
 			transportStream.startOffset.getOffset(programId),

@@ -1,6 +1,6 @@
 import type {
-	AudioOrVideoSample,
 	MediaParserLogLevel,
+	MediaParserVideoSample,
 } from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
@@ -9,7 +9,7 @@ import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	processSample: (videoSample: AudioOrVideoSample) => Promise<void>;
+	processSample: (videoSample: MediaParserVideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
@@ -103,7 +103,7 @@ export const createVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const processSample = async (sample: AudioOrVideoSample) => {
+	const processSample = async (sample: MediaParserVideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -142,7 +142,7 @@ export const createVideoDecoder = ({
 	let inputQueue = Promise.resolve();
 
 	return {
-		processSample: (sample: AudioOrVideoSample) => {
+		processSample: (sample: MediaParserVideoSample) => {
 			inputQueue = inputQueue.then(() => processSample(sample));
 			return inputQueue;
 		},

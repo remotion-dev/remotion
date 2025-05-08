@@ -1,0 +1,170 @@
+---
+id: types
+sidebar_label: Types
+title: TypeScript Types Reference
+slug: /media-parser/types
+crumb: '@remotion/media-parser'
+---
+
+The following types are part of the stable API of `@remotion/media-parser`:
+
+## `MediaParserDimensions`
+
+```tsx twoslash
+import type {MediaParserDimensions} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserAudioCodec`
+
+```tsx twoslash
+import type {MediaParserAudioCodec} from '@remotion/media-parser';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `MediaParserVideoCodec`
+
+```tsx twoslash
+import type {MediaParserVideoCodec} from '@remotion/media-parser';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `MediaParserContainer`
+
+```tsx twoslash
+import type {MediaParserContainer} from '@remotion/media-parser';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `MediaParserLocation`
+
+```tsx twoslash
+import type {MediaParserLocation} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserEmbeddedImage`
+
+```tsx twoslash
+import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserKeyframe`
+
+```tsx twoslash
+import type {MediaParserKeyframe} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserLogLevel`
+
+```tsx twoslash
+import type {MediaParserLogLevel} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserMetadataEntry`
+
+```tsx twoslash
+import type {MediaParserMetadataEntry} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserAudioSample`
+
+```tsx twoslash
+import type {MediaParserAudioSample} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserVideoSample`
+
+```tsx twoslash
+import type {MediaParserVideoSample} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserAudioTrack`
+
+```tsx twoslash
+import type {MediaParserAudioTrack} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserVideoTrack`
+
+```tsx twoslash
+import {MediaParserVideoCodec, MediaParserCodecData, MediaParserSampleAspectRatio, VideoTrackColorParams} from '@remotion/media-parser';
+
+export type MediaParserVideoTrack = {
+  // WebCodecs
+  codec: string;
+  description: Uint8Array | undefined;
+  codedWidth: number;
+  codedHeight: number;
+  displayAspectWidth: number;
+  displayAspectHeight: number;
+  // Non-WebCodecs
+  type: 'video';
+  trackId: number;
+  codecEnum: MediaParserVideoCodec;
+  codecData: MediaParserCodecData | null;
+  sampleAspectRatio: MediaParserSampleAspectRatio;
+  width: number;
+  height: number;
+  rotation: number;
+  fps: number | null;
+  timescale: number;
+  color: VideoTrackColorParams;
+  m3uStreamFormat: 'ts' | 'mp4' | null;
+};
+```
+
+## `MediaParserAudioTrack`
+
+```tsx twoslash
+import type {MediaParserAudioTrack} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserOtherTrack`
+
+```tsx twoslash
+import type {MediaParserOtherTrack} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserSampleAspectRatio`
+
+```tsx twoslash
+import type {MediaParserSampleAspectRatio} from '@remotion/media-parser';
+//                ^?
+```
+
+## `ParseMediaSrc`
+
+```tsx twoslash
+import type {ParseMediaSrc} from '@remotion/media-parser';
+//                ^?
+```
+
+## `M3uStream`
+
+```tsx twoslash
+import type {M3uStream} from '@remotion/media-parser';
+//                ^?
+```
+
+## `M3uAssociatedPlaylist`
+
+```tsx twoslash
+import type {M3uAssociatedPlaylist} from '@remotion/media-parser';
+//                ^?
+```

@@ -4,7 +4,10 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '../../webcodec-sample-types';
 
 test('seek m3u, only video', async () => {
 	const controller = mediaParserController();
@@ -77,7 +80,7 @@ test('seek m3u, video and audio', async () => {
 	let samples = 0;
 
 	const expectSample = (
-		sample: AudioOrVideoSample,
+		sample: MediaParserVideoSample | MediaParserAudioSample,
 		mediaType: 'video' | 'audio',
 	) => {
 		if (samples === 0) {

@@ -400,7 +400,7 @@ const startParsing = async (
 
 						return async (sample) => {
 							await executeCallback({
-								callbackType: 'on-audio-video-sample',
+								callbackType: 'on-audio-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
@@ -424,7 +424,7 @@ const startParsing = async (
 
 						return async (sample) => {
 							await executeCallback({
-								callbackType: 'on-audio-video-sample',
+								callbackType: 'on-video-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});

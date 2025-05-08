@@ -2,10 +2,10 @@ import type {MediaParserAudioTrack, MediaParserVideoTrack} from './get-tracks';
 import type {MediaParserContainer} from './options';
 
 export type OnAudioSample = (
-	sample: AudioOrVideoSample,
+	sample: MediaParserAudioSample,
 ) => void | Promise<void>;
 export type OnVideoSample = (
-	sample: AudioOrVideoSample,
+	sample: MediaParserVideoSample,
 ) => void | Promise<void>;
 
 export type OnAudioTrackParams = {
@@ -26,7 +26,21 @@ export type OnVideoTrack = (
 	options: OnVideoTrackParams,
 ) => OnVideoSample | Promise<OnVideoSample | null> | null;
 
-export type AudioOrVideoSample = {
+// These types are the same, but maybe we add more info in the future
+// Therefore keeping it separate for now
+export type MediaParserAudioSample = {
+	data: Uint8Array;
+	timestamp: number;
+	duration: number | undefined;
+	trackId: number;
+	type: 'key' | 'delta';
+	cts: number;
+	dts: number;
+	offset: number;
+	timescale: number;
+};
+
+export type MediaParserVideoSample = {
 	data: Uint8Array;
 	timestamp: number;
 	duration: number | undefined;

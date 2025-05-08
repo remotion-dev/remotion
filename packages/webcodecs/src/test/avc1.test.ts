@@ -3,8 +3,6 @@ import {createAvc1Data} from '../create/iso-base-media/codec-specific/avc1';
 import {createAvccBox} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-avcc';
 import {createPasp} from '../create/iso-base-media/trak/mdia/minf/stbl/stsd/create-pasp';
 
-import {} from '@remotion/media-parser';
-
 // bun segfaults here
 if (process.platform !== 'win32') {
 	const reference = new Uint8Array([

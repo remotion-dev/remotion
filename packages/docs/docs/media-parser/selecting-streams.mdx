@@ -23,9 +23,9 @@ const media = await parseMedia({
   selectM3uStream: ({streams}) => {
     for (const stream of streams) {
       console.log(stream.resolution); // {width: 1920, height: 1080}
-      console.log(stream.bandwidth); // 4400000
+      console.log(stream.bandwidthInBitsPerSec); // 4400000
       console.log(stream.src); // "https://test-streams.mux.dev/x36xhzz/193039199_mp4_h264_aac_hd_7.m3u8"
-      console.log(stream.averageBandwidth); // null
+      console.log(stream.averageBandwidthInBitsPerSec); // null
       console.log(stream.codecs); // ["avc1.640028", "mp4a.40.2"]
       console.log(stream.associatedPlaylists); // See below
     }

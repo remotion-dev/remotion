@@ -5,7 +5,7 @@ import {registerVideoTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
-	AudioOrVideoSample,
+	MediaParserVideoSample,
 	OnVideoTrack,
 } from '../../webcodec-sample-types';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
@@ -105,7 +105,7 @@ export const handleAvcPacket = async ({
 	const type = getKeyFrameOrDeltaFromAvcInfo(avc);
 
 	// sample for webcodecs needs to be in nano seconds
-	const sample: AudioOrVideoSample = {
+	const sample: MediaParserVideoSample = {
 		cts:
 			streamBuffer.pesHeader.pts -
 			transportStream.startOffset.getOffset(programId),

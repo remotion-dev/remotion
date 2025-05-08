@@ -27,7 +27,8 @@ import type {SeekingHints} from '../seeking-hints';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
+	MediaParserVideoSample,
 	OnAudioTrackParams,
 	OnVideoTrackParams,
 } from '../webcodec-sample-types';
@@ -302,8 +303,13 @@ export type ResponseCallbackPayload =
 			value: OnVideoTrackParams;
 	  }
 	| {
-			callbackType: 'on-audio-video-sample';
-			value: AudioOrVideoSample;
+			callbackType: 'on-audio-sample';
+			value: MediaParserAudioSample;
+			trackId: number;
+	  }
+	| {
+			callbackType: 'on-video-sample';
+			value: MediaParserVideoSample;
 			trackId: number;
 	  }
 	| {

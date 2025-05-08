@@ -388,7 +388,20 @@ export const parseMediaOnWorkerImplementation = async <
 						};
 					}
 
-					if (data.payload.callbackType === 'on-audio-video-sample') {
+					if (data.payload.callbackType === 'on-audio-sample') {
+						const callback = callbacks[data.payload.trackId];
+						if (!callback) {
+							throw new Error(
+								`No callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						await callback(data.payload.value);
+
+						return {payloadType: 'void'};
+					}
+
+					if (data.payload.callbackType === 'on-video-sample') {
 						const callback = callbacks[data.payload.trackId];
 						if (!callback) {
 							throw new Error(

@@ -16,7 +16,8 @@ export const M3uStreamPickerResolutionDisplay: React.FC<{
 				s.resolution.height === stream.resolution?.height,
 		).length >= 2;
 
-	const bandwidth = stream.averageBandwidth ?? stream.bandwidth;
+	const bandwidth =
+		stream.averageBandwidthInBitsPerSec ?? stream.bandwidthInBitsPerSec;
 
 	const str = [
 		`${stream.resolution.width}x${stream.resolution.height}`,

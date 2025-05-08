@@ -5,7 +5,8 @@ import type {WebmState} from '../../state/matroska/webm';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {StructureState} from '../../state/structure';
 import type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
+	MediaParserVideoSample,
 	OnVideoTrack,
 } from '../../webcodec-sample-types';
 import {parseAvc} from '../avc/parse-avc';
@@ -17,15 +18,15 @@ import {parseBlockFlags} from './segments/block-simple-block-flags';
 type SampleResult =
 	| {
 			type: 'video-sample';
-			videoSample: AudioOrVideoSample;
+			videoSample: MediaParserVideoSample;
 	  }
 	| {
 			type: 'audio-sample';
-			audioSample: AudioOrVideoSample;
+			audioSample: MediaParserAudioSample;
 	  }
 	| {
 			type: 'partial-video-sample';
-			partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+			partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 	  }
 	| {
 			type: 'no-sample';
@@ -41,7 +42,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	callbacks,
 	onVideoTrack,
 }: {
-	partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+	partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 	codec: string;
 	structureState: StructureState;
 	webmState: WebmState;
@@ -154,7 +155,7 @@ export const getSampleFromBlock = async ({
 	const remainingNow = ebml.value.length - iterator.counter.getOffset();
 
 	if (codec.startsWith('V_')) {
-		const partialVideoSample: Omit<AudioOrVideoSample, 'type'> = {
+		const partialVideoSample: Omit<MediaParserVideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
 			cts: timecodeInMicroseconds,
 			dts: timecodeInMicroseconds,
@@ -185,7 +186,7 @@ export const getSampleFromBlock = async ({
 			onVideoTrack,
 		});
 
-		const sample: AudioOrVideoSample = {
+		const sample: MediaParserVideoSample = {
 			...partialVideoSample,
 			type: keyframe ? 'key' : 'delta',
 		};
@@ -199,7 +200,7 @@ export const getSampleFromBlock = async ({
 	}
 
 	if (codec.startsWith('A_')) {
-		const audioSample: AudioOrVideoSample = {
+		const audioSample: MediaParserAudioSample = {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,

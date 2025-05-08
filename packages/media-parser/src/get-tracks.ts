@@ -30,7 +30,7 @@ import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
 import type {StructureState} from './state/structure';
 
-type SampleAspectRatio = {
+export type MediaParserSampleAspectRatio = {
 	numerator: number;
 	denominator: number;
 };

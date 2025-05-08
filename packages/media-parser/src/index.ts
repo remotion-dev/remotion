@@ -62,7 +62,8 @@ export type {
 	ParseMediaResult,
 } from './options';
 export type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
+	MediaParserVideoSample,
 	OnAudioSample,
 	OnAudioTrack,
 	OnVideoSample,
@@ -108,6 +109,8 @@ export {
 	MediaParserController,
 } from './controller/media-parser-controller';
 export {VERSION} from './version';
+
+export type {MediaParserSampleAspectRatio} from './get-tracks';
 
 export type MediaParserInternalTypes = {
 	SamplePosition: SamplePosition;

@@ -19,8 +19,8 @@ export type M3uAssociatedPlaylist = {
 
 export type M3uStream = {
 	src: string;
-	bandwidth: number | null;
-	averageBandwidth: number | null;
+	bandwidthInBitsPerSec: number | null;
+	averageBandwidthInBitsPerSec: number | null;
 	resolution: MediaParserDimensions | null;
 	codecs: string[] | null;
 	id: number;
@@ -90,8 +90,8 @@ export const getM3uStreams = ({
 
 			boxes.push({
 				src: readerInterface.createAdjacentFileSource(next.value, originalSrc),
-				averageBandwidth: str.averageBandwidth,
-				bandwidth: str.bandwidth,
+				averageBandwidthInBitsPerSec: str.averageBandwidthInBitsPerSec,
+				bandwidthInBitsPerSec: str.bandwidthInBitsPerSec,
 				codecs: str.codecs,
 				resolution: str.resolution,
 				associatedPlaylists,
@@ -112,8 +112,10 @@ export const getM3uStreams = ({
 			? b.resolution.width * b.resolution.height
 			: 0;
 		if (aResolution === bResolution) {
-			const bandwidthA = a.averageBandwidth ?? a.bandwidth ?? 0;
-			const bandwidthB = b.averageBandwidth ?? b.bandwidth ?? 0;
+			const bandwidthA =
+				a.averageBandwidthInBitsPerSec ?? a.bandwidthInBitsPerSec ?? 0;
+			const bandwidthB =
+				b.averageBandwidthInBitsPerSec ?? b.bandwidthInBitsPerSec ?? 0;
 			return bandwidthB - bandwidthA;
 		}
 

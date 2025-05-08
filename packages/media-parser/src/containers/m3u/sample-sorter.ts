@@ -1,7 +1,8 @@
 import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
+	MediaParserVideoSample,
 	OnAudioSample,
 	OnVideoSample,
 } from '../../webcodec-sample-types';
@@ -37,7 +38,7 @@ export const sampleSorter = ({
 		hasVideoStreamToConsider: (src: string) => {
 			return Boolean(videoCallbacks[src]);
 		},
-		addAudioSample: async (src: string, sample: AudioOrVideoSample) => {
+		addAudioSample: async (src: string, sample: MediaParserAudioSample) => {
 			const callback = audioCallbacks[src];
 			if (!callback) {
 				throw new Error('No callback found for audio sample');
@@ -46,7 +47,7 @@ export const sampleSorter = ({
 			latestSample[src] = sample.dts;
 			await callback(sample);
 		},
-		addVideoSample: async (src: string, sample: AudioOrVideoSample) => {
+		addVideoSample: async (src: string, sample: MediaParserVideoSample) => {
 			const callback = videoCallbacks[src];
 			if (!callback) {
 				throw new Error('No callback found for video sample.');

@@ -5,7 +5,8 @@ import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {ParseMediaSrc} from '../options';
 import type {
-	AudioOrVideoSample,
+	MediaParserAudioSample,
+	MediaParserVideoSample,
 	OnAudioSample,
 	OnVideoSample,
 } from '../webcodec-sample-types';
@@ -44,8 +45,8 @@ export const callbacksState = ({
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
 
-	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
-	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
+	const queuedAudioSamples: Record<number, MediaParserAudioSample[]> = {};
+	const queuedVideoSamples: Record<number, MediaParserVideoSample[]> = {};
 
 	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers,
@@ -74,7 +75,10 @@ export const callbacksState = ({
 
 			queuedVideoSamples[id] = [];
 		},
-		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
+		onAudioSample: async (
+			trackId: number,
+			audioSample: MediaParserAudioSample,
+		) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
@@ -99,7 +103,10 @@ export const callbacksState = ({
 				samplesObserved.addAudioSample(audioSample);
 			}
 		},
-		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
+		onVideoSample: async (
+			trackId: number,
+			videoSample: MediaParserVideoSample,
+		) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}

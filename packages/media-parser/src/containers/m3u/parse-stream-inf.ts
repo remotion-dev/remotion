@@ -52,10 +52,10 @@ export const parseStreamInf = (str: string): M3uStreamInfo => {
 
 	return {
 		type: 'm3u-stream-info',
-		averageBandwidth: map['AVERAGE-BANDWIDTH']
+		averageBandwidthInBitsPerSec: map['AVERAGE-BANDWIDTH']
 			? parseInt(map['AVERAGE-BANDWIDTH'], 10)
 			: null,
-		bandwidth: map.BANDWIDTH ? parseInt(map.BANDWIDTH, 10) : null,
+		bandwidthInBitsPerSec: map.BANDWIDTH ? parseInt(map.BANDWIDTH, 10) : null,
 		codecs: map.CODECS ? map.CODECS.split(',') : null,
 		resolution: map.RESOLUTION
 			? {

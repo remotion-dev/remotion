@@ -1,6 +1,9 @@
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
-	type AudioOrVideoSample,
 	type MediaParserInternalTypes,
 } from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
@@ -111,7 +114,7 @@ export const createIsoBaseMedia = async ({
 		isVideo,
 		codecPrivate,
 	}: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 		codecPrivate: Uint8Array | null;
