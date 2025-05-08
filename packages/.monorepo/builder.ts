@@ -72,6 +72,7 @@ type FormatAction = 'do-nothing' | 'build' | 'use-tsc';
 type EntryPoint = {
 	target: 'node' | 'browser';
 	path: string;
+	splitting?: boolean;
 };
 
 export const buildPackage = async ({
@@ -108,7 +109,7 @@ export const buildPackage = async ({
 			continue;
 		} else if (action === 'use-tsc') {
 		} else if (action === 'build') {
-			for (const {path: p, target} of entrypoints) {
+			for (const {path: p, target, splitting} of entrypoints) {
 				const externalFinal = filterExternal(getExternal(external));
 				validateExternal(externalFinal);
 				const output = await build({
@@ -117,6 +118,7 @@ export const buildPackage = async ({
 					external: externalFinal,
 					target,
 					format,
+					splitting: splitting ?? false,
 				});
 
 				for (const file of output.outputs) {
