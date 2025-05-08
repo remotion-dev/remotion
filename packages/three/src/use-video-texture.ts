@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
@@ -99,6 +99,14 @@ export const useVideoTexture = (
 
 		current.requestVideoFrameCallback(ready);
 	}, [frame, loaded, videoRef]);
+
+	useEffect(() => {
+		// Clean up on unmount
+
+		return () => {
+			continueRender(loaded);
+		};
+	}, [loaded]);
 
 	if (
 		typeof HTMLVideoElement === 'undefined' ||
