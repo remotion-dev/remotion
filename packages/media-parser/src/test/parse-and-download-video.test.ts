@@ -106,7 +106,7 @@ test('should be able to continue on error', () => {
 			onError: () => ({action: 'download'}),
 			acknowledgeRemotionLicense: true,
 		}),
-	).rejects.toThrow('GIF files are not yet supported');
+	).rejects.toThrow('Image files are not supported');
 	expect(existsSync('jkl.gif')).toBe(true);
 	unlinkSync('jkl.gif');
 });
