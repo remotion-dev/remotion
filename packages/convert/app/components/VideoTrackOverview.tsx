@@ -3,7 +3,7 @@ import type {
 	MediaParserKeyframe,
 	MediaParserLocation,
 	MediaParserMetadataEntry,
-	VideoTrack,
+	MediaParserVideoTrack,
 } from '@remotion/media-parser';
 import React from 'react';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
@@ -11,7 +11,7 @@ import {KeyframesInfo} from './KeyframesInfo';
 import {MetadataDisplay} from './MetadataTable';
 
 export const VideoTrackOverview: React.FC<{
-	readonly track: VideoTrack;
+	readonly track: MediaParserVideoTrack;
 	readonly metadata: MediaParserMetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
 	readonly keyframes: MediaParserKeyframe[] | null;

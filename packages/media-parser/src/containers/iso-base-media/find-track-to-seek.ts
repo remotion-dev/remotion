@@ -1,5 +1,9 @@
 import type {SamplePosition} from '../../get-sample-positions';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {StructureState} from '../../state/structure';
 import {areSamplesComplete} from './are-samples-complete';
@@ -8,7 +12,11 @@ import type {TrakBox} from './trak/trak';
 import {getMoofBoxes, getTfraBoxes} from './traversal';
 
 export const findAnyTrackWithSamplePositions = (
-	allTracks: (VideoTrack | AudioTrack | OtherTrack)[],
+	allTracks: (
+		| MediaParserVideoTrack
+		| MediaParserAudioTrack
+		| MediaParserOtherTrack
+	)[],
 	struc: IsoBaseMediaStructure,
 ) => {
 	for (const track of allTracks) {
@@ -34,12 +42,16 @@ export const findAnyTrackWithSamplePositions = (
 };
 
 type TrackWithSamplePositions = {
-	track: VideoTrack | AudioTrack;
+	track: MediaParserVideoTrack | MediaParserAudioTrack;
 	samplePositions: SamplePosition[];
 };
 
 export const findTrackToSeek = (
-	allTracks: (VideoTrack | AudioTrack | OtherTrack)[],
+	allTracks: (
+		| MediaParserVideoTrack
+		| MediaParserAudioTrack
+		| MediaParserOtherTrack
+	)[],
 	structure: StructureState,
 ): TrackWithSamplePositions | null => {
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');

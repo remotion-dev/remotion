@@ -6,11 +6,11 @@
 import type {
 	AudioTrack,
 	LogLevel,
+	MediaParserVideoTrack,
 	OnAudioTrack,
 	Options,
 	ParseMediaFields,
 	ParseMediaOptions,
-	VideoTrack,
 	WriterInterface,
 } from '@remotion/media-parser';
 import {
@@ -71,7 +71,7 @@ export type ConvertMediaResult = {
 export type ConvertMediaOnProgress = (state: ConvertMediaProgress) => void;
 export type ConvertMediaOnVideoFrame = (options: {
 	frame: VideoFrame;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 }) => Promise<VideoFrame> | VideoFrame;
 export type ConvertMediaOnAudioData = (options: {
 	audioData: AudioData;

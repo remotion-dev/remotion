@@ -1,5 +1,9 @@
 import {addAvcProfileToTrack} from './add-avc-profile-to-track';
-import type {AudioTrack, Track, VideoTrack} from './get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserTrack,
+	MediaParserVideoTrack,
+} from './get-tracks';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import type {MediaParserContainer} from './options';
@@ -16,7 +20,7 @@ export const registerVideoTrack = async ({
 	registerVideoSampleCallback,
 	tracks,
 }: {
-	track: Track;
+	track: MediaParserTrack;
 	container: MediaParserContainer;
 	logLevel: LogLevel;
 	onVideoTrack: OnVideoTrack | null;
@@ -56,7 +60,7 @@ export const registerAudioTrack = async ({
 	onAudioTrack,
 	registerAudioSampleCallback,
 }: {
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
 	tracks: TracksState;
 	logLevel: LogLevel;
@@ -92,7 +96,7 @@ export const registerVideoTrackWhenProfileIsAvailable = ({
 	container,
 }: {
 	state: ParserState;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 	container: MediaParserContainer;
 }) => {
 	state.riff.registerOnAvcProfileCallback(async (profile) => {

@@ -1,5 +1,9 @@
 import {addAvcProfileToTrack} from '../../add-avc-profile-to-track';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import type {ParserState} from '../../state/parser-state';
 import type {
 	RiffStructure,
@@ -11,9 +15,9 @@ import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {getAvihBox, getStrhBox, getStrlBoxes} from './traversal';
 
 export type AllTracks = {
-	videoTracks: VideoTrack[];
-	audioTracks: AudioTrack[];
-	otherTracks: OtherTrack[];
+	videoTracks: MediaParserVideoTrack[];
+	audioTracks: MediaParserAudioTrack[];
+	otherTracks: MediaParserOtherTrack[];
 };
 
 export const TO_BE_OVERRIDDEN_LATER = 'to-be-overriden-later';
@@ -33,7 +37,7 @@ export const makeAviAudioTrack = ({
 }: {
 	strf: StrfBoxAudio;
 	index: number;
-}): AudioTrack => {
+}): MediaParserAudioTrack => {
 	// 255 = AAC
 	if (strf.formatTag !== 255) {
 		throw new Error(`Unsupported audio format ${strf.formatTag}`);
@@ -61,7 +65,7 @@ export const makeAviVideoTrack = ({
 	strh: StrhBox;
 	strf: StrfBoxVideo;
 	index: number;
-}): VideoTrack => {
+}): MediaParserVideoTrack => {
 	if (strh.handler !== 'H264') {
 		throw new Error(`Unsupported video codec ${strh.handler}`);
 	}
@@ -101,9 +105,9 @@ export const getTracksFromAvi = (
 	structure: RiffStructure,
 	state: ParserState,
 ): AllTracks => {
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
+	const videoTracks: MediaParserVideoTrack[] = [];
+	const audioTracks: MediaParserAudioTrack[] = [];
+	const otherTracks: MediaParserOtherTrack[] = [];
 
 	const boxes = getStrlBoxes(structure);
 

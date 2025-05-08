@@ -1,12 +1,12 @@
 import {getCodecStringFromSpsAndPps} from './containers/avc/codec-string';
 import {createSpsPpsData} from './containers/avc/create-sps-pps-data';
-import type {VideoTrack} from './get-tracks';
+import type {MediaParserVideoTrack} from './get-tracks';
 import type {SpsAndPps} from './state/parser-state';
 
 export const addAvcProfileToTrack = (
-	track: VideoTrack,
+	track: MediaParserVideoTrack,
 	avc1Profile: SpsAndPps | null,
-): VideoTrack => {
+): MediaParserVideoTrack => {
 	if (avc1Profile === null) {
 		return track;
 	}

@@ -1,8 +1,8 @@
-import type {VideoTrack} from './get-tracks';
+import type {MediaParserVideoTrack} from './get-tracks';
 import {getHasTracks, getTracks} from './get-tracks';
 import type {ParserState} from './state/parser-state';
 
-const isVideoTrackHdr = (track: VideoTrack) => {
+const isVideoTrackHdr = (track: MediaParserVideoTrack) => {
 	return (
 		track.color.matrixCoefficients === 'bt2020' &&
 		track.color.transferCharacteristics === 'arib-std-b67' &&

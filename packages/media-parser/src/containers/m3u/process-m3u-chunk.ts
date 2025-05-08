@@ -1,6 +1,9 @@
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
-import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import {parseMedia} from '../../parse-media';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import {type M3uRun} from '../../state/m3u-state';
@@ -34,7 +37,7 @@ export const processM3uChunk = ({
 
 	const onGlobalAudioTrack = audioDone
 		? null
-		: async (track: AudioTrack): Promise<OnAudioSample | null> => {
+		: async (track: MediaParserAudioTrack): Promise<OnAudioSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
 				let {trackId} = track;
 				while (existingTracks.find((t) => t.trackId === trackId)) {
@@ -71,7 +74,7 @@ export const processM3uChunk = ({
 
 	const onGlobalVideoTrack = videoDone
 		? null
-		: async (track: VideoTrack): Promise<OnVideoSample | null> => {
+		: async (track: MediaParserVideoTrack): Promise<OnVideoSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
 				let {trackId} = track;
 				while (existingTracks.find((t) => t.trackId === trackId)) {

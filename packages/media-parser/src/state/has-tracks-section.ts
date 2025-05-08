@@ -1,5 +1,5 @@
 import type {Options, ParseMediaFields} from '../fields';
-import type {Track} from '../get-tracks';
+import type {MediaParserTrack} from '../get-tracks';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import type {ParseMediaSrc} from '../options';
@@ -9,7 +9,7 @@ export const makeTracksSectionState = (
 	canSkipTracksState: CanSkipTracksState,
 	src: ParseMediaSrc,
 ) => {
-	const tracks: Track[] = [];
+	const tracks: MediaParserTrack[] = [];
 	let doneWithTracks = false;
 
 	return {
@@ -25,7 +25,7 @@ export const makeTracksSectionState = (
 			Log.verbose(logLevel, 'All tracks have been parsed');
 			doneWithTracks = true;
 		},
-		addTrack: (track: Track) => {
+		addTrack: (track: MediaParserTrack) => {
 			tracks.push(track);
 		},
 		getTracks: () => {

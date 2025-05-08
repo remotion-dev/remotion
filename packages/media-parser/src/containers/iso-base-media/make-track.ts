@@ -18,7 +18,11 @@ import {
 	getSampleAspectRatio,
 	getStsdVideoConfig,
 } from '../../get-sample-aspect-ratio';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import {
 	getIsoBmColrConfig,
 	getVideoCodecString,
@@ -31,7 +35,11 @@ import {getTkhdBox, getVideoDescriptors} from './traversal';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,
-): VideoTrack | AudioTrack | OtherTrack | null => {
+):
+	| MediaParserVideoTrack
+	| MediaParserAudioTrack
+	| MediaParserOtherTrack
+	| null => {
 	const tkhdBox = getTkhdBox(trakBox);
 
 	const videoDescriptors = getVideoDescriptors(trakBox);
@@ -118,7 +126,7 @@ export const makeBaseMediaTrack = (
 
 	const privateData = getVideoPrivateData(trakBox);
 
-	const track: VideoTrack = {
+	const track: MediaParserVideoTrack = {
 		m3uStreamFormat: null,
 		type: 'video',
 		trackId: tkhdBox.trackId,

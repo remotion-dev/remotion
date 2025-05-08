@@ -8,10 +8,10 @@ import type {Options, ParseMediaFields} from './fields';
 import type {Dimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
-	AudioTrack,
 	MediaParserAudioCodec,
+	MediaParserAudioTrack,
 	MediaParserVideoCodec,
-	VideoTrack,
+	MediaParserVideoTrack,
 } from './get-tracks';
 import type {LogLevel} from './log';
 import type {MediaParserMetadataEntry} from './metadata/get-metadata';
@@ -67,8 +67,8 @@ export type AllParseMediaFields = {
 };
 
 export type MediaParserTracks = {
-	videoTracks: VideoTrack[];
-	audioTracks: AudioTrack[];
+	videoTracks: MediaParserVideoTrack[];
+	audioTracks: MediaParserAudioTrack[];
 };
 
 export type MediaParserContainer =

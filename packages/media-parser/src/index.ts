@@ -26,12 +26,12 @@ export {
 } from './errors';
 export type {SamplePosition} from './get-sample-positions';
 export type {
-	AudioTrack,
+	MediaParserAudioTrack as AudioTrack,
 	MediaParserAudioCodec,
+	MediaParserOtherTrack,
+	MediaParserTrack,
 	MediaParserVideoCodec,
-	OtherTrack,
-	Track,
-	VideoTrack,
+	MediaParserVideoTrack,
 	VideoTrackColorParams,
 } from './get-tracks';
 export type {MediaParserMetadataEntry} from './metadata/get-metadata';

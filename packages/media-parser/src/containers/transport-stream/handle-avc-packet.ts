@@ -1,5 +1,5 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import type {Track} from '../../get-tracks';
+import type {MediaParserTrack} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
@@ -64,7 +64,7 @@ export const handleAvcPacket = async ({
 
 		const codecPrivate = createSpsPpsData(spsAndPps);
 
-		const track: Track = {
+		const track: MediaParserTrack = {
 			m3uStreamFormat: null,
 			rotation: 0,
 			trackId: programId,

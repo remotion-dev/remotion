@@ -64,7 +64,7 @@ export type MediaParserAudioCodec =
 	| 'flac'
 	| 'aiff';
 
-export type VideoTrack = {
+export type MediaParserVideoTrack = {
 	// WebCodecs
 	codec: string;
 	description: Uint8Array | undefined;
@@ -75,20 +75,20 @@ export type VideoTrack = {
 	// Non-WebCodecs
 	type: 'video';
 	trackId: number;
-	timescale: number;
 	codecEnum: MediaParserVideoCodec;
-	m3uStreamFormat: 'ts' | 'mp4' | null;
+	codecData: MediaParserCodecData | null;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
 	height: number;
 	rotation: number;
-	trakBox: TrakBox | null;
-	codecData: MediaParserCodecData | null;
-	color: VideoTrackColorParams;
 	fps: number | null;
+	timescale: number;
+	trakBox: TrakBox | null;
+	color: VideoTrackColorParams;
+	m3uStreamFormat: 'ts' | 'mp4' | null;
 };
 
-export type AudioTrack = {
+export type MediaParserAudioTrack = {
 	// WebCodecs
 	codec: string;
 	sampleRate: number;
@@ -97,20 +97,23 @@ export type AudioTrack = {
 	// Non-WebCodecs
 	type: 'audio';
 	trackId: number;
-	timescale: number;
 	codecEnum: MediaParserAudioCodec;
+	timescale: number;
 	trakBox: TrakBox | null;
 	codecData: MediaParserCodecData | null;
 };
 
-export type OtherTrack = {
+export type MediaParserOtherTrack = {
 	type: 'other';
 	trackId: number;
 	timescale: number;
 	trakBox: TrakBox | null;
 };
 
-export type Track = VideoTrack | AudioTrack | OtherTrack;
+export type MediaParserTrack =
+	| MediaParserVideoTrack
+	| MediaParserAudioTrack
+	| MediaParserOtherTrack;
 
 export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	const mvHdBox = getMvhdBox(moovBox);
@@ -183,9 +186,9 @@ export const getHasTracks = (
 };
 
 const getCategorizedTracksFromMatroska = (state: ParserState): AllTracks => {
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
+	const videoTracks: MediaParserVideoTrack[] = [];
+	const audioTracks: MediaParserAudioTrack[] = [];
+	const otherTracks: MediaParserOtherTrack[] = [];
 
 	const {resolved} = getTracksFromMatroska({
 		structureState: state.structure,
@@ -210,9 +213,9 @@ const getCategorizedTracksFromMatroska = (state: ParserState): AllTracks => {
 };
 
 export const getTracksFromMoovBox = (moovBox: MoovBox) => {
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
+	const videoTracks: MediaParserVideoTrack[] = [];
+	const audioTracks: MediaParserAudioTrack[] = [];
+	const otherTracks: MediaParserOtherTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {

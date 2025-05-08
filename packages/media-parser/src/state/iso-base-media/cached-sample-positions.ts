@@ -7,13 +7,17 @@ import {
 	getTfraBoxes,
 } from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
 import type {ParserState} from '../parser-state';
 import {deduplicateTfraBoxesByOffset} from './precomputed-tfra';
 
 export type FlatSample = {
-	track: VideoTrack | AudioTrack | OtherTrack;
+	track: MediaParserVideoTrack | MediaParserAudioTrack | MediaParserOtherTrack;
 	samplePosition: SamplePosition;
 };
 

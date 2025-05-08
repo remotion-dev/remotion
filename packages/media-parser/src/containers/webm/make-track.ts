@@ -1,9 +1,9 @@
 import type {MediaParserCodecData} from '../../codec-data';
 import type {
-	AudioTrack,
 	MediaParserAudioCodec,
+	MediaParserAudioTrack,
 	MediaParserVideoCodec,
-	VideoTrack,
+	MediaParserVideoTrack,
 } from '../../get-tracks';
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
@@ -262,7 +262,7 @@ export const getTrack = ({
 }: {
 	timescale: number;
 	track: TrackEntry;
-}): VideoTrack | AudioTrack | null => {
+}): MediaParserVideoTrack | MediaParserAudioTrack | null => {
 	const trackType = getTrackTypeSegment(track);
 
 	if (!trackType) {

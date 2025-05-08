@@ -1,4 +1,4 @@
-import type {Track} from '../../get-tracks';
+import type {MediaParserTrack} from '../../get-tracks';
 import type {WebmState} from '../../state/matroska/webm';
 import type {StructureState} from '../../state/structure';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
@@ -9,8 +9,8 @@ import {
 import {getMainSegment, getTracksSegment} from './traversal';
 
 export type ResolvedAndUnresolvedTracks = {
-	resolved: Track[];
-	missingInfo: Track[];
+	resolved: MediaParserTrack[];
+	missingInfo: MediaParserTrack[];
 };
 
 export const getTracksFromMatroska = ({
@@ -32,8 +32,8 @@ export const getTracksFromMatroska = ({
 		throw new Error('No tracks segment');
 	}
 
-	const resolvedTracks: Track[] = [];
-	const missingInfo: Track[] = [];
+	const resolvedTracks: MediaParserTrack[] = [];
+	const missingInfo: MediaParserTrack[] = [];
 
 	for (const trackEntrySegment of tracksSegment.value) {
 		if (trackEntrySegment.type === 'Crc32') {

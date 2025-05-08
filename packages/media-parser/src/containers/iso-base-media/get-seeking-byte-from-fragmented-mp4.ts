@@ -1,4 +1,8 @@
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
@@ -30,7 +34,11 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	logLevel: LogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
-	allTracks: (VideoTrack | AudioTrack | OtherTrack)[];
+	allTracks: (
+		| MediaParserVideoTrack
+		| MediaParserAudioTrack
+		| MediaParserOtherTrack
+	)[];
 	isLastChunkInPlaylist: boolean;
 }): Promise<SeekResolution> => {
 	const firstVideoTrack = allTracks.find((t) => t.type === 'video');

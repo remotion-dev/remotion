@@ -1,4 +1,4 @@
-import type {AudioTrack, VideoTrack} from './get-tracks';
+import type {MediaParserAudioTrack, MediaParserVideoTrack} from './get-tracks';
 import type {MediaParserContainer} from './options';
 
 export type OnAudioSample = (
@@ -9,7 +9,7 @@ export type OnVideoSample = (
 ) => void | Promise<void>;
 
 export type OnAudioTrackParams = {
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
 };
 
@@ -18,7 +18,7 @@ export type OnAudioTrack = (
 ) => OnAudioSample | Promise<OnAudioSample | null> | null;
 
 export type OnVideoTrackParams = {
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 	container: MediaParserContainer;
 };
 
