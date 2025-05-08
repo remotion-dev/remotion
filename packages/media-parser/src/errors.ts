@@ -1,33 +1,4 @@
-export class IsAGifError extends Error {
-	public mimeType: string | null;
-	public sizeInBytes: number | null;
-	public fileName: string | null;
-
-	constructor({
-		message,
-		mimeType,
-		sizeInBytes,
-		fileName,
-	}: {
-		message: string;
-		mimeType: string | null;
-		sizeInBytes: number | null;
-		fileName: string | null;
-	}) {
-		super(message);
-		this.name = 'IsAGifError';
-		this.fileName = 'IsAGifError';
-		this.mimeType = mimeType;
-		this.sizeInBytes = sizeInBytes;
-		this.fileName = fileName;
-
-		if (Error.captureStackTrace) {
-			Error.captureStackTrace(this, IsAGifError);
-		}
-	}
-}
-
-export type ImageType = 'png' | 'jpeg' | 'bmp' | 'webp';
+export type ImageType = 'png' | 'jpeg' | 'bmp' | 'webp' | 'gif';
 export type Dimensions = {width: number; height: number};
 
 export class IsAnImageError extends Error {

@@ -121,13 +121,6 @@ type NotReadableError = BaseError & {
 	errorName: 'NotReadableError';
 };
 
-type IsAGifError = BaseError & {
-	errorName: 'IsAGifError';
-	mimeType: string | null;
-	sizeInBytes: number | null;
-	fileName: string | null;
-};
-
 type IsAnImageError = BaseError & {
 	errorName: 'IsAnImageError';
 	imageType: ImageType;
@@ -158,7 +151,6 @@ type MediaParserAbortError = BaseError & {
 
 type AnyError =
 	| GenericError
-	| IsAGifError
 	| IsAnImageError
 	| IsAPdfError
 	| IsAnUnsupportedFileTypeError

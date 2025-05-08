@@ -2,7 +2,6 @@ import type {FlacStructure} from './containers/flac/types';
 import {getMoovFromFromIsoStructure} from './containers/iso-base-media/traversal';
 import type {WavStructure} from './containers/wav/types';
 import {
-	IsAGifError,
 	IsAPdfError,
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
@@ -148,17 +147,6 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 		return;
 	}
 
-	if (fileType.type === 'gif') {
-		return Promise.reject(
-			new IsAGifError({
-				message: 'GIF files are not yet supported',
-				mimeType,
-				sizeInBytes: contentLength,
-				fileName: name,
-			}),
-		);
-	}
-
 	if (fileType.type === 'pdf') {
 		return Promise.reject(
 			new IsAPdfError({
@@ -174,7 +162,8 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 		fileType.type === 'bmp' ||
 		fileType.type === 'jpeg' ||
 		fileType.type === 'png' ||
-		fileType.type === 'webp'
+		fileType.type === 'webp' ||
+		fileType.type === 'gif'
 	) {
 		return Promise.reject(
 			new IsAnImageError({
