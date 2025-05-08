@@ -357,7 +357,7 @@ export const getTrack = ({
 				: width.value.value,
 			rotation: 0,
 			codecData,
-			color: colour
+			detailedColor: colour
 				? parseColorSegment(colour)
 				: {
 						fullRange: null,

@@ -107,7 +107,7 @@ test('Should stream AV1', async () => {
 				32,
 			]),
 		},
-		color: {
+		detailedColor: {
 			fullRange: null,
 			transferCharacteristics: 'bt709',
 			matrixCoefficients: 'bt709',
@@ -276,7 +276,7 @@ test(
 			displayAspectWidth: 1280,
 			rotation: 0,
 			codecData: null,
-			color: {
+			detailedColor: {
 				fullRange: null,
 				transferCharacteristics: null,
 				matrixCoefficients: null,
@@ -552,7 +552,7 @@ test('Stretched VP8', async () => {
 		displayAspectWidth: 1920,
 		rotation: 0,
 		codecData: null,
-		color: {
+		detailedColor: {
 			fullRange: null,
 			transferCharacteristics: null,
 			matrixCoefficients: null,

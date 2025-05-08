@@ -1,7 +1,7 @@
 import type {
 	MediaParserAudioCodec,
+	MediaParserDetailedColor,
 	MediaParserVideoCodec,
-	VideoTrackColorParams,
 } from '@remotion/media-parser';
 
 export type MakeTrackAudio = {
@@ -15,7 +15,7 @@ export type MakeTrackAudio = {
 };
 
 export type MakeTrackVideo = {
-	color: VideoTrackColorParams;
+	color: MediaParserDetailedColor;
 	width: number;
 	height: number;
 	trackNumber: number;

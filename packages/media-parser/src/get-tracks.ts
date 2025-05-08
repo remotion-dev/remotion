@@ -1,8 +1,8 @@
 import type {MediaParserCodecData} from './codec-data';
 import type {
-	MatrixCoefficients,
-	Primaries,
-	TransferCharacteristics,
+	MediaParserMatrixCoefficients,
+	MediaParserPrimaries,
+	MediaParserTransferCharacteristics,
 } from './containers/avc/color';
 import {makeBaseMediaTrack} from './containers/iso-base-media/make-track';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
@@ -35,10 +35,10 @@ export type MediaParserSampleAspectRatio = {
 	denominator: number;
 };
 
-export type VideoTrackColorParams = {
-	transferCharacteristics: TransferCharacteristics | null;
-	matrixCoefficients: MatrixCoefficients | null;
-	primaries: Primaries | null;
+export type MediaParserDetailedColor = {
+	transferCharacteristics: MediaParserTransferCharacteristics | null;
+	matrixCoefficients: MediaParserMatrixCoefficients | null;
+	primaries: MediaParserPrimaries | null;
 	fullRange: boolean | null;
 };
 
@@ -83,7 +83,7 @@ export type MediaParserVideoTrack = {
 	rotation: number;
 	fps: number | null;
 	timescale: number;
-	color: VideoTrackColorParams;
+	detailedColor: MediaParserDetailedColor;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 };
 

@@ -139,9 +139,9 @@ test('Transport stream', async () => {
 					denominator: 1,
 					numerator: 1,
 				},
-				color: {
-					matrixCoefficients: 'bt2020',
-					transferCharacteristics: 'arib-std-b67',
+				detailedColor: {
+					matrixCoefficients: 'bt2020-ncl',
+					transferCharacteristics: 'hlg',
 					primaries: 'bt2020',
 					fullRange: false,
 				},

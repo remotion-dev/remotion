@@ -71,13 +71,13 @@ export const VideoTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Color Primaries</TableCell>
 					<TableCell className="text-right">
-						{track.color.primaries ?? 'N/A'}
+						{track.detailedColor.primaries ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Color Matrix</TableCell>
 					<TableCell className="text-right">
-						{track.color.matrixCoefficients ?? 'N/A'}
+						{track.detailedColor.matrixCoefficients ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
@@ -85,15 +85,15 @@ export const VideoTrackOverview: React.FC<{
 						Color Transfer Characteristics
 					</TableCell>
 					<TableCell className="text-right">
-						{track.color.transferCharacteristics ?? 'N/A'}
+						{track.detailedColor.transferCharacteristics ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Color Full Range</TableCell>
 					<TableCell className="text-right">
-						{track.color.fullRange
+						{track.detailedColor.fullRange
 							? 'Yes'
-							: track.color.fullRange === false
+							: track.detailedColor.fullRange === false
 								? 'No'
 								: 'N/A'}
 					</TableCell>

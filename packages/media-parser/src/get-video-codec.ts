@@ -16,8 +16,8 @@ import {
 import {
 	getHasTracks,
 	getTracks,
+	type MediaParserDetailedColor,
 	type MediaParserVideoCodec,
-	type VideoTrackColorParams,
 } from './get-tracks';
 import type {ParserState} from './state/parser-state';
 
@@ -61,7 +61,7 @@ export const getVideoPrivateData = (
 
 export const getIsoBmColrConfig = (
 	trakBox: TrakBox,
-): VideoTrackColorParams | null => {
+): MediaParserDetailedColor | null => {
 	const videoSample = getStsdVideoConfig(trakBox);
 	if (!videoSample) {
 		return null;

@@ -4,9 +4,10 @@ import type {ParserState} from './state/parser-state';
 
 const isVideoTrackHdr = (track: MediaParserVideoTrack) => {
 	return (
-		track.color.matrixCoefficients === 'bt2020' &&
-		track.color.transferCharacteristics === 'arib-std-b67' &&
-		track.color.primaries === 'bt2020'
+		track.detailedColor.matrixCoefficients === 'bt2020-ncl' &&
+		(track.detailedColor.transferCharacteristics === 'hlg' ||
+			track.detailedColor.transferCharacteristics === 'pq') &&
+		track.detailedColor.primaries === 'bt2020'
 	);
 };
 

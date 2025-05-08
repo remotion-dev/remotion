@@ -142,7 +142,7 @@ export const makeBaseMediaTrack = (
 		displayAspectHeight,
 		rotation,
 		codecData: privateData,
-		color: getIsoBmColrConfig(trakBox) ?? {
+		detailedColor: getIsoBmColrConfig(trakBox) ?? {
 			fullRange: null,
 			matrixCoefficients: null,
 			primaries: null,

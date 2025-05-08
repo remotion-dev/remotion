@@ -41,12 +41,19 @@ export {
 export type {
 	MediaParserAudioCodec,
 	MediaParserAudioTrack,
+	MediaParserDetailedColor,
 	MediaParserOtherTrack,
 	MediaParserTrack,
 	MediaParserVideoCodec,
 	MediaParserVideoTrack,
-	VideoTrackColorParams,
 } from './get-tracks';
+
+export type {
+	MediaParserMatrixCoefficients,
+	MediaParserPrimaries,
+	MediaParserTransferCharacteristics,
+} from './containers/avc/color';
+
 export type {MediaParserMetadataEntry} from './metadata/get-metadata';
 export type {MediaParserKeyframe, ParseMediaSrc} from './options';
 export type {MediaParserEmbeddedImage} from './state/images';

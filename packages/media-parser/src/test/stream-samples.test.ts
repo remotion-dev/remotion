@@ -49,7 +49,7 @@ test('Stream samples', async () => {
 				0,
 			]),
 		},
-		color: {
+		detailedColor: {
 			fullRange: null,
 			transferCharacteristics: null,
 			matrixCoefficients: null,

@@ -88,7 +88,7 @@ export const handleAvcPacket = async ({
 				denominator: sampleAspectRatio.height,
 				numerator: sampleAspectRatio.width,
 			},
-			color: getVideoColorFromSps(spsAndPps.sps.spsData),
+			detailedColor: getVideoColorFromSps(spsAndPps.sps.spsData),
 		};
 
 		await registerVideoTrack({

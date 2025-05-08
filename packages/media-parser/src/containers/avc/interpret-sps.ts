@@ -1,4 +1,4 @@
-import type {VideoTrackColorParams} from '../../get-tracks';
+import type {MediaParserDetailedColor} from '../../get-tracks';
 import {
 	getMatrixCoefficientsFromIndex,
 	getPrimariesFromIndex,
@@ -37,7 +37,9 @@ export const getSampleAspectRatioFromSps = (sps: SpsInfo) => {
 	};
 };
 
-export const getVideoColorFromSps = (sps: SpsInfo): VideoTrackColorParams => {
+export const getVideoColorFromSps = (
+	sps: SpsInfo,
+): MediaParserDetailedColor => {
 	const matrixCoefficients = sps.vui_parameters?.matrix_coefficients;
 	const transferCharacteristics = sps.vui_parameters?.transfer_characteristics;
 	const colorPrimaries = sps.vui_parameters?.colour_primaries;

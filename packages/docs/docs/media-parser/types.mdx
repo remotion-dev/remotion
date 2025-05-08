@@ -126,10 +126,44 @@ import type {MediaParserOnVideoTrackParams} from '@remotion/media-parser';
 //                ^?
 ```
 
+## `MediaParserDetailedColor`
+
+```tsx twoslash
+import type {MediaParserDetailedColor} from '@remotion/media-parser';
+//                ^?
+```
+
+## `MediaParserMatrixCoefficients`
+
+```tsx twoslash
+import type {MediaParserMatrixCoefficients} from '@remotion/media-parser';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `MediaParserPrimaries`
+
+```tsx twoslash
+import type {MediaParserPrimaries} from '@remotion/media-parser';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
+## `MediaParserTransferCharacteristics`
+
+```tsx twoslash
+import type {MediaParserTransferCharacteristics} from '@remotion/media-parser';
+//                ^?
+```
+
+More values may be added in the future, this would not be considered a breaking change.
+
 ## `MediaParserVideoTrack`
 
 ```tsx twoslash
-import {MediaParserVideoCodec, MediaParserCodecData, MediaParserSampleAspectRatio, VideoTrackColorParams} from '@remotion/media-parser';
+import {MediaParserVideoCodec, MediaParserCodecData, MediaParserSampleAspectRatio, MediaParserDetailedColor} from '@remotion/media-parser';
 
 export type MediaParserVideoTrack = {
   // WebCodecs
@@ -150,7 +184,7 @@ export type MediaParserVideoTrack = {
   rotation: number;
   fps: number | null;
   timescale: number;
-  color: VideoTrackColorParams;
+  detailedColor: MediaParserDetailedColor;
   m3uStreamFormat: 'ts' | 'mp4' | null;
 };
 ```
