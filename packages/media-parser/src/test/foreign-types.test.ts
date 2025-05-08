@@ -1,7 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {
-	IsAGifError,
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
@@ -9,7 +8,7 @@ import {
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('Should throw IsAGifError for a gif', async () => {
+test('Should throw IsAnImageError for a gif', async () => {
 	try {
 		await parseMedia({
 			src: exampleVideos.gif,
@@ -20,7 +19,7 @@ test('Should throw IsAGifError for a gif', async () => {
 			acknowledgeRemotionLicense: true,
 		});
 	} catch (e) {
-		if (e instanceof IsAGifError) {
+		if (e instanceof IsAnImageError) {
 			expect(e.dimensions).toEqual({height: 480, width: 480});
 			return;
 		}

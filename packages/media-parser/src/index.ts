@@ -19,7 +19,6 @@ export type {MatroskaSegment} from './containers/webm/segments';
 export type {MatroskaElement} from './containers/webm/segments/all-segments';
 export {
 	hasBeenAborted,
-	IsAGifError,
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,

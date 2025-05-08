@@ -1,5 +1,4 @@
 import {
-	IsAGifError,
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
@@ -19,19 +18,6 @@ export const serializeError = ({
 	logLevel: LogLevel;
 	seekingHints: SeekingHints | null;
 }): ResponseError => {
-	if (error instanceof IsAGifError) {
-		return {
-			type: 'response-error',
-			errorName: 'IsAGifError',
-			errorMessage: error.message,
-			errorStack: error.stack ?? '',
-			mimeType: error.mimeType,
-			sizeInBytes: error.sizeInBytes,
-			fileName: error.fileName,
-			dimensions: error.dimensions,
-		};
-	}
-
 	if (error instanceof IsAnImageError) {
 		return {
 			type: 'response-error',
@@ -103,14 +89,6 @@ export const serializeError = ({
 
 export const deserializeError = (error: ResponseError): Error => {
 	switch (error.errorName) {
-		case 'IsAGifError':
-			return new IsAGifError({
-				fileName: error.fileName,
-				mimeType: error.mimeType,
-				sizeInBytes: error.sizeInBytes,
-				message: error.errorMessage,
-				dimensions: error.dimensions,
-			});
 		case 'IsAnImageError':
 			return new IsAnImageError({
 				dimensions: error.dimensions,
