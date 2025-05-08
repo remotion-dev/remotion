@@ -74,7 +74,7 @@ test('AVI file', async () => {
 	expect(audioSamples).toBe(1433);
 	expect(videoSamples).toBe(901);
 	expect(videoCodec).toBe('h264');
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
 			codec: 'mp4a.40.2',
 			codecData: {type: 'aac-config', data: new Uint8Array([18, 16])},
@@ -87,7 +87,7 @@ test('AVI file', async () => {
 			type: 'audio',
 		},
 	]);
-	expect(tracks.videoTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'video')).toEqual([
 		{
 			m3uStreamFormat: null,
 			codec: 'avc1.640015',

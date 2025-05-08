@@ -17,8 +17,7 @@ test('webm with h264 and no codecprivate', async () => {
 		reader: nodeReader,
 	});
 
-	expect(tracks.videoTracks.length).toBe(1);
-	expect(tracks.videoTracks[0]).toEqual({
+	expect(tracks.find((t) => t.type === 'video')).toEqual({
 		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,

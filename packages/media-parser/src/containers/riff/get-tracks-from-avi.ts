@@ -1,7 +1,7 @@
 import {addAvcProfileToTrack} from '../../add-avc-profile-to-track';
 import type {
 	MediaParserAudioTrack,
-	MediaParserOtherTrack,
+	MediaParserTrack,
 	MediaParserVideoTrack,
 } from '../../get-tracks';
 import type {ParserState} from '../../state/parser-state';
@@ -13,12 +13,6 @@ import type {
 } from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {getAvihBox, getStrhBox, getStrlBoxes} from './traversal';
-
-export type AllTracks = {
-	videoTracks: MediaParserVideoTrack[];
-	audioTracks: MediaParserAudioTrack[];
-	otherTracks: MediaParserOtherTrack[];
-};
 
 export const TO_BE_OVERRIDDEN_LATER = 'to-be-overriden-later';
 
@@ -108,10 +102,8 @@ export const makeAviVideoTrack = ({
 export const getTracksFromAvi = (
 	structure: RiffStructure,
 	state: ParserState,
-): AllTracks => {
-	const videoTracks: MediaParserVideoTrack[] = [];
-	const audioTracks: MediaParserAudioTrack[] = [];
-	const otherTracks: MediaParserOtherTrack[] = [];
+): MediaParserTrack[] => {
+	const tracks: MediaParserTrack[] = [];
 
 	const boxes = getStrlBoxes(structure);
 
@@ -125,14 +117,14 @@ export const getTracksFromAvi = (
 		const {strf} = strh;
 
 		if (strf.type === 'strf-box-video') {
-			videoTracks.push(
+			tracks.push(
 				addAvcProfileToTrack(
 					makeAviVideoTrack({strh, strf, index: i}),
 					state.riff.getAvcProfile(),
 				),
 			);
 		} else if (strh.fccType === 'auds') {
-			audioTracks.push(makeAviAudioTrack({strf, index: i}));
+			tracks.push(makeAviAudioTrack({strf, index: i}));
 		} else {
 			throw new Error(`Unsupported track type ${strh.fccType}`);
 		}
@@ -140,7 +132,7 @@ export const getTracksFromAvi = (
 		i++;
 	}
 
-	return {audioTracks, otherTracks, videoTracks};
+	return tracks;
 };
 
 export const hasAllTracksFromAvi = (state: ParserState): boolean => {
@@ -149,11 +141,10 @@ export const hasAllTracksFromAvi = (state: ParserState): boolean => {
 		const numberOfTracks = getNumberOfTracks(structure);
 		const tracks = getTracksFromAvi(structure, state);
 		return (
-			tracks.videoTracks.length +
-				tracks.audioTracks.length +
-				tracks.otherTracks.length ===
-				numberOfTracks &&
-			!tracks.videoTracks.find((t) => t.codec === TO_BE_OVERRIDDEN_LATER)
+			tracks.length === numberOfTracks &&
+			!tracks.find(
+				(t) => t.type === 'video' && t.codec === TO_BE_OVERRIDDEN_LATER,
+			)
 		);
 	} catch {
 		return false;

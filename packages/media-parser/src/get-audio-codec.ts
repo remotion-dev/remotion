@@ -15,16 +15,12 @@ export const getAudioCodec = (
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
 	const tracks = getTracks(parserState, true);
-	const allTracks =
-		tracks.audioTracks.length +
-		tracks.otherTracks.length +
-		tracks.videoTracks.length;
 
-	if (allTracks === 0) {
+	if (tracks.length === 0) {
 		throw new Error('No tracks yet');
 	}
 
-	const audioTrack = tracks.audioTracks[0];
+	const audioTrack = tracks.find((t) => t.type === 'audio');
 	if (!audioTrack) {
 		return null;
 	}

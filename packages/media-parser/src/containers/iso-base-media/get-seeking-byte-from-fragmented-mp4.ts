@@ -1,8 +1,4 @@
-import type {
-	MediaParserAudioTrack,
-	MediaParserOtherTrack,
-	MediaParserVideoTrack,
-} from '../../get-tracks';
+import type {MediaParserTrack} from '../../get-tracks';
 import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {IsoBaseMediaStructure} from '../../parse-result';
@@ -31,7 +27,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	logLevel,
 	currentPosition,
 	isoState,
-	allTracks,
+	tracks,
 	isLastChunkInPlaylist,
 	structure,
 	mp4HeaderSegment,
@@ -42,19 +38,14 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
 	structure: StructureState;
-	allTracks: (
-		| MediaParserVideoTrack
-		| MediaParserAudioTrack
-		| MediaParserOtherTrack
-	)[];
+	tracks: MediaParserTrack[];
 	isLastChunkInPlaylist: boolean;
 	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }): Promise<SeekResolution> => {
-	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
+	const firstVideoTrack = tracks.find((t) => t.type === 'video');
 
 	// If there is both video and audio, seek based on video, but if not then audio is also okay
-	const firstTrack =
-		firstVideoTrack ?? allTracks.find((t) => t.type === 'audio');
+	const firstTrack = firstVideoTrack ?? tracks.find((t) => t.type === 'audio');
 
 	if (!firstTrack) {
 		throw new Error('no video and no audio tracks');

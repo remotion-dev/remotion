@@ -62,7 +62,6 @@ export {downloadAndParseMedia} from './download-and-parse-media';
 export type {Options, ParseMediaFields} from './fields';
 export type {
 	MediaParserContainer,
-	MediaParserTracks,
 	ParseMediaOnProgress,
 	ParseMediaOptions,
 	ParseMediaProgress,

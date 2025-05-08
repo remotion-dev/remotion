@@ -21,12 +21,15 @@ export const getDimensions = (
 		return null;
 	}
 
-	const {videoTracks} = getTracks(state, true);
-	if (!videoTracks.length) {
+	const tracks = getTracks(state, true);
+	if (!tracks.length) {
 		return null;
 	}
 
-	const firstVideoTrack = videoTracks[0];
+	const firstVideoTrack = tracks.find((t) => t.type === 'video');
+	if (!firstVideoTrack) {
+		return null;
+	}
 
 	return {
 		width: firstVideoTrack.width,

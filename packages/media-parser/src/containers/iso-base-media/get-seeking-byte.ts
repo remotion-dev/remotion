@@ -34,11 +34,6 @@ export const getSeekingByteFromIsoBaseMedia = ({
 		structure,
 		mayUsePrecomputed: false,
 	});
-	const allTracks = [
-		...tracks.videoTracks,
-		...tracks.audioTracks,
-		...tracks.otherTracks,
-	];
 
 	const hasMoov = Boolean(
 		getMoovBoxFromState({
@@ -63,14 +58,14 @@ export const getSeekingByteFromIsoBaseMedia = ({
 			logLevel,
 			currentPosition,
 			isoState,
-			allTracks,
+			tracks,
 			isLastChunkInPlaylist: m3uPlaylistContext?.isLastChunkInPlaylist ?? false,
 			structure,
 			mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		});
 	}
 
-	const trackWithSamplePositions = findTrackToSeek(allTracks, structure);
+	const trackWithSamplePositions = findTrackToSeek(tracks, structure);
 	if (!trackWithSamplePositions) {
 		return Promise.resolve({
 			type: 'valid-but-must-wait',

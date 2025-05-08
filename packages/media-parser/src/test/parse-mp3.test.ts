@@ -79,7 +79,7 @@ test('should read MP3 file', async () => {
 
 	expect(samples).toBe(4788);
 	expect(durationInSeconds).toBe(125.17877551020408);
-	expect(tracks.audioTracks.length).toBe(1);
+	expect(tracks.filter((t) => t.type === 'audio').length).toBe(1);
 	expect(videoCodec).toBe(null);
 	expect(audioCodec).toBe('mp3');
 	expect(container).toBe('mp3');

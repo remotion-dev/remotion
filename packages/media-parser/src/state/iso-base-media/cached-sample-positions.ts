@@ -42,11 +42,6 @@ export const calculateFlatSamples = ({
 	mediaSectionStart: number;
 }) => {
 	const tracks = getTracks(state, true);
-	const allTracks = [
-		...tracks.videoTracks,
-		...tracks.audioTracks,
-		...tracks.otherTracks,
-	];
 
 	const moofBoxes = getMoofBoxes(state.structure.getIsoStructure().boxes);
 	const tfraBoxes = deduplicateTfraBoxesByOffset([
@@ -72,7 +67,7 @@ export const calculateFlatSamples = ({
 		throw new Error('No moov box found');
 	}
 
-	const flatSamples = allTracks.map((track) => {
+	const flatSamples = tracks.map((track) => {
 		const trakBox = getTrakBoxByTrackId(moov, track.trackId);
 
 		if (!trakBox) {

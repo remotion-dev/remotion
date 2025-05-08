@@ -21,8 +21,8 @@ test('Stream samples', async () => {
 		140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
 	]);
 
-	const trackInfo = tracks.videoTracks[0];
-	expect(trackInfo).toEqual({
+	const vidTracks = tracks.filter((t) => t.type === 'video');
+	expect(vidTracks[0]).toEqual({
 		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,
@@ -65,10 +65,8 @@ test('Stream samples', async () => {
 		},
 	});
 
-	const [firstAudioTrack] = tracks.audioTracks;
-	const audioTrack = firstAudioTrack;
-
-	expect(audioTrack).toEqual({
+	const audTracks = tracks.filter((t) => t.type === 'audio');
+	expect(audTracks[0]).toEqual({
 		type: 'audio',
 		trackId: 2,
 		timescale: 48000,

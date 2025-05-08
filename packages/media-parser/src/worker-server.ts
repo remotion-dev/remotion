@@ -323,6 +323,7 @@ const startParsing = async (
 						});
 					}
 				: null,
+
 			onUnrotatedDimensions: postUnrotatedDimensions
 				? async (dimensions) => {
 						await executeCallback({

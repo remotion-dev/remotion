@@ -12,7 +12,6 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './containers/iso-base-media/traversal';
-import type {AllTracks} from './containers/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
 	hasAllTracksFromAvi,
@@ -184,37 +183,19 @@ export const getHasTracks = (
 	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
-const getCategorizedTracksFromMatroska = (state: ParserState): AllTracks => {
-	const videoTracks: MediaParserVideoTrack[] = [];
-	const audioTracks: MediaParserAudioTrack[] = [];
-	const otherTracks: MediaParserOtherTrack[] = [];
-
+const getCategorizedTracksFromMatroska = (
+	state: ParserState,
+): MediaParserTrack[] => {
 	const {resolved} = getTracksFromMatroska({
 		structureState: state.structure,
 		webmState: state.webm,
 	});
 
-	for (const track of resolved) {
-		if (track.type === 'video') {
-			videoTracks.push(track);
-		} else if (track.type === 'audio') {
-			audioTracks.push(track);
-		} else if (track.type === 'other') {
-			otherTracks.push(track);
-		}
-	}
-
-	return {
-		videoTracks,
-		audioTracks,
-		otherTracks,
-	};
+	return resolved;
 };
 
-export const getTracksFromMoovBox = (moovBox: MoovBox) => {
-	const videoTracks: MediaParserVideoTrack[] = [];
-	const audioTracks: MediaParserAudioTrack[] = [];
-	const otherTracks: MediaParserOtherTrack[] = [];
+export const getTracksFromMoovBox = (moovBox: MoovBox): MediaParserTrack[] => {
+	const mediaParserTracks: MediaParserTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
@@ -223,20 +204,10 @@ export const getTracksFromMoovBox = (moovBox: MoovBox) => {
 			continue;
 		}
 
-		if (track.type === 'video') {
-			videoTracks.push(track);
-		} else if (track.type === 'audio') {
-			audioTracks.push(track);
-		} else if (track.type === 'other') {
-			otherTracks.push(track);
-		}
+		mediaParserTracks.push(track);
 	}
 
-	return {
-		videoTracks,
-		audioTracks,
-		otherTracks,
-	};
+	return mediaParserTracks;
 };
 
 export const getTracksFromIsoBaseMedia = ({
@@ -249,7 +220,7 @@ export const getTracksFromIsoBaseMedia = ({
 	isoState: IsoBaseMediaState;
 	m3uPlaylistContext: M3uPlaylistContext | null;
 	mayUsePrecomputed: boolean;
-}) => {
+}): MediaParserTrack[] => {
 	const moovBox = getMoovBoxFromState({
 		structureState: structure,
 		isoState,
@@ -257,27 +228,21 @@ export const getTracksFromIsoBaseMedia = ({
 		mayUsePrecomputed,
 	});
 	if (!moovBox) {
-		return {
-			videoTracks: [],
-			audioTracks: [],
-			otherTracks: [],
-		};
+		return [];
 	}
 
 	return getTracksFromMoovBox(moovBox);
 };
 
-export const defaultGetTracks = (parserState: ParserState): AllTracks => {
+export const defaultGetTracks = (
+	parserState: ParserState,
+): MediaParserTrack[] => {
 	const tracks = parserState.callbacks.tracks.getTracks();
 	if (tracks.length === 0) {
 		throw new Error('No tracks found');
 	}
 
-	return {
-		audioTracks: tracks.filter((t) => t.type === 'audio'),
-		otherTracks: [],
-		videoTracks: tracks.filter((t) => t.type === 'video'),
-	};
+	return tracks;
 };
 
 export const defaultHasallTracks = (parserState: ParserState): boolean => {
@@ -292,7 +257,7 @@ export const defaultHasallTracks = (parserState: ParserState): boolean => {
 export const getTracks = (
 	state: ParserState,
 	mayUsePrecomputed: boolean,
-): AllTracks => {
+): MediaParserTrack[] => {
 	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getCategorizedTracksFromMatroska(state);

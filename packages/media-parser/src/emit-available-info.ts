@@ -221,10 +221,10 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'tracks') {
 			if (!emittedFields.tracks && hasInfo.tracks) {
-				const {videoTracks, audioTracks} = getTracks(state, true);
-				await callbackFunctions.onTracks?.({videoTracks, audioTracks});
+				const tracks = getTracks(state, true);
+				await callbackFunctions.onTracks?.(tracks);
 				if (fieldsInReturnValue.tracks) {
-					returnValue.tracks = {videoTracks, audioTracks};
+					returnValue.tracks = tracks;
 				}
 
 				emittedFields.tracks = true;

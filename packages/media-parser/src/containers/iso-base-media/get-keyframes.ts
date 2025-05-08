@@ -13,12 +13,13 @@ import {
 export const getKeyframesFromIsoBaseMedia = (
 	state: ParserState,
 ): MediaParserKeyframe[] => {
-	const {videoTracks} = getTracksFromIsoBaseMedia({
+	const tracks = getTracksFromIsoBaseMedia({
 		isoState: state.iso,
 		m3uPlaylistContext: state.m3uPlaylistContext,
 		structure: state.structure,
 		mayUsePrecomputed: true,
 	});
+	const videoTracks = tracks.filter((t) => t.type === 'video');
 	const structure = state.structure.getIsoStructure();
 
 	const moofBoxes = getMoofBoxes(structure.boxes);

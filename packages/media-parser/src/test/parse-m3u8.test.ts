@@ -63,7 +63,7 @@ test('parse m3u8', async () => {
 		width: 1000,
 		height: 1000,
 	});
-	expect(tracks.videoTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'video')).toEqual([
 		{
 			m3uStreamFormat: 'ts',
 			type: 'video',
@@ -106,7 +106,7 @@ test('parse m3u8', async () => {
 			width: 1000,
 		},
 	]);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
 			codec: 'mp4a.40.2',
 			codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},

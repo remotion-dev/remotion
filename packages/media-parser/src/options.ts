@@ -9,9 +9,8 @@ import type {MediaParserDimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
 	MediaParserAudioCodec,
-	MediaParserAudioTrack,
+	MediaParserTrack,
 	MediaParserVideoCodec,
-	MediaParserVideoTrack,
 } from './get-tracks';
 import type {MediaParserLogLevel} from './log';
 import type {MediaParserMetadataEntry} from './metadata/get-metadata';
@@ -69,11 +68,6 @@ export type AllParseMediaFields = {
 	m3uStreams: true;
 };
 
-export type MediaParserTracks = {
-	videoTracks: MediaParserVideoTrack[];
-	audioTracks: MediaParserAudioTrack[];
-};
-
 export type MediaParserContainer =
 	| 'mp4'
 	| 'webm'
@@ -116,7 +110,7 @@ export type ParseMediaCallbacksMandatory = {
 	onAudioCodec:
 		| null
 		| ((codec: MediaParserAudioCodec | null) => unknown | Promise<unknown>);
-	onTracks: null | ((tracks: MediaParserTracks) => unknown | Promise<unknown>);
+	onTracks: null | ((tracks: MediaParserTrack[]) => unknown | Promise<unknown>);
 	onRotation: null | ((rotation: number | null) => unknown | Promise<unknown>);
 	onUnrotatedDimensions:
 		| null
@@ -179,7 +173,7 @@ export interface ParseMediaData {
 	fps: number | null;
 	videoCodec: MediaParserVideoCodec | null;
 	audioCodec: MediaParserAudioCodec | null;
-	tracks: MediaParserTracks;
+	tracks: MediaParserTrack[];
 	rotation: number | null;
 	unrotatedDimensions: MediaParserDimensions | null;
 	isHdr: boolean;

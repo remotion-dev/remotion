@@ -73,7 +73,7 @@ test('parse flac', async () => {
 		acknowledgeRemotionLicense: true,
 	});
 	expect(durationInSeconds).toBe(19.714285714285715);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
 			codec: 'flac',
 			type: 'audio',

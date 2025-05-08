@@ -56,12 +56,22 @@ import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
 //                ^?
 ```
 
+- `mimeType`: The MIME type of the image, or `null`
+- `description`: A description of the image, or `null`
+- `data`: The image data as a `Uint8Array`
+
 ## `MediaParserKeyframe`
 
 ```tsx twoslash
 import type {MediaParserKeyframe} from '@remotion/media-parser';
 //                ^?
 ```
+
+- `presentationTimeInSeconds`: The time in seconds when the keyframe should be presented
+- `decodingTimeInSeconds`: The time in seconds when the keyframe should be decoded
+- `positionInBytes`: The position in bytes where the keyframe is located in the file
+- `sizeInBytes`: The size of the keyframe in bytes
+- `trackId`: The ID of the track the frame belongs to
 
 ## `MediaParserLogLevel`
 
@@ -206,6 +216,13 @@ import type {MediaParserOtherTrack} from '@remotion/media-parser';
 //                ^?
 ```
 
+## `MediaParserTrack`
+
+```tsx twoslash
+import type {MediaParserTrack} from '@remotion/media-parser';
+//                ^?
+```
+
 ## `MediaParserSampleAspectRatio`
 
 ```tsx twoslash
@@ -255,9 +272,25 @@ import type {M3uStream} from '@remotion/media-parser';
 //                ^?
 ```
 
+- `bandwidthInBitsPerSec`: The bandwidth of the stream. May be `null`.
+- `averageBandwidthInBitsPerSec`: The average bandwidth of the stream. May be `null`.
+- `resolution`: The resolution of the stream. May be `null`.
+- `codecs`: The codec strings of the stream as an array May be `null`.
+- `src`: The URL or file path of the stream
+- `id`: A unique identifier that Remotion gives the stream
+- `associatedPlaylists`: An array of [`M3uAssociatedPlaylist`](/docs/media-parser/types#m3uassociatedplaylist) - other (probably audio) tracks that are connected to this stream but live in a separate file.
+
 ## `M3uAssociatedPlaylist`
 
 ```tsx twoslash
 import type {M3uAssociatedPlaylist} from '@remotion/media-parser';
 //                ^?
 ```
+
+- `src`: The URL or file path of the audio track
+- `autoselect`: Corresponds to the `AUTOSELECT` attribute in the HLS playlist
+- `default`: Corresponds to the `DEFAULT` attribute in the HLS playlist
+- `language`: The language of the audio track
+- `name`: The name of the audio track
+- `groupId`: The group ID of the audio track
+- `channels`: The number of audio channels in the audio track, or `null`.

@@ -66,8 +66,7 @@ test('parse full wav', async () => {
 	expect(dimensions).toBe(null);
 	expect(container).toBe('wav');
 	expect(audioCodec).toBe('pcm-s16');
-	expect(tracks.videoTracks).toEqual([]);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks).toEqual([
 		{
 			codec: 'pcm-s16',
 			codecData: null,

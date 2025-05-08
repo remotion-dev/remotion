@@ -11,12 +11,15 @@ import type {ImageType} from '../errors';
 import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserDimensions} from '../get-dimensions';
 import type {MediaParserLocation} from '../get-location';
-import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
+import type {
+	MediaParserAudioCodec,
+	MediaParserTrack,
+	MediaParserVideoCodec,
+} from '../get-tracks';
 import type {MediaParserMetadataEntry} from '../metadata/get-metadata';
 import type {
 	MediaParserContainer,
 	MediaParserKeyframe,
-	MediaParserTracks,
 	ParseMediaProgress,
 	ParseMediaResult,
 	ParseMediaSrc,
@@ -272,7 +275,7 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'tracks';
-			value: MediaParserTracks;
+			value: MediaParserTrack[];
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';

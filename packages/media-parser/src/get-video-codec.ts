@@ -25,7 +25,7 @@ export const getVideoCodec = (
 	state: ParserState,
 ): MediaParserVideoCodec | null => {
 	const track = getTracks(state, true);
-	return track.videoTracks[0]?.codecEnum ?? null;
+	return track.find((t) => t.type === 'video')?.codecEnum ?? null;
 };
 
 export const hasVideoCodec = (state: ParserState): boolean => {

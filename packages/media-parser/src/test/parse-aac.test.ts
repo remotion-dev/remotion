@@ -113,8 +113,8 @@ test('should be able to parse aac', async () => {
 		type: 'aac',
 		boxes: [],
 	});
-	expect(tracks.audioTracks.length).toBe(1);
-	expect(tracks.videoTracks.length).toBe(0);
+	expect(tracks.filter((t) => t.type === 'audio').length).toBe(1);
+	expect(tracks.filter((t) => t.type === 'video').length).toBe(0);
 	expect(numberOfAudioChannels).toBe(2);
 	expect(sampleRate).toBe(44100);
 	expect(slowAudioBitrate).toBe(132945.5141129032);
@@ -185,6 +185,6 @@ test('should be able to get basics without parsing all', async () => {
 	expect(size).toBe(1758426);
 	expect(unrotatedDimensions).toBe(null);
 	expect(videoCodec).toBe(null);
-	expect(tracks.audioTracks.length).toBe(1);
-	expect(tracks.videoTracks.length).toBe(0);
+	expect(tracks.filter((t) => t.type === 'audio').length).toBe(1);
+	expect(tracks.filter((t) => t.type === 'video').length).toBe(0);
 });
