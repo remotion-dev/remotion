@@ -1,9 +1,11 @@
-import type {Writer} from '@remotion/media-parser';
+import type {
+	MediaParserInternalTypes,
+	MediaParserLogLevel,
+} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
 	type AudioOrVideoSample,
 } from '@remotion/media-parser';
-import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
@@ -49,10 +51,10 @@ export const makeCluster = async ({
 	timescale,
 	logLevel,
 }: {
-	writer: Writer;
+	writer: MediaParserInternalTypes['Writer'];
 	clusterStartTimestamp: number;
 	timescale: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	Log.verbose(
 		logLevel,

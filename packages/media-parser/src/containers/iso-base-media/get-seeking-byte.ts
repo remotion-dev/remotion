@@ -1,5 +1,5 @@
 import {getTracksFromIsoBaseMedia} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {M3uPlaylistContext} from '../../options';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
@@ -22,7 +22,7 @@ export const getSeekingByteFromIsoBaseMedia = ({
 }: {
 	info: IsoBaseMediaSeekingHints;
 	time: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
 	m3uPlaylistContext: M3uPlaylistContext | null;

@@ -1,4 +1,4 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ParserState} from '../../state/parser-state';
 import {processM3uChunk} from './process-m3u-chunk';
@@ -13,7 +13,7 @@ export const runOverM3u = async ({
 	state: ParserState;
 	structure: M3uStructure;
 	playlistUrl: string;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	const tracksDone = state.m3u.getTrackDone(playlistUrl);
 	const hasAudioStreamToConsider =

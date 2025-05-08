@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
+import type {
+	AudioOrVideoSample,
+	MediaParserLogLevel,
+} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
@@ -24,7 +27,7 @@ export const createVideoDecoder = ({
 	onError: (error: DOMException) => void;
 	controller: WebCodecsController;
 	config: VideoDecoderConfig;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	progress: ProgressTracker;
 }): WebCodecsVideoDecoder => {
 	const ioSynchronizer = makeIoSynchronizer({

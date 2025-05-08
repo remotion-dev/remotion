@@ -1,4 +1,4 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {M3uState} from '../../state/m3u-state';
 import type {SeekResolution} from '../../work-on-seek-request';
@@ -8,7 +8,7 @@ export const clearM3uStateInPrepareForSeek = ({
 	logLevel,
 }: {
 	m3uState: M3uState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	const selectedPlaylists = m3uState.getSelectedPlaylists();
 	for (const playlistUrl of selectedPlaylists) {
@@ -34,7 +34,7 @@ export const getSeekingByteForM3u8 = ({
 	time: number;
 	currentPosition: number;
 	m3uState: M3uState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }): SeekResolution => {
 	clearM3uStateInPrepareForSeek({m3uState, logLevel});
 	const selectedPlaylists = m3uState.getSelectedPlaylists();

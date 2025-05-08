@@ -1,6 +1,6 @@
 import {
 	MediaParserInternals,
-	type LogLevel,
+	type MediaParserLogLevel,
 	type OnAudioTrack,
 } from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
@@ -40,7 +40,7 @@ export const makeAudioTrackHandler =
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
-		logLevel: LogLevel;
+		logLevel: MediaParserLogLevel;
 		outputContainer: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
 		onAudioData: ConvertMediaOnAudioData | null;

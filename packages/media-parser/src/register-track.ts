@@ -4,7 +4,7 @@ import type {
 	MediaParserTrack,
 	MediaParserVideoTrack,
 } from './get-tracks';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {MediaParserContainer} from './options';
 import type {TracksState} from './state/has-tracks-section';
@@ -22,7 +22,7 @@ export const registerVideoTrack = async ({
 }: {
 	track: MediaParserTrack;
 	container: MediaParserContainer;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onVideoTrack: OnVideoTrack | null;
 	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
 	tracks: TracksState;
@@ -63,7 +63,7 @@ export const registerAudioTrack = async ({
 	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
 	tracks: TracksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 }) => {

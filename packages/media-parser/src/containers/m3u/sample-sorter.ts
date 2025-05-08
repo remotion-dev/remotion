@@ -1,4 +1,4 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {
 	AudioOrVideoSample,
@@ -10,7 +10,7 @@ export const sampleSorter = ({
 	logLevel,
 	getAllChunksProcessedForPlaylist,
 }: {
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	getAllChunksProcessedForPlaylist: (src: string) => boolean;
 }) => {
 	const streamsWithTracks: string[] = [];

@@ -13,7 +13,7 @@ import type {
 	MediaParserVideoCodec,
 	MediaParserVideoTrack,
 } from './get-tracks';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import type {MediaParserMetadataEntry} from './metadata/get-metadata';
 import type {
 	IsoBaseMediaStructure,
@@ -226,7 +226,7 @@ export type M3uPlaylistContext = {
 export type SerializeableOptionalParseMediaParams<
 	F extends Options<ParseMediaFields>,
 > = {
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;

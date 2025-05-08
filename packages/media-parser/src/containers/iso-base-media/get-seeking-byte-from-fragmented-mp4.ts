@@ -3,7 +3,7 @@ import type {
 	MediaParserOtherTrack,
 	MediaParserVideoTrack,
 } from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
@@ -31,7 +31,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 }: {
 	info: IsoBaseMediaSeekingHints;
 	time: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
 	allTracks: (

@@ -1,11 +1,11 @@
 import {Button} from '@/components/ui/button';
 import type {
 	Dimensions,
-	LogLevel,
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserController,
+	MediaParserLogLevel,
 	MediaParserTracks,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
@@ -92,7 +92,7 @@ const ConvertUI = ({
 	readonly fps: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: MediaParserContainer | null;
-	readonly logLevel: LogLevel;
+	readonly logLevel: MediaParserLogLevel;
 	readonly m3uStreams: M3uStream[] | null;
 	readonly action: RouteAction;
 	readonly enableRotateOrMirror: RotateOrMirrorState;

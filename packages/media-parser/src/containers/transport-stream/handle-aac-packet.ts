@@ -1,7 +1,7 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {MediaParserTrack} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
@@ -27,7 +27,7 @@ export const handleAacPacket = async ({
 	programId: number;
 	offset: number;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;

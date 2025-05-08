@@ -1,7 +1,7 @@
 import type {MediaParserController} from '../../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
-import type {LogLevel} from '../../../log';
+import type {MediaParserLogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
 import type {ReaderInterface} from '../../../readers/reader';
 
@@ -19,7 +19,7 @@ export const getMfraAtom = async ({
 	readerInterface: ReaderInterface;
 	controller: MediaParserController;
 	parentSize: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => {
 	const result = await readerInterface.read({

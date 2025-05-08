@@ -1,6 +1,6 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {MediaParserTrack} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
@@ -36,7 +36,7 @@ export const handleAvcPacket = async ({
 	programId: number;
 	offset: number;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;

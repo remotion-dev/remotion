@@ -1,4 +1,7 @@
-import type {PossibleEbml, VideoTrackColorParams} from '@remotion/media-parser';
+import type {
+	MediaParserInternalTypes,
+	VideoTrackColorParams,
+} from '@remotion/media-parser';
 import {truthy} from '../../truthy';
 import {makeMatroskaBytes} from './matroska-utils';
 
@@ -93,7 +96,7 @@ export const makeMatroskaColorBytes = ({
 					},
 					minVintWidth: null,
 				},
-			] as PossibleEbml[]
+			] as MediaParserInternalTypes['PossibleEbml'][]
 		).filter(truthy),
 	});
 };

@@ -1,4 +1,4 @@
-import type {LogLevel, OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserLogLevel, OnVideoTrack} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {canCopyVideoTrack} from './can-copy-video-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
@@ -43,7 +43,7 @@ export const makeVideoTrackHandler =
 		controller: WebCodecsController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
-		logLevel: LogLevel;
+		logLevel: MediaParserLogLevel;
 		outputContainer: ConvertMediaContainer;
 		rotate: number;
 		progress: ProgressTracker;

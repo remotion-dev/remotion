@@ -3,7 +3,7 @@ import {fetchIdx1} from '../../containers/riff/seek/fetch-idx1';
 import type {RiffSeekingHints} from '../../containers/riff/seeking-hints';
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../fetch';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
 
@@ -15,7 +15,7 @@ export const lazyIdx1Fetch = ({
 	prefetchCache,
 }: {
 	controller: MediaParserController;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 	prefetchCache: PrefetchCache;

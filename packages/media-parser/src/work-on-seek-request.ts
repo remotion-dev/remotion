@@ -5,7 +5,7 @@ import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte} from './get-seeking-byte';
 import {getSeekingHints} from './get-seeking-hints';
 import type {BufferIterator} from './iterator/buffer-iterator';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {
 	M3uPlaylistContext,
@@ -53,7 +53,7 @@ const turnSeekIntoByte = async ({
 }: {
 	seek: Seek;
 	mediaSectionState: MediaSectionState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	iterator: BufferIterator;
 	structureState: StructureState;
 	m3uPlaylistContext: M3uPlaylistContext | null;
@@ -134,7 +134,7 @@ const turnSeekIntoByte = async ({
 };
 
 export type WorkOnSeekRequestOptions = {
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	controller: MediaParserController;
 	isoState: IsoBaseMediaState;
 	iterator: BufferIterator;

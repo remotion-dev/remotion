@@ -1,5 +1,5 @@
 import {combineUint8Arrays} from '../../combine-uint8-arrays';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
@@ -95,7 +95,7 @@ export const processStreamBuffer = async ({
 	programId: number;
 	structure: TransportStreamStructure;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;
@@ -158,7 +158,7 @@ export const processFinalStreamBuffers = async ({
 }: {
 	structure: TransportStreamStructure;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;

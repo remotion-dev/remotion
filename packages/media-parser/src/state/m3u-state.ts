@@ -3,7 +3,7 @@ import type {
 	M3uStream,
 } from '../containers/m3u/get-streams';
 import {sampleSorter} from '../containers/m3u/sample-sorter';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {IsoBaseMediaStructure} from '../parse-result';
 import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
@@ -27,7 +27,7 @@ type M3uSeek = {
 	targetTime: number;
 };
 
-export const m3uState = (logLevel: LogLevel) => {
+export const m3uState = (logLevel: MediaParserLogLevel) => {
 	let selectedMainPlaylist: M3uStreamOrInitialUrl | null = null;
 	let associatedPlaylists: M3uAssociatedPlaylist[] | null = null;
 	const hasEmittedVideoTrack: Record<string, null | OnVideoSample> = {};

@@ -1,5 +1,8 @@
-import type {AudioOrVideoSample, WriterInterface} from '@remotion/media-parser';
-import type {LogLevel} from '../log';
+import type {
+	AudioOrVideoSample,
+	MediaParserInternalTypes,
+	MediaParserLogLevel,
+} from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 import type {ProgressTracker} from './progress-tracker';
 
@@ -26,10 +29,10 @@ export type MediaFn = {
 };
 
 export type MediaFnGeneratorInput = {
-	writer: WriterInterface;
+	writer: MediaParserInternalTypes['WriterInterface'];
 	onBytesProgress: (totalBytes: number) => void;
 	onMillisecondsProgress: (totalMilliseconds: number) => void;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	filename: string;
 	progressTracker: ProgressTracker;
 	expectedDurationInSeconds: number | null;

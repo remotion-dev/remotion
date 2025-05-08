@@ -2,7 +2,7 @@
 /* eslint-disable no-eq-null */
 import type {MediaParserController} from '../controller/media-parser-controller';
 import {MediaParserAbortError} from '../errors';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {ParseMediaRange} from '../options';
 import {getLengthAndReader} from './fetch/get-body-and-reader';
@@ -219,7 +219,7 @@ const makeFetchRequestOrGetCached = ({
 	range: ParseMediaRange;
 	src: string | URL;
 	controller: MediaParserController | null;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => {
 	const key = cacheKey({src, range});

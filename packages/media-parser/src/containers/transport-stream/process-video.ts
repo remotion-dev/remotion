@@ -1,4 +1,4 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
@@ -38,7 +38,7 @@ export const processVideo = async ({
 	structure: TransportStreamStructure;
 	streamBuffer: TransportStreamPacketBuffer;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	transportStream: TransportStreamState;

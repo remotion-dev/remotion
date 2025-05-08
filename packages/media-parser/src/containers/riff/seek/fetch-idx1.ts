@@ -1,7 +1,7 @@
 import type {MediaParserController} from '../../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
-import {Log, type LogLevel} from '../../../log';
+import {Log, type MediaParserLogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
 import type {ReaderInterface} from '../../../readers/reader';
 import {expectRiffBox} from '../expect-riff-box';
@@ -18,7 +18,7 @@ export const fetchIdx1 = async ({
 	readerInterface: ReaderInterface;
 	controller: MediaParserController;
 	position: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => {
 	Log.verbose(

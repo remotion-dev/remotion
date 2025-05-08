@@ -1,4 +1,7 @@
-import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
+import {
+	MediaParserAbortError,
+	type MediaParserLogLevel,
+} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
@@ -18,7 +21,7 @@ export type AudioEncoderInit = {
 	codec: ConvertMediaAudioCodec;
 	controller: WebCodecsController;
 	config: AudioEncoderConfig;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onNewAudioSampleRate: (sampleRate: number) => void;
 	progressTracker: ProgressTracker;
 };

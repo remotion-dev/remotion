@@ -5,13 +5,13 @@
 
 import type {
 	AudioTrack,
-	LogLevel,
+	MediaParserInternalTypes,
+	MediaParserLogLevel,
 	MediaParserVideoTrack,
 	OnAudioTrack,
 	Options,
 	ParseMediaFields,
 	ParseMediaOptions,
-	WriterInterface,
 } from '@remotion/media-parser';
 import {
 	defaultSelectM3uAssociatedPlaylists,
@@ -149,8 +149,8 @@ export const convertMedia = async function <
 	expectedDurationInSeconds?: number | null;
 	expectedFrameRate?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
-	logLevel?: LogLevel;
-	writer?: WriterInterface;
+	logLevel?: MediaParserLogLevel;
+	writer?: MediaParserInternalTypes['WriterInterface'];
 	progressIntervalInMs?: number;
 	rotate?: number;
 	resize?: ResizeOperation;

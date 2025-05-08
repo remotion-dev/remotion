@@ -11,7 +11,7 @@ import {
 	getArrayBufferIterator,
 	type BufferIterator,
 } from '../iterator/buffer-iterator';
-import {Log, type LogLevel} from '../log';
+import {Log, type MediaParserLogLevel} from '../log';
 import type {
 	AllParseMediaFields,
 	M3uPlaylistContext,
@@ -81,7 +81,7 @@ export const makeParserState = ({
 	onAudioTrack: OnAudioTrack | null;
 	onVideoTrack: OnVideoTrack | null;
 	contentLength: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	mode: ParseMediaMode;
 	src: ParseMediaSrc;
 	readerInterface: ReaderInterface;

@@ -1,7 +1,7 @@
 import type {MediaParserController} from '../controller/media-parser-controller';
 import type {SeekSignal} from '../controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from '../fields';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {ParseMediaSrc} from '../options';
 import type {
@@ -39,7 +39,7 @@ export const callbacksState = ({
 	structure: StructureState;
 	src: ParseMediaSrc;
 	seekSignal: SeekSignal;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, OnAudioSample> = {};

@@ -1,4 +1,7 @@
-import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
+import {
+	MediaParserAbortError,
+	type MediaParserLogLevel,
+} from '@remotion/media-parser';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
@@ -29,7 +32,7 @@ export const createVideoEncoder = ({
 	onError: (error: DOMException) => void;
 	controller: WebCodecsController;
 	config: VideoEncoderConfig;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	outputCodec: ConvertMediaVideoCodec;
 	progress: ProgressTracker;
 }): WebCodecsVideoEncoder => {

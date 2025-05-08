@@ -1,4 +1,4 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ReaderInterface} from '../../readers/reader';
 import type {CanSkipTracksState} from '../../state/can-skip-tracks';
@@ -29,7 +29,7 @@ export const afterManifestFetch = async ({
 	src: string;
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	readerInterface: ReaderInterface;
 	onAudioTrack: OnAudioTrack | null;
 	canSkipTracks: CanSkipTracksState;

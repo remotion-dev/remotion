@@ -1,6 +1,5 @@
 import type {
 	Dimensions,
-	LogLevel,
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
@@ -8,6 +7,7 @@ import type {
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
+	MediaParserLogLevel,
 	MediaParserMetadataEntry,
 	MediaParserTracks,
 	MediaParserVideoCodec,
@@ -26,7 +26,7 @@ export const useProbe = ({
 	onProgress,
 }: {
 	src: Source;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onProgress: ParseMediaOnProgress;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<

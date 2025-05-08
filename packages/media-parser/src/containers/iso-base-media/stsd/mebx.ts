@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
-import type {LogLevel} from '../../../log';
+import type {MediaParserLogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {BaseBox} from '../base-type';
 import {getIsoBaseMediaChildren} from '../get-children';
@@ -21,7 +21,7 @@ export const parseMebx = async ({
 	offset: number;
 	size: number;
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	contentLength: number;
 }): Promise<MebxBox> => {
 	// reserved, 6 bit

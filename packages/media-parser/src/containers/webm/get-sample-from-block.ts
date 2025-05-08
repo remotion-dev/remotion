@@ -1,5 +1,5 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
 import type {WebmState} from '../../state/matroska/webm';
 import type {CallbacksState} from '../../state/sample-callbacks';
@@ -46,7 +46,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	structureState: StructureState;
 	webmState: WebmState;
 	trackNumber: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	callbacks: CallbacksState;
 	onVideoTrack: OnVideoTrack | null;
 }) => {
@@ -109,7 +109,7 @@ export const getSampleFromBlock = async ({
 	offset: number;
 	structureState: StructureState;
 	callbacks: CallbacksState;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onVideoTrack: OnVideoTrack | null;
 }): Promise<SampleResult> => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);

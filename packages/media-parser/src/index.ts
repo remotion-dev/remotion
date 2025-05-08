@@ -5,6 +5,17 @@ import {processIsoFormatBox} from './containers/iso-base-media/stsd/samples';
 import {parseStsd} from './containers/iso-base-media/stsd/stsd';
 import {parseTkhd} from './containers/iso-base-media/tkhd';
 import {parseEbml} from './containers/webm/parse-ebml';
+import type {MatroskaSegment} from './containers/webm/segments';
+import type {
+	Ebml,
+	EbmlValue,
+	FloatWithSize,
+	MainSegment,
+	MatroskaElement,
+	PossibleEbml,
+	TrackEntry,
+	UintWithSize,
+} from './containers/webm/segments/all-segments';
 import {
 	ebmlMap,
 	matroskaElements,
@@ -12,12 +23,12 @@ import {
 import type {SamplePosition} from './get-sample-positions';
 import {internalParseMedia} from './internal-parse-media';
 import {getArrayBufferIterator} from './iterator/buffer-iterator';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
 import {makeParserState} from './state/parser-state';
-export type {MatroskaSegment} from './containers/webm/segments';
-export type {MatroskaElement} from './containers/webm/segments/all-segments';
+export {EbmlValue as $InternalEbmlValue};
+
 export {
 	hasBeenAborted,
 	IsAnImageError,
@@ -63,7 +74,7 @@ export type {Dimensions} from './get-dimensions';
 export type {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';
 
-export type {CreateContent, Writer, WriterInterface} from './writers/writer';
+import type {CreateContent, Writer, WriterInterface} from './writers/writer';
 
 export const MediaParserInternals = {
 	Log,
@@ -84,20 +95,20 @@ export const MediaParserInternals = {
 
 export type MediaParserInternalTypes = {
 	SamplePosition: SamplePosition;
+	MatroskaSegment: MatroskaSegment;
+	MatroskaElement: MatroskaElement;
+	WriterInterface: WriterInterface;
+	CreateContent: CreateContent;
+	Writer: Writer;
+	Ebml: Ebml;
+	FloatWithSize: FloatWithSize;
+	MainSegment: MainSegment;
+	PossibleEbml: PossibleEbml;
+	TrackEntry: TrackEntry;
+	UintWithSize: UintWithSize;
 };
 
-export type {Prettify} from './containers/webm/parse-ebml';
-export type {
-	Ebml,
-	EbmlValue,
-	FloatWithSize,
-	MainSegment,
-	PossibleEbml,
-	TrackEntry,
-	UintWithSize,
-} from './containers/webm/segments/all-segments';
-export {MediaParserStructureUnstable} from './parse-result';
-export type {LogLevel};
+export type {MediaParserLogLevel};
 
 export {M3uAssociatedPlaylist, M3uStream} from './containers/m3u/get-streams';
 export {

@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {FetchMoreData} from '../../skip';
@@ -74,7 +74,7 @@ export const processBox = async ({
 	contentLength,
 }: {
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 	onlyIfMdatAtomExpected: OnlyIfMdatAtomExpected | null;
 	contentLength: number;

@@ -1,6 +1,6 @@
 import type {
-	LogLevel,
 	MediaParserContainer,
+	MediaParserLogLevel,
 	MediaParserVideoTrack,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
@@ -21,7 +21,7 @@ export type VideoOperation =
 export type ConvertMediaOnVideoTrackHandler = (options: {
 	defaultVideoCodec: ConvertMediaVideoCodec | null;
 	track: MediaParserVideoTrack;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	outputContainer: ConvertMediaContainer;
 	rotate: number;
 	resizeOperation: ResizeOperation | null;

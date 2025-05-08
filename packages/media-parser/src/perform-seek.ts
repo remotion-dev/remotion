@@ -2,7 +2,7 @@ import type {MediaParserController} from './controller/media-parser-controller';
 import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import type {BufferIterator} from './iterator/buffer-iterator';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {ParseMediaMode, ParseMediaSrc} from './options';
 import type {ReaderInterface} from './readers/reader';
@@ -35,7 +35,7 @@ export const performSeek = async ({
 	controller: MediaParserController;
 	mediaSection: MediaSectionState;
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	mode: ParseMediaMode;
 	contentLength: number;
 	seekInfiniteLoop: SeekInfiniteLoop;

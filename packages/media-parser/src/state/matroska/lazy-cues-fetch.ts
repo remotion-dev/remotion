@@ -2,7 +2,7 @@ import {fetchWebmCues} from '../../containers/webm/seek/fetch-web-cues';
 import type {MatroskaCue} from '../../containers/webm/seek/format-cues';
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../fetch';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {ParseMediaSrc} from '../../options';
 import type {ReaderInterface} from '../../readers/reader';
@@ -16,7 +16,7 @@ export const lazyCuesFetch = ({
 	prefetchCache,
 }: {
 	controller: MediaParserController;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	readerInterface: ReaderInterface;
 	src: ParseMediaSrc;
 	prefetchCache: PrefetchCache;
