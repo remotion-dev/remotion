@@ -14,7 +14,7 @@ export const addAvcProfileToTrack = (
 	return {
 		...track,
 		codec: getCodecStringFromSpsAndPps(avc1Profile.sps),
-		codecPrivate: createSpsPpsData(avc1Profile),
+		codecData: {type: 'avc-sps-pps', data: createSpsPpsData(avc1Profile)},
 		// description should be undefined, since this signals to WebCodecs that
 		// the codec is in Annex B format, which is the case for AVI files
 		// https://www.w3.org/TR/webcodecs-avc-codec-registration/#videodecoderconfig-description

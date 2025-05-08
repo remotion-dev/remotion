@@ -95,7 +95,7 @@ export const makeVideoTrackHandler =
 				width: track.codedWidth,
 				height: track.codedHeight,
 				codec: track.codecEnum,
-				codecPrivate: track.codecPrivate,
+				codecPrivate: track.codecData?.data ?? null,
 				timescale: track.timescale,
 			});
 			return async (sample) => {
@@ -103,7 +103,7 @@ export const makeVideoTrackHandler =
 					chunk: sample,
 					trackNumber: videoTrack.trackNumber,
 					isVideo: true,
-					codecPrivate: track.codecPrivate,
+					codecPrivate: track.codecData?.data ?? null,
 				});
 
 				onMediaStateUpdate?.((prevState) => {

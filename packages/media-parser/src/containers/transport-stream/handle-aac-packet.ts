@@ -58,7 +58,7 @@ export const handleAacPacket = async ({
 
 		const track: Track = {
 			type: 'audio',
-			codecPrivate,
+			codecData: {type: 'aac-config', data: codecPrivate},
 			trackId: programId,
 			trakBox: null,
 			timescale: MPEG_TIMESCALE,

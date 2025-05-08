@@ -58,6 +58,7 @@ export type {
 	OnVideoTrack,
 } from './webcodec-sample-types';
 
+export type * from './codec-data';
 export type {Dimensions} from './get-dimensions';
 export type {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';

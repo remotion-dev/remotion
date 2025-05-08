@@ -2,12 +2,13 @@ import {
 	createAacCodecPrivate,
 	parseAacCodecPrivate,
 } from '../../aac-codecprivate';
+import type {MediaParserCodecData} from '../../codec-data';
 import type {MediaParserAudioCodec} from '../../get-tracks';
 
 type AudioDecoderConfig = {
 	numberOfChannels: number;
 	sampleRate: number;
-	codecPrivate: Uint8Array | null;
+	codecPrivate: MediaParserCodecData | null;
 };
 
 // Example video:	'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
@@ -20,22 +21,36 @@ export const getActualDecoderParameters = ({
 	sampleRate,
 }: {
 	audioCodec: MediaParserAudioCodec;
-	codecPrivate: Uint8Array | null;
+	codecPrivate: MediaParserCodecData | null;
 	numberOfChannels: number;
 	sampleRate: number;
 }): AudioDecoderConfig => {
 	if (audioCodec !== 'aac') {
-		return {numberOfChannels, sampleRate, codecPrivate};
+		return {
+			numberOfChannels,
+			sampleRate,
+			codecPrivate,
+		};
 	}
 
 	if (codecPrivate === null) {
 		return {numberOfChannels, sampleRate, codecPrivate};
 	}
 
-	const parsed = parseAacCodecPrivate(codecPrivate);
+	if (codecPrivate.type !== 'aac-config') {
+		throw new Error('Expected AAC codec private data');
+	}
+
+	const parsed = parseAacCodecPrivate(codecPrivate.data);
+
+	const actual = createAacCodecPrivate({
+		...parsed,
+		codecPrivate: codecPrivate.data,
+	});
+
 	return {
 		numberOfChannels: parsed.channelConfiguration,
 		sampleRate: parsed.sampleRate,
-		codecPrivate: createAacCodecPrivate({...parsed, codecPrivate}),
+		codecPrivate: {type: 'aac-config', data: actual},
 	};
 };

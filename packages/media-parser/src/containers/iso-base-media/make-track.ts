@@ -63,7 +63,7 @@ export const makeBaseMediaTrack = (
 
 		const actual = getActualDecoderParameters({
 			audioCodec: codecEnum,
-			codecPrivate,
+			codecPrivate: codecPrivate ?? null,
 			numberOfChannels,
 			sampleRate,
 		});
@@ -75,9 +75,9 @@ export const makeBaseMediaTrack = (
 			codec: codecString,
 			numberOfChannels: actual.numberOfChannels,
 			sampleRate: actual.sampleRate,
-			description: actual.codecPrivate ?? undefined,
+			description: actual.codecPrivate?.data ?? undefined,
 			trakBox,
-			codecPrivate: actual.codecPrivate,
+			codecData: actual.codecPrivate,
 			codecEnum,
 		};
 	}
@@ -135,7 +135,7 @@ export const makeBaseMediaTrack = (
 		displayAspectHeight,
 		rotation,
 		trakBox,
-		codecPrivate: privateData,
+		codecData: privateData,
 		color: getIsoBmColrConfig(trakBox) ?? {
 			fullRange: null,
 			matrixCoefficients: null,

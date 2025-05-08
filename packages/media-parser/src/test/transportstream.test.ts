@@ -44,7 +44,7 @@ test('Transport stream', async () => {
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
 				type: 'audio',
-				codecPrivate: new Uint8Array([9, 144]),
+				codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},
 				trackId: 257,
 				trakBox: null,
 				timescale: 90000,
@@ -67,63 +67,66 @@ test('Transport stream', async () => {
 				type: 'video',
 				timescale: 90000,
 				codec: 'avc1.640020',
-				codecPrivate: new Uint8Array([
-					1, // version
+				codecData: {
+					type: 'avc-sps-pps',
+					data: new Uint8Array([
+						1, // version
 
-					100, // profile, profile compatibility, level
-					0,
-					32,
-					255, // reserved
+						100, // profile, profile compatibility, level
+						0,
+						32,
+						255, // reserved
 
-					225, // reserved
-					// sps length
-					0,
-					28,
-					// sps
-					103,
-					100,
-					0,
-					32,
-					172,
-					217,
-					0,
-					180,
-					22,
-					236,
-					5,
-					168,
-					72,
-					144,
-					74,
-					0,
-					0,
-					3,
-					0,
-					2,
-					168,
-					58,
-					104,
-					0,
-					30,
-					48,
-					99,
-					44,
-					// num of pps
-					1,
-					// pps length
-					0,
-					5,
-					// pps
-					104,
-					234,
-					236,
-					178,
-					44,
-					253,
-					248,
-					248,
-					0,
-				]),
+						225, // reserved
+						// sps length
+						0,
+						28,
+						// sps
+						103,
+						100,
+						0,
+						32,
+						172,
+						217,
+						0,
+						180,
+						22,
+						236,
+						5,
+						168,
+						72,
+						144,
+						74,
+						0,
+						0,
+						3,
+						0,
+						2,
+						168,
+						58,
+						104,
+						0,
+						30,
+						48,
+						99,
+						44,
+						// num of pps
+						1,
+						// pps length
+						0,
+						5,
+						// pps
+						104,
+						234,
+						236,
+						178,
+						44,
+						253,
+						248,
+						248,
+						0,
+					]),
+				},
 				fps: null,
 				codedWidth: 720,
 				codedHeight: 720,

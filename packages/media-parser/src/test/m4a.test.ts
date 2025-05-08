@@ -31,7 +31,7 @@ test('should work on voice note', async () => {
 				numberOfChannels: 1,
 				sampleRate: 48000,
 				description: new Uint8Array([17, 136]),
-				codecPrivate: new Uint8Array([17, 136]),
+				codecData: {type: 'aac-config', data: new Uint8Array([17, 136])},
 				codecEnum: 'aac',
 			});
 

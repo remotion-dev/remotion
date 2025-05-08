@@ -1,3 +1,4 @@
+import type {MediaParserCodecData} from './codec-data';
 import type {
 	MatrixCoefficients,
 	Primaries,
@@ -82,7 +83,7 @@ export type VideoTrack = {
 	height: number;
 	rotation: number;
 	trakBox: TrakBox | null;
-	codecPrivate: Uint8Array | null;
+	codecData: MediaParserCodecData | null;
 	color: VideoTrackColorParams;
 	fps: number | null;
 };
@@ -99,7 +100,7 @@ export type AudioTrack = {
 	timescale: number;
 	codecEnum: MediaParserAudioCodec;
 	trakBox: TrakBox | null;
-	codecPrivate: Uint8Array | null;
+	codecData: MediaParserCodecData | null;
 };
 
 export type OtherTrack = {

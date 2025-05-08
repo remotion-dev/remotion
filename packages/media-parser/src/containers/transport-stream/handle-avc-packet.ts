@@ -71,7 +71,7 @@ export const handleAvcPacket = async ({
 			type: 'video',
 			timescale: MPEG_TIMESCALE,
 			codec: getCodecStringFromSpsAndPps(spsAndPps.sps),
-			codecPrivate,
+			codecData: {type: 'avc-sps-pps', data: codecPrivate},
 			fps: null,
 			codedWidth: dimensions.width,
 			codedHeight: dimensions.height,

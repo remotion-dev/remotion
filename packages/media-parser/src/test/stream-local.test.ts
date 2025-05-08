@@ -101,9 +101,13 @@ test('Should stream AV1', async () => {
 		displayAspectWidth: 1920,
 		rotation: 0,
 		trakBox: null,
-		codecPrivate: new Uint8Array([
-			129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0, 8, 8, 8, 8, 32,
-		]),
+		codecData: {
+			type: 'av1c-data',
+			data: new Uint8Array([
+				129, 8, 12, 0, 10, 14, 0, 0, 0, 66, 171, 191, 195, 118, 0, 8, 8, 8, 8,
+				32,
+			]),
+		},
 		color: {
 			fullRange: null,
 			transferCharacteristics: 'bt709',
@@ -273,7 +277,7 @@ test(
 			displayAspectWidth: 1280,
 			rotation: 0,
 			trakBox: null,
-			codecPrivate: null,
+			codecData: null,
 			color: {
 				fullRange: null,
 				transferCharacteristics: null,
@@ -293,10 +297,13 @@ test(
 			sampleRate: 48000,
 			description: undefined,
 			trakBox: null,
-			codecPrivate: new Uint8Array([
-				79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0,
-				0,
-			]),
+			codecData: {
+				type: 'ogg-identification',
+				data: new Uint8Array([
+					79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0,
+					0,
+				]),
+			},
 			codecEnum: 'opus',
 		});
 		expect(audioTracks).toBe(1);
@@ -547,7 +554,7 @@ test('Stretched VP8', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1920,
 		rotation: 0,
-		codecPrivate: null,
+		codecData: null,
 		color: {
 			fullRange: null,
 			transferCharacteristics: null,

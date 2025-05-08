@@ -1,3 +1,4 @@
+import type {MediaParserCodecData} from './codec-data';
 import {
 	getMatrixCoefficientsFromIndex,
 	getPrimariesFromIndex,
@@ -31,7 +32,9 @@ export const hasVideoCodec = (state: ParserState): boolean => {
 	return getHasTracks(state, true);
 };
 
-export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
+export const getVideoPrivateData = (
+	trakBox: TrakBox,
+): MediaParserCodecData | null => {
 	const videoSample = getStsdVideoConfig(trakBox);
 	const avccBox = getAvccBox(trakBox);
 	const hvccBox = getHvccBox(trakBox);
@@ -42,15 +45,15 @@ export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
 	}
 
 	if (avccBox) {
-		return avccBox.privateData;
+		return {type: 'avc-sps-pps', data: avccBox.privateData};
 	}
 
 	if (hvccBox) {
-		return hvccBox.privateData;
+		return {type: 'hvcc-data', data: hvccBox.privateData};
 	}
 
 	if (av1cBox) {
-		return av1cBox.privateData;
+		return {type: 'av1c-data', data: av1cBox.privateData};
 	}
 
 	return null;

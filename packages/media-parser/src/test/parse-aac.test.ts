@@ -69,7 +69,7 @@ test('should be able to parse aac', async () => {
 			expect(track).toEqual({
 				codec: 'mp4a.40.2',
 				codecEnum: 'aac',
-				codecPrivate: new Uint8Array([10, 16]),
+				codecData: {type: 'aac-config', data: new Uint8Array([10, 16])},
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
@@ -158,7 +158,7 @@ test('should be able to get basics without parsing all', async () => {
 			expect(track).toEqual({
 				codec: 'mp4a.40.2',
 				codecEnum: 'aac',
-				codecPrivate: new Uint8Array([10, 16]),
+				codecData: {type: 'aac-config', data: new Uint8Array([10, 16])},
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,

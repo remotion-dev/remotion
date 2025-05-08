@@ -43,11 +43,15 @@ test('Stream samples', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1080,
 		rotation: 0,
-		codecPrivate: new Uint8Array([
-			1, 100, 0, 32, 255, 225, 0, 32, 103, 100, 0, 32, 172, 217, 64, 68, 2, 39,
-			150, 92, 5, 168, 16, 16, 45, 40, 0, 0, 3, 0, 8, 0, 0, 3, 1, 224, 120, 193,
-			140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248, 0,
-		]),
+		codecData: {
+			type: 'avc-sps-pps',
+			data: new Uint8Array([
+				1, 100, 0, 32, 255, 225, 0, 32, 103, 100, 0, 32, 172, 217, 64, 68, 2,
+				39, 150, 92, 5, 168, 16, 16, 45, 40, 0, 0, 3, 0, 8, 0, 0, 3, 1, 224,
+				120, 193, 140, 176, 1, 0, 6, 104, 235, 224, 140, 178, 44, 253, 248, 248,
+				0,
+			]),
+		},
 		color: {
 			fullRange: null,
 			transferCharacteristics: null,
@@ -191,7 +195,7 @@ test('Stream samples', async () => {
 		codec: 'mp3',
 		sampleRate: 48000,
 		description: undefined,
-		codecPrivate: null,
+		codecData: null,
 		codecEnum: 'mp3',
 	});
 	expect(

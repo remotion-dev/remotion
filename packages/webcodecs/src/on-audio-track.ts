@@ -78,7 +78,7 @@ export const makeAudioTrackHandler =
 				codec: track.codecEnum,
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
-				codecPrivate: track.codecPrivate,
+				codecPrivate: track.codecData?.data ?? null,
 				timescale: track.timescale,
 			});
 			Log.verbose(
@@ -91,7 +91,7 @@ export const makeAudioTrackHandler =
 					chunk: audioSample,
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
-					codecPrivate: track.codecPrivate,
+					codecPrivate: track.codecData?.data ?? null,
 				});
 				onMediaStateUpdate?.((prevState) => {
 					return {

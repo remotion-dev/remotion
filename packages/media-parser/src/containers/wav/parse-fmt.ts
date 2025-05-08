@@ -50,7 +50,7 @@ export const parseFmt = async ({
 		track: {
 			type: 'audio',
 			codec: format,
-			codecPrivate: null,
+			codecData: null,
 			description: undefined,
 			codecEnum: format,
 			numberOfChannels,

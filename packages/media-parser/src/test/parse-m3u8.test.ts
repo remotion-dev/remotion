@@ -68,11 +68,14 @@ test('parse m3u8', async () => {
 			m3uStreamFormat: 'ts',
 			type: 'video',
 			codec: 'avc1.640028',
-			codecPrivate: new Uint8Array([
-				1, 100, 0, 40, 255, 225, 0, 30, 103, 100, 0, 40, 172, 217, 0, 252, 31,
-				249, 101, 192, 91, 129, 1, 2, 160, 0, 0, 3, 0, 42, 131, 166, 128, 1,
-				227, 6, 50, 192, 1, 0, 4, 104, 234, 239, 44, 253, 248, 248, 0,
-			]),
+			codecData: {
+				type: 'avc-sps-pps',
+				data: new Uint8Array([
+					1, 100, 0, 40, 255, 225, 0, 30, 103, 100, 0, 40, 172, 217, 0, 252, 31,
+					249, 101, 192, 91, 129, 1, 2, 160, 0, 0, 3, 0, 42, 131, 166, 128, 1,
+					227, 6, 50, 192, 1, 0, 4, 104, 234, 239, 44, 253, 248, 248, 0,
+				]),
+			},
 			codecEnum: 'h264',
 			codedHeight: 1000,
 			codedWidth: 1000,
@@ -101,7 +104,7 @@ test('parse m3u8', async () => {
 	expect(tracks.audioTracks).toEqual([
 		{
 			codec: 'mp4a.40.2',
-			codecPrivate: new Uint8Array([9, 144]),
+			codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},
 			codecEnum: 'aac',
 			description: new Uint8Array([9, 144]),
 			numberOfChannels: 2,

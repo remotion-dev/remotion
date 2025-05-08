@@ -1,3 +1,4 @@
+import type {MediaParserCodecData} from './codec-data';
 import type {EsdsBox} from './containers/iso-base-media/esds/esds';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {AudioSample} from './containers/iso-base-media/stsd/samples';
@@ -93,7 +94,9 @@ type AudioCodecInfo = {
 	description: Uint8Array | undefined;
 };
 
-export const getCodecPrivateFromTrak = (trakBox: TrakBox) => {
+export const getCodecPrivateFromTrak = (
+	trakBox: TrakBox,
+): MediaParserCodecData | null => {
 	const stsdBox = getStsdBox(trakBox);
 	if (!stsdBox) {
 		return null;
@@ -123,7 +126,7 @@ export const getCodecPrivateFromTrak = (trakBox: TrakBox) => {
 		return null;
 	}
 
-	return mp4a.asBytes;
+	return {type: 'aac-config', data: mp4a.asBytes};
 };
 
 const onSample = (
@@ -233,7 +236,7 @@ export const getAudioCodecFromIso = (moov: MoovBox) => {
 
 export const getAudioCodecStringFromTrak = (
 	trak: TrakBox,
-): {codecString: string; description: Uint8Array | undefined} => {
+): {codecString: string; description: MediaParserCodecData | undefined} => {
 	const codec = getAudioCodecFromTrak(trak);
 	if (!codec) {
 		throw new Error('Expected codec');
@@ -242,21 +245,27 @@ export const getAudioCodecStringFromTrak = (
 	if (codec.format === 'lpcm') {
 		return {
 			codecString: 'pcm-s16',
-			description: codec.description,
+			description: codec.description
+				? {type: 'unknown-data', data: codec.description}
+				: undefined,
 		};
 	}
 
 	if (codec.format === 'twos') {
 		return {
 			codecString: 'pcm-s16',
-			description: codec.description,
+			description: codec.description
+				? {type: 'unknown-data', data: codec.description}
+				: undefined,
 		};
 	}
 
 	if (codec.format === 'in24') {
 		return {
 			codecString: 'pcm-s24',
-			description: codec.description,
+			description: codec.description
+				? {type: 'unknown-data', data: codec.description}
+				: undefined,
 		};
 	}
 
@@ -272,13 +281,43 @@ export const getAudioCodecStringFromTrak = (
 
 	// Really, MP3? 😔
 	const codecString =
-		codecStringWithoutMp3Exception === 'mp4a.6b'
+		codecStringWithoutMp3Exception.toLowerCase() === 'mp4a.6b' ||
+		codecStringWithoutMp3Exception.toLowerCase() === 'mp4a.69'
 			? 'mp3' // or "mp4a.6B" would also work, with the uppercasing, but mp3 is probably more obvious
 			: codecStringWithoutMp3Exception;
 
+	if (codecString === 'mp3') {
+		return {
+			codecString,
+			description: codec.description
+				? {
+						type: 'unknown-data',
+						data: codec.description,
+					}
+				: undefined,
+		};
+	}
+
+	if (codecString.startsWith('mp4a.')) {
+		return {
+			codecString,
+			description: codec.description
+				? {
+						type: 'aac-config',
+						data: codec.description,
+					}
+				: undefined,
+		};
+	}
+
 	return {
 		codecString,
-		description: codec.description,
+		description: codec.description
+			? {
+					type: 'unknown-data',
+					data: codec.description,
+				}
+			: undefined,
 	};
 };
 

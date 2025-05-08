@@ -68,7 +68,7 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 			track: {
 				codec: mapAudioObjectTypeToCodecString(audioObjectType),
 				codecEnum: 'aac',
-				codecPrivate,
+				codecData: {type: 'aac-config', data: codecPrivate},
 				description: codecPrivate,
 				numberOfChannels: channelConfiguration,
 				sampleRate,

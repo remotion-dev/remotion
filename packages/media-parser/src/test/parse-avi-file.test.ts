@@ -77,7 +77,7 @@ test('AVI file', async () => {
 	expect(tracks.audioTracks).toEqual([
 		{
 			codec: 'mp4a.40.2',
-			codecPrivate: new Uint8Array([18, 16]),
+			codecData: {type: 'aac-config', data: new Uint8Array([18, 16])},
 			codecEnum: 'aac',
 			description: new Uint8Array([18, 16]),
 			numberOfChannels: 2,
@@ -92,58 +92,61 @@ test('AVI file', async () => {
 		{
 			m3uStreamFormat: null,
 			codec: 'avc1.640015',
-			codecPrivate: new Uint8Array([
-				1, // version
-				100, // profile, profile compatibility, level
-				0,
-				21,
-				255,
-				225, // reserved
-				// sps length
-				0,
-				26,
-				// sps
-				103,
-				100,
-				0,
-				21,
-				172,
-				217,
-				65,
-				224,
-				143,
-				235,
-				1,
-				16,
-				0,
-				0,
-				3,
-				0,
-				16,
-				0,
-				0,
-				3,
-				3,
-				192,
-				241,
-				98,
-				217,
-				96,
-				// num of pps
-				1,
-				// pps length
-				0,
-				4,
-				// pps
-				104,
-				239,
-				139,
-				203,
-				253,
-				248,
-				248,
-				0,
-			]),
+			codecData: {
+				type: 'avc-sps-pps',
+				data: new Uint8Array([
+					1, // version
+					100, // profile, profile compatibility, level
+					0,
+					21,
+					255,
+					225, // reserved
+					// sps length
+					0,
+					26,
+					// sps
+					103,
+					100,
+					0,
+					21,
+					172,
+					217,
+					65,
+					224,
+					143,
+					235,
+					1,
+					16,
+					0,
+					0,
+					3,
+					0,
+					16,
+					0,
+					0,
+					3,
+					3,
+					192,
+					241,
+					98,
+					217,
+					96,
+					// num of pps
+					1,
+					// pps length
+					0,
+					4,
+					// pps
+					104,
+					239,
+					139,
+					203,
+					253,
+					248,
+					248,
+					0,
+				]),
+			},
 			codecEnum: 'h264',
 			codedHeight: 270,
 			codedWidth: 480,

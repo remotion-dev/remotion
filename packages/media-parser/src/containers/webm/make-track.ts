@@ -1,3 +1,4 @@
+import type {MediaParserCodecData} from '../../codec-data';
 import type {
 	AudioTrack,
 	MediaParserAudioCodec,
@@ -302,6 +303,37 @@ export const getTrack = ({
 			return null;
 		}
 
+		const codecEnum = getMatroskaVideoCodecEnum({
+			codecSegment: codec,
+		});
+
+		const codecData: MediaParserCodecData | null =
+			codecPrivate === null
+				? null
+				: codecEnum === 'h264'
+					? {type: 'avc-sps-pps', data: codecPrivate}
+					: codecEnum === 'av1'
+						? {
+								type: 'av1c-data',
+								data: codecPrivate,
+							}
+						: codecEnum === 'h265'
+							? {
+									type: 'hvcc-data',
+									data: codecPrivate,
+								}
+							: codecEnum === 'vp8'
+								? {
+										type: 'unknown-data',
+										data: codecPrivate,
+									}
+								: codecEnum === 'vp9'
+									? {
+											type: 'unknown-data',
+											data: codecPrivate,
+										}
+									: null;
+
 		return {
 			m3uStreamFormat: null,
 			type: 'video',
@@ -325,7 +357,7 @@ export const getTrack = ({
 				: width.value.value,
 			rotation: 0,
 			trakBox: null,
-			codecPrivate,
+			codecData,
 			color: colour
 				? parseColorSegment(colour)
 				: {
@@ -334,9 +366,7 @@ export const getTrack = ({
 						primaries: null,
 						transferCharacteristics: null,
 					},
-			codecEnum: getMatroskaVideoCodecEnum({
-				codecSegment: codec,
-			}),
+			codecEnum,
 			fps: null,
 		};
 	}
@@ -349,16 +379,22 @@ export const getTrack = ({
 			throw new Error('Could not find sample rate or number of channels');
 		}
 
+		const codecString = getMatroskaAudioCodecString(track);
+
 		return {
 			type: 'audio',
 			trackId,
-			codec: getMatroskaAudioCodecString(track),
+			codec: codecString,
 			timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),
 			trakBox: null,
-			codecPrivate,
+			codecData: codecPrivate
+				? codecString === 'opus'
+					? {type: 'ogg-identification', data: codecPrivate}
+					: {type: 'unknown-data', data: codecPrivate}
+				: null,
 			codecEnum: getMatroskaAudioCodecEnum({
 				track,
 			}),

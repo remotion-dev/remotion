@@ -70,7 +70,7 @@ test('parse full wav', async () => {
 	expect(tracks.audioTracks).toEqual([
 		{
 			codec: 'pcm-s16',
-			codecPrivate: null,
+			codecData: null,
 			codecEnum: 'pcm-s16',
 			description: undefined,
 			numberOfChannels: 1,
