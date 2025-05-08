@@ -50,7 +50,7 @@ test('Transport stream', async () => {
 				timescale: 90000,
 				codecEnum: 'aac',
 				codec: 'mp4a.40.2',
-				description: undefined,
+				description: new Uint8Array([9, 144]),
 				numberOfChannels: 2,
 				sampleRate: 48000,
 			});

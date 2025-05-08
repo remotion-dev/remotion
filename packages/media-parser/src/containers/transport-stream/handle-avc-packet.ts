@@ -62,6 +62,8 @@ export const handleAvcPacket = async ({
 			newOffset: startOffset,
 		});
 
+		const codecPrivate = createSpsPpsData(spsAndPps);
+
 		const track: Track = {
 			m3uStreamFormat: null,
 			rotation: 0,
@@ -69,7 +71,7 @@ export const handleAvcPacket = async ({
 			type: 'video',
 			timescale: MPEG_TIMESCALE,
 			codec: getCodecStringFromSpsAndPps(spsAndPps.sps),
-			codecPrivate: createSpsPpsData(spsAndPps),
+			codecPrivate,
 			fps: null,
 			codedWidth: dimensions.width,
 			codedHeight: dimensions.height,
@@ -79,6 +81,9 @@ export const handleAvcPacket = async ({
 			displayAspectHeight: dimensions.height,
 			trakBox: null,
 			codecEnum: 'h264',
+			// ChatGPT: In a transport stream (⁠.ts), H.264 video is always stored in Annex B format
+			// WebCodecs spec says that description must be undefined for Annex B format
+			// https://www.w3.org/TR/webcodecs-avc-codec-registration/#videodecoderconfig-description
 			description: undefined,
 			sampleAspectRatio: {
 				denominator: sampleAspectRatio.height,

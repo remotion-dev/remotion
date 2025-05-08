@@ -65,7 +65,9 @@ export const handleAacPacket = async ({
 			codecEnum: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),
 			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
-			description: undefined,
+			// WebCodecs spec says that description should be given for AAC format
+			// ChatGPT says that Transport Streams are always AAC, not ADTS
+			description: codecPrivate,
 			numberOfChannels: channelConfiguration,
 			sampleRate,
 		};

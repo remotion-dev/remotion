@@ -103,7 +103,7 @@ test('parse m3u8', async () => {
 			codec: 'mp4a.40.2',
 			codecPrivate: new Uint8Array([9, 144]),
 			codecEnum: 'aac',
-			description: undefined,
+			description: new Uint8Array([9, 144]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
 			timescale: 90000,
