@@ -149,11 +149,17 @@ test('AVI file', async () => {
 			codecEnum: 'h264',
 			codedHeight: 270,
 			codedWidth: 480,
-			detailedColor: {
+			advancedColor: {
 				fullRange: null,
-				matrixCoefficients: null,
+				matrix: null,
 				primaries: null,
-				transferCharacteristics: null,
+				transfer: null,
+			},
+			colorSpace: {
+				fullRange: null,
+				matrix: null,
+				primaries: null,
+				transfer: null,
 			},
 			description: undefined,
 			displayAspectHeight: 270,

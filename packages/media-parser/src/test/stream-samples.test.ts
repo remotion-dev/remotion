@@ -49,14 +49,20 @@ test('Stream samples', async () => {
 				0,
 			]),
 		},
-		detailedColor: {
+		colorSpace: {
 			fullRange: null,
-			transferCharacteristics: null,
-			matrixCoefficients: null,
+			transfer: null,
+			matrix: null,
 			primaries: null,
 		},
 		codecEnum: 'h264',
 		fps: 30,
+		advancedColor: {
+			fullRange: null,
+			matrix: null,
+			primaries: null,
+			transfer: null,
+		},
 	});
 
 	const [firstAudioTrack] = tracks.audioTracks;

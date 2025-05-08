@@ -79,11 +79,17 @@ test('parse m3u8', async () => {
 			codecEnum: 'h264',
 			codedHeight: 1000,
 			codedWidth: 1000,
-			detailedColor: {
-				matrixCoefficients: 'bt470bg',
-				transferCharacteristics: null,
+			colorSpace: {
+				matrix: 'bt470bg',
+				transfer: null,
 				primaries: null,
 				fullRange: true,
+			},
+			advancedColor: {
+				fullRange: true,
+				matrix: 'bt470bg',
+				primaries: null,
+				transfer: null,
 			},
 			description: undefined,
 			displayAspectHeight: 1000,

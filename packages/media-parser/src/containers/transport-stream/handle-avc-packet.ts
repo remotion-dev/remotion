@@ -18,6 +18,7 @@ import {
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import {getSpsAndPps} from '../avc/sps-and-pps';
+import {mediaParserAdvancedColorToWebCodecsColor} from '../iso-base-media/color-to-webcodecs-colors';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const MPEG_TIMESCALE = 90000;
@@ -64,6 +65,8 @@ export const handleAvcPacket = async ({
 
 		const codecPrivate = createSpsPpsData(spsAndPps);
 
+		const advancedColor = getVideoColorFromSps(spsAndPps.sps.spsData);
+
 		const track: MediaParserTrack = {
 			m3uStreamFormat: null,
 			rotation: 0,
@@ -88,7 +91,8 @@ export const handleAvcPacket = async ({
 				denominator: sampleAspectRatio.height,
 				numerator: sampleAspectRatio.width,
 			},
-			detailedColor: getVideoColorFromSps(spsAndPps.sps.spsData),
+			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
+			advancedColor,
 		};
 
 		await registerVideoTrack({

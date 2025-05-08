@@ -7,6 +7,7 @@ import type {
 } from '../../get-tracks';
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
+import {mediaParserAdvancedColorToWebCodecsColor} from '../iso-base-media/color-to-webcodecs-colors';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {parseColorSegment} from './color';
 import {getAudioDescription} from './description';
@@ -334,6 +335,15 @@ export const getTrack = ({
 										}
 									: null;
 
+		const advancedColor = colour
+			? parseColorSegment(colour)
+			: {
+					fullRange: null,
+					matrix: null,
+					primaries: null,
+					transfer: null,
+				};
+
 		return {
 			m3uStreamFormat: null,
 			type: 'video',
@@ -357,14 +367,8 @@ export const getTrack = ({
 				: width.value.value,
 			rotation: 0,
 			codecData,
-			detailedColor: colour
-				? parseColorSegment(colour)
-				: {
-						fullRange: null,
-						matrixCoefficients: null,
-						primaries: null,
-						transferCharacteristics: null,
-					},
+			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
+			advancedColor,
 			codecEnum,
 			fps: null,
 		};

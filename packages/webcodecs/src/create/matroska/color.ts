@@ -1,5 +1,5 @@
 import type {
-	MediaParserDetailedColor,
+	MediaParserAdvancedColor,
 	MediaParserInternalTypes,
 	MediaParserMatrixCoefficients,
 	MediaParserPrimaries,
@@ -126,11 +126,11 @@ const getMatrixCoefficientsValue = (
 };
 
 export const makeMatroskaColorBytes = ({
-	transferCharacteristics,
-	matrixCoefficients,
+	transfer: transferCharacteristics,
+	matrix: matrixCoefficients,
 	primaries,
 	fullRange,
-}: MediaParserDetailedColor) => {
+}: MediaParserAdvancedColor) => {
 	const rangeValue = getRangeValue({
 		transferCharacteristics,
 		matrixCoefficients,

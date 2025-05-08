@@ -39,9 +39,9 @@ export {
 	MediaParserAbortError,
 } from './errors';
 export type {
+	MediaParserAdvancedColor,
 	MediaParserAudioCodec,
 	MediaParserAudioTrack,
-	MediaParserDetailedColor,
 	MediaParserOtherTrack,
 	MediaParserTrack,
 	MediaParserVideoCodec,

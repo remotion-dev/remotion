@@ -83,11 +83,17 @@ export const makeAviVideoTrack = ({
 		description: undefined,
 		m3uStreamFormat: null,
 		trackId: index,
-		detailedColor: {
+		colorSpace: {
 			fullRange: null,
-			matrixCoefficients: null,
+			matrix: null,
 			primaries: null,
-			transferCharacteristics: null,
+			transfer: null,
+		},
+		advancedColor: {
+			fullRange: null,
+			matrix: null,
+			primaries: null,
+			transfer: null,
 		},
 		displayAspectWidth: strf.width,
 		rotation: 0,

@@ -139,11 +139,17 @@ test('Transport stream', async () => {
 					denominator: 1,
 					numerator: 1,
 				},
-				detailedColor: {
-					matrixCoefficients: 'bt2020-ncl',
-					transferCharacteristics: 'hlg',
-					primaries: 'bt2020',
+				colorSpace: {
+					matrix: 'bt2020-ncl' as VideoMatrixCoefficients,
+					transfer: 'hlg' as VideoTransferCharacteristics,
+					primaries: 'bt2020' as VideoColorPrimaries,
 					fullRange: false,
+				},
+				advancedColor: {
+					fullRange: false,
+					matrix: 'bt2020-ncl',
+					primaries: 'bt2020',
+					transfer: 'hlg',
 				},
 			});
 			return (sample) => {

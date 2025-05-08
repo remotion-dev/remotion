@@ -1,4 +1,4 @@
-import type {MediaParserDetailedColor} from '../../get-tracks';
+import type {MediaParserAdvancedColor} from '../../get-tracks';
 import {
 	getMatrixCoefficientsFromIndex,
 	getPrimariesFromIndex,
@@ -14,7 +14,7 @@ import {
 
 export const parseColorSegment = (
 	colourSegment: ColourSegment,
-): MediaParserDetailedColor => {
+): MediaParserAdvancedColor => {
 	const transferCharacteristics =
 		getTransferCharacteristicsSegment(colourSegment);
 	const matrixCoefficients = getMatrixCoefficientsSegment(colourSegment);
@@ -22,10 +22,10 @@ export const parseColorSegment = (
 	const range = getRangeSegment(colourSegment);
 
 	return {
-		transferCharacteristics: transferCharacteristics
+		transfer: transferCharacteristics
 			? getTransferCharacteristicsFromIndex(transferCharacteristics.value.value)
 			: null,
-		matrixCoefficients: matrixCoefficients
+		matrix: matrixCoefficients
 			? getMatrixCoefficientsFromIndex(matrixCoefficients.value.value)
 			: null,
 		primaries: primaries ? getPrimariesFromIndex(primaries.value.value) : null,

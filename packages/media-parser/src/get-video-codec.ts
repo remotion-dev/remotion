@@ -16,7 +16,7 @@ import {
 import {
 	getHasTracks,
 	getTracks,
-	type MediaParserDetailedColor,
+	type MediaParserAdvancedColor,
 	type MediaParserVideoCodec,
 } from './get-tracks';
 import type {ParserState} from './state/parser-state';
@@ -61,7 +61,7 @@ export const getVideoPrivateData = (
 
 export const getIsoBmColrConfig = (
 	trakBox: TrakBox,
-): MediaParserDetailedColor | null => {
+): MediaParserAdvancedColor | null => {
 	const videoSample = getStsdVideoConfig(trakBox);
 	if (!videoSample) {
 		return null;
@@ -80,11 +80,9 @@ export const getIsoBmColrConfig = (
 	// https://github.com/bbc/qtff-parameter-editor
 	return {
 		fullRange: colrAtom.fullRangeFlag,
-		matrixCoefficients: getMatrixCoefficientsFromIndex(colrAtom.matrixIndex),
+		matrix: getMatrixCoefficientsFromIndex(colrAtom.matrixIndex),
 		primaries: getPrimariesFromIndex(colrAtom.primaries),
-		transferCharacteristics: getTransferCharacteristicsFromIndex(
-			colrAtom.transfer,
-		),
+		transfer: getTransferCharacteristicsFromIndex(colrAtom.transfer),
 	};
 };
 

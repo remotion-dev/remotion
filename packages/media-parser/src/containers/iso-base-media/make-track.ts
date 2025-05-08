@@ -28,6 +28,7 @@ import {
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {mediaParserAdvancedColorToWebCodecsColor} from './color-to-webcodecs-colors';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
 import type {TrakBox} from './trak/trak';
@@ -125,6 +126,13 @@ export const makeBaseMediaTrack = (
 
 	const privateData = getVideoPrivateData(trakBox);
 
+	const advancedColor = getIsoBmColrConfig(trakBox) ?? {
+		fullRange: null,
+		matrix: null,
+		primaries: null,
+		transfer: null,
+	};
+
 	const track: MediaParserVideoTrack = {
 		m3uStreamFormat: null,
 		type: 'video',
@@ -142,12 +150,8 @@ export const makeBaseMediaTrack = (
 		displayAspectHeight,
 		rotation,
 		codecData: privateData,
-		detailedColor: getIsoBmColrConfig(trakBox) ?? {
-			fullRange: null,
-			matrixCoefficients: null,
-			primaries: null,
-			transferCharacteristics: null,
-		},
+		colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
+		advancedColor,
 		codecEnum: getVideoCodecFromIsoTrak(trakBox),
 		fps: getFpsFromMp4TrakBox(trakBox),
 	};

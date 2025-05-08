@@ -35,9 +35,9 @@ export type MediaParserSampleAspectRatio = {
 	denominator: number;
 };
 
-export type MediaParserDetailedColor = {
-	transferCharacteristics: MediaParserTransferCharacteristics | null;
-	matrixCoefficients: MediaParserMatrixCoefficients | null;
+export type MediaParserAdvancedColor = {
+	transfer: MediaParserTransferCharacteristics | null;
+	matrix: MediaParserMatrixCoefficients | null;
 	primaries: MediaParserPrimaries | null;
 	fullRange: boolean | null;
 };
@@ -68,6 +68,7 @@ export type MediaParserVideoTrack = {
 	// WebCodecs
 	codec: string;
 	description: Uint8Array | undefined;
+	colorSpace: VideoColorSpaceInit;
 	codedWidth: number;
 	codedHeight: number;
 	displayAspectWidth: number;
@@ -83,7 +84,7 @@ export type MediaParserVideoTrack = {
 	rotation: number;
 	fps: number | null;
 	timescale: number;
-	detailedColor: MediaParserDetailedColor;
+	advancedColor: MediaParserAdvancedColor;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 };
 

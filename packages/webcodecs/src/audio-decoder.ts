@@ -94,9 +94,9 @@ export const createAudioDecoder = ({
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		controller._internals._mediaParserController._internals.signal.removeEventListener(
 			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			onAbort,
 		);
 

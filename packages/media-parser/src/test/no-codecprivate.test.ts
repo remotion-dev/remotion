@@ -37,13 +37,19 @@ test('webm with h264 and no codecprivate', async () => {
 		displayAspectWidth: 1896,
 		rotation: 0,
 		codecData: null,
-		detailedColor: {
-			transferCharacteristics: 'bt709',
-			matrixCoefficients: 'bt709',
+		colorSpace: {
+			transfer: 'bt709',
+			matrix: 'bt709',
 			primaries: 'bt709',
 			fullRange: null,
 		},
 		codecEnum: 'h264',
 		fps: null,
+		advancedColor: {
+			fullRange: null,
+			matrix: 'bt709',
+			primaries: 'bt709',
+			transfer: 'bt709',
+		},
 	});
 });

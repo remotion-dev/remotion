@@ -126,10 +126,10 @@ import type {MediaParserOnVideoTrackParams} from '@remotion/media-parser';
 //                ^?
 ```
 
-## `MediaParserDetailedColor`
+## `MediaParserAdvancedColor`
 
 ```tsx twoslash
-import type {MediaParserDetailedColor} from '@remotion/media-parser';
+import type {MediaParserAdvancedColor} from '@remotion/media-parser';
 //                ^?
 ```
 
@@ -163,12 +163,13 @@ More values may be added in the future, this would not be considered a breaking 
 ## `MediaParserVideoTrack`
 
 ```tsx twoslash
-import {MediaParserVideoCodec, MediaParserCodecData, MediaParserSampleAspectRatio, MediaParserDetailedColor} from '@remotion/media-parser';
+import {MediaParserVideoCodec, MediaParserCodecData, MediaParserSampleAspectRatio, MediaParserAdvancedColor} from '@remotion/media-parser';
 
 export type MediaParserVideoTrack = {
   // WebCodecs
   codec: string;
   description: Uint8Array | undefined;
+  colorSpace: VideoColorSpaceInit;
   codedWidth: number;
   codedHeight: number;
   displayAspectWidth: number;
@@ -184,10 +185,12 @@ export type MediaParserVideoTrack = {
   rotation: number;
   fps: number | null;
   timescale: number;
-  detailedColor: MediaParserDetailedColor;
+  advancedColor: MediaParserAdvancedColor;
   m3uStreamFormat: 'ts' | 'mp4' | null;
 };
 ```
+
+See: [`VideoColorSpaceInit`](https://developer.mozilla.org/en-US/docs/Web/API/VideoColorSpaceInit) WebCodecs definition
 
 ## `MediaParserAudioTrack`
 

@@ -1,6 +1,6 @@
 import type {
+	MediaParserAdvancedColor,
 	MediaParserAudioCodec,
-	MediaParserDetailedColor,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
@@ -13,7 +13,7 @@ export const makeMatroskaVideoBytes = ({
 	width,
 	height,
 }: {
-	color: MediaParserDetailedColor;
+	color: MediaParserAdvancedColor;
 	width: number;
 	height: number;
 }) => {

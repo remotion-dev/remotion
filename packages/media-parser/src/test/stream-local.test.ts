@@ -107,11 +107,17 @@ test('Should stream AV1', async () => {
 				32,
 			]),
 		},
-		detailedColor: {
+		colorSpace: {
 			fullRange: null,
-			transferCharacteristics: 'bt709',
-			matrixCoefficients: 'bt709',
+			transfer: 'bt709',
+			matrix: 'bt709',
 			primaries: 'bt709',
+		},
+		advancedColor: {
+			fullRange: null,
+			matrix: 'bt709',
+			primaries: 'bt709',
+			transfer: 'bt709',
 		},
 		codecEnum: 'av1',
 		fps: null,
@@ -258,6 +264,12 @@ test(
 		expect(parsed.rotation).toBe(0);
 		expect(parsed.tracks.videoTracks.length).toBe(1);
 		expect(parsed.tracks.videoTracks[0]).toEqual({
+			advancedColor: {
+				fullRange: null,
+				matrix: null,
+				primaries: null,
+				transfer: null,
+			},
 			m3uStreamFormat: null,
 			type: 'video',
 			codec: 'vp8',
@@ -276,10 +288,10 @@ test(
 			displayAspectWidth: 1280,
 			rotation: 0,
 			codecData: null,
-			detailedColor: {
+			colorSpace: {
 				fullRange: null,
-				transferCharacteristics: null,
-				matrixCoefficients: null,
+				transfer: null,
+				matrix: null,
 				primaries: null,
 			},
 			codecEnum: 'vp8',
@@ -552,14 +564,20 @@ test('Stretched VP8', async () => {
 		displayAspectWidth: 1920,
 		rotation: 0,
 		codecData: null,
-		detailedColor: {
+		colorSpace: {
 			fullRange: null,
-			transferCharacteristics: null,
-			matrixCoefficients: null,
+			transfer: null,
+			matrix: null,
 			primaries: null,
 		},
 		codecEnum: 'vp8',
 		fps: null,
+		advancedColor: {
+			fullRange: null,
+			matrix: null,
+			primaries: null,
+			transfer: null,
+		},
 	});
 });
 
