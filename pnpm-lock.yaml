@@ -2367,8 +2367,8 @@ importers:
   packages/template-code-hike:
     dependencies:
       '@code-hike/lighter':
-        specifier: 0.9.4
-        version: 0.9.4
+        specifier: 1.0.3
+        version: 1.0.3
       '@remotion/cli':
         specifier: workspace:*
         version: link:../cli
@@ -2397,8 +2397,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       twoslash-cdn:
-        specifier: 0.2.9
-        version: 0.2.9(typescript@5.8.2)
+        specifier: 0.3.1
+        version: 0.3.1(typescript@5.8.2)
       zod:
         specifier: 3.22.3
         version: 3.22.3
@@ -7571,16 +7571,17 @@ packages:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  /@code-hike/lighter@0.9.4:
-    resolution: {integrity: sha512-WnYhKFaYDHOVKXyII5iYegve/W3jgV9kOfo34rKDXdZjTFbCJMbTPzdG+SKfvUtw7lzWWuJGmu0WQJ0/PDhL0g==}
-    dependencies:
-      ansi-sequence-parser: 1.1.1
-    dev: false
-
   /@code-hike/lighter@1.0.1:
     resolution: {integrity: sha512-mccvcsk5UTScRrE02oBz1/qzckyhD8YE3VQlQv++2bSVVZgNuCUX8MpokSCi5OmfRAAxbj6kmNiqq1Um8eXPrw==}
     dependencies:
       ansi-sequence-parser: 1.1.1
+    dev: false
+
+  /@code-hike/lighter@1.0.3:
+    resolution: {integrity: sha512-LU0TbZfu3L3fQZ7y9tZHttnxyFm7ewU96arGMFnjLbvFj+onYfVkznhQOmU1ZsQtv9rpQzZ313GRz6hCGDrlJQ==}
+    dependencies:
+      ansi-sequence-parser: 1.1.1
+      tm-grammars: 1.23.18
     dev: false
 
   /@colors/colors@1.5.0:
@@ -15965,10 +15966,13 @@ packages:
       - supports-color
     dev: false
 
-  /@typescript/vfs@1.5.0:
-    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
+  /@typescript/vfs@1.6.1(typescript@5.8.2):
+    resolution: {integrity: sha512-JwoxboBh7Oz1v38tPbkrZ62ZXNHAk9bJ7c9x0eI5zBfBnBYGhURdbnh7Z4smN/MV48Y5OCcZb58n972UtbazsA==}
+    peerDependencies:
+      typescript: '*'
     dependencies:
       debug: 4.4.0
+      typescript: 5.8.2
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -29050,6 +29054,10 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: true
 
+  /tm-grammars@1.23.18:
+    resolution: {integrity: sha512-A5R58rX/+JAby7js+m4/Iv8F3AIRVoliqr0ijpyks3WQyZCvSnOacZOSVAYD3o7pco175qrF6Lskpxqcdw/yEQ==}
+    dev: false
+
   /tmp@0.2.3:
     resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
     engines: {node: '>=14.14'}
@@ -29324,28 +29332,28 @@ packages:
       turbo-windows-arm64: 2.4.4
     dev: false
 
-  /twoslash-cdn@0.2.9(typescript@5.8.2):
-    resolution: {integrity: sha512-FnEl2+L49j5chaH6HYlbPa299PztzMi7xuhllxmWaHUx9VkTdmpdXjkR0kz2PwwT4zxUPrSFCaQetcTQRreWrw==}
+  /twoslash-cdn@0.3.1(typescript@5.8.2):
+    resolution: {integrity: sha512-JbYbEIG82SlBVD03s7PW+VC5cV9zgWHCtdVkBEc38Kqz8D8ZAgPkthzPAj3isaiJo5xTu/Q/R4NYgihcMVmFXQ==}
     peerDependencies:
-      typescript: '*'
+      typescript: ^5.5.0
     dependencies:
-      twoslash: 0.2.9(typescript@5.8.2)
+      twoslash: 0.3.1(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /twoslash-protocol@0.2.9:
-    resolution: {integrity: sha512-uKQl8UboT6JU4VAtYaSI3DbNtgaNhFaTpCSMy/n3tRl5lMlMhrjiuNKdqx15xjcviconuGJ9oObkz1h9zJFrJg==}
+  /twoslash-protocol@0.3.1:
+    resolution: {integrity: sha512-BMePTL9OkuNISSyyMclBBhV2s9++DiOCyhhCoV5Kaht6eaWLwVjCCUJHY33eZJPsyKeZYS8Wzz0h+XI01VohVw==}
     dev: false
 
-  /twoslash@0.2.9(typescript@5.8.2):
-    resolution: {integrity: sha512-oj7XY6h8E9nTZBmfRE1gpsSSUqAQo5kcIpFkXyQPp8UCsyCQsUlP2bJ2s32o02c1n5+xl4h9rcCsQ1F97Z6LZg==}
+  /twoslash@0.3.1(typescript@5.8.2):
+    resolution: {integrity: sha512-OGqMTGvqXTcb92YQdwGfEdK0nZJA64Aj/ChLOelbl3TfYch2IoBST0Yx4C0LQ7Lzyqm9RpgcpgDxeXQIz4p2Kg==}
     peerDependencies:
-      typescript: '*'
+      typescript: ^5.5.0
     dependencies:
-      '@typescript/vfs': 1.5.0
-      twoslash-protocol: 0.2.9
+      '@typescript/vfs': 1.6.1(typescript@5.8.2)
+      twoslash-protocol: 0.3.1
       typescript: 5.8.2
     transitivePeerDependencies:
       - supports-color
@@ -30512,7 +30520,7 @@ packages:
         optional: true
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
@@ -30550,7 +30558,7 @@ packages:
         optional: true
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
@@ -30589,7 +30597,7 @@ packages:
         optional: true
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
