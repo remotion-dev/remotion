@@ -194,13 +194,15 @@ export interface ParseMediaData {
 	m3uStreams: M3uStream[] | null;
 }
 
-export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {
-	[K in keyof T]: T[K] extends true
-		? K extends keyof ParseMediaData
-			? ParseMediaData[K]
-			: never
-		: never;
-};
+export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {} extends T
+	? Record<never, never>
+	: {
+			[K in keyof T]: T[K] extends true
+				? K extends keyof ParseMediaData
+					? ParseMediaData[K]
+					: never
+				: never;
+		};
 
 export type ParseMediaProgress = {
 	bytes: number;
