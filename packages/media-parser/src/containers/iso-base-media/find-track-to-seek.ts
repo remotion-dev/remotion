@@ -8,8 +8,12 @@ import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {StructureState} from '../../state/structure';
 import {areSamplesComplete} from './are-samples-complete';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
-import type {TrakBox} from './trak/trak';
-import {getMoofBoxes, getTfraBoxes} from './traversal';
+import {
+	getMoofBoxes,
+	getMoovFromFromIsoStructure,
+	getTfraBoxes,
+	getTrakBoxByTrackId,
+} from './traversal';
 
 export const findAnyTrackWithSamplePositions = (
 	allTracks: (
@@ -19,10 +23,20 @@ export const findAnyTrackWithSamplePositions = (
 	)[],
 	struc: IsoBaseMediaStructure,
 ) => {
+	const moov = getMoovFromFromIsoStructure(struc);
+	if (!moov) {
+		return null;
+	}
+
 	for (const track of allTracks) {
 		if (track.type === 'video' || track.type === 'audio') {
+			const trakBox = getTrakBoxByTrackId(moov, track.trackId);
+			if (!trakBox) {
+				continue;
+			}
+
 			const {samplePositions} = getSamplePositionsFromTrack({
-				trakBox: track.trakBox as TrakBox,
+				trakBox,
 				moofBoxes: getMoofBoxes(struc.boxes),
 				moofComplete: areSamplesComplete({
 					moofBoxes: getMoofBoxes(struc.boxes),
@@ -61,8 +75,18 @@ export const findTrackToSeek = (
 		return findAnyTrackWithSamplePositions(allTracks, struc);
 	}
 
+	const moov = getMoovFromFromIsoStructure(struc);
+	if (!moov) {
+		return null;
+	}
+
+	const trakBox = getTrakBoxByTrackId(moov, firstVideoTrack.trackId);
+	if (!trakBox) {
+		return null;
+	}
+
 	const {samplePositions} = getSamplePositionsFromTrack({
-		trakBox: firstVideoTrack.trakBox as TrakBox,
+		trakBox,
 		moofBoxes: getMoofBoxes(struc.boxes),
 		moofComplete: areSamplesComplete({
 			moofBoxes: getMoofBoxes(struc.boxes),

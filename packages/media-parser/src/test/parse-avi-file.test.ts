@@ -84,7 +84,6 @@ test('AVI file', async () => {
 			sampleRate: 48000,
 			timescale: 1_000_000,
 			trackId: 1,
-			trakBox: null,
 			type: 'audio',
 		},
 	]);
@@ -168,7 +167,6 @@ test('AVI file', async () => {
 			},
 			timescale: 1_000_000,
 			trackId: 0,
-			trakBox: null,
 			type: 'video',
 			width: 480,
 		},

@@ -84,7 +84,6 @@ export const makeBaseMediaTrack = (
 			numberOfChannels: actual.numberOfChannels,
 			sampleRate: actual.sampleRate,
 			description: actual.codecPrivate?.data ?? undefined,
-			trakBox,
 			codecData: actual.codecPrivate,
 			codecEnum,
 		};
@@ -142,7 +141,6 @@ export const makeBaseMediaTrack = (
 		displayAspectWidth,
 		displayAspectHeight,
 		rotation,
-		trakBox,
 		codecData: privateData,
 		color: getIsoBmColrConfig(trakBox) ?? {
 			fullRange: null,

@@ -1,6 +1,6 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import type {MediaParserTrack} from '../../get-tracks';
+import type {MediaParserAudioTrack} from '../../get-tracks';
 import type {MediaParserLogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
@@ -56,11 +56,10 @@ export const handleAacPacket = async ({
 			newOffset: startOffset,
 		});
 
-		const track: MediaParserTrack = {
+		const track: MediaParserAudioTrack = {
 			type: 'audio',
 			codecData: {type: 'aac-config', data: codecPrivate},
 			trackId: programId,
-			trakBox: null,
 			timescale: MPEG_TIMESCALE,
 			codecEnum: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),

@@ -1,10 +1,8 @@
 import type {MediaParserCodecData} from './codec-data';
 import type {EsdsBox} from './containers/iso-base-media/esds/esds';
-import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {AudioSample} from './containers/iso-base-media/stsd/samples';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
-import {getStsdBox, getTraks} from './containers/iso-base-media/traversal';
-import {trakBoxContainsAudio} from './get-fps';
+import {getStsdBox} from './containers/iso-base-media/traversal';
 import {
 	getHasTracks,
 	getTracks,
@@ -220,18 +218,6 @@ export const isIn24AudioCodec = (trak: TrakBox): boolean => {
 
 export const isTwosAudioCodec = (trak: TrakBox): boolean => {
 	return getAudioCodecFromTrak(trak)?.format === 'twos';
-};
-
-export const getAudioCodecFromIso = (moov: MoovBox) => {
-	const traks = getTraks(moov);
-	const trakBox = traks.find(
-		(b) => b.type === 'trak-box' && trakBoxContainsAudio(b),
-	);
-	if (!trakBox) {
-		return null;
-	}
-
-	return getAudioCodecFromTrak(trakBox);
 };
 
 export const getAudioCodecStringFromTrak = (

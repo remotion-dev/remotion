@@ -100,7 +100,6 @@ test('Should stream AV1', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1920,
 		rotation: 0,
-		trakBox: null,
 		codecData: {
 			type: 'av1c-data',
 			data: new Uint8Array([
@@ -276,7 +275,6 @@ test(
 			displayAspectHeight: 720,
 			displayAspectWidth: 1280,
 			rotation: 0,
-			trakBox: null,
 			codecData: null,
 			color: {
 				fullRange: null,
@@ -296,7 +294,6 @@ test(
 			numberOfChannels: 1,
 			sampleRate: 48000,
 			description: undefined,
-			trakBox: null,
 			codecData: {
 				type: 'ogg-identification',
 				data: new Uint8Array([
@@ -535,7 +532,7 @@ test('Stretched VP8', async () => {
 		reader: nodeReader,
 	});
 
-	const {trakBox, ...track} = tracks.videoTracks[0];
+	const track = tracks.videoTracks[0];
 	expect(track).toEqual({
 		m3uStreamFormat: null,
 		codec: 'vp8',

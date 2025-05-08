@@ -356,7 +356,6 @@ export const getTrack = ({
 				? displayWidth.value.value
 				: width.value.value,
 			rotation: 0,
-			trakBox: null,
 			codecData,
 			color: colour
 				? parseColorSegment(colour)
@@ -389,7 +388,6 @@ export const getTrack = ({
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),
-			trakBox: null,
 			codecData: codecPrivate
 				? codecString === 'opus'
 					? {type: 'ogg-identification', data: codecPrivate}

@@ -22,7 +22,7 @@ test('should work on voice note', async () => {
 			structure: true,
 		},
 		onAudioTrack: (track) => {
-			const {trakBox, ...trk} = track.track;
+			const trk = track.track;
 			expect(trk).toEqual({
 				type: 'audio',
 				trackId: 1,

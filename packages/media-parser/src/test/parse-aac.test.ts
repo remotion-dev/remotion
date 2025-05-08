@@ -75,7 +75,6 @@ test('should be able to parse aac', async () => {
 				sampleRate: 44100,
 				timescale: 1000000,
 				trackId: 0,
-				trakBox: null,
 				type: 'audio',
 			});
 			return () => {
@@ -164,7 +163,6 @@ test('should be able to get basics without parsing all', async () => {
 				sampleRate: 44100,
 				timescale: 1000000,
 				trackId: 0,
-				trakBox: null,
 				type: 'audio',
 			});
 			return null;

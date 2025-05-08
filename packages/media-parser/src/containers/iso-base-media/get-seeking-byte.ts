@@ -65,6 +65,8 @@ export const getSeekingByteFromIsoBaseMedia = ({
 			isoState,
 			allTracks,
 			isLastChunkInPlaylist: m3uPlaylistContext?.isLastChunkInPlaylist ?? false,
+			structure,
+			mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
 		});
 	}
 

@@ -46,7 +46,6 @@ test('Transport stream', async () => {
 				type: 'audio',
 				codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},
 				trackId: 257,
-				trakBox: null,
 				timescale: 90000,
 				codecEnum: 'aac',
 				codec: 'mp4a.40.2',
@@ -134,7 +133,6 @@ test('Transport stream', async () => {
 				width: 720,
 				displayAspectWidth: 720,
 				displayAspectHeight: 720,
-				trakBox: null,
 				codecEnum: 'h264',
 				description: undefined,
 				sampleAspectRatio: {

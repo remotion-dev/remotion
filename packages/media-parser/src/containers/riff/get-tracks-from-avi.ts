@@ -53,7 +53,6 @@ export const makeAviAudioTrack = ({
 		sampleRate: strf.sampleRate,
 		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		trackId: index,
-		trakBox: null,
 	};
 };
 
@@ -91,7 +90,6 @@ export const makeAviVideoTrack = ({
 			transferCharacteristics: null,
 		},
 		displayAspectWidth: strf.width,
-		trakBox: null,
 		rotation: 0,
 		sampleAspectRatio: {
 			numerator: 1,

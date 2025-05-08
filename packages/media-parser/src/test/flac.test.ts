@@ -93,7 +93,6 @@ test('parse flac', async () => {
 			sampleRate: 44100,
 			timescale: 1000000,
 			trackId: 0,
-			trakBox: null,
 		},
 	]);
 	expect(samples).toBe(213);

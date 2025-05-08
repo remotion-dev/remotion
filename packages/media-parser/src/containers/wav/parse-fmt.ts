@@ -57,7 +57,6 @@ export const parseFmt = async ({
 			sampleRate,
 			timescale: 1_000_000,
 			trackId: 0,
-			trakBox: null,
 		},
 		container: 'wav',
 		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,

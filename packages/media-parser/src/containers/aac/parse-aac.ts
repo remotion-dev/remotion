@@ -74,7 +74,6 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 				sampleRate,
 				timescale: 1_000_000,
 				trackId: 0,
-				trakBox: null,
 				type: 'audio',
 			},
 			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,

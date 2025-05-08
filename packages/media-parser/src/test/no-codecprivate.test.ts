@@ -36,7 +36,6 @@ test('webm with h264 and no codecprivate', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1896,
 		rotation: 0,
-		trakBox: null,
 		codecData: null,
 		color: {
 			transferCharacteristics: 'bt709',

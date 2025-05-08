@@ -1,10 +1,11 @@
 import {areSamplesComplete} from '../../containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
 import type {JumpMark} from '../../containers/iso-base-media/mdat/calculate-jump-marks';
-import type {TrakBox} from '../../containers/iso-base-media/trak/trak';
 import {
 	getMoofBoxes,
+	getMoovBoxFromState,
 	getTfraBoxes,
+	getTrakBoxByTrackId,
 } from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
 import type {
@@ -61,9 +62,25 @@ export const calculateFlatSamples = ({
 		throw new Error('No relevant moof box found');
 	}
 
+	const moov = getMoovBoxFromState({
+		structureState: state.structure,
+		isoState: state.iso,
+		mp4HeaderSegment: state.m3uPlaylistContext?.mp4HeaderSegment ?? null,
+		mayUsePrecomputed: true,
+	});
+	if (!moov) {
+		throw new Error('No moov box found');
+	}
+
 	const flatSamples = allTracks.map((track) => {
+		const trakBox = getTrakBoxByTrackId(moov, track.trackId);
+
+		if (!trakBox) {
+			throw new Error('No trak box found');
+		}
+
 		const {samplePositions} = getSamplePositionsFromTrack({
-			trakBox: track.trakBox as TrakBox,
+			trakBox,
 			moofBoxes: relevantMoofBox ? [relevantMoofBox] : [],
 			moofComplete,
 		});

@@ -77,13 +77,12 @@ export type MediaParserVideoTrack = {
 	trackId: number;
 	codecEnum: MediaParserVideoCodec;
 	codecData: MediaParserCodecData | null;
-	sampleAspectRatio: SampleAspectRatio;
+	sampleAspectRatio: MediaParserSampleAspectRatio;
 	width: number;
 	height: number;
 	rotation: number;
 	fps: number | null;
 	timescale: number;
-	trakBox: TrakBox | null;
 	color: VideoTrackColorParams;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 };
@@ -99,7 +98,6 @@ export type MediaParserAudioTrack = {
 	trackId: number;
 	codecEnum: MediaParserAudioCodec;
 	timescale: number;
-	trakBox: TrakBox | null;
 	codecData: MediaParserCodecData | null;
 };
 

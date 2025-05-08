@@ -79,7 +79,6 @@ export const handleAvcPacket = async ({
 			width: dimensions.width,
 			displayAspectWidth: dimensions.width,
 			displayAspectHeight: dimensions.height,
-			trakBox: null,
 			codecEnum: 'h264',
 			// ChatGPT: In a transport stream (⁠.ts), H.264 video is always stored in Annex B format
 			// WebCodecs spec says that description must be undefined for Annex B format

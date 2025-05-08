@@ -1,13 +1,13 @@
 import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
 import {areSamplesComplete} from './containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMoofBoxes,
 	getMoovBoxFromState,
 	getMvhdBox,
 	getTfraBoxes,
 	getTfraBoxesFromMfraBoxChildren,
+	getTrakBoxByTrackId,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
@@ -106,8 +106,14 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const allSamples = allTracks.map((t) => {
 		const {timescale: ts} = t;
 
+		const trakBox = getTrakBoxByTrackId(moovBox, t.trackId);
+
+		if (!trakBox) {
+			return null;
+		}
+
 		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
-			trakBox: t.trakBox as TrakBox,
+			trakBox,
 			moofBoxes,
 			moofComplete: areSamplesComplete({moofBoxes, tfraBoxes}),
 		});

@@ -97,7 +97,6 @@ test('parse m3u8', async () => {
 			},
 			timescale: 90000,
 			trackId: 256,
-			trakBox: null,
 			width: 1000,
 		},
 	]);
@@ -111,7 +110,6 @@ test('parse m3u8', async () => {
 			sampleRate: 48000,
 			timescale: 90000,
 			trackId: 257,
-			trakBox: null,
 			type: 'audio',
 		},
 	]);
@@ -135,32 +133,32 @@ test('parse m3u8', async () => {
 	// url omitted, is dynamic
 	expect(m3uStreams).toMatchObject([
 		{
-			averageBandwidth: 1057100,
-			bandwidth: 1057100,
+			averageBandwidthInBitsPerSec: 1057100,
+			bandwidthInBitsPerSec: 1057100,
 			codecs: ['mp4a.40.2', 'avc1.640028'],
 			resolution: {width: 1000, height: 1000},
 			id: 0,
 			associatedPlaylists: [],
 		},
 		{
-			averageBandwidth: 618200,
-			bandwidth: 618200,
+			averageBandwidthInBitsPerSec: 618200,
+			bandwidthInBitsPerSec: 618200,
 			codecs: ['mp4a.40.2', 'avc1.640020'],
 			resolution: {width: 720, height: 720},
 			id: 1,
 			associatedPlaylists: [],
 		},
 		{
-			averageBandwidth: 358600,
-			bandwidth: 358600,
+			averageBandwidthInBitsPerSec: 358600,
+			bandwidthInBitsPerSec: 358600,
 			codecs: ['mp4a.40.2', 'avc1.64001f'],
 			resolution: {width: 480, height: 480},
 			id: 2,
 			associatedPlaylists: [],
 		},
 		{
-			averageBandwidth: 214500,
-			bandwidth: 214500,
+			averageBandwidthInBitsPerSec: 214500,
+			bandwidthInBitsPerSec: 214500,
 			codecs: ['mp4a.40.2', 'avc1.640015'],
 			resolution: {width: 270, height: 270},
 			id: 3,

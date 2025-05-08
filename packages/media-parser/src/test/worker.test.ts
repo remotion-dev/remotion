@@ -3,7 +3,6 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted, IsAnImageError} from '../errors';
 import {parseMediaOnServerWorker} from '../server-worker.module';
-import {parseMediaOnWebWorker} from '../worker.module';
 
 test('worker should work', async () => {
 	const {audioCodec} = await parseMediaOnServerWorker({
@@ -19,14 +18,14 @@ test('worker should work', async () => {
 
 test('worker should throw error as normal', () => {
 	expect(() =>
-		parseMediaOnWebWorker({
+		parseMediaOnServerWorker({
 			src: 'wrongurl',
 			fields: {
 				audioCodec: true,
 			},
 			acknowledgeRemotionLicense: true,
 		}),
-	).toThrow('wrongurl is not a URL');
+	).toThrow('File does not exist: wrongurl');
 });
 
 test('hasBeenAborted() should still work', async () => {
