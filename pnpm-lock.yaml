@@ -1065,8 +1065,8 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@shopify/react-native-skia':
-        specifier: 1.12.4
-        version: 1.12.4(react@19.0.0)
+        specifier: 1.6.0
+        version: 1.6.0(react@19.0.0)
       '@types/express':
         specifier: ^4.17.11
         version: 4.17.13
@@ -2035,8 +2035,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-internal
       '@shopify/react-native-skia':
-        specifier: 1.12.4
-        version: 1.12.4(react@18.3.1)
+        specifier: 1.6.0
+        version: 1.6.0(react@18.3.1)
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
@@ -2998,8 +2998,8 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@shopify/react-native-skia':
-        specifier: 1.12.4
-        version: 1.12.4(react@18.3.1)
+        specifier: 1.6.0
+        version: 1.6.0(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -13539,12 +13539,12 @@ packages:
     resolution: {integrity: sha512-jn7/7ky30idSkd/O5yDBfAnVt+JJpepofP/POZ1iMOxK59cOfqIgg/Dj0eFsjOTMw+4ycJN0uhZH/Eb0bs/EUA==}
     dev: false
 
-  /@shopify/react-native-skia@1.12.4(react@18.3.1):
-    resolution: {integrity: sha512-8QDIBKSU7XB3Lc1kAv4jSFddTQK8AE+1AEoJnQLNllsiex1gufLQ8kN7rs9zii+iboSY8tYKT7ocV+5cE2Exdw==}
+  /@shopify/react-native-skia@1.6.0(react@18.3.1):
+    resolution: {integrity: sha512-w7Pg6w5N7/KMyPFeRtcXdTPSS9Eid3z15aBXjU3JHJBNoIQCNPwX8J0G2g8nTU+w/Vb34dFL00/Va45HEGUqBQ==}
     hasBin: true
     peerDependencies:
-      react: '>=18.0 <19.0.0'
-      react-native: '>=0.64 <0.78.0'
+      react: '>=18.0'
+      react-native: '>=0.64'
       react-native-reanimated: '>=2.0.0'
     peerDependenciesMeta:
       react-native:
@@ -13552,27 +13552,9 @@ packages:
       react-native-reanimated:
         optional: true
     dependencies:
-      canvaskit-wasm: 0.40.0
+      canvaskit-wasm: 0.39.1
       react: 18.3.1
       react-reconciler: 0.27.0(react@18.3.1)
-
-  /@shopify/react-native-skia@1.12.4(react@19.0.0):
-    resolution: {integrity: sha512-8QDIBKSU7XB3Lc1kAv4jSFddTQK8AE+1AEoJnQLNllsiex1gufLQ8kN7rs9zii+iboSY8tYKT7ocV+5cE2Exdw==}
-    hasBin: true
-    peerDependencies:
-      react: '>=18.0 <19.0.0'
-      react-native: '>=0.64 <0.78.0'
-      react-native-reanimated: '>=2.0.0'
-    peerDependenciesMeta:
-      react-native:
-        optional: true
-      react-native-reanimated:
-        optional: true
-    dependencies:
-      canvaskit-wasm: 0.40.0
-      react: 19.0.0
-      react-reconciler: 0.27.0(react@19.0.0)
-    dev: false
 
   /@shopify/react-native-skia@1.6.0(react@19.0.0):
     resolution: {integrity: sha512-w7Pg6w5N7/KMyPFeRtcXdTPSS9Eid3z15aBXjU3JHJBNoIQCNPwX8J0G2g8nTU+w/Vb34dFL00/Va45HEGUqBQ==}
@@ -17329,11 +17311,6 @@ packages:
 
   /canvaskit-wasm@0.39.1:
     resolution: {integrity: sha512-Gy3lCmhUdKq+8bvDrs9t8+qf7RvcjuQn+we7vTVVyqgOVO1UVfHpsnBxkTZw+R4ApEJ3D5fKySl9TU11hmjl/A==}
-    dependencies:
-      '@webgpu/types': 0.1.21
-
-  /canvaskit-wasm@0.40.0:
-    resolution: {integrity: sha512-Od2o+ZmoEw9PBdN/yCGvzfu0WVqlufBPEWNG452wY7E9aT8RBE+ChpZF526doOlg7zumO4iCS+RAeht4P0Gbpw==}
     dependencies:
       '@webgpu/types': 0.1.21
 
