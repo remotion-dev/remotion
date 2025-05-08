@@ -52,7 +52,7 @@ export const parseFmt = async ({
 			codec: format,
 			codecPrivate: null,
 			description: undefined,
-			codecWithoutConfig: format,
+			codecEnum: format,
 			numberOfChannels,
 			sampleRate,
 			timescale: 1_000_000,

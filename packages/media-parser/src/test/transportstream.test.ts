@@ -48,7 +48,7 @@ test('Transport stream', async () => {
 				trackId: 257,
 				trakBox: null,
 				timescale: 90000,
-				codecWithoutConfig: 'aac',
+				codecEnum: 'aac',
 				codec: 'mp4a.40.2',
 				description: undefined,
 				numberOfChannels: 2,
@@ -132,7 +132,7 @@ test('Transport stream', async () => {
 				displayAspectWidth: 720,
 				displayAspectHeight: 720,
 				trakBox: null,
-				codecWithoutConfig: 'h264',
+				codecEnum: 'h264',
 				description: undefined,
 				sampleAspectRatio: {
 					denominator: 1,

@@ -54,7 +54,7 @@ test('Stream samples', async () => {
 			matrixCoefficients: null,
 			primaries: null,
 		},
-		codecWithoutConfig: 'h264',
+		codecEnum: 'h264',
 		fps: 30,
 	});
 
@@ -192,7 +192,7 @@ test('Stream samples', async () => {
 		sampleRate: 48000,
 		description: undefined,
 		codecPrivate: null,
-		codecWithoutConfig: 'mp3',
+		codecEnum: 'mp3',
 	});
 	expect(
 		getSamplePositionsFromTrack({

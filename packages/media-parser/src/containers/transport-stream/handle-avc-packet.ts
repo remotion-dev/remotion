@@ -78,7 +78,7 @@ export const handleAvcPacket = async ({
 			displayAspectWidth: dimensions.width,
 			displayAspectHeight: dimensions.height,
 			trakBox: null,
-			codecWithoutConfig: 'h264',
+			codecEnum: 'h264',
 			description: undefined,
 			sampleAspectRatio: {
 				denominator: sampleAspectRatio.height,

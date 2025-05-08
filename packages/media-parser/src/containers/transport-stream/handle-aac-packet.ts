@@ -62,7 +62,7 @@ export const handleAacPacket = async ({
 			trackId: programId,
 			trakBox: null,
 			timescale: MPEG_TIMESCALE,
-			codecWithoutConfig: 'aac',
+			codecEnum: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),
 			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
 			description: undefined,

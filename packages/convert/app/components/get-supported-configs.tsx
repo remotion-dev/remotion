@@ -158,7 +158,7 @@ export const getSupportedConfigs = async ({
 		const audioTrackOperations: AudioOperation[] = [];
 
 		const canCopy = canCopyAudioTrack({
-			inputCodec: track.codecWithoutConfig,
+			inputCodec: track.codecEnum,
 			outputContainer: container,
 			inputContainer,
 		});
@@ -191,7 +191,7 @@ export const getSupportedConfigs = async ({
 		audioTrackOptions.push({
 			trackId: track.trackId,
 			operations: audioTrackOperations,
-			audioCodec: track.codecWithoutConfig,
+			audioCodec: track.codecEnum,
 		});
 	}
 

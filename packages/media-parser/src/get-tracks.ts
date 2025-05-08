@@ -69,7 +69,7 @@ export type VideoTrack = {
 	description: Uint8Array | undefined;
 	timescale: number;
 	codec: string;
-	codecWithoutConfig: MediaParserVideoCodec;
+	codecEnum: MediaParserVideoCodec;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 	sampleAspectRatio: SampleAspectRatio;
 	width: number;
@@ -90,7 +90,7 @@ export type AudioTrack = {
 	trackId: number;
 	timescale: number;
 	codec: string;
-	codecWithoutConfig: MediaParserAudioCodec;
+	codecEnum: MediaParserAudioCodec;
 	numberOfChannels: number;
 	sampleRate: number;
 	description: Uint8Array | undefined;

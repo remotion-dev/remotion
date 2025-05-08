@@ -94,7 +94,7 @@ export const makeVideoTrackHandler =
 				color: track.color,
 				width: track.codedWidth,
 				height: track.codedHeight,
-				codec: track.codecWithoutConfig,
+				codec: track.codecEnum,
 				codecPrivate: track.codecPrivate,
 				timescale: track.timescale,
 			});

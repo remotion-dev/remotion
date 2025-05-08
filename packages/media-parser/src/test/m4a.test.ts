@@ -32,7 +32,7 @@ test('should work on voice note', async () => {
 				sampleRate: 48000,
 				description: new Uint8Array([17, 136]),
 				codecPrivate: new Uint8Array([17, 136]),
-				codecWithoutConfig: 'aac',
+				codecEnum: 'aac',
 			});
 
 			return () => {

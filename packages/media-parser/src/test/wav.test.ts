@@ -71,7 +71,7 @@ test('parse full wav', async () => {
 		{
 			codec: 'pcm-s16',
 			codecPrivate: null,
-			codecWithoutConfig: 'pcm-s16',
+			codecEnum: 'pcm-s16',
 			description: undefined,
 			numberOfChannels: 1,
 			sampleRate: 44100,

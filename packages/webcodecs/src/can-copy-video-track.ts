@@ -28,7 +28,7 @@ export const canCopyVideoTrack = ({
 		height: inputTrack.height,
 		resizeOperation,
 		rotation: rotationToApply,
-		videoCodec: inputTrack.codecWithoutConfig,
+		videoCodec: inputTrack.codecEnum,
 		width: inputTrack.width,
 	});
 	if (
@@ -39,16 +39,12 @@ export const canCopyVideoTrack = ({
 	}
 
 	if (outputContainer === 'webm') {
-		return (
-			inputTrack.codecWithoutConfig === 'vp8' ||
-			inputTrack.codecWithoutConfig === 'vp9'
-		);
+		return inputTrack.codecEnum === 'vp8' || inputTrack.codecEnum === 'vp9';
 	}
 
 	if (outputContainer === 'mp4') {
 		return (
-			(inputTrack.codecWithoutConfig === 'h264' ||
-				inputTrack.codecWithoutConfig === 'h265') &&
+			(inputTrack.codecEnum === 'h264' || inputTrack.codecEnum === 'h265') &&
 			(inputContainer === 'mp4' ||
 				inputContainer === 'avi' ||
 				(inputContainer === 'm3u8' && inputTrack.m3uStreamFormat === 'mp4'))

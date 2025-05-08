@@ -69,7 +69,7 @@ export const useThumbnailAndWaveform = ({
 					},
 				});
 
-				if (track.codecWithoutConfig === 'pcm-s16') {
+				if (track.codecEnum === 'pcm-s16') {
 					return (sample) => {
 						waveform.add(
 							new AudioData({

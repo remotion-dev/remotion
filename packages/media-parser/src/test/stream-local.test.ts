@@ -110,7 +110,7 @@ test('Should stream AV1', async () => {
 			matrixCoefficients: 'bt709',
 			primaries: 'bt709',
 		},
-		codecWithoutConfig: 'av1',
+		codecEnum: 'av1',
 		fps: null,
 	});
 	expect(parsed.tracks.audioTracks.length).toBe(0);
@@ -280,7 +280,7 @@ test(
 				matrixCoefficients: null,
 				primaries: null,
 			},
-			codecWithoutConfig: 'vp8',
+			codecEnum: 'vp8',
 			fps: null,
 		});
 		expect(parsed.tracks.audioTracks.length).toBe(1);
@@ -297,7 +297,7 @@ test(
 				79, 112, 117, 115, 72, 101, 97, 100, 1, 1, 0, 0, 128, 187, 0, 0, 0, 0,
 				0,
 			]),
-			codecWithoutConfig: 'opus',
+			codecEnum: 'opus',
 		});
 		expect(audioTracks).toBe(1);
 		expect(samples).toBe(381);
@@ -554,7 +554,7 @@ test('Stretched VP8', async () => {
 			matrixCoefficients: null,
 			primaries: null,
 		},
-		codecWithoutConfig: 'vp8',
+		codecEnum: 'vp8',
 		fps: null,
 	});
 });

@@ -91,7 +91,7 @@ export const parseMpegHeader = async ({
 				type: 'audio',
 				codec: 'mp3',
 				codecPrivate: null,
-				codecWithoutConfig: 'mp3',
+				codecEnum: 'mp3',
 				description: undefined,
 				numberOfChannels,
 				sampleRate,

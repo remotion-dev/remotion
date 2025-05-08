@@ -73,7 +73,7 @@ test('parse m3u8', async () => {
 				249, 101, 192, 91, 129, 1, 2, 160, 0, 0, 3, 0, 42, 131, 166, 128, 1,
 				227, 6, 50, 192, 1, 0, 4, 104, 234, 239, 44, 253, 248, 248, 0,
 			]),
-			codecWithoutConfig: 'h264',
+			codecEnum: 'h264',
 			codedHeight: 1000,
 			codedWidth: 1000,
 			color: {
@@ -102,7 +102,7 @@ test('parse m3u8', async () => {
 		{
 			codec: 'mp4a.40.2',
 			codecPrivate: new Uint8Array([9, 144]),
-			codecWithoutConfig: 'aac',
+			codecEnum: 'aac',
 			description: undefined,
 			numberOfChannels: 2,
 			sampleRate: 48000,

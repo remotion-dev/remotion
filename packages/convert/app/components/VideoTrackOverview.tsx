@@ -27,7 +27,7 @@ export const VideoTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{renderHumanReadableVideoCodec(track.codecWithoutConfig)}
+						{renderHumanReadableVideoCodec(track.codecEnum)}
 					</TableCell>
 				</TableRow>
 				<TableRow>

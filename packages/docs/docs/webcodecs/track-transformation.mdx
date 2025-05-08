@@ -56,7 +56,7 @@ await convertMedia({
   container: 'webm',
   audioCodec: 'opus',
   onVideoTrack: ({track}) => {
-    if (track.codecWithoutConfig === 'vp8') {
+    if (track.codecEnum === 'vp8') {
       return {type: 'copy'};
     }
 

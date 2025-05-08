@@ -44,7 +44,7 @@ test('webm with h264 and no codecprivate', async () => {
 			primaries: 'bt709',
 			fullRange: null,
 		},
-		codecWithoutConfig: 'h264',
+		codecEnum: 'h264',
 		fps: null,
 	});
 });

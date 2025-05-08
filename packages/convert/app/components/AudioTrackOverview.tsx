@@ -22,7 +22,7 @@ export const AudioTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{renderHumanReadableAudioCodec(track.codecWithoutConfig)}
+						{renderHumanReadableAudioCodec(track.codecEnum)}
 					</TableCell>
 				</TableRow>
 				<TableRow>

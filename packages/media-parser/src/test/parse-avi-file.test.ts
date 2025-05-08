@@ -78,7 +78,7 @@ test('AVI file', async () => {
 		{
 			codec: 'mp4a.40.2',
 			codecPrivate: new Uint8Array([18, 16]),
-			codecWithoutConfig: 'aac',
+			codecEnum: 'aac',
 			description: new Uint8Array([18, 16]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
@@ -144,7 +144,7 @@ test('AVI file', async () => {
 				248,
 				0,
 			]),
-			codecWithoutConfig: 'h264',
+			codecEnum: 'h264',
 			codedHeight: 270,
 			codedWidth: 480,
 			color: {

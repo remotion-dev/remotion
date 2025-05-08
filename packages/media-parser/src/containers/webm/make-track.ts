@@ -45,7 +45,7 @@ const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	return undefined;
 };
 
-const getMatroskaVideoCodecWithoutConfigString = ({
+const getMatroskaVideoCodecEnum = ({
 	codecSegment: codec,
 }: {
 	codecSegment: CodecIdSegment;
@@ -127,7 +127,7 @@ const getMatroskaVideoCodecString = ({
 	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
-export const getMatroskaAudioCodecWithoutConfigString = ({
+export const getMatroskaAudioCodecEnum = ({
 	track,
 }: {
 	track: TrackEntry;
@@ -334,7 +334,7 @@ export const getTrack = ({
 						primaries: null,
 						transferCharacteristics: null,
 					},
-			codecWithoutConfig: getMatroskaVideoCodecWithoutConfigString({
+			codecEnum: getMatroskaVideoCodecEnum({
 				codecSegment: codec,
 			}),
 			fps: null,
@@ -359,7 +359,7 @@ export const getTrack = ({
 			description: getAudioDescription(track),
 			trakBox: null,
 			codecPrivate,
-			codecWithoutConfig: getMatroskaAudioCodecWithoutConfigString({
+			codecEnum: getMatroskaAudioCodecEnum({
 				track,
 			}),
 		};

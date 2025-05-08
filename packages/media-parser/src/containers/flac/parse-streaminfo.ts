@@ -49,7 +49,7 @@ export const parseStreamInfo = async ({
 			type: 'audio',
 			description: asUint8Array,
 			codecPrivate: asUint8Array,
-			codecWithoutConfig: 'flac',
+			codecEnum: 'flac',
 			numberOfChannels: channels,
 			sampleRate,
 			timescale: 1_000_000,

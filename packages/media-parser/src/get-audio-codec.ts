@@ -31,7 +31,7 @@ export const getAudioCodec = (
 	}
 
 	if (audioTrack.type === 'audio') {
-		return audioTrack.codecWithoutConfig;
+		return audioTrack.codecEnum;
 	}
 
 	return null;

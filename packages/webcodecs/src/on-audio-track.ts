@@ -47,7 +47,7 @@ export const makeAudioTrackHandler =
 	}): OnAudioTrack =>
 	async ({track, container: inputContainer}) => {
 		const canCopyTrack = canCopyAudioTrack({
-			inputCodec: track.codecWithoutConfig,
+			inputCodec: track.codecEnum,
 			outputContainer,
 			inputContainer,
 		});
@@ -75,7 +75,7 @@ export const makeAudioTrackHandler =
 		if (audioOperation.type === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
-				codec: track.codecWithoutConfig,
+				codec: track.codecEnum,
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecPrivate,
@@ -83,7 +83,7 @@ export const makeAudioTrackHandler =
 			});
 			Log.verbose(
 				logLevel,
-				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecWithoutConfig} (${track.codec}) `,
+				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecEnum} (${track.codec}) `,
 			);
 
 			return async (audioSample) => {

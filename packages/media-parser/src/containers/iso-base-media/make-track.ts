@@ -59,10 +59,10 @@ export const makeBaseMediaTrack = (
 		const {codecString, description} = getAudioCodecStringFromTrak(trakBox);
 		const codecPrivate =
 			getCodecPrivateFromTrak(trakBox) ?? description ?? null;
-		const codecWithoutConfig = getAudioCodecFromTrack(trakBox);
+		const codecEnum = getAudioCodecFromTrack(trakBox);
 
 		const actual = getActualDecoderParameters({
-			audioCodec: codecWithoutConfig,
+			audioCodec: codecEnum,
 			codecPrivate,
 			numberOfChannels,
 			sampleRate,
@@ -78,7 +78,7 @@ export const makeBaseMediaTrack = (
 			description: actual.codecPrivate ?? undefined,
 			trakBox,
 			codecPrivate: actual.codecPrivate,
-			codecWithoutConfig,
+			codecEnum,
 		};
 	}
 
@@ -142,7 +142,7 @@ export const makeBaseMediaTrack = (
 			primaries: null,
 			transferCharacteristics: null,
 		},
-		codecWithoutConfig: getVideoCodecFromIsoTrak(trakBox),
+		codecEnum: getVideoCodecFromIsoTrak(trakBox),
 		fps: getFpsFromMp4TrakBox(trakBox),
 	};
 	return track;
