@@ -1,4 +1,4 @@
-import type {CanvasProps, SkiaDomView} from '@shopify/react-native-skia';
+import type {CanvasProps, SkDOM} from '@shopify/react-native-skia';
 import {Canvas} from '@shopify/react-native-skia';
 import type {FunctionComponent, ReactNode, RefAttributes} from 'react';
 import React, {useMemo} from 'react';
@@ -40,7 +40,7 @@ export const SkiaCanvas = ({
 	}, [mergedStyles, otherProps]);
 
 	const FixedCanvas = Canvas as FunctionComponent<
-		CanvasProps & RefAttributes<SkiaDomView>
+		CanvasProps & RefAttributes<SkDOM>
 	>;
 
 	return (
