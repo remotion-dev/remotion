@@ -212,6 +212,18 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 					<div style={title}>Navigation</div>
 					<Row align="center">
 						<div style={left}>
+							<kbd style={key}>PageUp</kbd>
+						</div>
+						<div style={right}>Previous composition</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>PageDown</kbd>
+						</div>
+						<div style={right}>Next composition</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
 							<kbd style={key}>R</kbd>
 						</div>
 						<div style={right}>Render composition</div>
