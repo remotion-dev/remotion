@@ -1,3 +1,5 @@
+import {getTracksFromMatroska} from '../containers/webm/get-ready-tracks';
+import {getMainSegment} from '../containers/webm/traversal';
 import {
 	needsToIterateOverEverySample,
 	needsToIterateOverSamples,
@@ -21,6 +23,30 @@ const getHasCallbacks = (state: ParserState) => {
 	return hasAllTracksAndNoCallbacks;
 };
 
+export const missesMatroskaTracks = (state: ParserState) => {
+	const struct = state.structure.getStructureOrNull();
+	if (struct === null) {
+		return false;
+	}
+
+	if (struct.type !== 'matroska') {
+		return false;
+	}
+
+	const mainSegment = getMainSegment(struct.boxes);
+
+	if (mainSegment === null) {
+		return false;
+	}
+
+	return (
+		getTracksFromMatroska({
+			structureState: state.structure,
+			webmState: state.webm,
+		}).missingInfo.length > 0
+	);
+};
+
 export const maySkipVideoData = ({state}: {state: ParserState}) => {
 	const hasCallbacks = getHasCallbacks(state);
 
@@ -29,7 +55,8 @@ export const maySkipVideoData = ({state}: {state: ParserState}) => {
 		!needsToIterateOverSamples({
 			emittedFields: state.emittedFields,
 			fields: state.fields,
-		})
+		}) &&
+		!missesMatroskaTracks(state)
 	);
 };
 
