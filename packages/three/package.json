@@ -31,7 +31,7 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@react-three/fiber": "9.0.0-rc.6",
+		"@react-three/fiber": "9.1.2",
 		"@types/react-reconciler": "0.28.8",
 		"@types/three": "0.170.0",
 		"@types/web": "0.0.166",
