@@ -5,7 +5,7 @@ import type {
 } from './containers/m3u/select-stream';
 import type {MediaParserController} from './controller/media-parser-controller';
 import type {Options, ParseMediaFields} from './fields';
-import type {Dimensions} from './get-dimensions';
+import type {MediaParserDimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
 	MediaParserAudioCodec,
@@ -93,7 +93,9 @@ export type MediaParserKeyframe = {
 export type ParseMediaCallbacksMandatory = {
 	onDimensions:
 		| null
-		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
+		| ((
+				dimensions: MediaParserDimensions | null,
+		  ) => unknown | Promise<unknown>);
 	onDurationInSeconds:
 		| null
 		| ((durationInSeconds: number | null) => unknown | Promise<unknown>);
@@ -115,7 +117,9 @@ export type ParseMediaCallbacksMandatory = {
 	onRotation: null | ((rotation: number | null) => unknown | Promise<unknown>);
 	onUnrotatedDimensions:
 		| null
-		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
+		| ((
+				dimensions: MediaParserDimensions | null,
+		  ) => unknown | Promise<unknown>);
 	onInternalStats:
 		| null
 		| ((internalStats: InternalStats) => unknown | Promise<unknown>);
@@ -164,7 +168,7 @@ export type ParseMediaCallbacksMandatory = {
 export type ParseMediaCallbacks = Partial<ParseMediaCallbacksMandatory>;
 
 export interface ParseMediaData {
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 	durationInSeconds: number | null;
 	slowDurationInSeconds: number;
 	slowFps: number;
@@ -174,7 +178,7 @@ export interface ParseMediaData {
 	audioCodec: MediaParserAudioCodec | null;
 	tracks: MediaParserTracks;
 	rotation: number | null;
-	unrotatedDimensions: Dimensions | null;
+	unrotatedDimensions: MediaParserDimensions | null;
 	isHdr: boolean;
 	internalStats: InternalStats;
 	size: number | null;

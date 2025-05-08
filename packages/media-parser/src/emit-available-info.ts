@@ -2,7 +2,7 @@ import {getM3uStreams} from './containers/m3u/get-streams';
 import type {Options, ParseMediaFields} from './fields';
 import {getAudioCodec} from './get-audio-codec';
 import {getContainer} from './get-container';
-import type {Dimensions} from './get-dimensions';
+import type {MediaParserDimensions} from './get-dimensions';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
@@ -135,7 +135,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'dimensions') {
 			if (hasInfo.dimensions && !emittedFields.dimensions) {
 				const dimensionsQueried = getDimensions(state);
-				const dimensions: Dimensions | null =
+				const dimensions: MediaParserDimensions | null =
 					dimensionsQueried === null
 						? null
 						: {
@@ -156,7 +156,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'unrotatedDimensions') {
 			if (hasInfo.unrotatedDimensions && !emittedFields.unrotatedDimensions) {
 				const dimensionsQueried = getDimensions(state);
-				const unrotatedDimensions: Dimensions | null =
+				const unrotatedDimensions: MediaParserDimensions | null =
 					dimensionsQueried === null
 						? null
 						: {

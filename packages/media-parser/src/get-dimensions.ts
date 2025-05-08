@@ -2,12 +2,12 @@ import {getTracks} from './get-tracks';
 import {isAudioStructure} from './is-audio-structure';
 import type {ParserState} from './state/parser-state';
 
-export type Dimensions = {
+export type MediaParserDimensions = {
 	width: number;
 	height: number;
 };
 
-export type ExpandedDimensions = Dimensions & {
+export type ExpandedDimensions = MediaParserDimensions & {
 	rotation: number;
 	unrotatedWidth: number;
 	unrotatedHeight: number;

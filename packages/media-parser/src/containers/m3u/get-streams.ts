@@ -1,4 +1,4 @@
-import type {Dimensions} from '../../get-dimensions';
+import type {MediaParserDimensions} from '../../get-dimensions';
 import type {ParseMediaSrc} from '../../options';
 import type {MediaParserStructureUnstable} from '../../parse-result';
 import type {ReaderInterface} from '../../readers/reader';
@@ -21,7 +21,7 @@ export type M3uStream = {
 	src: string;
 	bandwidth: number | null;
 	averageBandwidth: number | null;
-	resolution: Dimensions | null;
+	resolution: MediaParserDimensions | null;
 	codecs: string[] | null;
 	id: number;
 	associatedPlaylists: M3uAssociatedPlaylist[];

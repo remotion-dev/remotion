@@ -1,10 +1,10 @@
 import {Button} from '@/components/ui/button';
 import type {
-	Dimensions,
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserController,
+	MediaParserDimensions,
 	MediaParserLogLevel,
 	MediaParserTracks,
 	MediaParserVideoCodec,
@@ -86,8 +86,8 @@ const ConvertUI = ({
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
 	readonly tracks: MediaParserTracks | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-	readonly unrotatedDimensions: Dimensions | null;
-	readonly dimensions: Dimensions | null | undefined;
+	readonly unrotatedDimensions: MediaParserDimensions | null;
+	readonly dimensions: MediaParserDimensions | null | undefined;
 	readonly durationInSeconds: number | null;
 	readonly fps: number | null;
 	readonly rotation: number | null;

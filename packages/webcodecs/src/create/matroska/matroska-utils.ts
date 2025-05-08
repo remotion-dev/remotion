@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {
-	$InternalEbmlValue,
+	_InternalEbmlValue,
 	MediaParserInternalTypes,
 } from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
@@ -211,7 +211,7 @@ export type BytesAndOffset = {
 
 export type EbmlValueOrUint8Array<T extends MediaParserInternalTypes['Ebml']> =
 	| Uint8Array
-	| $InternalEbmlValue<T, PossibleEbmlOrUint8Array>;
+	| _InternalEbmlValue<T, PossibleEbmlOrUint8Array>;
 
 export type EbmlParsedOrUint8Array<T extends MediaParserInternalTypes['Ebml']> =
 	{

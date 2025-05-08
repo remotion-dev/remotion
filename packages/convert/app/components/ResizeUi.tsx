@@ -1,4 +1,4 @@
-import type {Dimensions} from '@remotion/media-parser';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo} from 'react';
 import {ResizeShortcuts} from './ResizeShortcuts';
@@ -36,8 +36,8 @@ const NumberInput: React.FC<{
 };
 
 export const ResizeUi: React.FC<{
-	readonly dimensions: Dimensions;
-	readonly originalDimensions: Dimensions;
+	readonly dimensions: MediaParserDimensions;
+	readonly originalDimensions: MediaParserDimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly setResizeMode: React.Dispatch<

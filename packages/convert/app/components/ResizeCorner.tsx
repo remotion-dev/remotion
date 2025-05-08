@@ -1,11 +1,11 @@
-import type {Dimensions} from '@remotion/media-parser';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
 
 export const ResizeCorner: React.FC<{
-	readonly innerDimensions: Dimensions;
-	readonly outerDimensions: Dimensions;
-	readonly videoDimensions: Dimensions;
+	readonly innerDimensions: MediaParserDimensions;
+	readonly outerDimensions: MediaParserDimensions;
+	readonly videoDimensions: MediaParserDimensions;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<ResizeOperation | null>
 	>;

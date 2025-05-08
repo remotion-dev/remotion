@@ -7,8 +7,9 @@ import type {
 	SelectM3uStreamFnOptions,
 } from '../containers/m3u/select-stream';
 import type {Seek} from '../controller/seek-signal';
-import type {Dimensions, ImageType} from '../errors';
+import type {ImageType} from '../errors';
 import type {Options, ParseMediaFields} from '../fields';
+import type {MediaParserDimensions} from '../get-dimensions';
 import type {MediaParserLocation} from '../get-location';
 import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
 import type {MediaParserMetadataEntry} from '../metadata/get-metadata';
@@ -124,7 +125,7 @@ type NotReadableError = BaseError & {
 type IsAnImageError = BaseError & {
 	errorName: 'IsAnImageError';
 	imageType: ImageType;
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 	mimeType: string | null;
 	sizeInBytes: number | null;
 	fileName: string | null;
@@ -174,11 +175,11 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'video-codec';
@@ -274,7 +275,7 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'video-codec';

@@ -4,7 +4,7 @@
  */
 
 import type {
-	AudioTrack,
+	MediaParserAudioTrack,
 	MediaParserInternalTypes,
 	MediaParserLogLevel,
 	MediaParserVideoTrack,
@@ -75,7 +75,7 @@ export type ConvertMediaOnVideoFrame = (options: {
 }) => Promise<VideoFrame> | VideoFrame;
 export type ConvertMediaOnAudioData = (options: {
 	audioData: AudioData;
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 }) => Promise<AudioData> | AudioData;
 
 export const convertMedia = async function <

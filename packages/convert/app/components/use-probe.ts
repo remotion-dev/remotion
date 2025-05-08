@@ -1,9 +1,9 @@
 import type {
-	Dimensions,
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserController,
+	MediaParserDimensions,
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
@@ -37,11 +37,11 @@ export const useProbe = ({
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
-	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
-		undefined,
-	);
+	const [dimensions, setDimensions] = useState<
+		MediaParserDimensions | undefined | null
+	>(undefined);
 	const [unrotatedDimensions, setUnrotatedDimensions] =
-		useState<Dimensions | null>(null);
+		useState<MediaParserDimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<
 		MediaParserVideoCodec | undefined | null

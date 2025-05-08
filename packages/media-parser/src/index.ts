@@ -27,7 +27,8 @@ import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
 import {makeParserState} from './state/parser-state';
-export {EbmlValue as $InternalEbmlValue};
+
+export {parseMedia} from './parse-media';
 
 export {
 	hasBeenAborted,
@@ -37,8 +38,8 @@ export {
 	MediaParserAbortError,
 } from './errors';
 export type {
-	MediaParserAudioTrack as AudioTrack,
 	MediaParserAudioCodec,
+	MediaParserAudioTrack,
 	MediaParserOtherTrack,
 	MediaParserTrack,
 	MediaParserVideoCodec,
@@ -60,7 +61,6 @@ export type {
 	ParseMediaProgress,
 	ParseMediaResult,
 } from './options';
-export {parseMedia} from './parse-media';
 export type {
 	AudioOrVideoSample,
 	OnAudioSample,
@@ -70,7 +70,7 @@ export type {
 } from './webcodec-sample-types';
 
 export type * from './codec-data';
-export type {Dimensions} from './get-dimensions';
+export type {MediaParserDimensions} from './get-dimensions';
 export type {MediaParserLocation} from './get-location';
 export type {ReaderInterface} from './readers/reader';
 
@@ -93,21 +93,6 @@ export const MediaParserInternals = {
 	fieldsNeedSamplesMap,
 };
 
-export type MediaParserInternalTypes = {
-	SamplePosition: SamplePosition;
-	MatroskaSegment: MatroskaSegment;
-	MatroskaElement: MatroskaElement;
-	WriterInterface: WriterInterface;
-	CreateContent: CreateContent;
-	Writer: Writer;
-	Ebml: Ebml;
-	FloatWithSize: FloatWithSize;
-	MainSegment: MainSegment;
-	PossibleEbml: PossibleEbml;
-	TrackEntry: TrackEntry;
-	UintWithSize: UintWithSize;
-};
-
 export type {MediaParserLogLevel};
 
 export {M3uAssociatedPlaylist, M3uStream} from './containers/m3u/get-streams';
@@ -123,3 +108,19 @@ export {
 	MediaParserController,
 } from './controller/media-parser-controller';
 export {VERSION} from './version';
+
+export type MediaParserInternalTypes = {
+	SamplePosition: SamplePosition;
+	MatroskaSegment: MatroskaSegment;
+	MatroskaElement: MatroskaElement;
+	WriterInterface: WriterInterface;
+	CreateContent: CreateContent;
+	Writer: Writer;
+	Ebml: Ebml;
+	FloatWithSize: FloatWithSize;
+	MainSegment: MainSegment;
+	PossibleEbml: PossibleEbml;
+	TrackEntry: TrackEntry;
+	UintWithSize: UintWithSize;
+};
+export {EbmlValue as _InternalEbmlValue};

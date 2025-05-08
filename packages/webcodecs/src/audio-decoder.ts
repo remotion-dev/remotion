@@ -1,6 +1,6 @@
 import type {
 	AudioOrVideoSample,
-	AudioTrack,
+	MediaParserAudioTrack,
 	MediaParserLogLevel,
 } from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
@@ -21,7 +21,7 @@ export type CreateAudioDecoderInit = {
 	controller: WebCodecsController;
 	config: AudioDecoderConfig;
 	logLevel: MediaParserLogLevel;
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	progressTracker: ProgressTracker;
 };
 
