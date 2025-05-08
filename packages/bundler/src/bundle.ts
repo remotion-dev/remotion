@@ -72,7 +72,12 @@ export const getConfig = ({
 	options?: LegacyBundleOptions;
 }) => {
 	return webpackConfig({
-		entry: require.resolve('@remotion/studio/renderEntry'),
+		entry: path.join(
+			require.resolve('@remotion/studio/renderEntry'),
+			'..',
+			'esm',
+			'renderEntry.mjs',
+		),
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production',
