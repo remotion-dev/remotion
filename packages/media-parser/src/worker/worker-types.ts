@@ -126,6 +126,7 @@ type IsAGifError = BaseError & {
 	mimeType: string | null;
 	sizeInBytes: number | null;
 	fileName: string | null;
+	dimensions: Dimensions | null;
 };
 
 type IsAnImageError = BaseError & {

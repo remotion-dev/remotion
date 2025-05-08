@@ -155,6 +155,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 				mimeType,
 				sizeInBytes: contentLength,
 				fileName: name,
+				dimensions: fileType.dimensions,
 			}),
 		);
 	}

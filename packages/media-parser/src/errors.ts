@@ -2,16 +2,19 @@ export class IsAGifError extends Error {
 	public mimeType: string | null;
 	public sizeInBytes: number | null;
 	public fileName: string | null;
+	public dimensions: Dimensions | null;
 
 	constructor({
 		message,
 		mimeType,
 		sizeInBytes,
+		dimensions,
 		fileName,
 	}: {
 		message: string;
 		mimeType: string | null;
 		sizeInBytes: number | null;
+		dimensions: Dimensions | null;
 		fileName: string | null;
 	}) {
 		super(message);
@@ -19,6 +22,7 @@ export class IsAGifError extends Error {
 		this.fileName = 'IsAGifError';
 		this.mimeType = mimeType;
 		this.sizeInBytes = sizeInBytes;
+		this.dimensions = dimensions;
 		this.fileName = fileName;
 
 		if (Error.captureStackTrace) {

@@ -28,6 +28,7 @@ export const serializeError = ({
 			mimeType: error.mimeType,
 			sizeInBytes: error.sizeInBytes,
 			fileName: error.fileName,
+			dimensions: error.dimensions,
 		};
 	}
 
@@ -108,6 +109,7 @@ export const deserializeError = (error: ResponseError): Error => {
 				mimeType: error.mimeType,
 				sizeInBytes: error.sizeInBytes,
 				message: error.errorMessage,
+				dimensions: error.dimensions,
 			});
 		case 'IsAnImageError':
 			return new IsAnImageError({

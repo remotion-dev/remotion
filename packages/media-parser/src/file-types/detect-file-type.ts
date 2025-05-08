@@ -1,3 +1,4 @@
+import type {Dimensions} from '../get-dimensions';
 import type {BmpType} from './bmp';
 import type {JpegType} from './jpeg';
 import type {PdfType} from './pdf';
@@ -65,12 +66,6 @@ export const isMp3 = (data: Uint8Array) => {
 	);
 };
 
-export const isGif = (data: Uint8Array) => {
-	const gifPattern = new Uint8Array([0x47, 0x49, 0x46, 0x38]);
-
-	return matchesPattern(gifPattern)(data.subarray(0, 4));
-};
-
 export const isAac = (data: Uint8Array) => {
 	const aacPattern = new Uint8Array([0xff, 0xf1]);
 
@@ -117,6 +112,7 @@ export type WavType = {
 
 export type GifType = {
 	type: 'gif';
+	dimensions: Dimensions;
 };
 
 export type FlacType = {
