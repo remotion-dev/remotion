@@ -9,6 +9,7 @@ import {
 	ebmlMap,
 	matroskaElements,
 } from './containers/webm/segments/all-segments';
+import type {SamplePosition} from './get-sample-positions';
 import {internalParseMedia} from './internal-parse-media';
 import {getArrayBufferIterator} from './iterator/buffer-iterator';
 import type {LogLevel} from './log';
@@ -24,7 +25,6 @@ export {
 	IsAPdfError,
 	MediaParserAbortError,
 } from './errors';
-export type {SamplePosition} from './get-sample-positions';
 export type {
 	MediaParserAudioTrack as AudioTrack,
 	MediaParserAudioCodec,
@@ -80,6 +80,10 @@ export const MediaParserInternals = {
 	parseMvhd,
 	internalParseMedia,
 	fieldsNeedSamplesMap,
+};
+
+export type MediaParserInternalTypes = {
+	SamplePosition: SamplePosition;
 };
 
 export type {Prettify} from './containers/webm/parse-ebml';
