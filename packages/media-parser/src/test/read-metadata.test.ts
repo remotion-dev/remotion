@@ -114,15 +114,22 @@ test('AVI metadata', async () => {
 });
 
 test('Metadata from Matroska', async () => {
-	const {metadata} = await parseMedia({
+	const {metadata, internalStats} = await parseMedia({
 		src: exampleVideos.matroskaPcm16,
 		fields: {
 			metadata: true,
 			structure: true,
+			internalStats: true,
 		},
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
+
+	expect(internalStats).toEqual({
+		finalCursorOffset: 75328,
+		skippedBytes: 74506,
+	});
+
 	expect(metadata).toEqual([
 		{
 			key: 'comment',

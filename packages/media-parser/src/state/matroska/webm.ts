@@ -183,7 +183,7 @@ export const webmState = ({
 		},
 		isInsideCluster: (offset: number): ClusterSection | null => {
 			for (const cluster of clusters) {
-				if (offset >= cluster.start && offset <= cluster.start + cluster.size) {
+				if (offset >= cluster.start && offset < cluster.start + cluster.size) {
 					return cluster;
 				}
 			}

@@ -1,4 +1,6 @@
 import type {ParseResult} from '../../parse-result';
+import {makeSkip} from '../../skip';
+import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
 import {getByteForSeek} from './get-byte-for-cues';
 import {expectSegment} from './segments';
@@ -33,6 +35,15 @@ export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
 	}
 
 	if (isInsideCluster) {
+		if (maySkipVideoData({state})) {
+			return makeSkip(
+				Math.min(
+					state.contentLength,
+					isInsideCluster.size + isInsideCluster.start,
+				),
+			);
+		}
+
 		const segments = structure.boxes.filter((box) => box.type === 'Segment');
 		const segment = segments[isInsideCluster.segment];
 		if (!segment) {
