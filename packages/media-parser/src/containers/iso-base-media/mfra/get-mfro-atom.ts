@@ -3,7 +3,7 @@ import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
 import type {MediaParserLogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
-import type {ReaderInterface} from '../../../readers/reader';
+import type {MediaParserReaderInterface} from '../../../readers/reader';
 
 export const getMfroAtom = async ({
 	src,
@@ -15,7 +15,7 @@ export const getMfroAtom = async ({
 }: {
 	src: ParseMediaSrc;
 	contentLength: number;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	controller: MediaParserController;
 	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;

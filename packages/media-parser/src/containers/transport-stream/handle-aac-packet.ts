@@ -7,7 +7,7 @@ import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
 	MediaParserAudioSample,
-	OnAudioTrack,
+	MediaParserOnAudioTrack,
 } from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
@@ -28,7 +28,7 @@ export const handleAacPacket = async ({
 	offset: number;
 	sampleCallbacks: CallbacksState;
 	logLevel: MediaParserLogLevel;
-	onAudioTrack: OnAudioTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {

@@ -1,7 +1,7 @@
 import type {MediaParserDimensions} from '../../get-dimensions';
 import type {ParseMediaSrc} from '../../options';
 import type {MediaParserStructureUnstable} from '../../parse-result';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import type {ParserState} from '../../state/parser-state';
 import type {M3uMediaInfo} from './types';
 
@@ -47,7 +47,7 @@ export const getM3uStreams = ({
 }: {
 	structure: MediaParserStructureUnstable | null;
 	originalSrc: ParseMediaSrc;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 }): M3uStream[] | null => {
 	if (structure === null || structure.type !== 'm3u') {
 		return null;

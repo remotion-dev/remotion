@@ -5,7 +5,7 @@ import type {MediaParserController} from '../../controller/media-parser-controll
 import type {PrefetchCache} from '../../fetch';
 import type {MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 
 export const lazyIdx1Fetch = ({
 	controller,
@@ -16,7 +16,7 @@ export const lazyIdx1Fetch = ({
 }: {
 	controller: MediaParserController;
 	logLevel: MediaParserLogLevel;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	prefetchCache: PrefetchCache;
 }) => {

@@ -1,30 +1,31 @@
 import type {MediaParserAudioTrack, MediaParserVideoTrack} from './get-tracks';
 import type {MediaParserContainer} from './options';
 
-export type OnAudioSample = (
+export type MediaParserOnAudioSample = (
 	sample: MediaParserAudioSample,
 ) => void | Promise<void>;
-export type OnVideoSample = (
+
+export type MediaParserOnVideoSample = (
 	sample: MediaParserVideoSample,
 ) => void | Promise<void>;
 
-export type OnAudioTrackParams = {
+export type MediaParserOnAudioTrackParams = {
 	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
 };
 
-export type OnAudioTrack = (
-	options: OnAudioTrackParams,
-) => OnAudioSample | Promise<OnAudioSample | null> | null;
+export type MediaParserOnAudioTrack = (
+	options: MediaParserOnAudioTrackParams,
+) => MediaParserOnAudioSample | Promise<MediaParserOnAudioSample | null> | null;
 
-export type OnVideoTrackParams = {
+export type MediaParserOnVideoTrackParams = {
 	track: MediaParserVideoTrack;
 	container: MediaParserContainer;
 };
 
-export type OnVideoTrack = (
-	options: OnVideoTrackParams,
-) => OnVideoSample | Promise<OnVideoSample | null> | null;
+export type MediaParserOnVideoTrack = (
+	options: MediaParserOnVideoTrackParams,
+) => MediaParserOnVideoSample | Promise<MediaParserOnVideoSample | null> | null;
 
 // These types are the same, but maybe we add more info in the future
 // Therefore keeping it separate for now

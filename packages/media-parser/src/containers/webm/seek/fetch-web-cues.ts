@@ -3,7 +3,7 @@ import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
 import type {MediaParserLogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
-import type {ReaderInterface} from '../../../readers/reader';
+import type {MediaParserReaderInterface} from '../../../readers/reader';
 import {expectSegment} from '../segments';
 import type {PossibleEbml} from '../segments/all-segments';
 import type {MatroskaCue} from './format-cues';
@@ -18,7 +18,7 @@ export const fetchWebmCues = async ({
 	prefetchCache,
 }: {
 	src: ParseMediaSrc;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	controller: MediaParserController;
 	position: number;
 	logLevel: MediaParserLogLevel;

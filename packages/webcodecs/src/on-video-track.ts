@@ -1,4 +1,7 @@
-import type {MediaParserLogLevel, OnVideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserLogLevel,
+	MediaParserOnVideoTrack,
+} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {canCopyVideoTrack} from './can-copy-video-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
@@ -48,9 +51,11 @@ export const makeVideoTrackHandler =
 		rotate: number;
 		progress: ProgressTracker;
 		resizeOperation: ResizeOperation | null;
-	}): OnVideoTrack =>
+	}): MediaParserOnVideoTrack =>
 	async ({track, container: inputContainer}) => {
-		if (controller._internals.signal.aborted) {
+		if (
+			controller._internals._mediaParserController._internals.signal.aborted
+		) {
 			throw new Error('Aborted');
 		}
 

@@ -19,11 +19,14 @@ import type {
 	IsoBaseMediaStructure,
 	MediaParserStructureUnstable,
 } from './parse-result';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {SeekingHints} from './seeking-hints';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
-import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from './webcodec-sample-types';
 import type {WriterInterface} from './writers/writer';
 
 export type KnownAudioCodecs =
@@ -219,7 +222,7 @@ export type ParseMediaOnProgress = (
 ) => void | Promise<void>;
 
 type ReaderParams = {
-	reader: ReaderInterface;
+	reader: MediaParserReaderInterface;
 };
 
 export type M3uPlaylistContext = {
@@ -248,8 +251,8 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =
 	};
 
 type ParseMediaSampleCallbacks = {
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 };
 
 export type ParseMediaMode = 'query' | 'download';

@@ -2,7 +2,10 @@ import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
 import type {SeekingHints} from './seeking-hints';
-import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
+import type {
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from './webcodec-sample-types';
 import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
 import {deserializeError} from './worker/serialize-error';
@@ -153,7 +156,10 @@ export const parseMediaOnWorkerImplementation = async <
 		return prom.promise;
 	});
 
-	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
+	const callbacks: Record<
+		number,
+		MediaParserOnAudioSample | MediaParserOnVideoSample
+	> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;

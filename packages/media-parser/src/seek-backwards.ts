@@ -4,7 +4,7 @@ import type {BufferIterator} from './iterator/buffer-iterator';
 import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {ParseMediaSrc} from './options';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
 
 export const seekBackwards = async ({
@@ -19,7 +19,7 @@ export const seekBackwards = async ({
 }: {
 	iterator: BufferIterator;
 	seekTo: number;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	controller: MediaParserController;
 	logLevel: MediaParserLogLevel;

@@ -4,7 +4,7 @@ import type {MediaParserController} from '../../controller/media-parser-controll
 import type {PrefetchCache} from '../../fetch';
 import {Log, type MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 
 export const lazyMfraLoad = ({
@@ -17,7 +17,7 @@ export const lazyMfraLoad = ({
 }: {
 	contentLength: number;
 	controller: MediaParserController;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;

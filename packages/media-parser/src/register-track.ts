@@ -10,7 +10,10 @@ import type {MediaParserContainer} from './options';
 import type {TracksState} from './state/has-tracks-section';
 import type {ParserState} from './state/parser-state';
 import type {CallbacksState} from './state/sample-callbacks';
-import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from './webcodec-sample-types';
 
 export const registerVideoTrack = async ({
 	track,
@@ -23,7 +26,7 @@ export const registerVideoTrack = async ({
 	track: MediaParserTrack;
 	container: MediaParserContainer;
 	logLevel: MediaParserLogLevel;
-	onVideoTrack: OnVideoTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
 	tracks: TracksState;
 }) => {
@@ -64,7 +67,7 @@ export const registerAudioTrack = async ({
 	container: MediaParserContainer;
 	tracks: TracksState;
 	logLevel: MediaParserLogLevel;
-	onAudioTrack: OnAudioTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
 	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 }) => {
 	if (tracks.getTracks().find((t) => t.trackId === track.trackId)) {

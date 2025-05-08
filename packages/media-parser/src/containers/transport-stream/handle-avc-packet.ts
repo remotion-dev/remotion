@@ -5,8 +5,8 @@ import {registerVideoTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
+	MediaParserOnVideoTrack,
 	MediaParserVideoSample,
-	OnVideoTrack,
 } from '../../webcodec-sample-types';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
@@ -37,7 +37,7 @@ export const handleAvcPacket = async ({
 	offset: number;
 	sampleCallbacks: CallbacksState;
 	logLevel: MediaParserLogLevel;
-	onVideoTrack: OnVideoTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {

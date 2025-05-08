@@ -6,7 +6,10 @@ import {sampleSorter} from '../containers/m3u/sample-sorter';
 import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {IsoBaseMediaStructure} from '../parse-result';
-import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
+import type {
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from '../webcodec-sample-types';
 
 export type M3uStreamOrInitialUrl =
 	| {
@@ -30,8 +33,10 @@ type M3uSeek = {
 export const m3uState = (logLevel: MediaParserLogLevel) => {
 	let selectedMainPlaylist: M3uStreamOrInitialUrl | null = null;
 	let associatedPlaylists: M3uAssociatedPlaylist[] | null = null;
-	const hasEmittedVideoTrack: Record<string, null | OnVideoSample> = {};
-	const hasEmittedAudioTrack: Record<string, null | OnAudioSample> = {};
+	const hasEmittedVideoTrack: Record<string, null | MediaParserOnVideoSample> =
+		{};
+	const hasEmittedAudioTrack: Record<string, null | MediaParserOnAudioSample> =
+		{};
 	const hasEmittedDoneWithTracks: Record<string, boolean> = {};
 	let hasFinishedManifest = false;
 
@@ -84,7 +89,10 @@ export const m3uState = (logLevel: MediaParserLogLevel) => {
 			selectedMainPlaylist = stream;
 		},
 		getSelectedMainPlaylist: () => selectedMainPlaylist,
-		setHasEmittedVideoTrack: (src: string, callback: OnVideoSample | null) => {
+		setHasEmittedVideoTrack: (
+			src: string,
+			callback: MediaParserOnVideoSample | null,
+		) => {
 			hasEmittedVideoTrack[src] = callback;
 		},
 		hasEmittedVideoTrack: (src: string) => {
@@ -95,7 +103,10 @@ export const m3uState = (logLevel: MediaParserLogLevel) => {
 
 			return value;
 		},
-		setHasEmittedAudioTrack: (src: string, callback: OnAudioSample | null) => {
+		setHasEmittedAudioTrack: (
+			src: string,
+			callback: MediaParserOnAudioSample | null,
+		) => {
 			hasEmittedAudioTrack[src] = callback;
 		},
 		hasEmittedAudioTrack: (src: string) => {

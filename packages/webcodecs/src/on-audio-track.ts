@@ -1,7 +1,7 @@
 import {
 	MediaParserInternals,
 	type MediaParserLogLevel,
-	type OnAudioTrack,
+	type MediaParserOnAudioTrack,
 } from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
@@ -44,7 +44,7 @@ export const makeAudioTrackHandler =
 		outputContainer: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
 		onAudioData: ConvertMediaOnAudioData | null;
-	}): OnAudioTrack =>
+	}): MediaParserOnAudioTrack =>
 	async ({track, container: inputContainer}) => {
 		const canCopyTrack = canCopyAudioTrack({
 			inputCodec: track.codecEnum,

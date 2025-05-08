@@ -2,7 +2,10 @@ import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
-import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
 import type {TransportStreamEntry} from './parse-pmt';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
@@ -45,8 +48,8 @@ export const processAudio = async ({
 	structure: TransportStreamStructure;
 	sampleCallbacks: CallbacksState;
 	logLevel: MediaParserLogLevel;
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	offset: number;
 	makeSamplesStartAtZero: boolean;

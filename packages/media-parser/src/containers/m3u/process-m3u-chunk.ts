@@ -8,7 +8,10 @@ import {parseMedia} from '../../parse-media';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import {type M3uRun} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
-import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from '../../webcodec-sample-types';
 import {withResolvers} from '../../with-resolvers';
 import {considerSeekBasedOnChunk} from './first-sample-in-m3u-chunk';
 import {getChunks} from './get-chunks';
@@ -37,7 +40,9 @@ export const processM3uChunk = ({
 
 	const onGlobalAudioTrack = audioDone
 		? null
-		: async (track: MediaParserAudioTrack): Promise<OnAudioSample | null> => {
+		: async (
+				track: MediaParserAudioTrack,
+			): Promise<MediaParserOnAudioSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
 				let {trackId} = track;
 				while (existingTracks.find((t) => t.trackId === trackId)) {
@@ -74,7 +79,9 @@ export const processM3uChunk = ({
 
 	const onGlobalVideoTrack = videoDone
 		? null
-		: async (track: MediaParserVideoTrack): Promise<OnVideoSample | null> => {
+		: async (
+				track: MediaParserVideoTrack,
+			): Promise<MediaParserOnVideoSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
 				let {trackId} = track;
 				while (existingTracks.find((t) => t.trackId === trackId)) {

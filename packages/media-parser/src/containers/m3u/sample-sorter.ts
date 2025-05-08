@@ -2,9 +2,9 @@ import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {
 	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
 	MediaParserVideoSample,
-	OnAudioSample,
-	OnVideoSample,
 } from '../../webcodec-sample-types';
 
 export const sampleSorter = ({
@@ -15,8 +15,8 @@ export const sampleSorter = ({
 	getAllChunksProcessedForPlaylist: (src: string) => boolean;
 }) => {
 	const streamsWithTracks: string[] = [];
-	const audioCallbacks: Record<string, OnAudioSample> = {};
-	const videoCallbacks: Record<string, OnVideoSample> = {};
+	const audioCallbacks: Record<string, MediaParserOnAudioSample> = {};
+	const videoCallbacks: Record<string, MediaParserOnVideoSample> = {};
 	let latestSample: Record<string, number> = {};
 
 	return {
@@ -26,10 +26,16 @@ export const sampleSorter = ({
 		addToStreamWithTrack: (src: string) => {
 			streamsWithTracks.push(src);
 		},
-		addVideoStreamToConsider: (src: string, callback: OnVideoSample) => {
+		addVideoStreamToConsider: (
+			src: string,
+			callback: MediaParserOnVideoSample,
+		) => {
 			videoCallbacks[src] = callback;
 		},
-		addAudioStreamToConsider: (src: string, callback: OnAudioSample) => {
+		addAudioStreamToConsider: (
+			src: string,
+			callback: MediaParserOnAudioSample,
+		) => {
 			audioCallbacks[src] = callback;
 		},
 		hasAudioStreamToConsider: (src: string) => {

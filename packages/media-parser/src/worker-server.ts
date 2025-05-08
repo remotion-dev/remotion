@@ -4,7 +4,7 @@ import {
 } from './containers/m3u/select-stream';
 import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {SeekingHints} from './seeking-hints';
 import {withResolvers} from './with-resolvers';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller-to-worker';
@@ -60,7 +60,7 @@ const executeCallback = (payload: ResponseCallbackPayload) => {
 
 const startParsing = async (
 	message: ParseMediaOnWorkerPayload,
-	reader: ReaderInterface,
+	reader: MediaParserReaderInterface,
 ) => {
 	const {payload, src} = message;
 	const {
@@ -460,7 +460,7 @@ const onMessageForWorker = forwardMediaParserControllerToWorker(controller);
 
 export const messageHandler = (
 	message: MessageEvent,
-	readerInterface: ReaderInterface,
+	readerInterface: MediaParserReaderInterface,
 ) => {
 	const data = message.data as WorkerRequestPayload;
 

@@ -28,9 +28,9 @@ import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
 	MediaParserAudioSample,
+	MediaParserOnAudioTrackParams,
+	MediaParserOnVideoTrackParams,
 	MediaParserVideoSample,
-	OnAudioTrackParams,
-	OnVideoTrackParams,
 } from '../webcodec-sample-types';
 
 export type ParseMediaOnWorkerPayload = {
@@ -296,11 +296,11 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'on-audio-track';
-			value: OnAudioTrackParams;
+			value: MediaParserOnAudioTrackParams;
 	  }
 	| {
 			callbackType: 'on-video-track';
-			value: OnVideoTrackParams;
+			value: MediaParserOnVideoTrackParams;
 	  }
 	| {
 			callbackType: 'on-audio-sample';

@@ -1,7 +1,7 @@
 import type {
 	CreateAdjacentFileSource,
+	MediaParserReaderInterface,
 	ReadContent,
-	ReaderInterface,
 	ReadWholeAsText,
 } from './reader';
 
@@ -57,7 +57,7 @@ export const webFileCreateAdjacentFileSource: CreateAdjacentFileSource = () => {
 	throw new Error('`webFileReader` cannot create adjacent file sources.');
 };
 
-export const webFileReader: ReaderInterface = {
+export const webFileReader: MediaParserReaderInterface = {
 	read: webFileReadContent,
 	readWholeAsText: webFileReadWholeAsText,
 	createAdjacentFileSource: webFileCreateAdjacentFileSource,

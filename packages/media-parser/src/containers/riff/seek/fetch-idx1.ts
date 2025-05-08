@@ -3,7 +3,7 @@ import type {PrefetchCache} from '../../../fetch';
 import {getArrayBufferIterator} from '../../../iterator/buffer-iterator';
 import {Log, type MediaParserLogLevel} from '../../../log';
 import type {ParseMediaSrc} from '../../../options';
-import type {ReaderInterface} from '../../../readers/reader';
+import type {MediaParserReaderInterface} from '../../../readers/reader';
 import {expectRiffBox} from '../expect-riff-box';
 
 export const fetchIdx1 = async ({
@@ -15,7 +15,7 @@ export const fetchIdx1 = async ({
 	prefetchCache,
 }: {
 	src: ParseMediaSrc;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	controller: MediaParserController;
 	position: number;
 	logLevel: MediaParserLogLevel;

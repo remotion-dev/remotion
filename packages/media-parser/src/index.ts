@@ -25,6 +25,7 @@ import {internalParseMedia} from './internal-parse-media';
 import {getArrayBufferIterator} from './iterator/buffer-iterator';
 import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
+import type {ParseMediaCallbacks} from './options';
 import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
 import {makeParserState} from './state/parser-state';
 
@@ -55,7 +56,6 @@ export type {Options, ParseMediaFields} from './fields';
 export type {
 	MediaParserContainer,
 	MediaParserTracks,
-	ParseMediaCallbacks,
 	ParseMediaOnProgress,
 	ParseMediaOptions,
 	ParseMediaProgress,
@@ -63,20 +63,28 @@ export type {
 } from './options';
 export type {
 	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnAudioTrack,
+	MediaParserOnAudioTrackParams,
+	MediaParserOnVideoSample,
+	MediaParserOnVideoTrack,
+	MediaParserOnVideoTrackParams,
 	MediaParserVideoSample,
-	OnAudioSample,
-	OnAudioTrack,
-	OnVideoSample,
-	OnVideoTrack,
 } from './webcodec-sample-types';
 
-export type * from './codec-data';
+export type {MediaParserCodecData} from './codec-data';
 export type {MediaParserDimensions} from './get-dimensions';
 export type {MediaParserLocation} from './get-location';
-export type {ReaderInterface} from './readers/reader';
+/**
+ * @deprecated This type is not stable.
+ */
+export type {MediaParserReaderInterface} from './readers/reader';
 
 import type {CreateContent, Writer, WriterInterface} from './writers/writer';
 
+/**
+ * @deprecated Dont use these yet.
+ */
 export const MediaParserInternals = {
 	Log,
 	createAacCodecPrivate,
@@ -112,6 +120,9 @@ export {VERSION} from './version';
 
 export type {MediaParserSampleAspectRatio} from './get-tracks';
 
+/**
+ * @deprecated Dont use these yet.
+ */
 export type MediaParserInternalTypes = {
 	SamplePosition: SamplePosition;
 	MatroskaSegment: MatroskaSegment;
@@ -125,5 +136,14 @@ export type MediaParserInternalTypes = {
 	PossibleEbml: PossibleEbml;
 	TrackEntry: TrackEntry;
 	UintWithSize: UintWithSize;
+	ParseMediaCallbacks: ParseMediaCallbacks;
 };
-export {EbmlValue as _InternalEbmlValue};
+/**
+ * @deprecated Dont use this yet.
+ */
+type _InternalEbmlValue<T extends Ebml, Child = PossibleEbml> = EbmlValue<
+	T,
+	Child
+>;
+
+export {_InternalEbmlValue};

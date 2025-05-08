@@ -6,8 +6,8 @@ import type {CallbacksState} from '../../state/sample-callbacks';
 import type {StructureState} from '../../state/structure';
 import type {
 	MediaParserAudioSample,
+	MediaParserOnVideoTrack,
 	MediaParserVideoSample,
-	OnVideoTrack,
 } from '../../webcodec-sample-types';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';
@@ -49,7 +49,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	trackNumber: number;
 	logLevel: MediaParserLogLevel;
 	callbacks: CallbacksState;
-	onVideoTrack: OnVideoTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 }) => {
 	if (codec !== 'V_MPEG4/ISO/AVC') {
 		return;
@@ -111,7 +111,7 @@ export const getSampleFromBlock = async ({
 	structureState: StructureState;
 	callbacks: CallbacksState;
 	logLevel: MediaParserLogLevel;
-	onVideoTrack: OnVideoTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 }): Promise<SampleResult> => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
 	const trackNumber = iterator.getVint();

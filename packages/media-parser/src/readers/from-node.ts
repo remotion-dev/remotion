@@ -2,9 +2,9 @@ import {createReadStream, existsSync, promises, statSync} from 'fs';
 import {dirname, join, relative, sep} from 'path';
 import type {
 	CreateAdjacentFileSource,
+	MediaParserReaderInterface,
 	ReadContent,
 	ReadWholeAsText,
-	ReaderInterface,
 } from './reader';
 
 export const nodeReadContent: ReadContent = async ({
@@ -131,7 +131,7 @@ export const nodeCreateAdjacentFileSource: CreateAdjacentFileSource = (
 	return result;
 };
 
-export const nodeReader: ReaderInterface = {
+export const nodeReader: MediaParserReaderInterface = {
 	read: nodeReadContent,
 	readWholeAsText: nodeReadWholeAsText,
 	createAdjacentFileSource: nodeCreateAdjacentFileSource,

@@ -45,7 +45,7 @@ export type CreateAdjacentFileSource = (
 	src: ParseMediaSrc,
 ) => string;
 
-export type ReaderInterface = {
+export type MediaParserReaderInterface = {
 	read: ReadContent;
 	readWholeAsText: ReadWholeAsText;
 	createAdjacentFileSource: CreateAdjacentFileSource;

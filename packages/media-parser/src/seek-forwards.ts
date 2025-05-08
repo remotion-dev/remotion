@@ -6,7 +6,7 @@ import type {BufferIterator} from './iterator/buffer-iterator';
 import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {ParseMediaSrc} from './options';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
 
 export const seekForward = async ({
@@ -28,7 +28,7 @@ export const seekForward = async ({
 	fields: Partial<AllOptions<ParseMediaFields>>;
 	logLevel: MediaParserLogLevel;
 	currentReader: CurrentReader;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	controller: MediaParserController;
 	discardReadBytes: (force: boolean) => Promise<void>;

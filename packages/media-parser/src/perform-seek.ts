@@ -5,7 +5,7 @@ import type {BufferIterator} from './iterator/buffer-iterator';
 import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {ParseMediaMode, ParseMediaSrc} from './options';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import {seekBackwards} from './seek-backwards';
 import {seekForward} from './seek-forwards';
 import type {CurrentReader} from './state/current-reader';
@@ -40,7 +40,7 @@ export const performSeek = async ({
 	contentLength: number;
 	seekInfiniteLoop: SeekInfiniteLoop;
 	currentReader: CurrentReader;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	fields: Partial<AllOptions<ParseMediaFields>>;
 	src: ParseMediaSrc;
 	discardReadBytes: (force: boolean) => Promise<void>;

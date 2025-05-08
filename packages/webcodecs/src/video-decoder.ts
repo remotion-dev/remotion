@@ -42,13 +42,19 @@ export const createVideoDecoder = ({
 			frame.close();
 		};
 
-		controller._internals.signal.addEventListener('abort', cleanup, {
-			once: true,
-		});
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			cleanup,
+			{
+				once: true,
+			},
+		);
 
 		outputQueue = outputQueue
 			.then(() => {
-				if (controller._internals.signal.aborted) {
+				if (
+					controller._internals._mediaParserController._internals.signal.aborted
+				) {
 					return;
 				}
 
@@ -61,7 +67,10 @@ export const createVideoDecoder = ({
 				onError(err);
 			})
 			.finally(() => {
-				controller._internals.signal.removeEventListener('abort', cleanup);
+				controller._internals._mediaParserController._internals.signal.removeEventListener(
+					'abort',
+					cleanup,
+				);
 				cleanup();
 			});
 
@@ -86,8 +95,11 @@ export const createVideoDecoder = ({
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		controller._internals.signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			onAbort,
+		);
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -99,7 +111,10 @@ export const createVideoDecoder = ({
 		close();
 	};
 
-	controller._internals.signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
 	videoDecoder.configure(config);
 

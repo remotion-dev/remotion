@@ -6,9 +6,9 @@ import {Log} from '../log';
 import type {ParseMediaSrc} from '../options';
 import type {
 	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
 	MediaParserVideoSample,
-	OnAudioSample,
-	OnVideoSample,
 } from '../webcodec-sample-types';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
@@ -42,8 +42,8 @@ export const callbacksState = ({
 	seekSignal: SeekSignal;
 	logLevel: MediaParserLogLevel;
 }) => {
-	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
-	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
+	const videoSampleCallbacks: Record<number, MediaParserOnVideoSample> = {};
+	const audioSampleCallbacks: Record<number, MediaParserOnAudioSample> = {};
 
 	const queuedAudioSamples: Record<number, MediaParserAudioSample[]> = {};
 	const queuedVideoSamples: Record<number, MediaParserVideoSample[]> = {};
@@ -60,7 +60,7 @@ export const callbacksState = ({
 	return {
 		registerVideoSampleCallback: async (
 			id: number,
-			callback: OnVideoSample | null,
+			callback: MediaParserOnVideoSample | null,
 		) => {
 			if (callback === null) {
 				delete videoSampleCallbacks[id];
@@ -148,7 +148,7 @@ export const callbacksState = ({
 		canSkipTracksState,
 		registerAudioSampleCallback: async (
 			id: number,
-			callback: OnAudioSample | null,
+			callback: MediaParserOnAudioSample | null,
 		) => {
 			if (callback === null) {
 				delete audioSampleCallbacks[id];

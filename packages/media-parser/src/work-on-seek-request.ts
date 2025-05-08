@@ -13,7 +13,7 @@ import type {
 	ParseMediaSrc,
 } from './options';
 import {performSeek} from './perform-seek';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {AacState} from './state/aac-state';
 import type {CurrentReader} from './state/current-reader';
 import type {FlacState} from './state/flac-state';
@@ -141,7 +141,7 @@ export type WorkOnSeekRequestOptions = {
 	structureState: StructureState;
 	src: ParseMediaSrc;
 	contentLength: number;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	mediaSection: MediaSectionState;
 	m3uPlaylistContext: M3uPlaylistContext | null;
 	transportStream: TransportStreamState;

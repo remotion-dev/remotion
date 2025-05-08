@@ -9,9 +9,9 @@ import {
 	webFileReadContent,
 	webFileReadWholeAsText,
 } from './from-web-file';
-import type {ReaderInterface} from './reader';
+import type {MediaParserReaderInterface} from './reader';
 
-export const webReader: ReaderInterface = {
+export const webReader: MediaParserReaderInterface = {
 	read: (params) => {
 		if (params.src instanceof Blob) {
 			return webFileReadContent(params);

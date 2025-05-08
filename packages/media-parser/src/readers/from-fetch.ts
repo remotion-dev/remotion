@@ -9,9 +9,9 @@ import {getLengthAndReader} from './fetch/get-body-and-reader';
 import {resolveUrl} from './fetch/resolve-url';
 import type {
 	CreateAdjacentFileSource,
+	MediaParserReaderInterface,
 	PreloadContent,
 	ReadContent,
-	ReaderInterface,
 	ReadWholeAsText,
 } from './reader';
 
@@ -337,7 +337,7 @@ export const fetchCreateAdjacentFileSource: CreateAdjacentFileSource = (
 	return new URL(relativePath, src).toString();
 };
 
-export const fetchReader: ReaderInterface = {
+export const fetchReader: MediaParserReaderInterface = {
 	read: fetchReadContent,
 	readWholeAsText: fetchReadWholeAsText,
 	createAdjacentFileSource: fetchCreateAdjacentFileSource,
