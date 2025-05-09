@@ -1,12 +1,12 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import type {Track} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserTrack} from '../../get-tracks';
+import type {MediaParserLogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
-	AudioOrVideoSample,
-	OnVideoTrack,
+	MediaParserOnVideoTrack,
+	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
@@ -18,6 +18,7 @@ import {
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import {getSpsAndPps} from '../avc/sps-and-pps';
+import {mediaParserAdvancedColorToWebCodecsColor} from '../iso-base-media/color-to-webcodecs-colors';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const MPEG_TIMESCALE = 90000;
@@ -36,8 +37,8 @@ export const handleAvcPacket = async ({
 	programId: number;
 	offset: number;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
-	onVideoTrack: OnVideoTrack | null;
+	logLevel: MediaParserLogLevel;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {
@@ -62,14 +63,18 @@ export const handleAvcPacket = async ({
 			newOffset: startOffset,
 		});
 
-		const track: Track = {
+		const codecPrivate = createSpsPpsData(spsAndPps);
+
+		const advancedColor = getVideoColorFromSps(spsAndPps.sps.spsData);
+
+		const track: MediaParserTrack = {
 			m3uStreamFormat: null,
 			rotation: 0,
 			trackId: programId,
 			type: 'video',
 			timescale: MPEG_TIMESCALE,
 			codec: getCodecStringFromSpsAndPps(spsAndPps.sps),
-			codecPrivate: createSpsPpsData(spsAndPps),
+			codecData: {type: 'avc-sps-pps', data: codecPrivate},
 			fps: null,
 			codedWidth: dimensions.width,
 			codedHeight: dimensions.height,
@@ -77,14 +82,17 @@ export const handleAvcPacket = async ({
 			width: dimensions.width,
 			displayAspectWidth: dimensions.width,
 			displayAspectHeight: dimensions.height,
-			trakBox: null,
-			codecWithoutConfig: 'h264',
+			codecEnum: 'h264',
+			// ChatGPT: In a transport stream (⁠.ts), H.264 video is always stored in Annex B format
+			// WebCodecs spec says that description must be undefined for Annex B format
+			// https://www.w3.org/TR/webcodecs-avc-codec-registration/#videodecoderconfig-description
 			description: undefined,
 			sampleAspectRatio: {
 				denominator: sampleAspectRatio.height,
 				numerator: sampleAspectRatio.width,
 			},
-			color: getVideoColorFromSps(spsAndPps.sps.spsData),
+			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
+			advancedColor,
 		};
 
 		await registerVideoTrack({
@@ -100,7 +108,7 @@ export const handleAvcPacket = async ({
 	const type = getKeyFrameOrDeltaFromAvcInfo(avc);
 
 	// sample for webcodecs needs to be in nano seconds
-	const sample: AudioOrVideoSample = {
+	const sample: MediaParserVideoSample = {
 		cts:
 			streamBuffer.pesHeader.pts -
 			transportStream.startOffset.getOffset(programId),

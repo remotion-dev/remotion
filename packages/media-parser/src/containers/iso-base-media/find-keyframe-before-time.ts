@@ -1,5 +1,5 @@
 import type {SamplePosition} from '../../get-sample-positions';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {MediaSection} from '../../state/video-section';
 
@@ -14,7 +14,7 @@ export const findKeyframeBeforeTime = ({
 	time: number;
 	timescale: number;
 	mediaSections: MediaSection[];
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	let videoByte = 0;
 	let videoSample: SamplePosition | null = null;

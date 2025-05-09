@@ -1,4 +1,4 @@
-import type {SamplePosition} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import {truthy} from '../../../../../truthy';
 import {combineUint8Arrays} from '../../../../matroska/matroska-utils';
 import {addSize, stringsToUint8Array} from '../../../primitives';
@@ -15,7 +15,7 @@ export const createStbl = ({
 	codecSpecificData,
 	isVideo,
 }: {
-	samplePositions: SamplePosition[];
+	samplePositions: MediaParserInternalTypes['SamplePosition'][];
 	codecSpecificData: Uint8Array;
 	isVideo: boolean;
 }) => {

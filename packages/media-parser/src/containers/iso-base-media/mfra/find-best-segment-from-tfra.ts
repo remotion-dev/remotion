@@ -1,4 +1,7 @@
-import type {AudioTrack, VideoTrack} from '../../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserVideoTrack,
+} from '../../../get-tracks';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import type {TfraBox, TfraEntry} from './tfra';
 
@@ -10,7 +13,7 @@ export const findBestSegmentFromTfra = ({
 }: {
 	mfra: IsoBaseMediaBox[];
 	time: number;
-	firstTrack: VideoTrack | AudioTrack;
+	firstTrack: MediaParserVideoTrack | MediaParserAudioTrack;
 	timescale: number;
 }) => {
 	const tfra = mfra.find(

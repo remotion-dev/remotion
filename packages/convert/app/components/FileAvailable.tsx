@@ -117,6 +117,7 @@ export const FileAvailable: React.FC<{
 										videoThumbnailRef={videoThumbnailRef}
 										rotation={probeResult.rotation}
 										probeController={probeResult.controller}
+										sampleRate={probeResult.sampleRate}
 									/>
 								</div>
 							</div>

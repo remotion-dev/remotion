@@ -3,27 +3,42 @@ import type {MediaParserKeyframe} from '../../options';
 import type {ParserState} from '../../state/parser-state';
 import {areSamplesComplete} from './are-samples-complete';
 import {getSamplePositionsFromTrack} from './get-sample-positions-from-track';
-import type {TrakBox} from './trak/trak';
-import {getMoofBoxes, getTfraBoxes} from './traversal';
+import {
+	getMoofBoxes,
+	getMoovFromFromIsoStructure,
+	getTfraBoxes,
+	getTrakBoxByTrackId,
+} from './traversal';
 
 export const getKeyframesFromIsoBaseMedia = (
 	state: ParserState,
 ): MediaParserKeyframe[] => {
-	const {videoTracks} = getTracksFromIsoBaseMedia({
+	const tracks = getTracksFromIsoBaseMedia({
 		isoState: state.iso,
 		m3uPlaylistContext: state.m3uPlaylistContext,
 		structure: state.structure,
 		mayUsePrecomputed: true,
 	});
+	const videoTracks = tracks.filter((t) => t.type === 'video');
 	const structure = state.structure.getIsoStructure();
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
 	const tfraBoxes = getTfraBoxes(structure.boxes);
 
+	const moov = getMoovFromFromIsoStructure(structure);
+	if (!moov) {
+		return [];
+	}
+
 	const allSamples = videoTracks.map((t): MediaParserKeyframe[] => {
 		const {timescale: ts} = t;
+		const trakBox = getTrakBoxByTrackId(moov, t.trackId);
+		if (!trakBox) {
+			return [];
+		}
+
 		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
-			trakBox: t.trakBox as TrakBox,
+			trakBox,
 			moofBoxes,
 			moofComplete: areSamplesComplete({
 				moofBoxes,

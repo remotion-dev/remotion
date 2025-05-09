@@ -12,7 +12,7 @@ export const videoFrameSorter = ({
 	const frames: VideoFrame[] = [];
 
 	const releaseFrame = async () => {
-		await controller._internals.checkForAbortAndPause();
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
 		const frame = frames.shift();
 		if (frame) {
@@ -57,10 +57,16 @@ export const videoFrameSorter = ({
 			await releaseFrame();
 		}
 
-		controller._internals.signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			onAbort,
+		);
 	};
 
-	controller._internals.signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
 	return {
 		inputFrame,

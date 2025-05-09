@@ -11,7 +11,7 @@ import {
 	getArrayBufferIterator,
 	type BufferIterator,
 } from '../iterator/buffer-iterator';
-import {Log, type LogLevel} from '../log';
+import {Log, type MediaParserLogLevel} from '../log';
 import type {
 	AllParseMediaFields,
 	M3uPlaylistContext,
@@ -21,8 +21,11 @@ import type {
 	ParseMediaResult,
 	ParseMediaSrc,
 } from '../options';
-import type {Reader, ReaderInterface} from '../readers/reader';
-import type {OnAudioTrack, OnVideoTrack} from '../webcodec-sample-types';
+import type {MediaParserReaderInterface, Reader} from '../readers/reader';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '../webcodec-sample-types';
 import {aacState} from './aac-state';
 import {currentReader} from './current-reader';
 import {emittedState} from './emitted-fields';
@@ -78,13 +81,13 @@ export const makeParserState = ({
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
 	controller: MediaParserController;
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	contentLength: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	mode: ParseMediaMode;
 	src: ParseMediaSrc;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	onDiscardedData: OnDiscardedData | null;
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectM3uAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;

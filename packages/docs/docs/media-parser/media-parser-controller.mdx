@@ -48,6 +48,10 @@ Resumes the download and parsing process.
 
 Aborts the download and parsing process.
 
+### `seek(timeInSeconds: number)`
+
+[Seeks to the best keyframe](/docs/media-parser/seeking) that comes before the time you specified.
+
 ### `getSeekingHints()`
 
 Returns a promise that resolves to the [seeking hints](/docs/media-parser/seeking-hints).
@@ -62,7 +66,7 @@ See events below.
 
 ## Events
 
-You can attach event listeners to the `mediaParserController` object.
+You can attach event listeners to the object returned by `mediaParserController()`.
 
 ```tsx twoslash title="Use events"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
@@ -85,7 +89,7 @@ controller.removeEventListener('pause', onPause);
 controller.removeEventListener('resume', onResume);
 ```
 
-The `mediaParserController` object emits the following events:
+It also emits the following events:
 
 ### `pause`
 

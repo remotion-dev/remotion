@@ -1,12 +1,19 @@
 import {addAvcProfileToTrack} from './add-avc-profile-to-track';
-import type {AudioTrack, Track, VideoTrack} from './get-tracks';
-import type {LogLevel} from './log';
+import type {
+	MediaParserAudioTrack,
+	MediaParserTrack,
+	MediaParserVideoTrack,
+} from './get-tracks';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {MediaParserContainer} from './options';
 import type {TracksState} from './state/has-tracks-section';
 import type {ParserState} from './state/parser-state';
 import type {CallbacksState} from './state/sample-callbacks';
-import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from './webcodec-sample-types';
 
 export const registerVideoTrack = async ({
 	track,
@@ -16,10 +23,10 @@ export const registerVideoTrack = async ({
 	registerVideoSampleCallback,
 	tracks,
 }: {
-	track: Track;
+	track: MediaParserTrack;
 	container: MediaParserContainer;
-	logLevel: LogLevel;
-	onVideoTrack: OnVideoTrack | null;
+	logLevel: MediaParserLogLevel;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
 	tracks: TracksState;
 }) => {
@@ -56,11 +63,11 @@ export const registerAudioTrack = async ({
 	onAudioTrack,
 	registerAudioSampleCallback,
 }: {
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
 	tracks: TracksState;
-	logLevel: LogLevel;
-	onAudioTrack: OnAudioTrack | null;
+	logLevel: MediaParserLogLevel;
+	onAudioTrack: MediaParserOnAudioTrack | null;
 	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 }) => {
 	if (tracks.getTracks().find((t) => t.trackId === track.trackId)) {
@@ -92,7 +99,7 @@ export const registerVideoTrackWhenProfileIsAvailable = ({
 	container,
 }: {
 	state: ParserState;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 	container: MediaParserContainer;
 }) => {
 	state.riff.registerOnAvcProfileCallback(async (profile) => {

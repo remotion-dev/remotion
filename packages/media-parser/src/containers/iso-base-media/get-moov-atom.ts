@@ -6,7 +6,10 @@ import {makeCanSkipTracksState} from '../../state/can-skip-tracks';
 import {makeTracksSectionState} from '../../state/has-tracks-section';
 import type {ParserState} from '../../state/parser-state';
 import {structureState} from '../../state/structure';
-import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '../../webcodec-sample-types';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {MoovBox} from './moov/moov';
 import {processBox} from './process-box';
@@ -39,7 +42,7 @@ export const getMoovAtom = async ({
 		prefetchCache: state.prefetchCache,
 	});
 
-	const onAudioTrack: OnAudioTrack | null = state.onAudioTrack
+	const onAudioTrack: MediaParserOnAudioTrack | null = state.onAudioTrack
 		? async ({track, container}) => {
 				await registerAudioTrack({
 					track,
@@ -54,7 +57,7 @@ export const getMoovAtom = async ({
 			}
 		: null;
 
-	const onVideoTrack: OnVideoTrack | null = state.onVideoTrack
+	const onVideoTrack: MediaParserOnVideoTrack | null = state.onVideoTrack
 		? async ({track, container}) => {
 				await registerVideoTrack({
 					track,
@@ -89,7 +92,7 @@ export const getMoovAtom = async ({
 
 	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers: false,
-		fields: {structure: true},
+		fields: {slowStructure: true},
 		hasVideoTrackHandlers: false,
 		structure: structureState(),
 	});

@@ -5,18 +5,32 @@ import {processIsoFormatBox} from './containers/iso-base-media/stsd/samples';
 import {parseStsd} from './containers/iso-base-media/stsd/stsd';
 import {parseTkhd} from './containers/iso-base-media/tkhd';
 import {parseEbml} from './containers/webm/parse-ebml';
+import type {MatroskaSegment} from './containers/webm/segments';
+import type {
+	Ebml,
+	EbmlValue,
+	FloatWithSize,
+	MainSegment,
+	MatroskaElement,
+	PossibleEbml,
+	TrackEntry,
+	UintWithSize,
+} from './containers/webm/segments/all-segments';
 import {
 	ebmlMap,
 	matroskaElements,
 } from './containers/webm/segments/all-segments';
+import type {SamplePosition} from './get-sample-positions';
 import {internalParseMedia} from './internal-parse-media';
 import {getArrayBufferIterator} from './iterator/buffer-iterator';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
+import type {ParseMediaCallbacks} from './options';
 import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
 import {makeParserState} from './state/parser-state';
-export type {MatroskaSegment} from './containers/webm/segments';
-export type {MatroskaElement} from './containers/webm/segments/all-segments';
+
+export {parseMedia} from './parse-media';
+
 export {
 	hasBeenAborted,
 	IsAnImageError,
@@ -24,16 +38,22 @@ export {
 	IsAPdfError,
 	MediaParserAbortError,
 } from './errors';
-export type {SamplePosition} from './get-sample-positions';
 export type {
-	AudioTrack,
+	MediaParserAdvancedColor,
 	MediaParserAudioCodec,
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserTrack,
 	MediaParserVideoCodec,
-	OtherTrack,
-	Track,
-	VideoTrack,
-	VideoTrackColorParams,
+	MediaParserVideoTrack,
 } from './get-tracks';
+
+export type {
+	MediaParserMatrixCoefficients,
+	MediaParserPrimaries,
+	MediaParserTransferCharacteristics,
+} from './containers/avc/color';
+
 export type {MediaParserMetadataEntry} from './metadata/get-metadata';
 export type {MediaParserKeyframe, ParseMediaSrc} from './options';
 export type {MediaParserEmbeddedImage} from './state/images';
@@ -42,28 +62,35 @@ export {downloadAndParseMedia} from './download-and-parse-media';
 export type {Options, ParseMediaFields} from './fields';
 export type {
 	MediaParserContainer,
-	MediaParserTracks,
-	ParseMediaCallbacks,
 	ParseMediaOnProgress,
 	ParseMediaOptions,
 	ParseMediaProgress,
 	ParseMediaResult,
 } from './options';
-export {parseMedia} from './parse-media';
 export type {
-	AudioOrVideoSample,
-	OnAudioSample,
-	OnAudioTrack,
-	OnVideoSample,
-	OnVideoTrack,
+	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnAudioTrack,
+	MediaParserOnAudioTrackParams,
+	MediaParserOnVideoSample,
+	MediaParserOnVideoTrack,
+	MediaParserOnVideoTrackParams,
+	MediaParserVideoSample,
 } from './webcodec-sample-types';
 
-export type {Dimensions} from './get-dimensions';
+export type {MediaParserCodecData} from './codec-data';
+export type {MediaParserDimensions} from './get-dimensions';
 export type {MediaParserLocation} from './get-location';
-export type {ReaderInterface} from './readers/reader';
+/**
+ * @deprecated This type is not stable.
+ */
+export type {MediaParserReaderInterface} from './readers/reader';
 
-export type {CreateContent, Writer, WriterInterface} from './writers/writer';
+import type {CreateContent, Writer, WriterInterface} from './writers/writer';
 
+/**
+ * @deprecated Dont use these yet.
+ */
 export const MediaParserInternals = {
 	Log,
 	createAacCodecPrivate,
@@ -81,18 +108,7 @@ export const MediaParserInternals = {
 	fieldsNeedSamplesMap,
 };
 
-export type {Prettify} from './containers/webm/parse-ebml';
-export type {
-	Ebml,
-	EbmlValue,
-	FloatWithSize,
-	MainSegment,
-	PossibleEbml,
-	TrackEntry,
-	UintWithSize,
-} from './containers/webm/segments/all-segments';
-export {MediaParserStructureUnstable} from './parse-result';
-export type {LogLevel};
+export type {MediaParserLogLevel};
 
 export {M3uAssociatedPlaylist, M3uStream} from './containers/m3u/get-streams';
 export {
@@ -107,3 +123,33 @@ export {
 	MediaParserController,
 } from './controller/media-parser-controller';
 export {VERSION} from './version';
+
+export type {MediaParserSampleAspectRatio} from './get-tracks';
+
+/**
+ * @deprecated Dont use these yet.
+ */
+export type MediaParserInternalTypes = {
+	SamplePosition: SamplePosition;
+	MatroskaSegment: MatroskaSegment;
+	MatroskaElement: MatroskaElement;
+	WriterInterface: WriterInterface;
+	CreateContent: CreateContent;
+	Writer: Writer;
+	Ebml: Ebml;
+	FloatWithSize: FloatWithSize;
+	MainSegment: MainSegment;
+	PossibleEbml: PossibleEbml;
+	TrackEntry: TrackEntry;
+	UintWithSize: UintWithSize;
+	ParseMediaCallbacks: ParseMediaCallbacks;
+};
+/**
+ * @deprecated Dont use this yet.
+ */
+type _InternalEbmlValue<T extends Ebml, Child = PossibleEbml> = EbmlValue<
+	T,
+	Child
+>;
+
+export {_InternalEbmlValue};

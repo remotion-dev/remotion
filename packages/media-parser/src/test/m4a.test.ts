@@ -19,10 +19,10 @@ test('should work on voice note', async () => {
 			container: true,
 			dimensions: true,
 			metadata: true,
-			structure: true,
+			slowStructure: true,
 		},
 		onAudioTrack: (track) => {
-			const {trakBox, ...trk} = track.track;
+			const trk = track.track;
 			expect(trk).toEqual({
 				type: 'audio',
 				trackId: 1,
@@ -31,8 +31,8 @@ test('should work on voice note', async () => {
 				numberOfChannels: 1,
 				sampleRate: 48000,
 				description: new Uint8Array([17, 136]),
-				codecPrivate: new Uint8Array([17, 136]),
-				codecWithoutConfig: 'aac',
+				codecData: {type: 'aac-config', data: new Uint8Array([17, 136])},
+				codecEnum: 'aac',
 			});
 
 			return () => {

@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
-import type {LogLevel} from '../../../log';
+import type {MediaParserLogLevel} from '../../../log';
 import type {BaseBox} from '../base-type';
 import type {Sample} from './samples';
 import {parseIsoFormatBoxes} from './samples';
@@ -20,7 +20,7 @@ export const parseStsd = async ({
 	offset: number;
 	size: number;
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	contentLength: number;
 }): Promise<StsdBox> => {
 	const version = iterator.getUint8();

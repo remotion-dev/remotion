@@ -108,12 +108,7 @@ export const Probe: React.FC<{
 	}, [setProbeDetails]);
 
 	const sortedTracks = useMemo(
-		() =>
-			tracks
-				? [...tracks.audioTracks, ...tracks.videoTracks].sort(
-						(a, b) => a.trackId - b.trackId,
-					)
-				: [],
+		() => (tracks ? tracks.slice().sort((a, b) => a.trackId - b.trackId) : []),
 		[tracks],
 	);
 

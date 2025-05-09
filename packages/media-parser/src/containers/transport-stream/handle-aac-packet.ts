@@ -1,13 +1,13 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import type {Track} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserAudioTrack} from '../../get-tracks';
+import type {MediaParserLogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
-	AudioOrVideoSample,
-	OnAudioTrack,
+	MediaParserAudioSample,
+	MediaParserOnAudioTrack,
 } from '../../webcodec-sample-types';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
@@ -27,8 +27,8 @@ export const handleAacPacket = async ({
 	programId: number;
 	offset: number;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
-	onAudioTrack: OnAudioTrack | null;
+	logLevel: MediaParserLogLevel;
+	onAudioTrack: MediaParserOnAudioTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {
@@ -56,16 +56,17 @@ export const handleAacPacket = async ({
 			newOffset: startOffset,
 		});
 
-		const track: Track = {
+		const track: MediaParserAudioTrack = {
 			type: 'audio',
-			codecPrivate,
+			codecData: {type: 'aac-config', data: codecPrivate},
 			trackId: programId,
-			trakBox: null,
 			timescale: MPEG_TIMESCALE,
-			codecWithoutConfig: 'aac',
+			codecEnum: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),
 			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
-			description: undefined,
+			// WebCodecs spec says that description should be given for AAC format
+			// ChatGPT says that Transport Streams are always AAC, not ADTS
+			description: codecPrivate,
 			numberOfChannels: channelConfiguration,
 			sampleRate,
 		};
@@ -79,7 +80,7 @@ export const handleAacPacket = async ({
 		});
 	}
 
-	const sample: AudioOrVideoSample = {
+	const sample: MediaParserAudioSample = {
 		cts:
 			streamBuffer.pesHeader.pts -
 			transportStream.startOffset.getOffset(programId),

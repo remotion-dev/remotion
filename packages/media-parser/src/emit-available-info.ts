@@ -2,7 +2,7 @@ import {getM3uStreams} from './containers/m3u/get-streams';
 import type {Options, ParseMediaFields} from './fields';
 import {getAudioCodec} from './get-audio-codec';
 import {getContainer} from './get-container';
-import type {Dimensions} from './get-dimensions';
+import type {MediaParserDimensions} from './get-dimensions';
 import {getDimensions} from './get-dimensions';
 import {getDuration} from './get-duration';
 import {getFps} from './get-fps';
@@ -39,14 +39,16 @@ export const emitAvailableInfo = async ({
 
 	for (const key of keys) {
 		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
-		if (key === 'structure') {
-			if (hasInfo.structure && !emittedFields.structure) {
-				await callbackFunctions.onStructure?.(state.structure.getStructure());
-				if (fieldsInReturnValue.structure) {
-					returnValue.structure = state.structure.getStructure();
+		if (key === 'slowStructure') {
+			if (hasInfo.slowStructure && !emittedFields.slowStructure) {
+				await callbackFunctions.onSlowStructure?.(
+					state.structure.getStructure(),
+				);
+				if (fieldsInReturnValue.slowStructure) {
+					returnValue.slowStructure = state.structure.getStructure();
 				}
 
-				emittedFields.structure = true;
+				emittedFields.slowStructure = true;
 			}
 
 			continue;
@@ -135,7 +137,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'dimensions') {
 			if (hasInfo.dimensions && !emittedFields.dimensions) {
 				const dimensionsQueried = getDimensions(state);
-				const dimensions: Dimensions | null =
+				const dimensions: MediaParserDimensions | null =
 					dimensionsQueried === null
 						? null
 						: {
@@ -156,7 +158,7 @@ export const emitAvailableInfo = async ({
 		if (key === 'unrotatedDimensions') {
 			if (hasInfo.unrotatedDimensions && !emittedFields.unrotatedDimensions) {
 				const dimensionsQueried = getDimensions(state);
-				const unrotatedDimensions: Dimensions | null =
+				const unrotatedDimensions: MediaParserDimensions | null =
 					dimensionsQueried === null
 						? null
 						: {
@@ -221,10 +223,10 @@ export const emitAvailableInfo = async ({
 
 		if (key === 'tracks') {
 			if (!emittedFields.tracks && hasInfo.tracks) {
-				const {videoTracks, audioTracks} = getTracks(state, true);
-				await callbackFunctions.onTracks?.({videoTracks, audioTracks});
+				const tracks = getTracks(state, true);
+				await callbackFunctions.onTracks?.(tracks);
 				if (fieldsInReturnValue.tracks) {
-					returnValue.tracks = {videoTracks, audioTracks};
+					returnValue.tracks = tracks;
 				}
 
 				emittedFields.tracks = true;

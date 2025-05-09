@@ -1,8 +1,10 @@
-import type {Seek} from './controller/seek-signal';
-import type {AllOptions, Options, ParseMediaFields} from './fields';
+import type {Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
 import type {SeekingHints} from './seeking-hints';
-import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
+import type {
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from './webcodec-sample-types';
 import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
 import {deserializeError} from './worker/serialize-error';
@@ -46,7 +48,7 @@ const convertToWorkerPayload = (
 		onSlowKeyframes,
 		onSlowNumberOfFrames,
 		onSlowVideoBitrate,
-		onStructure,
+		onSlowStructure,
 		onTracks,
 		onVideoTrack,
 		selectM3uStream,
@@ -81,7 +83,7 @@ const convertToWorkerPayload = (
 		postSlowKeyframes: Boolean(onSlowKeyframes),
 		postSlowNumberOfFrames: Boolean(onSlowNumberOfFrames),
 		postSlowVideoBitrate: Boolean(onSlowVideoBitrate),
-		postStructure: Boolean(onStructure),
+		postSlowStructure: Boolean(onSlowStructure),
 		postTracks: Boolean(onTracks),
 		postUnrotatedDimensions: Boolean(onUnrotatedDimensions),
 		postVideoCodec: Boolean(onVideoCodec),
@@ -117,7 +119,7 @@ export const parseMediaOnWorkerImplementation = async <
 	let workerTerminated = false;
 
 	const {promise, resolve, reject} =
-		withResolvers<ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>>();
+		withResolvers<ParseMediaResult<Options<ParseMediaFields>>>();
 
 	const onAbort = () => {
 		post(worker, {type: 'request-abort'});
@@ -131,7 +133,7 @@ export const parseMediaOnWorkerImplementation = async <
 		post(worker, {type: 'request-pause'});
 	};
 
-	const onSeek = ({detail: {seek}}: {detail: {seek: Seek}}) => {
+	const onSeek = ({detail: {seek}}: {detail: {seek: number}}) => {
 		post(worker, {type: 'request-seek', payload: seek});
 		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
 	};
@@ -153,7 +155,10 @@ export const parseMediaOnWorkerImplementation = async <
 		return prom.promise;
 	});
 
-	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
+	const callbacks: Record<
+		number,
+		MediaParserOnAudioSample | MediaParserOnVideoSample
+	> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
@@ -267,8 +272,8 @@ export const parseMediaOnWorkerImplementation = async <
 						return {payloadType: 'void'};
 					}
 
-					if (data.payload.callbackType === 'structure') {
-						await params.onStructure?.(data.payload.value);
+					if (data.payload.callbackType === 'slow-structure') {
+						await params.onSlowStructure?.(data.payload.value);
 						return {payloadType: 'void'};
 					}
 
@@ -388,7 +393,20 @@ export const parseMediaOnWorkerImplementation = async <
 						};
 					}
 
-					if (data.payload.callbackType === 'on-audio-video-sample') {
+					if (data.payload.callbackType === 'on-audio-sample') {
+						const callback = callbacks[data.payload.trackId];
+						if (!callback) {
+							throw new Error(
+								`No callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						await callback(data.payload.value);
+
+						return {payloadType: 'void'};
+					}
+
+					if (data.payload.callbackType === 'on-video-sample') {
 						const callback = callbacks[data.payload.trackId];
 						if (!callback) {
 							throw new Error(

@@ -9,11 +9,6 @@ crumb: '@remotion/media-parser'
 
 [`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.
 
-:::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
-:::
-
 ## With `@remotion/webcodecs`
 
 [`@remotion/webcodecs`](/docs/webcodecs) is a package that uses `@remotion/media-parser` to provide video processing in the browser.  
@@ -27,9 +22,9 @@ It is a higher-level API that is easier to use than `@remotion/media-parser`.
 `@remotion/media-parser` is a lower-level API that allows you to interface with WebCodecs directly.
 
 ```tsx twoslash title="Reading video frames"
-import {parseMedia, OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
+import {parseMedia, MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
   const videoDecoder = new VideoDecoder({
     output: console.log,
     error: console.error,
@@ -101,9 +96,9 @@ You can choose to not receive samples if the corresponding decoder is not suppor
 
 ```tsx twoslash title="Rejecting samples"
 // @noErrors
-import type {OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
   if (typeof VideoDecoder === 'undefined') {
     return null;
   }
@@ -115,7 +110,7 @@ const onVideoTrack: OnVideoTrack = ({track}) => {
   // ...
 };
 
-const onAudioTrack: OnAudioTrack = ({track}) => {
+const onAudioTrack: MediaParserOnAudioTrack = ({track}) => {
   if (typeof AudioDecoder === 'undefined') {
     return null;
   }
@@ -136,9 +131,9 @@ These are async APIs, fortunately `onAudioTrack` and `onVideoTrack` allow async 
 
 ```tsx twoslash title="Checking if the browser supports the codec"
 // @noErrors
-import type {OnAudioTrack, OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
   const videoDecoder = new VideoDecoder({
     output: console.log,
     error: console.error,
@@ -152,7 +147,7 @@ const onVideoTrack: OnVideoTrack = async ({track}) => {
   // ...
 };
 
-const onAudioTrack: OnAudioTrack = async ({track}) => {
+const onAudioTrack: MediaParserOnAudioTrack = async ({track}) => {
   const audioDecoder = new AudioDecoder({
     output: console.log,
     error: console.error,
@@ -179,9 +174,9 @@ The decoder `state` will switch to `"closed"`, however, you will still receive s
 If the decoder is in `"closed"` state, you should stop passing them to VideoDecoder.
 
 ```tsx twoslash title="Error handling"
-import type {OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
   const videoDecoder = new VideoDecoder({
     output: console.log,
     error: console.error,
@@ -212,9 +207,9 @@ For this, make the sample processing function async. Remotion will await it befo
 This will make it so that samples that are not yet needed are not kept in memory, keeping the decoding process efficient.
 
 ```tsx twoslash title="Only keeping 10 samples in the queue at a time"
-import type {OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
   const videoDecoder = new VideoDecoder({
     output: console.log,
     error: console.error,
@@ -252,9 +247,9 @@ Some videos don't have the same dimensions internally as they are presented.
 For example, [this sample video](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/stretched-vp8.webm) has a coded width of 1440, but a presentation width of 1920.
 
 ```tsx twoslash title="Handling stretched videos"
-import type {OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
   const videoDecoder = new VideoDecoder({
     output: console.log,
     error: console.error,
@@ -286,9 +281,9 @@ For example, this [video recorded with an iPhone](https://github.com/remotion-de
 Fortunately `parseMedia()` returns the rotation of the track:
 
 ```tsx twoslash title="Handling stretched videos"
-import type {OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
   console.log(track.rotation); // -90
   return null;
 };
@@ -302,9 +297,9 @@ As just mentioned, some videos might be stretched or rotated.
 In an extreme case, it is possible that you stumble opon a video that has three different dimensions.
 
 ```tsx twoslash title="Handling stretched videos"
-import type {OnVideoTrack} from '@remotion/media-parser';
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = async ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
   console.log(track);
   // {
   //   codedWidth: 1440,

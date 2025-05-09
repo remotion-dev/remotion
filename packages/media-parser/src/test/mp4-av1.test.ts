@@ -15,7 +15,6 @@ test('mp4-av1', async () => {
 		await parseMedia({
 			src: await getRemoteExampleVideo('mp4av1'),
 			fields: {
-				structure: true,
 				slowFps: true,
 				slowNumberOfFrames: true,
 				audioCodec: true,

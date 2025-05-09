@@ -45,7 +45,7 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<div>Get embedded tags from video files</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/workers">
-					<strong>Parsing on Web Workers</strong>
+					<strong>Web Workers</strong>
 					<div>Parse a media file in the browser on a separate thread.</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/download-and-parse">
@@ -137,6 +137,19 @@ export const WritersTableOfContents: React.FC = () => {
 				<TOCItem link="/docs/media-parser/node-writer">
 					<strong>{'nodeWriter'}</strong>
 					<div>Write a file to the local file system using Node.</div>
+				</TOCItem>
+			</Grid>
+		</div>
+	);
+};
+
+export const TypesTableOfContents: React.FC = () => {
+	return (
+		<div>
+			<Grid>
+				<TOCItem link="/docs/media-parser/types">
+					<strong>{'TypeScript types'}</strong>
+					<div>Reference for the types returned by Media Parser.</div>
 				</TOCItem>
 			</Grid>
 		</div>

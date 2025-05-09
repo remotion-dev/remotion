@@ -4,18 +4,15 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 
 test('should be able to set the start seek', async () => {
 	const controller = mediaParserController();
 
-	let firstSample: AudioOrVideoSample | undefined;
+	let firstSample: MediaParserVideoSample | undefined;
 
 	try {
-		controller.seek({
-			type: 'keyframe-before-time',
-			timeInSeconds: 10.6,
-		});
+		controller.seek(10.6);
 
 		await parseMedia({
 			src: exampleVideos.bigBuckBunny,

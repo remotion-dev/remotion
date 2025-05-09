@@ -1,13 +1,14 @@
 import type {MediaParserController} from '../controller/media-parser-controller';
 import type {SeekSignal} from '../controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from '../fields';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {ParseMediaSrc} from '../options';
 import type {
-	AudioOrVideoSample,
-	OnAudioSample,
-	OnVideoSample,
+	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+	MediaParserVideoSample,
 } from '../webcodec-sample-types';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
@@ -39,13 +40,13 @@ export const callbacksState = ({
 	structure: StructureState;
 	src: ParseMediaSrc;
 	seekSignal: SeekSignal;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
-	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
-	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
+	const videoSampleCallbacks: Record<number, MediaParserOnVideoSample> = {};
+	const audioSampleCallbacks: Record<number, MediaParserOnAudioSample> = {};
 
-	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
-	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
+	const queuedAudioSamples: Record<number, MediaParserAudioSample[]> = {};
+	const queuedVideoSamples: Record<number, MediaParserVideoSample[]> = {};
 
 	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers,
@@ -59,7 +60,7 @@ export const callbacksState = ({
 	return {
 		registerVideoSampleCallback: async (
 			id: number,
-			callback: OnVideoSample | null,
+			callback: MediaParserOnVideoSample | null,
 		) => {
 			if (callback === null) {
 				delete videoSampleCallbacks[id];
@@ -74,7 +75,10 @@ export const callbacksState = ({
 
 			queuedVideoSamples[id] = [];
 		},
-		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
+		onAudioSample: async (
+			trackId: number,
+			audioSample: MediaParserAudioSample,
+		) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
@@ -84,7 +88,7 @@ export const callbacksState = ({
 			if (audioSample.data.length > 0) {
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
-					if (seekSignal.getSeek()) {
+					if (seekSignal.getSeek() !== null) {
 						Log.trace(
 							logLevel,
 							'Not emitting sample because seek is processing',
@@ -99,7 +103,10 @@ export const callbacksState = ({
 				samplesObserved.addAudioSample(audioSample);
 			}
 		},
-		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
+		onVideoSample: async (
+			trackId: number,
+			videoSample: MediaParserVideoSample,
+		) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
@@ -108,7 +115,7 @@ export const callbacksState = ({
 				const callback = videoSampleCallbacks[trackId];
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {
-					if (seekSignal.getSeek()) {
+					if (seekSignal.getSeek() !== null) {
 						Log.trace(
 							logLevel,
 							'Not emitting sample because seek is processing',
@@ -141,7 +148,7 @@ export const callbacksState = ({
 		canSkipTracksState,
 		registerAudioSampleCallback: async (
 			id: number,
-			callback: OnAudioSample | null,
+			callback: MediaParserOnAudioSample | null,
 		) => {
 			if (callback === null) {
 				delete audioSampleCallbacks[id];

@@ -2,9 +2,9 @@ import type {IsoBaseMediaBox} from '../../containers/iso-base-media/base-media-b
 import {getMfraSeekingBox} from '../../containers/iso-base-media/get-mfra-seeking-box';
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../fetch';
-import {Log, type LogLevel} from '../../log';
+import {Log, type MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 
 export const lazyMfraLoad = ({
@@ -17,9 +17,9 @@ export const lazyMfraLoad = ({
 }: {
 	contentLength: number;
 	controller: MediaParserController;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => {
 	let prom: Promise<IsoBaseMediaBox[] | null> | null = null;

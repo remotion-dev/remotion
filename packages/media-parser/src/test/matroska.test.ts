@@ -8,7 +8,7 @@ test('Should get duration of AV1 video', async () => {
 		src: exampleVideos.av1,
 		fields: {
 			durationInSeconds: true,
-			structure: true,
+			slowStructure: true,
 			dimensions: true,
 			fps: true,
 			slowFps: true,
@@ -35,7 +35,7 @@ test('Should get duration of AV1 video', async () => {
 	expect(parsed.slowAudioBitrate).toBe(null);
 	expect(parsed.slowVideoBitrate).toBe(2889408.3333333335);
 
-	expect(parsed.structure.boxes).toEqual([
+	expect(parsed.slowStructure.boxes).toEqual([
 		{
 			type: 'Header',
 			value: [

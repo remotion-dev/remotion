@@ -6,11 +6,6 @@ slug: /media-parser/readers
 crumb: '@remotion/media-parser'
 ---
 
-:::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
-:::
-
 import {ReadersTableOfContents} from './TableOfContents';
 
 The [`parseMedia()`](/docs/media-parser) function takes a reader interface which defines how the source is being read.
@@ -35,4 +30,8 @@ Otherwise, you should use [`webReader`](/docs/media-parser/web-reader). You don'
 
 ## Custom readers
 
-To create a custom reader, create an objet that satisfies the `ReaderInterface` type. To see a reference of it, look at the source code of any reader, which is linked at the bottom of it's documentation page.
+To create a custom reader, create an objet that satisfies the `MediaParserReaderInterface` type. To see a reference of it, look at the source code of any reader, which is linked at the bottom of it's documentation page.
+
+:::note
+The `MediaParserReaderInterface` type is not stable.
+:::

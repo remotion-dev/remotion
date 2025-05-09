@@ -35,7 +35,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 		}
 
 		const tracks = getTracksFromMoovBox(moovAtom);
-		for (const track of tracks.videoTracks) {
+		for (const track of tracks.filter((t) => t.type === 'video')) {
 			await registerVideoTrack({
 				track,
 				container: 'mp4',
@@ -47,7 +47,7 @@ export const initVideo = async ({state}: {state: ParserState}) => {
 			});
 		}
 
-		for (const track of tracks.audioTracks) {
+		for (const track of tracks.filter((t) => t.type === 'audio')) {
 			await registerAudioTrack({
 				track,
 				container: 'mp4',

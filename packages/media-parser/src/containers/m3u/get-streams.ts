@@ -1,7 +1,7 @@
-import type {Dimensions} from '../../get-dimensions';
+import type {MediaParserDimensions} from '../../get-dimensions';
 import type {ParseMediaSrc} from '../../options';
 import type {MediaParserStructureUnstable} from '../../parse-result';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import type {ParserState} from '../../state/parser-state';
 import type {M3uMediaInfo} from './types';
 
@@ -19,9 +19,9 @@ export type M3uAssociatedPlaylist = {
 
 export type M3uStream = {
 	src: string;
-	bandwidth: number | null;
-	averageBandwidth: number | null;
-	resolution: Dimensions | null;
+	bandwidthInBitsPerSec: number | null;
+	averageBandwidthInBitsPerSec: number | null;
+	dimensions: MediaParserDimensions | null;
 	codecs: string[] | null;
 	id: number;
 	associatedPlaylists: M3uAssociatedPlaylist[];
@@ -47,7 +47,7 @@ export const getM3uStreams = ({
 }: {
 	structure: MediaParserStructureUnstable | null;
 	originalSrc: ParseMediaSrc;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 }): M3uStream[] | null => {
 	if (structure === null || structure.type !== 'm3u') {
 		return null;
@@ -90,10 +90,10 @@ export const getM3uStreams = ({
 
 			boxes.push({
 				src: readerInterface.createAdjacentFileSource(next.value, originalSrc),
-				averageBandwidth: str.averageBandwidth,
-				bandwidth: str.bandwidth,
+				averageBandwidthInBitsPerSec: str.averageBandwidthInBitsPerSec,
+				bandwidthInBitsPerSec: str.bandwidthInBitsPerSec,
 				codecs: str.codecs,
-				resolution: str.resolution,
+				dimensions: str.dimensions,
 				associatedPlaylists,
 			});
 		}
@@ -105,15 +105,17 @@ export const getM3uStreams = ({
 	}
 
 	const sorted = boxes.slice().sort((a, b) => {
-		const aResolution = a.resolution
-			? a.resolution.width * a.resolution.height
+		const aResolution = a.dimensions
+			? a.dimensions.width * a.dimensions.height
 			: 0;
-		const bResolution = b.resolution
-			? b.resolution.width * b.resolution.height
+		const bResolution = b.dimensions
+			? b.dimensions.width * b.dimensions.height
 			: 0;
 		if (aResolution === bResolution) {
-			const bandwidthA = a.averageBandwidth ?? a.bandwidth ?? 0;
-			const bandwidthB = b.averageBandwidth ?? b.bandwidth ?? 0;
+			const bandwidthA =
+				a.averageBandwidthInBitsPerSec ?? a.bandwidthInBitsPerSec ?? 0;
+			const bandwidthB =
+				b.averageBandwidthInBitsPerSec ?? b.bandwidthInBitsPerSec ?? 0;
 			return bandwidthB - bandwidthA;
 		}
 

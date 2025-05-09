@@ -1,5 +1,9 @@
 import {addAvcProfileToTrack} from '../../add-avc-profile-to-track';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import type {ParserState} from '../../state/parser-state';
 import type {
 	RiffStructure,
@@ -9,12 +13,6 @@ import type {
 } from './riff-box';
 import {MEDIA_PARSER_RIFF_TIMESCALE} from './timescale';
 import {getAvihBox, getStrhBox, getStrlBoxes} from './traversal';
-
-export type AllTracks = {
-	videoTracks: VideoTrack[];
-	audioTracks: AudioTrack[];
-	otherTracks: OtherTrack[];
-};
 
 export const TO_BE_OVERRIDDEN_LATER = 'to-be-overriden-later';
 
@@ -33,7 +31,7 @@ export const makeAviAudioTrack = ({
 }: {
 	strf: StrfBoxAudio;
 	index: number;
-}): AudioTrack => {
+}): MediaParserAudioTrack => {
 	// 255 = AAC
 	if (strf.formatTag !== 255) {
 		throw new Error(`Unsupported audio format ${strf.formatTag}`);
@@ -42,14 +40,13 @@ export const makeAviAudioTrack = ({
 	return {
 		type: 'audio',
 		codec: 'mp4a.40.2', // According to Claude 3.5 Sonnet
-		codecPrivate: new Uint8Array([18, 16]),
-		codecWithoutConfig: 'aac',
+		codecData: {type: 'aac-config', data: new Uint8Array([18, 16])},
+		codecEnum: 'aac',
 		description: new Uint8Array([18, 16]),
 		numberOfChannels: strf.numberOfChannels,
 		sampleRate: strf.sampleRate,
 		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		trackId: index,
-		trakBox: null,
 	};
 };
 
@@ -61,15 +58,15 @@ export const makeAviVideoTrack = ({
 	strh: StrhBox;
 	strf: StrfBoxVideo;
 	index: number;
-}): VideoTrack => {
+}): MediaParserVideoTrack => {
 	if (strh.handler !== 'H264') {
 		throw new Error(`Unsupported video codec ${strh.handler}`);
 	}
 
 	return {
-		codecPrivate: null,
+		codecData: null,
 		codec: TO_BE_OVERRIDDEN_LATER,
-		codecWithoutConfig: 'h264',
+		codecEnum: 'h264',
 		codedHeight: strf.height,
 		codedWidth: strf.width,
 		width: strf.width,
@@ -80,14 +77,19 @@ export const makeAviVideoTrack = ({
 		description: undefined,
 		m3uStreamFormat: null,
 		trackId: index,
-		color: {
+		colorSpace: {
 			fullRange: null,
-			matrixCoefficients: null,
+			matrix: null,
 			primaries: null,
-			transferCharacteristics: null,
+			transfer: null,
+		},
+		advancedColor: {
+			fullRange: null,
+			matrix: null,
+			primaries: null,
+			transfer: null,
 		},
 		displayAspectWidth: strf.width,
-		trakBox: null,
 		rotation: 0,
 		sampleAspectRatio: {
 			numerator: 1,
@@ -100,10 +102,8 @@ export const makeAviVideoTrack = ({
 export const getTracksFromAvi = (
 	structure: RiffStructure,
 	state: ParserState,
-): AllTracks => {
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
+): MediaParserTrack[] => {
+	const tracks: MediaParserTrack[] = [];
 
 	const boxes = getStrlBoxes(structure);
 
@@ -117,14 +117,14 @@ export const getTracksFromAvi = (
 		const {strf} = strh;
 
 		if (strf.type === 'strf-box-video') {
-			videoTracks.push(
+			tracks.push(
 				addAvcProfileToTrack(
 					makeAviVideoTrack({strh, strf, index: i}),
 					state.riff.getAvcProfile(),
 				),
 			);
 		} else if (strh.fccType === 'auds') {
-			audioTracks.push(makeAviAudioTrack({strf, index: i}));
+			tracks.push(makeAviAudioTrack({strf, index: i}));
 		} else {
 			throw new Error(`Unsupported track type ${strh.fccType}`);
 		}
@@ -132,7 +132,7 @@ export const getTracksFromAvi = (
 		i++;
 	}
 
-	return {audioTracks, otherTracks, videoTracks};
+	return tracks;
 };
 
 export const hasAllTracksFromAvi = (state: ParserState): boolean => {
@@ -141,11 +141,10 @@ export const hasAllTracksFromAvi = (state: ParserState): boolean => {
 		const numberOfTracks = getNumberOfTracks(structure);
 		const tracks = getTracksFromAvi(structure, state);
 		return (
-			tracks.videoTracks.length +
-				tracks.audioTracks.length +
-				tracks.otherTracks.length ===
-				numberOfTracks &&
-			!tracks.videoTracks.find((t) => t.codec === TO_BE_OVERRIDDEN_LATER)
+			tracks.length === numberOfTracks &&
+			!tracks.find(
+				(t) => t.type === 'video' && t.codec === TO_BE_OVERRIDDEN_LATER,
+			)
 		);
 	} catch {
 		return false;

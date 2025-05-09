@@ -1,4 +1,4 @@
-import type {SamplePosition} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import {createCodecSpecificData} from './codec-specific/create-codec-specific-data';
 import {createMdia} from './create-mdia';
@@ -19,7 +19,7 @@ import {createHdlr} from './udta/meta/create-hdlr';
 export type IsoBaseMediaTrackData = {
 	track: MakeTrackVideo | MakeTrackAudio;
 	durationInUnits: number;
-	samplePositions: SamplePosition[];
+	samplePositions: MediaParserInternalTypes['SamplePosition'][];
 	timescale: number;
 };
 

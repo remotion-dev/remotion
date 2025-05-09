@@ -20,10 +20,7 @@ test('should not count samples twice', async () => {
 			return () => {
 				samples++;
 				if (samples === 100) {
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 0,
-					});
+					controller.seek(0);
 				}
 			};
 		},

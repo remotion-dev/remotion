@@ -1,7 +1,7 @@
-import type {Dimensions} from '../get-dimensions';
+import type {MediaParserDimensions} from '../get-dimensions';
 import {matchesPattern} from './detect-file-type';
 
-function getWebPDimensions(bytes: Uint8Array): Dimensions | null {
+function getWebPDimensions(bytes: Uint8Array): MediaParserDimensions | null {
 	// Check if we have enough bytes for a basic WebP header
 	if (bytes.length < 30) {
 		return null;
@@ -82,5 +82,5 @@ export const isWebp = (data: Uint8Array): WebpType | null => {
 
 export type WebpType = {
 	type: 'webp';
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 };

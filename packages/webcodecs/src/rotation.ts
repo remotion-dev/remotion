@@ -1,4 +1,7 @@
-import type {Dimensions, MediaParserVideoCodec} from '@remotion/media-parser';
+import type {
+	MediaParserDimensions,
+	MediaParserVideoCodec,
+} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {calculateNewSizeAfterResizing} from './resizing/calculate-new-size';
 import type {ResizeOperation} from './resizing/mode';
@@ -8,7 +11,7 @@ export const calculateNewDimensionsFromRotate = ({
 	height,
 	width,
 	rotation,
-}: Dimensions & {
+}: MediaParserDimensions & {
 	rotation: number;
 }) => {
 	const normalized = normalizeVideoRotation(rotation);

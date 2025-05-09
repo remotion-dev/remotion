@@ -2,16 +2,16 @@
 /* eslint-disable no-eq-null */
 import type {MediaParserController} from '../controller/media-parser-controller';
 import {MediaParserAbortError} from '../errors';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {ParseMediaRange} from '../options';
 import {getLengthAndReader} from './fetch/get-body-and-reader';
 import {resolveUrl} from './fetch/resolve-url';
 import type {
 	CreateAdjacentFileSource,
+	MediaParserReaderInterface,
 	PreloadContent,
 	ReadContent,
-	ReaderInterface,
 	ReadWholeAsText,
 } from './reader';
 
@@ -219,7 +219,7 @@ const makeFetchRequestOrGetCached = ({
 	range: ParseMediaRange;
 	src: string | URL;
 	controller: MediaParserController | null;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => {
 	const key = cacheKey({src, range});
@@ -337,7 +337,7 @@ export const fetchCreateAdjacentFileSource: CreateAdjacentFileSource = (
 	return new URL(relativePath, src).toString();
 };
 
-export const fetchReader: ReaderInterface = {
+export const fetchReader: MediaParserReaderInterface = {
 	read: fetchReadContent,
 	readWholeAsText: fetchReadWholeAsText,
 	createAdjacentFileSource: fetchCreateAdjacentFileSource,

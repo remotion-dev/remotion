@@ -6,10 +6,7 @@ import {parseMedia} from '../../parse-media';
 test('seek m3u, ts segments', async () => {
 	const controller = mediaParserController();
 
-	controller.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 10.2,
-	});
+	controller.seek(10.2);
 
 	let samples = 0;
 
@@ -28,37 +25,25 @@ test('seek m3u, ts segments', async () => {
 					if (samples === 0) {
 						expect(sample.dts / sample.timescale).toBe(10);
 						expect(sample.type).toBe('key');
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 39,
-						});
+						controller.seek(39);
 					}
 
 					if (samples === 1) {
 						expect(sample.dts / sample.timescale).toBe(30);
 						expect(sample.type).toBe('key');
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 5,
-						});
+						controller.seek(5);
 					}
 
 					if (samples === 2) {
 						expect(sample.dts / sample.timescale).toBe(10);
 						expect(sample.type).toBe('key');
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 25,
-						});
+						controller.seek(25);
 					}
 
 					if (samples === 3) {
 						expect(sample.dts / sample.timescale).toBe(20);
 						expect(sample.type).toBe('key');
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 10000,
-						});
+						controller.seek(10000);
 					}
 
 					if (samples === 4) {

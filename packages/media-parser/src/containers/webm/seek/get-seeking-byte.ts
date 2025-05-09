@@ -1,4 +1,4 @@
-import type {LogLevel} from '../../../log';
+import type {MediaParserLogLevel} from '../../../log';
 import {Log} from '../../../log';
 import type {MediaParserKeyframe} from '../../../options';
 import type {WebmSeekingHints} from '../../../seeking-hints';
@@ -71,7 +71,7 @@ const getByteFromCues = ({
 	cuesResponse: LazyCuesLoadedOrNull;
 	time: number;
 	info: WebmSeekingHints;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	if (!cuesResponse) {
 		Log.trace(logLevel, 'Has no Matroska cues at the moment, cannot use them');
@@ -105,7 +105,7 @@ export const getSeekingByteFromMatroska = async ({
 	time: number;
 	webmState: WebmState;
 	info: WebmSeekingHints;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	mediaSection: MediaSectionState;
 }): Promise<SeekResolution> => {
 	if (!info.track) {

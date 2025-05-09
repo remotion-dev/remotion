@@ -35,10 +35,7 @@ const expectedSeekingHints: SeekingHints = {
 test('seek avi', async () => {
 	const controller = mediaParserController();
 
-	controller.seek({
-		timeInSeconds: 10,
-		type: 'keyframe-before-time',
-	});
+	controller.seek(10);
 
 	let samples = 0;
 
@@ -54,10 +51,7 @@ test('seek avi', async () => {
 					if (samples === 1) {
 						expect(sample.timestamp / sample.timescale).toBe(0);
 						expect(sample.type).toBe('key');
-						controller.seek({
-							timeInSeconds: 20,
-							type: 'keyframe-before-time',
-						});
+						controller.seek(20);
 					}
 
 					if (samples === 2) {
@@ -69,10 +63,7 @@ test('seek avi', async () => {
 						expect(sample.timestamp / sample.timescale).toBe(9.933333333333334);
 						expect(sample.type).toBe('delta');
 
-						controller.seek({
-							timeInSeconds: 10,
-							type: 'keyframe-before-time',
-						});
+						controller.seek(10);
 					}
 
 					if (samples === 301) {
@@ -126,10 +117,7 @@ test('should be able to use seeking hints', async () => {
 	const controller = mediaParserController();
 
 	let samples = 0;
-	controller.seek({
-		timeInSeconds: 10,
-		type: 'keyframe-before-time',
-	});
+	controller.seek(10);
 
 	await parseMedia({
 		src: exampleVideos.aviWithoutIdx,
@@ -143,10 +131,7 @@ test('should be able to use seeking hints', async () => {
 				if (samples === 1) {
 					expect(sample.timestamp / sample.timescale).toBe(8.333333333333334);
 					expect(sample.type).toBe('key');
-					controller.seek({
-						timeInSeconds: 20,
-						type: 'keyframe-before-time',
-					});
+					controller.seek(20);
 				}
 			};
 		},

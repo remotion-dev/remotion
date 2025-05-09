@@ -1,9 +1,9 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import type {CanSkipTracksState} from '../../state/can-skip-tracks';
 import type {M3uState} from '../../state/m3u-state';
-import type {OnAudioTrack} from '../../webcodec-sample-types';
+import type {MediaParserOnAudioTrack} from '../../webcodec-sample-types';
 import {fetchM3u8Stream} from './fetch-m3u8-stream';
 import {getM3uStreams, isIndependentSegments} from './get-streams';
 import type {
@@ -29,9 +29,9 @@ export const afterManifestFetch = async ({
 	src: string;
 	selectM3uStreamFn: SelectM3uStreamFn;
 	selectAssociatedPlaylistsFn: SelectM3uAssociatedPlaylistsFn;
-	logLevel: LogLevel;
-	readerInterface: ReaderInterface;
-	onAudioTrack: OnAudioTrack | null;
+	logLevel: MediaParserLogLevel;
+	readerInterface: MediaParserReaderInterface;
+	onAudioTrack: MediaParserOnAudioTrack | null;
 	canSkipTracks: CanSkipTracksState;
 }) => {
 	const independentSegments = isIndependentSegments(structure);
@@ -55,7 +55,7 @@ export const afterManifestFetch = async ({
 
 	const selectedPlaylist = await selectStream({streams, fn: selectM3uStreamFn});
 
-	if (!selectedPlaylist.resolution) {
+	if (!selectedPlaylist.dimensions) {
 		throw new Error('Stream does not have a resolution');
 	}
 

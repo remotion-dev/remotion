@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {IsoBaseMediaBox} from './base-media-box';
 import type {OnlyIfMoovAtomExpected} from './process-box';
 import {processBox} from './process-box';
@@ -13,7 +13,7 @@ export const getIsoBaseMediaChildren = async ({
 }: {
 	size: number;
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 	contentLength: number;
 }): Promise<IsoBaseMediaBox[]> => {

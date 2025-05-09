@@ -1,4 +1,4 @@
-import type {Dimensions} from '../get-dimensions';
+import type {MediaParserDimensions} from '../get-dimensions';
 import type {BmpType} from './bmp';
 import type {JpegType} from './jpeg';
 import type {PdfType} from './pdf';
@@ -112,7 +112,7 @@ export type WavType = {
 
 export type GifType = {
 	type: 'gif';
-	dimensions: Dimensions;
+	dimensions: MediaParserDimensions;
 };
 
 export type FlacType = {

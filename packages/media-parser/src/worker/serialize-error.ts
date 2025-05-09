@@ -4,7 +4,7 @@ import {
 	IsAPdfError,
 	MediaParserAbortError,
 } from '../errors';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {SeekingHints} from '../seeking-hints';
 import type {ResponseError} from './worker-types';
@@ -15,7 +15,7 @@ export const serializeError = ({
 	seekingHints,
 }: {
 	error: Error;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	seekingHints: SeekingHints | null;
 }): ResponseError => {
 	if (error instanceof IsAnImageError) {

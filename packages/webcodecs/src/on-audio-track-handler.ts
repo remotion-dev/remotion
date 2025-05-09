@@ -1,7 +1,7 @@
 import type {
-	AudioTrack,
-	LogLevel,
+	MediaParserAudioTrack,
 	MediaParserContainer,
+	MediaParserLogLevel,
 } from '@remotion/media-parser';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
@@ -18,9 +18,9 @@ export type AudioOperation =
 	| {type: 'drop'};
 
 export type ConvertMediaOnAudioTrackHandler = (options: {
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	defaultAudioCodec: ConvertMediaAudioCodec | null;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	outputContainer: ConvertMediaContainer;
 	inputContainer: MediaParserContainer;
 	canCopyTrack: boolean;

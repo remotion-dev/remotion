@@ -1,4 +1,4 @@
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import {parseM3u8Text} from './parse-m3u8-text';
 import type {M3uBox} from './types';
 
@@ -7,7 +7,7 @@ export const fetchM3u8Stream = async ({
 	readerInterface,
 }: {
 	url: string;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 }): Promise<M3uBox[]> => {
 	const text = await readerInterface.readWholeAsText(url);
 

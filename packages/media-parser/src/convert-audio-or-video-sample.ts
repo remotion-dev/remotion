@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample} from './webcodec-sample-types';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from './webcodec-sample-types';
 
 const TARGET_TIMESCALE = 1_000_000;
 
@@ -14,13 +17,15 @@ const fixFloat = (value: number) => {
 	return value;
 };
 
-export const convertAudioOrVideoSampleToWebCodecsTimestamps = ({
+export const convertAudioOrVideoSampleToWebCodecsTimestamps = <
+	T extends MediaParserAudioSample | MediaParserVideoSample,
+>({
 	sample,
 	timescale,
 }: {
-	sample: AudioOrVideoSample;
+	sample: T;
 	timescale: number;
-}): AudioOrVideoSample => {
+}): T => {
 	if (timescale === TARGET_TIMESCALE) {
 		return sample;
 	}
@@ -40,5 +45,5 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = ({
 		type: sample.type,
 		offset: sample.offset,
 		timescale: TARGET_TIMESCALE,
-	};
+	} as T;
 };

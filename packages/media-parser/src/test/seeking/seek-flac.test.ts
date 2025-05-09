@@ -6,10 +6,7 @@ import {parseMedia} from '../../parse-media';
 
 test('seek flac', async () => {
 	const controller = mediaParserController();
-	controller.seek({
-		timeInSeconds: 3,
-		type: 'keyframe-before-time',
-	});
+	controller.seek(3);
 	let samples = 0;
 
 	await parseMedia({
@@ -20,26 +17,17 @@ test('seek flac', async () => {
 				samples++;
 				if (samples === 1) {
 					expect(sample.timestamp / sample.timescale).toBe(2.972154195011338);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 5,
-					});
+					controller.seek(5);
 				}
 
 				if (samples === 2) {
 					expect(sample.timestamp / sample.timescale).toBe(4.922630385487528);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 2,
-					});
+					controller.seek(2);
 				}
 
 				if (samples === 3) {
 					expect(sample.timestamp / sample.timescale).toBe(1.9504761904761905);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 90,
-					});
+					controller.seek(90);
 				}
 
 				if (samples === 4) {

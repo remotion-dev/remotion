@@ -1,8 +1,8 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../fetch';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import {cachedSamplePositionsState} from './cached-sample-positions';
 import {lazyMfraLoad} from './lazy-mfra-load';
 import {moovState} from './moov-box';
@@ -19,9 +19,9 @@ export const isoBaseMediaState = ({
 }: {
 	contentLength: number;
 	controller: MediaParserController;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => {
 	return {
