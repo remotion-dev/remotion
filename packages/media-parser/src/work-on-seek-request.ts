@@ -1,5 +1,4 @@
 import type {MediaParserController} from './controller/media-parser-controller';
-import type {Seek} from './controller/seek-signal';
 import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import {getSeekingByte} from './get-seeking-byte';
@@ -51,7 +50,7 @@ const turnSeekIntoByte = async ({
 	aacState,
 	m3uState,
 }: {
-	seek: Seek;
+	seek: number;
 	mediaSectionState: MediaSectionState;
 	logLevel: MediaParserLogLevel;
 	iterator: BufferIterator;
@@ -79,58 +78,50 @@ const turnSeekIntoByte = async ({
 		};
 	}
 
-	if (seek.type === 'keyframe-before-time') {
-		if (seek.timeInSeconds < 0) {
-			throw new Error(
-				`Cannot seek to a negative time: ${JSON.stringify(seek)}`,
-			);
-		}
-
-		const seekingHints = getSeekingHints({
-			riffState,
-			samplesObserved,
-			structureState,
-			mediaSectionState,
-			isoState,
-			transportStream,
-			tracksState,
-			keyframesState: keyframes,
-			webmState,
-			flacState,
-			mp3State,
-			contentLength,
-			aacState,
-			m3uPlaylistContext,
-		});
-
-		if (!seekingHints) {
-			Log.trace(logLevel, 'No seeking info, cannot seek yet');
-			return {
-				type: 'valid-but-must-wait',
-			};
-		}
-
-		const seekingByte = await getSeekingByte({
-			info: seekingHints,
-			time: seek.timeInSeconds,
-			logLevel,
-			currentPosition: iterator.counter.getOffset(),
-			isoState,
-			transportStream,
-			webmState,
-			mediaSection: mediaSectionState,
-			m3uPlaylistContext,
-			structure: structureState,
-			riffState,
-			m3uState,
-		});
-
-		return seekingByte;
+	if (seek < 0) {
+		throw new Error(`Cannot seek to a negative time: ${JSON.stringify(seek)}`);
 	}
 
-	throw new Error(
-		`Cannot process seek request for ${seek}: ${JSON.stringify(seek)}`,
-	);
+	const seekingHints = getSeekingHints({
+		riffState,
+		samplesObserved,
+		structureState,
+		mediaSectionState,
+		isoState,
+		transportStream,
+		tracksState,
+		keyframesState: keyframes,
+		webmState,
+		flacState,
+		mp3State,
+		contentLength,
+		aacState,
+		m3uPlaylistContext,
+	});
+
+	if (!seekingHints) {
+		Log.trace(logLevel, 'No seeking info, cannot seek yet');
+		return {
+			type: 'valid-but-must-wait',
+		};
+	}
+
+	const seekingByte = await getSeekingByte({
+		info: seekingHints,
+		time: seek,
+		logLevel,
+		currentPosition: iterator.counter.getOffset(),
+		isoState,
+		transportStream,
+		webmState,
+		mediaSection: mediaSectionState,
+		m3uPlaylistContext,
+		structure: structureState,
+		riffState,
+		m3uState,
+	});
+
+	return seekingByte;
 };
 
 export type WorkOnSeekRequestOptions = {
@@ -225,7 +216,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		m3uState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
-	if (!seek) {
+	if (seek === null) {
 		return;
 	}
 

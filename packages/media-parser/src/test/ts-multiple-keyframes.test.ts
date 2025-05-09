@@ -23,19 +23,13 @@ test('Should be able to seek back based on already observed keyframes', async ()
 					samples++;
 					const timeInSeconds = sample.timestamp / sample.timescale;
 					if (timeInSeconds === 5.8058) {
-						controller1.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 3,
-						});
+						controller1.seek(3);
 					}
 
 					if (samples === 176) {
 						expect(timeInSeconds).toBe(2.9029);
 						expect(sample.type).toBe('key');
-						controller1.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 2,
-						});
+						controller1.seek(2);
 					}
 
 					if (samples === 177) {
@@ -80,10 +74,7 @@ test('should be able to use seeking hints from previous parse', async () => {
 	expect(hints?.type).toEqual('transport-stream-seeking-hints');
 
 	const controller2 = mediaParserController();
-	controller2.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 3,
-	});
+	controller2.seek(3);
 
 	try {
 		await parseMedia({

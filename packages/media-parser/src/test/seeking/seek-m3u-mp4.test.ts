@@ -12,10 +12,7 @@ import type {
 test('seek m3u, only video', async () => {
 	const controller = mediaParserController();
 
-	controller.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 4.5,
-	});
+	controller.seek(4.5);
 	let samples = 0;
 
 	try {
@@ -28,26 +25,17 @@ test('seek m3u, only video', async () => {
 				return (sample) => {
 					if (samples === 0) {
 						expect(sample.dts / sample.timescale).toBe(4.021666666666667);
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 2,
-						});
+						controller.seek(2);
 					}
 
 					if (samples === 1) {
 						expect(sample.dts / sample.timescale).toBe(1.18);
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 2.05,
-						});
+						controller.seek(2.05);
 					}
 
 					if (samples === 2) {
 						expect(sample.dts / sample.timescale).toBe(2.0283333333333333);
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 2.0,
-						});
+						controller.seek(2);
 					}
 
 					if (samples === 3) {
@@ -72,10 +60,7 @@ test('seek m3u, only video', async () => {
 test('seek m3u, video and audio', async () => {
 	const controller = mediaParserController();
 
-	controller.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 5.5,
-	});
+	controller.seek(5.5);
 
 	let samples = 0;
 
@@ -91,19 +76,13 @@ test('seek m3u, video and audio', async () => {
 		if (samples === 1) {
 			expect(mediaType).toBe('audio');
 			expect(sample.dts / sample.timescale).toBe(5.482666666666666);
-			controller.seek({
-				type: 'keyframe-before-time',
-				timeInSeconds: 100,
-			});
+			controller.seek(100);
 		}
 
 		if (samples === 2) {
 			expect(mediaType).toBe('video');
 			expect(sample.dts / sample.timescale).toBe(9.148333333333333);
-			controller.seek({
-				type: 'keyframe-before-time',
-				timeInSeconds: 1,
-			});
+			controller.seek(1);
 		}
 
 		if (samples === 3) {

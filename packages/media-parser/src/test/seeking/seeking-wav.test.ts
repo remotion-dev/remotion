@@ -7,10 +7,7 @@ import {parseMedia} from '../../parse-media';
 test('seeking in a wav', async () => {
 	const controller = mediaParserController();
 
-	controller.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 10,
-	});
+	controller.seek(10);
 
 	let samples = 0;
 
@@ -27,27 +24,18 @@ test('seeking in a wav', async () => {
 				samples++;
 				if (samples === 1) {
 					expect(sample.timestamp).toBe(10000000);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 0,
-					});
+					controller.seek(0);
 				}
 
 				if (samples === 2) {
 					expect(sample.timestamp).toBe(0);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 28,
-					});
+					controller.seek(28);
 				}
 
 				if (samples === 3) {
 					expect(sample.timestamp).toBe(28000000);
 					// out of bounds
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 40,
-					});
+					controller.seek(40);
 				}
 
 				if (samples === 4) {

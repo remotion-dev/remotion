@@ -1,4 +1,3 @@
-import type {Seek} from './controller/seek-signal';
 import type {AllOptions, Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
 import type {SeekingHints} from './seeking-hints';
@@ -134,7 +133,7 @@ export const parseMediaOnWorkerImplementation = async <
 		post(worker, {type: 'request-pause'});
 	};
 
-	const onSeek = ({detail: {seek}}: {detail: {seek: Seek}}) => {
+	const onSeek = ({detail: {seek}}: {detail: {seek: number}}) => {
 		post(worker, {type: 'request-seek', payload: seek});
 		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
 	};

@@ -17,10 +17,7 @@ test('should process a basic seek request', async () => {
 			controller,
 			reader: nodeReader,
 			onVideoTrack: () => {
-				controller.seek({
-					type: 'keyframe-before-time',
-					timeInSeconds: 10.6,
-				});
+				controller.seek(10.6);
 				return (s) => {
 					firstSample = s;
 					controller.abort();
@@ -39,10 +36,7 @@ test('should process a basic seek request', async () => {
 
 test('should not be able to seek into a negative time', async () => {
 	const controller = mediaParserController();
-	controller.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: -1,
-	});
+	controller.seek(-1);
 
 	try {
 		await parseMedia({
@@ -57,8 +51,6 @@ test('should not be able to seek into a negative time', async () => {
 
 		throw new Error('should not complete');
 	} catch (err) {
-		expect((err as Error).message).toBe(
-			'Cannot seek to a negative time: {"type":"keyframe-before-time","timeInSeconds":-1}',
-		);
+		expect((err as Error).message).toBe('Cannot seek to a negative time: -1');
 	}
 });

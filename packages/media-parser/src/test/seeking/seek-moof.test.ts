@@ -10,10 +10,7 @@ const controller1 = mediaParserController();
 test('seek moof, should make use of the mfra atom if available', async () => {
 	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
 
-	controller1.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 20,
-	});
+	controller1.seek(20);
 	let samples = 0;
 
 	try {
@@ -36,17 +33,11 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 					if (sample.cts === 19533333.333333336) {
 						expect(sample.type).toBe('key');
 
-						controller1.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 0,
-						});
+						controller1.seek(0);
 					}
 
 					if (sample.dts === 0) {
-						controller1.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 10,
-						});
+						controller1.seek(10);
 					}
 
 					if (sample.dts === 9700000) {
@@ -115,10 +106,7 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 
 test('should use seeking hints from previous parse', async () => {
 	const controller2 = mediaParserController();
-	controller2.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 20,
-	});
+	controller2.seek(20);
 	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
 	const hints = await controller1.getSeekingHints();
 

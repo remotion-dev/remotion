@@ -1,11 +1,10 @@
 import {withResolvers} from '../with-resolvers';
-import type {Seek} from './seek-signal';
 
 type MediaParserEventMap = {
 	pause: undefined;
 	resume: undefined;
 	abort: {reason?: unknown};
-	seek: {seek: Seek};
+	seek: {seek: number};
 };
 
 export type MediaParserEventTypes = keyof MediaParserEventMap;
@@ -84,7 +83,7 @@ export class MediaParserEmitter {
 		});
 	};
 
-	dispatchSeek = (seek: Seek) => {
+	dispatchSeek = (seek: number) => {
 		this.readyPromise = this.readyPromise.then(() => {
 			this.dispatchEvent('seek', {seek});
 		});

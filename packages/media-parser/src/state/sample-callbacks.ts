@@ -88,7 +88,7 @@ export const callbacksState = ({
 			if (audioSample.data.length > 0) {
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
-					if (seekSignal.getSeek()) {
+					if (seekSignal.getSeek() !== null) {
 						Log.trace(
 							logLevel,
 							'Not emitting sample because seek is processing',
@@ -115,7 +115,7 @@ export const callbacksState = ({
 				const callback = videoSampleCallbacks[trackId];
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {
-					if (seekSignal.getSeek()) {
+					if (seekSignal.getSeek() !== null) {
 						Log.trace(
 							logLevel,
 							'Not emitting sample because seek is processing',

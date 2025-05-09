@@ -40,19 +40,13 @@ export const considerSeekBasedOnChunk = async ({
 		chunkIndex > 0
 	) {
 		m3uState.setNextSeekShouldSubtractChunks(playlistUrl, subtractChunks + 1);
-		parentController.seek({
-			type: 'keyframe-before-time',
-			timeInSeconds: pendingSeek.targetTime,
-		});
+		parentController.seek(pendingSeek.targetTime);
 
 		return;
 	}
 
 	// We are good, we have not gone too far! Don't emit sample and seek and clear pending seek
-	childController.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: pendingSeek.targetTime,
-	});
+	childController.seek(pendingSeek.targetTime);
 	m3uState.setNextSeekShouldSubtractChunks(playlistUrl, 0);
 	m3uState.setSeekToSecondsToProcess(playlistUrl, null);
 };

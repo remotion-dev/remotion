@@ -6,7 +6,6 @@ import type {
 	SelectM3uAssociatedPlaylistsFnOptions,
 	SelectM3uStreamFnOptions,
 } from '../containers/m3u/select-stream';
-import type {Seek} from '../controller/seek-signal';
 import type {ImageType} from '../errors';
 import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserDimensions} from '../get-dimensions';
@@ -83,7 +82,7 @@ type RequestPause = {
 
 type RequestSeek = {
 	type: 'request-seek';
-	payload: Seek;
+	payload: number;
 };
 
 type RequestResume = {

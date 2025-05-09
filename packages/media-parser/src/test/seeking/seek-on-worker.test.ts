@@ -3,18 +3,15 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {parseMediaOnServerWorker} from '../../server-worker.module';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 
 test('seek should also work on worker', async () => {
 	const controller = mediaParserController();
 
-	let firstSample: AudioOrVideoSample | undefined;
+	let firstSample: MediaParserVideoSample | undefined;
 
 	try {
-		controller.seek({
-			type: 'keyframe-before-time',
-			timeInSeconds: 10.6,
-		});
+		controller.seek(10.6);
 
 		await parseMediaOnServerWorker({
 			src: exampleVideos.bigBuckBunny,
@@ -45,10 +42,7 @@ test('should be able to seek forward and then backwards', async () => {
 	let samples = 0;
 
 	try {
-		controller.seek({
-			type: 'keyframe-before-time',
-			timeInSeconds: 10.6,
-		});
+		controller.seek(10.6);
 
 		await parseMediaOnServerWorker({
 			src: exampleVideos.bigBuckBunny,
@@ -61,10 +55,7 @@ test('should be able to seek forward and then backwards', async () => {
 						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
 							10.5,
 						);
-						controller.seek({
-							type: 'keyframe-before-time',
-							timeInSeconds: 0,
-						});
+						controller.seek(0);
 					}
 
 					if (samples === 2) {

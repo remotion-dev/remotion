@@ -7,10 +7,7 @@ import {parseMedia} from '../../parse-media';
 test('seek-xing', async () => {
 	const controller = mediaParserController();
 
-	controller.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: 10,
-	});
+	controller.seek(10);
 
 	await parseMedia({
 		src: exampleVideos.mp3vbr,
@@ -33,18 +30,12 @@ test('seek-xing', async () => {
 
 				if (samples === 2) {
 					expect(sample.timestamp / sample.timescale).toBe(10.005549);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 20,
-					});
+					controller.seek(20);
 				}
 
 				if (samples === 3) {
 					expect(sample.timestamp / sample.timescale).toBe(19.99599);
-					controller.seek({
-						type: 'keyframe-before-time',
-						timeInSeconds: 30,
-					});
+					controller.seek(30);
 				}
 
 				if (samples === 4) {
