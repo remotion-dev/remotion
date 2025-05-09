@@ -715,6 +715,21 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/whisper-wasm',
+			link: {
+				type: 'doc',
+				id: 'whisper-wasm/index',
+			},
+			items: [
+				'whisper-wasm/download-whisper-model',
+				'whisper-wasm/transcribe',
+				'whisper-wasm/resample-to-16khz',
+				'whisper-wasm/can-use-whisper-wasm',
+				'whisper-wasm/get-loaded-models',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/openai-whisper',
 			link: {
 				type: 'doc',
