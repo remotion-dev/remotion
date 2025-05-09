@@ -68,7 +68,13 @@ export const hasMetadata = (
 		return getMetadataFromWav(structure) !== null;
 	}
 
-	if (structure.type === 'm3u' || structure.type === 'transport-stream') {
+	// M3U, Transport Stream, AAC cannot store any metadata
+
+	if (
+		structure.type === 'm3u' ||
+		structure.type === 'transport-stream' ||
+		structure.type === 'aac'
+	) {
 		return true;
 	}
 
@@ -76,6 +82,8 @@ export const hasMetadata = (
 		return getMetadataFromFlac(structure) !== null;
 	}
 
+	// The following containers (MP4, Matroska, AVI) all have mechanisms
+	// to skip over video sections, and tests for it in read-metadata.test.ts
 	if (structure.type === 'iso-base-media') {
 		return false;
 	}
@@ -86,10 +94,6 @@ export const hasMetadata = (
 
 	if (structure.type === 'riff') {
 		return false;
-	}
-
-	if (structure.type === 'aac') {
-		return true;
 	}
 
 	throw new Error('Unknown container ' + (structure as never));

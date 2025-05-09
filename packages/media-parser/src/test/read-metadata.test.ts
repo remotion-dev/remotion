@@ -4,15 +4,21 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('iPhone metadata', async () => {
-	const {slowStructure, metadata, location} = await parseMedia({
+	const {slowStructure, metadata, location, internalStats} = await parseMedia({
 		src: exampleVideos.iphonelivefoto,
 		fields: {
 			slowStructure: true,
 			metadata: true,
 			location: true,
+			internalStats: true,
 		},
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
+	});
+
+	expect(internalStats).toEqual({
+		skippedBytes: 3862190,
+		finalCursorOffset: 3868807,
 	});
 
 	if (slowStructure.type !== 'iso-base-media') {
@@ -96,13 +102,18 @@ test('iPhone metadata', async () => {
 });
 
 test('AVI metadata', async () => {
-	const {metadata} = await parseMedia({
+	const {metadata, internalStats} = await parseMedia({
 		src: exampleVideos.avi,
 		fields: {
 			metadata: true,
+			internalStats: true,
 		},
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
+	});
+	expect(internalStats).toEqual({
+		skippedBytes: 690502,
+		finalCursorOffset: 742478,
 	});
 	expect(metadata).toEqual([
 		{
@@ -114,15 +125,22 @@ test('AVI metadata', async () => {
 });
 
 test('Metadata from Matroska', async () => {
-	const {metadata} = await parseMedia({
+	const {metadata, internalStats} = await parseMedia({
 		src: exampleVideos.matroskaPcm16,
 		fields: {
 			metadata: true,
 			slowStructure: true,
+			internalStats: true,
 		},
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
+
+	expect(internalStats).toEqual({
+		finalCursorOffset: 75328,
+		skippedBytes: 74506,
+	});
+
 	expect(metadata).toEqual([
 		{
 			key: 'comment',

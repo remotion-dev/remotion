@@ -98,7 +98,7 @@ export const expectSegment = async ({
 
 		statesForProcessing.webmState.addCluster({
 			start: offset,
-			size,
+			size: size + (offsetAfterVInt - offset),
 			segment: isInsideSegment.index,
 		});
 

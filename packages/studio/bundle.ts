@@ -33,6 +33,7 @@ await buildPackage({
 		{
 			path: 'src/renderEntry.tsx',
 			target: 'browser',
+			splitting: true,
 		},
 		{
 			path: 'src/internals.ts',
