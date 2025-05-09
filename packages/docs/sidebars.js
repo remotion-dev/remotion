@@ -998,10 +998,11 @@ module.exports = {
 			label: 'Cloud Run',
 			link: {
 				type: 'doc',
-				id: 'cloudrun-alpha',
+				id: 'cloudrun',
 			},
 			items: [
 				'cloudrun',
+				'cloudrun/status',
 				'cloudrun/setup',
 				'cloudrun/permissions',
 				'cloudrun/generate-env',

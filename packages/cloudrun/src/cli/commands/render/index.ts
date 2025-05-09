@@ -296,7 +296,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		codec: codec as CloudrunCodec,
 		forceBucketName,
-		privacy,
+		privacy: parsedCloudrunCli.privacy ?? 'public',
 		outName,
 		updateRenderProgress,
 		jpegQuality,

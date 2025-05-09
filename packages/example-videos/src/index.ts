@@ -123,6 +123,7 @@ export const exampleVideos = {
 		'videos',
 		'fragmented-mp4-with-no-duration-metadata.mp4',
 	),
+	m4a: path.join(__dirname, '..', 'videos', 'voice-note.m4a'),
 };
 
 export {

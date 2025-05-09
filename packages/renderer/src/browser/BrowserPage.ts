@@ -268,7 +268,13 @@ export class Page extends EventEmitter {
 			}
 		} else if (log.type === 'error') {
 			if (log.text.includes('Failed to load resource:')) {
-				Log.error({logLevel, tag: url, indent}, log.text);
+				Log.error(
+					{logLevel, tag: url, indent},
+					// Sometimes the log is like this:
+					// Failed to load resource: the server responded with a status of 404 ()
+					// We remove the empty parentheses.
+					log.text.replace(/\(\)$/, ''),
+				);
 			} else {
 				Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
 			}

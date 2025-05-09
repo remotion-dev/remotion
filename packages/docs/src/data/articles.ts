@@ -657,15 +657,6 @@ export const articles = [
 		slug: 'clipper',
 	},
 	{
-		id: 'cloudrun-alpha',
-		title: 'Cloud Run Alpha',
-		relativePath: 'docs/cloudrun-alpha.mdx',
-		compId: 'articles-docs-cloudrun-alpha',
-		crumb: 'Version Upgrade',
-		noAi: false,
-		slug: 'cloudrun-alpha',
-	},
-	{
 		id: 'cloudrun',
 		title: '@remotion/cloudrun',
 		relativePath: 'docs/cloudrun.mdx',

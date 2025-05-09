@@ -3,7 +3,6 @@ import type {FileType} from './detect-file-type';
 import {
 	isAac,
 	isFlac,
-	isGif,
 	isIsoBaseMedia,
 	isM3u,
 	isMp3,
@@ -12,6 +11,7 @@ import {
 	isTransportStream,
 	isWebm,
 } from './detect-file-type';
+import {isGif} from './gif';
 import {isJpeg} from './jpeg';
 import {isPdf} from './pdf';
 import {isPng} from './png';
@@ -59,8 +59,9 @@ export const detectFileType = (data: Uint8Array): FileType => {
 		return {type: 'mp3'};
 	}
 
-	if (isGif(data)) {
-		return {type: 'gif'};
+	const gif = isGif(data);
+	if (gif) {
+		return gif;
 	}
 
 	const png = isPng(data);

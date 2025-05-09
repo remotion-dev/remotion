@@ -318,7 +318,7 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 
   return (
     <Loop durationInFrames={Math.floor(duration * fps)}>
-      <OffthreadVideo {...props} />;
+      <OffthreadVideo {...props} />
     </Loop>
   );
 };

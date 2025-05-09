@@ -13,6 +13,7 @@ import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {z} from 'zod';
+import type {Privacy} from '../defaults';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayload,
@@ -37,7 +38,7 @@ type InternalRenderMediaOnCloudrun = {
 	serveUrl: string;
 	composition: string;
 	inputProps: Record<string, unknown>;
-	privacy: 'public' | 'private' | undefined;
+	privacy: Privacy | undefined;
 	forceBucketName: string | undefined;
 	outName: string | undefined;
 	updateRenderProgress:
@@ -76,7 +77,7 @@ export type RenderMediaOnCloudrunInput = {
 	cloudRunUrl?: string;
 	serviceName?: string;
 	inputProps?: Record<string, unknown>;
-	privacy?: 'public' | 'private';
+	privacy?: Privacy;
 	forceBucketName?: string;
 	outName?: string;
 	updateRenderProgress?: UpdateRenderProgress;
@@ -189,7 +190,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		chromiumOptions,
 		muted: muted ?? false,
 		outputBucket,
-		privacy,
+		privacy: privacy ?? 'public',
 		outName,
 		forceWidth,
 		forceHeight,
