@@ -9,11 +9,6 @@ crumb: '@remotion/media-parser'
 _Part of the [`@remotion/media-parser`](/docs/media-parser) package._
 _available from v4.0.190_
 
-:::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
-:::
-
 ## Examples
 
 ```tsx twoslash title="Parsing a hosted video"
@@ -36,7 +31,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src: '/Users/jonnyburger/Downloads/my-video.mp4',
+  src: '/Users/jonnyburger/Downloads/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
