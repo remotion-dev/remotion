@@ -66,7 +66,7 @@ export type ParseMediaOnWorkerPayload = {
 	postSlowKeyframes: boolean;
 	postSlowNumberOfFrames: boolean;
 	postSlowVideoBitrate: boolean;
-	postStructure: boolean;
+	postSlowStructure: boolean;
 	postTracks: boolean;
 	postDurationInSeconds: boolean;
 	postParseProgress: boolean;
@@ -269,7 +269,7 @@ export type ResponseCallbackPayload =
 			value: number | null;
 	  }
 	| {
-			callbackType: 'structure';
+			callbackType: 'slow-structure';
 			value: MediaParserStructureUnstable;
 	  }
 	| {

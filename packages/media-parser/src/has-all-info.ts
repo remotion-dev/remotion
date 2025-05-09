@@ -30,7 +30,7 @@ export const getAvailableInfo = ({
 
 	const infos = keys.map(([_key]) => {
 		const key = _key as keyof Options<AllParseMediaFields>;
-		if (key === 'structure') {
+		if (key === 'slowStructure') {
 			return false;
 		}
 

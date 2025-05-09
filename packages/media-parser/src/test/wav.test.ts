@@ -26,7 +26,7 @@ test('parse full wav', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		unrotatedDimensions,
 		videoCodec,
 		numberOfAudioChannels,
@@ -56,7 +56,7 @@ test('parse full wav', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
 			sampleRate: true,
@@ -104,7 +104,7 @@ test('parse full wav', async () => {
 	expect(slowFps).toBe(0);
 	expect(slowKeyframes).toEqual([]);
 	expect(slowNumberOfFrames).toBe(0);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		boxes: [
 			{
 				fileSize: 2646142,

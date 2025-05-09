@@ -9,7 +9,7 @@ test('AVI file', async () => {
 	let audioSamples = 0;
 	let videoSamples = 0;
 	const {
-		structure,
+		slowStructure,
 		tracks,
 		size,
 		container,
@@ -26,7 +26,7 @@ test('AVI file', async () => {
 		src: exampleVideos.avi,
 		reader: nodeReader,
 		fields: {
-			structure: true,
+			slowStructure: true,
 			tracks: true,
 			size: true,
 			container: true,
@@ -177,7 +177,7 @@ test('AVI file', async () => {
 			width: 480,
 		},
 	]);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		type: 'riff',
 		boxes: [
 			{type: 'riff-header', fileSize: 742470, fileType: 'AVI'},

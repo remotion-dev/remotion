@@ -43,7 +43,7 @@ export type AllParseMediaFields = {
 	slowDurationInSeconds: true;
 	slowNumberOfFrames: true;
 	slowFps: true;
-	structure: true;
+	slowStructure: true;
 	fps: true;
 	videoCodec: true;
 	audioCodec: true;
@@ -100,7 +100,7 @@ export type ParseMediaCallbacksMandatory = {
 		| null
 		| ((durationInSeconds: number) => unknown | Promise<unknown>);
 	onSlowFps: null | ((fps: number) => unknown | Promise<unknown>);
-	onStructure:
+	onSlowStructure:
 		| null
 		| ((structure: MediaParserStructureUnstable) => unknown | Promise<unknown>);
 	onFps: null | ((fps: number | null) => unknown | Promise<unknown>);
@@ -169,7 +169,7 @@ export interface ParseMediaData {
 	durationInSeconds: number | null;
 	slowDurationInSeconds: number;
 	slowFps: number;
-	structure: MediaParserStructureUnstable;
+	slowStructure: MediaParserStructureUnstable;
 	fps: number | null;
 	videoCodec: MediaParserVideoCodec | null;
 	audioCodec: MediaParserAudioCodec | null;

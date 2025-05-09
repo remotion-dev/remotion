@@ -25,7 +25,7 @@ test('should be able to parse aac', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		tracks,
 		unrotatedDimensions,
 		videoCodec,
@@ -57,7 +57,7 @@ test('should be able to parse aac', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			tracks: true,
 			unrotatedDimensions: true,
 			numberOfAudioChannels: true,
@@ -109,7 +109,7 @@ test('should be able to parse aac', async () => {
 	expect(slowNumberOfFrames).toEqual(0);
 	expect(unrotatedDimensions).toBe(null);
 	expect(videoCodec).toBe(null);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		type: 'aac',
 		boxes: [],
 	});

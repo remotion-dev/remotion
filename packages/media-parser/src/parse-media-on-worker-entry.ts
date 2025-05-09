@@ -1,4 +1,4 @@
-import type {AllOptions, Options, ParseMediaFields} from './fields';
+import type {Options, ParseMediaFields} from './fields';
 import type {ParseMediaOptions, ParseMediaResult} from './options';
 import type {SeekingHints} from './seeking-hints';
 import type {
@@ -48,7 +48,7 @@ const convertToWorkerPayload = (
 		onSlowKeyframes,
 		onSlowNumberOfFrames,
 		onSlowVideoBitrate,
-		onStructure,
+		onSlowStructure,
 		onTracks,
 		onVideoTrack,
 		selectM3uStream,
@@ -83,7 +83,7 @@ const convertToWorkerPayload = (
 		postSlowKeyframes: Boolean(onSlowKeyframes),
 		postSlowNumberOfFrames: Boolean(onSlowNumberOfFrames),
 		postSlowVideoBitrate: Boolean(onSlowVideoBitrate),
-		postStructure: Boolean(onStructure),
+		postSlowStructure: Boolean(onSlowStructure),
 		postTracks: Boolean(onTracks),
 		postUnrotatedDimensions: Boolean(onUnrotatedDimensions),
 		postVideoCodec: Boolean(onVideoCodec),
@@ -119,7 +119,7 @@ export const parseMediaOnWorkerImplementation = async <
 	let workerTerminated = false;
 
 	const {promise, resolve, reject} =
-		withResolvers<ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>>();
+		withResolvers<ParseMediaResult<Options<ParseMediaFields>>>();
 
 	const onAbort = () => {
 		post(worker, {type: 'request-abort'});
@@ -272,8 +272,8 @@ export const parseMediaOnWorkerImplementation = async <
 						return {payloadType: 'void'};
 					}
 
-					if (data.payload.callbackType === 'structure') {
-						await params.onStructure?.(data.payload.value);
+					if (data.payload.callbackType === 'slow-structure') {
+						await params.onSlowStructure?.(data.payload.value);
 						return {payloadType: 'void'};
 					}
 

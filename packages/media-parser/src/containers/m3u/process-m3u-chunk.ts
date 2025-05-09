@@ -220,7 +220,7 @@ export const processM3uChunk = ({
 						childController.pause();
 						currentPromise.resolver(makeContinuationFn());
 					},
-					fields: chunk.isHeader ? {structure: true} : undefined,
+					fields: chunk.isHeader ? {slowStructure: true} : undefined,
 					onTracks: () => {
 						if (!state.m3u.hasEmittedDoneWithTracks(playlistUrl)) {
 							state.m3u.setHasEmittedDoneWithTracks(playlistUrl);
@@ -337,11 +337,11 @@ export const processM3uChunk = ({
 				});
 
 				if (chunk.isHeader) {
-					if (data.structure.type !== 'iso-base-media') {
+					if (data.slowStructure.type !== 'iso-base-media') {
 						throw new Error('Expected an mp4 file');
 					}
 
-					state.m3u.setMp4HeaderSegment(playlistUrl, data.structure);
+					state.m3u.setMp4HeaderSegment(playlistUrl, data.slowStructure);
 				}
 			} catch (e) {
 				currentPromise.rejector(e as Error);

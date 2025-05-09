@@ -6,7 +6,7 @@ import type {
 	MediaParserController,
 	MediaParserDimensions,
 	MediaParserLogLevel,
-	MediaParserTracks,
+	MediaParserTrack,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
 import {
@@ -79,12 +79,13 @@ const ConvertUI = ({
 	dimensions,
 	m3uStreams,
 	probeController,
+	sampleRate,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
 	readonly currentVideoCodec: MediaParserVideoCodec | null;
-	readonly tracks: MediaParserTracks | null;
+	readonly tracks: MediaParserTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: MediaParserDimensions | null;
 	readonly dimensions: MediaParserDimensions | null | undefined;
@@ -106,6 +107,7 @@ const ConvertUI = ({
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly probeController: MediaParserController;
+	readonly sampleRate: number | null;
 }) => {
 	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
 		getDefaultContainerForConversion(src, action),
@@ -422,8 +424,8 @@ const ConvertUI = ({
 	]);
 
 	const isAudioExclusively = useMemo(() => {
-		return (tracks?.videoTracks.length ?? 0) === 0;
-	}, [tracks?.videoTracks.length]);
+		return (tracks?.filter((t) => t.type === 'video').length ?? 0) === 0;
+	}, [tracks]);
 
 	if (state.type === 'error') {
 		return (
@@ -620,9 +622,7 @@ const ConvertUI = ({
 									<ResampleUi
 										sampleRate={resampleRate}
 										setSampleRate={setResampleRate}
-										currentSampleRate={
-											tracks?.audioTracks[0]?.sampleRate ?? null
-										}
+										currentSampleRate={sampleRate}
 									/>
 								) : null}
 							</div>

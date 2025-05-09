@@ -35,9 +35,9 @@ test('hasBeenAborted() should still work', async () => {
 		await parseMediaOnServerWorker({
 			src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
 			fields: {
-				structure: true,
+				slowStructure: true,
 			},
-			onStructure: () => {
+			onSlowStructure: () => {
 				controller.abort();
 			},
 			controller,

@@ -9,7 +9,7 @@ import type {
 	MediaParserLocation,
 	MediaParserLogLevel,
 	MediaParserMetadataEntry,
-	MediaParserTracks,
+	MediaParserTrack,
 	MediaParserVideoCodec,
 	ParseMediaOnProgress,
 } from '@remotion/media-parser';
@@ -52,7 +52,7 @@ export const useProbe = ({
 		null,
 	);
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
-	const [tracks, setTracks] = useState<MediaParserTracks | null>(null);
+	const [tracks, setTracks] = useState<MediaParserTrack[] | null>(null);
 	const [container, setContainer] = useState<MediaParserContainer | null>(null);
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,

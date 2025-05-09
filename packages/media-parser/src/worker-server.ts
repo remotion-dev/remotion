@@ -95,7 +95,7 @@ const startParsing = async (
 		postSlowFps,
 		postSlowDurationInSeconds,
 		postSlowVideoBitrate,
-		postStructure,
+		postSlowStructure,
 		postTracks,
 		postUnrotatedDimensions,
 		postVideoCodec,
@@ -307,10 +307,10 @@ const startParsing = async (
 						});
 					}
 				: null,
-			onStructure: postStructure
+			onSlowStructure: postSlowStructure
 				? async (structure) => {
 						await executeCallback({
-							callbackType: 'structure',
+							callbackType: 'slow-structure',
 							value: structure,
 						});
 					}

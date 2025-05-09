@@ -1,7 +1,7 @@
 import type {
 	MediaParserAudioCodec,
 	MediaParserContainer,
-	MediaParserTracks,
+	MediaParserTrack,
 } from '@remotion/media-parser';
 import type {
 	AudioOperation,
@@ -89,7 +89,7 @@ export const getSupportedConfigs = async ({
 	resizeOperation,
 	sampleRate,
 }: {
-	tracks: MediaParserTracks;
+	tracks: MediaParserTrack[];
 	container: ConvertMediaContainer;
 	bitrate: number;
 	action: RouteAction;
@@ -105,7 +105,7 @@ export const getSupportedConfigs = async ({
 	const prioritizeCopyOverReencode =
 		shouldPrioritizeVideoCopyOverReencode(action);
 
-	for (const track of tracks.videoTracks) {
+	for (const track of tracks.filter((t) => t.type === 'video')) {
 		const options: VideoOperation[] = [];
 		const canCopy = canCopyVideoTrack({
 			inputTrack: track,
@@ -154,7 +154,7 @@ export const getSupportedConfigs = async ({
 	const availableAudioCodecs = getAvailableAudioCodecs({container});
 	const audioTrackOptions: AudioTrackOption[] = [];
 
-	for (const track of tracks.audioTracks) {
+	for (const track of tracks.filter((t) => t.type === 'audio')) {
 		const audioTrackOperations: AudioOperation[] = [];
 
 		const canCopy = canCopyAudioTrack({

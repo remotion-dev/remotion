@@ -39,14 +39,16 @@ export const emitAvailableInfo = async ({
 
 	for (const key of keys) {
 		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
-		if (key === 'structure') {
-			if (hasInfo.structure && !emittedFields.structure) {
-				await callbackFunctions.onStructure?.(state.structure.getStructure());
-				if (fieldsInReturnValue.structure) {
-					returnValue.structure = state.structure.getStructure();
+		if (key === 'slowStructure') {
+			if (hasInfo.slowStructure && !emittedFields.slowStructure) {
+				await callbackFunctions.onSlowStructure?.(
+					state.structure.getStructure(),
+				);
+				if (fieldsInReturnValue.slowStructure) {
+					returnValue.slowStructure = state.structure.getStructure();
 				}
 
-				emittedFields.structure = true;
+				emittedFields.slowStructure = true;
 			}
 
 			continue;

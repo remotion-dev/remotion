@@ -2,7 +2,7 @@ export type ParseMediaFields = {
 	dimensions: boolean;
 	durationInSeconds: boolean;
 	slowDurationInSeconds: boolean;
-	structure: boolean;
+	slowStructure: boolean;
 	fps: boolean;
 	slowFps: boolean;
 	videoCodec: boolean;
@@ -34,7 +34,7 @@ export type AllOptions<Fields extends ParseMediaFields> = {
 	durationInSeconds: Fields['durationInSeconds'];
 	slowDurationInSeconds: Fields['slowDurationInSeconds'];
 	slowFps: Fields['slowFps'];
-	structure: Fields['structure'];
+	slowStructure: Fields['slowStructure'];
 	fps: Fields['fps'];
 	videoCodec: Fields['videoCodec'];
 	audioCodec: Fields['audioCodec'];

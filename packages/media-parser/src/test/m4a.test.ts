@@ -19,7 +19,7 @@ test('should work on voice note', async () => {
 			container: true,
 			dimensions: true,
 			metadata: true,
-			structure: true,
+			slowStructure: true,
 		},
 		onAudioTrack: (track) => {
 			const trk = track.track;

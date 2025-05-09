@@ -20,18 +20,18 @@ if (process.platform !== 'win32') {
 				audioCodec: true,
 				dimensions: true,
 				rotation: true,
-				structure: true,
+				slowStructure: true,
 			},
 			reader: nodeReader,
 		});
 
-		if (parsed.structure.type !== 'iso-base-media') {
+		if (parsed.slowStructure.type !== 'iso-base-media') {
 			throw new Error('Not an ISO base media file');
 		}
 
-		const {structure} = parsed;
+		const {slowStructure} = parsed;
 
-		const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
+		const moovBox = slowStructure.boxes.find((s) => s.type === 'moov-box');
 		if (!moovBox || moovBox.type !== 'moov-box') {
 			throw new Error('No moov box');
 		}
@@ -77,7 +77,7 @@ if (process.platform !== 'win32') {
 				audioCodec: true,
 				dimensions: true,
 				rotation: true,
-				structure: true,
+				slowStructure: true,
 			},
 			reader: nodeReader,
 			onVideoTrack: () => {
@@ -88,17 +88,17 @@ if (process.platform !== 'win32') {
 			},
 		});
 
-		if (parsed.structure.type !== 'iso-base-media') {
+		if (parsed.slowStructure.type !== 'iso-base-media') {
 			throw new Error('Not an ISO base media file');
 		}
 
-		const {structure} = parsed;
+		const {slowStructure} = parsed;
 
-		if (structure.type !== 'iso-base-media') {
+		if (slowStructure.type !== 'iso-base-media') {
 			throw new Error('Expected iso-base-media');
 		}
 
-		const moovBox = structure.boxes.find((s) => s.type === 'moov-box');
+		const moovBox = slowStructure.boxes.find((s) => s.type === 'moov-box');
 		if (!moovBox || moovBox.type !== 'moov-box') {
 			throw new Error('No moov box');
 		}

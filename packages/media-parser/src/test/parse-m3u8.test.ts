@@ -33,7 +33,7 @@ test('parse m3u8', async () => {
 			};
 		},
 		fields: {
-			structure: true,
+			slowStructure: true,
 			durationInSeconds: true,
 			dimensions: true,
 			tracks: true,

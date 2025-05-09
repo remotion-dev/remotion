@@ -92,7 +92,7 @@ export const getMoovAtom = async ({
 
 	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers: false,
-		fields: {structure: true},
+		fields: {slowStructure: true},
 		hasVideoTrackHandlers: false,
 		structure: structureState(),
 	});

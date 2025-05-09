@@ -4,10 +4,10 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('iPhone metadata', async () => {
-	const {structure, metadata, location} = await parseMedia({
+	const {slowStructure, metadata, location} = await parseMedia({
 		src: exampleVideos.iphonelivefoto,
 		fields: {
-			structure: true,
+			slowStructure: true,
 			metadata: true,
 			location: true,
 		},
@@ -15,7 +15,7 @@ test('iPhone metadata', async () => {
 		reader: nodeReader,
 	});
 
-	if (structure.type !== 'iso-base-media') {
+	if (slowStructure.type !== 'iso-base-media') {
 		throw new Error('Expected video');
 	}
 
@@ -118,7 +118,7 @@ test('Metadata from Matroska', async () => {
 		src: exampleVideos.matroskaPcm16,
 		fields: {
 			metadata: true,
-			structure: true,
+			slowStructure: true,
 		},
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
@@ -221,7 +221,7 @@ test('mp4 Big buck bunny metadata', async () => {
 		src: exampleVideos.av1mp4,
 		fields: {
 			metadata: true,
-			structure: true,
+			slowStructure: true,
 		},
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,

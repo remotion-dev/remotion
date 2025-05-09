@@ -11,21 +11,23 @@ test('should parse mfra atoms', async () => {
 
 	const controller = mediaParserController();
 
-	const {structure} = await parseMedia({
+	const {slowStructure} = await parseMedia({
 		src: video,
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 		controller,
 		fields: {
 			durationInSeconds: true,
-			structure: true,
+			slowStructure: true,
 		},
 	});
 
-	expect(getTfraBoxes((structure as IsoBaseMediaStructure).boxes).length).toBe(
-		2,
-	);
-	expect(getTfraBoxes((structure as IsoBaseMediaStructure).boxes)[0]).toEqual({
+	expect(
+		getTfraBoxes((slowStructure as IsoBaseMediaStructure).boxes).length,
+	).toBe(2);
+	expect(
+		getTfraBoxes((slowStructure as IsoBaseMediaStructure).boxes)[0],
+	).toEqual({
 		offset: 8731723,
 		boxSize: 1240,
 		type: 'tfra-box',

@@ -27,7 +27,7 @@ test('parse flac', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		unrotatedDimensions,
 		numberOfAudioChannels,
 		sampleRate,
@@ -58,7 +58,7 @@ test('parse flac', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			unrotatedDimensions: true,
 			numberOfAudioChannels: true,
 			sampleRate: true,
@@ -154,7 +154,7 @@ test('parse flac', async () => {
 	expect(slowFps).toBe(0);
 	expect(slowKeyframes).toEqual([]);
 	expect(slowNumberOfFrames).toBe(0);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		type: 'flac',
 		boxes: [
 			{

@@ -1,13 +1,10 @@
-import type {
-	MediaParserAudioTrack,
-	MediaParserVideoTrack,
-} from '@remotion/media-parser';
+import type {MediaParserTrack} from '@remotion/media-parser';
 import React from 'react';
 import {Button} from './ui/button';
 import {Separator} from './ui/separator';
 
 export const TrackSwitcher: React.FC<{
-	readonly sortedTracks: (MediaParserAudioTrack | MediaParserVideoTrack)[];
+	readonly sortedTracks: MediaParserTrack[];
 	readonly onTrack: (trackNumber: number | null) => void;
 	readonly selectedTrack: number | null;
 }> = ({sortedTracks, onTrack, selectedTrack}) => {

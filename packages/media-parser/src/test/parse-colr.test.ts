@@ -5,16 +5,16 @@ import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('parse colr', async () => {
-	const {structure} = await parseMedia({
+	const {slowStructure} = await parseMedia({
 		src: exampleVideos.profColrTyp,
 		fields: {
-			structure: true,
+			slowStructure: true,
 		},
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 	});
 
-	const trak = structure.boxes
+	const trak = slowStructure.boxes
 		.find((b) => b.type === 'moov-box')
 		?.children?.find((t) => t.type === 'trak-box');
 

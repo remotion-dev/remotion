@@ -11,7 +11,7 @@ test('Transport stream', async () => {
 	let h264File: Uint8Array = new Uint8Array([]);
 
 	const {
-		structure,
+		slowStructure,
 		durationInSeconds,
 		dimensions,
 		container,
@@ -27,7 +27,7 @@ test('Transport stream', async () => {
 		src: exampleVideos.transportstream,
 		fields: {
 			durationInSeconds: true,
-			structure: true,
+			slowStructure: true,
 			dimensions: true,
 			container: true,
 			audioCodec: true,
@@ -202,7 +202,7 @@ test('Transport stream', async () => {
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
 	expect(videoSamples).toBe(298);
-	expect(structure.boxes[0]).toEqual({
+	expect(slowStructure.boxes[0]).toEqual({
 		type: 'transport-stream-pat-box',
 		tableId: '0',
 		pat: [
@@ -213,7 +213,7 @@ test('Transport stream', async () => {
 			},
 		],
 	});
-	expect(structure.boxes[1]).toEqual({
+	expect(slowStructure.boxes[1]).toEqual({
 		type: 'transport-stream-pmt-box',
 		tableId: 2,
 		streams: [
