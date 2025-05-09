@@ -1,5 +1,5 @@
 import {canUseWhisperWasm} from './can-use-whisper-wasm';
-import type {WhisperWasmModel} from './constants';
+import {MODELS, type WhisperWasmModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {putObject} from './db/put-object';
 import {fetchRemote} from './download-model';
@@ -18,6 +18,12 @@ export const downloadWhisperModel = async ({
 	model,
 	onProgress,
 }: DownloadWhisperModelParams): Promise<DownloadWhisperModelResult> => {
+	if (!model || !MODELS.includes(model)) {
+		throw new Error(
+			`Invalid model name: ${model}. Supported models: ${MODELS.join(', ')}.`,
+		);
+	}
+
 	const usabilityCheck = await canUseWhisperWasm(model);
 
 	if (!usabilityCheck.supported) {

@@ -1,12 +1,11 @@
 import type {WhisperWasmModel} from './constants';
-import {MODELS, SIZES} from './constants';
+import {SIZES} from './constants';
 
 export enum WhisperWasmUnsupportedReason {
 	WindowUndefined = 'window-undefined',
 	IndexedDbUnavailable = 'indexed-db-unavailable',
 	NavigatorStorageUnavailable = 'navigator-storage-unavailable',
 	StorageEstimationApiUnavailable = 'storage-estimation-api-unavailable',
-	InvalidModelName = 'invalid-model-name',
 	QuotaUndefined = 'quota-undefined',
 	UsageUndefined = 'usage-undefined',
 	NotEnoughSpace = 'not-enough-space',
@@ -55,16 +54,6 @@ export const canUseWhisperWasm = async (
 			reason: WhisperWasmUnsupportedReason.NavigatorStorageUnavailable,
 			detailedReason:
 				'`navigator.storage.estimate()` API is not available in this environment.',
-		};
-	}
-
-	if (!model || !MODELS.includes(model)) {
-		return {
-			supported: false,
-			reason: WhisperWasmUnsupportedReason.InvalidModelName,
-			detailedReason: `Invalid model name. Supported models: ${MODELS.join(
-				', ',
-			)}.`,
 		};
 	}
 
