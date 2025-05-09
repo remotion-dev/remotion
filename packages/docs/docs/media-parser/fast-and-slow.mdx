@@ -21,7 +21,7 @@ Obviously, processing less of the file is faster and you should aim to read only
 
 The following [`fields`](/docs/media-parser#fields) require the full file to be read:
 
-- [`structure`](/docs/media-parser/fields#structure)
+- [`slowStructure`](/docs/media-parser/fields#slowstructure)
 - [`slowKeyframes`](/docs/media-parser/fields#slowkeyframes)
 - [`slowFps`](/docs/media-parser/fields#slowfps)
 - [`slowDurationInSeconds`](/docs/media-parser/fields#slowdurationinseconds)
@@ -29,9 +29,9 @@ The following [`fields`](/docs/media-parser#fields) require the full file to be 
 - [`slowAudioBitrate`](/docs/media-parser/fields#slowaudiobitrate)
 - [`slowVideoBitrate`](/docs/media-parser/fields#slowvideobitrate)
 
-Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, and the handler function returns an callback function for each sample, full parsing is required.
+Generally, if a field is marked as `slow`, it will require the full file to be read.
 
-Also, if [`convertMedia()`](/docs/webcodecs/convert-media) is used, full parsing is always required.
+Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, and any function returns an callback function, full parsing is required.
 
 ## Metadata-only operations
 
