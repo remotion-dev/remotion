@@ -55,7 +55,7 @@ export const afterManifestFetch = async ({
 
 	const selectedPlaylist = await selectStream({streams, fn: selectM3uStreamFn});
 
-	if (!selectedPlaylist.resolution) {
+	if (!selectedPlaylist.dimensions) {
 		throw new Error('Stream does not have a resolution');
 	}
 

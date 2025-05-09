@@ -21,7 +21,7 @@ export type M3uStream = {
 	src: string;
 	bandwidthInBitsPerSec: number | null;
 	averageBandwidthInBitsPerSec: number | null;
-	resolution: MediaParserDimensions | null;
+	dimensions: MediaParserDimensions | null;
 	codecs: string[] | null;
 	id: number;
 	associatedPlaylists: M3uAssociatedPlaylist[];
@@ -93,7 +93,7 @@ export const getM3uStreams = ({
 				averageBandwidthInBitsPerSec: str.averageBandwidthInBitsPerSec,
 				bandwidthInBitsPerSec: str.bandwidthInBitsPerSec,
 				codecs: str.codecs,
-				resolution: str.resolution,
+				dimensions: str.dimensions,
 				associatedPlaylists,
 			});
 		}
@@ -105,11 +105,11 @@ export const getM3uStreams = ({
 	}
 
 	const sorted = boxes.slice().sort((a, b) => {
-		const aResolution = a.resolution
-			? a.resolution.width * a.resolution.height
+		const aResolution = a.dimensions
+			? a.dimensions.width * a.dimensions.height
 			: 0;
-		const bResolution = b.resolution
-			? b.resolution.width * b.resolution.height
+		const bResolution = b.dimensions
+			? b.dimensions.width * b.dimensions.height
 			: 0;
 		if (aResolution === bResolution) {
 			const bandwidthA =

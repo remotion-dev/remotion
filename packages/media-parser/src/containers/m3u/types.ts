@@ -66,7 +66,7 @@ export type M3uStreamInfo = {
 	bandwidthInBitsPerSec: number | null;
 	averageBandwidthInBitsPerSec: number | null;
 	codecs: string[] | null;
-	resolution: {
+	dimensions: {
 		width: number;
 		height: number;
 	} | null;

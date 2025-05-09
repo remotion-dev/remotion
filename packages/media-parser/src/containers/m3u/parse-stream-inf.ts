@@ -57,7 +57,7 @@ export const parseStreamInf = (str: string): M3uStreamInfo => {
 			: null,
 		bandwidthInBitsPerSec: map.BANDWIDTH ? parseInt(map.BANDWIDTH, 10) : null,
 		codecs: map.CODECS ? map.CODECS.split(',') : null,
-		resolution: map.RESOLUTION
+		dimensions: map.RESOLUTION
 			? {
 					width: parseInt(map.RESOLUTION.split('x')[0], 10),
 					height: parseInt(map.RESOLUTION.split('x')[1], 10),
