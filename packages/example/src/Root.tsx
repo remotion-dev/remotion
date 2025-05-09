@@ -1591,13 +1591,11 @@ export const Index: React.FC = () => {
 					durationInFrames={900}
 				/>
 			</Folder>
-			<Composition
+			<Still
 				id="whisper-wasm"
 				component={WhisperWasm}
-				width={150}
-				height={150}
-				fps={30}
-				durationInFrames={900}
+				width={800}
+				height={800}
 			/>
 			<Composition
 				id="empty"
