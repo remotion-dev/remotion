@@ -696,8 +696,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0
       '@shopify/react-native-skia':
-        specifier: 1.6.0
-        version: 1.6.0(react@19.0.0)
+        specifier: 2.0.0
+        version: 2.0.0(react@19.0.0)
       '@swc/core':
         specifier: ^1.3.80
         version: 1.3.80
@@ -1065,8 +1065,8 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@shopify/react-native-skia':
-        specifier: 1.6.0
-        version: 1.6.0(react@19.0.0)
+        specifier: 2.0.0
+        version: 2.0.0(react@19.0.0)
       '@types/express':
         specifier: ^4.17.11
         version: 4.17.13
@@ -2035,8 +2035,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-internal
       '@shopify/react-native-skia':
-        specifier: 1.6.0
-        version: 1.6.0(react@18.3.1)
+        specifier: 2.0.0
+        version: 2.0.0(react@18.3.1)
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
@@ -2047,8 +2047,8 @@ importers:
         specifier: ^0.69.2
         version: 0.69.2
       canvaskit-wasm:
-        specifier: 0.39.1
-        version: 0.39.1
+        specifier: 0.40.0
+        version: 0.40.0
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -2998,14 +2998,14 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@shopify/react-native-skia':
-        specifier: 1.6.0
-        version: 1.6.0(react@18.3.1)
+        specifier: 2.0.0
+        version: 2.0.0(react@19.0.0)
       react:
-        specifier: 18.3.1
-        version: 18.3.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -13540,39 +13540,40 @@ packages:
     resolution: {integrity: sha512-jn7/7ky30idSkd/O5yDBfAnVt+JJpepofP/POZ1iMOxK59cOfqIgg/Dj0eFsjOTMw+4ycJN0uhZH/Eb0bs/EUA==}
     dev: false
 
-  /@shopify/react-native-skia@1.6.0(react@18.3.1):
-    resolution: {integrity: sha512-w7Pg6w5N7/KMyPFeRtcXdTPSS9Eid3z15aBXjU3JHJBNoIQCNPwX8J0G2g8nTU+w/Vb34dFL00/Va45HEGUqBQ==}
+  /@shopify/react-native-skia@2.0.0(react@18.3.1):
+    resolution: {integrity: sha512-h7nKK3wABX4E4yOlyXDryfA+rBKw1zkfOOiTWQ6gqCn4kACNBnPSrmkTTWnoers+axgSFSqudhcZh0teaa3QHA==}
     hasBin: true
     peerDependencies:
-      react: '>=18.0'
-      react-native: '>=0.64'
-      react-native-reanimated: '>=2.0.0'
+      react: '>=19.0'
+      react-native: '>=0.78'
+      react-native-reanimated: ^3.0
     peerDependenciesMeta:
       react-native:
         optional: true
       react-native-reanimated:
         optional: true
     dependencies:
-      canvaskit-wasm: 0.39.1
+      canvaskit-wasm: 0.40.0
       react: 18.3.1
-      react-reconciler: 0.27.0(react@18.3.1)
+      react-reconciler: 0.31.0(react@18.3.1)
+    dev: true
 
-  /@shopify/react-native-skia@1.6.0(react@19.0.0):
-    resolution: {integrity: sha512-w7Pg6w5N7/KMyPFeRtcXdTPSS9Eid3z15aBXjU3JHJBNoIQCNPwX8J0G2g8nTU+w/Vb34dFL00/Va45HEGUqBQ==}
+  /@shopify/react-native-skia@2.0.0(react@19.0.0):
+    resolution: {integrity: sha512-h7nKK3wABX4E4yOlyXDryfA+rBKw1zkfOOiTWQ6gqCn4kACNBnPSrmkTTWnoers+axgSFSqudhcZh0teaa3QHA==}
     hasBin: true
     peerDependencies:
-      react: '>=18.0'
-      react-native: '>=0.64'
-      react-native-reanimated: '>=2.0.0'
+      react: '>=19.0'
+      react-native: '>=0.78'
+      react-native-reanimated: ^3.0
     peerDependenciesMeta:
       react-native:
         optional: true
       react-native-reanimated:
         optional: true
     dependencies:
-      canvaskit-wasm: 0.39.1
+      canvaskit-wasm: 0.40.0
       react: 19.0.0
-      react-reconciler: 0.27.0(react@19.0.0)
+      react-reconciler: 0.31.0(react@19.0.0)
     dev: false
 
   /@sideway/address@4.1.5:
@@ -17313,8 +17314,8 @@ packages:
   /caniuse-lite@1.0.30001690:
     resolution: {integrity: sha512-5ExiE3qQN6oF8Clf8ifIDcMRCRE/dMGcETG/XGMD8/XiXm6HXQgQTh1yZYLXXpSOsEUlJm1Xr7kGULZTuGtP/w==}
 
-  /canvaskit-wasm@0.39.1:
-    resolution: {integrity: sha512-Gy3lCmhUdKq+8bvDrs9t8+qf7RvcjuQn+we7vTVVyqgOVO1UVfHpsnBxkTZw+R4ApEJ3D5fKySl9TU11hmjl/A==}
+  /canvaskit-wasm@0.40.0:
+    resolution: {integrity: sha512-Od2o+ZmoEw9PBdN/yCGvzfu0WVqlufBPEWNG452wY7E9aT8RBE+ChpZF526doOlg7zumO4iCS+RAeht4P0Gbpw==}
     dependencies:
       '@webgpu/types': 0.1.21
 
@@ -26669,26 +26670,15 @@ packages:
       webpack: 5.96.1(@swc/core@1.3.80)
     dev: false
 
-  /react-reconciler@0.27.0(react@18.3.1):
-    resolution: {integrity: sha512-HmMDKciQjYmBRGuuhIaKA1ba/7a+UsM5FzOZsMO2JYHt9Jh8reCb7j1eDC95NOyUlKM9KRyvdx0flBuDvYSBoA==}
+  /react-reconciler@0.31.0(react@18.3.1):
+    resolution: {integrity: sha512-7Ob7Z+URmesIsIVRjnLoDGwBEG/tVitidU0nMsqX/eeJaLY89RISO/10ERe0MqmzuKUUB1rmY+h1itMbUHg9BQ==}
     engines: {node: '>=0.10.0'}
     peerDependencies:
-      react: ^18.0.0
+      react: ^19.0.0
     dependencies:
-      loose-envify: 1.4.0
       react: 18.3.1
-      scheduler: 0.21.0
-
-  /react-reconciler@0.27.0(react@19.0.0):
-    resolution: {integrity: sha512-HmMDKciQjYmBRGuuhIaKA1ba/7a+UsM5FzOZsMO2JYHt9Jh8reCb7j1eDC95NOyUlKM9KRyvdx0flBuDvYSBoA==}
-    engines: {node: '>=0.10.0'}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      loose-envify: 1.4.0
-      react: 19.0.0
-      scheduler: 0.21.0
-    dev: false
+      scheduler: 0.25.0
+    dev: true
 
   /react-reconciler@0.31.0(react@19.0.0):
     resolution: {integrity: sha512-7Ob7Z+URmesIsIVRjnLoDGwBEG/tVitidU0nMsqX/eeJaLY89RISO/10ERe0MqmzuKUUB1rmY+h1itMbUHg9BQ==}
@@ -27689,6 +27679,7 @@ packages:
     resolution: {integrity: sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
