@@ -1,11 +1,12 @@
 import { staticFile } from "remotion";
 import { getVideoMetadata, VideoMetadata } from "@remotion/media-utils";
-import { ThreeCanvas, useVideoTexture } from "@remotion/three";
+import { ThreeCanvas } from "@remotion/three";
 import React, { useEffect, useRef, useState } from "react";
 import { AbsoluteFill, useVideoConfig, Video } from "remotion";
 import { Phone } from "./Phone";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
+import { useTexture } from "./use-texture";
 
 const container: React.CSSProperties = {
   backgroundColor: "white",
@@ -41,7 +42,8 @@ export const Scene: React.FC<
       .catch((err) => console.log(err));
   }, [videoSrc]);
 
-  const texture = useVideoTexture(videoRef);
+  const texture = useTexture(videoSrc, videoRef);
+
   return (
     <AbsoluteFill style={container}>
       <Video ref={videoRef} src={videoSrc} style={videoStyle} />
