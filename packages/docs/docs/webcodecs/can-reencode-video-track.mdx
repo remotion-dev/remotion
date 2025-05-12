@@ -29,7 +29,9 @@ const {tracks} = await parseMedia({
   },
 });
 
-for (const track of tracks.videoTracks) {
+const videoTracks = tracks.filter((t) => t.type === 'video');
+
+for (const track of videoTracks) {
   await canReencodeVideoTrack({
     track,
     videoCodec: 'vp8',
