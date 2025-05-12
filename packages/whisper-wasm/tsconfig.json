@@ -4,9 +4,9 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"module": "NodeNext",
-		"resolveJsonModule": false,
+		"resolveJsonModule": true,
 		"moduleResolution": "NodeNext"
 	},
-	"include": ["src", "main.d.ts"],
+	"include": ["src", "main.d.ts", "src/web/tokenizer.json"],
 	"exclude": ["src/index.module.ts"]
 }

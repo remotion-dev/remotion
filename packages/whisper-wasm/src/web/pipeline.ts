@@ -7,19 +7,19 @@ import type {PretrainedOptions} from '@huggingface/transformers';
 import {
 	AutoModelForCTC,
 	AutoModelForSpeechSeq2Seq,
-	AutoTokenizer,
 	type PreTrainedModel,
 	type Processor,
-	type Tensor,
 } from '@huggingface/transformers';
 
 import {AutoProcessor} from './auto-processor.js';
+import {AutoTokenizer} from './auto-tokenizer.js';
 import {Callable} from './callable.js';
 import {dispatchCallback} from './dispatch-callback.js';
 import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
 import {whisperModelConfig} from './model-config.js';
 import {read_audio} from './read-audio.js';
+import type {Tensor} from './tensor.js';
 import {whisperProcessorConfig} from './whisper-config.js';
 import type {WhisperModelOutput} from './whisper-model-output.js';
 import type {WhisperTokenizer} from './whisper-tokenizer.js';
@@ -189,6 +189,7 @@ export class AutomaticSpeechRecognitionPipeline
 
 				// NOTE: doing sequentially for now
 				const data = (await this.model.generate({
+					// @ts-expect-error
 					inputs: chunk.input_features,
 					...generation_config,
 				})) as WhisperModelOutput | Tensor;

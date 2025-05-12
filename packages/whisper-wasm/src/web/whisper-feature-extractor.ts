@@ -1,5 +1,6 @@
-import {FeatureExtractor, mel_filter_bank} from '@huggingface/transformers';
+import {FeatureExtractor} from '@huggingface/transformers';
 import {max} from './maths';
+import {mel_filter_bank} from './mel-filter-bank';
 import {spectrogram} from './spectrogram';
 import type {WhisperProcessorConfig} from './whisper-config';
 import {window_function} from './window-function';

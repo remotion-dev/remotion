@@ -1,4 +1,4 @@
-import type {Tensor} from '@huggingface/transformers';
+import type {Tensor} from './tensor';
 
 export function prepareTensorForDecode(tensor: Tensor) {
 	const {dims} = tensor;

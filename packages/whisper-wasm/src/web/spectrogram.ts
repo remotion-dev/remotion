@@ -1,5 +1,6 @@
-import {FFT, matmul, Tensor} from '@huggingface/transformers';
+import {FFT, matmul} from '@huggingface/transformers';
 import {amplitude_to_db, power_to_db} from './power-to-db';
+import {Tensor} from './tensor';
 
 export function calculateReflectOffset(i: number, w: number) {
 	return Math.abs(((i + w) % (2 * w)) - w);
@@ -217,6 +218,7 @@ export async function spectrogram(
 	//  - mel_spec.shape=(80, 3000)
 	let mel_spec = await matmul(
 		// TODO: Make `mel_filters` a Tensor during initialization
+		// @ts-expect-error
 		new Tensor('float32', (mel_filters as number[]).flat(), [
 			num_mel_filters,
 			num_frequency_bins,

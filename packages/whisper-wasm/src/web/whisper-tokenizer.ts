@@ -1,9 +1,10 @@
 /* eslint-disable no-lonely-if */
-import {PreTrainedTokenizer, Tensor} from '@huggingface/transformers';
+import {PreTrainedTokenizer} from '@huggingface/transformers';
 import {round} from './maths';
 import {mergeArrays} from './merge-arrays';
 import type {AsrChunk} from './pipeline';
 import {prepareTensorForDecode} from './prepare-tensor-for-decode';
+import {Tensor} from './tensor';
 import {
 	WHISPER_LANGUAGE_MAPPING,
 	whisper_language_to_code,
