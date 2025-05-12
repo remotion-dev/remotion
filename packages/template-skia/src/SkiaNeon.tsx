@@ -6,7 +6,6 @@ import {
   Group,
   LinearGradient,
   mix,
-  Paint,
   Path,
   processTransform2d,
   rect,
