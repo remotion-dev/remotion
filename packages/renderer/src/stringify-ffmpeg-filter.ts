@@ -47,14 +47,12 @@ export const getActualTrimLeft = ({
 	trimLeftOffset,
 	seamless,
 	assetDuration,
-	presentationTimeOffsetInSeconds,
 }: {
 	asset: MediaAsset;
 	fps: number;
 	trimLeftOffset: number;
 	seamless: boolean;
 	assetDuration: number | null;
-	presentationTimeOffsetInSeconds: number;
 }): {
 	trimLeft: number;
 	maxTrim: number | null;
@@ -76,8 +74,7 @@ export const getActualTrimLeft = ({
 			trimLeft:
 				asset.audioStartFrame / fps / asset.playbackRate +
 				sinceStart / fps +
-				trimLeftOffset -
-				presentationTimeOffsetInSeconds,
+				trimLeftOffset,
 			maxTrim: assetDuration ? assetDuration / asset.playbackRate : null,
 		};
 	}
@@ -93,12 +90,10 @@ const trimAndSetTempo = ({
 	fps,
 	indent,
 	logLevel,
-	presentationTimeOffsetInSeconds,
 }: {
 	assetDuration: number | null;
 	trimLeftOffset: number;
 	trimRightOffset: number;
-	presentationTimeOffsetInSeconds: number;
 	asset: MediaAsset;
 	fps: number;
 	indent: boolean;
@@ -118,7 +113,6 @@ const trimAndSetTempo = ({
 		trimLeftOffset,
 		seamless: true,
 		assetDuration,
-		presentationTimeOffsetInSeconds,
 	});
 	const trimRight =
 		trimLeft + asset.duration / fps - trimLeftOffset + trimRightOffset;
@@ -192,7 +186,6 @@ export const stringifyFfmpegFilter = ({
 		trimLeftOffset,
 		seamless: forSeamlessAacConcatenation,
 		assetDuration,
-		presentationTimeOffsetInSeconds,
 	});
 
 	if (maxTrim && trimLeft >= maxTrim) {
@@ -217,7 +210,6 @@ export const stringifyFfmpegFilter = ({
 		fps,
 		indent,
 		logLevel,
-		presentationTimeOffsetInSeconds,
 	});
 
 	const volumeFilter = ffmpegVolumeExpression({
@@ -230,7 +222,7 @@ export const stringifyFfmpegFilter = ({
 
 	const padStart =
 		startInVideoSeconds +
-		(actualTrimLeft === 0 ? presentationTimeOffsetInSeconds : 0);
+		(asset.trimLeft === 0 ? presentationTimeOffsetInSeconds : 0);
 
 	// Set as few filters as possible, as combining them can create noise
 	return {
