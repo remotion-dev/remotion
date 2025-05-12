@@ -211,6 +211,7 @@ export class AutomaticSpeechRecognitionPipeline
 
 			// Merge text chunks
 			const [full_text, optional] = this.tokenizer._decode_asr(chunks, {
+				// @ts-expect-error
 				time_precision,
 				return_timestamps: return_timestamps as boolean,
 				force_full_sequences,
