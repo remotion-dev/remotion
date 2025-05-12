@@ -86,9 +86,9 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 				frameloop={shouldUseFrameloopDemand ? 'demand' : 'always'}
 				onCreated={remotion_onCreated}
 			>
-				{shouldUseFrameloopDemand && <FiberFrameInvalidator />}
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
+					{shouldUseFrameloopDemand && <FiberFrameInvalidator />}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>
