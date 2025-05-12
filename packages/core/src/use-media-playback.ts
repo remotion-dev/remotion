@@ -5,6 +5,7 @@ import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
+import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
@@ -77,12 +78,15 @@ export const useMediaPlayback = ({
 		isVariableFpsVideoMap.current[src] = true;
 	}, [logLevel, src]);
 
-	const currentTime = useRequestVideoCallbackTime({
+	const rvcCurrentTime = useRequestVideoCallbackTime({
 		mediaRef,
 		mediaType,
 		lastSeek,
 		onVariableFpsVideoDetected,
 	});
+
+	const mediaTagCurrentTime =
+		useCurrentTimeOfMediaTagWithUpdateTimeStamp(mediaRef);
 
 	const desiredUnclampedTime = getMediaTime({
 		frame,
@@ -199,16 +203,23 @@ export const useMediaPlayback = ({
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
 
-		const mediaTagTime = mediaRef.current.currentTime;
-		const rvcTime = currentTime.current ?? null;
+		const mediaTagTime = mediaTagCurrentTime.current.time;
+		const rvcTime = rvcCurrentTime.current?.time ?? null;
 
 		const isVariableFpsVideo = isVariableFpsVideoMap.current[src];
 
 		const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
 		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
+
+		const mostRecentTimeshift =
+			rvcCurrentTime.current?.lastUpdate &&
+			rvcCurrentTime.current.time > mediaTagCurrentTime.current.lastUpdate
+				? (timeShiftRvcTag as number)
+				: timeShiftMediaTag;
+
 		const timeShift =
 			timeShiftRvcTag && !isVariableFpsVideo
-				? timeShiftRvcTag
+				? mostRecentTimeshift
 				: timeShiftMediaTag;
 
 		if (
@@ -320,7 +331,7 @@ export const useMediaPlayback = ({
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
 		buffering.buffering,
-		currentTime,
+		rvcCurrentTime,
 		logLevel,
 		desiredUnclampedTime,
 		isBuffering,
@@ -335,5 +346,6 @@ export const useMediaPlayback = ({
 		isPremounting,
 		pauseWhenBuffering,
 		mountTime,
+		mediaTagCurrentTime,
 	]);
 };
