@@ -3,13 +3,38 @@ title: transcribe()
 crumb: '@remotion/whisper-wasm'
 ---
 
+# transcribe()
+
 :::warning
 **Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API.  
 :::
 
-# transcribe()
+Transcribes pre-processed audio data (a `Float32Array` waveform) using WebAssembly-compiled Whisper.cpp, returning the transcription.
 
-Transcribes pre-processed audio data (a `Float32Array` waveform) using WebAssembly-compiled `whisper.cpp`, returning the transcription. To transcribe an audio file, you first need to process it using [`resampleTo16Khz()`](/docs/whisper-wasm/resample-to-16khz).
+To transcribe an audio file, you first need to download a model using [`downloadWhisperModel()`](/docs/whisper-wasm/download-whisper-model) and turn the file into a 16kHz `Float32Array` using [`resampleTo16Khz()`](/docs/whisper-wasm/resample-to-16khz).
+
+## Example
+
+```tsx twoslash title="app.ts"
+import {resampleTo16Khz} from '@remotion/whisper-wasm';
+const file = new File([], 'audio.wav');
+
+const channelWaveform = await resampleTo16Khz({
+  file,
+  onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
+});
+
+// ---cut---
+import {transcribe} from '@remotion/whisper-wasm';
+
+const {transcription} = await transcribe({
+  channelWaveform,
+  model: 'tiny.en',
+  onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
+});
+
+console.log(transcription.map((t) => t.text).join(' '));
+```
 
 ## Arguments
 
@@ -73,5 +98,5 @@ Determines how much info is being logged to the console.
 
 - [Source code for `transcribe()`](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/transcribe.ts)
 - [`resampleTo16Khz()`](/docs/whisper-wasm/resample-to-16khz)
-- [`@remotion/whisper-wasm`](/docs/whisper-wasm)
 - [`downloadWhisperModel()`](/docs/whisper-wasm/download-whisper-model)
+- [`@remotion/whisper-wasm`](/docs/whisper-wasm)

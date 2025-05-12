@@ -38,8 +38,8 @@ export const WhisperWasm = () => {
 		try {
 			const {alreadyDownloaded} = await downloadWhisperModel({
 				model: selectedModel,
-				onProgress: (progress) => {
-					console.log(progress);
+				onProgress: ({progress, totalBytes, downloadedBytes}) => {
+					console.log({progress, totalBytes, downloadedBytes});
 					setStatusMessage(
 						`Downloading ${selectedModel} model... ${(progress * 100).toFixed(
 							0,
