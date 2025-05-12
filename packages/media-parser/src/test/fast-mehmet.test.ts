@@ -14,7 +14,7 @@ test('mehmet video should be fast', async () => {
 		src: exampleVideos.iphonelivefoto,
 		reader: nodeReader,
 		fields: {
-			structure: true,
+			slowStructure: true,
 		},
 		onVideoTrack: () => {
 			return () => {};

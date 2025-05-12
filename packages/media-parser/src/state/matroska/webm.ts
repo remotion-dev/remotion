@@ -9,9 +9,9 @@ import {
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../fetch';
 import type {BufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import {lazyCuesFetch} from './lazy-cues-fetch';
 
 export type SegmentSection = {
@@ -34,8 +34,8 @@ export const webmState = ({
 	prefetchCache,
 }: {
 	controller: MediaParserController;
-	logLevel: LogLevel;
-	readerInterface: ReaderInterface;
+	logLevel: MediaParserLogLevel;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	prefetchCache: PrefetchCache;
 }) => {

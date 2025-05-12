@@ -1,12 +1,13 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
 import type {WebmState} from '../../state/matroska/webm';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {StructureState} from '../../state/structure';
 import type {
-	AudioOrVideoSample,
-	OnVideoTrack,
+	MediaParserAudioSample,
+	MediaParserOnVideoTrack,
+	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';
@@ -17,15 +18,15 @@ import {parseBlockFlags} from './segments/block-simple-block-flags';
 type SampleResult =
 	| {
 			type: 'video-sample';
-			videoSample: AudioOrVideoSample;
+			videoSample: MediaParserVideoSample;
 	  }
 	| {
 			type: 'audio-sample';
-			audioSample: AudioOrVideoSample;
+			audioSample: MediaParserAudioSample;
 	  }
 	| {
 			type: 'partial-video-sample';
-			partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+			partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 	  }
 	| {
 			type: 'no-sample';
@@ -41,14 +42,14 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	callbacks,
 	onVideoTrack,
 }: {
-	partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+	partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 	codec: string;
 	structureState: StructureState;
 	webmState: WebmState;
 	trackNumber: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	callbacks: CallbacksState;
-	onVideoTrack: OnVideoTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 }) => {
 	if (codec !== 'V_MPEG4/ISO/AVC') {
 		return;
@@ -109,8 +110,8 @@ export const getSampleFromBlock = async ({
 	offset: number;
 	structureState: StructureState;
 	callbacks: CallbacksState;
-	logLevel: LogLevel;
-	onVideoTrack: OnVideoTrack | null;
+	logLevel: MediaParserLogLevel;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 }): Promise<SampleResult> => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
 	const trackNumber = iterator.getVint();
@@ -154,7 +155,7 @@ export const getSampleFromBlock = async ({
 	const remainingNow = ebml.value.length - iterator.counter.getOffset();
 
 	if (codec.startsWith('V_')) {
-		const partialVideoSample: Omit<AudioOrVideoSample, 'type'> = {
+		const partialVideoSample: Omit<MediaParserVideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
 			cts: timecodeInMicroseconds,
 			dts: timecodeInMicroseconds,
@@ -185,7 +186,7 @@ export const getSampleFromBlock = async ({
 			onVideoTrack,
 		});
 
-		const sample: AudioOrVideoSample = {
+		const sample: MediaParserVideoSample = {
 			...partialVideoSample,
 			type: keyframe ? 'key' : 'delta',
 		};
@@ -199,7 +200,7 @@ export const getSampleFromBlock = async ({
 	}
 
 	if (codec.startsWith('A_')) {
-		const audioSample: AudioOrVideoSample = {
+		const audioSample: MediaParserAudioSample = {
 			data: iterator.getSlice(remainingNow),
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,

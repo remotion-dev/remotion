@@ -1,4 +1,4 @@
-import type {Dimensions} from '@remotion/media-parser';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo} from 'react';
 
@@ -38,8 +38,8 @@ export const ResizeOption: React.FC<{
 };
 
 export const ResizeShortcuts: React.FC<{
-	readonly originalDimensions: Dimensions;
-	readonly resolvedDimensions: Dimensions;
+	readonly originalDimensions: MediaParserDimensions;
+	readonly resolvedDimensions: MediaParserDimensions;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<ResizeOperation | null>
 	>;

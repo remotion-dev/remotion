@@ -1,9 +1,12 @@
 import {combineUint8Arrays} from '../../combine-uint8-arrays';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
-import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '../../webcodec-sample-types';
 import type {FindNthSubarrayIndexNotFound} from './find-separator';
 import {findNthSubarrayIndex} from './find-separator';
 import {filterStreamsBySupportedTypes} from './get-tracks';
@@ -95,9 +98,9 @@ export const processStreamBuffer = async ({
 	programId: number;
 	structure: TransportStreamStructure;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
+	logLevel: MediaParserLogLevel;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {
@@ -158,9 +161,9 @@ export const processFinalStreamBuffers = async ({
 }: {
 	structure: TransportStreamStructure;
 	sampleCallbacks: CallbacksState;
-	logLevel: LogLevel;
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
+	logLevel: MediaParserLogLevel;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
 }) => {

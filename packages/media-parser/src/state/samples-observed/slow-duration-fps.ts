@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '../../webcodec-sample-types';
 
 export const samplesObservedState = () => {
 	let smallestVideoSample: number | undefined;
@@ -35,7 +38,7 @@ export const samplesObservedState = () => {
 		return largestSample - smallestSample;
 	};
 
-	const addVideoSample = (videoSample: AudioOrVideoSample) => {
+	const addVideoSample = (videoSample: MediaParserVideoSample) => {
 		videoSamples.set(videoSample.cts, videoSample.data.byteLength);
 		const presentationTimeInSeconds = videoSample.cts / videoSample.timescale;
 		const duration = (videoSample.duration ?? 0) / videoSample.timescale;
@@ -54,7 +57,7 @@ export const samplesObservedState = () => {
 		}
 	};
 
-	const addAudioSample = (audioSample: AudioOrVideoSample) => {
+	const addAudioSample = (audioSample: MediaParserAudioSample) => {
 		audioSamples.set(audioSample.cts, audioSample.data.byteLength);
 		const presentationTimeInSeconds = audioSample.cts / audioSample.timescale;
 		const duration = (audioSample.duration ?? 0) / audioSample.timescale;

@@ -1,6 +1,6 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
 import {
 	getTrack,
@@ -288,7 +288,7 @@ export const postprocessEbml = async ({
 					});
 
 		if (sample && sample.type === 'partial-video-sample') {
-			const completeFrame: AudioOrVideoSample = {
+			const completeFrame: MediaParserVideoSample = {
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};

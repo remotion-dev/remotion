@@ -1,11 +1,17 @@
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {forwardMediaParserControllerPauseResume} from '../../forward-controller-pause-resume-abort';
-import type {AudioTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import {parseMedia} from '../../parse-media';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import {type M3uRun} from '../../state/m3u-state';
 import type {ParserState} from '../../state/parser-state';
-import type {OnAudioSample, OnVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from '../../webcodec-sample-types';
 import {withResolvers} from '../../with-resolvers';
 import {considerSeekBasedOnChunk} from './first-sample-in-m3u-chunk';
 import {getChunks} from './get-chunks';
@@ -34,7 +40,9 @@ export const processM3uChunk = ({
 
 	const onGlobalAudioTrack = audioDone
 		? null
-		: async (track: AudioTrack): Promise<OnAudioSample | null> => {
+		: async (
+				track: MediaParserAudioTrack,
+			): Promise<MediaParserOnAudioSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
 				let {trackId} = track;
 				while (existingTracks.find((t) => t.trackId === trackId)) {
@@ -71,7 +79,9 @@ export const processM3uChunk = ({
 
 	const onGlobalVideoTrack = videoDone
 		? null
-		: async (track: VideoTrack): Promise<OnVideoSample | null> => {
+		: async (
+				track: MediaParserVideoTrack,
+			): Promise<MediaParserOnVideoSample | null> => {
 				const existingTracks = state.callbacks.tracks.getTracks();
 				let {trackId} = track;
 				while (existingTracks.find((t) => t.trackId === trackId)) {
@@ -210,7 +220,7 @@ export const processM3uChunk = ({
 						childController.pause();
 						currentPromise.resolver(makeContinuationFn());
 					},
-					fields: chunk.isHeader ? {structure: true} : undefined,
+					fields: chunk.isHeader ? {slowStructure: true} : undefined,
 					onTracks: () => {
 						if (!state.m3u.hasEmittedDoneWithTracks(playlistUrl)) {
 							state.m3u.setHasEmittedDoneWithTracks(playlistUrl);
@@ -327,11 +337,11 @@ export const processM3uChunk = ({
 				});
 
 				if (chunk.isHeader) {
-					if (data.structure.type !== 'iso-base-media') {
+					if (data.slowStructure.type !== 'iso-base-media') {
 						throw new Error('Expected an mp4 file');
 					}
 
-					state.m3u.setMp4HeaderSegment(playlistUrl, data.structure);
+					state.m3u.setMp4HeaderSegment(playlistUrl, data.slowStructure);
 				}
 			} catch (e) {
 				currentPromise.rejector(e as Error);

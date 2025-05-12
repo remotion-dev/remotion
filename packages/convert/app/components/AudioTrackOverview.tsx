@@ -1,5 +1,5 @@
 import type {
-	AudioTrack,
+	MediaParserAudioTrack,
 	MediaParserLocation,
 	MediaParserMetadataEntry,
 } from '@remotion/media-parser';
@@ -8,7 +8,7 @@ import {MetadataDisplay} from './MetadataTable';
 import {Table, TableBody, TableCell, TableRow} from './ui/table';
 
 export const AudioTrackOverview: React.FC<{
-	readonly track: AudioTrack;
+	readonly track: MediaParserAudioTrack;
 	readonly metadata: MediaParserMetadataEntry[] | null;
 	location: MediaParserLocation | null;
 }> = ({track, metadata, location}) => {
@@ -22,7 +22,7 @@ export const AudioTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{renderHumanReadableAudioCodec(track.codecWithoutConfig)}
+						{renderHumanReadableAudioCodec(track.codecEnum)}
 					</TableCell>
 				</TableRow>
 				<TableRow>

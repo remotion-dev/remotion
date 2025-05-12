@@ -17,8 +17,7 @@ test('webm with h264 and no codecprivate', async () => {
 		reader: nodeReader,
 	});
 
-	expect(tracks.videoTracks.length).toBe(1);
-	expect(tracks.videoTracks[0]).toEqual({
+	expect(tracks.find((t) => t.type === 'video')).toEqual({
 		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,
@@ -36,15 +35,20 @@ test('webm with h264 and no codecprivate', async () => {
 		displayAspectHeight: 1080,
 		displayAspectWidth: 1896,
 		rotation: 0,
-		trakBox: null,
-		codecPrivate: null,
-		color: {
-			transferCharacteristics: 'bt709',
-			matrixCoefficients: 'bt709',
+		codecData: null,
+		colorSpace: {
+			transfer: 'bt709',
+			matrix: 'bt709',
 			primaries: 'bt709',
 			fullRange: null,
 		},
-		codecWithoutConfig: 'h264',
+		codecEnum: 'h264',
 		fps: null,
+		advancedColor: {
+			fullRange: null,
+			matrix: 'bt709',
+			primaries: 'bt709',
+			transfer: 'bt709',
+		},
 	});
 });

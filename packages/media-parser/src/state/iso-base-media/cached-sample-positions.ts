@@ -1,19 +1,24 @@
 import {areSamplesComplete} from '../../containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
 import type {JumpMark} from '../../containers/iso-base-media/mdat/calculate-jump-marks';
-import type {TrakBox} from '../../containers/iso-base-media/trak/trak';
 import {
 	getMoofBoxes,
+	getMoovBoxFromState,
 	getTfraBoxes,
+	getTrakBoxByTrackId,
 } from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
 import type {ParserState} from '../parser-state';
 import {deduplicateTfraBoxesByOffset} from './precomputed-tfra';
 
 export type FlatSample = {
-	track: VideoTrack | AudioTrack | OtherTrack;
+	track: MediaParserVideoTrack | MediaParserAudioTrack | MediaParserOtherTrack;
 	samplePosition: SamplePosition;
 };
 
@@ -37,11 +42,6 @@ export const calculateFlatSamples = ({
 	mediaSectionStart: number;
 }) => {
 	const tracks = getTracks(state, true);
-	const allTracks = [
-		...tracks.videoTracks,
-		...tracks.audioTracks,
-		...tracks.otherTracks,
-	];
 
 	const moofBoxes = getMoofBoxes(state.structure.getIsoStructure().boxes);
 	const tfraBoxes = deduplicateTfraBoxesByOffset([
@@ -57,9 +57,25 @@ export const calculateFlatSamples = ({
 		throw new Error('No relevant moof box found');
 	}
 
-	const flatSamples = allTracks.map((track) => {
+	const moov = getMoovBoxFromState({
+		structureState: state.structure,
+		isoState: state.iso,
+		mp4HeaderSegment: state.m3uPlaylistContext?.mp4HeaderSegment ?? null,
+		mayUsePrecomputed: true,
+	});
+	if (!moov) {
+		throw new Error('No moov box found');
+	}
+
+	const flatSamples = tracks.map((track) => {
+		const trakBox = getTrakBoxByTrackId(moov, track.trackId);
+
+		if (!trakBox) {
+			throw new Error('No trak box found');
+		}
+
 		const {samplePositions} = getSamplePositionsFromTrack({
-			trakBox: track.trakBox as TrakBox,
+			trakBox,
 			moofBoxes: relevantMoofBox ? [relevantMoofBox] : [],
 			moofComplete,
 		});

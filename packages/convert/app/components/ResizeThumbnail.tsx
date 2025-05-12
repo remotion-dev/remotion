@@ -1,4 +1,4 @@
-import type {Dimensions} from '@remotion/media-parser';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {useThumbnailCopy} from '~/lib/use-thumbnail-copy';
@@ -7,7 +7,7 @@ import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const MAX_THUMBNAIL_SIZE = 150;
 
-export const getThumbnailDimensions = (dimensions: Dimensions) => {
+export const getThumbnailDimensions = (dimensions: MediaParserDimensions) => {
 	if (dimensions.height > dimensions.width) {
 		return {
 			height: MAX_THUMBNAIL_SIZE,
@@ -26,8 +26,8 @@ export const getThumbnailDimensions = (dimensions: Dimensions) => {
 };
 
 export const ResizeThumbnail: React.FC<{
-	readonly dimensions: Dimensions;
-	readonly unrotatedDimensions: Dimensions;
+	readonly dimensions: MediaParserDimensions;
+	readonly unrotatedDimensions: MediaParserDimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly scale: number;

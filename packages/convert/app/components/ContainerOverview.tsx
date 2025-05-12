@@ -1,8 +1,8 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
-	Dimensions,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserDimensions,
 	MediaParserLocation,
 	MediaParserMetadataEntry,
 	MediaParserVideoCodec,
@@ -19,7 +19,7 @@ import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
-	readonly dimensions: Dimensions | null | undefined;
+	readonly dimensions: MediaParserDimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly videoCodec: MediaParserVideoCodec | null;
 	readonly audioCodec: MediaParserAudioCodec | null | undefined;

@@ -1,6 +1,6 @@
 module main.go
 
-go 1.20
+
 
 require (
 	github.com/go-playground/validator/v10 v10.13.0

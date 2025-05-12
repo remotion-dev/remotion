@@ -25,7 +25,7 @@ export const needsTracksForField = ({
 		field === 'fps' ||
 		field === 'isHdr' ||
 		field === 'rotation' ||
-		field === 'structure' ||
+		field === 'slowStructure' ||
 		field === 'tracks' ||
 		field === 'unrotatedDimensions' ||
 		field === 'videoCodec' ||

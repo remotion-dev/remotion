@@ -1,4 +1,4 @@
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 
 let warningShown = false;
@@ -9,7 +9,7 @@ export const warnIfRemotionLicenseNotAcknowledged = ({
 	apiName,
 }: {
 	acknowledgeRemotionLicense: boolean;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	apiName: string;
 }) => {
 	if (acknowledgeRemotionLicense) {

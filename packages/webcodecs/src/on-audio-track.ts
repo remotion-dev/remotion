@@ -1,7 +1,7 @@
 import {
 	MediaParserInternals,
-	type LogLevel,
-	type OnAudioTrack,
+	type MediaParserLogLevel,
+	type MediaParserOnAudioTrack,
 } from '@remotion/media-parser';
 import {createAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
@@ -40,14 +40,14 @@ export const makeAudioTrackHandler =
 		abortConversion: (errCause: Error) => void;
 		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
-		logLevel: LogLevel;
+		logLevel: MediaParserLogLevel;
 		outputContainer: ConvertMediaContainer;
 		progressTracker: ProgressTracker;
 		onAudioData: ConvertMediaOnAudioData | null;
-	}): OnAudioTrack =>
+	}): MediaParserOnAudioTrack =>
 	async ({track, container: inputContainer}) => {
 		const canCopyTrack = canCopyAudioTrack({
-			inputCodec: track.codecWithoutConfig,
+			inputCodec: track.codecEnum,
 			outputContainer,
 			inputContainer,
 		});
@@ -75,15 +75,15 @@ export const makeAudioTrackHandler =
 		if (audioOperation.type === 'copy') {
 			const addedTrack = await state.addTrack({
 				type: 'audio',
-				codec: track.codecWithoutConfig,
+				codec: track.codecEnum,
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
-				codecPrivate: track.codecPrivate,
+				codecPrivate: track.codecData?.data ?? null,
 				timescale: track.timescale,
 			});
 			Log.verbose(
 				logLevel,
-				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecWithoutConfig} (${track.codec}) `,
+				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecEnum} (${track.codec}) `,
 			);
 
 			return async (audioSample) => {
@@ -91,7 +91,7 @@ export const makeAudioTrackHandler =
 					chunk: audioSample,
 					trackNumber: addedTrack.trackNumber,
 					isVideo: false,
-					codecPrivate: track.codecPrivate,
+					codecPrivate: track.codecData?.data ?? null,
 				});
 				onMediaStateUpdate?.((prevState) => {
 					return {

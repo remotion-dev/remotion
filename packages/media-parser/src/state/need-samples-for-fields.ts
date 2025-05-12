@@ -18,7 +18,7 @@ export const fieldsNeedSamplesMap: Record<
 	name: false,
 	rotation: false,
 	size: false,
-	structure: false,
+	slowStructure: false,
 	tracks: false,
 	unrotatedDimensions: false,
 	videoCodec: false,

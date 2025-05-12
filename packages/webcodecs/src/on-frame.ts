@@ -1,4 +1,4 @@
-import type {VideoTrack} from '@remotion/media-parser';
+import type {MediaParserVideoTrack} from '@remotion/media-parser';
 import {isSafari} from './browser-quirks';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
@@ -19,7 +19,7 @@ export const onFrame = async ({
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
 	videoEncoder: WebCodecsVideoEncoder;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 	outputCodec: ConvertMediaVideoCodec;
 	rotation: number;
 	resizeOperation: ResizeOperation | null;

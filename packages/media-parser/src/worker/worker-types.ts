@@ -6,16 +6,19 @@ import type {
 	SelectM3uAssociatedPlaylistsFnOptions,
 	SelectM3uStreamFnOptions,
 } from '../containers/m3u/select-stream';
-import type {Seek} from '../controller/seek-signal';
-import type {Dimensions, ImageType} from '../errors';
+import type {ImageType} from '../errors';
 import type {Options, ParseMediaFields} from '../fields';
+import type {MediaParserDimensions} from '../get-dimensions';
 import type {MediaParserLocation} from '../get-location';
-import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
+import type {
+	MediaParserAudioCodec,
+	MediaParserTrack,
+	MediaParserVideoCodec,
+} from '../get-tracks';
 import type {MediaParserMetadataEntry} from '../metadata/get-metadata';
 import type {
 	MediaParserContainer,
 	MediaParserKeyframe,
-	MediaParserTracks,
 	ParseMediaProgress,
 	ParseMediaResult,
 	ParseMediaSrc,
@@ -26,9 +29,10 @@ import type {SeekingHints} from '../seeking-hints';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
-	AudioOrVideoSample,
-	OnAudioTrackParams,
-	OnVideoTrackParams,
+	MediaParserAudioSample,
+	MediaParserOnAudioTrackParams,
+	MediaParserOnVideoTrackParams,
+	MediaParserVideoSample,
 } from '../webcodec-sample-types';
 
 export type ParseMediaOnWorkerPayload = {
@@ -62,7 +66,7 @@ export type ParseMediaOnWorkerPayload = {
 	postSlowKeyframes: boolean;
 	postSlowNumberOfFrames: boolean;
 	postSlowVideoBitrate: boolean;
-	postStructure: boolean;
+	postSlowStructure: boolean;
 	postTracks: boolean;
 	postDurationInSeconds: boolean;
 	postParseProgress: boolean;
@@ -78,7 +82,7 @@ type RequestPause = {
 
 type RequestSeek = {
 	type: 'request-seek';
-	payload: Seek;
+	payload: number;
 };
 
 type RequestResume = {
@@ -124,7 +128,7 @@ type NotReadableError = BaseError & {
 type IsAnImageError = BaseError & {
 	errorName: 'IsAnImageError';
 	imageType: ImageType;
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 	mimeType: string | null;
 	sizeInBytes: number | null;
 	fileName: string | null;
@@ -174,11 +178,11 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'video-codec';
@@ -265,16 +269,16 @@ export type ResponseCallbackPayload =
 			value: number | null;
 	  }
 	| {
-			callbackType: 'structure';
+			callbackType: 'slow-structure';
 			value: MediaParserStructureUnstable;
 	  }
 	| {
 			callbackType: 'tracks';
-			value: MediaParserTracks;
+			value: MediaParserTrack[];
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'video-codec';
@@ -294,15 +298,20 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'on-audio-track';
-			value: OnAudioTrackParams;
+			value: MediaParserOnAudioTrackParams;
 	  }
 	| {
 			callbackType: 'on-video-track';
-			value: OnVideoTrackParams;
+			value: MediaParserOnVideoTrackParams;
 	  }
 	| {
-			callbackType: 'on-audio-video-sample';
-			value: AudioOrVideoSample;
+			callbackType: 'on-audio-sample';
+			value: MediaParserAudioSample;
+			trackId: number;
+	  }
+	| {
+			callbackType: 'on-video-sample';
+			value: MediaParserVideoSample;
 			trackId: number;
 	  }
 	| {

@@ -177,13 +177,13 @@ export const parseLoop = async ({
 	state.samplesObserved.setLastSampleObserved();
 
 	// After the last sample, you might queue a last seek again.
-	if (state.controller._internals.seekSignal.getSeek()) {
+	if (state.controller._internals.seekSignal.getSeek() !== null) {
 		Log.verbose(
 			state.logLevel,
 			'Reached end of samples, but there is a pending seek. Trying to seek...',
 		);
 		await workOnSeekRequest(getWorkOnSeekRequestOptions(state));
-		if (state.controller._internals.seekSignal.getSeek()) {
+		if (state.controller._internals.seekSignal.getSeek() !== null) {
 			throw new Error(
 				'Reached the end of the file even though a seek was requested. This is likely a bug in the parser. You can report this at https://remotion.dev/report and we will fix it as soon as possible.',
 			);

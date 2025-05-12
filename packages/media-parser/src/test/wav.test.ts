@@ -26,7 +26,7 @@ test('parse full wav', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		unrotatedDimensions,
 		videoCodec,
 		numberOfAudioChannels,
@@ -56,7 +56,7 @@ test('parse full wav', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
 			sampleRate: true,
@@ -66,18 +66,16 @@ test('parse full wav', async () => {
 	expect(dimensions).toBe(null);
 	expect(container).toBe('wav');
 	expect(audioCodec).toBe('pcm-s16');
-	expect(tracks.videoTracks).toEqual([]);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks).toEqual([
 		{
 			codec: 'pcm-s16',
-			codecPrivate: null,
-			codecWithoutConfig: 'pcm-s16',
+			codecData: null,
+			codecEnum: 'pcm-s16',
 			description: undefined,
 			numberOfChannels: 1,
 			sampleRate: 44100,
 			timescale: 1000000,
 			trackId: 0,
-			trakBox: null,
 			type: 'audio',
 		},
 	]);
@@ -106,7 +104,7 @@ test('parse full wav', async () => {
 	expect(slowFps).toBe(0);
 	expect(slowKeyframes).toEqual([]);
 	expect(slowNumberOfFrames).toBe(0);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		boxes: [
 			{
 				fileSize: 2646142,

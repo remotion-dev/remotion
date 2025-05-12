@@ -3,7 +3,6 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted, IsAnImageError} from '../errors';
 import {parseMediaOnServerWorker} from '../server-worker.module';
-import {parseMediaOnWebWorker} from '../worker.module';
 
 test('worker should work', async () => {
 	const {audioCodec} = await parseMediaOnServerWorker({
@@ -19,14 +18,14 @@ test('worker should work', async () => {
 
 test('worker should throw error as normal', () => {
 	expect(() =>
-		parseMediaOnWebWorker({
+		parseMediaOnServerWorker({
 			src: 'wrongurl',
 			fields: {
 				audioCodec: true,
 			},
 			acknowledgeRemotionLicense: true,
 		}),
-	).toThrow('wrongurl is not a URL');
+	).toThrow('File does not exist: wrongurl');
 });
 
 test('hasBeenAborted() should still work', async () => {
@@ -36,9 +35,9 @@ test('hasBeenAborted() should still work', async () => {
 		await parseMediaOnServerWorker({
 			src: 'https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts',
 			fields: {
-				structure: true,
+				slowStructure: true,
 			},
-			onStructure: () => {
+			onSlowStructure: () => {
 				controller.abort();
 			},
 			controller,
@@ -116,8 +115,8 @@ test('should get samples and be able to select stuff', async () => {
 			},
 			selectM3uStream: ({streams}) => {
 				called = true;
-				expect(streams[1].resolution?.width).toBe(1280);
-				expect(streams[1].resolution?.height).toBe(720);
+				expect(streams[1].dimensions?.width).toBe(1280);
+				expect(streams[1].dimensions?.height).toBe(720);
 				return streams[1].id;
 			},
 			onDimensions: (dimensions) => {

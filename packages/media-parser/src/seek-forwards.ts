@@ -3,10 +3,10 @@ import {disallowForwardSeekIfSamplesAreNeeded} from './disallow-forward-seek-if-
 import type {PrefetchCache} from './fetch';
 import type {AllOptions, ParseMediaFields} from './fields';
 import type {BufferIterator} from './iterator/buffer-iterator';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {ParseMediaSrc} from './options';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {CurrentReader} from './state/current-reader';
 
 export const seekForward = async ({
@@ -26,9 +26,9 @@ export const seekForward = async ({
 	userInitiated: boolean;
 	iterator: BufferIterator;
 	fields: Partial<AllOptions<ParseMediaFields>>;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	currentReader: CurrentReader;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	controller: MediaParserController;
 	discardReadBytes: (force: boolean) => Promise<void>;

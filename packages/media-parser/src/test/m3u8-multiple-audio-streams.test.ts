@@ -17,8 +17,8 @@ test('separate video and  audio streams', async () => {
 	expect(audio).toEqual({
 		m3uStreams: [
 			{
-				averageBandwidth: null,
-				bandwidth: 5000000,
+				averageBandwidthInBitsPerSec: null,
+				bandwidthInBitsPerSec: 5000000,
 				codecs: ['avc1.42e00a', 'mp4a.40.2'],
 				associatedPlaylists: [
 					{
@@ -37,7 +37,7 @@ test('separate video and  audio streams', async () => {
 					},
 				],
 				id: 0,
-				resolution: {
+				dimensions: {
 					height: 1080,
 					width: 1920,
 				},
@@ -66,10 +66,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/10000kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 10285391,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 10285391,
 			codecs: ['avc1.4d4033', 'mp4a.40.2'],
-			resolution: {width: 4096, height: 1744},
+			dimensions: {width: 4096, height: 1744},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -107,10 +107,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/6000kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 6214307,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 6214307,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
-			resolution: {width: 1921, height: 818},
+			dimensions: {width: 1921, height: 818},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -148,10 +148,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/4000kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 4149264,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 4149264,
 			codecs: ['avc1.4d4028', 'mp4a.40.2'],
-			resolution: {width: 1921, height: 818},
+			dimensions: {width: 1921, height: 818},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -189,10 +189,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/1500kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 1558322,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 1558322,
 			codecs: ['avc1.4d401f', 'mp4a.40.2'],
-			resolution: {width: 1277, height: 554},
+			dimensions: {width: 1277, height: 554},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -230,10 +230,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/1100kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 1144430,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 1144430,
 			codecs: ['avc1.4d401f', 'mp4a.40.2'],
-			resolution: {width: 958, height: 408},
+			dimensions: {width: 958, height: 408},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -271,10 +271,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/800kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 831270,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 831270,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
-			resolution: {width: 638, height: 272},
+			dimensions: {width: 638, height: 272},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -312,10 +312,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/500kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 520929,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 520929,
 			codecs: ['avc1.4d4015', 'mp4a.40.2'],
-			resolution: {width: 638, height: 272},
+			dimensions: {width: 638, height: 272},
 			associatedPlaylists: [
 				{
 					autoselect: true,
@@ -353,10 +353,10 @@ test('multiple audio streams', async () => {
 				path.dirname(exampleVideos.separatedAudio),
 				'video/250kbit.m3u8',
 			),
-			averageBandwidth: null,
-			bandwidth: 258157,
+			averageBandwidthInBitsPerSec: null,
+			bandwidthInBitsPerSec: 258157,
 			codecs: ['avc1.4d400d', 'mp4a.40.2'],
-			resolution: {width: 422, height: 180},
+			dimensions: {width: 422, height: 180},
 			associatedPlaylists: [
 				{
 					autoselect: true,

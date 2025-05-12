@@ -330,3 +330,21 @@ export const getTfraBoxes = (structure: IsoBaseMediaBox[]): TfraBox[] => {
 
 	return getTfraBoxesFromMfraBoxChildren(mfraBox.children);
 };
+
+export const getTrakBoxByTrackId = (
+	moovBox: MoovBox,
+	trackId: number,
+): TrakBox | null => {
+	const trakBoxes = getTraks(moovBox);
+
+	return (
+		trakBoxes.find((t) => {
+			const tkhd = getTkhdBox(t);
+			if (!tkhd) {
+				return false;
+			}
+
+			return tkhd.trackId === trackId;
+		}) ?? null
+	);
+};

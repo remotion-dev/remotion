@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '../../webcodec-sample-types';
 import {riffKeyframesState} from './riff-keyframes';
 
 export const riffSampleCounter = () => {
@@ -6,7 +9,10 @@ export const riffSampleCounter = () => {
 
 	const riffKeys = riffKeyframesState();
 
-	const onAudioSample = (trackId: number, audioSample: AudioOrVideoSample) => {
+	const onAudioSample = (
+		trackId: number,
+		audioSample: MediaParserAudioSample,
+	) => {
 		if (typeof samplesForTrack[trackId] === 'undefined') {
 			samplesForTrack[trackId] = 0;
 		}
@@ -18,7 +24,10 @@ export const riffSampleCounter = () => {
 		samplesForTrack[trackId]++;
 	};
 
-	const onVideoSample = (trackId: number, videoSample: AudioOrVideoSample) => {
+	const onVideoSample = (
+		trackId: number,
+		videoSample: MediaParserVideoSample,
+	) => {
 		if (typeof samplesForTrack[trackId] === 'undefined') {
 			samplesForTrack[trackId] = 0;
 		}

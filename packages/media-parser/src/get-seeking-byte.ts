@@ -6,7 +6,7 @@ import {getSeekingByteForMp3} from './containers/mp3/get-seeking-byte';
 import {getSeekingByteForRiff} from './containers/riff/get-seeking-byte';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import type {M3uPlaylistContext} from './options';
 import type {SeekingHints} from './seeking-hints';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
@@ -35,7 +35,7 @@ export const getSeekingByte = ({
 }: {
 	info: SeekingHints;
 	time: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
 	transportStream: TransportStreamState;

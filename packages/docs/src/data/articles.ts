@@ -999,6 +999,15 @@ export const articles = [
 		slug: 'cloudrun/speculateservicename',
 	},
 	{
+		id: 'status',
+		title: 'Status',
+		relativePath: 'docs/cloudrun/status.mdx',
+		compId: 'articles-docs-cloudrun-status',
+		crumb: 'Cloud Run',
+		noAi: false,
+		slug: 'cloudrun/status',
+	},
+	{
 		id: 'testpermissions',
 		title: 'testPermissions()',
 		relativePath: 'docs/cloudrun/testpermissions.mdx',
@@ -2914,6 +2923,15 @@ export const articles = [
 		crumb: '@remotion/media-parser',
 		noAi: false,
 		slug: 'media-parser/tags',
+	},
+	{
+		id: 'types',
+		title: 'TypeScript Types Reference',
+		relativePath: 'docs/media-parser/types.mdx',
+		compId: 'articles-docs-media-parser-types',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/types',
 	},
 	{
 		id: 'universal-reader',

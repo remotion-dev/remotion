@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
-import type {LogLevel} from '../../../log';
+import type {MediaParserLogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
@@ -127,7 +127,7 @@ export const processIsoFormatBox = async ({
 	contentLength,
 }: {
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	contentLength: number;
 }): Promise<FormatBoxAndNext> => {
 	const fileOffset = iterator.counter.getOffset();
@@ -371,7 +371,7 @@ export const parseIsoFormatBoxes = async ({
 	contentLength,
 }: {
 	maxBytes: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	iterator: BufferIterator;
 	contentLength: number;
 }): Promise<Sample[]> => {

@@ -1,4 +1,7 @@
-import type {LogLevel, OnVideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserLogLevel,
+	MediaParserOnVideoTrack,
+} from '@remotion/media-parser';
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {canCopyVideoTrack} from './can-copy-video-track';
 import {convertEncodedChunk} from './convert-encoded-chunk';
@@ -43,14 +46,16 @@ export const makeVideoTrackHandler =
 		controller: WebCodecsController;
 		defaultVideoCodec: ConvertMediaVideoCodec | null;
 		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
-		logLevel: LogLevel;
+		logLevel: MediaParserLogLevel;
 		outputContainer: ConvertMediaContainer;
 		rotate: number;
 		progress: ProgressTracker;
 		resizeOperation: ResizeOperation | null;
-	}): OnVideoTrack =>
+	}): MediaParserOnVideoTrack =>
 	async ({track, container: inputContainer}) => {
-		if (controller._internals.signal.aborted) {
+		if (
+			controller._internals._mediaParserController._internals.signal.aborted
+		) {
 			throw new Error('Aborted');
 		}
 
@@ -91,11 +96,11 @@ export const makeVideoTrackHandler =
 			);
 			const videoTrack = await state.addTrack({
 				type: 'video',
-				color: track.color,
+				color: track.advancedColor,
 				width: track.codedWidth,
 				height: track.codedHeight,
-				codec: track.codecWithoutConfig,
-				codecPrivate: track.codecPrivate,
+				codec: track.codecEnum,
+				codecPrivate: track.codecData?.data ?? null,
 				timescale: track.timescale,
 			});
 			return async (sample) => {
@@ -103,7 +108,7 @@ export const makeVideoTrackHandler =
 					chunk: sample,
 					trackNumber: videoTrack.trackNumber,
 					isVideo: true,
-					codecPrivate: track.codecPrivate,
+					codecPrivate: track.codecData?.data ?? null,
 				});
 
 				onMediaStateUpdate?.((prevState) => {
@@ -166,7 +171,7 @@ export const makeVideoTrackHandler =
 
 		const {trackNumber} = await state.addTrack({
 			type: 'video',
-			color: track.color,
+			color: track.advancedColor,
 			width: newWidth,
 			height: newHeight,
 			codec: videoOperation.videoCodec,

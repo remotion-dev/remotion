@@ -1,6 +1,6 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {M3uState} from '../../state/m3u-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 
 export const considerSeekBasedOnChunk = async ({
 	sample,
@@ -12,8 +12,8 @@ export const considerSeekBasedOnChunk = async ({
 	subtractChunks,
 	chunkIndex,
 }: {
-	sample: AudioOrVideoSample;
-	callback: (sample: AudioOrVideoSample) => void | Promise<void>;
+	sample: MediaParserVideoSample;
+	callback: (sample: MediaParserVideoSample) => void | Promise<void>;
 	parentController: MediaParserController;
 	childController: MediaParserController;
 	playlistUrl: string;
@@ -40,19 +40,13 @@ export const considerSeekBasedOnChunk = async ({
 		chunkIndex > 0
 	) {
 		m3uState.setNextSeekShouldSubtractChunks(playlistUrl, subtractChunks + 1);
-		parentController.seek({
-			type: 'keyframe-before-time',
-			timeInSeconds: pendingSeek.targetTime,
-		});
+		parentController.seek(pendingSeek.targetTime);
 
 		return;
 	}
 
 	// We are good, we have not gone too far! Don't emit sample and seek and clear pending seek
-	childController.seek({
-		type: 'keyframe-before-time',
-		timeInSeconds: pendingSeek.targetTime,
-	});
+	childController.seek(pendingSeek.targetTime);
 	m3uState.setNextSeekShouldSubtractChunks(playlistUrl, 0);
 	m3uState.setSeekToSecondsToProcess(playlistUrl, null);
 };

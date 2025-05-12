@@ -1,4 +1,7 @@
-import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
+import {
+	MediaParserAbortError,
+	type MediaParserLogLevel,
+} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
@@ -18,7 +21,7 @@ export type AudioEncoderInit = {
 	codec: ConvertMediaAudioCodec;
 	controller: WebCodecsController;
 	config: AudioEncoderConfig;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onNewAudioSampleRate: (sampleRate: number) => void;
 	progressTracker: ProgressTracker;
 };
@@ -33,7 +36,7 @@ export const createAudioEncoder = ({
 	onNewAudioSampleRate,
 	progressTracker,
 }: AudioEncoderInit): WebCodecsAudioEncoder => {
-	if (controller._internals.signal.aborted) {
+	if (controller._internals._mediaParserController._internals.signal.aborted) {
 		throw new MediaParserAbortError(
 			'Not creating audio encoder, already aborted',
 		);
@@ -60,7 +63,10 @@ export const createAudioEncoder = ({
 			ioSynchronizer.onOutput(chunk.timestamp);
 			prom = prom
 				.then(() => {
-					if (controller._internals.signal.aborted) {
+					if (
+						controller._internals._mediaParserController._internals.signal
+							.aborted
+					) {
 						return;
 					}
 
@@ -80,8 +86,11 @@ export const createAudioEncoder = ({
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		controller._internals.signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			onAbort,
+		);
 		if (encoder.state === 'closed') {
 			return;
 		}
@@ -93,7 +102,10 @@ export const createAudioEncoder = ({
 		close();
 	};
 
-	controller._internals.signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
 	if (codec !== 'opus' && codec !== 'aac') {
 		throw new Error(

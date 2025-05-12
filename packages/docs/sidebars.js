@@ -269,6 +269,7 @@ module.exports = {
 					href: '/docs/media-parser',
 					label: 'Guide',
 				},
+				'media-parser/types',
 				'media-parser/parse-media',
 				'media-parser/download-and-parse-media',
 				'media-parser/media-parser-controller',

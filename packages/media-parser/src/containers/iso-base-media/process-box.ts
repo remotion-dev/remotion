@@ -1,5 +1,5 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {FetchMoreData} from '../../skip';
@@ -8,7 +8,10 @@ import type {TracksState} from '../../state/has-tracks-section';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {MediaSectionState} from '../../state/video-section';
-import type {OnAudioTrack, OnVideoTrack} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '../../webcodec-sample-types';
 import type {IsoBaseMediaBox} from './base-media-box';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
@@ -43,8 +46,8 @@ import {parseTrun} from './trun';
 export type OnlyIfMoovAtomExpected = {
 	tracks: TracksState;
 	isoState: IsoBaseMediaState | null;
-	onVideoTrack: OnVideoTrack | null;
-	onAudioTrack: OnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
 	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
 	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 };
@@ -74,7 +77,7 @@ export const processBox = async ({
 	contentLength,
 }: {
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
 	onlyIfMdatAtomExpected: OnlyIfMdatAtomExpected | null;
 	contentLength: number;

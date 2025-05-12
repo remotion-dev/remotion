@@ -7,12 +7,12 @@ test('Parse Big Buck bunny', async () => {
 	const data = await parseMedia({
 		src: exampleVideos.bigBuckBunny,
 		fields: {
-			structure: true,
+			slowStructure: true,
 		},
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 	});
-	expect(data.structure.boxes.slice(0, 2)).toEqual([
+	expect(data.slowStructure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -35,12 +35,12 @@ test('Parse framer', async () => {
 	const parsed = await parseMedia({
 		src: exampleVideos.framerWithoutFileExtension,
 		fields: {
-			structure: true,
+			slowStructure: true,
 		},
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 	});
-	expect(parsed.structure.boxes.slice(0, 2)).toEqual([
+	expect(parsed.slowStructure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -62,13 +62,13 @@ test('Parse framer', async () => {
 test('Parse a full video', async () => {
 	const data = await parseMedia({
 		src: exampleVideos.framer24fps,
-		fields: {structure: true},
+		fields: {slowStructure: true},
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 	});
 	if (!data) throw new Error('No data');
 
-	const [first, second] = data.structure.boxes;
+	const [first, second] = data.slowStructure.boxes;
 
 	expect(first).toEqual({
 		offset: 0,
@@ -91,7 +91,7 @@ test('Should warn if missing node reader', () => {
 	const data = parseMedia({
 		src: exampleVideos.framer24fps,
 		fields: {
-			structure: true,
+			slowStructure: true,
 		},
 		acknowledgeRemotionLicense: true,
 	});

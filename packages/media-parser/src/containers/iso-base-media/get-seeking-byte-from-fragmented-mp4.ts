@@ -1,8 +1,10 @@
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
-import type {LogLevel} from '../../log';
+import type {MediaParserTrack} from '../../get-tracks';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
+import type {IsoBaseMediaStructure} from '../../parse-result';
 import type {IsoBaseMediaSeekingHints} from '../../seeking-hints';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {StructureState} from '../../state/structure';
 import {
 	getCurrentMediaSection,
 	isByteInMediaSection,
@@ -13,8 +15,11 @@ import {collectSamplePositionsFromMoofBoxes} from './collect-sample-positions-fr
 import {findKeyframeBeforeTime} from './find-keyframe-before-time';
 import {getSamplePositionBounds} from './get-sample-position-bounds';
 import {findBestSegmentFromTfra} from './mfra/find-best-segment-from-tfra';
-import type {TrakBox} from './trak/trak';
-import {getTkhdBox} from './traversal';
+import {
+	getMoovBoxFromState,
+	getTkhdBox,
+	getTrakBoxByTrackId,
+} from './traversal';
 
 export const getSeekingByteFromFragmentedMp4 = async ({
 	info,
@@ -22,28 +27,47 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	logLevel,
 	currentPosition,
 	isoState,
-	allTracks,
+	tracks,
 	isLastChunkInPlaylist,
+	structure,
+	mp4HeaderSegment,
 }: {
 	info: IsoBaseMediaSeekingHints;
 	time: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	currentPosition: number;
 	isoState: IsoBaseMediaState;
-	allTracks: (VideoTrack | AudioTrack | OtherTrack)[];
+	structure: StructureState;
+	tracks: MediaParserTrack[];
 	isLastChunkInPlaylist: boolean;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
 }): Promise<SeekResolution> => {
-	const firstVideoTrack = allTracks.find((t) => t.type === 'video');
+	const firstVideoTrack = tracks.find((t) => t.type === 'video');
 
 	// If there is both video and audio, seek based on video, but if not then audio is also okay
-	const firstTrack =
-		firstVideoTrack ?? allTracks.find((t) => t.type === 'audio');
+	const firstTrack = firstVideoTrack ?? tracks.find((t) => t.type === 'audio');
 
 	if (!firstTrack) {
 		throw new Error('no video and no audio tracks');
 	}
 
-	const tkhdBox = getTkhdBox(firstTrack.trakBox as TrakBox);
+	const moov = getMoovBoxFromState({
+		structureState: structure,
+		isoState,
+		mp4HeaderSegment,
+		mayUsePrecomputed: true,
+	});
+	if (!moov) {
+		throw new Error('No moov atom found');
+	}
+
+	const trakBox = getTrakBoxByTrackId(moov, firstTrack.trackId);
+
+	if (!trakBox) {
+		throw new Error('No trak box found');
+	}
+
+	const tkhdBox = getTkhdBox(trakBox);
 	if (!tkhdBox) {
 		throw new Error('Expected tkhd box in trak box');
 	}

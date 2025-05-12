@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {BufferIterator} from '../../iterator/buffer-iterator';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {SegmentSection} from '../../state/matroska/webm';
 import type {MediaSectionState} from '../../state/video-section';
@@ -26,7 +26,7 @@ export const expectSegment = async ({
 	mediaSectionState,
 }: {
 	iterator: BufferIterator;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	statesForProcessing: WebmRequiredStatesForProcessing | null;
 	isInsideSegment: SegmentSection | null;
 	mediaSectionState: MediaSectionState | null;

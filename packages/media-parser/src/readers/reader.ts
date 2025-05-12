@@ -1,5 +1,5 @@
 import type {MediaParserController} from '../controller/media-parser-controller';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import type {ParseMediaRange, ParseMediaSrc} from '../options';
 import type {PrefetchCache} from './from-fetch';
 
@@ -20,7 +20,7 @@ export type ReadContent = (options: {
 	src: ParseMediaSrc;
 	range: ParseMediaRange;
 	controller: MediaParserController;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => Promise<ReadResult>;
 
@@ -29,14 +29,14 @@ export type ReadWholeAsText = (src: ParseMediaSrc) => Promise<string>;
 export type PreloadContent = (options: {
 	src: ParseMediaSrc;
 	range: ParseMediaRange;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => void;
 
 export type ClearPreloadCache = (options: {
 	src: ParseMediaSrc;
 	range: ParseMediaRange;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 }) => void;
 
@@ -45,7 +45,7 @@ export type CreateAdjacentFileSource = (
 	src: ParseMediaSrc,
 ) => string;
 
-export type ReaderInterface = {
+export type MediaParserReaderInterface = {
 	read: ReadContent;
 	readWholeAsText: ReadWholeAsText;
 	createAdjacentFileSource: CreateAdjacentFileSource;

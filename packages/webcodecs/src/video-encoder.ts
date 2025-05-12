@@ -1,4 +1,7 @@
-import {MediaParserAbortError, type LogLevel} from '@remotion/media-parser';
+import {
+	MediaParserAbortError,
+	type MediaParserLogLevel,
+} from '@remotion/media-parser';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
@@ -29,11 +32,11 @@ export const createVideoEncoder = ({
 	onError: (error: DOMException) => void;
 	controller: WebCodecsController;
 	config: VideoEncoderConfig;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	outputCodec: ConvertMediaVideoCodec;
 	progress: ProgressTracker;
 }): WebCodecsVideoEncoder => {
-	if (controller._internals.signal.aborted) {
+	if (controller._internals._mediaParserController._internals.signal.aborted) {
 		throw new MediaParserAbortError(
 			'Not creating video encoder, already aborted',
 		);
@@ -58,7 +61,10 @@ export const createVideoEncoder = ({
 
 			outputQueue = outputQueue
 				.then(() => {
-					if (controller._internals.signal.aborted) {
+					if (
+						controller._internals._mediaParserController._internals.signal
+							.aborted
+					) {
 						return;
 					}
 
@@ -75,8 +81,11 @@ export const createVideoEncoder = ({
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		controller._internals.signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			onAbort,
+		);
 		if (encoder.state === 'closed') {
 			return;
 		}
@@ -88,7 +97,10 @@ export const createVideoEncoder = ({
 		close();
 	};
 
-	controller._internals.signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
 	Log.verbose(logLevel, 'Configuring video encoder', config);
 	encoder.configure(config);

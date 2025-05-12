@@ -9,7 +9,7 @@ test('AVI file', async () => {
 	let audioSamples = 0;
 	let videoSamples = 0;
 	const {
-		structure,
+		slowStructure,
 		tracks,
 		size,
 		container,
@@ -26,7 +26,7 @@ test('AVI file', async () => {
 		src: exampleVideos.avi,
 		reader: nodeReader,
 		fields: {
-			structure: true,
+			slowStructure: true,
 			tracks: true,
 			size: true,
 			container: true,
@@ -74,84 +74,92 @@ test('AVI file', async () => {
 	expect(audioSamples).toBe(1433);
 	expect(videoSamples).toBe(901);
 	expect(videoCodec).toBe('h264');
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
 			codec: 'mp4a.40.2',
-			codecPrivate: new Uint8Array([18, 16]),
-			codecWithoutConfig: 'aac',
+			codecData: {type: 'aac-config', data: new Uint8Array([18, 16])},
+			codecEnum: 'aac',
 			description: new Uint8Array([18, 16]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
 			timescale: 1_000_000,
 			trackId: 1,
-			trakBox: null,
 			type: 'audio',
 		},
 	]);
-	expect(tracks.videoTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'video')).toEqual([
 		{
 			m3uStreamFormat: null,
 			codec: 'avc1.640015',
-			codecPrivate: new Uint8Array([
-				1, // version
-				100, // profile, profile compatibility, level
-				0,
-				21,
-				255,
-				225, // reserved
-				// sps length
-				0,
-				26,
-				// sps
-				103,
-				100,
-				0,
-				21,
-				172,
-				217,
-				65,
-				224,
-				143,
-				235,
-				1,
-				16,
-				0,
-				0,
-				3,
-				0,
-				16,
-				0,
-				0,
-				3,
-				3,
-				192,
-				241,
-				98,
-				217,
-				96,
-				// num of pps
-				1,
-				// pps length
-				0,
-				4,
-				// pps
-				104,
-				239,
-				139,
-				203,
-				253,
-				248,
-				248,
-				0,
-			]),
-			codecWithoutConfig: 'h264',
+			codecData: {
+				type: 'avc-sps-pps',
+				data: new Uint8Array([
+					1, // version
+					100, // profile, profile compatibility, level
+					0,
+					21,
+					255,
+					225, // reserved
+					// sps length
+					0,
+					26,
+					// sps
+					103,
+					100,
+					0,
+					21,
+					172,
+					217,
+					65,
+					224,
+					143,
+					235,
+					1,
+					16,
+					0,
+					0,
+					3,
+					0,
+					16,
+					0,
+					0,
+					3,
+					3,
+					192,
+					241,
+					98,
+					217,
+					96,
+					// num of pps
+					1,
+					// pps length
+					0,
+					4,
+					// pps
+					104,
+					239,
+					139,
+					203,
+					253,
+					248,
+					248,
+					0,
+				]),
+			},
+			codecEnum: 'h264',
 			codedHeight: 270,
 			codedWidth: 480,
-			color: {
+			advancedColor: {
 				fullRange: null,
-				matrixCoefficients: null,
+				matrix: null,
 				primaries: null,
-				transferCharacteristics: null,
+				transfer: null,
+			},
+			colorSpace: {
+				fullRange: null,
+				matrix: null,
+				primaries: null,
+				transfer: null,
 			},
 			description: undefined,
 			displayAspectHeight: 270,
@@ -165,12 +173,11 @@ test('AVI file', async () => {
 			},
 			timescale: 1_000_000,
 			trackId: 0,
-			trakBox: null,
 			type: 'video',
 			width: 480,
 		},
 	]);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		type: 'riff',
 		boxes: [
 			{type: 'riff-header', fileSize: 742470, fileType: 'AVI'},

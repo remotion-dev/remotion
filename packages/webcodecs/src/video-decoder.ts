@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample, LogLevel} from '@remotion/media-parser';
+import type {
+	MediaParserLogLevel,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
@@ -6,7 +9,7 @@ import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	processSample: (videoSample: AudioOrVideoSample) => Promise<void>;
+	processSample: (videoSample: MediaParserVideoSample) => Promise<void>;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
@@ -24,7 +27,7 @@ export const createVideoDecoder = ({
 	onError: (error: DOMException) => void;
 	controller: WebCodecsController;
 	config: VideoDecoderConfig;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	progress: ProgressTracker;
 }): WebCodecsVideoDecoder => {
 	const ioSynchronizer = makeIoSynchronizer({
@@ -39,13 +42,19 @@ export const createVideoDecoder = ({
 			frame.close();
 		};
 
-		controller._internals.signal.addEventListener('abort', cleanup, {
-			once: true,
-		});
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			cleanup,
+			{
+				once: true,
+			},
+		);
 
 		outputQueue = outputQueue
 			.then(() => {
-				if (controller._internals.signal.aborted) {
+				if (
+					controller._internals._mediaParserController._internals.signal.aborted
+				) {
 					return;
 				}
 
@@ -58,7 +67,10 @@ export const createVideoDecoder = ({
 				onError(err);
 			})
 			.finally(() => {
-				controller._internals.signal.removeEventListener('abort', cleanup);
+				controller._internals._mediaParserController._internals.signal.removeEventListener(
+					'abort',
+					cleanup,
+				);
 				cleanup();
 			});
 
@@ -83,8 +95,11 @@ export const createVideoDecoder = ({
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		controller._internals.signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			onAbort,
+		);
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -96,11 +111,14 @@ export const createVideoDecoder = ({
 		close();
 	};
 
-	controller._internals.signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
 	videoDecoder.configure(config);
 
-	const processSample = async (sample: AudioOrVideoSample) => {
+	const processSample = async (sample: MediaParserVideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -139,7 +157,7 @@ export const createVideoDecoder = ({
 	let inputQueue = Promise.resolve();
 
 	return {
-		processSample: (sample: AudioOrVideoSample) => {
+		processSample: (sample: MediaParserVideoSample) => {
 			inputQueue = inputQueue.then(() => processSample(sample));
 			return inputQueue;
 		},

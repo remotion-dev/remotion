@@ -4,7 +4,7 @@ import {
 } from './containers/m3u/select-stream';
 import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
 import type {SeekingHints} from './seeking-hints';
 import {withResolvers} from './with-resolvers';
 import {forwardMediaParserControllerToWorker} from './worker/forward-controller-to-worker';
@@ -60,7 +60,7 @@ const executeCallback = (payload: ResponseCallbackPayload) => {
 
 const startParsing = async (
 	message: ParseMediaOnWorkerPayload,
-	reader: ReaderInterface,
+	reader: MediaParserReaderInterface,
 ) => {
 	const {payload, src} = message;
 	const {
@@ -95,7 +95,7 @@ const startParsing = async (
 		postSlowFps,
 		postSlowDurationInSeconds,
 		postSlowVideoBitrate,
-		postStructure,
+		postSlowStructure,
 		postTracks,
 		postUnrotatedDimensions,
 		postVideoCodec,
@@ -307,10 +307,10 @@ const startParsing = async (
 						});
 					}
 				: null,
-			onStructure: postStructure
+			onSlowStructure: postSlowStructure
 				? async (structure) => {
 						await executeCallback({
-							callbackType: 'structure',
+							callbackType: 'slow-structure',
 							value: structure,
 						});
 					}
@@ -323,6 +323,7 @@ const startParsing = async (
 						});
 					}
 				: null,
+
 			onUnrotatedDimensions: postUnrotatedDimensions
 				? async (dimensions) => {
 						await executeCallback({
@@ -400,7 +401,7 @@ const startParsing = async (
 
 						return async (sample) => {
 							await executeCallback({
-								callbackType: 'on-audio-video-sample',
+								callbackType: 'on-audio-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
@@ -424,7 +425,7 @@ const startParsing = async (
 
 						return async (sample) => {
 							await executeCallback({
-								callbackType: 'on-audio-video-sample',
+								callbackType: 'on-video-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
@@ -460,7 +461,7 @@ const onMessageForWorker = forwardMediaParserControllerToWorker(controller);
 
 export const messageHandler = (
 	message: MessageEvent,
-	readerInterface: ReaderInterface,
+	readerInterface: MediaParserReaderInterface,
 ) => {
 	const data = message.data as WorkerRequestPayload;
 

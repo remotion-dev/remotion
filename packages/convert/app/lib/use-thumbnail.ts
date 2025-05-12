@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {mediaParserController} from '@remotion/media-parser';
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -13,7 +13,7 @@ export const useThumbnailAndWaveform = ({
 	onWaveformBars,
 }: {
 	src: Source;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
 	onWaveformBars: (bars: number[]) => void;
 	onDone: () => void;
@@ -69,7 +69,7 @@ export const useThumbnailAndWaveform = ({
 					},
 				});
 
-				if (track.codecWithoutConfig === 'pcm-s16') {
+				if (track.codecEnum === 'pcm-s16') {
 					return (sample) => {
 						waveform.add(
 							new AudioData({

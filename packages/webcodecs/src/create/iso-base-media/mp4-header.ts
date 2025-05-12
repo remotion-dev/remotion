@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {VERSION} from '@remotion/media-parser';
 import {Log} from '../../log';
 import {createIlst} from './create-ilst';
@@ -26,7 +26,7 @@ export const createPaddedMoovAtom = ({
 	trackInfo: IsoBaseMediaTrackData[];
 	timescale: number;
 	expectedDurationInSeconds: number | null;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	expectedFrameRate: number | null;
 }) => {
 	const headerLength = calculateAReasonableMp4HeaderLength({

@@ -1,8 +1,8 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {PrefetchCache} from '../../fetch';
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import type {ParseMediaSrc} from '../../options';
-import type {ReaderInterface} from '../../readers/reader';
+import type {MediaParserReaderInterface} from '../../readers/reader';
 import type {IsoBaseMediaBox} from './base-media-box';
 import {getIsoBaseMediaChildren} from './get-children';
 import {getMfraAtom} from './mfra/get-mfra-atom';
@@ -11,9 +11,9 @@ import {getMfroAtom} from './mfra/get-mfro-atom';
 export type MfraSeekingBoxOptions = {
 	contentLength: number;
 	controller: MediaParserController;
-	readerInterface: ReaderInterface;
+	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
 };
 

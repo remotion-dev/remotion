@@ -50,8 +50,9 @@ if (process.platform !== 'win32') {
 		expect(result.fps).toBe(29.99602174777881);
 		expect(result.videoCodec).toBe('h265');
 		expect(result.audioCodec).toBe('aac');
-		expect(result.tracks.videoTracks.length).toBe(1);
-		expect(result.tracks.videoTracks[0].codec).toBe('hvc1.2.4.L150.b0');
+		expect(result.tracks.find((t) => t.type === 'video')?.codec).toBe(
+			'hvc1.2.4.L150.b0',
+		);
 		expect(result.rotation).toBe(-90);
 		expect(result.unrotatedDimensions).toEqual({
 			height: 2160,

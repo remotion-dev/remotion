@@ -1,10 +1,18 @@
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '../../webcodec-sample-types';
 
 export const lastEmittedSampleState = () => {
-	let lastEmittedSample: AudioOrVideoSample | null = null;
+	let lastEmittedSample:
+		| MediaParserAudioSample
+		| MediaParserVideoSample
+		| null = null;
 
 	return {
-		setLastEmittedSample: (sample: AudioOrVideoSample) => {
+		setLastEmittedSample: (
+			sample: MediaParserAudioSample | MediaParserVideoSample,
+		) => {
 			lastEmittedSample = sample;
 		},
 		getLastEmittedSample: () => lastEmittedSample,

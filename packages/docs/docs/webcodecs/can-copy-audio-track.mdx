@@ -30,9 +30,11 @@ const {tracks, container} = await parseMedia({
   },
 });
 
-for (const track of tracks.audioTracks) {
+const audioTracks = tracks.filter((t) => t.type === 'audio');
+
+for (const track of audioTracks) {
   canCopyAudioTrack({
-    inputCodec: track.codecWithoutConfig,
+    inputCodec: track.codecEnum,
     outputContainer: 'webm',
     inputContainer: container,
   }); // bool
@@ -49,7 +51,7 @@ await convertMedia({
   audioCodec: 'opus',
   onAudioTrack: async ({track, outputContainer, inputContainer}) => {
     const canCopy = canCopyAudioTrack({
-      inputCodec: track.codecWithoutConfig,
+      inputCodec: track.codecEnum,
       outputContainer,
       inputContainer,
     });

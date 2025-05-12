@@ -1,9 +1,10 @@
+import type {MediaParserDimensions} from './get-dimensions';
+
 export type ImageType = 'png' | 'jpeg' | 'bmp' | 'webp' | 'gif';
-export type Dimensions = {width: number; height: number};
 
 export class IsAnImageError extends Error {
 	public imageType: ImageType;
-	public dimensions: Dimensions | null;
+	public dimensions: MediaParserDimensions | null;
 	public mimeType: string | null;
 	public sizeInBytes: number | null;
 	public fileName: string | null;
@@ -18,7 +19,7 @@ export class IsAnImageError extends Error {
 	}: {
 		message: string;
 		imageType: ImageType;
-		dimensions: Dimensions | null;
+		dimensions: MediaParserDimensions | null;
 		mimeType: string | null;
 		sizeInBytes: number | null;
 		fileName: string | null;

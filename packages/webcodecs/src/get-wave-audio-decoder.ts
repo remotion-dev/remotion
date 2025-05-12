@@ -1,4 +1,4 @@
-import type {AudioOrVideoSample} from '@remotion/media-parser';
+import type {MediaParserAudioSample} from '@remotion/media-parser';
 import type {
 	CreateAudioDecoderInit,
 	WebCodecsAudioDecoder,
@@ -50,7 +50,7 @@ export const getWaveAudioDecoder = ({
 }): WebCodecsAudioDecoder => {
 	let queue = Promise.resolve();
 
-	const processSample = async (audioSample: AudioOrVideoSample) => {
+	const processSample = async (audioSample: MediaParserAudioSample) => {
 		const bytesPerSample = getBytesPerSample(sampleFormat);
 		await onFrame(
 			new AudioData({
