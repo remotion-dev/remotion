@@ -6140,7 +6140,7 @@ export const articles = [
 		title: 'getLoadedModels()',
 		relativePath: 'docs/whisper-wasm/get-loaded-models.mdx',
 		compId: 'articles-docs-whisper-wasm-get-loaded-models',
-		crumb: null,
+		crumb: '@remotion/whisper-wasm',
 		noAi: false,
 		slug: 'whisper-wasm/get-loaded-models',
 	},
