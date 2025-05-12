@@ -2,10 +2,11 @@
 import type {
 	AutomaticSpeechRecognitionPipeline,
 	AutoTokenizer,
-	FeatureExtractor,
 	PreTrainedModel,
 } from '@huggingface/transformers';
+import {whisperModelConfig} from './web/model-config';
 import {pipeline} from './web/pipeline';
+import {whisperProcessorConfig} from './web/whisper-config';
 import {WhisperTextStreamer} from './web/whisper-text-streamer';
 
 type Chunk = {
@@ -51,14 +52,21 @@ self.addEventListener('message', async (event) => {
 
 	// Do some work...
 	// TODO use message data
-	const transcript = await transcribeWhisperWeb(message);
-	if (transcript === null) return;
+	try {
+		const transcript = await transcribeWhisperWeb(message);
+		if (transcript === null) return;
 
-	// Send the result back to the main thread
-	self.postMessage({
-		status: 'complete',
-		data: transcript,
-	});
+		// Send the result back to the main thread
+		self.postMessage({
+			status: 'complete',
+			data: transcript,
+		});
+	} catch (error) {
+		self.postMessage({
+			status: 'error',
+			data: error,
+		});
+	}
 });
 
 class AutomaticSpeechRecognitionPipelineFactory extends PipelineFactory {
@@ -86,16 +94,11 @@ const transcribeWhisperWeb = async ({
 		});
 
 	const time_precision =
-		(transcriber.processor.feature_extractor as FeatureExtractor).config
-			.chunk_length /
-		(transcriber.model.config as unknown as {max_source_positions: number})
-			.max_source_positions;
+		whisperProcessorConfig.chunk_length /
+		whisperModelConfig.max_source_positions;
 
 	// Storage for chunks to be processed. Initialise with an empty chunk.
 	const chunks: Chunk[] = [];
-
-	// TODO: Storage for fully-processed and merged chunks
-	// let decoded_chunks = [];
 
 	const chunk_length_s = isDistilWhisper ? 20 : 30;
 	const stride_length_s = isDistilWhisper ? 3 : 5;

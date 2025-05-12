@@ -3512,7 +3512,7 @@ importers:
   packages/whisper-wasm:
     dependencies:
       '@huggingface/transformers':
-        specifier: ^3.0.0-alpha.18
+        specifier: 3.5.1
         version: 3.5.1
       onnxruntime-common:
         specifier: 1.20.0-dev.20240928-1bda91fc57
@@ -15936,7 +15936,7 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.0(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -15958,7 +15958,7 @@ packages:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.0(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -15976,7 +15976,7 @@ packages:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 2.0.1(typescript@5.7.3)
       typescript: 5.7.3
     transitivePeerDependencies:
@@ -16014,7 +16014,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.8.2)
       eslint: 9.19.0
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -18275,7 +18275,7 @@ packages:
       postcss-modules-scope: 3.2.0(postcss@8.5.1)
       postcss-modules-values: 4.0.0(postcss@8.5.1)
       postcss-value-parser: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.96.1(@swc/core@1.3.80)
     dev: false
 
@@ -21846,7 +21846,7 @@ packages:
   /is-bun-module@1.2.1:
     resolution: {integrity: sha512-AmidtEM6D6NmUiLOvvU7+IePxjEjOzra2h0pSrsfSAcXwl/83zLLXDByafUJy9k/rKK0pvXMLdwKwGHlX2Ke6Q==}
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
     dev: true
 
   /is-callable@1.2.7:
@@ -25708,7 +25708,7 @@ packages:
       cosmiconfig: 8.3.6(typescript@5.8.2)
       jiti: 1.21.6
       postcss: 8.5.1
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.96.1(@swc/core@1.3.80)
     transitivePeerDependencies:
       - typescript
@@ -28120,7 +28120,6 @@ packages:
     resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
     hasBin: true
-    dev: false
 
   /send@0.19.0:
     resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}

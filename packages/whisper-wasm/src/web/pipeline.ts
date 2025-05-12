@@ -7,19 +7,20 @@ import type {PretrainedOptions} from '@huggingface/transformers';
 import {
 	AutoModelForCTC,
 	AutoModelForSpeechSeq2Seq,
-	AutoProcessor,
 	AutoTokenizer,
-	type FeatureExtractor,
 	type PreTrainedModel,
 	type Processor,
 	type Tensor,
 } from '@huggingface/transformers';
 
+import {AutoProcessor} from './auto-processor.js';
 import {Callable} from './callable.js';
 import {dispatchCallback} from './dispatch-callback.js';
 import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
+import {whisperModelConfig} from './model-config.js';
 import {read_audio} from './read-audio.js';
+import {whisperProcessorConfig} from './whisper-config.js';
 import type {WhisperModelOutput} from './whisper-model-output.js';
 import type {WhisperTokenizer} from './whisper-tokenizer.js';
 
@@ -125,16 +126,11 @@ export class AutomaticSpeechRecognitionPipeline
 		}
 
 		const time_precision =
-			(this.processor.feature_extractor as FeatureExtractor).config
-				.chunk_length /
-			(this.model.config as unknown as {max_source_positions: number})
-				.max_source_positions;
-		const {hop_length} = (this.processor.feature_extractor as FeatureExtractor)
-			.config;
+			whisperProcessorConfig.chunk_length /
+			whisperModelConfig.max_source_positions;
+		const {hop_length} = whisperProcessorConfig;
 
-		const {sampling_rate} = (
-			this.processor.feature_extractor as FeatureExtractor
-		).config;
+		const {sampling_rate} = whisperProcessorConfig;
 		const preparedAudios = await prepareAudios(audio, sampling_rate);
 
 		const toReturn = [];
@@ -161,7 +157,7 @@ export class AutomaticSpeechRecognitionPipeline
 				while (true) {
 					const offset_end = offset + window;
 					const subarr = aud.subarray(offset, offset_end);
-					const feature = await this.processor(subarr);
+					const feature = await this.processor._call(subarr);
 
 					const is_first = offset === 0;
 					const is_last = offset_end >= aud.length;
@@ -181,7 +177,7 @@ export class AutomaticSpeechRecognitionPipeline
 				chunks = [
 					{
 						stride: [aud.length, 0, 0],
-						input_features: (await this.processor(aud)).input_features,
+						input_features: (await this.processor._call(aud)).input_features,
 						is_last: true,
 					},
 				];
