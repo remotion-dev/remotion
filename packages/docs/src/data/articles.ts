@@ -6118,6 +6118,15 @@ export const articles = [
 		slug: 'webcodecs/webcodecs-controller',
 	},
 	{
+		id: 'whisper-wasm/can-use-whisper-wasm',
+		title: 'canUseWhisperWasm()',
+		relativePath: 'docs/whisper-wasm/can-use-whisper-wasm.mdx',
+		compId: 'articles-docs-whisper-wasm-can-use-whisper-wasm',
+		crumb: '@remotion/whisper-wasm',
+		noAi: false,
+		slug: 'whisper-wasm/can-use-whisper-wasm',
+	},
+	{
 		id: 'whisper-wasm/download-whisper-model',
 		title: 'downloadWhisperModel()',
 		relativePath: 'docs/whisper-wasm/download-whisper-model.mdx',
@@ -6127,6 +6136,15 @@ export const articles = [
 		slug: 'whisper-wasm/download-whisper-model',
 	},
 	{
+		id: 'whisper-wasm/get-loaded-models',
+		title: 'getLoadedModels()',
+		relativePath: 'docs/whisper-wasm/get-loaded-models.mdx',
+		compId: 'articles-docs-whisper-wasm-get-loaded-models',
+		crumb: null,
+		noAi: false,
+		slug: 'whisper-wasm/get-loaded-models',
+	},
+	{
 		id: 'whisper-wasm/index',
 		title: '@remotion/whisper-wasm',
 		relativePath: 'docs/whisper-wasm/index.mdx',
@@ -6134,6 +6152,15 @@ export const articles = [
 		crumb: 'Transcribe audio in browser',
 		noAi: false,
 		slug: 'whisper-wasm/index',
+	},
+	{
+		id: 'whisper-wasm/resample-to-16khz',
+		title: 'resampleTo16Khz()',
+		relativePath: 'docs/whisper-wasm/resample-to-16khz.mdx',
+		compId: 'articles-docs-whisper-wasm-resample-to-16khz',
+		crumb: '@remotion/whisper-wasm',
+		noAi: false,
+		slug: 'whisper-wasm/resample-to-16khz',
 	},
 	{
 		id: 'whisper-wasm/transcribe',
