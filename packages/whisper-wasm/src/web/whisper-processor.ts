@@ -1,4 +1,4 @@
-import type {FeatureExtractor} from '@huggingface/transformers';
+import type {FeatureExtractor} from './feature-extractor';
 import {Processor} from './processor';
 
 export class WhisperProcessor extends Processor {
@@ -10,6 +10,6 @@ export class WhisperProcessor extends Processor {
 	}
 
 	async _call(audio: Float32Array | Float64Array) {
-		return await this.extractor!(audio);
+		return await this.extractor._call(audio);
 	}
 }

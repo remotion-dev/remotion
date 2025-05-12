@@ -1,5 +1,5 @@
-import type {FeatureExtractor} from '@huggingface/transformers';
 import {Callable} from './callable';
+import type {FeatureExtractor} from './feature-extractor';
 
 export class Processor extends Callable {
 	feature_extractor: FeatureExtractor;
@@ -21,6 +21,6 @@ export class Processor extends Callable {
 	 * @returns {Promise<any>} A Promise that resolves with the extracted features.
 	 */
 	async _call(input: any, ...args: any[]) {
-		return await this.feature_extractor(input, ...args);
+		return await this.feature_extractor._call(input, ...args);
 	}
 }

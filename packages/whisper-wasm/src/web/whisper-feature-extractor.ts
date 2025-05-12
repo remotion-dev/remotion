@@ -1,4 +1,4 @@
-import {FeatureExtractor} from '@huggingface/transformers';
+import {FeatureExtractor} from './feature-extractor';
 import {max} from './maths';
 import {mel_filter_bank} from './mel-filter-bank';
 import {spectrogram} from './spectrogram';
