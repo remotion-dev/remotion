@@ -94,7 +94,6 @@ export class AutomaticSpeechRecognitionPipeline
 {
 	/** @type {AutomaticSpeechRecognitionPipelineCallback} */
 	async _call(audio: (string | URL)[], kwargs = {}) {
-		console.log('audio', audio, kwargs);
 		return this._call_whisper(audio, kwargs);
 	}
 
