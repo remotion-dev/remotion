@@ -5,20 +5,21 @@ crumb: '@remotion/whisper-wasm'
 
 # downloadWhisperModel()
 
-Downloads a Whisper.cpp model to the browser.
+:::warning
+**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API.  
+:::
 
-```tsx twoslash title="app.tsx"
-import {useEffect, useState} from 'react';
+Downloads a Whisper model into IndexedDB.
+
+```tsx twoslash title="app.ts"
 import {downloadWhisperModel} from '@remotion/whisper-wasm';
 
-export default function MyApp() {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    downloadWhisperModel({model: 'tiny.en', onProgress: setProgress});
-  }, []);
-
-  return <h1>my great app</h1>;
-}
+const {alreadyDownloaded} = await downloadWhisperModel({
+  model: 'tiny.en',
+  onProgress: (progress) => {
+    console.log(progress);
+  },
+});
 ```
 
 ## Options
@@ -32,17 +33,21 @@ The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `s
 Act upon download progress. This is the function signature:
 
 ```tsx twoslash
-const onProgress = (progress: number) => {
-  // do something
+import {DownloadWhisperModelOnProgress, DownloadWhisperModelProgress} from '@remotion/whisper-wasm';
+
+const onProgress: DownloadWhisperModelOnProgress = ({progress, totalBytes, downloadedBytes}: DownloadWhisperModelProgress) => {
+  console.log({progress, totalBytes, downloadedBytes});
 };
 ```
 
 ## Return Value
 
-resolves with the message `Model loaded successfully` if the model has been successfully stored in the `indexedDB` storage of the browser.
+Returns an object with the following properties:
+
+- `alreadyDownloaded`: Whether the model has already been downloaded.
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/helpers.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/download-whisper-model.ts)
 - [`@remotion/whisper-wasm`](/docs/whisper-wasm)
 - [`transcribe()`](/docs/whisper-wasm/transcribe)

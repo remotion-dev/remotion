@@ -4,6 +4,10 @@ title: resampleTo16Khz()
 crumb: '@remotion/whisper-wasm'
 ---
 
+:::warning
+**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API.  
+:::
+
 # resampleTo16Khz()
 
 Processes an audio `File` or `Blob` by decoding it, converting it to mono, and resampling it to a 16kHz `Float32Array`. This prepares the audio data for use with the [`transcribe()`](/docs/whisper-wasm/transcribe) function.

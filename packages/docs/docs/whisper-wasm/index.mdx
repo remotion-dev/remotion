@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 :::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
+**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API.  
 :::
 
 Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for the browser. Allows you to transcribe audio locally in the browser, with the help of WASM.
@@ -22,70 +22,6 @@ import {TableOfContents} from './whisper-wasm';
 This library is UI-agnostic and can be integrated with any frontend framework.
 :::
 
-<Tabs defaultValue="react" 
-values={[
-{ label: 'React', value: 'react' },
-{ label: 'Vanilla', value: 'html' },
-]}
->
-
-<TabItem value='react'>
-
-```tsx twoslash
-import {useState} from 'react';
-import {transcribe, canUseWhisperWasm, resampleTo16Khz, downloadWhisperModel, type WhisperWasmModel} from '@remotion/whisper-wasm';
-
-export default function MyApp() {
-  const [text, setText] = useState<string | null>(null);
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setText('Processing...');
-
-    const modelToUse: WhisperWasmModel = 'tiny.en';
-
-    const {supported, detailedReason, reason} = await canUseWhisperWasm(modelToUse);
-    if (!supported) {
-      setText(`Whisper WASM is not supported in this environment: ${detailedReason}`);
-      return;
-    }
-
-    setText('Downloading model...');
-    await downloadWhisperModel({
-      model: modelToUse,
-      onProgress: (p) => setText(`Downloading model (${Math.round(p * 100)}%)...`),
-    });
-
-    setText('Resampling audio...');
-    const channelWaveform = await resampleTo16Khz({
-      file,
-      onProgress: (p) => setText(`Resampling audio (${Math.round(p * 100)}%)...`),
-    });
-
-    setText('Transcribing...');
-    const {transcription} = await transcribe({
-      channelWaveform,
-      model: modelToUse,
-      onProgress: (p) => setText(`Transcribing (${Math.round(p * 100)}%)...`),
-    });
-    setText(transcription.map((t) => t.text).join(' '));
-  };
-
-  return (
-    <div>
-      <input type="file" accept="audio/*" onChange={handleFileChange} />
-      {text && <p>{text}</p>}
-    </div>
-  );
-}
-```
-
-</TabItem>
-
-<TabItem value="html">
-
 ```tsx twoslash
 import {transcribe, canUseWhisperWasm, resampleTo16Khz, downloadWhisperModel} from '@remotion/whisper-wasm';
 
@@ -94,47 +30,42 @@ import {transcribe, canUseWhisperWasm, resampleTo16Khz, downloadWhisperModel} fr
 // <p id="status"></p>
 
 const input = document.getElementById('audio-input') as HTMLInputElement;
-const status = document.getElementById('status') as HTMLParagraphElement;
 
 input.addEventListener('change', async (e) => {
   const file = input.files?.[0];
   if (!file) return;
 
-  status.textContent = 'Processing...';
+  console.log('Processing...');
 
   const modelToUse = 'tiny.en';
 
   const {supported, detailedReason} = await canUseWhisperWasm(modelToUse);
   if (!supported) {
-    status.textContent = `Whisper WASM is not supported in this environment: ${detailedReason}`;
-    return;
+    throw new Error(`Whisper WASM is not supported in this environment: ${detailedReason}`);
   }
 
-  status.textContent = 'Downloading model...';
+  console.log('Downloading model...');
   await downloadWhisperModel({
     model: modelToUse,
-    onProgress: (p) => (status.textContent = `Downloading model (${Math.round(p * 100)}%)...`),
+    onProgress: (p) => console.log(`Downloading model (${Math.round(p * 100)}%)...`),
   });
 
-  status.textContent = 'Resampling audio...';
+  console.log('Resampling audio...');
   const channelWaveform = await resampleTo16Khz({
     file,
-    onProgress: (p) => (status.textContent = `Resampling audio (${Math.round(p * 100)}%)...`),
+    onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
   });
 
-  status.textContent = 'Transcribing...';
+  console.log('Transcribing...');
   const {transcription} = await transcribe({
     channelWaveform,
     model: modelToUse,
-    onProgress: (p) => (status.textContent = `Transcribing (${Math.round(p * 100)}%)...`),
+    onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
   });
-  status.textContent = transcription.map((t) => t.text).join(' ');
+
+  console.log(transcription.map((t) => t.text).join(' '));
 });
 ```
-
-</TabItem>
-
-</Tabs>
 
 ## Functions
 

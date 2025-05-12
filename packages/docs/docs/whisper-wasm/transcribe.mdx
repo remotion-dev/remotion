@@ -3,6 +3,10 @@ title: transcribe()
 crumb: '@remotion/whisper-wasm'
 ---
 
+:::warning
+**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API.  
+:::
+
 # transcribe()
 
 Transcribes pre-processed audio data (a `Float32Array` waveform) using WebAssembly-compiled `whisper.cpp`, returning the transcription. To transcribe an audio file, you first need to process it using [`resampleTo16Khz()`](/docs/whisper-wasm/resample-to-16khz).

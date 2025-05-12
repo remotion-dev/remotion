@@ -6,7 +6,9 @@ import type {
 import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
 import type {deleteModel as originalDeleteModel} from './delete-model';
 import type {
+	DownloadWhisperModelOnProgress,
 	DownloadWhisperModelParams,
+	DownloadWhisperModelProgress,
 	DownloadWhisperModelResult,
 	downloadWhisperModel as originalDownloadWhisperModel,
 } from './download-whisper-model';
@@ -58,7 +60,9 @@ export const resampleTo16Khz: typeof originalResampleTo16Khz = () => {
 
 export type {
 	CanUseWhisperWasmResult,
+	DownloadWhisperModelOnProgress,
 	DownloadWhisperModelParams,
+	DownloadWhisperModelProgress,
 	DownloadWhisperModelResult,
 	ResampleTo16KhzParams,
 	TranscribeParams,

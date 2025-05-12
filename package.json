@@ -14,6 +14,7 @@
 		"testlambda": "turbo run testlambda --concurrency=1 --no-update-notifier",
 		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
 		"watch": "turbo watch make --concurrency=2 --experimental-write-cache --ui=tui",
+		"watchwhisperwasm": "turbo watch make --experimental-write-cache --filter='@remotion/whisper-wasm'",
 		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
 		"watchcore": "turbo watch make --experimental-write-cache --filter='remotion'",
 		"watchstudio": "turbo watch make --experimental-write-cache --filter='@remotion/studio' --filter='@remotion/studio-server'",
