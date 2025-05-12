@@ -1,11 +1,12 @@
-import type {WhisperTokenizer} from '@huggingface/transformers';
+import type {PreTrainedTokenizer} from '@huggingface/transformers';
 import {TextStreamer} from './text-streamer';
+import type {WhisperTokenizer} from './whisper-tokenizer';
 
 export class WhisperTextStreamer extends TextStreamer {
 	timestamp_begin: number;
-	on_chunk_start: null | ((time: number) => void);
-	on_chunk_end: null | ((time: number) => void);
-	on_finalize: null | (() => void);
+	on_chunk_start: (time: number) => void;
+	on_chunk_end: (time: number) => void;
+	on_finalize: () => void;
 	time_precision: number;
 	waiting_for_timestamp: boolean;
 
@@ -13,17 +14,27 @@ export class WhisperTextStreamer extends TextStreamer {
 		tokenizer: WhisperTokenizer,
 		{
 			skip_prompt = false,
-			callback_function = null,
-			token_callback_function = null,
-			on_chunk_start = null,
-			on_chunk_end = null,
-			on_finalize = null,
+			callback_function,
+			token_callback_function,
+			on_chunk_start,
+			on_chunk_end,
+			on_finalize,
 			time_precision = 0.02,
 			skip_special_tokens = true,
 			decode_kwargs = {},
-		} = {},
+		}: {
+			skip_prompt?: boolean;
+			callback_function: (data: string) => void;
+			token_callback_function: (tokens: bigint[]) => void;
+			on_chunk_start: (time: number) => void;
+			on_chunk_end: (time: number) => void;
+			on_finalize: () => void;
+			time_precision?: number;
+			skip_special_tokens?: boolean;
+			decode_kwargs?: Record<string, unknown>;
+		},
 	) {
-		super(tokenizer, {
+		super(tokenizer as PreTrainedTokenizer, {
 			skip_prompt,
 			callback_function,
 			token_callback_function,

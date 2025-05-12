@@ -1,23 +1,9 @@
-/* eslint-disable new-cap */
-import type {MainModule} from '../main';
 import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
-import {getObject} from './db/get-object-from-db';
-import {getModelUrl} from './get-model-url';
-import {loadMod} from './load-mod/load-mod';
 import type {LogLevel} from './log';
 import {Log} from './log';
-import {printHandler} from './print-handler';
-import {EXPECTED_SAMPLE_RATE} from './resample-to-16khz';
 import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
-import {simulateProgress} from './simulate-progress';
 const MAX_THREADS_ALLOWED = 16;
 const DEFAULT_THREADS = 4;
-
-declare global {
-	interface Window {
-		remotion_wasm_moduleOverrides?: Record<string, (...args: any[]) => void>;
-	}
-}
 
 interface WithResolvers<T> {
 	promise: Promise<T>;
@@ -48,23 +34,11 @@ export type TranscribeParams = {
 	logLevel?: LogLevel;
 };
 
-const storeFS = (mod: MainModule, fname: string, buf: any) => {
-	try {
-		mod.FS_unlink(fname);
-	} catch {
-		// ignore
-	}
-
-	mod.FS_createDataFile('/', fname, buf, true, true, undefined);
-};
-
 export const transcribe = async ({
 	channelWaveform,
 	model,
 	language = 'auto',
-	onProgress,
 	threads,
-	onTranscriptionChunk,
 	logLevel = 'info',
 }: TranscribeParams): Promise<TranscriptionJson> => {
 	if (!channelWaveform || channelWaveform.length === 0) {
@@ -91,94 +65,12 @@ export const transcribe = async ({
 		);
 	}
 
-	const audioDurationInSeconds = channelWaveform.length / EXPECTED_SAMPLE_RATE;
-
-	const {
-		abort: abortProgress,
-		onDone: onProgressDone,
-		progressStepReceived,
-		start: startProgress,
-	} = simulateProgress({
-		audioDurationInSeconds,
-		onProgress: (p) => {
-			onProgress?.(p);
-		},
-	});
-
-	const {
-		promise,
-		resolve: _resolve,
-		reject: _reject,
-	} = withResolvers<TranscriptionJson>();
-
-	const resolve = (value: TranscriptionJson) => {
-		_resolve(value);
-		abortProgress();
-		Log.info(logLevel, 'Transcription completed successfully.');
-	};
-
-	const reject = (reason: Error) => {
-		_reject(reason);
-		abortProgress();
-		Log.error('Transcription failed:', reason);
-	};
-
-	const handler = printHandler({
-		logLevel,
-		onProgress: (p: number) => {
-			if (p === 0) {
-				startProgress();
-			} else if (p === 100) {
-				onProgressDone();
-			} else {
-				progressStepReceived();
-			}
-		},
-		onDone: resolve,
-		onBusy: () => {
-			reject(new Error('Another transcription is already in progress'));
-		},
-		onUpdate: (json: TranscriptionJson) => {
-			onTranscriptionChunk?.(json.transcription);
-		},
-	});
+	const {promise} = withResolvers<TranscriptionJson>();
 
 	// Emscripten creates moduleOverrides from global Module object
 
 	// var Module = typeof Module != 'undefined' ? Module : {};
 	// var moduleOverrides = Object.assign({}, Module);
-	window.remotion_wasm_moduleOverrides = {
-		print: handler,
-		printErr: handler,
-	};
-
-	const Mod = await loadMod();
-
-	delete window.remotion_wasm_moduleOverrides;
-
-	const url = getModelUrl(model);
-	const result = await getObject({key: url});
-	if (!result) {
-		throw new Error(
-			`Model ${model} is not loaded. Call downloadWhisperModel() first.`,
-		);
-	}
-
-	Log.info(logLevel, `Model ${model} loaded successfully.`);
-
-	const fileName = `${model}.bin`;
-
-	storeFS(Mod, fileName, result);
-
-	Log.info(logLevel, 'Starting main transcription process...');
-	Mod.full_default(
-		fileName,
-		channelWaveform,
-		model,
-		language,
-		threads ?? DEFAULT_THREADS,
-		false,
-	);
 
 	return promise;
 };

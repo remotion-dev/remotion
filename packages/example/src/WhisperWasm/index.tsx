@@ -8,6 +8,7 @@ import {
 } from '@remotion/whisper-wasm';
 import {useCallback, useEffect, useState} from 'react';
 import {staticFile} from 'remotion';
+import {useTranscriber} from './use-transcriber';
 
 const audioFileUrl = staticFile('16khz.wav');
 
@@ -27,6 +28,8 @@ export const WhisperWasm = () => {
 	const [selectedModel, setSelectedModel] = useState<WhisperWasmModel>(
 		AVAILABLE_MODELS[0],
 	);
+
+	const transcriber = useTranscriber();
 
 	const fetchModels = useCallback(async () => {
 		const models = await getLoadedModels();
@@ -59,6 +62,22 @@ export const WhisperWasm = () => {
 			setStatusMessage(`Error downloading ${selectedModel} model.`);
 		}
 	}, [fetchModels, selectedModel]);
+
+	const onClickTranscribeWeb = useCallback(async () => {
+		const file = await fetch(audioFileUrl);
+		const blob = await file.blob();
+
+		setStatusMessage('Resampling audio...');
+		const channelWaveform = await resampleTo16Khz({
+			file: blob,
+			onProgress(progress) {
+				console.log('Resampling progress:', progress);
+				setStatusMessage(`Resampling audio... ${(progress * 100).toFixed(0)}%`);
+			},
+		});
+
+		transcriber.start(channelWaveform);
+	}, []);
 
 	const onClickTranscribe = useCallback(async () => {
 		if (!loadedModels.includes(selectedModel)) {
@@ -184,6 +203,13 @@ export const WhisperWasm = () => {
 						disabled={!loadedModels.includes(selectedModel)}
 					>
 						Transcribe Audio
+					</button>
+					<button
+						className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
+						onClick={onClickTranscribeWeb}
+						disabled={!loadedModels.includes(selectedModel)}
+					>
+						Transcribe Audio (Web)
 					</button>
 				</div>
 

@@ -5,10 +5,22 @@ await buildPackage({
 		cjs: 'use-tsc',
 		esm: 'build',
 	},
-	external: ['./main.js', './worker.js'],
+	external: [
+		'onnxruntime-web',
+		'onnxruntime-common',
+		'@huggingface/transformers',
+	],
 	entrypoints: [
 		{
 			path: 'src/index.module.ts',
+			target: 'browser',
+		},
+		{
+			path: 'src/worker.ts',
+			target: 'browser',
+		},
+		{
+			path: 'src/worker-url.ts',
 			target: 'browser',
 		},
 	],

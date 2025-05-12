@@ -14,11 +14,14 @@
 	},
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
 	"license": "UNLICENSED",
-	"dependencies": {},
+	"dependencies": {
+		"@huggingface/transformers": "^3.0.0-alpha.18",
+		"onnxruntime-web": "1.20.0-dev.20240928-1bda91fc57",
+		"onnxruntime-common": "1.20.0-dev.20240928-1bda91fc57"
+	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"@huggingface/transformers": "^3.0.0-alpha.18"
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -31,15 +34,17 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
-		"./main": {
-			"require": "./main.js",
-			"module": "./main.js",
-			"import": "./main.js"
+		"./worker-url": {
+			"types": "./dist/worker-url.d.ts",
+			"require": "./dist/worker-url.js",
+			"module": "./dist/esm/worker-url.mjs",
+			"import": "./dist/esm/worker-url.mjs"
 		},
 		"./worker": {
-			"require": "./worker.js",
-			"module": "./worker.js",
-			"import": "./worker.js"
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
 		}
 	},
 	"keywords": [
@@ -49,5 +54,15 @@
 		"wasm"
 	],
 	"homepage": "https://www.remotion.dev/docs/whisper-wasm",
-	"description": "Helpers for using Whisper.cpp in browser using WASM"
+	"description": "Helpers for using Whisper.cpp in browser using WASM",
+	"typesVersions": {
+		">=1.0": {
+			"worker": [
+				"./dist/worker.d.ts"
+			],
+			"worker-url": [
+				"./dist/worker-url.d.ts"
+			]
+		}
+	}
 }

@@ -1,25 +1,32 @@
 import type {PreTrainedTokenizer} from '@huggingface/transformers';
 import {BaseStreamer} from './base-streamer';
 import {is_chinese_char} from './is-chinese-char';
+import {mergeArrays} from './merge-arrays';
 
 export class TextStreamer extends BaseStreamer {
 	tokenizer: PreTrainedTokenizer;
 	skip_prompt: boolean;
 	callback_function: (text: string) => void;
-	token_callback_function: ((tokens: bigint[][]) => void) | null;
+	token_callback_function: ((tokens: bigint[]) => void) | null;
 	decode_kwargs: Record<string, unknown>;
 	token_cache: bigint[];
 	print_len: number;
 	next_tokens_are_prompt: boolean;
 	constructor(
-		tokenizer,
+		tokenizer: PreTrainedTokenizer,
 		{
 			skip_prompt = false,
-			callback_function = console.log,
+			callback_function,
 			token_callback_function = null,
 			decode_kwargs = {},
 			...kwargs
-		} = {},
+		}: {
+			skip_prompt?: boolean;
+			callback_function: (text: string) => void;
+			token_callback_function?: ((tokens: bigint[]) => void) | null;
+			decode_kwargs?: Record<string, unknown>;
+			[key: string]: unknown;
+		},
 	) {
 		super();
 		this.tokenizer = tokenizer;
@@ -38,7 +45,7 @@ export class TextStreamer extends BaseStreamer {
 	 * Receives tokens, decodes them, and prints them to stdout as soon as they form entire words.
 	 * @param {bigint[][]} value
 	 */
-	put(value) {
+	put(value: bigint[][]) {
 		if (value.length > 1) {
 			throw Error('TextStreamer only supports batch size of 1');
 		}
@@ -75,7 +82,7 @@ export class TextStreamer extends BaseStreamer {
 			this.print_len += printable_text.length;
 		}
 
-		this.on_finalized_text(printable_text, false);
+		this.on_finalized_text(printable_text);
 	}
 
 	/**
@@ -93,7 +100,7 @@ export class TextStreamer extends BaseStreamer {
 		}
 
 		this.next_tokens_are_prompt = true;
-		this.on_finalized_text(printable_text, true);
+		this.on_finalized_text(printable_text);
 	}
 
 	/**
@@ -101,17 +108,9 @@ export class TextStreamer extends BaseStreamer {
 	 * @param {string} text
 	 * @param {boolean} stream_end
 	 */
-	on_finalized_text(text, stream_end) {
+	on_finalized_text(text: string) {
 		if (text.length > 0) {
 			this.callback_function?.(text);
-		}
-
-		if (
-			stream_end &&
-			this.callback_function === stdout_write &&
-			apis.IS_PROCESS_AVAILABLE
-		) {
-			this.callback_function?.('\n');
 		}
 	}
 }

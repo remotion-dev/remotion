@@ -2,16 +2,24 @@
 import type {
 	AutomaticSpeechRecognitionPipeline,
 	AutoTokenizer,
+	FeatureExtractor,
 	PreTrainedModel,
 } from '@huggingface/transformers';
-import {pipeline} from './pipeline';
-import {WhisperTextStreamer} from './whisper-text-streamer';
+import {pipeline} from './web/pipeline';
+import {WhisperTextStreamer} from './web/whisper-text-streamer';
+
+type Chunk = {
+	text: string;
+	offset: number;
+	timestamp: [number, number | null];
+	finalised: boolean;
+};
 
 // Define model factories
 // Ensures only one model is created of each type
 class PipelineFactory {
-	static task = null;
-	static model = null;
+	static task: string | null = null;
+	static model: string | null = null;
 	tokenizer: AutoTokenizer;
 	model: PreTrainedModel;
 	instance: Promise<AutomaticSpeechRecognitionPipeline> | null;
@@ -43,7 +51,7 @@ self.addEventListener('message', async (event) => {
 
 	// Do some work...
 	// TODO use message data
-	const transcript = await transcribe(message);
+	const transcript = await transcribeWhisperWeb(message);
 	if (transcript === null) return;
 
 	// Send the result back to the main thread
@@ -55,10 +63,10 @@ self.addEventListener('message', async (event) => {
 
 class AutomaticSpeechRecognitionPipelineFactory extends PipelineFactory {
 	static task = 'automatic-speech-recognition';
-	static model = null;
+	static model: string | null = null;
 }
 
-const transcribe = async ({
+const transcribeWhisperWeb = async ({
 	audio,
 	model,
 	subtask,
@@ -71,29 +79,20 @@ const transcribe = async ({
 }) => {
 	const isDistilWhisper = model.startsWith('distil-whisper/');
 
-	const p = AutomaticSpeechRecognitionPipelineFactory;
-	if (p.model !== model) {
-		// Invalidate model if different
-		p.model = model;
-
-		if (p.instance !== null) {
-			(await p.getInstance()).dispose();
-			p.instance = null;
-		}
-	}
-
 	// Load transcriber model
-	const transcriber = await p.getInstance((data) => {
-		self.postMessage(data);
-	});
+	const transcriber =
+		await AutomaticSpeechRecognitionPipelineFactory.getInstance((data) => {
+			self.postMessage(data);
+		});
 
 	const time_precision =
-		transcriber.processor.feature_extractor.config.chunk_length /
-		transcriber.model.config.max_source_positions;
+		(transcriber.processor.feature_extractor as FeatureExtractor).config
+			.chunk_length /
+		(transcriber.model.config as unknown as {max_source_positions: number})
+			.max_source_positions;
 
 	// Storage for chunks to be processed. Initialise with an empty chunk.
-	/** @type {{ text: string; offset: number, timestamp: [number, number | null] }[]} */
-	const chunks = [];
+	const chunks: Chunk[] = [];
 
 	// TODO: Storage for fully-processed and merged chunks
 	// let decoded_chunks = [];
@@ -104,7 +103,7 @@ const transcribe = async ({
 	let chunk_count = 0;
 	let start_time;
 	let num_tokens = 0;
-	let tps;
+	let tps: number | undefined;
 	const streamer = new WhisperTextStreamer(transcriber.tokenizer, {
 		time_precision,
 		on_chunk_start: (x) => {
@@ -116,7 +115,7 @@ const transcribe = async ({
 				offset,
 			});
 		},
-		token_callback_function: (x) => {
+		token_callback_function: () => {
 			start_time ??= performance.now();
 			if (num_tokens++ > 0) {
 				tps = (num_tokens / (performance.now() - start_time)) * 1000;
@@ -125,7 +124,7 @@ const transcribe = async ({
 		callback_function: (x) => {
 			if (chunks.length === 0) return;
 			// Append text to the last chunk
-			chunks.at(-1).text += x;
+			(chunks.at(-1) as Chunk).text += x;
 
 			self.postMessage({
 				status: 'update',
@@ -137,7 +136,7 @@ const transcribe = async ({
 			});
 		},
 		on_chunk_end: (x) => {
-			const current = chunks.at(-1);
+			const current = chunks.at(-1) as Chunk;
 			current.timestamp[1] = x + current.offset;
 			current.finalised = true;
 		},
@@ -149,33 +148,34 @@ const transcribe = async ({
 	});
 
 	// Actually run transcription
-	const output = await transcriber(audio, {
-		// Greedy
-		top_k: 0,
-		do_sample: false,
+	const output = await transcriber
+		._call(audio, {
+			// Greedy
+			top_k: 0,
+			do_sample: false,
 
-		// Sliding window
-		chunk_length_s,
-		stride_length_s,
+			// Sliding window
+			chunk_length_s,
+			stride_length_s,
 
-		// Language and task
-		language,
-		task: subtask,
+			// Language and task
+			language,
+			task: subtask,
 
-		// Return timestamps
-		return_timestamps: true,
-		force_full_sequences: false,
+			// Return timestamps
+			return_timestamps: true,
+			force_full_sequences: false,
 
-		// Callback functions
-		streamer, // after each generation step
-	}).catch((error) => {
-		console.error(error);
-		self.postMessage({
-			status: 'error',
-			data: error,
+			// Callback functions
+			streamer, // after each generation step
+		})
+		.catch((err: Error) => {
+			self.postMessage({
+				status: 'error',
+				data: err,
+			});
+			return null;
 		});
-		return null;
-	});
 
 	return {
 		tps,

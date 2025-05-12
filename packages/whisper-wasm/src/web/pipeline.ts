@@ -3,23 +3,33 @@
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import type {
-	PreTrainedModel,
-	PreTrainedTokenizer,
-	Processor,
-} from '@huggingface/transformers';
+import type {PretrainedOptions} from '@huggingface/transformers';
 import {
 	AutoModelForCTC,
 	AutoModelForSpeechSeq2Seq,
 	AutoProcessor,
 	AutoTokenizer,
+	type FeatureExtractor,
+	type PreTrainedModel,
+	type Processor,
+	type Tensor,
 } from '@huggingface/transformers';
 
 import {Callable} from './callable.js';
 import {dispatchCallback} from './dispatch-callback.js';
+import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
 import {read_audio} from './read-audio.js';
+import type {WhisperModelOutput} from './whisper-model-output.js';
 import type {WhisperTokenizer} from './whisper-tokenizer.js';
+
+export type AsrChunk = {
+	stride: number[];
+	input_features: Tensor;
+	is_last: boolean;
+	tokens?: bigint[];
+	token_timestamps?: number[];
+};
 
 /**
  * @typedef {string | RawImage | URL} ImageInput
@@ -63,7 +73,7 @@ export class Pipeline extends Callable {
 	}: {
 		task: string;
 		model: PreTrainedModel;
-		tokenizer: PreTrainedTokenizer;
+		tokenizer: WhisperTokenizer;
 		processor: Processor;
 	}) {
 		super();
@@ -84,6 +94,7 @@ export class AutomaticSpeechRecognitionPipeline
 {
 	/** @type {AutomaticSpeechRecognitionPipelineCallback} */
 	async _call(audio: (string | URL)[], kwargs = {}) {
+		console.log('audio', audio, kwargs);
 		return this._call_whisper(audio, kwargs);
 	}
 
@@ -93,10 +104,17 @@ export class AutomaticSpeechRecognitionPipeline
 	 */
 	async _call_whisper(
 		audio: (string | URL)[],
-		kwargs: Record<string, unknown>,
+		kwargs: {
+			chunk_length_s?: number;
+			stride_length_s?: number;
+			force_full_sequences?: boolean;
+			return_timestamps?: 'word' | boolean;
+			num_frames?: number;
+			return_token_timestamps?: boolean;
+		},
 	) {
 		const return_timestamps = kwargs.return_timestamps ?? false;
-		const chunk_length_s = kwargs.chunk_length_s ?? 0;
+		const chunk_length_s: number = kwargs.chunk_length_s ?? 0;
 		const force_full_sequences = kwargs.force_full_sequences ?? false;
 		let stride_length_s = kwargs.stride_length_s ?? null;
 
@@ -108,17 +126,22 @@ export class AutomaticSpeechRecognitionPipeline
 		}
 
 		const time_precision =
-			this.processor.feature_extractor.config.chunk_length /
-			this.model.config.max_source_positions;
-		const {hop_length} = this.processor.feature_extractor.config;
+			(this.processor.feature_extractor as FeatureExtractor).config
+				.chunk_length /
+			(this.model.config as unknown as {max_source_positions: number})
+				.max_source_positions;
+		const {hop_length} = (this.processor.feature_extractor as FeatureExtractor)
+			.config;
 
-		const {sampling_rate} = this.processor.feature_extractor.config;
+		const {sampling_rate} = (
+			this.processor.feature_extractor as FeatureExtractor
+		).config;
 		const preparedAudios = await prepareAudios(audio, sampling_rate);
 
 		const toReturn = [];
 		for (const aud of preparedAudios) {
 			/** @type {{stride: number[], input_features: Tensor, is_last: boolean, tokens?: bigint[], token_timestamps?: number[]}[]} */
-			let chunks = [];
+			let chunks: AsrChunk[] = [];
 			if (chunk_length_s > 0) {
 				if (stride_length_s === null) {
 					stride_length_s = chunk_length_s / 6;
@@ -170,19 +193,20 @@ export class AutomaticSpeechRecognitionPipeline
 				generation_config.num_frames = Math.floor(chunk.stride[0] / hop_length);
 
 				// NOTE: doing sequentially for now
-				const data = await this.model.generate({
+				const data = (await this.model.generate({
 					inputs: chunk.input_features,
 					...generation_config,
-				});
+				})) as WhisperModelOutput | Tensor;
 
 				// TODO: Right now we only get top beam
 				if (return_timestamps === 'word') {
-					chunk.tokens = data.sequences.tolist()[0];
-					chunk.token_timestamps = data.token_timestamps
+					chunk.tokens = (data as WhisperModelOutput).sequences.tolist()[0];
+					chunk.token_timestamps = (data as WhisperModelOutput).token_timestamps
 						.tolist()[0]
-						.map((/** @type {number} */ x) => round(x, 2));
+						.map((x: number) => round(x, 2));
 				} else {
-					chunk.tokens = /** @type {Tensor} */ data[0].tolist();
+					// @ts-expect-error
+					chunk.tokens = (data as Tensor)[0].tolist();
 				}
 
 				// convert stride to seconds
@@ -190,56 +214,57 @@ export class AutomaticSpeechRecognitionPipeline
 			}
 
 			// Merge text chunks
-			// @ts-expect-error
 			const [full_text, optional] = this.tokenizer._decode_asr(chunks, {
 				time_precision,
-				return_timestamps,
+				return_timestamps: return_timestamps as boolean,
 				force_full_sequences,
 			});
 
 			toReturn.push({text: full_text, ...optional});
 		}
 
-		return single ? toReturn[0] : toReturn;
+		return toReturn;
 	}
 }
 
-const SUPPORTED_TASK = {
+const SUPPORTED_TASK = Object.freeze({
 	tokenizer: AutoTokenizer,
 	pipeline: AutomaticSpeechRecognitionPipeline,
 	model: [AutoModelForSpeechSeq2Seq, AutoModelForCTC],
 	processor: AutoProcessor,
 	default: {
-		// TODO: replace with original
-		// "model": "openai/whisper-tiny.en",
-		model: 'Xenova/whisper-tiny.en',
+		model: 'onnx-community/whisper-base',
 	},
 	type: 'multimodal',
-} as const;
-
-const TASK_ALIASES = Object.freeze({
-	asr: 'automatic-speech-recognition',
 });
 
 export async function pipeline(
-	model: string | null = null,
+	model: string | null,
 	{
-		progress_callback = null,
-		config = null,
-		cache_dir = null,
-		local_files_only = false,
-		revision = 'main',
-		device = null,
-		dtype = null,
-		model_file_name = null,
-		session_options = {},
-	} = {},
+		progress_callback,
+		config,
+		cache_dir,
+		local_files_only,
+		revision,
+		device,
+		dtype,
+		model_file_name,
+		session_options,
+	}: {
+		dtype?: Dtype;
+		progress_callback: (data: any) => void;
+		config?: any;
+		cache_dir?: string;
+		local_files_only?: boolean;
+		revision?: string;
+		device?: 'webgpu';
+		model_file_name?: string;
+		session_options?: any;
+	},
 ) {
 	// Helper method to construct pipeline
 
 	// Apply aliases
-	// @ts-expect-error
-	task = TASK_ALIASES[task] ?? task;
 
 	// Get pipeline info
 	const pipelineInfo = SUPPORTED_TASK;
@@ -262,6 +287,7 @@ export async function pipeline(
 		session_options,
 	};
 
+	// @ts-expect-error
 	const classes = new Map([
 		['tokenizer', pipelineInfo.tokenizer],
 		['model', pipelineInfo.model],
@@ -269,13 +295,11 @@ export async function pipeline(
 	]);
 
 	// Load model, tokenizer, and processor (if they exist)
-	const results = await loadItems(classes, model, pretrainedOptions);
-	results.task = task;
+	const results = await loadItems({mapping: classes, model, pretrainedOptions});
+	results.task = SUPPORTED_TASK;
 
 	dispatchCallback(progress_callback, {
 		status: 'ready',
-		task,
-		model,
 	});
 
 	const pipelineClass = pipelineInfo.pipeline;
@@ -289,11 +313,15 @@ export async function pipeline(
  * @param {import('./utils/hub.js').PretrainedOptions} pretrainedOptions The options to pass to the `from_pretrained` method.
  * @private
  */
-async function loadItems(
-	mapping: Map<string, any>,
-	model: string,
-	pretrainedOptions: import('./utils/hub.js').PretrainedOptions,
-) {
+async function loadItems({
+	mapping,
+	model,
+	pretrainedOptions,
+}: {
+	mapping: Map<string, any>;
+	model: string;
+	pretrainedOptions: PretrainedOptions;
+}) {
 	const result = Object.create(null);
 
 	/** @type {Promise[]} */
