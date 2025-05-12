@@ -17,7 +17,8 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "9.19.0",
+		"@huggingface/transformers": "^3.0.0-alpha.18"
 	},
 	"publishConfig": {
 		"access": "public"

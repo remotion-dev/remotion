@@ -3,8 +3,9 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"outDir": "dist",
-		"module": "ES2022",
-		"resolveJsonModule": false
+		"module": "NodeNext",
+		"resolveJsonModule": false,
+		"moduleResolution": "NodeNext"
 	},
 	"include": ["src", "main.d.ts"],
 	"exclude": ["src/index.module.ts"]
