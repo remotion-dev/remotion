@@ -1,7 +1,7 @@
 import { useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo } from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { VideoTexture } from "three";
+import { Texture } from "three";
 import {
   CAMERA_DISTANCE,
   getPhoneLayout,
@@ -12,7 +12,7 @@ import { roundedRect } from "./helpers/rounded-rectangle";
 import { RoundedBox } from "./RoundedBox";
 
 export const Phone: React.FC<{
-  readonly videoTexture: VideoTexture | null;
+  readonly videoTexture: Texture | null;
   readonly aspectRatio: number;
   readonly baseScale: number;
   readonly phoneColor: string;

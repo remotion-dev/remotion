@@ -30,7 +30,9 @@ const {tracks, container} = await parseMedia({
   },
 });
 
-for (const track of tracks.audioTracks) {
+const audioTracks = tracks.filter((t) => t.type === 'audio');
+
+for (const track of audioTracks) {
   canCopyAudioTrack({
     inputCodec: track.codecEnum,
     outputContainer: 'webm',

@@ -33,7 +33,9 @@ const {tracks, container} = await parseMedia({
   },
 });
 
-for (const track of tracks.videoTracks) {
+const videoTracks = tracks.filter((t) => t.type === 'video');
+
+for (const track of videoTracks) {
   canCopyVideoTrack({
     outputContainer: 'webm',
     inputTrack: track,

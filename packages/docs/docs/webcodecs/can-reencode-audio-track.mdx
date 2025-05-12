@@ -29,7 +29,9 @@ const {tracks} = await parseMedia({
   },
 });
 
-for (const track of tracks.audioTracks) {
+const audioTracks = tracks.filter((t) => t.type === 'audio');
+
+for (const track of audioTracks) {
   await canReencodeAudioTrack({
     track,
     audioCodec: 'opus',
