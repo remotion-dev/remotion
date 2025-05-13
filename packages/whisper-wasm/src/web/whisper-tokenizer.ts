@@ -1,8 +1,8 @@
 /* eslint-disable no-lonely-if */
-import {PreTrainedTokenizer} from '@huggingface/transformers';
 import {round} from './maths';
 import {mergeArrays} from './merge-arrays';
 import {prepareTensorForDecode} from './prepare-tensor-for-decode';
+import {PreTrainedTokenizer} from './pretrained-tokenizer';
 import {Tensor} from './tensor';
 import {WHISPER_LANGUAGE_MAPPING} from './whisper-language-to-code';
 
@@ -149,8 +149,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 				// - 4/ Regular text
 
 				if (all_special_ids.has(token)) {
-					// @ts-expect-error
-					const text = this.decode([token]);
+					const text = this.decode([token], undefined);
 					const language = WHISPER_LANGUAGE_MAPPING.get(text.slice(2, -2));
 
 					if (language !== undefined) {
@@ -337,7 +336,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 		let optional = Object.create(null);
 
 		// Preparing and cleaning up the pipeline output
-		const full_text = chunks.map((chunk: any) => chunk.text).join('');
+		const full_text = chunks.map((_chunk: any) => _chunk.text).join('');
 		if (return_timestamps || return_language) {
 			for (let i = 0; i < chunks.length; ++i) {
 				const _chunk: any = chunks[i];
@@ -499,7 +498,7 @@ export class WhisperTokenizer extends PreTrainedTokenizer {
 
 	/** @private */
 	collateWordTimestamps(tokens: any, token_timestamps: any, language: any) {
-		const [words, _, token_indices] = this.combineTokensIntoWords(
+		const [words, , token_indices] = this.combineTokensIntoWords(
 			tokens,
 			language,
 		);

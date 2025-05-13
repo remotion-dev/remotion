@@ -1,7 +1,7 @@
-import type {PreTrainedTokenizer} from '@huggingface/transformers';
 import {BaseStreamer} from './base-streamer';
 import {is_chinese_char} from './is-chinese-char';
 import {mergeArrays} from './merge-arrays';
+import type {PreTrainedTokenizer} from './pretrained-tokenizer';
 
 export class TextStreamer extends BaseStreamer {
 	tokenizer: PreTrainedTokenizer;

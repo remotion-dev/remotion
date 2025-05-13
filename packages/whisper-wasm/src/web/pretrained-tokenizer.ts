@@ -5,9 +5,12 @@
  */
 
 import {TokenizerModel} from '@huggingface/transformers';
+import {AddedToken} from './added-token';
+import type {Decoder} from './byte-level-decoder';
 import {ByteLevelDecoder} from './byte-level-decoder';
 import {ByteLevelPreTokenizer} from './byte-level-pre-tokenizer';
 import {Callable} from './callable';
+import {DictionarySplitter} from './dictionary-splitter';
 import {padHelper, truncateHelper} from './helper';
 import {loadTokenizer} from './load-tokenizer';
 import {mergeArrays} from './merge-arrays';
@@ -87,7 +90,7 @@ export class PreTrainedTokenizer extends Callable {
 	pre_tokenizer: any;
 	model: any;
 	post_processor: any;
-	decoder: any;
+	decoder: Decoder;
 	special_tokens: string[];
 	all_special_ids: number[];
 	added_tokens: any[];
@@ -136,8 +139,7 @@ export class PreTrainedTokenizer extends Callable {
 		/** @type {AddedToken[]} */
 		this.added_tokens = [];
 		for (const addedToken of tokenizerJSON.added_tokens) {
-			// @ts-expect-error: AddedToken is not defined
-			const token = new (AddedToken as any)(addedToken);
+			const token = new AddedToken(addedToken);
 			this.added_tokens.push(token);
 
 			this.model.tokens_to_ids.set(token.content, token.id);
@@ -166,8 +168,7 @@ export class PreTrainedTokenizer extends Callable {
 			this.decoder.end_of_word_suffix = this.model.end_of_word_suffix;
 		}
 
-		// @ts-expect-error: DictionarySplitter is not defined
-		this.added_tokens_splitter = new (DictionarySplitter as any)(
+		this.added_tokens_splitter = new DictionarySplitter(
 			this.added_tokens.map((x: any) => x.content),
 		);
 
@@ -751,7 +752,7 @@ export class PreTrainedTokenizer extends Callable {
 		// If `this.decoder` is null, we just join tokens with a space:
 		// https://github.com/huggingface/tokenizers/blob/8edec536a737cb04494b454805be16c020abb14f/tokenizers/src/tokenizer/mod.rs#L835
 		/** @type {string} */
-		let decoded = this.decoder ? this.decoder(tokens) : tokens.join(' ');
+		let decoded = this.decoder ? this.decoder._call(tokens) : tokens.join(' ');
 
 		// Slight hack, but prevents having to pass `skip_special_tokens` to
 		// each call to `decode`, which would lead to code duplication.

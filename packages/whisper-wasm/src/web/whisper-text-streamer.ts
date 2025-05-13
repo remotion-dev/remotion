@@ -1,4 +1,4 @@
-import type {PreTrainedTokenizer} from '@huggingface/transformers';
+import type {PreTrainedTokenizer} from './pretrained-tokenizer';
 import {TextStreamer} from './text-streamer';
 import type {WhisperTokenizer} from './whisper-tokenizer';
 
@@ -34,7 +34,7 @@ export class WhisperTextStreamer extends TextStreamer {
 			decode_kwargs?: Record<string, unknown>;
 		},
 	) {
-		super(tokenizer as PreTrainedTokenizer, {
+		super(tokenizer as unknown as PreTrainedTokenizer, {
 			skip_prompt,
 			callback_function,
 			token_callback_function,
