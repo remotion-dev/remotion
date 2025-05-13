@@ -26,6 +26,6 @@ If you are using a SaaS template, you might already have these files, in which c
 
 In [`src/timeline/video-preview.tsx`](https://github.com/remotion-dev/timeline/blob/main/src/timeline/video-preview.tsx), you can see that the timeline state is being passed to the [`<Player>`](/docs/player) component.
 
-Whenever you are rendering a video using the [server-side rendering](/docs/ssr) APIs like[ `renderMediaOnLambda`](/docs/lambda/render-media-on-lambda) or [`renderMedia()`](/docs/renderer/render-media), make sure you specify the `inputProps` option and pass in the same payload that you passed to the `<Player>` component.
+Whenever you are rendering a video using the [server-side rendering](/docs/ssr) APIs like[ `renderMediaOnLambda`](/docs/lambda/rendermediaonlambda) or [`renderMedia()`](/docs/renderer/render-media), make sure you specify the `inputProps` option and pass in the same payload that you passed to the `<Player>` component.
 
 Note that this payload must be JSON-serializable, so you cannot pass in functions or other non-serializable values.
