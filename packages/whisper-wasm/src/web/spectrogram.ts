@@ -1,4 +1,5 @@
-import {FFT, matmul} from '@huggingface/transformers';
+import {matmul} from '@huggingface/transformers';
+import {FFT} from './fft';
 import {amplitude_to_db, power_to_db} from './power-to-db';
 import {Tensor} from './tensor';
 
