@@ -103,7 +103,6 @@ export async function createInferenceSession(
 	// @ts-expect-error
 
 	session.config = session_config;
-	console.log('created');
 	return session;
 }
 
@@ -157,5 +156,3 @@ export function isONNXProxy() {
 
 // Expose ONNX environment variables to `env.backends.onnx`
 env.backends.onnx = ONNX_ENV;
-
-console.log(ONNX_ENV);
