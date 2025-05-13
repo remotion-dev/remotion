@@ -1,12 +1,12 @@
-import type {WhisperWasmModel} from './constants';
+import type {WhisperWebModel} from './constants';
 import {MODELS} from './constants';
 import {getKeysFromObjectStore} from './db/get-object-from-db';
 import {openDb} from './db/open-db';
 import {getModelUrl} from './get-model-url';
 
-export const getLoadedModels = async (): Promise<WhisperWasmModel[]> => {
+export const getLoadedModels = async (): Promise<WhisperWebModel[]> => {
 	const objectStore = await openDb('readonly');
-	const loadedModels: WhisperWasmModel[] = [];
+	const loadedModels: WhisperWebModel[] = [];
 
 	const result = await getKeysFromObjectStore({
 		objectStore,

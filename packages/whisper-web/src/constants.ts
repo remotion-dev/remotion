@@ -1,4 +1,4 @@
-export const DB_NAME = 'whisper-wasm';
+export const DB_NAME = 'whisper-web';
 export const DB_VERSION = 1;
 export const DB_OBJECT_STORE_NAME = 'models';
 
@@ -11,7 +11,7 @@ export const MODELS = [
 	'small.en',
 ] as const;
 
-export type WhisperWasmModel = (typeof MODELS)[number];
+export type WhisperWebModel = (typeof MODELS)[number];
 
 export const LANGUAGES = [
 	// whisper allows passing 'auto' to auto-detect the language
@@ -220,9 +220,9 @@ export const LANGUAGES = [
 	'cantonese',
 ] as const;
 
-export type WhisperWasmLanguage = (typeof LANGUAGES)[number];
+export type WhisperWebLanguage = (typeof LANGUAGES)[number];
 
-export const SIZES: {[key in WhisperWasmModel]: number} = {
+export const SIZES: {[key in WhisperWebModel]: number} = {
 	tiny: 77691713,
 	'tiny.en': 77704715,
 	base: 147951465,

@@ -1,7 +1,6 @@
 ---
-image: /generated/articles-docs-whisper-wasm-resample-to-16khz.png
 title: resampleTo16Khz()
-crumb: '@remotion/whisper-wasm'
+crumb: '@remotion/whisper-web'
 ---
 
 :::warning
@@ -10,7 +9,7 @@ crumb: '@remotion/whisper-wasm'
 
 # resampleTo16Khz()
 
-Processes an audio `File` or `Blob` by decoding it, converting it to mono, and resampling it to a 16kHz `Float32Array`. This prepares the audio data for use with the [`transcribe()`](/docs/whisper-wasm/transcribe) function.
+Processes an audio `File` or `Blob` by decoding it, converting it to mono, and resampling it to a 16kHz `Float32Array`. This prepares the audio data for use with the [`transcribe()`](/docs/whisper-web/transcribe) function.
 
 This function operates in a browser environment as it relies on the Web Audio API (`AudioContext`, `OfflineAudioContext`) and `FileReader`.
 
@@ -36,7 +35,7 @@ Optional. Determines the level of detail for logs printed to the console during 
 
 `Promise<Float32Array>`
 
-This array contains the raw audio waveform data for a single channel (mono), sampled at 16kHz. This output is ready to be passed to the `channelWaveform` argument of the [`transcribe()`](/docs/whisper-wasm/transcribe) function.
+This array contains the raw audio waveform data for a single channel (mono), sampled at 16kHz. This output is ready to be passed to the `channelWaveform` argument of the [`transcribe()`](/docs/whisper-web/transcribe) function.
 
 ## Behavior notes
 
@@ -46,5 +45,5 @@ This array contains the raw audio waveform data for a single channel (mono), sam
 
 ## See also
 
-- [`transcribe()`](/docs/whisper-wasm/transcribe)
-- [`@remotion/whisper-wasm`](/docs/whisper-wasm)
+- [`transcribe()`](/docs/whisper-web/transcribe)
+- [`@remotion/whisper-web`](/docs/whisper-web)

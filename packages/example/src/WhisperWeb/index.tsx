@@ -1,11 +1,11 @@
 import {
-	type WhisperWasmModel,
 	deleteModel,
 	downloadWhisperModel,
 	getLoadedModels,
 	resampleTo16Khz,
 	transcribe,
-} from '@remotion/whisper-wasm';
+	WhisperWebModel,
+} from '@remotion/whisper-web';
 import {useCallback, useEffect, useState} from 'react';
 import {staticFile} from 'remotion';
 import {useTranscriber} from './use-transcriber';
@@ -13,7 +13,7 @@ import {useTranscriber} from './use-transcriber';
 const audioFileUrl = staticFile('16khz.wav');
 
 // Define available models
-const AVAILABLE_MODELS: WhisperWasmModel[] = [
+const AVAILABLE_MODELS: WhisperWebModel[] = [
 	'tiny.en',
 	'tiny',
 	'base.en',
@@ -22,10 +22,10 @@ const AVAILABLE_MODELS: WhisperWasmModel[] = [
 	'small',
 ];
 
-export const WhisperWasm = () => {
-	const [loadedModels, setLoadedModels] = useState<WhisperWasmModel[]>([]);
+export const WhisperWeb = () => {
+	const [loadedModels, setLoadedModels] = useState<WhisperWebModel[]>([]);
 	const [statusMessage, setStatusMessage] = useState<string>('');
-	const [selectedModel, setSelectedModel] = useState<WhisperWasmModel>(
+	const [selectedModel, setSelectedModel] = useState<WhisperWebModel>(
 		AVAILABLE_MODELS[0],
 	);
 
@@ -130,7 +130,7 @@ export const WhisperWasm = () => {
 	}, [selectedModel, loadedModels]);
 
 	const onDeleteModel = useCallback(
-		async (modelToDelete: WhisperWasmModel) => {
+		async (modelToDelete: WhisperWebModel) => {
 			setStatusMessage(`Deleting ${modelToDelete} model...`);
 			try {
 				await deleteModel(modelToDelete);
@@ -175,7 +175,7 @@ export const WhisperWasm = () => {
 						id="model-select"
 						value={selectedModel}
 						onChange={(e) =>
-							setSelectedModel(e.target.value as WhisperWasmModel)
+							setSelectedModel(e.target.value as WhisperWebModel)
 						}
 						className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
 					>

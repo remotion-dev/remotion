@@ -1,4 +1,4 @@
-import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
+import type {WhisperWebLanguage, WhisperWebModel} from './constants';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
@@ -24,8 +24,8 @@ const withResolvers = function <T>() {
 
 export type TranscribeParams = {
 	channelWaveform: Float32Array;
-	model: WhisperWasmModel;
-	language?: WhisperWasmLanguage;
+	model: WhisperWebModel;
+	language?: WhisperWebLanguage;
 	onProgress?: (p: number) => void;
 	onTranscriptionChunk?: (
 		transcription: TranscriptionItemWithTimestamp[],

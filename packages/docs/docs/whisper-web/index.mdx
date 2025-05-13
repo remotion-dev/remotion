@@ -1,5 +1,5 @@
 ---
-title: '@remotion/whisper-wasm'
+title: '@remotion/whisper-web'
 crumb: 'Transcribe audio in browser'
 ---
 
@@ -12,9 +12,9 @@ import TabItem from '@theme/TabItem';
 
 Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for the browser. Allows you to transcribe audio locally in the browser, with the help of WASM.
 
-import {TableOfContents} from './whisper-wasm';
+import {TableOfContents} from './whisper-web';
 
-<Installation pkg="@remotion/whisper-wasm" />
+<Installation pkg="@remotion/whisper-web" />
 
 ## Example usage
 
@@ -23,7 +23,7 @@ This library is UI-agnostic and can be integrated with any frontend framework.
 :::
 
 ```tsx twoslash
-import {transcribe, canUseWhisperWasm, resampleTo16Khz, downloadWhisperModel} from '@remotion/whisper-wasm';
+import {transcribe, canUseWhisperWeb, resampleTo16Khz, downloadWhisperModel} from '@remotion/whisper-web';
 
 // HTML:
 // <input type="file" accept="audio/*" id="audio-input" />
@@ -39,7 +39,7 @@ input.addEventListener('change', async (e) => {
 
   const modelToUse = 'tiny.en';
 
-  const {supported, detailedReason} = await canUseWhisperWasm(modelToUse);
+  const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
   if (!supported) {
     throw new Error(`Whisper WASM is not supported in this environment: ${detailedReason}`);
   }

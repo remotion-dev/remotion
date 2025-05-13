@@ -1,21 +1,20 @@
 ---
-image: /generated/articles-docs-whisper-wasm-can-use-whisper-wasm.png
-title: canUseWhisperWasm()
-crumb: '@remotion/whisper-wasm'
+title: canUseWhisperWeb()
+crumb: '@remotion/whisper-web'
 ---
 
 :::warning
 **Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API.  
 :::
 
-# canUseWhisperWasm()
+# canUseWhisperWeb()
 
-Checks if the current browser environment supports running `@remotion/whisper-wasm` with a specified model. This function verifies various browser capabilities like `crossOriginIsolated`, `IndexedDB`, `navigator.storage.estimate()`, and available storage space.
+Checks if the current browser environment supports running `@remotion/whisper-web` with a specified model. This function verifies various browser capabilities like `crossOriginIsolated`, `IndexedDB`, `navigator.storage.estimate()`, and available storage space.
 
 ## Example usage
 
 ```tsx twoslash
-import {canUseWhisperWasm, type WhisperWasmModel} from '@remotion/whisper-wasm';
+import {canUseWhisperWeb, type WhisperWebModel} from '@remotion/whisper-web';
 import {useState, useEffect} from 'react';
 
 export default function MyComponent() {
@@ -24,8 +23,8 @@ export default function MyComponent() {
 
   useEffect(() => {
     const checkSupport = async () => {
-      const modelToUse: WhisperWasmModel = 'tiny.en'; // Or any other model
-      const result = await canUseWhisperWasm(modelToUse);
+      const modelToUse: WhisperWebModel = 'tiny.en'; // Or any other model
+      const result = await canUseWhisperWeb(modelToUse);
       setSupported(result.supported);
       if (!result.supported) {
         setReason(result.detailedReason ?? result.reason);
@@ -54,11 +53,11 @@ export default function MyComponent() {
 The Whisper model intended to be used. This is used to check if there's enough storage space for the model.
 Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`.
 
-Refer to the `WhisperWasmModel` type exported by the package for a comprehensive list.
+Refer to the `WhisperWebModel` type exported by the package for a comprehensive list.
 
 ## Return value
 
-A `Promise` that resolves to a `CanUseWhisperWasmResult` object with the following properties:
+A `Promise` that resolves to a `CanUseWhisperWebResult` object with the following properties:
 
 ### `supported`
 
@@ -85,7 +84,7 @@ If `supported` is `false`, this field may contain a more detailed, human-readabl
 
 ## Important considerations
 
-- **Cross-Origin Isolation:** For `SharedArrayBuffer` to work, which is required by `@remotion/whisper-wasm`, the page must be served with specific HTTP headers:
+- **Cross-Origin Isolation:** For `SharedArrayBuffer` to work, which is required by `@remotion/whisper-web`, the page must be served with specific HTTP headers:
 
   - `Cross-Origin-Opener-Policy: same-origin`
   - `Cross-Origin-Embedder-Policy: require-corp`
@@ -95,7 +94,7 @@ If `supported` is `false`, this field may contain a more detailed, human-readabl
 
 ## See also
 
-- [Source code for `canUseWhisperWasm()`](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/can-use-whisper-wasm.ts)
-- [`@remotion/whisper-wasm`](/docs/whisper-wasm)
-- [`transcribe()`](/docs/whisper-wasm/transcribe)
-- [`downloadWhisperModel()`](/docs/whisper-wasm/download-whisper-model)
+- [Source code for `canUseWhisperWeb()`](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-web/src/can-use-whisper-web.ts)
+- [`@remotion/whisper-web`](/docs/whisper-web)
+- [`transcribe()`](/docs/whisper-web/transcribe)
+- [`downloadWhisperModel()`](/docs/whisper-web/download-whisper-model)

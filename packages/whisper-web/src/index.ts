@@ -1,9 +1,9 @@
 import type {
-	CanUseWhisperWasmResult,
-	canUseWhisperWasm as originalCanUseWhisperWasm,
-	WhisperWasmUnsupportedReason,
-} from './can-use-whisper-wasm';
-import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
+	CanUseWhisperWebResult,
+	canUseWhisperWeb as originalCanUseWhisperWeb,
+	WhisperWebUnsupportedReason,
+} from './can-use-whisper-web';
+import type {WhisperWebLanguage, WhisperWebModel} from './constants';
 import type {deleteModel as originalDeleteModel} from './delete-model';
 import type {
 	DownloadWhisperModelOnProgress,
@@ -24,49 +24,49 @@ import type {
 
 export const transcribe: typeof originalTranscribe = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
 };
 
 export const downloadWhisperModel: typeof originalDownloadWhisperModel = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
 };
 
 export const getLoadedModels: typeof originalGetLoadedModels = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
 };
 
 export const deleteModel: typeof originalDeleteModel = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
 };
 
-export const canUseWhisperWasm: typeof originalCanUseWhisperWasm = () => {
+export const canUseWhisperWeb: typeof originalCanUseWhisperWeb = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
 };
 
 export const resampleTo16Khz: typeof originalResampleTo16Khz = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
 };
 
 export type {
-	CanUseWhisperWasmResult,
+	CanUseWhisperWebResult,
 	DownloadWhisperModelOnProgress,
 	DownloadWhisperModelParams,
 	DownloadWhisperModelProgress,
 	DownloadWhisperModelResult,
 	ResampleTo16KhzParams,
 	TranscribeParams,
-	WhisperWasmLanguage,
-	WhisperWasmModel,
-	WhisperWasmUnsupportedReason,
+	WhisperWebLanguage,
+	WhisperWebModel,
+	WhisperWebUnsupportedReason,
 };
