@@ -33,7 +33,9 @@ export const loadFont = async ({
 	format,
 	variant,
 }: LoadFontOptions): Promise<void> => {
-	const waitForFont = delayRender();
+	const waitForFont = delayRender(
+		`Loading font ${family} (url: ${url}, format: ${format}, weight: ${weight}, style: ${style}, variant: ${variant}, ascentOverride: ${ascentOverride}, descentOverride: ${descentOverride}, display: ${display}, featureSettings: ${featureSettings}, lineGapOverride: ${lineGapOverride}, stretch: ${stretch}, unicodeRange: ${unicodeRange})`,
+	);
 	try {
 		const fontFormat = format ?? getFontFormat(url);
 		const font = new FontFace(family, `url('${url}') format('${fontFormat}')`, {
