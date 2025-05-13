@@ -1,6 +1,7 @@
 import {useContext, useLayoutEffect, useRef, type RefObject} from 'react';
 import {SharedAudioContext} from './audio/shared-audio-tags';
 import type {SharedElementSourceNode} from './audio/shared-element-source-node';
+import {isApproximatelyTheSame} from './is-approximately-the-same';
 import type {LogLevel} from './log';
 import {Log} from './log';
 import {isSafari} from './video/video-fragment';
@@ -101,7 +102,12 @@ export const useVolume = ({
 
 	if (audioStuffRef.current) {
 		const valueToSet = volume;
-		if (audioStuffRef.current.gainNode.gain.value !== valueToSet) {
+		if (
+			!isApproximatelyTheSame(
+				audioStuffRef.current.gainNode.gain.value,
+				valueToSet,
+			)
+		) {
 			audioStuffRef.current.gainNode.gain.value = valueToSet;
 			Log.trace(
 				logLevel,
@@ -115,7 +121,7 @@ export const useVolume = ({
 		mediaRef.current &&
 		isSafari() &&
 		mediaRef.current?.playbackRate !== 1 &&
-		volume !== mediaRef.current?.volume
+		!isApproximatelyTheSame(volume, mediaRef.current?.volume)
 	) {
 		mediaRef.current.volume = Math.min(volume, 1);
 	}

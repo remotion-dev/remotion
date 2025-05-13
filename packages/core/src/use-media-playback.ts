@@ -194,7 +194,6 @@ export const useMediaPlayback = ({
 			mediaRef.current &&
 			mediaRef.current.playbackRate !== playbackRateToSet
 		) {
-			console.log('setting playbackRate', playbackRateToSet);
 			mediaRef.current.playbackRate = playbackRateToSet;
 		}
 	}, [mediaRef, playbackRate]);
@@ -220,7 +219,7 @@ export const useMediaPlayback = ({
 		const mediaTagTime = mediaTagCurrentTime.current.time;
 		const rvcTime = rvcCurrentTime.current?.time ?? null;
 
-		const isVariableFpsVideo = false;
+		const isVariableFpsVideo = isVariableFpsVideoMap.current[src];
 
 		const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
 		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
