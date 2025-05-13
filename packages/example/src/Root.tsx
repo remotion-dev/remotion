@@ -132,7 +132,7 @@ import {Seek} from './StudioApis/Seek';
 import {TransitionRounding} from './TransitionRounding';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
-import {WhisperWasm} from './WhisperWasm';
+import {WhisperWeb} from './WhisperWeb';
 
 class Vector2 {
 	readonly x: number;
@@ -1591,12 +1591,7 @@ export const Index: React.FC = () => {
 					durationInFrames={900}
 				/>
 			</Folder>
-			<Still
-				id="whisper-wasm"
-				component={WhisperWasm}
-				width={800}
-				height={800}
-			/>
+			<Still id="whisper-web" component={WhisperWeb} width={800} height={800} />
 			<Composition
 				id="empty"
 				component={Empty}
