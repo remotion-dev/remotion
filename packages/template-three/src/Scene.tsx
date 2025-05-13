@@ -46,7 +46,12 @@ export const Scene: React.FC<
 
   return (
     <AbsoluteFill style={container}>
-      <Video ref={videoRef} src={videoSrc} style={videoStyle} />
+      <Video
+        ref={videoRef}
+        src={videoSrc}
+        style={videoStyle}
+        pauseWhenBuffering
+      />
       {videoData ? (
         <ThreeCanvas linear width={width} height={height}>
           <ambientLight intensity={1.5} color={0xffffff} />
