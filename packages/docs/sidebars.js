@@ -715,17 +715,17 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/whisper-wasm',
+			label: '@remotion/whisper-webgpu',
 			link: {
 				type: 'doc',
-				id: 'whisper-wasm/index',
+				id: 'whisper-webgpu/index',
 			},
 			items: [
-				'whisper-wasm/download-whisper-model',
-				'whisper-wasm/transcribe',
-				'whisper-wasm/resample-to-16khz',
-				'whisper-wasm/can-use-whisper-wasm',
-				'whisper-wasm/get-loaded-models',
+				'whisper-webgpu/download-whisper-model',
+				'whisper-webgpu/transcribe',
+				'whisper-webgpu/resample-to-16khz',
+				'whisper-webgpu/can-use-whisper-webgpu',
+				'whisper-webgpu/get-loaded-models',
 			],
 		},
 		{

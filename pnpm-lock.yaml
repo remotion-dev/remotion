@@ -689,9 +689,9 @@ importers:
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
-      '@remotion/whisper-wasm':
+      '@remotion/whisper-webgpu':
         specifier: workspace:*
-        version: link:../whisper-wasm
+        version: link:../whisper-webgpu
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1064,9 +1064,9 @@ importers:
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
-      '@remotion/whisper-wasm':
+      '@remotion/whisper-webgpu':
         specifier: workspace:*
-        version: link:../whisper-wasm
+        version: link:../whisper-webgpu
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -3509,7 +3509,7 @@ importers:
         specifier: 1.51.1
         version: 1.51.1
 
-  packages/whisper-wasm:
+  packages/whisper-webgpu:
     dependencies:
       onnxruntime-web:
         specifier: 1.22.0

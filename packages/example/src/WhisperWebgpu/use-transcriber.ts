@@ -1,4 +1,4 @@
-import {makeWorkerUrl} from '@remotion/whisper-wasm/worker-url';
+import {makeWorkerUrl} from '@remotion/whisper-webgpu/worker-url';
 import {useCallback, useMemo, useState} from 'react';
 
 interface ProgressItem {

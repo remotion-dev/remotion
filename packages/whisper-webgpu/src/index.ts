@@ -1,9 +1,9 @@
 import type {
-	CanUseWhisperWasmResult,
-	canUseWhisperWasm as originalCanUseWhisperWasm,
-	WhisperWasmUnsupportedReason,
-} from './can-use-whisper-wasm';
-import type {WhisperWasmLanguage, WhisperWasmModel} from './constants';
+	CanUseWhisperWebGpuResult,
+	canUseWhisperWebGpu as originalCanUseWhisperWebGpu,
+	WhisperWebGpuUnsupportedReason,
+} from './can-use-whisper-webgpu';
+import type {WhisperWebGpuLanguage, WhisperWebGpuModel} from './constants';
 import type {deleteModel as originalDeleteModel} from './delete-model';
 import type {
 	DownloadWhisperModelOnProgress,
@@ -24,49 +24,49 @@ import type {
 
 export const transcribe: typeof originalTranscribe = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-webgpu.',
 	);
 };
 
 export const downloadWhisperModel: typeof originalDownloadWhisperModel = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-webgpu.',
 	);
 };
 
 export const getLoadedModels: typeof originalGetLoadedModels = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-webgpu.',
 	);
 };
 
 export const deleteModel: typeof originalDeleteModel = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-webgpu.',
 	);
 };
 
-export const canUseWhisperWasm: typeof originalCanUseWhisperWasm = () => {
+export const canUseWhisperWebGpu: typeof originalCanUseWhisperWebGpu = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-webgpu.',
 	);
 };
 
 export const resampleTo16Khz: typeof originalResampleTo16Khz = () => {
 	throw new Error(
-		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-wasm.',
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-webgpu.',
 	);
 };
 
 export type {
-	CanUseWhisperWasmResult,
+	CanUseWhisperWebGpuResult,
 	DownloadWhisperModelOnProgress,
 	DownloadWhisperModelParams,
 	DownloadWhisperModelProgress,
 	DownloadWhisperModelResult,
 	ResampleTo16KhzParams,
 	TranscribeParams,
-	WhisperWasmLanguage,
-	WhisperWasmModel,
-	WhisperWasmUnsupportedReason,
+	WhisperWebGpuLanguage,
+	WhisperWebGpuModel,
+	WhisperWebGpuUnsupportedReason,
 };

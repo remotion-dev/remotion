@@ -1,5 +1,6 @@
-import {canUseWhisperWasm} from './can-use-whisper-wasm';
-import {MODELS, SIZES, type WhisperWasmModel} from './constants';
+import {canUseWhisperWebGpu} from './can-use-whisper-webgpu';
+import type {WhisperWebGpuModel} from './constants';
+import {MODELS, SIZES} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {putObject} from './db/put-object';
 import {fetchRemote} from './download-model';
@@ -16,7 +17,7 @@ export type DownloadWhisperModelOnProgress = (
 ) => void;
 
 export interface DownloadWhisperModelParams {
-	model: WhisperWasmModel;
+	model: WhisperWebGpuModel;
 	onProgress: DownloadWhisperModelOnProgress;
 }
 
@@ -34,7 +35,7 @@ export const downloadWhisperModel = async ({
 		);
 	}
 
-	const usabilityCheck = await canUseWhisperWasm(model);
+	const usabilityCheck = await canUseWhisperWebGpu(model);
 
 	if (!usabilityCheck.supported) {
 		return Promise.reject(

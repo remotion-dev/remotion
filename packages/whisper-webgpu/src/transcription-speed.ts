@@ -1,6 +1,6 @@
 export const storeActualTranscriptionSpeed = (speed: number) => {
 	window.localStorage.setItem(
-		'remotion-whisper-wasm-transcription-speed',
+		'remotion-whisper-webgpu-transcription-speed',
 		speed.toString(),
 	);
 };
@@ -11,7 +11,7 @@ export const NEW_PROGRESS_EVENT_EVERY_N_SECONDS = 30;
 
 export const getActualTranscriptionSpeedInMilliseconds = () => {
 	const speed = window.localStorage.getItem(
-		'remotion-whisper-wasm-transcription-speed',
+		'remotion-whisper-webgpu-transcription-speed',
 	);
 	if (!speed) {
 		return DEFAULT_ASSUMED_SPEED * NEW_PROGRESS_EVENT_EVERY_N_SECONDS * 1000;

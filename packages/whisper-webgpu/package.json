@@ -1,8 +1,8 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-wasm"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-webgpu"
 	},
-	"name": "@remotion/whisper-wasm",
+	"name": "@remotion/whisper-webgpu",
 	"version": "4.0.300",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -51,7 +51,7 @@
 		"whisper",
 		"wasm"
 	],
-	"homepage": "https://www.remotion.dev/docs/whisper-wasm",
+	"homepage": "https://www.remotion.dev/docs/whisper-webgpu",
 	"description": "Helpers for using Whisper.cpp in browser using WASM",
 	"typesVersions": {
 		">=1.0": {
