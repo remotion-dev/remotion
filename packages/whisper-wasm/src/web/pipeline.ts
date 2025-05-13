@@ -16,7 +16,6 @@ import {dispatchCallback} from './dispatch-callback.js';
 import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
 import {whisperModelConfig} from './model-config.js';
-import {AutoModelForCTC} from './model.js';
 import type {Processor} from './processor.js';
 import {read_audio} from './read-audio.js';
 import type {Tensor} from './tensor.js';
@@ -227,7 +226,7 @@ export class AutomaticSpeechRecognitionPipeline
 const SUPPORTED_TASK = Object.freeze({
 	tokenizer: AutoTokenizer,
 	pipeline: AutomaticSpeechRecognitionPipeline,
-	model: [AutoModelForSpeechSeq2Seq, AutoModelForCTC],
+	model: [AutoModelForSpeechSeq2Seq],
 	processor: AutoProcessor,
 	default: {
 		model: 'onnx-community/whisper-base',
