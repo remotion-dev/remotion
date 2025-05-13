@@ -24,8 +24,8 @@ export default function MyComponent() {
 
   useEffect(() => {
     const checkSupport = async () => {
-      const modelToUse: WhisperWasmModel = 'tiny.en'; // Or any other model
-      const result = await canUseWhisperWasm(modelToUse);
+      const modelToUse: WhisperWebModel = 'tiny.en'; // Or any other model
+      const result = await canUseWhisperWeb(modelToUse);
       setSupported(result.supported);
       if (!result.supported) {
         setReason(result.detailedReason ?? result.reason);
@@ -36,14 +36,14 @@ export default function MyComponent() {
   }, []);
 
   if (supported === null) {
-    return <p>Checking Whisper WASM support...</p>;
+    return <p>Checking if Whisper Web can be used...</p>;
   }
 
   if (supported) {
-    return <p>Whisper WASM is supported!</p>;
+    return <p>Can use Whisper Web!</p>;
   }
 
-  return <p>Whisper WASM is not supported: {reason}</p>;
+  return <p>Using Whisper Web is not possible: {reason}</p>;
 }
 ```
 
@@ -54,15 +54,15 @@ export default function MyComponent() {
 The Whisper model intended to be used. This is used to check if there's enough storage space for the model.
 Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`.
 
-Refer to the `WhisperWasmModel` type exported by the package for a comprehensive list.
+Refer to the `WhisperWebModel` type exported by the package for a comprehensive list.
 
 ## Return value
 
-A `Promise` that resolves to a `CanUseWhisperWasmResult` object with the following properties:
+A `Promise` that resolves to a `CanUseWhisperWebResult` object with the following properties:
 
 ### `supported`
 
-A boolean indicating whether Whisper WASM can be used. `true` if supported, `false` otherwise.
+A boolean indicating whether a transcription can be done. `true` if supported, `false` otherwise.
 
 ### `reason?`
 
@@ -81,7 +81,7 @@ Possible values values include:
 
 ### `detailedReason?`
 
-If `supported` is `false`, this field may contain a more detailed, human-readable explanation of why Whisper WASM is not supported.
+If `supported` is `false`, this field may contain a more detailed, human-readable explanation of why a transcription is not possible.
 
 ## Important considerations
 
@@ -95,7 +95,7 @@ If `supported` is `false`, this field may contain a more detailed, human-readabl
 
 ## See also
 
-- [Source code for `canUseWhisperWasm()`](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-web/src/can-use-whisper-web.ts)
+- [Source code for `canUseWhisperWeb()`](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-web/src/can-use-whisper-web.ts)
 - [`@remotion/whisper-web`](/docs/whisper-web)
 - [`transcribe()`](/docs/whisper-web/transcribe)
 - [`downloadWhisperModel()`](/docs/whisper-web/download-whisper-model)

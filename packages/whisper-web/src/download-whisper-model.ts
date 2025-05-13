@@ -1,4 +1,4 @@
-import {canUseWhisperWasm} from './can-use-whisper-web';
+import {canUseWhisperWeb} from './can-use-whisper-web';
 import {MODELS, SIZES, type WhisperWebModel} from './constants';
 import {getObject} from './db/get-object-from-db';
 import {putObject} from './db/put-object';
@@ -34,7 +34,7 @@ export const downloadWhisperModel = async ({
 		);
 	}
 
-	const usabilityCheck = await canUseWhisperWasm(model);
+	const usabilityCheck = await canUseWhisperWeb(model);
 
 	if (!usabilityCheck.supported) {
 		return Promise.reject(

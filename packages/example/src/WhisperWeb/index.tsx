@@ -1,5 +1,5 @@
 import {
-	type WhisperWasmModel as WhisperWebModel,
+	type WhisperWebModel,
 	deleteModel,
 	downloadWhisperModel,
 	getLoadedModels,
@@ -133,7 +133,7 @@ export const WhisperWeb = () => {
 		<div className="flex flex-col items-center justify-center min-h-screen bg-black p-4">
 			<div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6 space-y-4">
 				<div className="text-center text-2xl font-semibold text-gray-700">
-					Whisper WASM Demo
+					Whisper Web Demo
 				</div>
 
 				{statusMessage && (

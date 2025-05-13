@@ -42,13 +42,13 @@ input.addEventListener('change', async (e) => {
 
   const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
   if (!supported) {
-    throw new Error(`Whisper WASM is not supported in this environment: ${detailedReason}`);
+    throw new Error(`Whisper Web is not supported in this environment: ${detailedReason}`);
   }
 
   console.log('Downloading model...');
   await downloadWhisperModel({
     model: modelToUse,
-    onProgress: (p) => console.log(`Downloading model (${Math.round(p * 100)}%)...`),
+    onProgress: ({progress}) => console.log(`Downloading model (${Math.round(progress * 100)}%)...`),
   });
 
   console.log('Resampling audio...');

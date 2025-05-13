@@ -1,7 +1,7 @@
 import type {
-	CanUseWhisperWasmResult,
-	canUseWhisperWasm as originalCanUseWhisperWasm,
-	WhisperWasmUnsupportedReason,
+	CanUseWhisperWebResult,
+	canUseWhisperWeb as originalCanUseWhisperWeb,
+	WhisperWebUnsupportedReason,
 } from './can-use-whisper-web';
 import type {WhisperWebLanguage, WhisperWebModel} from './constants';
 import type {deleteModel as originalDeleteModel} from './delete-model';
@@ -46,7 +46,7 @@ export const deleteModel: typeof originalDeleteModel = () => {
 	);
 };
 
-export const canUseWhisperWasm: typeof originalCanUseWhisperWasm = () => {
+export const canUseWhisperWeb: typeof originalCanUseWhisperWeb = () => {
 	throw new Error(
 		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);
@@ -59,14 +59,14 @@ export const resampleTo16Khz: typeof originalResampleTo16Khz = () => {
 };
 
 export type {
-	CanUseWhisperWasmResult,
+	CanUseWhisperWebResult,
 	DownloadWhisperModelOnProgress,
 	DownloadWhisperModelParams,
 	DownloadWhisperModelProgress,
 	DownloadWhisperModelResult,
 	ResampleTo16KhzParams,
 	TranscribeParams,
-	WhisperWebLanguage as WhisperWasmLanguage,
-	WhisperWebModel as WhisperWasmModel,
-	WhisperWasmUnsupportedReason,
+	WhisperWebLanguage,
+	WhisperWebModel,
+	WhisperWebUnsupportedReason,
 };
