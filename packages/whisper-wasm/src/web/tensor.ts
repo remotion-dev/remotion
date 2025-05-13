@@ -732,7 +732,7 @@ export class Tensor {
 	/**
 	 * In-place version of @see {@link Tensor.unsqueeze}
 	 */
-	unsqueeze_(dim = null) {
+	unsqueeze_(dim: number | null = null) {
 		this.dims = calc_unsqueeze_dims(this.dims, dim);
 		return this;
 	}
