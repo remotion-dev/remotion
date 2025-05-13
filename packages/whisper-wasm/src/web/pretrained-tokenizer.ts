@@ -4,7 +4,6 @@
  * @property {string} content The content of the message.
  */
 
-import {TokenizerModel} from '@huggingface/transformers';
 import {AddedToken} from './added-token';
 import type {Decoder} from './byte-level-decoder';
 import {ByteLevelDecoder} from './byte-level-decoder';
@@ -18,6 +17,7 @@ import {prepareTensorForDecode} from './prepare-tensor-for-decode';
 import {TemplateProcessing} from './template-processing';
 import {Tensor} from './tensor';
 import type {tokenizerConfig} from './tokenizer-config';
+import {TokenizerModel} from './tokenizer-model';
 
 // Type definitions for special objects
 export type Message = {
