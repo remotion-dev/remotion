@@ -86,7 +86,6 @@ export const env = {
 	/// //////////////// Backends settings ///////////////////
 	// NOTE: These will be populated later by the backends themselves.
 	backends: {
-		// onnxruntime-web/onnxruntime-node
 		onnx: {},
 	},
 

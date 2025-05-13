@@ -1,8 +1,9 @@
+/* eslint-disable new-cap */
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable operator-assignment */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import {Tensor as OnnxTensor} from 'onnxruntime-web';
 import {max, min} from './maths';
+import {OnnxTensor} from './onnx';
 
 export const DataTypeMap = {
 	float32: Float32Array,
@@ -1148,4 +1149,122 @@ export function permute_data(
 	}
 
 	return [permutedData, shape];
+}
+
+/**
+ * Converts an array or Tensor of integers to an int64 Tensor.
+ * @param {any[]|Tensor} items The input integers to be converted.
+ * @returns {Tensor} The int64 Tensor with the converted values.
+ * @throws {Error} If the input array is empty or the input is a batched Tensor and not all sequences have the same length.
+ * @private
+ */
+export function toI64Tensor(items: any[]) {
+	if (items instanceof Tensor) {
+		return items;
+	}
+
+	// items is an array
+	if (items.length === 0) {
+		throw Error('items must be non-empty');
+	}
+
+	if (Array.isArray(items[0])) {
+		// batched
+		if (items.some((x) => x.length !== items[0].length)) {
+			throw Error(
+				"Unable to create tensor, you should probably activate truncation and/or padding with 'padding=True' and/or 'truncation=True' to have batched tensors with the same length.",
+			);
+		}
+
+		return new Tensor(
+			'int64',
+			BigInt64Array.from(items.flat().map((x) => BigInt(x))),
+			[items.length, items[0].length],
+		);
+	}
+
+	// flat
+	return new Tensor('int64', BigInt64Array.from(items.map((x) => BigInt(x))), [
+		1,
+		items.length,
+	]);
+}
+
+function fullHelper(
+	size: number[],
+	fill_value: number | bigint | boolean,
+	dtype: string,
+	cls: any,
+) {
+	const numElements = size.reduce((a, b) => a * b, 1);
+	return new Tensor(dtype, new cls(numElements).fill(fill_value), size);
+}
+
+/**
+ * Creates a tensor of size size filled with fill_value. The tensor's dtype is inferred from fill_value.
+ * @param {number[]} size A sequence of integers defining the shape of the output tensor.
+ * @param {number|bigint|boolean} fill_value The value to fill the output tensor with.
+ * @returns {Tensor} The filled tensor.
+ */
+export function full(size: number[], fill_value: number | bigint | boolean) {
+	let dtype;
+	let typedArrayCls;
+	if (typeof fill_value === 'number') {
+		dtype = 'float32';
+		typedArrayCls = Float32Array;
+	} else if (typeof fill_value === 'bigint') {
+		dtype = 'int64';
+		typedArrayCls = BigInt64Array;
+	} else if (typeof fill_value === 'boolean') {
+		dtype = 'bool';
+		typedArrayCls = Uint8Array;
+	} else {
+		// TODO: support other dtypes
+		throw new Error(`Unsupported data type: ${typeof fill_value}`);
+	}
+
+	return fullHelper(size, fill_value, dtype, typedArrayCls);
+}
+
+export function full_like(
+	tensor: Tensor,
+	fill_value: number | bigint | boolean,
+) {
+	return full(tensor.dims, fill_value);
+}
+
+/**
+ * Returns a tensor filled with the scalar value 1, with the shape defined by the variable argument size.
+ * @param {number[]} size A sequence of integers defining the shape of the output tensor.
+ * @returns {Tensor} The ones tensor.
+ */
+export function ones(size: number[]) {
+	return fullHelper(size, BigInt(1), 'int64', BigInt64Array);
+}
+
+/**
+ * Returns a tensor filled with the scalar value 1, with the same size as input.
+ * @param {Tensor} tensor The size of input will determine size of the output tensor.
+ * @returns {Tensor} The ones tensor.
+ */
+export function ones_like(tensor: Tensor) {
+	return ones(tensor.dims);
+}
+
+/**
+ * Returns a tensor filled with the scalar value 0, with the shape defined by the variable argument size.
+ * @param {number[]} size A sequence of integers defining the shape of the output tensor.
+ * @returns {Tensor} The zeros tensor.
+ */
+export function zeros(size: number[]) {
+	return fullHelper(size, BigInt(0), 'int64', BigInt64Array);
+}
+
+/**
+ * Returns a tensor filled with the scalar value 0, with the same size as input.
+ * @param {Tensor} tensor The size of input will determine size of the output tensor.
+ * @returns {Tensor} The zeros tensor.
+ */
+export function zeros_like(tensor: Tensor) {
+	return zeros(tensor.dims);
 }

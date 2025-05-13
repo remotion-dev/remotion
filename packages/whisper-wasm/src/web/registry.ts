@@ -4,9 +4,6 @@ import {Tensor} from './tensor.js';
 const IS_WEB_ENV: boolean = true;
 
 type SessionBytes = number[];
-type SessionOptions =
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-	import('onnxruntime-common').InferenceSession.SessionOptions;
 type TensorInputs = Record<string, Tensor>;
 type TensorOutput<T> = T extends string
 	? Tensor
@@ -28,7 +25,7 @@ type WrapperFunction<T> = (inputs: TensorInputs) => Promise<TensorOutput<T>>;
  */
 const wrap = async <T extends string | [string] | string[]>(
 	session_bytes: SessionBytes,
-	session_options: SessionOptions,
+	session_options: any,
 	names: T,
 ): Promise<WrapperFunction<T>> => {
 	const session = await createInferenceSession(
@@ -72,9 +69,9 @@ export class TensorOpRegistry {
 	private static _top_k: Promise<WrapperFunction<['v', 'i']>>;
 	private static _slice: Promise<WrapperFunction<'y'>>;
 
-	static session_options: SessionOptions = {
+	static session_options = {
 		// TODO: Allow for multiple execution providers
-		// executionProviders: ['webgpu'],
+		executionProviders: ['webgpu'],
 	};
 
 	static get nearest_interpolate_4d(): Promise<WrapperFunction<'y'>> {

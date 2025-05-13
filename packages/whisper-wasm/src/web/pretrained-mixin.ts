@@ -1,7 +1,22 @@
-import type {ProgressCallback} from '@huggingface/transformers';
-import {WhisperForConditionalGeneration} from '@huggingface/transformers';
 import type {PretrainedConfig} from './pretrained-config';
 import {AutoConfig} from './pretrained-config';
+import {WhisperForConditionalGeneration} from './whisper-for-conditional-generation';
+
+type ProgressCallback = (
+	progressInfo:
+		| {status: 'initiate'; name: string; file: string}
+		| {status: 'download'; name: string; file: string}
+		| {
+				status: 'progress';
+				name: string;
+				file: string;
+				progress: number;
+				loaded: number;
+				total: number;
+		  }
+		| {status: 'done'; name: string; file: string}
+		| {status: 'ready'; task: string; model: string},
+) => void;
 
 /**
  * Base class of all AutoModels. Contains the `from_pretrained` function
@@ -86,7 +101,6 @@ export class PretrainedMixin {
 			WhisperForConditionalGeneration,
 		] as const;
 
-		// @ts-expect-error
 		return modelInfo[1].from_pretrained(pretrained_model_name_or_path, options);
 	}
 }

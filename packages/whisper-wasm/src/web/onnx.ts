@@ -1,15 +1,8 @@
-// NOTE: Import order matters here. We need to import `onnxruntime-node` before `onnxruntime-web`.
-// In either case, we select the default export if it exists, otherwise we use the named export.
-import * as ONNX from 'onnxruntime-web';
+import * as ONNX from 'onnxruntime-web/all';
 import {env} from './env';
 
-export {Tensor} from 'onnxruntime-common';
+export const OnnxTensor = ONNX.Tensor;
 
-/**
- * @typedef {import('onnxruntime-common').InferenceSession.ExecutionProviderConfig} ONNXExecutionProviders
- */
-
-/** @type {Record<import("../utils/devices.js").DeviceType, ONNXExecutionProviders>} */
 const DEVICE_TO_EXECUTION_PROVIDER_MAPPING = Object.freeze({
 	auto: null, // Auto-detect based on device and environment
 	gpu: null, // Auto-detect GPU
@@ -25,7 +18,7 @@ const DEVICE_TO_EXECUTION_PROVIDER_MAPPING = Object.freeze({
 	'webnn-cpu': {name: 'webnn', deviceType: 'cpu'}, // WebNN CPU
 });
 
-const IS_WEBGPU_AVAILABLE =
+export const IS_WEBGPU_AVAILABLE =
 	typeof navigator !== 'undefined' && 'gpu' in navigator;
 const IS_WEBNN_AVAILABLE =
 	typeof navigator !== 'undefined' && 'ml' in navigator;
@@ -90,16 +83,9 @@ export function deviceToExecutionProviders(device = null) {
  */
 let wasmInitPromise: Promise<any> | null = null;
 
-/**
- * Create an ONNX inference session.
- * @param {Uint8Array|string} buffer_or_path The ONNX model buffer or path.
- * @param {import('onnxruntime-common').InferenceSession.SessionOptions} session_options ONNX inference session options.
- * @param {Object} session_config ONNX inference session configuration.
- * @returns {Promise<import('onnxruntime-common').InferenceSession & { config: Object}>} The ONNX inference session.
- */
 export async function createInferenceSession(
 	buffer_or_path: Uint8Array | string,
-	session_options: import('onnxruntime-common').InferenceSession.SessionOptions,
+	session_options: ONNX.InferenceSession.SessionOptions,
 	session_config: Object,
 ) {
 	if (wasmInitPromise) {
@@ -115,7 +101,9 @@ export async function createInferenceSession(
 	wasmInitPromise ??= sessionPromise;
 	const session = await sessionPromise;
 	// @ts-expect-error
+
 	session.config = session_config;
+	console.log('created');
 	return session;
 }
 
@@ -128,7 +116,6 @@ export function isONNXTensor(x: any) {
 	return x instanceof ONNX.Tensor;
 }
 
-/** @type {import('onnxruntime-common').Env} */
 const ONNX_ENV = ONNX?.env;
 if (ONNX_ENV?.wasm) {
 	// Initialize wasm backend with suitable default settings.
@@ -170,3 +157,5 @@ export function isONNXProxy() {
 
 // Expose ONNX environment variables to `env.backends.onnx`
 env.backends.onnx = ONNX_ENV;
+
+console.log(ONNX_ENV);

@@ -5,11 +5,7 @@ await buildPackage({
 		cjs: 'use-tsc',
 		esm: 'build',
 	},
-	external: [
-		'onnxruntime-web',
-		'onnxruntime-common',
-		'@huggingface/transformers',
-	],
+	external: ['onnxruntime-web/all'],
 	entrypoints: [
 		{
 			path: 'src/index.module.ts',

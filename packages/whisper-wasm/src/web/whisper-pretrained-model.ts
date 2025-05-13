@@ -1,6 +1,6 @@
 /// ///////////////////////////////////////////////
 
-import {PreTrainedModel} from '@huggingface/transformers';
+import {PreTrainedModel} from './pretrained-model';
 
 // Whisper models
 export class WhisperPreTrainedModel extends PreTrainedModel {

@@ -2,14 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-eq-null */
 /* eslint-disable no-console */
-import type {StoppingCriteriaList} from '@huggingface/transformers';
-import {SuppressTokensAtBeginLogitsProcessor} from '@huggingface/transformers';
 import {dynamic_time_warping} from './dynamic-time-warping';
 import {LogitsProcessorList} from './logits-processor-list';
 import {medianFilter} from './median-filter';
 import {mergeArrays} from './merge-arrays';
 import {cat, stack} from './stack';
 import {std_mean} from './std-mean';
+import {SuppressTokensAtBeginLogitsProcessor} from './suppress-tokens-at-begin';
 import {mean, Tensor} from './tensor';
 import {WhisperGenerationConfig} from './whisper-generation-config';
 import {whisper_language_to_code} from './whisper-language-to-code';
@@ -20,7 +19,6 @@ import {WhisperTimeStampLogitsProcessor} from './whisper-timestamp-logits-proces
  * WhisperForConditionalGeneration class for generating conditional outputs from Whisper models.
  */
 export class WhisperForConditionalGeneration extends WhisperPreTrainedModel {
-	// @ts-expect-error
 	_prepare_generation_config(
 		generation_config: WhisperGenerationConfig | null,
 		kwargs: Record<string, unknown>,
@@ -114,7 +112,7 @@ export class WhisperForConditionalGeneration extends WhisperPreTrainedModel {
 		inputs: Tensor | null;
 		generation_config: WhisperGenerationConfig;
 		logits_processor: LogitsProcessorList | null;
-		stopping_criteria: StoppingCriteriaList | null;
+		stopping_criteria: any | null;
 		kwargs: Record<string, unknown>;
 	}) {
 		// @ts-expect-error
@@ -137,7 +135,6 @@ export class WhisperForConditionalGeneration extends WhisperPreTrainedModel {
 		if (generation_config.begin_suppress_tokens) {
 			logits_processor ??= new LogitsProcessorList();
 			logits_processor.push(
-				// @ts-expect-error
 				new SuppressTokensAtBeginLogitsProcessor(
 					generation_config.begin_suppress_tokens,
 					init_tokens.length,
@@ -166,7 +163,6 @@ export class WhisperForConditionalGeneration extends WhisperPreTrainedModel {
 		const outputs = await super.generate({
 			// @ts-expect-error
 			inputs,
-			// @ts-expect-error
 			generation_config,
 			// @ts-expect-error
 			logits_processor,

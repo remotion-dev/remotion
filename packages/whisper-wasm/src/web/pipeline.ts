@@ -3,9 +3,6 @@
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import type {PretrainedOptions} from '@huggingface/transformers';
-import {type PreTrainedModel} from '@huggingface/transformers';
-
 import {AutoProcessor} from './auto-processor.js';
 import {AutoTokenizer} from './auto-tokenizer.js';
 import {Callable} from './callable.js';
@@ -13,6 +10,7 @@ import {dispatchCallback} from './dispatch-callback.js';
 import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
 import {whisperModelConfig} from './model-config.js';
+import type {PreTrainedModel} from './pretrained-model.js';
 import type {Processor} from './processor.js';
 import {read_audio} from './read-audio.js';
 import {AutoModelForSpeechSeq2Seq} from './seq-2-seq.js';
@@ -315,7 +313,7 @@ async function loadItems({
 }: {
 	mapping: Map<string, any>;
 	model: string;
-	pretrainedOptions: PretrainedOptions;
+	pretrainedOptions: any;
 }) {
 	const result = Object.create(null);
 

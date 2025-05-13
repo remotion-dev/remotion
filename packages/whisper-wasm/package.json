@@ -15,9 +15,7 @@
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@huggingface/transformers": "3.5.1",
-		"onnxruntime-web": "1.20.0-dev.20240928-1bda91fc57",
-		"onnxruntime-common": "1.20.0-dev.20240928-1bda91fc57"
+		"onnxruntime-web": "1.22.0"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
