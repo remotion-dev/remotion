@@ -112,9 +112,17 @@ export const MyComposition = () => {
 ```
 
 :::note
-On iOS Safari, it's currently not possible to granularly change the volume of a media tag.  
-Before Remotion v4.0.279, the maximum value was 1.
-Since v4.0.279, the Web Audio API will be used to synthetically amplify audio that has a volume higher than 1.
+Since v4.0.302, it is now possible to:
+
+- Set the volume to a value higher than 1
+- In iOS Safari, set the volume to a value lower than 1
+
+Now arbitrary volumes are supported on all platforms, but there is 1 caveat on Safari:
+`volume` and `playbackRate` cannot be set at the same time, and if both are set,
+
+- on Desktop Safari, the volume will only be applied if it is 1 or lower
+- on iOS Safari, the volume will be ignored and set to 1
+
 :::
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />

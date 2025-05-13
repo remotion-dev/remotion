@@ -66,6 +66,7 @@ const Amplify: React.FC = () => {
 				<OffthreadVideo
 					src={staticFile('vid1.mp4')}
 					volume={volume3}
+					playbackRate={2}
 					pauseWhenBuffering
 					style={{
 						height: 80,

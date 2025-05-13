@@ -1,5 +1,11 @@
 import type {RefObject} from 'react';
-import {useCallback, useContext, useEffect, useRef} from 'react';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
@@ -64,6 +70,10 @@ export const useMediaPlayback = ({
 
 	const onVariableFpsVideoDetected = useCallback(() => {
 		if (!src) {
+			return;
+		}
+
+		if (isVariableFpsVideoMap.current[src]) {
 			return;
 		}
 
@@ -176,6 +186,19 @@ export const useMediaPlayback = ({
 		playing,
 	]);
 
+	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
+	// and it is also in a useLayoutEffect.
+	useLayoutEffect(() => {
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (
+			mediaRef.current &&
+			mediaRef.current.playbackRate !== playbackRateToSet
+		) {
+			console.log('setting playbackRate', playbackRateToSet);
+			mediaRef.current.playbackRate = playbackRateToSet;
+		}
+	}, [mediaRef, playbackRate]);
+
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
 		if (!mediaRef.current) {
@@ -188,11 +211,6 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		const playbackRateToSet = Math.max(0, playbackRate);
-		if (mediaRef.current.playbackRate !== playbackRateToSet) {
-			mediaRef.current.playbackRate = playbackRateToSet;
-		}
-
 		const {duration} = mediaRef.current;
 		const shouldBeTime =
 			!Number.isNaN(duration) && Number.isFinite(duration)
@@ -202,7 +220,7 @@ export const useMediaPlayback = ({
 		const mediaTagTime = mediaTagCurrentTime.current.time;
 		const rvcTime = rvcCurrentTime.current?.time ?? null;
 
-		const isVariableFpsVideo = isVariableFpsVideoMap.current[src];
+		const isVariableFpsVideo = false;
 
 		const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
 		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;

@@ -159,13 +159,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 	});
 
-	useVolume({
-		logLevel,
-		mediaRef: audioRef,
-		source: mediaElementSourceNode,
-		volume: userPreferredVolume,
-	});
-
+	// putting playback before useVolume
+	// because volume looks at playbackrate
 	useMediaPlayback({
 		mediaRef: audioRef,
 		src,
@@ -176,6 +171,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: null,
+	});
+
+	useVolume({
+		logLevel,
+		mediaRef: audioRef,
+		source: mediaElementSourceNode,
+		volume: userPreferredVolume,
 	});
 
 	useImperativeHandle(ref, () => {

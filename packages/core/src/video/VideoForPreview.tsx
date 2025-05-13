@@ -129,13 +129,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 	});
 
-	useVolume({
-		logLevel,
-		mediaRef: videoRef,
-		volume: userPreferredVolume,
-		source: sharedSource,
-	});
-
+	// putting playback before useVolume
+	// because volume looks at playbackrate
 	useMediaPlayback({
 		mediaRef: videoRef,
 		src,
@@ -146,6 +141,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: onAutoPlayError ?? null,
+	});
+
+	useVolume({
+		logLevel,
+		mediaRef: videoRef,
+		volume: userPreferredVolume,
+		source: sharedSource,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;

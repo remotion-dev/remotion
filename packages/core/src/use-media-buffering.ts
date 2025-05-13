@@ -49,11 +49,13 @@ export const useMediaBuffering = ({
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
 						logLevel,
-						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted`,
+						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
 						tag: 'load',
 						mountTime,
 					});
+					const previousPlaybackRate = current.playbackRate;
 					current.load();
+					current.playbackRate = previousPlaybackRate;
 				}
 			}
 
@@ -147,12 +149,14 @@ export const useMediaBuffering = ({
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
 						logLevel,
-						message: `Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox.`,
+						message: `Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
 						tag: 'load',
 						mountTime,
 					});
 
+					const previousPlaybackRate = current.playbackRate;
 					current.load();
+					current.playbackRate = previousPlaybackRate;
 				}
 			} else {
 				const onWaiting = () => {
