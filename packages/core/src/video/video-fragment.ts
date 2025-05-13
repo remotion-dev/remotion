@@ -4,15 +4,30 @@ const toSeconds = (time: number, fps: number) => {
 	return Math.round((time / fps) * 100) / 100;
 };
 
+export const isSafari = () => {
+	if (typeof window === 'undefined') {
+		return false;
+	}
+
+	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
+
+	if (!isAppleWebKit) {
+		return false;
+	}
+
+	const isNotChrome = !window.navigator.userAgent.includes('Chrome/');
+
+	return isNotChrome;
+};
+
 export const isIosSafari = () => {
 	if (typeof window === 'undefined') {
 		return false;
 	}
 
 	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
-	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
 
-	return isIpadIPodIPhone && isAppleWebKit;
+	return isIpadIPodIPhone && isSafari();
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655

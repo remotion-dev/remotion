@@ -83,6 +83,8 @@ export const usePlayer = (): UsePlayerMethods => {
 				seek(0);
 			}
 
+			audioContext?.audioContext?.resume();
+
 			/**
 			 * Play silent audio tags to warm them up for autoplay
 			 */
@@ -120,8 +122,9 @@ export const usePlayer = (): UsePlayerMethods => {
 
 			setPlaying(false);
 			emitter.dispatchPause();
+			audioContext?.audioContext?.suspend();
 		}
-	}, [emitter, imperativePlaying, setPlaying]);
+	}, [emitter, imperativePlaying, setPlaying, audioContext]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (imperativePlaying.current) {

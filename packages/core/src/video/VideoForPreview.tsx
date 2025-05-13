@@ -9,14 +9,15 @@ import React, {
 } from 'react';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {SharedAudioContext} from '../audio/shared-audio-tags.js';
+import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
-import {useAmplification} from '../use-amplification.js';
+import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
@@ -43,7 +44,22 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForPreviewProps
 > = (props, ref) => {
+	const context = useContext(SharedAudioContext);
+	if (!context) {
+		throw new Error('SharedAudioContext not found');
+	}
+
 	const videoRef = useRef<HTMLVideoElement | null>(null);
+	const sharedSource = useMemo(() => {
+		if (!context.audioContext) {
+			return null;
+		}
+
+		return makeSharedElementSourceNode({
+			audioContext: context.audioContext,
+			ref: videoRef,
+		});
+	}, [context.audioContext]);
 
 	const {
 		volume,
@@ -113,19 +129,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 	});
 
-	useSyncVolumeWithMediaTag({
-		volumePropFrame,
-		volume,
-		mediaVolume,
-		mediaRef: videoRef,
-	});
-
-	useAmplification({
-		logLevel,
-		mediaRef: videoRef,
-		volume: userPreferredVolume,
-	});
-
+	// putting playback before useVolume
+	// because volume looks at playbackrate
 	useMediaPlayback({
 		mediaRef: videoRef,
 		src,
@@ -136,7 +141,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: onAutoPlayError ?? null,
-		userPreferredVolume,
+	});
+
+	useVolume({
+		logLevel,
+		mediaRef: videoRef,
+		volume: userPreferredVolume,
+		source: sharedSource,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;
