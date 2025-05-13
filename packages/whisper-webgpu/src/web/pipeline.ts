@@ -225,7 +225,7 @@ const SUPPORTED_TASK = Object.freeze({
 	model: [AutoModelForSpeechSeq2Seq],
 	processor: AutoProcessor,
 	default: {
-		model: 'onnx-community/whisper-base',
+		model: 'Xenova/whisper-base',
 	},
 	type: 'multimodal',
 });

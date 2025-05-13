@@ -4,8 +4,7 @@ export const getModelFile = async (
 	_modelFile: string,
 	b: string,
 ): Promise<Uint8Array> => {
-	const buf =
-		'https://huggingface.co/onnx-community/whisper-base/resolve/main/' + b;
+	const buf = 'https://huggingface.co/Xenova/whisper-base/resolve/main/' + b;
 	const response = await fetch(buf);
 	const arrayBuffer = await response.arrayBuffer();
 	const uint8Array = new Uint8Array(arrayBuffer);

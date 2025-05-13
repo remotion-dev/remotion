@@ -37,7 +37,7 @@ class PipelineFactory {
 					this.model === 'onnx-community/whisper-large-v3-turbo'
 						? 'fp16'
 						: 'fp32',
-				decoder_model_merged: 'q4', // or 'fp32' ('fp16' is broken)
+				decoder_model_merged: 'fp32', // or 'fp32' ('fp16' is broken)
 			},
 			device: 'webgpu',
 			progress_callback,
