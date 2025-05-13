@@ -127,7 +127,7 @@ function reshape(data: any, dimensions: number[]) {
 	return reshapedArray[0];
 }
 
-function safeIndex(
+export function safeIndex(
 	index: number,
 	size: number,
 	dimension: number | null = null,
@@ -708,7 +708,7 @@ export class Tensor {
 	/**
 	 * In-place version of @see {@link Tensor.squeeze}
 	 */
-	squeeze_(dim = null) {
+	squeeze_(dim: number | null = null) {
 		this.dims = calc_squeeze_dims(this.dims, dim);
 		return this;
 	}
@@ -721,7 +721,7 @@ export class Tensor {
 	 * @param {number} dim The index at which to insert the singleton dimension
 	 * @returns {Tensor} The unsqueezed tensor
 	 */
-	unsqueeze(dim = null) {
+	unsqueeze(dim: number | null = null) {
 		return new Tensor(
 			this.type,
 			this.data,
@@ -1018,7 +1018,7 @@ function calc_squeeze_dims(dims: number[], dim: number | number[] | null) {
  * @param {boolean} keepdim whether the output tensor has dim retained or not.
  * @returns {[DataType, any, number[]]} The reduced tensor data.
  */
-function reduce_helper(
+export function reduce_helper(
 	callbackfn: (
 		previousValue: any,
 		currentValue: any,

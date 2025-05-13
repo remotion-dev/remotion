@@ -40,3 +40,28 @@ export function min(arr: number[] | bigint[] | Float32Array | Float64Array) {
 		indexOfMin,
 	];
 }
+
+/**
+ * Calculates the logarithm of the softmax function for the input array.
+ * @template {TypedArray|number[]} T
+ * @param {T} arr The input array to calculate the log_softmax function for.
+ * @returns {T} The resulting log_softmax array.
+ */
+export function log_softmax(arr: number[] | Float32Array | Float64Array) {
+	// Compute the maximum value in the array
+	const maxVal = max(arr)[0];
+
+	// Compute the sum of the exponentials
+	let sumExps = 0;
+	for (let i = 0; i < arr.length; ++i) {
+		sumExps += Math.exp(arr[i] - maxVal);
+	}
+
+	// Compute the log of the sum
+	const logSum = Math.log(sumExps);
+
+	// Compute the softmax values
+	const logSoftmaxArr = arr.map((x) => x - maxVal - logSum);
+
+	return /** @type {T} */ logSoftmaxArr;
+}

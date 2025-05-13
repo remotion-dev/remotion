@@ -4,10 +4,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
 import type {PretrainedOptions} from '@huggingface/transformers';
-import {
-	AutoModelForSpeechSeq2Seq,
-	type PreTrainedModel,
-} from '@huggingface/transformers';
+import {type PreTrainedModel} from '@huggingface/transformers';
 
 import {AutoProcessor} from './auto-processor.js';
 import {AutoTokenizer} from './auto-tokenizer.js';
@@ -18,6 +15,7 @@ import {round} from './maths.js';
 import {whisperModelConfig} from './model-config.js';
 import type {Processor} from './processor.js';
 import {read_audio} from './read-audio.js';
+import {AutoModelForSpeechSeq2Seq} from './seq-2-seq.js';
 import type {Tensor} from './tensor.js';
 import {whisperProcessorConfig} from './whisper-config.js';
 import type {WhisperModelOutput} from './whisper-model-output.js';

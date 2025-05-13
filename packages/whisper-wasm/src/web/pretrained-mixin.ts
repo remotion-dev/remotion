@@ -1,11 +1,7 @@
-import type {
-	PretrainedConfig,
-	ProgressCallback,
-} from '@huggingface/transformers';
-import {
-	AutoConfig,
-	WhisperForConditionalGeneration,
-} from '@huggingface/transformers';
+import type {ProgressCallback} from '@huggingface/transformers';
+import {WhisperForConditionalGeneration} from '@huggingface/transformers';
+import type {PretrainedConfig} from './pretrained-config';
+import {AutoConfig} from './pretrained-config';
 
 /**
  * Base class of all AutoModels. Contains the `from_pretrained` function
@@ -90,6 +86,7 @@ export class PretrainedMixin {
 			WhisperForConditionalGeneration,
 		] as const;
 
+		// @ts-expect-error
 		return modelInfo[1].from_pretrained(pretrained_model_name_or_path, options);
 	}
 }
