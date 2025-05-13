@@ -1,7 +1,13 @@
 import type {RootState} from '@react-three/fiber';
 import {Canvas, useThree} from '@react-three/fiber';
-import React, {useCallback, useLayoutEffect, useState} from 'react';
-import {Internals, continueRender, delayRender} from 'remotion';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import {
+	Internals,
+	continueRender,
+	delayRender,
+	getRemotionEnvironment,
+	useCurrentFrame,
+} from 'remotion';
 import {SuspenseLoader} from './SuspenseLoader';
 import {validateDimension} from './validate';
 
@@ -27,6 +33,23 @@ const Scale = ({
 	}, [setSize, width, height, set]);
 	return null;
 };
+
+const FiberFrameInvalidator = () => {
+	const {invalidate} = useThree();
+
+	const frame = useCurrentFrame();
+
+	useEffect(() => {
+		invalidate();
+	}, [frame, invalidate]);
+
+	return null;
+};
+
+const {isRendering} = getRemotionEnvironment();
+
+// https://r3f.docs.pmnd.rs/advanced/scaling-performance#on-demand-rendering
+const shouldUseFrameloopDemand = isRendering;
 
 /*
  * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
@@ -57,9 +80,15 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 
 	return (
 		<SuspenseLoader>
-			<Canvas style={actualStyle} {...rest} onCreated={remotion_onCreated}>
+			<Canvas
+				style={actualStyle}
+				{...rest}
+				frameloop={shouldUseFrameloopDemand ? 'demand' : 'always'}
+				onCreated={remotion_onCreated}
+			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
+					{shouldUseFrameloopDemand && <FiberFrameInvalidator />}
 					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>
