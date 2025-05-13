@@ -51,7 +51,7 @@ export const useBufferUntilFirstFrame = ({
 			}
 
 			if (
-				current.readyState >= current.HAVE_ENOUGH_DATA &&
+				current.readyState >= current.HAVE_FUTURE_DATA &&
 				!isSafariWebkit() &&
 				// In Desktop Chrome, the video might switch to playing
 				// but does not play due to Bluetooth headphones

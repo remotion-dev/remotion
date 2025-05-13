@@ -80,6 +80,12 @@ export const useAmplification = ({
 			logLevel,
 			`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}`,
 		);
+
+		return () => {
+			gainNode.disconnect();
+			source.disconnect();
+			audioContext.close();
+		};
 	}, [logLevel, mediaRef, shouldAmplify]);
 
 	if (audioStuffRef.current) {
