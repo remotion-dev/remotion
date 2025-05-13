@@ -42,3 +42,5 @@ const [noReactFile] = noReactOutput.outputs;
 await Bun.write('dist/esm/no-react.mjs', await noReactFile.text());
 
 export {};
+
+console.log('Done.');

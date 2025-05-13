@@ -1,50 +1,39 @@
-import {useLayoutEffect, useRef, type RefObject} from 'react';
+import {useContext, useLayoutEffect, useRef, type RefObject} from 'react';
+import {SharedAudioContext} from './audio/shared-audio-tags';
+import type {SharedElementSourceNode} from './audio/shared-element-source-node';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
-let warned = false;
-
-const warnOnce = (logLevel: LogLevel) => {
-	if (warned) {
-		return;
-	}
-
-	warned = true;
-
-	Log.warn(logLevel, 'AudioContext is not supported in this browser');
-};
-
 type AudioItems = {
 	gainNode: GainNode;
-	source: MediaElementAudioSourceNode;
-	audioContext: AudioContext;
 };
 
-export const getShouldAmplify = (volume: number) => {
-	return volume > 1;
-};
-
-export const useAmplification = ({
+export const useVolume = ({
 	mediaRef,
 	volume,
 	logLevel,
+	source,
 }: {
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
+	source: SharedElementSourceNode | null;
 	volume: number;
 	logLevel: LogLevel;
 }) => {
-	const shouldAmplify = getShouldAmplify(volume);
 	const audioStuffRef = useRef<AudioItems | null>(null);
 	const currentVolumeRef = useRef(volume);
 	currentVolumeRef.current = volume;
 
-	useLayoutEffect(() => {
-		if (!shouldAmplify) {
-			return;
-		}
+	const sharedAudioContext = useContext(SharedAudioContext);
+	if (!sharedAudioContext) {
+		throw new Error(
+			'useAmplification must be used within a SharedAudioContext',
+		);
+	}
 
-		if (!AudioContext) {
-			warnOnce(logLevel);
+	const {audioContext} = sharedAudioContext;
+
+	useLayoutEffect(() => {
+		if (!audioContext) {
 			return;
 		}
 
@@ -52,44 +41,35 @@ export const useAmplification = ({
 			return;
 		}
 
-		if (audioStuffRef.current) {
+		if (!source) {
 			return;
 		}
 
-		const audioContext = new AudioContext({
-			latencyHint: 'interactive',
-		});
-
-		const source = new MediaElementAudioSourceNode(audioContext, {
-			mediaElement: mediaRef.current,
-		});
-
 		const gainNode = new GainNode(audioContext, {
-			gain: Math.max(currentVolumeRef.current, 1),
+			gain: currentVolumeRef.current,
 		});
 
+		source.attemptToConnect();
+		source.get().connect(gainNode);
+		gainNode.connect(audioContext.destination);
 		audioStuffRef.current = {
 			gainNode,
-			source,
-			audioContext,
 		};
 
-		source.connect(gainNode);
-		gainNode.connect(audioContext.destination);
 		Log.trace(
 			logLevel,
 			`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}`,
 		);
 
 		return () => {
+			audioStuffRef.current = null;
 			gainNode.disconnect();
-			source.disconnect();
-			audioContext.close();
+			source.get().disconnect();
 		};
-	}, [logLevel, mediaRef, shouldAmplify]);
+	}, [logLevel, mediaRef, audioContext, source]);
 
 	if (audioStuffRef.current) {
-		const valueToSet = Math.max(volume, 1);
+		const valueToSet = volume;
 		if (audioStuffRef.current.gainNode.gain.value !== valueToSet) {
 			audioStuffRef.current.gainNode.gain.value = valueToSet;
 			Log.trace(

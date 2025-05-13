@@ -14,7 +14,6 @@ import {
 	usePlayingState,
 	useTimelinePosition,
 } from './timeline-position-state.js';
-import {getShouldAmplify} from './use-amplification.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
@@ -32,7 +31,6 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering,
 	isPremounting,
 	onAutoPlayError,
-	userPreferredVolume,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	src: string | undefined;
@@ -43,7 +41,6 @@ export const useMediaPlayback = ({
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
 	onAutoPlayError: null | (() => void);
-	userPreferredVolume: number;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
@@ -123,9 +120,8 @@ export const useMediaPlayback = ({
 		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION =
 			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK + 0.2;
 
-		const defaultAcceptableTimeshift = getShouldAmplify(userPreferredVolume)
-			? DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION
-			: DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK;
+		const defaultAcceptableTimeshift =
+			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
 		// For short audio, a lower acceptable time shift is used
 		if (mediaRef.current?.duration) {
 			return Math.min(

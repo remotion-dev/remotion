@@ -12,6 +12,9 @@ import React, {
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import type {RemotionAudioProps} from './props.js';
+import type {SharedElementSourceNode} from './shared-element-source-node.js';
+import {makeSharedElementSourceNode} from './shared-element-source-node.js';
+import {useSingletonAudioContext} from './use-audio-context.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -28,6 +31,7 @@ import type {RemotionAudioProps} from './props.js';
 type AudioElem = {
 	id: number;
 	props: RemotionAudioProps;
+	mediaElementSourceNode: SharedElementSourceNode | null;
 	el: React.RefObject<HTMLAudioElement | null>;
 	audioId: string;
 };
@@ -45,6 +49,7 @@ type SharedContext = {
 	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
+	audioContext: AudioContext | null;
 };
 
 const compareProps = (
@@ -120,6 +125,9 @@ export const SharedAudioContextProvider: React.FC<{
 		new Array(numberOfAudioTags).fill(false),
 	);
 
+	const logLevel = useLogLevel();
+	const audioContext = useSingletonAudioContext(logLevel);
+
 	const rerenderAudios = useCallback(() => {
 		refs.forEach(({ref, id}) => {
 			const data = audios.current?.find((a) => a.id === id);
@@ -172,6 +180,12 @@ export const SharedAudioContextProvider: React.FC<{
 
 			const newElem: AudioElem = {
 				props: aud,
+				mediaElementSourceNode: audioContext
+					? makeSharedElementSourceNode({
+							audioContext,
+							ref,
+						})
+					: null,
 				id,
 				el: ref,
 				audioId,
@@ -180,7 +194,7 @@ export const SharedAudioContextProvider: React.FC<{
 			rerenderAudios();
 			return newElem;
 		},
-		[numberOfAudioTags, refs, rerenderAudios],
+		[numberOfAudioTags, refs, rerenderAudios, audioContext],
 	);
 
 	const unregisterAudio = useCallback(
@@ -238,7 +252,6 @@ export const SharedAudioContextProvider: React.FC<{
 		[rerenderAudios],
 	);
 
-	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 
 	const playAllAudios = useCallback(() => {
@@ -252,7 +265,8 @@ export const SharedAudioContextProvider: React.FC<{
 				reason: 'playing all audios',
 			});
 		});
-	}, [logLevel, mountTime, refs]);
+		audioContext?.resume();
+	}, [audioContext, logLevel, mountTime, refs]);
 
 	const value: SharedContext = useMemo(() => {
 		return {
@@ -261,6 +275,7 @@ export const SharedAudioContextProvider: React.FC<{
 			updateAudio,
 			playAllAudios,
 			numberOfAudioTags,
+			audioContext,
 		};
 	}, [
 		numberOfAudioTags,
@@ -268,6 +283,7 @@ export const SharedAudioContextProvider: React.FC<{
 		registerAudio,
 		unregisterAudio,
 		updateAudio,
+		audioContext,
 	]);
 
 	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
@@ -305,7 +321,11 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 };
 
-export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
+export const useSharedAudio = (
+	aud: RemotionAudioProps,
+	audioId: string,
+	audioContext: AudioContext | null,
+) => {
 	const ctx = useContext(SharedAudioContext);
 
 	/**
@@ -316,11 +336,19 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 			return ctx.registerAudio(aud, audioId);
 		}
 
+		const el = React.createRef<HTMLAudioElement>();
+
 		return {
-			el: React.createRef<HTMLAudioElement>(),
+			el,
 			id: Math.random(),
 			props: aud,
 			audioId,
+			mediaElementSourceNode: audioContext
+				? makeSharedElementSourceNode({
+						audioContext,
+						ref: el,
+					})
+				: null,
 		};
 	});
 
