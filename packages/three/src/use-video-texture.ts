@@ -33,6 +33,7 @@ export const useVideoTexture = (
 
 		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
 	});
+
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js'),
@@ -52,6 +53,7 @@ export const useVideoTexture = (
 				}
 
 				const vt = new VideoTexture(videoRef.current);
+
 				videoRef.current.width = videoRef.current.videoWidth;
 				videoRef.current.height = videoRef.current.videoHeight;
 				setVideoTexture(vt);
@@ -62,7 +64,7 @@ export const useVideoTexture = (
 			});
 	}, [loaded, vidText, videoRef]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!videoRef.current) {
 			return;
 		}
