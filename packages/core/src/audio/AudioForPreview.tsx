@@ -12,17 +12,16 @@ import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
-import {useAmplification} from '../use-amplification.js';
+import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
 import type {RemotionAudioProps} from './props.js';
-import {useSharedAudio} from './shared-audio-tags.js';
+import {SharedAudioContext, useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {
@@ -133,14 +132,16 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		],
 	);
 
-	const audioRef = useSharedAudio(propsToPass, id).el;
+	const context = useContext(SharedAudioContext);
+	if (!context) {
+		throw new Error('SharedAudioContext not found');
+	}
 
-	useSyncVolumeWithMediaTag({
-		volumePropFrame,
-		volume,
-		mediaVolume,
-		mediaRef: audioRef,
-	});
+	const {el: audioRef, mediaElementSourceNode} = useSharedAudio(
+		propsToPass,
+		id,
+		context.audioContext,
+	);
 
 	useMediaInTimeline({
 		volume,
@@ -158,12 +159,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 	});
 
-	useAmplification({
-		logLevel,
-		mediaRef: audioRef,
-		volume: userPreferredVolume,
-	});
-
+	// putting playback before useVolume
+	// because volume looks at playbackrate
 	useMediaPlayback({
 		mediaRef: audioRef,
 		src,
@@ -174,7 +171,13 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: null,
-		userPreferredVolume,
+	});
+
+	useVolume({
+		logLevel,
+		mediaRef: audioRef,
+		source: mediaElementSourceNode,
+		volume: userPreferredVolume,
 	});
 
 	useImperativeHandle(ref, () => {

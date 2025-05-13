@@ -1,50 +1,65 @@
-import {useLayoutEffect, useRef, type RefObject} from 'react';
+import {useContext, useLayoutEffect, useRef, type RefObject} from 'react';
+import {SharedAudioContext} from './audio/shared-audio-tags';
+import type {SharedElementSourceNode} from './audio/shared-element-source-node';
+import {isApproximatelyTheSame} from './is-approximately-the-same';
 import type {LogLevel} from './log';
 import {Log} from './log';
+import {isSafari} from './video/video-fragment';
+
+type AudioItems = {
+	gainNode: GainNode;
+};
 
 let warned = false;
 
-const warnOnce = (logLevel: LogLevel) => {
+const warnSafariOnce = (logLevel: LogLevel) => {
 	if (warned) {
 		return;
 	}
 
 	warned = true;
-
-	Log.warn(logLevel, 'AudioContext is not supported in this browser');
+	Log.warn(
+		logLevel,
+		'In Safari, setting a volume and a playback rate at the same time is buggy.',
+	);
+	Log.warn(logLevel, 'In Desktop Safari, only volumes <= 1 will be applied.');
+	Log.warn(
+		logLevel,
+		'In Mobile Safari, the volume will be ignored and set to 1 if a playbackRate is set.',
+	);
 };
 
-type AudioItems = {
-	gainNode: GainNode;
-	source: MediaElementAudioSourceNode;
-	audioContext: AudioContext;
-};
+/**
+ * [1] Bug case: In Safari, you cannot combine playbackRate and volume !== 1.
+ * If that is the case, volume will not be applied.
+ */
 
-export const getShouldAmplify = (volume: number) => {
-	return volume > 1;
-};
-
-export const useAmplification = ({
+export const useVolume = ({
 	mediaRef,
 	volume,
 	logLevel,
+	source,
 }: {
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
+	source: SharedElementSourceNode | null;
 	volume: number;
 	logLevel: LogLevel;
 }) => {
-	const shouldAmplify = getShouldAmplify(volume);
 	const audioStuffRef = useRef<AudioItems | null>(null);
 	const currentVolumeRef = useRef(volume);
 	currentVolumeRef.current = volume;
 
-	useLayoutEffect(() => {
-		if (!shouldAmplify) {
-			return;
-		}
+	const sharedAudioContext = useContext(SharedAudioContext);
+	if (!sharedAudioContext) {
+		throw new Error(
+			'useAmplification must be used within a SharedAudioContext',
+		);
+	}
 
-		if (!AudioContext) {
-			warnOnce(logLevel);
+	const {audioContext} = sharedAudioContext;
+
+	useLayoutEffect(() => {
+		if (!audioContext) {
 			return;
 		}
 
@@ -52,51 +67,63 @@ export const useAmplification = ({
 			return;
 		}
 
-		if (audioStuffRef.current) {
+		// [1]
+		if (mediaRef.current.playbackRate !== 1 && isSafari()) {
+			warnSafariOnce(logLevel);
 			return;
 		}
 
-		const audioContext = new AudioContext({
-			latencyHint: 'interactive',
-		});
-
-		const source = new MediaElementAudioSourceNode(audioContext, {
-			mediaElement: mediaRef.current,
-		});
+		if (!source) {
+			return;
+		}
 
 		const gainNode = new GainNode(audioContext, {
-			gain: Math.max(currentVolumeRef.current, 1),
+			gain: currentVolumeRef.current,
 		});
 
+		source.attemptToConnect();
+		source.get().connect(gainNode);
+		gainNode.connect(audioContext.destination);
 		audioStuffRef.current = {
 			gainNode,
-			source,
-			audioContext,
 		};
 
-		source.connect(gainNode);
-		gainNode.connect(audioContext.destination);
 		Log.trace(
 			logLevel,
-			`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}`,
+			`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}, playbackRate = ${mediaRef.current?.playbackRate}`,
 		);
 
 		return () => {
+			audioStuffRef.current = null;
 			gainNode.disconnect();
-			source.disconnect();
-			audioContext.close();
+			source.get().disconnect();
 		};
-	}, [logLevel, mediaRef, shouldAmplify]);
+	}, [logLevel, mediaRef, audioContext, source]);
 
 	if (audioStuffRef.current) {
-		const valueToSet = Math.max(volume, 1);
-		if (audioStuffRef.current.gainNode.gain.value !== valueToSet) {
+		const valueToSet = volume;
+		if (
+			!isApproximatelyTheSame(
+				audioStuffRef.current.gainNode.gain.value,
+				valueToSet,
+			)
+		) {
 			audioStuffRef.current.gainNode.gain.value = valueToSet;
 			Log.trace(
 				logLevel,
 				`Setting gain to ${valueToSet} for ${mediaRef.current?.src}`,
 			);
 		}
+	}
+
+	// [1]
+	if (
+		mediaRef.current &&
+		isSafari() &&
+		mediaRef.current?.playbackRate !== 1 &&
+		!isApproximatelyTheSame(volume, mediaRef.current?.volume)
+	) {
+		mediaRef.current.volume = Math.min(volume, 1);
 	}
 
 	return audioStuffRef;
