@@ -8,7 +8,6 @@ import {
 	AutoModelForCTC,
 	AutoModelForSpeechSeq2Seq,
 	type PreTrainedModel,
-	type Processor,
 } from '@huggingface/transformers';
 
 import {AutoProcessor} from './auto-processor.js';
@@ -18,6 +17,7 @@ import {dispatchCallback} from './dispatch-callback.js';
 import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
 import {whisperModelConfig} from './model-config.js';
+import type {Processor} from './processor.js';
 import {read_audio} from './read-audio.js';
 import type {Tensor} from './tensor.js';
 import {whisperProcessorConfig} from './whisper-config.js';
@@ -269,6 +269,7 @@ export async function pipeline(
 	// Use model if specified, otherwise, use default
 	if (!model) {
 		model = pipelineInfo.default.model;
+		// eslint-disable-next-line no-console
 		console.log(`No model specified. Using default model: "${model}".`);
 	}
 

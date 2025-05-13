@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {
-	AutomaticSpeechRecognitionPipeline,
-	AutoTokenizer,
-	PreTrainedModel,
-} from '@huggingface/transformers';
+import type {PreTrainedModel} from '@huggingface/transformers';
+import type {AutoTokenizer} from './web/auto-tokenizer';
 import {whisperModelConfig} from './web/model-config';
+import type {AutomaticSpeechRecognitionPipeline} from './web/pipeline';
 import {pipeline} from './web/pipeline';
 import {whisperProcessorConfig} from './web/whisper-config';
 import {WhisperTextStreamer} from './web/whisper-text-streamer';

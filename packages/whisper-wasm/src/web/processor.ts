@@ -20,7 +20,7 @@ export class Processor extends Callable {
 	 * @param {...any} args Additional arguments.
 	 * @returns {Promise<any>} A Promise that resolves with the extracted features.
 	 */
-	async _call(input: any, ...args: any[]) {
+	async _call(input: any, ...args: any[]): Promise<any> {
 		return await this.feature_extractor._call(input, ...args);
 	}
 }
