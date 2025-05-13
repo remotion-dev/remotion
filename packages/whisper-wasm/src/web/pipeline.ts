@@ -5,7 +5,6 @@
 
 import type {PretrainedOptions} from '@huggingface/transformers';
 import {
-	AutoModelForCTC,
 	AutoModelForSpeechSeq2Seq,
 	type PreTrainedModel,
 } from '@huggingface/transformers';
@@ -17,6 +16,7 @@ import {dispatchCallback} from './dispatch-callback.js';
 import type {Dtype} from './dtype.js';
 import {round} from './maths.js';
 import {whisperModelConfig} from './model-config.js';
+import {AutoModelForCTC} from './model.js';
 import type {Processor} from './processor.js';
 import {read_audio} from './read-audio.js';
 import type {Tensor} from './tensor.js';
