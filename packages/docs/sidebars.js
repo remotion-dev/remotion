@@ -715,17 +715,17 @@ module.exports = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/whisper-web',
+			label: '@remotion/whisper-wasm',
 			link: {
 				type: 'doc',
-				id: 'whisper-web/index',
+				id: 'whisper-wasm/index',
 			},
 			items: [
-				'whisper-web/download-whisper-model',
-				'whisper-web/transcribe',
-				'whisper-web/resample-to-16khz',
-				'whisper-web/can-use-whisper-web',
-				'whisper-web/get-loaded-models',
+				'whisper-wasm/download-whisper-model',
+				'whisper-wasm/transcribe',
+				'whisper-wasm/resample-to-16khz',
+				'whisper-wasm/can-use-whisper-wasm',
+				'whisper-wasm/get-loaded-models',
 			],
 		},
 		{

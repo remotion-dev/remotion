@@ -75,7 +75,7 @@ export const packages = [
 	'openai-whisper',
 	'compositor',
 	'example-videos',
-	'whisper-web',
+	'whisper-wasm',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -91,7 +91,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	bundler: 'Bundle Remotion compositions using Webpack',
 	'studio-server': 'Run a Remotion Studio with a server backend',
 	'install-whisper-cpp': 'Helpers for installing and using Whisper.cpp',
-	'whisper-web': 'Helpers for using Whisper.cpp in browser using WASM',
+	'whisper-wasm': 'Helpers for using Whisper.cpp in browser using WASM',
 	'google-fonts': 'Use Google Fonts in Remotion',
 	mcp: "Remotion's Model Context Protocol",
 	'media-utils': 'Utilities for working with media files',
@@ -199,7 +199,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	gif: true,
 	'google-fonts': true,
 	'install-whisper-cpp': true,
-	'whisper-web': true,
+	'whisper-wasm': true,
 	'it-tests': false,
 	'lambda-go-example': false,
 	'lambda-go': false,
@@ -255,7 +255,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'serverless-client': null,
 	'studio-server': null,
 	'install-whisper-cpp': 'https://www.remotion.dev/docs/install-whisper-cpp',
-	'whisper-web': 'https://www.remotion.dev/docs/whisper-web',
+	'whisper-wasm': 'https://www.remotion.dev/docs/whisper-wasm',
 	'google-fonts': 'https://www.remotion.dev/docs/google-fonts',
 	'media-utils': 'https://www.remotion.dev/docs/media-utils',
 	lottie: 'https://www.remotion.dev/docs/lottie',

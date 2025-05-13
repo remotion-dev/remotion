@@ -65,7 +65,7 @@
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
-		"@remotion/whisper-web": "workspace:*",
+		"@remotion/whisper-wasm": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@shopify/react-native-skia": "2.0.0",
 		"@types/express": "^4.17.11",

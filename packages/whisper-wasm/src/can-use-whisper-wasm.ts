@@ -1,7 +1,7 @@
-import type {WhisperWebModel} from './constants';
+import type {WhisperWasmModel} from './constants';
 import {SIZES} from './constants';
 
-export enum WhisperWebUnsupportedReason {
+export enum WhisperWasmUnsupportedReason {
 	WindowUndefined = 'window-undefined',
 	IndexedDbUnavailable = 'indexed-db-unavailable',
 	NavigatorStorageUnavailable = 'navigator-storage-unavailable',
@@ -13,19 +13,19 @@ export enum WhisperWebUnsupportedReason {
 	NotCrossOriginIsolated = 'not-cross-origin-isolated',
 }
 
-export interface CanUseWhisperWebResult {
+export interface CanUseWhisperWasmResult {
 	supported: boolean;
-	reason?: WhisperWebUnsupportedReason;
+	reason?: WhisperWasmUnsupportedReason;
 	detailedReason?: string;
 }
 
-export const canUseWhisperWeb = async (
-	model: WhisperWebModel,
-): Promise<CanUseWhisperWebResult> => {
+export const canUseWhisperWasm = async (
+	model: WhisperWasmModel,
+): Promise<CanUseWhisperWasmResult> => {
 	if (typeof window === 'undefined') {
 		return {
 			supported: false,
-			reason: WhisperWebUnsupportedReason.WindowUndefined,
+			reason: WhisperWasmUnsupportedReason.WindowUndefined,
 			detailedReason:
 				'`window` is not defined. This module can only be used in a browser environment.',
 		};
@@ -34,16 +34,16 @@ export const canUseWhisperWeb = async (
 	if (!window.crossOriginIsolated) {
 		return {
 			supported: false,
-			reason: WhisperWebUnsupportedReason.NotCrossOriginIsolated,
+			reason: WhisperWasmUnsupportedReason.NotCrossOriginIsolated,
 			detailedReason:
-				'The document is not cross-origin isolated (window.crossOriginIsolated = false). This prevents the usage of SharedArrayBuffer, which is required by `@remotion/whisper-web`. Make sure the document is served with the HTTP header `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`: https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated',
+				'The document is not cross-origin isolated (window.crossOriginIsolated = false). This prevents the usage of SharedArrayBuffer, which is required by `@remotion/whisper-wasm`. Make sure the document is served with the HTTP header `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`: https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated',
 		};
 	}
 
 	if (!window.indexedDB) {
 		return {
 			supported: false,
-			reason: WhisperWebUnsupportedReason.IndexedDbUnavailable,
+			reason: WhisperWasmUnsupportedReason.IndexedDbUnavailable,
 			detailedReason: 'IndexedDB is not available in this environment.',
 		};
 	}
@@ -51,7 +51,7 @@ export const canUseWhisperWeb = async (
 	if (!navigator?.storage || !navigator?.storage.estimate) {
 		return {
 			supported: false,
-			reason: WhisperWebUnsupportedReason.NavigatorStorageUnavailable,
+			reason: WhisperWasmUnsupportedReason.NavigatorStorageUnavailable,
 			detailedReason:
 				'`navigator.storage.estimate()` API is not available in this environment.',
 		};
@@ -63,7 +63,7 @@ export const canUseWhisperWeb = async (
 		if (estimate.quota === undefined) {
 			return {
 				supported: false,
-				reason: WhisperWebUnsupportedReason.QuotaUndefined,
+				reason: WhisperWasmUnsupportedReason.QuotaUndefined,
 				detailedReason:
 					'navigator.storage.estimate() API returned undefined quota.',
 			};
@@ -72,7 +72,7 @@ export const canUseWhisperWeb = async (
 		if (estimate.usage === undefined) {
 			return {
 				supported: false,
-				reason: WhisperWebUnsupportedReason.UsageUndefined,
+				reason: WhisperWasmUnsupportedReason.UsageUndefined,
 				detailedReason:
 					'navigator.storage.estimate() API returned undefined usage.',
 			};
@@ -84,7 +84,7 @@ export const canUseWhisperWeb = async (
 		if (remaining < modelSize) {
 			return {
 				supported: false,
-				reason: WhisperWebUnsupportedReason.NotEnoughSpace,
+				reason: WhisperWasmUnsupportedReason.NotEnoughSpace,
 				detailedReason: `Not enough space to download the model. Required: ${modelSize} bytes, Available: ${remaining} bytes.`,
 			};
 		}
@@ -92,7 +92,7 @@ export const canUseWhisperWeb = async (
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		return {
 			supported: false,
-			reason: WhisperWebUnsupportedReason.ErrorEstimatingStorage,
+			reason: WhisperWasmUnsupportedReason.ErrorEstimatingStorage,
 			detailedReason: `Error estimating storage: ${errorMessage}`,
 		};
 	}

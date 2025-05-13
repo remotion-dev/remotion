@@ -1,6 +1,6 @@
 ---
 title: downloadWhisperModel()
-crumb: '@remotion/whisper-web'
+crumb: '@remotion/whisper-wasm'
 ---
 
 # downloadWhisperModel()
@@ -12,7 +12,7 @@ crumb: '@remotion/whisper-web'
 Downloads a Whisper model into IndexedDB.
 
 ```tsx twoslash title="app.ts"
-import {downloadWhisperModel} from '@remotion/whisper-web';
+import {downloadWhisperModel} from '@remotion/whisper-wasm';
 
 const {alreadyDownloaded} = await downloadWhisperModel({
   model: 'tiny.en',
@@ -33,7 +33,7 @@ The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `s
 Act upon download progress. This is the function signature:
 
 ```tsx twoslash
-import {DownloadWhisperModelOnProgress, DownloadWhisperModelProgress} from '@remotion/whisper-web';
+import {DownloadWhisperModelOnProgress, DownloadWhisperModelProgress} from '@remotion/whisper-wasm';
 
 const onProgress: DownloadWhisperModelOnProgress = ({progress, totalBytes, downloadedBytes}: DownloadWhisperModelProgress) => {
   console.log({progress, totalBytes, downloadedBytes});
@@ -48,6 +48,6 @@ Returns an object with the following properties:
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-web/src/download-whisper-model.ts)
-- [`@remotion/whisper-web`](/docs/whisper-web)
-- [`transcribe()`](/docs/whisper-web/transcribe)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/whisper-wasm/src/download-whisper-model.ts)
+- [`@remotion/whisper-wasm`](/docs/whisper-wasm)
+- [`transcribe()`](/docs/whisper-wasm/transcribe)
