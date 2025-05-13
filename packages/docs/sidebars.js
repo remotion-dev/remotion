@@ -715,6 +715,21 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/whisper-webgpu',
+			link: {
+				type: 'doc',
+				id: 'whisper-webgpu/index',
+			},
+			items: [
+				'whisper-webgpu/download-whisper-model',
+				'whisper-webgpu/transcribe',
+				'whisper-webgpu/resample-to-16khz',
+				'whisper-webgpu/can-use-whisper-webgpu',
+				'whisper-webgpu/get-loaded-models',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/openai-whisper',
 			link: {
 				type: 'doc',

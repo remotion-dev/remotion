@@ -1,0 +1,66 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-webgpu"
+	},
+	"name": "@remotion/whisper-webgpu",
+	"version": "4.0.300",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier src --check",
+		"test": "bun test src",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
+	"license": "UNLICENSED",
+	"dependencies": {
+		"onnxruntime-web": "1.22.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./worker-url": {
+			"types": "./dist/worker-url.d.ts",
+			"require": "./dist/worker-url.js",
+			"module": "./dist/esm/worker-url.mjs",
+			"import": "./dist/esm/worker-url.mjs"
+		},
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
+		}
+	},
+	"keywords": [
+		"remotion",
+		"openai",
+		"whisper",
+		"wasm"
+	],
+	"homepage": "https://www.remotion.dev/docs/whisper-webgpu",
+	"description": "Helpers for using Whisper.cpp in browser using WASM",
+	"typesVersions": {
+		">=1.0": {
+			"worker": [
+				"./dist/worker.d.ts"
+			],
+			"worker-url": [
+				"./dist/worker-url.d.ts"
+			]
+		}
+	}
+}

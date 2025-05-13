@@ -689,6 +689,9 @@ importers:
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
+      '@remotion/whisper-webgpu':
+        specifier: workspace:*
+        version: link:../whisper-webgpu
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -1061,6 +1064,9 @@ importers:
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
+      '@remotion/whisper-webgpu':
+        specifier: workspace:*
+        version: link:../whisper-webgpu
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -3502,6 +3508,19 @@ importers:
       playwright:
         specifier: 1.51.1
         version: 1.51.1
+
+  packages/whisper-webgpu:
+    dependencies:
+      onnxruntime-web:
+        specifier: 1.22.0
+        version: 1.22.0
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
 
   packages/zod-types:
     dependencies:
@@ -15702,7 +15721,7 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.0(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -15724,7 +15743,7 @@ packages:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.0(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -15742,7 +15761,7 @@ packages:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 2.0.1(typescript@5.7.3)
       typescript: 5.7.3
     transitivePeerDependencies:
@@ -15780,7 +15799,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.8.2)
       eslint: 9.19.0
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -18031,7 +18050,7 @@ packages:
       postcss-modules-scope: 3.2.0(postcss@8.5.1)
       postcss-modules-values: 4.0.0(postcss@8.5.1)
       postcss-value-parser: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.96.1(@swc/core@1.3.80)
     dev: false
 
@@ -20203,6 +20222,10 @@ packages:
     hasBin: true
     dev: false
 
+  /flatbuffers@25.2.10:
+    resolution: {integrity: sha512-7JlN9ZvLDG1McO3kbX0k4v+SUAg48L1rIwEvN6ZQl/eCtgJz9UylTMzE9wrmYrcorgxm3CX/3T/w5VAub99UUw==}
+    dev: false
+
   /flatted@3.3.1:
     resolution: {integrity: sha512-X8cqMLLie7KsNUDSdzeN8FYK9rEt4Dt67OsG/DNGnYTSDBG4uFAJFBnUeiV+zCVAvwFy56IjM9sH51jVaEhNxw==}
 
@@ -20833,6 +20856,10 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: false
+
+  /guid-typescript@1.0.9:
+    resolution: {integrity: sha512-Y8T4vYhEfwJOTbouREvG+3XDsjr8E3kIr7uf+JZ0BYloFsttiHU0WfvANVsR7TxNUJa/WpCnw/Ino/p+DeBhBQ==}
     dev: false
 
   /gunzip-maybe@1.4.2:
@@ -21574,7 +21601,7 @@ packages:
   /is-bun-module@1.2.1:
     resolution: {integrity: sha512-AmidtEM6D6NmUiLOvvU7+IePxjEjOzra2h0pSrsfSAcXwl/83zLLXDByafUJy9k/rKK0pvXMLdwKwGHlX2Ke6Q==}
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
     dev: true
 
   /is-callable@1.2.7:
@@ -24369,6 +24396,21 @@ packages:
       regex-recursion: 4.3.0
     dev: false
 
+  /onnxruntime-common@1.22.0:
+    resolution: {integrity: sha512-vcuaNWgtF2dGQu/EP5P8UI5rEPEYqXG2sPPe5j9lg2TY/biJF8eWklTMwlDO08iuXq48xJo0awqIpK5mPG+IxA==}
+    dev: false
+
+  /onnxruntime-web@1.22.0:
+    resolution: {integrity: sha512-Ud/+EBo6mhuaQWt/OjaOk0iNWjXqJoeeMFr6xQEERZdIZH2OWpGzuujz7lfuOBjUa6TEE/sc4nb7Da5dNL34fg==}
+    dependencies:
+      flatbuffers: 25.2.10
+      guid-typescript: 1.0.9
+      long: 5.2.3
+      onnxruntime-common: 1.22.0
+      platform: 1.3.6
+      protobufjs: 7.3.0
+    dev: false
+
   /open@8.4.2:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
@@ -24799,6 +24841,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 3.0.0
+    dev: false
+
+  /platform@1.3.6:
+    resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
     dev: false
 
   /playwright-core@1.51.1:
@@ -25364,7 +25410,7 @@ packages:
       cosmiconfig: 8.3.6(typescript@5.8.2)
       jiti: 1.21.6
       postcss: 8.5.1
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.96.1(@swc/core@1.3.80)
     transitivePeerDependencies:
       - typescript
@@ -27753,6 +27799,11 @@ packages:
 
   /semver@7.6.3:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  /semver@7.7.1:
+    resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
     hasBin: true
 
