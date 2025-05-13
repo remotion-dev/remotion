@@ -1288,6 +1288,7 @@ module.exports = {
 				'timeline/setup',
 				'timeline/usage',
 				'timeline/faq',
+				'timeline/render',
 			],
 		},
 		{
