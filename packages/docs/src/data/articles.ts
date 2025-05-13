@@ -5307,6 +5307,15 @@ export const articles = [
 		slug: 'timeline/index',
 	},
 	{
+		id: 'render',
+		title: 'Timeline – Rendering videos',
+		relativePath: 'docs/timeline/render.mdx',
+		compId: 'articles-docs-timeline-render',
+		crumb: null,
+		noAi: false,
+		slug: 'timeline/render',
+	},
+	{
 		id: 'setup',
 		title: 'Timeline – Setup',
 		relativePath: 'docs/timeline/setup.mdx',
