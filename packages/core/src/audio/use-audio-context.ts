@@ -11,12 +11,15 @@ const warnOnce = (logLevel: LogLevel) => {
 
 	warned = true;
 
-	Log.warn(logLevel, 'AudioContext is not supported in this browser');
+	// Don't pullute logs if in SSR
+	if (typeof window !== 'undefined') {
+		Log.warn(logLevel, 'AudioContext is not supported in this browser');
+	}
 };
 
 export const useSingletonAudioContext = (logLevel: LogLevel) => {
 	const audioContext = useMemo(() => {
-		if (!AudioContext) {
+		if (typeof AudioContext === 'undefined') {
 			warnOnce(logLevel);
 			return null;
 		}
