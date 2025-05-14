@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
@@ -66,6 +67,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		loopVolumeCurveBehavior,
 		stack,
+		crossOrigin,
 		...nativeProps
 	} = props;
 
@@ -213,7 +215,19 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return <audio ref={audioRef} preload="metadata" {...propsToPass} />;
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: false,
+	});
+
+	return (
+		<audio
+			ref={audioRef}
+			preload="metadata"
+			crossOrigin={crossOriginValue}
+			{...propsToPass}
+		/>
+	);
 };
 
 export const AudioForPreview = forwardRef(

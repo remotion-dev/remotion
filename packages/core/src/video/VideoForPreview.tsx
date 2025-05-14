@@ -12,6 +12,7 @@ import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
@@ -277,8 +278,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [isSequenceHidden, style]);
 
-	const crossOriginValue =
-		crossOrigin ?? (onVideoFrame ? 'anonymous' : undefined);
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: Boolean(onVideoFrame),
+	});
 
 	return (
 		<video
