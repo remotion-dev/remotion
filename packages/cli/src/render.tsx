@@ -40,6 +40,7 @@ const {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	offthreadVideoThreadsOption,
+	audioLatencyHintOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -185,6 +186,9 @@ export const render = async (
 	const hardwareAcceleration = hardwareAccelerationOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -250,5 +254,6 @@ export const render = async (
 		hardwareAcceleration,
 		chromeMode,
 		offthreadVideoThreads,
+		audioLatencyHint,
 	});
 };

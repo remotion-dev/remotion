@@ -41,12 +41,14 @@ export const RemotionRoot: React.FC<{
 	readonly logLevel: LogLevel;
 	readonly onlyRenderComposition: string | null;
 	readonly currentCompositionMetadata: BaseMetadata | null;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
 }> = ({
 	children,
 	numberOfAudioTags,
 	logLevel,
 	onlyRenderComposition,
 	currentCompositionMetadata,
+	audioLatencyHint,
 }) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<Record<string, number>>(() =>
@@ -158,6 +160,7 @@ export const RemotionRoot: React.FC<{
 										numberOfAudioTags={numberOfAudioTags}
 										onlyRenderComposition={onlyRenderComposition}
 										currentCompositionMetadata={currentCompositionMetadata}
+										audioLatencyHint={audioLatencyHint}
 									>
 										<DurationsContextProvider>
 											<BufferingProvider>{children}</BufferingProvider>

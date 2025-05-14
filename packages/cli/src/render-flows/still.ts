@@ -78,6 +78,7 @@ export const renderStillFlow = async ({
 	publicPath,
 	chromeMode,
 	offthreadVideoThreads,
+	audioLatencyHint,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -110,6 +111,7 @@ export const renderStillFlow = async ({
 	binariesDirectory: string | null;
 	publicPath: string | null;
 	chromeMode: ChromeMode;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -199,6 +201,7 @@ export const renderStillFlow = async ({
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		},
 	);
 

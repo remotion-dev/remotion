@@ -57,6 +57,7 @@ const handleFallback = async ({
 	getRenderQueue,
 	getRenderDefaults,
 	numberOfAudioTags,
+	audioLatencyHint,
 	gitSource,
 	logLevel,
 }: {
@@ -69,6 +70,7 @@ const handleFallback = async ({
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 }) => {
@@ -110,6 +112,7 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 			logLevel,
 			mode: 'dev',
+			audioLatencyHint,
 		}),
 	);
 };
@@ -317,6 +320,7 @@ export const handleRoutes = ({
 	queueMethods: methods,
 	gitSource,
 	binariesDirectory,
+	audioLatencyHint,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -337,6 +341,7 @@ export const handleRoutes = ({
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -449,5 +454,6 @@ export const handleRoutes = ({
 		numberOfAudioTags,
 		gitSource,
 		logLevel,
+		audioLatencyHint,
 	});
 };

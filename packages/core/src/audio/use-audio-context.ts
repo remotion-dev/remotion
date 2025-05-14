@@ -17,7 +17,10 @@ const warnOnce = (logLevel: LogLevel) => {
 	}
 };
 
-export const useSingletonAudioContext = (logLevel: LogLevel) => {
+export const useSingletonAudioContext = (
+	logLevel: LogLevel,
+	latencyHint: AudioContextLatencyCategory,
+) => {
 	const audioContext = useMemo(() => {
 		if (typeof AudioContext === 'undefined') {
 			warnOnce(logLevel);
@@ -25,9 +28,9 @@ export const useSingletonAudioContext = (logLevel: LogLevel) => {
 		}
 
 		return new AudioContext({
-			latencyHint: 'interactive',
+			latencyHint,
 		});
-	}, [logLevel]);
+	}, [logLevel, latencyHint]);
 
 	useEffect(() => {
 		return () => {

@@ -31,6 +31,7 @@ const {
 	videoBitrateOption,
 	audioCodecOption,
 	publicPathOption,
+	audioLatencyHintOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -98,6 +99,7 @@ export type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
+	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
 	ipv4: boolean;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;

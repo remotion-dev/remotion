@@ -70,5 +70,6 @@ export const processStill = async ({
 		binariesDirectory: job.binariesDirectory,
 		publicPath: null,
 		chromeMode: job.chromeMode,
+		audioLatencyHint: 'interactive',
 	});
 };

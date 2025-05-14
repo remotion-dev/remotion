@@ -105,7 +105,8 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly component: LazyExoticComponent<
 		ComponentType<Record<string, unknown>>
 	> | null;
-}> = ({children, numberOfAudioTags, component}) => {
+	readonly audioLatencyHint: AudioContextLatencyCategory;
+}> = ({children, numberOfAudioTags, component, audioLatencyHint}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -126,7 +127,7 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 
 	const logLevel = useLogLevel();
-	const audioContext = useSingletonAudioContext(logLevel);
+	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
 
 	const rerenderAudios = useCallback(() => {
 		refs.forEach(({ref, id}) => {

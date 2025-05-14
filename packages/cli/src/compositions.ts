@@ -23,6 +23,7 @@ const {
 	publicPathOption,
 	publicDirOption,
 	chromeModeOption,
+	audioLatencyHintOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -105,6 +106,9 @@ export const listCompositionsCommand = async (
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -127,6 +131,7 @@ export const listCompositionsCommand = async (
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());
