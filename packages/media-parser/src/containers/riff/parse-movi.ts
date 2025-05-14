@@ -61,7 +61,7 @@ export const handleChunk = async ({
 				cts: timestamp,
 				dts: timestamp,
 				data,
-				duration: undefined,
+				duration: 1 / samplesPerSecond,
 				timestamp,
 				trackId,
 				type: keyOrDelta,
@@ -84,7 +84,12 @@ export const handleChunk = async ({
 		const trackId = parseInt(audioChunk[1], 10);
 		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
-		const samplesPerSecond = strh.rate / strh.scale;
+		const {strf} = strh;
+		if (strf.type !== 'strf-box-audio') {
+			throw new Error('audio');
+		}
+
+		const samplesPerSecond = (strh.rate / strh.scale) * strf.numberOfChannels;
 		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
