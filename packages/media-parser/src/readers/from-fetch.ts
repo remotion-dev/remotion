@@ -248,14 +248,7 @@ export const fetchReadContent: ReadContent = async ({
 
 	const fallbackName = src.toString().split('/').pop() as string;
 
-	const {
-		reader,
-		contentLength,
-		needsContentRange,
-		name,
-		supportsContentRange,
-		contentType,
-	} = await makeFetchRequestOrGetCached({
+	const res = makeFetchRequestOrGetCached({
 		range,
 		src,
 		controller,
@@ -265,6 +258,15 @@ export const fetchReadContent: ReadContent = async ({
 
 	const key = cacheKey({src, range});
 	prefetchCache.delete(key);
+
+	const {
+		reader,
+		contentLength,
+		needsContentRange,
+		name,
+		supportsContentRange,
+		contentType,
+	} = await res;
 
 	if (controller) {
 		controller._internals.signal.addEventListener(
