@@ -1334,6 +1334,9 @@
 			"Ewert": [
 				"dist/cjs/Ewert.d.ts"
 			],
+			"Exile": [
+				"dist/cjs/Exile.d.ts"
+			],
 			"Exo": [
 				"dist/cjs/Exo.d.ts"
 			],
@@ -3820,6 +3823,18 @@
 			],
 			"PlaypenSans": [
 				"dist/cjs/PlaypenSans.d.ts"
+			],
+			"PlaypenSansArabic": [
+				"dist/cjs/PlaypenSansArabic.d.ts"
+			],
+			"PlaypenSansDeva": [
+				"dist/cjs/PlaypenSansDeva.d.ts"
+			],
+			"PlaypenSansHebrew": [
+				"dist/cjs/PlaypenSansHebrew.d.ts"
+			],
+			"PlaypenSansThai": [
+				"dist/cjs/PlaypenSansThai.d.ts"
 			],
 			"PlusJakartaSans": [
 				"dist/cjs/PlusJakartaSans.d.ts"

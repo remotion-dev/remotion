@@ -434,25 +434,25 @@ export const googleFonts: Font[] = [
 		family: 'Akatab',
 		variants: ['regular', '500', '600', '700', '800', '900'],
 		subsets: ['latin', 'latin-ext', 'tifinagh'],
-		version: 'v7',
-		lastModified: '2024-09-04',
+		version: 'v8',
+		lastModified: '2025-05-13',
 		files: {
 			'500':
-				'https://fonts.gstatic.com/s/akatab/v7/VuJzdNrK3Z7gqJE3rKXdOaNiaRpFvg.woff2',
+				'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3rKXdOaNiaRpFvg.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/akatab/v7/VuJzdNrK3Z7gqJE3gKLdOaNiaRpFvg.woff2',
+				'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3gKLdOaNiaRpFvg.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/akatab/v7/VuJzdNrK3Z7gqJE35KPdOaNiaRpFvg.woff2',
+				'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE35KPdOaNiaRpFvg.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/akatab/v7/VuJzdNrK3Z7gqJE3-KDdOaNiaRpFvg.woff2',
+				'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3-KDdOaNiaRpFvg.woff2',
 			'900':
-				'https://fonts.gstatic.com/s/akatab/v7/VuJzdNrK3Z7gqJE33KHdOaNiaRpFvg.woff2',
+				'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE33KHdOaNiaRpFvg.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/akatab/v7/VuJwdNrK3Z7gqJEPXYz5NIh-YA.woff2',
+				'https://fonts.gstatic.com/s/akatab/v8/VuJwdNrK3Z7gqJEPXYz5NIh-YA.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/akatab/v7/VuJwdNrK3Z7gqJE_WYb4.woff2',
+		menu: 'https://fonts.gstatic.com/s/akatab/v8/VuJwdNrK3Z7gqJE_WYb4.woff2',
 	},
 	{
 		family: 'Akaya Kanadaka',
@@ -9445,6 +9445,20 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/ewert/v25/va9I4kzO2tFODbBuQeM.woff2',
 	},
 	{
+		family: 'Exile',
+		variants: ['regular'],
+		subsets: ['latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2025-05-13',
+		files: {
+			regular:
+				'https://fonts.gstatic.com/s/exile/v1/pxiKyp0xqNtbjBsdHpT2dkNE.woff2',
+		},
+		category: 'display',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/exile/v1/pxiKyp0xqNtbjCsZFJU.woff2',
+	},
+	{
 		family: 'Exo',
 		variants: [
 			'100',
@@ -9987,41 +10001,41 @@ export const googleFonts: Font[] = [
 			'900italic',
 		],
 		subsets: ['latin', 'latin-ext'],
-		version: 'v7',
-		lastModified: '2025-03-11',
+		version: 'v8',
+		lastModified: '2025-05-13',
 		files: {
 			'300':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_chQF5bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_chQF5bwkEU4HTy.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_dNQF5bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_dNQF5bwkEU4HTy.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_ehR15bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_ehR15bwkEU4HTy.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_eYR15bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_eYR15bwkEU4HTy.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_f_R15bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_f_R15bwkEU4HTy.woff2',
 			'900':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_fWR15bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_fWR15bwkEU4HTy.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_d_QF5bwkEU4HTy.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_d_QF5bwkEU4HTy.woff2',
 			'300italic':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A-gdyEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A-gdyEA25WTybO8.woff2',
 			italic:
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A7YdyEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A7YdyEA25WTybO8.woff2',
 			'500italic':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A4QdyEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A4QdyEA25WTybO8.woff2',
 			'600italic':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A2gayEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A2gayEA25WTybO8.woff2',
 			'700italic':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A1EayEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3A1EayEA25WTybO8.woff2',
 			'800italic':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3AzYayEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3AzYayEA25WTybO8.woff2',
 			'900italic':
-				'https://fonts.gstatic.com/s/figtree/v7/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3Ax8ayEA25WTybO8.woff2',
+				'https://fonts.gstatic.com/s/figtree/v8/_Xm9-HUzqDCFdgfMm4GnA4aZFrUvtOK3Ax8ayEA25WTybO8.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_d_QG5fyEA.woff2',
+		menu: 'https://fonts.gstatic.com/s/figtree/v8/_Xmz-HUzqDCFdgfMsYiV_F7wfS-Bs_d_QG5fyEA.woff2',
 	},
 	{
 		family: 'Finger Paint',
@@ -13902,16 +13916,16 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Iansui',
 		variants: ['regular'],
-		subsets: ['chinese-hongkong', 'latin', 'latin-ext', 'symbols2'],
-		version: 'v2',
-		lastModified: '2025-03-04',
+		subsets: ['chinese-traditional', 'latin', 'latin-ext', 'symbols2'],
+		version: 'v5',
+		lastModified: '2025-05-13',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/iansui/v2/w8gbH2UoTuUp5bOaiCGD1FcXoQ.woff2',
+				'https://fonts.gstatic.com/s/iansui/v5/w8gbH2UoTuUp5bOaiCGD1FcXoQ.woff2',
 		},
 		category: 'handwriting',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/iansui/v2/w8gbH2UoTuUp5bOqjCuC.woff2',
+		menu: 'https://fonts.gstatic.com/s/iansui/v5/w8gbH2UoTuUp5bOqjCuC.woff2',
 	},
 	{
 		family: 'Ibarra Real Nova',
@@ -26562,15 +26576,15 @@ export const googleFonts: Font[] = [
 		family: 'Noto Znamenny Musical Notation',
 		variants: ['regular'],
 		subsets: ['latin', 'latin-ext', 'math', 'symbols', 'znamenny'],
-		version: 'v4',
-		lastModified: '2025-03-03',
+		version: 'v5',
+		lastModified: '2025-05-12',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/notoznamennymusicalnotation/v4/CSRW4ylQnPyaDwAMK1U_AolTaJ4Lz41GcgaIZV9YO2rO88jvs5qqdoWa7g.woff2',
+				'https://fonts.gstatic.com/s/notoznamennymusicalnotation/v5/CSRW4ylQnPyaDwAMK1U_AolTaJ4Lz41GcgaIZV9YO2rO88jvs5qqdoWa7g.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/notoznamennymusicalnotation/v4/CSRW4ylQnPyaDwAMK1U_AolTaJ4Lz41GcgaIZV9YO2rO88jft5Cr.woff2',
+		menu: 'https://fonts.gstatic.com/s/notoznamennymusicalnotation/v5/CSRW4ylQnPyaDwAMK1U_AolTaJ4Lz41GcgaIZV9YO2rO88jft5Cr.woff2',
 		colorCapabilities: ['COLRv0'],
 	},
 	{
@@ -28554,30 +28568,151 @@ export const googleFonts: Font[] = [
 	{
 		family: 'Playpen Sans',
 		variants: ['100', '200', '300', 'regular', '500', '600', '700', '800'],
-		subsets: ['emoji', 'latin', 'latin-ext', 'math', 'vietnamese'],
-		version: 'v14',
-		lastModified: '2025-04-23',
+		subsets: [
+			'cyrillic',
+			'cyrillic-ext',
+			'emoji',
+			'greek',
+			'latin',
+			'latin-ext',
+			'math',
+			'vietnamese',
+		],
+		version: 'v21',
+		lastModified: '2025-05-13',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IvRgunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IvRgunE9Ffmme0w.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4InRhunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4InRhunE9Ffmme0w.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IqphunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IqphunE9Ffmme0w.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IsZhunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IsZhunE9Ffmme0w.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IipmunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IipmunE9Ffmme0w.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IhNmunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IhNmunE9Ffmme0w.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4InRmunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4InRmunE9Ffmme0w.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IvRhunE9Ffmme0w.woff2',
+				'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IvRhunE9Ffmme0w.woff2',
 		},
 		category: 'handwriting',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/playpensans/v14/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IvRhinU3FA.woff2',
+		menu: 'https://fonts.gstatic.com/s/playpensans/v21/dg43_pj1p6gXP0gzAZgm4c8XQArSU7ACQSn4IvRhinU3FA.woff2',
+	},
+	{
+		family: 'Playpen Sans Arabic',
+		variants: ['100', '200', '300', 'regular', '500', '600', '700', '800'],
+		subsets: ['arabic', 'emoji', 'latin', 'latin-ext', 'math'],
+		version: 'v6',
+		lastModified: '2025-05-13',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-ZBobPZBO1L0EHE.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-bBoLPZBO1L0EHE.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-YfoLPZBO1L0EHE.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-ZzoLPZBO1L0EHE.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-afp7PZBO1L0EHE.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-amp7PZBO1L0EHE.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-bBp7PZBO1L0EHE.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-ZBoLPZBO1L0EHE.woff2',
+		},
+		category: 'handwriting',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/playpensansarabic/v6/KtkGAKiSeo38bkPvhIqjU6aCgha2der-Z4VIEhR8sOKet-ZBoIPdDuw.woff2',
+	},
+	{
+		family: 'Playpen Sans Deva',
+		variants: ['100', '200', '300', 'regular', '500', '600', '700', '800'],
+		subsets: ['devanagari', 'emoji', 'latin', 'latin-ext'],
+		version: 'v2',
+		lastModified: '2025-05-13',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQ0xgUHv5NygdkiQ.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQUxkUHv5NygdkiQ.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQjRkUHv5NygdkiQ.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQ4RkUHv5NygdkiQ.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQDR4UHv5NygdkiQ.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQNB4UHv5NygdkiQ.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQUx4UHv5NygdkiQ.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQ0xkUHv5NygdkiQ.woff2',
+		},
+		category: 'handwriting',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/playpensansdeva/v2/vm8fdQj0UUbMxObnsO17RZ7pPBuJge10OmPLCiz-HCrQ0xkkGvRM.woff2',
+	},
+	{
+		family: 'Playpen Sans Hebrew',
+		variants: ['100', '200', '300', 'regular', '500', '600', '700', '800'],
+		subsets: ['emoji', 'hebrew', 'latin', 'latin-ext', 'math'],
+		version: 'v6',
+		lastModified: '2025-05-13',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnnp5pC_3VFfsRss.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnlp55C_3VFfsRss.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnm355C_3VFfsRss.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnnb55C_3VFfsRss.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnk34JC_3VFfsRss.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnkO4JC_3VFfsRss.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnlp4JC_3VFfsRss.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnnp55C_3VFfsRss.woff2',
+		},
+		category: 'handwriting',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/playpensanshebrew/v6/lJws-okuj29wT-AN6RvLx8QqjkKhL7eAjoL9jK7L4vstDnnp56C711A.woff2',
+	},
+	{
+		family: 'Playpen Sans Thai',
+		variants: ['100', '200', '300', 'regular', '500', '600', '700', '800'],
+		subsets: ['emoji', 'latin', 'latin-ext', 'math', 'thai'],
+		version: 'v6',
+		lastModified: '2025-05-13',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLghGPphxAISLTzA.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLAhCPphxAISLTzA.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxL3BCPphxAISLTzA.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLsBCPphxAISLTzA.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLXBePphxAISLTzA.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLZRePphxAISLTzA.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLAhePphxAISLTzA.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLghCPphxAISLTzA.woff2',
+		},
+		category: 'handwriting',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/playpensansthai/v6/VdG3AYIdG5kSgHwmKT9wYu2rs0cBsu-N7E_aclWp2hxLghC_ohZB.woff2',
 	},
 	{
 		family: 'Playwrite AR',

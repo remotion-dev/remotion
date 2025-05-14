@@ -2216,6 +2216,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Ewert') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Exile',
+		importName: 'Exile',
+		load: () => import('./Exile') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Exo',
 		importName: 'Exo',
 		load: () => import('./Exo') as Promise<GoogleFont>,
@@ -6360,6 +6365,26 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Playpen Sans',
 		importName: 'PlaypenSans',
 		load: () => import('./PlaypenSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Arabic',
+		importName: 'PlaypenSansArabic',
+		load: () => import('./PlaypenSansArabic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Deva',
+		importName: 'PlaypenSansDeva',
+		load: () => import('./PlaypenSansDeva') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Hebrew',
+		importName: 'PlaypenSansHebrew',
+		load: () => import('./PlaypenSansHebrew') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Thai',
+		importName: 'PlaypenSansThai',
+		load: () => import('./PlaypenSansThai') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Plus Jakarta Sans',
