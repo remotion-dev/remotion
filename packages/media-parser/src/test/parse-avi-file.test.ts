@@ -42,7 +42,12 @@ test('AVI file', async () => {
 		},
 		onAudioTrack: () => {
 			audioTrackCount++;
-			return () => {
+			return (sample) => {
+				const time = sample.timestamp / sample.timescale;
+				if (time > 31) {
+					throw new Error('time higher than duration');
+				}
+
 				audioSamples++;
 			};
 		},
@@ -52,7 +57,12 @@ test('AVI file', async () => {
 			}
 
 			videoTrackCount++;
-			return () => {
+			return (sample) => {
+				const time = sample.timestamp / sample.timescale;
+				if (time > 31) {
+					throw new Error('time higher than duration');
+				}
+
 				videoSamples++;
 			};
 		},
