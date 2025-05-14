@@ -102,7 +102,7 @@ type NewBundleOptions = {
 	gitSource: GitSource | null;
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
-	audioLatencyHint: AudioContextLatencyCategory;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 };
 
 type MandatoryBundleOptions = {
@@ -350,7 +350,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		publicPath: actualArgs.publicPath ?? null,
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
-		audioLatencyHint: actualArgs.audioLatencyHint ?? 'interactive',
+		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
 	});
 	return result;
 }
