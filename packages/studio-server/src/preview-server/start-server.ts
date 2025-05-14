@@ -67,6 +67,9 @@ export const startServer = async (options: {
 	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
 	const server = http.createServer((request, response) => {
+		response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+
 		new Promise<void>((resolve) => {
 			wdmMiddleware(request as IncomingMessage, response, () => {
 				resolve();

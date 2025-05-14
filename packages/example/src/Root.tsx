@@ -81,6 +81,7 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
@@ -101,7 +102,6 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -132,6 +132,7 @@ import {Seek} from './StudioApis/Seek';
 import {TransitionRounding} from './TransitionRounding';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
+import {WhisperWeb} from './WhisperWeb';
 
 class Vector2 {
 	readonly x: number;
@@ -1590,6 +1591,7 @@ export const Index: React.FC = () => {
 					durationInFrames={900}
 				/>
 			</Folder>
+			<Still id="whisper-web" component={WhisperWeb} width={800} height={800} />
 			<Composition
 				id="empty"
 				component={Empty}

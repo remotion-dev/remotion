@@ -50,6 +50,9 @@ const validateExternal = (external: string[]) => {
 		if (dep === 'stream' || dep === 'fs' || dep === 'path') {
 			continue;
 		}
+		if (dep.startsWith('.')) {
+			continue;
+		}
 		if (!packageJson.includes(stripEntryPoints(dep))) {
 			throw new Error(
 				`External dependency ${stripEntryPoints(dep)} not found in package.json`,

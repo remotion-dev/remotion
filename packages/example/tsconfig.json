@@ -38,6 +38,7 @@
 		{"path": "../svg-3d-engine"},
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
+		{"path": "../whisper-web"},
 		{"path": "../layout-utils"}
 	]
 }

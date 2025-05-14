@@ -71,6 +71,7 @@
 		"@remotion/transitions": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
+		"@remotion/whisper-web": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@rive-app/canvas-advanced": "2.3.0",
 		"@shopify/react-native-skia": "2.0.0",

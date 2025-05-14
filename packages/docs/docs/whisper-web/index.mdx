@@ -1,0 +1,77 @@
+---
+image: /generated/articles-docs-whisper-web-index.png
+title: '@remotion/whisper-web'
+crumb: 'Transcribe audio in browser'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+:::warning
+**Unstable API**: This package is experimental for the moment. As we test it, we might make a few changes to the API and switch to a WebGPU-based backend in the future.
+:::
+
+Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for the browser. Allows you to transcribe audio locally in the browser, with the help of WASM.
+
+import {TableOfContents} from './whisper-web';
+
+<Installation pkg="@remotion/whisper-web" />
+
+## Example usage
+
+:::info
+This library is UI-agnostic and can be integrated with any frontend framework.
+:::
+
+```tsx twoslash
+import {transcribe, canUseWhisperWeb, resampleTo16Khz, downloadWhisperModel} from '@remotion/whisper-web';
+
+// HTML:
+// <input type="file" accept="audio/*" id="audio-input" />
+// <p id="status"></p>
+
+const input = document.getElementById('audio-input') as HTMLInputElement;
+
+input.addEventListener('change', async (e) => {
+  const file = input.files?.[0];
+  if (!file) return;
+
+  console.log('Processing...');
+
+  const modelToUse = 'tiny.en';
+
+  const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
+  if (!supported) {
+    throw new Error(`Whisper Web is not supported in this environment: ${detailedReason}`);
+  }
+
+  console.log('Downloading model...');
+  await downloadWhisperModel({
+    model: modelToUse,
+    onProgress: ({progress}) => console.log(`Downloading model (${Math.round(progress * 100)}%)...`),
+  });
+
+  console.log('Resampling audio...');
+  const channelWaveform = await resampleTo16Khz({
+    file,
+    onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
+  });
+
+  console.log('Transcribing...');
+  const {transcription} = await transcribe({
+    channelWaveform,
+    model: modelToUse,
+    onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
+  });
+
+  console.log(transcription.map((t) => t.text).join(' '));
+});
+```
+
+## Functions
+
+<TableOfContents />
+
+## License
+
+MIT
