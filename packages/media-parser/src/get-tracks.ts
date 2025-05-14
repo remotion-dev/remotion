@@ -5,6 +5,7 @@ import type {
 	MediaParserTransferCharacteristics,
 } from './containers/avc/color';
 import {makeBaseMediaTrack} from './containers/iso-base-media/make-track';
+import {findTrackStartTimeInSeconds} from './containers/iso-base-media/mdat/get-editlist';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
@@ -85,6 +86,7 @@ export type MediaParserVideoTrack = {
 	timescale: number;
 	advancedColor: MediaParserAdvancedColor;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
+	startInSeconds: number;
 };
 
 export type MediaParserAudioTrack = {
@@ -99,6 +101,7 @@ export type MediaParserAudioTrack = {
 	codecEnum: MediaParserAudioCodec;
 	timescale: number;
 	codecData: MediaParserCodecData | null;
+	startInSeconds: number;
 };
 
 export type MediaParserOtherTrack = {
@@ -106,6 +109,7 @@ export type MediaParserOtherTrack = {
 	trackId: number;
 	timescale: number;
 	trakBox: TrakBox | null;
+	startInSeconds: number;
 };
 
 export type MediaParserTrack =
@@ -199,7 +203,16 @@ export const getTracksFromMoovBox = (moovBox: MoovBox): MediaParserTrack[] => {
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
-		const track = makeBaseMediaTrack(trakBox);
+		const mvhdBox = getMvhdBox(moovBox);
+		if (!mvhdBox) {
+			throw new Error('Mvhd box is not found');
+		}
+
+		const startTime = findTrackStartTimeInSeconds({
+			movieTimeScale: mvhdBox.timeScale,
+			trakBox,
+		});
+		const track = makeBaseMediaTrack(trakBox, startTime);
 		if (!track) {
 			continue;
 		}

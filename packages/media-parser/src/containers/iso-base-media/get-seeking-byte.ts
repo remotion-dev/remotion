@@ -80,6 +80,7 @@ export const getSeekingByteFromIsoBaseMedia = ({
 		timescale: track.timescale,
 		logLevel,
 		mediaSections: info.mediaSections,
+		startInSeconds: track.startInSeconds,
 	});
 
 	if (keyframe) {

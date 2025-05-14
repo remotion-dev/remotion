@@ -75,6 +75,7 @@ test('parse flac', async () => {
 	expect(durationInSeconds).toBe(19.714285714285715);
 	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
+			startInSeconds: 0,
 			codec: 'flac',
 			type: 'audio',
 			description: new Uint8Array([

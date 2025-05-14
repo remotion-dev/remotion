@@ -23,6 +23,7 @@ test('Stream samples', async () => {
 
 	const vidTracks = tracks.filter((t) => t.type === 'video');
 	expect(vidTracks[0]).toEqual({
+		startInSeconds: 0,
 		m3uStreamFormat: null,
 		type: 'video',
 		trackId: 1,
@@ -67,6 +68,7 @@ test('Stream samples', async () => {
 
 	const audTracks = tracks.filter((t) => t.type === 'audio');
 	expect(audTracks[0]).toEqual({
+		startInSeconds: 0,
 		type: 'audio',
 		trackId: 2,
 		timescale: 48000,

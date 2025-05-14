@@ -97,6 +97,7 @@ export const parseMpegHeader = async ({
 				sampleRate,
 				timescale: 1_000_000,
 				trackId: 0,
+				startInSeconds: 0,
 			},
 			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
 			tracks: state.callbacks.tracks,

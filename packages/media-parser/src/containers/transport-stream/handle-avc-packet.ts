@@ -93,6 +93,7 @@ export const handleAvcPacket = async ({
 			},
 			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
 			advancedColor,
+			startInSeconds: 0,
 		};
 
 		await registerVideoTrack({

@@ -371,6 +371,7 @@ export const getTrack = ({
 			advancedColor,
 			codecEnum,
 			fps: null,
+			startInSeconds: 0,
 		};
 	}
 
@@ -400,6 +401,7 @@ export const getTrack = ({
 			codecEnum: getMatroskaAudioCodecEnum({
 				track,
 			}),
+			startInSeconds: 0,
 		};
 	}
 

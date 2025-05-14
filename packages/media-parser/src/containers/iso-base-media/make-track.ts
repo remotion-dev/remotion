@@ -36,6 +36,7 @@ import {getTkhdBox, getVideoDescriptors} from './traversal';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,
+	startTimeInSeconds: number,
 ):
 	| MediaParserVideoTrack
 	| MediaParserAudioTrack
@@ -87,6 +88,7 @@ export const makeBaseMediaTrack = (
 			description: actual.codecPrivate?.data ?? undefined,
 			codecData: actual.codecPrivate,
 			codecEnum,
+			startInSeconds: startTimeInSeconds,
 		};
 	}
 
@@ -96,6 +98,7 @@ export const makeBaseMediaTrack = (
 			trackId: tkhdBox.trackId,
 			timescale: timescaleAndDuration.timescale,
 			trakBox,
+			startInSeconds: startTimeInSeconds,
 		};
 	}
 
@@ -154,6 +157,7 @@ export const makeBaseMediaTrack = (
 		advancedColor,
 		codecEnum: getVideoCodecFromIsoTrak(trakBox),
 		fps: getFpsFromMp4TrakBox(trakBox),
+		startInSeconds: startTimeInSeconds,
 	};
 	return track;
 };

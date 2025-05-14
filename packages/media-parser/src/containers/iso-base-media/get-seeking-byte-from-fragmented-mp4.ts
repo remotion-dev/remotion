@@ -110,6 +110,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 				timescale: firstTrack.timescale,
 				logLevel,
 				mediaSections: info.mediaSections,
+				startInSeconds: firstTrack.startInSeconds,
 			});
 
 			if (kf) {

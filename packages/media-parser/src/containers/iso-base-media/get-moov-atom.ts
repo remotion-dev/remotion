@@ -106,6 +106,7 @@ export const getMoovAtom = async ({
 			onlyIfMoovAtomExpected: {
 				tracks: tracksState,
 				isoState: null,
+				movieTimeScaleState: state.iso.movieTimeScale,
 				onAudioTrack,
 				onVideoTrack,
 				registerVideoSampleCallback: () => Promise.resolve(),

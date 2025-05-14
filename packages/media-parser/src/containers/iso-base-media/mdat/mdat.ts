@@ -162,8 +162,20 @@ export const parseMdatSection = async (
 		);
 	}
 
-	const {cts, dts, duration, isKeyframe, offset, bigEndian, chunkSize} =
-		samplesWithIndex.samplePosition;
+	const {
+		cts: rawCts,
+		dts: rawDts,
+		duration,
+		isKeyframe,
+		offset,
+		bigEndian,
+		chunkSize,
+	} = samplesWithIndex.samplePosition;
+	const {timescale, startInSeconds} = samplesWithIndex.track;
+
+	const cts = rawCts + startInSeconds * timescale;
+	const dts = rawDts + startInSeconds * timescale;
+
 	const bytes = postprocessBytes({
 		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
 		bigEndian,
@@ -181,9 +193,9 @@ export const parseMdatSection = async (
 				trackId: samplesWithIndex.track.trackId,
 				type: isKeyframe ? 'key' : 'delta',
 				offset,
-				timescale: samplesWithIndex.track.timescale,
+				timescale,
 			},
-			timescale: samplesWithIndex.track.timescale,
+			timescale,
 		});
 
 		await state.callbacks.onAudioSample(
@@ -217,9 +229,9 @@ export const parseMdatSection = async (
 				trackId: samplesWithIndex.track.trackId,
 				type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
 				offset,
-				timescale: samplesWithIndex.track.timescale,
+				timescale,
 			},
-			timescale: samplesWithIndex.track.timescale,
+			timescale,
 		});
 
 		await state.callbacks.onVideoSample(

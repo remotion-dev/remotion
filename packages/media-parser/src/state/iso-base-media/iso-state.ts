@@ -8,6 +8,7 @@ import {lazyMfraLoad} from './lazy-mfra-load';
 import {moovState} from './moov-box';
 import {precomputedMoofState} from './precomputed-moof';
 import {precomputedTfraState} from './precomputed-tfra';
+import {movieTimeScaleState} from './timescale-state';
 
 export const isoBaseMediaState = ({
 	contentLength,
@@ -37,6 +38,7 @@ export const isoBaseMediaState = ({
 		}),
 		moof: precomputedMoofState(),
 		tfra: precomputedTfraState(),
+		movieTimeScale: movieTimeScaleState(),
 	};
 };
 

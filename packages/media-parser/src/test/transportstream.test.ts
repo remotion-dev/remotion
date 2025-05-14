@@ -43,6 +43,7 @@ test('Transport stream', async () => {
 		reader: nodeReader,
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
+				startInSeconds: 0,
 				type: 'audio',
 				codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},
 				trackId: 257,
@@ -60,6 +61,7 @@ test('Transport stream', async () => {
 		},
 		onVideoTrack: ({track}) => {
 			expect(track).toEqual({
+				startInSeconds: 0,
 				m3uStreamFormat: null,
 				rotation: 0,
 				trackId: 256,

@@ -47,6 +47,7 @@ export const makeAviAudioTrack = ({
 		sampleRate: strf.sampleRate,
 		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		trackId: index,
+		startInSeconds: 0,
 	};
 };
 
@@ -96,6 +97,7 @@ export const makeAviVideoTrack = ({
 			denominator: 1,
 		},
 		fps: strh.rate / strh.scale,
+		startInSeconds: 0,
 	};
 };
 
