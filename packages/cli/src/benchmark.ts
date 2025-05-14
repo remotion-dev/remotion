@@ -288,7 +288,7 @@ export const benchmarkCommand = async (
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
-			audioLatencyHint: 'interactive',
+			audioLatencyHint: null,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());

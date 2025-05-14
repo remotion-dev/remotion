@@ -9,8 +9,12 @@ export const audioLatencyHintOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Sets the audio latency hint for the AudioContext that Remotion uses to
-			play audio.
+			Sets the{' '}
+			<a href="https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext">
+				audio latency
+			</a>{' '}
+			hint for the global <code>AudioContext</code> context that Remotion uses
+			to play audio.
 			<br />
 			Possible values: <code>interactive</code>, <code>balanced</code>,{' '}
 			<code>playback</code>

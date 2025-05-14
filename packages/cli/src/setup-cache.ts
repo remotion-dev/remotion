@@ -253,7 +253,7 @@ export const bundleOnCli = async ({
 		ignoreRegisterRootWarning: false,
 		maxTimelineTracks,
 		bufferStateDelayInMilliseconds,
-		audioLatencyHint: audioLatencyHint ?? 'interactive',
+		audioLatencyHint,
 	});
 
 	bundlingState = {
