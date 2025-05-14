@@ -86,6 +86,7 @@ test('Should stream AV1', async () => {
 	expect(parsed.rotation).toBe(0);
 	expect(vidTracks.length).toBe(1);
 	expect(vidTracks[0]).toEqual({
+		startInSeconds: 0,
 		m3uStreamFormat: null,
 		type: 'video',
 		codec: 'av01.0.08M.08',
@@ -275,6 +276,7 @@ test(
 		expect(parsed.rotation).toBe(0);
 		expect(vidTracks.length).toBe(1);
 		expect(vidTracks[0]).toEqual({
+			startInSeconds: 0,
 			advancedColor: {
 				fullRange: null,
 				matrix: null,
@@ -310,6 +312,7 @@ test(
 		});
 		expect(audTracks.length).toBe(1);
 		expect(audTracks[0]).toEqual({
+			startInSeconds: 0,
 			type: 'audio',
 			codec: 'opus',
 			timescale: 1000000,
@@ -568,6 +571,7 @@ test('Stretched VP8', async () => {
 	const vidTracks = tracks.filter((t) => t.type === 'video');
 
 	expect(vidTracks[0]).toEqual({
+		startInSeconds: 0,
 		m3uStreamFormat: null,
 		codec: 'vp8',
 		codedHeight: 1080,

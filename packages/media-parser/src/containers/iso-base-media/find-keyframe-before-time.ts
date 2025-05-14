@@ -9,19 +9,21 @@ export const findKeyframeBeforeTime = ({
 	timescale,
 	mediaSections,
 	logLevel,
+	startInSeconds,
 }: {
 	samplePositions: SamplePosition[];
 	time: number;
 	timescale: number;
 	mediaSections: MediaSection[];
 	logLevel: MediaParserLogLevel;
+	startInSeconds: number;
 }) => {
 	let videoByte = 0;
 	let videoSample: SamplePosition | null = null;
 
 	for (const sample of samplePositions) {
-		const ctsInSeconds = sample.cts / timescale;
-		const dtsInSeconds = sample.dts / timescale;
+		const ctsInSeconds = sample.cts / timescale + startInSeconds;
+		const dtsInSeconds = sample.dts / timescale + startInSeconds;
 
 		if (!sample.isKeyframe) {
 			continue;

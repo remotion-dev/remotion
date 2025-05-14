@@ -1,4 +1,5 @@
 import type {BaseBox} from './base-type';
+import type {ElstBox} from './elst';
 import type {EsdsBox} from './esds/esds';
 import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
@@ -42,6 +43,7 @@ export type IsoBaseMediaBox =
 	| MvhdBox
 	| TkhdBox
 	| StsdBox
+	| ElstBox
 	| MebxBox
 	| KeysBox
 	| MoovBox

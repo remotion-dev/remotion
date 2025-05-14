@@ -18,6 +18,8 @@ export const remoteExampleVideos = {
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/ts-keyframes.ts',
 	largeStsd:
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/large-stsd.mp4',
+	videoWithEditList:
+		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/video-with-editlist.mp4',
 };
 
 export const privateExampleVideos = {

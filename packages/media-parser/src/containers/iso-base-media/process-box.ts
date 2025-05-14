@@ -6,6 +6,7 @@ import type {FetchMoreData} from '../../skip';
 import {makeFetchMoreData} from '../../skip';
 import type {TracksState} from '../../state/has-tracks-section';
 import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {MovieTimeScaleState} from '../../state/iso-base-media/timescale-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {MediaSectionState} from '../../state/video-section';
 import type {
@@ -13,10 +14,12 @@ import type {
 	MediaParserOnVideoTrack,
 } from '../../webcodec-sample-types';
 import type {IsoBaseMediaBox} from './base-media-box';
+import {parseElst} from './elst';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {getIsoBaseMediaChildren} from './get-children';
 import {makeBaseMediaTrack} from './make-track';
+import {findTrackStartTimeInSeconds} from './mdat/get-editlist';
 import {parseMdhd} from './mdhd';
 import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
@@ -46,6 +49,7 @@ import {parseTrun} from './trun';
 export type OnlyIfMoovAtomExpected = {
 	tracks: TracksState;
 	isoState: IsoBaseMediaState | null;
+	movieTimeScaleState: MovieTimeScaleState;
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	onAudioTrack: MediaParserOnAudioTrack | null;
 	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
@@ -146,6 +150,17 @@ export const processBox = async ({
 		};
 	}
 
+	if (boxType === 'elst') {
+		return {
+			type: 'box',
+			box: parseElst({
+				iterator,
+				size: boxSize,
+				offset: fileOffset,
+			}),
+		};
+	}
+
 	if (boxType === 'colr') {
 		return {
 			type: 'box',
@@ -157,9 +172,22 @@ export const processBox = async ({
 	}
 
 	if (boxType === 'mvhd') {
+		const mvhdBox = parseMvhd({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		if (!onlyIfMoovAtomExpected) {
+			throw new Error('State is required');
+		}
+
+		onlyIfMoovAtomExpected.movieTimeScaleState.setTrackTimescale(
+			mvhdBox.timeScale,
+		);
 		return {
 			type: 'box',
-			box: parseMvhd({iterator, offset: fileOffset, size: boxSize}),
+			box: mvhdBox,
 		};
 	}
 
@@ -355,14 +383,22 @@ export const processBox = async ({
 
 		const {tracks, onAudioTrack, onVideoTrack} = onlyIfMoovAtomExpected;
 
-		const box = await parseTrak({
+		const trakBox = await parseTrak({
 			size: boxSize,
 			offsetAtStart: fileOffset,
 			iterator,
 			logLevel,
 			contentLength,
 		});
-		const transformedTrack = makeBaseMediaTrack(box);
+
+		const movieTimeScale =
+			onlyIfMoovAtomExpected.movieTimeScaleState.getTrackTimescale();
+		if (movieTimeScale === null) {
+			throw new Error('Movie timescale is not set');
+		}
+
+		const editList = findTrackStartTimeInSeconds({movieTimeScale, trakBox});
+		const transformedTrack = makeBaseMediaTrack(trakBox, editList);
 
 		if (transformedTrack && transformedTrack.type === 'video') {
 			await registerVideoTrack({
@@ -388,7 +424,7 @@ export const processBox = async ({
 			});
 		}
 
-		return {type: 'box', box};
+		return {type: 'box', box: trakBox};
 	}
 
 	if (boxType === 'stts') {
@@ -481,6 +517,7 @@ export const processBox = async ({
 		boxType === 'wave' ||
 		boxType === 'traf' ||
 		boxType === 'mfra' ||
+		boxType === 'edts' ||
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({

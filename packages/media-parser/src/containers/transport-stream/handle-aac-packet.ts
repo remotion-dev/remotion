@@ -69,6 +69,7 @@ export const handleAacPacket = async ({
 			description: codecPrivate,
 			numberOfChannels: channelConfiguration,
 			sampleRate,
+			startInSeconds: 0,
 		};
 		await registerAudioTrack({
 			track,

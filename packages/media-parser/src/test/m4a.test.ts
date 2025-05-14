@@ -24,6 +24,7 @@ test('should work on voice note', async () => {
 		onAudioTrack: (track) => {
 			const trk = track.track;
 			expect(trk).toEqual({
+				startInSeconds: 0,
 				type: 'audio',
 				trackId: 1,
 				timescale: 48000,

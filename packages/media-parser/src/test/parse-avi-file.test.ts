@@ -85,10 +85,12 @@ test('AVI file', async () => {
 			timescale: 1_000_000,
 			trackId: 1,
 			type: 'audio',
+			startInSeconds: 0,
 		},
 	]);
 	expect(tracks.filter((t) => t.type === 'video')).toEqual([
 		{
+			startInSeconds: 0,
 			m3uStreamFormat: null,
 			codec: 'avc1.640015',
 			codecData: {

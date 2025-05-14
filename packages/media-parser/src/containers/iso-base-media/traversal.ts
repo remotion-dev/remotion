@@ -4,6 +4,7 @@ import type {MoofBox} from '../../state/iso-base-media/precomputed-moof';
 import {toMoofBox} from '../../state/iso-base-media/precomputed-moof';
 import type {StructureState} from '../../state/structure';
 import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
+import type {ElstBox} from './elst';
 import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
 import type {TfraBox} from './mfra/tfra';
@@ -347,4 +348,20 @@ export const getTrakBoxByTrackId = (
 			return tkhd.trackId === trackId;
 		}) ?? null
 	);
+};
+
+export const getElstBox = (trakBox: TrakBox): ElstBox | null => {
+	const edtsBox = trakBox.children.find(
+		(s) => s.type === 'regular-box' && s.boxType === 'edts',
+	) as RegularBox | null;
+
+	if (!edtsBox || edtsBox.type !== 'regular-box') {
+		return null;
+	}
+
+	const elstBox = edtsBox.children.find(
+		(s) => s.type === 'elst-box',
+	) as ElstBox | null;
+
+	return elstBox;
 };
