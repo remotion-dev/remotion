@@ -19,6 +19,7 @@ import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
 import {jpegQualityOption} from './jpeg-quality';
+import {audioLatencyHintOption} from './latency-hint';
 import {logLevelOption} from './log-level';
 import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
@@ -83,6 +84,7 @@ export const allOptions = {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	apiKeyOption,
+	audioLatencyHintOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

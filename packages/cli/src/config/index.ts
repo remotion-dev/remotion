@@ -123,6 +123,7 @@ const {
 	audioCodecOption,
 	publicPathOption,
 	hardwareAccelerationOption,
+	audioLatencyHintOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -436,6 +437,15 @@ declare global {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 
 		/**
+		 * Set the audio latency hint that the Studio will
+		 * use when playing back audio
+		 * Default: 'interactive'
+		 */
+		readonly setAudioLatencyHint: (
+			audioLatencyHint: AudioContextLatencyCategory | null,
+		) => void;
+
+		/**
 		 * Set a maximum bitrate to be passed to FFmpeg.
 		 */
 		readonly setEncodingMaxRate: (bitrate: string | null) => void;
@@ -638,6 +648,7 @@ export const Config: FlatConfig = {
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,
 	setVideoBitrate: videoBitrateOption.setConfig,
+	setAudioLatencyHint: audioLatencyHintOption.setConfig,
 	setForSeamlessAacConcatenation: forSeamlessAacConcatenationOption.setConfig,
 	overrideHeight,
 	overrideWidth,

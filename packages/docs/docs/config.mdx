@@ -674,10 +674,23 @@ Config.setAudioBitrate('128K');
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
+## `setAudioLatencyHint()`<AvailableFrom v="4.0.303" />
+
+<Options id="audio-latency-hint" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAudioLatencyHint('interactive');
+```
+
+The [command line flag](/docs/cli/render#--audio-latency-hint) `--audio-latency-hint` will take precedence over this option.
+
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
-<br />
 <br />
 
 ```ts twoslash title="remotion.config.ts"

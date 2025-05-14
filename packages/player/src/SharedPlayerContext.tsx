@@ -26,6 +26,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly numberOfSharedAudioTags: number;
 	readonly initiallyMuted: boolean;
 	readonly logLevel: LogLevel;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
 }> = ({
 	children,
 	timelineContext,
@@ -37,6 +38,7 @@ export const SharedPlayerContexts: React.FC<{
 	numberOfSharedAudioTags,
 	initiallyMuted,
 	logLevel,
+	audioLatencyHint,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
@@ -117,6 +119,7 @@ export const SharedPlayerContexts: React.FC<{
 											<Internals.SharedAudioContextProvider
 												numberOfAudioTags={numberOfSharedAudioTags}
 												component={component}
+												audioLatencyHint={audioLatencyHint}
 											>
 												<Internals.BufferingProvider>
 													{children}

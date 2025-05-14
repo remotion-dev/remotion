@@ -49,6 +49,7 @@ declare global {
 		remotion_editorName: string | null;
 		remotion_ignoreFastRefreshUpdate: number | null;
 		remotion_numberOfAudioTags: number;
+		remotion_audioLatencyHint: AudioContextLatencyCategory | undefined;
 		remotion_logLevel: LogLevel;
 		remotion_projectName: string;
 		remotion_cwd: string;

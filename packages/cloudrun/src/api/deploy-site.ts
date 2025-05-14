@@ -101,6 +101,7 @@ export const internalDeploySiteRaw = async ({
 			onPublicDirCopyProgress: () => undefined,
 			onSymlinkDetected: () => undefined,
 			outDir: null,
+			audioLatencyHint: null,
 		}),
 	]);
 

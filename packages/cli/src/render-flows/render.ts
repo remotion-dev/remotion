@@ -115,6 +115,7 @@ export const renderVideoFlow = async ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	audioLatencyHint,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -172,6 +173,7 @@ export const renderVideoFlow = async ({
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -287,6 +289,7 @@ export const renderVideoFlow = async ({
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		},
 	);
 

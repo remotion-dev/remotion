@@ -94,6 +94,7 @@ export type PlayerProps<
 	readonly logLevel?: LogLevel;
 	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
+	readonly audioLatencyHint?: AudioContextLatencyCategory;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -161,6 +162,7 @@ const PlayerFn = <
 		logLevel = 'info',
 		noSuspense,
 		acknowledgeRemotionLicense,
+		audioLatencyHint = 'interactive',
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -404,6 +406,7 @@ const PlayerFn = <
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
 				logLevel={logLevel}
+				audioLatencyHint={audioLatencyHint}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}

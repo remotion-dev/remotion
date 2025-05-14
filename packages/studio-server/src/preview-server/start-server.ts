@@ -41,6 +41,7 @@ export const startServer = async (options: {
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -103,6 +104,7 @@ export const startServer = async (options: {
 					queueMethods: options.queueMethods,
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
+					audioLatencyHint: options.audioLatencyHint,
 				});
 			})
 			.catch((err) => {

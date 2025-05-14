@@ -166,11 +166,13 @@ export const CompositionManagerProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly onlyRenderComposition: string | null;
 	readonly currentCompositionMetadata: BaseMetadata | null;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
 }> = ({
 	children,
 	numberOfAudioTags,
 	onlyRenderComposition,
 	currentCompositionMetadata,
+	audioLatencyHint,
 }) => {
 	// Wontfix, expected to have
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
@@ -310,6 +312,7 @@ export const CompositionManagerProvider: React.FC<{
 							<SharedAudioContextProvider
 								numberOfAudioTags={numberOfAudioTags}
 								component={composition?.component ?? null}
+								audioLatencyHint={audioLatencyHint}
 							>
 								{children}
 							</SharedAudioContextProvider>

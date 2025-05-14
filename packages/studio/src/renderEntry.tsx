@@ -224,6 +224,7 @@ const renderContent = (Root: React.FC) => {
 			<Internals.RemotionRoot
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
 					props: NoReactInternals.deserializeJSONWithSpecialTypes(
@@ -252,6 +253,7 @@ const renderContent = (Root: React.FC) => {
 				numberOfAudioTags={0}
 				onlyRenderComposition={null}
 				currentCompositionMetadata={null}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 			>
 				<Root />
 			</Internals.RemotionRoot>

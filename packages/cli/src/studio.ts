@@ -144,6 +144,7 @@ export const studioCommand = async (
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: parsedCli.ipv4,
+		audioLatencyHint: parsedCli['audio-latency-hint'],
 	});
 
 	// If the server is restarted through the UI, let's do the whole thing again.

@@ -102,6 +102,7 @@ type NewBundleOptions = {
 	gitSource: GitSource | null;
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 };
 
 type MandatoryBundleOptions = {
@@ -311,6 +312,7 @@ export const internalBundle = async (
 		// Actual log level is set in setPropsAndEnv()
 		logLevel: 'info',
 		mode: 'bundle',
+		audioLatencyHint: actualArgs.audioLatencyHint ?? 'interactive',
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
@@ -348,6 +350,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		publicPath: actualArgs.publicPath ?? null,
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
+		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
 	});
 	return result;
 }
