@@ -1,5 +1,5 @@
 import type {ComponentType, LazyExoticComponent, MutableRefObject} from 'react';
-import {
+import React, {
 	forwardRef,
 	useEffect,
 	useImperativeHandle,
