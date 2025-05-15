@@ -1,3 +1,4 @@
+export {canUseWhisperWeb} from './can-use-whisper-web';
 export {deleteModel} from './delete-model';
 export {
 	DownloadWhisperModelParams,
