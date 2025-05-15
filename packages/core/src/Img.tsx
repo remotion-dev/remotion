@@ -12,8 +12,8 @@ import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
 
-import {getCrossOriginValue} from './get-cross-origin-value.js';
 import type {IsExact} from './audio/props.js';
+import {getCrossOriginValue} from './get-cross-origin-value.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
