@@ -22,8 +22,8 @@ export const findKeyframeBeforeTime = ({
 	let videoSample: SamplePosition | null = null;
 
 	for (const sample of samplePositions) {
-		const ctsInSeconds = sample.cts / timescale + startInSeconds;
-		const dtsInSeconds = sample.dts / timescale + startInSeconds;
+		const ctsInSeconds = sample.timestamp / timescale + startInSeconds;
+		const dtsInSeconds = sample.decodingTimestamp / timescale + startInSeconds;
 
 		if (!sample.isKeyframe) {
 			continue;

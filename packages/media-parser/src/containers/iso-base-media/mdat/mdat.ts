@@ -163,8 +163,8 @@ export const parseMdatSection = async (
 	}
 
 	const {
-		cts: rawCts,
-		dts: rawDts,
+		timestamp: rawCts,
+		decodingTimestamp: rawDts,
 		duration,
 		isKeyframe,
 		offset,
@@ -188,8 +188,7 @@ export const parseMdatSection = async (
 				data: bytes,
 				timestamp: cts,
 				duration,
-				cts,
-				dts,
+				decodingTimestamp: dts,
 				trackId: samplesWithIndex.track.trackId,
 				type: isKeyframe ? 'key' : 'delta',
 				offset,
@@ -224,8 +223,7 @@ export const parseMdatSection = async (
 				data: bytes,
 				timestamp: cts,
 				duration,
-				cts,
-				dts,
+				decodingTimestamp: dts,
 				trackId: samplesWithIndex.track.trackId,
 				type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
 				offset,

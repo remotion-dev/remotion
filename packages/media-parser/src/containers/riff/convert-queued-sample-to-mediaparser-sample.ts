@@ -71,8 +71,7 @@ export const convertQueuedSampleToMediaParserSample = (
 		sample: {
 			...sample,
 			timestamp,
-			cts: timestamp,
-			dts: timestamp,
+			decodingTimestamp: timestamp,
 		},
 		timescale: 1,
 	});

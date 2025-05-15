@@ -50,7 +50,7 @@ export const sampleSorter = ({
 				throw new Error('No callback found for audio sample');
 			}
 
-			latestSample[src] = sample.dts;
+			latestSample[src] = sample.decodingTimestamp;
 			await callback(sample);
 		},
 		addVideoSample: async (src: string, sample: MediaParserVideoSample) => {
@@ -59,7 +59,7 @@ export const sampleSorter = ({
 				throw new Error('No callback found for video sample.');
 			}
 
-			latestSample[src] = sample.dts;
+			latestSample[src] = sample.decodingTimestamp;
 			await callback(sample);
 		},
 		getNextStreamToRun: (streams: string[]) => {

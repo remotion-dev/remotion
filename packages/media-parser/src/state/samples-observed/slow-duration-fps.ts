@@ -39,8 +39,9 @@ export const samplesObservedState = () => {
 	};
 
 	const addVideoSample = (videoSample: MediaParserVideoSample) => {
-		videoSamples.set(videoSample.cts, videoSample.data.byteLength);
-		const presentationTimeInSeconds = videoSample.cts / videoSample.timescale;
+		videoSamples.set(videoSample.timestamp, videoSample.data.byteLength);
+		const presentationTimeInSeconds =
+			videoSample.timestamp / videoSample.timescale;
 		const duration = (videoSample.duration ?? 0) / videoSample.timescale;
 		if (
 			largestVideoSample === undefined ||
@@ -58,8 +59,9 @@ export const samplesObservedState = () => {
 	};
 
 	const addAudioSample = (audioSample: MediaParserAudioSample) => {
-		audioSamples.set(audioSample.cts, audioSample.data.byteLength);
-		const presentationTimeInSeconds = audioSample.cts / audioSample.timescale;
+		audioSamples.set(audioSample.timestamp, audioSample.data.byteLength);
+		const presentationTimeInSeconds =
+			audioSample.timestamp / audioSample.timescale;
 		const duration = (audioSample.duration ?? 0) / audioSample.timescale;
 		if (
 			largestAudioSample === undefined ||

@@ -24,7 +24,7 @@ test('respect-editlist', async () => {
 			onAudioTrack: ({track}) => {
 				expect(track.startInSeconds).toBe(0.23);
 				return (sample) => {
-					const time = sample.cts / sample.timescale;
+					const time = sample.timestamp / sample.timescale;
 					expect(time).toBe(0.23);
 					controller.abort();
 				};

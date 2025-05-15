@@ -21,7 +21,7 @@ test('should be able to select between audio tracks', async () => {
 		onAudioTrack: () => {
 			return (sample) => {
 				audioSamples++;
-				if (sample.dts === 896000) {
+				if (sample.decodingTimestamp === 896000) {
 					controller.abort();
 				}
 			};

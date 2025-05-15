@@ -162,8 +162,7 @@ export const getSampleFromBlock = async ({
 	if (codec.startsWith('V_')) {
 		const partialVideoSample: Omit<MediaParserVideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
-			cts: timecodeInMicroseconds,
-			dts: timecodeInMicroseconds,
+			decodingTimestamp: timecodeInMicroseconds,
 			duration: undefined,
 			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
@@ -212,8 +211,7 @@ export const getSampleFromBlock = async ({
 			timestamp: timecodeInMicroseconds,
 			type: 'key',
 			duration: undefined,
-			cts: timecodeInMicroseconds,
-			dts: timecodeInMicroseconds,
+			decodingTimestamp: timecodeInMicroseconds,
 			offset,
 			timescale,
 		};

@@ -29,7 +29,7 @@ export type MinimalFlatSampleForTesting = {
 		type: 'audio' | 'video' | 'other';
 	};
 	samplePosition: {
-		dts: number;
+		decodingTimestamp: number;
 		offset: number;
 	};
 };

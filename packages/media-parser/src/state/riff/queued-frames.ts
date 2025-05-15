@@ -2,7 +2,7 @@ import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 
 export type QueuedVideoSample = Omit<
 	MediaParserVideoSample,
-	'cts' | 'dts' | 'timestamp'
+	'decodingTimestamp' | 'timestamp'
 >;
 
 export const queuedBFramesState = () => {

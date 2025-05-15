@@ -179,8 +179,9 @@ test('should get all samples', async () => {
 		},
 		onAudioTrack: () => {
 			return (sample) => {
-				expect(sample.dts % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(0);
-				expect(sample.cts % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(0);
+				expect(
+					sample.decodingTimestamp % (1_000_000 / WAVE_SAMPLES_PER_SECOND),
+				).toBe(0);
 				expect(sample.timestamp % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(
 					0,
 				);

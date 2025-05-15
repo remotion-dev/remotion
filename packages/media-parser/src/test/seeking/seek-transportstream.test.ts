@@ -18,11 +18,11 @@ test('should seek transport stream', async () => {
 				samples++;
 				if (samples === 20) {
 					controller.seek(10);
-					expect(sample.dts).toBe(316666.6666666666);
+					expect(sample.decodingTimestamp).toBe(316666.6666666666);
 				}
 
 				if (samples === 21) {
-					expect(sample.dts).toBe(0);
+					expect(sample.decodingTimestamp).toBe(0);
 				}
 			};
 		},

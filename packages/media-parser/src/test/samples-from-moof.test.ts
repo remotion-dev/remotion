@@ -2217,8 +2217,8 @@ if (process.platform !== 'win32') {
 		expect(firstSamples).toEqual([
 			{
 				offset: 3457,
-				dts: 26,
-				cts: 26,
+				decodingTimestamp: 26,
+				timestamp: 26,
 				duration: 62,
 				isKeyframe: true,
 				size: 58926,
@@ -2228,8 +2228,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 62383,
-				dts: 88,
-				cts: 88,
+				decodingTimestamp: 88,
+				timestamp: 88,
 				duration: 1,
 				isKeyframe: false,
 				size: 61381,
@@ -2239,8 +2239,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 123764,
-				dts: 89,
-				cts: 89,
+				decodingTimestamp: 89,
+				timestamp: 89,
 				duration: 2,
 				isKeyframe: false,
 				size: 72911,
@@ -2250,8 +2250,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 196675,
-				dts: 91,
-				cts: 91,
+				decodingTimestamp: 91,
+				timestamp: 91,
 				duration: 11,
 				isKeyframe: false,
 				size: 44270,
@@ -2261,8 +2261,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 240945,
-				dts: 102,
-				cts: 102,
+				decodingTimestamp: 102,
+				timestamp: 102,
 				duration: 15,
 				isKeyframe: false,
 				size: 33770,
@@ -2272,8 +2272,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 274715,
-				dts: 117,
-				cts: 117,
+				decodingTimestamp: 117,
+				timestamp: 117,
 				duration: 23,
 				isKeyframe: false,
 				size: 24302,
@@ -2283,8 +2283,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 299017,
-				dts: 140,
-				cts: 140,
+				decodingTimestamp: 140,
+				timestamp: 140,
 				duration: 22,
 				isKeyframe: false,
 				size: 22624,
@@ -2294,8 +2294,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 321641,
-				dts: 162,
-				cts: 162,
+				decodingTimestamp: 162,
+				timestamp: 162,
 				duration: 23,
 				isKeyframe: false,
 				size: 18746,
@@ -2305,8 +2305,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 340387,
-				dts: 185,
-				cts: 185,
+				decodingTimestamp: 185,
+				timestamp: 185,
 				duration: 22,
 				isKeyframe: false,
 				size: 23021,
@@ -2316,8 +2316,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 363408,
-				dts: 207,
-				cts: 207,
+				decodingTimestamp: 207,
+				timestamp: 207,
 				duration: 19,
 				isKeyframe: false,
 				size: 25599,
@@ -2327,8 +2327,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 389007,
-				dts: 226,
-				cts: 226,
+				decodingTimestamp: 226,
+				timestamp: 226,
 				duration: 23,
 				isKeyframe: false,
 				size: 32479,
@@ -2338,8 +2338,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 421486,
-				dts: 249,
-				cts: 249,
+				decodingTimestamp: 249,
+				timestamp: 249,
 				duration: 21,
 				isKeyframe: false,
 				size: 34806,
@@ -2349,8 +2349,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 456292,
-				dts: 270,
-				cts: 270,
+				decodingTimestamp: 270,
+				timestamp: 270,
 				duration: 15,
 				isKeyframe: false,
 				size: 35461,
@@ -2360,8 +2360,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 491753,
-				dts: 285,
-				cts: 285,
+				decodingTimestamp: 285,
+				timestamp: 285,
 				duration: 20,
 				isKeyframe: false,
 				size: 36204,
@@ -2371,8 +2371,8 @@ if (process.platform !== 'win32') {
 			},
 			{
 				offset: 527957,
-				dts: 305,
-				cts: 305,
+				decodingTimestamp: 305,
+				timestamp: 305,
 				duration: 22,
 				isKeyframe: false,
 				size: 35638,
@@ -2381,8 +2381,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 327,
-				dts: 327,
+				timestamp: 327,
+				decodingTimestamp: 327,
 				duration: 19,
 				isKeyframe: true,
 				offset: 572709,
@@ -2394,8 +2394,8 @@ if (process.platform !== 'win32') {
 		]);
 
 		expect(lastSample).toEqual({
-			cts: 2567,
-			dts: 2567,
+			timestamp: 2567,
+			decodingTimestamp: 2567,
 			duration: 1,
 			isKeyframe: false,
 			offset: 5481634,
@@ -2417,8 +2417,8 @@ if (process.platform !== 'win32') {
 		expect(samplesFromMoof.length).toBe(201);
 		expect(samples).toEqual([
 			{
-				cts: 0,
-				dts: 0,
+				timestamp: 0,
+				decodingTimestamp: 0,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 563595,
@@ -2428,8 +2428,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 1024,
-				dts: 1024,
+				timestamp: 1024,
+				decodingTimestamp: 1024,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 563599,
@@ -2439,8 +2439,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 2048,
-				dts: 2048,
+				timestamp: 2048,
+				decodingTimestamp: 2048,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 563990,
@@ -2450,8 +2450,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 3072,
-				dts: 3072,
+				timestamp: 3072,
+				decodingTimestamp: 3072,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 564480,
@@ -2461,8 +2461,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 4096,
-				dts: 4096,
+				timestamp: 4096,
+				decodingTimestamp: 4096,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 564943,
@@ -2472,8 +2472,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 5120,
-				dts: 5120,
+				timestamp: 5120,
+				decodingTimestamp: 5120,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 564947,
@@ -2483,8 +2483,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 6144,
-				dts: 6144,
+				timestamp: 6144,
+				decodingTimestamp: 6144,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 565388,
@@ -2494,8 +2494,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 7168,
-				dts: 7168,
+				timestamp: 7168,
+				decodingTimestamp: 7168,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 565881,
@@ -2505,8 +2505,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 8192,
-				dts: 8192,
+				timestamp: 8192,
+				decodingTimestamp: 8192,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 566318,
@@ -2516,8 +2516,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 9216,
-				dts: 9216,
+				timestamp: 9216,
+				decodingTimestamp: 9216,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 566749,
@@ -2527,8 +2527,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 10240,
-				dts: 10240,
+				timestamp: 10240,
+				decodingTimestamp: 10240,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 567212,
@@ -2538,8 +2538,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 11264,
-				dts: 11264,
+				timestamp: 11264,
+				decodingTimestamp: 11264,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 567668,
@@ -2549,8 +2549,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 12288,
-				dts: 12288,
+				timestamp: 12288,
+				decodingTimestamp: 12288,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 568076,
@@ -2560,8 +2560,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 13312,
-				dts: 13312,
+				timestamp: 13312,
+				decodingTimestamp: 13312,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 568470,
@@ -2571,8 +2571,8 @@ if (process.platform !== 'win32') {
 				chunkSize: null,
 			},
 			{
-				cts: 14336,
-				dts: 14336,
+				timestamp: 14336,
+				decodingTimestamp: 14336,
 				duration: 1024,
 				isKeyframe: true,
 				offset: 568925,
@@ -2584,8 +2584,8 @@ if (process.platform !== 'win32') {
 		]);
 
 		expect(lastSample).toEqual({
-			cts: 204800,
-			dts: 204800,
+			timestamp: 204800,
+			decodingTimestamp: 204800,
 			duration: 1024,
 			isKeyframe: true,
 			offset: 5532567,

@@ -49,8 +49,7 @@ export const getAudioSampleFromVbr = ({
 
 	const audioSample: MediaParserAudioSample = {
 		data,
-		cts: timestamp,
-		dts: timestamp,
+		decodingTimestamp: timestamp,
 		duration,
 		offset: position,
 		timescale: 1_000_000,

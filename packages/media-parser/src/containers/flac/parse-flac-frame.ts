@@ -123,8 +123,7 @@ const emitSample = async ({
 		sample: {
 			data,
 			duration,
-			cts: timestamp,
-			dts: timestamp,
+			decodingTimestamp: timestamp,
 			timestamp,
 			type: 'key',
 			offset,

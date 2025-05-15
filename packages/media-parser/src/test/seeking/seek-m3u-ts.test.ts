@@ -25,31 +25,31 @@ test(
 				onVideoTrack: () => {
 					return (sample) => {
 						if (samples === 0) {
-							expect(sample.dts / sample.timescale).toBe(10);
+							expect(sample.decodingTimestamp / sample.timescale).toBe(10);
 							expect(sample.type).toBe('key');
 							controller.seek(39);
 						}
 
 						if (samples === 1) {
-							expect(sample.dts / sample.timescale).toBe(30);
+							expect(sample.decodingTimestamp / sample.timescale).toBe(30);
 							expect(sample.type).toBe('key');
 							controller.seek(5);
 						}
 
 						if (samples === 2) {
-							expect(sample.dts / sample.timescale).toBe(10);
+							expect(sample.decodingTimestamp / sample.timescale).toBe(10);
 							expect(sample.type).toBe('key');
 							controller.seek(25);
 						}
 
 						if (samples === 3) {
-							expect(sample.dts / sample.timescale).toBe(20);
+							expect(sample.decodingTimestamp / sample.timescale).toBe(20);
 							expect(sample.type).toBe('key');
 							controller.seek(10000);
 						}
 
 						if (samples === 4) {
-							expect(sample.dts / sample.timescale).toBe(640);
+							expect(sample.decodingTimestamp / sample.timescale).toBe(640);
 							expect(sample.type).toBe('key');
 							controller.abort();
 						}

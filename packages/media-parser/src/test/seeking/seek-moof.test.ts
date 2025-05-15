@@ -30,17 +30,17 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 						throw new Error('should not reach here');
 					}
 
-					if (sample.cts === 19533333.333333336) {
+					if (sample.timestamp === 19533333.333333336) {
 						expect(sample.type).toBe('key');
 
 						controller1.seek(0);
 					}
 
-					if (sample.dts === 0) {
+					if (sample.decodingTimestamp === 0) {
 						controller1.seek(10);
 					}
 
-					if (sample.dts === 9700000) {
+					if (sample.decodingTimestamp === 9700000) {
 						controller1.abort();
 					}
 				};

@@ -43,8 +43,7 @@ export const getAudioSampleFromCbr = ({
 
 	const audioSample: MediaParserAudioSample = {
 		data,
-		cts: timestamp,
-		dts: timestamp,
+		decodingTimestamp: timestamp,
 		duration,
 		offset: initialOffset,
 		timescale: 1_000_000,

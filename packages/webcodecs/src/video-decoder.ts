@@ -129,11 +129,7 @@ export const createVideoDecoder = ({
 		}
 
 		progress.setPossibleLowestTimestamp(
-			Math.min(
-				sample.timestamp,
-				sample.dts ?? Infinity,
-				sample.cts ?? Infinity,
-			),
+			Math.min(sample.timestamp, sample.decodingTimestamp ?? Infinity),
 		);
 
 		await ioSynchronizer.waitFor({

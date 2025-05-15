@@ -29,8 +29,8 @@ export const considerSeekBasedOnChunk = async ({
 	}
 
 	const timestamp = Math.min(
-		sample.dts / sample.timescale,
-		sample.cts / sample.timescale,
+		sample.decodingTimestamp / sample.timescale,
+		sample.timestamp / sample.timescale,
 	);
 
 	// Already too far, now we should go to the previous chunk

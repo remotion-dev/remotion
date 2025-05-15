@@ -19,7 +19,7 @@ export type JumpMark = {
 };
 
 const getKey = (samplePositionTrack: MinimalFlatSampleForTesting) => {
-	return `${samplePositionTrack.track.trackId}-${samplePositionTrack.samplePosition.dts}`;
+	return `${samplePositionTrack.track.trackId}-${samplePositionTrack.samplePosition.decodingTimestamp}`;
 };
 
 const findBestJump = ({
@@ -164,7 +164,7 @@ export const calculateJumpMarks = (
 		}
 
 		const timestamp =
-			currentSamplePosition.samplePosition.dts /
+			currentSamplePosition.samplePosition.decodingTimestamp /
 			currentSamplePosition.track.timescale;
 
 		progresses[currentSamplePosition.track.trackId] = timestamp;

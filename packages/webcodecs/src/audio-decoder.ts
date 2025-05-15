@@ -126,8 +126,7 @@ export const createAudioDecoder = ({
 		progressTracker.setPossibleLowestTimestamp(
 			Math.min(
 				audioSample.timestamp,
-				audioSample.dts ?? Infinity,
-				audioSample.cts ?? Infinity,
+				audioSample.decodingTimestamp ?? Infinity,
 			),
 		);
 

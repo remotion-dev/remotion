@@ -36,9 +36,11 @@ export const riffSampleCounter = () => {
 		if (videoSample.type === 'key') {
 			riffKeys.addKeyframe({
 				trackId: videoSample.trackId,
-				decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
+				decodingTimeInSeconds:
+					videoSample.decodingTimestamp / videoSample.timescale,
 				positionInBytes: videoSample.offset,
-				presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
+				presentationTimeInSeconds:
+					videoSample.timestamp / videoSample.timescale,
 				sizeInBytes: videoSample.data.length,
 				sampleCounts: {...samplesForTrack},
 			});

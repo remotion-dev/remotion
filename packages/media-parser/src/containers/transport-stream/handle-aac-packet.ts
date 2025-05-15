@@ -82,10 +82,7 @@ export const handleAacPacket = async ({
 	}
 
 	const sample: MediaParserAudioSample = {
-		cts:
-			streamBuffer.pesHeader.pts -
-			transportStream.startOffset.getOffset(programId),
-		dts:
+		decodingTimestamp:
 			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
 			transportStream.startOffset.getOffset(programId),
 		timestamp:

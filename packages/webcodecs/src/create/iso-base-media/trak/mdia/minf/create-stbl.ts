@@ -26,7 +26,9 @@ export const createStbl = ({
 	// For the other tables, there doesn't seem to be a requirement for them to be sorted
 
 	// -> ordering the sample positions by dts
-	const sorted = samplePositions.slice().sort((a, b) => a.dts - b.dts);
+	const sorted = samplePositions
+		.slice()
+		.sort((a, b) => a.decodingTimestamp - b.decodingTimestamp);
 
 	return addSize(
 		combineUint8Arrays(

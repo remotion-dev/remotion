@@ -125,7 +125,7 @@ export const createIsoBaseMedia = async ({
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
 		progressTracker.setPossibleLowestTimestamp(
-			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
 		);
 		progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
 
@@ -201,8 +201,12 @@ export const createIsoBaseMedia = async ({
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],
-			cts: Math.round((chunk.cts / 1_000_000) * currentTrack.timescale),
-			dts: Math.round((chunk.dts / 1_000_000) * currentTrack.timescale),
+			timestamp: Math.round(
+				(chunk.timestamp / 1_000_000) * currentTrack.timescale,
+			),
+			decodingTimestamp: Math.round(
+				(chunk.decodingTimestamp / 1_000_000) * currentTrack.timescale,
+			),
 			duration: Math.round(
 				((chunk.duration ?? 0) / 1_000_000) * currentTrack.timescale,
 			),

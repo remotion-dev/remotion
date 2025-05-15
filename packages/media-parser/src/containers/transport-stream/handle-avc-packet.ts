@@ -113,10 +113,7 @@ export const handleAvcPacket = async ({
 
 	// sample for webcodecs needs to be in nano seconds
 	const sample: MediaParserVideoSample = {
-		cts:
-			streamBuffer.pesHeader.pts -
-			transportStream.startOffset.getOffset(programId),
-		dts:
+		decodingTimestamp:
 			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
 			transportStream.startOffset.getOffset(programId),
 		timestamp:
