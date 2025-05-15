@@ -70,6 +70,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		}
 
 		const currentSrc = imageRef.current.src;
+
 		setTimeout(() => {
 			if (!imageRef.current) {
 				// Component has been unmounted, do not retry
