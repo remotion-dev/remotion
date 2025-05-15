@@ -14636,8 +14636,7 @@ test('dispersed samples', async () => {
 		onAudioTrack:
 			({track}) =>
 			(a) => {
-				progresses[track.trackId] =
-					a.decodingTimestamp / WEBCODECS_TIMESCALE;
+				progresses[track.trackId] = a.decodingTimestamp / WEBCODECS_TIMESCALE;
 				verifyProgressSpread();
 				audioSamples.push(a.decodingTimestamp);
 			},

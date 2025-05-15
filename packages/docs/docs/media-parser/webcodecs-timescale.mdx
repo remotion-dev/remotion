@@ -27,11 +27,9 @@ import {parseMedia, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 const result2 = await parseMedia({
   src: 'https://parser.media/video.mp4',
   onVideoTrack: ({track}) => {
-    return () => {
-      return (sample) => {
-        const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
-        console.log(timeInSeconds);
-      };
+    return (sample) => {
+      const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
+      console.log(timeInSeconds);
     };
   },
 });
