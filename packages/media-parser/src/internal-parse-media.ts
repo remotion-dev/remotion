@@ -40,6 +40,10 @@ export const internalParseMedia: InternalParseMedia = async function <
 	seekingHints,
 	...more
 }: InternalParseMediaOptions<F>) {
+	if (!src) {
+		throw new Error('No "src" provided');
+	}
+
 	controller._internals.markAsReadyToEmitEvents();
 	warnIfRemotionLicenseNotAcknowledged({
 		acknowledgeRemotionLicense,

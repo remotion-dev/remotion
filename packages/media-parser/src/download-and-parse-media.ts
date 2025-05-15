@@ -8,6 +8,14 @@ import type {DownloadAndParseMedia} from './options';
 import {webReader} from './web';
 
 export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
+	if (!options) {
+		return Promise.reject(
+			new Error(
+				'No options provided. See https://www.remotion.dev/media-parser for how to get started.',
+			),
+		);
+	}
+
 	const logLevel = options.logLevel ?? 'info';
 	const content = await options.writer.createContent({
 		filename: 'hmm',
