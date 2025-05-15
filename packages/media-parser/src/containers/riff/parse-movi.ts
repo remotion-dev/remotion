@@ -3,6 +3,7 @@ import type {ParserState} from '../../state/parser-state';
 import type {QueuedVideoSample} from '../../state/riff/queued-frames';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
+import {convertQueuedSampleToMediaParserSample} from './convert-queued-sample-to-mediaparser-sample';
 import {getStrhForIndex} from './get-strh-for-index';
 
 export const handleChunk = async ({
@@ -59,18 +60,10 @@ export const handleChunk = async ({
 		state.riff.queuedBFrames.addFrame(rawSample, maxFramesInBuffer);
 		const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
 		if (releasedFrame) {
-			const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
-			const timeInSec = nthSample / samplesPerSecond;
-			const timestamp = timeInSec;
-			const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
-				sample: {
-					...releasedFrame,
-					timestamp,
-					cts: timestamp,
-					dts: timestamp,
-				},
-				timescale: 1,
-			});
+			const videoSample = convertQueuedSampleToMediaParserSample(
+				releasedFrame,
+				state,
+			);
 
 			state.riff.sampleCounter.onVideoSample(trackId, videoSample);
 			await state.callbacks.onVideoSample(trackId, videoSample);
