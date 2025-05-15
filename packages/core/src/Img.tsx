@@ -7,14 +7,12 @@ import React, {
 	useRef,
 } from 'react';
 import {SequenceContext} from './SequenceContext.js';
+import type {IsExact} from './audio/props.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
-
-import type {IsExact} from './audio/props.js';
-import {getCrossOriginValue} from './get-cross-origin-value.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -247,10 +245,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		<img
 			{...props}
 			ref={imageRef}
-			crossOrigin={getCrossOriginValue({
-				crossOrigin,
-				requestsVideoFrame: false,
-			})}
+			crossOrigin={crossOriginValue}
 			onError={didGetError}
 		/>
 	);
