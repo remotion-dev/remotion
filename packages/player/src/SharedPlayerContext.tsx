@@ -1,8 +1,7 @@
 // Contexts shared between <Player> and <Thumbnail>
 
-import type React from 'react';
 import type {ComponentType, LazyExoticComponent} from 'react';
-import {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import type {
 	CompositionManagerContext,
 	LoggingContextValue,
