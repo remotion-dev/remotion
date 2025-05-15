@@ -12,10 +12,13 @@ export const parseRiffBody = async (
 ): Promise<ParseResult> => {
 	const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
 	if (releasedFrame) {
-		await state.callbacks.onVideoSample(
-			releasedFrame.trackId,
-			convertQueuedSampleToMediaParserSample(releasedFrame, state),
+		const converted = convertQueuedSampleToMediaParserSample(
+			releasedFrame,
+			state,
 		);
+		state.riff.sampleCounter.onVideoSample(converted);
+
+		await state.callbacks.onVideoSample(releasedFrame.trackId, converted);
 		return null;
 	}
 

@@ -57,19 +57,32 @@ export const handleChunk = async ({
 			throw new Error('maxFramesInBuffer is null');
 		}
 
-		state.riff.queuedBFrames.addFrame(rawSample, maxFramesInBuffer);
-		const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
-		if (releasedFrame) {
-			const videoSample = convertQueuedSampleToMediaParserSample(
-				releasedFrame,
-				state,
-			);
-
-			state.riff.sampleCounter.onVideoSample(trackId, videoSample);
-			await state.callbacks.onVideoSample(trackId, videoSample);
+		if ((info?.poc ?? null) === null) {
+			throw new Error('poc is null');
 		}
 
-		return;
+		const keyframeOffset =
+			state.riff.sampleCounter.getKeyframeAtOffset(rawSample);
+		if (keyframeOffset !== null) {
+			state.riff.sampleCounter.setPocAtKeyframeOffset({
+				keyframeOffset,
+				poc: info!.poc as number,
+			});
+		}
+
+		state.riff.queuedBFrames.addFrame(rawSample, maxFramesInBuffer);
+		const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
+		if (!releasedFrame) {
+			return;
+		}
+
+		const videoSample = convertQueuedSampleToMediaParserSample(
+			releasedFrame,
+			state,
+		);
+
+		state.riff.sampleCounter.onVideoSample(videoSample);
+		await state.callbacks.onVideoSample(trackId, videoSample);
 	}
 
 	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
@@ -83,7 +96,9 @@ export const handleChunk = async ({
 		}
 
 		const samplesPerSecond = (strh.rate / strh.scale) * strf.numberOfChannels;
-		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
+		const nthSample = state.riff.sampleCounter.getSampleCountForTrack({
+			trackId,
+		});
 		const timeInSec = nthSample / samplesPerSecond;
 		const timestamp = timeInSec;
 

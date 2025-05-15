@@ -9,19 +9,7 @@ export const queuedBFramesState = () => {
 	const queuedFrames: QueuedVideoSample[] = [];
 	const releasedFrames: QueuedVideoSample[] = [];
 
-	const sortFrames = () => {
-		queuedFrames.sort((a, b) => {
-			if (!a.avc || !b.avc || a.avc.poc === null || b.avc.poc === null) {
-				throw new Error('Invalid frame');
-			}
-
-			return a.avc.poc - b.avc.poc;
-		});
-	};
-
 	const flush = () => {
-		sortFrames();
-
 		releasedFrames.push(...queuedFrames);
 		queuedFrames.length = 0;
 	};
@@ -30,13 +18,13 @@ export const queuedBFramesState = () => {
 		addFrame: (frame: QueuedVideoSample, maxFramesInBuffer: number) => {
 			if (frame.type === 'key') {
 				flush();
+				releasedFrames.push(frame);
+				return;
 			}
 
 			queuedFrames.push(frame);
 
 			if (queuedFrames.length > maxFramesInBuffer) {
-				sortFrames();
-
 				releasedFrames.push(queuedFrames.shift()!);
 			}
 		},
