@@ -227,6 +227,12 @@
 			"Anaheim": [
 				"dist/cjs/Anaheim.d.ts"
 			],
+			"AncizarSans": [
+				"dist/cjs/AncizarSans.d.ts"
+			],
+			"AncizarSerif": [
+				"dist/cjs/AncizarSerif.d.ts"
+			],
 			"AndadaPro": [
 				"dist/cjs/AndadaPro.d.ts"
 			],

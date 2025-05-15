@@ -371,6 +371,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./Anaheim') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Ancizar Sans',
+		importName: 'AncizarSans',
+		load: () => import('./AncizarSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ancizar Serif',
+		importName: 'AncizarSerif',
+		load: () => import('./AncizarSerif') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Andada Pro',
 		importName: 'AndadaPro',
 		load: () => import('./AndadaPro') as Promise<GoogleFont>,
