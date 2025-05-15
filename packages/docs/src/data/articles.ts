@@ -6172,6 +6172,15 @@ export const articles = [
 		slug: 'whisper-web/resample-to-16khz',
 	},
 	{
+		id: 'whisper-web/to-captions',
+		title: 'toCaptions()',
+		relativePath: 'docs/whisper-web/to-captions.mdx',
+		compId: 'articles-docs-whisper-web-to-captions',
+		crumb: '@remotion/whisper-web',
+		noAi: false,
+		slug: 'whisper-web/to-captions',
+	},
+	{
 		id: 'whisper-web/transcribe',
 		title: 'transcribe()',
 		relativePath: 'docs/whisper-web/transcribe.mdx',

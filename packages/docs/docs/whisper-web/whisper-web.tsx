@@ -28,6 +28,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>getLoadedModels()</strong>
 					<div>Get a list of Whisper models that are already downloaded</div>
 				</TOCItem>
+				<TOCItem link="/docs/whisper-web/to-captions">
+					<strong>toCaptions()</strong>
+					<div>
+						Convert the output from <code>transcribe()</code> to an array of{' '}
+						<code>Caption</code> objects.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
