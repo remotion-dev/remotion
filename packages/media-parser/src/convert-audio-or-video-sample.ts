@@ -40,7 +40,6 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = <
 				? undefined
 				: fixFloat(sample.duration * (TARGET_TIMESCALE / timescale)),
 		data: sample.data,
-		trackId: sample.trackId,
 		type: sample.type,
 		offset: sample.offset,
 		timescale: TARGET_TIMESCALE,

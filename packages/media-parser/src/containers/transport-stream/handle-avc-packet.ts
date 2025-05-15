@@ -121,7 +121,6 @@ export const handleAvcPacket = async ({
 			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
 		data: streamBuffer.getBuffer(),
-		trackId: programId,
 		type: type === 'bidirectional' ? 'delta' : type,
 		offset,
 		timescale: MPEG_TIMESCALE,

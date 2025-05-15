@@ -28,14 +28,17 @@ export const riffSampleCounter = () => {
 		samplesForTrack[trackId]++;
 	};
 
-	const onVideoSample = (videoSample: MediaParserVideoSample) => {
-		if (typeof samplesForTrack[videoSample.trackId] === 'undefined') {
-			samplesForTrack[videoSample.trackId] = 0;
+	const onVideoSample = (
+		videoSample: MediaParserVideoSample,
+		trackId: number,
+	) => {
+		if (typeof samplesForTrack[trackId] === 'undefined') {
+			samplesForTrack[trackId] = 0;
 		}
 
 		if (videoSample.type === 'key') {
 			riffKeys.addKeyframe({
-				trackId: videoSample.trackId,
+				trackId,
 				decodingTimeInSeconds:
 					videoSample.decodingTimestamp / videoSample.timescale,
 				positionInBytes: videoSample.offset,
@@ -47,7 +50,7 @@ export const riffSampleCounter = () => {
 		}
 
 		if (videoSample.data.length > 0) {
-			samplesForTrack[videoSample.trackId]++;
+			samplesForTrack[trackId]++;
 		}
 	};
 

@@ -14625,16 +14625,20 @@ test('dispersed samples', async () => {
 			tracks: true,
 		},
 		acknowledgeRemotionLicense: true,
-		onVideoTrack: () => (v) => {
-			progresses[v.trackId] = v.decodingTimestamp / v.timescale;
-			verifyProgressSpread();
-			videoSamples.push(v.decodingTimestamp);
-		},
-		onAudioTrack: () => (a) => {
-			progresses[a.trackId] = a.decodingTimestamp / a.timescale;
-			verifyProgressSpread();
-			audioSamples.push(a.decodingTimestamp);
-		},
+		onVideoTrack:
+			({track}) =>
+			(v) => {
+				progresses[track.trackId] = v.decodingTimestamp / v.timescale;
+				verifyProgressSpread();
+				videoSamples.push(v.decodingTimestamp);
+			},
+		onAudioTrack:
+			({track}) =>
+			(a) => {
+				progresses[track.trackId] = a.decodingTimestamp / a.timescale;
+				verifyProgressSpread();
+				audioSamples.push(a.decodingTimestamp);
+			},
 	});
 
 	expect(audioSamples.length).toBe(1520);

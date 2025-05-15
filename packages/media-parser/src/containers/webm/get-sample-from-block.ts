@@ -20,14 +20,17 @@ type SampleResult =
 	| {
 			type: 'video-sample';
 			videoSample: MediaParserVideoSample;
+			trackId: number;
 	  }
 	| {
 			type: 'audio-sample';
 			audioSample: MediaParserAudioSample;
+			trackId: number;
 	  }
 	| {
 			type: 'partial-video-sample';
 			partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
+			trackId: number;
 	  }
 	| {
 			type: 'no-sample';
@@ -164,7 +167,6 @@ export const getSampleFromBlock = async ({
 			data: iterator.getSlice(remainingNow),
 			decodingTimestamp: timecodeInMicroseconds,
 			duration: undefined,
-			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
 			offset,
 			timescale,
@@ -176,6 +178,7 @@ export const getSampleFromBlock = async ({
 			return {
 				type: 'partial-video-sample',
 				partialVideoSample,
+				trackId: trackNumber,
 			};
 		}
 
@@ -201,13 +204,13 @@ export const getSampleFromBlock = async ({
 		return {
 			type: 'video-sample',
 			videoSample: sample,
+			trackId: trackNumber,
 		};
 	}
 
 	if (codec.startsWith('A_')) {
 		const audioSample: MediaParserAudioSample = {
 			data: iterator.getSlice(remainingNow),
-			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
 			type: 'key',
 			duration: undefined,
@@ -221,6 +224,7 @@ export const getSampleFromBlock = async ({
 		return {
 			type: 'audio-sample',
 			audioSample,
+			trackId: trackNumber,
 		};
 	}
 

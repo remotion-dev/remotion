@@ -54,7 +54,6 @@ export const getAudioSampleFromVbr = ({
 		offset: position,
 		timescale: 1_000_000,
 		timestamp,
-		trackId: 0,
 		type: 'key',
 	};
 

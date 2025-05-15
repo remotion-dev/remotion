@@ -90,7 +90,6 @@ export const handleAacPacket = async ({
 			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
 		data: streamBuffer.getBuffer(),
-		trackId: programId,
 		type: 'key',
 		offset,
 		timescale: MPEG_TIMESCALE,

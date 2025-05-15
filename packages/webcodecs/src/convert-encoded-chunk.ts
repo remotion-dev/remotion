@@ -7,7 +7,6 @@ export const convertEncodedChunk = <
 	T extends MediaParserAudioSample | MediaParserVideoSample,
 >(
 	chunk: EncodedAudioChunk | EncodedVideoChunk,
-	trackId: number,
 ): T => {
 	const arr = new Uint8Array(chunk.byteLength);
 	chunk.copyTo(arr);
@@ -18,7 +17,6 @@ export const convertEncodedChunk = <
 		timestamp: chunk.timestamp,
 		type: chunk.type,
 		decodingTimestamp: chunk.timestamp,
-		trackId,
 		offset: 0,
 		timescale: 1_000_000,
 	} as T;

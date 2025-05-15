@@ -36,7 +36,6 @@ export type MediaParserAudioSample = {
 	duration: number | undefined;
 	type: 'key' | 'delta';
 	// Not used by WebCodecs
-	trackId: number;
 	decodingTimestamp: number;
 	offset: number;
 	timescale: number;
@@ -65,7 +64,6 @@ export type MediaParserVideoSample = {
 	duration: number | undefined;
 	timescale: number;
 	// Not used by WebCodecs
-	trackId: number;
 	decodingTimestamp: number;
 	offset: number;
 	avc?: MediaParserAvcExtraInfo;
