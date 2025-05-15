@@ -77,7 +77,7 @@ export const getSeekingByteFromIsoBaseMedia = ({
 	const keyframe = findKeyframeBeforeTime({
 		samplePositions,
 		time,
-		timescale: track.timescale,
+		timescale: track.originalTimescale,
 		logLevel,
 		mediaSections: info.mediaSections,
 		startInSeconds: track.startInSeconds,

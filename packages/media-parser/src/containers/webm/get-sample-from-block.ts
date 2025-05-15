@@ -10,6 +10,7 @@ import type {
 	MediaParserOnVideoTrack,
 	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
@@ -21,16 +22,19 @@ type SampleResult =
 			type: 'video-sample';
 			videoSample: MediaParserVideoSample;
 			trackId: number;
+			timescale: number;
 	  }
 	| {
 			type: 'audio-sample';
 			audioSample: MediaParserAudioSample;
 			trackId: number;
+			timescale: number;
 	  }
 	| {
 			type: 'partial-video-sample';
 			partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 			trackId: number;
+			timescale: number;
 	  }
 	| {
 			type: 'no-sample';
@@ -169,7 +173,6 @@ export const getSampleFromBlock = async ({
 			duration: undefined,
 			timestamp: timecodeInMicroseconds,
 			offset,
-			timescale,
 		};
 
 		if (keyframe === null) {
@@ -179,6 +182,7 @@ export const getSampleFromBlock = async ({
 				type: 'partial-video-sample',
 				partialVideoSample,
 				trackId: trackNumber,
+				timescale: WEBCODECS_TIMESCALE,
 			};
 		}
 
@@ -205,6 +209,7 @@ export const getSampleFromBlock = async ({
 			type: 'video-sample',
 			videoSample: sample,
 			trackId: trackNumber,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
@@ -216,7 +221,6 @@ export const getSampleFromBlock = async ({
 			duration: undefined,
 			decodingTimestamp: timecodeInMicroseconds,
 			offset,
-			timescale,
 		};
 
 		iterator.destroy();
@@ -225,6 +229,7 @@ export const getSampleFromBlock = async ({
 			type: 'audio-sample',
 			audioSample,
 			trackId: trackNumber,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 

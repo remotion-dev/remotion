@@ -99,7 +99,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 	const tracks = getTracks(parserState, true);
 
 	const allSamples = tracks.map((t) => {
-		const {timescale: ts} = t;
+		const {originalTimescale: ts} = t;
 
 		const trakBox = getTrakBoxByTrackId(moovBox, t.trackId);
 

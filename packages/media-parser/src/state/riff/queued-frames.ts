@@ -8,6 +8,7 @@ export type QueuedVideoSample = Omit<
 type QueueItem = {
 	sample: QueuedVideoSample;
 	trackId: number;
+	timescale: number;
 };
 
 export const queuedBFramesState = () => {
@@ -24,18 +25,20 @@ export const queuedBFramesState = () => {
 			frame,
 			maxFramesInBuffer,
 			trackId,
+			timescale,
 		}: {
 			frame: QueuedVideoSample;
 			trackId: number;
 			maxFramesInBuffer: number;
+			timescale: number;
 		}) => {
 			if (frame.type === 'key') {
 				flush();
-				releasedFrames.push({sample: frame, trackId});
+				releasedFrames.push({sample: frame, trackId, timescale});
 				return;
 			}
 
-			queuedFrames.push({sample: frame, trackId});
+			queuedFrames.push({sample: frame, trackId, timescale});
 
 			if (queuedFrames.length > maxFramesInBuffer) {
 				releasedFrames.push(queuedFrames.shift()!);

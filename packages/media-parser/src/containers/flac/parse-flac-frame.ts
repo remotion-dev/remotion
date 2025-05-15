@@ -127,13 +127,14 @@ const emitSample = async ({
 			timestamp,
 			type: 'key',
 			offset,
-			timescale: 1,
-			trackId: 0,
 		},
 		timescale: 1,
 	});
 
-	await state.callbacks.onAudioSample(0, audioSample);
+	await state.callbacks.onAudioSample({
+		audioSample,
+		trackId: 0,
+	});
 
 	iterator.destroy();
 };

@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import type {MediaParserAudioCodec} from '../get-tracks';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('Should stream WebM with no duration', async () => {
 	let videoSamples = 0;
@@ -20,7 +21,7 @@ test('Should stream WebM with no duration', async () => {
 		},
 		reader: nodeReader,
 		onVideoTrack: ({track}) => {
-			expect(track.timescale).toBe(1000000);
+			expect(track.originalTimescale).toBe(1000000);
 			expect(track.codec).toBe('vp8');
 			expect(track.trackId).toBe(1);
 			return () => {
@@ -62,7 +63,7 @@ test('Should stream AV1', async () => {
 		},
 		reader: nodeReader,
 		onVideoTrack: ({track}) => {
-			expect(track.timescale).toBe(1000000);
+			expect(track.originalTimescale).toBe(1000000);
 
 			videoTracks++;
 			return () => {
@@ -95,7 +96,7 @@ test('Should stream AV1', async () => {
 			denominator: 1,
 			numerator: 1,
 		},
-		timescale: 1000000,
+		originalTimescale: 1000000,
 		trackId: 1,
 		codedHeight: 1080,
 		codedWidth: 1920,
@@ -125,6 +126,7 @@ test('Should stream AV1', async () => {
 		},
 		codecEnum: 'av1',
 		fps: null,
+		timescale: WEBCODECS_TIMESCALE,
 	});
 	expect(audTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -145,7 +147,7 @@ test('Should stream corrupted video', async () => {
 			rotation: true,
 		},
 		onVideoTrack: ({track}) => {
-			expect(track.timescale).toBe(24000);
+			expect(track.originalTimescale).toBe(24000);
 			return () => {
 				videoSamples++;
 			};
@@ -291,7 +293,7 @@ test(
 				denominator: 1,
 				numerator: 1,
 			},
-			timescale: 1000000,
+			originalTimescale: 1000000,
 			trackId: 2,
 			codedHeight: 720,
 			codedWidth: 1280,
@@ -309,13 +311,14 @@ test(
 			},
 			codecEnum: 'vp8',
 			fps: null,
+			timescale: WEBCODECS_TIMESCALE,
 		});
 		expect(audTracks.length).toBe(1);
 		expect(audTracks[0]).toEqual({
 			startInSeconds: 0,
 			type: 'audio',
 			codec: 'opus',
-			timescale: 1000000,
+			originalTimescale: 1000000,
 			trackId: 1,
 			numberOfChannels: 1,
 			sampleRate: 48000,
@@ -328,6 +331,7 @@ test(
 				]),
 			},
 			codecEnum: 'opus',
+			timescale: WEBCODECS_TIMESCALE,
 		});
 		expect(audioTracks).toBe(1);
 		expect(samples).toBe(381);
@@ -510,7 +514,7 @@ test('VP8 Vorbis', async () => {
 		src: exampleVideos.vp8Vorbis,
 		onVideoTrack: ({track}) => {
 			expect(track.codec).toBe('vp8');
-			expect(track.timescale).toBe(1000000);
+			expect(track.originalTimescale).toBe(1000000);
 			expect(track.codedHeight).toBe(360);
 			expect(track.codedWidth).toBe(640);
 			expect(typeof track.description).toBe('undefined');
@@ -524,7 +528,7 @@ test('VP8 Vorbis', async () => {
 		},
 		onAudioTrack: ({track}) => {
 			expect(track.codec).toBe('vorbis');
-			expect(track.timescale).toBe(1000000);
+			expect(track.originalTimescale).toBe(1000000);
 			expect(track.description?.length).toBe(3097);
 
 			return () => {
@@ -582,7 +586,7 @@ test('Stretched VP8', async () => {
 			denominator: 1,
 			numerator: 1,
 		},
-		timescale: 1000000,
+		originalTimescale: 1000000,
 		trackId: 1,
 		type: 'video',
 		width: 1920,
@@ -604,6 +608,7 @@ test('Stretched VP8', async () => {
 			primaries: null,
 			transfer: null,
 		},
+		timescale: WEBCODECS_TIMESCALE,
 	});
 });
 

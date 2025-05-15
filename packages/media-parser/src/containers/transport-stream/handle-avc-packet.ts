@@ -9,6 +9,7 @@ import type {
 	MediaParserOnVideoTrack,
 	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
@@ -75,7 +76,7 @@ export const handleAvcPacket = async ({
 			rotation: 0,
 			trackId: programId,
 			type: 'video',
-			timescale: MPEG_TIMESCALE,
+			originalTimescale: MPEG_TIMESCALE,
 			codec: getCodecStringFromSpsAndPps(spsAndPps.sps),
 			codecData: {type: 'avc-sps-pps', data: codecPrivate},
 			fps: null,
@@ -97,6 +98,7 @@ export const handleAvcPacket = async ({
 			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
 			advancedColor,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 
 		await registerVideoTrack({
@@ -123,7 +125,6 @@ export const handleAvcPacket = async ({
 		data: streamBuffer.getBuffer(),
 		type: type === 'bidirectional' ? 'delta' : type,
 		offset,
-		timescale: MPEG_TIMESCALE,
 	};
 
 	if (type === 'key') {
@@ -137,7 +138,10 @@ export const handleAvcPacket = async ({
 		timescale: MPEG_TIMESCALE,
 	});
 
-	await sampleCallbacks.onVideoSample(programId, videoSample);
+	await sampleCallbacks.onVideoSample({
+		videoSample,
+		trackId: programId,
+	});
 
 	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

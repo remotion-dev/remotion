@@ -10,6 +10,7 @@ import type {
 	MediaParserOnVideoSample,
 	MediaParserVideoSample,
 } from '../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
@@ -75,10 +76,13 @@ export const callbacksState = ({
 
 			queuedVideoSamples[id] = [];
 		},
-		onAudioSample: async (
-			trackId: number,
-			audioSample: MediaParserAudioSample,
-		) => {
+		onAudioSample: async ({
+			audioSample,
+			trackId,
+		}: {
+			trackId: number;
+			audioSample: MediaParserAudioSample;
+		}) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
@@ -103,10 +107,13 @@ export const callbacksState = ({
 				samplesObserved.addAudioSample(audioSample);
 			}
 		},
-		onVideoSample: async (
-			trackId: number,
-			videoSample: MediaParserVideoSample,
-		) => {
+		onVideoSample: async ({
+			trackId,
+			videoSample,
+		}: {
+			trackId: number;
+			videoSample: MediaParserVideoSample;
+		}) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
@@ -130,10 +137,10 @@ export const callbacksState = ({
 				keyframes.addKeyframe({
 					trackId,
 					decodingTimeInSeconds:
-						videoSample.decodingTimestamp / videoSample.timescale,
+						videoSample.decodingTimestamp / WEBCODECS_TIMESCALE,
 					positionInBytes: videoSample.offset,
 					presentationTimeInSeconds:
-						videoSample.timestamp / videoSample.timescale,
+						videoSample.timestamp / WEBCODECS_TIMESCALE,
 					sizeInBytes: videoSample.data.length,
 				});
 			}

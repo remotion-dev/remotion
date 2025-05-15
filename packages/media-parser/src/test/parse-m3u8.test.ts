@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('parse m3u8', async () => {
 	let audioSamples = 0;
@@ -102,9 +103,10 @@ test('parse m3u8', async () => {
 				denominator: 1,
 				numerator: 1,
 			},
-			timescale: 90000,
+			originalTimescale: 90000,
 			trackId: 256,
 			width: 1000,
+			timescale: WEBCODECS_TIMESCALE,
 		},
 	]);
 	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
@@ -116,9 +118,10 @@ test('parse m3u8', async () => {
 			description: new Uint8Array([9, 144]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
-			timescale: 90000,
+			originalTimescale: 90000,
 			trackId: 257,
 			type: 'audio',
+			timescale: WEBCODECS_TIMESCALE,
 		},
 	]);
 	expect(audioCodec).toBe('aac');

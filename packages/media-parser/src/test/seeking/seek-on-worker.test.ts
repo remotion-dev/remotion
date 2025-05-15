@@ -4,6 +4,7 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {parseMediaOnServerWorker} from '../../server-worker.module';
 import type {MediaParserVideoSample} from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('seek should also work on worker', async () => {
 	const controller = mediaParserController();
@@ -28,7 +29,7 @@ test('seek should also work on worker', async () => {
 	} catch (err) {
 		expect(hasBeenAborted(err)).toBe(true);
 		const timeInSeconds =
-			(firstSample?.timestamp ?? 0) / (firstSample?.timescale ?? 1);
+			(firstSample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1);
 		expect(timeInSeconds).toBe(10.5);
 	}
 
@@ -52,14 +53,14 @@ test('should be able to seek forward and then backwards', async () => {
 					samples++;
 
 					if (samples === 1) {
-						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
+						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
 							10.5,
 						);
 						controller.seek(0);
 					}
 
 					if (samples === 2) {
-						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
+						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
 							0.08333333333333333,
 						);
 						controller.abort();

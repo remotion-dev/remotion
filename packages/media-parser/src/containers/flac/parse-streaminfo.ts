@@ -2,6 +2,7 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import type {FlacStreamInfo} from './types';
 
 export const parseStreamInfo = async ({
@@ -52,9 +53,10 @@ export const parseStreamInfo = async ({
 			codecEnum: 'flac',
 			numberOfChannels: channels,
 			sampleRate,
-			timescale: 1_000_000,
+			originalTimescale: WEBCODECS_TIMESCALE,
 			trackId: 0,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		},
 		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
 		tracks: state.callbacks.tracks,

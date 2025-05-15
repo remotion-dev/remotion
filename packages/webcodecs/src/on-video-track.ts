@@ -92,7 +92,7 @@ export const makeVideoTrackHandler =
 		if (videoOperation.type === 'copy') {
 			Log.verbose(
 				logLevel,
-				`Copying video track with codec ${track.codec} and timescale ${track.timescale}`,
+				`Copying video track with codec ${track.codec} and timescale ${track.originalTimescale}`,
 			);
 			const videoTrack = await state.addTrack({
 				type: 'video',
@@ -101,7 +101,7 @@ export const makeVideoTrackHandler =
 				height: track.codedHeight,
 				codec: track.codecEnum,
 				codecPrivate: track.codecData?.data ?? null,
-				timescale: track.timescale,
+				timescale: track.originalTimescale,
 			});
 			return async (sample) => {
 				await state.addSample({
@@ -176,11 +176,11 @@ export const makeVideoTrackHandler =
 			height: newHeight,
 			codec: videoOperation.videoCodec,
 			codecPrivate: null,
-			timescale: track.timescale,
+			timescale: track.originalTimescale,
 		});
 		Log.verbose(
 			logLevel,
-			`Created new video track with ID ${trackNumber}, codec ${videoOperation.videoCodec} and timescale ${track.timescale}`,
+			`Created new video track with ID ${trackNumber}, codec ${videoOperation.videoCodec} and timescale ${track.originalTimescale}`,
 		);
 
 		const videoEncoder = createVideoEncoder({

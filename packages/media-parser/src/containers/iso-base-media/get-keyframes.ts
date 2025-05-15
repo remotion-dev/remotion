@@ -31,7 +31,7 @@ export const getKeyframesFromIsoBaseMedia = (
 	}
 
 	const allSamples = videoTracks.map((t): MediaParserKeyframe[] => {
-		const {timescale: ts} = t;
+		const {originalTimescale: ts} = t;
 		const trakBox = getTrakBoxByTrackId(moov, t.trackId);
 		if (!trakBox) {
 			return [];

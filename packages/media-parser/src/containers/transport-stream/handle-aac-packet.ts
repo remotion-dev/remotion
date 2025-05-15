@@ -9,6 +9,7 @@ import type {
 	MediaParserAudioSample,
 	MediaParserOnAudioTrack,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
@@ -60,7 +61,7 @@ export const handleAacPacket = async ({
 			type: 'audio',
 			codecData: {type: 'aac-config', data: codecPrivate},
 			trackId: programId,
-			timescale: MPEG_TIMESCALE,
+			originalTimescale: MPEG_TIMESCALE,
 			codecEnum: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),
 			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
@@ -70,6 +71,7 @@ export const handleAacPacket = async ({
 			numberOfChannels: channelConfiguration,
 			sampleRate,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 		await registerAudioTrack({
 			track,
@@ -92,7 +94,6 @@ export const handleAacPacket = async ({
 		data: streamBuffer.getBuffer(),
 		type: 'key',
 		offset,
-		timescale: MPEG_TIMESCALE,
 	};
 
 	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
@@ -100,7 +101,10 @@ export const handleAacPacket = async ({
 		timescale: MPEG_TIMESCALE,
 	});
 
-	await sampleCallbacks.onAudioSample(programId, audioSample);
+	await sampleCallbacks.onAudioSample({
+		audioSample,
+		trackId: programId,
+	});
 
 	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

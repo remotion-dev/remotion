@@ -79,11 +79,11 @@ export const makeAudioTrackHandler =
 				numberOfChannels: track.numberOfChannels,
 				sampleRate: track.sampleRate,
 				codecPrivate: track.codecData?.data ?? null,
-				timescale: track.timescale,
+				timescale: track.originalTimescale,
 			});
 			Log.verbose(
 				logLevel,
-				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.timescale}, codec = ${track.codecEnum} (${track.codec}) `,
+				`Copying audio track ${track.trackId} as track ${addedTrack.trackNumber}. Timescale = ${track.originalTimescale}, codec = ${track.codecEnum} (${track.codec}) `,
 			);
 
 			return async (audioSample) => {
@@ -156,7 +156,7 @@ export const makeAudioTrackHandler =
 			numberOfChannels: audioEncoderConfig.numberOfChannels,
 			sampleRate: audioOperation.sampleRate ?? audioEncoderConfig.sampleRate,
 			codecPrivate,
-			timescale: track.timescale,
+			timescale: track.originalTimescale,
 		});
 
 		const audioEncoder = createAudioEncoder({

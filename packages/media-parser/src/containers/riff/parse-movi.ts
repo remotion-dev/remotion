@@ -1,6 +1,7 @@
-import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {ParserState} from '../../state/parser-state';
 import type {QueuedVideoSample} from '../../state/riff/queued-frames';
+import type {MediaParserAudioSample} from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
 import {convertQueuedSampleToMediaParserSample} from './convert-queued-sample-to-mediaparser-sample';
@@ -47,7 +48,6 @@ export const handleChunk = async ({
 			duration: 1 / samplesPerSecond,
 			type: keyOrDelta === 'bidirectional' ? 'delta' : keyOrDelta,
 			offset,
-			timescale: samplesPerSecond,
 			avc: info,
 		};
 
@@ -73,20 +73,27 @@ export const handleChunk = async ({
 			frame: rawSample,
 			trackId,
 			maxFramesInBuffer,
+			timescale: samplesPerSecond,
 		});
 		const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
 		if (!releasedFrame) {
 			return;
 		}
 
-		const videoSample = convertQueuedSampleToMediaParserSample(
-			releasedFrame.sample,
+		const videoSample = convertQueuedSampleToMediaParserSample({
+			sample: releasedFrame.sample,
 			state,
-			releasedFrame.trackId,
-		);
+			trackId: releasedFrame.trackId,
+		});
 
-		state.riff.sampleCounter.onVideoSample(videoSample, trackId);
-		await state.callbacks.onVideoSample(trackId, videoSample);
+		state.riff.sampleCounter.onVideoSample({
+			trackId,
+			videoSample,
+		});
+		await state.callbacks.onVideoSample({
+			videoSample,
+			trackId,
+		});
 	}
 
 	const audioChunk = ckId.match(/^([0-9]{2})wb$/);
@@ -104,32 +111,29 @@ export const handleChunk = async ({
 			trackId,
 		});
 		const timeInSec = nthSample / samplesPerSecond;
-		const timestamp = timeInSec;
+		const timestamp = Math.round(timeInSec * WEBCODECS_TIMESCALE);
 
 		const data = iterator.getSlice(ckSize);
 
-		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample: {
-				decodingTimestamp: timestamp,
-				data, // We must also NOT pass a duration because if the the next sample is 0,
-				// this sample would be longer. Chrome will pad it with silence.
-				// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-
-				duration: undefined,
-				timestamp,
-				trackId,
-				type: 'key',
-				offset,
-				timescale: samplesPerSecond,
-			},
-			timescale: 1,
-		});
+		const audioSample: MediaParserAudioSample = {
+			decodingTimestamp: timestamp,
+			data, // We must also NOT pass a duration because if the the next sample is 0,
+			// this sample would be longer. Chrome will pad it with silence.
+			// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
+			duration: undefined,
+			timestamp,
+			type: 'key',
+			offset,
+		};
 		state.riff.sampleCounter.onAudioSample(trackId, audioSample);
 
 		// In example.avi, we have samples with 0 data
 		// Chrome fails on these
 
-		await state.callbacks.onAudioSample(trackId, audioSample);
+		await state.callbacks.onAudioSample({
+			audioSample,
+			trackId,
+		});
 	}
 };
 

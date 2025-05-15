@@ -5,6 +5,7 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('get webm cues', async () => {
 	const cues = await fetchWebmCues({
@@ -55,7 +56,7 @@ test('should use them for seeking', async () => {
 			onVideoTrack: () => {
 				return (s) => {
 					samples++;
-					const timeInSeconds = s.timestamp / s.timescale;
+					const timeInSeconds = s.timestamp / WEBCODECS_TIMESCALE;
 					if (samples === 1) {
 						expect(timeInSeconds).toBe(9.603);
 						controller1.seek(5);
@@ -126,7 +127,7 @@ test('should be able to use precomputed seeking hints', async () => {
 			onVideoTrack: () => {
 				return (s) => {
 					samples++;
-					const timeInSeconds = s.timestamp / s.timescale;
+					const timeInSeconds = s.timestamp / WEBCODECS_TIMESCALE;
 					if (samples === 1) {
 						expect(timeInSeconds).toBe(9.603);
 						controller2.seek(5);
@@ -194,19 +195,20 @@ test('should work if there are no cues', async () => {
 			reader: nodeReader,
 			controller,
 			onVideoTrack: () => {
+				expect(WEBCODECS_TIMESCALE).toBe(WEBCODECS_TIMESCALE);
 				return (s) => {
 					if (samples === 213) {
 						controller.seek(5);
-						expect(s.timestamp / s.timescale).toBe(7.227);
+						expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(7.227);
 					}
 
 					if (samples === 214) {
-						expect(s.timestamp / s.timescale).toBe(3.408);
+						expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(3.408);
 						controller.seek(0);
 					}
 
 					if (samples === 215) {
-						expect(s.timestamp / s.timescale).toBe(0);
+						expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(0);
 						controller.abort();
 					}
 
