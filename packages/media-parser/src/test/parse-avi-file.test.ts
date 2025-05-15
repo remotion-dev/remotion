@@ -8,6 +8,7 @@ test('AVI file', async () => {
 	let videoTrackCount = 0;
 	let audioSamples = 0;
 	let videoSamples = 0;
+
 	const {
 		slowStructure,
 		tracks,
@@ -59,6 +60,7 @@ test('AVI file', async () => {
 			videoTrackCount++;
 			return (sample) => {
 				const time = sample.timestamp / sample.timescale;
+
 				if (time > 31) {
 					throw new Error('time higher than duration');
 				}

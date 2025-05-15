@@ -1,6 +1,7 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import type {MediaParserLogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {WebmState} from '../../state/matroska/webm';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {StructureState} from '../../state/structure';
@@ -41,6 +42,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	logLevel,
 	callbacks,
 	onVideoTrack,
+	avcState,
 }: {
 	partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 	codec: string;
@@ -50,6 +52,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	logLevel: MediaParserLogLevel;
 	callbacks: CallbacksState;
 	onVideoTrack: MediaParserOnVideoTrack | null;
+	avcState: AvcState;
 }) => {
 	if (codec !== 'V_MPEG4/ISO/AVC') {
 		return;
@@ -64,7 +67,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 		return;
 	}
 
-	const parsed = parseAvc(partialVideoSample.data);
+	const parsed = parseAvc(partialVideoSample.data, avcState);
 	for (const parse of parsed) {
 		if (parse.type === 'avc-profile') {
 			webmState.setAvcProfileForTrackNumber(trackNumber, parse);
@@ -104,6 +107,7 @@ export const getSampleFromBlock = async ({
 	callbacks,
 	logLevel,
 	onVideoTrack,
+	avcState,
 }: {
 	ebml: BlockSegment | SimpleBlockSegment;
 	webmState: WebmState;
@@ -112,6 +116,7 @@ export const getSampleFromBlock = async ({
 	callbacks: CallbacksState;
 	logLevel: MediaParserLogLevel;
 	onVideoTrack: MediaParserOnVideoTrack | null;
+	avcState: AvcState;
 }): Promise<SampleResult> => {
 	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
 	const trackNumber = iterator.getVint();
@@ -184,6 +189,7 @@ export const getSampleFromBlock = async ({
 			callbacks,
 			logLevel,
 			onVideoTrack,
+			avcState,
 		});
 
 		const sample: MediaParserVideoSample = {

@@ -26,6 +26,11 @@ export const checkIfDone = async (state: ParserState) => {
 			return false;
 		}
 
+		state.riff.queuedBFrames.flush();
+		if (state.riff.queuedBFrames.hasReleasedFrames()) {
+			return false;
+		}
+
 		Log.verbose(state.logLevel, 'Reached end of file');
 		await state.discardReadBytes(true);
 

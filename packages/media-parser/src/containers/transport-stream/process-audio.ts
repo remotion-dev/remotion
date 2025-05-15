@@ -1,5 +1,6 @@
 import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
@@ -43,6 +44,7 @@ export const processAudio = async ({
 	onVideoTrack,
 	transportStream,
 	makeSamplesStartAtZero,
+	avcState,
 }: {
 	transportStreamEntry: TransportStreamEntry;
 	structure: TransportStreamStructure;
@@ -53,6 +55,7 @@ export const processAudio = async ({
 	transportStream: TransportStreamState;
 	offset: number;
 	makeSamplesStartAtZero: boolean;
+	avcState: AvcState;
 }): Promise<void> => {
 	const {streamBuffers, nextPesHeaderStore: nextPesHeader} = transportStream;
 	const streamBuffer = streamBuffers.get(transportStreamEntry.pid);
@@ -85,6 +88,7 @@ export const processAudio = async ({
 		onVideoTrack,
 		transportStream,
 		makeSamplesStartAtZero,
+		avcState,
 	});
 
 	const rest = streamBuffer.getBuffer().slice(expectedLength);

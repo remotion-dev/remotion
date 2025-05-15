@@ -60,7 +60,7 @@ test('seek avi', async () => {
 					}
 
 					if (samples === 300) {
-						expect(sample.timestamp / sample.timescale).toBe(9.933333333333334);
+						expect(sample.timestamp / sample.timescale).toBe(9.9);
 						expect(sample.type).toBe('delta');
 
 						controller.seek(10);
@@ -72,7 +72,7 @@ test('seek avi', async () => {
 					}
 
 					if (samples === 302) {
-						expect(sample.timestamp / sample.timescale).toBe(8.366666666666667);
+						expect(sample.timestamp / sample.timescale).toBe(8.466666666666667);
 						expect(sample.type).toBe('delta');
 						controller.abort();
 					}
@@ -103,7 +103,7 @@ test('seek avi', async () => {
 			type: 'user-initiated',
 		},
 		{
-			from: 243356,
+			from: 250562,
 			to: 203298,
 			type: 'user-initiated',
 		},

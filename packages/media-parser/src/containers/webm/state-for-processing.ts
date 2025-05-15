@@ -1,4 +1,5 @@
 import type {MediaParserLogLevel} from '../../log';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {WebmState} from '../../state/matroska/webm';
 import type {ParserState} from '../../state/parser-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
@@ -7,7 +8,6 @@ import type {
 	MediaParserOnAudioTrack,
 	MediaParserOnVideoTrack,
 } from '../../webcodec-sample-types';
-
 export type WebmRequiredStatesForProcessing = {
 	webmState: WebmState;
 	callbacks: CallbacksState;
@@ -15,6 +15,7 @@ export type WebmRequiredStatesForProcessing = {
 	onAudioTrack: MediaParserOnAudioTrack | null;
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	structureState: StructureState;
+	avcState: AvcState;
 };
 
 export const selectStatesForProcessing = ({
@@ -24,6 +25,7 @@ export const selectStatesForProcessing = ({
 	onVideoTrack,
 	structure,
 	webm,
+	avc,
 }: ParserState): WebmRequiredStatesForProcessing => {
 	return {
 		webmState: webm,
@@ -32,5 +34,6 @@ export const selectStatesForProcessing = ({
 		onAudioTrack,
 		onVideoTrack,
 		structureState: structure,
+		avcState: avc,
 	};
 };

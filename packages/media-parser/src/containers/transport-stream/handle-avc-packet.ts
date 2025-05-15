@@ -2,6 +2,7 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import type {MediaParserTrack} from '../../get-tracks';
 import type {MediaParserLogLevel} from '../../log';
 import {registerVideoTrack} from '../../register-track';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
@@ -32,6 +33,7 @@ export const handleAvcPacket = async ({
 	onVideoTrack,
 	transportStream,
 	makeSamplesStartAtZero,
+	avcState,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -41,8 +43,9 @@ export const handleAvcPacket = async ({
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
+	avcState: AvcState;
 }) => {
-	const avc = parseAvc(streamBuffer.getBuffer());
+	const avc = parseAvc(streamBuffer.getBuffer(), avcState);
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
@@ -122,7 +125,7 @@ export const handleAvcPacket = async ({
 		duration: undefined,
 		data: streamBuffer.getBuffer(),
 		trackId: programId,
-		type,
+		type: type === 'bidirectional' ? 'delta' : type,
 		offset,
 		timescale: MPEG_TIMESCALE,
 	};

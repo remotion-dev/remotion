@@ -45,5 +45,6 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = <
 		type: sample.type,
 		offset: sample.offset,
 		timescale: TARGET_TIMESCALE,
+		...('avc' in sample ? {avc: sample.avc} : {}),
 	} as T;
 };
