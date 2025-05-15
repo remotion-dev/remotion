@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
@@ -27,7 +28,7 @@ import {
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
-import type {OnVideoFrame, RemotionVideoProps} from './props';
+import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
@@ -40,6 +41,11 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly onVideoFrame: null | OnVideoFrame;
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
+
+type Expected = Omit<
+	NativeVideoProps,
+	'crossOrigin' | 'src' | 'name' | 'muted' | 'style'
+>;
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -84,8 +90,17 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onAutoPlayError,
 		onVideoFrame,
 		crossOrigin,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		allowAmplificationDuringRender,
 		...nativeProps
 	} = props;
+
+	const _propsValid: IsExact<typeof nativeProps, Expected> = true;
+
+	if (!_propsValid) {
+		throw new Error('typecheck error');
+	}
 
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',

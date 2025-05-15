@@ -21,7 +21,7 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
-import type {RemotionAudioProps} from './props.js';
+import type {IsExact, NativeAudioProps, RemotionAudioProps} from './props.js';
 import {SharedAudioContext, useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
@@ -68,8 +68,21 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		stack,
 		crossOrigin,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		toneFrequency,
 		...nativeProps
 	} = props;
+
+	// Typecheck that we are not accidentially passing unrecognized props
+	// to the DOM
+	const _propsValid: IsExact<
+		typeof nativeProps,
+		Omit<NativeAudioProps, 'crossOrigin' | 'src' | 'name' | 'muted'>
+	> = true;
+	if (!_propsValid) {
+		throw new Error('typecheck error');
+	}
 
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
