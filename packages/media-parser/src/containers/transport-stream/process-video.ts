@@ -1,5 +1,6 @@
 import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
@@ -36,6 +37,7 @@ export const processVideo = async ({
 	onVideoTrack,
 	transportStream,
 	makeSamplesStartAtZero,
+	avcState,
 }: {
 	programId: number;
 	structure: TransportStreamStructure;
@@ -46,6 +48,7 @@ export const processVideo = async ({
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
+	avcState: AvcState;
 }): Promise<Uint8Array> => {
 	const indexOfSeparator = streamBuffer.get2ndSubArrayIndex();
 
@@ -72,6 +75,7 @@ export const processVideo = async ({
 		onVideoTrack,
 		transportStream,
 		makeSamplesStartAtZero,
+		avcState,
 	});
 	return rest;
 };

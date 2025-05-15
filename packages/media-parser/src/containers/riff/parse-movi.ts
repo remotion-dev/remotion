@@ -1,27 +1,9 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import type {ParserState} from '../../state/parser-state';
+import type {QueuedVideoSample} from '../../state/riff/queued-frames';
 import {getKeyFrameOrDeltaFromAvcInfo} from '../avc/key';
 import {parseAvc} from '../avc/parse-avc';
-import type {RiffStructure, StrhBox} from './riff-box';
-import {getStrhBox, getStrlBoxes} from './traversal';
-
-const getStrhForIndex = (
-	structure: RiffStructure,
-	trackId: number,
-): StrhBox => {
-	const boxes = getStrlBoxes(structure);
-	const box = boxes[trackId];
-	if (!box) {
-		throw new Error('Expected box');
-	}
-
-	const strh = getStrhBox(box.children);
-	if (!strh) {
-		throw new Error('strh');
-	}
-
-	return strh;
-};
+import {getStrhForIndex} from './get-strh-for-index';
 
 export const handleChunk = async ({
 	state,
@@ -41,13 +23,13 @@ export const handleChunk = async ({
 		const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 		const samplesPerSecond = strh.rate / strh.scale;
-		const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
-		const timeInSec = nthSample / samplesPerSecond;
-		const timestamp = timeInSec;
 
 		const data = iterator.getSlice(ckSize);
-		const infos = parseAvc(data);
+		const infos = parseAvc(data, state.avc);
 		const keyOrDelta = getKeyFrameOrDeltaFromAvcInfo(infos);
+		const info = infos.find(
+			(i) => i.type === 'keyframe' || i.type === 'delta-frame',
+		);
 
 		const avcProfile = infos.find((i) => i.type === 'avc-profile');
 		const ppsProfile = infos.find((i) => i.type === 'avc-pps');
@@ -56,25 +38,43 @@ export const handleChunk = async ({
 			state.callbacks.tracks.setIsDone(state.logLevel);
 		}
 
-		const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
-			sample: {
-				cts: timestamp,
-				dts: timestamp,
-				data,
-				duration: 1 / samplesPerSecond,
-				timestamp,
-				trackId,
-				type: keyOrDelta,
-				offset,
-				timescale: samplesPerSecond,
-			},
-			timescale: 1,
-		});
-		state.riff.sampleCounter.onVideoSample(trackId, videoSample);
-		// We must also NOT pass a duration because if the the next sample is 0,
-		// this sample would be longer. Chrome will pad it with silence.
-		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
-		await state.callbacks.onVideoSample(trackId, videoSample);
+		const rawSample: QueuedVideoSample = {
+			data,
+			// We must also NOT pass a duration because if the the next sample is 0,
+			// this sample would be longer. Chrome will pad it with silence.
+			// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
+			duration: 1 / samplesPerSecond,
+			trackId,
+			type: keyOrDelta === 'bidirectional' ? 'delta' : keyOrDelta,
+			offset,
+			timescale: samplesPerSecond,
+			avc: info,
+		};
+
+		const maxFramesInBuffer = state.avc.getMaxFramesInBuffer();
+		if (maxFramesInBuffer === null) {
+			throw new Error('maxFramesInBuffer is null');
+		}
+
+		state.riff.queuedBFrames.addFrame(rawSample, maxFramesInBuffer);
+		const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
+		if (releasedFrame) {
+			const nthSample = state.riff.sampleCounter.getSamplesForTrack(trackId);
+			const timeInSec = nthSample / samplesPerSecond;
+			const timestamp = timeInSec;
+			const videoSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+				sample: {
+					...releasedFrame,
+					timestamp,
+					cts: timestamp,
+					dts: timestamp,
+				},
+				timescale: 1,
+			});
+
+			state.riff.sampleCounter.onVideoSample(trackId, videoSample);
+			await state.callbacks.onVideoSample(trackId, videoSample);
+		}
 
 		return;
 	}
@@ -100,7 +100,10 @@ export const handleChunk = async ({
 			sample: {
 				cts: timestamp,
 				dts: timestamp,
-				data,
+				data, // We must also NOT pass a duration because if the the next sample is 0,
+				// this sample would be longer. Chrome will pad it with silence.
+				// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
+
 				duration: undefined,
 				timestamp,
 				trackId,
@@ -114,10 +117,6 @@ export const handleChunk = async ({
 
 		// In example.avi, we have samples with 0 data
 		// Chrome fails on these
-
-		// We must also NOT pass a duration because if the the next sample is 0,
-		// this sample would be longer. Chrome will pad it with silence.
-		// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 
 		await state.callbacks.onAudioSample(trackId, audioSample);
 	}

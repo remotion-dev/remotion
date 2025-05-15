@@ -22,10 +22,6 @@ export const runParseIteration = async ({
 		return parseM3u({state});
 	}
 
-	if (state.iterator.bytesRemaining() === 0) {
-		return Promise.reject(new Error('no bytes'));
-	}
-
 	if (structure === null) {
 		await initVideo({
 			state,

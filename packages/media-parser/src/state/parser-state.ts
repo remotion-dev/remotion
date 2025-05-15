@@ -27,6 +27,7 @@ import type {
 	MediaParserOnVideoTrack,
 } from '../webcodec-sample-types';
 import {aacState} from './aac-state';
+import {avcState} from './avc/avc-state';
 import {currentReader} from './current-reader';
 import {emittedState} from './emitted-fields';
 import {flacState} from './flac-state';
@@ -122,7 +123,7 @@ export const makeParserState = ({
 	const timings = timingsState();
 	const seekInfiniteLoop = seekInfiniteLoopDetectionState();
 	const currentReaderState = currentReader(initialReaderInstance);
-
+	const avc = avcState();
 	const errored: Error | null = null;
 
 	const discardReadBytes = async (force: boolean) => {
@@ -222,6 +223,7 @@ export const makeParserState = ({
 		seekInfiniteLoop,
 		makeSamplesStartAtZero,
 		prefetchCache,
+		avc,
 	};
 };
 

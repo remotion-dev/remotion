@@ -5,6 +5,7 @@ import type {ParseMediaSrc} from '../options';
 import type {MediaParserReaderInterface} from '../readers/reader';
 import type {SpsAndPps} from './parser-state';
 import {lazyIdx1Fetch} from './riff/lazy-idx1-fetch';
+import {queuedBFramesState} from './riff/queued-frames';
 import {riffSampleCounter} from './riff/sample-counter';
 
 type AvcProfileInfoCallback = (profile: SpsAndPps) => Promise<void>;
@@ -49,6 +50,7 @@ export const riffSpecificState = ({
 	});
 
 	const sampleCounter = riffSampleCounter();
+	const queuedBFrames = queuedBFramesState();
 
 	return {
 		getAvcProfile: () => {
@@ -59,6 +61,7 @@ export const riffSpecificState = ({
 		getNextTrackIndex: () => {
 			return nextTrackIndex;
 		},
+		queuedBFrames,
 		incrementNextTrackIndex: () => {
 			nextTrackIndex++;
 		},

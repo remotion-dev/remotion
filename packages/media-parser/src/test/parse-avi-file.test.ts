@@ -8,6 +8,9 @@ test('AVI file', async () => {
 	let videoTrackCount = 0;
 	let audioSamples = 0;
 	let videoSamples = 0;
+
+	let lastPoc = -1;
+
 	const {
 		slowStructure,
 		tracks,
@@ -59,6 +62,15 @@ test('AVI file', async () => {
 			videoTrackCount++;
 			return (sample) => {
 				const time = sample.timestamp / sample.timescale;
+				if (sample.type === 'key') {
+					lastPoc = -1;
+				}
+
+				if ((sample.avc?.poc ?? 0) < lastPoc) {
+					throw new Error('poc lower than last poc');
+				}
+
+				lastPoc = sample.avc?.poc as number;
 				if (time > 31) {
 					throw new Error('time higher than duration');
 				}

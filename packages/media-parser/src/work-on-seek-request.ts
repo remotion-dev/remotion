@@ -14,6 +14,7 @@ import type {
 import {performSeek} from './perform-seek';
 import type {MediaParserReaderInterface} from './readers/reader';
 import type {AacState} from './state/aac-state';
+import type {AvcState} from './state/avc/avc-state';
 import type {CurrentReader} from './state/current-reader';
 import type {FlacState} from './state/flac-state';
 import type {TracksState} from './state/has-tracks-section';
@@ -49,6 +50,7 @@ const turnSeekIntoByte = async ({
 	contentLength,
 	aacState,
 	m3uState,
+	avcState,
 }: {
 	seek: number;
 	mediaSectionState: MediaSectionState;
@@ -68,6 +70,7 @@ const turnSeekIntoByte = async ({
 	aacState: AacState;
 	contentLength: number;
 	m3uState: M3uState;
+	avcState: AvcState;
 }): Promise<SeekResolution> => {
 	const mediaSections = mediaSectionState.getMediaSections();
 
@@ -119,6 +122,7 @@ const turnSeekIntoByte = async ({
 		structure: structureState,
 		riffState,
 		m3uState,
+		avcState,
 	});
 
 	return seekingByte;
@@ -151,6 +155,7 @@ export type WorkOnSeekRequestOptions = {
 	aacState: AacState;
 	m3uState: M3uState;
 	prefetchCache: PrefetchCache;
+	avcState: AvcState;
 };
 
 export const getWorkOnSeekRequestOptions = (
@@ -183,6 +188,7 @@ export const getWorkOnSeekRequestOptions = (
 		aacState: state.aac,
 		m3uState: state.m3u,
 		prefetchCache: state.prefetchCache,
+		avcState: state.avc,
 	};
 };
 
@@ -214,6 +220,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		aacState,
 		prefetchCache,
 		m3uState,
+		avcState,
 	} = options;
 	const seek = controller._internals.seekSignal.getSeek();
 	if (seek === null) {
@@ -240,6 +247,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 		contentLength,
 		aacState,
 		m3uState,
+		avcState,
 	});
 	Log.trace(logLevel, `Seek action: ${JSON.stringify(resolution)}`);
 

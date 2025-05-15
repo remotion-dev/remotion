@@ -1,4 +1,5 @@
 import {findLastKeyframe} from '../../find-last-keyframe';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {RiffState} from '../../state/riff';
 import type {SeekResolution} from '../../work-on-seek-request';
 import type {Idx1Entry} from './riff-box';
@@ -8,10 +9,12 @@ export const getSeekingByteForRiff = async ({
 	info,
 	time,
 	riffState,
+	avcState,
 }: {
 	info: RiffSeekingHints;
 	time: number;
 	riffState: RiffState;
+	avcState: AvcState;
 }): Promise<SeekResolution> => {
 	const idx1Entries = await (info.hasIndex
 		? riffState.lazyIdx1.waitForLoaded()
@@ -30,6 +33,8 @@ export const getSeekingByteForRiff = async ({
 		}
 
 		riffState.sampleCounter.setSamplesFromSeek(lastKeyframe.sampleCounts);
+		riffState.queuedBFrames.clear();
+		avcState.clear();
 
 		return {
 			type: 'do-seek',
