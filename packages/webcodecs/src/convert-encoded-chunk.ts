@@ -18,6 +18,5 @@ export const convertEncodedChunk = <
 		type: chunk.type,
 		decodingTimestamp: chunk.timestamp,
 		offset: 0,
-		timescale: 1_000_000,
 	} as T;
 };
