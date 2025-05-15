@@ -1,7 +1,8 @@
 // Contexts shared between <Player> and <Thumbnail>
 
+import type React from 'react';
 import type {ComponentType, LazyExoticComponent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import type {
 	CompositionManagerContext,
 	LoggingContextValue,
@@ -27,6 +28,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly initiallyMuted: boolean;
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
+	readonly volumePersistenceKey?: string;
 }> = ({
 	children,
 	timelineContext,
@@ -39,6 +41,7 @@ export const SharedPlayerContexts: React.FC<{
 	initiallyMuted,
 	logLevel,
 	audioLatencyHint,
+	volumePersistenceKey,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
@@ -68,7 +71,7 @@ export const SharedPlayerContexts: React.FC<{
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
-		getPreferredVolume(),
+		getPreferredVolume(volumePersistenceKey),
 	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
@@ -81,9 +84,9 @@ export const SharedPlayerContexts: React.FC<{
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
 			setMediaVolume(vol);
-			persistVolume(vol, logLevel);
+			persistVolume(vol, logLevel, volumePersistenceKey);
 		},
-		[logLevel],
+		[logLevel, volumePersistenceKey],
 	);
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
