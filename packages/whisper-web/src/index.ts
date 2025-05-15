@@ -17,6 +17,7 @@ import type {
 	resampleTo16Khz as originalResampleTo16Khz,
 	ResampleTo16KhzParams,
 } from './resample-to-16khz';
+import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
 import type {
 	transcribe as originalTranscribe,
 	TranscribeParams,
@@ -66,6 +67,8 @@ export type {
 	DownloadWhisperModelResult,
 	ResampleTo16KhzParams,
 	TranscribeParams,
+	TranscriptionItemWithTimestamp,
+	TranscriptionJson,
 	WhisperWebLanguage,
 	WhisperWebModel,
 	WhisperWebUnsupportedReason,
