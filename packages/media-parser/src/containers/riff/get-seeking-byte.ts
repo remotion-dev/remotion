@@ -79,6 +79,8 @@ export const getSeekingByteForRiff = async ({
 	}
 
 	riffState.sampleCounter.setSamplesFromSeek(bestEntry.sampleCounts);
+	riffState.queuedBFrames.clear();
+	avcState.clear();
 
 	return {
 		type: 'do-seek',

@@ -35,7 +35,7 @@ test('seek avi', async () => {
 					}
 
 					if (samples === 3) {
-						expect(sample.timestamp / sample.timescale).toBe(16.7);
+						expect(sample.timestamp / sample.timescale).toBe(16.8);
 						expect(sample.type).toBe('delta');
 						controller.seek(0);
 					}
@@ -53,7 +53,9 @@ test('seek avi', async () => {
 					}
 
 					if (samples === 155) {
-						expect(sample.timestamp / sample.timescale).toBe(30);
+						expect(sample.timestamp / sample.timescale).toBe(
+							29.966666666666665,
+						);
 						expect(sample.type).toBe('delta');
 
 						controller.seek(100);
