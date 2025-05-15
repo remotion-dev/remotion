@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import type {MediaParserAudioCodec} from '../get-tracks';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('Should stream WebM with no duration', async () => {
 	let videoSamples = 0;
@@ -125,6 +126,7 @@ test('Should stream AV1', async () => {
 		},
 		codecEnum: 'av1',
 		fps: null,
+		timescale: WEBCODECS_TIMESCALE,
 	});
 	expect(audTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -309,6 +311,7 @@ test(
 			},
 			codecEnum: 'vp8',
 			fps: null,
+			timescale: WEBCODECS_TIMESCALE,
 		});
 		expect(audTracks.length).toBe(1);
 		expect(audTracks[0]).toEqual({
@@ -328,6 +331,7 @@ test(
 				]),
 			},
 			codecEnum: 'opus',
+			timescale: WEBCODECS_TIMESCALE,
 		});
 		expect(audioTracks).toBe(1);
 		expect(samples).toBe(381);
@@ -604,6 +608,7 @@ test('Stretched VP8', async () => {
 			primaries: null,
 			transfer: null,
 		},
+		timescale: WEBCODECS_TIMESCALE,
 	});
 });
 

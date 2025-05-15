@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {combineUint8Arrays} from '../combine-uint8-arrays';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('Transport stream', async () => {
 	let audioSamples = 0;
@@ -53,6 +54,7 @@ test('Transport stream', async () => {
 				description: new Uint8Array([9, 144]),
 				numberOfChannels: 2,
 				sampleRate: 48000,
+				timescale: WEBCODECS_TIMESCALE,
 			});
 			return (sample) => {
 				expect(sample.data[0]).toBe(255);
@@ -153,6 +155,7 @@ test('Transport stream', async () => {
 					primaries: 'bt2020',
 					transfer: 'hlg',
 				},
+				timescale: WEBCODECS_TIMESCALE,
 			});
 			return (sample) => {
 				h264File = combineUint8Arrays([h264File, sample.data]);

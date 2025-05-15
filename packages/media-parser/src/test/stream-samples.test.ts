@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('Stream samples', async () => {
 	const {tracks} = await parseMedia({
@@ -64,6 +65,7 @@ test('Stream samples', async () => {
 			primaries: null,
 			transfer: null,
 		},
+		timescale: WEBCODECS_TIMESCALE,
 	});
 
 	const audTracks = tracks.filter((t) => t.type === 'audio');
@@ -78,5 +80,6 @@ test('Stream samples', async () => {
 		description: undefined,
 		codecData: null,
 		codecEnum: 'mp3',
+		timescale: WEBCODECS_TIMESCALE,
 	});
 });

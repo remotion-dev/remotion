@@ -28,6 +28,7 @@ import {
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {mediaParserAdvancedColorToWebCodecsColor} from './color-to-webcodecs-colors';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
@@ -89,6 +90,7 @@ export const makeBaseMediaTrack = (
 			codecData: actual.codecPrivate,
 			codecEnum,
 			startInSeconds: startTimeInSeconds,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
@@ -99,6 +101,7 @@ export const makeBaseMediaTrack = (
 			originalTimescale: timescaleAndDuration.timescale,
 			trakBox,
 			startInSeconds: startTimeInSeconds,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
@@ -158,6 +161,7 @@ export const makeBaseMediaTrack = (
 		codecEnum: getVideoCodecFromIsoTrak(trakBox),
 		fps: getFpsFromMp4TrakBox(trakBox),
 		startInSeconds: startTimeInSeconds,
+		timescale: WEBCODECS_TIMESCALE,
 	};
 	return track;
 };

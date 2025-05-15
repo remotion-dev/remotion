@@ -1,6 +1,7 @@
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import type {WavFmt} from './types';
 
 export const parseFmt = async ({
@@ -58,6 +59,7 @@ export const parseFmt = async ({
 			originalTimescale: 1_000_000,
 			trackId: 0,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		},
 		container: 'wav',
 		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,

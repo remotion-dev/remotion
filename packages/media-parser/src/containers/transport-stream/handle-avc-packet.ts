@@ -9,6 +9,7 @@ import type {
 	MediaParserOnVideoTrack,
 	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {createSpsPpsData} from '../avc/create-sps-pps-data';
 import {
@@ -97,6 +98,7 @@ export const handleAvcPacket = async ({
 			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
 			advancedColor,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 
 		await registerVideoTrack({

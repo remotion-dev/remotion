@@ -9,6 +9,7 @@ import type {
 	MediaParserAudioSample,
 	MediaParserOnAudioTrack,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
@@ -70,6 +71,7 @@ export const handleAacPacket = async ({
 			numberOfChannels: channelConfiguration,
 			sampleRate,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 		await registerAudioTrack({
 			track,

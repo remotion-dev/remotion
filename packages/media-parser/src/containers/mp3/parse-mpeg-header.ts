@@ -4,6 +4,7 @@ import {Log} from '../../log';
 import {registerAudioTrack} from '../../register-track';
 import type {Mp3Info} from '../../state/mp3';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {parseMp3PacketHeader} from './parse-packet-header';
 import {parseXing} from './parse-xing';
 import {getAudioSampleFromCbr} from './seek/audio-sample-from-cbr';
@@ -98,6 +99,7 @@ export const parseMpegHeader = async ({
 				originalTimescale: 1_000_000,
 				trackId: 0,
 				startInSeconds: 0,
+				timescale: WEBCODECS_TIMESCALE,
 			},
 			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
 			tracks: state.callbacks.tracks,

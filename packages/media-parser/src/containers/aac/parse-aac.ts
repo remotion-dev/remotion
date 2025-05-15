@@ -7,6 +7,7 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
@@ -72,10 +73,11 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 				description: codecPrivate,
 				numberOfChannels: channelConfiguration,
 				sampleRate,
-				originalTimescale: 1_000_000,
+				originalTimescale: WEBCODECS_TIMESCALE,
 				trackId: 0,
 				type: 'audio',
 				startInSeconds: 0,
+				timescale: WEBCODECS_TIMESCALE,
 			},
 			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
 			tracks: state.callbacks.tracks,

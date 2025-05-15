@@ -5,6 +5,7 @@ import type {
 	MediaParserVideoTrack,
 } from '../../get-tracks';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import type {
 	RiffStructure,
 	StrfBoxAudio,
@@ -48,6 +49,7 @@ export const makeAviAudioTrack = ({
 		originalTimescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		trackId: index,
 		startInSeconds: 0,
+		timescale: WEBCODECS_TIMESCALE,
 	};
 };
 
@@ -98,6 +100,7 @@ export const makeAviVideoTrack = ({
 		},
 		fps: strh.rate / strh.scale,
 		startInSeconds: 0,
+		timescale: WEBCODECS_TIMESCALE,
 	};
 };
 

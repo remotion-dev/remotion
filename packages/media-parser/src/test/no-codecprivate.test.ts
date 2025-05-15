@@ -2,6 +2,7 @@ import {getRemoteExampleVideo} from '@remotion/example-videos';
 import {beforeAll, expect, test} from 'bun:test';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 beforeAll(async () => {
 	await getRemoteExampleVideo('webmNoCodecPrivate');
@@ -51,5 +52,6 @@ test('webm with h264 and no codecprivate', async () => {
 			primaries: 'bt709',
 			transfer: 'bt709',
 		},
+		timescale: WEBCODECS_TIMESCALE,
 	});
 });
