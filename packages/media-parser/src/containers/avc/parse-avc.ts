@@ -24,7 +24,12 @@ type VuiParameters = {
 	chroma_sample_loc_type_bottom_field: number | null;
 };
 
-const getPoc = (iterator: BufferIterator, sps: SpsInfo, avcState: AvcState) => {
+const getPoc = (
+	iterator: BufferIterator,
+	sps: SpsInfo,
+	avcState: AvcState,
+	isReferencePicture: boolean,
+) => {
 	const {pic_order_cnt_type, log2_max_pic_order_cnt_lsb_minus4} = sps;
 	if (pic_order_cnt_type !== 0) {
 		return null;
@@ -44,7 +49,7 @@ const getPoc = (iterator: BufferIterator, sps: SpsInfo, avcState: AvcState) => {
 	let picOrderCntMsb;
 	if (
 		pic_order_cnt_lsb < prevPicOrderCntLsb &&
-		prevPicOrderCntLsb >= max_pic_order_cnt_lsb / 2
+		prevPicOrderCntLsb - pic_order_cnt_lsb >= max_pic_order_cnt_lsb / 2
 	) {
 		picOrderCntMsb = prevPicOrderCntMsb + max_pic_order_cnt_lsb;
 	} else if (
@@ -57,8 +62,10 @@ const getPoc = (iterator: BufferIterator, sps: SpsInfo, avcState: AvcState) => {
 	}
 
 	const poc = picOrderCntMsb + pic_order_cnt_lsb;
-	avcState.setPrevPicOrderCntLsb(pic_order_cnt_lsb);
-	avcState.setPrevPicOrderCntMsb(picOrderCntMsb);
+	if (isReferencePicture) {
+		avcState.setPrevPicOrderCntLsb(pic_order_cnt_lsb);
+		avcState.setPrevPicOrderCntMsb(picOrderCntMsb);
+	}
 
 	return poc;
 };
@@ -312,7 +319,9 @@ const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
 	const iterator = getArrayBufferIterator(buffer, buffer.byteLength);
 	iterator.startReadingBits();
 	iterator.getBits(1); // forbidden_zero_bit
-	iterator.getBits(2); // nal_ref_idc
+	const nal_ref_idc = iterator.getBits(2); // nal_ref_idc
+	const isReferencePicture = nal_ref_idc !== 0;
+
 	const type = iterator.getBits(5); // nal_unit_type
 	if (type === 7) {
 		iterator.stopReadingBits();
@@ -321,8 +330,10 @@ const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
 		const data = readSps(iterator);
 		const sps = buffer.slice(0, end === null ? Infinity : end);
 		avcState.setSps(data);
-		avcState.setPrevPicOrderCntLsb(0);
-		avcState.setPrevPicOrderCntMsb(0);
+		if (isReferencePicture) {
+			avcState.setPrevPicOrderCntLsb(0);
+			avcState.setPrevPicOrderCntMsb(0);
+		}
 
 		return {
 			spsData: data,
@@ -350,7 +361,7 @@ const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
 
 		let poc: number | null = null;
 		if (pic_order_cnt_type === 0) {
-			poc = getPoc(iterator, sps, avcState);
+			poc = getPoc(iterator, sps, avcState, isReferencePicture);
 		}
 
 		iterator.stopReadingBits();
@@ -388,7 +399,7 @@ const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
 
 		let poc: number | null = null;
 		if (pic_order_cnt_type === 0) {
-			poc = getPoc(iterator, sps, avcState);
+			poc = getPoc(iterator, sps, avcState, isReferencePicture);
 		}
 
 		iterator.stopReadingBits();
