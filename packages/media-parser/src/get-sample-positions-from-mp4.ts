@@ -58,7 +58,7 @@ export const getGroupedSamplesPositionsFromMp4 = ({
 
 		samples.push({
 			chunk,
-			timestamp: timestamp,
+			timestamp,
 			decodingTimestamp: timestamp,
 			offset: Number(entry),
 			size: stszBox.sampleSize * samplesPerChunk,
