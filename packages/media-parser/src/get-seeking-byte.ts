@@ -9,6 +9,7 @@ import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byt
 import type {MediaParserLogLevel} from './log';
 import type {M3uPlaylistContext} from './options';
 import type {SeekingHints} from './seeking-hints';
+import type {AvcState} from './state/avc/avc-state';
 import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {M3uState} from './state/m3u-state';
 import type {WebmState} from './state/matroska/webm';
@@ -32,6 +33,7 @@ export const getSeekingByte = ({
 	structure,
 	riffState,
 	m3uState,
+	avcState,
 }: {
 	info: SeekingHints;
 	time: number;
@@ -45,6 +47,7 @@ export const getSeekingByte = ({
 	m3uPlaylistContext: M3uPlaylistContext | null;
 	riffState: RiffState;
 	m3uState: M3uState;
+	avcState: AvcState;
 }): Promise<SeekResolution> => {
 	if (info.type === 'iso-base-media-seeking-hints') {
 		return getSeekingByteFromIsoBaseMedia({
@@ -113,6 +116,7 @@ export const getSeekingByte = ({
 			info,
 			time,
 			riffState,
+			avcState,
 		});
 	}
 

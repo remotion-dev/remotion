@@ -2,10 +2,14 @@ import type {
 	MediaParserAudioSample,
 	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
+import type {QueuedVideoSample} from './queued-frames';
 import {riffKeyframesState} from './riff-keyframes';
 
 export const riffSampleCounter = () => {
 	const samplesForTrack: Record<number, number> = {};
+
+	// keyframe offset -> poc[]
+	const pocsAtKeyframeOffset: Record<number, number[]> = {};
 
 	const riffKeys = riffKeyframesState();
 
@@ -24,17 +28,14 @@ export const riffSampleCounter = () => {
 		samplesForTrack[trackId]++;
 	};
 
-	const onVideoSample = (
-		trackId: number,
-		videoSample: MediaParserVideoSample,
-	) => {
-		if (typeof samplesForTrack[trackId] === 'undefined') {
-			samplesForTrack[trackId] = 0;
+	const onVideoSample = (videoSample: MediaParserVideoSample) => {
+		if (typeof samplesForTrack[videoSample.trackId] === 'undefined') {
+			samplesForTrack[videoSample.trackId] = 0;
 		}
 
 		if (videoSample.type === 'key') {
 			riffKeys.addKeyframe({
-				trackId,
+				trackId: videoSample.trackId,
 				decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
 				positionInBytes: videoSample.offset,
 				presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
@@ -44,11 +45,11 @@ export const riffSampleCounter = () => {
 		}
 
 		if (videoSample.data.length > 0) {
-			samplesForTrack[trackId]++;
+			samplesForTrack[videoSample.trackId]++;
 		}
 	};
 
-	const getSamplesForTrack = (trackId: number) => {
+	const getSampleCountForTrack = ({trackId}: {trackId: number}) => {
 		return samplesForTrack[trackId] ?? 0;
 	};
 
@@ -58,11 +59,54 @@ export const riffSampleCounter = () => {
 		}
 	};
 
+	const setPocAtKeyframeOffset = ({
+		keyframeOffset,
+		poc,
+	}: {
+		keyframeOffset: number;
+		poc: number;
+	}) => {
+		if (typeof pocsAtKeyframeOffset[keyframeOffset] === 'undefined') {
+			pocsAtKeyframeOffset[keyframeOffset] = [];
+		}
+
+		if (pocsAtKeyframeOffset[keyframeOffset].includes(poc)) {
+			return;
+		}
+
+		pocsAtKeyframeOffset[keyframeOffset].push(poc);
+		pocsAtKeyframeOffset[keyframeOffset].sort((a, b) => a - b);
+	};
+
+	const getPocAtKeyframeOffset = ({
+		keyframeOffset,
+	}: {
+		keyframeOffset: number;
+	}) => {
+		return pocsAtKeyframeOffset[keyframeOffset];
+	};
+
+	const getKeyframeAtOffset = (sample: QueuedVideoSample): number | null => {
+		if (sample.type === 'key') {
+			return sample.offset;
+		}
+
+		return (
+			riffKeys
+				.getKeyframes()
+				.findLast((k) => k.positionInBytes <= sample.offset)?.positionInBytes ??
+			null
+		);
+	};
+
 	return {
 		onAudioSample,
 		onVideoSample,
-		getSamplesForTrack,
+		getSampleCountForTrack,
 		setSamplesFromSeek,
 		riffKeys,
+		setPocAtKeyframeOffset,
+		getPocAtKeyframeOffset,
+		getKeyframeAtOffset,
 	};
 };

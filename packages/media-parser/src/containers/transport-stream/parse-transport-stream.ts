@@ -40,6 +40,7 @@ export const parseTransportStream = async (
 			onAudioTrack: state.onAudioTrack,
 			onVideoTrack: state.onVideoTrack,
 			makeSamplesStartAtZero: state.makeSamplesStartAtZero,
+			avcState: state.avc,
 		});
 	}
 

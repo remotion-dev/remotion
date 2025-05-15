@@ -160,6 +160,7 @@ export const postprocessEbml = async ({
 		onAudioTrack,
 		onVideoTrack,
 		structureState,
+		avcState,
 	},
 }: {
 	offset: number;
@@ -220,6 +221,7 @@ export const postprocessEbml = async ({
 			callbacks,
 			logLevel,
 			onVideoTrack,
+			avcState,
 		});
 
 		if (sample.type === 'video-sample') {
@@ -285,6 +287,7 @@ export const postprocessEbml = async ({
 						callbacks,
 						logLevel,
 						onVideoTrack,
+						avcState,
 					});
 
 		if (sample && sample.type === 'partial-video-sample') {

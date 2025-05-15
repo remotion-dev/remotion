@@ -13,6 +13,7 @@ export const riffKeyframesState = () => {
 		}
 
 		keyframes.push(keyframe);
+		keyframes.sort((a, b) => a.positionInBytes - b.positionInBytes);
 	};
 
 	const getKeyframes = (): RiffKeyframe[] => {

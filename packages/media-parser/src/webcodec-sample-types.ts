@@ -41,6 +41,21 @@ export type MediaParserAudioSample = {
 	timescale: number;
 };
 
+export type MediaParserAvcKeyframeInfo = {
+	type: 'keyframe';
+	poc: number | null;
+};
+
+export type MediaParserAvcDeltaFrameInfo = {
+	type: 'delta-frame';
+	isBidirectionalFrame: boolean;
+	poc: number | null;
+};
+
+export type MediaParserAvcExtraInfo =
+	| MediaParserAvcKeyframeInfo
+	| MediaParserAvcDeltaFrameInfo;
+
 export type MediaParserVideoSample = {
 	data: Uint8Array;
 	timestamp: number;
@@ -51,4 +66,5 @@ export type MediaParserVideoSample = {
 	dts: number;
 	offset: number;
 	timescale: number;
+	avc?: MediaParserAvcExtraInfo;
 };

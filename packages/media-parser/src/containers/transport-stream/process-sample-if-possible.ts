@@ -30,6 +30,7 @@ export const processSampleIfPossible = async (state: ParserState) => {
 					onVideoTrack: state.onVideoTrack,
 					transportStream: state.transportStream,
 					makeSamplesStartAtZero: state.makeSamplesStartAtZero,
+					avcState: state.avc,
 				});
 				state.transportStream.streamBuffers.delete(stream.pid);
 
@@ -59,6 +60,7 @@ export const processSampleIfPossible = async (state: ParserState) => {
 					transportStream: state.transportStream,
 					makeSamplesStartAtZero: state.makeSamplesStartAtZero,
 					transportStreamEntry: stream,
+					avcState: state.avc,
 				});
 				processed = true;
 				break;

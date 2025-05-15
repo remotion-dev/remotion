@@ -1,6 +1,7 @@
 import {combineUint8Arrays} from '../../combine-uint8-arrays';
 import type {MediaParserLogLevel} from '../../log';
 import type {TransportStreamStructure} from '../../parse-result';
+import type {AvcState} from '../../state/avc/avc-state';
 import type {CallbacksState} from '../../state/sample-callbacks';
 import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {
@@ -93,6 +94,7 @@ export const processStreamBuffer = async ({
 	onVideoTrack,
 	transportStream,
 	makeSamplesStartAtZero,
+	avcState,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
 	programId: number;
@@ -103,6 +105,7 @@ export const processStreamBuffer = async ({
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
+	avcState: AvcState;
 }) => {
 	const stream = getStreamForId(structure, programId);
 	if (!stream) {
@@ -125,6 +128,7 @@ export const processStreamBuffer = async ({
 			offset: streamBuffer.offset,
 			transportStream,
 			makeSamplesStartAtZero,
+			avcState,
 		});
 	}
 	// 15 = AAC / ADTS
@@ -158,6 +162,7 @@ export const processFinalStreamBuffers = async ({
 	onVideoTrack,
 	transportStream,
 	makeSamplesStartAtZero,
+	avcState,
 }: {
 	structure: TransportStreamStructure;
 	sampleCallbacks: CallbacksState;
@@ -166,6 +171,7 @@ export const processFinalStreamBuffers = async ({
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	transportStream: TransportStreamState;
 	makeSamplesStartAtZero: boolean;
+	avcState: AvcState;
 }) => {
 	for (const [programId, buffer] of transportStream.streamBuffers) {
 		if (buffer.getBuffer().byteLength > 0) {
@@ -179,6 +185,7 @@ export const processFinalStreamBuffers = async ({
 				onVideoTrack,
 				transportStream,
 				makeSamplesStartAtZero,
+				avcState,
 			});
 			transportStream.streamBuffers.delete(programId);
 		}
