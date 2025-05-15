@@ -4,6 +4,7 @@ import type {
 	MediaParserLogLevel,
 	MediaParserVideoSample,
 } from '@remotion/media-parser';
+import type {ConvertMediaContainer} from '../get-available-containers';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 import type {ProgressTracker} from './progress-tracker';
 
@@ -38,4 +39,5 @@ export type MediaFnGeneratorInput = {
 	progressTracker: ProgressTracker;
 	expectedDurationInSeconds: number | null;
 	expectedFrameRate: number | null;
+	container: ConvertMediaContainer;
 };

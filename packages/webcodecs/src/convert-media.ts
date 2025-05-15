@@ -24,6 +24,7 @@ import {
 import {webReader} from '@remotion/media-parser/web';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
+import {createMedia} from './create-media';
 import {makeProgressTracker} from './create/progress-tracker';
 import {withResolversAndWaitForReturn} from './create/with-resolvers';
 import {generateOutputFilename} from './generate-output-filename';
@@ -42,7 +43,6 @@ import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import type {ResizeOperation} from './resizing/mode';
-import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
 import {
@@ -199,8 +199,6 @@ export const convertMedia = async function <
 		onUserAbort,
 	);
 
-	const creator = selectContainerCreator(container);
-
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
@@ -209,7 +207,8 @@ export const convertMedia = async function <
 
 	const progressTracker = makeProgressTracker();
 
-	const state = await creator({
+	const state = await createMedia({
+		container,
 		filename: generateOutputFilename(src, container),
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
