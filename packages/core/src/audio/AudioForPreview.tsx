@@ -155,7 +155,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const {el: audioRef, mediaElementSourceNode} = useSharedAudio(
 		propsToPass,
 		id,
-		context.audioContext,
 	);
 
 	useMediaInTimeline({
