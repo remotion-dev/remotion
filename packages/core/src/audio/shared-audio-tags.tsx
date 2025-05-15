@@ -31,9 +31,9 @@ import {useSingletonAudioContext} from './use-audio-context.js';
 type AudioElem = {
 	id: number;
 	props: RemotionAudioProps;
-	mediaElementSourceNode: SharedElementSourceNode | null;
 	el: React.RefObject<HTMLAudioElement | null>;
 	audioId: string;
+	mediaElementSourceNode: SharedElementSourceNode | null;
 };
 
 const EMPTY_AUDIO =
@@ -97,6 +97,12 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 	return true;
 };
 
+type Ref = {
+	id: number;
+	ref: React.RefObject<HTMLAudioElement | null>;
+	mediaElementSourceNode: SharedElementSourceNode | null;
+};
+
 export const SharedAudioContext = createContext<SharedContext | null>(null);
 
 export const SharedAudioContextProvider: React.FC<{
@@ -116,18 +122,27 @@ export const SharedAudioContextProvider: React.FC<{
 		);
 	}
 
+	const logLevel = useLogLevel();
+	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
 	const refs = useMemo(() => {
-		return new Array(numberOfAudioTags).fill(true).map(() => {
-			return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
+		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
+			const ref = createRef<HTMLAudioElement>();
+			return {
+				id: Math.random(),
+				ref,
+				mediaElementSourceNode: audioContext
+					? makeSharedElementSourceNode({
+							audioContext,
+							ref,
+						})
+					: null,
+			};
 		});
-	}, [numberOfAudioTags]);
+	}, [audioContext, numberOfAudioTags]);
 
 	const takenAudios = useRef<(false | number)[]>(
 		new Array(numberOfAudioTags).fill(false),
 	);
-
-	const logLevel = useLogLevel();
-	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
 
 	const rerenderAudios = useCallback(() => {
 		refs.forEach(({ref, id}) => {
@@ -174,28 +189,23 @@ export const SharedAudioContextProvider: React.FC<{
 				);
 			}
 
-			const {id, ref} = refs[firstFreeAudio];
+			const {id, ref, mediaElementSourceNode} = refs[firstFreeAudio];
 			const cloned = [...takenAudios.current];
 			cloned[firstFreeAudio] = id;
 			takenAudios.current = cloned;
 
 			const newElem: AudioElem = {
 				props: aud,
-				mediaElementSourceNode: audioContext
-					? makeSharedElementSourceNode({
-							audioContext,
-							ref,
-						})
-					: null,
 				id,
 				el: ref,
 				audioId,
+				mediaElementSourceNode,
 			};
 			audios.current?.push(newElem);
 			rerenderAudios();
 			return newElem;
 		},
-		[numberOfAudioTags, refs, rerenderAudios, audioContext],
+		[numberOfAudioTags, refs, rerenderAudios],
 	);
 
 	const unregisterAudio = useCallback(
@@ -322,11 +332,7 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 };
 
-export const useSharedAudio = (
-	aud: RemotionAudioProps,
-	audioId: string,
-	audioContext: AudioContext | null,
-) => {
+export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	const ctx = useContext(SharedAudioContext);
 
 	/**
@@ -338,18 +344,19 @@ export const useSharedAudio = (
 		}
 
 		const el = React.createRef<HTMLAudioElement>();
+		const mediaElementSourceNode = ctx?.audioContext
+			? makeSharedElementSourceNode({
+					audioContext: ctx.audioContext,
+					ref: el,
+				})
+			: null;
 
 		return {
 			el,
 			id: Math.random(),
 			props: aud,
 			audioId,
-			mediaElementSourceNode: audioContext
-				? makeSharedElementSourceNode({
-						audioContext,
-						ref: el,
-					})
-				: null,
+			mediaElementSourceNode,
 		};
 	});
 
