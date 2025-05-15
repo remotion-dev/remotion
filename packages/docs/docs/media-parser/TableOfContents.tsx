@@ -99,6 +99,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'hasBeenAborted()'}</strong>
 					<div>Determine from an error if the parsing has been aborted.</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/webcodecs-timescale">
+					<strong>{'WEBCODECS_TIMESCALE'}</strong>
+					<div>
+						The global timescale (<code>1_000_000</code>) of WebCodecs as a
+						constant.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

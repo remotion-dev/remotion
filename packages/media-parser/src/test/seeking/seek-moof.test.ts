@@ -4,6 +4,7 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {parseMedia} from '../../parse-media';
 import {nodeReader} from '../../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 const controller1 = mediaParserController();
 
@@ -119,7 +120,7 @@ test('should use seeking hints from previous parse', async () => {
 			seekingHints: hints,
 			onVideoTrack: () => {
 				return (sample) => {
-					const timeInSeconds = sample.timestamp / sample.timescale;
+					const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
 					expect(timeInSeconds).toBe(19.533333333333335);
 					expect(sample.type).toBe('key');
 					controller2.abort();

@@ -2952,6 +2952,15 @@ export const articles = [
 		slug: 'media-parser/web-reader',
 	},
 	{
+		id: 'webcodecs-timescale',
+		title: 'WEBCODECS_TIMESCALE',
+		relativePath: 'docs/media-parser/webcodecs-timescale.mdx',
+		compId: 'articles-docs-media-parser-webcodecs-timescale',
+		crumb: '@remotion/media-parser',
+		noAi: false,
+		slug: 'media-parser/webcodecs-timescale',
+	},
+	{
 		id: 'webcodecs',
 		title: 'Decoding a video with WebCodecs and @remotion/media-parser',
 		relativePath: 'docs/media-parser/webcodecs.mdx',

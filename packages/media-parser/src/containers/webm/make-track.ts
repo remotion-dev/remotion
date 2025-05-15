@@ -7,6 +7,7 @@ import type {
 } from '../../get-tracks';
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {mediaParserAdvancedColorToWebCodecsColor} from '../iso-base-media/color-to-webcodecs-colors';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {parseColorSegment} from './color';
@@ -356,7 +357,7 @@ export const getTrack = ({
 				numerator: 1,
 				denominator: 1,
 			},
-			timescale,
+			originalTimescale: timescale,
 			codedHeight: height.value.value,
 			codedWidth: width.value.value,
 			displayAspectHeight: displayHeight
@@ -372,6 +373,7 @@ export const getTrack = ({
 			codecEnum,
 			fps: null,
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
@@ -389,7 +391,7 @@ export const getTrack = ({
 			type: 'audio',
 			trackId,
 			codec: codecString,
-			timescale,
+			originalTimescale: timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),
@@ -402,6 +404,7 @@ export const getTrack = ({
 				track,
 			}),
 			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 

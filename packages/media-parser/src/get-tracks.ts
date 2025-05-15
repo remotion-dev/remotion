@@ -83,7 +83,8 @@ export type MediaParserVideoTrack = {
 	height: number;
 	rotation: number;
 	fps: number | null;
-	timescale: number;
+	timescale: 1_000_000;
+	originalTimescale: number;
 	advancedColor: MediaParserAdvancedColor;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 	startInSeconds: number;
@@ -99,7 +100,8 @@ export type MediaParserAudioTrack = {
 	type: 'audio';
 	trackId: number;
 	codecEnum: MediaParserAudioCodec;
-	timescale: number;
+	timescale: 1_000_000;
+	originalTimescale: number;
 	codecData: MediaParserCodecData | null;
 	startInSeconds: number;
 };
@@ -107,7 +109,8 @@ export type MediaParserAudioTrack = {
 export type MediaParserOtherTrack = {
 	type: 'other';
 	trackId: number;
-	timescale: number;
+	timescale: 1_000_000;
+	originalTimescale: number;
 	trakBox: TrakBox | null;
 	startInSeconds: number;
 };

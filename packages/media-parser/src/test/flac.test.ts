@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('parse flac', async () => {
 	let samples = 0;
@@ -92,8 +93,9 @@ test('parse flac', async () => {
 			codecEnum: 'flac',
 			numberOfChannels: 2,
 			sampleRate: 44100,
-			timescale: 1000000,
+			originalTimescale: WEBCODECS_TIMESCALE,
 			trackId: 0,
+			timescale: WEBCODECS_TIMESCALE,
 		},
 	]);
 	expect(samples).toBe(213);

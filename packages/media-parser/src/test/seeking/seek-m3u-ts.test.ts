@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test(
 	'seek m3u, ts segments',
@@ -25,31 +26,31 @@ test(
 				onVideoTrack: () => {
 					return (sample) => {
 						if (samples === 0) {
-							expect(sample.decodingTimestamp / sample.timescale).toBe(10);
+							expect(sample.decodingTimestamp / WEBCODECS_TIMESCALE).toBe(10);
 							expect(sample.type).toBe('key');
 							controller.seek(39);
 						}
 
 						if (samples === 1) {
-							expect(sample.decodingTimestamp / sample.timescale).toBe(30);
+							expect(sample.decodingTimestamp / WEBCODECS_TIMESCALE).toBe(30);
 							expect(sample.type).toBe('key');
 							controller.seek(5);
 						}
 
 						if (samples === 2) {
-							expect(sample.decodingTimestamp / sample.timescale).toBe(10);
+							expect(sample.decodingTimestamp / WEBCODECS_TIMESCALE).toBe(10);
 							expect(sample.type).toBe('key');
 							controller.seek(25);
 						}
 
 						if (samples === 3) {
-							expect(sample.decodingTimestamp / sample.timescale).toBe(20);
+							expect(sample.decodingTimestamp / WEBCODECS_TIMESCALE).toBe(20);
 							expect(sample.type).toBe('key');
 							controller.seek(10000);
 						}
 
 						if (samples === 4) {
-							expect(sample.decodingTimestamp / sample.timescale).toBe(640);
+							expect(sample.decodingTimestamp / WEBCODECS_TIMESCALE).toBe(640);
 							expect(sample.type).toBe('key');
 							controller.abort();
 						}
