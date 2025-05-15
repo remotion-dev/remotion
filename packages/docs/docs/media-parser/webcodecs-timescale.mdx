@@ -22,7 +22,7 @@ const timescale = WEBCODECS_TIMESCALE; // 1_000_000
 To get the time in seconds of a sample, you can divide the timestamp by the `WEBCODECS_TIMESCALE` constant.
 
 ```tsx twoslash title="Getting the native timescale"
-import {parseMedia} from '@remotion/media-parser';
+import {parseMedia, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 
 const result2 = await parseMedia({
   src: 'https://parser.media/video.mp4',
