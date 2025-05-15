@@ -2,12 +2,17 @@ import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 
 export type QueuedVideoSample = Omit<
 	MediaParserVideoSample,
-	'cts' | 'dts' | 'timestamp'
+	'decodingTimestamp' | 'timestamp'
 >;
 
+type QueueItem = {
+	sample: QueuedVideoSample;
+	trackId: number;
+};
+
 export const queuedBFramesState = () => {
-	const queuedFrames: QueuedVideoSample[] = [];
-	const releasedFrames: QueuedVideoSample[] = [];
+	const queuedFrames: QueueItem[] = [];
+	const releasedFrames: QueueItem[] = [];
 
 	const flush = () => {
 		releasedFrames.push(...queuedFrames);
@@ -15,21 +20,29 @@ export const queuedBFramesState = () => {
 	};
 
 	return {
-		addFrame: (frame: QueuedVideoSample, maxFramesInBuffer: number) => {
+		addFrame: ({
+			frame,
+			maxFramesInBuffer,
+			trackId,
+		}: {
+			frame: QueuedVideoSample;
+			trackId: number;
+			maxFramesInBuffer: number;
+		}) => {
 			if (frame.type === 'key') {
 				flush();
-				releasedFrames.push(frame);
+				releasedFrames.push({sample: frame, trackId});
 				return;
 			}
 
-			queuedFrames.push(frame);
+			queuedFrames.push({sample: frame, trackId});
 
 			if (queuedFrames.length > maxFramesInBuffer) {
 				releasedFrames.push(queuedFrames.shift()!);
 			}
 		},
 		flush,
-		getReleasedFrame: (): QueuedVideoSample | null => {
+		getReleasedFrame: (): QueueItem | null => {
 			if (releasedFrames.length === 0) {
 				return null;
 			}

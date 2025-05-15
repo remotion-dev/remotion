@@ -9,8 +9,8 @@ export type SamplePosition = {
 	offset: number;
 	size: number;
 	isKeyframe: boolean;
-	dts: number;
-	cts: number;
+	decodingTimestamp: number;
+	timestamp: number;
 	duration: number;
 	chunk: number;
 	bigEndian: boolean;
@@ -81,8 +81,8 @@ export const getSamplePositions = ({
 				offset: Number(chunks[i]) + offsetInThisChunk,
 				size,
 				isKeyframe,
-				dts,
-				cts,
+				decodingTimestamp: dts,
+				timestamp: cts,
 				duration: delta,
 				chunk: i,
 				bigEndian: false,

@@ -57,8 +57,8 @@ export const getKeyframesFromIsoBaseMedia = (
 			.map((k): MediaParserKeyframe => {
 				return {
 					trackId: t.trackId,
-					presentationTimeInSeconds: k.cts / ts,
-					decodingTimeInSeconds: k.dts / ts,
+					presentationTimeInSeconds: k.timestamp / ts,
+					decodingTimeInSeconds: k.decodingTimestamp / ts,
 					positionInBytes: k.offset,
 					sizeInBytes: k.size,
 				};

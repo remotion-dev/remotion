@@ -45,7 +45,6 @@ export const handleChunk = async ({
 			// this sample would be longer. Chrome will pad it with silence.
 			// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished
 			duration: 1 / samplesPerSecond,
-			trackId,
 			type: keyOrDelta === 'bidirectional' ? 'delta' : keyOrDelta,
 			offset,
 			timescale: samplesPerSecond,
@@ -70,18 +69,23 @@ export const handleChunk = async ({
 			});
 		}
 
-		state.riff.queuedBFrames.addFrame(rawSample, maxFramesInBuffer);
+		state.riff.queuedBFrames.addFrame({
+			frame: rawSample,
+			trackId,
+			maxFramesInBuffer,
+		});
 		const releasedFrame = state.riff.queuedBFrames.getReleasedFrame();
 		if (!releasedFrame) {
 			return;
 		}
 
 		const videoSample = convertQueuedSampleToMediaParserSample(
-			releasedFrame,
+			releasedFrame.sample,
 			state,
+			releasedFrame.trackId,
 		);
 
-		state.riff.sampleCounter.onVideoSample(videoSample);
+		state.riff.sampleCounter.onVideoSample(videoSample, trackId);
 		await state.callbacks.onVideoSample(trackId, videoSample);
 	}
 
@@ -106,8 +110,7 @@ export const handleChunk = async ({
 
 		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
 			sample: {
-				cts: timestamp,
-				dts: timestamp,
+				decodingTimestamp: timestamp,
 				data, // We must also NOT pass a duration because if the the next sample is 0,
 				// this sample would be longer. Chrome will pad it with silence.
 				// If we'd pass a duration instead, it would shift the audio and we think that audio is not finished

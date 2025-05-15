@@ -82,10 +82,7 @@ export const handleAacPacket = async ({
 	}
 
 	const sample: MediaParserAudioSample = {
-		cts:
-			streamBuffer.pesHeader.pts -
-			transportStream.startOffset.getOffset(programId),
-		dts:
+		decodingTimestamp:
 			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
 			transportStream.startOffset.getOffset(programId),
 		timestamp:
@@ -93,7 +90,6 @@ export const handleAacPacket = async ({
 			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
 		data: streamBuffer.getBuffer(),
-		trackId: programId,
 		type: 'key',
 		offset,
 		timescale: MPEG_TIMESCALE,

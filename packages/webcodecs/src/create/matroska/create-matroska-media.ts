@@ -146,7 +146,7 @@ export const createMatroskaMedia = async ({
 		// to allow for timestamps to be lower than the previous one
 
 		progressTracker.setPossibleLowestTimestamp(
-			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
 		);
 
 		const smallestProgress = progressTracker.getSmallestProgress();

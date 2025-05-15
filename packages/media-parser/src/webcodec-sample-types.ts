@@ -30,13 +30,13 @@ export type MediaParserOnVideoTrack = (
 // These types are the same, but maybe we add more info in the future
 // Therefore keeping it separate for now
 export type MediaParserAudioSample = {
+	// Used by WebCodecs
 	data: Uint8Array;
 	timestamp: number;
 	duration: number | undefined;
-	trackId: number;
 	type: 'key' | 'delta';
-	cts: number;
-	dts: number;
+	// Not used by WebCodecs
+	decodingTimestamp: number;
 	offset: number;
 	timescale: number;
 };
@@ -57,14 +57,14 @@ export type MediaParserAvcExtraInfo =
 	| MediaParserAvcDeltaFrameInfo;
 
 export type MediaParserVideoSample = {
+	// Used by WebCodecs
 	data: Uint8Array;
 	timestamp: number;
-	duration: number | undefined;
-	trackId: number;
 	type: 'key' | 'delta';
-	cts: number;
-	dts: number;
-	offset: number;
+	duration: number | undefined;
 	timescale: number;
+	// Not used by WebCodecs
+	decodingTimestamp: number;
+	offset: number;
 	avc?: MediaParserAvcExtraInfo;
 };

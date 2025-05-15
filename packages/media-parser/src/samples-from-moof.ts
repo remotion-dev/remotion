@@ -66,8 +66,8 @@ const getSamplesFromTraf = (
 
 			const samplePosition: SamplePosition = {
 				offset: offset + (moofOffset ?? 0) + (dataOffset ?? 0),
-				dts,
-				cts: dts + (sample.sampleCompositionTimeOffset ?? 0),
+				decodingTimestamp: dts,
+				timestamp: dts + (sample.sampleCompositionTimeOffset ?? 0),
 				duration,
 				isKeyframe: keyframe,
 				size,

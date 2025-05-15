@@ -122,7 +122,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		}
 
 		const highest = samplePositions
-			?.map((sp) => (sp.cts + sp.duration) / ts)
+			?.map((sp) => (sp.timestamp + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
 
 		return highest ?? 0;

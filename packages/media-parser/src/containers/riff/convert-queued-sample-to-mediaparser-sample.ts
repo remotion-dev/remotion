@@ -6,13 +6,15 @@ import {getStrhForIndex} from './get-strh-for-index';
 const getKeyFrameOffsetAndPocs = ({
 	state,
 	sample,
+	trackId,
 }: {
 	state: ParserState;
 	sample: QueuedVideoSample;
+	trackId: number;
 }) => {
 	if (sample.type === 'key') {
 		const sampleOffset = state.riff.sampleCounter.getSampleCountForTrack({
-			trackId: sample.trackId,
+			trackId,
 		});
 
 		return {
@@ -30,7 +32,7 @@ const getKeyFrameOffsetAndPocs = ({
 		throw new Error('no keyframe at offset');
 	}
 
-	const sampleOffsetAtKeyframe = keyframeAtOffset.sampleCounts[sample.trackId];
+	const sampleOffsetAtKeyframe = keyframeAtOffset.sampleCounts[trackId];
 	const pocsAtKeyframeOffset = state.riff.sampleCounter.getPocAtKeyframeOffset({
 		keyframeOffset: keyframeAtOffset.positionInBytes,
 	});
@@ -44,11 +46,9 @@ const getKeyFrameOffsetAndPocs = ({
 export const convertQueuedSampleToMediaParserSample = (
 	sample: QueuedVideoSample,
 	state: ParserState,
+	trackId: number,
 ) => {
-	const strh = getStrhForIndex(
-		state.structure.getRiffStructure(),
-		sample.trackId,
-	);
+	const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 	const samplesPerSecond = strh.rate / strh.scale;
 
@@ -56,6 +56,7 @@ export const convertQueuedSampleToMediaParserSample = (
 		getKeyFrameOffsetAndPocs({
 			sample,
 			state,
+			trackId,
 		});
 	const indexOfPoc = pocsAtKeyframeOffset.findIndex(
 		(poc) => poc === sample.avc?.poc,
@@ -71,8 +72,7 @@ export const convertQueuedSampleToMediaParserSample = (
 		sample: {
 			...sample,
 			timestamp,
-			cts: timestamp,
-			dts: timestamp,
+			decodingTimestamp: timestamp,
 		},
 		timescale: 1,
 	});

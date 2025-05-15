@@ -30,18 +30,16 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = <
 		return sample;
 	}
 
-	const {cts, dts, timestamp} = sample;
+	const {decodingTimestamp: dts, timestamp} = sample;
 
 	return {
-		cts: fixFloat(cts * (TARGET_TIMESCALE / timescale)),
-		dts: fixFloat(dts * (TARGET_TIMESCALE / timescale)),
+		decodingTimestamp: fixFloat(dts * (TARGET_TIMESCALE / timescale)),
 		timestamp: fixFloat(timestamp * (TARGET_TIMESCALE / timescale)),
 		duration:
 			sample.duration === undefined
 				? undefined
 				: fixFloat(sample.duration * (TARGET_TIMESCALE / timescale)),
 		data: sample.data,
-		trackId: sample.trackId,
 		type: sample.type,
 		offset: sample.offset,
 		timescale: TARGET_TIMESCALE,

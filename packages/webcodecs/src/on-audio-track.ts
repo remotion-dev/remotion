@@ -169,7 +169,7 @@ export const makeAudioTrackHandler =
 			},
 			onChunk: async (chunk) => {
 				await state.addSample({
-					chunk: convertEncodedChunk(chunk, trackNumber),
+					chunk: convertEncodedChunk(chunk),
 					trackNumber,
 					isVideo: false,
 					codecPrivate,

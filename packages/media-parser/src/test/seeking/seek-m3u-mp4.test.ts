@@ -24,22 +24,26 @@ test('seek m3u, only video', async () => {
 			onVideoTrack: () => {
 				return (sample) => {
 					if (samples === 0) {
-						expect(sample.dts / sample.timescale).toBe(4.021666666666667);
+						expect(sample.decodingTimestamp / sample.timescale).toBe(
+							4.021666666666667,
+						);
 						controller.seek(2);
 					}
 
 					if (samples === 1) {
-						expect(sample.dts / sample.timescale).toBe(1.18);
+						expect(sample.decodingTimestamp / sample.timescale).toBe(1.18);
 						controller.seek(2.05);
 					}
 
 					if (samples === 2) {
-						expect(sample.dts / sample.timescale).toBe(2.0283333333333333);
+						expect(sample.decodingTimestamp / sample.timescale).toBe(
+							2.0283333333333333,
+						);
 						controller.seek(2);
 					}
 
 					if (samples === 3) {
-						expect(sample.dts / sample.timescale).toBe(1.18);
+						expect(sample.decodingTimestamp / sample.timescale).toBe(1.18);
 						controller.abort();
 					}
 
@@ -70,34 +74,44 @@ test('seek m3u, video and audio', async () => {
 	) => {
 		if (samples === 0) {
 			expect(mediaType).toBe('video');
-			expect(sample.dts / sample.timescale).toBe(5.165);
+			expect(sample.decodingTimestamp / sample.timescale).toBe(5.165);
 		}
 
 		if (samples === 1) {
 			expect(mediaType).toBe('audio');
-			expect(sample.dts / sample.timescale).toBe(5.482666666666666);
+			expect(sample.decodingTimestamp / sample.timescale).toBe(
+				5.482666666666666,
+			);
 			controller.seek(100);
 		}
 
 		if (samples === 2) {
 			expect(mediaType).toBe('video');
-			expect(sample.dts / sample.timescale).toBe(9.148333333333333);
+			expect(sample.decodingTimestamp / sample.timescale).toBe(
+				9.148333333333333,
+			);
 			controller.seek(1);
 		}
 
 		if (samples === 3) {
 			expect(mediaType).toBe('video');
-			expect(sample.dts / sample.timescale).toBe(0.036666666666666674);
+			expect(sample.decodingTimestamp / sample.timescale).toBe(
+				0.036666666666666674,
+			);
 		}
 
 		if (samples === 4) {
 			expect(mediaType).toBe('audio');
-			expect(sample.dts / sample.timescale).toBe(0.9813333333333333);
+			expect(sample.decodingTimestamp / sample.timescale).toBe(
+				0.9813333333333333,
+			);
 		}
 
 		if (samples === 5) {
 			expect(mediaType).toBe('video');
-			expect(sample.dts / sample.timescale).toBe(0.07333333333333335);
+			expect(sample.decodingTimestamp / sample.timescale).toBe(
+				0.07333333333333335,
+			);
 			controller.abort();
 		}
 

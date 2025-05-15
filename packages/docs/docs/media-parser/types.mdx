@@ -102,12 +102,22 @@ import type {MediaParserOnAudioSample} from '@remotion/media-parser';
 //                ^?
 ```
 
+The `data`, `timestamp`, `duration`, `type` fields are in a format so that this type can be passed into the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
+
+The other fields are for informative purposes.
+
 ## `MediaParserVideoSample`
 
 ```tsx twoslash
 import type {MediaParserVideoSample} from '@remotion/media-parser';
 //                ^?
 ```
+
+Note: `timestamp` is the presentation timestamp of the sample. `decodingTimestamp` is the timestamp of the sample when it will be decoded.
+
+The `data`, `timestamp`, `duration`, `type` fields are in a format so that this type can be passed into the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
+
+The other fields are for informative purposes.
 
 ## `MediaParserOnVideoSample`
 

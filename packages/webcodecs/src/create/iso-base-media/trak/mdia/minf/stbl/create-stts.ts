@@ -31,10 +31,13 @@ export const createSttsAtom = (
 		// TODO: Why does 0 appear here?
 		if (a[i].duration === undefined || a[i].duration === 0) {
 			if (a[i + 1] === undefined) {
-				return a[i].dts - (a[i - 1]?.dts ?? a[i].dts);
+				return (
+					a[i].decodingTimestamp -
+					(a[i - 1]?.decodingTimestamp ?? a[i].decodingTimestamp)
+				);
 			}
 
-			return a[i + 1].dts - a[i].dts;
+			return a[i + 1].decodingTimestamp - a[i].decodingTimestamp;
 		}
 
 		return a[i].duration;

@@ -225,10 +225,7 @@ export const postprocessEbml = async ({
 		});
 
 		if (sample.type === 'video-sample') {
-			await callbacks.onVideoSample(
-				sample.videoSample.trackId,
-				sample.videoSample,
-			);
+			await callbacks.onVideoSample(sample.trackId, sample.videoSample);
 
 			return {
 				type: 'Block',
@@ -238,10 +235,7 @@ export const postprocessEbml = async ({
 		}
 
 		if (sample.type === 'audio-sample') {
-			await callbacks.onAudioSample(
-				sample.audioSample.trackId,
-				sample.audioSample,
-			);
+			await callbacks.onAudioSample(sample.trackId, sample.audioSample);
 
 			return {
 				type: 'Block',
@@ -296,10 +290,7 @@ export const postprocessEbml = async ({
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
 
-			await callbacks.onVideoSample(
-				sample.partialVideoSample.trackId,
-				completeFrame,
-			);
+			await callbacks.onVideoSample(sample.trackId, completeFrame);
 		}
 
 		return {

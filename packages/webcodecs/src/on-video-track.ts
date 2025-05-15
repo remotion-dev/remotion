@@ -186,7 +186,7 @@ export const makeVideoTrackHandler =
 		const videoEncoder = createVideoEncoder({
 			onChunk: async (chunk, metadata) => {
 				await state.addSample({
-					chunk: convertEncodedChunk(chunk, trackNumber),
+					chunk: convertEncodedChunk(chunk),
 					trackNumber,
 					isVideo: true,
 					codecPrivate: arrayBufferToUint8Array(

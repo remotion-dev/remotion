@@ -38,8 +38,7 @@ export const parseMediaSection = async ({
 
 	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
 		sample: {
-			cts: timestamp,
-			dts: timestamp,
+			decodingTimestamp: timestamp,
 			data,
 			duration,
 			timestamp,
