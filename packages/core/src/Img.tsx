@@ -11,6 +11,7 @@ import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
+import {getCrossOriginValue} from './get-cross-origin-value.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -43,6 +44,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onImageFrame,
+		crossOrigin,
 		...props
 	},
 	ref,
@@ -221,8 +223,20 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		]);
 	}
 
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: false,
+	});
+
 	// src gets set once we've loaded and decoded the image.
-	return <img {...props} ref={imageRef} onError={didGetError} />;
+	return (
+		<img
+			{...props}
+			ref={imageRef}
+			crossOrigin={crossOriginValue}
+			onError={didGetError}
+		/>
+	);
 };
 
 /*
