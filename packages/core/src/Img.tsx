@@ -9,6 +9,7 @@ import React, {
 import {SequenceContext} from './SequenceContext.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
+import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
 
@@ -43,6 +44,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onImageFrame,
+		crossOrigin,
 		...props
 	},
 	ref,
@@ -68,6 +70,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		}
 
 		const currentSrc = imageRef.current.src;
+
 		setTimeout(() => {
 			if (!imageRef.current) {
 				// Component has been unmounted, do not retry
@@ -221,8 +224,20 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		]);
 	}
 
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: false,
+	});
+
 	// src gets set once we've loaded and decoded the image.
-	return <img {...props} ref={imageRef} onError={didGetError} />;
+	return (
+		<img
+			{...props}
+			ref={imageRef}
+			crossOrigin={crossOriginValue}
+			onError={didGetError}
+		/>
+	);
 };
 
 /*
