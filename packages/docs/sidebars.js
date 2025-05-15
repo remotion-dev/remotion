@@ -726,6 +726,7 @@ module.exports = {
 				'whisper-web/resample-to-16khz',
 				'whisper-web/can-use-whisper-web',
 				'whisper-web/get-loaded-models',
+				'whisper-web/to-captions',
 			],
 		},
 		{

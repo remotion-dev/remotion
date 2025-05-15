@@ -18,6 +18,7 @@ import type {
 	ResampleTo16KhzParams,
 } from './resample-to-16khz';
 import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
+import type {toCaptions as originalToCaptions} from './to-captions';
 import type {
 	transcribe as originalTranscribe,
 	TranscribeParams,
@@ -54,6 +55,12 @@ export const canUseWhisperWeb: typeof originalCanUseWhisperWeb = () => {
 };
 
 export const resampleTo16Khz: typeof originalResampleTo16Khz = () => {
+	throw new Error(
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
+	);
+};
+
+export const toCaptions: typeof originalToCaptions = () => {
 	throw new Error(
 		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
 	);

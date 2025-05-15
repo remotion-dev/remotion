@@ -2,10 +2,9 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "dist",
-		"module": "ES2022",
-		"resolveJsonModule": false
+		"outDir": "dist"
 	},
 	"include": ["src", "main.d.ts"],
-	"exclude": ["src/index.module.ts"]
+	"exclude": ["src/index.module.ts"],
+	"references": [{"path": "../captions"}]
 }

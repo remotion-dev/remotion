@@ -14,7 +14,9 @@
 	},
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
 	"license": "UNLICENSED",
-	"dependencies": {},
+	"dependencies": {
+		"@remotion/captions": "workspace:*"
+	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0"
