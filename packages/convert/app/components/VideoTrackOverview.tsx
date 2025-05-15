@@ -42,7 +42,9 @@ export const VideoTrackOverview: React.FC<{
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Timescale</TableCell>
-					<TableCell className="text-right">{track.timescale}</TableCell>
+					<TableCell className="text-right">
+						{track.originalTimescale}
+					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Sample Aspect Ratio</TableCell>
