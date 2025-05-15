@@ -72,7 +72,7 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 				description: codecPrivate,
 				numberOfChannels: channelConfiguration,
 				sampleRate,
-				timescale: 1_000_000,
+				originalTimescale: 1_000_000,
 				trackId: 0,
 				type: 'audio',
 				startInSeconds: 0,
@@ -102,15 +102,16 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 			type: 'key',
 			data,
 			offset: startOffset,
-			timescale: 1000000,
-			trackId: 0,
 			decodingTimestamp: timestamp,
 			timestamp,
 		},
 		timescale: 1,
 	});
 
-	await state.callbacks.onAudioSample(0, audioSample);
+	await state.callbacks.onAudioSample({
+		audioSample,
+		trackId: 0,
+	});
 
 	return Promise.resolve(null);
 };

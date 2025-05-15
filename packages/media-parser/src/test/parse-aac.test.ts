@@ -74,7 +74,7 @@ test('should be able to parse aac', async () => {
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
-				timescale: 1000000,
+				originalTimescale: 1000000,
 				trackId: 0,
 				type: 'audio',
 			});
@@ -163,7 +163,7 @@ test('should be able to get basics without parsing all', async () => {
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
-				timescale: 1000000,
+				originalTimescale: 1000000,
 				trackId: 0,
 				type: 'audio',
 			});

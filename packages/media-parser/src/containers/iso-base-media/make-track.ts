@@ -81,7 +81,7 @@ export const makeBaseMediaTrack = (
 		return {
 			type: 'audio',
 			trackId: tkhdBox.trackId,
-			timescale: timescaleAndDuration.timescale,
+			originalTimescale: timescaleAndDuration.timescale,
 			codec: codecString,
 			numberOfChannels: actual.numberOfChannels,
 			sampleRate: actual.sampleRate,
@@ -96,7 +96,7 @@ export const makeBaseMediaTrack = (
 		return {
 			type: 'other',
 			trackId: tkhdBox.trackId,
-			timescale: timescaleAndDuration.timescale,
+			originalTimescale: timescaleAndDuration.timescale,
 			trakBox,
 			startInSeconds: startTimeInSeconds,
 		};
@@ -141,7 +141,7 @@ export const makeBaseMediaTrack = (
 		type: 'video',
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors ?? undefined,
-		timescale: timescaleAndDuration.timescale,
+		originalTimescale: timescaleAndDuration.timescale,
 		codec,
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
 		width,

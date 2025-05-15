@@ -30,7 +30,7 @@ test('webm with h264 and no codecprivate', async () => {
 			numerator: 1,
 			denominator: 1,
 		},
-		timescale: 1000000,
+		originalTimescale: 1000000,
 		codedHeight: 1080,
 		codedWidth: 1896,
 		displayAspectHeight: 1080,

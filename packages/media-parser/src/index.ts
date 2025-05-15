@@ -123,6 +123,7 @@ export {
 	MediaParserController,
 } from './controller/media-parser-controller';
 export {VERSION} from './version';
+export {WEBCODECS_TIMESCALE} from './webcodecs-timescale';
 
 export type {MediaParserSampleAspectRatio} from './get-tracks';
 

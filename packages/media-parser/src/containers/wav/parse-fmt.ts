@@ -55,7 +55,7 @@ export const parseFmt = async ({
 			codecEnum: format,
 			numberOfChannels,
 			sampleRate,
-			timescale: 1_000_000,
+			originalTimescale: 1_000_000,
 			trackId: 0,
 			startInSeconds: 0,
 		},

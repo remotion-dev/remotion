@@ -1,5 +1,6 @@
 import type {ParserState} from '../../../state/parser-state';
 import type {MediaParserAudioSample} from '../../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../../webcodecs-timescale';
 import {getAverageMpegFrameLength} from '../get-frame-length';
 
 export const getAudioSampleFromCbr = ({
@@ -38,15 +39,14 @@ export const getAudioSampleFromCbr = ({
 
 	const durationInSeconds = samplesPerFrame / sampleRate;
 	const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
-	const timestamp = Math.round(timeInSeconds * 1_000_000);
-	const duration = Math.round(durationInSeconds * 1_000_000);
+	const timestamp = Math.round(timeInSeconds * WEBCODECS_TIMESCALE);
+	const duration = Math.round(durationInSeconds * WEBCODECS_TIMESCALE);
 
 	const audioSample: MediaParserAudioSample = {
 		data,
 		decodingTimestamp: timestamp,
 		duration,
 		offset: initialOffset,
-		timescale: 1_000_000,
 		timestamp,
 		type: 'key',
 	};

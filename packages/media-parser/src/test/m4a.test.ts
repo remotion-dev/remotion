@@ -27,7 +27,7 @@ test('should work on voice note', async () => {
 				startInSeconds: 0,
 				type: 'audio',
 				trackId: 1,
-				timescale: 48000,
+				originalTimescale: 48000,
 				codec: 'mp4a.40.02',
 				numberOfChannels: 1,
 				sampleRate: 48000,

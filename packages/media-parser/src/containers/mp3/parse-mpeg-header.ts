@@ -95,7 +95,7 @@ export const parseMpegHeader = async ({
 				description: undefined,
 				numberOfChannels,
 				sampleRate,
-				timescale: 1_000_000,
+				originalTimescale: 1_000_000,
 				trackId: 0,
 				startInSeconds: 0,
 			},
@@ -143,5 +143,8 @@ export const parseMpegHeader = async ({
 		durationInSeconds,
 	});
 
-	await state.callbacks.onAudioSample(0, audioSample);
+	await state.callbacks.onAudioSample({
+		audioSample,
+		trackId: 0,
+	});
 };

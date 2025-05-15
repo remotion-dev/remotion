@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('AVI file', async () => {
 	let audioTrackCount = 0;
@@ -44,7 +45,7 @@ test('AVI file', async () => {
 		onAudioTrack: () => {
 			audioTrackCount++;
 			return (sample) => {
-				const time = sample.timestamp / sample.timescale;
+				const time = sample.timestamp / WEBCODECS_TIMESCALE;
 				if (time > 31) {
 					throw new Error('time higher than duration');
 				}
@@ -59,7 +60,7 @@ test('AVI file', async () => {
 
 			videoTrackCount++;
 			return (sample) => {
-				const time = sample.timestamp / sample.timescale;
+				const time = sample.timestamp / WEBCODECS_TIMESCALE;
 
 				if (time > 31) {
 					throw new Error('time higher than duration');
@@ -94,7 +95,7 @@ test('AVI file', async () => {
 			description: new Uint8Array([18, 16]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
-			timescale: 1_000_000,
+			originalTimescale: 1_000_000,
 			trackId: 1,
 			type: 'audio',
 			startInSeconds: 0,
@@ -185,7 +186,7 @@ test('AVI file', async () => {
 				denominator: 1,
 				numerator: 1,
 			},
-			timescale: 1_000_000,
+			originalTimescale: 1_000_000,
 			trackId: 0,
 			type: 'video',
 			width: 480,

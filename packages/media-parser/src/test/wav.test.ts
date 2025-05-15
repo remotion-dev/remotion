@@ -75,7 +75,7 @@ test('parse full wav', async () => {
 			description: undefined,
 			numberOfChannels: 1,
 			sampleRate: 44100,
-			timescale: 1000000,
+			originalTimescale: 1000000,
 			trackId: 0,
 			type: 'audio',
 		},

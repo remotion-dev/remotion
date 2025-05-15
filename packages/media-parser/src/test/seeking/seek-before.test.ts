@@ -5,6 +5,7 @@ import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
 import type {MediaParserVideoSample} from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('should be able to set the start seek', async () => {
 	const controller = mediaParserController();
@@ -30,7 +31,7 @@ test('should be able to set the start seek', async () => {
 	} catch (err) {
 		expect(hasBeenAborted(err)).toBe(true);
 		const timeInSeconds =
-			(firstSample?.timestamp ?? 0) / (firstSample?.timescale ?? 1);
+			(firstSample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1);
 		expect(timeInSeconds).toBe(10.5);
 	}
 });

@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('seek aac', async () => {
 	const controller = mediaParserController();
@@ -18,22 +19,22 @@ test('seek aac', async () => {
 			return (s) => {
 				samples++;
 				if (samples === 1) {
-					expect(s.timestamp / s.timescale).toBe(2.995374149659864);
+					expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(2.995374149659864);
 					controller.seek(10);
 				}
 
 				if (samples === 2) {
-					expect(s.timestamp / s.timescale).toBe(9.984580498866213);
+					expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(9.984580498866213);
 					controller.seek(5);
 				}
 
 				if (samples === 3) {
-					expect(s.timestamp / s.timescale).toBe(4.992290249433107);
+					expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(4.992290249433107);
 					controller.seek(1000);
 				}
 
 				if (samples === 4) {
-					expect(s.timestamp / s.timescale).toBe(105.79011337868481);
+					expect(s.timestamp / WEBCODECS_TIMESCALE).toBe(105.79011337868481);
 				}
 
 				if (samples === 5) {

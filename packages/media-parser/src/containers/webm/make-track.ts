@@ -356,7 +356,7 @@ export const getTrack = ({
 				numerator: 1,
 				denominator: 1,
 			},
-			timescale,
+			originalTimescale: timescale,
 			codedHeight: height.value.value,
 			codedWidth: width.value.value,
 			displayAspectHeight: displayHeight
@@ -389,7 +389,7 @@ export const getTrack = ({
 			type: 'audio',
 			trackId,
 			codec: codecString,
-			timescale,
+			originalTimescale: timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),

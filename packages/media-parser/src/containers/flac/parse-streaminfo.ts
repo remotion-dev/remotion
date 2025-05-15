@@ -52,7 +52,7 @@ export const parseStreamInfo = async ({
 			codecEnum: 'flac',
 			numberOfChannels: channels,
 			sampleRate,
-			timescale: 1_000_000,
+			originalTimescale: 1_000_000,
 			trackId: 0,
 			startInSeconds: 0,
 		},

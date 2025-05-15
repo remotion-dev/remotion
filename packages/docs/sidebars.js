@@ -280,6 +280,7 @@ module.exports = {
 				'media-parser/web-reader',
 				'media-parser/universal-reader',
 				'media-parser/node-writer',
+				'media-parser/webcodecs-timescale',
 			],
 		},
 

@@ -28,7 +28,7 @@ test('Stream samples', async () => {
 		type: 'video',
 		trackId: 1,
 		description,
-		timescale: 15360,
+		originalTimescale: 15360,
 		codec: 'avc1.640020',
 		sampleAspectRatio: {
 			numerator: 1,
@@ -71,7 +71,7 @@ test('Stream samples', async () => {
 		startInSeconds: 0,
 		type: 'audio',
 		trackId: 2,
-		timescale: 48000,
+		originalTimescale: 48000,
 		numberOfChannels: 2,
 		codec: 'mp3',
 		sampleRate: 48000,

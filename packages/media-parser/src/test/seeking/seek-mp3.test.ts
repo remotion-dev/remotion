@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('seek mp3', async () => {
 	const controller = mediaParserController();
@@ -19,30 +20,30 @@ test('seek mp3', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / sample.timescale).toBe(9.978776);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.978776);
 					expect(sample.type).toBe('key');
 					controller.seek(25);
 				}
 
 				if (samples === 2) {
-					expect(sample.timestamp / sample.timescale).toBe(24.999184);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(24.999184);
 					controller.seek(30);
 				}
 
 				if (samples === 3) {
-					expect(sample.timestamp / sample.timescale).toBe(29.988571);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(29.988571);
 					expect(sample.type).toBe('key');
 					controller.seek(0);
 				}
 
 				if (samples === 4) {
-					expect(sample.timestamp / sample.timescale).toBe(0);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(0);
 					expect(sample.type).toBe('key');
 					controller.seek(100);
 				}
 
 				if (samples === 5) {
-					expect(sample.timestamp / sample.timescale).toBe(56.502857);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(56.502857);
 					expect(sample.type).toBe('key');
 				}
 			};

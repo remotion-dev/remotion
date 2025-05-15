@@ -92,7 +92,7 @@ test('parse flac', async () => {
 			codecEnum: 'flac',
 			numberOfChannels: 2,
 			sampleRate: 44100,
-			timescale: 1000000,
+			originalTimescale: 1000000,
 			trackId: 0,
 		},
 	]);
