@@ -486,6 +486,24 @@ Disables React Suspense, which is [useful for writing tests](/docs/player/thumbn
 
 Acknowledge the [Remotion License](/docs/license) to make the console message disappear.
 
+### `volumePersistenceKey`<AvailableFrom v="4.0.xxx" />
+
+_optional_ A string that allows you to customize the `localStorage` key used for saving and retrieving the user's volume preference.
+
+By default, Remotion uses the key `"remotion.volumePreference"`.
+
+This prop is useful in environments where you need to avoid key collisions or have specific naming policies for `localStorage` keys, such as in multi-tenant applications or embedded SaaS widgets.
+
+**Example:**
+
+```tsx
+<Player
+  component={MyVideo}
+  // ... other props
+  volumePersistenceKey="my-app-volume-preference"
+/>
+```
+
 ## `PlayerRef`
 
 You may attach a ref to the player and control it in an imperative manner.
