@@ -11,7 +11,7 @@ export type RemotionMainVideoProps = {
 	_remotionInternalNativeLoopPassed?: boolean;
 };
 
-export type RemotionVideoProps = Omit<
+export type NativeVideoProps = Omit<
 	React.DetailedHTMLProps<
 		React.VideoHTMLAttributes<HTMLVideoElement>,
 		HTMLVideoElement
@@ -22,7 +22,9 @@ export type RemotionVideoProps = Omit<
 	| 'nonce'
 	| 'onError'
 	| 'disableRemotePlayback'
-> & {
+>;
+
+export type RemotionVideoProps = NativeVideoProps & {
 	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;

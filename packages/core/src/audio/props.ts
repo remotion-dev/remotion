@@ -6,13 +6,15 @@ export type RemotionMainAudioProps = {
 	endAt?: number;
 };
 
-export type RemotionAudioProps = Omit<
+export type NativeAudioProps = Omit<
 	React.DetailedHTMLProps<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement
 	>,
 	'autoPlay' | 'controls' | 'onEnded' | 'nonce' | 'onResize' | 'onResizeCapture'
-> & {
+>;
+
+export type RemotionAudioProps = NativeAudioProps & {
 	name?: string;
 	volume?: VolumeProp;
 	playbackRate?: number;
@@ -30,3 +32,14 @@ export type RemotionAudioProps = Omit<
 	delayRenderRetries?: number;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 };
+
+type IsNever<T> = [T] extends [never] ? true : false;
+
+export type IsExact<T, U> =
+	(<G>() => G extends T ? 1 : 2) extends <G>() => G extends U ? 1 : 2
+		? IsNever<Exclude<keyof T, keyof U>> extends true
+			? IsNever<Exclude<keyof U, keyof T>> extends true
+				? true
+				: false
+			: false
+		: false;
