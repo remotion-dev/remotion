@@ -35,7 +35,7 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
-		let decoder: VideoDecoder | undefined;
+		let videoDecoder: VideoDecoder | undefined;
 
 		parseMediaOnWebWorker({
 			controller,
@@ -58,7 +58,7 @@ export const useThumbnailAndWaveform = ({
 
 				hasStartedWaveform.current = true;
 
-				decoder = new AudioDecoder({
+				const decoder = new AudioDecoder({
 					output(frame) {
 						waveform.add(frame);
 						frame.close();
@@ -96,7 +96,7 @@ export const useThumbnailAndWaveform = ({
 				decoder.configure(track);
 
 				return (sample) => {
-					decoder?.decode(new EncodedAudioChunk(sample));
+					decoder.decode(new EncodedAudioChunk(sample));
 				};
 			},
 			onVideoTrack: async ({track, container}) => {
@@ -111,7 +111,7 @@ export const useThumbnailAndWaveform = ({
 					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
-				decoder = new VideoDecoder({
+				videoDecoder = new VideoDecoder({
 					error: (error) => {
 						// eslint-disable-next-line no-console
 						console.log(error);
@@ -140,7 +140,7 @@ export const useThumbnailAndWaveform = ({
 					return null;
 				}
 
-				decoder.configure(track);
+				videoDecoder.configure(track);
 
 				return (sample) => {
 					if (sample.type !== 'key' && onlyKeyframes) {
@@ -148,10 +148,10 @@ export const useThumbnailAndWaveform = ({
 					}
 
 					if (sample.type === 'key') {
-						decoder!.flush();
+						videoDecoder!.flush();
 					}
 
-					decoder!.decode(new EncodedVideoChunk(sample));
+					videoDecoder!.decode(new EncodedVideoChunk(sample));
 				};
 			},
 		})
@@ -174,7 +174,7 @@ export const useThumbnailAndWaveform = ({
 				setError(err2 as Error);
 			})
 			.then(() => {
-				decoder?.flush();
+				videoDecoder?.flush();
 				hasEnoughData();
 			});
 
