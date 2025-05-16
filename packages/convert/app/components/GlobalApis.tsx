@@ -1,3 +1,4 @@
+import {MediaParserInternals} from '@remotion/media-parser';
 import {useEffect} from 'react';
 
 export const GlobalApisInConsole = () => {
@@ -13,7 +14,8 @@ export const GlobalApisInConsole = () => {
 				window.convertMedia = convertMedia;
 			}),
 		]).then(() => {
-			console.log(
+			MediaParserInternals.Log.info(
+				'info',
 				'Tip: You can use parseMedia() and convertMedia() in this console!',
 			);
 		});
