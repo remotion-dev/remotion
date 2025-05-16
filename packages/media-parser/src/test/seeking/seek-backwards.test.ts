@@ -4,6 +4,7 @@ import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('should be able to seek forward and then backwards', async () => {
 	const controller = mediaParserController();
@@ -22,14 +23,12 @@ test('should be able to seek forward and then backwards', async () => {
 					samples++;
 
 					if (samples === 1) {
-						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
-							10.5,
-						);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(10.5);
 						controller.seek(0);
 					}
 
 					if (samples === 2) {
-						expect((sample?.timestamp ?? 0) / (sample?.timescale ?? 1)).toBe(
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
 							0.08333333333333333,
 						);
 						controller.abort();

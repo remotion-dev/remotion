@@ -2,6 +2,7 @@ import type {
 	MediaParserAudioSample,
 	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 export const samplesObservedState = () => {
 	let smallestVideoSample: number | undefined;
@@ -41,8 +42,8 @@ export const samplesObservedState = () => {
 	const addVideoSample = (videoSample: MediaParserVideoSample) => {
 		videoSamples.set(videoSample.timestamp, videoSample.data.byteLength);
 		const presentationTimeInSeconds =
-			videoSample.timestamp / videoSample.timescale;
-		const duration = (videoSample.duration ?? 0) / videoSample.timescale;
+			videoSample.timestamp / WEBCODECS_TIMESCALE;
+		const duration = (videoSample.duration ?? 0) / WEBCODECS_TIMESCALE;
 		if (
 			largestVideoSample === undefined ||
 			presentationTimeInSeconds > largestVideoSample
@@ -61,8 +62,8 @@ export const samplesObservedState = () => {
 	const addAudioSample = (audioSample: MediaParserAudioSample) => {
 		audioSamples.set(audioSample.timestamp, audioSample.data.byteLength);
 		const presentationTimeInSeconds =
-			audioSample.timestamp / audioSample.timescale;
-		const duration = (audioSample.duration ?? 0) / audioSample.timescale;
+			audioSample.timestamp / WEBCODECS_TIMESCALE;
+		const duration = (audioSample.duration ?? 0) / WEBCODECS_TIMESCALE;
 		if (
 			largestAudioSample === undefined ||
 			presentationTimeInSeconds > largestAudioSample

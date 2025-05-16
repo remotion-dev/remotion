@@ -38,7 +38,6 @@ export type MediaParserAudioSample = {
 	// Not used by WebCodecs
 	decodingTimestamp: number;
 	offset: number;
-	timescale: number;
 };
 
 export type MediaParserAvcKeyframeInfo = {
@@ -62,7 +61,6 @@ export type MediaParserVideoSample = {
 	timestamp: number;
 	type: 'key' | 'delta';
 	duration: number | undefined;
-	timescale: number;
 	// Not used by WebCodecs
 	decodingTimestamp: number;
 	offset: number;

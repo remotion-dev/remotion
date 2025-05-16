@@ -92,7 +92,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 	for (const positions of samplePositionsArray) {
 		const {min, max} = getSamplePositionBounds(
 			positions.samples,
-			firstTrack.timescale,
+			firstTrack.originalTimescale,
 		);
 
 		if (
@@ -107,7 +107,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			const kf = findKeyframeBeforeTime({
 				samplePositions: positions.samples,
 				time,
-				timescale: firstTrack.timescale,
+				timescale: firstTrack.originalTimescale,
 				logLevel,
 				mediaSections: info.mediaSections,
 				startInSeconds: firstTrack.startInSeconds,
@@ -131,7 +131,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			mfra: atom,
 			time,
 			firstTrack,
-			timescale: firstTrack.timescale,
+			timescale: firstTrack.originalTimescale,
 		});
 
 		if (

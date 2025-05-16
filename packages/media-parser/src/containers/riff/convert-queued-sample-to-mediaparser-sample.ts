@@ -43,11 +43,15 @@ const getKeyFrameOffsetAndPocs = ({
 	};
 };
 
-export const convertQueuedSampleToMediaParserSample = (
-	sample: QueuedVideoSample,
-	state: ParserState,
-	trackId: number,
-) => {
+export const convertQueuedSampleToMediaParserSample = ({
+	sample,
+	state,
+	trackId,
+}: {
+	sample: QueuedVideoSample;
+	state: ParserState;
+	trackId: number;
+}) => {
 	const strh = getStrhForIndex(state.structure.getRiffStructure(), trackId);
 
 	const samplesPerSecond = strh.rate / strh.scale;

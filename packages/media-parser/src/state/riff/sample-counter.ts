@@ -2,6 +2,7 @@ import type {
 	MediaParserAudioSample,
 	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import type {QueuedVideoSample} from './queued-frames';
 import {riffKeyframesState} from './riff-keyframes';
 
@@ -28,10 +29,13 @@ export const riffSampleCounter = () => {
 		samplesForTrack[trackId]++;
 	};
 
-	const onVideoSample = (
-		videoSample: MediaParserVideoSample,
-		trackId: number,
-	) => {
+	const onVideoSample = ({
+		trackId,
+		videoSample,
+	}: {
+		videoSample: MediaParserVideoSample;
+		trackId: number;
+	}) => {
 		if (typeof samplesForTrack[trackId] === 'undefined') {
 			samplesForTrack[trackId] = 0;
 		}
@@ -40,10 +44,9 @@ export const riffSampleCounter = () => {
 			riffKeys.addKeyframe({
 				trackId,
 				decodingTimeInSeconds:
-					videoSample.decodingTimestamp / videoSample.timescale,
+					videoSample.decodingTimestamp / WEBCODECS_TIMESCALE,
 				positionInBytes: videoSample.offset,
-				presentationTimeInSeconds:
-					videoSample.timestamp / videoSample.timescale,
+				presentationTimeInSeconds: videoSample.timestamp / WEBCODECS_TIMESCALE,
 				sizeInBytes: videoSample.data.length,
 				sampleCounts: {...samplesForTrack},
 			});

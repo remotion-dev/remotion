@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('seek flac', async () => {
 	const controller = mediaParserController();
@@ -16,22 +17,30 @@ test('seek flac', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / sample.timescale).toBe(2.972154195011338);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+						2.972154195011338,
+					);
 					controller.seek(5);
 				}
 
 				if (samples === 2) {
-					expect(sample.timestamp / sample.timescale).toBe(4.922630385487528);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+						4.922630385487528,
+					);
 					controller.seek(2);
 				}
 
 				if (samples === 3) {
-					expect(sample.timestamp / sample.timescale).toBe(1.9504761904761905);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+						1.9504761904761905,
+					);
 					controller.seek(90);
 				}
 
 				if (samples === 4) {
-					expect(sample.timestamp / sample.timescale).toBe(19.690521541950112);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+						19.690521541950112,
+					);
 				}
 			};
 		},

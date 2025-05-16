@@ -1,6 +1,7 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {M3uState} from '../../state/m3u-state';
 import type {MediaParserVideoSample} from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 export const considerSeekBasedOnChunk = async ({
 	sample,
@@ -29,8 +30,8 @@ export const considerSeekBasedOnChunk = async ({
 	}
 
 	const timestamp = Math.min(
-		sample.decodingTimestamp / sample.timescale,
-		sample.timestamp / sample.timescale,
+		sample.decodingTimestamp / WEBCODECS_TIMESCALE,
+		sample.timestamp / WEBCODECS_TIMESCALE,
 	);
 
 	// Already too far, now we should go to the previous chunk

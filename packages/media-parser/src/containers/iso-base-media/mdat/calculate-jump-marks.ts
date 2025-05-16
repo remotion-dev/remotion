@@ -165,7 +165,7 @@ export const calculateJumpMarks = (
 
 		const timestamp =
 			currentSamplePosition.samplePosition.decodingTimestamp /
-			currentSamplePosition.track.timescale;
+			currentSamplePosition.track.originalTimescale;
 
 		progresses[currentSamplePosition.track.trackId] = timestamp;
 

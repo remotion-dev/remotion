@@ -42,15 +42,16 @@ export const parseMediaSection = async ({
 			data,
 			duration,
 			timestamp,
-			trackId: 0,
 			type: 'key',
 			offset,
-			timescale: 1_000_000,
 		},
 		timescale: 1,
 	});
 
-	await state.callbacks.onAudioSample(0, audioSample);
+	await state.callbacks.onAudioSample({
+		audioSample,
+		trackId: 0,
+	});
 
 	return null;
 };

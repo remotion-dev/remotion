@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('seek-xing', async () => {
 	const controller = mediaParserController();
@@ -25,25 +26,25 @@ test('seek-xing', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / sample.timescale).toBe(9.978334);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.978334);
 				}
 
 				if (samples === 2) {
-					expect(sample.timestamp / sample.timescale).toBe(10.005549);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(10.005549);
 					controller.seek(20);
 				}
 
 				if (samples === 3) {
-					expect(sample.timestamp / sample.timescale).toBe(19.99599);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(19.99599);
 					controller.seek(30);
 				}
 
 				if (samples === 4) {
-					expect(sample.timestamp / sample.timescale).toBe(29.975858);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(29.975858);
 				}
 
 				if (samples === 5) {
-					expect(sample.timestamp / sample.timescale).toBe(30.006214);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(30.006214);
 				}
 			};
 		},

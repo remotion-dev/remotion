@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('should be able to parse aac', async () => {
 	let audioSamples = 0;
@@ -74,9 +75,10 @@ test('should be able to parse aac', async () => {
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
-				timescale: 1000000,
+				originalTimescale: 1000000,
 				trackId: 0,
 				type: 'audio',
+				timescale: WEBCODECS_TIMESCALE,
 			});
 			return () => {
 				audioSamples++;
@@ -163,9 +165,10 @@ test('should be able to get basics without parsing all', async () => {
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
-				timescale: 1000000,
+				originalTimescale: 1000000,
 				trackId: 0,
 				type: 'audio',
+				timescale: WEBCODECS_TIMESCALE,
 			});
 			return null;
 		},

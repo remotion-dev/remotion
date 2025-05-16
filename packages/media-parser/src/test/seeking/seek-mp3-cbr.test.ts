@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 test('seek mp3 cbr', async () => {
 	const controller = mediaParserController();
@@ -19,12 +20,12 @@ test('seek mp3 cbr', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / sample.timescale).toBe(59.95102);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(59.95102);
 					controller.seek(10000000);
 				}
 
 				if (samples === 2) {
-					expect(sample.timestamp / sample.timescale).toBe(125.048163);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(125.048163);
 				}
 
 				if (samples === 3) {

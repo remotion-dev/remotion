@@ -5,6 +5,7 @@ import type {
 	MediaParserVideoTrack,
 } from '../../get-tracks';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import type {
 	RiffStructure,
 	StrfBoxAudio,
@@ -45,9 +46,10 @@ export const makeAviAudioTrack = ({
 		description: new Uint8Array([18, 16]),
 		numberOfChannels: strf.numberOfChannels,
 		sampleRate: strf.sampleRate,
-		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
+		originalTimescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		trackId: index,
 		startInSeconds: 0,
+		timescale: WEBCODECS_TIMESCALE,
 	};
 };
 
@@ -74,7 +76,7 @@ export const makeAviVideoTrack = ({
 		height: strf.height,
 		type: 'video',
 		displayAspectHeight: strf.height,
-		timescale: MEDIA_PARSER_RIFF_TIMESCALE,
+		originalTimescale: MEDIA_PARSER_RIFF_TIMESCALE,
 		description: undefined,
 		m3uStreamFormat: null,
 		trackId: index,
@@ -98,6 +100,7 @@ export const makeAviVideoTrack = ({
 		},
 		fps: strh.rate / strh.scale,
 		startInSeconds: 0,
+		timescale: WEBCODECS_TIMESCALE,
 	};
 };
 

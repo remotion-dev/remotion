@@ -4,6 +4,7 @@ import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted} from '../errors';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 beforeAll(async () => {
 	await getRemoteExampleVideo('tsKeyframes');
@@ -21,7 +22,7 @@ test('Should be able to seek back based on already observed keyframes', async ()
 			onVideoTrack: () => {
 				return (sample) => {
 					samples++;
-					const timeInSeconds = sample.timestamp / sample.timescale;
+					const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
 					if (timeInSeconds === 5.8058) {
 						controller1.seek(3);
 					}
@@ -85,7 +86,7 @@ test('should be able to use seeking hints from previous parse', async () => {
 			controller: controller2,
 			onVideoTrack: () => {
 				return (sample) => {
-					const timeInSeconds = sample.timestamp / sample.timescale;
+					const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
 					expect(timeInSeconds).toBe(2.9029);
 					expect(sample.type).toBe('key');
 					controller2.abort();
