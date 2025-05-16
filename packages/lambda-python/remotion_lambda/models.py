@@ -366,7 +366,6 @@ class RenderMediaParams:
             'apiKey': self.api_key,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
-            'storageClass': self.storage_class,
             'x264Preset': self.x264_preset,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
