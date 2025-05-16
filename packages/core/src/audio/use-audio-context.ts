@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from 'react';
+import {useMemo} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 
@@ -31,14 +31,6 @@ export const useSingletonAudioContext = (
 			latencyHint,
 		});
 	}, [logLevel, latencyHint]);
-
-	useEffect(() => {
-		return () => {
-			if (audioContext) {
-				audioContext.close();
-			}
-		};
-	}, [audioContext]);
 
 	return audioContext;
 };
