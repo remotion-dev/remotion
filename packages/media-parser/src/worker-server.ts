@@ -24,7 +24,8 @@ const post = (message: WorkerResponsePayload) => {
 const controller = mediaParserController();
 
 const executeCallback = (payload: ResponseCallbackPayload) => {
-	const nonce = crypto.randomUUID();
+	// safari doesn't support crypto.randomUUID()
+	const nonce = String(Math.random());
 	const {promise, resolve, reject} = withResolvers<AcknowledgePayload>();
 
 	const cb = (msg: MessageEvent) => {

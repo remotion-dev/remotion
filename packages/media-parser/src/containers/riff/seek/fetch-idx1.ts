@@ -36,7 +36,14 @@ export const fetchIdx1 = async ({
 		prefetchCache,
 	});
 
-	const iterator = getArrayBufferIterator(new Uint8Array(), Infinity);
+	if (result.contentLength === null) {
+		throw new Error('Content length is null');
+	}
+
+	const iterator = getArrayBufferIterator(
+		new Uint8Array(),
+		result.contentLength - position + 1,
+	);
 	while (true) {
 		const res = await result.reader.reader.read();
 		if (res.value) {
