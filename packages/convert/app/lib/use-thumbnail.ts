@@ -58,7 +58,7 @@ export const useThumbnailAndWaveform = ({
 
 				hasStartedWaveform.current = true;
 
-				const decoder = new AudioDecoder({
+				decoder = new AudioDecoder({
 					output(frame) {
 						waveform.add(frame);
 						frame.close();
@@ -96,7 +96,7 @@ export const useThumbnailAndWaveform = ({
 				decoder.configure(track);
 
 				return (sample) => {
-					decoder.decode(new EncodedAudioChunk(sample));
+					decoder?.decode(new EncodedAudioChunk(sample));
 				};
 			},
 			onVideoTrack: async ({track, container}) => {
