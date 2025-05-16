@@ -58,6 +58,7 @@ test('Should fail when using an incompatible version', async () => {
 				forcePathStyle: false,
 				metadata: {Author: 'Lunar'},
 				apiKey: null,
+				storageClass: null,
 			},
 			functionName: 'remotion-dev-render',
 			region: 'us-east-1',

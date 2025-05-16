@@ -103,6 +103,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 				Author: 'Lunar',
 			},
 			apiKey: null,
+			storageClass: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
@@ -183,10 +184,9 @@ test('Python package should create the same renderStill payload as normal Lambda
 			frame: 0,
 			indent: false,
 			onInit: () => undefined,
-			dumpBrowserLogs: false,
-			quality: undefined,
 			forcePathStyle: false,
 			apiKey: null,
+			storageClass: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);

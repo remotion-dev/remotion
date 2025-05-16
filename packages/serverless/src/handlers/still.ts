@@ -223,6 +223,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: null,
 		customCredentials: null,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: null,
 	});
 
 	const onBrowserDownload = () => {
@@ -270,6 +271,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 				downloadBehavior: params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -337,6 +339,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: params.downloadBehavior,
 		customCredentials,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: params.storageClass,
 	});
 
 	await Promise.all([

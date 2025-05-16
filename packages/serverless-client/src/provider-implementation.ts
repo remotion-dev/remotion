@@ -116,6 +116,7 @@ export type WriteFileInput<Provider extends CloudProvider> = {
 	downloadBehavior: DownloadBehavior | null;
 	customCredentials: CustomCredentials<Provider> | null;
 	forcePathStyle: boolean;
+	storageClass: Provider['storageClass'] | null;
 };
 
 type WriteFile<Provider extends CloudProvider> = (

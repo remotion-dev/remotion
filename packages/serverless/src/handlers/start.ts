@@ -74,6 +74,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		privacy: 'private',
 		customCredentials: null,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: null,
 	});
 
 	const payload: ServerlessPayload<Provider> = {
@@ -123,6 +124,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		metadata: params.metadata,
 		apiKey: params.apiKey,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		storageClass: params.storageClass,
 	};
 
 	await providerSpecifics.callFunctionAsync({

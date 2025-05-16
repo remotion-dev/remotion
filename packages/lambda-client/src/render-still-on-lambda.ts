@@ -7,6 +7,7 @@ import type {
 } from '@remotion/serverless-client';
 import {ServerlessRoutines} from '@remotion/serverless-client';
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	CostsInfo,
 	OutNameInput,
@@ -34,10 +35,6 @@ type MandatoryParameters = {
 type OptionalParameters = {
 	maxRetries: number;
 	envVariables: Record<string, string>;
-	/**
-	 * @deprecated Renamed to `jpegQuality`
-	 */
-	quality?: never;
 	frame: number;
 	outName: OutNameInput<AwsProvider> | null;
 	chromiumOptions: ChromiumOptions;
@@ -45,10 +42,6 @@ type OptionalParameters = {
 	forceWidth: number | null;
 	forceHeight: number | null;
 	forceBucketName: string | null;
-	/**
-	 * @deprecated Renamed to `logLevel`
-	 */
-	dumpBrowserLogs: boolean;
 	onInit: (data: {
 		renderId: string;
 		cloudWatchLogs: string;
@@ -56,6 +49,7 @@ type OptionalParameters = {
 	}) => void;
 	indent: boolean;
 	forcePathStyle: boolean;
+	storageClass: StorageClass | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -75,7 +69,7 @@ export type RenderStillOnLambdaOutput = {
 	artifacts: ReceivedArtifact<AwsProvider>[];
 };
 
-const internalRenderStillOnLambda = async (
+const innerRenderStillOnLambda = async (
 	input: RenderStillOnLambdaNonNullInput,
 ): Promise<RenderStillOnLambdaOutput> => {
 	const {functionName, region, onInit} = input;
@@ -154,14 +148,27 @@ const internalRenderStillOnLambda = async (
 	}
 };
 
-const errorHandled = wrapWithErrorHandling(internalRenderStillOnLambda);
+export const internalRenderStillOnLambda = wrapWithErrorHandling(
+	innerRenderStillOnLambda,
+);
 
 /*
  * @description Renders a still image inside a lambda function and writes it to the specified output location.
  * @see [Documentation](https://remotion.dev/docs/lambda/renderstillonlambda)
  */
-export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
-	return errorHandled({
+export const renderStillOnLambda = (
+	input: RenderStillOnLambdaInput & {
+		/**
+		 * @deprecated Renamed to `jpegQuality`
+		 */
+		quality?: never;
+		/**
+		 * @deprecated Renamed to `logLevel`
+		 */
+		dumpBrowserLogs?: boolean;
+	},
+) => {
+	return internalRenderStillOnLambda({
 		chromiumOptions: input.chromiumOptions ?? {},
 		composition: input.composition,
 		deleteAfter: input.deleteAfter ?? null,
@@ -179,18 +186,17 @@ export const renderStillOnLambda = (input: RenderStillOnLambdaInput) => {
 		onInit: input.onInit ?? (() => undefined),
 		outName: input.outName ?? null,
 		privacy: input.privacy,
-		quality: undefined,
 		region: input.region,
 		serveUrl: input.serveUrl,
-		jpegQuality: input.jpegQuality ?? 80,
+		jpegQuality: input.jpegQuality ?? input.quality ?? 80,
 		logLevel: input.dumpBrowserLogs ? 'verbose' : (input.logLevel ?? 'info'),
 		offthreadVideoCacheSizeInBytes:
 			input.offthreadVideoCacheSizeInBytes ?? null,
 		scale: input.scale ?? 1,
 		timeoutInMilliseconds: input.timeoutInMilliseconds ?? 30000,
-		dumpBrowserLogs: false,
 		forcePathStyle: input.forcePathStyle ?? false,
 		apiKey: input.apiKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
+		storageClass: input.storageClass ?? null,
 	});
 };

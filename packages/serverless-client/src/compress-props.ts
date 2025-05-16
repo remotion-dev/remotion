@@ -112,6 +112,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 			key: makeKey(propsType, hash),
 			privacy: 'private',
 			forcePathStyle,
+			storageClass: null,
 		});
 
 		return {

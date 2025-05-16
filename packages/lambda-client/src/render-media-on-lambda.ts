@@ -1,3 +1,4 @@
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	AudioCodec,
 	BrowserSafeApis,
@@ -69,6 +70,7 @@ export type RenderMediaOnLambdaInput = {
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
 	metadata?: Record<string, string> | null;
+	storageClass?: StorageClass | null;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -190,6 +192,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		indent: false,
 		metadata: options.metadata ?? null,
 		apiKey: options.apiKey ?? null,
+		storageClass: options.storageClass ?? null,
 	};
 };
 

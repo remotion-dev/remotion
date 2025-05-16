@@ -18,8 +18,10 @@ export type AwsProvider = {
 		vpcSecurityGroupIds: string;
 		runtimePreference: RuntimePreference;
 	};
+	storageClass: StorageClass;
 };
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
 import {expiryDays} from '@remotion/serverless-client';
 import {EventEmitter} from 'node:events';

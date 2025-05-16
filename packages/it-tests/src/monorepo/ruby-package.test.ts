@@ -133,6 +133,7 @@ test('Render Media payload', async () => {
 				Author: 'Lunar',
 			},
 			apiKey: null,
+			storageClass: null,
 		});
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
@@ -173,11 +174,10 @@ test('Render Still payload', async () => {
 			frame: 0,
 			indent: false,
 			onInit: () => undefined,
-			dumpBrowserLogs: false,
-			quality: undefined,
 			forcePathStyle: false,
 			apiKey: null,
 			offthreadVideoThreads: null,
+			storageClass: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});

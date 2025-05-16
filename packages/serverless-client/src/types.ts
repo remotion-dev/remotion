@@ -10,11 +10,13 @@ export interface CloudProvider<
 		string,
 		unknown
 	>,
+	StorageClass extends string = string,
 > {
 	type: string;
 	region: Region;
 	receivedArtifactType: ReceivedArtifactType;
 	creationFunctionOptions: CreateFunctionSpecifics;
+	storageClass: StorageClass;
 }
 
 export type ReceivedArtifact<Provider extends CloudProvider> = {
