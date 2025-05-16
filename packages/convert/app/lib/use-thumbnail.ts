@@ -35,6 +35,8 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
+		let videoDecoder: VideoDecoder | undefined;
+
 		parseMediaOnWebWorker({
 			controller,
 			src: src.type === 'file' ? src.file : src.url,
@@ -109,7 +111,7 @@ export const useThumbnailAndWaveform = ({
 					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
-				const decoder = new VideoDecoder({
+				videoDecoder = new VideoDecoder({
 					error: (error) => {
 						// eslint-disable-next-line no-console
 						console.log(error);
@@ -138,7 +140,7 @@ export const useThumbnailAndWaveform = ({
 					return null;
 				}
 
-				decoder.configure(track);
+				videoDecoder.configure(track);
 
 				return (sample) => {
 					if (sample.type !== 'key' && onlyKeyframes) {
@@ -146,10 +148,10 @@ export const useThumbnailAndWaveform = ({
 					}
 
 					if (sample.type === 'key') {
-						decoder.flush();
+						videoDecoder!.flush();
 					}
 
-					decoder.decode(new EncodedVideoChunk(sample));
+					videoDecoder!.decode(new EncodedVideoChunk(sample));
 				};
 			},
 		})
@@ -172,6 +174,7 @@ export const useThumbnailAndWaveform = ({
 				setError(err2 as Error);
 			})
 			.then(() => {
+				videoDecoder?.flush();
 				hasEnoughData();
 			});
 
