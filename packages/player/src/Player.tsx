@@ -95,6 +95,7 @@ export type PlayerProps<
 	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
 	readonly audioLatencyHint?: AudioContextLatencyCategory;
+	readonly volumePersistenceKey?: string;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -163,6 +164,7 @@ const PlayerFn = <
 		noSuspense,
 		acknowledgeRemotionLicense,
 		audioLatencyHint = 'interactive',
+		volumePersistenceKey,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -407,6 +409,7 @@ const PlayerFn = <
 				initiallyMuted={initiallyMuted}
 				logLevel={logLevel}
 				audioLatencyHint={audioLatencyHint}
+				volumePersistenceKey={volumePersistenceKey}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
