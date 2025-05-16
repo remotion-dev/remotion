@@ -5,6 +5,7 @@ import {hasBeenAborted} from '../../errors';
 import {nodeReader} from '../../node';
 import {parseMedia} from '../../parse-media';
 import type {SeekingHints} from '../../seeking-hints';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 const expectedSeekingHints: SeekingHints = {
 	type: 'riff-seeking-hints',
@@ -49,30 +50,34 @@ test('seek avi', async () => {
 				return (sample) => {
 					samples++;
 					if (samples === 1) {
-						expect(sample.timestamp / sample.timescale).toBe(0);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(0);
 						expect(sample.type).toBe('key');
 						controller.seek(20);
 					}
 
 					if (samples === 2) {
-						expect(sample.timestamp / sample.timescale).toBe(0);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(0);
 						expect(sample.type).toBe('key');
 					}
 
 					if (samples === 300) {
-						expect(sample.timestamp / sample.timescale).toBe(9.9);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.9);
 						expect(sample.type).toBe('delta');
 
 						controller.seek(10);
 					}
 
 					if (samples === 301) {
-						expect(sample.timestamp / sample.timescale).toBe(8.333333333333334);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+							8.333333333333334,
+						);
 						expect(sample.type).toBe('key');
 					}
 
 					if (samples === 302) {
-						expect(sample.timestamp / sample.timescale).toBe(8.466666666666667);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+							8.466666666666667,
+						);
 						expect(sample.type).toBe('delta');
 						controller.abort();
 					}
@@ -129,7 +134,9 @@ test('should be able to use seeking hints', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / sample.timescale).toBe(8.333333333333334);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+						8.333333333333334,
+					);
 					expect(sample.type).toBe('key');
 					controller.seek(20);
 				}

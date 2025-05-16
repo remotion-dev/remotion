@@ -27,8 +27,7 @@ if (process.platform !== 'win32') {
 				slowAudioBitrate: true,
 			},
 			reader: nodeReader,
-			onVideoTrack: ({track}) => {
-				expect(track.timescale).toBe(600);
+			onVideoTrack: () => {
 				videoTracks++;
 				return () => {
 					videoSamples++;

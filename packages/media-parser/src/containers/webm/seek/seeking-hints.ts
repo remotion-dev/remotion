@@ -18,7 +18,7 @@ export const getSeekingHintsFromMatroska = (
 		type: 'webm-seeking-hints',
 		track: firstVideoTrack
 			? {
-					timescale: firstVideoTrack.timescale,
+					timescale: firstVideoTrack.originalTimescale,
 					trackId: firstVideoTrack.trackId,
 				}
 			: null,

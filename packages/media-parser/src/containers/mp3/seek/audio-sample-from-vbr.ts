@@ -1,5 +1,6 @@
 import type {Mp3Info, VariableMp3BitrateInfo} from '../../../state/mp3';
 import type {MediaParserAudioSample} from '../../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../../webcodecs-timescale';
 import {getDurationFromMp3Xing} from '../get-duration';
 import {getTimeFromPosition} from '../parse-xing';
 import {getSamplesPerMpegFrame} from '../samples-per-mpeg-file';
@@ -44,15 +45,14 @@ export const getAudioSampleFromVbr = ({
 	});
 	const durationInSeconds = samplesPerFrame / info.xingData.sampleRate;
 
-	const timestamp = Math.round(timeInSeconds * 1_000_000);
-	const duration = Math.round(durationInSeconds * 1_000_000);
+	const timestamp = Math.round(timeInSeconds * WEBCODECS_TIMESCALE);
+	const duration = Math.round(durationInSeconds * WEBCODECS_TIMESCALE);
 
 	const audioSample: MediaParserAudioSample = {
 		data,
 		decodingTimestamp: timestamp,
 		duration,
 		offset: position,
-		timescale: 1_000_000,
 		timestamp,
 		type: 'key',
 	};

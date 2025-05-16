@@ -3,6 +3,7 @@ import {expect, test} from 'bun:test';
 import {WAVE_SAMPLES_PER_SECOND} from '../containers/wav/get-seeking-byte';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('parse full wav', async () => {
 	const {
@@ -75,9 +76,10 @@ test('parse full wav', async () => {
 			description: undefined,
 			numberOfChannels: 1,
 			sampleRate: 44100,
-			timescale: 1000000,
+			originalTimescale: 1000000,
 			trackId: 0,
 			type: 'audio',
+			timescale: WEBCODECS_TIMESCALE,
 		},
 	]);
 	expect(durationInSeconds).toBe(30);

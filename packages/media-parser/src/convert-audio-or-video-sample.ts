@@ -2,8 +2,7 @@ import type {
 	MediaParserAudioSample,
 	MediaParserVideoSample,
 } from './webcodec-sample-types';
-
-const TARGET_TIMESCALE = 1_000_000;
+import {WEBCODECS_TIMESCALE} from './webcodecs-timescale';
 
 const fixFloat = (value: number) => {
 	if (value % 1 < 0.0000001) {
@@ -26,23 +25,22 @@ export const convertAudioOrVideoSampleToWebCodecsTimestamps = <
 	sample: T;
 	timescale: number;
 }): T => {
-	if (timescale === TARGET_TIMESCALE) {
+	if (timescale === WEBCODECS_TIMESCALE) {
 		return sample;
 	}
 
 	const {decodingTimestamp: dts, timestamp} = sample;
 
 	return {
-		decodingTimestamp: fixFloat(dts * (TARGET_TIMESCALE / timescale)),
-		timestamp: fixFloat(timestamp * (TARGET_TIMESCALE / timescale)),
+		decodingTimestamp: fixFloat(dts * (WEBCODECS_TIMESCALE / timescale)),
+		timestamp: fixFloat(timestamp * (WEBCODECS_TIMESCALE / timescale)),
 		duration:
 			sample.duration === undefined
 				? undefined
-				: fixFloat(sample.duration * (TARGET_TIMESCALE / timescale)),
+				: fixFloat(sample.duration * (WEBCODECS_TIMESCALE / timescale)),
 		data: sample.data,
 		type: sample.type,
 		offset: sample.offset,
-		timescale: TARGET_TIMESCALE,
 		...('avc' in sample ? {avc: sample.avc} : {}),
 	} as T;
 };

@@ -171,10 +171,10 @@ export const parseMdatSection = async (
 		bigEndian,
 		chunkSize,
 	} = samplesWithIndex.samplePosition;
-	const {timescale, startInSeconds} = samplesWithIndex.track;
+	const {originalTimescale, startInSeconds} = samplesWithIndex.track;
 
-	const cts = rawCts + startInSeconds * timescale;
-	const dts = rawDts + startInSeconds * timescale;
+	const cts = rawCts + startInSeconds * originalTimescale;
+	const dts = rawDts + startInSeconds * originalTimescale;
 
 	const bytes = postprocessBytes({
 		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
@@ -189,18 +189,16 @@ export const parseMdatSection = async (
 				timestamp: cts,
 				duration,
 				decodingTimestamp: dts,
-				trackId: samplesWithIndex.track.trackId,
 				type: isKeyframe ? 'key' : 'delta',
 				offset,
-				timescale,
 			},
-			timescale,
+			timescale: originalTimescale,
 		});
 
-		await state.callbacks.onAudioSample(
-			samplesWithIndex.track.trackId,
+		await state.callbacks.onAudioSample({
 			audioSample,
-		);
+			trackId: samplesWithIndex.track.trackId,
+		});
 	}
 
 	if (samplesWithIndex.track.type === 'video') {
@@ -224,18 +222,16 @@ export const parseMdatSection = async (
 				timestamp: cts,
 				duration,
 				decodingTimestamp: dts,
-				trackId: samplesWithIndex.track.trackId,
 				type: isKeyframe && !isRecoveryPoint ? 'key' : 'delta',
 				offset,
-				timescale,
 			},
-			timescale,
+			timescale: originalTimescale,
 		});
 
-		await state.callbacks.onVideoSample(
-			samplesWithIndex.track.trackId,
+		await state.callbacks.onVideoSample({
 			videoSample,
-		);
+			trackId: samplesWithIndex.track.trackId,
+		});
 	}
 
 	const jump = jumpMarks.find((j) => j.afterSampleWithOffset === offset);

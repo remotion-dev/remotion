@@ -28,6 +28,7 @@ import {
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {mediaParserAdvancedColorToWebCodecsColor} from './color-to-webcodecs-colors';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
@@ -81,7 +82,7 @@ export const makeBaseMediaTrack = (
 		return {
 			type: 'audio',
 			trackId: tkhdBox.trackId,
-			timescale: timescaleAndDuration.timescale,
+			originalTimescale: timescaleAndDuration.timescale,
 			codec: codecString,
 			numberOfChannels: actual.numberOfChannels,
 			sampleRate: actual.sampleRate,
@@ -89,6 +90,7 @@ export const makeBaseMediaTrack = (
 			codecData: actual.codecPrivate,
 			codecEnum,
 			startInSeconds: startTimeInSeconds,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
@@ -96,9 +98,10 @@ export const makeBaseMediaTrack = (
 		return {
 			type: 'other',
 			trackId: tkhdBox.trackId,
-			timescale: timescaleAndDuration.timescale,
+			originalTimescale: timescaleAndDuration.timescale,
 			trakBox,
 			startInSeconds: startTimeInSeconds,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
@@ -141,7 +144,7 @@ export const makeBaseMediaTrack = (
 		type: 'video',
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors ?? undefined,
-		timescale: timescaleAndDuration.timescale,
+		originalTimescale: timescaleAndDuration.timescale,
 		codec,
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
 		width,
@@ -158,6 +161,7 @@ export const makeBaseMediaTrack = (
 		codecEnum: getVideoCodecFromIsoTrak(trakBox),
 		fps: getFpsFromMp4TrakBox(trakBox),
 		startInSeconds: startTimeInSeconds,
+		timescale: WEBCODECS_TIMESCALE,
 	};
 	return track;
 };
