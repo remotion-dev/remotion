@@ -70,7 +70,7 @@ export const SharedPlayerContexts: React.FC<{
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
-		getPreferredVolume(volumePersistenceKey),
+		getPreferredVolume(volumePersistenceKey ?? null),
 	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
@@ -83,7 +83,7 @@ export const SharedPlayerContexts: React.FC<{
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
 			setMediaVolume(vol);
-			persistVolume(vol, logLevel, volumePersistenceKey);
+			persistVolume(vol, logLevel, volumePersistenceKey ?? null);
 		},
 		[logLevel, volumePersistenceKey],
 	);
