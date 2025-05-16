@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "remotion_lambda"
-  s.version     = "4.0.304"
+  s.version     = "4.0.305"
   s.summary     = "Remotion Lambda SDK"
   s.description = "A Ruby SDK for Remotion Lambda"
   s.authors     = ["Jonny Burger"]
