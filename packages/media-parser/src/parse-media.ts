@@ -7,6 +7,14 @@ import type {ParseMedia} from './options';
 import {webReader} from './web';
 
 export const parseMedia: ParseMedia = (options) => {
+	if (!options) {
+		return Promise.reject(
+			new Error(
+				'No options provided. See https://www.remotion.dev/media-parser for how to get started.',
+			),
+		);
+	}
+
 	return internalParseMedia({
 		fields: options.fields ?? null,
 		logLevel: options.logLevel ?? 'info',
