@@ -21,9 +21,5 @@ export const GlobalApisInConsole = () => {
 		});
 	}, []);
 
-	return (
-		<div>
-			<h1>Global APIs in Console</h1>
-		</div>
-	);
+	return <div />;
 };
