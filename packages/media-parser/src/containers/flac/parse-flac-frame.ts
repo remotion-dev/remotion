@@ -91,7 +91,7 @@ const emitSample = async ({
 	data: Uint8Array;
 	offset: number;
 }) => {
-	const iterator = getArrayBufferIterator(data, null);
+	const iterator = getArrayBufferIterator(data, data.length);
 	const parsed = parseFrameHeader({iterator, state});
 	if (!parsed) {
 		throw new Error('Invalid CRC');

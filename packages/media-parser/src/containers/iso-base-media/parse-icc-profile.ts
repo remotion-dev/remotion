@@ -38,7 +38,7 @@ type Entry = {
 };
 
 export const parseIccProfile = (data: Uint8Array): IccProfile => {
-	const iterator = getArrayBufferIterator(data, Infinity);
+	const iterator = getArrayBufferIterator(data, data.length);
 	const size = iterator.getUint32();
 	if (size !== data.length) {
 		throw new Error('Invalid ICC profile size');
@@ -96,7 +96,7 @@ export const parseIccProfile = (data: Uint8Array): IccProfile => {
 			entry.tag === 'bXYZ' ||
 			entry.tag === 'wtpt'
 		) {
-			const it = getArrayBufferIterator(found, Infinity);
+			const it = getArrayBufferIterator(found, found.length);
 			it.discard(4);
 
 			const x = it.getInt32() / 65536;

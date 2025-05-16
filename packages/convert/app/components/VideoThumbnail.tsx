@@ -109,7 +109,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 
 	return (
 		<div
-			className="border-b-2 border-black overflow-hidden bg-slate-100"
+			className="border-r-2 lg:border-r-0 lg:border-b-2 border-black overflow-hidden bg-slate-100"
 			// +2 to account for border
 			style={{height: THUMBNAIL_HEIGHT * scale + 2}}
 		>

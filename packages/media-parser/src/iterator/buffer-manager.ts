@@ -14,7 +14,7 @@ export const bufferManager = ({
 		maxByteLength:
 			maxBytes === null
 				? initialData.byteLength
-				: Math.min(maxBytes as number, 2 ** 32),
+				: Math.min(maxBytes as number, 2 ** 31),
 	});
 	if (!buf.resize) {
 		throw new Error(
