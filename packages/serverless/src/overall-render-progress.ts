@@ -130,6 +130,7 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 				privacy: 'private',
 				region,
 				forcePathStyle,
+				storageClass: null,
 			})
 			.then(() => {
 				// By default, upload is way too fast (~20 requests per second)

@@ -81,6 +81,7 @@ test(
 					Author: 'Remotion',
 				},
 				apiKey: null,
+				storageClass: null,
 			});
 
 		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

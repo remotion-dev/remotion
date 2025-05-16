@@ -24,6 +24,7 @@ const tryLambdaWriteFile = async ({
 	downloadBehavior,
 	customCredentials,
 	forcePathStyle,
+	storageClass,
 }: WriteFileInput<AwsProvider>): Promise<void> => {
 	const client = getS3Client({
 		region,
@@ -46,6 +47,7 @@ const tryLambdaWriteFile = async ({
 			: (expectedBucketOwner ?? undefined),
 		ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 		ContentDisposition: getContentDispositionHeader(downloadBehavior),
+		StorageClass: storageClass ?? undefined,
 	};
 
 	// Determine file size

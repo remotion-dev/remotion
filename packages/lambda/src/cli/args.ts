@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {AwsRegion, DeleteAfter, RuntimePreference} from '../client';
 
+import {StorageClass} from '@aws-sdk/client-s3';
 import type {Privacy} from '@remotion/serverless';
 
 type LambdaCommandLineOptions = {
@@ -41,6 +42,7 @@ type LambdaCommandLineOptions = {
 	['compatible-only']: boolean;
 	['force-path-style']: boolean;
 	['runtime-preference']: RuntimePreference;
+	['storage-class']: StorageClass | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

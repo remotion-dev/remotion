@@ -33,6 +33,7 @@ import {
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import {validateWebhook} from '@remotion/serverless-client';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';
@@ -84,6 +85,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	indent: boolean;
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
+	storageClass: StorageClass | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -132,6 +134,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	metadata,
 	apiKey,
 	offthreadVideoThreads,
+	storageClass,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -213,6 +216,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		metadata: metadata ?? null,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		storageClass: storageClass ?? null,
 	};
 };
 
@@ -239,7 +243,6 @@ export const makeLambdaRenderStillPayload = async ({
 	inputProps,
 	imageFormat,
 	envVariables,
-	quality,
 	jpegQuality,
 	region,
 	maxRetries,
@@ -259,15 +262,10 @@ export const makeLambdaRenderStillPayload = async ({
 	deleteAfter,
 	forcePathStyle,
 	apiKey,
+	storageClass,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
-	if (quality) {
-		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.',
-		);
-	}
-
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
 	const serializedInputProps = await compressInputProps({
@@ -316,5 +314,6 @@ export const makeLambdaRenderStillPayload = async ({
 		forcePathStyle,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: null,
+		storageClass: storageClass ?? null,
 	};
 };

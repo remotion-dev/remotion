@@ -94,6 +94,7 @@ test(
 				forcePathStyle: false,
 				metadata: {Author: 'Lunar'},
 				apiKey: null,
+				storageClass: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -211,6 +212,7 @@ test(
 				forcePathStyle: false,
 				metadata: null,
 				apiKey: null,
+				storageClass: null,
 			},
 			timeoutInTest: 1000,
 		});

@@ -417,6 +417,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				downloadBehavior: artifact.downloadBehavior ?? params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -506,6 +507,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		insideFunctionSpecifics,
 		everyNthFrame: params.everyNthFrame,
 		frameRange: params.frameRange,
+		storageClass: params.storageClass,
 	});
 
 	return postRenderData;

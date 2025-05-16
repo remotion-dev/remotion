@@ -48,6 +48,7 @@ import {
 	internalRenderMediaOnLambdaRaw,
 	renderMediaOnLambdaOptionalToRequired,
 } from './render-media-on-lambda';
+import {internalRenderStillOnLambda} from './render-still-on-lambda';
 import {runtimePreferenceOptions} from './runtime-preference';
 import {innerSpeculateFunctionName} from './speculate-function-name';
 import {validateAwsRegion} from './validate-aws-region';
@@ -142,6 +143,7 @@ export const LambdaClientInternals = {
 	validateServeUrl,
 	getEnvVariable,
 	internalRenderMediaOnLambdaRaw,
+	internalRenderStillOnLambda,
 	cleanItems,
 	makeLambdaRenderStillPayload,
 	getRenderProgressPayload,

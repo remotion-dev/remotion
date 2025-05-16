@@ -126,6 +126,7 @@ class Semantic
 					Author: 'Remotion',
 				},
 				apiKey: null,
+				storageClass: null,
 			});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);

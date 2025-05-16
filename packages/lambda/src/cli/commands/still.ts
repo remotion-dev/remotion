@@ -1,10 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {
-	AwsProvider,
-	LambdaClientInternals,
-	renderStillOnLambda,
-} from '@remotion/lambda-client';
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -234,7 +230,7 @@ export const stillCommand = async ({
 		commandLine: parsedCli,
 	}).value;
 
-	const res = await renderStillOnLambda({
+	const res = await LambdaClientInternals.internalRenderStillOnLambda({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -247,7 +243,7 @@ export const stillCommand = async ({
 		frame: stillFrame,
 		jpegQuality,
 		logLevel,
-		outName,
+		outName: outName ?? null,
 		chromiumOptions,
 		timeoutInMilliseconds,
 		scale,
@@ -271,7 +267,16 @@ export const stillCommand = async ({
 				})} (if enabled)`,
 			);
 		},
-		deleteAfter,
+		deleteAfter: deleteAfter ?? null,
+		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		apiKey:
+			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		downloadBehavior: {type: 'play-in-browser'},
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		indent: false,
+		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads: null,
 	});
 	Log.info(
 		{indent: false, logLevel},
