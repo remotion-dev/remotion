@@ -314,6 +314,7 @@ class RenderMediaParams:
     force_width: Optional[int] = None
     api_key: Optional[str] = None
     audio_codec: Optional[str] = None
+    storage_class: Optional[str] = None
     renderer_function_name: Optional[str] = None
     pro_res_profile: Optional[str] = None
     x264_preset: Optional[str] = None
@@ -336,6 +337,7 @@ class RenderMediaParams:
             'imageFormat': self.image_format,
             'maxRetries': self.max_retries,
             'jpegQuality': self.jpeg_quality,
+            'storageClass': self.storage_class,
             'envVariables': self.env_variables,
             'metadata': self.metadata,
             'privacy': self.privacy,
@@ -364,6 +366,7 @@ class RenderMediaParams:
             'apiKey': self.api_key,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
+            'storageClass': self.storage_class,
             'x264Preset': self.x264_preset,
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
@@ -427,6 +430,7 @@ class RenderStillParams:
                                     'type': 'play-in-browser'})
     force_width: Optional[int] = None
     api_key: Optional[int] = None
+    storage_class: Optional[str] = None
     force_height: Optional[int] = None
     force_bucket_name: Optional[str] = None
     dump_browser_logs: Optional[bool] = None
@@ -466,6 +470,7 @@ class RenderStillParams:
             'maxRetries': self.max_retries,
             'envVariables': self.env_variables if self.env_variables is not None else {},
             'jpegQuality': self.jpeg_quality,
+            'storageClass': self.storage_class,
             'frame': self.frame,
             'logLevel': self.log_level,
             'outName': self.out_name,
