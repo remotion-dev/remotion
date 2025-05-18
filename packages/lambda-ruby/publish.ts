@@ -67,4 +67,7 @@ execSync('gem build remotion_lambda.gemspec', {
 	cwd: workingDir,
 	stdio: 'inherit',
 });
-execSync('gem push remotion_lambda-*.gem', {cwd: workingDir, stdio: 'inherit'});
+execSync('gem push remotion_lambda-*.gem 2>/dev/null || true', {
+	cwd: workingDir,
+	stdio: 'inherit',
+});
