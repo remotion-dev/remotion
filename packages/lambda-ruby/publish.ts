@@ -53,6 +53,11 @@ try {
 		cwd: workingDir,
 		stdio: 'inherit',
 	});
+	execSync(`git push --delete origin ${VERSION} 2>/dev/null || true`, {
+		cwd: workingDir,
+		stdio: 'inherit',
+	});
+
 	execSync(`git tag ${VERSION}`, {cwd: workingDir, stdio: 'inherit'});
 } catch (e) {}
 execSync('git push', {cwd: workingDir, stdio: 'inherit'});
