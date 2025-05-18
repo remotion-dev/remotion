@@ -90,6 +90,6 @@ execSync('bun build.ts --all', {
 
 if (!noCommit) {
 	execSync('git add .', {stdio: 'inherit'});
-	execSync(`git commit -m "v${version}"`, {stdio: 'inherit'});
+	execSync(`git commit --allow-empty -m "v${version}"`, {stdio: 'inherit'});
 	execSync(`git tag v${version}`, {stdio: 'inherit'});
 }
