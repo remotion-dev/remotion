@@ -79,8 +79,9 @@ if (!content.includes('window.remotion_wasm_moduleOverrides')) {
 // Modify the Worker path
 const mainContent =
 	content.replace(
-		'new Worker(pthreadMainJs',
-		`new Worker(new URL('./worker.js', import.meta.url)`,
+		'new Worker(pthreadMainJs,workerOptions',
+		// Vite cannot parse dynamic worker names
+		`new Worker(new URL('./worker.js', import.meta.url), {name:'whisper-web'}`,
 	) +
 	'\n' +
 	'export default Module;' +
