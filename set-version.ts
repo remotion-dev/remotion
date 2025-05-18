@@ -94,6 +94,9 @@ if (!noCommit) {
 	execSync(`git tag -d v${version} 2>/dev/null || true`, {
 		stdio: 'inherit',
 	});
+	execSync(`git push --delete origin v${version} 2>/dev/null || true`, {
+		stdio: 'inherit',
+	});
 
 	execSync(`git tag v${version} 2>/dev/null || true`, {stdio: 'inherit'});
 }
