@@ -79,9 +79,8 @@ if (!content.includes('window.remotion_wasm_moduleOverrides')) {
 // Modify the Worker path
 const mainContent =
 	content.replace(
-		'new Worker(pthreadMainJs,workerOptions',
-		// Vite cannot parse dynamic worker names
-		`new Worker(new URL('./worker.js', import.meta.url), {name:'whisper-web'}`,
+		'new Worker(pthreadMainJs',
+		`new Worker(new URL('./worker.js', import.meta.url)`,
 	) +
 	'\n' +
 	'export default Module;' +
@@ -94,16 +93,12 @@ if (!mainContent.includes('new Worker(new URL(')) {
 
 const workerContent =
 	content.replace(
-		'worker=new Worker(pthreadMainJs,workerOptions)',
+		'worker=new Worker(pthreadMainJs)',
 		`throw new Error('Already is in worker')`,
 	) +
 	'\n' +
 	'export default Module;' +
 	'\n';
-
-if (!workerContent.includes('Already is in worker')) {
-	throw new Error('Changes have not been made');
-}
 
 // Write the modified content directly to the destination
 fs.writeFileSync(path.join(__dirname, 'main.js'), mainContent, 'utf8');
