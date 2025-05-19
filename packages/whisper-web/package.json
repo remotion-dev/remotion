@@ -36,11 +36,6 @@
 			"require": "./main.js",
 			"module": "./main.js",
 			"import": "./main.js"
-		},
-		"./worker": {
-			"require": "./worker.js",
-			"module": "./worker.js",
-			"import": "./worker.js"
 		}
 	},
 	"keywords": [
