@@ -2,17 +2,18 @@ import type {
 	MediaParserLogLevel,
 	MediaParserVideoSample,
 } from '@remotion/media-parser';
-import type {ProgressTracker} from './create/progress-tracker';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	processSample: (videoSample: MediaParserVideoSample) => Promise<void>;
+	processSample: (videoSample: MediaParserVideoSample) => void;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
+	ioSynchronizer: IoSynchronizer;
 };
 
 export const createVideoDecoder = ({
@@ -21,14 +22,12 @@ export const createVideoDecoder = ({
 	controller,
 	config,
 	logLevel,
-	progress,
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
-	onError: (error: DOMException) => void;
+	onError: (error: Error) => void;
 	controller: WebCodecsController;
 	config: VideoDecoderConfig;
 	logLevel: MediaParserLogLevel;
-	progress: ProgressTracker;
 }): WebCodecsVideoDecoder => {
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
@@ -43,9 +42,14 @@ export const createVideoDecoder = ({
 	});
 
 	const videoDecoder = new VideoDecoder({
-		output(frame) {
+		async output(frame) {
 			ioSynchronizer.onOutput(frame.timestamp);
-			frameSorter.inputFrame(frame);
+			try {
+				await frameSorter.inputFrame(frame);
+			} catch (err) {
+				onError(err as Error);
+				frame.close();
+			}
 		},
 		error(error) {
 			onError(error);
@@ -76,7 +80,7 @@ export const createVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const processSample = async (sample: MediaParserVideoSample) => {
+	const processSample = (sample: MediaParserVideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -85,20 +89,6 @@ export const createVideoDecoder = ({
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
-
-		progress.setPossibleLowestTimestamp(
-			Math.min(sample.timestamp, sample.decodingTimestamp ?? Infinity),
-		);
-
-		await ioSynchronizer.waitForQueueSize({
-			queueSize: 20,
-			controller,
-		});
-
-		await progress.waitForMinimumProgress({
-			minimumProgress: sample.timestamp - 10_000_000,
-			controller,
-		});
 
 		// Don't flush here.
 		// We manually keep track of the memory with the IO synchornizer.
@@ -111,12 +101,9 @@ export const createVideoDecoder = ({
 		ioSynchronizer.inputItem(sample.timestamp);
 	};
 
-	let inputQueue = Promise.resolve();
-
 	return {
 		processSample: (sample: MediaParserVideoSample) => {
-			inputQueue = inputQueue.then(() => processSample(sample));
-			return inputQueue;
+			processSample(sample);
 		},
 		waitForFinish: async () => {
 			await videoDecoder.flush();
@@ -125,12 +112,11 @@ export const createVideoDecoder = ({
 			Log.verbose(logLevel, 'Frame sorter flushed');
 			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
-			await inputQueue;
-			Log.verbose(logLevel, 'Input queue finished');
 		},
 		close,
 		flush: async () => {
 			await videoDecoder.flush();
 		},
+		ioSynchronizer,
 	};
 };

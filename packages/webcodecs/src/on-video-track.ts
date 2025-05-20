@@ -267,7 +267,6 @@ export const makeVideoTrackHandler =
 			},
 			controller,
 			logLevel,
-			progress,
 		});
 
 		state.addWaitForFinishPromise(async () => {
@@ -284,6 +283,17 @@ export const makeVideoTrackHandler =
 		});
 
 		return async (chunk) => {
-			await videoDecoder.processSample(chunk);
+			progress.setPossibleLowestTimestamp(
+				Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
+			);
+			await progress.waitForMinimumProgress({
+				minimumProgress: chunk.timestamp - 10_000_000,
+				controller,
+			});
+			await videoDecoder.ioSynchronizer.waitForQueueSize({
+				queueSize: 20,
+				controller,
+			});
+			videoDecoder.processSample(chunk);
 		};
 	};

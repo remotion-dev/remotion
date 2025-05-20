@@ -127,3 +127,5 @@ export const makeIoSynchronizer = ({
 		waitForQueueSize,
 	};
 };
+
+export type IoSynchronizer = ReturnType<typeof makeIoSynchronizer>;
