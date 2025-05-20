@@ -119,6 +119,7 @@ export const createAudioEncoder = ({
 		}
 
 		encoder.encode(audioData);
+
 		ioSynchronizer.inputItem(audioData.timestamp);
 	};
 

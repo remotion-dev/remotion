@@ -188,7 +188,7 @@ export const reencodeAudioTrack = async ({
 			}
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-			await audioEncoder.ioSynchronizer.waitForQueueSize(20);
+			await audioEncoder.ioSynchronizer.waitForQueueSize(10);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 			audioEncoder.encode(newAudioData);
@@ -208,7 +208,7 @@ export const reencodeAudioTrack = async ({
 		onFrame: async (audioData) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-			await audioProcessingQueue.ioSynchronizer.waitForQueueSize(20);
+			await audioProcessingQueue.ioSynchronizer.waitForQueueSize(10);
 			audioProcessingQueue.input(audioData);
 		},
 		onError(error) {
@@ -228,14 +228,18 @@ export const reencodeAudioTrack = async ({
 
 	state.addWaitForFinishPromise(async () => {
 		await audioDecoder.waitForFinish();
-		await audioEncoder.waitForFinish();
+		Log.verbose(logLevel, 'Audio decoder finished');
 		audioDecoder.close();
+		await audioProcessingQueue.ioSynchronizer.waitForFinish();
+		Log.verbose(logLevel, 'Audio processing queue finished');
+		await audioEncoder.waitForFinish();
+		Log.verbose(logLevel, 'Audio encoder finished');
 		audioEncoder.close();
 	});
 
 	return async (audioSample) => {
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await audioDecoder.waitForQueueToBeLessThan(20);
+		await audioDecoder.waitForQueueToBeLessThan(10);
 
 		audioDecoder.decode(audioSample);
 	};
