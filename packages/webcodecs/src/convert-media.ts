@@ -205,7 +205,7 @@ export const convertMedia = async function <
 		signal: controller._internals._mediaParserController._internals.signal,
 	});
 
-	const progressTracker = makeProgressTracker();
+	const progressTracker = makeProgressTracker(controller);
 
 	const state = await createMedia({
 		container,

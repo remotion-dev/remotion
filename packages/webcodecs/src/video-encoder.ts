@@ -100,17 +100,11 @@ export const createVideoEncoder = ({
 		progress.setPossibleLowestTimestamp(frame.timestamp);
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+		await ioSynchronizer.waitForQueueSize(10);
 
-		await ioSynchronizer.waitForQueueSize({
-			queueSize: 10,
-			abortSignal:
-				controller._internals._mediaParserController._internals.signal,
-		});
-
-		await progress.waitForMinimumProgress({
-			minimumProgress: frame.timestamp - 10_000_000,
-			controller,
-		});
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+		await progress.waitForMinimumProgress(frame.timestamp - 10_000_000);
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {

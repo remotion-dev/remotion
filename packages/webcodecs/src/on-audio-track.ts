@@ -267,11 +267,7 @@ export const makeAudioTrackHandler =
 			onFrame: async (audioData) => {
 				await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-				await audioProcessingQueue.ioSynchronizer.waitForQueueSize({
-					queueSize: 20,
-					abortSignal:
-						controller._internals._mediaParserController._internals.signal,
-				});
+				await audioProcessingQueue.ioSynchronizer.waitForQueueSize(20);
 				audioProcessingQueue.input(audioData);
 			},
 			onError(error) {
@@ -300,18 +296,12 @@ export const makeAudioTrackHandler =
 		return async (audioSample) => {
 			progressTracker.setPossibleLowestTimestamp(audioSample.timestamp);
 
-			await progressTracker.waitForMinimumProgress({
-				minimumProgress: audioSample.timestamp - 10_000_000,
-				controller,
-			});
+			await progressTracker.waitForMinimumProgress(
+				audioSample.timestamp - 10_000_000,
+			);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-
-			await audioDecoder.ioSynchronizer.waitForQueueSize({
-				queueSize: 20,
-				abortSignal:
-					controller._internals._mediaParserController._internals.signal,
-			});
+			await audioDecoder.ioSynchronizer.waitForQueueSize(20);
 
 			audioDecoder.decode(audioSample);
 		};

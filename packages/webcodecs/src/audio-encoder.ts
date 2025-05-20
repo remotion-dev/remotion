@@ -109,16 +109,11 @@ export const createAudioEncoder = ({
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-		await ioSynchronizer.waitForQueueSize({
-			queueSize: 20,
-			abortSignal:
-				controller._internals._mediaParserController._internals.signal,
-		});
+		await ioSynchronizer.waitForQueueSize(20);
 
-		await progressTracker.waitForMinimumProgress({
-			minimumProgress: audioData.timestamp - 10_000_000,
-			controller,
-		});
+		await progressTracker.waitForMinimumProgress(
+			audioData.timestamp - 10_000_000,
+		);
 
 		// @ts-expect-error - can have changed in the meanwhile
 		if (encoder.state === 'closed') {

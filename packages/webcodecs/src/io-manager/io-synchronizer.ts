@@ -77,13 +77,7 @@ export const makeIoSynchronizer = ({
 		];
 	};
 
-	const waitForQueueSize = async ({
-		queueSize,
-		abortSignal,
-	}: {
-		queueSize: number;
-		abortSignal: AbortSignal;
-	}) => {
+	const waitForQueueSize = async (queueSize: number) => {
 		const {timeoutPromise, clear} = makeTimeoutPromise({
 			label: () =>
 				[
@@ -94,7 +88,10 @@ export const makeIoSynchronizer = ({
 			ms: 10000,
 			controller,
 		});
-		abortSignal.addEventListener('abort', clear);
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			clear,
+		);
 
 		await Promise.race([
 			timeoutPromise,
@@ -104,15 +101,14 @@ export const makeIoSynchronizer = ({
 				}
 			})(),
 		]).finally(() => clear());
-		abortSignal.removeEventListener('abort', clear);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			clear,
+		);
 	};
 
 	const waitForFinish = async () => {
-		await waitForQueueSize({
-			queueSize: 0,
-			abortSignal:
-				controller._internals._mediaParserController._internals.signal,
-		});
+		await waitForQueueSize(0);
 	};
 
 	return {

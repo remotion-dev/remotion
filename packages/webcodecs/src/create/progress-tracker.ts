@@ -5,7 +5,7 @@ import {withResolvers} from './with-resolvers';
 
 // Make sure to distinguish null and undefined here
 
-export const makeProgressTracker = () => {
+export const makeProgressTracker = (controller: WebCodecsController) => {
 	const trackNumberProgresses: Record<number, number | null> = {};
 	const eventEmitter = new IoEventEmitter();
 
@@ -59,13 +59,7 @@ export const makeProgressTracker = () => {
 		return promise;
 	};
 
-	const waitForMinimumProgress = async ({
-		minimumProgress,
-		controller,
-	}: {
-		minimumProgress: number;
-		controller: WebCodecsController;
-	}) => {
+	const waitForMinimumProgress = async (minimumProgress: number) => {
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
 		const {timeoutPromise, clear} = makeTimeoutPromise({
