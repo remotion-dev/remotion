@@ -15,7 +15,7 @@ export type WebCodecsAudioDecoder = {
 };
 
 export type CreateAudioDecoderInit = {
-	onFrame: (frame: AudioData) => Promise<void>;
+	onFrame: (frame: AudioData) => Promise<void> | void;
 	onError: (error: Error) => void;
 	controller: WebCodecsController | null;
 	config: AudioDecoderConfig;
@@ -98,14 +98,19 @@ export const internalCreateAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = (audioSample: MediaParserAudioSample) => {
+	const processSample = (
+		audioSample: MediaParserAudioSample | EncodedAudioChunk,
+	) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
 
 		// Don't flush, it messes up the audio
 
-		const chunk = new EncodedAudioChunk(audioSample);
+		const chunk =
+			audioSample instanceof EncodedAudioChunk
+				? audioSample
+				: new EncodedAudioChunk(audioSample);
 		audioDecoder.decode(chunk);
 
 		// https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts
@@ -119,7 +124,7 @@ export const internalCreateAudioDecoder = ({
 	};
 
 	return {
-		decode: (sample: MediaParserAudioSample) => {
+		decode: (sample: MediaParserAudioSample | EncodedAudioChunk) => {
 			processSample(sample);
 		},
 		waitForFinish: async () => {
@@ -142,11 +147,11 @@ export const createAudioDecoder = ({
 	onFrame,
 	onError,
 	controller,
-	config,
+	track,
 	logLevel,
 }: {
-	config: AudioDecoderConfig;
-	onFrame: (frame: AudioData) => Promise<void>;
+	track: AudioDecoderConfig;
+	onFrame: (frame: AudioData | EncodedAudioChunk) => Promise<void> | void;
 	onError: (error: Error) => void;
 	controller?: WebCodecsController | null;
 	logLevel?: MediaParserLogLevel;
@@ -155,7 +160,7 @@ export const createAudioDecoder = ({
 		onFrame,
 		onError,
 		controller: controller ?? null,
-		config,
+		config: track,
 		logLevel: logLevel ?? 'error',
 	});
 };

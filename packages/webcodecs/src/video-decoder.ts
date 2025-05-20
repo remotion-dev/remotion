@@ -7,7 +7,7 @@ import {Log} from './log';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	decode: (videoSample: MediaParserVideoSample) => void;
+	decode: (videoSample: MediaParserVideoSample | EncodedVideoChunk) => void;
 	close: () => void;
 	flush: () => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -21,7 +21,7 @@ export const internalCreateVideoDecoder = ({
 	config,
 	logLevel,
 }: {
-	onFrame: (frame: VideoFrame) => Promise<void>;
+	onFrame: (frame: VideoFrame) => Promise<void> | void;
 	onError: (error: Error) => void;
 	controller: WebCodecsController | null;
 	config: VideoDecoderConfig;
@@ -78,12 +78,16 @@ export const internalCreateVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const decode = (sample: MediaParserVideoSample) => {
+	const decode = (sample: MediaParserVideoSample | EncodedVideoChunk) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
 
-		videoDecoder.decode(new EncodedVideoChunk(sample));
+		const encodedChunk =
+			sample instanceof EncodedVideoChunk
+				? sample
+				: new EncodedVideoChunk(sample);
+		videoDecoder.decode(encodedChunk);
 		ioSynchronizer.inputItem(sample.timestamp);
 	};
 
@@ -107,11 +111,11 @@ export const createVideoDecoder = ({
 	onFrame,
 	onError,
 	controller,
-	config,
+	track,
 	logLevel,
 }: {
-	config: VideoDecoderConfig;
-	onFrame: (frame: VideoFrame) => Promise<void>;
+	track: VideoDecoderConfig;
+	onFrame: (frame: VideoFrame) => Promise<void> | void;
 	onError: (error: Error) => void;
 	controller?: WebCodecsController;
 	logLevel?: MediaParserLogLevel;
@@ -120,7 +124,7 @@ export const createVideoDecoder = ({
 		onFrame,
 		onError,
 		controller: controller ?? null,
-		config,
+		config: track,
 		logLevel: logLevel ?? 'info',
 	});
 };
