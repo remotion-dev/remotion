@@ -34,6 +34,9 @@ export const onFrame = async ({
 	const userProcessedFrame = onVideoFrame
 		? await onVideoFrame({frame: rotated, track})
 		: rotated;
+	if (rotated !== userProcessedFrame) {
+		rotated.close();
+	}
 
 	if (userProcessedFrame.displayWidth !== rotated.displayWidth) {
 		throw new Error(
@@ -65,16 +68,12 @@ export const onFrame = async ({
 		videoFrame: userProcessedFrame,
 		outputCodec,
 	});
+	if (fixedFrame !== userProcessedFrame) {
+		userProcessedFrame.close();
+	}
 
 	const cleanup = () => {
 		fixedFrame.close();
-		if (rotated !== userProcessedFrame) {
-			rotated.close();
-		}
-
-		if (fixedFrame !== userProcessedFrame) {
-			fixedFrame.close();
-		}
 	};
 
 	return {cleanup, frame: fixedFrame};

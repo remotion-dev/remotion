@@ -39,8 +39,10 @@ export const getAudioSampleFromCbr = ({
 
 	const durationInSeconds = samplesPerFrame / sampleRate;
 	const timeInSeconds = (nthFrame * samplesPerFrame) / sampleRate;
-	const timestamp = Math.round(timeInSeconds * WEBCODECS_TIMESCALE);
-	const duration = Math.round(durationInSeconds * WEBCODECS_TIMESCALE);
+	// Important that we round down, otherwise WebCodecs might stall, e.g.
+	// Last input = 30570667 Last output = 30570666 -> stuck
+	const timestamp = Math.floor(timeInSeconds * WEBCODECS_TIMESCALE);
+	const duration = Math.floor(durationInSeconds * WEBCODECS_TIMESCALE);
 
 	const audioSample: MediaParserAudioSample = {
 		data,
