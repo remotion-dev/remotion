@@ -224,7 +224,9 @@ export const reencodeVideoTrack = async ({
 	});
 
 	return async (chunk) => {
-		progress.setPossibleLowestTimestamp(chunk.timestamp);
+		progress.setPossibleLowestTimestamp(
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
+		);
 		await progress.waitForMinimumProgress(chunk.timestamp - 10_000_000);
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
