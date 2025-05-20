@@ -16,7 +16,7 @@ export type WebCodecsVideoDecoder = {
 	ioSynchronizer: IoSynchronizer;
 };
 
-export const createVideoDecoder = ({
+export const internalCreateVideoDecoder = ({
 	onFrame,
 	onError,
 	controller,
@@ -105,4 +105,26 @@ export const createVideoDecoder = ({
 		},
 		ioSynchronizer,
 	};
+};
+
+export const createVideoDecoder = ({
+	onFrame,
+	onError,
+	controller,
+	config,
+	logLevel,
+}: {
+	onFrame: (frame: VideoFrame) => Promise<void>;
+	onError: (error: Error) => void;
+	controller: WebCodecsController;
+	config: VideoDecoderConfig;
+	logLevel?: MediaParserLogLevel;
+}): WebCodecsVideoDecoder => {
+	return internalCreateVideoDecoder({
+		onFrame,
+		onError,
+		controller,
+		config,
+		logLevel: logLevel ?? 'info',
+	});
 };
