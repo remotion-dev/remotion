@@ -16,12 +16,14 @@ export const riffSpecificState = ({
 	readerInterface,
 	src,
 	prefetchCache,
+	contentLength,
 }: {
 	controller: MediaParserController;
 	logLevel: MediaParserLogLevel;
 	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	prefetchCache: PrefetchCache;
+	contentLength: number;
 }) => {
 	let avcProfile: SpsAndPps | null = null;
 	let nextTrackIndex = 0;
@@ -47,6 +49,7 @@ export const riffSpecificState = ({
 		readerInterface,
 		src,
 		prefetchCache,
+		contentLength,
 	});
 
 	const sampleCounter = riffSampleCounter();

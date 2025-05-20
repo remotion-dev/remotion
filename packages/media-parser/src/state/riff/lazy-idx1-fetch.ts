@@ -13,12 +13,14 @@ export const lazyIdx1Fetch = ({
 	readerInterface,
 	src,
 	prefetchCache,
+	contentLength,
 }: {
 	controller: MediaParserController;
 	logLevel: MediaParserLogLevel;
 	readerInterface: MediaParserReaderInterface;
 	src: ParseMediaSrc;
 	prefetchCache: PrefetchCache;
+	contentLength: number;
 }) => {
 	let prom: Promise<FetchIdx1Result> | null = null;
 	let result: FetchIdx1Result | null = null;
@@ -39,6 +41,7 @@ export const lazyIdx1Fetch = ({
 			readerInterface,
 			src,
 			prefetchCache,
+			contentLength,
 		}).then((entries) => {
 			prom = null;
 			result = entries;
