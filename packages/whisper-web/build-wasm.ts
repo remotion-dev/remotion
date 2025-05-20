@@ -35,7 +35,7 @@ const file = fs.readFileSync(cmakeListsFile, 'utf8');
 const lines = file.split('\n').map((line) => {
 	if (line.includes('-s FORCE_FILESYSTEM=1 \\')) {
 		// output ES6 module so we can import it dynamically without injeting the script tag
-		return `-s FORCE_FILESYSTEM=1 -s ENVIRONMENT='web,worker' -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME=\\"createModule\\" -s ASSERTIONS=1 \\`;
+		return `-s FORCE_FILESYSTEM=1 -s ENVIRONMENT='web,worker' -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME=\\"createModule\\" \\`;
 	}
 
 	if (line.includes('-s EXPORTED_RUNTIME_METHODS')) {
@@ -72,12 +72,7 @@ const mainJsFile = path.join(cwd, 'bin', 'whisper.wasm', 'main.js');
 
 let content = fs
 	.readFileSync(mainJsFile, 'utf8')
-	// add vite ignore for workers
-	.replace(
-		`{name:\"em-pthread-\"+PThread.nextWorkerID}`,
-		`/* @vite-ignore */{name:"em-pthread-"+PThread.nextWorkerID}`,
-	)
-	.replace('libmain.js', 'main.js');
+	.replace('libmain.js', './main.js');
 
 // Write the modified content directly to the destination
 fs.writeFileSync(path.join(__dirname, 'main.js'), content, 'utf8');
