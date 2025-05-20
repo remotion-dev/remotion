@@ -24,13 +24,14 @@ export const internalCreateVideoDecoder = ({
 }: {
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: Error) => void;
-	controller: WebCodecsController;
+	controller: WebCodecsController | null;
 	config: VideoDecoderConfig;
 	logLevel: MediaParserLogLevel;
 }): WebCodecsVideoDecoder => {
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video decoder',
+		controller,
 	});
 
 	const videoDecoder = new VideoDecoder({
@@ -49,11 +50,14 @@ export const internalCreateVideoDecoder = ({
 	});
 
 	const close = () => {
-		controller._internals._mediaParserController._internals.signal.removeEventListener(
-			'abort',
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
-			onAbort,
-		);
+		if (controller) {
+			controller._internals._mediaParserController._internals.signal.removeEventListener(
+				'abort',
+				// eslint-disable-next-line @typescript-eslint/no-use-before-define
+				onAbort,
+			);
+		}
+
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
@@ -65,10 +69,12 @@ export const internalCreateVideoDecoder = ({
 		close();
 	};
 
-	controller._internals._mediaParserController._internals.signal.addEventListener(
-		'abort',
-		onAbort,
-	);
+	if (controller) {
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			onAbort,
+		);
+	}
 
 	videoDecoder.configure(config);
 
@@ -86,7 +92,7 @@ export const internalCreateVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
-			await ioSynchronizer.waitForFinish(controller);
+			await ioSynchronizer.waitForFinish();
 			Log.verbose(logLevel, 'IO synchro finished');
 		},
 		close,
@@ -104,16 +110,16 @@ export const createVideoDecoder = ({
 	config,
 	logLevel,
 }: {
+	config: VideoDecoderConfig;
 	onFrame: (frame: VideoFrame) => Promise<void>;
 	onError: (error: Error) => void;
-	controller: WebCodecsController;
-	config: VideoDecoderConfig;
+	controller?: WebCodecsController;
 	logLevel?: MediaParserLogLevel;
 }): WebCodecsVideoDecoder => {
 	return internalCreateVideoDecoder({
 		onFrame,
 		onError,
-		controller,
+		controller: controller ?? null,
 		config,
 		logLevel: logLevel ?? 'info',
 	});

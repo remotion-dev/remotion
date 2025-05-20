@@ -8,9 +8,11 @@ import {makeTimeoutPromise} from './make-timeout-promise';
 export const makeIoSynchronizer = ({
 	logLevel,
 	label,
+	controller,
 }: {
 	logLevel: LogLevel;
 	label: string;
+	controller: WebCodecsController | null;
 }) => {
 	const eventEmitter = new IoEventEmitter();
 
@@ -75,10 +77,7 @@ export const makeIoSynchronizer = ({
 		];
 	};
 
-	const waitForQueueSize = async (
-		queueSize: number,
-		controller: WebCodecsController | null,
-	) => {
+	const waitForQueueSize = async (queueSize: number) => {
 		const {timeoutPromise, clear} = makeTimeoutPromise({
 			label: () =>
 				[
@@ -89,6 +88,7 @@ export const makeIoSynchronizer = ({
 			ms: 10000,
 			controller,
 		});
+
 		if (controller) {
 			controller._internals._mediaParserController._internals.signal.addEventListener(
 				'abort',
@@ -104,6 +104,7 @@ export const makeIoSynchronizer = ({
 				}
 			})(),
 		]).finally(() => clear());
+
 		if (controller) {
 			controller._internals._mediaParserController._internals.signal.removeEventListener(
 				'abort',
@@ -112,8 +113,8 @@ export const makeIoSynchronizer = ({
 		}
 	};
 
-	const waitForFinish = async (controller: WebCodecsController | null) => {
-		await waitForQueueSize(0, controller);
+	const waitForFinish = async () => {
+		await waitForQueueSize(0);
 	};
 
 	return {

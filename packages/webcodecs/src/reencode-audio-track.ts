@@ -4,7 +4,7 @@ import type {
 	MediaParserOnAudioSample,
 } from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
-import {createAudioDecoder} from './audio-decoder';
+import {internalCreateAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
@@ -193,7 +193,7 @@ export const reencodeAudioTrack = async ({
 			progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-			await audioEncoder.ioSynchronizer.waitForQueueSize(20, controller);
+			await audioEncoder.ioSynchronizer.waitForQueueSize(20);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 			await progressTracker.waitForMinimumProgress(
@@ -214,14 +214,11 @@ export const reencodeAudioTrack = async ({
 		},
 	});
 
-	const audioDecoder = createAudioDecoder({
+	const audioDecoder = internalCreateAudioDecoder({
 		onFrame: async (audioData) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-			await audioProcessingQueue.ioSynchronizer.waitForQueueSize(
-				20,
-				controller,
-			);
+			await audioProcessingQueue.ioSynchronizer.waitForQueueSize(20);
 			audioProcessingQueue.input(audioData);
 		},
 		onError(error) {
@@ -237,7 +234,6 @@ export const reencodeAudioTrack = async ({
 		controller,
 		config: audioDecoderConfig,
 		logLevel,
-		track,
 	});
 
 	state.addWaitForFinishPromise(async () => {
@@ -261,7 +257,7 @@ export const reencodeAudioTrack = async ({
 		);
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await audioDecoder.ioSynchronizer.waitForQueueSize(20, controller);
+		await audioDecoder.ioSynchronizer.waitForQueueSize(20);
 
 		audioDecoder.decode(audioSample);
 	};

@@ -46,11 +46,11 @@ const getBytesPerSample = (sampleFormat: AudioSampleFormat) => {
 
 export const getWaveAudioDecoder = ({
 	onFrame,
-	track,
+	config,
 	sampleFormat,
 	ioSynchronizer,
 	onError,
-}: Pick<CreateAudioDecoderInit, 'onFrame' | 'track'> & {
+}: Pick<CreateAudioDecoderInit, 'onFrame' | 'config'> & {
 	sampleFormat: AudioSampleFormat;
 	logLevel: MediaParserLogLevel;
 	ioSynchronizer: IoSynchronizer;
@@ -62,10 +62,10 @@ export const getWaveAudioDecoder = ({
 		const audioData = new AudioData({
 			data: audioSample.data,
 			format: sampleFormat,
-			numberOfChannels: track.numberOfChannels,
+			numberOfChannels: config.numberOfChannels,
 			numberOfFrames:
-				audioSample.data.byteLength / bytesPerSample / track.numberOfChannels,
-			sampleRate: track.sampleRate,
+				audioSample.data.byteLength / bytesPerSample / config.numberOfChannels,
+			sampleRate: config.sampleRate,
 			timestamp: audioSample.timestamp,
 		});
 

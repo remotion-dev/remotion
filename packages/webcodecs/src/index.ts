@@ -5,7 +5,7 @@ import {
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import {setRemotionImported} from './set-remotion-imported';
 
-export {createAudioDecoder} from './audio-decoder';
+export {internalCreateAudioDecoder as createAudioDecoder} from './audio-decoder';
 export type {WebCodecsAudioDecoder} from './audio-decoder';
 export {createAudioEncoder} from './audio-encoder';
 export type {WebCodecsAudioEncoder} from './audio-encoder';
