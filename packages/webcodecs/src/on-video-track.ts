@@ -4,13 +4,13 @@ import type {
 } from '@remotion/media-parser';
 import {canCopyVideoTrack} from './can-copy-video-track';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
+import {copyVideoTrack} from './copy-video-track';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {getDefaultVideoCodec} from './get-default-video-codec';
-import {Log} from './log';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import {reencodeVideoTrack} from './reencode-video-track';
 import type {ResizeOperation} from './resizing/mode';
@@ -83,34 +83,12 @@ export const makeVideoTrackHandler =
 		}
 
 		if (videoOperation.type === 'copy') {
-			Log.verbose(
+			return copyVideoTrack({
 				logLevel,
-				`Copying video track with codec ${track.codec} and timescale ${track.originalTimescale}`,
-			);
-			const videoTrack = await state.addTrack({
-				type: 'video',
-				color: track.advancedColor,
-				width: track.codedWidth,
-				height: track.codedHeight,
-				codec: track.codecEnum,
-				codecPrivate: track.codecData?.data ?? null,
-				timescale: track.originalTimescale,
+				onMediaStateUpdate,
+				state,
+				track,
 			});
-			return async (sample) => {
-				await state.addSample({
-					chunk: sample,
-					trackNumber: videoTrack.trackNumber,
-					isVideo: true,
-					codecPrivate: track.codecData?.data ?? null,
-				});
-
-				onMediaStateUpdate?.((prevState) => {
-					return {
-						...prevState,
-						decodedVideoFrames: prevState.decodedVideoFrames + 1,
-					};
-				});
-			};
 		}
 
 		return reencodeVideoTrack({
