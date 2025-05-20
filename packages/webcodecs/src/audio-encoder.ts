@@ -58,12 +58,13 @@ export const createAudioEncoder = ({
 
 	const encoder = new AudioEncoder({
 		output: async (chunk) => {
-			ioSynchronizer.onOutput(chunk.timestamp);
 			try {
-				return await onChunk(chunk);
+				await onChunk(chunk);
 			} catch (err) {
 				onError(err as Error);
 			}
+
+			ioSynchronizer.onOutput(chunk.timestamp);
 		},
 		error(error) {
 			onError(error);

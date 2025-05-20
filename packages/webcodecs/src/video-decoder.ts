@@ -35,13 +35,14 @@ export const internalCreateVideoDecoder = ({
 
 	const videoDecoder = new VideoDecoder({
 		async output(frame) {
-			ioSynchronizer.onOutput(frame.timestamp);
 			try {
 				await onFrame(frame);
 			} catch (err) {
 				onError(err as Error);
 				frame.close();
 			}
+
+			ioSynchronizer.onOutput(frame.timestamp);
 		},
 		error(error) {
 			onError(error);

@@ -6,7 +6,6 @@ import {canCopyVideoTrack} from './can-copy-video-track';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import {copyVideoTrack} from './copy-video-track';
 import type {MediaFn} from './create/media-fn';
-import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 import type {ConvertMediaContainer} from './get-available-containers';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
@@ -29,7 +28,6 @@ export const makeVideoTrackHandler =
 		logLevel,
 		outputContainer,
 		rotate,
-		progress,
 		resizeOperation,
 	}: {
 		state: MediaFn;
@@ -42,7 +40,6 @@ export const makeVideoTrackHandler =
 		logLevel: MediaParserLogLevel;
 		outputContainer: ConvertMediaContainer;
 		rotate: number;
-		progress: ProgressTracker;
 		resizeOperation: ResizeOperation | null;
 	}): MediaParserOnVideoTrack =>
 	async ({track, container: inputContainer}) => {
@@ -99,7 +96,6 @@ export const makeVideoTrackHandler =
 			rotate,
 			track,
 			onVideoFrame,
-			progress,
 			state,
 			onMediaStateUpdate,
 		});

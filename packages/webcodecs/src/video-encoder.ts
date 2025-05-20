@@ -55,13 +55,14 @@ export const createVideoEncoder = ({
 		},
 		async output(chunk, metadata) {
 			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
-			ioSynchronizer.onOutput(timestamp);
 
 			try {
-				return await onChunk(chunk, metadata ?? null);
+				await onChunk(chunk, metadata ?? null);
 			} catch (err) {
 				onError(err as Error);
 			}
+
+			ioSynchronizer.onOutput(timestamp);
 		},
 	});
 

@@ -242,6 +242,8 @@ export const createIsoBaseMedia = async ({
 			await w.remove();
 		},
 		addSample: ({chunk, trackNumber, isVideo, codecPrivate}) => {
+			progressTracker.setPossibleLowestTimestamp(chunk.timestamp);
+
 			operationProm.current = operationProm.current.then(() => {
 				return addSample({
 					chunk,

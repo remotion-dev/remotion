@@ -1,11 +1,9 @@
-import {makeTimeoutPromise} from '../io-manager/make-timeout-promise';
-import type {WebCodecsController} from '../webcodecs-controller';
 import {IoEventEmitter} from './event-emitter';
 import {withResolvers} from './with-resolvers';
 
 // Make sure to distinguish null and undefined here
 
-export const makeProgressTracker = (controller: WebCodecsController) => {
+export const makeProgressTracker = () => {
 	const trackNumberProgresses: Record<number, number | null> = {};
 	const eventEmitter = new IoEventEmitter();
 
@@ -59,41 +57,6 @@ export const makeProgressTracker = (controller: WebCodecsController) => {
 		return promise;
 	};
 
-	const waitForMinimumProgress = async (minimumProgress: number) => {
-		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-
-		const {timeoutPromise, clear} = makeTimeoutPromise({
-			label: () =>
-				[
-					`Waited too long for progress:`,
-					`smallest progress: ${getSmallestProgress()}`,
-					`wanted minimum progress ${minimumProgress}`,
-					`Report this at https://remotion.dev/report`,
-				].join('\n'),
-			ms: 10000,
-			controller,
-		});
-		controller._internals._mediaParserController._internals.signal.addEventListener(
-			'abort',
-			clear,
-		);
-
-		await Promise.race([
-			timeoutPromise,
-			getSmallestProgress() === null
-				? Promise.resolve()
-				: (async () => {
-						while (getSmallestProgress() < minimumProgress) {
-							await waitForProgress();
-						}
-					})(),
-		]).finally(() => clear());
-		controller._internals._mediaParserController._internals.signal.removeEventListener(
-			'abort',
-			clear,
-		);
-	};
-
 	return {
 		registerTrack: (trackNumber: number) => {
 			trackNumberProgresses[trackNumber] = null;
@@ -112,7 +75,6 @@ export const makeProgressTracker = (controller: WebCodecsController) => {
 			});
 		},
 		waitForProgress,
-		waitForMinimumProgress,
 		getStartingTimestamp,
 		setPossibleLowestTimestamp,
 	};

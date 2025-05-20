@@ -205,7 +205,7 @@ export const convertMedia = async function <
 		signal: controller._internals._mediaParserController._internals.signal,
 	});
 
-	const progressTracker = makeProgressTracker(controller);
+	const progressTracker = makeProgressTracker();
 
 	const state = await createMedia({
 		container,
@@ -252,7 +252,6 @@ export const convertMedia = async function <
 		logLevel,
 		outputContainer: container,
 		rotate: rotate ?? 0,
-		progress: progressTracker,
 		resizeOperation: resize ?? null,
 	});
 
@@ -265,7 +264,6 @@ export const convertMedia = async function <
 		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
 		outputContainer: container,
-		progressTracker,
 		onAudioData: onAudioData ?? null,
 	});
 

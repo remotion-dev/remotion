@@ -55,14 +55,14 @@ export const internalCreateAudioDecoder = ({
 
 	const audioDecoder = new AudioDecoder({
 		async output(frame) {
-			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
-
 			try {
 				await onFrame(frame);
 			} catch (err) {
 				frame.close();
 				onError(err as Error);
 			}
+
+			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
 		},
 		error(error) {
 			onError(error);

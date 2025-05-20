@@ -6,7 +6,6 @@ import {canCopyAudioTrack} from './can-copy-audio-track';
 import type {ConvertMediaOnAudioData} from './convert-media';
 import {copyAudioTrack} from './copy-audio-track';
 import type {MediaFn} from './create/media-fn';
-import type {ProgressTracker} from './create/progress-tracker';
 import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
@@ -26,7 +25,6 @@ export const makeAudioTrackHandler =
 		onAudioTrack,
 		logLevel,
 		outputContainer,
-		progressTracker,
 		onAudioData,
 	}: {
 		state: MediaFn;
@@ -37,7 +35,6 @@ export const makeAudioTrackHandler =
 		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
 		logLevel: MediaParserLogLevel;
 		outputContainer: ConvertMediaContainer;
-		progressTracker: ProgressTracker;
 		onAudioData: ConvertMediaOnAudioData | null;
 	}): MediaParserOnAudioTrack =>
 	async ({track, container: inputContainer}) => {
@@ -83,7 +80,6 @@ export const makeAudioTrackHandler =
 			onMediaStateUpdate,
 			audioOperation,
 			onAudioData,
-			progressTracker,
 			state,
 			track,
 		});

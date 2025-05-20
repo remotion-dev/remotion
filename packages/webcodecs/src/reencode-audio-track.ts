@@ -11,7 +11,6 @@ import {getAudioEncoderConfig} from './audio-encoder-config';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnAudioData} from './convert-media';
 import type {MediaFn} from './create/media-fn';
-import type {ProgressTracker} from './create/progress-tracker';
 import {Log} from './log';
 import type {AudioOperation} from './on-audio-track-handler';
 import {processingQueue} from './processing-queue';
@@ -27,7 +26,6 @@ export const reencodeAudioTrack = async ({
 	controller,
 	onMediaStateUpdate,
 	onAudioData,
-	progressTracker,
 }: {
 	audioOperation: AudioOperation;
 	track: MediaParserAudioTrack;
@@ -37,7 +35,6 @@ export const reencodeAudioTrack = async ({
 	controller: WebCodecsController;
 	onMediaStateUpdate: null | ConvertMediaProgressFn;
 	onAudioData: ConvertMediaOnAudioData | null;
-	progressTracker: ProgressTracker;
 }): Promise<MediaParserOnAudioSample | null> => {
 	if (audioOperation.type !== 'reencode') {
 		throw new Error(
@@ -190,15 +187,8 @@ export const reencodeAudioTrack = async ({
 				audioData.close();
 			}
 
-			progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
-
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 			await audioEncoder.ioSynchronizer.waitForQueueSize(20);
-
-			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-			await progressTracker.waitForMinimumProgress(
-				audioData.timestamp - 10_000_000,
-			);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 			audioEncoder.encode(newAudioData);
@@ -244,20 +234,8 @@ export const reencodeAudioTrack = async ({
 	});
 
 	return async (audioSample) => {
-		progressTracker.setPossibleLowestTimestamp(
-			Math.min(
-				audioSample.timestamp,
-				audioSample.decodingTimestamp ?? Infinity,
-			),
-		);
-
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await progressTracker.waitForMinimumProgress(
-			audioSample.timestamp - 10_000_000,
-		);
-
-		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await audioDecoder.waitForQueueToBeLessThan(10);
+		await audioDecoder.waitForQueueToBeLessThan(20);
 
 		audioDecoder.decode(audioSample);
 	};

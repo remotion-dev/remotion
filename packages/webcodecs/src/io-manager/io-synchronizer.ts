@@ -78,6 +78,10 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitForQueueSize = async (queueSize: number) => {
+		if (getQueuedItems() <= queueSize) {
+			return Promise.resolve();
+		}
+
 		const {timeoutPromise, clear} = makeTimeoutPromise({
 			label: () =>
 				[
