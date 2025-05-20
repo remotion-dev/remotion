@@ -4,6 +4,7 @@ import type {
 	MediaParserVideoTrack,
 } from '@remotion/media-parser';
 import type {MediaFn} from './create/media-fn';
+import type {ProgressTracker} from './create/progress-tracker';
 import {Log} from './log';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 
@@ -12,11 +13,13 @@ export const copyVideoTrack = async ({
 	state,
 	track,
 	onMediaStateUpdate,
+	progressTracker,
 }: {
 	logLevel: MediaParserLogLevel;
 	state: MediaFn;
 	track: MediaParserVideoTrack;
 	onMediaStateUpdate: null | ConvertMediaProgressFn;
+	progressTracker: ProgressTracker;
 }): Promise<MediaParserOnVideoSample> => {
 	Log.verbose(
 		logLevel,
@@ -34,6 +37,9 @@ export const copyVideoTrack = async ({
 	});
 
 	return async (sample) => {
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(sample.timestamp, sample.decodingTimestamp ?? Infinity),
+		);
 		await state.addSample({
 			chunk: sample,
 			trackNumber: videoTrack.trackNumber,

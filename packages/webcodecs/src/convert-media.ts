@@ -242,6 +242,7 @@ export const convertMedia = async function <
 	});
 
 	const onVideoTrack: MediaParserOnVideoTrack = makeVideoTrackHandler({
+		progressTracker,
 		state,
 		onVideoFrame: onVideoFrame ?? null,
 		onMediaStateUpdate: throttledState.update ?? null,
@@ -256,6 +257,7 @@ export const convertMedia = async function <
 	});
 
 	const onAudioTrack: MediaParserOnAudioTrack = makeAudioTrackHandler({
+		progressTracker,
 		abortConversion,
 		defaultAudioCodec: audioCodec ?? null,
 		controller,

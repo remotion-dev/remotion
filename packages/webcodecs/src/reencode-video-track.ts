@@ -7,6 +7,7 @@ import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
 import type {MediaFn} from './create/media-fn';
+import type {ProgressTracker} from './create/progress-tracker';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {VideoOperation} from './on-video-track-handler';
@@ -30,6 +31,7 @@ export const reencodeVideoTrack = async ({
 	controller,
 	onVideoFrame,
 	state,
+	progressTracker,
 }: {
 	videoOperation: VideoOperation;
 	rotate: number;
@@ -40,6 +42,7 @@ export const reencodeVideoTrack = async ({
 	controller: WebCodecsController;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
 	state: MediaFn;
+	progressTracker: ProgressTracker;
 }): Promise<MediaParserOnVideoSample | null> => {
 	if (videoOperation.type !== 'reencode') {
 		throw new Error(
@@ -222,6 +225,10 @@ export const reencodeVideoTrack = async ({
 	});
 
 	return async (chunk) => {
+		progressTracker.setPossibleLowestTimestamp(
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
+		);
+
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 		await videoDecoder.waitForQueueToBeLessThan(10);
 

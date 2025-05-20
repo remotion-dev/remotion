@@ -1,5 +1,4 @@
 import {IoEventEmitter} from './event-emitter';
-import {withResolvers} from './with-resolvers';
 
 // Make sure to distinguish null and undefined here
 
@@ -15,14 +14,6 @@ export const makeProgressTracker = () => {
 		} else {
 			startingTimestamp = Math.min(startingTimestamp, timestamp);
 		}
-	};
-
-	const getStartingTimestamp = () => {
-		if (startingTimestamp === null) {
-			throw new Error('No starting timestamp');
-		}
-
-		return startingTimestamp;
 	};
 
 	const getSmallestProgress = () => {
@@ -46,17 +37,6 @@ export const makeProgressTracker = () => {
 		return Math.min(...progressValues);
 	};
 
-	const waitForProgress = () => {
-		const {promise, resolve} = withResolvers<void>();
-		const on = () => {
-			eventEmitter.removeEventListener('progress', on);
-			resolve();
-		};
-
-		eventEmitter.addEventListener('progress', on);
-		return promise;
-	};
-
 	return {
 		registerTrack: (trackNumber: number) => {
 			trackNumberProgresses[trackNumber] = null;
@@ -74,8 +54,6 @@ export const makeProgressTracker = () => {
 				smallestProgress: getSmallestProgress(),
 			});
 		},
-		waitForProgress,
-		getStartingTimestamp,
 		setPossibleLowestTimestamp,
 	};
 };
