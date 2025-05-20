@@ -13,6 +13,7 @@ import {onFrame} from './on-frame';
 import type {VideoOperation} from './on-video-track-handler';
 import {processingQueue} from './processing-queue';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
+import {videoFrameSorter} from './sort-video-frames';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
@@ -163,14 +164,23 @@ export const reencodeVideoTrack = async ({
 		},
 	});
 
-	const videoDecoder = createVideoDecoder({
-		config: videoDecoderConfig,
-		onFrame: async (frame) => {
+	const frameSorter = videoFrameSorter({
+		controller,
+		onOutput: async (frame) => {
 			await videoProcessingQueue.ioSynchronizer.waitForQueueSize({
 				queueSize: 10,
 				controller,
 			});
+
 			videoProcessingQueue.input(frame);
+		},
+	});
+
+	const videoDecoder = createVideoDecoder({
+		config: videoDecoderConfig,
+		onFrame: async (frame) => {
+			await frameSorter.waitUntilProcessed();
+			frameSorter.inputFrame(frame);
 		},
 		onError: (err) => {
 			abortConversion(
@@ -188,6 +198,8 @@ export const reencodeVideoTrack = async ({
 
 	state.addWaitForFinishPromise(async () => {
 		Log.verbose(logLevel, 'Waiting for video decoder to finish');
+		await frameSorter.flush();
+		Log.verbose(logLevel, 'Frame sorter flushed');
 		await videoDecoder.waitForFinish();
 		videoDecoder.close();
 		Log.verbose(

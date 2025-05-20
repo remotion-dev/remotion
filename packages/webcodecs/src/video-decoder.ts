@@ -5,7 +5,6 @@ import type {
 import type {IoSynchronizer} from './io-manager/io-synchronizer';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
-import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
@@ -34,18 +33,11 @@ export const internalCreateVideoDecoder = ({
 		label: 'Video decoder',
 	});
 
-	const frameSorter = videoFrameSorter({
-		controller,
-		onRelease: async (frame) => {
-			await onFrame(frame);
-		},
-	});
-
 	const videoDecoder = new VideoDecoder({
 		async output(frame) {
 			ioSynchronizer.onOutput(frame.timestamp);
 			try {
-				await frameSorter.inputFrame(frame);
+				await onFrame(frame);
 			} catch (err) {
 				onError(err as Error);
 				frame.close();
@@ -94,8 +86,6 @@ export const internalCreateVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
-			await frameSorter.flush();
-			Log.verbose(logLevel, 'Frame sorter flushed');
 			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
 		},

@@ -3,11 +3,11 @@ import type {WebCodecsController} from './webcodecs-controller';
 const MAX_QUEUE_SIZE = 5;
 
 export const videoFrameSorter = ({
-	onRelease,
 	controller,
+	onOutput,
 }: {
-	onRelease: (frame: VideoFrame) => Promise<void>;
 	controller: WebCodecsController;
+	onOutput: (frame: VideoFrame) => Promise<void>;
 }) => {
 	const frames: VideoFrame[] = [];
 
@@ -16,7 +16,7 @@ export const videoFrameSorter = ({
 
 		const frame = frames.shift();
 		if (frame) {
-			await onRelease(frame);
+			await onOutput(frame);
 		}
 	};
 
@@ -68,8 +68,13 @@ export const videoFrameSorter = ({
 		onAbort,
 	);
 
+	let promise = Promise.resolve();
+
 	return {
-		inputFrame,
+		inputFrame: (frame: VideoFrame) => {
+			promise = promise.then(() => inputFrame(frame));
+		},
+		waitUntilProcessed: () => promise,
 		flush,
 	};
 };
