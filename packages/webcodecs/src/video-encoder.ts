@@ -114,10 +114,17 @@ export const createVideoEncoder = ({
 
 		progress.setPossibleLowestTimestamp(frame.timestamp);
 
-		await ioSynchronizer.waitFor({
-			// Firefox stalls if too few frames are passed
+		await ioSynchronizer.waitForUnemitted({
 			unemitted: 10,
+			controller,
+		});
+
+		await ioSynchronizer.waitForUnprocessed({
 			unprocessed: 10,
+			controller,
+		});
+
+		await ioSynchronizer.waitForMinimumProgress({
 			minimumProgress: frame.timestamp - 10_000_000,
 			controller,
 		});

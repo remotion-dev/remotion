@@ -122,9 +122,15 @@ export const createAudioEncoder = ({
 
 		progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
 
-		await ioSynchronizer.waitFor({
+		await ioSynchronizer.waitForUnemitted({
 			unemitted: 20,
+			controller,
+		});
+		await ioSynchronizer.waitForUnprocessed({
 			unprocessed: 20,
+			controller,
+		});
+		await ioSynchronizer.waitForMinimumProgress({
 			minimumProgress: audioData.timestamp - 10_000_000,
 			controller,
 		});

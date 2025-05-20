@@ -101,15 +101,22 @@ export const makeIoSynchronizer = ({
 		return promise;
 	};
 
-	const waitFor = async ({
+	const makeErrorBanner = () => {
+		return [
+			`Waited too long for ${label} to finish:`,
+			`${getUnemittedItems()} unemitted items`,
+			`${getUnprocessed()} unprocessed items: ${JSON.stringify(_unprocessed)}`,
+			`smallest progress: ${progress.getSmallestProgress()}`,
+			`inputs: ${JSON.stringify(inputs)}`,
+			`last output: ${lastOutput}`,
+		];
+	};
+
+	const waitForUnprocessed = async ({
 		unprocessed,
-		unemitted,
-		minimumProgress,
 		controller,
 	}: {
-		unemitted: number;
 		unprocessed: number;
-		minimumProgress: number | null;
 		controller: WebCodecsController;
 	}) => {
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
@@ -117,13 +124,8 @@ export const makeIoSynchronizer = ({
 		const {timeoutPromise, clear} = makeTimeoutPromise({
 			label: () =>
 				[
-					`Waited too long for ${label} to finish:`,
-					`${getUnemittedItems()} unemitted items`,
-					`${getUnprocessed()} unprocessed items: ${JSON.stringify(_unprocessed)}`,
-					`smallest progress: ${progress.getSmallestProgress()}`,
-					`inputs: ${JSON.stringify(inputs)}`,
-					`last output: ${lastOutput}`,
-					`wanted: ${unemitted} unemitted items, ${unprocessed} unprocessed items, minimum progress ${minimumProgress}`,
+					...makeErrorBanner(),
+					`wanted: ${unprocessed} unprocessed items`,
 					`Report this at https://remotion.dev/report`,
 				].join('\n'),
 			ms: 10000,
@@ -136,25 +138,89 @@ export const makeIoSynchronizer = ({
 
 		await Promise.race([
 			timeoutPromise,
-			Promise.all([
-				(async () => {
-					while (getUnemittedItems() > unemitted) {
-						await waitForOutput();
-					}
-				})(),
-				(async () => {
-					while (getUnprocessed() > unprocessed) {
-						await waitForProcessed();
-					}
-				})(),
-				minimumProgress === null || progress.getSmallestProgress() === null
-					? Promise.resolve()
-					: (async () => {
-							while (progress.getSmallestProgress() < minimumProgress) {
-								await progress.waitForProgress();
-							}
-						})(),
-			]),
+			(async () => {
+				while (getUnprocessed() > unprocessed) {
+					await waitForProcessed();
+				}
+			})(),
+		]).finally(() => clear());
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			clear,
+		);
+	};
+
+	const waitForUnemitted = async ({
+		unemitted,
+		controller,
+	}: {
+		unemitted: number;
+		controller: WebCodecsController;
+	}) => {
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
+		const {timeoutPromise, clear} = makeTimeoutPromise({
+			label: () =>
+				[
+					...makeErrorBanner(),
+					`wanted: ${unemitted} unemitted items`,
+					`Report this at https://remotion.dev/report`,
+				].join('\n'),
+			ms: 10000,
+			controller,
+		});
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			clear,
+		);
+
+		await Promise.race([
+			timeoutPromise,
+			(async () => {
+				while (getUnemittedItems() > unemitted) {
+					await waitForOutput();
+				}
+			})(),
+		]).finally(() => clear());
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			clear,
+		);
+	};
+
+	const waitForMinimumProgress = async ({
+		minimumProgress,
+		controller,
+	}: {
+		minimumProgress: number;
+		controller: WebCodecsController;
+	}) => {
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
+		const {timeoutPromise, clear} = makeTimeoutPromise({
+			label: () =>
+				[
+					...makeErrorBanner(),
+					`wanted minimum progress ${minimumProgress}`,
+					`Report this at https://remotion.dev/report`,
+				].join('\n'),
+			ms: 10000,
+			controller,
+		});
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			clear,
+		);
+
+		await Promise.race([
+			timeoutPromise,
+			progress.getSmallestProgress() === null
+				? Promise.resolve()
+				: (async () => {
+						while (progress.getSmallestProgress() < minimumProgress) {
+							await progress.waitForProgress();
+						}
+					})(),
 		]).finally(() => clear());
 		controller._internals._mediaParserController._internals.signal.removeEventListener(
 			'abort',
@@ -163,11 +229,13 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitForFinish = async (controller: WebCodecsController) => {
-		await waitFor({
-			unprocessed: 0,
-			unemitted: 0,
-			minimumProgress: null,
+		await waitForUnprocessed({
 			controller,
+			unprocessed: 0,
+		});
+		await waitForUnemitted({
+			controller,
+			unemitted: 0,
 		});
 	};
 
@@ -179,9 +247,11 @@ export const makeIoSynchronizer = ({
 	return {
 		inputItem,
 		onOutput,
-		waitFor,
 		waitForFinish,
+		waitForMinimumProgress,
+		waitForUnemitted,
 		onProcessed,
 		getUnprocessed,
+		waitForUnprocessed,
 	};
 };

@@ -130,10 +130,16 @@ export const createAudioDecoder = ({
 			),
 		);
 
-		await ioSynchronizer.waitFor({
-			unemitted: 20,
+		await ioSynchronizer.waitForUnprocessed({
 			unprocessed: 20,
+			controller,
+		});
+		await ioSynchronizer.waitForMinimumProgress({
 			minimumProgress: audioSample.timestamp - 10_000_000,
+			controller,
+		});
+		await ioSynchronizer.waitForUnemitted({
+			unemitted: 20,
 			controller,
 		});
 

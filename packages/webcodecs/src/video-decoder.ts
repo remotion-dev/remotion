@@ -132,9 +132,15 @@ export const createVideoDecoder = ({
 			Math.min(sample.timestamp, sample.decodingTimestamp ?? Infinity),
 		);
 
-		await ioSynchronizer.waitFor({
+		await ioSynchronizer.waitForUnemitted({
 			unemitted: 20,
+			controller,
+		});
+		await ioSynchronizer.waitForUnprocessed({
 			unprocessed: 10,
+			controller,
+		});
+		await ioSynchronizer.waitForMinimumProgress({
 			minimumProgress: sample.timestamp - 10_000_000,
 			controller,
 		});
