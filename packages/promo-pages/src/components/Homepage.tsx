@@ -25,7 +25,7 @@ export const NewLanding: React.FC<{
 	return (
 		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
 			<div className="bg-[var(--background)] relative">
-				<div>
+				<div style={{overflow: 'hidden'}}>
 					<div>
 						<BackgroundAnimation />
 					</div>
