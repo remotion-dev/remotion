@@ -1,8 +1,12 @@
-import type {MediaParserAudioSample} from '@remotion/media-parser';
+import type {
+	MediaParserAudioSample,
+	MediaParserLogLevel,
+} from '@remotion/media-parser';
 import type {
 	CreateAudioDecoderInit,
 	WebCodecsAudioDecoder,
 } from './audio-decoder';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
 
 const getBytesPerSample = (sampleFormat: AudioSampleFormat) => {
 	if (sampleFormat === 's16') {
@@ -40,40 +44,48 @@ const getBytesPerSample = (sampleFormat: AudioSampleFormat) => {
 	throw new Error(`Unsupported sample format: ${sampleFormat satisfies never}`);
 };
 
-// TODO: Should also be subject to throttling
 export const getWaveAudioDecoder = ({
 	onFrame,
 	track,
 	sampleFormat,
+	ioSynchronizer,
+	onError,
 }: Pick<CreateAudioDecoderInit, 'onFrame' | 'track'> & {
 	sampleFormat: AudioSampleFormat;
+	logLevel: MediaParserLogLevel;
+	ioSynchronizer: IoSynchronizer;
+	onError: (error: Error) => void;
 }): WebCodecsAudioDecoder => {
-	let queue = Promise.resolve();
-
 	const processSample = async (audioSample: MediaParserAudioSample) => {
 		const bytesPerSample = getBytesPerSample(sampleFormat);
-		await onFrame(
-			new AudioData({
-				data: audioSample.data,
-				format: sampleFormat,
-				numberOfChannels: track.numberOfChannels,
-				numberOfFrames:
-					audioSample.data.byteLength / bytesPerSample / track.numberOfChannels,
-				sampleRate: track.sampleRate,
-				timestamp: audioSample.timestamp,
-			}),
-		);
+
+		const audioData = new AudioData({
+			data: audioSample.data,
+			format: sampleFormat,
+			numberOfChannels: track.numberOfChannels,
+			numberOfFrames:
+				audioSample.data.byteLength / bytesPerSample / track.numberOfChannels,
+			sampleRate: track.sampleRate,
+			timestamp: audioSample.timestamp,
+		});
+
+		try {
+			await onFrame(audioData);
+		} catch (err) {
+			audioData.close();
+			onError(err as Error);
+		}
 	};
 
 	return {
 		close() {
 			return Promise.resolve();
 		},
-		processSample(audioSample) {
-			queue = queue.then(() => processSample(audioSample));
-			return queue;
+		decode(audioSample) {
+			processSample(audioSample);
 		},
 		flush: () => Promise.resolve(),
 		waitForFinish: () => Promise.resolve(),
+		ioSynchronizer,
 	};
 };

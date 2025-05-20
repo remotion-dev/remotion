@@ -285,7 +285,6 @@ export const makeAudioTrackHandler =
 			config: audioDecoderConfig,
 			logLevel,
 			track,
-			progressTracker,
 		});
 
 		state.addWaitForFinishPromise(async () => {
@@ -296,6 +295,18 @@ export const makeAudioTrackHandler =
 		});
 
 		return async (audioSample) => {
-			await audioDecoder.processSample(audioSample);
+			progressTracker.setPossibleLowestTimestamp(audioSample.timestamp);
+
+			await progressTracker.waitForMinimumProgress({
+				minimumProgress: audioSample.timestamp - 10_000_000,
+				controller,
+			});
+
+			await audioDecoder.ioSynchronizer.waitForQueueSize({
+				queueSize: 20,
+				controller,
+			});
+
+			audioDecoder.decode(audioSample);
 		};
 	};

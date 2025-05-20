@@ -3,16 +3,17 @@ import type {
 	MediaParserAudioTrack,
 	MediaParserLogLevel,
 } from '@remotion/media-parser';
-import type {ProgressTracker} from './create/progress-tracker';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
-	processSample: (audioSample: MediaParserAudioSample) => Promise<void>;
+	decode: (audioSample: MediaParserAudioSample) => void;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
+	ioSynchronizer: IoSynchronizer;
 };
 
 export type CreateAudioDecoderInit = {
@@ -22,7 +23,6 @@ export type CreateAudioDecoderInit = {
 	config: AudioDecoderConfig;
 	logLevel: MediaParserLogLevel;
 	track: MediaParserAudioTrack;
-	progressTracker: ProgressTracker;
 };
 
 export const createAudioDecoder = ({
@@ -32,20 +32,26 @@ export const createAudioDecoder = ({
 	config,
 	logLevel,
 	track,
-	progressTracker,
 }: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
 	if (controller._internals._mediaParserController._internals.signal.aborted) {
 		throw new Error('Not creating audio decoder, already aborted');
-	}
-
-	if (config.codec === 'pcm-s16') {
-		return getWaveAudioDecoder({onFrame, track, sampleFormat: 's16'});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Audio decoder',
 	});
+
+	if (config.codec === 'pcm-s16') {
+		return getWaveAudioDecoder({
+			onFrame,
+			track,
+			sampleFormat: 's16',
+			logLevel,
+			ioSynchronizer,
+			onError,
+		});
+	}
 
 	const audioDecoder = new AudioDecoder({
 		async output(frame) {
@@ -87,26 +93,10 @@ export const createAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = async (audioSample: MediaParserAudioSample) => {
+	const processSample = (audioSample: MediaParserAudioSample) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
-
-		progressTracker.setPossibleLowestTimestamp(
-			Math.min(
-				audioSample.timestamp,
-				audioSample.decodingTimestamp ?? Infinity,
-			),
-		);
-
-		await progressTracker.waitForMinimumProgress({
-			minimumProgress: audioSample.timestamp - 10_000_000,
-			controller,
-		});
-		await ioSynchronizer.waitForQueueSize({
-			queueSize: 20,
-			controller,
-		});
 
 		// Don't flush, it messes up the audio
 
@@ -123,12 +113,9 @@ export const createAudioDecoder = ({
 		}
 	};
 
-	let queue = Promise.resolve();
-
 	return {
-		processSample: (sample: MediaParserAudioSample) => {
-			queue = queue.then(() => processSample(sample));
-			return queue;
+		decode: (sample: MediaParserAudioSample) => {
+			processSample(sample);
 		},
 		waitForFinish: async () => {
 			// Firefox might throw "Needs to be configured first"
@@ -136,12 +123,12 @@ export const createAudioDecoder = ({
 				await audioDecoder.flush();
 			} catch {}
 
-			await queue;
 			await ioSynchronizer.waitForFinish(controller);
 		},
 		close,
 		flush: async () => {
 			await audioDecoder.flush();
 		},
+		ioSynchronizer,
 	};
 };

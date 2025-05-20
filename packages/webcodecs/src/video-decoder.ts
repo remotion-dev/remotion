@@ -9,7 +9,7 @@ import {videoFrameSorter} from './sort-video-frames';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	processSample: (videoSample: MediaParserVideoSample) => void;
+	decode: (videoSample: MediaParserVideoSample) => void;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
@@ -80,31 +80,17 @@ export const createVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const processSample = (sample: MediaParserVideoSample) => {
+	const decode = (sample: MediaParserVideoSample) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
-
-		// @ts-expect-error - can have changed in the meanwhile
-		if (videoDecoder.state === 'closed') {
-			return;
-		}
-
-		// Don't flush here.
-		// We manually keep track of the memory with the IO synchornizer.
-
-		// Example of flushing breaking things:
-		// IMG_2310.MOV has B-frames, and if we flush on a keyframe, we discard some frames that are yet to come.
 
 		videoDecoder.decode(new EncodedVideoChunk(sample));
-
 		ioSynchronizer.inputItem(sample.timestamp);
 	};
 
 	return {
-		processSample: (sample: MediaParserVideoSample) => {
-			processSample(sample);
-		},
+		decode,
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');

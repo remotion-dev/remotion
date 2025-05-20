@@ -283,17 +283,21 @@ export const makeVideoTrackHandler =
 		});
 
 		return async (chunk) => {
-			progress.setPossibleLowestTimestamp(
-				Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
-			);
+			progress.setPossibleLowestTimestamp(chunk.timestamp);
 			await progress.waitForMinimumProgress({
 				minimumProgress: chunk.timestamp - 10_000_000,
 				controller,
 			});
+
 			await videoDecoder.ioSynchronizer.waitForQueueSize({
 				queueSize: 20,
 				controller,
 			});
-			videoDecoder.processSample(chunk);
+
+			if (chunk.type === 'key') {
+				await videoDecoder.flush();
+			}
+
+			videoDecoder.decode(chunk);
 		};
 	};
