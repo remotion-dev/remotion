@@ -1,5 +1,4 @@
 import {IoEventEmitter} from '../create/event-emitter';
-import type {ProgressTracker} from '../create/progress-tracker';
 import {withResolvers} from '../create/with-resolvers';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
@@ -9,11 +8,9 @@ import {makeTimeoutPromise} from './make-timeout-promise';
 export const makeIoSynchronizer = ({
 	logLevel,
 	label,
-	progress,
 }: {
 	logLevel: LogLevel;
 	label: string;
-	progress: ProgressTracker;
 }) => {
 	const eventEmitter = new IoEventEmitter();
 
@@ -73,7 +70,6 @@ export const makeIoSynchronizer = ({
 		return [
 			`Waited too long for ${label} to finish:`,
 			`${getQueuedItems()} queued items`,
-			`smallest progress: ${progress.getSmallestProgress()}`,
 			`inputs: ${JSON.stringify(inputs)}`,
 			`last output: ${lastOutput}`,
 		];

@@ -261,7 +261,6 @@ export const makeAudioTrackHandler =
 
 				newAudioData.close();
 			},
-			progress: progressTracker,
 		});
 
 		const audioDecoder = createAudioDecoder({

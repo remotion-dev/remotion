@@ -45,7 +45,6 @@ export const createVideoEncoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video encoder',
-		progress,
 	});
 
 	const encoder = new VideoEncoder({

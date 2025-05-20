@@ -1,4 +1,3 @@
-import type {ProgressTracker} from './create/progress-tracker';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {LogLevel} from './log';
 import type {WebCodecsController} from './webcodecs-controller';
@@ -11,7 +10,6 @@ type Processable =
 
 export function processingQueue<T extends Processable>({
 	onOutput,
-	progress,
 	logLevel,
 	label,
 	onError,
@@ -19,7 +17,6 @@ export function processingQueue<T extends Processable>({
 }: {
 	onOutput: (item: T) => Promise<void>;
 	onError: (error: Error) => void;
-	progress: ProgressTracker;
 	logLevel: LogLevel;
 	label: string;
 	controller: WebCodecsController;
@@ -27,7 +24,6 @@ export function processingQueue<T extends Processable>({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label,
-		progress,
 	});
 
 	let queue = Promise.resolve();

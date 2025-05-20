@@ -244,7 +244,6 @@ export const makeVideoTrackHandler =
 					resizeOperation: videoOperation.resize ?? null,
 				});
 			},
-			progress,
 		});
 
 		const videoDecoder = createVideoDecoder({

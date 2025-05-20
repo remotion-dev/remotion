@@ -45,7 +45,6 @@ export const createAudioDecoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Audio decoder',
-		progress: progressTracker,
 	});
 
 	const audioDecoder = new AudioDecoder({

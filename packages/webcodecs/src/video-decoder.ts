@@ -33,7 +33,6 @@ export const createVideoDecoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video decoder',
-		progress,
 	});
 
 	const frameSorter = videoFrameSorter({
