@@ -193,7 +193,7 @@ export const reencodeAudioTrack = async ({
 			progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-			await audioEncoder.ioSynchronizer.waitForQueueSize(20);
+			await audioEncoder.ioSynchronizer.waitForQueueSize(20, controller);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 			await progressTracker.waitForMinimumProgress(
@@ -218,7 +218,10 @@ export const reencodeAudioTrack = async ({
 		onFrame: async (audioData) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-			await audioProcessingQueue.ioSynchronizer.waitForQueueSize(20);
+			await audioProcessingQueue.ioSynchronizer.waitForQueueSize(
+				20,
+				controller,
+			);
 			audioProcessingQueue.input(audioData);
 		},
 		onError(error) {
@@ -258,7 +261,7 @@ export const reencodeAudioTrack = async ({
 		);
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await audioDecoder.ioSynchronizer.waitForQueueSize(20);
+		await audioDecoder.ioSynchronizer.waitForQueueSize(20, controller);
 
 		audioDecoder.decode(audioSample);
 	};

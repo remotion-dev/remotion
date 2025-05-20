@@ -44,7 +44,6 @@ export const createAudioEncoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Audio encoder',
-		controller,
 	});
 
 	if (codec === 'wav') {
@@ -127,7 +126,7 @@ export const createAudioEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(controller);
 		},
 		close,
 		flush: async () => {

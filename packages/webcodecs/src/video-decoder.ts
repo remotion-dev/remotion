@@ -31,7 +31,6 @@ export const internalCreateVideoDecoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video decoder',
-		controller,
 	});
 
 	const videoDecoder = new VideoDecoder({
@@ -87,7 +86,7 @@ export const internalCreateVideoDecoder = ({
 		waitForFinish: async () => {
 			await videoDecoder.flush();
 			Log.verbose(logLevel, 'Flushed video decoder');
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
 		},
 		close,

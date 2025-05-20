@@ -46,7 +46,6 @@ export const createVideoEncoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video encoder',
-		controller,
 	});
 
 	const encoder = new VideoEncoder({
@@ -120,7 +119,7 @@ export const createVideoEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForFinish(controller);
 		},
 		close,
 		flush: async () => {
