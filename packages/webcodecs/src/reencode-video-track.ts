@@ -154,7 +154,7 @@ export const reencodeVideoTrack = async ({
 		onOutput: async (frame) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-			const {frame: fixedFrame, cleanup} = await onFrame({
+			const processedFrame = await onFrame({
 				frame,
 				track,
 				onVideoFrame,
@@ -172,9 +172,9 @@ export const reencodeVideoTrack = async ({
 			await progress.waitForMinimumProgress(frame.timestamp - 10_000_000);
 
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-			videoEncoder.encode(fixedFrame);
+			videoEncoder.encode(processedFrame);
 
-			cleanup();
+			processedFrame.close();
 		},
 	});
 
@@ -227,8 +227,8 @@ export const reencodeVideoTrack = async ({
 		progress.setPossibleLowestTimestamp(
 			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
 		);
-		await progress.waitForMinimumProgress(chunk.timestamp - 10_000_000);
 
+		await progress.waitForMinimumProgress(chunk.timestamp - 10_000_000);
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
 		await videoDecoder.ioSynchronizer.waitForQueueSize(20);

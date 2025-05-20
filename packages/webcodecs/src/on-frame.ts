@@ -72,9 +72,5 @@ export const onFrame = async ({
 		userProcessedFrame.close();
 	}
 
-	const cleanup = () => {
-		fixedFrame.close();
-	};
-
-	return {cleanup, frame: fixedFrame};
+	return fixedFrame;
 };

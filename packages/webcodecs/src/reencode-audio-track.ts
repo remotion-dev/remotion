@@ -252,6 +252,7 @@ export const reencodeAudioTrack = async ({
 			),
 		);
 
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 		await progressTracker.waitForMinimumProgress(
 			audioSample.timestamp - 10_000_000,
 		);
