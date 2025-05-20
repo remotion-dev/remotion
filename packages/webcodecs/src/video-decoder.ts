@@ -2,17 +2,16 @@ import type {
 	MediaParserLogLevel,
 	MediaParserVideoSample,
 } from '@remotion/media-parser';
-import type {IoSynchronizer} from './io-manager/io-synchronizer';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
 	decode: (videoSample: MediaParserVideoSample) => void;
-	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
-	ioSynchronizer: IoSynchronizer;
+	waitForFinish: () => Promise<void>;
+	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 };
 
 export const internalCreateVideoDecoder = ({
@@ -99,7 +98,7 @@ export const internalCreateVideoDecoder = ({
 		flush: async () => {
 			await videoDecoder.flush();
 		},
-		ioSynchronizer,
+		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 	};
 };
 

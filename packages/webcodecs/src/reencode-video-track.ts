@@ -231,7 +231,7 @@ export const reencodeVideoTrack = async ({
 		await progress.waitForMinimumProgress(chunk.timestamp - 10_000_000);
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-		await videoDecoder.ioSynchronizer.waitForQueueSize(20);
+		await videoDecoder.waitForQueueToBeLessThan(20);
 
 		if (chunk.type === 'key') {
 			await videoDecoder.flush();

@@ -257,7 +257,7 @@ export const reencodeAudioTrack = async ({
 		);
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await audioDecoder.ioSynchronizer.waitForQueueSize(20);
+		await audioDecoder.waitForQueueToBeLessThan(20);
 
 		audioDecoder.decode(audioSample);
 	};

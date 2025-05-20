@@ -86,6 +86,6 @@ export const getWaveAudioDecoder = ({
 		},
 		flush: () => Promise.resolve(),
 		waitForFinish: () => Promise.resolve(),
-		ioSynchronizer,
+		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 	};
 };

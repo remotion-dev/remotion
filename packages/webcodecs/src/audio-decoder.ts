@@ -3,16 +3,15 @@ import type {
 	MediaParserLogLevel,
 } from '@remotion/media-parser';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
-import type {IoSynchronizer} from './io-manager/io-synchronizer';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
 	decode: (audioSample: MediaParserAudioSample) => void;
-	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
-	ioSynchronizer: IoSynchronizer;
+	waitForFinish: () => Promise<void>;
+	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 };
 
 export type CreateAudioDecoderInit = {
@@ -135,7 +134,7 @@ export const internalCreateAudioDecoder = ({
 		flush: async () => {
 			await audioDecoder.flush();
 		},
-		ioSynchronizer,
+		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 	};
 };
 
