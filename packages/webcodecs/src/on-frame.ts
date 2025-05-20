@@ -34,19 +34,16 @@ export const onFrame = async ({
 	const userProcessedFrame = onVideoFrame
 		? await onVideoFrame({frame: rotated, track})
 		: rotated;
-	if (rotated !== userProcessedFrame) {
-		rotated.close();
-	}
 
 	if (userProcessedFrame.displayWidth !== rotated.displayWidth) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${userProcessedFrame.displayWidth}) than the input frame (${userProcessedFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${userProcessedFrame.displayWidth}) than the input frame (${rotated.displayWidth})`,
 		);
 	}
 
 	if (userProcessedFrame.displayHeight !== rotated.displayHeight) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${userProcessedFrame.displayHeight}) than the input frame (${userProcessedFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${userProcessedFrame.displayHeight}) than the input frame (${rotated.displayHeight})`,
 		);
 	}
 
@@ -62,6 +59,10 @@ export const onFrame = async ({
 		throw new Error(
 			`Returned VideoFrame of track ${track.trackId} has different duration (${userProcessedFrame.duration}) than the input frame (${rotated.duration}). When calling new VideoFrame(), pass {duration: frame.duration} as second argument`,
 		);
+	}
+
+	if (rotated !== userProcessedFrame) {
+		rotated.close();
 	}
 
 	const fixedFrame = convertToCorrectVideoFrame({
