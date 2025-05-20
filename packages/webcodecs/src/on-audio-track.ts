@@ -196,7 +196,6 @@ export const makeAudioTrackHandler =
 			controller,
 			config: audioEncoderConfig,
 			logLevel,
-			progressTracker,
 		});
 
 		const audioProcessingQueue = processingQueue<AudioData>({
@@ -251,7 +250,19 @@ export const makeAudioTrackHandler =
 					audioData.close();
 				}
 
-				await audioEncoder.encodeFrame(newAudioData);
+				progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
+
+				await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+				await audioEncoder.ioSynchronizer.waitForQueueSize(20);
+
+				await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+				await progressTracker.waitForMinimumProgress(
+					audioData.timestamp - 10_000_000,
+				);
+
+				await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+				audioEncoder.encode(newAudioData);
+
 				onMediaStateUpdate?.((prevState) => {
 					return {
 						...prevState,

@@ -134,7 +134,7 @@ export const reencodeVideoTrack = async ({
 		config: videoEncoderConfig,
 		logLevel,
 		outputCodec: videoOperation.videoCodec,
-		progress,
+		keyframeInterval: 40,
 	});
 
 	const videoProcessingQueue = processingQueue<VideoFrame>({
@@ -152,15 +152,29 @@ export const reencodeVideoTrack = async ({
 			);
 		},
 		onOutput: async (frame) => {
-			await onFrame({
+			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
+			const {frame: fixedFrame, cleanup} = await onFrame({
 				frame,
 				track,
-				videoEncoder,
 				onVideoFrame,
 				outputCodec: videoOperation.videoCodec,
 				rotation,
 				resizeOperation: videoOperation.resize ?? null,
 			});
+
+			progress.setPossibleLowestTimestamp(frame.timestamp);
+
+			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+			await videoEncoder.ioSynchronizer.waitForQueueSize(10);
+
+			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+			await progress.waitForMinimumProgress(frame.timestamp - 10_000_000);
+
+			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+			videoEncoder.encode(fixedFrame);
+
+			cleanup();
 		},
 	});
 
@@ -168,7 +182,6 @@ export const reencodeVideoTrack = async ({
 		controller,
 		onOutput: async (frame) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-
 			await videoProcessingQueue.ioSynchronizer.waitForQueueSize(10);
 
 			videoProcessingQueue.input(frame);

@@ -3,17 +3,18 @@ import {
 	type MediaParserLogLevel,
 } from '@remotion/media-parser';
 import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
-import type {ProgressTracker} from './create/progress-tracker';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoEncoder = {
-	encodeFrame: (videoFrame: VideoFrame, timestamp: number) => Promise<void>;
+	encode: (videoFrame: VideoFrame) => void;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
+	ioSynchronizer: IoSynchronizer;
 };
 
 export const createVideoEncoder = ({
@@ -23,7 +24,7 @@ export const createVideoEncoder = ({
 	config,
 	logLevel,
 	outputCodec,
-	progress,
+	keyframeInterval,
 }: {
 	onChunk: (
 		chunk: EncodedVideoChunk,
@@ -34,7 +35,7 @@ export const createVideoEncoder = ({
 	config: VideoEncoderConfig;
 	logLevel: MediaParserLogLevel;
 	outputCodec: ConvertMediaVideoCodec;
-	progress: ProgressTracker;
+	keyframeInterval: number;
 }): WebCodecsVideoEncoder => {
 	if (controller._internals._mediaParserController._internals.signal.aborted) {
 		throw new MediaParserAbortError(
@@ -54,7 +55,6 @@ export const createVideoEncoder = ({
 		},
 		async output(chunk, metadata) {
 			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
-
 			ioSynchronizer.onOutput(timestamp);
 
 			try {
@@ -92,26 +92,13 @@ export const createVideoEncoder = ({
 
 	let framesProcessed = 0;
 
-	const encodeFrame = async (frame: VideoFrame) => {
+	const encodeFrame = (frame: VideoFrame) => {
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		progress.setPossibleLowestTimestamp(frame.timestamp);
+		const keyFrame = framesProcessed % keyframeInterval === 0;
 
-		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await ioSynchronizer.waitForQueueSize(10);
-
-		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await progress.waitForMinimumProgress(frame.timestamp - 10_000_000);
-		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-
-		// @ts-expect-error - can have changed in the meanwhile
-		if (encoder.state === 'closed') {
-			return;
-		}
-
-		const keyFrame = framesProcessed % 40 === 0;
 		encoder.encode(
 			convertToCorrectVideoFrame({videoFrame: frame, outputCodec}),
 			{
@@ -124,16 +111,12 @@ export const createVideoEncoder = ({
 		);
 
 		ioSynchronizer.inputItem(frame.timestamp);
-
 		framesProcessed++;
 	};
 
-	let inputQueue = Promise.resolve();
-
 	return {
-		encodeFrame: (frame: VideoFrame) => {
-			inputQueue = inputQueue.then(() => encodeFrame(frame));
-			return inputQueue;
+		encode: (frame: VideoFrame) => {
+			encodeFrame(frame);
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
@@ -143,5 +126,6 @@ export const createVideoEncoder = ({
 		flush: async () => {
 			await encoder.flush();
 		},
+		ioSynchronizer,
 	};
 };
