@@ -1,3 +1,5 @@
+import {makeTimeoutPromise} from '../io-manager/make-timeout-promise';
+import type {WebCodecsController} from '../webcodecs-controller';
 import {IoEventEmitter} from './event-emitter';
 import {withResolvers} from './with-resolvers';
 
@@ -25,7 +27,7 @@ export const makeProgressTracker = () => {
 		return startingTimestamp;
 	};
 
-	const calculateSmallestProgress = () => {
+	const getSmallestProgress = () => {
 		const progressValues = Object.values(trackNumberProgresses).map((p) => {
 			if (p !== null) {
 				return p;
@@ -46,11 +48,63 @@ export const makeProgressTracker = () => {
 		return Math.min(...progressValues);
 	};
 
+	const waitForProgress = () => {
+		const {promise, resolve} = withResolvers<void>();
+		const on = () => {
+			eventEmitter.removeEventListener('progress', on);
+			resolve();
+		};
+
+		eventEmitter.addEventListener('progress', on);
+		return promise;
+	};
+
+	const waitForMinimumProgress = async ({
+		minimumProgress,
+		controller,
+	}: {
+		minimumProgress: number;
+		controller: WebCodecsController;
+	}) => {
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
+		const {timeoutPromise, clear} = makeTimeoutPromise({
+			label: () =>
+				[
+					`Waited too long for progress:`,
+					`smallest progress: ${getSmallestProgress()}`,
+					`wanted minimum progress ${minimumProgress}`,
+					`Report this at https://remotion.dev/report`,
+				].join('\n'),
+			ms: 10000,
+			controller,
+		});
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			clear,
+		);
+
+		await Promise.race([
+			timeoutPromise,
+			getSmallestProgress() === null
+				? Promise.resolve()
+				: (async () => {
+						while (getSmallestProgress() < minimumProgress) {
+							await waitForProgress();
+						}
+					})(),
+		]).finally(() => clear());
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			clear,
+		);
+	};
+
 	return {
 		registerTrack: (trackNumber: number) => {
 			trackNumberProgresses[trackNumber] = null;
 		},
-		getSmallestProgress: calculateSmallestProgress,
+		getSmallestProgress,
 		updateTrackProgress: (trackNumber: number, progress: number) => {
 			if (trackNumberProgresses[trackNumber] === undefined) {
 				throw new Error(
@@ -60,19 +114,11 @@ export const makeProgressTracker = () => {
 
 			trackNumberProgresses[trackNumber] = progress;
 			eventEmitter.dispatchEvent('progress', {
-				smallestProgress: calculateSmallestProgress(),
+				smallestProgress: getSmallestProgress(),
 			});
 		},
-		waitForProgress: () => {
-			const {promise, resolve} = withResolvers<void>();
-			const on = () => {
-				eventEmitter.removeEventListener('progress', on);
-				resolve();
-			};
-
-			eventEmitter.addEventListener('progress', on);
-			return promise;
-		},
+		waitForProgress,
+		waitForMinimumProgress,
 		getStartingTimestamp,
 		setPossibleLowestTimestamp,
 	};

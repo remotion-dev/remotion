@@ -35,52 +35,11 @@ export const createVideoDecoder = ({
 		label: 'Video decoder',
 		progress,
 	});
-	let outputQueue = Promise.resolve();
-
-	const addToQueue = (frame: VideoFrame) => {
-		const cleanup = () => {
-			frame.close();
-		};
-
-		controller._internals._mediaParserController._internals.signal.addEventListener(
-			'abort',
-			cleanup,
-			{
-				once: true,
-			},
-		);
-
-		outputQueue = outputQueue
-			.then(() => {
-				if (
-					controller._internals._mediaParserController._internals.signal.aborted
-				) {
-					return;
-				}
-
-				return onFrame(frame);
-			})
-			.then(() => {
-				ioSynchronizer.onProcessed();
-			})
-			.catch((err) => {
-				onError(err);
-			})
-			.finally(() => {
-				controller._internals._mediaParserController._internals.signal.removeEventListener(
-					'abort',
-					cleanup,
-				);
-				cleanup();
-			});
-
-		return outputQueue;
-	};
 
 	const frameSorter = videoFrameSorter({
 		controller,
 		onRelease: async (frame) => {
-			await addToQueue(frame);
+			await onFrame(frame);
 		},
 	});
 
@@ -132,15 +91,12 @@ export const createVideoDecoder = ({
 			Math.min(sample.timestamp, sample.decodingTimestamp ?? Infinity),
 		);
 
-		await ioSynchronizer.waitForUnemitted({
-			unemitted: 20,
+		await ioSynchronizer.waitForQueueSize({
+			queueSize: 20,
 			controller,
 		});
-		await ioSynchronizer.waitForUnprocessed({
-			unprocessed: 10,
-			controller,
-		});
-		await ioSynchronizer.waitForMinimumProgress({
+
+		await progress.waitForMinimumProgress({
 			minimumProgress: sample.timestamp - 10_000_000,
 			controller,
 		});
@@ -153,7 +109,7 @@ export const createVideoDecoder = ({
 
 		videoDecoder.decode(new EncodedVideoChunk(sample));
 
-		ioSynchronizer.inputItem(sample.timestamp, sample.type === 'key');
+		ioSynchronizer.inputItem(sample.timestamp);
 	};
 
 	let inputQueue = Promise.resolve();
@@ -170,8 +126,6 @@ export const createVideoDecoder = ({
 			Log.verbose(logLevel, 'Frame sorter flushed');
 			await ioSynchronizer.waitForFinish(controller);
 			Log.verbose(logLevel, 'IO synchro finished');
-			await outputQueue;
-			Log.verbose(logLevel, 'Output queue finished');
 			await inputQueue;
 			Log.verbose(logLevel, 'Input queue finished');
 		},

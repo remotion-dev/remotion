@@ -17,7 +17,7 @@ export type WebCodecsAudioDecoder = {
 
 export type CreateAudioDecoderInit = {
 	onFrame: (frame: AudioData) => Promise<void>;
-	onError: (error: DOMException) => void;
+	onError: (error: Error) => void;
 	controller: WebCodecsController;
 	config: AudioDecoderConfig;
 	logLevel: MediaParserLogLevel;
@@ -48,45 +48,15 @@ export const createAudioDecoder = ({
 		progress: progressTracker,
 	});
 
-	let outputQueue = Promise.resolve();
-
 	const audioDecoder = new AudioDecoder({
-		output(frame) {
+		async output(frame) {
 			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
-			const abortHandler = () => {
+			try {
+				await onFrame(frame);
+			} catch (err) {
 				frame.close();
-			};
-
-			controller._internals._mediaParserController._internals.signal.addEventListener(
-				'abort',
-				abortHandler,
-				{
-					once: true,
-				},
-			);
-			outputQueue = outputQueue
-				.then(() => {
-					if (
-						controller._internals._mediaParserController._internals.signal
-							.aborted
-					) {
-						return;
-					}
-
-					return onFrame(frame);
-				})
-				.then(() => {
-					ioSynchronizer.onProcessed();
-					controller._internals._mediaParserController._internals.signal.removeEventListener(
-						'abort',
-						abortHandler,
-					);
-					return Promise.resolve();
-				})
-				.catch((err) => {
-					frame.close();
-					onError(err);
-				});
+				onError(err as Error);
+			}
 		},
 		error(error) {
 			onError(error);
@@ -130,16 +100,12 @@ export const createAudioDecoder = ({
 			),
 		);
 
-		await ioSynchronizer.waitForUnprocessed({
-			unprocessed: 20,
-			controller,
-		});
-		await ioSynchronizer.waitForMinimumProgress({
+		await progressTracker.waitForMinimumProgress({
 			minimumProgress: audioSample.timestamp - 10_000_000,
 			controller,
 		});
-		await ioSynchronizer.waitForUnemitted({
-			unemitted: 20,
+		await ioSynchronizer.waitForQueueSize({
+			queueSize: 20,
 			controller,
 		});
 
@@ -154,7 +120,7 @@ export const createAudioDecoder = ({
 		// For now only reporting chunks that are bigger than that
 		// 16 was chosen arbitrarily, can be improved
 		if (chunk.byteLength > 16) {
-			ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
+			ioSynchronizer.inputItem(chunk.timestamp);
 		}
 	};
 
@@ -173,7 +139,6 @@ export const createAudioDecoder = ({
 
 			await queue;
 			await ioSynchronizer.waitForFinish(controller);
-			await outputQueue;
 		},
 		close,
 		flush: async () => {

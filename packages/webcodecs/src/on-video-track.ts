@@ -15,6 +15,7 @@ import {getDefaultVideoCodec} from './get-default-video-codec';
 import {Log} from './log';
 import {onFrame} from './on-frame';
 import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import {processingQueue} from './processing-queue';
 import type {ResizeOperation} from './resizing/mode';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
@@ -218,9 +219,21 @@ export const makeVideoTrackHandler =
 			progress,
 		});
 
-		const videoDecoder = createVideoDecoder({
-			config: videoDecoderConfig,
-			onFrame: async (frame) => {
+		const videoProcessingQueue = processingQueue<VideoFrame>({
+			controller,
+			label: 'VideoFrame processing queue',
+			logLevel,
+			onError: (err) => {
+				abortConversion(
+					new Error(
+						`VideoFrame processing queue of track ${track.trackId} failed (see .cause of this error)`,
+						{
+							cause: err,
+						},
+					),
+				);
+			},
+			onOutput: async (frame) => {
 				await onFrame({
 					frame,
 					track,
@@ -230,6 +243,18 @@ export const makeVideoTrackHandler =
 					rotation,
 					resizeOperation: videoOperation.resize ?? null,
 				});
+			},
+			progress,
+		});
+
+		const videoDecoder = createVideoDecoder({
+			config: videoDecoderConfig,
+			onFrame: async (frame) => {
+				await videoProcessingQueue.ioSynchronizer.waitForQueueSize({
+					queueSize: 10,
+					controller,
+				});
+				videoProcessingQueue.input(frame);
 			},
 			onError: (err) => {
 				abortConversion(

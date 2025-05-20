@@ -17,7 +17,7 @@ export type WebCodecsAudioEncoder = {
 
 export type AudioEncoderInit = {
 	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	onError: (error: DOMException) => void;
+	onError: (error: Error) => void;
 	codec: ConvertMediaAudioCodec;
 	controller: WebCodecsController;
 	config: AudioEncoderConfig;
@@ -56,29 +56,14 @@ export const createAudioEncoder = ({
 		progress: progressTracker,
 	});
 
-	let prom = Promise.resolve();
-
 	const encoder = new AudioEncoder({
-		output: (chunk) => {
+		output: async (chunk) => {
 			ioSynchronizer.onOutput(chunk.timestamp);
-			prom = prom
-				.then(() => {
-					if (
-						controller._internals._mediaParserController._internals.signal
-							.aborted
-					) {
-						return;
-					}
-
-					return onChunk(chunk);
-				})
-				.then(() => {
-					ioSynchronizer.onProcessed();
-					return Promise.resolve();
-				})
-				.catch((err) => {
-					onError(err);
-				});
+			try {
+				return await onChunk(chunk);
+			} catch (err) {
+				onError(err as Error);
+			}
 		},
 		error(error) {
 			onError(error);
@@ -122,15 +107,12 @@ export const createAudioEncoder = ({
 
 		progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
 
-		await ioSynchronizer.waitForUnemitted({
-			unemitted: 20,
+		await ioSynchronizer.waitForQueueSize({
+			queueSize: 20,
 			controller,
 		});
-		await ioSynchronizer.waitForUnprocessed({
-			unprocessed: 20,
-			controller,
-		});
-		await ioSynchronizer.waitForMinimumProgress({
+
+		await progressTracker.waitForMinimumProgress({
 			minimumProgress: audioData.timestamp - 10_000_000,
 			controller,
 		});
@@ -153,7 +135,7 @@ export const createAudioEncoder = ({
 		}
 
 		encoder.encode(audioData);
-		ioSynchronizer.inputItem(audioData.timestamp, true);
+		ioSynchronizer.inputItem(audioData.timestamp);
 	};
 
 	let queue = Promise.resolve();
@@ -166,7 +148,6 @@ export const createAudioEncoder = ({
 		waitForFinish: async () => {
 			await encoder.flush();
 			await ioSynchronizer.waitForFinish(controller);
-			await prom;
 		},
 		close,
 		flush: async () => {

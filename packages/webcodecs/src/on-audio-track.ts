@@ -18,6 +18,7 @@ import type {ConvertMediaContainer} from './get-available-containers';
 import {getDefaultAudioCodec} from './get-default-audio-codec';
 import {Log} from './log';
 import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
+import {processingQueue} from './processing-queue';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
 import type {WebCodecsController} from './webcodecs-controller';
 
@@ -198,8 +199,21 @@ export const makeAudioTrackHandler =
 			progressTracker,
 		});
 
-		const audioDecoder = createAudioDecoder({
-			onFrame: async (audioData) => {
+		const audioProcessingQueue = processingQueue<AudioData>({
+			controller,
+			label: 'AudioData processing queue',
+			logLevel,
+			onError(error) {
+				abortConversion(
+					new Error(
+						`Audio decoder of track ${track.trackId} failed. Config: ${JSON.stringify(audioDecoderConfig)} (see .cause of this error)`,
+						{
+							cause: error,
+						},
+					),
+				);
+			},
+			onOutput: async (audioData) => {
 				const newAudioData = onAudioData
 					? await onAudioData?.({audioData, track})
 					: audioData;
@@ -246,6 +260,17 @@ export const makeAudioTrackHandler =
 				});
 
 				newAudioData.close();
+			},
+			progress: progressTracker,
+		});
+
+		const audioDecoder = createAudioDecoder({
+			onFrame: async (audioData) => {
+				await audioProcessingQueue.ioSynchronizer.waitForQueueSize({
+					queueSize: 20,
+					controller,
+				});
+				audioProcessingQueue.input(audioData);
 			},
 			onError(error) {
 				abortConversion(

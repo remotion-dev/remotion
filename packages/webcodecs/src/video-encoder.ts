@@ -29,7 +29,7 @@ export const createVideoEncoder = ({
 		chunk: EncodedVideoChunk,
 		metadata: EncodedVideoChunkMetadata | null,
 	) => Promise<void>;
-	onError: (error: DOMException) => void;
+	onError: (error: Error) => void;
 	controller: WebCodecsController;
 	config: VideoEncoderConfig;
 	logLevel: MediaParserLogLevel;
@@ -48,35 +48,20 @@ export const createVideoEncoder = ({
 		progress,
 	});
 
-	let outputQueue = Promise.resolve();
-
 	const encoder = new VideoEncoder({
 		error(error) {
 			onError(error);
 		},
-		output(chunk, metadata) {
+		async output(chunk, metadata) {
 			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
 
 			ioSynchronizer.onOutput(timestamp);
 
-			outputQueue = outputQueue
-				.then(() => {
-					if (
-						controller._internals._mediaParserController._internals.signal
-							.aborted
-					) {
-						return;
-					}
-
-					return onChunk(chunk, metadata ?? null);
-				})
-				.then(() => {
-					ioSynchronizer.onProcessed();
-					return Promise.resolve();
-				})
-				.catch((err) => {
-					onError(err);
-				});
+			try {
+				return await onChunk(chunk, metadata ?? null);
+			} catch (err) {
+				onError(err as Error);
+			}
 		},
 	});
 
@@ -114,17 +99,12 @@ export const createVideoEncoder = ({
 
 		progress.setPossibleLowestTimestamp(frame.timestamp);
 
-		await ioSynchronizer.waitForUnemitted({
-			unemitted: 10,
+		await ioSynchronizer.waitForQueueSize({
+			queueSize: 10,
 			controller,
 		});
 
-		await ioSynchronizer.waitForUnprocessed({
-			unprocessed: 10,
-			controller,
-		});
-
-		await ioSynchronizer.waitForMinimumProgress({
+		await progress.waitForMinimumProgress({
 			minimumProgress: frame.timestamp - 10_000_000,
 			controller,
 		});
@@ -146,7 +126,7 @@ export const createVideoEncoder = ({
 			},
 		);
 
-		ioSynchronizer.inputItem(frame.timestamp, keyFrame);
+		ioSynchronizer.inputItem(frame.timestamp);
 
 		framesProcessed++;
 	};
@@ -160,7 +140,6 @@ export const createVideoEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await outputQueue;
 			await ioSynchronizer.waitForFinish(controller);
 		},
 		close,

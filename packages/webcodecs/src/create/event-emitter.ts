@@ -1,6 +1,5 @@
 type Input = {
 	timestamp: number;
-	keyFrame: boolean;
 };
 
 type Output = {
