@@ -167,9 +167,12 @@ export const reencodeVideoTrack = async ({
 	const frameSorter = videoFrameSorter({
 		controller,
 		onOutput: async (frame) => {
+			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
 			await videoProcessingQueue.ioSynchronizer.waitForQueueSize({
 				queueSize: 10,
-				controller,
+				abortSignal:
+					controller._internals._mediaParserController._internals.signal,
 			});
 
 			videoProcessingQueue.input(frame);
@@ -218,9 +221,12 @@ export const reencodeVideoTrack = async ({
 			controller,
 		});
 
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
 		await videoDecoder.ioSynchronizer.waitForQueueSize({
 			queueSize: 20,
-			controller,
+			abortSignal:
+				controller._internals._mediaParserController._internals.signal,
 		});
 
 		if (chunk.type === 'key') {

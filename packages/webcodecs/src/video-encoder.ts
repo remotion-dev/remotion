@@ -45,6 +45,7 @@ export const createVideoEncoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video encoder',
+		controller,
 	});
 
 	const encoder = new VideoEncoder({
@@ -98,9 +99,12 @@ export const createVideoEncoder = ({
 
 		progress.setPossibleLowestTimestamp(frame.timestamp);
 
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
 		await ioSynchronizer.waitForQueueSize({
 			queueSize: 10,
-			controller,
+			abortSignal:
+				controller._internals._mediaParserController._internals.signal,
 		});
 
 		await progress.waitForMinimumProgress({
@@ -139,7 +143,7 @@ export const createVideoEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish(controller);
+			await ioSynchronizer.waitForFinish();
 		},
 		close,
 		flush: async () => {

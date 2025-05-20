@@ -265,9 +265,12 @@ export const makeAudioTrackHandler =
 
 		const audioDecoder = createAudioDecoder({
 			onFrame: async (audioData) => {
+				await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
 				await audioProcessingQueue.ioSynchronizer.waitForQueueSize({
 					queueSize: 20,
-					controller,
+					abortSignal:
+						controller._internals._mediaParserController._internals.signal,
 				});
 				audioProcessingQueue.input(audioData);
 			},
@@ -302,9 +305,12 @@ export const makeAudioTrackHandler =
 				controller,
 			});
 
+			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
 			await audioDecoder.ioSynchronizer.waitForQueueSize({
 				queueSize: 20,
-				controller,
+				abortSignal:
+					controller._internals._mediaParserController._internals.signal,
 			});
 
 			audioDecoder.decode(audioSample);

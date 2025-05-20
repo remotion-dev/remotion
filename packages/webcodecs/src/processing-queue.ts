@@ -24,6 +24,7 @@ export function processingQueue<T extends Processable>({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label,
+		controller,
 	});
 
 	let queue = Promise.resolve();

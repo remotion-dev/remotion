@@ -8,9 +8,11 @@ import {makeTimeoutPromise} from './make-timeout-promise';
 export const makeIoSynchronizer = ({
 	logLevel,
 	label,
+	controller,
 }: {
 	logLevel: LogLevel;
 	label: string;
+	controller: WebCodecsController;
 }) => {
 	const eventEmitter = new IoEventEmitter();
 
@@ -77,13 +79,11 @@ export const makeIoSynchronizer = ({
 
 	const waitForQueueSize = async ({
 		queueSize,
-		controller,
+		abortSignal,
 	}: {
 		queueSize: number;
-		controller: WebCodecsController;
+		abortSignal: AbortSignal;
 	}) => {
-		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-
 		const {timeoutPromise, clear} = makeTimeoutPromise({
 			label: () =>
 				[
@@ -94,10 +94,7 @@ export const makeIoSynchronizer = ({
 			ms: 10000,
 			controller,
 		});
-		controller._internals._mediaParserController._internals.signal.addEventListener(
-			'abort',
-			clear,
-		);
+		abortSignal.addEventListener('abort', clear);
 
 		await Promise.race([
 			timeoutPromise,
@@ -107,16 +104,14 @@ export const makeIoSynchronizer = ({
 				}
 			})(),
 		]).finally(() => clear());
-		controller._internals._mediaParserController._internals.signal.removeEventListener(
-			'abort',
-			clear,
-		);
+		abortSignal.removeEventListener('abort', clear);
 	};
 
-	const waitForFinish = async (controller: WebCodecsController) => {
+	const waitForFinish = async () => {
 		await waitForQueueSize({
-			controller,
 			queueSize: 0,
+			abortSignal:
+				controller._internals._mediaParserController._internals.signal,
 		});
 	};
 

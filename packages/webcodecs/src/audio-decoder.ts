@@ -40,6 +40,7 @@ export const createAudioDecoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Audio decoder',
+		controller,
 	});
 
 	if (config.codec === 'pcm-s16') {
@@ -123,7 +124,7 @@ export const createAudioDecoder = ({
 				await audioDecoder.flush();
 			} catch {}
 
-			await ioSynchronizer.waitForFinish(controller);
+			await ioSynchronizer.waitForFinish();
 		},
 		close,
 		flush: async () => {

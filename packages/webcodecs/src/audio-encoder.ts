@@ -53,6 +53,7 @@ export const createAudioEncoder = ({
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Audio encoder',
+		controller,
 	});
 
 	const encoder = new AudioEncoder({
@@ -106,9 +107,12 @@ export const createAudioEncoder = ({
 
 		progressTracker.setPossibleLowestTimestamp(audioData.timestamp);
 
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
+
 		await ioSynchronizer.waitForQueueSize({
 			queueSize: 20,
-			controller,
+			abortSignal:
+				controller._internals._mediaParserController._internals.signal,
 		});
 
 		await progressTracker.waitForMinimumProgress({
@@ -146,7 +150,7 @@ export const createAudioEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish(controller);
+			await ioSynchronizer.waitForFinish();
 		},
 		close,
 		flush: async () => {
