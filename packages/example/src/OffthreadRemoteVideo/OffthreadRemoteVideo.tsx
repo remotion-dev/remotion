@@ -1,4 +1,4 @@
-import {getVideoMetadata} from '@remotion/media-utils';
+import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
 import {CalculateMetadataFunction, OffthreadVideo, staticFile} from 'remotion';
 
@@ -8,14 +8,24 @@ const src = staticFile('bigbuckbunny.mp4') + '#t=lol';
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {durationInSeconds, width, height} = await getVideoMetadata(src);
-	console.log({durationInSeconds});
+	const {slowDurationInSeconds, dimensions} = await parseMedia({
+		src,
+		acknowledgeRemotionLicense: true,
+		fields: {
+			slowDurationInSeconds: true,
+			dimensions: true,
+		},
+	});
+
+	if (dimensions === null) {
+		throw new Error('Dimensions are null');
+	}
 
 	return {
-		durationInFrames: Math.round(durationInSeconds * fps),
+		durationInFrames: Math.round(slowDurationInSeconds * fps),
 		fps,
-		width: Math.floor(width / 2) * 2,
-		height: Math.floor(height / 2) * 2,
+		width: Math.floor(dimensions.width / 2) * 2,
+		height: Math.floor(dimensions.height / 2) * 2,
 	};
 };
 
@@ -24,7 +34,6 @@ export const OffthreadRemoteVideo = StudioInternals.createComposition({
 		return (
 			<>
 				<OffthreadVideo src={src} />
-				<OffthreadVideo src={staticFile('iphonevideo.mov')} />
 			</>
 		);
 	},
