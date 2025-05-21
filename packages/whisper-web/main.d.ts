@@ -14,7 +14,7 @@ declare namespace RuntimeExports {
      * @param {Array=} argTypes
      * @param {Object=} opts
      */
-    function cwrap(ident: any, returnType?: string | undefined, argTypes?: any[] | undefined, opts?: any | undefined): (...args: any[]) => any;
+    function cwrap(ident: any, returnType?: string | undefined, argTypes?: any[] | undefined, opts?: any | undefined): any;
     let HEAPU8: any;
     function FS_createPath(...args: any[]): any;
     function FS_createDataFile(...args: any[]): any;
