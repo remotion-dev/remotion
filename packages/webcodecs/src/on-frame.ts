@@ -5,12 +5,10 @@ import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {ResizeOperation} from './resizing/mode';
 import {rotateAndResizeVideoFrame} from './rotate-and-resize-video-frame';
-import type {WebCodecsVideoEncoder} from './video-encoder';
 
 export const onFrame = async ({
 	frame: unrotatedFrame,
 	onVideoFrame,
-	videoEncoder,
 	track,
 	outputCodec,
 	rotation,
@@ -18,7 +16,6 @@ export const onFrame = async ({
 }: {
 	frame: VideoFrame;
 	onVideoFrame: ConvertMediaOnVideoFrame | null;
-	videoEncoder: WebCodecsVideoEncoder;
 	track: MediaParserVideoTrack;
 	outputCodec: ConvertMediaVideoCodec;
 	rotation: number;
@@ -40,13 +37,13 @@ export const onFrame = async ({
 
 	if (userProcessedFrame.displayWidth !== rotated.displayWidth) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${userProcessedFrame.displayWidth}) than the input frame (${userProcessedFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayWidth (${userProcessedFrame.displayWidth}) than the input frame (${rotated.displayWidth})`,
 		);
 	}
 
 	if (userProcessedFrame.displayHeight !== rotated.displayHeight) {
 		throw new Error(
-			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${userProcessedFrame.displayHeight}) than the input frame (${userProcessedFrame.displayHeight})`,
+			`Returned VideoFrame of track ${track.trackId} has different displayHeight (${userProcessedFrame.displayHeight}) than the input frame (${rotated.displayHeight})`,
 		);
 	}
 
@@ -64,19 +61,17 @@ export const onFrame = async ({
 		);
 	}
 
-	const fixedFrame = convertToCorrectVideoFrame({
-		videoFrame: userProcessedFrame,
-		outputCodec,
-	});
-
-	await videoEncoder.encodeFrame(fixedFrame, fixedFrame.timestamp);
-
-	fixedFrame.close();
 	if (rotated !== userProcessedFrame) {
 		rotated.close();
 	}
 
+	const fixedFrame = convertToCorrectVideoFrame({
+		videoFrame: userProcessedFrame,
+		outputCodec,
+	});
 	if (fixedFrame !== userProcessedFrame) {
-		fixedFrame.close();
+		userProcessedFrame.close();
 	}
+
+	return fixedFrame;
 };

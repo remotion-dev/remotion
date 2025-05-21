@@ -151,6 +151,7 @@ export const makeParserState = ({
 			readerInterface,
 			src,
 			prefetchCache,
+			contentLength,
 		}),
 		transportStream: transportStreamState(),
 		webm: webmState({

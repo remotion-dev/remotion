@@ -53,53 +53,37 @@ export default defineConfig({
 
 ## Example usage
 
-:::info
-This library is UI-agnostic and can be integrated with any frontend framework.
-:::
-
-```tsx twoslash
+```tsx twoslash title="Transcribing with @remotion/whisper-web"
 import {transcribe, canUseWhisperWeb, resampleTo16Khz, downloadWhisperModel} from '@remotion/whisper-web';
 
-// HTML:
-// <input type="file" accept="audio/*" id="audio-input" />
-// <p id="status"></p>
+const file = new File([], 'audio.wav');
+const modelToUse = 'tiny.en';
 
-const input = document.getElementById('audio-input') as HTMLInputElement;
+const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
+if (!supported) {
+  throw new Error(`Whisper Web is not supported in this environment: ${detailedReason}`);
+}
 
-input.addEventListener('change', async (e) => {
-  const file = input.files?.[0];
-  if (!file) return;
-
-  console.log('Processing...');
-
-  const modelToUse = 'tiny.en';
-
-  const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
-  if (!supported) {
-    throw new Error(`Whisper Web is not supported in this environment: ${detailedReason}`);
-  }
-
-  console.log('Downloading model...');
-  await downloadWhisperModel({
-    model: modelToUse,
-    onProgress: ({progress}) => console.log(`Downloading model (${Math.round(progress * 100)}%)...`),
-  });
-
-  console.log('Resampling audio...');
-  const channelWaveform = await resampleTo16Khz({
-    file,
-    onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
-  });
-
-  console.log('Transcribing...');
-  const {transcription} = await transcribe({
-    channelWaveform,
-    model: modelToUse,
-    onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
-  });
-
-  console.log(transcription.map((t) => t.text).join(' '));
+console.log('Downloading model...');
+await downloadWhisperModel({
+  model: modelToUse,
+  onProgress: ({progress}) => console.log(`Downloading model (${Math.round(progress * 100)}%)...`),
 });
+
+console.log('Resampling audio...');
+const channelWaveform = await resampleTo16Khz({
+  file,
+  onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
+});
+
+console.log('Transcribing...');
+const {transcription} = await transcribe({
+  channelWaveform,
+  model: modelToUse,
+  onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
+});
+
+console.log(transcription.map((t) => t.text).join(' '));
 ```
 
 ## Functions

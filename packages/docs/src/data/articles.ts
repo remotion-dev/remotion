@@ -3078,6 +3078,15 @@ export const articles = [
 		slug: 'miscellaneous/cloud-gpu',
 	},
 	{
+		id: 'cross-origin-isolation',
+		title: 'Cross-Origin Isolation',
+		relativePath: 'docs/miscellaneous/cross-origin-isolation.mdx',
+		compId: 'articles-docs-miscellaneous-cross-origin-isolation',
+		crumb: 'Miscellaneous',
+		noAi: false,
+		slug: 'miscellaneous/cross-origin-isolation',
+	},
+	{
 		id: 'embed-studio',
 		title: 'Can I embed the Remotion Studio?',
 		relativePath: 'docs/miscellaneous/embed-remotion-studio.mdx',

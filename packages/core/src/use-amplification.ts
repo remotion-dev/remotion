@@ -39,11 +39,13 @@ export const useVolume = ({
 	volume,
 	logLevel,
 	source,
+	shouldUseWebAudioApi,
 }: {
 	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
 	source: SharedElementSourceNode | null;
 	volume: number;
 	logLevel: LogLevel;
+	shouldUseWebAudioApi: boolean;
 }) => {
 	const audioStuffRef = useRef<AudioItems | null>(null);
 	const currentVolumeRef = useRef(volume);
@@ -64,6 +66,10 @@ export const useVolume = ({
 		}
 
 		if (!mediaRef.current) {
+			return;
+		}
+
+		if (!shouldUseWebAudioApi) {
 			return;
 		}
 
@@ -98,7 +104,7 @@ export const useVolume = ({
 			gainNode.disconnect();
 			source.get().disconnect();
 		};
-	}, [logLevel, mediaRef, audioContext, source]);
+	}, [logLevel, mediaRef, audioContext, source, shouldUseWebAudioApi]);
 
 	if (audioStuffRef.current) {
 		const valueToSet = volume;
@@ -116,11 +122,15 @@ export const useVolume = ({
 		}
 	}
 
+	const safariCase =
+		isSafari() && mediaRef.current && mediaRef.current?.playbackRate !== 1;
+
+	const shouldUseTraditionalVolume = safariCase || !shouldUseWebAudioApi;
+
 	// [1]
 	if (
+		shouldUseTraditionalVolume &&
 		mediaRef.current &&
-		isSafari() &&
-		mediaRef.current?.playbackRate !== 1 &&
 		!isApproximatelyTheSame(volume, mediaRef.current?.volume)
 	) {
 		mediaRef.current.volume = Math.min(volume, 1);

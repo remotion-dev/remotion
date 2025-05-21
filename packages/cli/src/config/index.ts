@@ -124,6 +124,7 @@ const {
 	publicPathOption,
 	hardwareAccelerationOption,
 	audioLatencyHintOption,
+	enableCrossSiteIsolationOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -476,6 +477,13 @@ declare global {
 		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
 
 		/**
+		 * Enable Cross-Site Isolation in the Studio (Sets Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy HTTP headers)
+		 */
+		readonly setEnableCrossSiteIsolation: (
+			enableCrossSiteIsolation: boolean,
+		) => void;
+
+		/**
 		 * Collect information that you can submit to Remotion if asked for a reproduction.
 		 */
 		readonly setRepro: (enableRepro: boolean) => void;
@@ -667,6 +675,7 @@ export const Config: FlatConfig = {
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
+	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 };
 
 export const ConfigInternals = {

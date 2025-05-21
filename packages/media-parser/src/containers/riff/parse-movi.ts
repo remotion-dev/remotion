@@ -111,7 +111,7 @@ export const handleChunk = async ({
 			trackId,
 		});
 		const timeInSec = nthSample / samplesPerSecond;
-		const timestamp = Math.round(timeInSec * WEBCODECS_TIMESCALE);
+		const timestamp = Math.floor(timeInSec * WEBCODECS_TIMESCALE);
 
 		const data = iterator.getSlice(ckSize);
 

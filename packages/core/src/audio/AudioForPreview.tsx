@@ -71,6 +71,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		toneFrequency,
+		useWebAudioApi,
 		...nativeProps
 	} = props;
 
@@ -111,12 +112,18 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaVolume,
 	});
 
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: false,
+	});
+
 	const propsToPass = useMemo((): RemotionAudioProps => {
 		return {
 			muted:
 				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
+			crossOrigin: crossOriginValue,
 			...nativeProps,
 		};
 	}, [
@@ -127,6 +134,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		nativeProps,
 		preloadedSrc,
 		userPreferredVolume,
+		crossOriginValue,
 	]);
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.
@@ -192,6 +200,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaRef: audioRef,
 		source: mediaElementSourceNode,
 		volume: userPreferredVolume,
+		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});
 
 	useImperativeHandle(ref, () => {
@@ -226,11 +235,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	if (initialShouldPreMountAudioElements) {
 		return null;
 	}
-
-	const crossOriginValue = getCrossOriginValue({
-		crossOrigin,
-		requestsVideoFrame: false,
-	});
 
 	return (
 		<audio

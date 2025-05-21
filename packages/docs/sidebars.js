@@ -1246,6 +1246,7 @@ module.exports = {
 				'deno',
 				'standalone',
 				'miscellaneous/emojis',
+				'miscellaneous/cross-origin-isolation',
 				'media-fragments',
 				'react-native',
 			],

@@ -53,21 +53,9 @@ This is a meticulous task that requires a lot of domain knowledge.
 Video files usually come in one of two container formats: ISO BMFF (.mp4, .mov) or Matroska (.webm, .mkv).  
 Libraries like mp4box.js do a good job of parsing these containers, but are scoped to the specific container format, meaning you need to mix multiple libraries.
 
-[`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary video file (in the future: an arbitrary media file) and interface with it regardless of container, video codec and audio codec.
+[`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary media file and interface with it regardless of container, video codec and audio codec.
 
 It uses modern Web APIs like `fetch()`, `ReadableStream` and resizeable ArrayBuffers, and returns data structures that are designed to be used with WebCodecs APIs.
-
-## Will Remotion switch to WebCodecs?
-
-Not in the foreseeable future - Remotion currently renders videos with FFmpeg and a headless browser.  
-FFmpeg is just as fast as WebCodecs (they share the same code) - therefore it is not necessary to switch to WebCodecs.
-
-Remotion cannot export videos in the browser, because browsers don't have APIs for capturing the viewport.  
-An exception is the `canvas` element, however Remotion supports all ways of drawing to the viewport: HTML, CSS, SVG, and Canvas.
-
-We are interested in WebCodecs because it still has the potential to solve a lot of problems for developers and `@remotion/media-parser` as a whole can solve a lot of problems for users.
-
-See also: [Can I render videos in the browser?](/docs/miscellaneous/render-in-browser).
 
 ## Practical considerations
 
@@ -199,7 +187,7 @@ const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
 ### Queuing samples
 
 Extracting samples is the fast part, decoding them is the slow part.  
-If too many samples are in the queue, it will negatively impact the performance of the page.
+**If too many samples are in the queue, memory will build up and it will negatively impact the performance of the page.**
 
 Fortunately, the parsing process can be temporarily paused while the decoder is busy.  
 For this, make the sample processing function async. Remotion will await it before processing the file further.
@@ -240,6 +228,10 @@ const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
 - The same logic goes for `AudioDecoder`.
 - You should still perform the checks previously mentioned, but they are omitted from this example.  
   :::
+
+:::warning
+We think that the `dequeue` event does not work properly in Safari. We'll release an abstraction over the VideoDecoder and AudioDecoder APIs that will make it easier to correctly handle the decoding process soon.
+:::
 
 ### Handling stretched videos
 

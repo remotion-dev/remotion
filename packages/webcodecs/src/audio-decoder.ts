@@ -1,92 +1,68 @@
 import type {
 	MediaParserAudioSample,
-	MediaParserAudioTrack,
 	MediaParserLogLevel,
 } from '@remotion/media-parser';
-import type {ProgressTracker} from './create/progress-tracker';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
-	processSample: (audioSample: MediaParserAudioSample) => Promise<void>;
-	waitForFinish: () => Promise<void>;
+	decode: (audioSample: MediaParserAudioSample) => void;
 	close: () => void;
 	flush: () => Promise<void>;
+	waitForFinish: () => Promise<void>;
+	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 };
 
 export type CreateAudioDecoderInit = {
-	onFrame: (frame: AudioData) => Promise<void>;
-	onError: (error: DOMException) => void;
-	controller: WebCodecsController;
+	onFrame: (frame: AudioData) => Promise<void> | void;
+	onError: (error: Error) => void;
+	controller: WebCodecsController | null;
 	config: AudioDecoderConfig;
 	logLevel: MediaParserLogLevel;
-	track: MediaParserAudioTrack;
-	progressTracker: ProgressTracker;
 };
 
-export const createAudioDecoder = ({
+export const internalCreateAudioDecoder = ({
 	onFrame,
 	onError,
 	controller,
 	config,
 	logLevel,
-	track,
-	progressTracker,
 }: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
-	if (controller._internals._mediaParserController._internals.signal.aborted) {
+	if (
+		controller &&
+		controller._internals._mediaParserController._internals.signal.aborted
+	) {
 		throw new Error('Not creating audio decoder, already aborted');
-	}
-
-	if (config.codec === 'pcm-s16') {
-		return getWaveAudioDecoder({onFrame, track, sampleFormat: 's16'});
 	}
 
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Audio decoder',
-		progress: progressTracker,
+		controller,
 	});
 
-	let outputQueue = Promise.resolve();
+	if (config.codec === 'pcm-s16') {
+		return getWaveAudioDecoder({
+			onFrame,
+			config,
+			sampleFormat: 's16',
+			logLevel,
+			ioSynchronizer,
+			onError,
+		});
+	}
 
 	const audioDecoder = new AudioDecoder({
-		output(frame) {
-			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
-			const abortHandler = () => {
+		async output(frame) {
+			try {
+				await onFrame(frame);
+			} catch (err) {
 				frame.close();
-			};
+				onError(err as Error);
+			}
 
-			controller._internals._mediaParserController._internals.signal.addEventListener(
-				'abort',
-				abortHandler,
-				{
-					once: true,
-				},
-			);
-			outputQueue = outputQueue
-				.then(() => {
-					if (
-						controller._internals._mediaParserController._internals.signal
-							.aborted
-					) {
-						return;
-					}
-
-					return onFrame(frame);
-				})
-				.then(() => {
-					ioSynchronizer.onProcessed();
-					controller._internals._mediaParserController._internals.signal.removeEventListener(
-						'abort',
-						abortHandler,
-					);
-					return Promise.resolve();
-				})
-				.catch((err) => {
-					frame.close();
-					onError(err);
-				});
+			ioSynchronizer.onOutput(frame.timestamp + (frame.duration ?? 0));
 		},
 		error(error) {
 			onError(error);
@@ -94,11 +70,13 @@ export const createAudioDecoder = ({
 	});
 
 	const close = () => {
-		controller._internals._mediaParserController._internals.signal.removeEventListener(
-			'abort',
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
-			onAbort,
-		);
+		if (controller) {
+			controller._internals._mediaParserController._internals.signal.removeEventListener(
+				'abort',
+				// eslint-disable-next-line @typescript-eslint/no-use-before-define
+				onAbort,
+			);
+		}
 
 		if (audioDecoder.state === 'closed') {
 			return;
@@ -111,35 +89,28 @@ export const createAudioDecoder = ({
 		close();
 	};
 
-	controller._internals._mediaParserController._internals.signal.addEventListener(
-		'abort',
-		onAbort,
-	);
+	if (controller) {
+		controller._internals._mediaParserController._internals.signal.addEventListener(
+			'abort',
+			onAbort,
+		);
+	}
 
 	audioDecoder.configure(config);
 
-	const processSample = async (audioSample: MediaParserAudioSample) => {
+	const processSample = (
+		audioSample: MediaParserAudioSample | EncodedAudioChunk,
+	) => {
 		if (audioDecoder.state === 'closed') {
 			return;
 		}
 
-		progressTracker.setPossibleLowestTimestamp(
-			Math.min(
-				audioSample.timestamp,
-				audioSample.decodingTimestamp ?? Infinity,
-			),
-		);
-
-		await ioSynchronizer.waitFor({
-			unemitted: 20,
-			unprocessed: 20,
-			minimumProgress: audioSample.timestamp - 10_000_000,
-			controller,
-		});
-
 		// Don't flush, it messes up the audio
 
-		const chunk = new EncodedAudioChunk(audioSample);
+		const chunk =
+			audioSample instanceof EncodedAudioChunk
+				? audioSample
+				: new EncodedAudioChunk(audioSample);
 		audioDecoder.decode(chunk);
 
 		// https://test-streams.mux.dev/x36xhzz/url_0/url_525/193039199_mp4_h264_aac_hd_7.ts
@@ -148,16 +119,13 @@ export const createAudioDecoder = ({
 		// For now only reporting chunks that are bigger than that
 		// 16 was chosen arbitrarily, can be improved
 		if (chunk.byteLength > 16) {
-			ioSynchronizer.inputItem(chunk.timestamp, audioSample.type === 'key');
+			ioSynchronizer.inputItem(chunk.timestamp);
 		}
 	};
 
-	let queue = Promise.resolve();
-
 	return {
-		processSample: (sample: MediaParserAudioSample) => {
-			queue = queue.then(() => processSample(sample));
-			return queue;
+		decode: (sample: MediaParserAudioSample | EncodedAudioChunk) => {
+			processSample(sample);
 		},
 		waitForFinish: async () => {
 			// Firefox might throw "Needs to be configured first"
@@ -165,13 +133,34 @@ export const createAudioDecoder = ({
 				await audioDecoder.flush();
 			} catch {}
 
-			await queue;
-			await ioSynchronizer.waitForFinish(controller);
-			await outputQueue;
+			await ioSynchronizer.waitForFinish();
 		},
 		close,
 		flush: async () => {
 			await audioDecoder.flush();
 		},
+		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 	};
+};
+
+export const createAudioDecoder = ({
+	onFrame,
+	onError,
+	controller,
+	track,
+	logLevel,
+}: {
+	track: AudioDecoderConfig;
+	onFrame: (frame: AudioData | EncodedAudioChunk) => Promise<void> | void;
+	onError: (error: Error) => void;
+	controller?: WebCodecsController | null;
+	logLevel?: MediaParserLogLevel;
+}): WebCodecsAudioDecoder => {
+	return internalCreateAudioDecoder({
+		onFrame,
+		onError,
+		controller: controller ?? null,
+		config: track,
+		logLevel: logLevel ?? 'error',
+	});
 };

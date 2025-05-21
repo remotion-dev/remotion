@@ -14,6 +14,10 @@ Transcribes pre-processed audio data (a `Float32Array` waveform) using WebAssemb
 
 To transcribe an audio file, you first need to download a model using [`downloadWhisperModel()`](/docs/whisper-web/download-whisper-model) and turn the file into a 16kHz `Float32Array` using [`resampleTo16Khz()`](/docs/whisper-web/resample-to-16khz).
 
+## Requirements
+
+This package requires a page that is [cross-origin isolated](/docs/miscellaneous/cross-origin-isolation).
+
 ## Example
 
 ```tsx twoslash title="app.ts"

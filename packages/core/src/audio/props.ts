@@ -26,6 +26,7 @@ export type RemotionAudioProps = NativeAudioProps & {
 	_remotionInternalNeedsDurationCalculation?: boolean;
 	_remotionInternalNativeLoopPassed?: boolean;
 	toneFrequency?: number;
+	useWebAudioApi?: boolean;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
 	delayRenderTimeoutInMilliseconds?: number;

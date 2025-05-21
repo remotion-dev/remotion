@@ -17,6 +17,14 @@ const config = (mode) => ({
 		experimental_faster: true,
 	},
 	themeConfig: {
+		announcementBar: {
+			id: 'support_us',
+			content:
+				'<div style="text-align: center; background-color: var(--ifm-navbar-background-color); padding: 10px;"><a href="/blog/media-parser">Announcing Remotion Media Parser</a></div>',
+			backgroundColor: 'var(--ifm-navbar-background-color);',
+			textColor: 'var(--ifm-navbar-link-color)',
+			isCloseable: false,
+		},
 		algolia: {
 			appId: 'PLSDUOL1CA',
 			apiKey: '3e42dbd4f895fe93ff5cf40d860c4a85',

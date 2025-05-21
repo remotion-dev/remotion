@@ -36,7 +36,7 @@ export const canUseWhisperWeb = async (
 			supported: false,
 			reason: WhisperWebUnsupportedReason.NotCrossOriginIsolated,
 			detailedReason:
-				'The document is not cross-origin isolated (window.crossOriginIsolated = false). This prevents the usage of SharedArrayBuffer, which is required by `@remotion/whisper-web`. Make sure the document is served with the HTTP header `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`: https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated',
+				'The document is not cross-origin isolated (window.crossOriginIsolated = false). This prevents the usage of SharedArrayBuffer, which is required by `@remotion/whisper-web`. Make sure the document is served with the HTTP header `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`: https://remotion.dev/docs/miscellaneous/cross-origin-isolation',
 		};
 	}
 

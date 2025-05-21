@@ -42,6 +42,7 @@ export const startServer = async (options: {
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	enableCrossSiteIsolation: boolean;
 }): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
@@ -68,8 +69,10 @@ export const startServer = async (options: {
 	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
 	const server = http.createServer((request, response) => {
-		response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+		if (options.enableCrossSiteIsolation) {
+			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+			response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+		}
 
 		new Promise<void>((resolve) => {
 			wdmMiddleware(request as IncomingMessage, response, () => {
@@ -105,6 +108,7 @@ export const startServer = async (options: {
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
 					audioLatencyHint: options.audioLatencyHint,
+					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 				});
 			})
 			.catch((err) => {

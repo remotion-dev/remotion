@@ -30,6 +30,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	playbackRate?: number;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
+	useWebAudioApi?: boolean;
 	toneFrequency?: number;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
@@ -66,6 +67,7 @@ export type RemotionOffthreadVideoProps = {
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	delayRenderTimeoutInMilliseconds?: number;
 	delayRenderRetries?: number;
+	useWebAudioApi?: boolean;
 	/**
 	 * @deprecated For internal use only
 	 */
