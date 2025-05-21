@@ -80,6 +80,7 @@ export const startStudio = async ({
 	binariesDirectory,
 	forceIPv4,
 	audioLatencyHint,
+	enableCrossSiteIsolation,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -100,6 +101,7 @@ export const startStudio = async ({
 	getRenderQueue: () => RenderJob[];
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
 	parsedCliOpen: boolean;
 	previewEntry: string;
@@ -177,6 +179,7 @@ export const startStudio = async ({
 		binariesDirectory,
 		forceIPv4,
 		audioLatencyHint,
+		enableCrossSiteIsolation,
 	});
 
 	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);

@@ -60,6 +60,7 @@ const handleFallback = async ({
 	audioLatencyHint,
 	gitSource,
 	logLevel,
+	enableCrossSiteIsolation,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -73,13 +74,16 @@ const handleFallback = async ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
+	enableCrossSiteIsolation: boolean;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
 	response.setHeader('content-type', 'text/html');
-	response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-	response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+	if (enableCrossSiteIsolation) {
+		response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+	}
 
 	const packageManager = getPackageManager(remotionRoot, undefined, 0);
 	fetchFolder({publicDir, staticHash: hash});
@@ -323,6 +327,7 @@ export const handleRoutes = ({
 	gitSource,
 	binariesDirectory,
 	audioLatencyHint,
+	enableCrossSiteIsolation,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -344,6 +349,7 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	enableCrossSiteIsolation: boolean;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -457,5 +463,6 @@ export const handleRoutes = ({
 		gitSource,
 		logLevel,
 		audioLatencyHint,
+		enableCrossSiteIsolation,
 	});
 };

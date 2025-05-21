@@ -6,6 +6,7 @@ import {binariesDirectoryOption} from './binaries-directory';
 import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
+import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
 import {enableLambdaInsights} from './enable-lambda-insights';
@@ -85,6 +86,7 @@ export const allOptions = {
 	chromeModeOption,
 	apiKeyOption,
 	audioLatencyHintOption,
+	enableCrossSiteIsolationOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;
