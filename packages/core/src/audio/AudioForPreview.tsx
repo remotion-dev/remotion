@@ -71,6 +71,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		toneFrequency,
+		useWebAudioApi,
 		...nativeProps
 	} = props;
 
@@ -199,6 +200,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		mediaRef: audioRef,
 		source: mediaElementSourceNode,
 		volume: userPreferredVolume,
+		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});
 
 	useImperativeHandle(ref, () => {
