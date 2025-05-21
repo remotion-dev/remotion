@@ -1,5 +1,3 @@
-import {getRemotionEnvironment} from './get-remotion-environment';
-
 export const getCrossOriginValue = ({
 	crossOrigin,
 	requestsVideoFrame,
@@ -18,16 +16,15 @@ export const getCrossOriginValue = ({
 		return 'anonymous';
 	}
 
-	// If we are in preview mode, we need to set anonymous
-	// because we use Web Audio API and otherwise it would
-	// zero out
-	// See issue: https://github.com/remotion-dev/remotion/issues/5274
-	// Second reason: In Studio, window.crossOriginIsolated is set,
-	// and you cannot play media from CORS at all.
+	// If we are in preview mode, we could set
+	// "anonymous" to prevent Web Audio API from
+	// zeroing out the volume.
+	// But this requires CORS, so we cannot default to that.
 
-	if (!getRemotionEnvironment().isRendering) {
-		return 'anonymous';
-	}
+	// DONT DO THIS:
+	// if (!getRemotionEnvironment().isRendering) {
+	// 	return 'anonymous';
+	// }
 
 	// During rendering, we opt out of the crossOrigin value
 	// because it may lead to flickering

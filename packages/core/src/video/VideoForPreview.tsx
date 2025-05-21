@@ -93,6 +93,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		allowAmplificationDuringRender,
+		useWebAudioApi,
 		...nativeProps
 	} = props;
 
@@ -164,6 +165,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaRef: videoRef,
 		volume: userPreferredVolume,
 		source: sharedSource,
+		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;

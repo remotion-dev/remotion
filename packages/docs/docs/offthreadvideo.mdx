@@ -111,19 +111,8 @@ export const MyComposition = () => {
 };
 ```
 
-:::note
-Since v4.0.302, it is now possible to:
-
-- Set the volume to a value higher than 1
-- In iOS Safari, set the volume to a value lower than 1
-
-Now arbitrary volumes are supported on all platforms, but there is 1 caveat on Safari:
-`volume` and `playbackRate` cannot be set at the same time, and if both are set,
-
-- on Desktop Safari, the volume will only be applied if it is 1 or lower
-- on iOS Safari, the volume will be ignored and set to 1
-
-:::
+By default, volumes between 0 and 1 are supported, where in iOS Safari, the volume is always 1.  
+See [Volume Limitations](/docs/audio/volume#limitations) for more information.
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
@@ -255,6 +244,10 @@ During preview, this is a `HTMLVideoElement` object, during rendering, it is an 
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
+
+### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
+
+Enable the [Web Audio API](/docs/audio/volume#limitations) for the video tag.
 
 ### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
 
