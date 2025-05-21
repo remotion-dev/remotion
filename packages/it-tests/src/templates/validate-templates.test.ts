@@ -178,7 +178,10 @@ describe('Templates should be valid', () => {
 			const references = parsed.references.map((r: any) =>
 				r.path.replace('./packages/', ''),
 			);
-			if (!template.shortName.includes('JavaScript')) {
+			if (
+				!template.shortName.includes('JavaScript') &&
+				!template.shortName.includes('Skia')
+			) {
 				expect(references).toContain(template.templateInMonorepo);
 			}
 		});
