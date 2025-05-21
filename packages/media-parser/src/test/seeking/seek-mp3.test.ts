@@ -20,13 +20,13 @@ test('seek mp3', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.978776);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.978775);
 					expect(sample.type).toBe('key');
 					controller.seek(25);
 				}
 
 				if (samples === 2) {
-					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(24.999184);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(24.999183);
 					controller.seek(30);
 				}
 

@@ -26,11 +26,11 @@ test('seek-xing', async () => {
 			return (sample) => {
 				samples++;
 				if (samples === 1) {
-					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.978334);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(9.978333);
 				}
 
 				if (samples === 2) {
-					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(10.005549);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(10.005548);
 					controller.seek(20);
 				}
 
@@ -44,7 +44,7 @@ test('seek-xing', async () => {
 				}
 
 				if (samples === 5) {
-					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(30.006214);
+					expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(30.006213);
 				}
 			};
 		},

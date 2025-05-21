@@ -168,7 +168,7 @@ test('should read MP3 file', async () => {
 	expect(slowStructure.boxes.length).toEqual(1);
 	expect(unrotatedDimensions).toBe(null);
 	expect(numberOfAudioChannels).toBe(2);
-	expect(slowAudioBitrate).toBe(320066.8849489616);
+	expect(slowAudioBitrate).toBe(320000.0383771932);
 	expect(slowVideoBitrate).toBe(null);
 	expect(sampleRate).toBe(44100);
 });

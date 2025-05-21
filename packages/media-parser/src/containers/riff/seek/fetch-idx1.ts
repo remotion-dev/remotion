@@ -13,6 +13,7 @@ export const fetchIdx1 = async ({
 	position,
 	logLevel,
 	prefetchCache,
+	contentLength,
 }: {
 	src: ParseMediaSrc;
 	readerInterface: MediaParserReaderInterface;
@@ -20,6 +21,7 @@ export const fetchIdx1 = async ({
 	position: number;
 	logLevel: MediaParserLogLevel;
 	prefetchCache: PrefetchCache;
+	contentLength: number;
 }) => {
 	Log.verbose(
 		logLevel,
@@ -42,7 +44,7 @@ export const fetchIdx1 = async ({
 
 	const iterator = getArrayBufferIterator(
 		new Uint8Array(),
-		result.contentLength - position + 1,
+		contentLength - position + 1,
 	);
 	while (true) {
 		const res = await result.reader.reader.read();

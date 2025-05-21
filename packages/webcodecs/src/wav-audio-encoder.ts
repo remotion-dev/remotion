@@ -1,20 +1,21 @@
 // A "passthrough" audio encoder, AudioData is already in WAV
 import type {AudioEncoderInit, WebCodecsAudioEncoder} from './audio-encoder';
 import {convertAudioData} from './convert-audiodata';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
 
 export const getWaveAudioEncoder = ({
 	onChunk,
 	controller,
 	config,
-}: Pick<
-	AudioEncoderInit,
-	'onChunk' | 'controller' | 'config'
->): WebCodecsAudioEncoder => {
+	ioSynchronizer,
+}: Pick<AudioEncoderInit, 'onChunk' | 'controller' | 'config'> & {
+	ioSynchronizer: IoSynchronizer;
+}): WebCodecsAudioEncoder => {
 	return {
 		close: () => {
 			return Promise.resolve();
 		},
-		encodeFrame: (unconvertedAudioData) => {
+		encode: (unconvertedAudioData) => {
 			if (
 				controller._internals._mediaParserController._internals.signal.aborted
 			) {
@@ -40,5 +41,6 @@ export const getWaveAudioEncoder = ({
 		},
 		flush: () => Promise.resolve(),
 		waitForFinish: () => Promise.resolve(),
+		ioSynchronizer,
 	};
 };

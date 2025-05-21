@@ -242,6 +242,7 @@ export const convertMedia = async function <
 	});
 
 	const onVideoTrack: MediaParserOnVideoTrack = makeVideoTrackHandler({
+		progressTracker,
 		state,
 		onVideoFrame: onVideoFrame ?? null,
 		onMediaStateUpdate: throttledState.update ?? null,
@@ -252,11 +253,11 @@ export const convertMedia = async function <
 		logLevel,
 		outputContainer: container,
 		rotate: rotate ?? 0,
-		progress: progressTracker,
 		resizeOperation: resize ?? null,
 	});
 
 	const onAudioTrack: MediaParserOnAudioTrack = makeAudioTrackHandler({
+		progressTracker,
 		abortConversion,
 		defaultAudioCodec: audioCodec ?? null,
 		controller,
@@ -265,7 +266,6 @@ export const convertMedia = async function <
 		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
 		outputContainer: container,
-		progressTracker,
 		onAudioData: onAudioData ?? null,
 	});
 

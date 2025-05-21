@@ -58,19 +58,6 @@ export const useThumbnailAndWaveform = ({
 
 				hasStartedWaveform.current = true;
 
-				const decoder = new AudioDecoder({
-					output(frame) {
-						waveform.add(frame);
-						frame.close();
-					},
-					error: (error) => {
-						// eslint-disable-next-line no-console
-						console.log(error);
-						setError(error);
-						controller.abort();
-					},
-				});
-
 				if (track.codecEnum === 'pcm-s16') {
 					return (sample) => {
 						waveform.add(
@@ -86,6 +73,19 @@ export const useThumbnailAndWaveform = ({
 						);
 					};
 				}
+
+				const decoder = new AudioDecoder({
+					output(frame) {
+						waveform.add(frame);
+						frame.close();
+					},
+					error: (error) => {
+						// eslint-disable-next-line no-console
+						console.log(error);
+						setError(error);
+						controller.abort();
+					},
+				});
 
 				if (!(await AudioDecoder.isConfigSupported(track)).supported) {
 					controller.abort();

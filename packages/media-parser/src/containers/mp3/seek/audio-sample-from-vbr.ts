@@ -45,8 +45,8 @@ export const getAudioSampleFromVbr = ({
 	});
 	const durationInSeconds = samplesPerFrame / info.xingData.sampleRate;
 
-	const timestamp = Math.round(timeInSeconds * WEBCODECS_TIMESCALE);
-	const duration = Math.round(durationInSeconds * WEBCODECS_TIMESCALE);
+	const timestamp = Math.floor(timeInSeconds * WEBCODECS_TIMESCALE);
+	const duration = Math.floor(durationInSeconds * WEBCODECS_TIMESCALE);
 
 	const audioSample: MediaParserAudioSample = {
 		data,
