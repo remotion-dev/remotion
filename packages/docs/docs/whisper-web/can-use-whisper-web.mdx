@@ -10,7 +10,12 @@ crumb: '@remotion/whisper-web'
 
 # canUseWhisperWeb()
 
-Checks if the current browser environment supports running `@remotion/whisper-web` with a specified model. This function verifies various browser capabilities like `crossOriginIsolated`, `IndexedDB`, `navigator.storage.estimate()`, and available storage space.
+Checks if the current browser environment supports running `@remotion/whisper-web` with a specified model.  
+This function verifies various browser capabilities like `crossOriginIsolated`, `IndexedDB`, `navigator.storage.estimate()`, and available storage space.
+
+## Enabling cross-origin isolation
+
+This package requires a page that is [cross-origin isolated](/docs/miscellaneous/cross-origin-isolation).
 
 ## Example usage
 
