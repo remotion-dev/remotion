@@ -16,6 +16,7 @@
 		"watch": "turbo watch make --concurrency=2 --experimental-write-cache --ui=tui",
 		"watchwhisperweb": "turbo watch make --experimental-write-cache --filter='@remotion/whisper-web'",
 		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
+		"watchmediautils": "turbo watch make --experimental-write-cache --filter='@remotion/media-utils'",
 		"watchcore": "turbo watch make --experimental-write-cache --filter='remotion'",
 		"watchplayer": "turbo watch make --experimental-write-cache --filter='@remotion/player'",
 		"watchstudio": "turbo watch make --experimental-write-cache --filter='@remotion/studio' --filter='@remotion/studio-server'",
