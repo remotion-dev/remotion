@@ -35,17 +35,21 @@ export const RemotionRoot: React.FC = () => {
         }}
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
-          const { slowDurationInSeconds } = await parseMedia({
+          const { durationInSeconds } = await parseMedia({
             src: props.audioFileUrl,
             fields: {
-              slowDurationInSeconds: true,
+              durationInSeconds: true,
             },
             acknowledgeRemotionLicense: true,
           });
 
+          if (!durationInSeconds) {
+            throw new Error("Duration in seconds is null");
+          }
+
           return {
             durationInFrames: Math.floor(
-              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
+              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
             ),
             fps: FPS,
           };
