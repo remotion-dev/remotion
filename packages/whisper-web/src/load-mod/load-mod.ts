@@ -1,11 +1,19 @@
 // ⚠️⚠️⚠️⚠️⚠️!! Intentionally putting this in a subdirectory, so it is 2 directories deep
 // That way it can be imported when the output is dist/esm/index.js
-import type {MainModule} from '../../main.js';
 
-export const loadMod = async () => {
-	// According to MDN, this is allowed:
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object
-	const Mod = await import('../../main.js');
+import type {printHandler} from '../print-handler.js';
 
-	return Mod.default as unknown as MainModule;
+export const loadMod = async ({
+	handler,
+}: {
+	handler: ReturnType<typeof printHandler>;
+}) => {
+	const createModule = await import('../../main.js').then((mod) => mod.default);
+
+	const Module = await createModule({
+		print: handler,
+		printErr: handler,
+	});
+
+	return Module;
 };
