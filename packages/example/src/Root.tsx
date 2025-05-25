@@ -129,6 +129,7 @@ import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
+import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {TransitionRounding} from './TransitionRounding';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
@@ -1605,6 +1606,14 @@ export const Index: React.FC = () => {
 				component={PremountOnTransitionSeries}
 				width={1080}
 				height={1080}
+				fps={30}
+				durationInFrames={500}
+			/>
+			<Composition
+				id="TikTokTextBoxes"
+				component={TikTokTextBoxPlayground}
+				width={1080}
+				height={2160}
 				fps={30}
 				durationInFrames={500}
 			/>
