@@ -175,6 +175,7 @@ export const parseLoop = async ({
 	}
 
 	state.samplesObserved.setLastSampleObserved();
+	await state.callbacks.callTracksDoneCallback();
 
 	// After the last sample, you might queue a last seek again.
 	if (state.controller._internals.seekSignal.getSeek() !== null) {
