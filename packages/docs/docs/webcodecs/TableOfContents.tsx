@@ -116,6 +116,12 @@ export const TableOfContents: React.FC = () => {
 						Create an <code>AudioDecoder</code> object.
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/create-video-decoder">
+					<strong>{'createVideoDecoder()'}</strong>
+					<div>
+						Create a <code>VideoDecoder</code> object.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

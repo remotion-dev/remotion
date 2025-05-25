@@ -97,7 +97,7 @@ export const internalCreateAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = async (
+	const decode = async (
 		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
 	) => {
 		if (audioDecoder.state === 'closed') {
@@ -108,6 +108,7 @@ export const internalCreateAudioDecoder = ({
 			await controller?._internals._mediaParserController._internals.checkForAbortAndPause();
 		} catch (err) {
 			onError(err as Error);
+			return;
 		}
 
 		// Don't flush, it messes up the audio
@@ -129,9 +130,7 @@ export const internalCreateAudioDecoder = ({
 	};
 
 	return {
-		decode: async (sample: EncodedAudioChunkInit | EncodedAudioChunk) => {
-			await processSample(sample);
-		},
+		decode,
 		waitForFinish: async () => {
 			// Firefox might throw "Needs to be configured first"
 			try {

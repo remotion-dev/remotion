@@ -683,6 +683,8 @@ module.exports = {
 				'webcodecs/get-available-audio-codecs',
 				'webcodecs/get-available-video-codecs',
 				'webcodecs/convert-audiodata',
+				'webcodecs/create-audio-decoder',
+				'webcodecs/create-video-decoder',
 			],
 		},
 		{
