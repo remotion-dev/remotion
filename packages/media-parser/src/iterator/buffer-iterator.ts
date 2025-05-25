@@ -39,7 +39,7 @@ export const getArrayBufferIterator = (
 			counter.getDiscardedOffset(),
 			counter.getDiscardedOffset() + amount,
 		);
-		counter.increment(amount);
+		counter.increment(value.length);
 
 		return value;
 	};
