@@ -37,6 +37,7 @@ for (const track of audioTracks) {
     inputCodec: track.codecEnum,
     outputContainer: 'webm',
     inputContainer: container,
+    outputAudioCodec: null
   }); // bool
 }
 ```
@@ -85,6 +86,12 @@ The container format of the input media.
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
 The container format of the output media.
+
+### `outputAudioCodec`
+
+_string | null_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs" />
+
+The desired audio codec of the output media. If `null`, it means you don't care about the audio codec as long as it can be copied.
 
 ## Return value
 

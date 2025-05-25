@@ -113,6 +113,7 @@ export const getSupportedConfigs = async ({
 			rotationToApply: userRotation,
 			inputContainer,
 			resizeOperation,
+			outputVideoCodec: null,
 		});
 		if (canCopy && prioritizeCopyOverReencode) {
 			options.push({
@@ -161,6 +162,7 @@ export const getSupportedConfigs = async ({
 			inputCodec: track.codecEnum,
 			outputContainer: container,
 			inputContainer,
+			outputAudioCodec: null,
 		});
 
 		if (canCopy) {

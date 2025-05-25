@@ -58,6 +58,7 @@ export const makeVideoTrackHandler =
 			rotationToApply: rotate,
 			inputTrack: track,
 			resizeOperation,
+			outputVideoCodec: defaultVideoCodec,
 		});
 
 		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
