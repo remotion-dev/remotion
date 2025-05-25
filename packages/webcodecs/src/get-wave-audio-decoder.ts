@@ -1,7 +1,4 @@
-import type {
-	MediaParserAudioSample,
-	MediaParserLogLevel,
-} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import type {
 	CreateAudioDecoderInit,
 	WebCodecsAudioDecoder,
@@ -44,6 +41,18 @@ const getBytesPerSample = (sampleFormat: AudioSampleFormat) => {
 	throw new Error(`Unsupported sample format: ${sampleFormat satisfies never}`);
 };
 
+const getAudioData = (
+	audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
+) => {
+	if (audioSample instanceof EncodedAudioChunk) {
+		const data = new Uint8Array(audioSample.byteLength);
+		audioSample.copyTo(data);
+		return data;
+	}
+
+	return audioSample.data;
+};
+
 export const getWaveAudioDecoder = ({
 	onFrame,
 	config,
@@ -56,15 +65,18 @@ export const getWaveAudioDecoder = ({
 	ioSynchronizer: IoSynchronizer;
 	onError: (error: Error) => void;
 }): WebCodecsAudioDecoder => {
-	const processSample = async (audioSample: MediaParserAudioSample) => {
+	const processSample = async (
+		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
+	) => {
 		const bytesPerSample = getBytesPerSample(sampleFormat);
+		const data = getAudioData(audioSample);
 
 		const audioData = new AudioData({
-			data: audioSample.data,
+			data,
 			format: sampleFormat,
 			numberOfChannels: config.numberOfChannels,
 			numberOfFrames:
-				audioSample.data.byteLength / bytesPerSample / config.numberOfChannels,
+				data.byteLength / bytesPerSample / config.numberOfChannels,
 			sampleRate: config.sampleRate,
 			timestamp: audioSample.timestamp,
 		});

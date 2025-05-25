@@ -1,13 +1,10 @@
-import type {
-	MediaParserAudioSample,
-	MediaParserLogLevel,
-} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
-	decode: (audioSample: MediaParserAudioSample) => void;
+	decode: (audioSample: EncodedAudioChunkInit | EncodedAudioChunk) => void;
 	close: () => void;
 	flush: () => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -99,7 +96,7 @@ export const internalCreateAudioDecoder = ({
 	audioDecoder.configure(config);
 
 	const processSample = (
-		audioSample: MediaParserAudioSample | EncodedAudioChunk,
+		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
 	) => {
 		if (audioDecoder.state === 'closed') {
 			return;
@@ -124,7 +121,7 @@ export const internalCreateAudioDecoder = ({
 	};
 
 	return {
-		decode: (sample: MediaParserAudioSample | EncodedAudioChunk) => {
+		decode: (sample: EncodedAudioChunkInit | EncodedAudioChunk) => {
 			processSample(sample);
 		},
 		waitForFinish: async () => {
@@ -151,7 +148,7 @@ export const createAudioDecoder = ({
 	logLevel,
 }: {
 	track: AudioDecoderConfig;
-	onFrame: (frame: AudioData | EncodedAudioChunk) => Promise<void> | void;
+	onFrame: (frame: AudioData) => Promise<void> | void;
 	onError: (error: Error) => void;
 	controller?: WebCodecsController | null;
 	logLevel?: MediaParserLogLevel;
