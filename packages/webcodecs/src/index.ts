@@ -5,8 +5,6 @@ import {
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import {setRemotionImported} from './set-remotion-imported';
 
-export {createAudioDecoder} from './audio-decoder';
-export type {WebCodecsAudioDecoder} from './audio-decoder';
 export {createAudioEncoder} from './audio-encoder';
 export type {WebCodecsAudioEncoder} from './audio-encoder';
 export {canCopyAudioTrack} from './can-copy-audio-track';
@@ -22,6 +20,10 @@ export type {
 	ConvertMediaProgress,
 	ConvertMediaResult,
 } from './convert-media';
+export {createAudioDecoder} from './create-audio-decoder';
+export type {WebCodecsAudioDecoder} from './create-audio-decoder';
+export {createVideoDecoder} from './create-video-decoder';
+export type {WebCodecsVideoDecoder} from './create-video-decoder';
 export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
 export {getAvailableAudioCodecs} from './get-available-audio-codecs';
@@ -41,8 +43,6 @@ export type {
 	VideoOperation,
 } from './on-video-track-handler';
 export type {ResizeOperation} from './resizing/mode';
-export {createVideoDecoder} from './video-decoder';
-export type {WebCodecsVideoDecoder} from './video-decoder';
 export {createVideoEncoder} from './video-encoder';
 export type {WebCodecsVideoEncoder} from './video-encoder';
 export {webcodecsController} from './webcodecs-controller';

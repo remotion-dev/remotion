@@ -106,8 +106,20 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/webcodecs/convert-audiodata">
 					<strong>{'convertAudioData()'}</strong>
 					<div>
-						Change the format or sample rate of an <code>AudioData</code>
+						Change the format or sample rate of an <code>AudioData</code>{' '}
 						object.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/create-audio-decoder">
+					<strong>{'createAudioDecoder()'}</strong>
+					<div>
+						Create an <code>AudioDecoder</code> object.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/create-video-decoder">
+					<strong>{'createVideoDecoder()'}</strong>
+					<div>
+						Create a <code>VideoDecoder</code> object.
 					</div>
 				</TOCItem>
 			</Grid>

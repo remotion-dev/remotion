@@ -1,13 +1,9 @@
-import type {
-	MediaParserLogLevel,
-	MediaParserVideoSample,
-} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
-import {Log} from './log';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	decode: (videoSample: MediaParserVideoSample | EncodedVideoChunk) => void;
+	decode: (videoSample: EncodedVideoChunkInit | EncodedVideoChunk) => void;
 	close: () => void;
 	flush: () => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -78,8 +74,15 @@ export const internalCreateVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const decode = (sample: MediaParserVideoSample | EncodedVideoChunk) => {
+	const decode = async (sample: EncodedVideoChunkInit | EncodedVideoChunk) => {
 		if (videoDecoder.state === 'closed') {
+			return;
+		}
+
+		try {
+			await controller?._internals._mediaParserController._internals.checkForAbortAndPause();
+		} catch (err) {
+			onError(err as Error);
 			return;
 		}
 
@@ -94,10 +97,12 @@ export const internalCreateVideoDecoder = ({
 	return {
 		decode,
 		waitForFinish: async () => {
-			await videoDecoder.flush();
-			Log.verbose(logLevel, 'Flushed video decoder');
+			// Firefox might throw "Needs to be configured first"
+			try {
+				await videoDecoder.flush();
+			} catch {}
+
 			await ioSynchronizer.waitForFinish();
-			Log.verbose(logLevel, 'IO synchro finished');
 		},
 		close,
 		flush: async () => {
