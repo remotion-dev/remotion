@@ -2,7 +2,7 @@ import type {MediaParserLogLevel} from '@remotion/media-parser';
 import type {
 	CreateAudioDecoderInit,
 	WebCodecsAudioDecoder,
-} from './audio-decoder';
+} from './create-audio-decoder';
 import type {IoSynchronizer} from './io-manager/io-synchronizer';
 
 const getBytesPerSample = (sampleFormat: AudioSampleFormat) => {

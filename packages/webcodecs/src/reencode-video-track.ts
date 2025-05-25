@@ -6,6 +6,7 @@ import type {
 import {arrayBufferToUint8Array} from './arraybuffer-to-uint8-array';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnVideoFrame} from './convert-media';
+import {createVideoDecoder} from './create-video-decoder';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {Log} from './log';
@@ -15,7 +16,6 @@ import {processingQueue} from './processing-queue';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import {videoFrameSorter} from './sort-video-frames';
 import type {ConvertMediaProgressFn} from './throttled-state-update';
-import {createVideoDecoder} from './video-decoder';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {createVideoEncoder} from './video-encoder';
 import {getVideoEncoderConfig} from './video-encoder-config';

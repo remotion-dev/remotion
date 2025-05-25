@@ -1,13 +1,10 @@
-import type {
-	MediaParserLogLevel,
-	MediaParserVideoSample,
-} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import {Log} from './log';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	decode: (videoSample: MediaParserVideoSample | EncodedVideoChunk) => void;
+	decode: (videoSample: EncodedVideoChunkInit | EncodedVideoChunk) => void;
 	close: () => void;
 	flush: () => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -78,7 +75,7 @@ export const internalCreateVideoDecoder = ({
 
 	videoDecoder.configure(config);
 
-	const decode = (sample: MediaParserVideoSample | EncodedVideoChunk) => {
+	const decode = (sample: EncodedVideoChunkInit | EncodedVideoChunk) => {
 		if (videoDecoder.state === 'closed') {
 			return;
 		}
