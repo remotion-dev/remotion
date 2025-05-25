@@ -4,7 +4,9 @@ import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
-	decode: (audioSample: EncodedAudioChunkInit | EncodedAudioChunk) => void;
+	decode: (
+		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
+	) => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
 	waitForFinish: () => Promise<void>;
@@ -95,11 +97,17 @@ export const internalCreateAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = (
+	const processSample = async (
 		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
 	) => {
 		if (audioDecoder.state === 'closed') {
 			return;
+		}
+
+		try {
+			await controller?._internals._mediaParserController._internals.checkForAbortAndPause();
+		} catch (err) {
+			onError(err as Error);
 		}
 
 		// Don't flush, it messes up the audio
@@ -121,8 +129,8 @@ export const internalCreateAudioDecoder = ({
 	};
 
 	return {
-		decode: (sample: EncodedAudioChunkInit | EncodedAudioChunk) => {
-			processSample(sample);
+		decode: async (sample: EncodedAudioChunkInit | EncodedAudioChunk) => {
+			await processSample(sample);
 		},
 		waitForFinish: async () => {
 			// Firefox might throw "Needs to be configured first"
@@ -141,10 +149,10 @@ export const internalCreateAudioDecoder = ({
 };
 
 export const createAudioDecoder = ({
+	track,
 	onFrame,
 	onError,
 	controller,
-	track,
 	logLevel,
 }: {
 	track: AudioDecoderConfig;

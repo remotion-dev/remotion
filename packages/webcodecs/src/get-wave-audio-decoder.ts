@@ -94,7 +94,7 @@ export const getWaveAudioDecoder = ({
 			return Promise.resolve();
 		},
 		decode(audioSample) {
-			processSample(audioSample);
+			return processSample(audioSample);
 		},
 		flush: () => Promise.resolve(),
 		waitForFinish: () => Promise.resolve(),
