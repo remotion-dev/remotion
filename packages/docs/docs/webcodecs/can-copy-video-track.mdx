@@ -42,6 +42,7 @@ for (const track of videoTracks) {
     inputContainer: container,
     rotationToApply: 0,
     resizeOperation: null,
+    outputVideoCodec: null
   }); // boolean
 }
 ```
@@ -104,6 +105,12 @@ The container format of the output media.
 _string_ <TsType type="ResizeOperation" source="@remotion/webcodecs" />
 
 The [resize operation](/docs/webcodecs/resize-a-video) to apply to the video track.
+
+### `outputVideoCodec`
+
+_string | null_ <TsType type="ConvertMediaVideoCodec" source="@remotion/webcodecs" />
+
+The desired video codec of the output media. If `null`, it means you don't care about the video codec as long as it can be copied.
 
 ## Rotation behavior
 

@@ -3,6 +3,8 @@ import type {
 	MediaParserVideoTrack,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
+import {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {isSameVideoCodec} from './is-different-video-codec';
 import type {ResizeOperation} from './resizing/mode';
 import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
@@ -13,11 +15,13 @@ export const canCopyVideoTrack = ({
 	inputContainer,
 	resizeOperation,
 	inputTrack,
+	outputVideoCodec,
 }: {
 	inputContainer: MediaParserContainer;
 	inputTrack: MediaParserVideoTrack;
 	rotationToApply: number;
 	outputContainer: ConvertMediaContainer;
+	outputVideoCodec: ConvertMediaVideoCodec | null;
 	resizeOperation: ResizeOperation | null;
 }) => {
 	if (
@@ -25,6 +29,17 @@ export const canCopyVideoTrack = ({
 		normalizeVideoRotation(rotationToApply)
 	) {
 		return false;
+	}
+
+	if (outputVideoCodec) {
+		if (
+			!isSameVideoCodec({
+				inputVideoCodec: inputTrack.codecEnum,
+				outputCodec: outputVideoCodec,
+			})
+		) {
+			return false;
+		}
 	}
 
 	const newDimensions = calculateNewDimensionsFromRotateAndScale({

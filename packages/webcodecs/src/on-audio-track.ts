@@ -45,6 +45,7 @@ export const makeAudioTrackHandler =
 			inputCodec: track.codecEnum,
 			outputContainer,
 			inputContainer,
+			outputAudioCodec: audioCodec,
 		});
 
 		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
