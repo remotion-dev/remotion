@@ -116,10 +116,12 @@ await parseMedia({
     });
 
     return async (sample) => {
+      // Called on every sample
       await decoder.waitForQueueToBeLessThan(10);
       await decoder.decode(sample);
 
       return async () => {
+        // Called when the track is done
         await decoder.flush();
         await decoder.waitForFinish();
         decoder.close();
