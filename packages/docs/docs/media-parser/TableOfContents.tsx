@@ -20,6 +20,10 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 						Efficently use <code>parseMedia()</code>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/samples">
+					<strong>Extract samples</strong>
+					<div>Extract video and audio samples from a media file</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/readers">
 					<strong>Readers</strong>
 					<div>Read from a variety of sources</div>
