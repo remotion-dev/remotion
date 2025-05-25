@@ -3,7 +3,7 @@ import type {
 	MediaParserVideoTrack,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
-import {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import {isSameVideoCodec} from './is-different-video-codec';
 import type {ResizeOperation} from './resizing/mode';
 import {normalizeVideoRotation} from './rotate-and-resize-video-frame';

@@ -2,7 +2,7 @@ import type {
 	MediaParserAudioCodec,
 	MediaParserContainer,
 } from '@remotion/media-parser';
-import {ConvertMediaAudioCodec} from './get-available-audio-codecs';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 import type {ConvertMediaContainer} from './get-available-containers';
 import {isSameAudioCodec} from './is-different-video-codec';
 
