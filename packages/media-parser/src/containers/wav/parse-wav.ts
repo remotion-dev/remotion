@@ -35,8 +35,12 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 		return parseList({state});
 	}
 
-	if (type === 'id3') {
+	if (type === 'id3' || type === 'ID3') {
 		return parseId3({state});
+	}
+
+	if (type === '\u0000') {
+		return Promise.resolve(null);
 	}
 
 	throw new Error(`Unknown WAV box type ${type}`);
