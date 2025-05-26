@@ -117,14 +117,9 @@ export const makeIoSynchronizer = ({
 		}
 	};
 
-	const waitForFinish = async () => {
-		await waitForQueueSize(0);
-	};
-
 	return {
 		inputItem,
 		onOutput,
-		waitForFinish,
 		waitForQueueSize,
 	};
 };

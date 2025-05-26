@@ -58,7 +58,10 @@ A callback that is called when a frame is decoded.
 
 Takes a single argument, which is a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object.
 
-Only once the callback resolves, the queue size counter will be decreased.
+If the passed callback is asynchronous, the queue size counter will be decreased only after the callback has been resolved.  
+
+However, the callback for the next frame may already be called while your callback is still running.  
+We do not ensure that callbacks are running sequentially.
 
 ### `onError`
 
@@ -88,13 +91,13 @@ Returns an object with the following properties:
 A promise that resolves when the queue size is less than the given number.  
 The queue is only decremented when the[ `onFrame`](#onframe) callback resolves.
 
-### `waitForFinish()`
-
-A promise that resolves when the decoder is finished.
-
 ### `flush()`
 
-Flushes the decoder. Same as [`AudioDecoder.flush()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/flush).
+Flushes the decoder, forcing the queue to be cleared. Returns a promise that resolves when all frames have been cleared and the [`onFrame()`](#onframe) callback has beeen resolved for all frames.
+
+### `reset()`
+
+Clears the queue and resets the decoder. Same as [`VideoDecoder.reset()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoDecoder/reset) + [`VideoDecoder.configure()`](https://developer.mozilla.org/en-US/docs/Web/API/VideoDecoder/close).
 
 ### `close()`
 
@@ -123,7 +126,6 @@ await parseMedia({
       return async () => {
         // Called when the track is done
         await decoder.flush();
-        await decoder.waitForFinish();
         decoder.close();
       };
     };

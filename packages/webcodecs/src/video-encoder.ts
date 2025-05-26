@@ -121,7 +121,7 @@ export const createVideoEncoder = ({
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await ioSynchronizer.waitForFinish();
+			await ioSynchronizer.waitForQueueSize(0);
 		},
 		close,
 		flush: async () => {

@@ -206,7 +206,7 @@ export const reencodeVideoTrack = async ({
 	state.addWaitForFinishPromise(async () => {
 		Log.verbose(logLevel, 'Waiting for video decoder to finish');
 
-		await videoDecoder.waitForFinish();
+		await videoDecoder.waitForQueueToBeLessThan(0);
 		videoDecoder.close();
 		Log.verbose(
 			logLevel,
@@ -216,7 +216,7 @@ export const reencodeVideoTrack = async ({
 		await frameSorter.flush();
 		Log.verbose(logLevel, 'Frame sorter flushed');
 
-		await videoProcessingQueue.ioSynchronizer.waitForFinish();
+		await videoProcessingQueue.ioSynchronizer.waitForQueueSize(0);
 		Log.verbose(logLevel, 'Video processing queue finished');
 
 		await videoEncoder.waitForFinish();
