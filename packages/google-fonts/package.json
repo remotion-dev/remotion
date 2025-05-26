@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.306",
+	"version": "4.0.310",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -2138,6 +2138,9 @@
 			"KantumruyPro": [
 				"dist/cjs/KantumruyPro.d.ts"
 			],
+			"Kapakana": [
+				"dist/cjs/Kapakana.d.ts"
+			],
 			"Karantina": [
 				"dist/cjs/Karantina.d.ts"
 			],
@@ -3442,6 +3445,9 @@
 			],
 			"NotoSerifDisplay": [
 				"dist/cjs/NotoSerifDisplay.d.ts"
+			],
+			"NotoSerifDivesAkuru": [
+				"dist/cjs/NotoSerifDivesAkuru.d.ts"
 			],
 			"NotoSerifDogra": [
 				"dist/cjs/NotoSerifDogra.d.ts"
@@ -5002,6 +5008,9 @@
 			],
 			"VujahdayScript": [
 				"dist/cjs/VujahdayScript.d.ts"
+			],
+			"WDXLLubrifontTC": [
+				"dist/cjs/WDXLLubrifontTC.d.ts"
 			],
 			"WaitingfortheSunrise": [
 				"dist/cjs/WaitingfortheSunrise.d.ts"

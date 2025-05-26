@@ -1,86 +1,80 @@
 ---
 image: /generated/articles-docs-media-parser-webcodecs.png
 id: webcodecs
-title: Decoding a video with WebCodecs and @remotion/media-parser
+title: Processing video with WebCodecs and @remotion/media-parser
 sidebar_label: WebCodecs
 slug: /media-parser/webcodecs
 crumb: '@remotion/media-parser'
 ---
 
-[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.
+[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.  
 
-## With `@remotion/webcodecs`
 
-[`@remotion/webcodecs`](/docs/webcodecs) is a package that uses `@remotion/media-parser` to provide video processing in the browser.  
-It handles various browser quirks and hard implementation details for you.
+## Minimal example
 
-We recommend it if you want to build a solution based on WebCodecs.  
-It is a higher-level API that is easier to use than `@remotion/media-parser`.
-
-## Using `@remotion/media-parser`
-
-`@remotion/media-parser` is a lower-level API that allows you to interface with WebCodecs directly.
+The following snippet is a basic, non-production ready example of how to use `parseMedia()` with WebCodecs.
 
 ```tsx twoslash title="Reading video frames"
+// ⚠️ Simple, but non-production ready example
 import {parseMedia, MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
-  const videoDecoder = new VideoDecoder({
-    output: console.log,
-    error: console.error,
-  });
-  videoDecoder.configure(track);
-
-  return (sample) => {
-    videoDecoder.decode(new EncodedVideoChunk(sample));
-  };
-};
-
 const result = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  onVideoTrack,
+  src: 'https://parser.media/video.mp4',
+  onVideoTrack: ({track}) => {
+    const decoder = new VideoDecoder({
+      output: console.log,
+      error: console.error,
+    });
+
+    decoder.configure(track);
+
+    return (sample) => {
+      decoder.decode(new EncodedVideoChunk(sample));
+    };
+  },
 });
 ```
+## The importance of queueing
 
-## Why is this useful?
+import {WebCodecsQueueing} from './WebCodecsQueueing';
 
-WebCodecs is the fastest way to decode videos in the browser.  
-WebAssembly solutions need to strip the CPU-specific optimizations and cannot benefit from hardware acceleration.
+Consider the following video processing pipeline, which converts a video, similarly to what [`convertMedia()`](/docs/webcodecs/convert-media) does.
 
-To decode a video using WebCodecs, the binary format of a video needs to be understood and parsed.  
-This is a meticulous task that requires a lot of domain knowledge.
+<WebCodecsQueueing />
 
-Video files usually come in one of two container formats: ISO BMFF (.mp4, .mov) or Matroska (.webm, .mkv).  
-Libraries like mp4box.js do a good job of parsing these containers, but are scoped to the specific container format, meaning you need to mix multiple libraries.
+The pipeline consists of different steps, each of which have different speeds.  
+For example, the parsing of the media is much faster than the decoding of the video.
 
-[`parseMedia()`](/docs/media-parser/parse-media) allows to to read an arbitrary media file and interface with it regardless of container, video codec and audio codec.
+This can lead to a "traffic jam" in front of the video decoder, where many samples are queueing quickly.  
+Since this will cause memory to build up, it will negatively impact the performance of the page.
 
-It uses modern Web APIs like `fetch()`, `ReadableStream` and resizeable ArrayBuffers, and returns data structures that are designed to be used with WebCodecs APIs.
+It makes sense to connect the whole pipeline together and throttle each step to it does not perform faster than the next step.  
+In the example above, six queues are required to be managed, with each one of them malfunctioning causing memory to run away.
+
+
+## How Remotion helps you work with WebCodecs
+
+Since handling queueing correctly is a challenging task, we offer helpers that help you work with WebCodecs.
+
+Remotion's primitives are designed to offer you functionality to implement queueing in a sensible way:
+
+- In [`parseMedia()`](/docs/media-parser/parse-media), callbacks are asnychronous, and as long as they don't resolve, the parsing process will not continue.
+- The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.  
+- For processing video and audio frames as well as encoding video and audio, we don't offer helpers yet, but hope to do so soon.
+
+
 
 ## Practical considerations
 
 If you use `parseMedia()` with codecs, make the following considerations for your implementation.
 
-### Check browser support for `@remotion/media-parser`
-
-Remotion requires the `fetch()` and Resizeable ArrayBuffer APIs to be present.  
-Check if your runtime supports these APIs before you use `parseMedia()`.
-
-```tsx
-const canUseMediaParser = typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
-```
-
 ### Check if browser has `VideoDecoder` and `AudioDecoder`
 
-Chrome has both `VideoDecoder` and `AudioDecoder`.  
-Firefox has support for `VideoDecoder` and `AudioDecoder` only if the `dom.media.webcodecs.enabled` flag is enabled.  
-Safari has support for `VideoDecoder`, but not `AudioDecoder`. You can decode the video track but not the audio track.
+As of May 2025, all major browsers support `VideoDecoder` and `AudioDecoder` except Safari, which has support for `VideoDecoder` only.  
+`AudioDecoder` is supported in Safari Technology Preview, meaning that soon, all major browsers will support WebCodecs fully.
 
-:::note
-Please help [improve this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/media-parser/webcodecs.mdx) if this information is outdated.
-:::
-
-You can choose to not receive samples if the corresponding decoder is not supported in the browser.
+Still, it is a good idea to check if the browser supports the decoders.  
+You can opt to skip a track by returning `null` from the callback.
 
 ```tsx twoslash title="Rejecting samples"
 // @noErrors
@@ -154,6 +148,8 @@ const onAudioTrack: MediaParserOnAudioTrack = async ({track}) => {
 Perform these checks in addition to the previously mentioned ones.
 :::
 
+
+
 ### Error handling
 
 If an error occurs, you get the error in the `error` callback that you passed to the `VideoDecoder` or `AudioDecoder` constructor.  
@@ -184,85 +180,6 @@ const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
 - You should still perform the checks previously mentioned, but they are omitted from this example.  
   :::
 
-### Queuing samples
-
-Extracting samples is the fast part, decoding them is the slow part.  
-**If too many samples are in the queue, memory will build up and it will negatively impact the performance of the page.**
-
-Fortunately, the parsing process can be temporarily paused while the decoder is busy.  
-For this, make the sample processing function async. Remotion will await it before processing the file further.
-
-This will make it so that samples that are not yet needed are not kept in memory, keeping the decoding process efficient.
-
-```tsx twoslash title="Only keeping 10 samples in the queue at a time"
-import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
-
-const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
-  const videoDecoder = new VideoDecoder({
-    output: console.log,
-    error: console.error,
-  });
-
-  return async (sample) => {
-    if (videoDecoder.decodeQueueSize > 10) {
-      let resolve = () => {};
-
-      const cb = () => {
-        resolve();
-      };
-
-      await new Promise<void>((r) => {
-        resolve = r;
-        videoDecoder.addEventListener('dequeue', cb);
-      });
-      videoDecoder.removeEventListener('dequeue', cb);
-    }
-
-    videoDecoder.decode(new EncodedVideoChunk(sample));
-  };
-};
-```
-
-:::note
-
-- The same logic goes for `AudioDecoder`.
-- You should still perform the checks previously mentioned, but they are omitted from this example.  
-  :::
-
-:::warning
-We think that the `dequeue` event does not work properly in Safari. We'll release an abstraction over the VideoDecoder and AudioDecoder APIs that will make it easier to correctly handle the decoding process soon.
-:::
-
-### Handling stretched videos
-
-Some videos don't have the same dimensions internally as they are presented.  
-For example, [this sample video](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/stretched-vp8.webm) has a coded width of 1440, but a presentation width of 1920.
-
-```tsx twoslash title="Handling stretched videos"
-import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
-
-const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
-  const videoDecoder = new VideoDecoder({
-    output: console.log,
-    error: console.error,
-  });
-  videoDecoder.configure(track);
-
-  return async (sample) => {
-    console.log(sample);
-    // {
-    //   codedWidth: 1440,
-    //   codedHeight: 1080,
-    //   displayAspectWidth: 1920,
-    //   displayAspectHeight: 1080,
-    //   ...
-    // }
-  };
-};
-```
-
-This means the frame is internally encoded in a 4:3 aspect ratio, but the frame should as a 16:9.  
-By passing all of `codedWidth`, `codedHeight`, `displayAspectWidth` and `displayAspectHeight` to `new EncodedVideoChunk()`, the decoder should handle the stretching correctly.
 
 ### Handling rotation
 
@@ -332,9 +249,23 @@ decoder.configure(config); // Unsupported configuration. Check isConfigSupported
 
 Consider this in your implementation.
 
-### Safari performance
+## Why WebCodecs?
 
-We find that with our reference implementation, Safari chokes on decoding the full Big Buck Bunny video. Tips are welcome, and otherwise we encourage to consider if and which parts of WebCodecs APIs you want to support.
+WebCodecs is the fastest way to decode videos in the browser.  
+WebAssembly solutions need to strip the CPU-specific optimizations and cannot benefit from hardware acceleration.
+
+Using Remotion Media Parser and WebCodecs is [at least 3 times faster than using WebAssembly solutions](https://github.com/remotion-dev/webcodecs-benchmark) in any scenario we tested.
+
+WebCodecs are built into the browser, meaning decoders and encoders do not need to be loaded.  
+Later in 2025, WebCodecs will be supported in all major browsers.
+
+## With `@remotion/webcodecs`
+
+[`@remotion/webcodecs`](/docs/webcodecs) is a package that uses `@remotion/media-parser` to provide video processing in the browser.  
+It handles various browser quirks and hard implementation details for you.
+
+- Convert, rotate and resize videos: [`convertMedia()`](/docs/webcodecs/convert-media)
+- Decode media: [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) and [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder)
 
 ## Reference implementation
 
