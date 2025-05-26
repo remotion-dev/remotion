@@ -3556,6 +3556,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./KantumruyPro') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kapakana',
+		importName: 'Kapakana',
+		load: () => import('./Kapakana') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Karantina',
 		importName: 'Karantina',
 		load: () => import('./Karantina') as Promise<GoogleFont>,
@@ -5730,6 +5735,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Noto Serif Display',
 		importName: 'NotoSerifDisplay',
 		load: () => import('./NotoSerifDisplay') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Noto Serif Dives Akuru',
+		importName: 'NotoSerifDivesAkuru',
+		load: () => import('./NotoSerifDivesAkuru') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Noto Serif Dogra',
@@ -8330,6 +8340,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Vujahday Script',
 		importName: 'VujahdayScript',
 		load: () => import('./VujahdayScript') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont TC',
+		importName: 'WDXLLubrifontTC',
+		load: () => import('./WDXLLubrifontTC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Waiting for the Sunrise',

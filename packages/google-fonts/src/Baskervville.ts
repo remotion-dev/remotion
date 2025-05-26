@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baskervville',
 	importName: 'Baskervville',
-	version: 'v16',
-	url: 'https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400;1,400',
+	version: 'v18',
+	url: 'https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
@@ -15,17 +15,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baskervville/v16/YA9Kr0yU4l_XOrogbkun3kQQtamlrvLp9A.woff2',
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamlrvLp9A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baskervville/v16/YA9Kr0yU4l_XOrogbkun3kQQtamrrvI.woff2',
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamrrvI.woff2',
+			},
+			'500': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamlrvLp9A.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamrrvI.woff2',
+			},
+			'600': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamlrvLp9A.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamrrvI.woff2',
+			},
+			'700': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamlrvLp9A.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Kr0yU4l_XOrogbkun3kQQtamrrvI.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baskervville/v16/YA9Ur0yU4l_XOrogbkun3kQQvpmptvY.woff2',
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQvpmptvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baskervville/v16/YA9Ur0yU4l_XOrogbkun3kQQsJmp.woff2',
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQsJmp.woff2',
+			},
+			'500': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQvpmptvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQsJmp.woff2',
+			},
+			'600': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQvpmptvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQsJmp.woff2',
+			},
+			'700': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQvpmptvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/baskervville/v18/YA9Ur0yU4l_XOrogbkun3kQQsJmp.woff2',
 			},
 		},
 	},
@@ -36,11 +72,11 @@ export const fontFamily = 'Baskervville' as const;
 
 type Variants = {
 	italic: {
-		weights: '400';
+		weights: '400' | '500' | '600' | '700';
 		subsets: 'latin' | 'latin-ext';
 	};
 	normal: {
-		weights: '400';
+		weights: '400' | '500' | '600' | '700';
 		subsets: 'latin' | 'latin-ext';
 	};
 };

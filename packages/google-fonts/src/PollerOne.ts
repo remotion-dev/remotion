@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Poller One',
 	importName: 'PollerOne',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Poller+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/pollerone/v23/ahccv82n0TN3gia5E4BuR-5RgA.woff2',
+					'https://fonts.gstatic.com/s/pollerone/v24/ahccv82n0TN3gia5E4BuR-5RgA.woff2',
 			},
 		},
 	},
