@@ -4,12 +4,12 @@ import type {
 	MediaParserOnAudioSample,
 } from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
-import {internalCreateAudioDecoder} from './audio-decoder';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {createAudioEncoder} from './audio-encoder';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import {convertEncodedChunk} from './convert-encoded-chunk';
 import type {ConvertMediaOnAudioData} from './convert-media';
+import {internalCreateAudioDecoder} from './create-audio-decoder';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {Log} from './log';
@@ -230,10 +230,10 @@ export const reencodeAudioTrack = async ({
 	});
 
 	state.addWaitForFinishPromise(async () => {
-		await audioDecoder.waitForFinish();
+		await audioDecoder.waitForQueueToBeLessThan(0);
 		Log.verbose(logLevel, 'Audio decoder finished');
 		audioDecoder.close();
-		await audioProcessingQueue.ioSynchronizer.waitForFinish();
+		await audioProcessingQueue.ioSynchronizer.waitForQueueSize(0);
 		Log.verbose(logLevel, 'Audio processing queue finished');
 		await audioEncoder.waitForFinish();
 		Log.verbose(logLevel, 'Audio encoder finished');

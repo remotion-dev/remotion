@@ -1,6 +1,9 @@
 import type {MediaParserController} from '../../controller/media-parser-controller';
 import type {M3uState} from '../../state/m3u-state';
-import type {MediaParserVideoSample} from '../../webcodec-sample-types';
+import type {
+	MediaParserOnVideoSample,
+	MediaParserVideoSample,
+} from '../../webcodec-sample-types';
 import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 export const considerSeekBasedOnChunk = async ({
@@ -14,7 +17,7 @@ export const considerSeekBasedOnChunk = async ({
 	chunkIndex,
 }: {
 	sample: MediaParserVideoSample;
-	callback: (sample: MediaParserVideoSample) => void | Promise<void>;
+	callback: MediaParserOnVideoSample;
 	parentController: MediaParserController;
 	childController: MediaParserController;
 	playlistUrl: string;

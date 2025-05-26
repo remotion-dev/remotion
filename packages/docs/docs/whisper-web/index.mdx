@@ -15,11 +15,41 @@ Similar to [@remotion/install-whisper-cpp](/docs/install-whisper-cpp) but for th
 
 import {TableOfContents} from './whisper-web';
 
+## Installation
+
 <Installation pkg="@remotion/whisper-web" />
 
-## Requirements
+## Required configuration
 
-This package requires a page that is [cross-origin isolated](/docs/miscellaneous/cross-origin-isolation).
+`@remotion/whisper-web` uses a WebAssembly (WASM) backend that requires `SharedArrayBuffer` support. To enable this functionality, you need to configure cross-origin isolation headers in your application. This is a [security requirement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements) for using `SharedArrayBuffer` in modern browsers.
+
+See: [Important Considerations](/docs/whisper-web/can-use-whisper-web#important-considerations)
+
+### Vite
+
+To use `@remotion/whisper-web` with Vite, you need to make two important changes:
+
+1. Exclude the package from Vite's dependency optimization to prevent [known issues](https://github.com/vitejs/vite/issues/11672#issuecomment-1397855641)
+2. Configure the required security headers for `SharedArrayBuffer` support
+
+```tsx title="vite.config.ts"
+import {defineConfig} from 'vite';
+
+export default defineConfig({
+  optimizeDeps: {
+    // turn off dependency optimization: https://github.com/vitejs/vite/issues/11672#issuecomment-1397855641
+    exclude: ['@remotion/whisper-web'],
+  },
+  // required by SharedArrayBuffer
+  server: {
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    },
+  },
+  // ...
+});
+```
 
 ## Example usage
 

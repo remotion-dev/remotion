@@ -9,6 +9,7 @@ import type {
 	MediaParserOnAudioSample,
 	MediaParserOnVideoSample,
 	MediaParserVideoSample,
+	OnTrackDoneCallback,
 } from '../webcodec-sample-types';
 import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 import {makeCanSkipTracksState} from './can-skip-tracks';
@@ -45,6 +46,8 @@ export const callbacksState = ({
 }) => {
 	const videoSampleCallbacks: Record<number, MediaParserOnVideoSample> = {};
 	const audioSampleCallbacks: Record<number, MediaParserOnAudioSample> = {};
+
+	const onTrackDoneCallback: Record<number, OnTrackDoneCallback | null> = {};
 
 	const queuedAudioSamples: Record<number, MediaParserAudioSample[]> = {};
 	const queuedVideoSamples: Record<number, MediaParserVideoSample[]> = {};
@@ -98,7 +101,8 @@ export const callbacksState = ({
 							'Not emitting sample because seek is processing',
 						);
 					} else {
-						await callback(audioSample);
+						const trackDoneCallback = await callback(audioSample);
+						onTrackDoneCallback[trackId] = trackDoneCallback ?? null;
 					}
 				}
 			}
@@ -128,7 +132,8 @@ export const callbacksState = ({
 							'Not emitting sample because seek is processing',
 						);
 					} else {
-						await callback(videoSample);
+						const trackDoneCallback = await callback(videoSample);
+						onTrackDoneCallback[trackId] = trackDoneCallback ?? null;
 					}
 				}
 			}
@@ -176,6 +181,13 @@ export const callbacksState = ({
 		videoSampleCallbacks,
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
+		callTracksDoneCallback: async () => {
+			for (const callback of Object.values(onTrackDoneCallback)) {
+				if (callback) {
+					await callback();
+				}
+			}
+		},
 	};
 };
 

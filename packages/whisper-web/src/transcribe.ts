@@ -143,18 +143,7 @@ export const transcribe = async ({
 		},
 	});
 
-	// Emscripten creates moduleOverrides from global Module object
-
-	// var Module = typeof Module != 'undefined' ? Module : {};
-	// var moduleOverrides = Object.assign({}, Module);
-	window.remotion_wasm_moduleOverrides = {
-		print: handler,
-		printErr: handler,
-	};
-
-	const Mod = await loadMod();
-
-	delete window.remotion_wasm_moduleOverrides;
+	const Mod = await loadMod({handler});
 
 	const url = getModelUrl(model);
 	const result = await getObject({key: url});

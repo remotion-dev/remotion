@@ -1,17 +1,16 @@
-import type {
-	MediaParserAudioSample,
-	MediaParserLogLevel,
-} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
-	decode: (audioSample: MediaParserAudioSample) => void;
+	decode: (
+		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
+	) => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
-	waitForFinish: () => Promise<void>;
 	waitForQueueToBeLessThan: (items: number) => Promise<void>;
+	reset: () => void;
 };
 
 export type CreateAudioDecoderInit = {
@@ -98,10 +97,17 @@ export const internalCreateAudioDecoder = ({
 
 	audioDecoder.configure(config);
 
-	const processSample = (
-		audioSample: MediaParserAudioSample | EncodedAudioChunk,
+	const decode = async (
+		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
 	) => {
 		if (audioDecoder.state === 'closed') {
+			return;
+		}
+
+		try {
+			await controller?._internals._mediaParserController._internals.checkForAbortAndPause();
+		} catch (err) {
+			onError(err as Error);
 			return;
 		}
 
@@ -124,34 +130,33 @@ export const internalCreateAudioDecoder = ({
 	};
 
 	return {
-		decode: (sample: MediaParserAudioSample | EncodedAudioChunk) => {
-			processSample(sample);
-		},
-		waitForFinish: async () => {
+		decode,
+		close,
+		flush: async () => {
 			// Firefox might throw "Needs to be configured first"
 			try {
 				await audioDecoder.flush();
 			} catch {}
 
-			await ioSynchronizer.waitForFinish();
-		},
-		close,
-		flush: async () => {
-			await audioDecoder.flush();
+			await ioSynchronizer.waitForQueueSize(0);
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
+		reset: () => {
+			audioDecoder.reset();
+			audioDecoder.configure(config);
+		},
 	};
 };
 
 export const createAudioDecoder = ({
+	track,
 	onFrame,
 	onError,
 	controller,
-	track,
 	logLevel,
 }: {
 	track: AudioDecoderConfig;
-	onFrame: (frame: AudioData | EncodedAudioChunk) => Promise<void> | void;
+	onFrame: (frame: AudioData) => Promise<void> | void;
 	onError: (error: Error) => void;
 	controller?: WebCodecsController | null;
 	logLevel?: MediaParserLogLevel;
