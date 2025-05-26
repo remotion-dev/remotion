@@ -19,6 +19,7 @@
 	},
 	"dependencies": {
 		"@remotion/media-parser": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {

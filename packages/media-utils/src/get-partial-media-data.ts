@@ -3,6 +3,7 @@ import {
 	mediaParserController,
 	parseMedia,
 } from '@remotion/media-parser';
+import {createAudioDecoder} from '@remotion/webcodecs';
 
 export const getPartialMediaData = async ({
 	src,
@@ -21,76 +22,81 @@ export const getPartialMediaData = async ({
 
 	// Collect audio samples
 	const audioSamples: Float32Array[] = [];
-	// Create AudioDecoder
-	const audioDecoder = new AudioDecoder({
-		output: (sample) => {
-			if (signal.aborted) {
-				sample.close();
-				return;
-			}
-
-			// For multi-channel audio, we need to handle channels properly
-			const {numberOfChannels} = sample;
-			const samplesPerChannel = sample.numberOfFrames;
-
-			let data: Float32Array;
-
-			if (numberOfChannels === 1) {
-				// Mono audio
-				data = new Float32Array(
-					sample.allocationSize({format: 'f32', planeIndex: 0}),
-				);
-				sample.copyTo(data, {format: 'f32', planeIndex: 0});
-			} else {
-				// Multi-channel audio: extract specific channel
-				const allChannelsData = new Float32Array(
-					sample.allocationSize({format: 'f32', planeIndex: 0}),
-				);
-				sample.copyTo(allChannelsData, {format: 'f32', planeIndex: 0});
-
-				// Extract the specific channel (interleaved audio)
-				data = new Float32Array(samplesPerChannel);
-				for (let i = 0; i < samplesPerChannel; i++) {
-					data[i] = allChannelsData[i * numberOfChannels + channelIndex];
-				}
-			}
-
-			audioSamples.push(data);
-			sample.close();
-		},
-		error: (error) => {
-			throw error;
-		},
-	});
 
 	// Abort if the signal is already aborted
 	if (signal.aborted) {
 		throw new Error('Operation was aborted');
 	}
 
-	// Listen for abort signal
-	const onAbort = () => {
-		controller.abort();
-		if (audioDecoder) {
-			audioDecoder.close();
-		}
-	};
-
-	signal.addEventListener('abort', onAbort, {once: true});
-
 	try {
-		controller.seek(fromSeconds);
+		if (fromSeconds > 0) {
+			controller.seek(fromSeconds);
+		}
 
 		await parseMedia({
+			acknowledgeRemotionLicense: true,
 			src,
 			controller,
 			onAudioTrack: ({track}) => {
-				// Configure the decoder with the track from the callback
-				audioDecoder.configure(track);
+				const audioDecoder = createAudioDecoder({
+					track,
+					onFrame: (sample) => {
+						if (signal.aborted) {
+							sample.close();
+							return;
+						}
 
-				return (sample) => {
+						// For multi-channel audio, we need to handle channels properly
+						const {numberOfChannels} = sample;
+						const samplesPerChannel = sample.numberOfFrames;
+
+						let data: Float32Array;
+
+						if (numberOfChannels === 1) {
+							// Mono audio
+							data = new Float32Array(
+								sample.allocationSize({format: 'f32', planeIndex: 0}),
+							);
+							sample.copyTo(data, {format: 'f32', planeIndex: 0});
+						} else {
+							// Multi-channel audio: extract specific channel
+							const allChannelsData = new Float32Array(
+								sample.allocationSize({format: 'f32', planeIndex: 0}),
+							);
+							sample.copyTo(allChannelsData, {format: 'f32', planeIndex: 0});
+
+							// Extract the specific channel (interleaved audio)
+							data = new Float32Array(samplesPerChannel);
+							for (let i = 0; i < samplesPerChannel; i++) {
+								data[i] = allChannelsData[i * numberOfChannels + channelIndex];
+							}
+						}
+
+						audioSamples.push(data);
+						sample.close();
+					},
+					onError(error) {
+						throw error;
+					},
+				});
+
+				// Listen for abort signal
+				const onAbort = () => {
+					controller.abort();
+					if (audioDecoder) {
+						audioDecoder.close();
+					}
+				};
+
+				signal.addEventListener('abort', onAbort, {once: true});
+
+				return async (sample) => {
 					if (signal.aborted) {
 						return;
+					}
+
+					if (!audioDecoder) {
+						throw new Error('No audio decoder found');
 					}
 
 					// Convert timestamp using the track's timescale
@@ -98,30 +104,23 @@ export const getPartialMediaData = async ({
 
 					// Stop immediately when we reach our target time
 					if (time >= toSeconds) {
+						audioDecoder.close();
 						controller.abort();
-						audioDecoder.flush();
 						return;
 					}
 
-					// Decode the sample using the sample directly
-					audioDecoder.decode(new EncodedAudioChunk(sample));
+					await audioDecoder.waitForQueueToBeLessThan(10);
+					// we're waiting for the queue above anyway, enqueue in sync mode
+					audioDecoder.decode(sample);
 				};
 			},
 		});
 	} catch (err) {
+		const isAbortedByTimeCutoff = hasBeenAborted(err);
+
 		// Don't throw if we stopped the parsing ourselves
-		if (!hasBeenAborted(err) && !signal.aborted) {
+		if (!isAbortedByTimeCutoff && !signal.aborted) {
 			throw err;
-		}
-	} finally {
-		signal.removeEventListener('abort', onAbort);
-		if (audioDecoder) {
-			try {
-				await audioDecoder.flush();
-				audioDecoder.close();
-			} catch {
-				// Ignore errors during cleanup
-			}
 		}
 	}
 

@@ -1634,6 +1634,9 @@ importers:
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       react:
         specifier: '>=16.8.0'
         version: 18.0.0
