@@ -9,8 +9,8 @@ export type WebCodecsAudioDecoder = {
 	) => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
-	waitForFinish: () => Promise<void>;
 	waitForQueueToBeLessThan: (items: number) => Promise<void>;
+	reset: () => void;
 };
 
 export type CreateAudioDecoderInit = {
@@ -131,19 +131,20 @@ export const internalCreateAudioDecoder = ({
 
 	return {
 		decode,
-		waitForFinish: async () => {
+		close,
+		flush: async () => {
 			// Firefox might throw "Needs to be configured first"
 			try {
 				await audioDecoder.flush();
 			} catch {}
 
-			await ioSynchronizer.waitForFinish();
-		},
-		close,
-		flush: async () => {
-			await audioDecoder.flush();
+			await ioSynchronizer.waitForQueueSize(0);
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
+		reset: () => {
+			audioDecoder.reset();
+			audioDecoder.configure(config);
+		},
 	};
 };
 

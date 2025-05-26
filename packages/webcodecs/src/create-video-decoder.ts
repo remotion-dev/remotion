@@ -6,8 +6,8 @@ export type WebCodecsVideoDecoder = {
 	decode: (videoSample: EncodedVideoChunkInit | EncodedVideoChunk) => void;
 	close: () => void;
 	flush: () => Promise<void>;
-	waitForFinish: () => Promise<void>;
 	waitForQueueToBeLessThan: (items: number) => Promise<void>;
+	reset: () => void;
 };
 
 export const internalCreateVideoDecoder = ({
@@ -96,19 +96,20 @@ export const internalCreateVideoDecoder = ({
 
 	return {
 		decode,
-		waitForFinish: async () => {
+		close,
+		flush: async () => {
 			// Firefox might throw "Needs to be configured first"
 			try {
 				await videoDecoder.flush();
 			} catch {}
 
-			await ioSynchronizer.waitForFinish();
-		},
-		close,
-		flush: async () => {
-			await videoDecoder.flush();
+			await ioSynchronizer.waitForQueueSize(0);
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
+		reset: () => {
+			videoDecoder.reset();
+			videoDecoder.configure(config);
+		},
 	};
 };
 

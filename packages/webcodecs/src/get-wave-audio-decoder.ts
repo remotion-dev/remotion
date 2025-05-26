@@ -97,7 +97,7 @@ export const getWaveAudioDecoder = ({
 			return processSample(audioSample);
 		},
 		flush: () => Promise.resolve(),
-		waitForFinish: () => Promise.resolve(),
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
+		reset: () => {},
 	};
 };
