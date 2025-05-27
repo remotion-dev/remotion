@@ -1,16 +1,19 @@
 import {extractFrames} from '../../extract-frames';
 
-const frames: VideoFrame[] = [];
+declare global {
+	interface Window {
+		videoFrames: number[];
+	}
+}
 
-console.log('extractFrames');
+window.videoFrames = [];
+
+// @ts-expect-error
 await extractFrames({
 	src: 'https://parser.media/video.mp4',
 	onFrame(frame) {
-		frames.push(frame);
+		window.videoFrames.push(frame.timestamp);
 	},
 	timestampsInSeconds: [0, 1, 2, 3, 4],
 	acknowledgeRemotionLicense: true,
 });
-
-window.videoFrames = frames;
-console.log(window.videoFrames);
