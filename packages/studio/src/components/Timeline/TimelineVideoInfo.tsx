@@ -224,6 +224,7 @@ export const TimelineVideoInfo: React.FC<{
 		const controller = new AbortController();
 
 		extractFrames({
+			acknowledgeRemotionLicense: true,
 			timestampsInSeconds: ({track}) => {
 				const aspectRatio = track.width / track.height;
 				const framesFitInWidth = Math.ceil(

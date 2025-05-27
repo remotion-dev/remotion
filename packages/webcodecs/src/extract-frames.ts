@@ -22,11 +22,13 @@ const internalExtractFrames = ({
 	onFrame,
 	signal,
 	timestampsInSeconds,
+	acknowledgeRemotionLicense,
 }: {
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
 	src: string;
 	onFrame: (frame: VideoFrame) => void;
 	signal: AbortSignal | null;
+	acknowledgeRemotionLicense: boolean;
 }) => {
 	const controller = mediaParserController();
 
@@ -45,7 +47,7 @@ const internalExtractFrames = ({
 
 	parseMediaOnWebWorker({
 		src: new URL(src, window.location.href),
-		acknowledgeRemotionLicense: true,
+		acknowledgeRemotionLicense,
 		controller,
 		onDurationInSeconds(durationInSeconds) {
 			dur = durationInSeconds;
@@ -148,6 +150,11 @@ export const extractFrames = (options: {
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
 	onFrame: (frame: VideoFrame) => void;
 	signal?: AbortSignal;
+	acknowledgeRemotionLicense?: boolean;
 }) => {
-	return internalExtractFrames({...options, signal: options.signal ?? null});
+	return internalExtractFrames({
+		...options,
+		signal: options.signal ?? null,
+		acknowledgeRemotionLicense: options.acknowledgeRemotionLicense ?? false,
+	});
 };
