@@ -54,6 +54,15 @@ export const serializeError = ({
 		};
 	}
 
+	if (error instanceof TypeError) {
+		return {
+			type: 'response-error',
+			errorName: 'TypeError',
+			errorMessage: error.message,
+			errorStack: error.stack ?? '',
+		};
+	}
+
 	if (error.name === 'AbortError') {
 		return {
 			type: 'response-error',
@@ -121,6 +130,8 @@ export const deserializeError = (error: ResponseError): Error => {
 		// TODO: Document 2GB limit
 		case 'NotReadableError':
 			return new Error(error.errorMessage);
+		case 'TypeError':
+			return new TypeError(error.errorMessage);
 		default:
 			throw new Error(`Unknown error name: ${error satisfies never}`);
 	}

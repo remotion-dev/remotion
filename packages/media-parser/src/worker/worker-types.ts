@@ -125,6 +125,10 @@ type NotReadableError = BaseError & {
 	errorName: 'NotReadableError';
 };
 
+type TypeError = BaseError & {
+	errorName: 'TypeError';
+};
+
 type IsAnImageError = BaseError & {
 	errorName: 'IsAnImageError';
 	imageType: ImageType;
@@ -161,7 +165,8 @@ type AnyError =
 	| MediaParserAbortError
 	// browser native errors
 	| AbortError
-	| NotReadableError;
+	| NotReadableError
+	| TypeError;
 
 export type ResponseError = {
 	type: 'response-error';
