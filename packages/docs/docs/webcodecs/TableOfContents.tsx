@@ -122,6 +122,10 @@ export const TableOfContents: React.FC = () => {
 						Create a <code>VideoDecoder</code> object.
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/extract-frames">
+					<strong>{'extractFrames()'}</strong>
+					<div>Extract frames from a video at specific timestamps.</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

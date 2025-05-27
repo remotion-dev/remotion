@@ -12,21 +12,21 @@ import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder} from './create-video-decoder';
 import {withResolvers} from './create/with-resolvers';
 
-export type ExtractFrameGetTimestamps = (options: {
+export type ExtractFramesTimestampsInSecondsFn = (options: {
 	track: MediaParserVideoTrack;
 	durationInSeconds: number | null;
 }) => Promise<number[]> | number[];
 
-export const extractFrames = ({
+const internalExtractFrames = ({
 	src,
 	onFrame,
 	signal,
-	timestamps,
+	timestampsInSeconds,
 }: {
-	timestamps: ExtractFrameGetTimestamps;
+	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
 	src: string;
 	onFrame: (frame: VideoFrame) => void;
-	signal: AbortSignal;
+	signal: AbortSignal | null;
 }) => {
 	const controller = mediaParserController();
 
@@ -39,7 +39,7 @@ export const extractFrames = ({
 		resolvers.reject(new MediaParserAbortError('Aborted by user'));
 	};
 
-	signal.addEventListener('abort', abortListener, {once: true});
+	signal?.addEventListener('abort', abortListener, {once: true});
 
 	let dur: number | null = null;
 
@@ -51,12 +51,15 @@ export const extractFrames = ({
 			dur = durationInSeconds;
 		},
 		onVideoTrack: async ({track}) => {
-			const timestampTargets_ = await timestamps({
-				track,
-				durationInSeconds: dur,
-			});
+			const timestampTargetsUnsorted =
+				typeof timestampsInSeconds === 'function'
+					? await timestampsInSeconds({
+							track,
+							durationInSeconds: dur,
+						})
+					: timestampsInSeconds;
 
-			const timestampTargets = timestampTargets_.sort((a, b) => a - b);
+			const timestampTargets = timestampTargetsUnsorted.sort((a, b) => a - b);
 
 			controller.seek(timestampTargets[0]);
 
@@ -134,8 +137,17 @@ export const extractFrames = ({
 			}
 		})
 		.finally(() => {
-			signal.removeEventListener('abort', abortListener);
+			signal?.removeEventListener('abort', abortListener);
 		});
 
 	return resolvers.promise;
+};
+
+export const extractFrames = (options: {
+	src: string;
+	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
+	onFrame: (frame: VideoFrame) => void;
+	signal?: AbortSignal;
+}) => {
+	return internalExtractFrames({...options, signal: options.signal ?? null});
 };
