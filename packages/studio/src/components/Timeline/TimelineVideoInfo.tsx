@@ -1,6 +1,6 @@
 import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import {extractFrames, WebCodecsInternals} from '@remotion/webcodecs';
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 
@@ -49,12 +49,14 @@ const fillWithCachedFrames = ({
 	visualizationWidth,
 	fromSeconds,
 	toSeconds,
+	filledSlots,
 }: {
 	ctx: CanvasRenderingContext2D;
 	frameDatabase: Map<number, VideoFrame>;
 	visualizationWidth: number;
 	fromSeconds: number;
 	toSeconds: number;
+	filledSlots: Map<number, number | undefined>;
 }) => {
 	const anyFrame = frameDatabase.values().next().value;
 	if (!anyFrame) {
@@ -70,6 +72,12 @@ const fillWithCachedFrames = ({
 		segmentDuration,
 		aspectRatio,
 	});
+
+	for (const timestamp of timestampTargets) {
+		if (!filledSlots.has(timestamp)) {
+			filledSlots.set(timestamp, undefined);
+		}
+	}
 
 	const keys = Array.from(frameDatabase.keys());
 	for (let i = 0; i < timestampTargets.length; i++) {
@@ -89,13 +97,28 @@ const fillWithCachedFrames = ({
 		}
 
 		const frame = frameDatabase.get(bestKey);
-		if (frame) {
-			ctx.drawImage(
-				frame,
-				(i / timestampTargets.length) * visualizationWidth,
-				0,
-			);
+		if (!frame) {
+			continue;
 		}
+
+		const alreadyFilled = filledSlots.get(timestamp);
+
+		// Don't fill if a closer frame was already drawn
+		if (
+			alreadyFilled &&
+			Math.abs(alreadyFilled - timestamp) <=
+				Math.abs(frame.timestamp - timestamp)
+		) {
+			continue;
+		}
+
+		// Max 0.1 second difference
+		if (Math.abs(frame.timestamp - timestamp) > WEBCODECS_TIMESCALE * 0.1) {
+			continue;
+		}
+
+		ctx.drawImage(frame, (i / timestampTargets.length) * visualizationWidth, 0);
+		filledSlots.set(timestamp, frame.timestamp);
 	}
 };
 
@@ -107,10 +130,20 @@ export const TimelineVideoInfo: React.FC<{
 }> = ({src, visualizationWidth, startFrom, durationInFrames}) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
+	const [error, setError] = useState<Error | null>(null);
 
 	const frameDatabase = useMemo<Map<number, VideoFrame>>(() => new Map(), []);
 
 	useEffect(() => {
+		if (error) {
+			return;
+		}
+
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
 		const canvas = document.createElement('canvas');
 		canvas.width = visualizationWidth;
 		canvas.height = HEIGHT;
@@ -118,6 +151,9 @@ export const TimelineVideoInfo: React.FC<{
 		if (!ctx) {
 			return;
 		}
+
+		// desired-timestamp -> filled-timestamp
+		const filledSlots = new Map<number, number | undefined>();
 
 		const fromSeconds = startFrom / fps;
 		const toSeconds = (startFrom + durationInFrames) / fps;
@@ -128,13 +164,10 @@ export const TimelineVideoInfo: React.FC<{
 			visualizationWidth,
 			fromSeconds,
 			toSeconds,
+			filledSlots,
 		});
 
-		const {current} = ref;
-
-		current?.appendChild(canvas);
-
-		let frameCount = 0;
+		current.appendChild(canvas);
 
 		const controller = new AbortController();
 
@@ -146,8 +179,6 @@ export const TimelineVideoInfo: React.FC<{
 			src,
 			onFrame: (frame) => {
 				const scale = HEIGHT / frame.displayHeight;
-
-				const actualWidth = frame.displayWidth * scale;
 
 				const transformed = WebCodecsInternals.rotateAndResizeVideoFrame({
 					frame,
@@ -163,15 +194,21 @@ export const TimelineVideoInfo: React.FC<{
 					frame.close();
 				}
 
-				const existingFrame = frameDatabase.get(frame.timestamp);
+				const existingFrame = frameDatabase.get(transformed.timestamp);
 				if (existingFrame) {
-					existingFrame.close();
+					transformed.close();
+					return;
 				}
 
-				frameDatabase.set(frame.timestamp, transformed);
-
-				ctx.drawImage(transformed, actualWidth * frameCount, 0);
-				frameCount++;
+				frameDatabase.set(transformed.timestamp, transformed);
+				fillWithCachedFrames({
+					ctx,
+					filledSlots,
+					frameDatabase,
+					fromSeconds,
+					toSeconds,
+					visualizationWidth,
+				});
 			},
 			signal: controller.signal,
 		}).catch((e) => {
@@ -179,15 +216,16 @@ export const TimelineVideoInfo: React.FC<{
 				return;
 			}
 
-			throw e;
+			setError(e);
 		});
 
 		return () => {
 			controller.abort();
-			current?.removeChild(canvas);
+			current.removeChild(canvas);
 		};
 	}, [
 		durationInFrames,
+		error,
 		fps,
 		frameDatabase,
 		src,
