@@ -3514,6 +3514,9 @@ importers:
       playwright:
         specifier: 1.51.1
         version: 1.51.1
+      vite:
+        specifier: 5.4.19
+        version: 5.4.19(@types/node@20.12.14)
 
   packages/whisper-web:
     dependencies:

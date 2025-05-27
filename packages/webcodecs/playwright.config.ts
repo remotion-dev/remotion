@@ -3,8 +3,11 @@ import {defineConfig, devices, Project} from '@playwright/test';
 export default defineConfig({
 	projects: [
 		{
-			name: 'chromium',
-			use: {...devices['Desktop Chrome']},
+			name: 'chrome',
+			use: {
+				...devices['Desktop Chrome'],
+				channel: 'chrome', // Use Google Chrome instead of Chromium to get proprietary codecs
+			},
 		},
 		{
 			name: 'firefox',
