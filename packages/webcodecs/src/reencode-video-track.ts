@@ -205,8 +205,7 @@ export const reencodeVideoTrack = async ({
 
 	state.addWaitForFinishPromise(async () => {
 		Log.verbose(logLevel, 'Waiting for video decoder to finish');
-
-		await videoDecoder.waitForQueueToBeLessThan(0);
+		await videoDecoder.flush();
 		videoDecoder.close();
 		Log.verbose(
 			logLevel,
@@ -230,7 +229,7 @@ export const reencodeVideoTrack = async ({
 		);
 
 		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
-		await videoDecoder.waitForQueueToBeLessThan(10);
+		await videoDecoder.waitForQueueToBeLessThan(15);
 
 		if (chunk.type === 'key') {
 			await videoDecoder.flush();
