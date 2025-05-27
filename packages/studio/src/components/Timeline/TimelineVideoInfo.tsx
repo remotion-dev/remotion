@@ -17,6 +17,8 @@ const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica',
 };
 
+const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+
 const calculateTimestampSlots = ({
 	visualizationWidth,
 	fromSeconds,
@@ -43,29 +45,31 @@ const calculateTimestampSlots = ({
 	return timestampTargets;
 };
 
-const fillWithCachedFrames = ({
-	ctx,
+const createSlots = ({
+	filledSlots,
 	frameDatabase,
 	visualizationWidth,
 	fromSeconds,
 	toSeconds,
-	filledSlots,
 }: {
-	ctx: CanvasRenderingContext2D;
+	filledSlots: Map<number, number | undefined>;
 	frameDatabase: Map<number, VideoFrame>;
 	visualizationWidth: number;
 	fromSeconds: number;
 	toSeconds: number;
-	filledSlots: Map<number, number | undefined>;
 }) => {
+	if (filledSlots.size > 0) {
+		return;
+	}
+
 	const anyFrame = frameDatabase.values().next().value;
 	if (!anyFrame) {
 		return;
 	}
 
 	const segmentDuration = toSeconds - fromSeconds;
-
 	const aspectRatio = anyFrame.displayWidth / anyFrame.displayHeight;
+
 	const timestampTargets = calculateTimestampSlots({
 		visualizationWidth,
 		fromSeconds,
@@ -78,10 +82,24 @@ const fillWithCachedFrames = ({
 			filledSlots.set(timestamp, undefined);
 		}
 	}
+};
 
+const fillWithCachedFrames = ({
+	ctx,
+	frameDatabase,
+	visualizationWidth,
+	filledSlots,
+}: {
+	ctx: CanvasRenderingContext2D;
+	frameDatabase: Map<number, VideoFrame>;
+	visualizationWidth: number;
+	filledSlots: Map<number, number | undefined>;
+}) => {
 	const keys = Array.from(frameDatabase.keys());
-	for (let i = 0; i < timestampTargets.length; i++) {
-		const timestamp = timestampTargets[i];
+	const targets = Array.from(filledSlots.keys());
+
+	for (let i = 0; i < filledSlots.size; i++) {
+		const timestamp = targets[i];
 		let bestKey: number | undefined;
 		let bestDistance = Infinity;
 		for (const key of keys) {
@@ -112,13 +130,41 @@ const fillWithCachedFrames = ({
 			continue;
 		}
 
-		// Max 0.1 second difference
-		if (Math.abs(frame.timestamp - timestamp) > WEBCODECS_TIMESCALE * 0.1) {
+		ctx.drawImage(frame, (i / filledSlots.size) * visualizationWidth, 0);
+		filledSlots.set(timestamp, frame.timestamp);
+	}
+};
+
+const fillFrameWhereItFits = ({
+	frame,
+	filledSlots,
+	ctx,
+	visualizationWidth,
+}: {
+	frame: VideoFrame;
+	filledSlots: Map<number, number | undefined>;
+	ctx: CanvasRenderingContext2D;
+	visualizationWidth: number;
+}) => {
+	const slots = Array.from(filledSlots.keys());
+
+	for (let i = 0; i < slots.length; i++) {
+		const slot = slots[i];
+		if (Math.abs(slot - frame.timestamp) > MAX_TIME_DEVIATION) {
 			continue;
 		}
 
-		ctx.drawImage(frame, (i / timestampTargets.length) * visualizationWidth, 0);
-		filledSlots.set(timestamp, frame.timestamp);
+		const filled = filledSlots.get(slot);
+		// Don't fill if a better timestamp was already filled
+		if (
+			filled &&
+			Math.abs(filled - slot) <= Math.abs(filled - frame.timestamp)
+		) {
+			continue;
+		}
+
+		ctx.drawImage(frame, (i / filledSlots.size) * visualizationWidth, 0);
+		filledSlots.set(slot, frame.timestamp);
 	}
 };
 
@@ -158,12 +204,18 @@ export const TimelineVideoInfo: React.FC<{
 		const fromSeconds = startFrom / fps;
 		const toSeconds = (startFrom + durationInFrames) / fps;
 
-		fillWithCachedFrames({
-			ctx,
+		createSlots({
+			filledSlots,
 			frameDatabase,
 			visualizationWidth,
 			fromSeconds,
 			toSeconds,
+		});
+
+		fillWithCachedFrames({
+			ctx,
+			frameDatabase,
+			visualizationWidth,
 			filledSlots,
 		});
 
@@ -196,28 +248,41 @@ export const TimelineVideoInfo: React.FC<{
 
 				const existingFrame = frameDatabase.get(transformed.timestamp);
 				if (existingFrame) {
-					transformed.close();
-					return;
+					existingFrame.close();
 				}
 
 				frameDatabase.set(transformed.timestamp, transformed);
-				fillWithCachedFrames({
-					ctx,
+				createSlots({
 					filledSlots,
 					frameDatabase,
 					fromSeconds,
 					toSeconds,
 					visualizationWidth,
 				});
+				fillFrameWhereItFits({
+					ctx,
+					filledSlots,
+					visualizationWidth,
+					frame: transformed,
+				});
 			},
 			signal: controller.signal,
-		}).catch((e) => {
-			if (hasBeenAborted(e)) {
-				return;
-			}
+		})
+			.then(() => {
+				fillWithCachedFrames({
+					ctx,
+					frameDatabase,
+					visualizationWidth,
+					filledSlots,
+				});
+			})
+			.catch((e) => {
+				if (hasBeenAborted(e)) {
+					return;
+				}
 
-			setError(e);
-		});
+				setError(e);
+			});
 
 		return () => {
 			controller.abort();

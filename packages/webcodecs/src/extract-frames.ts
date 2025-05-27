@@ -50,6 +50,7 @@ export const extractFrames = ({
 			const aspectRatio = track.width / track.height;
 			const framesFitInWidth = Math.ceil(width / (height * aspectRatio));
 			const timestampTargets: number[] = [];
+
 			for (let i = 0; i < framesFitInWidth; i++) {
 				timestampTargets.push(
 					fromSeconds +
@@ -83,6 +84,12 @@ export const extractFrames = ({
 			return async (sample) => {
 				const nextTimestampWeWant = timestampTargets[0];
 
+				if (sample.timestamp > toSeconds * WEBCODECS_TIMESCALE) {
+					await decoder.flush();
+					controller.abort();
+					return;
+				}
+
 				if (nextTimestampWeWant === undefined) {
 					throw new Error('this should not happen');
 				}
@@ -115,7 +122,9 @@ export const extractFrames = ({
 		})
 		.catch((e) => {
 			if (!hasBeenAborted(e)) {
-				resolvers.reject(3);
+				resolvers.reject(e);
+			} else {
+				resolvers.resolve();
 			}
 		})
 		.finally(() => {
