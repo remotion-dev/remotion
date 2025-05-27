@@ -165,6 +165,9 @@ importers:
 
   packages/bundler:
     dependencies:
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/studio':
         specifier: workspace:*
         version: link:../studio
@@ -2085,6 +2088,9 @@ importers:
       '@remotion/studio-shared':
         specifier: workspace:*
         version: link:../studio-shared
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types

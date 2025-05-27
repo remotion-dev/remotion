@@ -42,12 +42,14 @@ export const canCopyVideoTrack = ({
 		}
 	}
 
+	const needsToBeMultipleOfTwo = inputTrack.codecEnum === 'h264';
+
 	const newDimensions = calculateNewDimensionsFromRotateAndScale({
 		height: inputTrack.height,
 		resizeOperation,
 		rotation: rotationToApply,
-		videoCodec: inputTrack.codecEnum,
 		width: inputTrack.width,
+		needsToBeMultipleOfTwo,
 	});
 	if (
 		newDimensions.height !== inputTrack.height ||

@@ -120,7 +120,14 @@ const Inner: React.FC<{
 					playbackRate={s.playbackRate}
 				/>
 			) : null}
-			{s.type === 'video' ? <TimelineVideoInfo src={s.src} /> : null}
+			{s.type === 'video' ? (
+				<TimelineVideoInfo
+					src={s.src}
+					visualizationWidth={width}
+					startFrom={s.startMediaFrom}
+					durationInFrames={s.duration}
+				/>
+			) : null}
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}

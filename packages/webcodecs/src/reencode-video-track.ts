@@ -59,7 +59,7 @@ export const reencodeVideoTrack = async ({
 			width: track.codedWidth,
 			height: track.codedHeight,
 			rotation,
-			videoCodec: videoOperation.videoCodec,
+			needsToBeMultipleOfTwo: videoOperation.videoCodec === 'h264',
 			resizeOperation: videoOperation.resize ?? null,
 		});
 

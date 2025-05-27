@@ -170,6 +170,12 @@ export const webpackConfig = async ({
 					'esm',
 					'index.mjs',
 				),
+				'@remotion/media-parser/worker': path.resolve(
+					require.resolve('@remotion/media-parser'),
+					'..',
+					'esm',
+					'worker.mjs',
+				),
 				// test visual controls before removing this
 				'@remotion/studio': require.resolve('@remotion/studio'),
 				'react-dom/client': shouldUseReactDomClient

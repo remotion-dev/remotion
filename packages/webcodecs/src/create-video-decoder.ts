@@ -3,7 +3,9 @@ import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
-	decode: (videoSample: EncodedVideoChunkInit | EncodedVideoChunk) => void;
+	decode: (
+		videoSample: EncodedVideoChunkInit | EncodedVideoChunk,
+	) => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
 	waitForQueueToBeLessThan: (items: number) => Promise<void>;
