@@ -224,10 +224,22 @@ export const TimelineVideoInfo: React.FC<{
 		const controller = new AbortController();
 
 		extractFrames({
-			fromSeconds,
-			toSeconds,
-			width: visualizationWidth,
-			height: HEIGHT,
+			timestamps: ({track}) => {
+				const aspectRatio = track.width / track.height;
+				const framesFitInWidth = Math.ceil(
+					visualizationWidth / (HEIGHT * aspectRatio),
+				);
+				const timestampTargets: number[] = [];
+				const segmentDuration = toSeconds - fromSeconds;
+
+				for (let i = 0; i < framesFitInWidth; i++) {
+					timestampTargets.push(
+						fromSeconds + (segmentDuration / framesFitInWidth) * (i + 0.5),
+					);
+				}
+
+				return timestampTargets;
+			},
 			src,
 			onFrame: (frame) => {
 				const scale = HEIGHT / frame.displayHeight;

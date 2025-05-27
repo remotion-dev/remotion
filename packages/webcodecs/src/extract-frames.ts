@@ -1,4 +1,7 @@
-import type {MediaParserVideoSample} from '@remotion/media-parser';
+import type {
+	MediaParserVideoSample,
+	MediaParserVideoTrack,
+} from '@remotion/media-parser';
 import {
 	hasBeenAborted,
 	MediaParserAbortError,
@@ -9,27 +12,23 @@ import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder} from './create-video-decoder';
 import {withResolvers} from './create/with-resolvers';
 
+export type ExtractFrameGetTimestamps = (options: {
+	track: MediaParserVideoTrack;
+	durationInSeconds: number | null;
+}) => Promise<number[]> | number[];
+
 export const extractFrames = ({
-	fromSeconds,
-	toSeconds,
-	width,
-	height,
 	src,
 	onFrame,
 	signal,
+	timestamps,
 }: {
-	fromSeconds: number;
-	toSeconds: number;
-	width: number;
-	height: number;
+	timestamps: ExtractFrameGetTimestamps;
 	src: string;
 	onFrame: (frame: VideoFrame) => void;
 	signal: AbortSignal;
 }) => {
 	const controller = mediaParserController();
-	controller.seek(fromSeconds);
-
-	const segmentDuration = toSeconds - fromSeconds;
 
 	const expectedFrames: number[] = [];
 
@@ -42,22 +41,24 @@ export const extractFrames = ({
 
 	signal.addEventListener('abort', abortListener, {once: true});
 
+	let dur: number | null = null;
+
 	parseMediaOnWebWorker({
 		src: new URL(src, window.location.href),
 		acknowledgeRemotionLicense: true,
 		controller,
-		onVideoTrack: ({track}) => {
-			const aspectRatio = track.width / track.height;
-			const framesFitInWidth = Math.ceil(width / (height * aspectRatio));
-			const timestampTargets: number[] = [];
+		onDurationInSeconds(durationInSeconds) {
+			dur = durationInSeconds;
+		},
+		onVideoTrack: async ({track}) => {
+			const timestampTargets_ = await timestamps({
+				track,
+				durationInSeconds: dur,
+			});
 
-			for (let i = 0; i < framesFitInWidth; i++) {
-				timestampTargets.push(
-					fromSeconds +
-						((segmentDuration * WEBCODECS_TIMESCALE) / framesFitInWidth) *
-							(i + 0.5),
-				);
-			}
+			const timestampTargets = timestampTargets_.sort((a, b) => a - b);
+
+			controller.seek(timestampTargets[0]);
 
 			const decoder = createVideoDecoder({
 				onFrame: (frame) => {
@@ -84,7 +85,10 @@ export const extractFrames = ({
 			return async (sample) => {
 				const nextTimestampWeWant = timestampTargets[0];
 
-				if (sample.timestamp > toSeconds * WEBCODECS_TIMESCALE) {
+				if (
+					sample.timestamp >
+					timestampTargets[timestampTargets.length - 1] * WEBCODECS_TIMESCALE
+				) {
 					await decoder.flush();
 					controller.abort();
 					return;
@@ -100,8 +104,10 @@ export const extractFrames = ({
 
 				queued.push(sample);
 
-				if (sample.timestamp > nextTimestampWeWant) {
-					expectedFrames.push(timestampTargets.shift() as number);
+				if (sample.timestamp > nextTimestampWeWant * WEBCODECS_TIMESCALE) {
+					expectedFrames.push(
+						(timestampTargets.shift() as number) * WEBCODECS_TIMESCALE,
+					);
 
 					while (queued.length > 0) {
 						const sam = queued.shift();
