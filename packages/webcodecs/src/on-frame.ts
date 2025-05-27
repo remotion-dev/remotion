@@ -25,7 +25,7 @@ export const onFrame = async ({
 		rotation,
 		frame: unrotatedFrame,
 		resizeOperation,
-		videoCodec: outputCodec,
+		needsToBeMultipleOfTwo: outputCodec === 'h264',
 	});
 	if (unrotatedFrame !== rotated) {
 		unrotatedFrame.close();

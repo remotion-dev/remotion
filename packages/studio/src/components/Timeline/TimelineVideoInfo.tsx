@@ -17,6 +17,32 @@ const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica',
 };
 
+const calculateTimestampSlots = ({
+	visualizationWidth,
+	fromSeconds,
+	segmentDuration,
+	aspectRatio,
+}: {
+	visualizationWidth: number;
+	fromSeconds: number;
+	segmentDuration: number;
+	aspectRatio: number;
+}) => {
+	const framesFitInWidth = Math.ceil(
+		visualizationWidth / (HEIGHT * aspectRatio),
+	);
+	const timestampTargets: number[] = [];
+	for (let i = 0; i < framesFitInWidth; i++) {
+		timestampTargets.push(
+			fromSeconds +
+				((segmentDuration * WEBCODECS_TIMESCALE) / framesFitInWidth) *
+					(i + 0.5),
+		);
+	}
+
+	return timestampTargets;
+};
+
 const fillWithCachedFrames = ({
 	ctx,
 	frameDatabase,
@@ -38,20 +64,15 @@ const fillWithCachedFrames = ({
 	const segmentDuration = toSeconds - fromSeconds;
 
 	const aspectRatio = anyFrame.displayWidth / anyFrame.displayHeight;
-	const framesFitInWidth = Math.ceil(
-		visualizationWidth / (HEIGHT * aspectRatio),
-	);
-	const timestampTargets: number[] = [];
-	for (let i = 0; i < framesFitInWidth; i++) {
-		timestampTargets.push(
-			fromSeconds +
-				((segmentDuration * WEBCODECS_TIMESCALE) / framesFitInWidth) *
-					(i + 0.5),
-		);
-	}
+	const timestampTargets = calculateTimestampSlots({
+		visualizationWidth,
+		fromSeconds,
+		segmentDuration,
+		aspectRatio,
+	});
 
 	const keys = Array.from(frameDatabase.keys());
-	for (let i = 0; i < framesFitInWidth; i++) {
+	for (let i = 0; i < timestampTargets.length; i++) {
 		const timestamp = timestampTargets[i];
 		let bestKey: number | undefined;
 		let bestDistance = Infinity;
@@ -69,14 +90,13 @@ const fillWithCachedFrames = ({
 
 		const frame = frameDatabase.get(bestKey);
 		if (frame) {
-			console.log('drawing from cache	', bestKey, bestDistance, frame);
-			ctx.drawImage(frame, (i / framesFitInWidth) * visualizationWidth, 0);
-		} else {
-			console.log('frame not found', bestKey, bestDistance);
+			ctx.drawImage(
+				frame,
+				(i / timestampTargets.length) * visualizationWidth,
+				0,
+			);
 		}
 	}
-
-	console.log(framesFitInWidth);
 };
 
 export const TimelineVideoInfo: React.FC<{

@@ -1,13 +1,15 @@
 import type {MediaParserVideoSample} from '@remotion/media-parser';
 import {
 	hasBeenAborted,
+	MediaParserAbortError,
 	mediaParserController,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/media-parser';
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder} from './create-video-decoder';
+import {withResolvers} from './create/with-resolvers';
 
-export const extractFrames = async ({
+export const extractFrames = ({
 	fromSeconds,
 	toSeconds,
 	width,
@@ -31,79 +33,94 @@ export const extractFrames = async ({
 
 	const expectedFrames: number[] = [];
 
+	const resolvers = withResolvers<void>();
+
 	const abortListener = () => {
 		controller.abort();
+		resolvers.reject(new MediaParserAbortError('Aborted by user'));
 	};
 
 	signal.addEventListener('abort', abortListener, {once: true});
 
-	try {
-		await parseMediaOnWebWorker({
-			src: new URL(src, window.location.href).toString(),
-			acknowledgeRemotionLicense: true,
-			controller,
-			onVideoTrack: ({track}) => {
-				const aspectRatio = track.width / track.height;
-				const framesFitInWidth = Math.ceil(width / (height * aspectRatio));
-				const timestampTargets: number[] = [];
-				for (let i = 0; i < framesFitInWidth; i++) {
-					timestampTargets.push(
-						fromSeconds +
-							((segmentDuration * WEBCODECS_TIMESCALE) / framesFitInWidth) *
-								(i + 0.5),
-					);
+	parseMediaOnWebWorker({
+		src: new URL(src, window.location.href),
+		acknowledgeRemotionLicense: true,
+		controller,
+		onVideoTrack: ({track}) => {
+			const aspectRatio = track.width / track.height;
+			const framesFitInWidth = Math.ceil(width / (height * aspectRatio));
+			const timestampTargets: number[] = [];
+			for (let i = 0; i < framesFitInWidth; i++) {
+				timestampTargets.push(
+					fromSeconds +
+						((segmentDuration * WEBCODECS_TIMESCALE) / framesFitInWidth) *
+							(i + 0.5),
+				);
+			}
+
+			const decoder = createVideoDecoder({
+				onFrame: (frame) => {
+					if (frame.timestamp >= expectedFrames[0] - 1) {
+						expectedFrames.shift();
+						onFrame(frame);
+					} else {
+						frame.close();
+					}
+				},
+				onError: (e) => {
+					controller.abort();
+					try {
+						decoder.close();
+					} catch {}
+
+					resolvers.reject(e);
+				},
+				track,
+			});
+
+			const queued: MediaParserVideoSample[] = [];
+
+			return async (sample) => {
+				const nextTimestampWeWant = timestampTargets[0];
+
+				if (nextTimestampWeWant === undefined) {
+					throw new Error('this should not happen');
 				}
 
-				const decoder = createVideoDecoder({
-					onFrame: (frame) => {
-						if (frame.timestamp >= expectedFrames[0] - 1) {
-							expectedFrames.shift();
-							onFrame(frame);
-						} else {
-							frame.close();
-						}
-					},
-					onError: console.error,
-					track,
-				});
+				if (sample.type === 'key') {
+					queued.length = 0;
+				}
 
-				const queued: MediaParserVideoSample[] = [];
+				queued.push(sample);
 
-				return async (sample) => {
-					const nextTimestampWeWant = timestampTargets[0];
+				if (sample.timestamp > nextTimestampWeWant) {
+					expectedFrames.push(timestampTargets.shift() as number);
 
-					if (nextTimestampWeWant === undefined) {
-						throw new Error('this should not happen');
+					while (queued.length > 0) {
+						const sam = queued.shift();
+						await decoder.waitForQueueToBeLessThan(10);
+						await decoder.decode(sam as MediaParserVideoSample);
 					}
 
-					if (sample.type === 'key') {
-						queued.length = 0;
+					if (timestampTargets.length === 0) {
+						await decoder.flush();
+						controller.abort();
 					}
-
-					queued.push(sample);
-
-					if (sample.timestamp > nextTimestampWeWant) {
-						expectedFrames.push(timestampTargets.shift() as number);
-
-						while (queued.length > 0) {
-							const sam = queued.shift();
-							await decoder.waitForQueueToBeLessThan(10);
-							await decoder.decode(sam as MediaParserVideoSample);
-						}
-
-						if (timestampTargets.length === 0) {
-							await decoder.flush();
-							controller.abort();
-						}
-					}
-				};
-			},
+				}
+			};
+		},
+	})
+		.then(() => {
+			resolvers.resolve();
+		})
+		.catch((e) => {
+			if (!hasBeenAborted(e)) {
+				resolvers.reject(3);
+			}
+		})
+		.finally(() => {
+			signal.removeEventListener('abort', abortListener);
 		});
-	} catch (e) {
-		if (!hasBeenAborted(e)) {
-			throw e;
-		}
-	} finally {
-		signal.removeEventListener('abort', abortListener);
-	}
+
+	return resolvers.promise;
 };
