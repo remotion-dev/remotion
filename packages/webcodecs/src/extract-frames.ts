@@ -1,4 +1,5 @@
 import type {
+	MediaParserLogLevel,
 	MediaParserVideoSample,
 	MediaParserVideoTrack,
 } from '@remotion/media-parser';
@@ -23,12 +24,14 @@ const internalExtractFrames = ({
 	signal,
 	timestampsInSeconds,
 	acknowledgeRemotionLicense,
+	logLevel,
 }: {
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
 	src: string;
 	onFrame: (frame: VideoFrame) => void;
 	signal: AbortSignal | null;
 	acknowledgeRemotionLicense: boolean;
+	logLevel: MediaParserLogLevel;
 }) => {
 	const controller = mediaParserController();
 
@@ -49,6 +52,7 @@ const internalExtractFrames = ({
 		src: new URL(src, window.location.href),
 		acknowledgeRemotionLicense,
 		controller,
+		logLevel,
 		onDurationInSeconds(durationInSeconds) {
 			dur = durationInSeconds;
 		},
@@ -87,13 +91,33 @@ const internalExtractFrames = ({
 
 			const queued: MediaParserVideoSample[] = [];
 
+			const doProcess = async () => {
+				expectedFrames.push(
+					(timestampTargets.shift() as number) * WEBCODECS_TIMESCALE,
+				);
+
+				while (queued.length > 0) {
+					const sam = queued.shift();
+					await decoder.waitForQueueToBeLessThan(10);
+					await decoder.decode(sam as MediaParserVideoSample);
+				}
+			};
+
 			return async (sample) => {
 				const nextTimestampWeWant = timestampTargets[0];
 
+				if (sample.type === 'key') {
+					queued.length = 0;
+				}
+
+				queued.push(sample);
+
 				if (
-					sample.timestamp >
+					sample.timestamp >=
 					timestampTargets[timestampTargets.length - 1] * WEBCODECS_TIMESCALE
 				) {
+					await doProcess();
+
 					await decoder.flush();
 					controller.abort();
 					return;
@@ -103,22 +127,8 @@ const internalExtractFrames = ({
 					throw new Error('this should not happen');
 				}
 
-				if (sample.type === 'key') {
-					queued.length = 0;
-				}
-
-				queued.push(sample);
-
-				if (sample.timestamp > nextTimestampWeWant * WEBCODECS_TIMESCALE) {
-					expectedFrames.push(
-						(timestampTargets.shift() as number) * WEBCODECS_TIMESCALE,
-					);
-
-					while (queued.length > 0) {
-						const sam = queued.shift();
-						await decoder.waitForQueueToBeLessThan(10);
-						await decoder.decode(sam as MediaParserVideoSample);
-					}
+				if (sample.timestamp >= nextTimestampWeWant * WEBCODECS_TIMESCALE) {
+					await doProcess();
 
 					if (timestampTargets.length === 0) {
 						await decoder.flush();
@@ -151,10 +161,12 @@ export const extractFrames = (options: {
 	onFrame: (frame: VideoFrame) => void;
 	signal?: AbortSignal;
 	acknowledgeRemotionLicense?: boolean;
+	logLevel?: MediaParserLogLevel;
 }) => {
 	return internalExtractFrames({
 		...options,
 		signal: options.signal ?? null,
 		acknowledgeRemotionLicense: options.acknowledgeRemotionLicense ?? false,
+		logLevel: options.logLevel ?? 'info',
 	});
 };
