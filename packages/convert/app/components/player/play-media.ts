@@ -10,6 +10,7 @@ import {
 } from '@remotion/media-parser';
 import {createVideoDecoder, webcodecsController} from '@remotion/webcodecs';
 import {makeFrameBuffer} from './frame-buffer';
+import {throttledSeek} from './throttled-seek';
 
 export const playMedia = ({
 	src,
@@ -31,11 +32,7 @@ export const playMedia = ({
 	const wcController = webcodecsController();
 	const mpController = mediaParserController();
 
-	let lastMediaParserSeek = 0;
-	const mediaParserSeek = (timestamp: number) => {
-		lastMediaParserSeek = timestamp;
-		mpController.seek(timestamp);
-	};
+	const seek = throttledSeek(mpController);
 
 	const frameBuffer = makeFrameBuffer({
 		drawFrame,
@@ -61,7 +58,7 @@ export const playMedia = ({
 					mpController.abort();
 				},
 				onFrame: (frame) => {
-					if (frame.timestamp < lastMediaParserSeek * WEBCODECS_TIMESCALE) {
+					if (frame.timestamp < seek.getLastSeek() * WEBCODECS_TIMESCALE) {
 						return;
 					}
 
@@ -88,8 +85,7 @@ export const playMedia = ({
 					mpController.pause();
 
 					if (loop) {
-						mediaParserSeek(0);
-						mpController.resume();
+						seek.seek(0);
 					}
 				};
 			};
@@ -103,6 +99,11 @@ export const playMedia = ({
 		.finally(() => {
 			signal.removeEventListener('abort', onAbort);
 		});
+
+	const seekVideo = (time: number) => {
+		seek.seek(time);
+		frameBuffer.clearBecauseOfSeek();
+	};
 
 	return {
 		play: () => {
@@ -118,11 +119,9 @@ export const playMedia = ({
 			return frameBuffer.playback.getCurrentTime();
 		},
 		seek: (time: number) => {
-			mediaParserSeek(time);
-
-			mpController.resume();
-			frameBuffer.clearBecauseOfSeek();
 			frameBuffer.playback.setCurrentTime(time * WEBCODECS_TIMESCALE);
+
+			seekVideo(time);
 		},
 		addEventListener: frameBuffer.playback.emitter.addEventListener,
 		removeEventListener: frameBuffer.playback.emitter.removeEventListener,
