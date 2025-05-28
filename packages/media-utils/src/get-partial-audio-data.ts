@@ -5,7 +5,7 @@ import {
 } from '@remotion/media-parser';
 import {createAudioDecoder} from '@remotion/webcodecs';
 
-export const getPartialMediaData = async ({
+export const getPartialAudioData = async ({
 	src,
 	fromSeconds,
 	toSeconds,
@@ -28,6 +28,13 @@ export const getPartialMediaData = async ({
 		throw new Error('Operation was aborted');
 	}
 
+	// Forward abort signal immediately to the controller
+	const onAbort = () => {
+		controller.abort();
+	};
+
+	signal.addEventListener('abort', onAbort, {once: true});
+
 	try {
 		if (fromSeconds > 0) {
 			controller.seek(fromSeconds);
@@ -38,6 +45,11 @@ export const getPartialMediaData = async ({
 			src,
 			controller,
 			onAudioTrack: ({track}) => {
+				// Check abort signal immediately when onAudioTrack is called
+				if (signal.aborted) {
+					return null;
+				}
+
 				const audioDecoder = createAudioDecoder({
 					track,
 					onFrame: (sample) => {
@@ -80,18 +92,12 @@ export const getPartialMediaData = async ({
 					},
 				});
 
-				// Listen for abort signal
-				const onAbort = () => {
-					controller.abort();
-					if (audioDecoder) {
-						audioDecoder.close();
-					}
-				};
-
-				signal.addEventListener('abort', onAbort, {once: true});
+				// The abort listener is already set up above, no need to duplicate
 
 				return async (sample) => {
 					if (signal.aborted) {
+						audioDecoder.close();
+						controller.abort();
 						return;
 					}
 
@@ -122,6 +128,9 @@ export const getPartialMediaData = async ({
 		if (!isAbortedByTimeCutoff && !signal.aborted) {
 			throw err;
 		}
+	} finally {
+		// Clean up the event listener
+		signal.removeEventListener('abort', onAbort);
 	}
 
 	// Simply concatenate all audio data since windowing handles the time ranges

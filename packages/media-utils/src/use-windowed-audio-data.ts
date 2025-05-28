@@ -9,7 +9,7 @@ import {
 } from 'react';
 import {cancelRender, continueRender, delayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
-import {getPartialMediaData} from './get-partial-media-data';
+import {getPartialAudioData} from './get-partial-audio-data';
 import {isRemoteAsset} from './is-remote-asset';
 import type {MediaUtilsAudioData} from './types';
 
@@ -33,6 +33,10 @@ interface AudioMetadata {
 	numberOfChannels: number;
 	sampleRate: number;
 }
+
+const sleep = (ms: number) =>
+	// eslint-disable-next-line no-promise-executor-return
+	new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useWindowedAudioData = ({
 	src,
@@ -149,36 +153,68 @@ export const useWindowedAudioData = ({
 				throw new Error('Media probe is not loaded yet');
 			}
 
+			// Cancel any existing request for this window, we don't want to over-fetch
+			const existingController = requests.current[windowIndex];
+			if (existingController) {
+				existingController.abort();
+			}
+
 			const controller = new AbortController();
 			requests.current[windowIndex] = controller;
-			const partialWaveData = await getPartialMediaData({
-				src,
-				fromSeconds: windowIndex * windowInSeconds,
-				toSeconds: (windowIndex + 1) * windowInSeconds,
-				channelIndex,
-				signal: controller.signal,
-			});
-			requests.current[windowIndex] = null;
 
-			setWaveformMap((prev) => {
-				const entries = Object.keys(prev);
-				const windowsToClear = entries.filter(
-					(entry) => !windowsToFetch.includes(Number(entry)),
-				);
-				return {
-					...prev,
-					// Delete windows that are not needed anymore
-					...windowsToClear.reduce(
-						(acc, key) => {
-							acc[key] = null;
-							return acc;
-						},
-						{} as Record<string, null>,
-					),
-					// Add the new window
-					[windowIndex]: partialWaveData,
-				};
-			});
+			// Add a small delay to allow for rapid seeking to settle
+			// this also creates a short window for the signal to be aborted in case of super-rapid seeking
+			await sleep(250);
+
+			// Check if we were aborted during the delay
+			if (controller.signal.aborted) {
+				return;
+			}
+
+			try {
+				const partialWaveData = await getPartialAudioData({
+					src,
+					fromSeconds: windowIndex * windowInSeconds,
+					toSeconds: (windowIndex + 1) * windowInSeconds,
+					channelIndex,
+					signal: controller.signal,
+				});
+
+				// Only update if we still have a valid controller (not aborted)
+				if (!controller.signal.aborted) {
+					setWaveformMap((prev) => {
+						const entries = Object.keys(prev);
+						const windowsToClear = entries.filter(
+							(entry) => !windowsToFetch.includes(Number(entry)),
+						);
+						return {
+							...prev,
+							// Delete windows that are not needed anymore
+							...windowsToClear.reduce(
+								(acc, key) => {
+									acc[key] = null;
+									return acc;
+								},
+								{} as Record<string, null>,
+							),
+							// Add the new window
+							[windowIndex]: partialWaveData,
+						};
+					});
+				}
+			} catch (err) {
+				// If the request was aborted, don't throw
+				if (controller.signal.aborted) {
+					return;
+				}
+
+				throw err;
+			} finally {
+				// Clean up the request reference
+				if (requests.current[windowIndex] === controller) {
+					requests.current[windowIndex] = null;
+				}
+			}
 		},
 		[channelIndex, src, metadata, windowInSeconds, windowsToFetch],
 	);
