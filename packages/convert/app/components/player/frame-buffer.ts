@@ -3,11 +3,14 @@ import {makePlaybackState} from './playback-state';
 
 export const makeFrameBuffer = ({
 	drawFrame,
+	initialLoop,
 }: {
 	drawFrame: (frame: VideoFrame) => void;
+	initialLoop: boolean;
 }) => {
 	let currentlyDrawnFrame: VideoFrame | null = null;
 	let lastTimestampOfVideo: number | null = null;
+	const isLooping = initialLoop;
 
 	const playback = makePlaybackState();
 	const bufferQueue = makeBufferQueue();
@@ -35,8 +38,12 @@ export const makeFrameBuffer = ({
 				if (shifted) {
 					releaseFrame(shifted);
 					if (shifted.timestamp === lastTimestampOfVideo) {
-						playback.pause();
-						return;
+						if (!isLooping) {
+							playback.pause();
+							return;
+						}
+
+						playback.setCurrentTime(0);
 					}
 				}
 
@@ -50,6 +57,9 @@ export const makeFrameBuffer = ({
 		getBufferedFrames: () => bufferQueue.getLength(),
 		waitForQueueToBeLessThan: (n: number) => {
 			return bufferQueue.waitForQueueToBeLessThan(n);
+		},
+		clearBecauseOfSeek: () => {
+			bufferQueue.clearBecauseOfSeek();
 		},
 		addFrame: (frame: VideoFrame) => {
 			if (

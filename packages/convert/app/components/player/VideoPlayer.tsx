@@ -1,8 +1,8 @@
 import type {MediaParserDimensions} from '@remotion/media-parser';
 import React, {useEffect, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
-import type {Player} from './play-video';
-import {playMedia} from './play-video';
+import type {Player} from './play-media';
+import {playMedia} from './play-media';
 import {PlayerControls} from './PlayerControls';
 
 export const VideoPlayer: React.FC<{
@@ -23,13 +23,14 @@ export const VideoPlayer: React.FC<{
 			onDimensions: (dim) => {
 				setDimensions(dim);
 			},
-			onDurationInSeconds: (duration) => {
-				setDuration(duration);
+			onDurationInSeconds: (dur) => {
+				setDuration(dur);
 			},
 			onError: console.error,
 			drawFrame: (frame) => {
 				canvasRef.current?.getContext('2d')?.drawImage(frame, 0, 0);
 			},
+			loop: true,
 		});
 		setPlayer(playerInstance);
 
@@ -38,11 +39,7 @@ export const VideoPlayer: React.FC<{
 		};
 	}, [src]);
 
-	if (!dimensions) {
-		return null;
-	}
-
-	if (!player) {
+	if (!dimensions || !player) {
 		return null;
 	}
 

@@ -1,6 +1,6 @@
 import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import React, {useEffect} from 'react';
-import type {Player} from '../play-video';
+import type {Player} from '../play-media';
 
 const formatTime = (timeInSeconds: number) => {
 	const minutes = Math.floor(timeInSeconds / 60);

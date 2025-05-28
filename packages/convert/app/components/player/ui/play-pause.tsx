@@ -1,5 +1,6 @@
+import type {SVGProps} from 'react';
 import React, {useCallback, useEffect} from 'react';
-import type {Player} from '../play-video';
+import type {Player} from '../play-media';
 
 export const PlayingIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (

@@ -3,11 +3,19 @@ import type {MediaParserContainer} from './options';
 
 export type MediaParserOnAudioSample = (
 	sample: MediaParserAudioSample,
-) => void | Promise<void> | OnTrackDoneCallback | Promise<OnTrackDoneCallback>;
+) =>
+	| void
+	| Promise<OnTrackDoneCallback | void>
+	| Promise<void>
+	| OnTrackDoneCallback;
 
 export type MediaParserOnVideoSample = (
 	sample: MediaParserVideoSample,
-) => void | Promise<void> | OnTrackDoneCallback | Promise<OnTrackDoneCallback>;
+) =>
+	| void
+	| Promise<OnTrackDoneCallback | void>
+	| Promise<void>
+	| OnTrackDoneCallback;
 
 export type OnTrackDoneCallback = () => void | Promise<void>;
 
