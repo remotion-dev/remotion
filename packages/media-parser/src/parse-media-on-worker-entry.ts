@@ -93,7 +93,8 @@ const convertToWorkerPayload = (
 		postM3uAssociatedPlaylistsSelection: Boolean(selectM3uAssociatedPlaylists),
 		postOnAudioTrack: Boolean(onAudioTrack),
 		postOnVideoTrack: Boolean(onVideoTrack),
-		src,
+		// URL cannot be serialized, so we convert it to a string
+		src: src instanceof URL ? src.toString() : src,
 	};
 };
 

@@ -1,4 +1,3 @@
-import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {ResizeOperation} from './resizing/mode';
 import {
 	calculateNewDimensionsFromRotate,
@@ -12,12 +11,12 @@ export const normalizeVideoRotation = (rotation: number) => {
 export const rotateAndResizeVideoFrame = ({
 	frame,
 	rotation,
-	videoCodec,
+	needsToBeMultipleOfTwo,
 	resizeOperation,
 }: {
 	frame: VideoFrame;
 	rotation: number;
-	videoCodec: ConvertMediaVideoCodec;
+	needsToBeMultipleOfTwo: boolean;
 	resizeOperation: ResizeOperation | null;
 }) => {
 	const normalized = ((rotation % 360) + 360) % 360;
@@ -35,7 +34,7 @@ export const rotateAndResizeVideoFrame = ({
 		height: frame.displayHeight,
 		width: frame.displayWidth,
 		rotation,
-		videoCodec,
+		needsToBeMultipleOfTwo,
 		resizeOperation,
 	});
 

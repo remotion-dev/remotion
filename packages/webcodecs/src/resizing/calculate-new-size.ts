@@ -1,8 +1,4 @@
-import type {
-	MediaParserDimensions,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from '../get-available-video-codecs';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from './mode';
 
 const ensureMultipleOfTwo = ({
@@ -25,14 +21,12 @@ const ensureMultipleOfTwo = ({
 export const calculateNewSizeAfterResizing = ({
 	dimensions,
 	resizeOperation,
-	videoCodec,
+	needsToBeMultipleOfTwo,
 }: {
 	dimensions: MediaParserDimensions;
 	resizeOperation: ResizeOperation | null;
-	videoCodec: ConvertMediaVideoCodec | MediaParserVideoCodec;
+	needsToBeMultipleOfTwo: boolean;
 }) => {
-	const needsToBeMultipleOfTwo = videoCodec === 'h264';
-
 	if (resizeOperation === null) {
 		return ensureMultipleOfTwo({
 			dimensions,

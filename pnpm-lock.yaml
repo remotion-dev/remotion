@@ -165,6 +165,9 @@ importers:
 
   packages/bundler:
     dependencies:
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/studio':
         specifier: workspace:*
         version: link:../studio
@@ -2085,6 +2088,9 @@ importers:
       '@remotion/studio-shared':
         specifier: workspace:*
         version: link:../studio-shared
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types
@@ -3508,6 +3514,9 @@ importers:
       playwright:
         specifier: 1.51.1
         version: 1.51.1
+      vite:
+        specifier: 5.4.19
+        version: 5.4.19(@types/node@20.12.14)
 
   packages/whisper-web:
     dependencies:

@@ -31,6 +31,7 @@
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",

@@ -2971,7 +2971,7 @@ export const articles = [
 	},
 	{
 		id: 'webcodecs',
-		title: 'Decoding a video with WebCodecs and @remotion/media-parser',
+		title: 'Processing video with WebCodecs and @remotion/media-parser',
 		relativePath: 'docs/media-parser/webcodecs.mdx',
 		compId: 'articles-docs-media-parser-webcodecs',
 		crumb: '@remotion/media-parser',
@@ -6044,6 +6044,15 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 		noAi: false,
 		slug: 'webcodecs/default-on-video-track-handler',
+	},
+	{
+		id: 'extract-frames',
+		title: 'extractFrames()',
+		relativePath: 'docs/webcodecs/extract-frames.mdx',
+		compId: 'articles-docs-webcodecs-extract-frames',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/extract-frames',
 	},
 	{
 		id: 'fix-mediarecorder-video',
