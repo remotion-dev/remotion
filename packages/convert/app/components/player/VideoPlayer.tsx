@@ -2,6 +2,7 @@ import type {MediaParserDimensions} from '@remotion/media-parser';
 import React, {useEffect, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {playVideo} from './play-video';
+import {PlayerControls} from './PlayerControls';
 
 export const VideoPlayer: React.FC<{
 	readonly src: Source;
@@ -9,11 +10,12 @@ export const VideoPlayer: React.FC<{
 	const [dimensions, setDimensions] = useState<
 		MediaParserDimensions | null | undefined
 	>(undefined);
+	const [player, setPlayer] = useState<Player | null>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	useEffect(() => {
 		const controller = new AbortController();
-		playVideo({
+		const playerInstance = playVideo({
 			src: src.type === 'file' ? src.file : src.url,
 			signal: controller.signal,
 			onDimensions: (dim) => {
@@ -24,6 +26,7 @@ export const VideoPlayer: React.FC<{
 				canvasRef.current?.getContext('2d')?.drawImage(frame, 0, 0);
 			},
 		});
+		setPlayer(playerInstance);
 
 		return () => {
 			controller.abort();
@@ -31,6 +34,10 @@ export const VideoPlayer: React.FC<{
 	}, [src]);
 
 	if (!dimensions) {
+		return null;
+	}
+
+	if (!player) {
 		return null;
 	}
 
@@ -55,6 +62,7 @@ export const VideoPlayer: React.FC<{
 				width={dimensions.width}
 				height={dimensions.height}
 			/>
+			<PlayerControls play={player.play} />
 		</div>
 	);
 };

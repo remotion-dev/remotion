@@ -68,4 +68,12 @@ export const playVideo = ({
 		.finally(() => {
 			signal.removeEventListener('abort', onAbort);
 		});
+
+	return {
+		play: () => {
+			frameBuffer.play();
+		},
+	};
 };
+
+export type Player = ReturnType<typeof playVideo>;

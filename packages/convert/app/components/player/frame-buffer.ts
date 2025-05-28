@@ -3,9 +3,40 @@ export const makeFrameBuffer = ({
 }: {
 	drawFrame: (frame: VideoFrame) => void;
 }) => {
-	const currentTime = 0;
+	let currentTime = 0;
+	let playing = false;
 	let currentlyDrawnFrame: VideoFrame | null = null;
 	const bufferedFrames: VideoFrame[] = [];
+
+	const releaseFrame = (frame: VideoFrame) => {
+		if (currentlyDrawnFrame) {
+			currentlyDrawnFrame.close();
+		}
+
+		drawFrame(frame);
+		currentlyDrawnFrame = frame;
+		currentTime = frame.timestamp;
+	};
+
+	const loop = () => {
+		const nextFrame = bufferedFrames[0];
+
+		setTimeout(
+			() => {
+				if (!playing) {
+					return;
+				}
+
+				const shifted = bufferedFrames.shift();
+				if (shifted) {
+					releaseFrame(shifted);
+				}
+
+				loop();
+			},
+			(nextFrame.timestamp - currentTime) / 1000,
+		);
+	};
 
 	return {
 		getBufferedFrames: () => bufferedFrames,
@@ -15,11 +46,15 @@ export const makeFrameBuffer = ({
 				Math.abs(currentlyDrawnFrame.timestamp - currentTime) >
 					Math.abs(frame.timestamp - currentTime)
 			) {
-				currentlyDrawnFrame = frame;
-				drawFrame(frame);
+				releaseFrame(frame);
+				return;
 			}
 
 			bufferedFrames.push(frame);
+		},
+		play: () => {
+			playing = true;
+			loop();
 		},
 	};
 };
