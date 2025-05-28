@@ -24,9 +24,7 @@ export const PlayerControls: React.FC<{
 			{durationInSeconds ? (
 				<PlayerSeekBar
 					playerRef={player}
-					durationInFrames={durationInSeconds}
-					inFrame={null}
-					outFrame={null}
+					durationInSeconds={durationInSeconds}
 				/>
 			) : null}
 		</div>

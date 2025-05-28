@@ -1,18 +1,20 @@
+import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Player} from '../play-media';
 import {useElementSize} from './use-element-size';
 
-const getFrameFromX = (
-	clientX: number,
-	durationInFrames: number,
-	width: number,
-) => {
-	const pos = clientX;
-	const frame = Math.round(
-		Math.max(
-			0,
-			Math.min(durationInFrames - 1, (pos / width) * (durationInFrames - 1)),
-		),
+const getFrameFromX = ({
+	clientX,
+	durationInSeconds,
+	width,
+}: {
+	clientX: number;
+	durationInSeconds: number;
+	width: number;
+}) => {
+	const frame = Math.max(
+		0,
+		Math.min(durationInSeconds, (clientX / width) * durationInSeconds),
 	);
 	return frame;
 };
@@ -31,6 +33,8 @@ const containerStyle: React.CSSProperties = {
 	position: 'relative',
 	touchAction: 'none',
 	flex: 1,
+	marginLeft: 14,
+	marginRight: 14,
 };
 
 const barBackground: React.CSSProperties = {
@@ -107,22 +111,19 @@ export const useHoverState = (
 };
 
 export const PlayerSeekBar: React.FC<{
-	readonly durationInFrames: number;
-	readonly inFrame: number | null;
-	readonly outFrame: number | null;
+	readonly durationInSeconds: number;
 	readonly playerRef: Player;
-}> = ({durationInFrames, inFrame, outFrame, playerRef}) => {
+}> = ({durationInSeconds, playerRef}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const barHovered = useHoverState(containerRef, false);
 	const size = useElementSize(containerRef.current);
 	const [playing, setPlaying] = useState(false);
 
 	const [frame, setFrame] = useState(0);
-	console.log(frame, durationInFrames);
 
 	useEffect(() => {
 		const onFrameUpdate = () => {
-			setFrame(playerRef.getCurrentTime());
+			setFrame(playerRef.getCurrentTime() / WEBCODECS_TIMESCALE);
 		};
 
 		playerRef.addEventListener('timeupdate', onFrameUpdate);
@@ -173,11 +174,11 @@ export const PlayerSeekBar: React.FC<{
 			const posLeft = containerRef.current?.getBoundingClientRect()
 				.left as number;
 
-			const _frame = getFrameFromX(
-				e.clientX - posLeft,
-				durationInFrames,
+			const _frame = getFrameFromX({
+				clientX: e.clientX - posLeft,
+				durationInSeconds,
 				width,
-			);
+			});
 			playerRef.pause();
 			playerRef.seek(_frame);
 			setDragging({
@@ -185,7 +186,7 @@ export const PlayerSeekBar: React.FC<{
 				wasPlaying: playing,
 			});
 		},
-		[durationInFrames, width, playerRef, playing],
+		[durationInSeconds, width, playerRef, playing],
 	);
 
 	const onPointerMove = useCallback(
@@ -201,14 +202,15 @@ export const PlayerSeekBar: React.FC<{
 			const posLeft = containerRef.current?.getBoundingClientRect()
 				.left as number;
 
-			const _frame = getFrameFromX(
-				e.clientX - posLeft,
-				durationInFrames,
-				size.width,
-			);
+			const _frame = getFrameFromX({
+				clientX: e.clientX - posLeft,
+				durationInSeconds,
+				width: size.width,
+			});
+
 			playerRef.seek(_frame);
 		},
-		[dragging.dragging, durationInFrames, playerRef, size],
+		[dragging.dragging, durationInSeconds, playerRef, size],
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -250,42 +252,36 @@ export const PlayerSeekBar: React.FC<{
 			borderRadius: KNOB_SIZE / 2,
 			position: 'absolute',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
-			backgroundColor: 'var(--ifm-font-color-base)',
+			backgroundColor: 'black',
 			left: Math.max(
 				0,
-				(frame / Math.max(1, durationInFrames - 1)) * width - KNOB_SIZE / 2,
+				(frame / Math.max(1, durationInSeconds)) * width - KNOB_SIZE / 2,
 			),
 			outline: '2px solid var(--ifm-background-color)',
 			opacity: Number(barHovered),
 			transition: 'opacity 0.s ease',
 		};
-	}, [barHovered, durationInFrames, frame, width]);
+	}, [barHovered, durationInSeconds, frame, width]);
 
 	const fillStyle: React.CSSProperties = useMemo(() => {
 		return {
 			height: BAR_HEIGHT,
-			backgroundColor: 'var(--ifm-font-color-base)',
-			width: ((frame - (inFrame ?? 0)) / (durationInFrames - 1)) * 100 + '%',
-			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+			backgroundColor: 'black',
+			width: (frame / durationInSeconds) * 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
 		};
-	}, [durationInFrames, frame, inFrame]);
+	}, [durationInSeconds, frame]);
 
 	const active: React.CSSProperties = useMemo(() => {
 		return {
 			height: BAR_HEIGHT,
-			backgroundColor: 'var(--ifm-font-color-base)',
+			backgroundColor: 'black',
 			opacity: 0.2,
-			width:
-				(((outFrame ?? durationInFrames - 1) - (inFrame ?? 0)) /
-					(durationInFrames - 1)) *
-					100 +
-				'%',
-			marginLeft: ((inFrame ?? 0) / (durationInFrames - 1)) * 100 + '%',
+			width: 100 + '%',
 			borderRadius: BAR_HEIGHT / 2,
 			position: 'absolute',
 		};
-	}, [durationInFrames, inFrame, outFrame]);
+	}, []);
 
 	return (
 		<div
