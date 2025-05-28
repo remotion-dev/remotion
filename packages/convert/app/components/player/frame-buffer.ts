@@ -1,12 +1,16 @@
+import {makeBufferQueue} from './buffer-queue';
+import {makePlaybackState} from './playback-state';
+
 export const makeFrameBuffer = ({
 	drawFrame,
 }: {
 	drawFrame: (frame: VideoFrame) => void;
 }) => {
-	let currentTime = 0;
-	let playing = false;
 	let currentlyDrawnFrame: VideoFrame | null = null;
-	const bufferedFrames: VideoFrame[] = [];
+	let lastTimestampOfVideo: number | null = null;
+
+	const playback = makePlaybackState();
+	const bufferQueue = makeBufferQueue();
 
 	const releaseFrame = (frame: VideoFrame) => {
 		if (currentlyDrawnFrame) {
@@ -15,46 +19,60 @@ export const makeFrameBuffer = ({
 
 		drawFrame(frame);
 		currentlyDrawnFrame = frame;
-		currentTime = frame.timestamp;
+		playback.setCurrentTime(frame.timestamp);
 	};
 
 	const loop = () => {
-		const nextFrame = bufferedFrames[0];
+		const nextFrame = bufferQueue.getNextFrame();
 
-		setTimeout(
+		return setTimeout(
 			() => {
-				if (!playing) {
+				if (!playback.getPlaying()) {
 					return;
 				}
 
-				const shifted = bufferedFrames.shift();
+				const shifted = bufferQueue.shift();
 				if (shifted) {
 					releaseFrame(shifted);
+					if (shifted.timestamp === lastTimestampOfVideo) {
+						playback.pause();
+						return;
+					}
 				}
 
 				loop();
 			},
-			(nextFrame.timestamp - currentTime) / 1000,
+			(nextFrame.timestamp - playback.getCurrentTime()) / 1000,
 		);
 	};
 
 	return {
-		getBufferedFrames: () => bufferedFrames,
+		getBufferedFrames: () => bufferQueue.getLength(),
+		waitForQueueToBeLessThan: (n: number) => {
+			return bufferQueue.waitForQueueToBeLessThan(n);
+		},
 		addFrame: (frame: VideoFrame) => {
 			if (
 				!currentlyDrawnFrame ||
-				Math.abs(currentlyDrawnFrame.timestamp - currentTime) >
-					Math.abs(frame.timestamp - currentTime)
+				Math.abs(currentlyDrawnFrame.timestamp - playback.getCurrentTime()) >
+					Math.abs(frame.timestamp - playback.getCurrentTime())
 			) {
 				releaseFrame(frame);
 				return;
 			}
 
-			bufferedFrames.push(frame);
+			bufferQueue.add(frame);
 		},
 		play: () => {
-			playing = true;
-			loop();
+			const timeout = loop();
+			playback.play(timeout);
+		},
+		pause: () => {
+			playback.pause();
+		},
+		setLastFrameReceived: () => {
+			const lastFrame = bufferQueue.getLastFrame();
+			lastTimestampOfVideo = lastFrame.timestamp;
 		},
 	};
 };

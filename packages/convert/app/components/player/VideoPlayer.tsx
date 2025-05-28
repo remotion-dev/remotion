@@ -62,7 +62,7 @@ export const VideoPlayer: React.FC<{
 				width={dimensions.width}
 				height={dimensions.height}
 			/>
-			<PlayerControls play={player.play} />
+			<PlayerControls pause={player.pause} play={player.play} />
 		</div>
 	);
 };

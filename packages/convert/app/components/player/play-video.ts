@@ -46,9 +46,6 @@ export const playVideo = ({
 				onError: console.error,
 				onFrame: (frame) => {
 					frameBuffer.addFrame(frame);
-					if (frameBuffer.getBufferedFrames().length > 30) {
-						mpController.pause();
-					}
 				},
 				track,
 				controller: wcController,
@@ -56,7 +53,12 @@ export const playVideo = ({
 
 			return async (sample) => {
 				await decoder.waitForQueueToBeLessThan(15);
+				await frameBuffer.waitForQueueToBeLessThan(15);
 				await decoder.decode(sample);
+				return async () => {
+					await decoder.flush();
+					frameBuffer.setLastFrameReceived();
+				};
 			};
 		},
 	})
@@ -72,6 +74,9 @@ export const playVideo = ({
 	return {
 		play: () => {
 			frameBuffer.play();
+		},
+		pause: () => {
+			frameBuffer.pause();
 		},
 	};
 };

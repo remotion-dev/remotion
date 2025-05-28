@@ -1,6 +1,7 @@
 export const PlayerControls: React.FC<{
 	play: () => void;
-}> = ({play}) => {
+	pause: () => void;
+}> = ({play, pause}) => {
 	return (
 		<div
 			style={{
@@ -13,6 +14,9 @@ export const PlayerControls: React.FC<{
 		>
 			<button type="button" onClick={play}>
 				play
+			</button>
+			<button type="button" onClick={pause}>
+				pause
 			</button>
 		</div>
 	);
