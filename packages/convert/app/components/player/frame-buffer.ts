@@ -27,7 +27,7 @@ export const makeFrameBuffer = ({
 
 		return setTimeout(
 			() => {
-				if (!playback.getPlaying()) {
+				if (!playback.isPlaying()) {
 					return;
 				}
 
@@ -74,5 +74,6 @@ export const makeFrameBuffer = ({
 			const lastFrame = bufferQueue.getLastFrame();
 			lastTimestampOfVideo = lastFrame.timestamp;
 		},
+		playback,
 	};
 };
