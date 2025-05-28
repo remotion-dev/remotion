@@ -230,7 +230,8 @@ export const reencodeAudioTrack = async ({
 	});
 
 	state.addWaitForFinishPromise(async () => {
-		await audioDecoder.waitForQueueToBeLessThan(0);
+		Log.verbose(logLevel, 'Waiting for audio decoder to finish');
+		await audioDecoder.flush();
 		Log.verbose(logLevel, 'Audio decoder finished');
 		audioDecoder.close();
 		await audioProcessingQueue.ioSynchronizer.waitForQueueSize(0);

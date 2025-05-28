@@ -23,7 +23,8 @@ export const makeIoSynchronizer = ({
 
 	const getQueuedItems = () => {
 		inputs = inputs.filter(
-			(input) => Math.floor(input) > Math.floor(lastOutput),
+			// In chrome, the last output sometimes shifts the timestamp by 1 macrosecond - allowing this to happen
+			(input) => Math.floor(input) > Math.floor(lastOutput) + 1,
 		);
 		return inputs.length;
 	};

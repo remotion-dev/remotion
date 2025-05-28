@@ -20,7 +20,7 @@ export const canReencodeVideoTrack = async ({
 		height: track.displayAspectHeight,
 		resizeOperation,
 		rotation: rotate ?? 0,
-		videoCodec,
+		needsToBeMultipleOfTwo: videoCodec === 'h264',
 		width: track.displayAspectWidth,
 	});
 	const videoEncoderConfig = await getVideoEncoderConfig({

@@ -413,7 +413,7 @@ const ConvertUI = ({
 			...unrotatedDimensions,
 			rotation: userRotation - (rotation ?? 0),
 			resizeOperation,
-			videoCodec: isH264Reencode ? 'h264' : 'vp8',
+			needsToBeMultipleOfTwo: isH264Reencode ?? false,
 		});
 	}, [
 		unrotatedDimensions,

@@ -13,6 +13,8 @@ const external = [
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
 	'@remotion/renderer/error-handling',
+	'@remotion/media-parser/worker',
+	'@remotion/webcodecs',
 	'source-map',
 	'zod',
 	'remotion/no-react',

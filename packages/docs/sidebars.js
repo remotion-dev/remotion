@@ -685,6 +685,7 @@ module.exports = {
 				'webcodecs/convert-audiodata',
 				'webcodecs/create-audio-decoder',
 				'webcodecs/create-video-decoder',
+				'webcodecs/extract-frames',
 			],
 		},
 		{
