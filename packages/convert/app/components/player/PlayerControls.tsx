@@ -1,5 +1,6 @@
 import type {Player} from './play-media';
-import {PlayPauseButton} from './ui/play-pause';
+import {PlayPauseButton} from './ui/PlayPause';
+import {PlayerSeekBar} from './ui/PlaySeekBar';
 import {TimeDisplay} from './ui/TimeDisplay';
 
 export const PlayerControls: React.FC<{
@@ -20,6 +21,14 @@ export const PlayerControls: React.FC<{
 		>
 			<PlayPauseButton player={player} />
 			<TimeDisplay player={player} durationInSeconds={durationInSeconds} />
+			{durationInSeconds ? (
+				<PlayerSeekBar
+					playerRef={player}
+					durationInFrames={durationInSeconds}
+					inFrame={null}
+					outFrame={null}
+				/>
+			) : null}
 		</div>
 	);
 };

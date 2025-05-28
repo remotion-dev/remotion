@@ -74,9 +74,9 @@ export const playMedia = ({
 			return async (sample) => {
 				await decoder.waitForQueueToBeLessThan(15);
 				const cancelled = await frameBuffer.waitForQueueToBeLessThan(15);
+
 				if (cancelled) {
 					decoder.reset();
-
 					return;
 				}
 
