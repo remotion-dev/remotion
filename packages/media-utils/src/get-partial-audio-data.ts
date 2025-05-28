@@ -108,6 +108,11 @@ export const getPartialAudioData = async ({
 					// Convert timestamp using the track's timescale
 					const time = sample.timestamp / track.timescale;
 
+					// Skip samples that are before our requested start time
+					if (time < fromSeconds) {
+						return;
+					}
+
 					// Stop immediately when we reach our target time
 					if (time >= toSeconds) {
 						audioDecoder.close();
