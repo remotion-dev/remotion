@@ -4,6 +4,7 @@ import type {Source} from '~/lib/convert-state';
 import type {Player} from './play-media';
 import {playMedia} from './play-media';
 import {PlayerControls} from './PlayerControls';
+import {PlayerQueue} from './ui/PlayerQueue';
 
 export const VideoPlayer: React.FC<{
 	readonly src: Source;
@@ -67,6 +68,7 @@ export const VideoPlayer: React.FC<{
 				/>
 			</div>
 			<PlayerControls player={player} durationInSeconds={duration} />
+			<PlayerQueue player={player} />
 		</div>
 	);
 };

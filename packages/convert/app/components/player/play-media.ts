@@ -32,12 +32,20 @@ export const playMedia = ({
 	const wcController = webcodecsController();
 	const mpController = mediaParserController();
 
-	const seek = throttledSeek(mpController);
-
 	const frameBuffer = makeFrameBuffer({
 		drawFrame,
 		initialLoop: loop,
 	});
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let seekVideo = (_time: number) => undefined;
+
+	const seek = throttledSeek(mpController, (t) => seekVideo(t));
+	seekVideo = (time: number) => {
+		console.log('media parser seek', time);
+		seek.seek(time);
+		frameBuffer.clearBecauseOfSeek();
+	};
 
 	const onAbort = () => {
 		mpController.abort();
@@ -58,8 +66,26 @@ export const playMedia = ({
 					mpController.abort();
 				},
 				onFrame: (frame) => {
-					if (frame.timestamp < seek.getLastSeek() * WEBCODECS_TIMESCALE) {
-						return;
+					console.log('onFrame', frame.timestamp);
+					const desiredSeek = seek.getDesiredSeek();
+					if (desiredSeek) {
+						desiredSeek.observedFramesSinceSeek.push(frame.timestamp);
+						if (desiredSeek.isInfeasible()) {
+							// Seek is pending, but we already too far.
+							console.log('replace with newest seek');
+							frame.close();
+							decoder.reset();
+							seek.replaceWithNewestSeek();
+							return;
+						}
+
+						if (desiredSeek.isDone()) {
+							console.log('seek done');
+							seek.clearSeek();
+						} else {
+							frame.close();
+							return;
+						}
 					}
 
 					frameBuffer.addFrame(frame);
@@ -69,8 +95,12 @@ export const playMedia = ({
 			});
 
 			return async (sample) => {
+				const desiredSeek = seek.getDesiredSeek();
+
 				await decoder.waitForQueueToBeLessThan(15);
 				const cancelled = await frameBuffer.waitForQueueToBeLessThan(15);
+
+				console.log('retrieved sample', sample.timestamp, cancelled);
 
 				if (cancelled) {
 					decoder.reset();
@@ -80,7 +110,9 @@ export const playMedia = ({
 				await decoder.decode(sample);
 
 				return async () => {
+					console.log('end - flushing');
 					await decoder.flush();
+					console.log('end - flushing done');
 					frameBuffer.setLastFrameReceived();
 					mpController.pause();
 
@@ -100,11 +132,6 @@ export const playMedia = ({
 			signal.removeEventListener('abort', onAbort);
 		});
 
-	const seekVideo = (time: number) => {
-		seek.seek(time);
-		frameBuffer.clearBecauseOfSeek();
-	};
-
 	return {
 		play: () => {
 			frameBuffer.play();
@@ -120,8 +147,17 @@ export const playMedia = ({
 		},
 		seek: (time: number) => {
 			frameBuffer.playback.setCurrentTime(time * WEBCODECS_TIMESCALE);
+			if (frameBuffer.processSeekWithQueue(time)) {
+				console.log('processed seek in queue');
+				seek.clearSeek();
+				mpController.resume();
+				return;
+			}
 
-			seekVideo(time);
+			seek.queueSeek(time);
+		},
+		getBufferedTimestamps: () => {
+			return frameBuffer.getBufferedTimestamps();
 		},
 		addEventListener: frameBuffer.playback.emitter.addEventListener,
 		removeEventListener: frameBuffer.playback.emitter.removeEventListener,

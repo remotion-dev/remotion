@@ -1,4 +1,4 @@
-export const makeBufferQueue = () => {
+export const makeBufferQueue = (onQueueChanged: () => void) => {
 	const bufferedFrames: VideoFrame[] = [];
 	const waiters: Array<{
 		resolve: (canceled: boolean) => void;
@@ -16,11 +16,43 @@ export const makeBufferQueue = () => {
 	};
 
 	return {
+		getBufferedTimestamps: () => {
+			return bufferedFrames.map((b) => b.timestamp);
+		},
+		canProcessSeekWithQueue: (
+			timestamp: number,
+			currentlyDrawnFrame: number | null,
+		) => {
+			const hasFramesBefore =
+				bufferedFrames.some((f) => f.timestamp <= timestamp) ||
+				(currentlyDrawnFrame !== null && currentlyDrawnFrame <= timestamp);
+			const hasFramesAfter = bufferedFrames.some(
+				(f) => f.timestamp >= timestamp,
+			);
+			return hasFramesBefore && hasFramesAfter;
+		},
+		processSeekWithQueue: (timestamp: number) => {
+			let framesToDelete = 0;
+			for (const frame of bufferedFrames) {
+				if (frame.timestamp < timestamp) {
+					framesToDelete++;
+				} else {
+					break;
+				}
+			}
+
+			const returned = bufferedFrames.splice(0, framesToDelete);
+			checkWaiters();
+			onQueueChanged();
+			return returned;
+		},
 		getNextFrame: () => {
 			return bufferedFrames[0];
 		},
 		shift: () => {
 			const frame = bufferedFrames.shift();
+			onQueueChanged();
+
 			checkWaiters();
 			return frame;
 		},
@@ -29,6 +61,7 @@ export const makeBufferQueue = () => {
 		},
 		add: (frame: VideoFrame) => {
 			bufferedFrames.push(frame);
+			onQueueChanged();
 		},
 		waitForQueueToBeLessThan: (n: number) => {
 			if (bufferedFrames.length < n) {
@@ -43,6 +76,7 @@ export const makeBufferQueue = () => {
 			});
 		},
 		clearBecauseOfSeek: () => {
+			console.log('clearing queue');
 			waiters.forEach((waiter) => {
 				waiter.resolve(true);
 			});
@@ -52,6 +86,7 @@ export const makeBufferQueue = () => {
 			}
 
 			bufferedFrames.length = 0;
+			onQueueChanged();
 		},
 		getLastFrame: () => {
 			return bufferedFrames[bufferedFrames.length - 1];
