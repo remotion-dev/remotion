@@ -5,9 +5,9 @@ import type {
 import {
 	hasBeenAborted,
 	mediaParserController,
-	parseMedia,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/media-parser';
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder, webcodecsController} from '@remotion/webcodecs';
 import {makeFrameBuffer} from './frame-buffer';
 import {throttledSeek} from './throttled-seek';
@@ -53,7 +53,7 @@ export const playMedia = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	parseMedia({
+	parseMediaOnWebWorker({
 		src,
 		acknowledgeRemotionLicense: true,
 		controller: mpController,
@@ -65,8 +65,15 @@ export const playMedia = ({
 					onError(err);
 					mpController.abort();
 				},
-				onFrame: (frame) => {
+				onFrame: async (frame) => {
 					console.log('onFrame', frame.timestamp);
+					const cancelled = await frameBuffer.waitForQueueToBeLessThan(15);
+					if (cancelled) {
+						frame.close();
+						decoder.reset();
+						return;
+					}
+
 					const desiredSeek = seek.getDesiredSeek();
 					if (desiredSeek) {
 						desiredSeek.observedFramesSinceSeek.push(frame.timestamp);
@@ -97,15 +104,9 @@ export const playMedia = ({
 			return async (sample) => {
 				const desiredSeek = seek.getDesiredSeek();
 
-				await decoder.waitForQueueToBeLessThan(15);
-				const cancelled = await frameBuffer.waitForQueueToBeLessThan(15);
+				await decoder.waitForQueueToBeLessThan(20);
 
-				console.log('retrieved sample', sample.timestamp, cancelled);
-
-				if (cancelled) {
-					decoder.reset();
-					return;
-				}
+				console.log('retrieved sample', sample.timestamp);
 
 				await decoder.decode(sample);
 

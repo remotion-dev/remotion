@@ -53,6 +53,7 @@ export const throttledSeek = (
 	let currentSeek: Seek | null = null;
 
 	const mediaParserSeek = (timestamp: number) => {
+		console.log('seeking');
 		lastMediaParserSeek = timestamp;
 		controller.seek(timestamp);
 		controller.resume();

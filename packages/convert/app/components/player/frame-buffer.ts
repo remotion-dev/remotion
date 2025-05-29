@@ -105,10 +105,12 @@ export const makeFrameBuffer = ({
 				Math.abs(currentlyDrawnFrame.timestamp - playback.getCurrentTime()) >
 					Math.abs(frame.timestamp - playback.getCurrentTime())
 			) {
+				console.log('releaseFrame', frame.timestamp);
 				releaseFrame(frame);
 				return;
 			}
 
+			console.log('enqueue', frame.timestamp);
 			bufferQueue.add(frame);
 		},
 		play: () => {
