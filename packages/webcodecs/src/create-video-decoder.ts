@@ -8,7 +8,7 @@ export type WebCodecsVideoDecoder = {
 	) => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
-	waitForQueueToBeLessThan: (items: number) => Promise<void>;
+	waitForQueueToBeLessThan: (items: number) => Promise<boolean>;
 	reset: () => void;
 };
 
@@ -33,6 +33,7 @@ export const internalCreateVideoDecoder = ({
 
 	const videoDecoder = new VideoDecoder({
 		async output(frame) {
+			console.log('output', frame.timestamp);
 			try {
 				await onFrame(frame);
 			} catch (err) {
@@ -109,6 +110,8 @@ export const internalCreateVideoDecoder = ({
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 		reset: () => {
+			console.log('resetting decoder');
+			ioSynchronizer.clearQueue();
 			videoDecoder.reset();
 			videoDecoder.configure(config);
 		},

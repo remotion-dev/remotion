@@ -10,7 +10,7 @@ export const makeTimeoutPromise = ({
 	ms: number;
 	controller: WebCodecsController | null;
 }) => {
-	const {promise, reject, resolve} = withResolvers<void>();
+	const {promise, reject, resolve} = withResolvers<false>();
 
 	let timeout: Timer | null = null;
 
@@ -44,7 +44,7 @@ export const makeTimeoutPromise = ({
 				clearTimeout(timeout);
 			}
 
-			resolve();
+			resolve(false);
 			if (controller) {
 				controller.removeEventListener('pause', onPause);
 				controller.removeEventListener('resume', onResume);

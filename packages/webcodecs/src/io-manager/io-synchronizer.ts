@@ -20,6 +20,7 @@ export const makeIoSynchronizer = ({
 	let lastOutput = 0;
 	let inputsSinceLastOutput = 0;
 	let inputs: number[] = [];
+	let resolvers: ((value: boolean | PromiseLike<boolean>) => void)[] = [];
 
 	const getQueuedItems = () => {
 		inputs = inputs.filter(
@@ -59,13 +60,15 @@ export const makeIoSynchronizer = ({
 	};
 
 	const waitForOutput = () => {
-		const {promise, resolve} = withResolvers<void>();
+		const {promise, resolve} = withResolvers<boolean>();
 		const on = () => {
 			eventEmitter.removeEventListener('output', on);
-			resolve();
+			resolve(false);
+			resolvers = resolvers.filter((resolver) => resolver !== resolve);
 		};
 
 		eventEmitter.addEventListener('output', on);
+		resolvers.push(resolve);
 		return promise;
 	};
 
@@ -80,7 +83,7 @@ export const makeIoSynchronizer = ({
 
 	const waitForQueueSize = async (queueSize: number) => {
 		if (getQueuedItems() <= queueSize) {
-			return Promise.resolve();
+			return Promise.resolve(false);
 		}
 
 		const {timeoutPromise, clear} = makeTimeoutPromise({
@@ -101,12 +104,15 @@ export const makeIoSynchronizer = ({
 			);
 		}
 
-		await Promise.race([
+		const cancelled = await Promise.race([
 			timeoutPromise,
 			(async () => {
+				let result = false;
 				while (getQueuedItems() > queueSize) {
-					await waitForOutput();
+					result = await waitForOutput();
 				}
+
+				return result;
 			})(),
 		]).finally(() => clear());
 
@@ -116,12 +122,31 @@ export const makeIoSynchronizer = ({
 				clear,
 			);
 		}
+
+		return cancelled;
+	};
+
+	const clearQueue = () => {
+		inputs.length = 0;
+		lastInput = 0;
+		lastOutput = 0;
+		inputsSinceLastOutput = 0;
+
+		resolvers.forEach((resolver) => {
+			console.log('cleared resolvers');
+
+			return resolver(true);
+		});
+		resolvers.length = 0;
+
+		inputs.length = 0;
 	};
 
 	return {
 		inputItem,
 		onOutput,
 		waitForQueueSize,
+		clearQueue,
 	};
 };
 

@@ -5,7 +5,9 @@ import {
 
 type Seek = {
 	getDesired: () => number;
-	observedFramesSinceSeek: number[];
+	getObservedFramesSinceSeek: () => number[];
+	addObservedFrame: (frame: number) => void;
+	clearObservedFramesSinceSeek: () => void;
 	replaceTimestamp: (ts: number) => void;
 	isDone: () => boolean;
 	isInfeasible: () => boolean;
@@ -17,7 +19,13 @@ const makeSeek = (_desired: number): Seek => {
 
 	return {
 		getDesired: () => desired,
-		observedFramesSinceSeek,
+		getObservedFramesSinceSeek: () => observedFramesSinceSeek,
+		addObservedFrame: (frame: number) => {
+			observedFramesSinceSeek.push(frame);
+		},
+		clearObservedFramesSinceSeek: () => {
+			observedFramesSinceSeek.length = 0;
+		},
 		replaceTimestamp: (ts: number) => {
 			desired = ts;
 		},
@@ -37,9 +45,15 @@ const makeSeek = (_desired: number): Seek => {
 			}
 
 			// all samples are after desired
-			return observedFramesSinceSeek.every(
+			const infeasible = observedFramesSinceSeek.every(
 				(f) => f >= desired * WEBCODECS_TIMESCALE,
 			);
+
+			if (infeasible) {
+				console.log('infeasible', JSON.stringify(observedFramesSinceSeek));
+			}
+
+			return infeasible;
 		},
 	};
 };
@@ -53,7 +67,6 @@ export const throttledSeek = (
 	let currentSeek: Seek | null = null;
 
 	const mediaParserSeek = (timestamp: number) => {
-		console.log('seeking');
 		lastMediaParserSeek = timestamp;
 		controller.seek(timestamp);
 		controller.resume();
@@ -70,6 +83,7 @@ export const throttledSeek = (
 			if (currentSeek !== null) {
 				currentSeek.replaceTimestamp(seek);
 				if (currentSeek.isInfeasible()) {
+					currentSeek.clearObservedFramesSinceSeek();
 					releaseSeek(currentSeek.getDesired());
 				}
 
@@ -87,7 +101,7 @@ export const throttledSeek = (
 				throw new Error('No current seek');
 			}
 
-			currentSeek.observedFramesSinceSeek = [];
+			currentSeek.clearObservedFramesSinceSeek();
 			releaseSeek(currentSeek.getDesired());
 		},
 		clearSeek: () => {

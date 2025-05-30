@@ -5,9 +5,10 @@ import type {
 import {
 	hasBeenAborted,
 	mediaParserController,
+	parseMedia,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/media-parser';
-import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
+import type {WebCodecsVideoDecoder} from '@remotion/webcodecs';
 import {createVideoDecoder, webcodecsController} from '@remotion/webcodecs';
 import {makeFrameBuffer} from './frame-buffer';
 import {throttledSeek} from './throttled-seek';
@@ -38,13 +39,19 @@ export const playMedia = ({
 	});
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let seekVideo = (_time: number) => undefined;
+	let seekVideo = (_time: number, _reason: string) => undefined;
 
-	const seek = throttledSeek(mpController, (t) => seekVideo(t));
-	seekVideo = (time: number) => {
-		console.log('media parser seek', time);
+	let decoder: WebCodecsVideoDecoder | null = null;
+
+	const seek = throttledSeek(mpController, (t, r) => seekVideo(t, r));
+	seekVideo = (time: number, reason: string) => {
+		if (decoder) {
+			decoder.reset();
+		}
+
 		seek.seek(time);
 		frameBuffer.clearBecauseOfSeek();
+		mpController.resume();
 	};
 
 	const onAbort = () => {
@@ -53,41 +60,37 @@ export const playMedia = ({
 
 	signal.addEventListener('abort', onAbort);
 
-	parseMediaOnWebWorker({
+	parseMedia({
 		src,
 		acknowledgeRemotionLicense: true,
 		controller: mpController,
 		onDimensions,
 		onDurationInSeconds,
 		onVideoTrack: ({track}) => {
-			const decoder = createVideoDecoder({
+			decoder = createVideoDecoder({
 				onError: (err) => {
 					onError(err);
 					mpController.abort();
 				},
-				onFrame: async (frame) => {
-					console.log('onFrame', frame.timestamp);
-					const cancelled = await frameBuffer.waitForQueueToBeLessThan(15);
-					if (cancelled) {
-						frame.close();
-						decoder.reset();
-						return;
-					}
+				onFrame: (frame) => {
+					console.log('decoded', frame.timestamp);
 
 					const desiredSeek = seek.getDesiredSeek();
 					if (desiredSeek) {
-						desiredSeek.observedFramesSinceSeek.push(frame.timestamp);
+						desiredSeek.addObservedFrame(frame.timestamp);
 						if (desiredSeek.isInfeasible()) {
+							console.log(
+								'infeasible, ' + desiredSeek.getDesired() + ' replace seek',
+							);
 							// Seek is pending, but we already too far.
-							console.log('replace with newest seek');
 							frame.close();
 							decoder.reset();
 							seek.replaceWithNewestSeek();
+							desiredSeek.clearObservedFramesSinceSeek();
 							return;
 						}
 
 						if (desiredSeek.isDone()) {
-							console.log('seek done');
 							seek.clearSeek();
 						} else {
 							frame.close();
@@ -102,18 +105,29 @@ export const playMedia = ({
 			});
 
 			return async (sample) => {
-				const desiredSeek = seek.getDesiredSeek();
+				console.log('retrieved sample', sample.timestamp, sample.type);
 
-				await decoder.waitForQueueToBeLessThan(20);
+				const decoderCancelled = await decoder!.waitForQueueToBeLessThan(20);
+				if (decoderCancelled) {
+					console.log('decoder cancelled');
+					return;
+				}
 
-				console.log('retrieved sample', sample.timestamp);
+				console.log(decoderCancelled, sample.timestamp);
 
-				await decoder.decode(sample);
+				const frameBufferCancelled =
+					await frameBuffer.waitForQueueToBeLessThan(15);
+				if (frameBufferCancelled) {
+					decoder!.reset();
+					return;
+				}
 
+				console.log('decoding', sample.timestamp, sample.type);
+				await decoder!.decode(sample);
+
+				console.log('ready for next sample');
 				return async () => {
-					console.log('end - flushing');
-					await decoder.flush();
-					console.log('end - flushing done');
+					await decoder!.flush();
 					frameBuffer.setLastFrameReceived();
 					mpController.pause();
 
@@ -127,6 +141,8 @@ export const playMedia = ({
 		.catch((err) => {
 			if (!hasBeenAborted(err)) {
 				onError(err);
+			} else {
+				console.log('aborted');
 			}
 		})
 		.finally(() => {
