@@ -115,6 +115,8 @@ export const getPartialAudioData = async ({
 
 					// Stop immediately when we reach our target time
 					if (time >= toSeconds) {
+						// wait until decoder is done
+						await audioDecoder.flush();
 						audioDecoder.close();
 						controller.abort();
 						return;
