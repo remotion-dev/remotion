@@ -26,7 +26,7 @@ export const getAvailableMemory = (logLevel: LogLevel) => {
 		const nodeMemory = freemem();
 		const _procInfo = getFreeMemoryFromProcMeminfo(logLevel);
 
-		if (cgroupMemory > nodeMemory * 1.25) {
+		if (cgroupMemory > nodeMemory * 1.25 && Number.isFinite(cgroupMemory)) {
 			Log.warn({indent: false, logLevel}, 'Detected differing memory amounts:');
 			Log.warn(
 				{indent: false, logLevel},
