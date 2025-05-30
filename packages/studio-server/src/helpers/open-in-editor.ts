@@ -582,7 +582,7 @@ export async function launchEditor({
 			return;
 		}
 
-		child_process.exec(`${where} "${editor.command}"`, (err) => {
+		child_process.execFile(where, [editor.command], (err) => {
 			if (err) {
 				resolve(editor.process);
 			} else {
@@ -597,12 +597,13 @@ export async function launchEditor({
 			// launch .exe files.
 			_childProcess = child_process.spawn(
 				'cmd.exe',
-				['/C', binaryToUse].concat(args),
+				['/C', binaryToUse, ...args],
 				{stdio: 'inherit', detached: true},
 			);
 		} else {
 			_childProcess = child_process.spawn(binaryToUse, args, {
 				stdio: 'inherit',
+				shell: false, // Disable shell interpretation
 			});
 		}
 
