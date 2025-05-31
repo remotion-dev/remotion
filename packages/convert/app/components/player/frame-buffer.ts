@@ -72,8 +72,6 @@ export const makeFrameBuffer = ({
 			currentlyDrawnFrame?.timestamp ?? null,
 		);
 		if (canProcess) {
-			console.log('canProcess', canProcess, timestamp);
-
 			const returnedFrames = bufferQueue.processSeekWithQueue(timestamp);
 			const toDraw = returnedFrames.pop();
 			for (const frame of returnedFrames) {
@@ -105,12 +103,10 @@ export const makeFrameBuffer = ({
 				Math.abs(currentlyDrawnFrame.timestamp - playback.getCurrentTime()) >
 					Math.abs(frame.timestamp - playback.getCurrentTime())
 			) {
-				console.log('releaseFrame', frame.timestamp);
 				releaseFrame(frame);
 				return;
 			}
 
-			console.log('enqueue', frame.timestamp);
 			bufferQueue.add(frame);
 		},
 		play: () => {

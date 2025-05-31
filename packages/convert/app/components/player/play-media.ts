@@ -44,7 +44,7 @@ export const playMedia = ({
 	let decoder: WebCodecsVideoDecoder | null = null;
 
 	const seek = throttledSeek(mpController, (t, r) => seekVideo(t, r));
-	seekVideo = (time: number, reason: string) => {
+	seekVideo = (time: number) => {
 		if (decoder) {
 			decoder.reset();
 		}
@@ -73,18 +73,13 @@ export const playMedia = ({
 					mpController.abort();
 				},
 				onFrame: (frame) => {
-					console.log('decoded', frame.timestamp);
-
 					const desiredSeek = seek.getDesiredSeek();
 					if (desiredSeek) {
 						desiredSeek.addObservedFrame(frame.timestamp);
 						if (desiredSeek.isInfeasible()) {
-							console.log(
-								'infeasible, ' + desiredSeek.getDesired() + ' replace seek',
-							);
 							// Seek is pending, but we already too far.
 							frame.close();
-							decoder.reset();
+							decoder!.reset();
 							seek.replaceWithNewestSeek();
 							desiredSeek.clearObservedFramesSinceSeek();
 							return;
@@ -92,9 +87,6 @@ export const playMedia = ({
 
 						if (desiredSeek.isDone()) {
 							seek.clearSeek();
-						} else {
-							frame.close();
-							return;
 						}
 					}
 
@@ -105,15 +97,10 @@ export const playMedia = ({
 			});
 
 			return async (sample) => {
-				console.log('retrieved sample', sample.timestamp, sample.type);
-
 				const decoderCancelled = await decoder!.waitForQueueToBeLessThan(20);
 				if (decoderCancelled) {
-					console.log('decoder cancelled');
 					return;
 				}
-
-				console.log(decoderCancelled, sample.timestamp);
 
 				const frameBufferCancelled =
 					await frameBuffer.waitForQueueToBeLessThan(15);
@@ -122,12 +109,14 @@ export const playMedia = ({
 					return;
 				}
 
-				console.log('decoding', sample.timestamp, sample.type);
 				await decoder!.decode(sample);
 
-				console.log('ready for next sample');
 				return async () => {
-					await decoder!.flush();
+					const cancelled = await decoder!.flush();
+					if (cancelled) {
+						return;
+					}
+
 					frameBuffer.setLastFrameReceived();
 					mpController.pause();
 

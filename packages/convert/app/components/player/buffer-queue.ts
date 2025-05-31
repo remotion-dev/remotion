@@ -76,7 +76,6 @@ export const makeBufferQueue = (onQueueChanged: () => void) => {
 			});
 		},
 		clearBecauseOfSeek: () => {
-			console.log('clearing queue');
 			waiters.forEach((waiter) => {
 				waiter.resolve(true);
 			});

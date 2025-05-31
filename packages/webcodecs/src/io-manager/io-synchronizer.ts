@@ -133,8 +133,6 @@ export const makeIoSynchronizer = ({
 		inputsSinceLastOutput = 0;
 
 		resolvers.forEach((resolver) => {
-			console.log('cleared resolvers');
-
 			return resolver(true);
 		});
 		resolvers.length = 0;

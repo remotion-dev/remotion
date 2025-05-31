@@ -44,9 +44,9 @@ const makeSeek = (_desired: number): Seek => {
 				return false;
 			}
 
-			// all samples are after desired
+			// all samples are after desired, 0.1 leniency
 			const infeasible = observedFramesSinceSeek.every(
-				(f) => f >= desired * WEBCODECS_TIMESCALE,
+				(f) => f >= (desired + 0.1) * WEBCODECS_TIMESCALE,
 			);
 
 			if (infeasible) {

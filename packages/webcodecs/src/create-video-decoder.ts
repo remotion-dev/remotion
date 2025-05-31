@@ -1,4 +1,5 @@
 import type {MediaParserLogLevel} from '@remotion/media-parser';
+import {withResolvers} from './create/with-resolvers';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
@@ -7,9 +8,25 @@ export type WebCodecsVideoDecoder = {
 		videoSample: EncodedVideoChunkInit | EncodedVideoChunk,
 	) => Promise<void>;
 	close: () => void;
-	flush: () => Promise<void>;
+	flush: () => Promise<boolean>;
 	waitForQueueToBeLessThan: (items: number) => Promise<boolean>;
 	reset: () => void;
+};
+
+type FlushPending = {
+	resolve: (value: boolean | PromiseLike<boolean>) => void;
+	reject: (reason?: any) => void;
+	promise: Promise<boolean>;
+};
+
+const makeFlushPending = () => {
+	const {promise, resolve, reject} = withResolvers<boolean>();
+
+	return {
+		promise,
+		resolve,
+		reject,
+	};
 };
 
 export const internalCreateVideoDecoder = ({
@@ -97,20 +114,35 @@ export const internalCreateVideoDecoder = ({
 		ioSynchronizer.inputItem(sample.timestamp);
 	};
 
+	let flushPending: FlushPending | null = null;
+
 	return {
 		decode,
 		close,
-		flush: async () => {
-			// Firefox might throw "Needs to be configured first"
-			try {
-				await videoDecoder.flush();
-			} catch {}
+		flush: () => {
+			if (flushPending) {
+				throw new Error('Flush already pending');
+			}
 
-			await ioSynchronizer.waitForQueueSize(0);
+			const pendingFlush = makeFlushPending();
+			flushPending = pendingFlush;
+			Promise.resolve()
+				.then(() => {
+					return videoDecoder.flush();
+				})
+				.catch(() => {
+					// Firefox might throw "Needs to be configured first"
+				})
+				.finally(() => {
+					pendingFlush.resolve(false);
+					flushPending = null;
+				});
+
+			return pendingFlush.promise;
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 		reset: () => {
-			console.log('resetting decoder');
+			flushPending?.resolve(true);
 			ioSynchronizer.clearQueue();
 			videoDecoder.reset();
 			videoDecoder.configure(config);
