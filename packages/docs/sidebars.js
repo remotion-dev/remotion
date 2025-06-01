@@ -1317,7 +1317,6 @@ module.exports = {
 			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',
-			className: 'pro-item',
 		},
 	],
 	recorderSidebar: [
@@ -1326,8 +1325,7 @@ module.exports = {
 			label: 'Recorder',
 			items: [
 				'recorder/index',
-				'recorder/before-you-buy',
-				'recorder/buy',
+				'recorder/is-it-for-me',
 				'recorder/demo',
 				'recorder/setup',
 				'recorder/create',
