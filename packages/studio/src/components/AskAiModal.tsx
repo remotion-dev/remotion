@@ -102,6 +102,7 @@ export const AskAiModal: React.FC = () => {
 					frameBorder={0}
 					style={container}
 					src="https://www.remotion.dev/ai-embed"
+					allow="clipboard-read; clipboard-write"
 				/>
 			</ModalContainer>
 		</AbsoluteFill>

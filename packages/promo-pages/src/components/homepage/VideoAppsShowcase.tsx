@@ -37,8 +37,7 @@ const videoApps = [
 		title: 'Remotion Recorder',
 		description:
 			'The Remotion Recorder is a video production tool built entirely in JavaScript. Create high-quality videos that feel native on each platform while only editing them once.',
-
-		link: 'https://www.remotion.pro/recorder',
+		link: 'https://www.remotion.dev/recorder',
 		videoWidth: 1080,
 		videoHeight: 1080,
 		muxId: 'pHlwqDZFUH00Aubo9M001ty3gZ6YW8z689XTd9R479ayE',
@@ -173,7 +172,11 @@ const VideoAppsShowcase: React.FC = () => {
 	return (
 		<div ref={containerRef}>
 			<SectionTitle>Use Cases</SectionTitle>
-			<div className={'grid justify-center grid-flow-col grid-rows-1 gap-2.5 justify-self-center mb-4 w-[90vw] md:w-auto'}>
+			<div
+				className={
+					'grid justify-center grid-flow-col grid-rows-1 gap-2.5 justify-self-center mb-4 w-[90vw] md:w-auto'
+				}
+			>
 				{tabs.map((tab, index) => (
 					<button
 						key={tab}

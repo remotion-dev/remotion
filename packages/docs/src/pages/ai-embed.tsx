@@ -49,6 +49,7 @@ export default () => {
 				height: '100%',
 				position: 'absolute',
 			}}
+			allow="clipboard-read; clipboard-write"
 		/>
 	);
 };

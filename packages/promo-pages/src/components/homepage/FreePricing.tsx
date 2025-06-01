@@ -185,20 +185,6 @@ export const CompanyPricing: React.FC = () => {
 			<PricingBulletPoint text="Commercial use allowed" checked />
 			<PricingBulletPoint text="Self-hosted cloud rendering allowed" checked />
 			<PricingBulletPoint text="Prioritized Support" checked />
-			<PricingBulletPoint
-				text={
-					<span>
-						<a
-							href="https://remotion.dev/recorder"
-							className="underline underline-offset-4 text-inherit"
-						>
-							Remotion Recorder
-						</a>{' '}
-						included
-					</span>
-				}
-				checked
-			/>
 			<PricingBulletPoint text="$250 Mux credits" checked>
 				<InfoTooltip text="Credits for Mux.com. Applies only to new Mux customers." />
 			</PricingBulletPoint>

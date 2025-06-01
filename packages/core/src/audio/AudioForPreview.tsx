@@ -160,10 +160,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		throw new Error('SharedAudioContext not found');
 	}
 
-	const {el: audioRef, mediaElementSourceNode} = useSharedAudio(
-		propsToPass,
-		id,
-	);
+	const {el: audioRef, mediaElementSourceNode} = useSharedAudio({
+		aud: propsToPass,
+		audioId: id,
+		premounting: Boolean(sequenceContext?.premounting),
+	});
 
 	useMediaInTimeline({
 		volume,
