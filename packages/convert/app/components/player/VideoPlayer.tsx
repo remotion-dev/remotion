@@ -30,6 +30,7 @@ export const VideoPlayer: React.FC<{
 			onError: console.error,
 			drawFrame: (frame) => {
 				canvasRef.current?.getContext('2d')?.drawImage(frame, 0, 0);
+				return false;
 			},
 			loop: true,
 		});

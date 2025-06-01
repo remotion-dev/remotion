@@ -6,7 +6,6 @@ type PlayerEventMap = {
 	pause: undefined;
 	play: undefined;
 	timeupdate: TimeUpdateEventPayload;
-	queuechanged: undefined;
 };
 
 export type PlayerEventTypes = keyof PlayerEventMap;
@@ -24,7 +23,6 @@ export class PlayerEmitter {
 		pause: [],
 		play: [],
 		timeupdate: [],
-		queuechanged: [],
 	};
 
 	addEventListener = <Q extends keyof PlayerEventMap>(
@@ -64,9 +62,5 @@ export class PlayerEmitter {
 
 	dispatchTimeUpdate = (time: number) => {
 		this.dispatchEvent('timeupdate', {time});
-	};
-
-	dispatchQueueChanged = () => {
-		this.dispatchEvent('queuechanged', undefined);
 	};
 }

@@ -1,6 +1,11 @@
-import {PlayerEmitter} from './event-emitter';
+import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
+import type {FrameDatabase} from './frame-database';
+import {PlayerEmitter} from './player-event-emitter';
 
-export const makePlaybackState = () => {
+export const makePlaybackState = (
+	frameDatabase: FrameDatabase,
+	tryToDraw: (frame: VideoFrame) => boolean,
+) => {
 	let currentTime = 0;
 	let playing = false;
 	let playTimeout: NodeJS.Timeout | null = null;
@@ -12,32 +17,58 @@ export const makePlaybackState = () => {
 		}
 	};
 
-	const setPlayTimeout = (timeout: NodeJS.Timeout) => {
-		playTimeout = timeout;
+	const getCurrentTime = () => {
+		return currentTime;
+	};
+
+	const isPlaying = () => {
+		return playing;
+	};
+
+	const setCurrentTime = (time: number) => {
+		const hasChanged = currentTime !== time;
+		currentTime = time;
+		if (hasChanged) {
+			emitter.dispatchTimeUpdate(time);
+		}
+	};
+
+	const loop = () => {
+		const nextFrame = frameDatabase.getFrameForTimeAndDiscardEarlier(
+			currentTime / WEBCODECS_TIMESCALE,
+		);
+
+		return setTimeout(
+			() => {
+				if (!isPlaying()) {
+					return;
+				}
+
+				const stop = tryToDraw(nextFrame);
+				if (stop) {
+					return;
+				}
+
+				setCurrentTime(nextFrame.timestamp);
+
+				loop();
+			},
+			(nextFrame.timestamp - getCurrentTime()) / 1000,
+		);
 	};
 
 	return {
-		setCurrentTime: (time: number) => {
-			const hasChanged = currentTime !== time;
-			currentTime = time;
-			if (hasChanged) {
-				emitter.dispatchTimeUpdate(time);
-			}
-		},
-		getCurrentTime: () => {
-			return currentTime;
-		},
-		isPlaying: () => {
-			return playing;
-		},
+		setCurrentTime,
+		getCurrentTime,
+		isPlaying,
 		pause: () => {
 			playing = false;
 			clearPlayTimeout();
 			emitter.dispatchPause();
 		},
-		play: (timeout: NodeJS.Timeout) => {
+		play: () => {
 			playing = true;
-			setPlayTimeout(timeout);
+			playTimeout = loop();
 			emitter.dispatchPlay();
 		},
 		emitter,

@@ -10,7 +10,9 @@ import {
 } from '@remotion/media-parser';
 import type {WebCodecsVideoDecoder} from '@remotion/webcodecs';
 import {createVideoDecoder, webcodecsController} from '@remotion/webcodecs';
-import {makeFrameBuffer} from './frame-buffer';
+import {makeFrameDatabase} from './frame-database';
+import {makePlaybackState} from './playback-state';
+import {isSeekAchieved, isSeekInfeasible} from './seek-logic';
 import {throttledSeek} from './throttled-seek';
 
 export const playMedia = ({
@@ -26,31 +28,28 @@ export const playMedia = ({
 	signal: AbortSignal;
 	onDimensions: (dim: MediaParserDimensions | null) => void;
 	onDurationInSeconds: (duration: number | null) => void;
-	drawFrame: (frame: VideoFrame) => void;
+	drawFrame: (frame: VideoFrame) => boolean;
 	onError: (err: Error) => void;
 	loop: boolean;
 }) => {
 	const wcController = webcodecsController();
 	const mpController = mediaParserController();
 
-	const frameBuffer = makeFrameBuffer({
-		drawFrame,
-		initialLoop: loop,
-	});
+	const frameDatabase = makeFrameDatabase();
+	const playback = makePlaybackState(frameDatabase, drawFrame);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let seekVideo = (_time: number, _reason: string) => undefined;
+	let seekVideo = (_time: number) => undefined;
 
 	let decoder: WebCodecsVideoDecoder | null = null;
 
-	const seek = throttledSeek(mpController, (t, r) => seekVideo(t, r));
+	const seek = throttledSeek((t) => seekVideo(t));
 	seekVideo = (time: number) => {
 		if (decoder) {
 			decoder.reset();
 		}
 
-		seek.seek(time);
-		frameBuffer.clearBecauseOfSeek();
+		mpController.seek(time);
 		mpController.resume();
 	};
 
@@ -74,36 +73,41 @@ export const playMedia = ({
 				},
 				onFrame: (frame) => {
 					const desiredSeek = seek.getDesiredSeek();
+					frameDatabase.addFrame(frame);
 					if (desiredSeek) {
-						desiredSeek.addObservedFrame(frame.timestamp);
-						if (desiredSeek.isInfeasible()) {
+						if (isSeekInfeasible(frameDatabase, desiredSeek.getDesired())) {
 							// Seek is pending, but we already too far.
-							frame.close();
 							decoder!.reset();
 							seek.replaceWithNewestSeek();
-							desiredSeek.clearObservedFramesSinceSeek();
 							return;
 						}
 
-						if (desiredSeek.isDone()) {
+						if (
+							isSeekAchieved({
+								frameDatabase,
+								seekToSeconds: desiredSeek.getDesired(),
+							})
+						) {
 							seek.clearSeek();
 						}
 					}
-
-					frameBuffer.addFrame(frame);
 				},
 				track,
 				controller: wcController,
 			});
 
 			return async (sample) => {
+				if (sample.type === 'key') {
+					frameDatabase.startNewGop(sample);
+				}
+
 				const decoderCancelled = await decoder!.waitForQueueToBeLessThan(20);
 				if (decoderCancelled) {
 					return;
 				}
 
 				const frameBufferCancelled =
-					await frameBuffer.waitForQueueToBeLessThan(15);
+					await frameDatabase.waitForQueueToBeLessThan(15);
 				if (frameBufferCancelled) {
 					decoder!.reset();
 					return;
@@ -117,11 +121,10 @@ export const playMedia = ({
 						return;
 					}
 
-					frameBuffer.setLastFrameReceived();
 					mpController.pause();
 
 					if (loop) {
-						seek.seek(0);
+						seek.queueSeek(0, frameDatabase);
 					}
 				};
 			};
@@ -140,33 +143,30 @@ export const playMedia = ({
 
 	return {
 		play: () => {
-			frameBuffer.play();
+			playback.play();
 		},
 		pause: () => {
-			frameBuffer.pause();
+			playback.pause();
 		},
 		isPlaying: () => {
-			return frameBuffer.playback.isPlaying();
+			return playback.isPlaying();
 		},
 		getCurrentTime: () => {
-			return frameBuffer.playback.getCurrentTime();
+			return playback.getCurrentTime();
 		},
 		seek: (time: number) => {
-			frameBuffer.playback.setCurrentTime(time * WEBCODECS_TIMESCALE);
-			if (frameBuffer.processSeekWithQueue(time)) {
-				console.log('processed seek in queue');
+			playback.setCurrentTime(time * WEBCODECS_TIMESCALE);
+			if (isSeekAchieved({frameDatabase, seekToSeconds: time})) {
 				seek.clearSeek();
 				mpController.resume();
 				return;
 			}
 
-			seek.queueSeek(time);
+			seek.queueSeek(time, frameDatabase);
 		},
-		getBufferedTimestamps: () => {
-			return frameBuffer.getBufferedTimestamps();
-		},
-		addEventListener: frameBuffer.playback.emitter.addEventListener,
-		removeEventListener: frameBuffer.playback.emitter.removeEventListener,
+		addEventListener: playback.emitter.addEventListener,
+		removeEventListener: playback.emitter.removeEventListener,
+		frameDatabase,
 	};
 };
 
