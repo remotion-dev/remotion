@@ -101,26 +101,30 @@ export const playMedia = ({
 					frameDatabase.startNewGop(sample);
 				}
 
-				const decoderCancelled = await decoder!.waitForQueueToBeLessThan(20);
-				if (decoderCancelled) {
+				const {wasReset} = decoder!.checkReset();
+
+				await decoder!.waitForQueueToBeLessThan(20);
+				if (wasReset()) {
 					return;
 				}
 
-				const frameBufferCancelled =
-					await frameDatabase.waitForQueueToBeLessThan(15);
-				if (frameBufferCancelled) {
-					decoder!.reset();
+				await frameDatabase.waitForQueueToBeLessThan(15);
+				if (wasReset()) {
 					return;
 				}
 
 				await decoder!.decode(sample);
+				if (wasReset()) {
+					return;
+				}
 
 				return async () => {
-					const cancelled = await decoder!.flush();
-					if (cancelled) {
+					await decoder!.flush();
+					if (wasReset()) {
 						return;
 					}
 
+					frameDatabase.setLastFrame();
 					mpController.pause();
 
 					if (loop) {

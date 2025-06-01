@@ -1,11 +1,14 @@
 import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
-import {findGroupForTimestamp, type FrameDatabase} from './frame-database';
+import {
+	findGroupForInsertingTimestamp,
+	type FrameDatabase,
+} from './frame-database';
 
 export const isSeekInfeasible = (
 	frameDatabase: FrameDatabase,
 	seekToSeconds: number,
 ) => {
-	const group = findGroupForTimestamp({
+	const group = findGroupForInsertingTimestamp({
 		groups: frameDatabase._groups,
 		timestamp: seekToSeconds * WEBCODECS_TIMESCALE,
 	});
@@ -35,7 +38,7 @@ export const isSeekAchieved = ({
 	frameDatabase: FrameDatabase;
 	seekToSeconds: number;
 }) => {
-	const group = findGroupForTimestamp({
+	const group = findGroupForInsertingTimestamp({
 		groups: frameDatabase._groups,
 		timestamp: seekToSeconds * WEBCODECS_TIMESCALE,
 	});

@@ -9,7 +9,7 @@ export type WebCodecsAudioDecoder = {
 	) => Promise<void>;
 	close: () => void;
 	flush: () => Promise<void>;
-	waitForQueueToBeLessThan: (items: number) => Promise<boolean>;
+	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 	reset: () => void;
 };
 

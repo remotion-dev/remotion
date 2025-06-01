@@ -1,7 +1,4 @@
-import {
-	WEBCODECS_TIMESCALE,
-	type MediaParserVideoSample,
-} from '@remotion/media-parser';
+import {type MediaParserVideoSample} from '@remotion/media-parser';
 import {FrameDatabaseEmitter} from './frame-database-emitter';
 
 type GroupOfPicture = {
@@ -21,16 +18,55 @@ const makeGroupOfPicture = (sample: MediaParserVideoSample) => {
 	};
 };
 
-export const findGroupForTimestamp = ({
+export const findGroupForInsertingTimestamp = ({
 	groups,
 	timestamp,
 }: {
 	groups: GroupOfPicture[];
 	timestamp: number;
 }) => {
-	return groups
+	const possibleGroups = groups
 		.filter((g) => g.startingTimestamp <= timestamp)
-		.sort((a, b) => b.startingTimestamp - a.startingTimestamp)[0];
+		.sort((a, b) => b.startingTimestamp - a.startingTimestamp);
+
+	return possibleGroups[0];
+};
+
+export const findGroupForGettingTimestamp = ({
+	groups,
+	timestamp,
+}: {
+	groups: GroupOfPicture[];
+	timestamp: number;
+}) => {
+	const possibleGroups = groups;
+
+	if (possibleGroups.length === 0) {
+		return null;
+	}
+
+	if (possibleGroups.length === 1) {
+		return possibleGroups[0];
+	}
+
+	let closestDistance = Infinity;
+	let closestGroup = possibleGroups[0];
+
+	for (const group of possibleGroups) {
+		for (const frame of group.frames) {
+			if (frame.timestamp < timestamp) {
+				continue;
+			}
+
+			const distance = Math.abs(frame.timestamp - timestamp);
+			if (distance < closestDistance) {
+				closestGroup = group;
+				closestDistance = distance;
+			}
+		}
+	}
+
+	return closestGroup;
 };
 
 export const makeFrameDatabase = () => {
@@ -60,6 +96,49 @@ export const makeFrameDatabase = () => {
 		});
 	};
 
+	let lastFrame: number | null = null;
+
+	const getNextFrameForTimestampAndDiscardEarlier = (currentTime: number) => {
+		if (lastFrame !== null && currentTime === lastFrame) {
+			return getNextFrameForTimestampAndDiscardEarlier(0);
+		}
+
+		const group = findGroupForGettingTimestamp({
+			groups,
+			timestamp: currentTime,
+		});
+
+		if (!group) {
+			throw new Error('No group found for time');
+		}
+
+		const index = group.frames.findIndex((f) => f.timestamp >= currentTime);
+		if (index === -1) {
+			console.log(currentTime, groups);
+			throw new Error('No frame found for time');
+		}
+
+		const takenOutFrames = group.frames.splice(index, 1);
+
+		checkWaiters();
+		emitter.dispatchQueueChanged();
+
+		return takenOutFrames[0];
+	};
+
+	const setLastFrame = () => {
+		let biggestTimestampt = 0;
+		for (const group of groups) {
+			for (const frame of group.frames) {
+				if (frame.timestamp > biggestTimestampt) {
+					biggestTimestampt = frame.timestamp;
+				}
+			}
+		}
+
+		lastFrame = biggestTimestampt;
+	};
+
 	return {
 		startNewGop: (sample: MediaParserVideoSample) => {
 			const group = makeGroupOfPicture(sample);
@@ -67,13 +146,11 @@ export const makeFrameDatabase = () => {
 				return;
 			}
 
-			console.log('new gop', sample.timestamp);
-
 			groups.push(group);
 		},
 		addFrame: (frame: VideoFrame) => {
 			// Find the group with the largest startingTimestamp <= frame.timestamp
-			const group = findGroupForTimestamp({
+			const group = findGroupForInsertingTimestamp({
 				groups,
 				timestamp: frame.timestamp,
 			});
@@ -86,6 +163,8 @@ export const makeFrameDatabase = () => {
 			);
 			if (alreadyInGroup) {
 				alreadyInGroup.close();
+				// remove the frame from the group
+				group.frames.splice(group.frames.indexOf(alreadyInGroup), 1);
 			}
 
 			group.frames.push(frame);
@@ -93,36 +172,7 @@ export const makeFrameDatabase = () => {
 
 			emitter.dispatchQueueChanged();
 		},
-		getFrameForTimeAndDiscardEarlier: (time: number) => {
-			const group = findGroupForTimestamp({
-				groups,
-				timestamp: time,
-			});
-
-			if (!group) {
-				throw new Error('No group found for time');
-			}
-
-			const index = group.frames.findIndex(
-				(f) => f.timestamp >= time * WEBCODECS_TIMESCALE,
-			);
-			if (index === -1) {
-				throw new Error('No frame found for time');
-			}
-
-			const takenOutFrames = group.frames.splice(0, index + 1);
-			for (const frame of takenOutFrames) {
-				const isLast = frame === takenOutFrames[takenOutFrames.length - 1];
-				if (!isLast) {
-					frame.close();
-				}
-			}
-
-			checkWaiters();
-			emitter.dispatchQueueChanged();
-
-			return takenOutFrames[takenOutFrames.length - 1];
-		},
+		getNextFrameForTimestampAndDiscardEarlier,
 		waitForQueueToBeLessThan: (n: number) => {
 			if (getLength() < n) {
 				return Promise.resolve(false);
@@ -142,6 +192,8 @@ export const makeFrameDatabase = () => {
 				frames: g.frames.map((f) => f.timestamp),
 			}));
 		},
+		getLastFrame: () => lastFrame,
+		setLastFrame,
 		emitter,
 	};
 };

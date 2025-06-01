@@ -8,19 +8,22 @@ export type WebCodecsVideoDecoder = {
 		videoSample: EncodedVideoChunkInit | EncodedVideoChunk,
 	) => Promise<void>;
 	close: () => void;
-	flush: () => Promise<boolean>;
-	waitForQueueToBeLessThan: (items: number) => Promise<boolean>;
+	flush: () => Promise<void>;
+	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 	reset: () => void;
+	checkReset: () => {
+		wasReset: () => boolean;
+	};
 };
 
 type FlushPending = {
-	resolve: (value: boolean | PromiseLike<boolean>) => void;
+	resolve: (value: void | PromiseLike<void>) => void;
 	reject: (reason?: any) => void;
-	promise: Promise<boolean>;
+	promise: Promise<void>;
 };
 
 const makeFlushPending = () => {
-	const {promise, resolve, reject} = withResolvers<boolean>();
+	const {promise, resolve, reject} = withResolvers<void>();
 
 	return {
 		promise,
@@ -50,7 +53,6 @@ export const internalCreateVideoDecoder = ({
 
 	const videoDecoder = new VideoDecoder({
 		async output(frame) {
-			console.log('output', frame.timestamp);
 			try {
 				await onFrame(frame);
 			} catch (err) {
@@ -115,6 +117,7 @@ export const internalCreateVideoDecoder = ({
 	};
 
 	let flushPending: FlushPending | null = null;
+	let lastReset: number | null = null;
 
 	return {
 		decode,
@@ -134,7 +137,7 @@ export const internalCreateVideoDecoder = ({
 					// Firefox might throw "Needs to be configured first"
 				})
 				.finally(() => {
-					pendingFlush.resolve(false);
+					pendingFlush.resolve();
 					flushPending = null;
 				});
 
@@ -142,10 +145,17 @@ export const internalCreateVideoDecoder = ({
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 		reset: () => {
-			flushPending?.resolve(true);
+			lastReset = Date.now();
+			flushPending?.resolve();
 			ioSynchronizer.clearQueue();
 			videoDecoder.reset();
 			videoDecoder.configure(config);
+		},
+		checkReset: () => {
+			const initTime = Date.now();
+			return {
+				wasReset: () => lastReset !== null && lastReset > initTime,
+			};
 		},
 	};
 };

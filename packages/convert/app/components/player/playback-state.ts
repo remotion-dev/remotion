@@ -1,4 +1,3 @@
-import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import type {FrameDatabase} from './frame-database';
 import {PlayerEmitter} from './player-event-emitter';
 
@@ -34,9 +33,9 @@ export const makePlaybackState = (
 	};
 
 	const loop = () => {
-		const nextFrame = frameDatabase.getFrameForTimeAndDiscardEarlier(
-			currentTime / WEBCODECS_TIMESCALE,
-		);
+		const nextFrame =
+			frameDatabase.getNextFrameForTimestampAndDiscardEarlier(currentTime);
+		console.log('next frame', nextFrame.timestamp);
 
 		return setTimeout(
 			() => {
