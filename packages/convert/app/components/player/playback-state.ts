@@ -54,13 +54,13 @@ export const makePlaybackState = ({
 					return;
 				}
 
-				emitFrame(nextFrame);
-				setCurrentTime(nextFrame.timestamp);
-				nextFrame.close();
+				emitFrame(nextFrame.frame);
+				setCurrentTime(nextFrame.frame.timestamp);
+				nextFrame.frame.close();
 
 				loop();
 			},
-			(nextFrame.timestamp - getCurrentTime()) / 1000,
+			(nextFrame.frame.timestamp - getCurrentTime()) / 1000,
 		);
 	};
 
@@ -70,7 +70,7 @@ export const makePlaybackState = ({
 			false,
 		);
 
-		emitFrame(nextFrame);
+		emitFrame(nextFrame.frame);
 	};
 
 	const pause = () => {

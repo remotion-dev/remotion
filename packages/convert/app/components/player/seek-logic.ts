@@ -22,7 +22,7 @@ export const isSeekInfeasible = (
 	// 0.1sec tolerance because some videos first frame is a bit bigger than 0
 	if (
 		group.frames.every(
-			(f) => f.timestamp > (seekToSeconds + 0.1) * WEBCODECS_TIMESCALE,
+			(f) => f.frame.timestamp > (seekToSeconds + 0.1) * WEBCODECS_TIMESCALE,
 		)
 	) {
 		return true;
@@ -45,7 +45,7 @@ export const isSeekAchieved = ({
 
 	const hasFrameWithin01Seconds = group.frames.some(
 		(f) =>
-			Math.abs(f.timestamp - seekToSeconds * WEBCODECS_TIMESCALE) <
+			Math.abs(f.frame.timestamp - seekToSeconds * WEBCODECS_TIMESCALE) <
 			0.1 * WEBCODECS_TIMESCALE,
 	);
 
@@ -58,10 +58,10 @@ export const isSeekAchieved = ({
 	// determine if there are frames before and after the seek
 	// and consider the seek done.
 	const hasFramesAfter = group.frames.some(
-		(f) => f.timestamp > seekToSeconds * WEBCODECS_TIMESCALE,
+		(f) => f.frame.timestamp > seekToSeconds * WEBCODECS_TIMESCALE,
 	);
 	const hasFramesBefore = group.frames.some(
-		(f) => f.timestamp < seekToSeconds * WEBCODECS_TIMESCALE,
+		(f) => f.frame.timestamp < seekToSeconds * WEBCODECS_TIMESCALE,
 	);
 
 	return hasFramesAfter && hasFramesBefore;

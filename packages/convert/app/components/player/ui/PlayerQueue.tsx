@@ -32,8 +32,9 @@ export const PlayerQueue: React.FC<{
 					{'gop'} {t.startingTimestamp}
 					{t.frames.map((frame) => {
 						return (
-							<div key={frame}>
-								{(frame / WEBCODECS_TIMESCALE).toFixed(2)},{' '}
+							<div key={frame.frame}>
+								{(frame.frame / WEBCODECS_TIMESCALE).toFixed(2)},{' '}
+								{frame.loopIndex}
 							</div>
 						);
 					})}

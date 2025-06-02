@@ -62,6 +62,7 @@ export const playMedia = ({
 		onDimensions,
 		onDurationInSeconds,
 		onVideoTrack: ({track}) => {
+			let loopIteration = 0;
 			decoder = createVideoDecoder({
 				onError: (err) => {
 					onError(err);
@@ -69,7 +70,7 @@ export const playMedia = ({
 				},
 				onFrame: (frame) => {
 					const desiredSeek = seek.getDesiredSeek();
-					frameDatabase.addFrame(frame);
+					frameDatabase.addFrame(frame, loopIteration);
 
 					if (desiredSeek) {
 						if (isSeekInfeasible(frameDatabase, desiredSeek.getDesired())) {
@@ -125,6 +126,7 @@ export const playMedia = ({
 					mpController.pause();
 
 					if (loop) {
+						loopIteration++;
 						seek.queueSeek(0, frameDatabase);
 					}
 				};
@@ -155,7 +157,7 @@ export const playMedia = ({
 		getCurrentTime: () => {
 			return playback.getCurrentTime();
 		},
-		seek: (time: number) => {
+		seek: async (time: number) => {
 			playback.setCurrentTime(time * WEBCODECS_TIMESCALE);
 
 			// If the right frame is already in the database, we can draw it immediately
@@ -166,9 +168,12 @@ export const playMedia = ({
 				return;
 			}
 
+			const simulatedSeek = await mpController.simulateSeek(time);
+
 			console.log(
 				'seek to time',
 				time * WEBCODECS_TIMESCALE,
+				simulatedSeek,
 				decoder?.getMostRecentSampleReceived(),
 			);
 

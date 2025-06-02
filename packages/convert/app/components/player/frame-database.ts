@@ -1,14 +1,24 @@
 import {type MediaParserVideoSample} from '@remotion/media-parser';
 import {FrameDatabaseEmitter} from './frame-database-emitter';
 
+type FrameAndLoopIndex = {
+	frame: VideoFrame;
+	loopIndex: number;
+};
+
 type GroupOfPicture = {
 	startingTimestamp: number;
-	frames: VideoFrame[];
+	frames: FrameAndLoopIndex[];
+};
+
+type SerializedFrameAndLoopIndex = {
+	frame: number;
+	loopIndex: number;
 };
 
 type SerializedGroupOfPicture = {
 	startingTimestamp: number;
-	frames: number[];
+	frames: SerializedFrameAndLoopIndex[];
 };
 
 const makeGroupOfPicture = (sample: MediaParserVideoSample) => {
@@ -54,11 +64,11 @@ export const findGroupForGettingTimestamp = ({
 
 	for (const group of possibleGroups) {
 		for (const frame of group.frames) {
-			if (frame.timestamp < timestamp) {
+			if (frame.frame.timestamp < timestamp) {
 				continue;
 			}
 
-			const distance = Math.abs(frame.timestamp - timestamp);
+			const distance = Math.abs(frame.frame.timestamp - timestamp);
 			if (distance < closestDistance) {
 				closestGroup = group;
 				closestDistance = distance;
@@ -115,7 +125,9 @@ export const makeFrameDatabase = () => {
 			throw new Error('No group found for time');
 		}
 
-		const index = group.frames.findIndex((f) => f.timestamp >= currentTime);
+		const index = group.frames.findIndex(
+			(f) => f.frame.timestamp >= currentTime,
+		);
 		if (index === -1) {
 			throw new Error('No frame found for time');
 		}
@@ -135,8 +147,8 @@ export const makeFrameDatabase = () => {
 		let biggestTimestampt = 0;
 		for (const group of groups) {
 			for (const frame of group.frames) {
-				if (frame.timestamp > biggestTimestampt) {
-					biggestTimestampt = frame.timestamp;
+				if (frame.frame.timestamp > biggestTimestampt) {
+					biggestTimestampt = frame.frame.timestamp;
 				}
 			}
 		}
@@ -153,7 +165,7 @@ export const makeFrameDatabase = () => {
 
 			groups.push(group);
 		},
-		addFrame: (frame: VideoFrame) => {
+		addFrame: (frame: VideoFrame, loopIndex: number) => {
 			// Find the group with the largest startingTimestamp <= frame.timestamp
 			const group = findGroupForInsertingTimestamp({
 				groups,
@@ -164,16 +176,16 @@ export const makeFrameDatabase = () => {
 			}
 
 			const alreadyInGroup = group.frames.find(
-				(f) => f.timestamp === frame.timestamp,
+				(f) => f.frame.timestamp === frame.timestamp,
 			);
 			if (alreadyInGroup) {
-				alreadyInGroup.close();
+				alreadyInGroup.frame.close();
 				// remove the frame from the group
 				group.frames.splice(group.frames.indexOf(alreadyInGroup), 1);
 			}
 
-			group.frames.push(frame);
-			group.frames.sort((a, b) => a.timestamp - b.timestamp);
+			group.frames.push({frame, loopIndex});
+			group.frames.sort((a, b) => a.frame.timestamp - b.frame.timestamp);
 
 			emitter.dispatchQueueChanged();
 		},
@@ -194,7 +206,10 @@ export const makeFrameDatabase = () => {
 		getGroups: (): SerializedGroupOfPicture[] => {
 			return groups.map((g) => ({
 				startingTimestamp: g.startingTimestamp,
-				frames: g.frames.map((f) => f.timestamp),
+				frames: g.frames.map((f) => ({
+					frame: f.frame.timestamp,
+					loopIndex: f.loopIndex,
+				})),
 			}));
 		},
 		getLastFrame: () => lastFrame,
