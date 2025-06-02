@@ -20,6 +20,7 @@ export const makeIoSynchronizer = ({
 	let lastOutput = 0;
 	let inputsSinceLastOutput = 0;
 	let inputs: number[] = [];
+	let resolvers: ((value: void | PromiseLike<void>) => void)[] = [];
 
 	const getQueuedItems = () => {
 		inputs = inputs.filter(
@@ -63,9 +64,11 @@ export const makeIoSynchronizer = ({
 		const on = () => {
 			eventEmitter.removeEventListener('output', on);
 			resolve();
+			resolvers = resolvers.filter((resolver) => resolver !== resolve);
 		};
 
 		eventEmitter.addEventListener('output', on);
+		resolvers.push(resolve);
 		return promise;
 	};
 
@@ -118,10 +121,25 @@ export const makeIoSynchronizer = ({
 		}
 	};
 
+	const clearQueue = () => {
+		inputs.length = 0;
+		lastInput = 0;
+		lastOutput = 0;
+		inputsSinceLastOutput = 0;
+
+		resolvers.forEach((resolver) => {
+			return resolver();
+		});
+		resolvers.length = 0;
+
+		inputs.length = 0;
+	};
+
 	return {
 		inputItem,
 		onOutput,
 		waitForQueueSize,
+		clearQueue,
 	};
 };
 
