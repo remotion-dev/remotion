@@ -1,4 +1,6 @@
 import type {MediaParserLogLevel} from '@remotion/media-parser';
+import type {FlushPending} from './flush-pending';
+import {makeFlushPending} from './flush-pending';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
@@ -11,6 +13,10 @@ export type WebCodecsAudioDecoder = {
 	flush: () => Promise<void>;
 	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 	reset: () => void;
+	checkReset: () => {
+		wasReset: () => boolean;
+	};
+	getMostRecentSampleInput: () => number | null;
 };
 
 export type CreateAudioDecoderInit = {
@@ -40,6 +46,8 @@ export const internalCreateAudioDecoder = ({
 		label: 'Audio decoder',
 		controller,
 	});
+
+	let mostRecentSampleReceived: number | null = null;
 
 	if (config.codec === 'pcm-s16') {
 		return getWaveAudioDecoder({
@@ -111,6 +119,8 @@ export const internalCreateAudioDecoder = ({
 			return;
 		}
 
+		mostRecentSampleReceived = audioSample.timestamp;
+
 		// Don't flush, it messes up the audio
 
 		const chunk =
@@ -129,21 +139,46 @@ export const internalCreateAudioDecoder = ({
 		}
 	};
 
+	let flushPending: FlushPending | null = null;
+	const lastReset: number | null = null;
+
 	return {
 		decode,
 		close,
-		flush: async () => {
-			// Firefox might throw "Needs to be configured first"
-			try {
-				await audioDecoder.flush();
-			} catch {}
+		flush: () => {
+			if (flushPending) {
+				throw new Error('Flush already pending');
+			}
 
-			await ioSynchronizer.waitForQueueSize(0);
+			const pendingFlush = makeFlushPending();
+			flushPending = pendingFlush;
+			Promise.resolve()
+				.then(() => {
+					return audioDecoder.flush();
+				})
+				.catch(() => {
+					// Firefox might throw "Needs to be configured first"
+				})
+				.finally(() => {
+					pendingFlush.resolve();
+					flushPending = null;
+				});
+
+			return pendingFlush.promise;
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 		reset: () => {
 			audioDecoder.reset();
 			audioDecoder.configure(config);
+		},
+		checkReset: () => {
+			const initTime = Date.now();
+			return {
+				wasReset: () => lastReset !== null && lastReset > initTime,
+			};
+		},
+		getMostRecentSampleInput() {
+			return mostRecentSampleReceived;
 		},
 	};
 };

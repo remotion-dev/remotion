@@ -1,5 +1,6 @@
 import type {MediaParserLogLevel} from '@remotion/media-parser';
-import {withResolvers} from './create/with-resolvers';
+import type {FlushPending} from './flush-pending';
+import {makeFlushPending} from './flush-pending';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
@@ -14,23 +15,7 @@ export type WebCodecsVideoDecoder = {
 	checkReset: () => {
 		wasReset: () => boolean;
 	};
-	getMostRecentSampleReceived: () => number | null;
-};
-
-type FlushPending = {
-	resolve: (value: void | PromiseLike<void>) => void;
-	reject: (reason?: any) => void;
-	promise: Promise<void>;
-};
-
-const makeFlushPending = () => {
-	const {promise, resolve, reject} = withResolvers<void>();
-
-	return {
-		promise,
-		resolve,
-		reject,
-	};
+	getMostRecentSampleInput: () => number | null;
 };
 
 export const internalCreateVideoDecoder = ({
@@ -46,6 +31,13 @@ export const internalCreateVideoDecoder = ({
 	config: VideoDecoderConfig;
 	logLevel: MediaParserLogLevel;
 }): WebCodecsVideoDecoder => {
+	if (
+		controller &&
+		controller._internals._mediaParserController._internals.signal.aborted
+	) {
+		throw new Error('Not creating audio decoder, already aborted');
+	}
+
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video decoder',
@@ -162,7 +154,7 @@ export const internalCreateVideoDecoder = ({
 				wasReset: () => lastReset !== null && lastReset > initTime,
 			};
 		},
-		getMostRecentSampleReceived() {
+		getMostRecentSampleInput() {
 			return mostRecentSampleReceived;
 		},
 	};
