@@ -2565,6 +2565,15 @@ export const articles = [
 		slug: 'layout-utils/fill-text-box',
 	},
 	{
+		id: 'layout-utils/fit-text-on-n-lines',
+		title: 'fitTextOnNLines()',
+		relativePath: 'docs/layout-utils/fit-text-on-n-lines.mdx',
+		compId: 'articles-docs-layout-utils-fit-text-on-n-lines',
+		crumb: '@remotion/layout-utils',
+		noAi: false,
+		slug: 'layout-utils/fit-text-on-n-lines',
+	},
+	{
 		id: 'layout-utils/fit-text',
 		title: 'fitText()',
 		relativePath: 'docs/layout-utils/fit-text.mdx',
