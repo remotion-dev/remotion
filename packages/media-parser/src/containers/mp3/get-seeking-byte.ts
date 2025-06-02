@@ -53,8 +53,13 @@ export const getSeekingByteForMp3 = ({
 		};
 	}
 
+	const byte = Math.max(...candidates);
+	const timeInSeconds =
+		byte === bestAudioSample?.offset ? bestAudioSample.timeInSeconds : time;
+
 	return {
 		type: 'do-seek',
-		byte: Math.max(...candidates),
+		byte,
+		timeInSeconds,
 	};
 };

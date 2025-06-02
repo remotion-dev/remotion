@@ -59,7 +59,7 @@ const findKeyframeBeforeTime = ({
 		}
 	}
 
-	return keyframeBeforeTime?.positionInBytes ?? null;
+	return keyframeBeforeTime ?? null;
 };
 
 const getByteFromCues = ({
@@ -92,7 +92,10 @@ const getByteFromCues = ({
 		return null;
 	}
 
-	return biggestCueBeforeTime.clusterPositionInSegment + segmentOffset;
+	return {
+		byte: biggestCueBeforeTime.clusterPositionInSegment + segmentOffset,
+		timeInSeconds: toSeconds(biggestCueBeforeTime.timeInTimescale, info.track!),
+	};
 };
 
 export const getSeekingByteFromMatroska = async ({
@@ -140,8 +143,8 @@ export const getSeekingByteFromMatroska = async ({
 	// Don't seek back, if the last seen time is smaller than the time we want to seek to
 
 	const seekPossibilities = [
-		byteFromCues,
-		byteFromObservedKeyframe,
+		byteFromCues?.byte ?? null,
+		byteFromObservedKeyframe?.positionInBytes ?? null,
 		byteFromFirstMediaSection,
 	].filter((n) => n !== null);
 
@@ -163,8 +166,28 @@ export const getSeekingByteFromMatroska = async ({
 		size: 1,
 	});
 
+	const timeInSeconds = (() => {
+		if (byteToSeekTo === byteFromObservedKeyframe?.positionInBytes) {
+			return Math.min(
+				byteFromObservedKeyframe.decodingTimeInSeconds,
+				byteFromObservedKeyframe.presentationTimeInSeconds,
+			);
+		}
+
+		if (byteToSeekTo === byteFromCues?.byte) {
+			return byteFromCues.timeInSeconds;
+		}
+
+		if (byteToSeekTo === byteFromFirstMediaSection) {
+			return 0;
+		}
+
+		throw new Error('Should not happen');
+	})();
+
 	return {
 		type: 'do-seek',
 		byte: byteToSeekTo,
+		timeInSeconds,
 	};
 };

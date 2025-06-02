@@ -15,6 +15,10 @@ import {warnIfRemotionLicenseNotAcknowledged} from './remotion-license-acknowled
 import {setSeekingHints} from './set-seeking-hints';
 import {makeParserState} from './state/parser-state';
 import {throttledStateUpdate} from './throttled-progress';
+import {
+	getWorkOnSeekRequestOptions,
+	turnSeekIntoByte,
+} from './work-on-seek-request';
 
 export const internalParseMedia: InternalParseMedia = async function <
 	F extends Options<ParseMediaFields>,
@@ -137,6 +141,47 @@ export const internalParseMedia: InternalParseMedia = async function <
 			}),
 		),
 	);
+
+	controller._internals.attachSimulateSeekResolution((seek: number) => {
+		const {
+			aacState,
+			avcState,
+			flacState,
+			isoState,
+			iterator,
+			keyframes,
+			m3uState,
+			mediaSection,
+			mp3State,
+			riffState,
+			samplesObserved,
+			structureState,
+			tracksState,
+			transportStream,
+			webmState,
+		} = getWorkOnSeekRequestOptions(state);
+		return turnSeekIntoByte({
+			aacState,
+			seek,
+			avcState,
+			contentLength,
+			flacState,
+			isoState,
+			iterator,
+			keyframes,
+			logLevel,
+			m3uPlaylistContext,
+			m3uState,
+			mediaSectionState: mediaSection,
+			mp3State,
+			riffState,
+			samplesObserved,
+			structureState,
+			tracksState,
+			transportStream,
+			webmState,
+		});
+	});
 
 	if (
 		!hasAudioTrackHandlers &&

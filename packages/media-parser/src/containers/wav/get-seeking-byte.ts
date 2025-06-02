@@ -23,5 +23,6 @@ export const getSeekingByteFromWav = ({
 	return Promise.resolve({
 		type: 'do-seek',
 		byte: byteOffset + info.mediaSection.start,
+		timeInSeconds: timeRoundedDown,
 	});
 };

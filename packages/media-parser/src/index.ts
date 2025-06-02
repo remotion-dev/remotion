@@ -124,6 +124,7 @@ export {
 } from './controller/media-parser-controller';
 export {VERSION} from './version';
 export {WEBCODECS_TIMESCALE} from './webcodecs-timescale';
+export type {SeekResolution} from './work-on-seek-request';
 
 export type {MediaParserSampleAspectRatio} from './get-tracks';
 

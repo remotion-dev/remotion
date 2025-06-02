@@ -7,6 +7,7 @@ import type {
 } from './webcodec-sample-types';
 import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
+import type {SeekResolution} from './work-on-seek-request';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -153,6 +154,18 @@ export const parseMediaOnWorkerImplementation = async <
 		const prom = withResolvers<SeekingHints | null>();
 		post(worker, {type: 'request-get-seeking-hints'});
 		seekingHintPromises.push(prom);
+		return prom.promise;
+	});
+
+	const simulateSeekPromises: Record<
+		string,
+		WithResolvers<SeekResolution>
+	> = {};
+	controller?._internals.attachSimulateSeekResolution((seek) => {
+		const prom = withResolvers<SeekResolution>();
+		const nonce = String(Math.random());
+		post(worker, {type: 'request-simulate-seek', payload: seek, nonce});
+		simulateSeekPromises[nonce] = prom;
 		return prom.promise;
 	});
 
@@ -448,6 +461,18 @@ export const parseMediaOnWorkerImplementation = async <
 			}
 
 			firstPromise.resolve(data.payload);
+			return;
+		}
+
+		if (data.type === 'response-simulate-seek') {
+			const prom = simulateSeekPromises[data.nonce];
+			if (!prom) {
+				throw new Error('No simulate seek promise found');
+			}
+
+			prom.resolve(data.payload);
+			delete simulateSeekPromises[data.nonce];
+
 			return;
 		}
 
