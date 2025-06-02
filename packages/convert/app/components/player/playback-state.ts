@@ -1,14 +1,18 @@
 import type {FrameDatabase} from './frame-database';
 import {PlayerEmitter} from './player-event-emitter';
 
-export const makePlaybackState = (
-	frameDatabase: FrameDatabase,
-	tryToDraw: (frame: VideoFrame) => boolean,
-) => {
+export const makePlaybackState = ({
+	frameDatabase,
+	drawFrame,
+}: {
+	frameDatabase: FrameDatabase;
+	drawFrame: (frame: VideoFrame) => void;
+}) => {
 	let currentTime = 0;
 	let playing = false;
 	let playTimeout: NodeJS.Timeout | null = null;
 	const emitter = new PlayerEmitter();
+	let lastFrameDrawn: number | null = null;
 
 	const clearPlayTimeout = () => {
 		if (playTimeout) {
@@ -32,9 +36,17 @@ export const makePlaybackState = (
 		}
 	};
 
+	const emitFrame = (frame: VideoFrame) => {
+		if (lastFrameDrawn === frame.timestamp) {
+			return;
+		}
+
+		lastFrameDrawn = frame.timestamp;
+		drawFrame(frame);
+	};
+
 	const loop = () => {
-		const nextFrame =
-			frameDatabase.getNextFrameForTimestampAndDiscardEarlier(currentTime);
+		const nextFrame = frameDatabase.getNextFrameForTimestamp(currentTime, true);
 
 		return setTimeout(
 			() => {
@@ -42,12 +54,9 @@ export const makePlaybackState = (
 					return;
 				}
 
-				const stop = tryToDraw(nextFrame);
-				if (stop) {
-					return;
-				}
-
+				emitFrame(nextFrame);
 				setCurrentTime(nextFrame.timestamp);
+				nextFrame.close();
 
 				loop();
 			},
@@ -56,10 +65,12 @@ export const makePlaybackState = (
 	};
 
 	const drawImmediately = () => {
-		const nextFrame =
-			frameDatabase.getNextFrameForTimestampAndDiscardEarlier(currentTime);
+		const nextFrame = frameDatabase.getNextFrameForTimestamp(
+			currentTime,
+			false,
+		);
 
-		tryToDraw(nextFrame);
+		emitFrame(nextFrame);
 	};
 
 	const pause = () => {

@@ -98,9 +98,12 @@ export const makeFrameDatabase = () => {
 
 	let lastFrame: number | null = null;
 
-	const getNextFrameForTimestampAndDiscardEarlier = (currentTime: number) => {
+	const getNextFrameForTimestamp = (
+		currentTime: number,
+		removeFromDb: boolean,
+	) => {
 		if (lastFrame !== null && currentTime === lastFrame) {
-			return getNextFrameForTimestampAndDiscardEarlier(0);
+			return getNextFrameForTimestamp(0, removeFromDb);
 		}
 
 		const group = findGroupForGettingTimestamp({
@@ -117,12 +120,15 @@ export const makeFrameDatabase = () => {
 			throw new Error('No frame found for time');
 		}
 
-		const takenOutFrames = group.frames.splice(index, 1);
+		if (removeFromDb) {
+			const takenOutFrames = group.frames.splice(index, 1);
+			checkWaiters();
+			emitter.dispatchQueueChanged();
 
-		checkWaiters();
-		emitter.dispatchQueueChanged();
+			return takenOutFrames[0];
+		}
 
-		return takenOutFrames[0];
+		return group.frames[index];
 	};
 
 	const setLastFrame = () => {
@@ -171,7 +177,7 @@ export const makeFrameDatabase = () => {
 
 			emitter.dispatchQueueChanged();
 		},
-		getNextFrameForTimestampAndDiscardEarlier,
+		getNextFrameForTimestamp,
 		waitForQueueToBeLessThan: (n: number) => {
 			if (getLength() < n) {
 				return Promise.resolve(false);

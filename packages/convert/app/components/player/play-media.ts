@@ -36,7 +36,7 @@ export const playMedia = ({
 	const mpController = mediaParserController();
 
 	const frameDatabase = makeFrameDatabase();
-	const playback = makePlaybackState(frameDatabase, drawFrame);
+	const playback = makePlaybackState({frameDatabase, drawFrame});
 
 	let decoder: WebCodecsVideoDecoder | null = null;
 
@@ -86,6 +86,8 @@ export const playMedia = ({
 							seek.clearSeek();
 						}
 					}
+
+					playback.drawImmediately();
 				},
 				track,
 				controller: wcController,
@@ -155,6 +157,8 @@ export const playMedia = ({
 		},
 		seek: (time: number) => {
 			playback.setCurrentTime(time * WEBCODECS_TIMESCALE);
+
+			// If the right frame is already in the database, we can draw it immediately
 			if (isSeekAchieved({frameDatabase, seekToSeconds: time})) {
 				seek.clearSeek();
 				mpController.resume();
