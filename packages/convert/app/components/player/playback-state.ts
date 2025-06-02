@@ -47,6 +47,9 @@ export const makePlaybackState = ({
 
 	const loop = () => {
 		const nextFrame = frameDatabase.getNextFrameForTimestamp(currentTime, true);
+		if (!nextFrame) {
+			throw new Error('No frame found for time');
+		}
 
 		return setTimeout(
 			() => {
@@ -69,6 +72,10 @@ export const makePlaybackState = ({
 			currentTime,
 			false,
 		);
+
+		if (!nextFrame) {
+			return;
+		}
 
 		emitFrame(nextFrame.frame);
 	};
@@ -93,5 +100,8 @@ export const makePlaybackState = ({
 		play,
 		emitter,
 		drawImmediately,
+		getCurrentlyDrawnFrame: () => {
+			return lastFrameDrawn;
+		},
 	};
 };

@@ -47,9 +47,7 @@ export const playMedia = ({
 	let lastKeyframeTimestamp: number | null = null;
 
 	const seek = throttledSeek((time: number) => {
-		if (decoder) {
-			decoder.reset();
-		}
+		decoder!.reset();
 
 		mpController.seek(time);
 		mpController.resume();
@@ -194,29 +192,35 @@ export const playMedia = ({
 
 			const simulatedSeek = await mpController.simulateSeek(time);
 
-			console.log(
-				'seek to time',
-				time * WEBCODECS_TIMESCALE,
-				simulatedSeek,
-				decoder?.getMostRecentSampleInput(),
-			);
 			if (simulatedSeek.type === 'do-seek') {
 				const group = getGroupOfIntendedSeek(
 					frameDatabase,
 					simulatedSeek.timeInSeconds,
 				);
 				if (group && group.startingTimestamp === lastKeyframeTimestamp) {
-					// we are in the same group, we can draw immediately
-					frameDatabase.clearFramesBeforeTimestampFromGroup({
-						deleteFramesBeforeTimestamp: time * WEBCODECS_TIMESCALE,
-						groupStartingTimestamp: group.startingTimestamp,
-					});
-					console.log('we are in the same group');
-					seek.setSeekWithoutMediaParserSeek(time);
+					// we are in the same group, don't seek yet! maybe we can just wait
+					const lastFrameInput = decoder!.getMostRecentSampleInput();
+
+					// all frames are before the seek, we can just wait
+					if (lastFrameInput && lastFrameInput < time * WEBCODECS_TIMESCALE) {
+						frameDatabase.clearFramesBeforeTimestampFromGroup({
+							deleteFramesBeforeTimestamp: time * WEBCODECS_TIMESCALE,
+							groupStartingTimestamp: group.startingTimestamp,
+						});
+						seek.setSeekWithoutMediaParserSeek(time);
+						return;
+					}
+
+					frameDatabase.clearGroup(group.startingTimestamp);
+
+					// we are already too far, we need to seek back to the beginning of the group.
+					seek.queueSeek(time, frameDatabase);
 					return;
 				}
 			}
 
+			// was not able to simulate seek, I guess we just force the seek
+			frameDatabase.clearDatabase();
 			seek.queueSeek(time, frameDatabase);
 		},
 		addEventListener: playback.emitter.addEventListener,

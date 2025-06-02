@@ -143,7 +143,7 @@ export const makeFrameDatabase = () => {
 		});
 		const index = closestIndex;
 		if (index === -1) {
-			throw new Error('No frame found for time');
+			return null;
 		}
 
 		if (removeFromDb) {
@@ -179,12 +179,43 @@ export const makeFrameDatabase = () => {
 	}) => {
 		for (const group of groups) {
 			if (group.startingTimestamp === groupStartingTimestamp) {
-				group.frames = group.frames.filter(
-					(f) => f.frame.timestamp >= deleteFramesBeforeTimestamp,
-				);
+				const newFrames: FrameAndLoopIndex[] = [];
+				for (const frame of group.frames) {
+					if (frame.frame.timestamp >= deleteFramesBeforeTimestamp) {
+						newFrames.push(frame);
+					} else {
+						frame.frame.close();
+					}
+				}
+
+				group.frames = newFrames;
 			}
 		}
 
+		checkWaiters();
+		emitter.dispatchQueueChanged();
+	};
+
+	const clearGroup = (groupStartingTimestamp: number) => {
+		const group = groups.find(
+			(g) => g.startingTimestamp === groupStartingTimestamp,
+		);
+		if (!group) {
+			throw new Error('Group not found');
+		}
+
+		group.frames.forEach((f) => f.frame.close());
+		group.frames = [];
+
+		checkWaiters();
+		emitter.dispatchQueueChanged();
+	};
+
+	const clearDatabase = () => {
+		groups.forEach((g) => {
+			g.frames.forEach((f) => f.frame.close());
+			g.frames = [];
+		});
 		checkWaiters();
 		emitter.dispatchQueueChanged();
 	};
@@ -248,6 +279,8 @@ export const makeFrameDatabase = () => {
 		getLastFrame: () => lastFrame,
 		setLastFrame,
 		clearFramesBeforeTimestampFromGroup,
+		clearGroup,
+		clearDatabase,
 		emitter,
 	};
 };
