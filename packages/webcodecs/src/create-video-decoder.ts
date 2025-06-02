@@ -1,4 +1,6 @@
 import type {MediaParserLogLevel} from '@remotion/media-parser';
+import type {FlushPending} from './flush-pending';
+import {makeFlushPending} from './flush-pending';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
 import type {WebCodecsController} from './webcodecs-controller';
 
@@ -10,6 +12,10 @@ export type WebCodecsVideoDecoder = {
 	flush: () => Promise<void>;
 	waitForQueueToBeLessThan: (items: number) => Promise<void>;
 	reset: () => void;
+	checkReset: () => {
+		wasReset: () => boolean;
+	};
+	getMostRecentSampleInput: () => number | null;
 };
 
 export const internalCreateVideoDecoder = ({
@@ -25,11 +31,20 @@ export const internalCreateVideoDecoder = ({
 	config: VideoDecoderConfig;
 	logLevel: MediaParserLogLevel;
 }): WebCodecsVideoDecoder => {
+	if (
+		controller &&
+		controller._internals._mediaParserController._internals.signal.aborted
+	) {
+		throw new Error('Not creating audio decoder, already aborted');
+	}
+
 	const ioSynchronizer = makeIoSynchronizer({
 		logLevel,
 		label: 'Video decoder',
 		controller,
 	});
+
+	let mostRecentSampleReceived: number | null = null;
 
 	const videoDecoder = new VideoDecoder({
 		async output(frame) {
@@ -88,6 +103,8 @@ export const internalCreateVideoDecoder = ({
 			return;
 		}
 
+		mostRecentSampleReceived = sample.timestamp;
+
 		const encodedChunk =
 			sample instanceof EncodedVideoChunk
 				? sample
@@ -96,21 +113,49 @@ export const internalCreateVideoDecoder = ({
 		ioSynchronizer.inputItem(sample.timestamp);
 	};
 
+	let flushPending: FlushPending | null = null;
+	let lastReset: number | null = null;
+
 	return {
 		decode,
 		close,
-		flush: async () => {
-			// Firefox might throw "Needs to be configured first"
-			try {
-				await videoDecoder.flush();
-			} catch {}
+		flush: () => {
+			if (flushPending) {
+				throw new Error('Flush already pending');
+			}
 
-			await ioSynchronizer.waitForQueueSize(0);
+			const pendingFlush = makeFlushPending();
+			flushPending = pendingFlush;
+			Promise.resolve()
+				.then(() => {
+					return videoDecoder.flush();
+				})
+				.catch(() => {
+					// Firefox might throw "Needs to be configured first"
+				})
+				.finally(() => {
+					pendingFlush.resolve();
+					flushPending = null;
+				});
+
+			return pendingFlush.promise;
 		},
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
 		reset: () => {
+			lastReset = Date.now();
+			flushPending?.resolve();
+			ioSynchronizer.clearQueue();
 			videoDecoder.reset();
 			videoDecoder.configure(config);
+		},
+		checkReset: () => {
+			const initTime = Date.now();
+			return {
+				wasReset: () => lastReset !== null && lastReset > initTime,
+			};
+		},
+		getMostRecentSampleInput() {
+			return mostRecentSampleReceived;
 		},
 	};
 };

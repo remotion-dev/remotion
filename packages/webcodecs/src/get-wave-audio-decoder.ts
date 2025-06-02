@@ -89,15 +89,25 @@ export const getWaveAudioDecoder = ({
 		}
 	};
 
+	let lastReset: number | null = null;
+	let mostRecentSampleInput: number | null = null;
+
 	return {
 		close() {
 			return Promise.resolve();
 		},
 		decode(audioSample) {
+			mostRecentSampleInput = audioSample.timestamp;
 			return processSample(audioSample);
 		},
 		flush: () => Promise.resolve(),
 		waitForQueueToBeLessThan: ioSynchronizer.waitForQueueSize,
-		reset: () => {},
+		reset: () => {
+			lastReset = Date.now();
+		},
+		checkReset: () => ({
+			wasReset: () => lastReset !== null && lastReset > Date.now(),
+		}),
+		getMostRecentSampleInput: () => mostRecentSampleInput,
 	};
 };

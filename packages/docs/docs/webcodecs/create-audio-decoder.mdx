@@ -36,7 +36,7 @@ const decoder = createAudioDecoder({
 ## Differences to `AudioDecoder`
 
 - Samples with a `codec` of `pcm-s16` are accepted and passed through, even if the `AudioDecoder` object does not exist or support it.
-- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthanqueue-size-number) and [`.waitForFinish()`](#waitforfinish).
+- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and [`.waitForFinish()`](#waitforfinish).
 - The [`dequeue`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/dequeue_event) event is not supported as it is not reliable across browsers.
 - In addition to [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk), [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) objects are also accepted for [`.decode()`](#decode).
 - A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance can be passed in to the function, allowing for decoding to be paused, resumed and aborted.
@@ -96,7 +96,9 @@ Decodes a sample. Same as [`AudioDecoder.decode()`](https://developer.mozilla.or
 You can pass in a [`MediaParserAudioSample`](/docs/media-parser/types#mediaparseraudiosample) object from [`parseMedia()`](/docs/media-parser/parse-media), which also satisfies the [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) interface.
 
 
-### `waitForQueueToBeLessThan(queueSize: number)`
+### `waitForQueueToBeLessThan()`
+
+Pass a number to wait for the queue to be less than the given number.
 
 A promise that resolves when the queue size is less than the given number.  
 The queue is only decremented when the[ `onFrame`](#onframe) callback resolves.
@@ -112,6 +114,15 @@ Clears the queue and resets the decoder. Same as [`AudioDecoder.reset()`](https:
 ### `close()`
 
 Closes the decoder. Same as [`AudioDecoder.close()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/close).
+
+### `checkReset()`<AvailableFrom v="4.0.312" />
+
+Returns a handle with a `wasReset()` function. If the decoder was reset inbetween the call to `.checkReset()` and the call to `wasReset()`, `wasReset()` will return `true`. See [below](#checking-if-the-decoder-was-reset) for an example.
+
+### `getMostRecentSampleInput()`<AvailableFrom v="4.0.312" />
+
+Return the `.timestamp` of the most recently input sample. 
+
 
 ## Example usage with `@remotion/media-parser`
 
@@ -137,6 +148,52 @@ await parseMedia({
       await decoder.decode(sample);
 
       return async () => {
+        // Called when the track is done
+        await decoder.flush();
+        decoder.close()
+      };
+    };
+  },
+});
+```
+
+## Checking if the decoder was reset
+
+A potential race condition you may face is that `decoder.reset()` is called while a sample is waiting for the queue to be less than a certain number. Use `.checkReset()` to check if the decoder was reset after any asynchronous operation, and abort the processing of the sample if needed.
+
+```tsx twoslash title="Check if the decoder was reset"
+import {parseMedia} from '@remotion/media-parser';
+import {createAudioDecoder} from '@remotion/webcodecs';
+
+await parseMedia({
+  src: 'https://parser.media/video.mp4',
+  onAudioTrack: ({track, container}) => {
+
+    const decoder = createAudioDecoder({
+      track,
+      onFrame: console.log,
+      onError: console.error,
+    });
+
+    return async (sample) => {
+      const {wasReset} = decoder.checkReset();
+
+      await decoder.waitForQueueToBeLessThan(10);
+      if (wasReset()) {
+        return
+      }
+
+      await decoder.decode(sample);
+      if (wasReset()) {
+        return;
+      }
+
+
+      return async () => {
+        if (wasReset()) {
+          return;
+        }
+
         // Called when the track is done
         await decoder.flush();
         decoder.close()
