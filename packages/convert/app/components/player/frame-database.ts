@@ -1,5 +1,9 @@
-import {type MediaParserVideoSample} from '@remotion/media-parser';
+import {
+	WEBCODECS_TIMESCALE,
+	type MediaParserVideoSample,
+} from '@remotion/media-parser';
 import {FrameDatabaseEmitter} from './frame-database-emitter';
+import {SEEK_TOLERANCE_IN_SECONDS} from './seek-logic';
 
 type FrameAndLoopIndex = {
 	frame: VideoFrame;
@@ -125,9 +129,19 @@ export const makeFrameDatabase = () => {
 			throw new Error('No group found for time');
 		}
 
-		const index = group.frames.findIndex(
-			(f) => f.frame.timestamp >= currentTime,
-		);
+		let closestIndex = -1;
+		let closestDiff = Infinity;
+		group.frames.forEach((f, i) => {
+			const timeDiff = Math.abs(f.frame.timestamp - currentTime);
+			if (
+				timeDiff <= SEEK_TOLERANCE_IN_SECONDS * WEBCODECS_TIMESCALE &&
+				timeDiff < closestDiff
+			) {
+				closestDiff = timeDiff;
+				closestIndex = i;
+			}
+		});
+		const index = closestIndex;
 		if (index === -1) {
 			throw new Error('No frame found for time');
 		}
@@ -154,6 +168,25 @@ export const makeFrameDatabase = () => {
 		}
 
 		lastFrame = biggestTimestampt;
+	};
+
+	const clearFramesBeforeTimestampFromGroup = ({
+		deleteFramesBeforeTimestamp,
+		groupStartingTimestamp,
+	}: {
+		deleteFramesBeforeTimestamp: number;
+		groupStartingTimestamp: number;
+	}) => {
+		for (const group of groups) {
+			if (group.startingTimestamp === groupStartingTimestamp) {
+				group.frames = group.frames.filter(
+					(f) => f.frame.timestamp >= deleteFramesBeforeTimestamp,
+				);
+			}
+		}
+
+		checkWaiters();
+		emitter.dispatchQueueChanged();
 	};
 
 	return {
@@ -214,6 +247,7 @@ export const makeFrameDatabase = () => {
 		},
 		getLastFrame: () => lastFrame,
 		setLastFrame,
+		clearFramesBeforeTimestampFromGroup,
 		emitter,
 	};
 };

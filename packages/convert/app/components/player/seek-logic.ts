@@ -66,3 +66,23 @@ export const isSeekAchieved = ({
 
 	return hasFramesAfter && hasFramesBefore;
 };
+
+export const getGroupOfIntendedSeek = (
+	frameDatabase: FrameDatabase,
+	simulatedSeekTimestampInSeconds: number,
+) => {
+	const group = frameDatabase
+		.getGroups()
+		.find(
+			(g) =>
+				Math.abs(
+					g.startingTimestamp -
+						simulatedSeekTimestampInSeconds * WEBCODECS_TIMESCALE,
+				) <
+				0.1 * WEBCODECS_TIMESCALE,
+		);
+
+	return group ?? null;
+};
+
+export const SEEK_TOLERANCE_IN_SECONDS = 0.1;

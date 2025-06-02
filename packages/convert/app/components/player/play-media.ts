@@ -12,7 +12,12 @@ import type {WebCodecsVideoDecoder} from '@remotion/webcodecs';
 import {createVideoDecoder, webcodecsController} from '@remotion/webcodecs';
 import {makeFrameDatabase} from './frame-database';
 import {makePlaybackState} from './playback-state';
-import {isSeekAchieved, isSeekInfeasible} from './seek-logic';
+import {
+	getGroupOfIntendedSeek,
+	isSeekAchieved,
+	isSeekInfeasible,
+	SEEK_TOLERANCE_IN_SECONDS,
+} from './seek-logic';
 import {throttledSeek} from './throttled-seek';
 
 export const playMedia = ({
@@ -39,6 +44,7 @@ export const playMedia = ({
 	const playback = makePlaybackState({frameDatabase, drawFrame});
 
 	let decoder: WebCodecsVideoDecoder | null = null;
+	let lastKeyframeTimestamp: number | null = null;
 
 	const seek = throttledSeek((time: number) => {
 		if (decoder) {
@@ -70,9 +76,20 @@ export const playMedia = ({
 				},
 				onFrame: (frame) => {
 					const desiredSeek = seek.getDesiredSeek();
-					frameDatabase.addFrame(frame, loopIteration);
 
 					if (desiredSeek) {
+						if (
+							frame.timestamp <
+							(desiredSeek.getDesired() - SEEK_TOLERANCE_IN_SECONDS) *
+								WEBCODECS_TIMESCALE
+						) {
+							// Don't draw if we are seeking to a later frame
+							frame.close();
+							return;
+						}
+
+						frameDatabase.addFrame(frame, loopIteration);
+
 						if (isSeekInfeasible(frameDatabase, desiredSeek.getDesired())) {
 							seek.replaceWithNewestSeek();
 							return;
@@ -85,9 +102,12 @@ export const playMedia = ({
 							})
 						) {
 							seek.clearSeek();
+							playback.drawImmediately();
+							return;
 						}
 					}
 
+					frameDatabase.addFrame(frame, loopIteration);
 					playback.drawImmediately();
 				},
 				track,
@@ -96,6 +116,10 @@ export const playMedia = ({
 
 			return async (sample) => {
 				if (sample.type === 'key') {
+					lastKeyframeTimestamp = Math.min(
+						sample.timestamp,
+						sample.decodingTimestamp,
+					);
 					frameDatabase.startNewGop(sample);
 				}
 
@@ -176,6 +200,22 @@ export const playMedia = ({
 				simulatedSeek,
 				decoder?.getMostRecentSampleInput(),
 			);
+			if (simulatedSeek.type === 'do-seek') {
+				const group = getGroupOfIntendedSeek(
+					frameDatabase,
+					simulatedSeek.timeInSeconds,
+				);
+				if (group && group.startingTimestamp === lastKeyframeTimestamp) {
+					// we are in the same group, we can draw immediately
+					frameDatabase.clearFramesBeforeTimestampFromGroup({
+						deleteFramesBeforeTimestamp: time * WEBCODECS_TIMESCALE,
+						groupStartingTimestamp: group.startingTimestamp,
+					});
+					console.log('we are in the same group');
+					seek.setSeekWithoutMediaParserSeek(time);
+					return;
+				}
+			}
 
 			seek.queueSeek(time, frameDatabase);
 		},

@@ -34,6 +34,9 @@ export const throttledSeek = (releaseSeek: (time: number) => void) => {
 			currentSeek = makeSeek(seek);
 			releaseSeek(seek);
 		},
+		setSeekWithoutMediaParserSeek: (seek: number) => {
+			currentSeek = makeSeek(seek);
+		},
 		getDesiredSeek: () => {
 			return currentSeek;
 		},
