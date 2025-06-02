@@ -89,8 +89,8 @@ export const getWaveAudioDecoder = ({
 		}
 	};
 
-	let mostRecentSampleInput: number | null = null;
 	let lastReset: number | null = null;
+	let mostRecentSampleInput: number | null = null;
 
 	return {
 		close() {
