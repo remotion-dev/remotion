@@ -86,7 +86,10 @@ export const getSeekingByteFromIsoBaseMedia = ({
 	if (keyframe) {
 		return Promise.resolve({
 			type: 'do-seek',
-			byte: keyframe,
+			byte: keyframe.offset,
+			timeInSeconds:
+				Math.min(keyframe.decodingTimestamp, keyframe.timestamp) /
+				track.originalTimescale,
 		});
 	}
 

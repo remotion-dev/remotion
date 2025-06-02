@@ -49,13 +49,20 @@ test('should be able to seek forward and then backwards', async () => {
 			src: exampleVideos.bigBuckBunny,
 			controller,
 			onVideoTrack: () => {
-				return (sample) => {
+				return async (sample) => {
 					samples++;
 
 					if (samples === 1) {
 						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
 							10.5,
 						);
+
+						const simulatedSeek = await controller.simulateSeek(0);
+						expect(simulatedSeek).toEqual({
+							type: 'do-seek',
+							byte: 48,
+							timeInSeconds: 0,
+						});
 						controller.seek(0);
 					}
 
@@ -63,6 +70,12 @@ test('should be able to seek forward and then backwards', async () => {
 						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
 							0.08333333333333333,
 						);
+						const simulatedSeek = await controller.simulateSeek(10.6);
+						expect(simulatedSeek).toEqual({
+							type: 'do-seek',
+							byte: 2271206,
+							timeInSeconds: 10.416666666666666,
+						});
 						controller.abort();
 					}
 				};
@@ -71,6 +84,10 @@ test('should be able to seek forward and then backwards', async () => {
 		});
 		throw new Error('should not complete');
 	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+
 		expect(hasBeenAborted(err)).toBe(true);
 		expect(samples).toBe(2);
 	}

@@ -20,10 +20,16 @@ test('seeking in a wav', async () => {
 			internalStats: true,
 		},
 		onAudioTrack: () => {
-			return (sample) => {
+			return async (sample) => {
 				samples++;
 				if (samples === 1) {
 					expect(sample.timestamp).toBe(10000000);
+					const simulated = await controller.simulateSeek(0);
+					if (simulated.type !== 'do-seek') {
+						throw new Error('Expected seek');
+					}
+
+					expect(simulated.byte).toBe(44);
 					controller.seek(0);
 				}
 
