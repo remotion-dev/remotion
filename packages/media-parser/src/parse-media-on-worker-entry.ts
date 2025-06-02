@@ -7,7 +7,7 @@ import type {
 } from './webcodec-sample-types';
 import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
-import {SeekResolution} from './work-on-seek-request';
+import type {SeekResolution} from './work-on-seek-request';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -465,11 +465,12 @@ export const parseMediaOnWorkerImplementation = async <
 		}
 
 		if (data.type === 'response-simulate-seek') {
-			const promise = simulateSeekPromises[data.nonce];
-			if (!promise) {
+			const prom = simulateSeekPromises[data.nonce];
+			if (!prom) {
 				throw new Error('No simulate seek promise found');
 			}
-			promise.resolve(data.payload);
+
+			prom.resolve(data.payload);
 			delete simulateSeekPromises[data.nonce];
 
 			return;
