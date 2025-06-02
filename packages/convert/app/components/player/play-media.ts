@@ -38,20 +38,16 @@ export const playMedia = ({
 	const frameDatabase = makeFrameDatabase();
 	const playback = makePlaybackState(frameDatabase, drawFrame);
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let seekVideo = (_time: number) => undefined;
-
 	let decoder: WebCodecsVideoDecoder | null = null;
 
-	const seek = throttledSeek((t) => seekVideo(t));
-	seekVideo = (time: number) => {
+	const seek = throttledSeek((time: number) => {
 		if (decoder) {
 			decoder.reset();
 		}
 
 		mpController.seek(time);
 		mpController.resume();
-	};
+	});
 
 	const onAbort = () => {
 		mpController.abort();
@@ -74,10 +70,9 @@ export const playMedia = ({
 				onFrame: (frame) => {
 					const desiredSeek = seek.getDesiredSeek();
 					frameDatabase.addFrame(frame);
+
 					if (desiredSeek) {
 						if (isSeekInfeasible(frameDatabase, desiredSeek.getDesired())) {
-							// Seek is pending, but we already too far.
-							decoder!.reset();
 							seek.replaceWithNewestSeek();
 							return;
 						}
@@ -163,6 +158,7 @@ export const playMedia = ({
 			if (isSeekAchieved({frameDatabase, seekToSeconds: time})) {
 				seek.clearSeek();
 				mpController.resume();
+				playback.drawImmediately();
 				return;
 			}
 

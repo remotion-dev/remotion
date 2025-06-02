@@ -35,7 +35,6 @@ export const makePlaybackState = (
 	const loop = () => {
 		const nextFrame =
 			frameDatabase.getNextFrameForTimestampAndDiscardEarlier(currentTime);
-		console.log('next frame', nextFrame.timestamp);
 
 		return setTimeout(
 			() => {
@@ -56,20 +55,32 @@ export const makePlaybackState = (
 		);
 	};
 
+	const drawImmediately = () => {
+		const nextFrame =
+			frameDatabase.getNextFrameForTimestampAndDiscardEarlier(currentTime);
+
+		tryToDraw(nextFrame);
+	};
+
+	const pause = () => {
+		playing = false;
+		clearPlayTimeout();
+		emitter.dispatchPause();
+	};
+
+	const play = () => {
+		playing = true;
+		playTimeout = loop();
+		emitter.dispatchPlay();
+	};
+
 	return {
 		setCurrentTime,
 		getCurrentTime,
 		isPlaying,
-		pause: () => {
-			playing = false;
-			clearPlayTimeout();
-			emitter.dispatchPause();
-		},
-		play: () => {
-			playing = true;
-			playTimeout = loop();
-			emitter.dispatchPlay();
-		},
+		pause,
+		play,
 		emitter,
+		drawImmediately,
 	};
 };

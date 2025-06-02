@@ -114,7 +114,6 @@ export const makeFrameDatabase = () => {
 
 		const index = group.frames.findIndex((f) => f.timestamp >= currentTime);
 		if (index === -1) {
-			console.log(currentTime, groups);
 			throw new Error('No frame found for time');
 		}
 
