@@ -166,6 +166,12 @@ export const playMedia = ({
 				return;
 			}
 
+			console.log(
+				'seek to time',
+				time * WEBCODECS_TIMESCALE,
+				decoder?.getMostRecentSampleReceived(),
+			);
+
 			seek.queueSeek(time, frameDatabase);
 		},
 		addEventListener: playback.emitter.addEventListener,

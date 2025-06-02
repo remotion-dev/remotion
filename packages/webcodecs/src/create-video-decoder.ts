@@ -14,6 +14,7 @@ export type WebCodecsVideoDecoder = {
 	checkReset: () => {
 		wasReset: () => boolean;
 	};
+	getMostRecentSampleReceived: () => number | null;
 };
 
 type FlushPending = {
@@ -50,6 +51,8 @@ export const internalCreateVideoDecoder = ({
 		label: 'Video decoder',
 		controller,
 	});
+
+	let mostRecentSampleReceived: number | null = null;
 
 	const videoDecoder = new VideoDecoder({
 		async output(frame) {
@@ -108,6 +111,8 @@ export const internalCreateVideoDecoder = ({
 			return;
 		}
 
+		mostRecentSampleReceived = sample.timestamp;
+
 		const encodedChunk =
 			sample instanceof EncodedVideoChunk
 				? sample
@@ -156,6 +161,9 @@ export const internalCreateVideoDecoder = ({
 			return {
 				wasReset: () => lastReset !== null && lastReset > initTime,
 			};
+		},
+		getMostRecentSampleReceived() {
+			return mostRecentSampleReceived;
 		},
 	};
 };
