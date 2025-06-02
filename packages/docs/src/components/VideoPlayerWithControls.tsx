@@ -96,6 +96,14 @@ export const VideoPlayerWithControls = forwardRef<
 			[onError],
 		);
 
+		useEffect(() => {
+			window.global_seek_to = (time: number) => {
+				if (videoRef.current) {
+					videoRef.current.currentTime = time;
+				}
+			};
+		}, []);
+
 		const onImageLoad = useCallback(
 			(event: SizedEvent) => {
 				const [w, h] = [event.target.width, event.target.height];

@@ -17,11 +17,20 @@ To set it up:
 
 <Step>1</Step> Go to your Cursor Settings: <kbd>Cmd+Ctrl</kbd> + <kbd>P</kbd>, then type `> Cursor Settings` and confirm with Enter.
 
-<Step>2</Step> Add an MCP with the following settings:
+<Step>2</Step> Add an MCP:
 
-- **Name**: remotion-documentation
-- **Command**: `npx @remotion/mcp@latest`
-- **Type**: Command
+```json
+{
+  "mcpServers": {
+    "remotion-documentation": {
+      "command": "npx",
+      "args": [
+        "@remotion/mcp@latest"
+      ]
+    }
+  }
+}
+```
 
 If this worked, a green dot should show up and the tool `remotion-documentation` should show up.
 

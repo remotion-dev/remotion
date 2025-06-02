@@ -34,18 +34,24 @@ type AudioElem = {
 	el: React.RefObject<HTMLAudioElement | null>;
 	audioId: string;
 	mediaElementSourceNode: SharedElementSourceNode | null;
+	premounting: boolean;
 };
 
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
 type SharedContext = {
-	registerAudio: (aud: RemotionAudioProps, audioId: string) => AudioElem;
+	registerAudio: (options: {
+		aud: RemotionAudioProps;
+		audioId: string;
+		premounting: boolean;
+	}) => AudioElem;
 	unregisterAudio: (id: number) => void;
 	updateAudio: (options: {
 		id: number;
 		aud: RemotionAudioProps;
 		audioId: string;
+		premounting: boolean;
 	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
@@ -174,7 +180,12 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [refs]);
 
 	const registerAudio = useCallback(
-		(aud: RemotionAudioProps, audioId: string) => {
+		(options: {
+			aud: RemotionAudioProps;
+			audioId: string;
+			premounting: boolean;
+		}) => {
+			const {aud, audioId, premounting} = options;
 			const found = audios.current?.find((a) => a.audioId === audioId);
 			if (found) {
 				return found;
@@ -200,6 +211,7 @@ export const SharedAudioContextProvider: React.FC<{
 				el: ref,
 				audioId,
 				mediaElementSourceNode,
+				premounting,
 			};
 			audios.current?.push(newElem);
 			rerenderAudios();
@@ -231,16 +243,19 @@ export const SharedAudioContextProvider: React.FC<{
 			aud,
 			audioId,
 			id,
+			premounting,
 		}: {
 			id: number;
 			aud: RemotionAudioProps;
 			audioId: string;
+			premounting: boolean;
 		}) => {
 			let changed = false;
 
 			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
-					const isTheSame = compareProps(aud, prevA.props);
+					const isTheSame =
+						compareProps(aud, prevA.props) && prevA.premounting === premounting;
 					if (isTheSame) {
 						return prevA;
 					}
@@ -249,6 +264,7 @@ export const SharedAudioContextProvider: React.FC<{
 					return {
 						...prevA,
 						props: aud,
+						premounting,
 						audioId,
 					};
 				}
@@ -267,6 +283,11 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
+			const audio = audios.current.find((a) => a.el === ref.ref);
+			if (audio?.premounting) {
+				return;
+			}
+
 			playAndHandleNotAllowedError({
 				mediaRef: ref.ref,
 				mediaType: 'audio',
@@ -332,7 +353,15 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 };
 
-export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
+export const useSharedAudio = ({
+	aud,
+	audioId,
+	premounting,
+}: {
+	aud: RemotionAudioProps;
+	audioId: string;
+	premounting: boolean;
+}) => {
 	const ctx = useContext(SharedAudioContext);
 
 	/**
@@ -340,7 +369,7 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	 */
 	const [elem] = useState((): AudioElem => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio(aud, audioId);
+			return ctx.registerAudio({aud, audioId, premounting});
 		}
 
 		const el = React.createRef<HTMLAudioElement>();
@@ -357,6 +386,7 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 			props: aud,
 			audioId,
 			mediaElementSourceNode,
+			premounting,
 		};
 	});
 
@@ -372,9 +402,9 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio({id: elem.id, aud, audioId});
+				ctx.updateAudio({id: elem.id, aud, audioId, premounting});
 			}
-		}, [aud, ctx, elem.id, audioId]);
+		}, [aud, ctx, elem.id, audioId, premounting]);
 
 		effectToUse(() => {
 			return () => {

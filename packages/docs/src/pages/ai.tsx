@@ -11,6 +11,7 @@ export default () => {
 					height: 800,
 					maxHeight: '80vh',
 				}}
+				allow="clipboard-read; clipboard-write"
 			/>
 		</Layout>
 	);
