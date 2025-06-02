@@ -34,6 +34,25 @@ export const forwardMediaParserControllerToWorker = (
 			return;
 		}
 
+		if (message.type === 'request-simulate-seek') {
+			controller
+				.simulateSeek(message.payload)
+				.then((resolution) => {
+					postMessage({
+						type: 'response-simulate-seek',
+						nonce: message.nonce,
+						payload: resolution,
+					});
+				})
+				.catch((err) => {
+					postMessage({
+						type: 'response-error',
+						payload: err,
+					});
+				});
+			return;
+		}
+
 		if (message.type === 'request-resume') {
 			controller.resume();
 			return;

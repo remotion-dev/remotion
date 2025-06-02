@@ -58,11 +58,35 @@ The reason for this is that all samples need to be iterated over for these field
 
 An error will be thrown if you attempt to do this.
 
+## Simulate a seek<AvailableFrom v="4.0.312" />
+
+You can simulate what would happen if you seeked to a certain time.
+
+```tsx twoslash title="Basic seeking"
+import {parseMedia, mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+await parseMedia({
+  src: 'https://parser.media/video.mp4',
+  controller,
+  onVideoTrack: () => {
+    return async () => {
+      const result = await controller.simulateSeek(3); 
+      console.log(result); // { "type": "do-seek", byte: 5763 }
+    };
+  },
+});
+```
+
+This is useful if you are considering a seek and only want to execute it if the outcome is desired.
+
 ## How smart is seeking?
 
 The efficiency of seeking depends on the container format.
 
-- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in case of fragmented files.
+- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in cas
+e of fragmented files.
 - **WebM**: Will use `Cues` and observed keyframes.
 - **WAV**: Will predict the sample number based on the sample rate and block align.
 - **Transport Stream**: Not smart - can only use the previously observed PES headers.
