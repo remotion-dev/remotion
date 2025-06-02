@@ -37,7 +37,11 @@ export const getSeekingByteForAac = ({
 	}
 
 	if (bestAudioSample) {
-		return {type: 'do-seek', byte: bestAudioSample.offset};
+		return {
+			type: 'do-seek',
+			byte: bestAudioSample.offset,
+			timeInSeconds: bestAudioSample.timeInSeconds,
+		};
 	}
 
 	return {type: 'valid-but-must-wait'};

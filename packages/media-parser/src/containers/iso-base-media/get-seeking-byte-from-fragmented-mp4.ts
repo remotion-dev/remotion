@@ -116,7 +116,10 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			if (kf) {
 				return {
 					type: 'do-seek',
-					byte: kf,
+					byte: kf.offset,
+					timeInSeconds:
+						Math.min(kf.decodingTimestamp, kf.timestamp) /
+						firstTrack.originalTimescale,
 				};
 			}
 		}

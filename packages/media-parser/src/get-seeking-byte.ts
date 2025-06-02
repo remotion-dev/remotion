@@ -4,6 +4,7 @@ import {getSeekingByteFromIsoBaseMedia} from './containers/iso-base-media/get-se
 import {getSeekingByteForM3u8} from './containers/m3u/get-seeking-byte';
 import {getSeekingByteForMp3} from './containers/mp3/get-seeking-byte';
 import {getSeekingByteForRiff} from './containers/riff/get-seeking-byte';
+import {MPEG_TIMESCALE} from './containers/transport-stream/handle-avc-packet';
 import {getSeekingByteFromWav} from './containers/wav/get-seeking-byte';
 import {getSeekingByteFromMatroska} from './containers/webm/seek/get-seeking-byte';
 import type {MediaParserLogLevel} from './log';
@@ -86,7 +87,8 @@ export const getSeekingByte = ({
 		if (byte) {
 			return Promise.resolve({
 				type: 'do-seek',
-				byte,
+				byte: byte.offset,
+				timeInSeconds: byte.timeInSeconds,
 			});
 		}
 
@@ -102,12 +104,27 @@ export const getSeekingByte = ({
 			ptsStartOffset: info.ptsStartOffset,
 		});
 
-		const byte = lastKeyframeBeforeTimeInSeconds?.offset ?? 0;
+		if (!lastKeyframeBeforeTimeInSeconds) {
+			transportStream.resetBeforeSeek();
+
+			return Promise.resolve({
+				type: 'do-seek',
+				byte: 0,
+				timeInSeconds: 0,
+			});
+		}
+
+		const byte = lastKeyframeBeforeTimeInSeconds.offset;
 
 		transportStream.resetBeforeSeek();
 		return Promise.resolve({
 			type: 'do-seek',
 			byte,
+			timeInSeconds:
+				Math.min(
+					lastKeyframeBeforeTimeInSeconds.pts,
+					lastKeyframeBeforeTimeInSeconds.dts ?? Infinity,
+				) / MPEG_TIMESCALE,
 		});
 	}
 

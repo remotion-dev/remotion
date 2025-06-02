@@ -328,4 +328,5 @@ export type SeekResolution =
 	| {
 			type: 'do-seek';
 			byte: number;
+			timeInSeconds: number;
 	  };

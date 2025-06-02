@@ -57,10 +57,11 @@ test('should be able to seek forward and then backwards', async () => {
 							10.5,
 						);
 
-						const hi = await controller.simulateSeek(0);
-						expect(hi).toEqual({
+						const simulatedSeek = await controller.simulateSeek(0);
+						expect(simulatedSeek).toEqual({
 							type: 'do-seek',
 							byte: 48,
+							timeInSeconds: 0,
 						});
 						controller.seek(0);
 					}
@@ -69,6 +70,12 @@ test('should be able to seek forward and then backwards', async () => {
 						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
 							0.08333333333333333,
 						);
+						const simulatedSeek = await controller.simulateSeek(10.6);
+						expect(simulatedSeek).toEqual({
+							type: 'do-seek',
+							byte: 2271206,
+							timeInSeconds: 10.416666666666666,
+						});
 						controller.abort();
 					}
 				};

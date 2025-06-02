@@ -73,20 +73,20 @@ await parseMedia({
   onVideoTrack: () => {
     return async () => {
       const result = await controller.simulateSeek(3); 
-      console.log(result); // { "type": "do-seek", byte: 5763 }
+      console.log(result); // { "type": "do-seek", byte: 5763, timeInSeconds: 0 }
     };
   },
 });
 ```
 
-This is useful if you are considering a seek and only want to execute it if the outcome is desired.
+This is useful if you are considering a seek and only want to execute it if the outcome is desired.  
+The result will be a [`SeekResolution`](/docs/media-parser/types#seekresolution) object.
 
 ## How smart is seeking?
 
 The efficiency of seeking depends on the container format.
 
-- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in cas
-e of fragmented files.
+- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in case of fragmented files.
 - **WebM**: Will use `Cues` and observed keyframes.
 - **WAV**: Will predict the sample number based on the sample rate and block align.
 - **Transport Stream**: Not smart - can only use the previously observed PES headers.
