@@ -174,7 +174,7 @@ export const playMedia = ({
 				'seek to time',
 				time * WEBCODECS_TIMESCALE,
 				simulatedSeek,
-				decoder?.getMostRecentSampleReceived(),
+				decoder?.getMostRecentSampleInput(),
 			);
 
 			seek.queueSeek(time, frameDatabase);
