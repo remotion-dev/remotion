@@ -606,11 +606,11 @@ export const Index: React.FC = () => {
 				<Still
 					id="FitTextOnNLines"
 					component={FitTextOnNLines}
-					width={800}
-					height={900}
+					width={1300}
+					height={350}
 					schema={fitTextOnNLinesSchema}
 					defaultProps={{
-						line: 'This is awesome, it works extremely well! Yeah! No matter how much text I am adding, it always fits on',
+						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikTok.',
 						maxLines: 2,
 					}}
 				/>

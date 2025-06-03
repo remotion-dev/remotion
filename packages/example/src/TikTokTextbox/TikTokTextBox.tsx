@@ -1,5 +1,5 @@
 import {measureText, TextTransform} from '@remotion/layout-utils';
-import {getPathForCorner} from './rounded-corner';
+import {getActualBorderRadius, getPathForCorner} from './rounded-corner';
 
 interface TikTokTextBoxProps {
 	lines: string[];
@@ -22,9 +22,8 @@ interface CornerRounding {
 	cornerBottomRight: boolean;
 	cornerLeft: boolean;
 	cornerRight: boolean;
-	currLength: number | undefined;
-	prevLength: number | undefined;
-	nextLength: number | undefined;
+	widthDifferenceToPrevious: number | undefined;
+	widthDifferenceToNext: number | undefined;
 	align: React.CSSProperties['textAlign'];
 }
 
@@ -38,7 +37,6 @@ const getCornerRoundings = ({
 	letterSpacing,
 	textTransform,
 	align,
-	borderRadius,
 }: {
 	lines: string[];
 	fontFamily: string;
@@ -48,7 +46,6 @@ const getCornerRoundings = ({
 	fontWeight: number;
 	letterSpacing: string;
 	textTransform: TextTransform;
-	borderRadius: number;
 	align: React.CSSProperties['textAlign'];
 }): CornerRounding[] => {
 	const lengths = lines.map((line) =>
@@ -73,29 +70,31 @@ const getCornerRoundings = ({
 		const nextLen = i < n - 1 ? lengths[i + 1] : undefined;
 		const currLen = lengths[i];
 
-		const borderRadiusToTakeIntoAccount =
-			align === 'center' ? borderRadius / 2 : borderRadius;
+		const widthDifferenceToPrevious =
+			prevLen !== undefined ? currLen.width - prevLen.width : undefined;
+		const widthDifferenceToNext =
+			nextLen !== undefined ? currLen.width - nextLen.width : undefined;
 
 		// Determine rounded corners
 		let topLeft =
 			isFirst ||
 			(prevLen !== undefined &&
-				currLen.width - borderRadiusToTakeIntoAccount > prevLen.width &&
+				currLen.width - 0 > prevLen.width &&
 				align !== 'left');
 		let topRight =
 			isFirst ||
 			(prevLen !== undefined &&
-				currLen.width - borderRadiusToTakeIntoAccount > prevLen.width &&
+				currLen.width - 0 > prevLen.width &&
 				align !== 'right');
 		let bottomLeft =
 			isLast ||
 			(nextLen !== undefined &&
-				currLen.width - borderRadiusToTakeIntoAccount > nextLen.width &&
+				currLen.width - 0 > nextLen.width &&
 				align !== 'left');
 		let bottomRight =
 			isLast ||
 			(nextLen !== undefined &&
-				currLen.width - borderRadiusToTakeIntoAccount > nextLen.width &&
+				currLen.width - 0 > nextLen.width &&
 				align !== 'right');
 
 		if (!isFirst && !isLast) {
@@ -142,10 +141,10 @@ const getCornerRoundings = ({
 			cornerBottomRight,
 			cornerLeft,
 			cornerRight,
-			currLength: currLen?.width,
-			prevLength: prevLen?.width,
-			nextLength: nextLen?.width,
+
 			align,
+			widthDifferenceToPrevious,
+			widthDifferenceToNext,
 		};
 		return roundings;
 	});
@@ -153,14 +152,150 @@ const getCornerRoundings = ({
 
 const getBorderRadius = (rounding: CornerRounding, radius: number) => {
 	return [
-		rounding.topLeft ? `${radius}px` : '0',
-		rounding.topRight ? `${radius}px` : '0',
-		rounding.bottomRight ? `${radius}px` : '0',
-		rounding.bottomLeft ? `${radius}px` : '0',
+		rounding.topLeft
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToPrevious})}px`
+			: '0',
+		rounding.topRight
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToPrevious})}px`
+			: '0',
+		rounding.bottomRight
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToNext})}px`
+			: '0',
+		rounding.bottomLeft
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToNext})}px`
+			: '0',
 	].join(' ');
 };
 
 export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 10;
+
+const TopLeftCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'top-right',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				left: -width,
+				top: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
+
+const TopRightCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'top-left',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				right: -width,
+				top: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
+
+const BottomLeftCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'bottom-right',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				left: -width,
+				bottom: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
+
+const BottomRightCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'bottom-left',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				right: -width,
+				bottom: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
 
 const TikTokTextLine: React.FC<{
 	text: string;
@@ -184,79 +319,39 @@ const TikTokTextLine: React.FC<{
 	return (
 		<div style={{position: 'relative'}}>
 			{cornerRounding.cornerTopLeft && (
-				<div
-					style={{
-						position: 'absolute',
-						left: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-					}}
-				>
-					<svg viewBox={`0 0 ${borderRadiusValue} ${borderRadiusValue}`}>
-						<path
-							fill={bgColor}
-							d={getPathForCorner('top-right', borderRadiusValue)}
-						/>
-					</svg>
-				</div>
+				<TopLeftCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToPrevious}
+				/>
 			)}
 			{cornerRounding.cornerBottomLeft && (
-				<div
-					style={{
-						position: 'absolute',
-						left: -borderRadiusValue,
-						bottom: 0,
-						width: borderRadiusValue,
-					}}
-				>
-					<svg viewBox={`0 0 ${borderRadiusValue} ${borderRadiusValue}`}>
-						<path
-							fill={bgColor}
-							d={getPathForCorner('bottom-right', borderRadiusValue)}
-						/>
-					</svg>
-				</div>
+				<BottomLeftCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToNext}
+				/>
 			)}
 			{cornerRounding.cornerTopRight && (
-				<div
-					style={{
-						position: 'absolute',
-						right: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-					}}
-				>
-					<svg viewBox={`0 0 ${borderRadiusValue} ${borderRadiusValue}`}>
-						<path
-							fill={bgColor}
-							d={getPathForCorner('top-left', borderRadiusValue)}
-						/>
-					</svg>
-				</div>
+				<TopRightCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToPrevious}
+				/>
 			)}
 			{cornerRounding.cornerBottomRight && (
-				<div
-					style={{
-						position: 'absolute',
-						right: -borderRadiusValue,
-						bottom: 0,
-						width: borderRadiusValue,
-					}}
-				>
-					<svg viewBox={`0 0 ${borderRadiusValue} ${borderRadiusValue}`}>
-						<path
-							fill={bgColor}
-							d={getPathForCorner('bottom-left', borderRadiusValue)}
-						/>
-					</svg>
-				</div>
+				<BottomRightCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToNext}
+				/>
 			)}
 			<div
 				style={
 					{
 						textAlign: align,
 						backgroundColor: bgColor ?? 'white',
-						padding: `10px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
+						padding: `0px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
 						borderRadius: borderRadius,
 						width: 'fit-content',
 						...style,
@@ -276,7 +371,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	fontFamily = 'Arial',
 	bgColor = 'white',
 	textColor,
-	borderRadius = 7,
+	borderRadius = 10,
 }) => {
 	const fontSize = 16;
 	const fontWeight = 400;
@@ -290,10 +385,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 		letterSpacing: 'normal',
 		textTransform: 'none',
 		align,
-		borderRadius,
 	});
-
-	console.log({roundings});
 
 	return (
 		<div
@@ -310,7 +402,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 				fontFamily,
 				color: textColor ?? 'black',
 				width: 'fit-content',
-				lineHeight: 1,
+				lineHeight: 1.5,
 				fontWeight,
 			}}
 		>

@@ -7,8 +7,8 @@ import {
 	TikTokTextBox,
 } from '../TikTokTextbox/TikTokTextBox';
 
-const boxWidth = 600;
-const fontFamily = 'GT Planar';
+const boxWidth = 1200;
+const fontFamily = 'Proxima Nova';
 const fontWeight = 'bold';
 
 export const fitTextOnNLinesSchema = z.object({
@@ -25,9 +25,8 @@ export const FitTextOnNLines: React.FC<
 		fontFamily,
 		text: line,
 		fontWeight,
-		maxFontSize: 80,
+		maxFontSize: 100,
 	});
-	console.log({lines});
 	const fontSize = bestFontSize;
 
 	return (
@@ -35,7 +34,7 @@ export const FitTextOnNLines: React.FC<
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				backgroundColor: 'white',
+				backgroundColor: '#1F2429',
 			}}
 		>
 			<div
@@ -52,8 +51,8 @@ export const FitTextOnNLines: React.FC<
 				}}
 			>
 				<TikTokTextBox
-					bgColor="black"
-					textColor="white"
+					bgColor="white"
+					textColor="black"
 					lines={lines}
 					fontFamily={fontFamily}
 					textAlign="center"
