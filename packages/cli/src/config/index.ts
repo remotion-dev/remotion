@@ -14,6 +14,10 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
+import {
+	getImageSequencePattern,
+	setImageSequencePattern,
+} from './image-sequence-pattern';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -500,6 +504,11 @@ declare global {
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPublicPath: (publicPath: string | null) => void;
+		/**
+		 * Set the pattern for naming image sequence files. Supports [frame] and [ext] replacements.
+		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
+		 */
+		readonly setImageSequencePattern: (pattern: string | undefined) => void;
 	}
 }
 
@@ -674,6 +683,7 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
+	setImageSequencePattern,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 };
@@ -715,3 +725,5 @@ export const ConfigInternals = {
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 };
+
+export {getImageSequencePattern, setImageSequencePattern};

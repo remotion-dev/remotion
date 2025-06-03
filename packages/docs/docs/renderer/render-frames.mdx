@@ -95,6 +95,25 @@ _optional since v4.0 - default "jpeg"_
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 - Choose `none` if you only want to render audio.
 
+### `imageSequencePattern?` <AvailableFrom v="4.0.313" />
+
+A string pattern for naming the output image sequence files. You can use the following magic replacements:
+
+- `[frame]`: Will be replaced with the zero-padded frame number (e.g. 0001, 0002, ...)
+- `[ext]`: Will be replaced with the image format extension (e.g. jpeg, png)
+
+Default: `element-%0[frame]d.[ext]`
+
+**Example:**
+
+```js
+renderFrames({
+  ...otherOptions,
+  imageSequencePattern: 'frame_[frame]_custom.[ext]',
+});
+// Produces: frame_0001_custom.jpeg, frame_0002_custom.jpeg, ...
+```
+
 ### `concurrency?`
 
 _optional_

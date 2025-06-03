@@ -107,11 +107,16 @@ export type CommandLineOptions = {
 		typeof enableMultiprocessOnLinuxOption
 	>;
 	repro: boolean;
+	'image-sequence-pattern': string;
 };
 
 export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
 		Config.setPixelFormat(parsedCli['pixel-format']);
+	}
+
+	if (parsedCli['image-sequence-pattern']) {
+		Config.setImageSequencePattern(parsedCli['image-sequence-pattern']);
 	}
 
 	if (parsedCli['browser-executable']) {

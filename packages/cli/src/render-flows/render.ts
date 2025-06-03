@@ -535,6 +535,7 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 			onArtifact,
 			chromeMode,
+			imageSequencePattern: parsedCli['image-sequence-pattern'],
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));

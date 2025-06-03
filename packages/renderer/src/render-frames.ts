@@ -225,6 +225,7 @@ const innerRenderFrames = async ({
 	forSeamlessAacConcatenation,
 	onArtifact,
 	binariesDirectory,
+	imageSequencePattern,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -400,15 +401,18 @@ const innerRenderFrames = async ({
 	const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 
 	await Promise.all(downloadPromises);
+
+	const pattern = imageSequencePattern || `element-%0[frame]d.[ext]`;
+	const imageSequenceName = pattern
+		.replace(/\[frame\]/g, `%0${filePadLength}d`)
+		.replace(/\[ext\]/g, imageFormat);
+
 	return {
 		assetsInfo: {
 			assets: assets.sort((a, b) => {
 				return a.frame - b.frame;
 			}),
-			imageSequenceName: path.join(
-				frameDir,
-				`element-%0${filePadLength}d.${imageFormat}`,
-			),
+			imageSequenceName: path.join(frameDir, imageSequenceName),
 			firstFrameIndex,
 			downloadMap,
 			trimLeftOffset,
@@ -459,6 +463,7 @@ const internalRenderFramesRaw = ({
 	onArtifact,
 	chromeMode,
 	offthreadVideoThreads,
+	imageSequencePattern,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -591,6 +596,7 @@ const internalRenderFramesRaw = ({
 					onArtifact,
 					chromeMode,
 					offthreadVideoThreads,
+					imageSequencePattern,
 				});
 			}),
 		])
@@ -689,6 +695,7 @@ export const renderFrames = (
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		imageSequencePattern,
 	} = options;
 
 	if (!composition) {
@@ -763,5 +770,6 @@ export const renderFrames = (
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		imageSequencePattern: imageSequencePattern ?? null,
 	});
 };

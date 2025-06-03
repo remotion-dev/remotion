@@ -11,6 +11,7 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {hardwareAccelerationOption} from './hardware-acceleration';
+import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
 import {logLevelOption} from './log-level';
 import {mutedOption} from './mute';
@@ -95,6 +96,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		imageSequencePattern: imageSequencePatternOption,
 	},
 	renderMediaOnLambda: {
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
