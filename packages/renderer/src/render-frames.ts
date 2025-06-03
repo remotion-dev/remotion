@@ -399,7 +399,7 @@ const innerRenderFrames = async ({
 				onFrameBuffer,
 				onFrameUpdate,
 				nextFrameToRender,
-				imageSequenceName: pattern,
+				imageSequencePattern: pattern,
 			});
 		}),
 	);
