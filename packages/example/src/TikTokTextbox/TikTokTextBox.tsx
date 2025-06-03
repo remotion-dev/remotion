@@ -1,7 +1,10 @@
+import {measureText, TextTransform} from '@remotion/layout-utils';
+import {getActualBorderRadius, getPathForCorner} from './rounded-corner';
+
 interface TikTokTextBoxProps {
 	lines: string[];
-	align?: React.CSSProperties['textAlign'];
-	fontFamily?: string;
+	textAlign: React.CSSProperties['textAlign'];
+	fontFamily: string;
 	bgColor?: string;
 	textColor?: string;
 	className?: string;
@@ -9,18 +12,55 @@ interface TikTokTextBoxProps {
 }
 
 interface CornerRounding {
-	TL: boolean;
-	TR: boolean;
-	BL: boolean;
-	BR: boolean;
-	classList: string[];
+	topLeft: boolean;
+	topRight: boolean;
+	bottomLeft: boolean;
+	bottomRight: boolean;
+	cornerTopLeft: boolean;
+	cornerTopRight: boolean;
+	cornerBottomLeft: boolean;
+	cornerBottomRight: boolean;
+	cornerLeft: boolean;
+	cornerRight: boolean;
+	widthDifferenceToPrevious: number | undefined;
+	widthDifferenceToNext: number | undefined;
+	align: React.CSSProperties['textAlign'];
 }
 
-const getCornerRoundings = (
-	lines: string[],
-	align?: React.CSSProperties['textAlign'],
-): CornerRounding[] => {
-	const lengths = lines.map((line) => line.length);
+const getCornerRoundings = ({
+	lines,
+	fontFamily,
+	fontSize,
+	additionalStyles,
+	fontVariantNumeric,
+	fontWeight,
+	letterSpacing,
+	textTransform,
+	align,
+}: {
+	lines: string[];
+	fontFamily: string;
+	fontSize: number;
+	additionalStyles: React.CSSProperties;
+	fontVariantNumeric: string;
+	fontWeight: number;
+	letterSpacing: string;
+	textTransform: TextTransform;
+	align: React.CSSProperties['textAlign'];
+}): CornerRounding[] => {
+	const lengths = lines.map((line) =>
+		measureText({
+			text: line,
+			fontFamily,
+			fontSize,
+			additionalStyles,
+			fontVariantNumeric,
+			fontWeight,
+			letterSpacing,
+			textTransform,
+			validateFontIsLoaded: true,
+		}),
+	);
 	const n = lengths.length;
 
 	return lines.map((_, i) => {
@@ -30,59 +70,236 @@ const getCornerRoundings = (
 		const nextLen = i < n - 1 ? lengths[i + 1] : undefined;
 		const currLen = lengths[i];
 
+		const widthDifferenceToPrevious =
+			prevLen !== undefined ? currLen.width - prevLen.width : undefined;
+		const widthDifferenceToNext =
+			nextLen !== undefined ? currLen.width - nextLen.width : undefined;
+
 		// Determine rounded corners
-		let TL = isFirst || (prevLen !== undefined && currLen > prevLen);
-		let TR = TL;
-		let BL = isLast || (nextLen !== undefined && currLen > nextLen);
-		let BR = BL;
+		let topLeft =
+			isFirst ||
+			(prevLen !== undefined &&
+				currLen.width - 0 > prevLen.width &&
+				align !== 'left');
+		let topRight =
+			isFirst ||
+			(prevLen !== undefined &&
+				currLen.width - 0 > prevLen.width &&
+				align !== 'right');
+		let bottomLeft =
+			isLast ||
+			(nextLen !== undefined &&
+				currLen.width - 0 > nextLen.width &&
+				align !== 'left');
+		let bottomRight =
+			isLast ||
+			(nextLen !== undefined &&
+				currLen.width - 0 > nextLen.width &&
+				align !== 'right');
 
 		if (!isFirst && !isLast) {
 			if (align === 'left') {
-				TL = BL = false;
+				topLeft = bottomLeft = false;
 			} else if (align === 'right') {
-				TR = BR = false;
+				topRight = bottomRight = false;
 			}
 		}
 
-		// Build class list
-		const classList: string[] = [];
+		// Determine corner properties
+		let cornerTopLeft = false;
+		let cornerTopRight = false;
+		let cornerBottomLeft = false;
+		let cornerBottomRight = false;
+		const cornerLeft = false;
+		const cornerRight = false;
+
 		if (align === 'left') {
-			if (!BR) classList.push('corner-br');
-			if (!TR) classList.push('corner-tr');
+			cornerBottomRight = !bottomRight;
+			cornerTopRight = !topRight;
 		} else if (align === 'right') {
-			if (!BL) classList.push('corner-bl');
-			if (!TL) classList.push('corner-tl');
+			cornerBottomLeft = !bottomLeft;
+			cornerTopLeft = !topLeft;
 		} else if (align === 'center') {
 			// LEFT side
-			if (!TL && !BL) {
-				classList.push('corner-left');
-			} else {
-				if (!TL) classList.push('corner-tl');
-				if (!BL) classList.push('corner-bl');
-			}
+
+			cornerTopLeft = !topLeft;
+			cornerBottomLeft = !bottomLeft;
 			// RIGHT side
-			if (!TR && !BR) {
-				classList.push('corner-right');
-			} else {
-				if (!TR) classList.push('corner-tr');
-				if (!BR) classList.push('corner-br');
-			}
+
+			cornerTopRight = !topRight;
+			cornerBottomRight = !bottomRight;
 		}
 
-		return {TL, TR, BL, BR, classList};
+		const roundings: CornerRounding = {
+			topLeft,
+			topRight,
+			bottomLeft,
+			bottomRight,
+			cornerTopLeft,
+			cornerTopRight,
+			cornerBottomLeft,
+			cornerBottomRight,
+			cornerLeft,
+			cornerRight,
+
+			align,
+			widthDifferenceToPrevious,
+			widthDifferenceToNext,
+		};
+		return roundings;
 	});
 };
 
 const getBorderRadius = (rounding: CornerRounding, radius: number) => {
 	return [
-		rounding.TL ? `${radius}px` : '0',
-		rounding.TR ? `${radius}px` : '0',
-		rounding.BR ? `${radius}px` : '0',
-		rounding.BL ? `${radius}px` : '0',
+		rounding.topLeft
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToPrevious})}px`
+			: '0',
+		rounding.topRight
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToPrevious})}px`
+			: '0',
+		rounding.bottomRight
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToNext})}px`
+			: '0',
+		rounding.bottomLeft
+			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToNext})}px`
+			: '0',
 	].join(' ');
 };
 
-export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 10;
+export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 20;
+
+const TopLeftCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'top-right',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				left: -width,
+				top: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+					overflow: 'visible',
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
+
+const TopRightCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'top-left',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				right: -width,
+				top: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+					overflow: 'visible',
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
+
+const BottomLeftCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'bottom-right',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				left: -width,
+				bottom: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+					overflow: 'visible',
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
+
+const BottomRightCorner: React.FC<{
+	bgColor: string;
+	borderRadiusValue: number;
+	widthDifference: number | undefined;
+}> = ({bgColor, borderRadiusValue, widthDifference}) => {
+	const {d, borderRadius, width} = getPathForCorner({
+		corner: 'bottom-left',
+		desiredBorderRadius: borderRadiusValue,
+		widthDifference,
+	});
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				right: -width,
+				bottom: 0,
+				width: width,
+			}}
+		>
+			<svg
+				style={{
+					width,
+					height: width,
+					overflow: 'visible',
+				}}
+				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
+			>
+				<path fill={bgColor} d={d} />
+			</svg>
+		</div>
+	);
+};
 
 const TikTokTextLine: React.FC<{
 	text: string;
@@ -104,114 +321,75 @@ const TikTokTextLine: React.FC<{
 	borderRadiusValue,
 }) => {
 	return (
-		<div
-			style={
-				{
-					position: 'relative',
-					textAlign: align,
-					backgroundColor: bgColor ?? 'white',
-					padding: `10px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
-					borderRadius: borderRadius,
-					width: 'fit-content',
-					...style,
-				} as React.CSSProperties
-			}
-			className={className}
-		>
-			{text}
-			{cornerRounding.classList.includes('corner-tl') && (
-				<div
-					style={{
-						position: 'absolute',
-						left: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-						height: '100%',
-						borderTopRightRadius: borderRadiusValue,
-						boxShadow: `0px -${borderRadiusValue * 2}px 0 ${bgColor}`,
-					}}
+		<div style={{position: 'relative'}}>
+			{cornerRounding.cornerTopLeft && (
+				<TopLeftCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToPrevious}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-bl') && (
-				<div
-					style={{
-						position: 'absolute',
-						left: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-						height: '100%',
-						borderBottomRightRadius: borderRadiusValue,
-						boxShadow: `0px ${borderRadiusValue * 2}px 0 ${bgColor}`,
-					}}
+			{cornerRounding.cornerBottomLeft && (
+				<BottomLeftCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToNext}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-tr') && (
-				<div
-					style={{
-						position: 'absolute',
-						right: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-						height: '100%',
-						borderTopLeftRadius: borderRadiusValue,
-						boxShadow: `0px -${borderRadiusValue * 2}px 0 ${bgColor}`,
-					}}
+			{cornerRounding.cornerTopRight && (
+				<TopRightCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToPrevious}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-br') && (
-				<div
-					style={{
-						position: 'absolute',
-						right: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-						height: '100%',
-						borderBottomLeftRadius: borderRadiusValue,
-						boxShadow: `0px ${borderRadiusValue * 2}px 0 ${bgColor}`,
-					}}
+			{cornerRounding.cornerBottomRight && (
+				<BottomRightCorner
+					bgColor={bgColor}
+					borderRadiusValue={borderRadiusValue}
+					widthDifference={cornerRounding.widthDifferenceToNext}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-left') && (
-				<div
-					style={{
-						position: 'absolute',
-						left: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-						height: '100%',
-						borderTopRightRadius: borderRadiusValue,
-						borderBottomRightRadius: borderRadiusValue,
-						boxShadow: `0 -${borderRadiusValue}px 0 ${bgColor}, 0 ${borderRadiusValue}px 0 ${bgColor}`,
-					}}
-				/>
-			)}
-			{cornerRounding.classList.includes('corner-right') && (
-				<div
-					style={{
-						position: 'absolute',
-						right: -borderRadiusValue,
-						top: 0,
-						width: borderRadiusValue,
-						height: '100%',
-						borderTopLeftRadius: borderRadiusValue,
-						borderBottomLeftRadius: borderRadiusValue,
-						boxShadow: `0 -${borderRadiusValue}px 0 ${bgColor}, 0 ${borderRadiusValue}px 0 ${bgColor}`,
-					}}
-				/>
-			)}
+			<div
+				style={
+					{
+						textAlign: align,
+						backgroundColor: bgColor ?? 'white',
+						padding: `0px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
+						borderRadius: borderRadius,
+						width: 'fit-content',
+						...style,
+					} as React.CSSProperties
+				}
+				className={className}
+			>
+				{text}
+			</div>
 		</div>
 	);
 };
 
 export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	lines,
-	align,
-	fontFamily,
+	textAlign: align,
+	fontFamily = 'Arial',
 	bgColor = 'white',
 	textColor,
-	borderRadius = 7,
+	borderRadius = 10,
 }) => {
-	const roundings = getCornerRoundings(lines, align);
+	const fontSize = 16;
+	const fontWeight = 400;
+	const roundings = getCornerRoundings({
+		lines,
+		fontFamily,
+		fontSize,
+		additionalStyles: {},
+		fontVariantNumeric: 'normal',
+		fontWeight,
+		letterSpacing: 'normal',
+		textTransform: 'none',
+		align,
+	});
 
 	return (
 		<div
@@ -225,10 +403,11 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 							? 'flex-end'
 							: 'center',
 				textAlign: align,
-				fontFamily: fontFamily,
+				fontFamily,
 				color: textColor ?? 'black',
 				width: 'fit-content',
-				lineHeight: 1,
+				lineHeight: 1.5,
+				fontWeight,
 			}}
 		>
 			{lines.map((line, i) => (
@@ -239,7 +418,6 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					bgColor={bgColor}
 					borderRadius={getBorderRadius(roundings[i], borderRadius)}
 					style={{}}
-					className={`tiktok-text-line ${roundings[i].classList.join(' ')}`}
 					cornerRounding={roundings[i]}
 					borderRadiusValue={borderRadius}
 				/>
@@ -265,24 +443,25 @@ export const TikTokTextBoxPlayground = () => {
 		>
 			<TikTokTextBox
 				lines={['Align Left', 'with two lines', 'Third Line']}
-				align="left"
+				textAlign="left"
 				fontFamily="Arial"
 				bgColor="red"
 			/>
 			<TikTokTextBox
 				lines={['Align Center', 'short', 'Third Line']}
-				align="center"
+				textAlign="center"
 				fontFamily="Proxima Nova Semibold"
 			/>
 			<TikTokTextBox
 				lines={['Align Right', 'with two lines', 'Third Line']}
-				align="right"
+				textAlign="right"
 				bgColor="#FF683E"
+				fontFamily="Proxima Nova Semibold"
 				textColor="black"
 			/>
 			<TikTokTextBox
 				lines={['short1', 'short']}
-				align="center"
+				textAlign="center"
 				fontFamily="Proxima Nova Semibold"
 			/>
 		</div>
