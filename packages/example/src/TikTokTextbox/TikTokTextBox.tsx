@@ -82,13 +82,21 @@ const getCornerRoundings = ({
 			(prevLen !== undefined &&
 				currLen.width - borderRadiusToTakeIntoAccount > prevLen.width &&
 				align !== 'left');
-		let topRight = topLeft;
+		let topRight =
+			isFirst ||
+			(prevLen !== undefined &&
+				currLen.width - borderRadiusToTakeIntoAccount > prevLen.width &&
+				align !== 'right');
 		let bottomLeft =
 			isLast ||
 			(nextLen !== undefined &&
 				currLen.width - borderRadiusToTakeIntoAccount > nextLen.width &&
 				align !== 'left');
-		let bottomRight = bottomLeft;
+		let bottomRight =
+			isLast ||
+			(nextLen !== undefined &&
+				currLen.width - borderRadiusToTakeIntoAccount > nextLen.width &&
+				align !== 'right');
 
 		if (!isFirst && !isLast) {
 			if (align === 'left') {
@@ -173,12 +181,8 @@ const TikTokTextLine: React.FC<{
 	cornerRounding,
 	borderRadiusValue,
 }) => {
-	if (cornerRounding.cornerLeft) {
-		console.log('cornerLeft', text);
-	}
 	return (
 		<div style={{position: 'relative'}}>
-			{' '}
 			{cornerRounding.cornerTopLeft && (
 				<div
 					style={{
