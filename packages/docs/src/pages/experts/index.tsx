@@ -231,7 +231,7 @@ const Experts: React.FC = () => {
 												<a
 													style={docsButton}
 													target={'_blank'}
-													href={`https://cal.com/${e.videocall}`}
+													href={e.videocall}
 												>
 													<BlueButton loading={false} fullWidth size="sm">
 														<VideoCallLogo /> Call
