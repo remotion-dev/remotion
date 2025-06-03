@@ -20,13 +20,14 @@ const getSamplesFromTraf = (
 	const tfhdBox = getTfhdBox(trafSegment);
 	const trexBox = trexBoxes.find((t) => t.trackId === tfhdBox?.trackId) ?? null;
 
-	// intentional || instead of ?? to allow for 0
+	// intentional || instead of ?? to allow for 0, doesn't make sense for duration or size
 	const defaultTrackSampleDuration =
 		tfhdBox?.defaultSampleDuration || trexBox?.defaultSampleDuration || null;
 	const defaultTrackSampleSize =
 		tfhdBox?.defaultSampleSize || trexBox?.defaultSampleSize || null;
+	// but flags may just be 0 :)
 	const defaultTrackSampleFlags =
-		tfhdBox?.defaultSampleFlags || trexBox?.defaultSampleFlags || null;
+		tfhdBox?.defaultSampleFlags ?? trexBox?.defaultSampleFlags ?? null;
 
 	const tfdtBox = getTfdtBox(trafSegment);
 	const trunBoxes = getTrunBoxes(trafSegment);
