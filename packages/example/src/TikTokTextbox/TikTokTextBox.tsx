@@ -167,7 +167,7 @@ const getBorderRadius = (rounding: CornerRounding, radius: number) => {
 	].join(' ');
 };
 
-export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 10;
+export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 20;
 
 const TopLeftCorner: React.FC<{
 	bgColor: string;
@@ -192,6 +192,7 @@ const TopLeftCorner: React.FC<{
 				style={{
 					width,
 					height: width,
+					overflow: 'visible',
 				}}
 				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
 			>
@@ -224,6 +225,7 @@ const TopRightCorner: React.FC<{
 				style={{
 					width,
 					height: width,
+					overflow: 'visible',
 				}}
 				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
 			>
@@ -256,6 +258,7 @@ const BottomLeftCorner: React.FC<{
 				style={{
 					width,
 					height: width,
+					overflow: 'visible',
 				}}
 				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
 			>
@@ -288,6 +291,7 @@ const BottomRightCorner: React.FC<{
 				style={{
 					width,
 					height: width,
+					overflow: 'visible',
 				}}
 				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
 			>
