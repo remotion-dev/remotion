@@ -16,6 +16,10 @@ interface CornerRounding {
 	bottomLeft: boolean;
 	bottomRight: boolean;
 	classList: string[];
+	currLength: number | undefined;
+	prevLength: number | undefined;
+	nextLength: number | undefined;
+	align: React.CSSProperties['textAlign'];
 }
 
 const getCornerRoundings = ({
@@ -62,10 +66,13 @@ const getCornerRoundings = ({
 		const currLen = lengths[i];
 
 		// Determine rounded corners
-		let topLeft = isFirst || (prevLen !== undefined && currLen > prevLen);
+		let topLeft =
+			isFirst || (prevLen !== undefined && currLen.width > prevLen.width);
 		let topRight = topLeft;
-		let bottomLeft = isLast || (nextLen !== undefined && currLen > nextLen);
-		let bottomRight = bottomLeft;
+		let bottomLeft =
+			isLast || (nextLen !== undefined && currLen.width > nextLen.width);
+		let bottomRight =
+			isLast || (nextLen !== undefined && currLen.width > nextLen.width);
 
 		if (!isFirst && !isLast) {
 			if (align === 'left') {
@@ -106,6 +113,10 @@ const getCornerRoundings = ({
 			bottomLeft: bottomLeft,
 			bottomRight: bottomRight,
 			classList,
+			currLength: currLen?.width,
+			prevLength: prevLen?.width,
+			nextLength: nextLen?.width,
+			align,
 		};
 		return roundings;
 	});

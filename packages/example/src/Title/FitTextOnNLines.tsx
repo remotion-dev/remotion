@@ -56,6 +56,7 @@ export const FitTextOnNLines: React.FC<
 					textColor="white"
 					lines={lines}
 					fontFamily={fontFamily}
+					textAlign="center"
 				></TikTokTextBox>
 			</div>
 		</AbsoluteFill>

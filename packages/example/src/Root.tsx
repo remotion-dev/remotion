@@ -609,7 +609,10 @@ export const Index: React.FC = () => {
 					width={800}
 					height={900}
 					schema={fitTextOnNLinesSchema}
-					defaultProps={{line: 'This is awesome, we have', maxLines: 2}}
+					defaultProps={{
+						line: 'This is awesome, it just works extremely well',
+						maxLines: 2,
+					}}
 				/>
 				<Composition
 					id="beta-text"
