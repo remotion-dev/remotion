@@ -2,6 +2,10 @@ import {fitTextOnNLines} from '@remotion/layout-utils';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
+import {
+	TIKTOK_TEXT_BOX_HORIZONTAL_PADDING,
+	TikTokTextBox,
+} from '../TikTokTextbox/TikTokTextBox';
 
 const boxWidth = 600;
 const fontFamily = 'GT Planar';
@@ -15,17 +19,16 @@ export const fitTextOnNLinesSchema = z.object({
 export const FitTextOnNLines: React.FC<
 	z.infer<typeof fitTextOnNLinesSchema>
 > = ({line, maxLines}) => {
-	const fontSize = Math.min(
-		80,
-		fitTextOnNLines({
-			maxLines,
-			maxBoxWidth: boxWidth,
-			fontFamily,
-			text: line,
-			fontWeight,
-			textTransform: 'uppercase',
-		}).fontSize,
-	);
+	const {fontSize: bestFontSize, lines} = fitTextOnNLines({
+		maxLines,
+		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
+		fontFamily,
+		text: line,
+		fontWeight,
+		maxFontSize: 80,
+	});
+	console.log({lines});
+	const fontSize = bestFontSize;
 
 	return (
 		<AbsoluteFill
@@ -35,23 +38,25 @@ export const FitTextOnNLines: React.FC<
 				backgroundColor: 'white',
 			}}
 		>
-			<div style={{backgroundColor: '#0B84F3', padding: 20}}>
-				<div
-					style={{
-						width: boxWidth,
-						outline: '1px dashed rgba(255, 255, 255, 0.5)',
-						fontSize,
-						overflow: 'auto',
-						fontWeight,
-						fontFamily,
-						display: 'flex',
-						alignItems: 'center',
-						color: 'white',
-						textTransform: 'uppercase',
-					}}
-				>
-					{line}
-				</div>
+			<div
+				style={{
+					width: boxWidth,
+					fontSize,
+					overflow: 'auto',
+					fontWeight,
+					fontFamily,
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					color: 'black',
+				}}
+			>
+				<TikTokTextBox
+					bgColor="black"
+					textColor="white"
+					lines={lines}
+					fontFamily={fontFamily}
+				></TikTokTextBox>
 			</div>
 		</AbsoluteFill>
 	);

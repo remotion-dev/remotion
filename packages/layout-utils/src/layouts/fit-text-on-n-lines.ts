@@ -14,6 +14,7 @@ type FitTextOnNLinesProps = {
 	validateFontIsLoaded?: boolean;
 	textTransform?: TextTransform;
 	additionalStyles?: Record<string, string>;
+	maxFontSize?: number;
 };
 
 export const fitTextOnNLines = ({
@@ -27,15 +28,16 @@ export const fitTextOnNLines = ({
 	validateFontIsLoaded,
 	textTransform,
 	additionalStyles,
+	maxFontSize,
 }: FitTextOnNLinesProps) => {
 	// Fixed max font size since we are using binary search a
-	const maxFontSize = 2000;
 	const minFontSize = 0.1;
 
 	// Binary search to find the optimal font size
 	let left = Math.floor(minFontSize * PRECISION);
-	let right = Math.floor(maxFontSize * PRECISION);
+	let right = Math.floor((maxFontSize ?? 2000) * PRECISION);
 	let optimalFontSize = minFontSize;
+	let optimalLines: string[] = [];
 	while (left <= right) {
 		const mid = Math.floor((left + right) / 2);
 		const fontSize = mid / PRECISION;
@@ -50,6 +52,7 @@ export const fitTextOnNLines = ({
 		const words = text.split(' ');
 		let exceedsBox = false;
 		let currentLine = 0;
+		const lines: string[] = [''];
 
 		for (const word of words) {
 			const result = textBox.add({
@@ -70,13 +73,17 @@ export const fitTextOnNLines = ({
 			}
 
 			if (result.newLine) {
+				lines.push('');
 				currentLine++;
 			}
+
+			lines[currentLine] += word + ' ';
 		}
 
 		// If text fits within the box and number of lines
 		if (!exceedsBox && currentLine < maxLines) {
 			optimalFontSize = fontSize;
+			optimalLines = lines;
 			left = mid + 1;
 		} else {
 			right = mid - 1;
@@ -85,5 +92,6 @@ export const fitTextOnNLines = ({
 
 	return {
 		fontSize: optimalFontSize,
+		lines: optimalLines,
 	};
 };

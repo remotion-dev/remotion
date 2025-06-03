@@ -610,7 +610,7 @@ export const Index: React.FC = () => {
 					height={900}
 					schema={fitTextOnNLinesSchema}
 					defaultProps={{
-						line: 'Test '.repeat(20),
+						line: 'I can make this text as long as I want, it always fits in 2 lines ',
 						maxLines: 2,
 					}}
 				/>
