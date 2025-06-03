@@ -6,7 +6,7 @@ crumb: '@remotion/layout-utils'
 
 \_Part of the [`@remotion/layout-utils`](/docs/layout-utils) package. Available from v4.0.312
 
-Calculates the `font-size` needed to fit a text into a given width while respecting a maximum number of lines.
+Calculates the `fontSize` needed to fit a text into a given width while respecting a maximum number of lines. Optionally, you can specify a maximum font size, and see how the text is split into lines.
 
 ```tsx twoslash title="FitTextOnNLines.tsx"
 import {fitTextOnNLines} from '@remotion/layout-utils';
@@ -17,13 +17,14 @@ const maxLines = 2;
 const fontFamily = 'Arial';
 const fontWeight = 'bold';
 
-const {fontSize} = fitTextOnNLines({
+const {fontSize, lines} = fitTextOnNLines({
   text,
   maxBoxWidth: width,
   maxLines,
   fontFamily: fontFamily,
   fontWeight: fontWeight,
   textTransform: 'uppercase',
+  maxFontSize: 80,
 });
 
 // Example markup:
@@ -114,9 +115,29 @@ _object, optional_
 
 Additional CSS properties that affect the layout of the text.
 
+### `maxFontSize`
+
+_number, optional_
+
+The maximum font size (in pixels) that the text is allowed to reach. If not specified, defaults to 2000.
+
+
+
 ## Return value
 
-An object with `fontSize` in pixels. Assign this to the `style` prop of your text element.
+An object with the following properties:
+
+### `fontSize`
+
+_number_
+
+The calculated font size in pixels. Assign this to the `style` prop of your text element.
+
+### `lines`
+
+_string[]_
+
+An array of strings, each representing a line of text at the calculated font size. Useful for rendering or debugging how the text is split.
 
 ## Example
 
@@ -132,16 +153,14 @@ const fontFamily = 'Helvetica';
 const fontWeight = 'bold';
 
 export const FitTextOnNLines: React.FC<{text: string}> = ({text}) => {
-  const fontSize = Math.min(
-    80,
-    fitTextOnNLines({
-      fontFamily,
-      text,
-      maxBoxWidth: boxWidth,
-      maxLines,
-      fontWeight,
-    }).fontSize,
-  );
+  const {fontSize, lines} = fitTextOnNLines({
+    fontFamily,
+    text,
+    maxBoxWidth: boxWidth,
+    maxLines,
+    fontWeight,
+    maxFontSize: 80,
+  });
 
   return (
     <AbsoluteFill
@@ -176,6 +195,8 @@ Notes:
 - The `fontFamily` and `fontWeight` were passed to the `div` element to ensure that the text is rendered with the same font as the one used by `fitTextOnNLines()`.
 - The `outline` CSS property was used instead of `border`.  
   This is because in Remotion, the border is inside by default and shrinks the container, due to `box-sizing: border-box` being in the default stylesheet.
+- The `lines` property in the return value shows how the text is split into lines at the calculated font size. This can be useful for rendering or debugging.
+- The `maxFontSize` property allows you to limit the font size if you don't want the text to become too large.
 
 ## Important considerations
 
