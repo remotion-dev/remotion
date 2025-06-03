@@ -97,6 +97,7 @@ export const VideoPlayerWithControls = forwardRef<
 		);
 
 		useEffect(() => {
+			// @ts-expect-error we don't bother to type it
 			window.global_seek_to = (time: number) => {
 				if (videoRef.current) {
 					videoRef.current.currentTime = time;

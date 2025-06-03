@@ -107,6 +107,7 @@ export type CommandLineOptions = {
 		typeof enableMultiprocessOnLinuxOption
 	>;
 	repro: boolean;
+	'image-sequence-pattern': string;
 };
 
 export const parseCommandLine = () => {

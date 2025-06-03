@@ -51,6 +51,17 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 [`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
 
+### `--image-sequence-pattern` <AvailableFrom v="4.0.313" />
+
+[Pattern for naming image sequence files. Supports `[frame]` for the zero-padded frame number and `[ext]` for the file extension.]
+
+**Example:**
+
+```bash
+npx remotion render ... --sequence --image-sequence-pattern='frame_[frame]_custom.[ext]'
+# Produces: frame_0001_custom.jpeg, frame_0002_custom.jpeg, ...
+```
+
 ### `--config`<AvailableFrom v="1.2.0" />
 
 Specify a location for the Remotion config file.

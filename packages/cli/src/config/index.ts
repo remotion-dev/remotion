@@ -125,6 +125,7 @@ const {
 	hardwareAccelerationOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -500,6 +501,11 @@ declare global {
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPublicPath: (publicPath: string | null) => void;
+		/**
+		 * Set the pattern for naming image sequence files. Supports [frame] and [ext] replacements.
+		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
+		 */
+		readonly setImageSequencePattern: (pattern: string | null) => void;
 	}
 }
 
@@ -674,6 +680,7 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
+	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 };

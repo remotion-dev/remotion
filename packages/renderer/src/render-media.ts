@@ -678,6 +678,7 @@ const internalRenderMediaRaw = ({
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,
+					imageSequencePattern: null,
 				});
 
 				return renderFramesProc;

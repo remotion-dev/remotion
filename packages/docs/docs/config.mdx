@@ -969,3 +969,21 @@ The old way is deprecated, but will work for the foreseeable future.
 ## See also
 
 - [Encoding guide](/docs/encoding)
+
+### setImageSequencePattern(pattern)
+
+Set the pattern for naming image sequence files when rendering an image sequence.
+
+- `[frame]` will be replaced with the zero-padded frame number (e.g. 0001, 0002, ...)
+- `[ext]` will be replaced with the image format extension (e.g. jpeg, png)
+
+**Example:**
+
+```js
+// remotion.config.ts
+import {Config} from 'remotion';
+
+Config.setImageSequencePattern('frame_[frame]_custom.[ext]');
+```
+
+This will produce files like `frame_0001_custom.jpeg`, `frame_0002_custom.jpeg`, ...
