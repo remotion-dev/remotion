@@ -7,7 +7,8 @@ import type {HdlrBox} from './meta/hdlr';
 import type {IlstBox} from './meta/ilst';
 import type {TfraBox} from './mfra/tfra';
 import type {MoovBox} from './moov/moov';
-import type {MvhdBox} from './mvhd';
+import type {MvhdBox} from './moov/mvhd';
+import type {TrexBox} from './moov/trex';
 import type {Av1CBox} from './stsd/av1c';
 import type {AvccBox} from './stsd/avcc';
 import type {ColorParameterBox} from './stsd/colr';
@@ -67,4 +68,5 @@ export type IsoBaseMediaBox =
 	| ColorParameterBox
 	| TfdtBox
 	| TfhdBox
-	| TfraBox;
+	| TfraBox
+	| TrexBox;

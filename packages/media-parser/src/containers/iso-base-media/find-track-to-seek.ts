@@ -13,6 +13,7 @@ import {
 	getMoovFromFromIsoStructure,
 	getTfraBoxes,
 	getTrakBoxByTrackId,
+	getTrexBoxes,
 } from './traversal';
 
 export const findAnyTrackWithSamplePositions = (
@@ -42,6 +43,7 @@ export const findAnyTrackWithSamplePositions = (
 					moofBoxes: getMoofBoxes(struc.boxes),
 					tfraBoxes: getTfraBoxes(struc.boxes),
 				}),
+				trexBoxes: getTrexBoxes(moov),
 			});
 
 			if (samplePositions.length === 0) {
@@ -92,6 +94,7 @@ export const findTrackToSeek = (
 			moofBoxes: getMoofBoxes(struc.boxes),
 			tfraBoxes: getTfraBoxes(struc.boxes),
 		}),
+		trexBoxes: getTrexBoxes(moov),
 	});
 
 	if (samplePositions.length === 0) {

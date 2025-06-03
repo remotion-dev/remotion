@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {parseMvhd} from '../containers/iso-base-media/mvhd';
+import {parseMvhd} from '../containers/iso-base-media/moov/mvhd';
 import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 test('Should be able to parse a MVHD box correctly', () => {

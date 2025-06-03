@@ -8,6 +8,7 @@ import {
 	getMoovFromFromIsoStructure,
 	getTfraBoxes,
 	getTrakBoxByTrackId,
+	getTrexBoxes,
 } from './traversal';
 
 export const getKeyframesFromIsoBaseMedia = (
@@ -44,6 +45,7 @@ export const getKeyframesFromIsoBaseMedia = (
 				moofBoxes,
 				tfraBoxes,
 			}),
+			trexBoxes: getTrexBoxes(moov),
 		});
 
 		if (!isComplete) {
