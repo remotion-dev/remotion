@@ -11,7 +11,7 @@ test('Parse ESDS box', () => {
 		0, 0, 0, 4, 226, 0, 0, 4, 226, 0, 6, 128, 128, 128, 1, 2,
 	]);
 
-	const iter = getArrayBufferIterator(buf, null);
+	const iter = getArrayBufferIterator(buf, buf.length);
 	iter.counter.increment(8);
 
 	expect(
@@ -54,7 +54,7 @@ test('Parse two ESDS', () => {
 		226, 0, 5, 2, 17, 144, 6, 1, 2, 0, 0, 0, 24, 115, 116, 116, 115,
 	]);
 
-	const iter = getArrayBufferIterator(buf, null);
+	const iter = getArrayBufferIterator(buf, buf.length);
 	iter.counter.increment(8);
 
 	expect(

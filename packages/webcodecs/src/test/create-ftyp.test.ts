@@ -20,7 +20,10 @@ const input = new Uint8Array([
 ]);
 
 test('Create ftyp box', () => {
-	const iterator = MediaParserInternals.getArrayBufferIterator(input, null);
+	const iterator = MediaParserInternals.getArrayBufferIterator(
+		input,
+		input.length,
+	);
 	const size = iterator.getFourByteNumber();
 	iterator.discard(4);
 

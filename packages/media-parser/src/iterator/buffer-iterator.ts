@@ -11,7 +11,7 @@ import {makeOffsetCounter} from './offset-counter';
 
 export const getArrayBufferIterator = (
 	initialData: Uint8Array,
-	maxBytes: number | null,
+	maxBytes: number,
 ) => {
 	const counter = makeOffsetCounter(0);
 	const {
