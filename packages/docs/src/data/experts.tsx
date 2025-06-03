@@ -9,7 +9,7 @@ export type Expert = {
 	github: React.ReactNode;
 	linkedin: React.ReactNode;
 	email: React.ReactNode;
-	videocall: React.ReactNode;
+	videocall: string | null;
 	slug: string;
 	since: number;
 };
@@ -178,7 +178,7 @@ export const experts: Expert[] = [
 		github: 'alexfernandez803',
 		linkedin: 'in/alex-f-17a5bb56/',
 		email: 'alex.frndz@gmail.com',
-		videocall: 'remotion-expert-alex-fernandez',
+		videocall: 'https://cal.com/remotion-expert-alex-fernandez',
 		since: new Date('2022-12-02').getTime(),
 		description: (
 			<div>
@@ -196,7 +196,7 @@ export const experts: Expert[] = [
 		github: 'UmungoBungo',
 		linkedin: 'in/matthew-mcgillivray-68295a55',
 		email: 'mm@mattm9y.com',
-		videocall: 'remotion-expert-matt-mcgillivray',
+		videocall: 'https://cal.com/remotion-expert-matt-mcgillivray',
 		since: new Date('2023-01-30').getTime(),
 		description: (
 			<div>
@@ -259,7 +259,7 @@ export const experts: Expert[] = [
 		github: 'rayBlock',
 		linkedin: 'in/raymond-lotmar/',
 		email: 'ray@blocklab.ch',
-		videocall: 'remotion-expert-ray-lotmar',
+		videocall: 'https://cal.com/remotion-expert-ray-lotmar',
 		since: new Date('2023-01-30').getTime(),
 		description: (
 			<div>
@@ -393,7 +393,7 @@ export const experts: Expert[] = [
 		github: 'rahulbansal16',
 		linkedin: 'in/rahulbansalrb/',
 		email: 'bansalrahul14@gmail.com',
-		videocall: 'remotion-expert-rahul-bansal',
+		videocall: 'https://cal.com/remotion-expert-rahul-bansal',
 		since: new Date('2023-08-04').getTime(),
 		description: (
 			<div>
@@ -417,7 +417,7 @@ export const experts: Expert[] = [
 		github: 'pskd73',
 		linkedin: 'in/pramod-kumar-1a135b74/',
 		email: 'pramodkumar.damam73@gmail.com',
-		videocall: 'remotion-expert-pramod-kumar',
+		videocall: 'https://cal.com/remotion-expert-pramod-kumar',
 		since: new Date('2024-03-10').getTime(),
 		description: (
 			<div>
@@ -453,7 +453,7 @@ export const experts: Expert[] = [
 		github: null,
 		linkedin: 'in/ayushsoni1001/',
 		email: 'hi@ayushsoni.com',
-		videocall: 'remotion-expert-ayush-soni',
+		videocall: 'https://cal.com/remotion-expert-ayush-soni',
 		since: new Date('2024-03-17').getTime(),
 		description: (
 			<div>
@@ -477,7 +477,7 @@ export const experts: Expert[] = [
 		github: null,
 		linkedin: 'in/andrei-terteci-935331151/',
 		email: 'hello@andreiterteci.com',
-		videocall: 'remotion-expert-andrei-terteci',
+		videocall: 'https://cal.com/remotion-expert-andrei-terteci',
 		since: new Date('2024-03-17').getTime(),
 		description: (
 			<div>
@@ -490,6 +490,33 @@ export const experts: Expert[] = [
 				React and Next.js, and for the past 2 years, I{"'"}ve been using
 				Remotion to build video-based products. I focus on shipping fast,
 				delivering value, and creating things people actually enjoy using.
+			</div>
+		),
+	},
+	{
+		slug: 'sam-bowen-hughes',
+		name: 'Sam Bowen Hughes',
+		image: '/img/freelancers/sam-bowen-hughes.jpeg',
+		website: null,
+		x: null,
+		github: 'sambowenhughes',
+		linkedin: 'in/sambowenhughes/',
+		email: 'sambowenhughes@icloud.com',
+		videocall: 'https://calendly.com/hello-reactvideoeditor/30min',
+		since: new Date().getTime(),
+		description: (
+			<div>
+				Full-stack engineer with 10+ years experience. I built{' '}
+				<a target={'_blank'} href="https://reactvideoeditor.com">
+					React Video Editor
+				</a>{' '}
+				and{' '}
+				<a target={'_blank'} href="https://clippkit.com">
+					Clippkit
+				</a>
+				.<br />I can help with anything Remotion-related, or just be a reliable
+				engineering partner if you need someone who moves fast and builds things
+				right – SaaS, design, backend, whatever&apos;s needed.
 			</div>
 		),
 	},
