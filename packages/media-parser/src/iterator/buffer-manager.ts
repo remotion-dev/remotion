@@ -1,21 +1,35 @@
 import type {ParseMediaMode} from '../options';
 import type {OffsetCounter} from './offset-counter';
 
+const makeBufferWithMaxBytes = (initialData: Uint8Array, maxBytes: number) => {
+	const maxByteLength = Math.min(maxBytes, 2 ** 31);
+	try {
+		const buf = new ArrayBuffer(initialData.byteLength, {
+			maxByteLength,
+		});
+		return buf;
+	} catch (e) {
+		// Cloudflare Workers have a limit of 128MB max array buffer size
+		if (e instanceof RangeError && maxBytes > 2 ** 27) {
+			return new ArrayBuffer(initialData.byteLength, {
+				maxByteLength: 2 ** 27,
+			});
+		}
+
+		throw e;
+	}
+};
+
 export const bufferManager = ({
 	initialData,
 	maxBytes,
 	counter,
 }: {
 	initialData: Uint8Array;
-	maxBytes: number | null;
+	maxBytes: number;
 	counter: OffsetCounter;
 }) => {
-	const buf = new ArrayBuffer(initialData.byteLength, {
-		maxByteLength:
-			maxBytes === null
-				? initialData.byteLength
-				: Math.min(maxBytes as number, 2 ** 31),
-	});
+	const buf = makeBufferWithMaxBytes(initialData, maxBytes);
 	if (!buf.resize) {
 		throw new Error(
 			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
