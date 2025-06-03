@@ -15,7 +15,12 @@ interface CornerRounding {
 	topRight: boolean;
 	bottomLeft: boolean;
 	bottomRight: boolean;
-	classList: string[];
+	cornerTopLeft: boolean;
+	cornerTopRight: boolean;
+	cornerBottomLeft: boolean;
+	cornerBottomRight: boolean;
+	cornerLeft: boolean;
+	cornerRight: boolean;
 	currLength: number | undefined;
 	prevLength: number | undefined;
 	nextLength: number | undefined;
@@ -82,37 +87,48 @@ const getCornerRoundings = ({
 			}
 		}
 
-		// Build class list
-		const classList: string[] = [];
+		// Determine corner properties
+		let cornerTopLeft = false;
+		let cornerTopRight = false;
+		let cornerBottomLeft = false;
+		let cornerBottomRight = false;
+		let cornerLeft = false;
+		let cornerRight = false;
+
 		if (align === 'left') {
-			if (!bottomRight) classList.push('corner-br');
-			if (!topRight) classList.push('corner-tr');
+			cornerBottomRight = !bottomRight;
+			cornerTopRight = !topRight;
 		} else if (align === 'right') {
-			if (!bottomLeft) classList.push('corner-bl');
-			if (!topLeft) classList.push('corner-tl');
+			cornerBottomLeft = !bottomLeft;
+			cornerTopLeft = !topLeft;
 		} else if (align === 'center') {
 			// LEFT side
 			if (!topLeft && !bottomLeft) {
-				classList.push('corner-left');
+				cornerLeft = true;
 			} else {
-				if (!topLeft) classList.push('corner-tl');
-				if (!bottomLeft) classList.push('corner-bl');
+				cornerTopLeft = !topLeft;
+				cornerBottomLeft = !bottomLeft;
 			}
 			// RIGHT side
 			if (!topRight && !bottomRight) {
-				classList.push('corner-right');
+				cornerRight = true;
 			} else {
-				if (!topRight) classList.push('corner-tr');
-				if (!bottomRight) classList.push('corner-br');
+				cornerTopRight = !topRight;
+				cornerBottomRight = !bottomRight;
 			}
 		}
 
 		const roundings: CornerRounding = {
-			topLeft: topLeft,
-			topRight: topRight,
-			bottomLeft: bottomLeft,
-			bottomRight: bottomRight,
-			classList,
+			topLeft,
+			topRight,
+			bottomLeft,
+			bottomRight,
+			cornerTopLeft,
+			cornerTopRight,
+			cornerBottomLeft,
+			cornerBottomRight,
+			cornerLeft,
+			cornerRight,
 			currLength: currLen?.width,
 			prevLength: prevLen?.width,
 			nextLength: nextLen?.width,
@@ -168,7 +184,7 @@ const TikTokTextLine: React.FC<{
 			className={className}
 		>
 			{text}
-			{cornerRounding.classList.includes('corner-tl') && (
+			{cornerRounding.cornerTopLeft && (
 				<div
 					style={{
 						position: 'absolute',
@@ -181,7 +197,7 @@ const TikTokTextLine: React.FC<{
 					}}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-bl') && (
+			{cornerRounding.cornerBottomLeft && (
 				<div
 					style={{
 						position: 'absolute',
@@ -194,7 +210,7 @@ const TikTokTextLine: React.FC<{
 					}}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-tr') && (
+			{cornerRounding.cornerTopRight && (
 				<div
 					style={{
 						position: 'absolute',
@@ -207,7 +223,7 @@ const TikTokTextLine: React.FC<{
 					}}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-br') && (
+			{cornerRounding.cornerBottomRight && (
 				<div
 					style={{
 						position: 'absolute',
@@ -220,7 +236,7 @@ const TikTokTextLine: React.FC<{
 					}}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-left') && (
+			{cornerRounding.cornerLeft && (
 				<div
 					style={{
 						position: 'absolute',
@@ -234,7 +250,7 @@ const TikTokTextLine: React.FC<{
 					}}
 				/>
 			)}
-			{cornerRounding.classList.includes('corner-right') && (
+			{cornerRounding.cornerRight && (
 				<div
 					style={{
 						position: 'absolute',
@@ -303,7 +319,6 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					bgColor={bgColor}
 					borderRadius={getBorderRadius(roundings[i], borderRadius)}
 					style={{}}
-					className={`tiktok-text-line ${roundings[i].classList.join(' ')}`}
 					cornerRounding={roundings[i]}
 					borderRadiusValue={borderRadius}
 				/>
