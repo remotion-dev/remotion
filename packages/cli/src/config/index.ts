@@ -14,10 +14,6 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {
-	getImageSequencePattern,
-	setImageSequencePattern,
-} from './image-sequence-pattern';
 import {getOutputLocation} from './output-location';
 import {
 	defaultOverrideFunction,
@@ -129,6 +125,7 @@ const {
 	hardwareAccelerationOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -683,7 +680,7 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
-	setImageSequencePattern,
+	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 };
@@ -725,5 +722,3 @@ export const ConfigInternals = {
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 };
-
-export {getImageSequencePattern, setImageSequencePattern};

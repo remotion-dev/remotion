@@ -37,6 +37,7 @@ export const renderFrame = ({
 	framesRenderedObj,
 	frame,
 	page,
+	imageSequenceName,
 }: {
 	attempt: number;
 	indent: boolean;
@@ -71,6 +72,7 @@ export const renderFrame = ({
 	nextFrameToRender: NextFrameToRender;
 	frame: number;
 	page: Page;
+	imageSequenceName: string | null;
 }) => {
 	return new Promise<void>((resolve, reject) => {
 		renderFrameWithOptionToReject({
@@ -103,6 +105,7 @@ export const renderFrame = ({
 			onFrameUpdate,
 			frame,
 			page,
+			pattern: imageSequenceName,
 		})
 			.then(() => {
 				resolve();

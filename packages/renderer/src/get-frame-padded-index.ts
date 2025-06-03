@@ -26,7 +26,7 @@ export const getFrameOutputFileName = ({
 	countType,
 	lastFrame,
 	totalFrames,
-	pattern,
+	imageSequencePattern,
 }: {
 	index: number;
 	frame: number;
@@ -34,16 +34,16 @@ export const getFrameOutputFileName = ({
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;
-	pattern?: string;
+	imageSequencePattern: string | null;
 }) => {
 	const filePadLength = getFilePadLength({lastFrame, countType, totalFrames});
 	const frameStr =
 		countType === 'actual-frames'
 			? String(frame).padStart(filePadLength, '0')
 			: String(index).padStart(filePadLength, '0');
-	if (pattern) {
+	if (imageSequencePattern) {
 		return getFrameOutputFileNameFromPattern({
-			pattern,
+			pattern: imageSequencePattern,
 			frame: frameStr,
 			ext: imageFormat,
 		});

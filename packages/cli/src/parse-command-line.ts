@@ -115,10 +115,6 @@ export const parseCommandLine = () => {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
 
-	if (parsedCli['image-sequence-pattern']) {
-		Config.setImageSequencePattern(parsedCli['image-sequence-pattern']);
-	}
-
 	if (parsedCli['browser-executable']) {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}

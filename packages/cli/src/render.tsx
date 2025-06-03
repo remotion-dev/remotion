@@ -41,6 +41,7 @@ const {
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
+	imageSequencePatternOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -189,6 +190,9 @@ export const render = async (
 	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const imageSequencePattern = imageSequencePatternOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -255,5 +259,6 @@ export const render = async (
 		chromeMode,
 		offthreadVideoThreads,
 		audioLatencyHint,
+		imageSequencePattern,
 	});
 };

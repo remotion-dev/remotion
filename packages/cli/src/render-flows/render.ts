@@ -116,6 +116,7 @@ export const renderVideoFlow = async ({
 	hardwareAcceleration,
 	chromeMode,
 	audioLatencyHint,
+	imageSequencePattern,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -174,6 +175,7 @@ export const renderVideoFlow = async ({
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	imageSequencePattern: string | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -535,10 +537,10 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 			onArtifact,
 			chromeMode,
-			imageSequencePattern: parsedCli['image-sequence-pattern'],
+			imageSequencePattern,
 		});
 
-		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
 		return;
 	}
 

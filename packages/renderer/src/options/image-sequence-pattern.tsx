@@ -2,6 +2,8 @@ import type {AnyRemotionOption} from './option';
 
 const cliFlag = 'image-sequence-pattern' as const;
 
+let currentImageSequencePattern: string | null = null;
+
 // Option for --image-sequence-pattern
 export const imageSequencePatternOption = {
 	name: 'Image Sequence Pattern',
@@ -16,9 +18,20 @@ export const imageSequencePatternOption = {
 	),
 	docLink: null,
 	type: 'string' as string | null,
-	getValue: ({commandLine}) => ({
-		value: commandLine[cliFlag] as string,
-		source: 'cli',
-	}),
-	setConfig: () => {},
+	getValue: ({commandLine}) => {
+		if (currentImageSequencePattern !== null) {
+			return {
+				value: currentImageSequencePattern,
+				source: 'config',
+			};
+		}
+
+		return {
+			value: commandLine[cliFlag] as string,
+			source: 'cli',
+		};
+	},
+	setConfig: (pattern: string | null) => {
+		currentImageSequencePattern = pattern;
+	},
 } satisfies AnyRemotionOption<string | null>;

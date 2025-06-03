@@ -19,6 +19,7 @@ import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenatio
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
 import {audioLatencyHintOption} from './latency-hint';
 import {logLevelOption} from './log-level';
@@ -87,6 +88,7 @@ export const allOptions = {
 	apiKeyOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

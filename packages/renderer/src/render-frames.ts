@@ -360,6 +360,11 @@ const innerRenderFrames = async ({
 				concurrencyOrFramesToRender,
 			});
 
+	const pattern = imageSequencePattern || `element-[frame].[ext]`;
+	const imageSequenceName = pattern
+		.replace(/\[frame\]/g, `%0${filePadLength}d`)
+		.replace(/\[ext\]/g, imageFormat);
+
 	await Promise.all(
 		allFramesAndExtraFrames.map(() => {
 			return renderFrameAndRetryTargetClose({
@@ -394,6 +399,7 @@ const innerRenderFrames = async ({
 				onFrameBuffer,
 				onFrameUpdate,
 				nextFrameToRender,
+				imageSequenceName: pattern,
 			});
 		}),
 	);
@@ -401,11 +407,6 @@ const innerRenderFrames = async ({
 	const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 
 	await Promise.all(downloadPromises);
-
-	const pattern = imageSequencePattern || `element-%0[frame]d.[ext]`;
-	const imageSequenceName = pattern
-		.replace(/\[frame\]/g, `%0${filePadLength}d`)
-		.replace(/\[ext\]/g, imageFormat);
 
 	return {
 		assetsInfo: {
