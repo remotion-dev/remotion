@@ -505,7 +505,7 @@ declare global {
 		 * Set the pattern for naming image sequence files. Supports [frame] and [ext] replacements.
 		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
 		 */
-		readonly setImageSequencePattern: (pattern: string | undefined) => void;
+		readonly setImageSequencePattern: (pattern: string | null) => void;
 	}
 }
 
