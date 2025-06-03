@@ -200,6 +200,9 @@
 			"AlumniSansPinstripe": [
 				"dist/cjs/AlumniSansPinstripe.d.ts"
 			],
+			"AlumniSansSC": [
+				"dist/cjs/AlumniSansSC.d.ts"
+			],
 			"Amarante": [
 				"dist/cjs/Amarante.d.ts"
 			],
@@ -382,6 +385,9 @@
 			],
 			"Assistant": [
 				"dist/cjs/Assistant.d.ts"
+			],
+			"AstaSans": [
+				"dist/cjs/AstaSans.d.ts"
 			],
 			"Astloch": [
 				"dist/cjs/Astloch.d.ts"
@@ -1259,20 +1265,38 @@
 			"EduAUVICWANTPre": [
 				"dist/cjs/EduAUVICWANTPre.d.ts"
 			],
+			"EduNSWACTCursive": [
+				"dist/cjs/EduNSWACTCursive.d.ts"
+			],
 			"EduNSWACTFoundation": [
 				"dist/cjs/EduNSWACTFoundation.d.ts"
+			],
+			"EduNSWACTHandPre": [
+				"dist/cjs/EduNSWACTHandPre.d.ts"
 			],
 			"EduQLDBeginner": [
 				"dist/cjs/EduQLDBeginner.d.ts"
 			],
+			"EduQLDHand": [
+				"dist/cjs/EduQLDHand.d.ts"
+			],
 			"EduSABeginner": [
 				"dist/cjs/EduSABeginner.d.ts"
+			],
+			"EduSAHand": [
+				"dist/cjs/EduSAHand.d.ts"
 			],
 			"EduTASBeginner": [
 				"dist/cjs/EduTASBeginner.d.ts"
 			],
 			"EduVICWANTBeginner": [
 				"dist/cjs/EduVICWANTBeginner.d.ts"
+			],
+			"EduVICWANTHand": [
+				"dist/cjs/EduVICWANTHand.d.ts"
+			],
+			"EduVICWANTHandPre": [
+				"dist/cjs/EduVICWANTHandPre.d.ts"
 			],
 			"ElMessiri": [
 				"dist/cjs/ElMessiri.d.ts"

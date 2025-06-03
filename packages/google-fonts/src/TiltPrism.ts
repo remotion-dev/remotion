@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tilt Prism',
 	importName: 'TiltPrism',
-	version: 'v12',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Tilt+Prism:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/tiltprism/v12/5h11iZgyPHoZ3YikNzWGfWey2dCAZXT-bH9V4VGn-FJ7tLI25oc_rIbAqT6qr84.woff2',
+					'https://fonts.gstatic.com/s/tiltprism/v15/5h11iZgyPHoZ3YikNzWGfWey2dCAZXT-bH9V4VGn-FJ7tLI25oc_rIbAqT6qr84.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tiltprism/v12/5h11iZgyPHoZ3YikNzWGfWey2dCAZXT-bH9V4VGn-FJ7tLI25oc_rIbAqD6qr84.woff2',
+					'https://fonts.gstatic.com/s/tiltprism/v15/5h11iZgyPHoZ3YikNzWGfWey2dCAZXT-bH9V4VGn-FJ7tLI25oc_rIbAqD6qr84.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tiltprism/v12/5h11iZgyPHoZ3YikNzWGfWey2dCAZXT-bH9V4VGn-FJ7tLI25oc_rIbApj6q.woff2',
+					'https://fonts.gstatic.com/s/tiltprism/v15/5h11iZgyPHoZ3YikNzWGfWey2dCAZXT-bH9V4VGn-FJ7tLI25oc_rIbApj6q.woff2',
 			},
 		},
 	},

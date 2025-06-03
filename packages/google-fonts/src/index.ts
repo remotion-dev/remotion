@@ -326,6 +326,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./AlumniSansPinstripe') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Alumni Sans SC',
+		importName: 'AlumniSansSC',
+		load: () => import('./AlumniSansSC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Amarante',
 		importName: 'Amarante',
 		load: () => import('./Amarante') as Promise<GoogleFont>,
@@ -629,6 +634,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Assistant',
 		importName: 'Assistant',
 		load: () => import('./Assistant') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Asta Sans',
+		importName: 'AstaSans',
+		load: () => import('./AstaSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Astloch',
@@ -2091,9 +2101,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./EduAUVICWANTPre') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Edu NSW ACT Cursive',
+		importName: 'EduNSWACTCursive',
+		load: () => import('./EduNSWACTCursive') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Edu NSW ACT Foundation',
 		importName: 'EduNSWACTFoundation',
 		load: () => import('./EduNSWACTFoundation') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu NSW ACT Hand Pre',
+		importName: 'EduNSWACTHandPre',
+		load: () => import('./EduNSWACTHandPre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Edu QLD Beginner',
@@ -2101,9 +2121,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./EduQLDBeginner') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Edu QLD Hand',
+		importName: 'EduQLDHand',
+		load: () => import('./EduQLDHand') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Edu SA Beginner',
 		importName: 'EduSABeginner',
 		load: () => import('./EduSABeginner') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu SA Hand',
+		importName: 'EduSAHand',
+		load: () => import('./EduSAHand') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Edu TAS Beginner',
@@ -2114,6 +2144,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Edu VIC WA NT Beginner',
 		importName: 'EduVICWANTBeginner',
 		load: () => import('./EduVICWANTBeginner') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu VIC WA NT Hand',
+		importName: 'EduVICWANTHand',
+		load: () => import('./EduVICWANTHand') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu VIC WA NT Hand Pre',
+		importName: 'EduVICWANTHandPre',
+		load: () => import('./EduVICWANTHandPre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'El Messiri',
