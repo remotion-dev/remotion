@@ -1,7 +1,9 @@
+import {measureText, TextTransform} from '@remotion/layout-utils';
+
 interface TikTokTextBoxProps {
 	lines: string[];
-	align?: React.CSSProperties['textAlign'];
-	fontFamily?: string;
+	textAlign: React.CSSProperties['textAlign'];
+	fontFamily: string;
 	bgColor?: string;
 	textColor?: string;
 	className?: string;
@@ -9,18 +11,47 @@ interface TikTokTextBoxProps {
 }
 
 interface CornerRounding {
-	TL: boolean;
-	TR: boolean;
-	BL: boolean;
-	BR: boolean;
+	topLeft: boolean;
+	topRight: boolean;
+	bottomLeft: boolean;
+	bottomRight: boolean;
 	classList: string[];
 }
 
-const getCornerRoundings = (
-	lines: string[],
-	align?: React.CSSProperties['textAlign'],
-): CornerRounding[] => {
-	const lengths = lines.map((line) => line.length);
+const getCornerRoundings = ({
+	lines,
+	fontFamily,
+	fontSize,
+	additionalStyles,
+	fontVariantNumeric,
+	fontWeight,
+	letterSpacing,
+	textTransform,
+	align,
+}: {
+	lines: string[];
+	fontFamily: string;
+	fontSize: number;
+	additionalStyles: React.CSSProperties;
+	fontVariantNumeric: string;
+	fontWeight: number;
+	letterSpacing: string;
+	textTransform: TextTransform;
+	align: React.CSSProperties['textAlign'];
+}): CornerRounding[] => {
+	const lengths = lines.map((line) =>
+		measureText({
+			text: line,
+			fontFamily,
+			fontSize,
+			additionalStyles,
+			fontVariantNumeric,
+			fontWeight,
+			letterSpacing,
+			textTransform,
+			validateFontIsLoaded: true,
+		}),
+	);
 	const n = lengths.length;
 
 	return lines.map((_, i) => {
@@ -31,54 +62,61 @@ const getCornerRoundings = (
 		const currLen = lengths[i];
 
 		// Determine rounded corners
-		let TL = isFirst || (prevLen !== undefined && currLen > prevLen);
-		let TR = TL;
-		let BL = isLast || (nextLen !== undefined && currLen > nextLen);
-		let BR = BL;
+		let topLeft = isFirst || (prevLen !== undefined && currLen > prevLen);
+		let topRight = topLeft;
+		let bottomLeft = isLast || (nextLen !== undefined && currLen > nextLen);
+		let bottomRight = bottomLeft;
 
 		if (!isFirst && !isLast) {
 			if (align === 'left') {
-				TL = BL = false;
+				topLeft = bottomLeft = false;
 			} else if (align === 'right') {
-				TR = BR = false;
+				topRight = bottomRight = false;
 			}
 		}
 
 		// Build class list
 		const classList: string[] = [];
 		if (align === 'left') {
-			if (!BR) classList.push('corner-br');
-			if (!TR) classList.push('corner-tr');
+			if (!bottomRight) classList.push('corner-br');
+			if (!topRight) classList.push('corner-tr');
 		} else if (align === 'right') {
-			if (!BL) classList.push('corner-bl');
-			if (!TL) classList.push('corner-tl');
+			if (!bottomLeft) classList.push('corner-bl');
+			if (!topLeft) classList.push('corner-tl');
 		} else if (align === 'center') {
 			// LEFT side
-			if (!TL && !BL) {
+			if (!topLeft && !bottomLeft) {
 				classList.push('corner-left');
 			} else {
-				if (!TL) classList.push('corner-tl');
-				if (!BL) classList.push('corner-bl');
+				if (!topLeft) classList.push('corner-tl');
+				if (!bottomLeft) classList.push('corner-bl');
 			}
 			// RIGHT side
-			if (!TR && !BR) {
+			if (!topRight && !bottomRight) {
 				classList.push('corner-right');
 			} else {
-				if (!TR) classList.push('corner-tr');
-				if (!BR) classList.push('corner-br');
+				if (!topRight) classList.push('corner-tr');
+				if (!bottomRight) classList.push('corner-br');
 			}
 		}
 
-		return {TL, TR, BL, BR, classList};
+		const roundings: CornerRounding = {
+			topLeft: topLeft,
+			topRight: topRight,
+			bottomLeft: bottomLeft,
+			bottomRight: bottomRight,
+			classList,
+		};
+		return roundings;
 	});
 };
 
 const getBorderRadius = (rounding: CornerRounding, radius: number) => {
 	return [
-		rounding.TL ? `${radius}px` : '0',
-		rounding.TR ? `${radius}px` : '0',
-		rounding.BR ? `${radius}px` : '0',
-		rounding.BL ? `${radius}px` : '0',
+		rounding.topLeft ? `${radius}px` : '0',
+		rounding.topRight ? `${radius}px` : '0',
+		rounding.bottomRight ? `${radius}px` : '0',
+		rounding.bottomLeft ? `${radius}px` : '0',
 	].join(' ');
 };
 
@@ -205,13 +243,27 @@ const TikTokTextLine: React.FC<{
 
 export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	lines,
-	align,
-	fontFamily,
+	textAlign: align,
+	fontFamily = 'Arial',
 	bgColor = 'white',
 	textColor,
 	borderRadius = 7,
 }) => {
-	const roundings = getCornerRoundings(lines, align);
+	const fontSize = 16;
+	const fontWeight = 400;
+	const roundings = getCornerRoundings({
+		lines,
+		fontFamily,
+		fontSize,
+		additionalStyles: {},
+		fontVariantNumeric: 'normal',
+		fontWeight,
+		letterSpacing: 'normal',
+		textTransform: 'none',
+		align,
+	});
+
+	console.log({roundings});
 
 	return (
 		<div
@@ -225,10 +277,11 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 							? 'flex-end'
 							: 'center',
 				textAlign: align,
-				fontFamily: fontFamily,
+				fontFamily,
 				color: textColor ?? 'black',
 				width: 'fit-content',
 				lineHeight: 1,
+				fontWeight,
 			}}
 		>
 			{lines.map((line, i) => (
@@ -265,24 +318,25 @@ export const TikTokTextBoxPlayground = () => {
 		>
 			<TikTokTextBox
 				lines={['Align Left', 'with two lines', 'Third Line']}
-				align="left"
+				textAlign="left"
 				fontFamily="Arial"
 				bgColor="red"
 			/>
 			<TikTokTextBox
 				lines={['Align Center', 'short', 'Third Line']}
-				align="center"
+				textAlign="center"
 				fontFamily="Proxima Nova Semibold"
 			/>
 			<TikTokTextBox
 				lines={['Align Right', 'with two lines', 'Third Line']}
-				align="right"
+				textAlign="right"
 				bgColor="#FF683E"
+				fontFamily="Proxima Nova Semibold"
 				textColor="black"
 			/>
 			<TikTokTextBox
 				lines={['short1', 'short']}
-				align="center"
+				textAlign="center"
 				fontFamily="Proxima Nova Semibold"
 			/>
 		</div>
