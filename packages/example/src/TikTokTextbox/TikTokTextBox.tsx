@@ -82,6 +82,8 @@ const getBorderRadius = (rounding: CornerRounding, radius: number) => {
 	].join(' ');
 };
 
+export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 10;
+
 const TikTokTextLine: React.FC<{
 	text: string;
 	align?: React.CSSProperties['textAlign'];
@@ -108,7 +110,7 @@ const TikTokTextLine: React.FC<{
 					position: 'relative',
 					textAlign: align,
 					backgroundColor: bgColor ?? 'white',
-					padding: '20px 10px',
+					padding: `10px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
 					borderRadius: borderRadius,
 					width: 'fit-content',
 					...style,
@@ -125,7 +127,6 @@ const TikTokTextLine: React.FC<{
 						top: 0,
 						width: borderRadiusValue,
 						height: '100%',
-						background: 'rgba(255, 0, 0, 1)',
 						borderTopRightRadius: borderRadiusValue,
 						boxShadow: `0px -${borderRadiusValue * 2}px 0 ${bgColor}`,
 					}}
@@ -139,7 +140,6 @@ const TikTokTextLine: React.FC<{
 						top: 0,
 						width: borderRadiusValue,
 						height: '100%',
-						background: 'rgba(0, 255, 0, 1)',
 						borderBottomRightRadius: borderRadiusValue,
 						boxShadow: `0px ${borderRadiusValue * 2}px 0 ${bgColor}`,
 					}}
@@ -153,7 +153,6 @@ const TikTokTextLine: React.FC<{
 						top: 0,
 						width: borderRadiusValue,
 						height: '100%',
-						background: 'rgba(0, 0, 255, 1)',
 						borderTopLeftRadius: borderRadiusValue,
 						boxShadow: `0px -${borderRadiusValue * 2}px 0 ${bgColor}`,
 					}}
@@ -167,7 +166,6 @@ const TikTokTextLine: React.FC<{
 						top: 0,
 						width: borderRadiusValue,
 						height: '100%',
-						background: 'rgba(255, 255, 0, 1)',
 						borderBottomLeftRadius: borderRadiusValue,
 						boxShadow: `0px ${borderRadiusValue * 2}px 0 ${bgColor}`,
 					}}
@@ -181,7 +179,6 @@ const TikTokTextLine: React.FC<{
 						top: 0,
 						width: borderRadiusValue,
 						height: '100%',
-						background: 'rgba(255, 0, 255, 1)',
 						borderTopRightRadius: borderRadiusValue,
 						borderBottomRightRadius: borderRadiusValue,
 						boxShadow: `0 -${borderRadiusValue}px 0 ${bgColor}, 0 ${borderRadiusValue}px 0 ${bgColor}`,
@@ -196,7 +193,6 @@ const TikTokTextLine: React.FC<{
 						top: 0,
 						width: borderRadiusValue,
 						height: '100%',
-						background: 'rgba(0, 255, 255, 1)',
 						borderTopLeftRadius: borderRadiusValue,
 						borderBottomLeftRadius: borderRadiusValue,
 						boxShadow: `0 -${borderRadiusValue}px 0 ${bgColor}, 0 ${borderRadiusValue}px 0 ${bgColor}`,
@@ -207,7 +203,7 @@ const TikTokTextLine: React.FC<{
 	);
 };
 
-const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
+export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	lines,
 	align,
 	fontFamily,
@@ -232,6 +228,7 @@ const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 				fontFamily: fontFamily,
 				color: textColor ?? 'black',
 				width: 'fit-content',
+				lineHeight: 1,
 			}}
 		>
 			{lines.map((line, i) => (

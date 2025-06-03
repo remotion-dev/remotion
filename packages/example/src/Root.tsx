@@ -130,6 +130,7 @@ import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
+import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
@@ -600,6 +601,17 @@ export const Index: React.FC = () => {
 					schema={fitTextSchema}
 					defaultProps={{
 						line: 'Test',
+					}}
+				/>
+				<Still
+					id="FitTextOnNLines"
+					component={FitTextOnNLines}
+					width={800}
+					height={900}
+					schema={fitTextOnNLinesSchema}
+					defaultProps={{
+						line: 'I can make this text as long as I want, it always fits in 2 lines ',
+						maxLines: 2,
 					}}
 				/>
 				<Composition
