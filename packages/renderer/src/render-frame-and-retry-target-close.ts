@@ -131,7 +131,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				nextFrameToRender,
 				frame,
 				page: freePage,
-				imageSequenceName,
+				imageSequencePattern: imageSequenceName,
 			}),
 			new Promise((_, reject) => {
 				cancelSignal?.(() => {

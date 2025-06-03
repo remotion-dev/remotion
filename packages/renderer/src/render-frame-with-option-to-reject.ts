@@ -47,7 +47,7 @@ export const renderFrameWithOptionToReject = async ({
 	onFrameUpdate,
 	frame,
 	page,
-	pattern,
+	imageSequencePattern,
 }: {
 	reject: (err: Error) => void;
 	width: number;
@@ -84,7 +84,7 @@ export const renderFrameWithOptionToReject = async ({
 		  ) => void);
 	frame: number;
 	page: Page;
-	pattern: string | null;
+	imageSequencePattern: string | null;
 }) => {
 	const startTime = performance.now();
 
@@ -155,7 +155,7 @@ export const renderFrameWithOptionToReject = async ({
 							countType,
 							lastFrame,
 							totalFrames: framesToRender.length,
-							imageSequencePattern: pattern,
+							imageSequencePattern,
 						}),
 					),
 		jpegQuality,
