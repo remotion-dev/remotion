@@ -1,3 +1,8 @@
+/**
+ * Based on https://discord.com/channels/809501355504959528/833092843290624050/1375320798969200660
+ * and improved: https://discord.com/channels/809501355504959528/833092843290624050/1379446302903107624
+ */
+
 import {measureText, TextTransform} from '@remotion/layout-utils';
 import {getActualBorderRadius, getPathForCorner} from './rounded-corner';
 
