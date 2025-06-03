@@ -60,7 +60,7 @@ export const JumpCuts: React.FC<Props> = ({sections}) => {
     let summedUpDurations = 0;
     for (const section of sections) {
       summedUpDurations += section.endAt - section.startFrom;
-      if (summedUpDurations > frame) {
+      if (summedUpDurations >= frame) {
         return section.endAt - summedUpDurations;
       }
     }
