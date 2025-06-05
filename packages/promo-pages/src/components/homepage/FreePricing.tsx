@@ -239,7 +239,7 @@ export const CompanyPricing: React.FC = () => {
 			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>
-						WebCodecs Conversion Units
+						WebCodecs Creation Units
 					</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						Allows for{' '}
@@ -247,7 +247,7 @@ export const CompanyPricing: React.FC = () => {
 							className="underline underline-offset-4 text-inherit"
 							href="https://remotion.dev/webcodecs"
 						>
-							{conversionsPerMonth} client-side video conversions{' '}
+							{conversionsPerMonth} client-side video creations{' '}
 						</a>
 					</div>
 				</div>
