@@ -299,7 +299,7 @@ impl OpenedStream {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                     match packet.pts() {
+                    match packet.pts() {
                         Some(pts) => {
                             let new_position_to_seek_to = pts - 1;
                             stop_after_n_diverging_pts = None;
@@ -312,34 +312,28 @@ impl OpenedStream {
                                 0,
                             );
                             match res {
-                                Ok(_) => {
-                                }
+                                Ok(_) => {}
                                 Err(err) => {
                                     if err.to_string().contains("Operation not permitted") {
                                         _print_verbose(&format!(
                                             "Could not perform seek. Got 'Operation not permitted' error."
                                         ))?;
                                         _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
-                                        match self.input.seek(
+                                        self.input.seek(
                                             self.stream_index as i32,
                                             0,
                                             pts,
                                             new_position_to_seek_to,
                                             AVSEEK_FLAG_ANY ,
-                                        ) {
-                                            Ok(_) => {
-                                            }
-                                            Err(err) => {
-                                                return Err(err.into());
-                                            }
-                                        }
+                                        )?;
                                     } 
-        
+                                    else {
+                                        panic!("{}", err.to_string());
+                                    }
                                 }
                             }
                         }
-                        None => {
-                        }
+                        None => {}
                     };
                     continue;
                 }
