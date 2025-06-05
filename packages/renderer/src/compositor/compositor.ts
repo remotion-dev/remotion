@@ -291,7 +291,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 								runningStatus.signal
 									? ` with signal ${runningStatus.signal}`
 									: ''
-							}: ${runningStatus.error}`,
+							}: ${runningStatus.error.trim()}`,
 						),
 					);
 					return;
