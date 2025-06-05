@@ -304,16 +304,37 @@ impl OpenedStream {
                             let new_position_to_seek_to = pts - 1;
                             stop_after_n_diverging_pts = None;
 
-                            self.input.seek(
+                           let res =  self.input.seek(
                                 self.stream_index as i32,
                                 0,
                                 pts,
                                 new_position_to_seek_to,
                                 0,
-                            )?;
+                            );
+                            match res {
+                                Ok(_) => {}
+                                Err(err) => {
+                                    if err.to_string().contains("Operation not permitted") {
+                                        _print_verbose(&format!(
+                                            "Could not perform seek. Got 'Operation not permitted' error."
+                                        ))?;
+                                        _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
+                                        self.input.seek(
+                                            self.stream_index as i32,
+                                            0,
+                                            pts,
+                                            new_position_to_seek_to,
+                                            AVSEEK_FLAG_ANY ,
+                                        )?;
+                                    } 
+                                    else {
+                                        panic!("{}", err.to_string());
+                                    }
+                                }
+                            }
                         }
                         None => {}
-                    }
+                    };
                     continue;
                 }
             }
