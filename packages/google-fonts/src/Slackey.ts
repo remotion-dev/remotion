@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Slackey',
 	importName: 'Slackey',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Slackey:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/slackey/v28/N0bV2SdQO-5yM0-dGlNQJA.woff2',
+					'https://fonts.gstatic.com/s/slackey/v29/N0bV2SdQO-5yM0-dGlNQJA.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lavishly Yours',
 	importName: 'LavishlyYours',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Lavishly+Yours:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/lavishlyyours/v5/jizDREVIvGwH5OjiZmX9r5z_WyUQ2zcLig.woff2',
+					'https://fonts.gstatic.com/s/lavishlyyours/v6/jizDREVIvGwH5OjiZmX9r5z_WyUQ2zcLig.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lavishlyyours/v5/jizDREVIvGwH5OjiZmX9r5z_WyUR2zcLig.woff2',
+					'https://fonts.gstatic.com/s/lavishlyyours/v6/jizDREVIvGwH5OjiZmX9r5z_WyUR2zcLig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lavishlyyours/v5/jizDREVIvGwH5OjiZmX9r5z_WyUf2zc.woff2',
+					'https://fonts.gstatic.com/s/lavishlyyours/v6/jizDREVIvGwH5OjiZmX9r5z_WyUf2zc.woff2',
 			},
 		},
 	},

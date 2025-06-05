@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Estonia',
 	importName: 'Estonia',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Estonia:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/estonia/v11/7Au_p_4ijSecA1yHOCr2z3wM.woff2',
+					'https://fonts.gstatic.com/s/estonia/v12/7Au_p_4ijSecA1yHOCr2z3wM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/estonia/v11/7Au_p_4ijSecA1yHOCv2z3wM.woff2',
+					'https://fonts.gstatic.com/s/estonia/v12/7Au_p_4ijSecA1yHOCv2z3wM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/estonia/v11/7Au_p_4ijSecA1yHOCX2zw.woff2',
+					'https://fonts.gstatic.com/s/estonia/v12/7Au_p_4ijSecA1yHOCX2zw.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Eater',
 	importName: 'Eater',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Eater:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eater/v25/mtG04_FCK7bOvqu_sXBAsQ.woff2',
+					'https://fonts.gstatic.com/s/eater/v26/mtG04_FCK7bOvqu_sXBAsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eater/v25/mtG04_FCK7bOvquxsXA.woff2',
+					'https://fonts.gstatic.com/s/eater/v26/mtG04_FCK7bOvquxsXA.woff2',
 			},
 		},
 	},

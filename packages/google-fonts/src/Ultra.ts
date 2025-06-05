@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ultra',
 	importName: 'Ultra',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Ultra:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ultra/v24/zOLy4prXmrtY-uTzwrKz6A.woff2',
+					'https://fonts.gstatic.com/s/ultra/v25/zOLy4prXmrtY-uTzwrKz6A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ultra/v24/zOLy4prXmrtY-uT9wrI.woff2',
+					'https://fonts.gstatic.com/s/ultra/v25/zOLy4prXmrtY-uT9wrI.woff2',
 			},
 		},
 	},

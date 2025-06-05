@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kranky',
 	importName: 'Kranky',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Kranky:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/kranky/v28/hESw6XVgJzlPsFn8oR2F.woff2',
+					'https://fonts.gstatic.com/s/kranky/v29/hESw6XVgJzlPsFn8oR2F.woff2',
 			},
 		},
 	},

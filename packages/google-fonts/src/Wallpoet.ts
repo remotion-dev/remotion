@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Wallpoet',
 	importName: 'Wallpoet',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Wallpoet:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/wallpoet/v20/f0X10em2_8RnXVVdUObp58Q.woff2',
+					'https://fonts.gstatic.com/s/wallpoet/v21/f0X10em2_8RnXVVdUObp58Q.woff2',
 			},
 		},
 	},

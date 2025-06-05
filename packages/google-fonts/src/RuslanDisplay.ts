@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ruslan Display',
 	importName: 'RuslanDisplay',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Ruslan+Display:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -19,14 +19,14 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/ruslandisplay/v26/Gw6jwczl81XcIZuckK_e3Upfdwxon921vg.woff2',
-				math: 'https://fonts.gstatic.com/s/ruslandisplay/v26/Gw6jwczl81XcIZuckK_e3UpfdwwQn921vg.woff2',
+					'https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3Upfdwxon921vg.woff2',
+				math: 'https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3UpfdwwQn921vg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/ruslandisplay/v26/Gw6jwczl81XcIZuckK_e3UpfdwwCn921vg.woff2',
+					'https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3UpfdwwCn921vg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ruslandisplay/v26/Gw6jwczl81XcIZuckK_e3Upfdwxin921vg.woff2',
+					'https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3Upfdwxin921vg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ruslandisplay/v26/Gw6jwczl81XcIZuckK_e3Upfdwxsn90.woff2',
+					'https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3Upfdwxsn90.woff2',
 			},
 		},
 	},

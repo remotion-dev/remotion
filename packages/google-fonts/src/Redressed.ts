@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Redressed',
 	importName: 'Redressed',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Redressed:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redressed/v30/x3dickHUbrmJ7wMy9MsxdfoDjy8.woff2',
+					'https://fonts.gstatic.com/s/redressed/v31/x3dickHUbrmJ7wMy9MsxdfoDjy8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redressed/v30/x3dickHUbrmJ7wMy9Msxe_oD.woff2',
+					'https://fonts.gstatic.com/s/redressed/v31/x3dickHUbrmJ7wMy9Msxe_oD.woff2',
 			},
 		},
 	},

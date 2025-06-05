@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tauri',
 	importName: 'Tauri',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Tauri:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tauri/v18/TwMA-IISS0AM3LpcUnQPTA.woff2',
+					'https://fonts.gstatic.com/s/tauri/v19/TwMA-IISS0AM3LpcUnQPTA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tauri/v18/TwMA-IISS0AM3LpSUnQ.woff2',
+					'https://fonts.gstatic.com/s/tauri/v19/TwMA-IISS0AM3LpSUnQ.woff2',
 			},
 		},
 	},

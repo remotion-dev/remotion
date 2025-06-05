@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Butterfly Kids',
 	importName: 'ButterflyKids',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Butterfly+Kids:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/butterflykids/v25/ll8lK2CWTjuqAsXDqlnIbMNs5R4TpRBbAQ.woff2',
+					'https://fonts.gstatic.com/s/butterflykids/v26/ll8lK2CWTjuqAsXDqlnIbMNs5R4TpRBbAQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/butterflykids/v25/ll8lK2CWTjuqAsXDqlnIbMNs5R4dpRA.woff2',
+					'https://fonts.gstatic.com/s/butterflykids/v26/ll8lK2CWTjuqAsXDqlnIbMNs5R4dpRA.woff2',
 			},
 		},
 	},

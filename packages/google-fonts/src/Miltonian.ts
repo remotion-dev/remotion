@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Miltonian',
 	importName: 'Miltonian',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Miltonian:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/miltonian/v30/zOL-4pbPn6Ne9JqTg9mb7uRB.woff2',
+					'https://fonts.gstatic.com/s/miltonian/v31/zOL-4pbPn6Ne9JqTg9mb7uRB.woff2',
 			},
 		},
 	},

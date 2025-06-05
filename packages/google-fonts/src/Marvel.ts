@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Marvel',
 	importName: 'Marvel',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Marvel:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/marvel/v16/nwpXtKeoNgBV0qa4k2THJ3o.woff2',
+					'https://fonts.gstatic.com/s/marvel/v17/nwpXtKeoNgBV0qa4k2THJ3o.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/marvel/v16/nwpQtKeoNgBV0qa4k2x8Am-l7w0.woff2',
+					'https://fonts.gstatic.com/s/marvel/v17/nwpQtKeoNgBV0qa4k2x8Am-l7w0.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/marvel/v16/nwpVtKeoNgBV0qa4llTF.woff2',
+					'https://fonts.gstatic.com/s/marvel/v17/nwpVtKeoNgBV0qa4llTF.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/marvel/v16/nwpWtKeoNgBV0qawLXHQAF-n.woff2',
+					'https://fonts.gstatic.com/s/marvel/v17/nwpWtKeoNgBV0qawLXHQAF-n.woff2',
 			},
 		},
 	},

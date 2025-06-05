@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arvo',
 	importName: 'Arvo',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,20 +13,20 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/arvo/v22/tDbN2oWUg0MKqSIg75Tv.woff2',
+					'https://fonts.gstatic.com/s/arvo/v23/tDbN2oWUg0MKqSIg75Tv.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/arvo/v22/tDbO2oWUg0MKqSIoVLH68dr_.woff2',
+					'https://fonts.gstatic.com/s/arvo/v23/tDbO2oWUg0MKqSIoVLH68dr_.woff2',
 			},
 		},
 		normal: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/arvo/v22/tDbD2oWUg0MKqScQ7Q.woff2',
+				latin: 'https://fonts.gstatic.com/s/arvo/v23/tDbD2oWUg0MKqScQ7Q.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/arvo/v22/tDbM2oWUg0MKoZw1-LPK8w.woff2',
+					'https://fonts.gstatic.com/s/arvo/v23/tDbM2oWUg0MKoZw1-LPK8w.woff2',
 			},
 		},
 	},
