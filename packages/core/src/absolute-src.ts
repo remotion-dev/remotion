@@ -3,5 +3,9 @@ export const getAbsoluteSrc = (relativeSrc: string) => {
 		return relativeSrc;
 	}
 
+	if (relativeSrc.startsWith('http://') || relativeSrc.startsWith('https://')) {
+		return relativeSrc;
+	}
+
 	return new URL(relativeSrc, window.origin).href;
 };
