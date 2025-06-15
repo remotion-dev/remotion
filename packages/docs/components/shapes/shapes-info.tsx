@@ -1,6 +1,7 @@
 import {
 	makeCircle,
 	makeEllipse,
+	makeHeart,
 	makePie,
 	makePolygon,
 	makeRect,
@@ -51,6 +52,17 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'radius',
 				type: 'number',
 				description: 'The radius of the circle.',
+			},
+		],
+	},
+	{
+		shape: 'Heart',
+		fn: makeHeart,
+		params: [
+			{
+				name: 'size',
+				type: 'number',
+				description: 'The size of the heart.',
 			},
 		],
 	},

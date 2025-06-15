@@ -1,0 +1,43 @@
+---
+title: <Heart />
+crumb: '@remotion/shapes'
+---
+
+import {ShapeSeeAlso, ShapeOptions} from '../../components/shapes/shapes-info';
+
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
+
+Renders an SVG element containing a heart.
+
+## Explorer
+
+<Demo type="heart" />
+
+## Example
+
+```tsx twoslash title="src/Heart.tsx"
+import {Heart} from '@remotion/shapes';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Heart size={100} fill="red" stroke="black" strokeWidth={2} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Props
+
+<ShapeOptions shape="heart" all />
+
+## See also
+
+<ShapeSeeAlso shape="heart" />
