@@ -22,69 +22,55 @@ const heart = ({
 	width,
 	height,
 }: MakeHeartProps): Instruction[] => {
-	// Heart shape is roughly 1:1 aspect ratio in its natural form
-	// We'll scale it to fit the desired width/height
+	// Create a heart shape using a simple approach
+	// Heart is composed of two circles at the top and a triangle at the bottom
 	const centerX = width / 2;
-	const heartWidth = width;
-	const heartHeight = height;
-	
-	// Heart shape using bezier curves
-	// Based on a mathematical heart curve adapted for SVG paths
-	const topHeight = heartHeight * 0.3; // Height of the top lobes
-	const lobeRadius = heartWidth * 0.25; // Radius of each lobe
-	
-	// Calculate key points
-	const leftLobeCenter = centerX - heartWidth * 0.25;
-	const rightLobeCenter = centerX + heartWidth * 0.25;
-	const bottomPointX = centerX;
-	const bottomPointY = heartHeight;
+	const lobeRadius = width / 4;
+	const leftCenter = centerX - lobeRadius / 2;
+	const rightCenter = centerX + lobeRadius / 2;
+	const topY = lobeRadius;
+	const bottomY = height;
 	
 	const instructions: Instruction[] = [
-		// Start at the center top
+		// Start at the top-center dip
 		{
 			type: 'M',
 			x: centerX,
-			y: topHeight,
+			y: topY,
 		},
-		// Left lobe (top arc)
+		// Left arc (top of heart)
 		{
-			type: 'C',
-			cp1x: centerX - lobeRadius * 0.5,
-			cp1y: 0,
-			cp2x: leftLobeCenter - lobeRadius,
-			cp2y: topHeight * 0.5,
-			x: leftLobeCenter,
-			y: topHeight,
+			type: 'A',
+			rx: lobeRadius,
+			ry: lobeRadius,
+			xAxisRotation: 0,
+			largeArcFlag: false,
+			sweepFlag: false,
+			x: leftCenter,
+			y: topY,
 		},
-		// Left lobe (bottom arc)
+		// Line from left lobe to bottom point
 		{
-			type: 'C',
-			cp1x: leftLobeCenter - lobeRadius,
-			cp1y: topHeight + lobeRadius * 0.5,
-			cp2x: leftLobeCenter - lobeRadius * 0.3,
-			cp2y: topHeight + lobeRadius,
-			x: bottomPointX,
-			y: bottomPointY,
-		},
-		// Right lobe (bottom arc)
-		{
-			type: 'C',
-			cp1x: rightLobeCenter + lobeRadius * 0.3,
-			cp1y: topHeight + lobeRadius,
-			cp2x: rightLobeCenter + lobeRadius,
-			cp2y: topHeight + lobeRadius * 0.5,
-			x: rightLobeCenter,
-			y: topHeight,
-		},
-		// Right lobe (top arc)
-		{
-			type: 'C',
-			cp1x: rightLobeCenter + lobeRadius,
-			cp1y: topHeight * 0.5,
-			cp2x: centerX + lobeRadius * 0.5,
-			cp2y: 0,
+			type: 'L',
 			x: centerX,
-			y: topHeight,
+			y: bottomY,
+		},
+		// Line from bottom point to right lobe
+		{
+			type: 'L',
+			x: rightCenter,
+			y: topY,
+		},
+		// Right arc (top of heart)
+		{
+			type: 'A',
+			rx: lobeRadius,
+			ry: lobeRadius,
+			xAxisRotation: 0,
+			largeArcFlag: false,
+			sweepFlag: false,
+			x: centerX,
+			y: topY,
 		},
 		// Close the path
 		{type: 'Z'},
@@ -106,14 +92,11 @@ export const makeHeart = ({
 	const path = resetPath(serializeInstructions(reduced));
 	const boundingBox = PathInternals.getBoundingBoxFromInstructions(reduced);
 
-	const centerX = width / 2;
-	const centerY = height / 2;
-
 	return {
 		path,
 		width: boundingBox.width,
 		height: boundingBox.height,
-		transformOrigin: `${centerX} ${centerY}`,
+		transformOrigin: `${width / 2} ${height / 2}`,
 		instructions: heartPathInstructions,
 	};
 };

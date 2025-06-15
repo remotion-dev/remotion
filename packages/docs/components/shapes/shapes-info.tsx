@@ -1,6 +1,7 @@
 import {
 	makeCircle,
 	makeEllipse,
+	makeHeart,
 	makePie,
 	makePolygon,
 	makeRect,
@@ -151,6 +152,22 @@ export const shapeComponents: ShapeComponent[] = [
 				name: 'outerRadius',
 				type: 'number',
 				description: 'The outer radius of the star.',
+			},
+		],
+	},
+	{
+		shape: 'Heart',
+		fn: makeHeart,
+		params: [
+			{
+				name: 'width',
+				type: 'number',
+				description: 'The width of the heart.',
+			},
+			{
+				name: 'height',
+				type: 'number',
+				description: 'The height of the heart.',
 			},
 		],
 	},

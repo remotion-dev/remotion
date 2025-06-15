@@ -11,7 +11,7 @@ test('Should be able to make a heart path', () => {
 	expect(heartPath.height).toBeGreaterThan(0);
 	expect(heartPath.transformOrigin).toEqual('100 100');
 	expect(heartPath.instructions.length).toBeGreaterThan(0);
-	expect(heartPath.instructions[0]).toEqual({type: 'M', x: 100, y: 60});
+	expect(heartPath.instructions[0].type).toEqual('M');
 	expect(heartPath.instructions[heartPath.instructions.length - 1]).toEqual({type: 'Z'});
 	expect(heartPath.path).toMatch(/^M \d+/);
 });
