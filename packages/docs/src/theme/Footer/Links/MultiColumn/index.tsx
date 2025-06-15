@@ -1,6 +1,7 @@
-import React from 'react';
+import {useColorMode} from '@docusaurus/theme-common';
 // @ts-expect-error
 import LinkItem from '@theme/Footer/LinkItem';
+import React, {useEffect, useState} from 'react';
 
 const footerTitle: React.CSSProperties = {
 	fontFamily: 'GTPlanar',
@@ -46,6 +47,25 @@ const copyright: React.CSSProperties = {
 };
 
 export default ({columns}) => {
+	let colorMode = 'light';
+	try {
+		const colorModeHook = useColorMode();
+		colorMode = colorModeHook.colorMode;
+	} catch (error) {
+		// Fallback to light mode if context is not available
+		console.warn('useColorMode context not available, falling back to light mode');
+	}
+	
+	const [src, setSrc] = useState('/img/new-logo.png');
+
+	useEffect(() => {
+		if (colorMode === 'dark') {
+			setSrc('/img/remotion-white.png');
+		} else {
+			setSrc('/img/new-logo.png');
+		}
+	}, [colorMode]);
+
 	return (
 		<div className="row footer__links">
 			<div
@@ -54,26 +74,14 @@ export default ({columns}) => {
 					marginBottom: 20,
 				}}
 			>
-				<div className="footer-logo-container">
-					<img
-						src="/img/new-logo.png"
-						className="footer-logo footer-logo-light"
-						style={{
-							height: 32,
-							marginRight: 80,
-						}}
-						alt="Remotion Logo"
-					/>
-					<img
-						src="/img/remotion-white.png"
-						className="footer-logo footer-logo-dark"
-						style={{
-							height: 32,
-							marginRight: 80,
-						}}
-						alt="Remotion Logo"
-					/>
-				</div>
+				<img
+					key={colorMode}
+					src={src}
+					style={{
+						height: 32,
+						marginRight: 80,
+					}}
+				/>
 				<p style={copyright}>
 					© Copyright {new Date().getFullYear()} Remotion AG. <br /> Website
 					created with Docusaurus.
