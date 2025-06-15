@@ -1,0 +1,40 @@
+---
+image: /generated/articles-docs-shapes-make-heart.png
+title: makeHeart()
+crumb: "@remotion/shapes"
+---
+
+import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from "../../components/shapes/shapes-info"
+
+_Part of the [`@remotion/shapes`](/docs/shapes) package._
+
+Generates a heart SVG path.
+
+## Example
+
+```tsx twoslash title="heart.ts"
+import { makeHeart } from "@remotion/shapes";
+
+const { path, width, height, transformOrigin, instructions } = makeHeart({
+  width: 200,
+  height: 180,
+});
+
+console.log(path); // M 100 54 C 87.5 0 50 27 75 54 C 50 81 62.5 108 100 180 C 137.5 108 150 81 125 54 C 150 27 112.5 0 100 54
+console.log(width); // 200
+console.log(height); // 180
+console.log(transformOrigin); // '100 90'
+console.log(instructions); // '[{type: "M"}, ...]'
+```
+
+## Arguments
+
+<ShapeOptions shape="heart"/>
+
+## Return type
+
+<MakeShapeReturnType shape="heart"/>
+
+## See also
+
+<MakeShapeSeeAlso shape="heart"/>

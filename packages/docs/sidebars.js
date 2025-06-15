@@ -512,6 +512,7 @@ module.exports = {
 				'shapes/star',
 				'shapes/pie',
 				'shapes/polygon',
+				'shapes/heart',
 				'shapes/make-rect',
 				'shapes/make-triangle',
 				'shapes/make-circle',
@@ -519,6 +520,7 @@ module.exports = {
 				'shapes/make-star',
 				'shapes/make-pie',
 				'shapes/make-polygon',
+				'shapes/make-heart',
 			],
 		},
 		{
