@@ -1,7 +1,7 @@
 import React from "react";
-import { shapeComponents } from "../shapes/shapes-info";
-import { Grid } from "./Grid";
-import { TOCItem } from "./TOCItem";
+import { shapeComponents } from "../../components/shapes/shapes-info";
+import { Grid } from "../../components/TableOfContents/Grid";
+import { TOCItem } from "../../components/TableOfContents/TOCItem";
 
 export const TableOfContents: React.FC = () => {
   return (

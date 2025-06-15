@@ -1,6 +1,6 @@
 import React from "react";
-import { Grid } from "./Grid";
-import { TOCItem } from "./TOCItem";
+import { Grid } from "../../components/TableOfContents/Grid";
+import { TOCItem } from "../../components/TableOfContents/TOCItem";
 
 export const TableOfContents: React.FC = () => {
   return (
