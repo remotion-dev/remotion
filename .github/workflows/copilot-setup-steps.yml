@@ -27,8 +27,6 @@ jobs:
       - uses: oven-sh/setup-bun@v2.0.1
         with:
           bun-version: 1.2.10
-      - name: Install
-        run: pnpm i --frozen-lockfile
       - name: Cache turbo build setup
         uses: actions/cache@v4
         with:
@@ -36,3 +34,7 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
+      - name: Install
+        run: pnpm i --frozen-lockfile
+      - name: Build
+        run: pnpm run build

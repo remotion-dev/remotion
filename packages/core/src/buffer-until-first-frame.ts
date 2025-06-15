@@ -10,12 +10,6 @@ const isSafariWebkit = () => {
 	return isSafari;
 };
 
-const isDesktopChrome = () => {
-	const isChrome = /chrome/i.test(window.navigator.userAgent);
-	const isDesktop = !/mobile/i.test(window.navigator.userAgent);
-	return isChrome && isDesktop;
-};
-
 export const useBufferUntilFirstFrame = ({
 	mediaRef,
 	mediaType,
@@ -50,16 +44,7 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
-			if (
-				current.readyState >= current.HAVE_FUTURE_DATA &&
-				!isSafariWebkit() &&
-				// In Desktop Chrome, the video might switch to playing
-				// but does not play due to Bluetooth headphones
-
-				// Enabling back this flag for Chrome without extensive testing
-				// because we never had big problems on Chrome
-				!isDesktopChrome()
-			) {
+			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafariWebkit()) {
 				playbackLogging({
 					logLevel,
 					message: `Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,
