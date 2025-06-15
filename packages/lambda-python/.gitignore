@@ -11,3 +11,7 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Python virtual environments
+test-env/
+remotion-env-lint/
+
