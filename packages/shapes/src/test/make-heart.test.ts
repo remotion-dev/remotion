@@ -6,11 +6,11 @@ test('Should be able to make a heart path', () => {
 		size: 100,
 	});
 
-	expect(heartPath.width).toEqual(200);
-	expect(heartPath.height).toEqual(160);
-	expect(heartPath.transformOrigin).toEqual('100 80');
-	expect(heartPath.instructions.length).toEqual(5);
-	expect(heartPath.instructions[0]).toEqual({type: 'M', x: 100, y: 120});
-	expect(heartPath.instructions[4]).toEqual({type: 'Z'});
-	expect(heartPath.path.startsWith('M 100 120 C')).toBeTruthy();
+	expect(heartPath.width).toEqual(100);
+	expect(heartPath.height).toEqual(100);
+	expect(heartPath.transformOrigin).toEqual('50 50');
+	expect(heartPath.instructions.length).toEqual(6);
+	expect(heartPath.instructions[0]).toEqual({type: 'M', x: 50, y: 85});
+	expect(heartPath.instructions[5]).toEqual({type: 'Z'});
+	expect(heartPath.path.startsWith('M 50 85 C')).toBeTruthy();
 });

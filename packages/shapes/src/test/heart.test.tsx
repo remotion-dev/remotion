@@ -9,6 +9,6 @@ test('Should be able to make a heart svg', () => {
 		container
 			.querySelector('path')
 			?.getAttribute('d')
-			?.startsWith('M 100 120 C'),
+			?.startsWith('M 50 85 C'),
 	).toBe(true);
 });

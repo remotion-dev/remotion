@@ -12,8 +12,12 @@ export type MakeHeartProps = {
  * @see [Documentation](https://www.remotion.dev/docs/shapes/make-heart)
  */
 export const makeHeart = ({size}: MakeHeartProps): ShapeInfo => {
-	const centerX = size;
-	const centerY = size * 0.8;
+	// Center the heart within the size x size bounding box
+	const centerX = size / 2;
+	const centerY = size / 2;
+	
+	// Scale factor for the heart proportions (normalized to 100px base size)
+	const scale = size / 100;
 
 	// Create heart shape using bezier curves
 	// Heart is made of two rounded lobes at the top and a point at the bottom
@@ -22,37 +26,47 @@ export const makeHeart = ({size}: MakeHeartProps): ShapeInfo => {
 		{
 			type: 'M',
 			x: centerX,
-			y: centerY + size * 0.4,
+			y: centerY + 35 * scale,
 		},
-		// Left side of heart - curve up to left lobe
+		// Left side curve - from bottom point to left lobe
 		{
 			type: 'C',
-			cp1x: centerX - size * 0.6,
-			cp1y: centerY + size * 0.1,
-			cp2x: centerX - size * 0.8,
-			cp2y: centerY - size * 0.3,
-			x: centerX - size * 0.4,
-			y: centerY - size * 0.4,
+			cp1x: centerX - 25 * scale,
+			cp1y: centerY + 15 * scale,
+			cp2x: centerX - 40 * scale,
+			cp2y: centerY - 5 * scale,
+			x: centerX - 25 * scale,
+			y: centerY - 15 * scale,
 		},
-		// Left lobe - rounded top
+		// Left lobe top curve
 		{
 			type: 'C',
-			cp1x: centerX - size * 0.1,
-			cp1y: centerY - size * 0.6,
-			cp2x: centerX + size * 0.1,
-			cp2y: centerY - size * 0.6,
-			x: centerX + size * 0.4,
-			y: centerY - size * 0.4,
-		},
-		// Right lobe - curve back down to bottom point
-		{
-			type: 'C',
-			cp1x: centerX + size * 0.8,
-			cp1y: centerY - size * 0.3,
-			cp2x: centerX + size * 0.6,
-			cp2y: centerY + size * 0.1,
+			cp1x: centerX - 10 * scale,
+			cp1y: centerY - 25 * scale,
+			cp2x: centerX - 5 * scale,
+			cp2y: centerY - 25 * scale,
 			x: centerX,
-			y: centerY + size * 0.4,
+			y: centerY - 15 * scale,
+		},
+		// Right lobe top curve
+		{
+			type: 'C',
+			cp1x: centerX + 5 * scale,
+			cp1y: centerY - 25 * scale,
+			cp2x: centerX + 10 * scale,
+			cp2y: centerY - 25 * scale,
+			x: centerX + 25 * scale,
+			y: centerY - 15 * scale,
+		},
+		// Right side curve - from right lobe back to bottom point
+		{
+			type: 'C',
+			cp1x: centerX + 40 * scale,
+			cp1y: centerY - 5 * scale,
+			cp2x: centerX + 25 * scale,
+			cp2y: centerY + 15 * scale,
+			x: centerX,
+			y: centerY + 35 * scale,
 		},
 		{
 			type: 'Z',
@@ -60,8 +74,8 @@ export const makeHeart = ({size}: MakeHeartProps): ShapeInfo => {
 	];
 
 	const path = serializeInstructions(instructions);
-	const width = size * 2;
-	const height = size * 1.6;
+	const width = size;
+	const height = size;
 
 	return {
 		path,
