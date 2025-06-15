@@ -155,15 +155,12 @@ class RemotionClient:
         """
         render_params.serve_url = self.serve_url
 
-        payload = render_params.serialize_params()
         render_params.private_serialized_input_props = self._serialize_input_props(
             input_props=render_params.input_props,
             render_type=render_type
         )
 
-        payload['type'] = render_type
-        payload['region'] = self.region
-
+        payload = render_params.serialize_params()
         return json.dumps(payload, default=self._custom_serializer)
 
     def construct_render_progress_request(self,
@@ -192,7 +189,9 @@ class RemotionClient:
         )
         return json.dumps(progress_params.serialize_params())
 
-    def render_media_on_lambda(self, render_params: RenderMediaParams) -> Optional[RenderMediaResponse]:
+    def render_media_on_lambda(
+        self, render_params: RenderMediaParams
+    ) -> Optional[RenderMediaResponse]:
         """
         Render media using AWS Lambda.
 
@@ -211,7 +210,9 @@ class RemotionClient:
 
         return None
 
-    def render_still_on_lambda(self, render_params: RenderStillParams) -> Optional[RenderStillResponse]:
+    def render_still_on_lambda(
+        self, render_params: RenderStillParams
+    ) -> Optional[RenderStillResponse]:
         """
         Render still using AWS Lambda.
 
