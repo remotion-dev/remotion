@@ -1,5 +1,4 @@
-name: "Copilot Setup Steps"
-
+name: "Copilot Coding agent setup"
 on:
   workflow_dispatch:
   push:
@@ -17,7 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      - uses: pnpm/action-setup@v3
+        with:
+          version: "8.10.2"
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
