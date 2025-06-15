@@ -139,8 +139,8 @@ const WEBCODECS_UNIT_PRICE = 10;
 
 export const CompanyPricing: React.FC = () => {
 	const [devSeatCount, setDevSeatCount] = React.useState(1);
-	const [cloudUnitCount, setCloudUnitCount] = React.useState(1);
-	const [webcodecsUnits, setWebcodecsUnits] = React.useState(1);
+	const [cloudRenders, setCloudRenders] = React.useState(1000);
+	const [creations, setCreations] = React.useState(1000);
 
 	const formatPrice = useCallback((price: number) => {
 		const formatter = new Intl.NumberFormat('en-US', {
@@ -155,10 +155,10 @@ export const CompanyPricing: React.FC = () => {
 		return Math.max(
 			100,
 			devSeatCount * SEAT_PRICE +
-				cloudUnitCount * RENDER_UNIT_PRICE +
-				webcodecsUnits * WEBCODECS_UNIT_PRICE,
+				(cloudRenders / 1000) * RENDER_UNIT_PRICE +
+				(creations / 1000) * WEBCODECS_UNIT_PRICE,
 		);
-	}, [cloudUnitCount, devSeatCount, webcodecsUnits]);
+	}, [cloudRenders, devSeatCount, creations]);
 
 	const totalPriceString = useMemo(() => {
 		return formatPrice(totalPrice);
@@ -168,15 +168,15 @@ export const CompanyPricing: React.FC = () => {
 		const formatter = new Intl.NumberFormat('en-US', {
 			maximumFractionDigits: 0,
 		});
-		return formatter.format(cloudUnitCount * 1000);
-	}, [cloudUnitCount]);
+		return formatter.format(cloudRenders);
+	}, [cloudRenders]);
 
 	const conversionsPerMonth = useMemo(() => {
 		const formatter = new Intl.NumberFormat('en-US', {
 			maximumFractionDigits: 0,
 		});
-		return formatter.format(webcodecsUnits * 1000);
-	}, [webcodecsUnits]);
+		return formatter.format(creations);
+	}, [creations]);
 
 	return (
 		<Container>
@@ -209,7 +209,7 @@ export const CompanyPricing: React.FC = () => {
 			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>
-						Cloud Rendering Units
+						Cloud Renders
 					</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						Allows for {rendersPerMonth}{' '}
@@ -218,28 +218,28 @@ export const CompanyPricing: React.FC = () => {
 							className="underline underline-offset-4 text-inherit"
 						>
 							self-hosted renders per month
-						</a>{' '}
-						each
+						</a>
 					</div>
 				</div>
 				<div style={{flex: 3}} />
 				<Counter
-					count={cloudUnitCount}
-					setCount={setCloudUnitCount}
+					count={cloudRenders}
+					setCount={setCloudRenders}
 					minCount={0}
+					step={1000}
 				/>
 				<SmallPriceTag>
 					$
 					{new Intl.NumberFormat('en-US', {
 						maximumFractionDigits: 0,
-					}).format(RENDER_UNIT_PRICE * cloudUnitCount)}
+					}).format((cloudRenders / 1000) * RENDER_UNIT_PRICE)}
 				</SmallPriceTag>
 			</div>
 			<div style={{height: 14}} />
 			<div className={'flex flex-row items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>
-						WebCodecs Creation Units
+						Creations
 					</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						Allows for{' '}
@@ -247,21 +247,22 @@ export const CompanyPricing: React.FC = () => {
 							className="underline underline-offset-4 text-inherit"
 							href="https://remotion.dev/webcodecs"
 						>
-							{conversionsPerMonth} client-side video creations{' '}
+							{conversionsPerMonth} client-side video creations
 						</a>
 					</div>
 				</div>
 				<div style={{flex: 3}} />
 				<Counter
-					count={webcodecsUnits}
-					setCount={setWebcodecsUnits}
+					count={creations}
+					setCount={setCreations}
 					minCount={0}
+					step={1000}
 				/>
 				<SmallPriceTag>
 					$
 					{new Intl.NumberFormat('en-US', {
 						maximumFractionDigits: 0,
-					}).format(RENDER_UNIT_PRICE * webcodecsUnits)}
+					}).format((creations / 1000) * WEBCODECS_UNIT_PRICE)}
 				</SmallPriceTag>
 			</div>
 			<div style={{height: 20}} />
