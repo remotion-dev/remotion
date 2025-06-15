@@ -4382,6 +4382,9 @@
 			"Satisfy": [
 				"dist/cjs/Satisfy.d.ts"
 			],
+			"Savate": [
+				"dist/cjs/Savate.d.ts"
+			],
 			"SawarabiGothic": [
 				"dist/cjs/SawarabiGothic.d.ts"
 			],

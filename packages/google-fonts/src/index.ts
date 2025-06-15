@@ -7297,6 +7297,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Satisfy') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Savate',
+		importName: 'Savate',
+		load: () => import('./Savate') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Sawarabi Gothic',
 		importName: 'SawarabiGothic',
 		load: () => import('./SawarabiGothic') as Promise<GoogleFont>,
