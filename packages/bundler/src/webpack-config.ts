@@ -8,6 +8,7 @@ import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
+import {IgnorePackFileCacheWarningsPlugin} from './ignore-packfilecache-warnings';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
@@ -127,6 +128,7 @@ export const webpackConfig = async ({
 						define,
 						new AllowOptionalDependenciesPlugin(),
 						new AllowDependencyExpressionPlugin(),
+						new IgnorePackFileCacheWarningsPlugin(),
 					]
 				: [
 						new ProgressPlugin((p) => {
@@ -140,6 +142,7 @@ export const webpackConfig = async ({
 						define,
 						new AllowOptionalDependenciesPlugin(),
 						new AllowDependencyExpressionPlugin(),
+						new IgnorePackFileCacheWarningsPlugin(),
 					],
 		output: {
 			hashFunction: 'xxhash64',
