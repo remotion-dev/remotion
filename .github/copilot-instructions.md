@@ -6,8 +6,7 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 
 ## Build instructions
 
-- Use `pnpm i` to install dependencies, not npm.
-- To build the project, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above.
+- To build the project after you made changes, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above.
 
 ## Documentation
 
