@@ -10,14 +10,14 @@ import {getS3Client} from './get-s3-client';
 
 export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 	async ({region, bucketName, forcePathStyle}) => {
-		await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+		await getS3Client({region, customCredentials: null, forcePathStyle, requestHandler: null}).send(
 			new CreateBucketCommand({
 				Bucket: bucketName,
 			}),
 		);
 
 		try {
-			await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+			await getS3Client({region, customCredentials: null, forcePathStyle, requestHandler: null}).send(
 				new DeleteBucketOwnershipControlsCommand({
 					Bucket: bucketName,
 				}),
@@ -33,7 +33,7 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 		}
 
 		try {
-			await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+			await getS3Client({region, customCredentials: null, forcePathStyle, requestHandler: null}).send(
 				new DeletePublicAccessBlockCommand({
 					Bucket: bucketName,
 				}),
@@ -49,7 +49,7 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 		}
 
 		try {
-			await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+			await getS3Client({region, customCredentials: null, forcePathStyle, requestHandler: null}).send(
 				new PutBucketAclCommand({
 					Bucket: bucketName,
 					ACL: 'public-read',

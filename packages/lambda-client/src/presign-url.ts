@@ -50,7 +50,7 @@ const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 		region,
 		customCredentials: null,
 		forcePathStyle,
-		requestHandler,
+		requestHandler: requestHandler ?? null,
 	});
 
 	if (checkIfObjectExists === true) {

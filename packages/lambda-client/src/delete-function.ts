@@ -20,7 +20,7 @@ export const deleteFunction: DeleteFunction<AwsProvider> = async ({
 	functionName,
 	requestHandler,
 }: DeleteFunctionInput): Promise<void> => {
-	await getLambdaClient(region, undefined, requestHandler).send(
+	await getLambdaClient(region, undefined, requestHandler ?? null).send(
 		new DeleteFunctionCommand({
 			FunctionName: functionName,
 		}),

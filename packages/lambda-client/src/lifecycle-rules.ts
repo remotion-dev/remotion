@@ -30,7 +30,7 @@ const createLCRules = async ({
 		createCommandInput,
 	);
 	try {
-		await getS3Client({region, customCredentials, forcePathStyle}).send(
+		await getS3Client({region, customCredentials, forcePathStyle, requestHandler: null}).send(
 			createCommand,
 		);
 	} catch (err) {
@@ -57,7 +57,7 @@ const deleteLCRules = async ({
 		bucketName,
 	});
 	try {
-		await getS3Client({region, customCredentials, forcePathStyle}).send(
+		await getS3Client({region, customCredentials, forcePathStyle, requestHandler: null}).send(
 			new DeleteBucketLifecycleCommand(deleteCommandInput),
 		);
 	} catch (err) {

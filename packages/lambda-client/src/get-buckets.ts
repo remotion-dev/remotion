@@ -22,6 +22,7 @@ export const getRemotionBuckets: ProviderSpecifics<AwsProvider>['getBuckets'] =
 			region,
 			customCredentials: null,
 			forcePathStyle,
+			requestHandler: null,
 		}).send(new ListBucketsCommand({}));
 		if (!Buckets) {
 			return [];
@@ -47,6 +48,7 @@ export const getRemotionBuckets: ProviderSpecifics<AwsProvider>['getBuckets'] =
 						region,
 						customCredentials: null,
 						forcePathStyle,
+						requestHandler: null,
 					}).send(
 						new GetBucketLocationCommand({
 							Bucket: bucket.Name as string,

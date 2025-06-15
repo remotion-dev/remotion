@@ -33,7 +33,7 @@ const getCredentialsHash = ({
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
-	requestHandler?: RequestHandler;
+	requestHandler: RequestHandler | null;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
@@ -99,7 +99,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	service: T;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
-	requestHandler?: RequestHandler;
+	requestHandler: RequestHandler | null;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {

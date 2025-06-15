@@ -14,7 +14,7 @@ export const getS3Client = ({
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
-	requestHandler?: RequestHandler;
+	requestHandler: RequestHandler | null;
 }): S3Client => {
 	return getServiceClient({
 		region: customCredentials?.region ?? region,

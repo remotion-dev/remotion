@@ -9,7 +9,7 @@ import type {RequestHandler} from './types';
 
 export const getCloudWatchLogsClient = (
 	region: AwsRegion,
-	requestHandler?: RequestHandler,
+	requestHandler: RequestHandler | null,
 ): CloudWatchLogsClient => {
 	return getServiceClient({
 		region,
@@ -23,8 +23,8 @@ export const getCloudWatchLogsClient = (
 export const getLambdaClient = (
 	region: AwsRegion,
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_timeoutInTest?: number,
-	requestHandler?: RequestHandler,
+	_timeoutInTest: number | undefined,
+	requestHandler: RequestHandler | null,
 ): LambdaClient => {
 	return getServiceClient({
 		region,
@@ -35,7 +35,7 @@ export const getLambdaClient = (
 	});
 };
 
-export const getIamClient = (region: AwsRegion, requestHandler?: RequestHandler): IAMClient => {
+export const getIamClient = (region: AwsRegion, requestHandler: RequestHandler | null): IAMClient => {
 	return getServiceClient({
 		region,
 		service: 'iam',
@@ -47,7 +47,7 @@ export const getIamClient = (region: AwsRegion, requestHandler?: RequestHandler)
 
 export const getServiceQuotasClient = (
 	region: AwsRegion,
-	requestHandler?: RequestHandler,
+	requestHandler: RequestHandler | null,
 ): ServiceQuotasClient => {
 	return getServiceClient({
 		region,
@@ -58,7 +58,7 @@ export const getServiceQuotasClient = (
 	});
 };
 
-export const getStsClient = (region: AwsRegion, requestHandler?: RequestHandler): STSClient => {
+export const getStsClient = (region: AwsRegion, requestHandler: RequestHandler | null): STSClient => {
 	return getServiceClient({
 		region,
 		service: 'sts',

@@ -96,6 +96,7 @@
 		"three": "0.158.0",
 		"uuid": "^8.3.2",
 		"zod": "3.22.3",
+		"https-proxy-agent": "^7.0.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0"
 	},

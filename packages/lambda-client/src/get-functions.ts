@@ -27,7 +27,7 @@ const getAllFunctions = async ({
 	requestHandler?: RequestHandler;
 }): Promise<FunctionConfiguration[]> => {
 	const allLambdas: FunctionConfiguration[] = [...existing];
-	const lambdas = await getLambdaClient(region, undefined, requestHandler).send(
+	const lambdas = await getLambdaClient(region, undefined, requestHandler ?? null).send(
 		new ListFunctionsCommand({
 			Marker: nextMarker ?? undefined,
 		}),

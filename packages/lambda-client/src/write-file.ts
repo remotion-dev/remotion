@@ -30,6 +30,7 @@ const tryLambdaWriteFile = async ({
 		region,
 		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
 		forcePathStyle,
+		requestHandler: null,
 	});
 
 	const params: PutObjectCommandInput = {
