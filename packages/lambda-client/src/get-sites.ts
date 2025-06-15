@@ -5,6 +5,7 @@ import {getSitesKey} from './constants';
 import type {BucketWithLocation} from './get-buckets';
 import {makeS3ServeUrl} from './make-s3-url';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 type Site = {
 	sizeInBytes: number;
@@ -24,7 +25,9 @@ type OptionalParameters = {
 };
 
 type GetSitesInternalInput = MandatoryParameters & OptionalParameters;
-export type GetSitesInput = MandatoryParameters & Partial<OptionalParameters>;
+export type GetSitesInput = MandatoryParameters & Partial<OptionalParameters> & {
+	requestHandler?: RequestHandler;
+};
 
 export type GetSitesOutput = {
 	sites: Site[];
@@ -118,6 +121,7 @@ export const getSites = ({
 	region,
 	forceBucketName,
 	forcePathStyle,
+	requestHandler: _requestHandler, // TODO: implement requestHandler support for internal serverless calls
 }: GetSitesInput): Promise<GetSitesOutput> => {
 	return internalGetSites({
 		region,

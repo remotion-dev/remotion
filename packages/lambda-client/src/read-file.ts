@@ -20,6 +20,7 @@ export const lambdaReadFileImplementation = async ({
 		region,
 		customCredentials: null,
 		forcePathStyle,
+		requestHandler: null,
 	}).send(
 		new GetObjectCommand({
 			Bucket: bucketName,

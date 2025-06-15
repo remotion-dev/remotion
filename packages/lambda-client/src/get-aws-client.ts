@@ -8,12 +8,14 @@ import type {CustomCredentials} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getServiceClient, type ServiceMapping} from './get-service-client';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	region: AwsRegion;
 	service: T;
 	customCredentials?: CustomCredentials<AwsProvider> | null;
 	forcePathStyle?: boolean;
+	requestHandler?: RequestHandler;
 };
 
 type SdkMapping = {
@@ -39,6 +41,7 @@ export const getAwsClient = <T extends keyof ServiceMapping>({
 	service,
 	customCredentials,
 	forcePathStyle,
+	requestHandler,
 }: GetAwsClientInput<T>): GetAwsClientOutput<T> => {
 	return {
 		client: getServiceClient({
@@ -46,6 +49,7 @@ export const getAwsClient = <T extends keyof ServiceMapping>({
 			service,
 			customCredentials: customCredentials ?? null,
 			forcePathStyle: forcePathStyle ?? false,
+			requestHandler,
 		}),
 		sdk: {
 			lambda: LambdaSDK,

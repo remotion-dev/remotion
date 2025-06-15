@@ -310,6 +310,7 @@ module.exports = {
 					href: '/docs/lambda/cli',
 					label: 'CLI Reference',
 				},
+				'lambda/proxy',
 				'lambda/estimateprice',
 				'lambda/deployfunction',
 				'lambda/deletefunction',

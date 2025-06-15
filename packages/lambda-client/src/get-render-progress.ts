@@ -5,6 +5,7 @@ import type {RenderProgress} from './constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 import {parseFunctionName} from './parse-function-name';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetRenderProgressInput = {
 	functionName: string;
@@ -15,6 +16,7 @@ export type GetRenderProgressInput = {
 	s3OutputProvider?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
 	skipLambdaInvocation?: boolean;
+	requestHandler?: RequestHandler;
 };
 
 /*

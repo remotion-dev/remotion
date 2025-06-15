@@ -10,6 +10,7 @@ export const bucketExistsInRegionImplementation: ProviderSpecifics<AwsProvider>[
 				region,
 				customCredentials: null,
 				forcePathStyle,
+				requestHandler: null,
 			}).send(
 				new GetBucketLocationCommand({
 					Bucket: bucketName,

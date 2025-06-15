@@ -18,6 +18,7 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 			region,
 			customCredentials,
 			forcePathStyle,
+			requestHandler: null,
 		}).send(
 			new HeadObjectCommand({
 				Bucket: bucketName,

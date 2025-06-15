@@ -17,6 +17,7 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 				region,
 				customCredentials: null,
 				forcePathStyle,
+				requestHandler: null,
 			}).send(
 				new ListObjectsV2Command({
 					Bucket: bucketName,
@@ -67,6 +68,7 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 					region,
 					customCredentials: null,
 					forcePathStyle,
+					requestHandler: null,
 				}).send(
 					new ListObjectsV2Command({
 						Bucket: bucketName,
