@@ -239,3 +239,29 @@ code {
 .header-x-link:hover::before {
 	background-color: var(--ifm-navbar-link-hover-color);
 }
+
+/* Video Player Header theme-specific styles */
+[data-theme='light'] .video-player-header {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .video-player-header {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='light'] .video-player-icon {
+	color: #222;
+}
+
+[data-theme='dark'] .video-player-icon {
+	color: #ddd;
+}
+
+/* Footer logo theme-specific styles */
+[data-theme='light'] .footer-logo-dark {
+	display: none;
+}
+
+[data-theme='dark'] .footer-logo-light {
+	display: none;
+}
