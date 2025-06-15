@@ -7,7 +7,6 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 ## Build instructions
 
 - Use `pnpm i` to install dependencies, not npm.
-- You need to install `bun` to run the project.
 - To build the project, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above.
 
 ## Documentation
@@ -15,7 +14,8 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 Any new features or settings should be documented in the `pacakges/docs` folder.
 
 - Add new pages to the sidebar: `packages/docs/sidebars.js`.
-- Generate og:images for the new pages: `cd package/docs && bun render-cards.mjs`.
+- When creating a new page, don't add the `image:` tag to the frontmatter. It will be added later.
+- Generate og:images when creating new documentation pages by running `cd package/docs && bun render-cards.mjs`. Commit the created image and the changed frontmatter.
 - Usually, there is a TableOfContents.tsx file in the folder of the documentaiton for the package. Add it there as well if there is a table of contents.
 
 ## Committing
