@@ -67,10 +67,10 @@ export const Counter: React.FC<CounterProps> = ({
 	};
 
 	return (
-		<div style={container} className={cn('border-effect w-[110px] text-text')}>
+		<div style={container} className={cn('border-effect w-[140px] text-text')}>
 			<input
 				className={
-					'fontbrand text-2xl font-medium min-w-[60px] border-0 text-end bg-transparent outline-0 text-text'
+					'fontbrand text-2xl font-medium min-w-[80px] border-0 text-end bg-transparent outline-0 text-text'
 				}
 				type="number"
 				onClick={(e) => e.currentTarget.select()}

@@ -164,20 +164,6 @@ export const CompanyPricing: React.FC = () => {
 		return formatPrice(totalPrice);
 	}, [formatPrice, totalPrice]);
 
-	const rendersPerMonth = useMemo(() => {
-		const formatter = new Intl.NumberFormat('en-US', {
-			maximumFractionDigits: 0,
-		});
-		return formatter.format(cloudRenders);
-	}, [cloudRenders]);
-
-	const conversionsPerMonth = useMemo(() => {
-		const formatter = new Intl.NumberFormat('en-US', {
-			maximumFractionDigits: 0,
-		});
-		return formatter.format(creations);
-	}, [creations]);
-
 	return (
 		<Container>
 			<Audience>For collaborations and companies of 4+ people</Audience>
@@ -189,81 +175,85 @@ export const CompanyPricing: React.FC = () => {
 				<InfoTooltip text="Credits for Mux.com. Applies only to new Mux customers." />
 			</PricingBulletPoint>
 			<div style={{height: 30}} />
-			<div className={'flex flex-row items-center'}>
+			<div className={'flex flex-col md:flex-row md:items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>Developer Seats</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						Number of developers working with Remotion
 					</div>
 				</div>
-				<div style={{flex: 3}} />
-				<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
-				<SmallPriceTag>
-					$
-					{new Intl.NumberFormat('en-US', {
-						maximumFractionDigits: 0,
-					}).format(SEAT_PRICE * devSeatCount)}
-				</SmallPriceTag>
+				<div style={{flex: 3}} className="hidden md:block" />
+				<div className="flex flex-col md:flex-row items-end md:items-center mt-3 md:mt-0">
+					<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
+					<SmallPriceTag>
+						$
+						{new Intl.NumberFormat('en-US', {
+							maximumFractionDigits: 0,
+						}).format(SEAT_PRICE * devSeatCount)}
+					</SmallPriceTag>
+				</div>
 			</div>
 			<div style={{height: 14}} />
-			<div className={'flex flex-row items-center'}>
+			<div className={'flex flex-col md:flex-row md:items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>
-						Cloud Renders
+						Server renders
 					</div>
 					<div className={'text-muted fontbrand text-sm'}>
-						Allows for {rendersPerMonth}{' '}
 						<a
 							href="https://www.remotion.dev/docs/compare-ssr"
 							className="underline underline-offset-4 text-inherit"
 						>
-							self-hosted renders per month
+							Self-hosted renders per month
 						</a>
 					</div>
 				</div>
-				<div style={{flex: 3}} />
-				<Counter
-					count={cloudRenders}
-					setCount={setCloudRenders}
-					minCount={0}
-					step={1000}
-				/>
-				<SmallPriceTag>
-					$
-					{new Intl.NumberFormat('en-US', {
-						maximumFractionDigits: 0,
-					}).format((cloudRenders / 1000) * RENDER_UNIT_PRICE)}
-				</SmallPriceTag>
+				<div style={{flex: 3}} className="hidden md:block" />
+				<div className="flex flex-col md:flex-row items-end md:items-center mt-3 md:mt-0">
+					<Counter
+						count={cloudRenders}
+						setCount={setCloudRenders}
+						minCount={0}
+						step={1000}
+					/>
+					<SmallPriceTag>
+						$
+						{new Intl.NumberFormat('en-US', {
+							maximumFractionDigits: 0,
+						}).format((cloudRenders / 1000) * RENDER_UNIT_PRICE)}
+					</SmallPriceTag>
+				</div>
 			</div>
 			<div style={{height: 14}} />
-			<div className={'flex flex-row items-center'}>
+			<div className={'flex flex-col md:flex-row md:items-center'}>
 				<div style={textUnitWrapper}>
 					<div className={'fontbrand font-bold text-lg'}>
-						Creations
+						WebCodecs video creations
 					</div>
 					<div className={'text-muted fontbrand text-sm'}>
-						Allows for{' '}
 						<a
 							className="underline underline-offset-4 text-inherit"
 							href="https://remotion.dev/webcodecs"
 						>
-							{conversionsPerMonth} client-side video creations
+							Client-side video creations
 						</a>
 					</div>
 				</div>
-				<div style={{flex: 3}} />
-				<Counter
-					count={creations}
-					setCount={setCreations}
-					minCount={0}
-					step={1000}
-				/>
-				<SmallPriceTag>
-					$
-					{new Intl.NumberFormat('en-US', {
-						maximumFractionDigits: 0,
-					}).format((creations / 1000) * WEBCODECS_UNIT_PRICE)}
-				</SmallPriceTag>
+				<div style={{flex: 3}} className="hidden md:block" />
+				<div className="flex flex-col md:flex-row items-end md:items-center mt-3 md:mt-0">
+					<Counter
+						count={creations}
+						setCount={setCreations}
+						minCount={0}
+						step={1000}
+					/>
+					<SmallPriceTag>
+						$
+						{new Intl.NumberFormat('en-US', {
+							maximumFractionDigits: 0,
+						}).format((creations / 1000) * WEBCODECS_UNIT_PRICE)}
+					</SmallPriceTag>
+				</div>
 			</div>
 			<div style={{height: 20}} />
 			<div className={'flex flex-row justify-end'}>
