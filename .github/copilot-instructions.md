@@ -20,4 +20,4 @@ Any new features or settings should be documented in the `pacakges/docs` folder.
 
 ## Committing
 
-- Use the commit message format "`[package-name]: [commit-message]`".
+- Use the commit message format "`[package-name]: [commit-message]`". Use the package name from the package naming convention above.
