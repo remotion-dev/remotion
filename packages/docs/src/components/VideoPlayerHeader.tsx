@@ -50,11 +50,7 @@ const VideoPlayerHeader: React.ForwardRefRenderFunction<
 	}
 > = ({onDismiss, onNext, onPrevious, hasNext, hasPrevious}, ref) => {
 	return (
-		<div 
-			ref={ref} 
-			style={container}
-			className="video-player-header"
-		>
+		<div ref={ref} style={container} className="video-player-header">
 			<button onClick={onDismiss} type="button" style={button}>
 				<CancelIcon style={iconStyle} className="video-player-icon" />
 			</button>
