@@ -47,15 +47,7 @@ const copyright: React.CSSProperties = {
 };
 
 export default ({columns}) => {
-	let colorMode = 'light';
-	try {
-		const colorModeHook = useColorMode();
-		colorMode = colorModeHook.colorMode;
-	} catch (error) {
-		// Fallback to light mode if context is not available
-		console.warn('useColorMode context not available, falling back to light mode');
-	}
-	
+	const {colorMode} = useColorMode();
 	const [src, setSrc] = useState('/img/new-logo.png');
 
 	useEffect(() => {
