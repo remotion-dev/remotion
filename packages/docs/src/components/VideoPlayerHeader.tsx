@@ -1,3 +1,4 @@
+import {useColorMode} from '@docusaurus/theme-common';
 import React, {forwardRef} from 'react';
 import {CancelIcon, IconLeft, IconRight} from '../icons/arrows';
 
@@ -49,10 +50,17 @@ const VideoPlayerHeader: React.ForwardRefRenderFunction<
 		readonly hasPrevious: boolean;
 	}
 > = ({onDismiss, onNext, onPrevious, hasNext, hasPrevious}, ref) => {
+	const {colorMode} = useColorMode();
+
+	const iconColor = colorMode === 'dark' ? '#ddd' : '#222';
+	const borderBottom =
+		colorMode === 'dark'
+			? '1px solid rgba(255, 255, 255, 0.1)'
+			: '1px solid rgba(0, 0, 0, 0.1)';
 	return (
-		<div ref={ref} style={container} className="video-player-header">
+		<div ref={ref} style={{...container, borderBottom}}>
 			<button onClick={onDismiss} type="button" style={button}>
-				<CancelIcon style={iconStyle} className="video-player-icon" />
+				<CancelIcon color={iconColor} style={iconStyle} />
 			</button>
 			<div style={flex} />
 			<button onClick={onPrevious} type="button" style={button}>
@@ -60,20 +68,21 @@ const VideoPlayerHeader: React.ForwardRefRenderFunction<
 					style={{
 						...iconStyle,
 						opacity: hasPrevious ? 1 : 0.6,
+						color: iconColor,
 						cursor: hasPrevious ? 'pointer' : 'default',
 					}}
-					className="video-player-icon"
 				/>
 			</button>
 			<div style={space} />
 			<button onClick={onNext} type="button" style={button}>
 				<IconRight
+					color={iconColor}
 					style={{
 						...iconStyle,
 						opacity: hasNext ? 1 : 0.6,
+						color: iconColor,
 						cursor: hasNext ? 'pointer' : 'default',
 					}}
-					className="video-player-icon"
 				/>
 			</button>
 		</div>
