@@ -12,6 +12,7 @@ import {
 } from "../transitions/previews";
 import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
+import { HeartDemo } from "./Heart";
 import { NoiseComp } from "./NoiseDemo";
 import { PieDemo } from "./Pie";
 import { PolygonDemo } from "./Polygon";
@@ -182,6 +183,27 @@ export const circleDemo: DemoType = {
       min: 1,
       type: "numeric",
       name: "radius",
+      optional: "no",
+    },
+  ],
+};
+
+export const heartDemo: DemoType = {
+  comp: HeartDemo,
+  compHeight: 720,
+  compWidth: 1280,
+  durationInFrames: 150,
+  fps: 30,
+  id: "heart",
+  autoPlay: false,
+  options: [
+    {
+      default: 200,
+      max: 1000,
+      step: 5,
+      min: 1,
+      type: "numeric",
+      name: "size",
       optional: "no",
     },
   ],
