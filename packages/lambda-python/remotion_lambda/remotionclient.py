@@ -2,12 +2,12 @@
 from dataclasses import asdict
 import json
 from math import ceil
-from typing import Optional, Union, Literal
+from typing import Optional, Union
 from enum import Enum
 import boto3
 from .models import (CostsInfo, CustomCredentials, RenderMediaParams, RenderMediaProgress,
                      RenderMediaResponse, RenderProgressParams, RenderStillResponse,
-                     RenderStillParams)
+                     RenderStillParams, RenderType)
 
 
 class RemotionClient:
@@ -143,8 +143,7 @@ class RemotionClient:
         return asdict(obj)
 
     def construct_render_request(self, render_params: Union[RenderMediaParams, RenderStillParams],
-                                 render_type:
-                                 Union[Literal["video-or-audio"], Literal["still"]]) -> str:
+                                 render_type: RenderType) -> str:
         """
         Construct a render request in JSON format.
 
@@ -155,14 +154,14 @@ class RemotionClient:
             str: JSON representation of the render request.
         """
         render_params.serve_url = self.serve_url
-        render_params.region = self.region
-        render_params.function_name = self.function_name
-        render_params.type = render_type
+
         render_params.private_serialized_input_props = self._serialize_input_props(
             input_props=render_params.input_props,
             render_type=render_type
         )
-        return json.dumps(render_params.serialize_params(), default=self._custom_serializer)
+
+        payload = render_params.serialize_params()
+        return json.dumps(payload, default=self._custom_serializer)
 
     def construct_render_progress_request(self,
                                           render_id: str,
@@ -190,7 +189,9 @@ class RemotionClient:
         )
         return json.dumps(progress_params.serialize_params())
 
-    def render_media_on_lambda(self, render_params: RenderMediaParams) -> RenderMediaResponse:
+    def render_media_on_lambda(
+        self, render_params: RenderMediaParams
+    ) -> Optional[RenderMediaResponse]:
         """
         Render media using AWS Lambda.
 
@@ -209,7 +210,9 @@ class RemotionClient:
 
         return None
 
-    def render_still_on_lambda(self, render_params: RenderStillParams) -> RenderStillResponse:
+    def render_still_on_lambda(
+        self, render_params: RenderStillParams
+    ) -> Optional[RenderStillResponse]:
         """
         Render still using AWS Lambda.
 
@@ -247,7 +250,7 @@ class RemotionClient:
                             bucket_name: str,
                             log_level="info",
                             s3_output_provider: Optional[CustomCredentials] = None
-                            ) -> RenderMediaProgress:
+                            ) -> Optional[RenderMediaProgress]:
         """
         Get the progress of a render.
 
