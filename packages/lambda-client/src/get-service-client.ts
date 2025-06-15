@@ -26,11 +26,13 @@ const getCredentialsHash = ({
 	region,
 	service,
 	forcePathStyle,
+	requestHandler,
 }: {
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
+	requestHandler?: any;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
@@ -68,6 +70,7 @@ const getCredentialsHash = ({
 	hashComponents.region = region;
 	hashComponents.service = service;
 	hashComponents.forcePathStyle = forcePathStyle;
+	hashComponents.requestHandler = requestHandler;
 
 	return random(JSON.stringify(hashComponents)).toString().replace('0.', '');
 };
@@ -89,11 +92,13 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	service,
 	customCredentials,
 	forcePathStyle,
+	requestHandler,
 }: {
 	region: AwsRegion;
 	service: T;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
+	requestHandler?: any;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {
@@ -128,6 +133,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 		customCredentials,
 		service,
 		forcePathStyle,
+		requestHandler,
 	});
 
 	if (!_clients[key]) {
@@ -142,6 +148,11 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 					}
 				: undefined;
 
+		// Merge custom requestHandler with lambda options
+		const finalRequestHandler = requestHandler 
+			? (lambdaOptions ? { ...requestHandler, ...lambdaOptions } : requestHandler)
+			: lambdaOptions;
+
 		const client = customCredentials
 			? new Client({
 					region: customCredentials.region ?? 'us-east-1',
@@ -153,20 +164,20 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 								}
 							: undefined,
 					endpoint: customCredentials.endpoint,
-					requestHandler: lambdaOptions,
+					requestHandler: finalRequestHandler,
 					forcePathStyle: customCredentials.forcePathStyle,
 					maxAttempts: service === 'lambda' ? 1 : undefined,
 				})
 			: getEnvVariable('REMOTION_SKIP_AWS_CREDENTIALS_CHECK')
 				? new Client({
 						region,
-						requestHandler: lambdaOptions,
+						requestHandler: finalRequestHandler,
 						maxAttempts: service === 'lambda' ? 1 : undefined,
 					})
 				: new Client({
 						region,
 						credentials: getCredentials(),
-						requestHandler: lambdaOptions,
+						requestHandler: finalRequestHandler,
 						maxAttempts: service === 'lambda' ? 1 : undefined,
 					});
 

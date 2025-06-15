@@ -6,7 +6,9 @@ import type {
 import {getLambdaClient} from './aws-clients';
 import type {AwsProvider} from './aws-provider';
 
-export type DeleteFunctionInput = GenericDeleteFunctionInput<AwsProvider>;
+export type DeleteFunctionInput = GenericDeleteFunctionInput<AwsProvider> & {
+	requestHandler?: any;
+};
 
 /*
  * @description Deletes a deployed Lambda function based on its name.
@@ -15,8 +17,9 @@ export type DeleteFunctionInput = GenericDeleteFunctionInput<AwsProvider>;
 export const deleteFunction: DeleteFunction<AwsProvider> = async ({
 	region,
 	functionName,
+	requestHandler,
 }: DeleteFunctionInput): Promise<void> => {
-	await getLambdaClient(region).send(
+	await getLambdaClient(region, undefined, requestHandler).send(
 		new DeleteFunctionCommand({
 			FunctionName: functionName,
 		}),

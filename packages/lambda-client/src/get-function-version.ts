@@ -10,12 +10,16 @@ export const getFunctionVersion = async ({
 	functionName,
 	region,
 	logLevel,
+	requestHandler: _requestHandler, // TODO: implement requestHandler support for internal function calls
 }: {
 	functionName: string;
 	region: AwsRegion;
 	logLevel: LogLevel;
+	requestHandler?: any;
 }): Promise<string> => {
 	try {
+		// For now, we'll pass requestHandler to the awsImplementation if needed
+		// This might require deeper changes in the serverless-client framework
 		const result = await awsImplementation.callFunctionSync({
 			functionName,
 			payload: {

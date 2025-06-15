@@ -11,19 +11,22 @@ export type GetFunctionsInput = {
 	region: AwsRegion;
 	compatibleOnly: boolean;
 	logLevel?: LogLevel;
+	requestHandler?: any;
 };
 
 const getAllFunctions = async ({
 	existing,
 	nextMarker,
 	region,
+	requestHandler,
 }: {
 	existing: FunctionConfiguration[];
 	nextMarker: string | null;
 	region: AwsRegion;
+	requestHandler?: any;
 }): Promise<FunctionConfiguration[]> => {
 	const allLambdas: FunctionConfiguration[] = [...existing];
-	const lambdas = await getLambdaClient(region).send(
+	const lambdas = await getLambdaClient(region, undefined, requestHandler).send(
 		new ListFunctionsCommand({
 			Marker: nextMarker ?? undefined,
 		}),
@@ -41,6 +44,7 @@ const getAllFunctions = async ({
 			existing: allLambdas,
 			nextMarker: lambdas.NextMarker,
 			region,
+			requestHandler,
 		});
 	}
 
@@ -58,6 +62,7 @@ export const getFunctions = async (
 		existing: [],
 		nextMarker: null,
 		region: params.region,
+		requestHandler: params.requestHandler,
 	});
 
 	const remotionLambdas = lambdas.filter((f) => {
@@ -71,6 +76,7 @@ export const getFunctions = async (
 					functionName: fn.FunctionName as string,
 					region: params.region,
 					logLevel: params.logLevel ?? 'info',
+					requestHandler: params.requestHandler,
 				});
 				return version;
 			} catch {

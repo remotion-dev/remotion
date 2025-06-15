@@ -17,6 +17,7 @@ export type DeleteRenderInput = {
 	renderId: string;
 	customCredentials?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
+	requestHandler?: any;
 };
 
 export const internalDeleteRender = async (
@@ -102,6 +103,6 @@ export const deleteRender = (input: DeleteRenderInput) => {
 	return internalDeleteRender({
 		...input,
 		providerSpecifics: awsImplementation,
-		forcePathStyle: false,
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 };

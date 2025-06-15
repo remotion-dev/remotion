@@ -14,6 +14,7 @@ export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	service: T;
 	customCredentials?: CustomCredentials<AwsProvider> | null;
 	forcePathStyle?: boolean;
+	requestHandler?: any;
 };
 
 type SdkMapping = {
@@ -39,6 +40,7 @@ export const getAwsClient = <T extends keyof ServiceMapping>({
 	service,
 	customCredentials,
 	forcePathStyle,
+	requestHandler,
 }: GetAwsClientInput<T>): GetAwsClientOutput<T> => {
 	return {
 		client: getServiceClient({
@@ -46,6 +48,7 @@ export const getAwsClient = <T extends keyof ServiceMapping>({
 			service,
 			customCredentials: customCredentials ?? null,
 			forcePathStyle: forcePathStyle ?? false,
+			requestHandler,
 		}),
 		sdk: {
 			lambda: LambdaSDK,

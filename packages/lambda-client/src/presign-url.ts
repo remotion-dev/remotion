@@ -19,9 +19,13 @@ type OptionalParameters<CheckIfObjectExists extends boolean> = {
 };
 
 export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> =
-	MandatoryParameters & Partial<OptionalParameters<CheckIfObjectExists>>;
+	MandatoryParameters & Partial<OptionalParameters<CheckIfObjectExists>> & {
+		requestHandler?: any;
+	};
 type PresignUrlInputInternal<CheckIfObjectExists extends boolean> =
-	MandatoryParameters & OptionalParameters<CheckIfObjectExists>;
+	MandatoryParameters & OptionalParameters<CheckIfObjectExists> & {
+		requestHandler?: any;
+	};
 
 const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 	region,
@@ -30,6 +34,7 @@ const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 	checkIfObjectExists,
 	expiresInSeconds,
 	forcePathStyle,
+	requestHandler,
 }: PresignUrlInputInternal<CheckIfObjectExists>): Promise<
 	CheckIfObjectExists extends true ? string | null : string
 > => {
@@ -44,6 +49,7 @@ const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 		region,
 		customCredentials: null,
 		forcePathStyle,
+		requestHandler,
 	});
 
 	if (checkIfObjectExists === true) {
@@ -96,6 +102,7 @@ export const presignUrl = <CheckIfObjectExists extends boolean = false>({
 	checkIfObjectExists,
 	expiresInSeconds,
 	forcePathStyle,
+	requestHandler,
 }: PresignUrlInput<CheckIfObjectExists>): Promise<
 	CheckIfObjectExists extends true ? string | null : string
 > => {
@@ -106,5 +113,6 @@ export const presignUrl = <CheckIfObjectExists extends boolean = false>({
 		checkIfObjectExists: checkIfObjectExists ?? false,
 		expiresInSeconds,
 		forcePathStyle: forcePathStyle ?? false,
+		requestHandler,
 	});
 };
