@@ -9,6 +9,7 @@ import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
+import {MoreVideoPowerSection} from './homepage/MoreVideoPowerSection';
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
 import {RealMP4Videos} from './homepage/RealMp4Videos';
@@ -66,6 +67,11 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<CommunityStats />
+						<br />
+						<br />
+						<br />
+						<SectionTitle>More video power to developers</SectionTitle>
+						<MoreVideoPowerSection />
 						<br />
 						<br />
 						<br />
