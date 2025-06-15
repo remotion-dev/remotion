@@ -3,6 +3,7 @@ import type {CustomCredentials} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getServiceClient} from './get-service-client';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export const getS3Client = ({
 	region,
@@ -13,7 +14,7 @@ export const getS3Client = ({
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 }): S3Client => {
 	return getServiceClient({
 		region: customCredentials?.region ?? region,

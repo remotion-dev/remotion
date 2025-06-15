@@ -5,9 +5,10 @@ import type {
 } from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
 import type {AwsProvider} from './aws-provider';
+import type {RequestHandler} from './types';
 
 export type DeleteFunctionInput = GenericDeleteFunctionInput<AwsProvider> & {
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 };
 
 /*

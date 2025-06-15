@@ -8,13 +8,14 @@ import type {CustomCredentials} from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {getServiceClient, type ServiceMapping} from './get-service-client';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetAwsClientInput<T extends keyof ServiceMapping> = {
 	region: AwsRegion;
 	service: T;
 	customCredentials?: CustomCredentials<AwsProvider> | null;
 	forcePathStyle?: boolean;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 };
 
 type SdkMapping = {

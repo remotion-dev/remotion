@@ -13,6 +13,7 @@ import {
 } from '@remotion/serverless-client';
 import {awsImplementation} from './aws-provider';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -27,6 +28,7 @@ export type GetCompositionsOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
+	requestHandler?: RequestHandler;
 } & Partial<
 	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
 >;

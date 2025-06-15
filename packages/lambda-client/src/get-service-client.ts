@@ -11,6 +11,7 @@ import {checkCredentials} from './check-credentials';
 import {getCredentials} from './get-credentials';
 import {getEnvVariable} from './get-env-variable';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type ServiceMapping = {
 	s3: S3Client;
@@ -32,7 +33,7 @@ const getCredentialsHash = ({
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
@@ -98,7 +99,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 	service: T;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 }): ServiceMapping[T] => {
 	const Client = (() => {
 		if (service === 'cloudwatch') {

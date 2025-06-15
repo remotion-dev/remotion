@@ -10,6 +10,7 @@ import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type DeleteRenderInput = {
 	region: AwsRegion;
@@ -17,7 +18,7 @@ export type DeleteRenderInput = {
 	renderId: string;
 	customCredentials?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 };
 
 export const internalDeleteRender = async (

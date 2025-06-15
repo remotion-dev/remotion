@@ -5,6 +5,7 @@ import {
 } from '@remotion/serverless-client';
 import {awsImplementation} from './aws-provider';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export const getFunctionVersion = async ({
 	functionName,
@@ -15,7 +16,7 @@ export const getFunctionVersion = async ({
 	functionName: string;
 	region: AwsRegion;
 	logLevel: LogLevel;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 }): Promise<string> => {
 	try {
 		// For now, we'll pass requestHandler to the awsImplementation if needed

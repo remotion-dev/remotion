@@ -6,12 +6,13 @@ import {getLambdaClient} from './aws-clients';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB, RENDER_FN_PREFIX} from './constants';
 import {getFunctionVersion} from './get-function-version';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetFunctionsInput = {
 	region: AwsRegion;
 	compatibleOnly: boolean;
 	logLevel?: LogLevel;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 };
 
 const getAllFunctions = async ({
@@ -23,7 +24,7 @@ const getAllFunctions = async ({
 	existing: FunctionConfiguration[];
 	nextMarker: string | null;
 	region: AwsRegion;
-	requestHandler?: any;
+	requestHandler?: RequestHandler;
 }): Promise<FunctionConfiguration[]> => {
 	const allLambdas: FunctionConfiguration[] = [...existing];
 	const lambdas = await getLambdaClient(region, undefined, requestHandler).send(

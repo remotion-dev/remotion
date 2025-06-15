@@ -21,6 +21,7 @@ import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 type MandatoryParameters = {
 	region: AwsRegion;
@@ -56,7 +57,9 @@ export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
 	OptionalParameters;
 
 export type RenderStillOnLambdaInput = MandatoryParameters &
-	Partial<OptionalParameters>;
+	Partial<OptionalParameters> & {
+		requestHandler?: RequestHandler;
+	};
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;

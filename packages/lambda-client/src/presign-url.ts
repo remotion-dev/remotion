@@ -4,6 +4,7 @@ import {validateBucketName} from '@remotion/serverless-client';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import {getS3Client} from './get-s3-client';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 import {validatePresignExpiration} from './validate-presign-expiration';
 
 type MandatoryParameters = {
@@ -20,11 +21,11 @@ type OptionalParameters<CheckIfObjectExists extends boolean> = {
 
 export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> =
 	MandatoryParameters & Partial<OptionalParameters<CheckIfObjectExists>> & {
-		requestHandler?: any;
+		requestHandler?: RequestHandler;
 	};
 type PresignUrlInputInternal<CheckIfObjectExists extends boolean> =
 	MandatoryParameters & OptionalParameters<CheckIfObjectExists> & {
-		requestHandler?: any;
+		requestHandler?: RequestHandler;
 	};
 
 const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
