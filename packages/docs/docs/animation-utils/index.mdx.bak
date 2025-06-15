@@ -1,15 +1,15 @@
 ---
-image: /generated/articles-docs-shapes-index.png
-title: "@remotion/shapes"
-crumb: "SVG component library"
+image: /generated/articles-docs-animation-utils-index.png
+title: "@remotion/animation-utils"
 ---
 
-import {TableOfContents} from '../../shapes/table-of-contents';
+_Available from v4.0.92_
 
-A package providing utility functions for generate SVG shapes.
+Functions that support you in animating CSS styles.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from '../../components/TableOfContents/animation-utils';
 
 <Tabs
 defaultValue="npm"
@@ -22,7 +22,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/shapes
+npm i @remotion/animation-utils
 ```
 
   </TabItem>
@@ -30,7 +30,7 @@ npm i @remotion/shapes
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/shapes
+pnpm i @remotion/animation-utils
 ```
 
   </TabItem>
@@ -38,7 +38,7 @@ pnpm i @remotion/shapes
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/shapes
+yarn add @remotion/animation-utils
 ```
 
   </TabItem>
@@ -46,7 +46,7 @@ yarn add @remotion/shapes
 
 ## Functions
 
-<TableOfContents />
+<TableOfContents/>
 
 ## License
 

@@ -4,7 +4,7 @@ title: "@remotion/shapes"
 crumb: "SVG component library"
 ---
 
-import {TableOfContents} from '../../shapes/table-of-contents';
+import {TableOfContents} from '../../components/TableOfContents/shapes';
 
 A package providing utility functions for generate SVG shapes.
 

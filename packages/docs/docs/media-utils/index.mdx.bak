@@ -3,7 +3,7 @@ image: /generated/articles-docs-media-utils-index.png
 title: "@remotion/media-utils"
 ---
 
-import {TableOfContents} from '../../media-utils/table-of-contents';
+import {TableOfContents} from '../../components/TableOfContents/media-utils';
 
 A package providing utility functions for getting information about video and audio, and for visualizing audio.
 

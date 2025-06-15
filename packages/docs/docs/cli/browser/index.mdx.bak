@@ -5,7 +5,7 @@ crumb: "@remotion/cli"
 sidebar_label: "browser"
 ---
 
-import { TableOfContents } from "./table-of-contents";
+import { TableOfContents } from "../../../components/TableOfContents/cli/browser";
 
 # npx remotion browser<AvailableFrom v="4.0.137"/>
 

@@ -4,7 +4,7 @@ title: "<MotionBlur>"
 slug: motion-blur
 ---
 
-import {TableOfContents} from '../../motion-blur/table-of-contents';
+import {TableOfContents} from '../../components/TableOfContents/motion-blur';
 
 _Deprecated_. Use `<Trail>` or `<CameraMotionBlur>` instead.
 

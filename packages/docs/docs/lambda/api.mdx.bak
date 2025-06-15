@@ -4,7 +4,7 @@ title: "@remotion/lambda"
 crumb: "Render videos without servers on AWS"
 ---
 
-import {TableOfContents} from '../../lambda/table-of-contents';
+import {TableOfContents} from '../../components/TableOfContents/lambda';
 
 <Installation pkg="@remotion/lambda"/>
 <br/>

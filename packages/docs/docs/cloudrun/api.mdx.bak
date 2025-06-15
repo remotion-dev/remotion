@@ -10,7 +10,7 @@ crumb: 'Render videos without servers on GCP'
   </p>
 </ExperimentalBadge>
 
-import {TableOfContents} from '../../cloudrun/table-of-contents';
+import {TableOfContents} from '../../components/TableOfContents/cloudrun';
 
 <Installation pkg="@remotion/cloudrun" />
 <br />
