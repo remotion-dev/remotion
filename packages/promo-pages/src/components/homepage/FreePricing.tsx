@@ -65,7 +65,7 @@ const SmallPriceTag: React.FC<{
 	return (
 		<div
 			className={
-				'fontbrand text-2xl font-medium  w-auto min-w-[80px] text-right shrink-0 ml-4'
+				'fontbrand text-2xl font-medium  w-auto min-w-[80px] text-right shrink-0'
 			}
 		>
 			{children}
@@ -183,7 +183,7 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} className="hidden md:block" />
-				<div className="flex flex-col md:flex-row items-end md:items-center mt-3 md:mt-0">
+				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
 					<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
 					<SmallPriceTag>
 						$
@@ -209,7 +209,7 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} className="hidden md:block" />
-				<div className="flex flex-col md:flex-row items-end md:items-center mt-3 md:mt-0">
+				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
 					<Counter
 						count={cloudRenders}
 						setCount={setCloudRenders}
@@ -240,7 +240,7 @@ export const CompanyPricing: React.FC = () => {
 					</div>
 				</div>
 				<div style={{flex: 3}} className="hidden md:block" />
-				<div className="flex flex-col md:flex-row items-end md:items-center mt-3 md:mt-0">
+				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
 					<Counter
 						count={creations}
 						setCount={setCreations}
