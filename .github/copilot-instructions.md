@@ -6,7 +6,7 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 
 ## Build instructions
 
-- To build the project after you made changes, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above.
+- To build the project after you made changes, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above. For example, the command to build the package in `packages/shapes` is `bunx turbo make --filter="@remotion/shapes"`.
 
 ## Documentation
 
