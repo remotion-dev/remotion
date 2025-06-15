@@ -15,4 +15,14 @@ describe('Absolute src should behave as expected', () => {
 			'data:base64,image/png,abc',
 		);
 	});
+	test('Get https URL should remain absolute', () => {
+		expect(getAbsoluteSrc('https://example.com/image.jpg')).toBe(
+			'https://example.com/image.jpg',
+		);
+	});
+	test('Get blob URL should remain absolute', () => {
+		expect(getAbsoluteSrc('blob:http://localhost:3000/abc-123')).toBe(
+			'blob:http://localhost:3000/abc-123',
+		);
+	});
 });
