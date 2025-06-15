@@ -13,17 +13,7 @@ if (
 }
 
 const Inner: React.FC = () => {
-	let colorMode = 'light';
-	let setColorMode = () => {};
-	
-	try {
-		const colorModeHook = useColorMode();
-		colorMode = colorModeHook.colorMode;
-		setColorMode = colorModeHook.setColorMode;
-	} catch (error) {
-		// Fallback to light mode if context is not available
-		console.warn('useColorMode context not available, falling back to light mode');
-	}
+	const {colorMode, setColorMode} = useColorMode();
 
 	return <NewLanding colorMode={colorMode} setColorMode={setColorMode} />;
 };
