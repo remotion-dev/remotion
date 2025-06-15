@@ -50,7 +50,14 @@ const VideoPlayerHeader: React.ForwardRefRenderFunction<
 		readonly hasPrevious: boolean;
 	}
 > = ({onDismiss, onNext, onPrevious, hasNext, hasPrevious}, ref) => {
-	const {colorMode} = useColorMode();
+	let colorMode = 'light';
+	try {
+		const colorModeHook = useColorMode();
+		colorMode = colorModeHook.colorMode;
+	} catch (error) {
+		// Fallback to light mode if context is not available
+		console.warn('useColorMode context not available, falling back to light mode');
+	}
 
 	const iconColor = colorMode === 'dark' ? '#ddd' : '#222';
 	const borderBottom =
