@@ -4,7 +4,7 @@ import json
 from math import ceil
 from typing import Optional, Union
 from enum import Enum
-import boto3  # type: ignore
+import boto3
 from .models import (CostsInfo, CustomCredentials, RenderMediaParams, RenderMediaProgress,
                      RenderMediaResponse, RenderProgressParams, RenderStillResponse,
                      RenderStillParams, RenderType)
@@ -192,7 +192,7 @@ class RemotionClient:
         )
         return json.dumps(progress_params.serialize_params())
 
-    def render_media_on_lambda(self, render_params: RenderMediaParams) -> RenderMediaResponse | None:
+    def render_media_on_lambda(self, render_params: RenderMediaParams) -> Optional[RenderMediaResponse]:
         """
         Render media using AWS Lambda.
 
@@ -211,7 +211,7 @@ class RemotionClient:
 
         return None
 
-    def render_still_on_lambda(self, render_params: RenderStillParams) -> RenderStillResponse | None:
+    def render_still_on_lambda(self, render_params: RenderStillParams) -> Optional[RenderStillResponse]:
         """
         Render still using AWS Lambda.
 
@@ -249,7 +249,7 @@ class RemotionClient:
                             bucket_name: str,
                             log_level="info",
                             s3_output_provider: Optional[CustomCredentials] = None
-                            ) -> RenderMediaProgress | None:
+                            ) -> Optional[RenderMediaProgress]:
         """
         Get the progress of a render.
 
