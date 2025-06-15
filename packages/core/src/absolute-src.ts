@@ -3,7 +3,14 @@ export const getAbsoluteSrc = (relativeSrc: string) => {
 		return relativeSrc;
 	}
 
-	if (relativeSrc.startsWith('http://') || relativeSrc.startsWith('https://')) {
+	// https://github.com/remotion-dev/remotion/issues/5359
+	if (
+		relativeSrc.startsWith('http://') ||
+		relativeSrc.startsWith('https://') ||
+		relativeSrc.startsWith('file://') ||
+		relativeSrc.startsWith('blob:') ||
+		relativeSrc.startsWith('data:')
+	) {
 		return relativeSrc;
 	}
 
