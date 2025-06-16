@@ -23,9 +23,10 @@ const Subtitle: React.FC<{
 
 const Pane: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly className?: string;
+}> = ({children, className}) => {
 	return (
-		<div className="border-effect bg-pane flex-1 p-3 rounded-lg min-h-[300px] flex flex-col text-center">
+		<div className={`border-effect bg-pane flex-1 p-3 min-h-[300px] flex flex-col text-center ${className || ''}`}>
 			{children}
 		</div>
 	);
@@ -34,8 +35,8 @@ const Pane: React.FC<{
 export const MoreVideoPowerSection: React.FC = () => {
 	return (
 		<div className="w-full">
-			<div className={'flex flex-col lg:flex-row gap-2'}>
-				<Pane>
+			<div className={'flex flex-col lg:flex-row'}>
+				<Pane className="lg:border-r border-black">
 					<StepTitle>Media Parser</StepTitle>
 					<Subtitle>A new multimedia library for the web</Subtitle>
 					<br />
@@ -48,7 +49,7 @@ export const MoreVideoPowerSection: React.FC = () => {
 						</a>
 					</div>
 				</Pane>
-				<Pane>
+				<Pane className="lg:border-r border-black border-t lg:border-t-0">
 					<StepTitle>WebCodecs</StepTitle>
 					<Subtitle>Read, process, transform and create videos on the frontend</Subtitle>
 					<br />
@@ -61,7 +62,7 @@ export const MoreVideoPowerSection: React.FC = () => {
 						</a>
 					</div>
 				</Pane>
-				<Pane>
+				<Pane className="border-t lg:border-t-0">
 					<StepTitle>Recorder</StepTitle>
 					<Subtitle>Produce engaging screencasts end-to-end in JavaScript</Subtitle>
 					<br />
