@@ -3,7 +3,8 @@ import {serializeInstructions} from '@remotion/paths';
 import type {ShapeInfo} from './shape-info';
 
 export type MakeHeartProps = {
-	size: number;
+	width: number;
+	height: number;
 };
 
 /**
@@ -11,88 +12,56 @@ export type MakeHeartProps = {
  * @param {Number} size The size of the heart.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/make-heart)
  */
-export const makeHeart = ({size}: MakeHeartProps): ShapeInfo => {
-	// Heart shape using a classic approach with proper proportions
-	const centerX = size / 2;
-	const centerY = size / 2;
-	
-	// Heart scaling factor
-	const scale = size / 100;
-	
-	// Heart key points
-	const bottomX = centerX;
-	const bottomY = centerY + 35 * scale; // Bottom point
-	
-	// Lobe parameters for classic heart shape
-	const lobeOffsetX = 25 * scale;  // How far lobes are from center
-	const lobeRadius = 18 * scale;   // Size of each lobe
-	const lobeY = centerY - 15 * scale; // Vertical center of lobes
-	
-	const leftLobeX = centerX - lobeOffsetX;
-	const rightLobeX = centerX + lobeOffsetX;
-
-	// Create heart with 4 bezier curves (M + 4 C + Z = 6 instructions)
+export const makeHeart = ({width, height}: MakeHeartProps): ShapeInfo => {
 	const instructions: Instruction[] = [
-		// Start at the bottom point
+		/**
+M55 100
+C32.4107 69.2427 0 60.5922 0 27.9126
+C0 13.4951 12.7679 1 27.5 1
+C40.2679 1 50.0893 7.72816 55 17.3398
+
+		 */
 		{
 			type: 'M',
-			x: bottomX,
-			y: bottomY,
+			x: 55,
+			y: 100,
 		},
-		// Left side - from bottom to left lobe
 		{
 			type: 'C',
-			cp1x: bottomX - 30 * scale,
-			cp1y: bottomY - 15 * scale,
-			cp2x: leftLobeX - lobeRadius,
-			cp2y: lobeY + lobeRadius * 0.5,
-			x: leftLobeX - lobeRadius,
-			y: lobeY,
+			cp1x: 32,
+			cp1y: 69,
+			cp2x: 0,
+			cp2y: 60,
+			x: 0,
+			y: 27,
 		},
-		// Left lobe - semicircular top, ending at center dip
 		{
 			type: 'C',
-			cp1x: leftLobeX - lobeRadius,
-			cp1y: lobeY - lobeRadius,
-			cp2x: leftLobeX + lobeRadius * 0.8,
-			cp2y: lobeY - lobeRadius,
-			x: centerX,
-			y: lobeY + lobeRadius * 0.2,
+			cp1x: 0,
+			cp1y: 13,
+			cp2x: 12,
+			cp2y: 1,
+			x: 27.5,
+			y: 1,
 		},
-		// Right lobe - from center dip to right lobe edge
 		{
 			type: 'C',
-			cp1x: rightLobeX - lobeRadius * 0.8,
-			cp1y: lobeY - lobeRadius,
-			cp2x: rightLobeX + lobeRadius,
-			cp2y: lobeY - lobeRadius,
-			x: rightLobeX + lobeRadius,
-			y: lobeY,
-		},
-		// Right side - from right lobe back to bottom
-		{
-			type: 'C',
-			cp1x: rightLobeX + lobeRadius,
-			cp1y: lobeY + lobeRadius * 0.5,
-			cp2x: bottomX + 30 * scale,
-			cp2y: bottomY - 15 * scale,
-			x: bottomX,
-			y: bottomY,
-		},
-		{
-			type: 'Z',
+			cp1x: 40,
+			cp1y: 1,
+			cp2x: 50,
+			cp2y: 7,
+			x: 55,
+			y: 17,
 		},
 	];
 
 	const path = serializeInstructions(instructions);
-	const width = size;
-	const height = size;
 
 	return {
 		path,
 		width,
 		height,
-		transformOrigin: `${centerX} ${centerY}`,
+		transformOrigin: `${width / 2} ${height / 2}`,
 		instructions,
 	};
 };

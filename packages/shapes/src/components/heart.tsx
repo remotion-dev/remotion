@@ -11,6 +11,6 @@ export type HeartProps = MakeHeartProps & AllShapesProps;
  * @param {Number} size The size of the heart.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/heart)
  */
-export const Heart: React.FC<HeartProps> = ({size, ...props}) => {
-	return <RenderSvg {...makeHeart({size})} {...props} />;
+export const Heart: React.FC<HeartProps> = ({width, height, ...props}) => {
+	return <RenderSvg {...makeHeart({width, height})} {...props} />;
 };

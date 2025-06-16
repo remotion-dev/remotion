@@ -3,7 +3,8 @@ import {makeHeart} from '../utils/make-heart';
 
 test('Should be able to make a heart path', () => {
 	const heartPath = makeHeart({
-		size: 100,
+		width: 100,
+		height: 100,
 	});
 
 	expect(heartPath.width).toEqual(100);
