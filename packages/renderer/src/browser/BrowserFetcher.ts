@@ -29,10 +29,10 @@ import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const TESTED_VERSION = '133.0.6943.0';
-// https://github.com/microsoft/playwright/tree/v1.50.1
+const TESTED_VERSION = '134.0.6998.35';
+// https://github.com/microsoft/playwright/tree/v1.51.0
 // packages/playwright-core/browsers.json
-const PLAYWRIGHT_VERSION = '1155'; // 133.0.6943.16
+const PLAYWRIGHT_VERSION = '1161'; // 134.0.6998.35
 
 type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 

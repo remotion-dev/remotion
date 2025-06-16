@@ -156,6 +156,10 @@ For example only every second frame, every third frame and so on. Only works for
 
 [Render a silent audio track if there wouldn't be one otherwise.](/docs/cli/render#--enforce-audio-track).
 
+### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
 <Options id="number-of-gif-loops" />

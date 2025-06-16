@@ -44,7 +44,7 @@ export const NewsletterButton: React.FC<{}> = () => {
 		<div>
 			<div className="flex flex-col">
 				<div className={'w-full'}>
-					<div className={'border-effect bg-pane flex flex-col flex-1 p-5'}>
+					<div className={'flex flex-col flex-1'}>
 						<div className={'text-2xl font-bold fontbrand'}>Newsletter</div>
 						<form
 							onSubmit={handleSubmit}

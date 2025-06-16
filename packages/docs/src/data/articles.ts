@@ -3505,6 +3505,15 @@ export const articles = [
 		slug: 'passing-props',
 	},
 	{
+		id: 'paths/cut-path',
+		title: 'cutPath()',
+		relativePath: 'docs/paths/cut-path.mdx',
+		compId: 'articles-docs-paths-cut-path',
+		crumb: '@remotion/paths',
+		noAi: false,
+		slug: 'paths/cut-path',
+	},
+	{
 		id: 'paths/evolve-path',
 		title: 'evolvePath()',
 		relativePath: 'docs/paths/evolve-path.mdx',
