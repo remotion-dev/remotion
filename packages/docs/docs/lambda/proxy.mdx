@@ -72,20 +72,7 @@ console.log('Functions:', functions);
 
 ## Supported functions
 
-All public AWS-related APIs in the Lambda client accept the `requestHandler` option:
-
-- [`deleteFunction()`](/docs/lambda/deletefunction)
-- [`deleteRender()`](/docs/lambda/deleterender)
-- [`estimatePrice()`](/docs/lambda/estimateprice)
-- [`getAwsClient()`](/docs/lambda/getawsclient)
-- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
-- [`getFunctions()`](/docs/lambda/getfunctions)
-- [`getRenderProgress()`](/docs/lambda/getrenderprogress)
-- [`getSites()`](/docs/lambda/getsites)
-- [`presignUrl()`](/docs/lambda/presignurl)
-- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
-- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
-- [`speculateFunctionName()`](/docs/lambda/speculatefunctionname)
+All public AWS-related APIs in the Lambda client accept the `requestHandler` option.
 
 ## Example with authentication
 
@@ -131,13 +118,13 @@ import type {RequestHandler} from '@remotion/lambda/client';
 
 const createRequestHandler = (): RequestHandler | undefined => {
   const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-  
+
   if (proxyUrl) {
     return {
       httpsAgent: new HttpsProxyAgent(proxyUrl),
     };
   }
-  
+
   // Return undefined to use default behavior
   return undefined;
 };
@@ -154,13 +141,13 @@ import type {RequestHandler} from '@remotion/lambda/client';
 
 const createRequestHandler = (): RequestHandler | undefined => {
   const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-  
+
   if (proxyUrl) {
     return {
       httpsAgent: new HttpsProxyAgent(proxyUrl),
     };
   }
-  
+
   return undefined;
 };
 

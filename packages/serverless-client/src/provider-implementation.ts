@@ -34,6 +34,7 @@ type BucketExists<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<boolean>;
 
 type ReadFile<Provider extends CloudProvider> = (params: {
