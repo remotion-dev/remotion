@@ -35,7 +35,10 @@ export const getLambdaClient = (
 	});
 };
 
-export const getIamClient = (region: AwsRegion, requestHandler: RequestHandler | null): IAMClient => {
+export const getIamClient = (
+	region: AwsRegion,
+	requestHandler: RequestHandler | null,
+): IAMClient => {
 	return getServiceClient({
 		region,
 		service: 'iam',
@@ -58,7 +61,10 @@ export const getServiceQuotasClient = (
 	});
 };
 
-export const getStsClient = (region: AwsRegion, requestHandler: RequestHandler | null): STSClient => {
+export const getStsClient = (
+	region: AwsRegion,
+	requestHandler: RequestHandler | null,
+): STSClient => {
 	return getServiceClient({
 		region,
 		service: 'sts',

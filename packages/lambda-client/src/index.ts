@@ -105,8 +105,8 @@ export {
 	speculateFunctionName,
 	type SpeculateFunctionNameInput,
 } from './speculate-function-name';
-export {validateWebhookSignature} from './validate-webhook-signature';
 export type {RequestHandler} from './types';
+export {validateWebhookSignature} from './validate-webhook-signature';
 
 export const LambdaClientInternals = {
 	generateRandomHashWithLifeCycleRule,

@@ -45,7 +45,11 @@ const invokeStreamOrTimeout = async <Provider extends CloudProvider>({
 	type: string;
 	payload: Record<string, unknown>;
 }) => {
-	const resProm = getLambdaClient(region as AwsRegion, timeoutInTest, null).send(
+	const resProm = getLambdaClient(
+		region as AwsRegion,
+		timeoutInTest,
+		null,
+	).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			Payload: JSON.stringify({type, ...payload}),

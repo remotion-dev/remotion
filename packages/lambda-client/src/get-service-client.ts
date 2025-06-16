@@ -150,8 +150,10 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 				: undefined;
 
 		// Merge custom requestHandler with lambda options
-		const finalRequestHandler = requestHandler 
-			? (lambdaOptions ? { ...requestHandler, ...lambdaOptions } : requestHandler)
+		const finalRequestHandler = requestHandler
+			? lambdaOptions
+				? {...requestHandler, ...lambdaOptions}
+				: requestHandler
 			: lambdaOptions;
 
 		const client = customCredentials

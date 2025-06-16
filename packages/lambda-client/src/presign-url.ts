@@ -20,13 +20,15 @@ type OptionalParameters<CheckIfObjectExists extends boolean> = {
 };
 
 export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> =
-	MandatoryParameters & Partial<OptionalParameters<CheckIfObjectExists>> & {
-		requestHandler?: RequestHandler;
-	};
+	MandatoryParameters &
+		Partial<OptionalParameters<CheckIfObjectExists>> & {
+			requestHandler?: RequestHandler;
+		};
 type PresignUrlInputInternal<CheckIfObjectExists extends boolean> =
-	MandatoryParameters & OptionalParameters<CheckIfObjectExists> & {
-		requestHandler?: RequestHandler;
-	};
+	MandatoryParameters &
+		OptionalParameters<CheckIfObjectExists> & {
+			requestHandler?: RequestHandler;
+		};
 
 const internalPresignUrl = async <CheckIfObjectExists extends boolean = false>({
 	region,
