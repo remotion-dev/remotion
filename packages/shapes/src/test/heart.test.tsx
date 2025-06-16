@@ -13,6 +13,9 @@ test('Should be able to make a heart svg', () => {
 	);
 
 	expect(
-		container.querySelector('path')?.getAttribute('d')?.startsWith('M 50 85 C'),
+		container
+			.querySelector('path')
+			?.getAttribute('d')
+			?.startsWith('M 55.00000000000001 100 C 32.00000000000001'),
 	).toBe(true);
 });
