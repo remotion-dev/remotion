@@ -1,4 +1,6 @@
 import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../log';
+import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
 import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
@@ -17,18 +19,12 @@ export type Prettify<T> = {
 export const parseEbml = async (
 	iterator: BufferIterator,
 	statesForProcessing: WebmRequiredStatesForProcessing | null,
-): Promise<Prettify<PossibleEbml>> => {
+	logLevel: MediaParserLogLevel,
+): Promise<Prettify<PossibleEbml> | null> => {
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
 		throw new Error(
 			'Not enough bytes left to parse EBML - this should not happen',
-		);
-	}
-
-	const hasInMap = ebmlMap[hex as keyof typeof ebmlMap];
-	if (!hasInMap) {
-		throw new Error(
-			`Don't know how to parse EBML hex ID ${JSON.stringify(hex)}`,
 		);
 	}
 
@@ -40,6 +36,14 @@ export const parseEbml = async (
 		throw new Error(
 			'Not enough bytes left to parse EBML - this should not happen',
 		);
+	}
+
+	const hasInMap = ebmlMap[hex as keyof typeof ebmlMap];
+
+	if (!hasInMap) {
+		Log.verbose(logLevel, `Unknown EBML hex ID ${JSON.stringify(hex)}`);
+		iterator.discard(size);
+		return null;
 	}
 
 	if (hasInMap.type === 'uint') {
@@ -118,17 +122,19 @@ export const parseEbml = async (
 			}
 
 			const offset = iterator.counter.getOffset();
-			const value = await parseEbml(iterator, statesForProcessing);
+			const value = await parseEbml(iterator, statesForProcessing, logLevel);
 
-			const remapped = statesForProcessing
-				? // eslint-disable-next-line @typescript-eslint/no-use-before-define
-					await postprocessEbml({
-						offset,
-						ebml: value,
-						statesForProcessing,
-					})
-				: value;
-			children.push(remapped);
+			if (value) {
+				const remapped = statesForProcessing
+					? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+						await postprocessEbml({
+							offset,
+							ebml: value,
+							statesForProcessing,
+						})
+					: value;
+				children.push(remapped);
+			}
 
 			const offsetNow = iterator.counter.getOffset();
 
