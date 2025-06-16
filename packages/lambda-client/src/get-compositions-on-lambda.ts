@@ -28,7 +28,7 @@ export type GetCompositionsOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
-	requestHandler?: RequestHandler;
+	requestHandler: RequestHandler | null | undefined;
 } & Partial<
 	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
 >;
@@ -52,6 +52,7 @@ export const getCompositionsOnLambda = async ({
 	dumpBrowserLogs,
 	offthreadVideoCacheSizeInBytes,
 	forcePathStyle,
+	requestHandler,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -71,6 +72,7 @@ export const getCompositionsOnLambda = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,
+		requestHandler,
 	});
 
 	try {
@@ -92,6 +94,7 @@ export const getCompositionsOnLambda = async ({
 			},
 			region,
 			timeoutInTest: 120000,
+			requestHandler,
 		});
 		return res.compositions;
 	} catch (err) {

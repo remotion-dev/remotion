@@ -44,6 +44,7 @@ export const simulateLambdaRender = async (
 			functionName: 'remotion-dev-lambda',
 			region: 'eu-central-1',
 			timeoutInTest: 120000,
+			requestHandler: null,
 		});
 
 	const progress = await waitUntilDone(res.bucketName, res.renderId);
@@ -54,6 +55,7 @@ export const simulateLambdaRender = async (
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
 	return {file, close, progress, renderId: res.renderId};

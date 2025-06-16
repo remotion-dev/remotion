@@ -22,12 +22,11 @@ type MandatoryParameters = {
 type OptionalParameters = {
 	forceBucketName: string | null;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 };
 
 type GetSitesInternalInput = MandatoryParameters & OptionalParameters;
-export type GetSitesInput = MandatoryParameters & Partial<OptionalParameters> & {
-	requestHandler?: RequestHandler;
-};
+export type GetSitesInput = MandatoryParameters & Partial<OptionalParameters>;
 
 export type GetSitesOutput = {
 	sites: Site[];
@@ -39,6 +38,7 @@ export const internalGetSites = async ({
 	forceBucketName,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: GetSitesInternalInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<GetSitesOutput> => {
@@ -47,11 +47,13 @@ export const internalGetSites = async ({
 				region,
 				forceBucketName,
 				forcePathStyle,
+				requestHandler,
 			})
 		: await providerSpecifics.getBuckets({
 				region,
 				forceBucketName: null,
 				forcePathStyle,
+				requestHandler,
 			});
 	const accountId = await providerSpecifics.getAccountId({region});
 
@@ -64,6 +66,7 @@ export const internalGetSites = async ({
 			region,
 			expectedBucketOwner: accountId,
 			forcePathStyle,
+			requestHandler,
 		});
 
 		for (const file of ls) {
@@ -121,12 +124,13 @@ export const getSites = ({
 	region,
 	forceBucketName,
 	forcePathStyle,
-	requestHandler: _requestHandler, // TODO: implement requestHandler support for internal serverless calls
+	requestHandler,
 }: GetSitesInput): Promise<GetSitesOutput> => {
 	return internalGetSites({
 		region,
 		forceBucketName: forceBucketName ?? null,
 		forcePathStyle: forcePathStyle ?? false,
 		providerSpecifics: awsImplementation,
+		requestHandler: requestHandler ?? null,
 	});
 };

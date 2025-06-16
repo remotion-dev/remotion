@@ -11,12 +11,12 @@ export const getFunctionVersion = async ({
 	functionName,
 	region,
 	logLevel,
-	requestHandler: _requestHandler, // TODO: implement requestHandler support for internal function calls
+	requestHandler,
 }: {
 	functionName: string;
 	region: AwsRegion;
 	logLevel: LogLevel;
-	requestHandler?: RequestHandler;
+	requestHandler: RequestHandler | null | undefined;
 }): Promise<string> => {
 	try {
 		// For now, we'll pass requestHandler to the awsImplementation if needed
@@ -30,6 +30,7 @@ export const getFunctionVersion = async ({
 			region,
 			type: ServerlessRoutines.info,
 			timeoutInTest: 120000,
+			requestHandler,
 		});
 		return result.version;
 	} catch (err) {

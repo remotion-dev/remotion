@@ -10,6 +10,7 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 		region,
 		customCredentials,
 		forcePathStyle,
+		requestHandler,
 	}): Promise<{
 		LastModified?: Date | undefined;
 		ContentLength?: number | undefined;
@@ -18,7 +19,7 @@ export const lambdaHeadFileImplementation: ProviderSpecifics<AwsProvider>['headF
 			region,
 			customCredentials,
 			forcePathStyle,
-			requestHandler: null,
+			requestHandler,
 		}).send(
 			new HeadObjectCommand({
 				Bucket: bucketName,

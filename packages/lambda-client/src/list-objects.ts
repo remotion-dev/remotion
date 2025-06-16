@@ -11,13 +11,14 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 		expectedBucketOwner,
 		continuationToken,
 		forcePathStyle,
+		requestHandler,
 	}) => {
 		try {
 			const list = await getS3Client({
 				region,
 				customCredentials: null,
 				forcePathStyle,
-				requestHandler: null,
+				requestHandler,
 			}).send(
 				new ListObjectsV2Command({
 					Bucket: bucketName,
@@ -43,6 +44,7 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 						region,
 						continuationToken: list.NextContinuationToken,
 						forcePathStyle,
+						requestHandler,
 					})),
 				];
 			}
@@ -68,7 +70,7 @@ export const lambdaLsImplementation: ProviderSpecifics<AwsProvider>['listObjects
 					region,
 					customCredentials: null,
 					forcePathStyle,
-					requestHandler: null,
+					requestHandler,
 				}).send(
 					new ListObjectsV2Command({
 						Bucket: bucketName,

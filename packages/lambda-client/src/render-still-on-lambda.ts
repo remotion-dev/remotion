@@ -51,6 +51,7 @@ type OptionalParameters = {
 	indent: boolean;
 	forcePathStyle: boolean;
 	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null | undefined;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
@@ -115,6 +116,7 @@ const innerRenderStillOnLambda = async (
 					},
 					timeoutInTest: 120000,
 					retriesRemaining: input.maxRetries,
+					requestHandler: input.requestHandler,
 				})
 				.then(() => {
 					reject(new Error('Expected response to be streamed'));
@@ -201,5 +203,6 @@ export const renderStillOnLambda = (
 		apiKey: input.apiKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
+		requestHandler: input.requestHandler ?? null,
 	});
 };

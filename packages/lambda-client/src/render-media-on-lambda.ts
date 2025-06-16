@@ -97,6 +97,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
+			requestHandler: input.requestHandler,
 		});
 
 		return {
@@ -195,6 +196,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		metadata: options.metadata ?? null,
 		apiKey: options.apiKey ?? null,
 		storageClass: options.storageClass ?? null,
+		requestHandler: options.requestHandler ?? null,
 	};
 };
 

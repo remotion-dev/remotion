@@ -50,6 +50,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 				providerSpecifics,
 				forcePathStyle: params.forcePathStyle,
 				skipPutAcl: false,
+				requestHandler: null,
 			})
 		).bucketName;
 	const realServeUrl = providerSpecifics.convertToServeUrl({
@@ -75,6 +76,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		customCredentials: null,
 		forcePathStyle: params.forcePathStyle,
 		storageClass: null,
+		requestHandler: null,
 	});
 
 	const payload: ServerlessPayload<Provider> = {
@@ -133,6 +135,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		payload,
 		region,
 		timeoutInTest: options.timeoutInMilliseconds,
+		requestHandler: null,
 	});
 
 	await initialFile;

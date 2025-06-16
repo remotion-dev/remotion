@@ -49,6 +49,7 @@ export const getRenderProgress = async (
 			memorySizeInMb: parsed.memorySizeInMb,
 			timeoutInMilliseconds: parsed.timeoutInSeconds * 1000,
 			functionName: input.functionName,
+			requestHandler: input.requestHandler,
 		});
 	}
 
@@ -59,6 +60,7 @@ export const getRenderProgress = async (
 			payload: getRenderProgressPayload(input),
 			region: input.region,
 			timeoutInTest: 120000,
+			requestHandler: input.requestHandler,
 		});
 	return result;
 };

@@ -37,6 +37,7 @@ export const internalDeleteRender = async (
 		renderId: input.renderId,
 		providerSpecifics: input.providerSpecifics,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	// Render did not start yet
@@ -57,6 +58,7 @@ export const internalDeleteRender = async (
 		key,
 		region: input.region,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	let files = await input.providerSpecifics.listObjects({
@@ -65,6 +67,7 @@ export const internalDeleteRender = async (
 		region: input.region,
 		expectedBucketOwner,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	let totalSize = 0;
@@ -81,6 +84,7 @@ export const internalDeleteRender = async (
 			region: input.region,
 			providerSpecifics: input.providerSpecifics,
 			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
 		});
 		files = await input.providerSpecifics.listObjects({
 			bucketName: input.bucketName,
@@ -88,6 +92,7 @@ export const internalDeleteRender = async (
 			region: input.region,
 			expectedBucketOwner,
 			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
 		});
 	}
 

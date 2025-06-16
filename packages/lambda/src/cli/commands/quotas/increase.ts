@@ -4,7 +4,11 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 	RequestServiceQuotaIncreaseCommand,
 } from '@aws-sdk/client-service-quotas';
-import {AwsRegion, LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	AwsRegion,
+	LambdaClientInternals,
+	RequestHandler,
+} from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
 	LAMBDA_CONCURRENCY_LIMIT_QUOTA,
@@ -30,24 +34,27 @@ const makeQuotaUrl = ({
 	return `https://${region}.console.aws.amazon.com/servicequotas/home/services/lambda/quotas/${quotaId}`;
 };
 
-export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
+export const quotasIncreaseCommand = async (
+	logLevel: LogLevel,
+	requestHandler: RequestHandler | null,
+) => {
 	const region = getAwsRegion();
 
 	const [concurrencyLimit, defaultConcurrencyLimit, changes] =
 		await Promise.all([
-			LambdaClientInternals.getServiceQuotasClient(region).send(
+			LambdaClientInternals.getServiceQuotasClient(region, requestHandler).send(
 				new GetServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				}),
 			),
-			LambdaClientInternals.getServiceQuotasClient(region).send(
+			LambdaClientInternals.getServiceQuotasClient(region, requestHandler).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
 				}),
 			),
-			LambdaClientInternals.getServiceQuotasClient(region).send(
+			LambdaClientInternals.getServiceQuotasClient(region, requestHandler).send(
 				new ListRequestedServiceQuotaChangeHistoryByQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
@@ -112,7 +119,10 @@ export const quotasIncreaseCommand = async (logLevel: LogLevel) => {
 	}
 
 	try {
-		await LambdaClientInternals.getServiceQuotasClient(region).send(
+		await LambdaClientInternals.getServiceQuotasClient(
+			region,
+			requestHandler,
+		).send(
 			new RequestServiceQuotaIncreaseCommand({
 				QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 				DesiredValue: newLimit,

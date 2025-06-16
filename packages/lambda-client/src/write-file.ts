@@ -25,12 +25,13 @@ const tryLambdaWriteFile = async ({
 	customCredentials,
 	forcePathStyle,
 	storageClass,
+	requestHandler,
 }: WriteFileInput<AwsProvider>): Promise<void> => {
 	const client = getS3Client({
 		region,
 		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
 		forcePathStyle,
-		requestHandler: null,
+		requestHandler,
 	});
 
 	const params: PutObjectCommandInput = {

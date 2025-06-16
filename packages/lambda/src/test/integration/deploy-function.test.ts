@@ -31,6 +31,7 @@ test('Should be able to deploy function', async () => {
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
 		cloudWatchLogRetentionPeriodInDays: undefined,
+		requestHandler: null,
 	});
 	expect(functionName).toBe(
 		speculateFunctionName({
@@ -60,6 +61,7 @@ test('Should be able to get the function afterwards', async () => {
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
 		cloudWatchLogRetentionPeriodInDays: undefined,
+		requestHandler: null,
 	});
 	expect(functionName).toBe(
 		speculateFunctionName({
@@ -111,6 +113,7 @@ test('Should be able to delete the function', async () => {
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
 		cloudWatchLogRetentionPeriodInDays: undefined,
+		requestHandler: null,
 	});
 	expect(functionName).toBe(
 		speculateFunctionName({
@@ -153,6 +156,7 @@ test('Should be able to get the function afterwards', async () => {
 		vpcSecurityGroupIds: undefined,
 		vpcSubnetIds: undefined,
 		cloudWatchLogRetentionPeriodInDays: undefined,
+		requestHandler: null,
 	});
 	expect(functionName).toBe(
 		speculateFunctionName({

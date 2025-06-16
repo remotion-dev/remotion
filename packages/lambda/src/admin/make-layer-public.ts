@@ -55,6 +55,8 @@ const makeLayerPublic = async () => {
 			const layerName = `remotion-binaries-${layer}-arm64`;
 			const {Version, LayerArn} = await LambdaClientInternals.getLambdaClient(
 				region,
+				undefined,
+				null,
 			).send(
 				new PublishLayerVersionCommand({
 					Content: {
@@ -76,7 +78,11 @@ const makeLayerPublic = async () => {
 					Description: VERSION,
 				}),
 			);
-			await LambdaClientInternals.getLambdaClient(region).send(
+			await LambdaClientInternals.getLambdaClient(
+				region,
+				undefined,
+				undefined,
+			).send(
 				new AddLayerVersionPermissionCommand({
 					Action: 'lambda:GetLayerVersion',
 					LayerName: layerName,

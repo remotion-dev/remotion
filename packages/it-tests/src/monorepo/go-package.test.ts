@@ -82,6 +82,7 @@ test(
 				},
 				apiKey: null,
 				storageClass: null,
+				requestHandler: null,
 			});
 
 		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
