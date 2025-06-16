@@ -4,9 +4,9 @@ import type {ShapeInfo} from './shape-info';
 
 export type MakeHeartProps = {
 	height: number;
-	aspectRatio: number;
-	bottomRoundnessAdjustment: number;
-	depthAdjustment: number;
+	aspectRatio?: number;
+	bottomRoundnessAdjustment?: number;
+	depthAdjustment?: number;
 };
 
 /**
@@ -16,7 +16,7 @@ export type MakeHeartProps = {
  */
 export const makeHeart = ({
 	height,
-	aspectRatio,
+	aspectRatio = 1.1,
 	bottomRoundnessAdjustment = 0,
 	depthAdjustment = 0,
 }: MakeHeartProps): ShapeInfo => {
