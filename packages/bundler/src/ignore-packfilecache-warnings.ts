@@ -4,11 +4,7 @@ import type {Compiler} from 'webpack';
 
 export class IgnorePackFileCacheWarningsPlugin {
 	filter(error: Error) {
-		if (
-			error.message.includes(
-				'[webpack.cache.PackFileCacheStrategy] Serializing big strings',
-			)
-		) {
+		if (error.message.includes('Serializing big strings')) {
 			return false;
 		}
 
