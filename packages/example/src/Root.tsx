@@ -127,6 +127,7 @@ import {Empty} from './Empty';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
+import {PrintProps} from './PrintProps';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
@@ -417,6 +418,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="missing-img"
 					component={MissingImg}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
+					id="print-props"
+					component={PrintProps}
 					width={1080}
 					height={1080}
 					fps={30}
