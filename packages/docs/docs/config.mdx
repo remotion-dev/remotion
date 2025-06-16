@@ -350,6 +350,18 @@ Config.setMuted(true);
 
 The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
 
+## `setDisallowParallelEncoding()`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower. Default `false`.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisallowParallelEncoding(true);
+```
+
+The [command line flag](/docs/cli/render#--disallow-parallel-encoding) `--disallow-parallel-encoding` will take precedence over this option.
+
 ## `setEnforceAudioTrack()`<AvailableFrom v="3.2.1" />
 
 Render a silent audio track if there would be none otherwise. Default `false`.

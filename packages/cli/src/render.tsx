@@ -21,6 +21,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -126,6 +127,9 @@ export const render = async (
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
 	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const crf = shouldOutputImageSequence
@@ -246,7 +250,7 @@ export const render = async (
 		encodingBufferSize,
 		numberOfGifLoops,
 		audioCodec,
-		disallowParallelEncoding: false,
+		disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro,

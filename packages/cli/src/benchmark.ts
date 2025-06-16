@@ -38,6 +38,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -377,6 +378,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -472,7 +476,7 @@ export const benchmarkCommand = async (
 					concurrency: con,
 					audioCodec: null,
 					cancelSignal: undefined,
-					disallowParallelEncoding: false,
+					disallowParallelEncoding,
 					indent: false,
 					onBrowserLog: null,
 					onCtrlCExit: () => undefined,
