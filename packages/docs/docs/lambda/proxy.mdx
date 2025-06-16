@@ -2,6 +2,7 @@
 image: /generated/articles-docs-lambda-proxy.png
 id: proxy
 title: Using a proxy with Remotion Lambda
+sidebar_label: Using a proxy
 crumb: 'Lambda'
 ---
 
@@ -26,7 +27,6 @@ npm install https-proxy-agent
 Create a request handler that uses your proxy:
 
 ```tsx twoslash
-// @filename: proxy-setup.ts
 import {HttpsProxyAgent} from 'https-proxy-agent';
 
 // Configure your proxy URL
@@ -79,7 +79,6 @@ All public AWS-related APIs in the Lambda client accept the `requestHandler` opt
 If your proxy requires authentication, you can include credentials in the proxy URL:
 
 ```tsx twoslash
-// @filename: authenticated-proxy.ts
 import {HttpsProxyAgent} from 'https-proxy-agent';
 
 // Proxy with authentication
@@ -96,7 +95,6 @@ export const authenticatedProxyRequestHandler = {
 Remotion Lambda exports a `RequestHandler` type that you can use for type safety:
 
 ```tsx twoslash
-// @filename: types-example.ts
 import type {RequestHandler} from '@remotion/lambda/client';
 import {HttpsProxyAgent} from 'https-proxy-agent';
 
@@ -112,7 +110,6 @@ const myRequestHandler: RequestHandler = {
 You can conditionally use a proxy based on your environment:
 
 ```tsx twoslash
-// @filename: conditional-proxy.ts
 import {HttpsProxyAgent} from 'https-proxy-agent';
 import type {RequestHandler} from '@remotion/lambda/client';
 
@@ -167,7 +164,6 @@ const functions = await getFunctions({
 
 ## See also
 
-- [AWS SDK Request Handler documentation](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/middleware.html)
 - [https-proxy-agent documentation](https://www.npmjs.com/package/https-proxy-agent)
 - [getFunctions()](/docs/lambda/getfunctions)
 - [getAwsClient()](/docs/lambda/getawsclient)
