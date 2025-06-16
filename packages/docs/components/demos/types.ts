@@ -198,7 +198,7 @@ export const heartDemo: DemoType = {
 	autoPlay: false,
 	options: [
 		{
-			default: 200,
+			default: 110,
 			max: 1000,
 			step: 5,
 			min: 1,
@@ -207,7 +207,7 @@ export const heartDemo: DemoType = {
 			optional: 'no',
 		},
 		{
-			default: 200,
+			default: 100,
 			max: 1000,
 			step: 5,
 			min: 1,

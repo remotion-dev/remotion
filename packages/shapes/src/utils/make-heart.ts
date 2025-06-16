@@ -13,45 +13,47 @@ export type MakeHeartProps = {
  * @see [Documentation](https://www.remotion.dev/docs/shapes/make-heart)
  */
 export const makeHeart = ({width, height}: MakeHeartProps): ShapeInfo => {
-	const instructions: Instruction[] = [
-		/**
-M55 100
-C32.4107 69.2427 0 60.5922 0 27.9126
-C0 13.4951 12.7679 1 27.5 1
-C40.2679 1 50.0893 7.72816 55 17.3398
+	const bottomControlPointX = (32 / 110) * width;
+	const bottomControlPointY = (69 / 100) * height;
+	const bottomLeftControlPointY = (60 / 100) * height;
+	const topLeftControlPointY = (13 / 100) * height;
+	const topRightControlPointX = (40 / 110) * width;
+	const innerControlPointX = (50 / 110) * width;
+	const innerControlPointY = (7 / 100) * height;
+	const depth = (17 / 100) * height;
 
-		 */
+	const instructions: Instruction[] = [
 		{
 			type: 'M',
-			x: 55,
-			y: 100,
+			x: width / 2,
+			y: height,
 		},
 		{
 			type: 'C',
-			cp1x: 32,
-			cp1y: 69,
+			cp1x: bottomControlPointX,
+			cp1y: bottomControlPointY,
 			cp2x: 0,
-			cp2y: 60,
+			cp2y: bottomLeftControlPointY,
 			x: 0,
-			y: 27,
+			y: height / 4,
 		},
 		{
 			type: 'C',
 			cp1x: 0,
-			cp1y: 13,
-			cp2x: 12,
-			cp2y: 1,
-			x: 27.5,
-			y: 1,
+			cp1y: topLeftControlPointY,
+			cp2x: topLeftControlPointY,
+			cp2y: 0,
+			x: width / 4,
+			y: 0,
 		},
 		{
 			type: 'C',
-			cp1x: 40,
-			cp1y: 1,
-			cp2x: 50,
-			cp2y: 7,
-			x: 55,
-			y: 17,
+			cp1x: topRightControlPointX,
+			cp1y: 0,
+			cp2x: innerControlPointX,
+			cp2y: innerControlPointY,
+			x: width / 2,
+			y: depth,
 		},
 	];
 
