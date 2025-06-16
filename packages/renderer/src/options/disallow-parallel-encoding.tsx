@@ -9,7 +9,9 @@ export const disallowParallelEncodingOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+			Disallows the renderer from doing rendering frames and encoding at the
+			same time. This makes the rendering process more memory-efficient, but
+			possibly slower.
 		</>
 	),
 	ssrName: 'disallowParallelEncoding',
