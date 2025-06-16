@@ -11,12 +11,14 @@ export interface CloudProvider<
 		unknown
 	>,
 	StorageClass extends string = string,
+	RequestHandler extends object = object,
 > {
 	type: string;
 	region: Region;
 	receivedArtifactType: ReceivedArtifactType;
 	creationFunctionOptions: CreateFunctionSpecifics;
 	storageClass: StorageClass;
+	requestHandler: RequestHandler | null | undefined;
 }
 
 export type ReceivedArtifact<Provider extends CloudProvider> = {
@@ -67,6 +69,7 @@ export type CallFunctionOptions<
 	payload: ServerlessPayloads<Provider>[T];
 	region: Provider['region'];
 	timeoutInTest: number;
+	requestHandler: Provider['requestHandler'] | null;
 };
 
 export type ObjectChunkTimingData = {

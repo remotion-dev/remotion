@@ -140,6 +140,7 @@ export const sitesCreateSubcommand = async (
 				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: parsedLambdaCli.privacy === 'no-acl',
+				requestHandler: null,
 			})
 		).bucketName;
 
@@ -219,6 +220,7 @@ export const sitesCreateSubcommand = async (
 		providerSpecifics: implementation,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 		fullClientSpecifics: awsFullClientSpecifics,
+		requestHandler: null,
 	});
 
 	const uploadDuration = Date.now() - uploadStart;

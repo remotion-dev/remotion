@@ -995,6 +995,7 @@ module.exports = {
 				'lambda/bucket-naming',
 				'lambda/optimizing-cost',
 				'lambda/optimizing-speed',
+				'lambda/proxy',
 				'lambda/limits',
 				'lambda/changelog',
 				'lambda/upgrading',

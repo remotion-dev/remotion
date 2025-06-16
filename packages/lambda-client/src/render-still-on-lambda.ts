@@ -21,6 +21,7 @@ import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 type MandatoryParameters = {
 	region: AwsRegion;
@@ -50,13 +51,16 @@ type OptionalParameters = {
 	indent: boolean;
 	forcePathStyle: boolean;
 	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null | undefined;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnLambda>;
 
 export type RenderStillOnLambdaNonNullInput = MandatoryParameters &
 	OptionalParameters;
 
 export type RenderStillOnLambdaInput = MandatoryParameters &
-	Partial<OptionalParameters>;
+	Partial<OptionalParameters> & {
+		requestHandler?: RequestHandler;
+	};
 
 export type RenderStillOnLambdaOutput = {
 	estimatedPrice: CostsInfo;
@@ -112,6 +116,7 @@ const innerRenderStillOnLambda = async (
 					},
 					timeoutInTest: 120000,
 					retriesRemaining: input.maxRetries,
+					requestHandler: input.requestHandler,
 				})
 				.then(() => {
 					reject(new Error('Expected response to be streamed'));
@@ -198,5 +203,6 @@ export const renderStillOnLambda = (
 		apiKey: input.apiKey ?? null,
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
+		requestHandler: input.requestHandler ?? null,
 	});
 };

@@ -38,6 +38,7 @@ import {validateWebhook} from '@remotion/serverless-client';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import type {RequestHandler} from './types';
 import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
 
@@ -86,6 +87,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -135,6 +137,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	apiKey,
 	offthreadVideoThreads,
 	storageClass,
+	requestHandler,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -168,6 +171,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler: requestHandler ?? null,
 	});
 	return {
 		rendererFunctionName,
@@ -263,6 +267,7 @@ export const makeLambdaRenderStillPayload = async ({
 	forcePathStyle,
 	apiKey,
 	storageClass,
+	requestHandler,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -284,6 +289,7 @@ export const makeLambdaRenderStillPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler,
 	});
 
 	return {

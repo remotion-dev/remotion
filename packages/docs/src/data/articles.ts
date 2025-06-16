@@ -2259,6 +2259,15 @@ export const articles = [
 		slug: 'lambda/presignurl',
 	},
 	{
+		id: 'proxy',
+		title: 'Using a proxy with Remotion Lambda',
+		relativePath: 'docs/lambda/proxy.mdx',
+		compId: 'articles-docs-lambda-proxy',
+		crumb: 'Lambda',
+		noAi: false,
+		slug: 'lambda/proxy',
+	},
+	{
 		id: 'lambda/python',
 		title: 'Triggering renders from Python',
 		relativePath: 'docs/lambda/python.mdx',
