@@ -1,5 +1,6 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
 from dataclasses import asdict
+import random
 import json
 import hashlib
 from math import ceil
@@ -17,7 +18,7 @@ class RemotionClient:
     """A client for interacting with the Remotion service."""
 
     # pylint: disable=too-many-arguments
-    def __init__(self, region, serve_url, function_name, access_key=None, secret_key=None, 
+    def __init__(self, region, serve_url, function_name, access_key=None, secret_key=None,
                  force_path_style=False):
         """
         Initialize the RemotionClient.
@@ -43,8 +44,6 @@ class RemotionClient:
 
     def _generate_random_hash(self):
         """Generate a random hash for bucket operations."""
-        import random
-        import string
         alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
         return ''.join(random.choice(alphabet) for _ in range(10))
 
@@ -64,7 +63,7 @@ class RemotionClient:
         config = None
         if self.force_path_style:
             config = Config(s3={'addressing_style': 'path'})
-            
+
         if self.access_key and self.secret_key:
             return boto3.client('s3',
                                 aws_access_key_id=self.access_key,
@@ -99,22 +98,22 @@ class RemotionClient:
     def _get_or_create_bucket(self):
         """Get existing bucket or create a new one following JS SDK logic."""
         buckets = self._get_remotion_buckets()
-        
+
         if len(buckets) > 1:
             raise ValueError(
                 f"You have multiple buckets ({', '.join(buckets)}) in your S3 region "
                 f"({self.region}) starting with \"remotionlambda-\". "
                 "Please see https://remotion.dev/docs/lambda/multiple-buckets."
             )
-        
+
         if len(buckets) == 1:
             # Use existing bucket - in JS SDK this also applies lifecycle rules
             return buckets[0]
-        
+
         # Create new bucket
         bucket_name = self._make_bucket_name()
         s3_client = self._create_s3_client()
-        
+
         try:
             if self.region == 'us-east-1':
                 s3_client.create_bucket(Bucket=bucket_name)
@@ -143,17 +142,19 @@ class RemotionClient:
     def _needs_upload(self, payload_size, render_type):
         """Determine if payload needs to be uploaded to S3."""
         # Constants based on AWS Lambda limits with margin for other payload data
-        MARGIN = 5_000 + 1024  # 5KB margin + 1KB for webhook data
-        MAX_STILL_INLINE_SIZE = 5_000_000 - MARGIN
-        MAX_VIDEO_INLINE_SIZE = 200_000 - MARGIN
-        
-        max_size = MAX_STILL_INLINE_SIZE if render_type == 'still' else MAX_VIDEO_INLINE_SIZE
-        
+        margin = 5_000 + 1024  # 5KB margin + 1KB for webhook data
+        max_still_inline_size = 5_000_000 - margin
+        max_video_inline_size = 200_000 - margin
+
+        max_size = max_still_inline_size if render_type == 'still' else max_video_inline_size
+
         if payload_size > max_size:
             # Log warning similar to JavaScript implementation
-            print(f"Warning: The props are over {round(max_size / 1000)}KB "
-                  f"({ceil(payload_size / 1024)}KB) in size. Uploading them to S3 to "
-                  f"circumvent AWS Lambda payload size, which may lead to slowdown.")
+            print(
+                f"Warning: The props are over {round(max_size / 1000)}KB "
+                f"({ceil(payload_size / 1024)}KB) in size. Uploading them to S3 to "
+                f"circumvent AWS Lambda payload size, which may lead to slowdown."
+            )
             return True
         return False
 
@@ -171,26 +172,25 @@ class RemotionClient:
         try:
             payload = json.dumps(input_props, separators=(',', ':'))
             payload_size = len(payload.encode('utf-8'))
-            
+
             if self._needs_upload(payload_size, render_type):
                 # Upload to S3 and return bucket-url format
                 hash_value = self._generate_hash(payload)
                 bucket_name = self._get_or_create_bucket()
                 key = self._input_props_key(hash_value)
-                
+
                 self._upload_to_s3(bucket_name, key, payload)
-                
+
                 return {
                     'type': 'bucket-url',
                     'hash': hash_value,
                     'bucketName': bucket_name
                 }
-            else:
-                # Return payload format for smaller payloads
-                return {
-                    'type': 'payload',
-                    'payload': payload if payload not in ('', 'null') else json.dumps({})
-                }
+            # Return payload format for smaller payloads
+            return {
+                'type': 'payload',
+                'payload': payload if payload not in ('', 'null') else json.dumps({})
+            }
         except (ValueError, TypeError) as error:
             raise ValueError(
                 'Error serializing InputProps. Check for circular ' +
