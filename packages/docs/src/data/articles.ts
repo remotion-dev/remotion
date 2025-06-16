@@ -423,6 +423,15 @@ export const articles = [
 		slug: 'bundler',
 	},
 	{
+		id: 'buy-a-video-editor',
+		title: 'Buy a video editor',
+		relativePath: 'docs/buy-a-video-editor.mdx',
+		compId: 'articles-docs-buy-a-video-editor',
+		crumb: 'Building video apps',
+		noAi: false,
+		slug: 'buy-a-video-editor',
+	},
+	{
 		id: 'calculate-metadata',
 		title: 'calculateMetadata()',
 		relativePath: 'docs/calculate-metadata.mdx',
