@@ -468,7 +468,9 @@ declare global {
 		 * This makes the rendering process more memory-efficient, but possibly slower.
 		 * Default: false
 		 */
-		readonly setDisallowParallelEncoding: (disallowParallelEncoding: boolean) => void;
+		readonly setDisallowParallelEncoding: (
+			disallowParallelEncoding: boolean,
+		) => void;
 
 		/**
 		 * Removes the --single-process flag that gets passed to

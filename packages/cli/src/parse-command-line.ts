@@ -52,7 +52,9 @@ export type CommandLineOptions = {
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
-	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<typeof disallowParallelEncodingOption>;
+	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<
+		typeof disallowParallelEncodingOption
+	>;
 	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;
 	version: string;
 	codec: Codec;
