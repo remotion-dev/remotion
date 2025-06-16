@@ -70,7 +70,7 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
-						<SectionTitle>More video power to developers</SectionTitle>
+						<SectionTitle>Even more video power to developers</SectionTitle>
 						<MoreVideoPowerSection />
 						<br />
 						<br />
