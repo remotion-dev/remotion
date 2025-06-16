@@ -16,7 +16,7 @@ You first need to [complete the Lambda setup](/docs/lambda/setup).
 
 ~~Sending large input props (>200KB) is not supported with Python at the moment.~~ _available from v4.0.315_
 
-Starting from v4.0.315, the Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits. Props larger than 200KB for video renders and 5MB for still renders are automatically compressed using the same logic as the JavaScript SDK.
+Starting from v4.0.315, the Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits. Props larger than 200KB for video renders and 5MB for still renders are automatically compressed using the same logic as the JavaScript SDK. The SDK will automatically find or create an appropriate S3 bucket following Remotion's naming conventions.
 
 ## Rendering a video
 
@@ -48,13 +48,6 @@ if not REMOTION_APP_SERVE_URL:
 client = RemotionClient(region=REMOTION_APP_REGION,
                         serve_url=REMOTION_APP_SERVE_URL,
                         function_name=REMOTION_APP_FUNCTION_NAME)
-
-# For large input props, optionally specify a bucket name
-# If not specified, a bucket will be created automatically
-# client = RemotionClient(region=REMOTION_APP_REGION,
-#                         serve_url=REMOTION_APP_SERVE_URL,
-#                         function_name=REMOTION_APP_FUNCTION_NAME,
-#                         bucket_name="my-remotion-bucket")
 
 # Set render request
 render_params = RenderMediaParams(
@@ -92,7 +85,7 @@ The Python SDK automatically handles large input props by uploading them to S3 w
 - Video/audio renders: Props larger than ~194KB
 - Still renders: Props larger than ~4.9MB
 
-When large props are detected, they are automatically uploaded to S3 and referenced by the Lambda function. This process is transparent to the user.
+When large props are detected, they are automatically uploaded to S3 and referenced by the Lambda function. The SDK will find an existing Remotion bucket or create a new one automatically, following the same logic as the JavaScript SDK. This process is transparent to the user.
 
 ```python title="large_props_example.py"
 # Large input props are handled automatically

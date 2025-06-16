@@ -2,7 +2,6 @@
 from dataclasses import asdict
 import json
 import hashlib
-import uuid
 from math import ceil
 from typing import Optional, Union
 from enum import Enum
@@ -19,7 +18,7 @@ class RemotionClient:
 
     # pylint: disable=too-many-arguments
     def __init__(self, region, serve_url, function_name, access_key=None, secret_key=None, 
-                 bucket_name=None, force_path_style=False):
+                 force_path_style=False):
         """
         Initialize the RemotionClient.
 
@@ -29,7 +28,6 @@ class RemotionClient:
             function_name (str): Name of the AWS Lambda function.
             access_key (str): AWS access key (optional).
             secret_key (str): AWS secret key (optional).
-            bucket_name (str): S3 bucket name for large payloads (optional).
             force_path_style (bool): Force path-style S3 URLs (optional).
         """
         self.access_key = access_key
@@ -37,7 +35,6 @@ class RemotionClient:
         self.region = region
         self.serve_url = serve_url
         self.function_name = function_name
-        self.bucket_name = bucket_name
         self.force_path_style = force_path_style
 
     def _generate_hash(self, payload):
@@ -46,12 +43,17 @@ class RemotionClient:
 
     def _generate_random_hash(self):
         """Generate a random hash for bucket operations."""
-        return uuid.uuid4().hex
+        import random
+        import string
+        alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
+        return ''.join(random.choice(alphabet) for _ in range(10))
 
     def _make_bucket_name(self):
         """Generate a bucket name following Remotion conventions."""
-        random_suffix = self._generate_random_hash()[:8]
-        return f"remotion-render-{self.region}-{random_suffix}"
+        # Use the same logic as JS SDK: prefix + region without dashes + random hash
+        region_no_dashes = self.region.replace('-', '')
+        random_suffix = self._generate_random_hash()
+        return f"remotionlambda-{region_no_dashes}-{random_suffix}"
 
     def _input_props_key(self, hash_value):
         """Generate S3 key for input props."""
@@ -79,7 +81,7 @@ class RemotionClient:
             buckets = []
             for bucket in response['Buckets']:
                 bucket_name = bucket['Name']
-                if bucket_name.startswith('remotion-render-'):
+                if bucket_name.startswith('remotionlambda-'):
                     # Check if bucket is in the correct region
                     try:
                         bucket_region = s3_client.get_bucket_location(Bucket=bucket_name)
@@ -95,18 +97,18 @@ class RemotionClient:
             return []
 
     def _get_or_create_bucket(self):
-        """Get existing bucket or create a new one."""
-        if self.bucket_name:
-            return self.bucket_name
-            
+        """Get existing bucket or create a new one following JS SDK logic."""
         buckets = self._get_remotion_buckets()
+        
         if len(buckets) > 1:
             raise ValueError(
                 f"You have multiple buckets ({', '.join(buckets)}) in your S3 region "
-                f"({self.region}) starting with 'remotion-render-'. Please specify a bucket_name."
+                f"({self.region}) starting with \"remotionlambda-\". "
+                "Please see https://remotion.dev/docs/lambda/multiple-buckets."
             )
         
         if len(buckets) == 1:
+            # Use existing bucket - in JS SDK this also applies lifecycle rules
             return buckets[0]
         
         # Create new bucket
