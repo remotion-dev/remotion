@@ -734,6 +734,9 @@ importers:
       hls.js:
         specifier: ^0.14.17
         version: 0.14.17
+      https-proxy-agent:
+        specifier: ^7.0.2
+        version: 7.0.4
       lottie-web:
         specifier: ^5.12.2
         version: 5.12.2
