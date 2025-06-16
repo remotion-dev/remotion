@@ -3,8 +3,10 @@ import {serializeInstructions} from '@remotion/paths';
 import type {ShapeInfo} from './shape-info';
 
 export type MakeHeartProps = {
-	width: number;
 	height: number;
+	aspectRatio: number;
+	bottomRoundnessAdjustment: number;
+	depthAdjustment: number;
 };
 
 /**
@@ -12,15 +14,23 @@ export type MakeHeartProps = {
  * @param {Number} size The size of the heart.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/make-heart)
  */
-export const makeHeart = ({width, height}: MakeHeartProps): ShapeInfo => {
-	const bottomControlPointX = (32 / 110) * width;
+export const makeHeart = ({
+	height,
+	aspectRatio,
+	bottomRoundnessAdjustment = 0,
+	depthAdjustment = 0,
+}: MakeHeartProps): ShapeInfo => {
+	const width = height * aspectRatio;
+	const bottomControlPointX =
+		(23 / 110) * width + bottomRoundnessAdjustment * width;
 	const bottomControlPointY = (69 / 100) * height;
 	const bottomLeftControlPointY = (60 / 100) * height;
-	const topLeftControlPointY = (13 / 100) * height;
-	const topRightControlPointX = (40 / 110) * width;
-	const innerControlPointX = (50 / 110) * width;
+	const topLeftControlPoint = (13 / 100) * height;
+	const topBezierWidth = (29 / 110) * width;
+	const topRightControlPointX = (15 / 110) * width;
+	const innerControlPointX = (5 / 110) * width;
 	const innerControlPointY = (7 / 100) * height;
-	const depth = (17 / 100) * height;
+	const depth = (17 / 100) * height + depthAdjustment * height;
 
 	const instructions: Instruction[] = [
 		{
@@ -30,7 +40,7 @@ export const makeHeart = ({width, height}: MakeHeartProps): ShapeInfo => {
 		},
 		{
 			type: 'C',
-			cp1x: bottomControlPointX,
+			cp1x: width / 2 - bottomControlPointX,
 			cp1y: bottomControlPointY,
 			cp2x: 0,
 			cp2y: bottomLeftControlPointY,
@@ -40,20 +50,50 @@ export const makeHeart = ({width, height}: MakeHeartProps): ShapeInfo => {
 		{
 			type: 'C',
 			cp1x: 0,
-			cp1y: topLeftControlPointY,
-			cp2x: topLeftControlPointY,
+			cp1y: topLeftControlPoint,
+			cp2x: width / 4 - topBezierWidth / 2,
 			cp2y: 0,
 			x: width / 4,
 			y: 0,
 		},
 		{
 			type: 'C',
-			cp1x: topRightControlPointX,
+			cp1x: width / 4 + topBezierWidth / 2,
 			cp1y: 0,
-			cp2x: innerControlPointX,
+			cp2x: width / 2 - innerControlPointX,
 			cp2y: innerControlPointY,
 			x: width / 2,
 			y: depth,
+		},
+		{
+			type: 'C',
+			cp1x: width / 2 + innerControlPointX,
+			cp1y: innerControlPointY,
+			cp2x: width / 2 + topRightControlPointX,
+			cp2y: 0,
+			x: (width / 4) * 3,
+			y: 0,
+		},
+		{
+			type: 'C',
+			cp1x: (width / 4) * 3 + topBezierWidth / 2,
+			cp1y: 0,
+			cp2x: width,
+			cp2y: topLeftControlPoint,
+			x: width,
+			y: height / 4,
+		},
+		{
+			type: 'C',
+			x: width / 2,
+			y: height,
+			cp1x: width,
+			cp1y: bottomLeftControlPointY,
+			cp2x: width / 2 + bottomControlPointX,
+			cp2y: bottomControlPointY,
+		},
+		{
+			type: 'Z',
 		},
 	];
 

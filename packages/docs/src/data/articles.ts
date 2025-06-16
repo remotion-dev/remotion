@@ -4587,6 +4587,15 @@ export const articles = [
 		slug: 'shapes/ellipse',
 	},
 	{
+		id: 'shapes/heart',
+		title: '<Heart />',
+		relativePath: 'docs/shapes/heart.mdx',
+		compId: 'articles-docs-shapes-heart',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/heart',
+	},
+	{
 		id: 'shapes/index',
 		title: '@remotion/shapes',
 		relativePath: 'docs/shapes/index.mdx',
@@ -4612,6 +4621,15 @@ export const articles = [
 		crumb: '@remotion/shapes',
 		noAi: false,
 		slug: 'shapes/make-ellipse',
+	},
+	{
+		id: 'shapes/make-heart',
+		title: 'makeHeart()',
+		relativePath: 'docs/shapes/make-heart.mdx',
+		compId: 'articles-docs-shapes-make-heart',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/make-heart',
 	},
 	{
 		id: 'shapes/make-pie',

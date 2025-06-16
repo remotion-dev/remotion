@@ -60,9 +60,26 @@ export const shapeComponents: ShapeComponent[] = [
 		fn: makeHeart,
 		params: [
 			{
-				name: 'size',
+				name: 'height',
 				type: 'number',
-				description: 'The size of the heart.',
+				description: 'The height of the heart.',
+			},
+			{
+				name: 'aspectRatio',
+				type: 'number',
+				description: 'The aspect ratio of the heart. Default 1.1.',
+			},
+			{
+				name: 'bottomRoundnessAdjustment',
+				type: 'number',
+				description:
+					'The amount of bottom roundness deviation from the default. Negative values make the bottom point sharper, positive values make it rounder.',
+			},
+			{
+				name: 'depthAdjustment',
+				type: 'number',
+				description:
+					'The deviation of the default depth (how deep the top of the heart is). Negative values make the heart deeper, positive values make it shallower.',
 			},
 		],
 	},
