@@ -55,6 +55,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 			region,
 			customCredentials: params.customCredentials,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: params.requestHandler,
 		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
@@ -77,6 +78,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		region,
 		customCredentials: params.customCredentials,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: params.requestHandler,
 	});
 
 	return {bucketName, alreadyExisted: false};

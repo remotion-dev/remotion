@@ -94,6 +94,7 @@ const mandatoryDeploySite = async ({
 		region,
 		expectedBucketOwner: accountId,
 		forcePathStyle,
+		requestHandler,
 	});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);

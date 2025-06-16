@@ -67,6 +67,7 @@ type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<void>;
 
 type ListObjects<Provider extends CloudProvider> = (params: {
