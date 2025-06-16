@@ -35,7 +35,32 @@ render_params = RenderMediaParams(
     },
 )
 
+# Test with large payload to verify S3 compression works
+# Create large input props that exceed the 200KB limit for video-or-audio renders
+large_data = {
+    'largeArray': ['x' * 1000] * 250,  # This creates ~250KB of data
+    'description': 'This is a test with large input props to verify S3 compression functionality'
+}
+
+large_render_params = RenderMediaParams(
+    composition="react-svg",
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
+    input_props=large_data,
+)
+
+print("Testing normal payload size...")
 render_response = client.render_media_on_lambda(render_params)
+
+print("Testing large payload compression...")
+# For testing large payloads, we would need valid AWS credentials
+# This will demonstrate the compression logic
+try:
+    large_render_response = client.render_media_on_lambda(large_render_params)
+    print("Large payload render succeeded!")
+except Exception as e:
+    print(f"Large payload test failed (expected without valid AWS credentials): {e}")
+
 if render_response:
     # Execute render request
 
