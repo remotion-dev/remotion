@@ -8,6 +8,7 @@ import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {deleteAfterOption} from './delete-after';
+import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {disableGitSourceOption} from './disable-git-source';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
@@ -59,6 +60,7 @@ export const allOptions = {
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
+	disallowParallelEncodingOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,

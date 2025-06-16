@@ -103,6 +103,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	deleteAfterOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
@@ -463,6 +464,13 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
+		 * Disallows the renderer from doing rendering frames and encoding at the same time.
+		 * This makes the rendering process more memory-efficient, but possibly slower.
+		 * Default: false
+		 */
+		readonly setDisallowParallelEncoding: (disallowParallelEncoding: boolean) => void;
+
+		/**
 		 * Removes the --single-process flag that gets passed to
 			Chromium on Linux by default. This will make the render faster because
 			multiple processes can be used, but may cause issues with some Linux
@@ -673,6 +681,7 @@ export const Config: FlatConfig = {
 	},
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
+	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro: reproOption.setConfig,
