@@ -1,0 +1,32 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended",
+  ],
+  "plugins": ["@remotion", "react-hooks"],
+  "parser": "@typescript-eslint/parser",
+  "overrides": [
+    {
+      "files": ["remotion/**/*.{ts,tsx}"],
+      "extends": ["plugin:@remotion/recommended"],
+    },
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+    },
+  },
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true,
+  },
+  "settings": {
+    "react": {
+      "version": "detect",
+    },
+  },
+}

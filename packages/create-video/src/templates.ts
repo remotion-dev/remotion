@@ -42,7 +42,8 @@ export type Template = {
 		| 'stargazer'
 		| 'tiktok'
 		| 'code-hike'
-		| 'render-server';
+		| 'render-server'
+		| 'recorder';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -463,6 +464,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
+		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Recorder',
+		shortName: 'Recorder',
+		org: 'remotion-dev',
+		repoName: 'recorder',
+		description: 'A video production tool built entirely in JavaScript',
+		longerDescription:
+			'The Remotion Recorder is a video production tool that allows you to record webcam and screen content, generate captions, add music, and create professional videos.',
+		promoVideo: {
+			muxId: 'placeholder', // This would need a real promo video mux ID
+			height: 1080,
+			width: 1920,
+		},
+		cliId: 'recorder' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-recorder',
 		allowEnableTailwind: true,
 	},
 ].filter(truthy);

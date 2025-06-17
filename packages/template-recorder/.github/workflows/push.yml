@@ -1,0 +1,15 @@
+on: push
+name: Install and Test
+env:
+  FORCE_COLOR: 1
+jobs:
+  install:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.1.1
+      - run: bun i
+      - run: bun run test
