@@ -29,6 +29,7 @@ export const cleanupSerializedInputProps = async <
 		region,
 		customCredentials: null,
 		forcePathStyle,
+		requestHandler: null,
 	});
 
 	return Date.now() - time;
@@ -58,6 +59,7 @@ export const cleanupSerializedResolvedProps = async <
 		region,
 		customCredentials: null,
 		forcePathStyle,
+		requestHandler: null,
 	});
 
 	return Date.now() - time;

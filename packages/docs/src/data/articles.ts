@@ -2268,6 +2268,15 @@ export const articles = [
 		slug: 'lambda/presignurl',
 	},
 	{
+		id: 'proxy',
+		title: 'Using a proxy with Remotion Lambda',
+		relativePath: 'docs/lambda/proxy.mdx',
+		compId: 'articles-docs-lambda-proxy',
+		crumb: 'Lambda',
+		noAi: false,
+		slug: 'lambda/proxy',
+	},
+	{
 		id: 'lambda/python',
 		title: 'Triggering renders from Python',
 		relativePath: 'docs/lambda/python.mdx',
@@ -4299,15 +4308,6 @@ export const articles = [
 		slug: 'recorder/troubleshooting/cannot-read-properties-of-undefined',
 	},
 	{
-		id: 'recorder/upgrading',
-		title: 'Upgrading',
-		relativePath: 'docs/recorder/upgrading.mdx',
-		compId: 'articles-docs-recorder-upgrading',
-		crumb: 'Recorder',
-		noAi: false,
-		slug: 'recorder/upgrading',
-	},
-	{
 		id: 'register-root',
 		title: 'registerRoot()',
 		relativePath: 'docs/register-root.mdx',
@@ -4605,6 +4605,15 @@ export const articles = [
 		slug: 'shapes/ellipse',
 	},
 	{
+		id: 'shapes/heart',
+		title: '<Heart />',
+		relativePath: 'docs/shapes/heart.mdx',
+		compId: 'articles-docs-shapes-heart',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/heart',
+	},
+	{
 		id: 'shapes/index',
 		title: '@remotion/shapes',
 		relativePath: 'docs/shapes/index.mdx',
@@ -4630,6 +4639,15 @@ export const articles = [
 		crumb: '@remotion/shapes',
 		noAi: false,
 		slug: 'shapes/make-ellipse',
+	},
+	{
+		id: 'shapes/make-heart',
+		title: 'makeHeart()',
+		relativePath: 'docs/shapes/make-heart.mdx',
+		compId: 'articles-docs-shapes-make-heart',
+		crumb: '@remotion/shapes',
+		noAi: false,
+		slug: 'shapes/make-heart',
 	},
 	{
 		id: 'shapes/make-pie',

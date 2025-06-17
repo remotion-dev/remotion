@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-flat"
 	},
 	"name": "@remotion/eslint-config-flat",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"description": "Default configuration for Remotion templates (ESLint >= 9)",
 	"main": "dist/esm/index.mjs",
 	"type": "module",

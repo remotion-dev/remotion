@@ -45,6 +45,7 @@ export const sitesRmSubcommand = async (
 				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: false,
+				requestHandler: null,
 			})
 		).bucketName;
 

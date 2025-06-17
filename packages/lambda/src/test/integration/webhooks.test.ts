@@ -99,6 +99,7 @@ test(
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			requestHandler: null,
 		});
 
 		await waitUntilDone(res.bucketName, res.renderId);
@@ -215,6 +216,7 @@ test(
 				storageClass: null,
 			},
 			timeoutInTest: 1000,
+			requestHandler: null,
 		});
 
 		await new Promise((resolve) => {

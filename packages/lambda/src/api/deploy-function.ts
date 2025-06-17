@@ -1,4 +1,4 @@
-import type {RuntimePreference} from '@remotion/lambda-client';
+import type {RequestHandler, RuntimePreference} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	speculateFunctionName,
@@ -37,6 +37,7 @@ type OptionalParameters = {
 	vpcSubnetIds: string | undefined;
 	vpcSecurityGroupIds: string | undefined;
 	runtimePreference: RuntimePreference;
+	requestHandler: RequestHandler | null;
 };
 
 export type DeployFunctionInput = MandatoryParameters &
@@ -103,6 +104,7 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		vpcSubnetIds: params.vpcSubnetIds as string,
 		vpcSecurityGroupIds: params.vpcSecurityGroupIds as string,
 		runtimePreference: params.runtimePreference,
+		requestHandler: null,
 	});
 
 	if (!created.FunctionName) {
@@ -136,6 +138,7 @@ export const deployFunction = ({
 	vpcSecurityGroupIds,
 	runtimePreference,
 	diskSizeInMb,
+	requestHandler,
 }: DeployFunctionInput & {
 	// @deprecated This option is now on by default
 	enableV5Runtime?: boolean;
@@ -162,5 +165,6 @@ export const deployFunction = ({
 		runtimePreference: runtimePreference ?? 'default',
 		providerSpecifics: LambdaClientInternals.awsImplementation,
 		fullClientSpecifics: awsFullClientSpecifics,
+		requestHandler,
 	});
 };

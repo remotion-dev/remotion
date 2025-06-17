@@ -19,6 +19,7 @@ export type AwsProvider = {
 		runtimePreference: RuntimePreference;
 	};
 	storageClass: StorageClass;
+	requestHandler: RequestHandler | null | undefined;
 };
 
 import type {StorageClass} from '@aws-sdk/client-s3';
@@ -49,6 +50,7 @@ import {parseFunctionName} from './parse-function-name';
 import {randomHashImplementation} from './random-hash';
 import {lambdaReadFileImplementation} from './read-file';
 import type {RuntimePreference} from './runtime-preference';
+import type {RequestHandler} from './types';
 import {lambdaWriteFileImplementation} from './write-file';
 
 if (

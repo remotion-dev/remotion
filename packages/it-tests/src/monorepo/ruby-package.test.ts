@@ -134,6 +134,7 @@ test('Render Media payload', async () => {
 			},
 			apiKey: null,
 			storageClass: null,
+			requestHandler: null,
 		});
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
@@ -178,6 +179,7 @@ test('Render Still payload', async () => {
 			apiKey: null,
 			offthreadVideoThreads: null,
 			storageClass: null,
+			requestHandler: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor"
 	},
 	"name": "@remotion/compositor",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"description": "Rust binary for Remotion",
 	"sideEffects": false,
 	"scripts": {

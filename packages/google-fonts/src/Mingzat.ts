@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mingzat',
 	importName: 'Mingzat',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Mingzat:ital,wght@0,400',
 	unicodeRanges: {
 		lepcha: 'U+1C00-1C4F, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				lepcha:
-					'https://fonts.gstatic.com/s/mingzat/v9/0QIgMX5C-o-oWWyvNuRumsmv.woff2',
+					'https://fonts.gstatic.com/s/mingzat/v10/0QIgMX5C-o-oWWyvNuRumsmv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mingzat/v9/0QIgMX5C-o-oWWyvNtJumsmv.woff2',
+					'https://fonts.gstatic.com/s/mingzat/v10/0QIgMX5C-o-oWWyvNtJumsmv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mingzat/v9/0QIgMX5C-o-oWWyvNtxumg.woff2',
+					'https://fonts.gstatic.com/s/mingzat/v10/0QIgMX5C-o-oWWyvNtxumg.woff2',
 			},
 		},
 	},

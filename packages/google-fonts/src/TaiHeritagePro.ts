@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tai Heritage Pro',
 	importName: 'TaiHeritagePro',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Tai+Heritage+Pro:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'tai-viet': 'U+200C-200D, U+25CC, U+A78B-A78C, U+AA80-AADF',
@@ -18,23 +18,23 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'tai-viet':
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlfdQid-zgaNiNIYcUzJMU3IYyNkDFYEexu.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlfdQid-zgaNiNIYcUzJMU3IYyNkDFYEexu.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlfdQid-zgaNiNIYcUzJMU3IYyNkHRYEexu.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlfdQid-zgaNiNIYcUzJMU3IYyNkHRYEexu.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlfdQid-zgaNiNIYcUzJMU3IYyNkHVYEexu.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlfdQid-zgaNiNIYcUzJMU3IYyNkHVYEexu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlfdQid-zgaNiNIYcUzJMU3IYyNkHtYEQ.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlfdQid-zgaNiNIYcUzJMU3IYyNkHtYEQ.woff2',
 			},
 			'700': {
 				'tai-viet':
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BJlPM9hj.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BJlPM9hj.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BNxPM9hj.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BNxPM9hj.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BN1PM9hj.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BN1PM9hj.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/taiheritagepro/v7/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BNNPMw.woff2',
+					'https://fonts.gstatic.com/s/taiheritagepro/v8/sZlYdQid-zgaNiNIYcUzJMU3IYyNmMB9BNNPMw.woff2',
 			},
 		},
 	},

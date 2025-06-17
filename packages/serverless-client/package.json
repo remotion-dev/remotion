@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless-client"
 	},
 	"name": "@remotion/serverless-client",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {

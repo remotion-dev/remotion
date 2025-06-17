@@ -277,6 +277,7 @@ export const stillCommand = async ({
 		indent: false,
 		offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads: null,
+		requestHandler: null,
 	});
 	Log.info(
 		{indent: false, logLevel},

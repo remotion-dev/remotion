@@ -77,6 +77,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -87,6 +88,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		propsType: 'resolved-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	RenderInternals.Log.verbose(

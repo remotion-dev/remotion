@@ -59,6 +59,7 @@ test(
 			expectedBucketOwner: 'abc',
 			prefix: rendersPrefix(renderId),
 			forcePathStyle: false,
+			requestHandler: null,
 		});
 
 		expect(files.length).toBe(2);
@@ -77,6 +78,7 @@ test(
 			expectedBucketOwner: 'abc',
 			prefix: rendersPrefix(renderId),
 			forcePathStyle: false,
+			requestHandler: null,
 		});
 
 		expect(expectFiles.length).toBe(0);
