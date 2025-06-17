@@ -7,7 +7,7 @@ crumb: Recorder
 If you haven't done so yet, start the Recorder:
 
 ```bash
-bun start
+bun run dev
 ```
 
 Remotion calls each output video a "Composition". There are two ways to generate a new composition:
@@ -26,11 +26,11 @@ Open the project in a code editor. You will see an empty [`<Composition>`](/docs
   id="empty"
   schema={videoConf}
   defaultProps={{
-    theme: "light" as const,
-    canvasLayout: "square" as const,
+    theme: 'light' as const,
+    canvasLayout: 'square' as const,
     scenes: [],
     scenesAndMetadata: [],
-    platform: "x" as const,
+    platform: 'x' as const,
   }}
   calculateMetadata={calcMetadata}
 />

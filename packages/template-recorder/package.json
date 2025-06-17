@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc && vite build",
     "lint": "eslint src && tsc",
-    "dev": "bun studio.ts # Run this with `npm run dev`",
+    "dev": "bun studio.ts",
     "upgrade": "remotion upgrade",
     "test": "bun run lint && bun test test.ts && tsc"
   },
