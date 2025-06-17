@@ -7,6 +7,7 @@ import { ResolutionLimiter } from "./ResolutionLimiter";
 import { ToggleRotate } from "./Rotate";
 import { ResolutionAndFps, Stream } from "./Stream";
 import { ToggleCrop } from "./ToggleCrop";
+import { ToggleMirror } from "./ToggleMirror";
 import { useDevices } from "./WaitingForDevices";
 import { ClearCurrentVideo } from "./components/ClearCurrentVideo";
 import { CurrentAudio } from "./components/CurrentAudio";
@@ -54,6 +55,7 @@ const streamViewport: React.CSSProperties = {
 };
 
 const localStorageKey = "showCropIndicator";
+const mirrorLocalStorageKey = "mirrorCamera";
 
 const InnerRecordingView: React.FC<{
   prefix: Prefix;
@@ -80,6 +82,22 @@ const InnerRecordingView: React.FC<{
   const recordAudio = prefix === WEBCAM_PREFIX;
   const [resolution, setResolution] = useState<ResolutionAndFps | null>(null);
   const [preferPortrait, setPreferPortrait] = useState(false);
+
+  const initialMirrorState = useMemo(() => {
+    if (prefix !== WEBCAM_PREFIX) {
+      return false;
+    }
+    // Default to mirrored for webcam, but respect user's saved preference
+    const savedPreference = localStorage.getItem(mirrorLocalStorageKey);
+    if (savedPreference !== null) {
+      return savedPreference === "true";
+    }
+    // Default to true for webcam, false for other sources
+    return prefix === WEBCAM_PREFIX;
+  }, [prefix]);
+
+  const [mirrorCamera, setMirrorCamera] = useState(initialMirrorState);
+
   const [sizeConstraint, setSizeConstraint] = useState<SizeConstraint>(() =>
     getPreferredResolutionForDevice(mediaStream.videoDevice),
   );
@@ -94,6 +112,14 @@ const InnerRecordingView: React.FC<{
   const onToggleRotate = useCallback(() => {
     setPreferPortrait((prev) => {
       return !prev;
+    });
+  }, []);
+
+  const onToggleMirror = useCallback(() => {
+    setMirrorCamera((prev) => {
+      const newValue = !prev;
+      window.localStorage.setItem(mirrorLocalStorageKey, String(newValue));
+      return newValue;
     });
   }, []);
 
@@ -275,6 +301,16 @@ const InnerRecordingView: React.FC<{
             onPressedChange={onToggleCrop}
           />
         ) : null}
+        {prefix === WEBCAM_PREFIX &&
+        mediaStream.videoDevice !== "display-without-audio" &&
+        mediaStream.videoDevice !== "display-with-audio" &&
+        activeVideoDevice ? (
+          <ToggleMirror
+            pressed={mirrorCamera}
+            onPressedChange={onToggleMirror}
+            disabled={recordingStatus.type === "recording"}
+          />
+        ) : null}
         {cameraRotateable ? (
           <ToggleRotate
             pressed={preferPortrait}
@@ -294,6 +330,7 @@ const InnerRecordingView: React.FC<{
           setResolution={setResolution}
           prefix={prefix}
           preferPortrait={preferPortrait}
+          mirror={mirrorCamera}
           clear={clear}
         />
         {showCropIndicator && resolution && !showPicker ? (

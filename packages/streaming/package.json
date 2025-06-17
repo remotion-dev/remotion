@@ -10,7 +10,7 @@
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "prettier src --check",
-		"make": "tsc -d"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -26,7 +26,12 @@
 		"eslint": "9.19.0"
 	},
 	"exports": {
-		".": "./dist/index.js",
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
 	}
 }
