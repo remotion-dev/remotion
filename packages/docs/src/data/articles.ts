@@ -4299,15 +4299,6 @@ export const articles = [
 		slug: 'recorder/troubleshooting/cannot-read-properties-of-undefined',
 	},
 	{
-		id: 'recorder/upgrading',
-		title: 'Upgrading',
-		relativePath: 'docs/recorder/upgrading.mdx',
-		compId: 'articles-docs-recorder-upgrading',
-		crumb: 'Recorder',
-		noAi: false,
-		slug: 'recorder/upgrading',
-	},
-	{
 		id: 'register-root',
 		title: 'registerRoot()',
 		relativePath: 'docs/register-root.mdx',

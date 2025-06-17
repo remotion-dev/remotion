@@ -181,6 +181,9 @@
 			"path": "./packages/template-stargazer"
 		},
 		{
+			"path": "./packages/template-recorder"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{
