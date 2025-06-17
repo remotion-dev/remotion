@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+
+@layer theme, base, components, utilities;
 
 html {
 	background-color: #f8fafc;
@@ -81,12 +82,22 @@ html {
 		--chart-4: 280 65% 60%;
 		--chart-5: 340 75% 55%;
 	}
-}
-@layer base {
 	* {
-		@apply border-border;
+		border-color: var(--color-border);
 	}
 	body {
-		@apply bg-background text-foreground;
+		background-color: var(--color-background);
+		color: var(--color-foreground);
 	}
+}
+
+@theme inline {
+	--color-brand: #0b84f3;
+	--font-brand: 'GTPlanar', sans-serif;
+	--radius-lg: 0.5rem;
+	--radius-md: calc(0.5rem - 2px);
+	--radius-sm: calc(0.5rem - 4px);
+	--color-border: hsl(214.3 31.8% 91.4%);
+	--color-background: hsl(0 0% 100%);
+	--color-foreground: hsl(222.2 84% 4.9%);
 }

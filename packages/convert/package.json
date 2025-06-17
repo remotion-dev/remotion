@@ -41,10 +41,12 @@
 	"devDependencies": {
 		"@remix-run/dev": "^2.15.2",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@tailwindcss/cli": "4.1.1",
+		"@tailwindcss/vite": "4.1.1",
 		"autoprefixer": "10.4.20",
 		"eslint": "9.19.0",
 		"postcss": "8.4.47",
-		"tailwindcss": "3.4.13",
+		"tailwindcss": "4.1.1",
 		"vite": "5.4.19",
 		"vite-tsconfig-paths": "^4.2.1",
 		"@types/dom-webcodecs": "0.1.11"

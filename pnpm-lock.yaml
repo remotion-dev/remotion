@@ -432,7 +432,7 @@ importers:
         version: 2.5.2
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.13)
+        version: 1.0.7(tailwindcss@4.1.1)
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.15.2
@@ -440,6 +440,12 @@ importers:
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
+      '@tailwindcss/cli':
+        specifier: 4.1.1
+        version: 4.1.1
+      '@tailwindcss/vite':
+        specifier: 4.1.1
+        version: 4.1.1(vite@5.4.19)
       '@types/dom-webcodecs':
         specifier: 0.1.11
         version: 0.1.11
@@ -453,8 +459,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       tailwindcss:
-        specifier: 3.4.13
-        version: 3.4.13
+        specifier: 4.1.1
+        version: 4.1.1
       vite:
         specifier: 5.4.19
         version: 5.4.19(@types/node@20.12.14)
@@ -15620,7 +15626,6 @@ packages:
       '@tailwindcss/oxide': 4.1.1
       tailwindcss: 4.1.1
       vite: 5.4.19(@types/node@20.12.14)
-    dev: false
 
   /@testing-library/dom@10.4.0:
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -29687,12 +29692,12 @@ packages:
       tailwindcss: 3.3.5
     dev: false
 
-  /tailwindcss-animate@1.0.7(tailwindcss@3.4.13):
+  /tailwindcss-animate@1.0.7(tailwindcss@4.1.1):
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
     dependencies:
-      tailwindcss: 3.4.13
+      tailwindcss: 4.1.1
     dev: false
 
   /tailwindcss@3.3.5:
@@ -29754,6 +29759,7 @@ packages:
       sucrase: 3.32.0
     transitivePeerDependencies:
       - ts-node
+    dev: false
 
   /tailwindcss@4.0.0:
     resolution: {integrity: sha512-ULRPI3A+e39T7pSaf1xoi58AqqJxVCLg8F/uM5A3FadUbnyDTgltVnXJvdkTjwCOGA6NazqHVcwPJC5h2vRYVQ==}
