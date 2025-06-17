@@ -424,7 +424,7 @@ export const articles = [
 	},
 	{
 		id: 'buy-a-video-editor',
-		title: 'Buy a video editor',
+		title: 'Buying a video editor template',
 		relativePath: 'docs/buy-a-video-editor.mdx',
 		compId: 'articles-docs-buy-a-video-editor',
 		crumb: 'Building video apps',
