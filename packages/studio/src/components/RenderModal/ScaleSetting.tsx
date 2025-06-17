@@ -9,8 +9,10 @@ const outputDimensionsStyle: React.CSSProperties = {
 	fontSize: 13,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
-	marginTop: 4,
-	paddingLeft: 16,
+	paddingRight: 16,
+	textAlign: 'right',
+	marginBottom: 14,
+	marginTop: -10,
 };
 
 export const ScaleSetting: React.FC<{
@@ -22,7 +24,7 @@ export const ScaleSetting: React.FC<{
 	const outputDimensions = useMemo(() => {
 		const outputWidth = Math.round(compositionWidth * scale);
 		const outputHeight = Math.round(compositionHeight * scale);
-		return `${outputWidth} × ${outputHeight}`;
+		return `${outputWidth}×${outputHeight}`;
 	}, [compositionWidth, compositionHeight, scale]);
 
 	return (
@@ -43,9 +45,11 @@ export const ScaleSetting: React.FC<{
 				value={scale}
 				hint={'scaleOption'}
 			/>
-			<div style={outputDimensionsStyle}>
-				Output resolution: {outputDimensions}
-			</div>
+			{scale !== 1 && (
+				<div style={outputDimensionsStyle}>
+					Output resolution: {outputDimensions}
+				</div>
+			)}
 		</>
 	);
 };
