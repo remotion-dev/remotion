@@ -1,5 +1,3 @@
-/* eslint-disable no-negated-condition */
-/* eslint-disable no-alert */
 import { useCallback, useMemo, useState } from "react";
 import { WEBCAM_PREFIX } from "../config/cameras";
 import { CropIndicator } from "./CropIndicator";

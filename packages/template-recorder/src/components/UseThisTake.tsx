@@ -31,7 +31,6 @@ export const UseThisTake: React.FC<{
     }
 
     if (selectedFolder === null) {
-      // eslint-disable-next-line no-alert
       alert("Please select a folder first.");
       return Promise.resolve();
     }

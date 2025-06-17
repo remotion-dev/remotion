@@ -68,7 +68,7 @@ export const convertVideo = async ({
       if (code !== 0) {
         reject(
           new Error(
-            `FFmpeg quit with code ${code} (signal ${signal}): ${Buffer.concat(ffmpegOutput).toString("utf8")}`,
+            `FFmpeg quit with code ${code} (signal ${signal}): ${Buffer.concat(ffmpegOutput as unknown as Uint8Array[]).toString("utf8")}`,
           ),
         );
       } else {

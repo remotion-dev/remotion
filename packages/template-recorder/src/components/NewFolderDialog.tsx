@@ -66,22 +66,17 @@ export const NewFolderDialog: React.FC<{
       refreshFoldersList();
       setOpen(false);
     } catch (e) {
-      // eslint-disable-next-line no-alert
       alert((e as Error).stack);
     }
   }, [newProject, refreshFoldersList, setSelectedFolder]);
 
-  useImperativeHandle(
-    createNewFolderRef,
-    () => {
-      return {
-        openDialog: () => {
-          setOpen(true);
-        },
-      };
-    },
-    [],
-  );
+  useImperativeHandle(createNewFolderRef, () => {
+    return {
+      openDialog: () => {
+        setOpen(true);
+      },
+    };
+  }, []);
 
   const handlePressEnter = useCallback(() => {
     if (!disabled) {

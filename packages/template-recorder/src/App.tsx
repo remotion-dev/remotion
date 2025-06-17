@@ -1,4 +1,3 @@
-/* eslint-disable no-alert */
 import React, { useCallback, useMemo, useState } from "react";
 import {
   ALTERNATIVE1_PREFIX,

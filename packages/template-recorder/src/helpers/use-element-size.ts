@@ -10,7 +10,7 @@ type ElementSizeForceUpdate = () => void;
 let elementSizeHooks: ElementSizeForceUpdate[] = [];
 
 export const useElementSize = (
-  ref: React.RefObject<HTMLElement>,
+  ref: React.RefObject<HTMLElement | null>,
 ): Rect | null => {
   const [size, setSize] = useState<Rect | null>(() => {
     if (!ref.current) {
