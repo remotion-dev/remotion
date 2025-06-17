@@ -128,6 +128,7 @@ export * from './freeze.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
+export type {StillImageFormat, VideoImageFormat} from './image-format.js';
 export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
@@ -141,6 +142,7 @@ export {
 	random,
 	RandomSeed,
 } from './no-react';
+export type {PixelFormat} from './pixel-format.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export {

@@ -15,10 +15,12 @@ import {
 import type {Codec} from './codec.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import type {VideoImageFormat} from './image-format.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
+import type {PixelFormat} from './pixel-format.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import {useLazyComponent} from './use-lazy-component.js';
@@ -44,6 +46,8 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	props?: T;
 	defaultCodec?: Codec;
 	defaultOutName?: string;
+	defaultVideoImageFormat?: VideoImageFormat;
+	defaultPixelFormat?: PixelFormat;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =

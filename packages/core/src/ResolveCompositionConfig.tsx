@@ -485,6 +485,8 @@ export const useResolvedVideoConfig = (
 					},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			};
 		}

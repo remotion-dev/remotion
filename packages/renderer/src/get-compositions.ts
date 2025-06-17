@@ -123,6 +123,8 @@ const innerGetCompositions = async ({
 			id,
 			defaultCodec,
 			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		} = r;
 
 		return {
@@ -139,6 +141,8 @@ const innerGetCompositions = async ({
 			),
 			defaultCodec,
 			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		};
 	});
 };
