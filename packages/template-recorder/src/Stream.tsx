@@ -28,6 +28,7 @@ export const Stream: React.FC<{
   selectedVideoSource: SelectedSource | null;
   selectedAudioSource: ConstrainDOMString | null;
   preferPortrait: boolean;
+  mirror: boolean;
   clear: () => void;
 }> = ({
   prefix,
@@ -36,6 +37,7 @@ export const Stream: React.FC<{
   selectedVideoSource,
   selectedAudioSource,
   preferPortrait,
+  mirror,
   clear,
 }) => {
   const { mediaSources, setMediaStream } = useMediaSources();
@@ -47,8 +49,9 @@ export const Stream: React.FC<{
     return {
       opacity: mediaStream ? 1 : 0,
       height: "100%",
+      transform: mirror ? "scaleX(-1)" : undefined,
     };
-  }, [mediaStream]);
+  }, [mediaStream, mirror]);
 
   useEffect(() => {
     if (mediaStream.streamState.type !== "loaded") {
