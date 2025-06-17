@@ -6,73 +6,54 @@ const icon: React.CSSProperties = {
 	marginLeft: 10,
 };
 
-export const RealMP4Videos: React.FC = () => {
+export const ParameterizeAndEdit: React.FC = () => {
 	const ref = useRef<HTMLDivElement>(null);
-	const videoRef = useRef<HTMLVideoElement>(null);
-
-	const [vid, setVid] = useState('/img/render-progress.webm');
+	const [vid, setVid] = useState('/img/editing-vp9-chrome.webm');
 
 	useEffect(() => {
 		if (isWebkit()) {
-			setVid('/img/render-progress.mp4');
+			setVid('/img/editing-safari.mp4');
 		}
-	}, []);
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const callback = (data: IntersectionObserverEntry[]) => {
-			if (data[0].isIntersecting) {
-				videoRef.current?.play();
-			}
-		};
-
-		const observer = new IntersectionObserver(callback, {
-			root: null,
-			threshold: 0.5,
-		});
-		observer.observe(current);
-
-		return () => observer.unobserve(current);
 	}, []);
 
 	return (
-		<div ref={ref} className={'flex flex-col lg:flex-row mt-40 lg:mt-30 gap-6'}>
-			<div className="flex w-[500px] justify-start lg:justify-start items-end">
+		<div
+			ref={ref}
+			className={
+				'flex flex-col lg:flex-row justify-start lg:justify-end items-start gap-6 mt-20 lg:mt-0'
+			}
+		>
+			<div>
 				<video
-					ref={videoRef}
 					src={vid}
-					muted
 					autoPlay
+					muted
 					playsInline
 					loop
 					style={{
-						width: 400,
+						width: 500,
 						maxWidth: '100%',
 						borderRadius: 7,
 						overflow: 'hidden',
 					}}
-					className="w-[550px] cursor-default! relative lg:translate-x-8 -mt-20 lg:mt-0"
 				/>
-			</div>{' '}
-			<div className="font-brand">
-				<h2 className="text-4xl fontbrand">
-					<span className={'text-brand'}>Scalable</span> rendering
+			</div>
+			<div style={{flex: 1}} className="font-brand pt-4">
+				<h2 className={'fontbrand text-4xl'}>
+					Edit <span className="text-brand">dynamically</span>
 				</h2>
 				<p className="leading-relaxed">
-					Render the video .mp4 or other formats. <br />
-					Locally, on the server or serverless.
-				</p>{' '}
+					Parameterize your video by passing data.
+					<br />
+					Or embed it into your app and build an interface around it.
+				</p>
 				<div className="h-4" />
 				<div className="leading-6">
 					<a
 						className="no-underline text-brand font-brand font-bold inline-flex flex-row items-center"
-						href="/docs/render"
+						href="/docs/studio"
 					>
-						Render options{' '}
+						Remotion Studio{' '}
 						<svg
 							style={icon}
 							xmlns="http://www.w3.org/2000/svg"
@@ -87,9 +68,9 @@ export const RealMP4Videos: React.FC = () => {
 					<br />
 					<a
 						className="no-underline text-brand font-brand font-bold inline-flex flex-row items-center"
-						href="/lambda"
+						href="/player"
 					>
-						Remotion Lambda{' '}
+						Remotion Player{' '}
 						<svg
 							style={icon}
 							xmlns="http://www.w3.org/2000/svg"
