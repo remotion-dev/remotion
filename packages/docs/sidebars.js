@@ -1376,7 +1376,6 @@ module.exports = {
 				'recorder/source-control',
 				'recorder/external-recordings',
 				'recorder/experiments',
-				'recorder/upgrading',
 				{
 					type: 'category',
 					label: 'Troubleshooting',
