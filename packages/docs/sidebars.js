@@ -1095,6 +1095,7 @@ module.exports = {
 				'angular',
 				'svelte',
 				'vue',
+				'buy-a-video-editor',
 			],
 		},
 		{
